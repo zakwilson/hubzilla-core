@@ -260,6 +260,12 @@ function dbg($state) {
  */
 function dbesc($str) {
 
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES && $str == '0000-00-00 00:00:00') {
+		$str = NULL_DATE;
+	} else if(ACTIVE_DBTYPE != DBTYPE_POSTGRES && $str == '0001-01-01 00:00:00') {
+		$str = NULL_DATE;
+	}
+
 	if(\DBA::$dba && \DBA::$dba->connected)
 		return(\DBA::$dba->escape($str));
 	else

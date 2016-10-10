@@ -1,4 +1,4 @@
-Hubzilla 1.14RC (2016-10-02)
+Hubzilla 1.14 (????-??-??)
 	- Unify the various mail sending instance to enotify::send() and z_mail()
 	- Provide ability for admin to change account password
 	- Replace deprecated Sabre functions
@@ -38,6 +38,7 @@ Hubzilla 1.14RC (2016-10-02)
 	- Server roles (basic, standard and pro)
 
 	Bugfixes
+	- Fix readmore.js collapsing on scrolldirection change in some mobile browsers
 	- Personalize Server Emails
 	- Audio player doesn't automatically show for m4a files
 	- Fix ajax page update with /channel?f=&mid=hash

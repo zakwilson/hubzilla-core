@@ -79,7 +79,7 @@
           maxHeight: 'none',
           overflow: 'hidden'
         }).insertAfter(element),
-        expandedHeight = el.outerHeight(),
+        expandedHeight = 100 + '%',
         cssMaxHeight = parseInt(el.css({maxHeight: ''}).css('max-height').replace(/[^-\d\.]/g, ''), 10),
         defaultHeight = element.data('defaultHeight');
 
@@ -102,7 +102,7 @@
   var resizeBoxes = debounce(function() {
     $('[data-readmore]').each(function() {
       var current = $(this),
-          isExpanded = (current.attr('aria-expanded') === 'true');
+          isExpanded = (current.height() > current.data('collapsedHeight'));
 
       setBoxHeights(current);
 
@@ -246,7 +246,7 @@
           collapsedHeight = $element.data('collapsedHeight');
 
       if ($element.height() <= collapsedHeight) {
-        newHeight = 100 + '%';
+        newHeight = $element.data('expandedHeight');
         newLink = 'lessLink';
         expanded = true;
       }

@@ -297,7 +297,7 @@ function create_identity($arr) {
 		dbesc($guid),
 		dbesc($sig),
 		dbesc($hash),
-		dbesc($ret['channel']['channel_address'] . '@' . App::get_hostname()),
+		dbesc(channel_reddress($ret['channel'])),
 		intval($primary),
 		dbesc(z_root()),
 		dbesc(base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey']))),
@@ -319,7 +319,7 @@ function create_identity($arr) {
 		dbesc(z_root() . "/photo/profile/l/{$newuid}"),
 		dbesc(z_root() . "/photo/profile/m/{$newuid}"),
 		dbesc(z_root() . "/photo/profile/s/{$newuid}"),
-		dbesc($ret['channel']['channel_address'] . '@' . App::get_hostname()),
+		dbesc(channel_reddress($ret['channel'])),
 		dbesc(z_root() . '/channel/' . $ret['channel']['channel_address']),
 		dbesc(z_root() . '/follow?f=&url=%s'),
 		dbesc(z_root() . '/poco/' . $ret['channel']['channel_address']),
@@ -918,7 +918,7 @@ function profile_load($nickname, $profile = '') {
 
 	App::$profile = $p[0];
 	App::$profile_uid = $p[0]['profile_uid'];
-	App::$page['title'] = App::$profile['channel_name'] . " - " . App::$profile['channel_address'] . "@" . App::get_hostname();
+	App::$page['title'] = App::$profile['channel_name'] . " - " . channel_reddress(App::$profile);
 
 	App::$profile['permission_to_view'] = $can_view_profile;
 
@@ -936,7 +936,7 @@ function profile_load($nickname, $profile = '') {
 	 * load/reload current theme info
 	 */
 
-	$_SESSION['theme'] = $p[0]['channel_theme'];
+//	$_SESSION['theme'] = $p[0]['channel_theme'];
 
 }
 
@@ -1033,7 +1033,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 		$connect_url = rconnect_url($profile['uid'],get_observer_hash());
 		$connect = (($connect_url) ? t('Connect') : '');
 		if($connect_url) 
-			$connect_url = sprintf($connect_url,urlencode($profile['channel_address'] . '@' . App::get_hostname()));
+			$connect_url = sprintf($connect_url,urlencode(channel_reddress($profile)));
 
 		// premium channel - over-ride
 
@@ -1103,8 +1103,8 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 
 	require_once('include/widgets.php');
 
-	if(! feature_enabled($profile['uid'],'hide_rating'))
-		$z = widget_rating(array('target' => $profile['channel_hash']));
+//	if(! feature_enabled($profile['uid'],'hide_rating'))
+	$z = widget_rating(array('target' => $profile['channel_hash']));
 
 	$o .= replace_macros($tpl, array(
 		'$zcard'         => $zcard,
@@ -1212,7 +1212,7 @@ function advanced_profile(&$a) {
 		if(App::$profile['partner'])
 			$profile['marital']['partner'] = bbcode(App::$profile['partner']);
 
-		if(strlen(App::$profile['howlong']) && App::$profile['howlong'] !== NULL_DATE) {
+		if(strlen(App::$profile['howlong']) && App::$profile['howlong'] > NULL_DATE) {
 			$profile['howlong'] = relative_date(App::$profile['howlong'], t('for %1$d %2$s'));
 		}
 
@@ -1381,6 +1381,11 @@ function zid($s,$address = '') {
 	if (! strlen($s) || strpos($s,'zid='))
 		return $s;
 
+	$m = parse_url($s);
+	$fragment = ((array_key_exists('fragment',$m) && $m['fragment']) ? $m['fragment'] : false);
+	if($fragment !== false)
+		$s = str_replace('#' . $fragment,'',$s);
+
 	$has_params = ((strpos($s,'?')) ? true : false);
 	$num_slashes = substr_count($s, '/');
 	if (! $has_params)
@@ -1400,6 +1405,11 @@ function zid($s,$address = '') {
 		$zurl = $s . (($num_slashes >= 3) ? '' : '/') . $achar . 'zid=' . urlencode($myaddr);
 	else
 		$zurl = $s;
+
+	// put fragment at the end
+
+	if($fragment)
+		$zurl .= '#' . $fragment;
 
 	$arr = array('url' => $s, 'zid' => urlencode($myaddr), 'result' => $zurl);
 	call_hooks('zid', $arr);
@@ -1769,7 +1779,7 @@ function get_zcard($channel,$observer_hash = '',$args = array()) {
 //	$translate = intval(($scale / 1.0) * 100);
 
 
-	$channel['channel_addr'] = $channel['channel_address'] . '@' . App::get_hostname();
+	$channel['channel_addr'] = channel_reddress($channel);
 	$zcard = array('chan' => $channel);
 
 	$r = q("select height, width, resource_id, imgscale, mimetype from photo where uid = %d and imgscale = %d and photo_usage = %d",
@@ -1831,7 +1841,7 @@ function get_zcard_embed($channel,$observer_hash = '',$args = array()) {
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'],  'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l']);
 	}
 
-	$channel['channel_addr'] = $channel['channel_address'] . '@' . App::get_hostname();
+	$channel['channel_addr'] = channel_reddress($channel);
 	$zcard = array('chan' => $channel);
 
 	$r = q("select height, width, resource_id, imgscale, mimetype from photo where uid = %d and imgscale = %d and photo_usage = %d",
@@ -1884,3 +1894,8 @@ function channelx_by_n($id) {
 	return(($r) ? $r[0] : false);
 }
 
+function channel_reddress($channel) {
+	if(! ($channel && array_key_exists('channel_address',$channel)))
+		return '';
+	return strtolower($channel['channel_address'] . '@' . App::get_hostname());
+}

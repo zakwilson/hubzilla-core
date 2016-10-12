@@ -422,9 +422,9 @@ function sync_apps($channel,$apps) {
             	);
 			}
 
-			if(! $app['app_created'] || $app['app_created'] === NULL_DATE)
+			if((! $app['app_created']) || ($app['app_created'] <= NULL_DATE))
 				$app['app_created'] = datetime_convert();
-			if(! $app['app_edited'] || $app['app_edited'] === NULL_DATE)
+			if((! $app['app_edited']) || ($app['app_edited'] <= NULL_DATE))
 				$app['app_edited'] = datetime_convert();
 
 			$app['app_channel'] = $channel['channel_id'];
@@ -536,9 +536,9 @@ function sync_chatrooms($channel,$chatrooms) {
 			unset($chatroom['cr_aid']);
 			unset($chatroom['cr_uid']);
 
-			if(! $chatroom['cr_created'] || $chatroom['cr_created'] === NULL_DATE)
+			if((! $chatroom['cr_created']) || ($chatroom['cr_created'] <= NULL_DATE))
 				$chatroom['cr_created'] = datetime_convert();
-			if(! $chatroom['cr_edited'] || $chatroom['cr_edited'] === NULL_DATE)
+			if((! $chatroom['cr_edited']) || ($chatroom['cr_edited'] <= NULL_DATE))
 				$chatroom['cr_edited'] = datetime_convert();
 
 			$chatroom['cr_aid'] = $channel['channel_account_id'];
@@ -628,6 +628,10 @@ function import_items($channel,$items,$sync = false,$relocate = null) {
 				$item['uid'] = $channel['channel_id'];
 				$item_result = item_store($item,$allow_code,$deliver);
 			}
+
+			fix_attached_photo_permissions($channel['channel_id'],$item['author_xchan'],$item['body'],$item['allow_cid'],$item['allow_gid'],$item['deny_cid'],$item['deny_gid']);
+
+			fix_attached_file_permissions($channel,$item['author_xchan'],$item['body'],$item['allow_cid'],$item['allow_gid'],$item['deny_cid'],$item['deny_gid']);
 
 			if($sync && $item['item_wall']) {
 				// deliver singletons if we have any
@@ -1032,7 +1036,7 @@ function sync_files($channel,$files) {
 					}
 
 					$attach_exists = false;
-					$x = attach_by_hash($att['hash']);
+					$x = attach_by_hash($att['hash'],$channel['channel_hash']);
 					logger('sync_files duplicate check: attach_exists=' . $attach_exists, LOGGER_DEBUG);
 					logger('sync_files duplicate check: att=' . print_r($att,true), LOGGER_DEBUG);
 					logger('sync_files duplicate check: attach_by_hash() returned ' . print_r($x,true), LOGGER_DEBUG);
@@ -1102,8 +1106,11 @@ function sync_files($channel,$files) {
 					// If the hash ever contains any escapable chars this could cause
 					// problems. Currently it does not. 
 
-					dbesc_array($att);
+					// @TODO implement os_path
+					if(!isset($att['os_path']))
+						$att['os_path'] = '';
 
+					dbesc_array($att);
 
 					if($attach_exists) {
 						logger('sync_files attach exists: ' . print_r($att,true), LOGGER_DEBUG);
@@ -1213,6 +1220,9 @@ function sync_files($channel,$files) {
 						$p['content'] = base64_decode($p['content']);
 
 
+					if(!isset($p['display_path']))
+						$p['display_path'] = '';
+
 					$exists = q("select * from photo where resource_id = '%s' and imgscale = %d and uid = %d limit 1",
 						dbesc($p['resource_id']),
 						intval($p['imgscale']),
@@ -1308,8 +1318,12 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 							}
 							$content = file_get_contents($folder . '/' . $contentfilename);
 							if (!$content) {
-								logger('Failed to get file content for ' . $metadata['contentfile']);
-								return false;
+									if(is_readable($folder . '/' . $contentfilename)) {
+											$content = '';
+									} else {
+										logger('Failed to get file content for ' . $metadata['contentfile']);
+										return false;
+									}
 							}
 							$elements[] = $metadata;
 						}
@@ -1391,12 +1405,12 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 				);
 				$arr['mid'] = $arr['parent_mid'] = $iteminfo[0]['mid'];
 				$arr['created'] = $iteminfo[0]['created'];
-				$arr['edited'] = (($element['edited']) ? datetime_convert('UTC', 'UTC', $element['edited']) : datetime_convert());
 		} else { // otherwise, generate the creation times and unique id
-				$arr['created'] = (($element['created']) ? datetime_convert('UTC', 'UTC', $element['created']) : datetime_convert());
-				$arr['edited'] = datetime_convert('UTC', 'UTC', '0000-00-00 00:00:00');
+				$arr['created'] = datetime_convert('UTC', 'UTC');
 				$arr['mid'] = $arr['parent_mid'] = item_message_id();
 		}
+		// Update the edited time whether or not the element already exists
+		$arr['edited'] = datetime_convert('UTC', 'UTC');
 		// Import the actual element content
 		$arr['body'] = file_get_contents($element['path']);
 		// The element owner is the channel importing the elements
@@ -1411,7 +1425,7 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 										'application/x-pdl',
 										'application/x-php'	
 		];
-		// Blocks and pages can have any mimetype, but layouts must be text/bbcode
+		// Blocks and pages can have any of the valid mimetypes, but layouts must be text/bbcode
 		if((in_array($element['mimetype'], $mimetypes))	&& ($type === 'page' || $type === 'block') ) {
 				$arr['mimetype'] = $element['mimetype'];
 		} else {
@@ -1420,7 +1434,7 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 
 		// Verify ability to use html or php!!!
 		$execflag = false;
-		if ($arr['mimetype'] === 'application/x-php') {
+		if ($arr['mimetype'] === 'application/x-php' || $arr['mimetype'] === 'text/html') {
 				$z = q("select account_id, account_roles, channel_pageflags from account "
 					. "left join channel on channel_account_id = account_id where channel_id = %d limit 1", 
 					intval(local_channel())
@@ -1428,10 +1442,15 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 
 				if ($z && (($z[0]['account_roles'] & ACCOUNT_ROLE_ALLOWCODE) || ($z[0]['channel_pageflags'] & PAGE_ALLOWCODE))) {
 						$execflag = true;
+				} else {
+						logger('Unable to import element "' . $name .'" because AllowCode permission is denied.');
+						notice( t('Unable to import element "' . $name .'" because AllowCode permission is denied.') . EOL);
+						$element['import_success'] = 0;
+						return $element;
 				}
 		}
 		
-		$z = q("select * from iconfig where v = '%s' and k = '%s' and cat = 'service' limit 1", 
+		$z = q("select * from iconfig where v = '%s' and k = '%s' and cat = 'system' limit 1", 
 			dbesc($name), 
 			dbesc($namespace)
 		);
@@ -1467,4 +1486,194 @@ function scan_webpage_elements($path, $type, $cloud = false) {
 		
 		return $element;
     
+}
+
+function get_webpage_elements($channel, $type = 'all') {
+		$elements = array();
+		if(!$channel['channel_id'])	{
+				return null;
+		}
+		switch ($type) {
+				case 'all':
+						// If all, execute all the pages, layouts, blocks case statements
+				case 'pages':
+						$elements['pages'] = null;
+						$owner = $channel['channel_id'];
+							
+						$sql_extra = item_permissions_sql($owner);
+
+
+						$r = q("select * from iconfig left join item on iconfig.iid = item.id 
+							where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'WEBPAGE' and item_type = %d 
+							$sql_extra order by item.created desc",
+							intval($owner),
+							intval(ITEM_TYPE_WEBPAGE)
+						);
+						
+						$pages = null;
+
+						if($r) {
+								$elements['pages'] = array();
+							$pages = array();
+							foreach($r as $rr) {
+								unobscure($rr);
+
+								//$lockstate = (($rr['allow_cid'] || $rr['allow_gid'] || $rr['deny_cid'] || $rr['deny_gid']) ? 'lock' : 'unlock');
+
+								$element_arr = array(
+									'type'		=> 'webpage',
+									'title'		=> $rr['title'],
+									'body'		=> $rr['body'],
+									'created'	=> $rr['created'],
+									'edited'	=> $rr['edited'],
+									'mimetype'	=> $rr['mimetype'],
+									'pagetitle'	=> $rr['v'],
+									'mid'		=> $rr['mid'],
+									'layout_mid'    => $rr['layout_mid']
+								);
+								$pages[$rr['iid']][] = array(
+									'url'		=> $rr['iid'],
+									'pagetitle'	=> $rr['v'],
+									'title'		=> $rr['title'],
+									'created'	=> datetime_convert('UTC',date_default_timezone_get(),$rr['created']),
+									'edited'	=> datetime_convert('UTC',date_default_timezone_get(),$rr['edited']),
+									'bb_element'	=> '[element]' . base64url_encode(json_encode($element_arr)) . '[/element]',
+									//'lockstate'     => $lockstate
+								);
+								$elements['pages'][] = $element_arr;
+							}
+							
+						}
+						if($type !== 'all') {
+								break;
+						}
+
+				case 'layouts':
+						$elements['layouts'] = null;
+						$owner = $channel['channel_id'];
+							
+						$sql_extra = item_permissions_sql($owner);
+
+
+						$r = q("select * from iconfig left join item on iconfig.iid = item.id 
+							where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'PDL' and item_type = %d 
+							$sql_extra order by item.created desc",
+							intval($owner),
+							intval(ITEM_TYPE_PDL)
+						);
+						
+						$layouts = null;
+
+						if($r) {
+								$elements['layouts'] = array();
+							$layouts = array();
+							foreach($r as $rr) {
+								unobscure($rr);
+
+								$elements['layouts'][] = array(
+									'type'		=> 'layout',
+									'description'		=> $rr['title'],		// description of the layout
+									'body'		=> $rr['body'],
+									'created'	=> $rr['created'],
+									'edited'	=> $rr['edited'],
+									'mimetype'	=> $rr['mimetype'],
+									'name'	=> $rr['v'],					// name of reference for the layout
+									'mid'		=> $rr['mid'],
+								);
+							}
+							
+						}
+						
+						if($type !== 'all') {
+								break;
+						}
+						
+				case 'blocks':
+						$elements['blocks'] = null;
+						$owner = $channel['channel_id'];
+							
+						$sql_extra = item_permissions_sql($owner);
+
+
+						$r = q("select iconfig.iid, iconfig.k, iconfig.v, mid, title, body, mimetype, created, edited from iconfig 
+								left join item on iconfig.iid = item.id
+								where uid = %d and iconfig.cat = 'system' and iconfig.k = 'BUILDBLOCK' 
+								and item_type = %d order by item.created desc",
+								intval($owner),
+								intval(ITEM_TYPE_BLOCK)
+							);
+						
+						$blocks = null;
+
+						if($r) {
+								$elements['blocks'] = array();
+							$blocks = array();
+							foreach($r as $rr) {
+								unobscure($rr);
+
+								$elements['blocks'][] = array(
+										'type'      => 'block',
+										'title'	    => $rr['title'],
+										'body'      => $rr['body'],
+										'created'   => $rr['created'],
+										'edited'    => $rr['edited'],
+										'mimetype'  => $rr['mimetype'],
+										'name'			=> $rr['v'],
+										'mid'       => $rr['mid']
+									);
+							}
+							
+						}
+						
+						if($type !== 'all') {
+								break;
+						}
+						
+				default:
+						break;
+		}
+		return $elements;
+}
+
+/* creates a compressed zip file */
+
+function create_zip_file($files = array(), $destination = '', $overwrite = false) {
+		//if the zip file already exists and overwrite is false, return false
+		if (file_exists($destination) && !$overwrite) {
+				return false;
+		}
+		//vars
+		$valid_files = array();
+		//if files were passed in...
+		if (is_array($files)) {
+				//cycle through each file
+				foreach ($files as $file) {
+						//make sure the file exists
+						if (file_exists($file)) {
+								$valid_files[] = $file;
+						}
+				}
+		} 		
+
+		//if we have good files...
+		if (count($valid_files)) {
+				//create the archive
+				$zip = new ZipArchive();
+				if ($zip->open($destination, $overwrite ? ZIPARCHIVE::OVERWRITE : ZIPARCHIVE::CREATE) !== true) {
+						return false;
+				}
+				//add the files
+				foreach ($valid_files as $file) {
+						$zip->addFile($file, $file);
+				}
+				//debug
+				//echo 'The zip archive contains ',$zip->numFiles,' files with a status of ',$zip->status;
+				//close the zip -- done!
+				$zip->close();
+
+				//check to make sure the file exists
+				return file_exists($destination);
+		} else {
+				return false;
+		}
 }

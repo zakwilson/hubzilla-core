@@ -54,7 +54,7 @@ class Onepoll {
 
 		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
-		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] === NULL_DATE))	
+		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= NULL_DATE))	
 			? datetime_convert('UTC','UTC','now - 7 days')
 			: datetime_convert('UTC','UTC',$contact['abook_updated'] . ' - 2 days')
 		);
@@ -102,9 +102,18 @@ class Onepoll {
 			$fetch_feed = true;
 			$x = null;
 
+			// They haven't given us permission to see their stream
+
 			$can_view_stream = intval(get_abconfig($importer_uid,$contact['abook_xchan'],'their_perms','view_stream'));
 
 			if(! $can_view_stream)
+				$fetch_feed = false;
+
+			// we haven't given them permission to send us their stream
+
+			$can_send_stream = intval(get_abconfig($importer_uid,$contact['abook_xchan'],'my_perms','send_stream'));
+			
+			if(! $can_send_stream)
 				$fetch_feed = false;
 
 			if($fetch_feed) {

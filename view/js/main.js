@@ -250,6 +250,7 @@ var last_filestorage_id = null;
 var mediaPlaying = false;
 var contentHeightDiff = 0;
 
+
 $(function() {
 	$.ajaxSetup({cache: false});
 
@@ -650,6 +651,19 @@ function updateConvItems(mode,data) {
 		collapseHeight();
 	}
 
+	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
+	if($('.item_' + bParam_mid.substring(0,32)).length && !$('.item_' + bParam_mid.substring(0,32)).hasClass('toplevel_item') && mode == 'replace') {
+		if($('.collapsed-comments').length) {
+			var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
+			$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
+			$('#collapsed-comments-' + scrolltoid).show();
+			$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
+			$('#hide-comments-total-' + scrolltoid).hide();
+		}
+		$('html, body').animate({ scrollTop: $('.item_' + bParam_mid.substring(0,32)).offset().top - $('nav').outerHeight() }, 'slow');
+		$('.item_' + bParam_mid.substring(0,32)).addClass('item-highlight');
+	}
+
 }
 
 function collapseHeight() {
@@ -840,6 +854,7 @@ function pageUpdate() {
 		scroll_next = false;
 		updatePageItems(update_mode,data);
 		$("#page-spinner").spin(false);
+		$(".autotime").timeago();
 		in_progress = false;
 	});
 }
@@ -847,7 +862,7 @@ function pageUpdate() {
 function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).justifiedGallery({
-		selector: '> a, > div:not(.spinner, #page-end)',
+		selector: 'a, div:not(.spinner, #page-end)',
 		margins: 3,
 		border: 0,
 		sizeRangeSuffixes: {
@@ -1247,12 +1262,6 @@ Array.prototype.remove = function(item) {
 	return this.push.apply(this, rest);
 };
 
-function previewTheme(elm) {
-	theme = $(elm).val();
-	$.getJSON('pretheme?f=&theme=' + theme,function(data) {
-		$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" style="max-width:100%; max-height:300px" alt="' + theme + '"></a>');
-	});
-}
 
 $(document).ready(function() {
 

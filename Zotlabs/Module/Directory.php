@@ -84,9 +84,8 @@ class Directory extends \Zotlabs\Web\Controller {
 			$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
 	
 	
-		if(strpos($search,'=') && local_channel() && get_pconfig(local_channel(),'feature','expert'))
+		if(strpos($search,'=') && local_channel() && feature_enabled(local_channel(), 'advanced_dirsearch'))
 			$advanced = $search;
-	
 	
 		$keywords = (($_GET['keywords']) ? $_GET['keywords'] : '');
 	
@@ -239,7 +238,9 @@ class Directory extends \Zotlabs\Web\Controller {
 	
 							$page_type = '';
 	
-							if($rr['total_ratings'])
+							$rating_enabled = get_config('system','rating_enabled');
+
+							if($rr['total_ratings'] && $rating_enabled)
 								$total_ratings = sprintf( tt("%d rating", "%d ratings", $rr['total_ratings']), $rr['total_ratings']);
 							else
 								$total_ratings = '';
@@ -264,6 +265,7 @@ class Directory extends \Zotlabs\Web\Controller {
 	
 							$keywords = ((x($profile,'keywords')) ? $profile['keywords'] : '');
 	
+
 							$out = '';
 	
 							if($keywords) {
@@ -312,7 +314,7 @@ class Directory extends \Zotlabs\Web\Controller {
 								'gender'   => $gender,
 								'total_ratings' => $total_ratings,
 								'viewrate' => true,
-								'canrate' => ((local_channel()) ? true : false),
+								'canrate' => (($rating_enabled && local_channel()) ? true : false),
 								'pdesc'	=> $pdesc,
 								'pdesc_label' => t('Description:'),
 								'marital'  => $marital,

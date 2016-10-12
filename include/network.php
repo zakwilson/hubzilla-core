@@ -1148,8 +1148,10 @@ function discover_by_webbie($webbie) {
 
 				if($link['rel'] === PROTOCOL_ZOT) {
 					logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
-					if(array_key_exists('zot',$x) && $x['zot']['success'])
+					if(array_key_exists('zot',$x) && $x['zot']['success']) {
 						$i = import_xchan($x['zot']);
+						return true;
+					}
 					else {
 						$z = z_fetch_url($link['href']);
 						if($z['success']) {
@@ -1937,7 +1939,9 @@ function format_and_send_email($sender,$xchan,$item) {
   		$hostname = App::get_hostname();
 	    if(strpos($hostname,':'))
     	    $hostname = substr($hostname,0,strpos($hostname,':'));
-		$sender_email = 'noreply' . '@' . $hostname;
+		$sender_email = get_config('system','reply_address');
+		if(! $sender_email)
+			$sender_email = 'noreply' . '@' . $hostname;
 
 		// use the EmailNotification library to send the message
 
@@ -2008,11 +2012,11 @@ function get_site_info() {
 		$admin = array();
 		foreach($r as $rr) {
 			if($rr['channel_pageflags'] & PAGE_HUBADMIN)
-				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . App::get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => channel_reddress($rr), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
 		}
 		if(! $admin) {
 			foreach($r as $rr) {
-				$admin[] = array( 'name' => $rr['channel_name'], 'address' => $rr['channel_address'] . '@' . App::get_hostname(), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
+				$admin[] = array( 'name' => $rr['channel_name'], 'address' => channel_reddress($rr), 'channel' => z_root() . '/channel/' . $rr['channel_address']);
 			}
 		}
 	}
@@ -2221,4 +2225,66 @@ function network_to_name($s) {
 
 	return str_replace($search,$replace,$s);
 
+}
+
+
+function z_mail($params) {
+
+	/**
+	 * @brief Send a text email message
+	 *
+	 * @param array $params an assoziative array with:
+	 *  * \e string \b fromName        name of the sender
+	 *  * \e string \b fromEmail       email of the sender
+	 *  * \e string \b replyTo         replyTo address to direct responses
+	 *  * \e string \b toEmail         destination email address
+	 *  * \e string \b messageSubject  subject of the message
+	 *  * \e string \b htmlVersion     html version of the message
+	 *  * \e string \b textVersion     text only version of the message
+	 *  * \e string \b additionalMailHeader  additions to the smtp mail header
+	 */
+
+	if(! $params['fromEmail']) {
+		$params['fromEmail'] = get_config('system','from_email');
+		if(! $params['fromEmail'])
+			$params['fromEmail'] = 'Administrator' . '@' . App::get_hostname();
+	}
+	if(! $params['fromName']) {
+		$params['fromName'] = get_config('system','from_email_name');
+		if(! $params['fromName'])
+			$params['fromName'] = Zotlabs\Lib\System::get_site_name();
+	}
+	if(! $params['replyTo']) {
+		$params['replyTo'] = get_config('system','reply_address');
+		if(! $params['replyTo'])
+			$params['replyTo'] = 'noreply' . '@' . App::get_hostname();
+	}
+
+	$params['sent']   = false;
+	$params['result'] = false;
+
+	call_hooks('email_send', $params);
+
+	if($params['sent']) {
+		logger('notification: z_mail returns ' . $params['result'], LOGGER_DEBUG);
+		return $params['result'];
+	}
+
+	$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8'); 
+	$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
+
+	$messageHeader =
+		$params['additionalMailHeader'] .
+		"From: $fromName <{$params['fromEmail']}>\n" .
+		"Reply-To: $fromName <{$params['replyTo']}>";
+
+	// send the message
+	$res = mail(
+		$params['toEmail'],								// send to address
+		$messageSubject,								// subject
+		$params['textVersion'],
+		$messageHeader									// message headers
+	);
+	logger('notification: z_mail returns ' . $res, LOGGER_DEBUG);
+	return $res;
 }

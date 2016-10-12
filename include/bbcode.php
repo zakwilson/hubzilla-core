@@ -12,14 +12,25 @@ require_once('include/hubloc.php');
 function tryoembed($match) {
 	$url = ((count($match) == 2) ? $match[1] : $match[2]);
 
-
 	$o = oembed_fetch_url($url);
 
-	if ($o->type == 'error')
+	if ($o['type'] == 'error')
 		return $match[0];
 
 	$html = oembed_format_object($o);
 	return $html; 
+}
+
+
+function nakedoembed($match) {
+	$url = ((count($match) == 2) ? $match[1] : $match[2]);
+
+	$o = oembed_fetch_url($url);
+
+	if ($o['type'] == 'error')
+		return $match[0];
+
+	return '[embed]' . $url . '[/embed]';
 }
 
 function tryzrlaudio($match) {
@@ -516,6 +527,9 @@ function bb_fixtable_lf($match) {
 
 function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) {
 
+
+	call_hooks('bbcode_filter', $Text);
+
 	// Hide all [noparse] contained bbtags by spacefying them
 	if (strpos($Text,'[noparse]') !== false) {
 		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_spacefy',$Text);
@@ -642,6 +656,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	$urlchars = '[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\@]';
 
 	if (strpos($Text,'http') !== false) {
+		if($tryoembed) {
+			$Text = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/$urlchars+)/ism", 'tryoembed', $Text);
+		}
 		$Text = preg_replace("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/$urlchars+)/ism", '$1<a href="$2" target="_blank" >$2</a>', $Text);
 	}
 
@@ -666,8 +683,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" target="_blank" >$2</a>', $Text);
 	}
 
-	// Remove bookmarks from UNO
-	if (get_config('system','server_role') === 'basic')
+	if (get_account_techlevel() < 2)
 		$Text = str_replace('<span class="bookmark-identifier">#^</span>', '', $Text);
 
 	// Perform MAIL Search
@@ -769,11 +785,14 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	}
 	// Check for list text
 	$Text = str_replace("[*]", "<li>", $Text);
+	$Text = str_replace("[]", "<li><input type=\"checkbox\" disabled=\"disabled\">", $Text);
+	$Text = str_replace("[x]", "<li><input type=\"checkbox\" checked=\"checked\" disabled=\"disabled\">", $Text);
 
  	// handle nested lists
 	$endlessloop = 0;
 
 	while ((((strpos($Text, "[/list]") !== false) && (strpos($Text, "[list") !== false)) ||
+			((strpos($Text, "[/checklist]") !== false) && (strpos($Text, "[checklist]") !== false)) ||
 			((strpos($Text, "[/ol]") !== false) && (strpos($Text, "[ol]") !== false)) ||
 			((strpos($Text, "[/ul]") !== false) && (strpos($Text, "[ul]") !== false)) ||
 			((strpos($Text, "[/dl]") !== false) && (strpos($Text, "[dl")  !== false)) ||
@@ -785,6 +804,7 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $Text);
 		$Text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $Text);
 		$Text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $Text);
+		$Text = preg_replace("/\[checklist\](.*?)\[\/checklist\]/ism", '<ul class="checklist" style="list-style-type: none;">$1</ul>', $Text);
 		$Text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $Text);
 		$Text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $Text);
 		$Text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $Text);
@@ -942,13 +962,13 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace_callback("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/audio]') !== false) {
-		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus))\[\/audio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/audio\]/ism", 'tryzrlaudio', $Text);
 	}
 	if (strpos($Text,'[/zvideo]') !== false) {
 		$Text = preg_replace_callback("/\[zvideo\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/zaudio]') !== false) {
-		$Text = preg_replace_callback("/\[zaudio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus))\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[zaudio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
 	}
 
 	// Try to Oembed

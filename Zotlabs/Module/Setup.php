@@ -43,11 +43,12 @@ class Setup extends \Zotlabs\Web\Controller {
 			killme();
 		}
 	
-		if (x($_POST, 'pass'))
+		if (x($_POST, 'pass')) {
 			$this->install_wizard_pass = intval($_POST['pass']);
-		else
+		}
+		else {
 			$this->install_wizard_pass = 1;
-	
+		}
 	}
 	
 	/**
@@ -73,7 +74,9 @@ class Setup extends \Zotlabs\Web\Controller {
 				$phpath = trim($_POST['phpath']);
 				$adminmail = trim($_POST['adminmail']);
 				$siteurl = trim($_POST['siteurl']);
-				$advanced = ((intval($_POST['advanced'])) ? 1 : 0);
+				$server_role = trim($_POST['server_role']);
+				if(! $server_role)
+					$server_role = 'standard';
 				
 				// $siteurl should not have a trailing slash
 	
@@ -84,24 +87,26 @@ class Setup extends \Zotlabs\Web\Controller {
 				$db = \DBA::dba_factory($dbhost, $dbport, $dbuser, $dbpass, $dbdata, $dbtype, true);
 	
 				if(! \DBA::$dba->connected) {
-					echo 'Database Connect failed: ' . DBA::$dba->error;
+					echo 'Database Connect failed: ' . \DBA::$dba->error;
 					killme();
 				}
 				return;
 				// implied break;
 			case 4:
 				$urlpath = \App::get_path();
-				$dbhost = notags(trim($_POST['dbhost']));
-				$dbport = intval(notags(trim($_POST['dbport'])));
-				$dbuser = notags(trim($_POST['dbuser']));
-				$dbpass = notags(trim($_POST['dbpass']));
-				$dbdata = notags(trim($_POST['dbdata']));
-				$dbtype = intval(notags(trim($_POST['dbtype'])));
-				$phpath = notags(trim($_POST['phpath']));
-				$timezone = notags(trim($_POST['timezone']));
-				$adminmail = notags(trim($_POST['adminmail']));
-				$siteurl = notags(trim($_POST['siteurl']));
-				$advanced = ((intval($_POST['advanced'])) ? 'pro' : 'basic');
+				$dbhost = trim($_POST['dbhost']);
+				$dbport = intval(trim($_POST['dbport']));
+				$dbuser = trim($_POST['dbuser']);
+				$dbpass = trim($_POST['dbpass']);
+				$dbdata = trim($_POST['dbdata']);
+				$dbtype = intval(trim($_POST['dbtype']));
+				$phpath = trim($_POST['phpath']);
+				$timezone = trim($_POST['timezone']);
+				$adminmail = trim($_POST['adminmail']);
+				$siteurl = trim($_POST['siteurl']);
+				$server_role = trim($_POST['server_role']);
+				if(! $server_role)
+					$server_role = 'standard';
 	
 				if($siteurl != z_root()) {
 					$test = z_fetch_url($siteurl."/setup/testrewrite");
@@ -130,7 +135,7 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$dbpass'      => $dbpass,
 					'$dbdata'      => $dbdata,
 					'$dbtype'      => $dbtype,
-					'$server_role' => $advanced,
+					'$server_role' => $server_role,
 					'$timezone'    => $timezone,
 					'$siteurl'     => $siteurl,
 					'$site_id'     => random_string(),
@@ -274,15 +279,15 @@ class Setup extends \Zotlabs\Web\Controller {
 	
 			case 2: { // Database config
 	
-				$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : '127.0.0.1');
-				$dbuser = notags(trim($_POST['dbuser']));
-				$dbport = intval(notags(trim($_POST['dbport'])));
-				$dbpass = notags(trim($_POST['dbpass']));
-				$dbdata = notags(trim($_POST['dbdata']));
-				$dbtype = intval(notags(trim($_POST['dbtype'])));
-				$phpath = notags(trim($_POST['phpath']));
-				$adminmail = notags(trim($_POST['adminmail']));
-				$siteurl = notags(trim($_POST['siteurl']));
+				$dbhost = ((x($_POST,'dbhost')) ? trim($_POST['dbhost']) : '127.0.0.1');
+				$dbuser = trim($_POST['dbuser']);
+				$dbport = intval(trim($_POST['dbport']));
+				$dbpass = trim($_POST['dbpass']);
+				$dbdata = trim($_POST['dbdata']);
+				$dbtype = intval(trim($_POST['dbtype']));
+				$phpath = trim($_POST['phpath']);
+				$adminmail = trim($_POST['adminmail']);
+				$siteurl = trim($_POST['siteurl']);
 	
 				$tpl = get_markup_template('install_db.tpl');
 				$o .= replace_macros($tpl, array(
@@ -315,18 +320,24 @@ class Setup extends \Zotlabs\Web\Controller {
 			}; break;
 			case 3: { // Site settings
 				require_once('include/datetime.php');
-				$dbhost = ((x($_POST,'dbhost')) ? notags(trim($_POST['dbhost'])) : '127.0.0.1');
-				$dbport = intval(notags(trim($_POST['dbuser'])));
-				$dbuser = notags(trim($_POST['dbuser']));
-				$dbpass = notags(trim($_POST['dbpass']));
-				$dbdata = notags(trim($_POST['dbdata']));
-				$dbtype = intval(notags(trim($_POST['dbtype'])));
-				$phpath = notags(trim($_POST['phpath']));
+				$dbhost = ((x($_POST,'dbhost')) ? trim($_POST['dbhost']) : '127.0.0.1');
+				$dbport = intval(trim($_POST['dbuser']));
+				$dbuser = trim($_POST['dbuser']);
+				$dbpass = trim($_POST['dbpass']);
+				$dbdata = trim($_POST['dbdata']);
+				$dbtype = intval(trim($_POST['dbtype']));
+				$phpath = trim($_POST['phpath']);
 	
-				$adminmail = notags(trim($_POST['adminmail']));
-				$siteurl = notags(trim($_POST['siteurl']));
+				$adminmail = trim($_POST['adminmail']);
+				$siteurl = trim($_POST['siteurl']);
 				$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
 	
+				$server_roles = [
+					'basic'    => t('Basic/Minimal Social Networking'),
+					'standard' => t('Standard Configuration (default)'),
+					'pro'      => t('Professional')
+				];
+
 				$tpl = get_markup_template('install_settings.tpl');
 				$o .= replace_macros($tpl, array(
 					'$title' => $install_title,
@@ -344,7 +355,8 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$adminmail' => array('adminmail', t('Site administrator email address'), $adminmail, t('Your account email address must match this in order to use the web admin panel.')),
 	
 					'$siteurl' => array('siteurl', t('Website URL'), z_root(), t('Please use SSL (https) URL if available.')),
-					'$advanced' => array('advanced', t('Enable $Projectname <strong>advanced</strong> features?'), 1, t('Some advanced features, while useful - may be best suited for technically proficient audiences')),
+
+					'$server_role' 		=> array('server_role', t("Server Configuration/Role"), 'standard','',$server_roles),
 	
 					'$timezone' => array('timezone', t('Please select a default timezone for your website'), $timezone, '', get_timezones()),
 	

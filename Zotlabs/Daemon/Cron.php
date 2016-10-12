@@ -43,7 +43,7 @@ class Cron {
 	
 		// expire any expired mail
 
-		q("delete from mail where expires != '%s' and expires < %s ",
+		q("delete from mail where expires > '%s' and expires < %s ",
 			dbesc(NULL_DATE),
 			db_utcnow()
 		);
@@ -63,7 +63,7 @@ class Cron {
 
 		// delete expired access tokens
 
-		$r = q("select atoken_id from atoken where atoken_expires != '%s' && atoken_expires < %s",
+		$r = q("select atoken_id from atoken where atoken_expires > '%s' and atoken_expires < %s",
 			dbesc(NULL_DATE),
 			db_utcnow()
 		);

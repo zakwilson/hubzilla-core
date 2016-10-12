@@ -75,7 +75,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		if($recip)
 			$recip_handle = $recip[0]['xchan_addr'];
 
-		$sender_handle = $channel['channel_address'] . '@' . App::get_hostname();
+		$sender_handle = channel_reddress($channel);
 
 		$handles = $recip_handle . ';' . $sender_handle;
 
@@ -166,7 +166,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		foreach($match[2] as $mtch) {
 			$hash = substr($mtch,0,strpos($mtch,','));
 			$rev = intval(substr($mtch,strpos($mtch,',')));
-			$r = attach_by_hash_nodata($hash,$rev);
+			$r = attach_by_hash_nodata($hash,get_observer_hash(),$rev);
 			if($r['success']) {
 				$attachments[] = array(
 					'href'     => z_root() . '/attach/' . $r['data']['hash'],
@@ -299,14 +299,30 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 				break;
 
 			case 'combined':
-				$sql = "SELECT * FROM ( SELECT * FROM mail WHERE channel_id = $local_channel ORDER BY created DESC $limit ) AS temp_table GROUP BY parent_mid ORDER BY created DESC";
+				$parents = q("SELECT parent_mid FROM mail WHERE mid = parent_mid AND channel_id = %d ORDER BY created DESC",
+					dbesc($local_channel)
+				);
+				//FIXME: We need the latest mail of a thread here. This query throws errors in postgres. We now look for the latest in php until somebody can fix this...
+				//$sql = "SELECT * FROM ( SELECT * FROM mail WHERE channel_id = $local_channel ORDER BY created DESC $limit ) AS temp_table GROUP BY parent_mid ORDER BY created DESC";
 				break;
 
 		}
 
 	}
 
-	$r = q($sql);
+	if($parents) {
+		foreach($parents as $parent) {
+			$all[] = q("SELECT * FROM mail WHERE parent_mid = '%s' AND channel_id = %d ORDER BY created DESC",
+				dbesc($parent['parent_mid']),
+				dbesc($local_channel)
+			);
+		}
+		foreach($all as $single)
+			$r[] = $single[0];
+	}
+	else {
+		$r = q($sql);
+	}
 
 	if(! $r) {
 		return array();

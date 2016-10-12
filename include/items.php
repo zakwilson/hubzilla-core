@@ -113,6 +113,26 @@ function collect_recipients($item, &$private_envelope) {
 //			if($policy === 'pub')
 //				$recipients[] = $sys['xchan_hash'];
 		}
+
+		// Add the authors of any posts in this thread, if they are known to us.
+		// This is specifically designed to forward wall-to-wall posts to the original author,
+		// in case they aren't a connection but have permission to write on our wall.  
+		// This is important for issue tracker channels. It should be a no-op for most channels.
+		// Whether or not they will accept the delivery is not determined here, but should
+		// be taken into account by zot:process_delivery()
+
+		$r = q("select author_xchan from item where parent = %d",
+			intval($item['parent'])
+		);
+		if($r) {
+			foreach($r as $rv) {
+				if(! in_array($rv['author_xchan'],$recipients)) {
+					$recipients[] = $rv['author_xchan'];
+				}
+			}
+		}
+		
+
 	}
 
 	// This is a somewhat expensive operation but important.
@@ -143,7 +163,7 @@ function collect_recipients($item, &$private_envelope) {
 }
 
 function comments_are_now_closed($item) {
-	if($item['comments_closed'] !== NULL_DATE) {
+	if($item['comments_closed'] > NULL_DATE) {
 		$d = datetime_convert();
 		if($d > $item['comments_closed'])
 			return true;
@@ -214,11 +234,10 @@ function can_comment_on_post($observer_xchan, $item) {
 				return true;
 			break;
 		case 'public':
-			// We don't allow public comments yet, until a policy
-			// for dealing with anonymous comments is in place with
-			// a means to moderate comments. Until that time, return
-			// false.
-			return false;
+			// We don't really allow or support public comments yet, but anonymous
+			// folks won't ever reach this point (as $observer_xchan will be empty).
+			// This means the viewer has an xchan and we can identify them.  
+			return true;
 			break;
 		case 'any connections':
 		case 'contacts':
@@ -695,8 +714,9 @@ function get_item_elements($x,$allow_code = false) {
 	// hub and verify that they are legit - or else we're going to toss the post. We only need to do this
 	// once, and after that your hub knows them. Sure some info is in the post, but it's only a transit identifier
 	// and not enough info to be able to look you up from your hash - which is the only thing stored with the post.
-
-	if(($xchan_hash = import_author_xchan($x['author'])) !== false)
+	
+	$xchan_hash = import_author_xchan($x['author']);
+	if($xchan_hash)
 		$arr['author_xchan'] = $xchan_hash;
 	else
 		return array();
@@ -705,7 +725,8 @@ function get_item_elements($x,$allow_code = false) {
 	if($arr['author_xchan'] === make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']))
 		$arr['owner_xchan'] = $arr['author_xchan'];
 	else {
-		if(($xchan_hash = import_author_xchan($x['owner'])) !== false)
+		$xchan_hash = import_author_xchan($x['owner']);
+		if($xchan_hash)
 			$arr['owner_xchan'] = $xchan_hash;
 		else
 			return array();
@@ -1069,7 +1090,7 @@ function encode_item($item,$mirror = false) {
 	if($y = encode_item_flags($item))
 		$x['flags']       = $y;
 
-	if($item['comments_closed'] !== NULL_DATE)
+	if($item['comments_closed'] > NULL_DATE)
 		$x['comments_closed'] = $item['comments_closed'];
 
 	$x['public_scope']    = $scope;
@@ -1166,7 +1187,7 @@ function encode_item_xchan($xchan) {
 
 	$ret['name']     = $xchan['xchan_name'];
 	$ret['address']  = $xchan['xchan_addr'];
-	$ret['url']      = (($xchan['hubloc_url']) ? $xchan['hubloc_url'] : $xchan['xchan_url']);
+	$ret['url']      = $xchan['xchan_url'];
 	$ret['network']  = $xchan['xchan_network'];
 	$ret['photo']    = array('mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m']);
 	$ret['guid']     = $xchan['xchan_guid'];
@@ -1418,7 +1439,7 @@ function get_mail_elements($x) {
 	$arr['conv_guid']    = (($x['conv_guid'])? htmlspecialchars($x['conv_guid'],ENT_COMPAT,'UTF-8',false) : '');
 
 	$arr['created']      = datetime_convert('UTC','UTC',$x['created']);
-	if((! array_key_exists('expires',$x)) || ($x['expires'] === NULL_DATE))
+	if((! array_key_exists('expires',$x)) || ($x['expires'] <= NULL_DATE))
 		$arr['expires'] = NULL_DATE;
 	else
 		$arr['expires']      = datetime_convert('UTC','UTC',$x['expires']);
@@ -1569,6 +1590,9 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['item_wall']     = ((x($arr,'item_wall'))     ? intval($arr['item_wall'])           : 0 );
 	$arr['item_type']     = ((x($arr,'item_type'))     ? intval($arr['item_type'])           : 0 );
 
+	// obsolete, but needed so as not to throw not-null constraints on some database driveres
+	$arr['item_flags']    = ((x($arr,'item_flags'))    ? intval($arr['item_flags'])          : 0 );
+
 	// only detect language if we have text content, and if the post is private but not yet
 	// obscured, make it so.
 
@@ -1624,9 +1648,23 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['expires']       = ((x($arr,'expires')  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : NULL_DATE);
 	$arr['commented']     = ((x($arr,'commented')  !== false) ? datetime_convert('UTC','UTC',$arr['commented'])  : datetime_convert());
 	$arr['comments_closed'] = ((x($arr,'comments_closed')  !== false) ? datetime_convert('UTC','UTC',$arr['comments_closed'])  : NULL_DATE);
+	$arr['html'] = ((array_key_exists('html',$arr)) ? $arr['html'] : '');
 
-	$arr['received']      = datetime_convert();
-	$arr['changed']       = datetime_convert();
+	if($deliver) {
+		$arr['received']      = datetime_convert();
+		$arr['changed']       = datetime_convert();
+	}
+	else {
+
+		// When deliver flag is false, we are *probably* performing an import or bulk migration.
+		// If one updates the changed timestamp it will be made available to zotfeed and delivery
+		// will still take place through backdoor methods. Since these fields are rarely used
+		// otherwise, just preserve the original timestamp.
+
+		$arr['received']      = ((x($arr,'received')  !== false) ? datetime_convert('UTC','UTC',$arr['received'])  : datetime_convert());
+		$arr['changed']       = ((x($arr,'changed')  !== false) ? datetime_convert('UTC','UTC',$arr['changed'])  : datetime_convert()); 
+	}
+
 	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : '');
 	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : '');
 	$arr['parent_mid']    = ((x($arr,'parent_mid'))    ? notags(trim($arr['parent_mid']))    : '');
@@ -2027,14 +2065,28 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 	$arr['edited']        = ((x($arr,'edited')  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
 	$arr['expires']       = ((x($arr,'expires')  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : $orig[0]['expires']);
 
-	if(array_key_exists('comments_closed',$arr) && $arr['comments_closed'] != NULL_DATE)
+	if(array_key_exists('comments_closed',$arr) && $arr['comments_closed'] > NULL_DATE)
 		$arr['comments_closed'] = datetime_convert('UTC','UTC',$arr['comments_closed']);
 	else
 		$arr['comments_closed'] = $orig[0]['comments_closed'];
 
 	$arr['commented']     = $orig[0]['commented'];
-	$arr['received']      = datetime_convert();
-	$arr['changed']       = datetime_convert();
+
+	if($deliver) {
+		$arr['received']      = datetime_convert();
+		$arr['changed']       = datetime_convert();
+	}
+	else {
+
+		// When deliver flag is false, we are *probably* performing an import or bulk migration.
+		// If one updates the changed timestamp it will be made available to zotfeed and delivery
+		// will still take place through backdoor methods. Since these fields are rarely used
+		// otherwise, just preserve the original timestamp.
+
+		$arr['received']      = $orig[0]['received'];
+		$arr['changed']       = $orig[0]['changed'];
+	}
+
 	$arr['route']         = ((array_key_exists('route',$arr)) ? trim($arr['route'])          : $orig[0]['route']);
 	$arr['diaspora_meta'] = ((x($arr,'diaspora_meta')) ? $arr['diaspora_meta']               : $orig[0]['diaspora_meta']);
 	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : $orig[0]['location']);
@@ -2213,7 +2265,7 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 
 	logger('storing diaspora comment signature',LOGGER_DEBUG);
 
-	$diaspora_handle = $channel['channel_address'] . '@' . App::get_hostname();
+	$diaspora_handle = channel_reddress($channel);
 
 	$signed_text = $datarray['mid'] . ';' . $parent_item['mid'] . ';' . $signed_body . ';' . $diaspora_handle;
 
@@ -2243,6 +2295,11 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 
 function send_status_notifications($post_id,$item) {
 
+	// only send notifications for comments
+
+	if($item['mid'] == $item['parent_mid'])
+		return;
+
 	$notify = false;
 	$unfollowed = false;
 
@@ -2257,6 +2314,7 @@ function send_status_notifications($post_id,$item) {
 	// my own post - no notification needed
 	if($item['author_xchan'] === $r[0]['channel_hash'])
 		return;
+
 
 	// I'm the owner - notify me
 
@@ -3774,7 +3832,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 
 	$limit = " LIMIT 100 ";
 
-	if($mindate != NULL_DATE) {
+	if($mindate > NULL_DATE) {
 		$sql_extra .= " and ( created > '$mindate' or changed > '$mindate' ) ";
 	}
 
@@ -4325,5 +4383,139 @@ function sync_an_item($channel_id,$item_id) {
 			intval($item_id)
 		);
 		build_sync_packet($channel_d,array('item' => array(encode_item($sync_item[0],true)),'item_id' => $rid));
+	}
+}
+
+
+function fix_attached_photo_permissions($uid,$xchan_hash,$body,
+	$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny) {
+	
+	if(get_pconfig($uid,'system','force_public_uploads')) {
+		$str_contact_allow = $str_group_allow = $str_contact_deny = $str_group_deny = '';
+	}
+	
+	$match = null;
+	// match img and zmg image links
+	if(preg_match_all("/\[[zi]mg(.*?)\](.*?)\[\/[zi]mg\]/",$body,$match)) {
+		$images = $match[2];
+		if($images) {
+			foreach($images as $image) {
+				if(! stristr($image,z_root() . '/photo/'))
+					continue;
+				$image_uri = substr($image,strrpos($image,'/') + 1);
+				if(strpos($image_uri,'-') !== false)
+					$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
+				if(strpos($image_uri,'.') !== false)
+					$image_uri = substr($image_uri,0, strpos($image_uri,'.'));
+				if(! strlen($image_uri))
+					continue;
+				$srch = '<' . $xchan_hash . '>';
+					
+				$r = q("select folder from attach where hash = '%s' and uid = %d limit 1",
+					dbesc($image_uri),
+					intval($uid)
+				);
+				if($r && $r[0]['folder']) {
+					$f = q("select * from attach where hash = '%s' and is_dir = 1 and uid = %d limit 1",
+						dbesc($r[0]['folder']),
+						intval($uid)
+					);
+					if(($f) && (($f[0]['allow_cid']) || ($f[0]['allow_gid']) || ($f[0]['deny_cid']) || ($f[0]['deny_gid']))) {
+						$str_contact_allow = $f[0]['allow_cid'];
+						$str_group_allow = $f[0]['allow_gid'];
+						$str_contact_deny = $f[0]['deny_cid'];
+						$str_group_deny = $f[0]['deny_gid'];
+					}
+				}
+	
+				$r = q("SELECT id FROM photo 
+					WHERE allow_cid = '%s' AND allow_gid = '' AND deny_cid = '' AND deny_gid = ''
+					AND resource_id = '%s' AND uid = %d LIMIT 1",
+					dbesc($srch),
+					dbesc($image_uri),
+					intval($uid)
+				);
+	
+				if($r) {
+					$r = q("UPDATE photo SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s'
+						WHERE resource_id = '%s' AND uid = %d ",
+						dbesc($str_contact_allow),
+						dbesc($str_group_allow),
+						dbesc($str_contact_deny),
+						dbesc($str_group_deny),
+						dbesc($image_uri),
+						intval($uid)
+					);
+	
+					// also update the linked item (which is probably invisible)
+	
+					$r = q("select id from item
+						WHERE allow_cid = '%s' AND allow_gid = '' AND deny_cid = '' AND deny_gid = ''
+						AND resource_id = '%s' and resource_type = 'photo' AND uid = %d LIMIT 1",
+						dbesc($srch),
+						dbesc($image_uri),
+						intval($uid)
+					);
+					if($r) {
+						$private = (($str_contact_allow || $str_group_allow || $str_contact_deny || $str_group_deny) ? true : false);
+	
+						$r = q("UPDATE item SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', item_private = %d
+							WHERE id = %d AND uid = %d",
+							dbesc($str_contact_allow),
+							dbesc($str_group_allow),
+							dbesc($str_contact_deny),
+							dbesc($str_group_deny),
+							intval($private),
+							intval($r[0]['id']),
+							intval($uid)
+						);
+					}
+					$r = q("select id from attach where hash = '%s' and uid = %d limit 1",
+						dbesc($image_uri),
+						intval($uid)
+					);
+					if($r) {
+						q("update attach SET allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s'
+							WHERE id = %d AND uid = %d",
+							dbesc($str_contact_allow),
+							dbesc($str_group_allow),
+							dbesc($str_contact_deny),
+							dbesc($str_group_deny),
+							intval($r[0]['id']),
+							intval($uid)
+						);
+					} 
+				}
+			}
+		}
+	}
+}
+	
+	
+function fix_attached_file_permissions($channel,$observer_hash,$body,
+	$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny) {
+	
+	if(get_pconfig($channel['channel_id'],'system','force_public_uploads')) {
+		$str_contact_allow = $str_group_allow = $str_contact_deny = $str_group_deny = '';
+	}
+	
+	$match = false;
+	
+	if(preg_match_all("/\[attachment\](.*?)\[\/attachment\]/",$body,$match)) {
+		$attaches = $match[1];
+		if($attaches) {
+			foreach($attaches as $attach) {
+				$hash = substr($attach,0,strpos($attach,','));
+				$rev = intval(substr($attach,strpos($attach,',')));
+				attach_store($channel,$observer_hash,$options = 'update', array(
+					'hash'      => $hash,
+					'revision'  => $rev,
+					'allow_cid' => $str_contact_allow,
+					'allow_gid'  => $str_group_allow,
+					'deny_cid'  => $str_contact_deny,
+					'deny_gid'  => $str_group_deny
+				));
+			}
+		}
 	}
 }

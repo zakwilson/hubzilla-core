@@ -59,20 +59,33 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 	
 			$uid = $person;
-	
-			$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
-				intval($resolution),
-				intval($uid),
-				intval(PHOTO_PROFILE)
-			);
-			if($r) {
-				$data = dbunescbin($r[0]['content']);
-				$mimetype = $r[0]['mimetype'];
+
+			$d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
+			call_hooks('get_profile_photo',$d);
+
+			$resolution = $d['imgscale'];
+			$uid        = $d['channel_id']; 	
+			$default    = $d['default'];
+			$data       = $d['data'];
+			$mimetype   = $d['mimetype'];
+
+			if(! $data) {
+				$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
+					intval($resolution),
+					intval($uid),
+					intval(PHOTO_PROFILE)
+				);
+				if($r) {
+					$data = dbunescbin($r[0]['content']);
+					$mimetype = $r[0]['mimetype'];
+				}
+				if(intval($r[0]['os_storage']))
+					$data = file_get_contents($data);
 			}
-			if(intval($r[0]['os_storage']))
-				$data = file_get_contents($data);
-			if(! isset($data)) {
+			if(! $data) {
 				$data = file_get_contents($default);
+			}
+			if(! $mimetype) {
 				$mimetype = 'image/png';
 			}
 		}
@@ -88,6 +101,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			   Project link: https://github.com/Retina-Images/Retina-Images
 			   License link: http://creativecommons.org/licenses/by/3.0/
 			*/
+
 			$cookie_value = false;
 			if (isset($_COOKIE['devicePixelRatio'])) {
 			  $cookie_value = intval($_COOKIE['devicePixelRatio']);
@@ -114,15 +128,15 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 			
 			// If using resolution 1, make sure it exists before proceeding:
-			if ($resolution == 1)
-			  {
+			if($resolution == 1) {
 			    $r = q("SELECT uid FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				   dbesc($photo),
 				   intval($resolution)
-				   );
-			    if (!($r))
+				);
+			    if(! $r) {
 			      $resolution = 2;
-			  }
+				}
+			}
 	
 			$r = q("SELECT uid FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				dbesc($photo),
@@ -133,7 +147,16 @@ class Photo extends \Zotlabs\Web\Controller {
 				$allowed = (($r[0]['uid']) ? perm_is_allowed($r[0]['uid'],$observer_xchan,'view_storage') : true);
 	
 				$sql_extra = permissions_sql($r[0]['uid']);
+
+				if(! $sql_extra)
+					$sql_extra = ' and true ';
+
+				// Only check permissions on normal photos. Those photos we don't check includes
+				// profile photos, xchan photos (which are also profile photos), 'thing' photos,
+				// and cover photos
 	
+				$sql_extra = " and (( photo_usage = 0 $sql_extra ) or photo_usage != 0 )";
+
 				$channel = channelx_by_n($r[0]['uid']);
 
 				// Now we'll see if we can access the photo

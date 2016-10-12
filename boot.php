@@ -44,10 +44,10 @@ require_once('include/account.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '1.12.1' );
+define ( 'STD_VERSION',             '1.14RC1' );
 define ( 'ZOT_REVISION',            '1.1' );
 
-define ( 'DB_UPDATE_VERSION',       1181  );
+define ( 'DB_UPDATE_VERSION',       1183  );
 
 
 /**
@@ -150,15 +150,6 @@ define ( 'MAX_IMAGE_LENGTH',        -1  );
 define ( 'DEFAULT_DB_ENGINE',  'MyISAM'  );
 
 /**
- * SSL redirection policies
- */
-
-define ( 'SSL_POLICY_NONE',         0 );
-define ( 'SSL_POLICY_FULL',         1 );
-define ( 'SSL_POLICY_SELFSIGN',     2 ); // NOT supported in Red
-
-
-/**
  * log levels
  */
 
@@ -167,6 +158,15 @@ define ( 'LOGGER_TRACE',           1 );
 define ( 'LOGGER_DEBUG',           2 );
 define ( 'LOGGER_DATA',            3 );
 define ( 'LOGGER_ALL',             4 );
+
+
+/**
+ * Server roles
+ */
+
+define ( 'SERVER_ROLE_BASIC',     0x0001 );
+define ( 'SERVER_ROLE_STANDARD',  0x0002 );
+define ( 'SERVER_ROLE_PRO',       0x0004 );
 
 /**
  * registration policies
@@ -612,11 +612,11 @@ function sys_boot() {
 		if(UNO)
 			App::$config['system']['server_role'] = 'basic';
 		else
-			App::$config['system']['server_role'] = 'pro';
+			App::$config['system']['server_role'] = 'standard';
 	}
 
 	if(! (array_key_exists('server_role',App::$config['system']) && App::$config['system']['server_role']))
-		App::$config['system']['server_role'] = 'pro';
+		App::$config['system']['server_role'] = 'standard';
 
 	App::$timezone = ((App::$config['system']['timezone']) ? App::$config['system']['timezone'] : 'UTC');
 	date_default_timezone_set(App::$timezone);
@@ -697,6 +697,7 @@ function startup() {
 
 class ZotlabsAutoloader {
     static public function loader($className) {
+		$debug = false;
         $filename = str_replace('\\', '/', $className) . ".php";
         if(file_exists($filename)) {
             include($filename);
@@ -760,7 +761,7 @@ class miniApp {
 class App {
 
 	public  static $install    = false;           // true if we are installing the software
-
+	public  static $role       = 0;               // server role (constant, not the string)
 	public  static $account    = null;            // account record of the logged-in account
 	public  static $channel    = null;            // channel record of the current channel of the logged-in account
 	public  static $observer   = null;            // xchan record of the page observer
@@ -1043,6 +1044,31 @@ class App {
 				self::$path = trim($parsed['path'],'\\/');
 		}
 	}
+
+	public static function get_role() {
+		if(! self::$role)
+			return self::set_role();
+		return self::$role;
+	}
+
+	public static function set_role() {
+		$role_str = \Zotlabs\Lib\System::get_server_role();
+		switch($role_str) {
+			case 'basic':
+				$role = SERVER_ROLE_BASIC;
+				break;
+			case 'pro':
+				$role = SERVER_ROLE_PRO;
+				break;
+			case 'standard':
+			default:
+				$role = SERVER_ROLE_STANDARD;
+				break;
+		}
+		self::$role = $role;
+		return $role;
+	}
+
 
 	public static function get_scheme() {
 		return self::$scheme;
@@ -1583,13 +1609,13 @@ function fix_system_urls($oldurl, $newurl) {
 	);
 
 	if($r) {
-		foreach($r as $rr) {
-			$channel_address = substr($rr['hubloc_addr'],0,strpos($rr['hubloc_addr'],'@'));
+		foreach($r as $rv) {
+			$channel_address = substr($rv['hubloc_addr'],0,strpos($rv['hubloc_addr'],'@'));
 
 			// get the associated channel. If we don't have a local channel, do nothing for this entry.
 
 			$c = q("select * from channel where channel_hash = '%s' limit 1",
-				dbesc($rr['hubloc_hash'])
+				dbesc($rv['hubloc_hash'])
 			);
 			if(! $c)
 				continue;
@@ -1611,19 +1637,19 @@ function fix_system_urls($oldurl, $newurl) {
 
 			// The xchan_url might point to another nomadic identity clone
 
-			$replace_xchan_url = ((strpos($rr['xchan_url'],$oldurl) !== false) ? true : false);
+			$replace_xchan_url = ((strpos($rv['xchan_url'],$oldurl) !== false) ? true : false);
 
 			$x = q("update xchan set xchan_addr = '%s', xchan_url = '%s', xchan_connurl = '%s', xchan_follow = '%s', xchan_connpage = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_date = '%s' where xchan_hash = '%s'",
 				dbesc($channel_address . '@' . $rhs),
-				dbesc(($replace_xchan_url) ? str_replace($oldurl,$newurl,$rr['xchan_url']) : $rr['xchan_url']),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_connurl'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_follow'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_connpage'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_l'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_m'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_s'])),
+				dbesc(($replace_xchan_url) ? str_replace($oldurl,$newurl,$rv['xchan_url']) : $rv['xchan_url']),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_connurl'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_follow'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_connpage'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_l'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_m'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_s'])),
 				dbesc(datetime_convert()),
-				dbesc($rr['xchan_hash'])
+				dbesc($rv['xchan_hash'])
 			);
 
 			$y = q("update hubloc set hubloc_addr = '%s', hubloc_url = '%s', hubloc_url_sig = '%s', hubloc_host = '%s', hubloc_callback = '%s' where hubloc_hash = '%s' and hubloc_url = '%s'",
@@ -1632,13 +1658,13 @@ function fix_system_urls($oldurl, $newurl) {
 				dbesc(base64url_encode(rsa_sign($newurl,$c[0]['channel_prvkey']))),
 				dbesc($newhost),
 				dbesc($newurl . '/post'),
-				dbesc($rr['xchan_hash']),
+				dbesc($rv['xchan_hash']),
 				dbesc($oldurl)
 			);
 
 			$z = q("update profile set photo = '%s', thumb = '%s' where uid = %d",
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_l'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_m'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_l'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_m'])),
 				intval($c[0]['channel_id'])
 			);
 
@@ -1666,12 +1692,12 @@ function fix_system_urls($oldurl, $newurl) {
 	);
 
 	if($r) {
-		foreach($r as $rr) {
+		foreach($r as $rv) {
 			$x = q("update xchan set xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s' where xchan_hash = '%s'",
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_l'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_m'])),
-				dbesc(str_replace($oldurl,$newurl,$rr['xchan_photo_s'])),
-				dbesc($rr['xchan_hash'])
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_l'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_m'])),
+				dbesc(str_replace($oldurl,$newurl,$rv['xchan_photo_s'])),
+				dbesc($rv['xchan_hash'])
 			);
 		}
 	}
@@ -2029,8 +2055,8 @@ function load_contact_links($uid) {
 		intval($uid)
 	);
 	if($r) {
-		foreach($r as $rr){
-			$ret[$rr['xchan_hash']] = $rr;
+		foreach($r as $rv){
+			$ret[$rv['xchan_hash']] = $rv;
 		}
 	}
 	else
@@ -2210,6 +2236,9 @@ function construct_page(&$a) {
 	}
 
 	$current_theme = Zotlabs\Render\Theme::current();
+
+	// logger('current_theme: ' . print_r($current_theme,true));
+	// Zotlabs\Render\Theme::debug();
 
 	if (($p = theme_include($current_theme[0] . '.js')) != '')
 		head_add_js($p);

@@ -262,8 +262,30 @@ function enableOnUser(){
 
 	function linkdropper(event) {
 		var linkFound = event.dataTransfer.types.contains("text/uri-list");
-		if(linkFound)
+		if(linkFound) {
 			event.preventDefault();
+			var editwin = '#' + event.target.id;
+			var commentwin = false;
+			if(editwin) {
+				commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
+				if(commentwin) {
+					var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
+					$('#comment-edit-text-' + commentid).addClass('hover');
+				}
+			}
+		}
+	}
+
+	function linkdropexit(event) {
+		var editwin = '#' + event.target.id;
+		var commentwin = false;
+		if(editwin) {
+			commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
+			if(commentwin) {
+				var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
+				$('#comment-edit-text-' + commentid).removeClass('hover');
+			}
+		}
 	}
 
 	function linkdrop(event) {
@@ -276,6 +298,7 @@ function enableOnUser(){
 			if(commentwin) {
 				var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
 				commentOpen(document.getElementById(event.target.id),commentid);
+
 			}
 		}
 
@@ -368,6 +391,19 @@ function enableOnUser(){
 		else {
 			$('#jot-consensus').val(1);
 			$('#profile-voting, #profile-voting-sub').removeClass('fa-square-o').addClass('fa-check-square-o');
+		}
+	}
+
+	function toggleNoComment() {
+		if($('#jot-nocomment').val() > 0) {
+			$('#jot-nocomment').val(0);
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments-o').addClass('fa-comments');
+			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_enabled}}');
+		}
+		else {
+			$('#jot-nocomment').val(1);
+			$('#profile-nocomment, #profile-nocomment-sub').removeClass('fa-comments').addClass('fa-comments-o');
+			$('#profile-nocomment-wrapper').attr('title', '{{$nocomment_disabled}}');
 		}
 	}
 
@@ -503,6 +539,7 @@ function enableOnUser(){
 
       // cancel event and hover styling
       DragDropUploadFileHover(e);
+	  if (!editor) $("#profile-jot-text").val("");
 
 
       // fetch FileList object
@@ -527,7 +564,11 @@ function enableOnUser(){
       xhr.addEventListener('load', function (e) {
         //console.log('xhr upload complete', e);
         window.fileUploadsCompleted = window.fileUploadsCompleted + 1;
-		addeditortext(xhr.responseText);
+
+		initEditor(function() {
+			addeditortext(xhr.responseText);
+		});
+
 		$('#jot-media').val($('#jot-media').val() + xhr.responseText);
         // When all the uploads have completed, refresh the page
         if (window.filesToUpload > 0 && window.fileUploadsCompleted === window.filesToUpload) {  

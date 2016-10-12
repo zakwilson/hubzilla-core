@@ -61,6 +61,7 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		$search = (($_GET['search']) ? $_GET['search'] : '');
 		if($search) {
+			$_GET['netsearch'] = escape_tags($search);
 			if(strpos($search,'@') === 0) {
 				$r = q("select abook_id from abook left join xchan on abook_xchan = xchan_hash where xchan_name = '%s' and abook_channel = %d limit 1",
 					dbesc(substr($search,1)),
@@ -138,7 +139,7 @@ class Network extends \Zotlabs\Web\Controller {
 			if($_GET['pf'] === '1')
 				$deftag = '@' . t('forum') . '+' . intval($cid) . '+';
 			else
-				$def_acl = array('allow_cid' => '<' . $r[0]['abook_xchan'] . '>');
+				$def_acl = [ 'allow_cid' => '<' . $r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 		}
 	
 		if(! $update) {
@@ -159,7 +160,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'allow_gid' => $channel['channel_allow_gid'], 
 				'deny_cid'  => $channel['channel_deny_cid'], 
 				'deny_gid'  => $channel['channel_deny_gid']
-			); 
+			);
 
 			$private_editing = ((($group || $cid) && (! intval($_GET['pf']))) ? true : false);
 	
@@ -176,7 +177,8 @@ class Network extends \Zotlabs\Web\Controller {
 				'profile_uid'      => local_channel(),
 				'editor_autocomplete' => true,
 				'bbco_autocomplete' => 'bbcode',
-				'bbcode' => true
+				'bbcode' => true,
+				'jotnets' => true
 			);
 			if($deftag)
 				$x['pretext'] = $deftag;

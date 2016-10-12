@@ -138,30 +138,73 @@ function purify_html($s, $allow_position = false) {
 	$def = $config->getHTMLDefinition(true);
 
 	//data- attributes used by the foundation library
-	$def->info_global_attr['data-options'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-magellan-expedition'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-magellan-destination'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-magellan-arrival'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-offcanvas'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-topbar'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-orbit'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-orbit-slide-number'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-dropdown'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-dropdown-content'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-reveal-id'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-reveal'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-alert'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-tooltip'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-joyride'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-id'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-text'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-class'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-prev-tex'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-button'] = new HTMLPurifier_AttrDef_Text;
+
+	// f6 navigation
+
+	//dropdown menu
+	$def->info_global_attr['data-dropdown-menu'] = new HTMLPurifier_AttrDef_Text;
+	//drilldown menu
+	$def->info_global_attr['data-drilldown'] = new HTMLPurifier_AttrDef_Text;
+	//accordion menu
+	$def->info_global_attr['data-accordion-menu'] = new HTMLPurifier_AttrDef_Text;
+	//responsive navigation
+	$def->info_global_attr['data-responsive-menu'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-responsive-toggle'] = new HTMLPurifier_AttrDef_Text;
+	//magellan
+	$def->info_global_attr['data-magellan'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-magellan-target'] = new HTMLPurifier_AttrDef_Text;
+
+	// f6 containers
+
+	//accordion
 	$def->info_global_attr['data-accordion'] = new HTMLPurifier_AttrDef_Text;
-	$def->info_global_attr['data-tab'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-accordion-item'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-tab-content'] = new HTMLPurifier_AttrDef_Text;
+	//dropdown
+	$def->info_global_attr['data-dropdown'] = new HTMLPurifier_AttrDef_Text;
+	//off-canvas
+	$def->info_global_attr['data-off-canvas-wrapper'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-off-canvas'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-off-canvas-content'] = new HTMLPurifier_AttrDef_Text;
+	//reveal
+	$def->info_global_attr['data-reveal'] = new HTMLPurifier_AttrDef_Text;
+	//tabs
+	$def->info_global_attr['data-tabs'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-tabs-content'] = new HTMLPurifier_AttrDef_Text;
+
+	// f6 media
+
+	//orbit
+	$def->info_global_attr['data-orbit'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-slide'] = new HTMLPurifier_AttrDef_Text;
+	//tooltip
+	$def->info_global_attr['data-tooltip'] = new HTMLPurifier_AttrDef_Text;
+
+	// f6 plugins
+
+	//abide - the use is pointless since we can't do anything with forms 
+
+	//equalizer
 	$def->info_global_attr['data-equalizer'] = new HTMLPurifier_AttrDef_Text;
 	$def->info_global_attr['data-equalizer-watch'] = new HTMLPurifier_AttrDef_Text;
+
+	//interchange - potentially dangerous since it can load content
+
+	//toggler
+	$def->info_global_attr['data-toggler'] = new HTMLPurifier_AttrDef_Text;
+
+	//sticky
+	$def->info_global_attr['data-sticky'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-sticky-container'] = new HTMLPurifier_AttrDef_Text;
+
+	// f6 common
+
+	$def->info_global_attr['data-options'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-toggle'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-close'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-open'] = new HTMLPurifier_AttrDef_Text;
+	$def->info_global_attr['data-position'] = new HTMLPurifier_AttrDef_Text;
+
 
 	//data- attributes used by the bootstrap library
 	$def->info_global_attr['data-dismiss'] = new HTMLPurifier_AttrDef_Text;
@@ -191,12 +234,15 @@ function purify_html($s, $allow_position = false) {
 	$def->info_global_attr['data-offset-bottom'] = new HTMLPurifier_AttrDef_Text;
 
 	//some html5 elements
+	//Block
 	$def->addElement('section', 'Block', 'Flow', 'Common');
 	$def->addElement('nav',     'Block', 'Flow', 'Common');
 	$def->addElement('article', 'Block', 'Flow', 'Common');
 	$def->addElement('aside',   'Block', 'Flow', 'Common');
 	$def->addElement('header',  'Block', 'Flow', 'Common');
 	$def->addElement('footer',  'Block', 'Flow', 'Common');
+	//Inline
+	$def->addElement('button',  'Inline', 'Inline', 'Common');
 
 
 	if($allow_position) {
@@ -936,7 +982,7 @@ function searchbox($s,$id='search-box',$url='/search',$save = false) {
 		'$action_url' => z_root() . '/' . $url,
 		'$search_label' => t('Search'),
 		'$save_label' => t('Save'),
-		'$savedsearch' => feature_enabled(local_channel(),'savedsearch')
+		'$savedsearch' => ($save && feature_enabled(local_channel(),'savedsearch'))
 	));
 }
 
@@ -2267,11 +2313,11 @@ function design_tools() {
 }
 
 /**
- * @brief Creates website import tools menu
+ * @brief Creates website portation tools menu
  *
  * @return string
  */
-function website_import_tools() {
+function website_portation_tools() {
 
 	$channel  = App::get_channel();
 	$sys = false;
@@ -2282,7 +2328,7 @@ function website_import_tools() {
 		$sys = true;
 	}
 
-	return replace_macros(get_markup_template('website_import_tools.tpl'), array(
+	return replace_macros(get_markup_template('website_portation_tools.tpl'), array(
 		'$title' => t('Import'),
 		'$import_label' => t('Import website...'),
 		'$import_placeholder' => t('Select folder to import'),
@@ -2290,7 +2336,15 @@ function website_import_tools() {
 		'$file_import_text' => t('Import from cloud files:'),
 		'$desc' => t('/cloud/channel/path/to/folder'),
 		'$hint' => t('Enter path to website files'),
-		'$select' => t('Select folder'),
+		'$select' => t('Select folder'),			
+		'$export_label' => t('Export website...'),
+		'$file_download_text' => t('Export to a zip file'),
+		'$filename_desc' => t('website.zip'),
+		'$filename_hint' => t('Enter a name for the zip file.'),
+		'$cloud_export_text' => t('Export to cloud files'),
+		'$cloud_export_desc' => t('/path/to/export/folder'),
+		'$cloud_export_hint' => t('Enter a path to a cloud files destination.'),
+		'$cloud_export_select' => t('Specify folder'),			
 	));
 }
 
@@ -2975,3 +3029,38 @@ function text_highlight($s,$lang) {
     return('<code>' . $o . '</code>');
 }
 
+// function to convert multi-dimensional array to xml
+// create new instance of simplexml
+
+// $xml = new SimpleXMLElement('<root/>');
+
+// function callback
+// array2XML($xml, $my_array);
+
+// save as xml file
+// echo (($xml->asXML('data.xml')) ? 'Your XML file has been generated successfully!' : 'Error generating XML file!');
+
+function arrtoxml($root_elem,$arr) {
+	$xml = new SimpleXMLElement('<' . $root_elem . '/>');
+	array2XML($xml,$arr);
+	return $xml->asXML();
+}
+
+function array2XML($obj, $array)
+{
+    foreach ($array as $key => $value)
+    {
+        if(is_numeric($key))
+            $key = 'item' . $key;
+
+        if (is_array($value))
+        {
+            $node = $obj->addChild($key);
+            array2XML($node, $value);
+        }
+        else
+        {
+            $obj->addChild($key, htmlspecialchars($value));
+        }
+    }
+}

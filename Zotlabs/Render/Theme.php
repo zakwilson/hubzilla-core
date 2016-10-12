@@ -66,6 +66,8 @@ class Theme {
 				$chosen_theme = $page_theme;
 			}
 		}
+		if(array_key_exists('theme_preview',$_GET))
+			$chosen_theme = $_GET['theme_preview'];
 
 		// Allow theme selection of the form 'theme_name:schema_name'
 
@@ -112,7 +114,7 @@ class Theme {
 		$theme = self::current();
 
 		$t = $theme[0];
-		$s = ((count($theme) > 1) ? $t[1] : '');
+		$s = ((count($theme) > 1) ? $theme[1] : '');
 
 		$opts = '';
 		$opts = ((\App::$profile_uid) ? '?f=&puid=' . \App::$profile_uid : '');
@@ -127,5 +129,12 @@ class Theme {
 
 		return('view/theme/' . $t . '/css/style.css');
 	}
+
+	function debug() {
+		logger('system_theme: ' . self::$system_theme);
+		logger('session_theme: ' . self::$session_theme);
+
+	}
+
 }
 

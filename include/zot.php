@@ -1593,7 +1593,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
+		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2082,7 +2082,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
+		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2844,6 +2844,7 @@ function import_site($arr, $pubkey) {
 	$site_location = htmlspecialchars($arr['location'],ENT_COMPAT,'UTF-8',false);
 	$site_realm = htmlspecialchars($arr['realm'],ENT_COMPAT,'UTF-8',false);
 	$site_project = htmlspecialchars($arr['project'],ENT_COMPAT,'UTF-8',false);
+	$site_version = ((array_key_exists('version',$arr)) ? htmlspecialchars($arr['version'],ENT_COMPAT,'UTF-8',false) : '');
 
 	// You can have one and only one primary directory per realm.
 	// Downgrade any others claiming to be primary. As they have
@@ -2863,14 +2864,16 @@ function import_site($arr, $pubkey) {
 			|| ($siterecord['site_location'] != $site_location)
 			|| ($siterecord['site_register'] != $register_policy)
 			|| ($siterecord['site_project'] != $site_project)
-			|| ($siterecord['site_realm'] != $site_realm)) {
+			|| ($siterecord['site_realm'] != $site_realm)
+			|| ($siterecord['site_version'] != $site_version)   ) {
+
 			$update = true;
 
 //			logger('import_site: input: ' . print_r($arr,true));
 //			logger('import_site: stored: ' . print_r($siterecord,true));
 
 
-			$r = q("update site set site_dead = 0, site_location = '%s', site_flags = %d, site_access = %d, site_directory = '%s', site_register = %d, site_update = '%s', site_sellpage = '%s', site_realm = '%s', site_type = %d, site_project = '%s'
+			$r = q("update site set site_dead = 0, site_location = '%s', site_flags = %d, site_access = %d, site_directory = '%s', site_register = %d, site_update = '%s', site_sellpage = '%s', site_realm = '%s', site_type = %d, site_project = '%s', site_version = '%s'
 				where site_url = '%s'",
 				dbesc($site_location),
 				intval($site_directory),
@@ -2882,6 +2885,7 @@ function import_site($arr, $pubkey) {
 				dbesc($site_realm),
 				intval(SITE_TYPE_ZOT),
 				dbesc($site_project),
+				dbesc($site_version),
 				dbesc($url)
 			);
 			if(! $r) {
@@ -2899,8 +2903,8 @@ function import_site($arr, $pubkey) {
 	else {
 		$update = true;
 
-		$r = q("insert into site ( site_location, site_url, site_access, site_flags, site_update, site_directory, site_register, site_sellpage, site_realm, site_type, site_project )
-			values ( '%s', '%s', %d, %d, '%s', '%s', %d, '%s', '%s', %d, '%s' )",
+		$r = q("insert into site ( site_location, site_url, site_access, site_flags, site_update, site_directory, site_register, site_sellpage, site_realm, site_type, site_project, site_version )
+			values ( '%s', '%s', %d, %d, '%s', '%s', %d, '%s', '%s', %d, '%s', '%s' )",
 			dbesc($site_location),
 			dbesc($url),
 			intval($access_policy),
@@ -2911,7 +2915,8 @@ function import_site($arr, $pubkey) {
 			dbesc($sellpage),
 			dbesc($site_realm),
 			intval(SITE_TYPE_ZOT),
-			dbesc($site_project)
+			dbesc($site_project),
+			dbesc($site_version)
 		);
 		if(! $r) {
 			logger('import_site: record create failed. ' . print_r($arr,true));
@@ -3159,7 +3164,10 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('channel',$arr) && is_array($arr['channel']) && count($arr['channel'])) {
 
-			translate_channel_perms_inbound($arr['channel']);
+			$remote_channel = $arr['channel'];
+			$remote_channel['channel_id'] = $channel['channel_id'];
+			translate_channel_perms_inbound($remote_channel);
+
 
 			if(array_key_exists('channel_pageflags',$arr['channel']) && intval($arr['channel']['channel_pageflags'])) {
 				// These flags cannot be sync'd.
@@ -3527,7 +3535,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
 			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
-			$DR->addto_recipient($channel['channel_name'] . ' <' . $channel['channel_address'] . '@' . App::get_hostname() . '>');
+			$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 		}
 		else
 			$DR = new Zotlabs\Zot\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
@@ -3638,8 +3646,7 @@ function zot_reply_message_request($data) {
 	if ($messages) {
 		$env_recips = null;
 
-		$r = q("select * from hubloc where hubloc_hash = '%s' and hubloc_error = 0 and hubloc_deleted = 0 
-			group by hubloc_sitekey",
+		$r = q("select * from hubloc where hubloc_hash = '%s' and hubloc_error = 0 and hubloc_deleted = 0",
 			dbesc($sender_hash)
 		);
 		if (! $r) {
@@ -3787,18 +3794,12 @@ function zotinfo($arr) {
 	}
 	elseif($ztarget_hash) {
 		// check if it has characteristics of a public forum based on custom permissions.
-		$t = q("select * from abconfig where abconfig.cat = 'my_perms' and abconfig.chan = %d and abconfig.xchan = '%s' and abconfig.k in ('tag_deliver', 'send_stream') ",
-			intval($e['channel_id']),
-			dbesc($ztarget_hash)
-		);
-
-		$ch = 0;
-
-		if($t) {
-			foreach($t as $tt) {
-				if($tt['k'] == 'tag_deliver' && $tt['v'] == 1)
+		$m = \Zotlabs\Access\Permissions::FilledAutoperms($e['channel_id']);
+		if($m) {
+			foreach($m as $k => $v) {
+				if($k == 'tag_deliver' && intval($v) == 1)
 					$ch ++;
-				if($tt['k'] == 'send_stream' && $tt['v'] == 0)
+				if($k == 'send_stream' && intval($v) == 0)
 					$ch ++;
 			}
 			if($ch == 2)
@@ -3964,9 +3965,6 @@ function zotinfo($arr) {
 		require_once('include/channel.php');
 		$ret['site']['channels'] = channel_total();
 
-
-		$ret['site']['version'] = Zotlabs\Lib\System::get_platform_name() . ' ' . STD_VERSION . '[' . DB_UPDATE_VERSION . ']';
-
 		$ret['site']['admin'] = get_config('system','admin_email');
 
 		$visible_plugins = array();
@@ -3984,6 +3982,7 @@ function zotinfo($arr) {
 		$ret['site']['location'] = get_config('system','site_location');
 		$ret['site']['realm'] = get_directory_realm();
 		$ret['site']['project'] = Zotlabs\Lib\System::get_platform_name() . ' ' . Zotlabs\Lib\System::get_server_role();
+		$ret['site']['version'] = Zotlabs\Lib\System::get_project_version();
 
 	}
 
@@ -4035,7 +4034,7 @@ function check_zotinfo($channel,$locations,&$ret) {
 				dbesc($channel['channel_guid']),
 				dbesc($channel['channel_guid_sig']),
 				dbesc($channel['channel_hash']),
-				dbesc($channel['channel_address'] . '@' . App::get_hostname()),
+				dbesc(channel_reddress($channel)),
 				intval(1),
 				dbesc(z_root()),
 				dbesc(base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey']))),

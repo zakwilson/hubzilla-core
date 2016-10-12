@@ -1,5 +1,107 @@
 <?php
 
+function get_help_content($tocpath = false) {
+	
+	global $lang;
+	
+	$doctype = 'markdown';
+	
+	$text = '';
+
+	$path = (($tocpath !== false) ? $tocpath : '');
+
+	if($tocpath === false && argc() > 1) {
+		$path = '';
+		for($x = 1; $x < argc(); $x ++) {
+			if(strlen($path))
+				$path .= '/';
+			$path .= argv($x);
+		}
+	}
+
+	if($path) {
+		$title = basename($path);
+		if(! $tocpath)
+			\App::$page['title'] = t('Help:') . ' ' . ucwords(str_replace('-',' ',notags($title)));
+
+		$text = load_doc_file('doc/' . $path . '.md');
+	
+		if(! $text) {
+			$text = load_doc_file('doc/' . $path . '.bb');
+			if($text)
+				$doctype = 'bbcode';
+		}
+		if(! $text) {
+			$text = load_doc_file('doc/' . $path . '.html');
+			if($text)
+				$doctype = 'html';
+		}
+	}
+
+	if(($tocpath) && (! $text))
+		return '';
+
+	if($tocpath === false) {
+		if(! $text) {
+			$text = load_doc_file('doc/Site.md');
+			\App::$page['title'] = t('Help');
+		}
+		if(! $text) {
+			$doctype = 'bbcode';
+			$text = load_doc_file('doc/main.bb');
+			\App::$page['title'] = t('Help');
+		}
+		
+		if(! $text) {
+			header($_SERVER["SERVER_PROTOCOL"] . ' 404 ' . t('Not Found'));
+			$tpl = get_markup_template("404.tpl");
+			return replace_macros($tpl, array(
+				'$message' =>  t('Page not found.' )
+			));
+		}
+	}
+	
+	if($doctype === 'html')
+		$content = $text;
+	if($doctype === 'markdown')	{
+		require_once('library/markdown.php');
+		# escape #include tags
+		$text = preg_replace('/#include/ism', '%%include', $text);
+		$content = Markdown($text);
+		$content = preg_replace('/%%include/ism', '#include', $content);
+	}
+	if($doctype === 'bbcode') {
+		require_once('include/bbcode.php');
+		$content = bbcode($text);
+		// bbcode retargets external content to new windows. This content is internal.
+		$content = str_replace(' target="_blank"','',$content);		
+	} 
+	
+	$content = preg_replace_callback("/#include (.*?)\;/ism", 'preg_callback_help_include', $content);
+	return translate_projectname($content);
+	
+}
+
+function preg_callback_help_include($matches) {
+	
+	if($matches[1]) {
+		$include = str_replace($matches[0],load_doc_file($matches[1]),$matches[0]);
+		if(preg_match('/\.bb$/', $matches[1]) || preg_match('/\.txt$/', $matches[1])) {
+			require_once('include/bbcode.php');
+			$include = bbcode($include);
+			$include = str_replace(' target="_blank"','',$include);		
+		} 
+		elseif(preg_match('/\.md$/', $matches[1])) {
+			require_once('library/markdown.php');
+			$include = Markdown($include);
+		}
+		return $include;
+	}
+	
+}
+
+
+
 function load_doc_file($s) {
 	$lang = \App::$language;
 	if(! isset($lang))
@@ -17,8 +119,9 @@ function load_doc_file($s) {
 }
 
 function find_doc_file($s) {
-	if(file_exists($s))
+	if(file_exists($s)) {
 		return file_get_contents($s);
+	}
 	return '';
 }
 
@@ -40,8 +143,13 @@ function search_doc_files($s) {
 	$r = fetch_post_tags($r,true);
 
 	for($x = 0; $x < count($r); $x ++) {
-
-		$r[$x]['text'] = $r[$x]['body'];
+		$position =	stripos($r[$x]['body'], $s);
+		$dislen = 300;
+		$start = $position-floor($dislen/2);
+		if ( $start < 0) {
+				$start = 0;
+		}
+		$r[$x]['text'] = substr($r[$x]['body'], $start, $dislen);
 
 		$r[$x]['rank'] = 0;
 		if($r[$x]['term']) {

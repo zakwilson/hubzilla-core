@@ -120,8 +120,9 @@ class Channel extends \Zotlabs\Web\Controller {
 					'deny_gid' => $channel['channel_deny_gid']
 				);
 			}
-			else
-				$channel_acl = array(); 
+			else {
+				$channel_acl = [ 'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
+			}
 
 
 			if($perms['post_wall']) {
@@ -133,14 +134,15 @@ class Channel extends \Zotlabs\Web\Controller {
 					'nickname' => \App::$profile['channel_address'],
 					'lockstate' => (((strlen(\App::$profile['channel_allow_cid'])) || (strlen(\App::$profile['channel_allow_gid'])) || (strlen(\App::$profile['channel_deny_cid'])) || (strlen(\App::$profile['channel_deny_gid']))) ? 'lock' : 'unlock'),
 					'acl' => (($is_owner) ? populate_acl($channel_acl,true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post') : ''),
-					'permissions' => (($is_owner) ? $channel_acl : ''),
+					'permissions' => $channel_acl,
 					'showacl' => (($is_owner) ? 'yes' : ''),
 					'bang' => '',
 					'visitor' => (($is_owner || $observer) ? true : false),
 					'profile_uid' => \App::$profile['profile_uid'],
 					'editor_autocomplete' => true,
 					'bbco_autocomplete' => 'bbcode',
-					'bbcode' => true
+					'bbcode' => true,
+					'jotnets' => true
         		);
 
         		$o .= status_editor($a,$x);
@@ -176,10 +178,11 @@ class Channel extends \Zotlabs\Web\Controller {
 
 			if($mid) {
 				$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
-					AND item_wall = 1 AND item_unseen = 1 $sql_extra limit 1",
+					AND item_wall = 1 $simple_update $sql_extra limit 1",
 					dbesc($mid . '%'),
 					intval(\App::$profile['profile_uid'])
 				);
+				$_SESSION['loadtime'] = datetime_convert();
 			} 
 			else {
 				$r = q("SELECT distinct parent AS `item_id`, created from item

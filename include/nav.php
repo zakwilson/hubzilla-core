@@ -63,6 +63,7 @@ EOT;
 
 	$server_role = get_config('system','server_role');
 	$basic = (($server_role === 'basic') ? true : false);
+	$techlevel = get_account_techlevel();
 
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = Array();
@@ -144,10 +145,10 @@ EOT;
 		$homelink = (($observer) ? $observer['xchan_url'] : '');
 	}
 
-	if((App::$module != 'home') && (! (local_channel()))) 
+	if(! local_channel()) 
 		$nav['home'] = array($homelink, t('Home'), "", t('Home Page'),'home_nav_btn');
 
-	if((App::$config['system']['register_policy'] == REGISTER_OPEN) && (! $_SESSION['authenticated']))
+	if(((get_config('system','register_policy') == REGISTER_OPEN) || (get_config('system','register_policy') == REGISTER_APPROVE)) && (! $_SESSION['authenticated']))
 		$nav['register'] = array('register',t('Register'), "", t('Create an account'),'register_nav_btn');
 
 	if(! get_config('system','hide_help')) {

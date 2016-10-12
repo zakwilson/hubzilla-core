@@ -62,6 +62,8 @@ class DBA {
  
 
 		if(is_object(self::$dba) && self::$dba->connected) {
+			if($server === 'localhost') 
+				$port = $set_port;
 			$dns = ((self::$dbtype == DBTYPE_POSTGRES) ? 'postgres' : 'mysql')
 			. ':host=' . $server . (is_null($port) ? '' : ';port=' . $port)
 			. ';dbname=' . $db;
@@ -84,7 +86,7 @@ class DBA {
 abstract class dba_driver {
 	// legacy behavior
 	const INSTALL_SCRIPT='install/schema_mysql.sql';
-	const NULL_DATE = '0000-00-00 00:00:00';
+	const NULL_DATE = '0001-01-01 00:00:00';
 	const UTC_NOW = 'UTC_TIMESTAMP()';
 
 	protected $db;
@@ -260,11 +262,8 @@ function dbg($state) {
  */
 function dbesc($str) {
 
-	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES && $str === '0000-00-00 00:00:00') {
+	if(is_null_date($str))
 		$str = NULL_DATE;
-	} else if(ACTIVE_DBTYPE != DBTYPE_POSTGRES && $str === '0001-01-01 00:00:00') {
-		$str = NULL_DATE;
-	}
 
 	if(\DBA::$dba && \DBA::$dba->connected)
 		return(\DBA::$dba->escape($str));
@@ -280,12 +279,9 @@ function dbunescbin($str) {
 }
 
 function dbescdate($date) {
-	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES && $date === '0000-00-00 00:00:00') {
-		$date = NULL_DATE;
-	} else if(ACTIVE_DBTYPE != DBTYPE_POSTGRES && $date === '0001-01-01 00:00:00') {
-		$date = NULL_DATE;
-	}
-	return $date;
+	if(is_null_date($date))
+		return \DBA::$dba->escape(NULL_DATE);
+	return \DBA::$dba->escape($date);
 }
 
 function db_quoteinterval($txt) {
@@ -380,11 +376,8 @@ function dbq($sql) {
 
 function dbesc_array_cb(&$item, $key) {
 	if(is_string($item)) {
-		if($item == '0000-00-00 00:00:00' && ACTIVE_DBTYPE == DBTYPE_POSTGRES)
-			$item = '0001-01-01 00:00:00';
-		else if($item == '0001-01-01 00:00:00' && ACTIVE_DBTYPE == DBTYPE_MYSQL)
-			$item = '0000-00-00 00:00:00';
-
+		if(is_null_date($item))
+			$item = NULL_DATE;
 		$item = dbesc($item);
 	}
 }

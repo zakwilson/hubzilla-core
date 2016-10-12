@@ -68,7 +68,10 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	called when converting bbcode to markdown
 
 [zrl=[baseurl]/help/hook/bbcode]bbcode[/zrl]
-	Called when converting bbcode to HTML
+	Called at end of converting bbcode to HTML
+
+[zrl=[baseurl]/help/hook/bbcode_filter]bbcode_filter[/zrl]
+	Called when beginning to convert bbcode to HTML
 
 [zrl=[baseurl]/help/hook/bb_translate_video]bb_translate_video[/zrl]
 	Called when extracting embedded services from bbcode video elements (rarely used)
@@ -184,6 +187,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/event_created]event_created[/zrl]
 	called when an event record is created
 
+[zrl=[baseurl]/help/hook/event_store_event]event_store_event[/zrl]
+	called when an event record is created or updated
+
 [zrl=[baseurl]/help/hook/event_updated]event_updated[/zrl]
 	called when an event record is modified
 
@@ -232,6 +238,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/get_features]get_features[/zrl]
 	Called when get_features() is called
+
+[zrl=[baseurl]/help/hook/get_profile_photo]get_profile_photo[/zrl]
+	Called when local profile photo content is fetched in mod_photo
 
 [zrl=[baseurl]/help/hook/get_role_perms]get_role_perms[/zrl]
 	Called when get_role_perms() is called to obtain permissions for named permission roles

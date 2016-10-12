@@ -174,6 +174,11 @@ class ThreadItem {
   
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
+		$my_responses = [];
+		foreach($response_verbs as $v) {
+			$my_responses[$v] = (($conv_responses[$v][$item['mid'] . '-m']) ? 1 : 0);
+		}
+
 		$like_count = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid']] : '');
 		$like_list = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid'] . '-l'] : '');
 		if (count($like_list) > MAX_LIKERS) {
@@ -246,10 +251,11 @@ class ThreadItem {
 		}
 
 		$server_role = get_config('system','server_role');
+
 		$has_bookmarks = false;
 		if(is_array($item['term'])) {
 			foreach($item['term'] as $t) {
-				if(($server_role != 'basic') && ($t['ttype'] == TERM_BOOKMARK))
+				if((get_account_techlevel() > 0) && ($t['ttype'] == TERM_BOOKMARK))
 					$has_bookmarks = true;
 			}
 		}
@@ -343,7 +349,7 @@ class ThreadItem {
 			'isotime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
 			'localtime' => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
-			'expiretime' => (($item['expires'] !== NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
+			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
 			'lock' => $lock,
 			'verified' => $verified,
 			'unverified' => $unverified,
@@ -380,6 +386,7 @@ class ThreadItem {
 			'list_unseen_txt' => $list_unseen_txt,
 			'markseen' => t('Mark all seen'),
 			'responses' => $responses,
+			'my_responses' => $my_responses,
 			'like_count' => $like_count,
 			'like_list' => $like_list,
 			'like_list_part' => $like_list_part,
@@ -396,6 +403,7 @@ class ThreadItem {
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
+			'submid' => substr($item['mid'],0,32),
 			'thread_level' => $thread_level
 		);
 
@@ -410,6 +418,12 @@ class ThreadItem {
 		$visible_comments = get_config('system','expanded_comments');
 		if($visible_comments === false)
 			$visible_comments = 3;
+
+//		needed for scroll to comment from notification but needs more work
+//		as we do not want to open all comments unless there is actually an #item_xx anchor
+//		and the url fragment is not sent to the server. 
+//		if(in_array(\App::$module,['display','update_display'])) 
+//			$visible_comments = 99999;
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {

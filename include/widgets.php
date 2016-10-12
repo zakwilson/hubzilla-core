@@ -209,7 +209,9 @@ function widget_savedsearch($arr) {
 	if((! local_channel()) || (! feature_enabled(local_channel(),'savedsearch')))
 		return '';
 
-	$search = ((x($_GET,'search')) ? $_GET['search'] : '');
+	$search = ((x($_GET,'netsearch')) ? $_GET['netsearch'] : '');
+	if(! $search)
+		$search = ((x($_GET,'search')) ? $_GET['search'] : '');
 	
 	if(x($_GET,'searchsave') && $search) {
 		$r = q("select * from `term` where `uid` = %d and `ttype` = %d and `term` = '%s' limit 1",
@@ -286,6 +288,40 @@ function widget_savedsearch($arr) {
 
 	return $o;
 }
+
+function widget_sitesearch($arr) {
+
+	$search = ((x($_GET,'search')) ? $_GET['search'] : '');
+	
+	$srchurl = App::$query_string;
+
+	$srchurl =  rtrim(preg_replace('/search\=[^\&].*?(\&|$)/is','',$srchurl),'&');
+	$srchurl =  rtrim(preg_replace('/submit\=[^\&].*?(\&|$)/is','',$srchurl),'&');
+	$srchurl = str_replace(array('?f=','&f='),array('',''),$srchurl);
+
+
+	$hasq = ((strpos($srchurl,'?') !== false) ? true : false);
+	$hasamp = ((strpos($srchurl,'&') !== false) ? true : false);
+
+	if(($hasamp) && (! $hasq))
+		$srchurl = substr($srchurl,0,strpos($srchurl,'&')) . '?f=&' . substr($srchurl,strpos($srchurl,'&')+1);		
+
+	$o = '';
+
+	$saved = array();
+
+	$tpl = get_markup_template("sitesearch.tpl");
+	$o = replace_macros($tpl, array(
+		'$title'	 => t('Search'),
+		'$searchbox' => searchbox($search, 'netsearch-box', $srchurl . (($hasq) ? '' : '?f='), false),
+		'$saved' 	 => $saved,
+	));
+
+	return $o;
+}
+
+
+
 
 
 function widget_filer($arr) {
@@ -566,7 +602,7 @@ function widget_settings_menu($arr) {
 
 	);
 
-	if(get_features()) {
+	if(get_account_techlevel() > 0 && get_features()) {
 		$tabs[] = 	array(
 				'label'	=> t('Additional features'),
 				'url' 	=> z_root().'/settings/features',
@@ -594,14 +630,11 @@ function widget_settings_menu($arr) {
 		);
 	}
 
-	// IF can go away when UNO export and import is fully functional
-	if(get_config('system','server_role') !== 'basic') {
-		$tabs[] =	array(
-			'label' => t('Export channel'),
-			'url' => z_root() . '/uexport',
-			'selected' => ''
-		);
-	}
+	$tabs[] =	array(
+		'label' => t('Export channel'),
+		'url' => z_root() . '/uexport',
+		'selected' => ''
+	);
 
 	$tabs[] =	array(
 		'label' => t('Connected apps'),
@@ -609,7 +642,7 @@ function widget_settings_menu($arr) {
 		'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
 	);
 
-	if(get_config('system','server_role') !== 'basic') {
+	if(get_account_techlevel() > 2) {
 		$tabs[] =	array(
 			'label' => t('Guest Access Tokens'),
 			'url' => z_root() . '/settings/tokens',
@@ -779,7 +812,7 @@ function widget_design_tools($arr) {
 	return design_tools();
 }
 
-function widget_website_import_tools($arr) {
+function widget_website_portation_tools($arr) {
 
 	// mod menu doesn't load a profile. For any modules which load a profile, check it.
 	// otherwise local_channel() is sufficient for permissions.
@@ -791,7 +824,7 @@ function widget_website_import_tools($arr) {
 	if(! local_channel())
 		return '';
 
-	return website_import_tools();
+	return website_portation_tools();
 }
 
 function widget_findpeople($arr) {
@@ -962,6 +995,14 @@ function widget_suggestedchats($arr) {
 
 	if(! feature_enabled(App::$profile['profile_uid'],'ajaxchat'))
 		return '';
+
+	// There are reports that this tool does not ever remove chatrooms on dead sites, 
+	// and also will happily link to private chats which you cannot enter.
+	// For those reasons, it will be disabled until somebody decides it's worth 
+	// fixing and comes up with a plan for doing so.
+
+	return '';
+
 
 	// probably should restrict this to your friends, but then the widget will only work
 	// if you are logged in locally.
@@ -1286,8 +1327,8 @@ function widget_random_block($arr) {
 function widget_rating($arr) {
 
 
-	$poco_rating = get_config('system','poco_rating_enable');
-	if((! $poco_rating) && ($poco_rating !== false)) {
+	$rating_enabled = get_config('system','rating_enabled');
+	if(! $rating_enabled) {
 		return;
 	}
 
@@ -1459,13 +1500,42 @@ function widget_tasklist($arr) {
 
 
 function widget_helpindex($arr) {
-	$o .= '<div class="widget">' . '<h3>' . t('Documentation') . '</h3>';
-	$o .= '<ul class="nav nav-pills nav-stacked">';
-	$o .= '<li><a href="help/general">' . t('Project/Site Information') . '</a></li>';
-	$o .= '<li><a href="help/members">' . t('For Members') . '</a></li>';
-	$o .= '<li><a href="help/admins">'  . t('For Administrators') . '</a></li>';
-	$o .= '<li><a href="help/develop">' . t('For Developers') . '</a></li>';
-	$o .= '</ul></div>';
+
+	$o .= '<div class="widget">';
+	$o .= '<h3>' . t('Documentation') . '</h3>';
+
+	$level_0 = get_help_content('sitetoc');
+	if(! $level_0)
+		$level_0 = get_help_content('toc');
+
+	$level_0 = preg_replace('/\<ul(.*?)\>/','<ul class="nav nav-pills nav-stacked">',$level_0);
+
+	$levels = array();
+
+
+	if(argc() > 2) {
+		$path = '';
+		for($x = 1; $x < argc(); $x ++) {
+			$path .= argv($x) . '/';			
+			$y = get_help_content($path . 'sitetoc');
+			if(! $y)
+				$y = get_help_content($path . 'toc');
+			if($y)
+				$levels[] = preg_replace('/\<ul(.*?)\>/','<ul class="nav nav-pills nav-stacked">',$y);
+		}
+	}
+
+	if($level_0)
+		$o .= $level_0;
+	if($levels) {
+		foreach($levels as $l) {
+			$o .= '<br /><br />';
+			$o .= $l;
+		}
+	}
+
+	$o .= '</div>';
+
 	return $o;
 
 }

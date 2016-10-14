@@ -319,14 +319,14 @@ class Channel {
 		foreach($global_perms as $k => $perm) {
 			$options = array();
 			foreach($perm_opts as $opt) {
-				if((! strstr($perm,'view')) && $opt[1] == PERMS_PUBLIC)
+				if((! strstr($k,'view')) && $opt[1] == PERMS_PUBLIC)
 					continue;
 				$options[$opt[1]] = $opt[0];
 			}
 			$permiss[] = array($k,$perm,$limits[$k],'',$options);			
 		}
 	
-		
+
 		$username   = $channel['channel_name'];
 		$nickname   = $channel['channel_address'];
 		$timezone   = $channel['channel_timezone'];

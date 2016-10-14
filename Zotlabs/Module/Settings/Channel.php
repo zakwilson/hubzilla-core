@@ -326,11 +326,7 @@ class Channel {
 			$permiss[] = array($k,$perm,$limits[$k],'',$options);			
 		}
 	
-	
-		//logger('permiss: ' . print_r($permiss,true));
-	
-	
-	
+		
 		$username   = $channel['channel_name'];
 		$nickname   = $channel['channel_address'];
 		$timezone   = $channel['channel_timezone'];

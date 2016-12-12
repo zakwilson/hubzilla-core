@@ -48,7 +48,7 @@ require_once('include/zid.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '2.1' );
+define ( 'STD_VERSION',             '2.0RC' );
 define ( 'ZOT_REVISION',            '1.2' );
 
 define ( 'DB_UPDATE_VERSION',       1185  );

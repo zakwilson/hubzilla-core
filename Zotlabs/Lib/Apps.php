@@ -68,7 +68,7 @@ class Apps {
 				if($id !== true) {
 					// if we already installed this app, but it changed, preserve any categories we created
 					$s = '';
-					$r = q("select * from term where otype = %d and oid = d",
+					$r = q("select * from term where otype = %d and oid = %d",
 						intval(TERM_OBJ_APP),
 						intval($id)
 					);
@@ -359,7 +359,7 @@ class Apps {
 			if($r) {
 				if(! $r[0]['app_system']) {
 					if($app['categories'] && (! $app['term'])) {
-						$r[0]['term'] = q("select * from term where otype = %d and oid = d",
+						$r[0]['term'] = q("select * from term where otype = %d and oid = %d",
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);

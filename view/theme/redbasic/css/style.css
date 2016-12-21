@@ -32,8 +32,12 @@ aside {
 	max-width: $aside_widthpx;
 }
 
-aside#region_1 {
+aside #region_1 {
 	border-right: 1px solid transparent;
+}
+
+aside #left_aside_wrapper {
+	margin-bottom: 10px;
 }
 
 main {
@@ -42,17 +46,31 @@ main {
 	max-width: $main_widthpx;
 }
 
-h1, .h1, h2, .h2 {
+h1, .h1 {
+	font-size: 2em;
+}
+
+h2, .h2 {
 	font-size: 1.667em;
 }
 
-h3, .h3, h4, .h4 {
+h3, .h3 {
 	font-size: 1.334em;
 }
 
-h5, .h5, h6, .h6 {
-	font-size: 0.75rem;
+h4, .h4 {
+	font-size: 1em;
+	font-weight: bold;
 }
+
+h5, .h5 {
+	font-size: 1em;
+}
+
+h6, .h6 {
+	font-size: 0.75em;
+}
+
 
 .jslider {
 	font-family: sans-serif, arial, freesans;

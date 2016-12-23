@@ -17,7 +17,10 @@
 			</button>
 			{{/if}}
 			{{if $userinfo}}
-				<img class="dropdown-toggle fakelink" data-toggle="dropdown" id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}"><span class="caret dropdown-toggle fakelink" data-toggle="dropdown" id="usermenu-caret"></span>
+				<div class="usermenu-head dropdown-toggle fakelink" data-toggle="dropdown">
+					<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
+					<span class="caret" id="usermenu-caret"></span>
+				</div>
 				{{if $localuser}}
 					<ul class="dropdown-menu" role="menu" aria-labelledby="avatar">
 						{{foreach $nav.usermenu as $usermenu}}
@@ -42,9 +45,10 @@
 						{{/if}}
 					</ul>
 				{{else}}
-					{{if $nav.lock}}
+					{{if $nav.rusermenu}}
 						<ul class="dropdown-menu" role="menu" aria-labelledby="avatar">
-							<li role="presentation"><a href="{{$nav.lock.0}}" title="{{$nav.lock.3}}" role="menuitem">{{$nav.lock.3}}</a></li>
+							<li role="presentation"><a href="{{$nav.rusermenu.0}}" role="menuitem">{{$nav.rusermenu.1}}</a></li>
+							<li role="presentation"><a href="{{$nav.rusermenu.2}}" role="menuitem">{{$nav.rusermenu.3}}</a></li>
 						</ul>
 					{{/if}}
 				{{/if}}

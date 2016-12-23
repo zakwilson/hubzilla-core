@@ -44,7 +44,7 @@ class ThreadItem {
 				 * Only add those that will be displayed
 				 */
 
-				if((! visible_activity($item)) || array_key_exists('author_blocked',$item)) {
+				if((! visible_activity($item)) || array_key_exists('blocked',$item)) {
 					continue;
 				}
 
@@ -355,6 +355,10 @@ class ThreadItem {
 			'unverified' => $unverified,
 			'forged' => $forged,
 			'location' => $location,
+			'attend_label' => t('Attend'),
+			'attend_title' => t('Attendance Options'),
+			'vote_label' => t('Vote'),
+			'vote_title' => t('Voting Options'),
 			'indent' => $indent,
 			'owner_url' => $this->get_owner_url(),
 			'owner_photo' => $this->get_owner_photo(),

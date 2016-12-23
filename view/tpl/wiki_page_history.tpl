@@ -1,4 +1,9 @@
 <style>
+  .diff {
+    width:100%;
+    word-break: break-all;
+  }
+
   .diff td{
     padding:0 0.667em;
     vertical-align:top;
@@ -40,8 +45,10 @@
       <table id="rev-{{$commit.hash}}" onclick="$('#details-{{$commit.hash}}').show()" width="100%">
         <tr><td width="10%">Date</td><td width="70%">{{$commit.date}}</td>
             <td rowspan="3" width="20%" align="right">
+		{{if $permsWrite}}
               <button id="revert-{{$commit.hash}}" class="btn btn-danger btn-xs" onclick="wiki_revert_page('{{$commit.hash}}')">Revert</button>
               <br><br>
+		{{/if}}
               <button id="compare-{{$commit.hash}}" class="btn btn-warning btn-xs" onclick="wiki_compare_page('{{$commit.hash}}')">Compare</button>
             </td></tr>
         <tr><td>Name</td><td>{{$commit.name}} &lt;{{$commit.email}}&gt;</td></tr>

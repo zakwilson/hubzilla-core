@@ -504,10 +504,11 @@ CREATE TABLE IF NOT EXISTS `hook` (
   `hook` char(255) NOT NULL DEFAULT '',
   `file` char(255) NOT NULL DEFAULT '',
   `fn` char(255) NOT NULL DEFAULT '',
-  `priority` int(11) unsigned NOT NULL DEFAULT '0',
+  `priority` smallint NOT NULL DEFAULT '0',
   `hook_version` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `hook` (`hook`),
+  KEY `priority` (`priority`),
   KEY `hook_version` (`hook_version`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
@@ -1152,6 +1153,7 @@ CREATE TABLE IF NOT EXISTS `site` (
   `site_type` smallint NOT NULL DEFAULT '0',
   `site_project` char(255) NOT NULL DEFAULT '',
   `site_version` varchar(32) NOT NULL DEFAULT '',
+  `site_crypto` text NOT NULL DEFAULT '',
   PRIMARY KEY (`site_url`),
   KEY `site_flags` (`site_flags`),
   KEY `site_update` (`site_update`),

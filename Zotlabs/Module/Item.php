@@ -126,6 +126,8 @@ class Item extends \Zotlabs\Web\Controller {
 			$ret = $this->item_check_service_class($uid,(($_REQUEST['webpage'] == ITEM_TYPE_WEBPAGE) ? true : false));
 			if (!$ret['success']) { 
 				notice( t($ret['message']) . EOL) ;
+				if($api_source)
+					return ( [ 'success' => false, 'message' => 'service class exception' ] );	
 				if(x($_REQUEST,'return')) 
 					goaway(z_root() . "/" . $return_path );
 				killme();
@@ -156,13 +158,13 @@ class Item extends \Zotlabs\Web\Controller {
 				$obj_type = ACTIVITY_OBJ_COMMENT;
 	
 			if($parent) {
-				$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
+				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
 					intval($parent)
 				);
 			}
 			elseif($parent_mid && $uid) {
 				// This is coming from an API source, and we are logged in
-				$r = q("SELECT * FROM `item` WHERE `mid` = '%s' AND `uid` = %d LIMIT 1",
+				$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
 					dbesc($parent_mid),
 					intval($uid)
 				);
@@ -172,7 +174,7 @@ class Item extends \Zotlabs\Web\Controller {
 				$parid = $r[0]['parent'];
 				$parent_mid = $r[0]['mid'];
 				if($r[0]['id'] != $r[0]['parent']) {
-					$r = q("SELECT * FROM `item` WHERE `id` = `parent` AND `parent` = %d LIMIT 1",
+					$r = q("SELECT * FROM item WHERE id = parent AND parent = %d LIMIT 1",
 						intval($parid)
 					);
 				}
@@ -180,6 +182,8 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			if(($r === false) || (! count($r))) {
 				notice( t('Unable to locate original post.') . EOL);
+				if($api_source)
+					return ( [ 'success' => false, 'message' => 'invalid post id' ] );	
 				if(x($_REQUEST,'return')) 
 					goaway(z_root() . "/" . $return_path );
 				killme();
@@ -214,6 +218,8 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			if(! $can_comment) {
 				notice( t('Permission denied.') . EOL) ;
+				if($api_source)
+					return ( [ 'success' => false, 'message' => 'permission denied' ] );	
 				if(x($_REQUEST,'return')) 
 					goaway(z_root() . "/" . $return_path );
 				killme();
@@ -222,6 +228,8 @@ class Item extends \Zotlabs\Web\Controller {
 		else {
 			if(! perm_is_allowed($profile_uid,$observer['xchan_hash'],($webpage) ? 'write_pages' : 'post_wall')) {
 				notice( t('Permission denied.') . EOL) ;
+				if($api_source)
+					return ( [ 'success' => false, 'message' => 'permission denied' ] );	
 				if(x($_REQUEST,'return')) 
 					goaway(z_root() . "/" . $return_path );
 				killme();
@@ -246,7 +254,7 @@ class Item extends \Zotlabs\Web\Controller {
 		$iconfig = null;
 	
 		if($post_id) {
-			$i = q("SELECT * FROM `item` WHERE `uid` = %d AND `id` = %d LIMIT 1",
+			$i = q("SELECT * FROM item WHERE uid = %d AND id = %d LIMIT 1",
 				intval($profile_uid),
 				intval($post_id)
 			);
@@ -276,6 +284,8 @@ class Item extends \Zotlabs\Web\Controller {
 	
 		if(! $channel) {
 			logger("mod_item: no channel.");
+			if($api_source)
+				return ( [ 'success' => false, 'message' => 'no channel' ] );	
 			if(x($_REQUEST,'return')) 
 				goaway(z_root() . "/" . $return_path );
 			killme();
@@ -291,6 +301,8 @@ class Item extends \Zotlabs\Web\Controller {
 		}
 		else {
 			logger("mod_item: no owner.");
+			if($api_source)
+				return ( [ 'success' => false, 'message' => 'no owner' ] );	
 			if(x($_REQUEST,'return')) 
 				goaway(z_root() . "/" . $return_path );
 			killme();
@@ -433,6 +445,8 @@ class Item extends \Zotlabs\Web\Controller {
 				if($preview)
 					killme();
 				info( t('Empty post discarded.') . EOL );
+				if($api_source)
+					return ( [ 'success' => false, 'message' => 'no content' ] );	
 				if(x($_REQUEST,'return')) 
 					goaway(z_root() . "/" . $return_path );
 				killme();
@@ -473,6 +487,8 @@ class Item extends \Zotlabs\Web\Controller {
 				}
 				else {
 					notice( t('Executable content type not permitted to this channel.') . EOL);
+					if($api_source)
+						return ( [ 'success' => false, 'message' => 'forbidden content type' ] );	
 					if(x($_REQUEST,'return')) 
 						goaway(z_root() . "/" . $return_path );
 					killme();
@@ -508,7 +524,7 @@ class Item extends \Zotlabs\Web\Controller {
 	//			$body = escape_tags(trim($body));
 	//			$body = str_replace("\n",'<br />', $body);
 	//			$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_shield',$body);			
-	//			$body = diaspora2bb($body,true);
+	//			$body = markdown_to_bb($body,true);
 	//			$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_unshield',$body);
 	//		}
 	
@@ -553,8 +569,8 @@ class Item extends \Zotlabs\Web\Controller {
 			$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 	
 
-			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,]+)/ism", 'nakedoembed', $body);
-			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,]+)/ism", '\red_zrl_callback', $body);
+			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\(\)]+)/ism", 'nakedoembed', $body);
+			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\(\)]+)/ism", '\red_zrl_callback', $body);
 	
 			$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
 			$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
@@ -863,7 +879,8 @@ class Item extends \Zotlabs\Web\Controller {
 			logger('mod_item: post cancelled by plugin or duplicate suppressed.');
 			if($return_path)
 				goaway(z_root() . "/" . $return_path);
-	
+			if($api_source)
+				return ( [ 'success' => false, 'message' => 'operation cancelled' ] );	
 			$json = array('cancel' => 1);
 			$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];
 			echo json_encode($json);
@@ -901,6 +918,8 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			$x = item_store_update($datarray,$execflag);
 			
+			item_create_edit_activity($x);			
+
 			if(! $parent) {
 				$r = q("select * from item where id = %d",
 					intval($post_id)
@@ -914,6 +933,10 @@ class Item extends \Zotlabs\Web\Controller {
 			if(! $nopush)
 				\Zotlabs\Daemon\Master::Summon(array('Notifier', 'edit_post', $post_id));
 	
+
+			if($api_source)
+				return($x);
+
 			if((x($_REQUEST,'return')) && strlen($return_path)) {
 				logger('return: ' . $return_path);
 				goaway(z_root() . "/" . $return_path );
@@ -988,8 +1011,11 @@ class Item extends \Zotlabs\Web\Controller {
 		else {
 			logger('mod_item: unable to retrieve post that was just stored.');
 			notice( t('System error. Post not saved.') . EOL);
-			goaway(z_root() . "/" . $return_path );
-			// NOTREACHED
+			if($return_path)
+				goaway(z_root() . "/" . $return_path );
+			if($api_source)
+				return ( [ 'success' => false, 'message' => 'system error' ] );
+			killme();
 		}
 		
 		if(($parent) && ($parent != $post_id)) {
@@ -1082,6 +1108,14 @@ class Item extends \Zotlabs\Web\Controller {
 				else {
 					// complex deletion that needs to propagate and be performed in phases
 					drop_item($i[0]['id'],true,DROPITEM_PHASE1);
+					$r = q("select * from item where id = %d",
+						intval($i[0]['id'])
+					);
+					if($r) {
+						xchan_query($r);
+						$sync_item = fetch_post_tags($r);
+						build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
+					}
 					tag_deliver($i[0]['uid'],$i[0]['id']);
 				}
 			}

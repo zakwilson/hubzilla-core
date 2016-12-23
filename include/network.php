@@ -30,12 +30,12 @@ function get_capath() {
  *  * \b filep => stream resource to write body to. header and body are not returned when using this option.
  *  * \b custom => custom request method: e.g. 'PUT', 'DELETE'
  *  * \b cookiejar => cookie file (write)
- *  * \B cookiefile => cookie file (read)
+ *  * \b cookiefile => cookie file (read)
  *
  * @return array an associative array with:
  *  * \e int \b return_code => HTTP return code or 0 if timeout or failure
  *  * \e boolean \b success => boolean true (if HTTP 2xx result) or false
- *  * \e string \b header => HTTP headers 
+ *  * \e string \b header => HTTP headers
  *  * \e string \b body => fetched content
  */
 function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
@@ -43,7 +43,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	$ret = array('return_code' => 0, 'success' => false, 'header' => "", 'body' => "");
 
 	$ch = @curl_init($url);
-	if(($redirects > 8) || (! $ch)) 
+	if(($redirects > 8) || (! $ch))
 		return $ret;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
@@ -59,12 +59,12 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 
 	if(x($opts,'filep')) {
 		@curl_setopt($ch, CURLOPT_FILE, $opts['filep']);
-		@curl_setopt($ch, CURLOPT_HEADER, $false);
+		@curl_setopt($ch, CURLOPT_HEADER, false);
 	}
 
 	if(x($opts,'upload'))
 		@curl_setopt($ch, CURLOPT_UPLOAD, $opts['upload']);
-	
+
 	if(x($opts,'infile'))
 		@curl_setopt($ch, CURLOPT_INFILE, $opts['infile']);
 
@@ -87,7 +87,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 	}
 	else {
-		$curl_time = intval(get_config('system','curl_timeout'));
+		$curl_time = intval(@get_config('system','curl_timeout'));
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
@@ -104,10 +104,10 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	if(x($opts,'cookie'))
 		@curl_setopt($ch, CURLOPT_COOKIE, $opts['cookie']);
 
-	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 
+	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
 		((x($opts,'novalidate') && intval($opts['novalidate'])) ? false : true));
 
-	$prx = get_config('system','proxy');
+	$prx = @get_config('system','proxy');
 	if(strlen($prx)) {
 		@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 		@curl_setopt($ch, CURLOPT_PROXY, $prx);
@@ -179,10 +179,10 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
  * @param string $url
  *    URL to post
  * @param mixed $params
- *   The full data to post in a HTTP "POST" operation. This parameter can 
- *   either be passed as a urlencoded string like 'para1=val1&para2=val2&...' 
- *   or as an array with the field name as key and field data as value. If value 
- *   is an array, the Content-Type header will be set to multipart/form-data. 
+ *   The full data to post in a HTTP "POST" operation. This parameter can
+ *   either be passed as a urlencoded string like 'para1=val1&para2=val2&...'
+ *   or as an array with the field name as key and field data as value. If value
+ *   is an array, the Content-Type header will be set to multipart/form-data.
  * @param int $redirects = 0
  *    internal use, recursion counter
  * @param array $opts (optional parameters)
@@ -209,7 +209,7 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 	$ret = array('return_code' => 0, 'success' => false, 'header' => "", 'body' => "");
 
 	$ch = curl_init($url);
-	if(($redirects > 8) || (! $ch)) 
+	if(($redirects > 8) || (! $ch))
 		return $ret;
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
@@ -226,13 +226,13 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 
 	if(x($opts,'filep')) {
 		@curl_setopt($ch, CURLOPT_FILE, $opts['filep']);
-		@curl_setopt($ch, CURLOPT_HEADER, $false);
+		@curl_setopt($ch, CURLOPT_HEADER, false);
 	}
 
 	if(x($opts,'headers')) {
 		@curl_setopt($ch, CURLOPT_HTTPHEADER, $opts['headers']);
 	}
- 
+
 	if(x($opts,'nobody'))
 		@curl_setopt($ch, CURLOPT_NOBODY, $opts['nobody']);
 
@@ -246,7 +246,7 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 	}
 	else {
-		$curl_time = intval(get_config('system','curl_timeout'));
+		$curl_time = intval(@get_config('system','curl_timeout'));
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
@@ -265,7 +265,7 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 	if(x($opts,'cookie'))
 		@curl_setopt($ch, CURLOPT_COOKIE, $opts['cookie']);
 
-	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 
+	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER,
 		((x($opts,'novalidate') && intval($opts['novalidate'])) ? false : true));
 
 	$prx = get_config('system','proxy');
@@ -379,8 +379,8 @@ function json_return_and_die($x, $content_type = 'application/json') {
 
 
 // Generic XML return
-// Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable 
-// of $st and an optional text <message> of $message and terminates the current process. 
+// Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
+// of $st and an optional text <message> of $message and terminates the current process.
 
 
 function xml_status($st, $message = '') {
@@ -399,7 +399,7 @@ function xml_status($st, $message = '') {
 
 
 /**
- * @brief Send HTTP status header 
+ * @brief Send HTTP status header
  *
  * @param int $val
  *    integer HTTP status result value
@@ -413,7 +413,7 @@ function http_status($val, $msg = '') {
 	if ($val >= 200 && $val < 300)
 		$msg = (($msg) ? $msg : 'OK');
 
-	logger('http_status_exit ' . $val . ' ' . $msg);	
+	logger('http_status_exit ' . $val . ' ' . $msg);
 	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
 }
 
@@ -480,21 +480,46 @@ function convert_xml_element_to_array($xml_element, &$recursion_depth=0) {
 		}
 }
 
+
+
+function z_dns_check($h,$check_mx = 0) {
+
+	// dns_get_record() has issues on some platforms
+	// so allow somebody to ignore it completely
+	// Use config values from memory as this can be called during setup
+	// before a database or even any config structure exists.
+
+	if(is_array(\App::$config) && array_key_exists('system',\App::$config)
+		&& is_array(\App::$config['system'])
+		&& array_key_exists('do_not_check_dns',\App::$config['system']) 
+		&& \App::$config['system']['do_not_check_dns'])
+		return true;
+
+
+	//$opts = DNS_A + DNS_CNAME + DNS_PTR;
+	//if($check_mx)
+	//	$opts += DNS_MX;
+	// Specific record type flags are unreliable on FreeBSD and Mac, 
+	// so now we'll ignore these and just check for the existence of any DNS record. 
+	return((@dns_get_record($h) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
+
+}
+
 // Take a URL from the wild, prepend http:// if necessary
 // and check DNS to see if it's real (or check if is a valid IP address)
 // return true if it's OK, false if something is wrong with it
 
 
 function validate_url(&$url) {
-	
+
 	// no naked subdomains (allow localhost for tests)
 	if(strpos($url,'.') === false && strpos($url,'/localhost/') === false)
 		return false;
 	if(substr($url,0,4) != 'http')
 		$url = 'http://' . $url;
 	$h = @parse_url($url);
-	
-	if(($h) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME + DNS_PTR) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+
+	if(($h) && z_dns_check($h['host'])) {
 		return true;
 	}
 	return false;
@@ -512,7 +537,7 @@ function validate_email($addr) {
 		return false;
 	$h = substr($addr,strpos($addr,'@') + 1);
 
-	if(($h) && (@dns_get_record($h, DNS_A + DNS_CNAME + DNS_PTR + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+	if(($h) && z_dns_check($h,true)) {
 		return true;
 	}
 	return false;
@@ -552,7 +577,7 @@ function allowed_url($url) {
 		foreach($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if(($fnmatch && fnmatch($pat,$host)) || ($pat == $host)) {
-				$found = true; 
+				$found = true;
 				break;
 			}
 		}
@@ -575,14 +600,14 @@ function allowed_email($email) {
 
 	$str_allowed = get_config('system','allowed_email');
 	$str_not_allowed = get_config('system','not_allowed_email');
-		
+
 	if(! $str_allowed && ! $str_not_allowed)
 		return true;
 
 	$return = false;
-	$found_allowed = false;	
+	$found_allowed = false;
 	$found_not_allowed = false;
-	
+
 	$fnmatch = function_exists('fnmatch');
 
 	$allowed = explode(',',$str_allowed);
@@ -591,7 +616,7 @@ function allowed_email($email) {
 		foreach($allowed as $a) {
 			$pat = strtolower(trim($a));
 			if(($fnmatch && fnmatch($pat,$email)) || ($pat == $domain)) {
-				$found_allowed = true; 
+				$found_allowed = true;
 				break;
 			}
 		}
@@ -603,16 +628,16 @@ function allowed_email($email) {
 		foreach($not_allowed as $na) {
 			$pat = strtolower(trim($na));
 			if(($fnmatch && fnmatch($pat,$email)) || ($pat == $domain)) {
-				$found_not_allowed = true; 
+				$found_not_allowed = true;
 				break;
 			}
 		}
-	}	
-	
+	}
+
 	if ($found_allowed) {
-		$return = true;	
+		$return = true;
 	} elseif (!$str_allowed && !$found_not_allowed) {
-		$return = true;	
+		$return = true;
 	}
 	return $return;
 }
@@ -652,7 +677,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 
 		foreach($matches as $mtch) {
 			logger('scale_external_image: ' . $mtch[2] . ' ' . $mtch[3]);
-			
+
 			if(substr($mtch[1],0,1) == '=') {
 				$owidth = intval(substr($mtch[2],1));
 				if(intval($owidth) > 0 && intval($owidth) < 1024)
@@ -686,7 +711,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 			$type = guess_image_type($mtch[3],$i['header']);
 			if(strpos($type,'image') === false)
 				continue;
-			
+
 			if($i['success']) {
 				$ph = photo_factory($i['body'], $type);
 				if($ph->is_valid()) {
@@ -700,7 +725,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 						$new_height = $ph->getHeight();
 						logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
 						$s = str_replace($mtch[0],'[' . $tag . '=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/' . $tag . ']'
-							. "\n" . (($include_link) 
+							. "\n" . (($include_link)
 								? '[zrl=' . $mtch[2] . ']' . t('view full size') . '[/zrl]' . "\n"
 								: ''),$s);
 						logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
@@ -728,7 +753,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
  * Return: The parsed XML in an array form. Use print_r() to see the resulting array structure.
  * Examples: $array =  xml2array(file_get_contents('feed.xml'));
  *              $array =  xml2array(file_get_contents('feed.xml', true, 1, 'attribute'));
- */ 
+ */
 
 function xml2array($contents, $namespaces = true, $get_attributes=1, $priority = 'attribute') {
 	if(!$contents) return array();
@@ -752,7 +777,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 		return array();
 	}
 
-	xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8"); 
+	xml_parser_set_option($parser, XML_OPTION_TARGET_ENCODING, "UTF-8");
 	// http://minutillo.com/steve/weblog/2004/6/17/php-xml-and-character-encodings-a-tale-of-sadness-rage-and-data-loss
 	xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, 0);
 	xml_parser_set_option($parser, XML_OPTION_SKIP_WHITE, 1);
@@ -786,7 +811,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 
 		$result = array();
 		$attributes_data = array();
-		
+
 		if(isset($value)) {
 			if($priority == 'tag') $result = $value;
 			else $result['value'] = $value; // Put the value in a assoc array if we are in the 'Attribute' mode
@@ -802,7 +827,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 
 		// See tag status and do the needed.
 		if($namespaces && strpos($tag,':')) {
-			$namespc = substr($tag,0,strrpos($tag,':')); 
+			$namespc = substr($tag,0,strrpos($tag,':'));
 			$tag = strtolower(substr($tag,strlen($namespc)+1));
 			$result['@namespace'] = $namespc;
 		}
@@ -825,7 +850,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 				} else { // This section will make the value an array if multiple tags with the same name appear together
 					$current[$tag] = array($current[$tag],$result); // This will combine the existing item and the new item together to make an array
 					$repeated_tag_index[$tag.'_'.$level] = 2;
-					
+
 					if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
 						$current[$tag]['0_attr'] = $current[$tag.'_attr'];
 						unset($current[$tag.'_attr']);
@@ -848,7 +873,7 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 
 					// ...push the new element into that array.
 					$current[$tag][$repeated_tag_index[$tag.'_'.$level]] = $result;
-					
+
 					if($priority == 'tag' and $get_attributes and $attributes_data) {
 						$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
 					}
@@ -859,11 +884,11 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 					$repeated_tag_index[$tag.'_'.$level] = 1;
 					if($priority == 'tag' and $get_attributes) {
 						if(isset($current[$tag.'_attr'])) { // The attribute of the last(0th) tag must be moved as well
-							
+
 							$current[$tag]['0_attr'] = $current[$tag.'_attr'];
 							unset($current[$tag.'_attr']);
 						}
-						
+
 						if($attributes_data) {
 							$current[$tag][$repeated_tag_index[$tag.'_'.$level] . '_attr'] = $attributes_data;
 						}
@@ -876,9 +901,9 @@ function xml2array($contents, $namespaces = true, $get_attributes=1, $priority =
 			$current = &$parent[$level-1];
 		}
 	}
-	
+
 	return($xml_array);
-}  
+}
 
 
 function email_header_encode($in_str, $charset = 'UTF-8') {
@@ -1128,7 +1153,7 @@ function discover_by_webbie($webbie) {
 	$diaspora = false;
 	$gnusoc   = false;
 	$dfrn     = false;
-	
+
 	$has_salmon = false;
 	$salmon_key = false;
 	$atom_feed = false;
@@ -1144,7 +1169,7 @@ function discover_by_webbie($webbie) {
 			if(array_key_exists('rel',$link)) {
 
 				// If we discover zot - don't search further; grab the info and get out of
-				// here. 
+				// here.
 
 				if($link['rel'] === PROTOCOL_ZOT) {
 					logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
@@ -1204,11 +1229,11 @@ function discover_by_webbie($webbie) {
 	$pubkey   = '';
 
 	if(is_array($x)) {
-		if(array_key_exists('address',$x)) 
+		if(array_key_exists('address',$x))
 			$address = $x['address'];
-		if(array_key_exists('location',$x)) 
+		if(array_key_exists('location',$x))
 			$location = $x['location'];
-		if(array_key_exists('nickname',$x)) 
+		if(array_key_exists('nickname',$x))
 			$nickname = $x['nickname'];
 	}
 
@@ -1216,16 +1241,16 @@ function discover_by_webbie($webbie) {
 		$probe_old = true;
 
 
-	if((! $dfrn) && (! $has_salmon)) 
+	if((! $dfrn) && (! $has_salmon))
 		$probe_old = true;
 
 	if($probe_old) {
-		$y = old_webfinger($webbie);			
+		$y = old_webfinger($webbie);
 		if($y) {
 			logger('old_webfinger: ' . print_r($x,true));
 			foreach($y as $link) {
 				if($link['@attributes']['rel'] === NAMESPACE_DFRN)
-					$dfrn = unamp($link['@attributes']['href']);				
+					$dfrn = unamp($link['@attributes']['href']);
 				if($link['@attributes']['rel'] === 'salmon')
 					$notify = unamp($link['@attributes']['href']);
 	 			if($link['@attributes']['rel'] === NAMESPACE_FEED)
@@ -1344,7 +1369,7 @@ function discover_by_webbie($webbie) {
 				if($vcard['fn'])
 					$fullname = $vcard['fn'];
 				if($vcard['photo'] && (strpos($vcard['photo'],'http') !== 0))
-					$vcard['photo'] = $diaspora_base . '/' . $vcard['photo'];			
+					$vcard['photo'] = $diaspora_base . '/' . $vcard['photo'];
 				if(($vcard['public_key']) && (! $pubkey)) {
 					$diaspora_key = $vcard['public_key'];
 					if(strstr($diaspora_key,'RSA '))
@@ -1358,7 +1383,7 @@ function discover_by_webbie($webbie) {
 					if(($vcard['uid']) && (! $diaspora_guid))
 						$diaspora_guid = $vcard['uid'];
 					if(($vcard['url']) && (! $diaspora_base))
-						$diaspora_base = $vcard['url'];						
+						$diaspora_base = $vcard['url'];
 
 
 
@@ -1372,7 +1397,7 @@ function discover_by_webbie($webbie) {
 	if(($profile) && (! $location))
 		$location = $profile;
 
-	if($location) { 
+	if($location) {
 		$m = parse_url($location);
 		$base = $m['scheme'] . '://' . $m['host'];
 		$host = $m['host'];
@@ -1407,12 +1432,12 @@ function discover_by_webbie($webbie) {
 
 	// if we have everything we need, let's create the records
 
-	if($network && $address && $fullname && $pubkey && $location) {	
+	if($network && $address && $fullname && $pubkey && $location) {
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($address)
 		);
 		if($r) {
-			$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s' limit 1",
+			$r = q("update xchan set xchan_name = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s'",
 				dbesc($fullname),
 				dbesc($network),
 				dbesc(datetime_convert()),
@@ -1493,7 +1518,7 @@ function webfinger_rfc7033($webbie,$zot = false) {
 		// We could have a number of URL aliases and webbies
 		// make an executive decision about the most likely "best" of each
 		// by comparing against some examples from known networks we're likely to encounter.
-		// Otherwise we have to store every alias that we may ever encounter and 
+		// Otherwise we have to store every alias that we may ever encounter and
 		// validate every URL we ever find against every possible alias
 
 		// @fixme pump.io is going to be a real bugger since it doesn't return subject or aliases
@@ -1564,7 +1589,7 @@ function match_webfinger_location($s,$h) {
 		return $s;
 	return '';
 }
-	
+
 
 
 
@@ -1935,7 +1960,7 @@ function format_and_send_email($sender,$xchan,$item) {
 		));
 
 		$sender_name = t('Administrator');
-		
+
   		$hostname = App::get_hostname();
 	    if(strpos($hostname,':'))
     	    $hostname = substr($hostname,0,strpos($hostname,':'));
@@ -1964,7 +1989,7 @@ function do_delivery($deliveries) {
 	if(! (is_array($deliveries) && count($deliveries)))
 		return;
 
-	$interval = ((get_config('system','delivery_interval') !== false) 
+	$interval = ((get_config('system','delivery_interval') !== false)
 			? intval(get_config('system','delivery_interval')) : 2 );
 
 	$deliveries_per_process = intval(get_config('system','delivery_batch_count'));
@@ -1993,7 +2018,7 @@ function do_delivery($deliveries) {
 
 	if($deliver)
 		Zotlabs\Daemon\Master::Summon(array('Deliver',$deliver));
-	
+
 
 }
 
@@ -2002,7 +2027,7 @@ function get_site_info() {
 
 	$register_policy = Array('REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN');
 	$directory_mode = Array('DIRECTORY_MODE_NORMAL', 'DIRECTORY_MODE_PRIMARY', 'DIRECTORY_MODE_SECONDARY', 256 => 'DIRECTORY_MODE_STANDALONE');
-		
+
 	$sql_extra = '';
 
 	$r = q("select * from channel left join account on account_id = channel_account_id where ( account_roles & 4096 )>0 and account_default_channel = channel_id");
@@ -2053,7 +2078,7 @@ function get_site_info() {
 	else {
 			$version = $commit = '';
 	}
-		
+
 	//Statistics
 	$channels_total_stat = intval(get_config('system','channels_total_stat'));
 	$channels_active_halfyear_stat = intval(get_config('system','channels_active_halfyear_stat'));
@@ -2073,7 +2098,7 @@ function get_site_info() {
 	}
 
 
-		
+
 	$data = Array(
 		'version' => $version,
 		'version_tag' => $tag,
@@ -2190,7 +2215,7 @@ function deliverable_singleton($channel_id,$xchan) {
 function get_repository_version($branch = 'master') {
 
 	$path = "https://raw.githubusercontent.com/redmatrix/hubzilla/$branch/boot.php";
-	
+
 	$x = z_fetch_url($path);
 	if($x['success']) {
 		$y = preg_match('/define(.*?)STD_VERSION(.*?)([0-9.].*)\'/',$x['body'],$matches);
@@ -2199,7 +2224,7 @@ function get_repository_version($branch = 'master') {
 	}
 	return '?.?';
 
-}		
+}
 
 function network_to_name($s) {
 
@@ -2266,11 +2291,11 @@ function z_mail($params) {
 	call_hooks('email_send', $params);
 
 	if($params['sent']) {
-		logger('notification: z_mail returns ' . $params['result'], LOGGER_DEBUG);
+		logger('notification: z_mail returns ' . (($params['result']) ? 'success' : 'failure'), LOGGER_DEBUG);
 		return $params['result'];
 	}
 
-	$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8'); 
+	$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
 	$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
 
 	$messageHeader =
@@ -2285,6 +2310,25 @@ function z_mail($params) {
 		$params['textVersion'],
 		$messageHeader									// message headers
 	);
-	logger('notification: z_mail returns ' . $res, LOGGER_DEBUG);
+	logger('notification: z_mail returns ' . (($res) ? 'success' : 'failure'), LOGGER_DEBUG);
 	return $res;
+}
+
+// discover the best API path available for redmatrix/hubzilla servers
+
+function probe_api_path($host) {
+
+	$schemes = ['https', 'http' ];
+	$paths   = ['/api/z/1.0/version', '/api/red/version' ];
+
+	foreach($schemes as $scheme) {
+		foreach($paths as $path) {
+			$curpath = $scheme . '://' . $host . $path;
+			$x = z_fetch_url($curpath);
+			if($x['success'] && ! strlen($x['body'],'not implemented'))
+				return str_replace('version','',$curpath);
+		}
+	}
+
+	return '';
 }

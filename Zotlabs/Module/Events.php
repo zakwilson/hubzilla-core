@@ -57,9 +57,6 @@ class Events extends \Zotlabs\Web\Controller {
 			$start = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
 		}
 	
-		if($nofinish) {
-			$finish = NULL_DATE;
-		}
 	
 		if($finish_text) {
 			$finish = $finish_text;
@@ -67,6 +64,11 @@ class Events extends \Zotlabs\Web\Controller {
 		else {
 			$finish = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
 		}
+
+		if($nofinish) {
+			$finish = NULL_DATE;
+		}
+
 	
 		if($adjust) {
 			$start = datetime_convert(date_default_timezone_get(),'UTC',$start);
@@ -118,8 +120,10 @@ class Events extends \Zotlabs\Web\Controller {
 			goaway($onerror_url);
 		}
 	
-		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
-	
+		//		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
+
+		$share = 1;	
+
 		$channel = \App::get_channel();
 	
 		$acl = new \Zotlabs\Access\AccessList(false);
@@ -206,7 +210,6 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		$event = event_store_event($datarray);
-	
 	
 		if($post_tags)	
 			$datarray['term'] = $post_tags;
@@ -336,7 +339,7 @@ class Events extends \Zotlabs\Web\Controller {
 	
 			/* edit/create form */
 			if($event_id) {
-				$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+				$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
 					dbesc($event_id),
 					intval(local_channel())
 				);
@@ -438,8 +441,6 @@ class Events extends \Zotlabs\Web\Controller {
 
 			$permissions = ((x($orig_event)) ? $orig_event : $perm_defaults);
 
-			//print_r(acl2json($permissions['allow_gid'])); killme();
-	
 			$tpl = get_markup_template('event_form.tpl');
 	
 			$form = replace_macros($tpl,array(
@@ -467,9 +468,6 @@ class Events extends \Zotlabs\Web\Controller {
 				'$l_text' => (($event_id) ? t('Edit Location') : t('Location')),
 				'$l_orig' => $l_orig,
 				'$t_orig' => $t_orig,
-				'$sh_text' => t('Share this event'),
-				'$sh_checked' => $sh_checked,
-				'$share' => array('distr', t('Share this event'), $sh_checked, '', array(t('No'),t('Yes'))),
 				'$preview' => t('Preview'),
 				'$perms_label' => t('Permission settings'),
 				// populating the acl dialog was a permission description from view_stream because Cal.php, which
@@ -480,6 +478,8 @@ class Events extends \Zotlabs\Web\Controller {
 				'$allow_gid' => acl2json($permissions['allow_gid']),
 				'$deny_cid' => acl2json($permissions['deny_cid']),
 				'$deny_gid' => acl2json($permissions['deny_gid']),
+
+				'$lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
 
 				'$submit' => t('Submit'),
 				'$advanced' => t('Advanced Options')
@@ -545,8 +545,8 @@ class Events extends \Zotlabs\Web\Controller {
 				);
 			} elseif($export) {
 				$r = q("SELECT * from event where uid = %d
-					AND (( `adjust` = 0 AND ( `dtend` >= '%s' or nofinish = 1 ) AND `dtstart` <= '%s' ) 
-					OR  (  `adjust` = 1 AND ( `dtend` >= '%s' or nofinish = 1 ) AND `dtstart` <= '%s' )) ",
+					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
+					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
 					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),
@@ -559,10 +559,10 @@ class Events extends \Zotlabs\Web\Controller {
 				// There's still an issue if the finish date crosses the end of month.
 				// Noting this for now - it will need to be fixed here and in Friendica.
 				// Ultimately the finish date shouldn't be involved in the query. 
-	
+
 				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
 	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d $ignored 
+					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
 					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
 					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
 					intval(local_channel()),
@@ -571,7 +571,6 @@ class Events extends \Zotlabs\Web\Controller {
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
-	
 			}
 	
 			$links = array();
@@ -609,6 +608,12 @@ class Events extends \Zotlabs\Web\Controller {
 						$end = null;
 					} else {
 						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
+
+						// give a fake end to birthdays so they get crammed into a 
+						// single day on the calendar
+
+						if($rr['etype'] === 'birthday')
+							$end = null;
 					}
 					
 					
@@ -694,7 +699,7 @@ class Events extends \Zotlabs\Web\Controller {
 		}
 	
 		if($mode === 'drop' && $event_id) {
-			$r = q("SELECT * FROM `event` WHERE event_hash = '%s' AND `uid` = %d LIMIT 1",
+			$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
 				dbesc($event_id),
 				intval(local_channel())
 			);
@@ -702,7 +707,7 @@ class Events extends \Zotlabs\Web\Controller {
 			$sync_event = $r[0];
 	
 			if($r) {
-				$r = q("delete from event where event_hash = '%s' and uid = %d limit 1",
+				$r = q("delete from event where event_hash = '%s' and uid = %d",
 					dbesc($event_id),
 					intval(local_channel())
 				);

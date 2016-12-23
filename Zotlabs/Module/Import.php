@@ -77,23 +77,27 @@ class Import extends \Zotlabs\Web\Controller {
 	
 			$channelname = substr($old_address,0,strpos($old_address,'@'));
 			$servername  = substr($old_address,strpos($old_address,'@')+1);
-	
-			$scheme = 'https://';
-			$api_path = '/api/red/channel/export/basic?f=&channel=' . $channelname;
+
+			$api_path = probe_api_path($servername);
+			if(! $api_path) {
+				notice( t('Unable to download data from old server') . EOL);
+				return;
+			}
+
+			$api_path .= 'channel/export/basic?f=&channel=' . $channelname;
 			if($import_posts)
 				$api_path .= '&posts=1';
 			$binary = false;
 			$redirects = 0;
 			$opts = array('http_auth' => $email . ':' . $password);
-			$url = $scheme . $servername . $api_path;
-			$ret = z_fetch_url($url, $binary, $redirects, $opts);
-			if(! $ret['success'])
-				$ret = z_fetch_url('http://' . $servername . $api_path, $binary, $redirects, $opts);
-			if($ret['success'])
+			$ret = z_fetch_url($api_path, $binary, $redirects, $opts);
+			if($ret['success']) {
 				$data = $ret['body'];
-			else
+			}
+			else {
 				notice( t('Unable to download data from old server') . EOL);
-	
+				return;
+			}
 		}
 	
 		if(! $data) {
@@ -294,15 +298,8 @@ class Import extends \Zotlabs\Web\Controller {
 					);
 					if($r)
 						continue;
-	
-					dbesc_array($xchan);
-			
-					$r = dbq("INSERT INTO xchan (`" 
-						. implode("`, `", array_keys($xchan)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($xchan)) 
-						. "')" );
-	
+
+					create_table_from_array('xchan',$xchan);	
 		
 					require_once('include/photo/photo_driver.php');
 					$photos = import_xchan_photo($xchan['xchan_photo_l'],$xchan['xchan_hash']);
@@ -382,13 +379,8 @@ class Import extends \Zotlabs\Web\Controller {
 							continue;
 					}
 	
-					dbesc_array($abook);
-					$r = dbq("INSERT INTO abook (`" 
-						. implode("`, `", array_keys($abook)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($abook)) 
-						. "')" );
-	
+					create_table_from_array('abook',$abook);
+
 					$friends ++;
 					if(intval($abook['abook_feed']))
 						$feeds ++;
@@ -423,15 +415,11 @@ class Import extends \Zotlabs\Web\Controller {
 						unset($group['name']);
 					}
 					unset($group['id']);
-					$group['uid'] = $channel['channel_id'];					
-					dbesc_array($group);
-					$r = dbq("INSERT INTO groups (`" 
-						. implode("`, `", array_keys($group)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($group)) 
-						. "')" );
+					$group['uid'] = $channel['channel_id'];
+
+					create_table_from_array('groups',$group);
 				}
-				$r = q("select * from `groups` where uid = %d",
+				$r = q("select * from groups where uid = %d",
 					intval($channel['channel_id'])
 				);
 				if($r) {
@@ -451,12 +439,7 @@ class Import extends \Zotlabs\Web\Controller {
 						if($x['old'] == $group_member['gid'])
 							$group_member['gid'] = $x['new'];
 					}
-					dbesc_array($group_member);
-					$r = dbq("INSERT INTO group_member (`" 
-						. implode("`, `", array_keys($group_member)) 
-						. "`) VALUES ('" 
-						. implode("', '", array_values($group_member)) 
-						. "')" );
+					create_table_from_array('group_member',$group_member);
 				}
 			}
 			logger('import step 9');

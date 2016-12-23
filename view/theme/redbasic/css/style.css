@@ -22,6 +22,7 @@ body {
 	color: $font_colour;
 	margin: 0px;
 	height: 100%;
+	overflow-x: hidden;
 }
 
 aside {
@@ -30,23 +31,55 @@ aside {
 	max-width: $aside_widthpx;
 }
 
+aside #region_1 {
+	border-right: 1px solid transparent;
+}
+
+aside #left_aside_wrapper {
+	margin-bottom: 10px;
+}
+
 main {
 	margin-left: auto;
 	margin-right: auto;
 	max-width: $main_widthpx;
 }
 
-h1, .h1, h2, .h2 {
+#overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+	z-index: 1029;
+}
+
+h1, .h1 {
+	font-size: 2em;
+}
+
+h2, .h2 {
 	font-size: 1.667em;
 }
 
-h3, .h3, h4, .h4 {
+h3, .h3 {
 	font-size: 1.334em;
 }
 
-h5, .h5, h6, .h6 {
-	font-size: 0.75rem;
+h4, .h4 {
+	font-size: 1em;
+	font-weight: bold;
 }
+
+h5, .h5 {
+	font-size: 1em;
+}
+
+h6, .h6 {
+	font-size: 0.75em;
+}
+
 
 .jslider {
 	font-family: sans-serif, arial, freesans;
@@ -107,6 +140,11 @@ input[type="submit"] {
 input, optgroup, select, textarea {
 	color: #333;
 	resize: vertical;
+}
+
+#help-content pre code {
+	overflow-x: auto;
+	white-space: pre;
 }
 
 pre code {
@@ -468,7 +506,6 @@ footer {
 
 #contact-block {
 	width: 100%;
-	float: left;
 }
 
 #contact-block-numcontacts {
@@ -477,12 +514,10 @@ footer {
 }
 
 .contact-block-div {
-	float: left;
-	width: 50px;
-	height: 50px;
+	display: inline;
 }
+
 .contact-block-textdiv {
-	float: left;
 	width: 150px;
 	height: 34px;
 }
@@ -490,12 +525,11 @@ footer {
 #contact-block-end {
 	clear: both;
 }
-.contact-block-link {
-	float: left;
-}
+
 .contact-block-img {
-	width:48px;
-	height:48px;
+	width:47px;
+	height:47px;
+	margin-bottom: 3px;
 }
 
 #tag-remove {
@@ -1515,7 +1549,11 @@ nav .dropdown-menu {
 	color: $nav_icon_colour;
 }
 
-#avatar:hover + #usermenu-caret {
+.usermenu-head {
+	float: left;
+}
+
+.usermenu-head:hover #usermenu-caret {
 	color: $nav_active_icon_colour;
 }
 
@@ -1645,6 +1683,7 @@ main.fullscreen .section-content-wrapper-np {
 
 .atoken-index-row:hover td,
 .chatroom-index-row:hover td,
+.wikis-index-row:hover td,
 .locs-index-row:hover td,
 [id^="cloud-index-"]:hover td,
 .cloud-index-active {
@@ -1778,6 +1817,7 @@ nav .badge.mail-update:hover {
 
 #expand-aside,
 #expand-tabs,
+#doco-return-to-top-btn,
 #context-help-btn {
 	color: $nav_active_icon_colour;
 	padding: 7px 10px;
@@ -1823,10 +1863,6 @@ nav .badge.mail-update:hover {
 	aside#region_1 {
 		background: rgba(0, 0, 0, .1);
 		border-right: 1px solid $nav_bd;
-	}
-
-	main {
-		transition: all 0.25s ease-in-out;
 	}
 
 	main {
@@ -2021,11 +2057,34 @@ dl.bb-dl > dd > li {
 }
 
 .embed-photo-selected-photo {
-    border-color: blue;
-    border-style: solid;
-    border-width: 5px;
+	border-color: blue;
+	border-style: solid;
+	border-width: 5px;
 }
 
 #wiki-preview img {
-    max-width: 100%;
+	max-width: 100%;
+}
+
+#ace-editor,
+#editor {
+	border-bottom-left-radius: $radiuspx;
+	border-bottom-right-radius: $radiuspx;
+}
+
+.sub-menu {
+	margin-top: 10px;
+	padding-left: 15px;
+	border-left: 3px solid #eee;
+}
+
+.nav-pills-stacked-icons {
+	padding: 6px 10px;
+	float: right;
+	position: relative;
+	z-index:1;
+}
+
+.nav-pills-stacked-icons:hover + a {
+	background-color: #eee;
 }

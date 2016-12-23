@@ -249,7 +249,7 @@ var divmore_height = 400;
 var last_filestorage_id = null;
 var mediaPlaying = false;
 var contentHeightDiff = 0;
-
+var liveRecurse = 0;
 
 $(function() {
 	$.ajaxSetup({cache: false});
@@ -444,16 +444,26 @@ function contextualHelp() {
 }
 
 function contextualHelpFocus(target, openSidePanel) {
-	if (openSidePanel) {
-		$("main").addClass('region_1-on');  // Open the side panel to highlight element
-	}
-	else {
-		$("main").removeClass('region_1-on');
-	}
-	$('html,body').animate({ scrollTop: $(target).offset().top - $('nav').outerHeight(true) - $('#contextual-help-content').outerHeight(true)}, 'slow');
-	for (i = 0; i < 3; i++) {
-		$(target).fadeTo('slow', 0.1).fadeTo('slow', 1.0);
-	}
+        if($(target).length) {
+            if (openSidePanel) {
+                    $("main").addClass('region_1-on');  // Open the side panel to highlight element
+            }
+            else {
+                    $("main").removeClass('region_1-on');
+            }
+
+	    var css_position = $(target).parent().css('position');
+	    if (css_position === 'fixed') {
+	            $(target).parent().css('position', 'static');
+	    }
+
+            $('html,body').animate({ scrollTop: $(target).offset().top - $('nav').outerHeight(true) - $('#contextual-help-content').outerHeight(true)}, 'slow');
+            for (i = 0; i < 3; i++) {
+                    $(target).fadeTo('slow', 0.1).fadeTo('slow', 1.0);
+            }
+
+	    $(target).parent().css('position', css_position);
+        }
 }
 
 function updatePageItems(mode, data) {
@@ -664,6 +674,8 @@ function updateConvItems(mode,data) {
 		$('.item_' + bParam_mid.substring(0,32)).addClass('item-highlight');
 	}
 
+	$(document.body).trigger("sticky_kit:recalc");
+
 }
 
 function collapseHeight() {
@@ -754,6 +766,13 @@ function liveUpdate() {
 			update_mode = 'append';
 	}
 	else {
+//		if(bParam_static) {
+//			in_progress = false;
+//			if(timer) clearTimeout(timer);
+//			timer = setTimeout(NavUpdate,10000);
+//			return;
+//		}
+
 		update_mode = 'update';
 		var orgHeight = $("#region_2").height();
 	}
@@ -762,6 +781,27 @@ function liveUpdate() {
 	var dstart = new Date();
 	console.log('LOADING data...');
 	$.get(update_url, function(data) {
+
+		// on shared hosts occasionally the live update process will be killed
+		// leaving an incomplete HTML structure, which leads to conversations getting
+		// truncated and the page messed up if all the divs aren't closed. We will try 
+		// again and give up if we can't get a valid HTML response after 10 tries.
+
+		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
+			console.log('Incomplete data. Reloading');
+			in_progress = false;
+			liveRecurse ++;
+			if(liveRecurse < 10) {
+				liveUpdate();
+			}
+			else {
+				console.log('Incomplete data. Too many attempts. Giving up.');
+			}
+		}		
+
+		// else data was valid - reset the recursion counter
+		liveRecurse = 0;
+
 		var dready = new Date();
 		console.log('DATA ready in: ' + (dready - dstart)/1000 + ' seconds.');
 
@@ -1285,7 +1325,6 @@ $(document).ready(function() {
 		numbers       : aStr['t17'],
 	};
 
-	$("#toc").toc();
 });
 
 function zFormError(elm,x) {

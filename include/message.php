@@ -187,10 +187,10 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 	if($body)
 		$body  = str_rot47(base64url_encode($body));
 	
+	$sig = ''; // placeholder
 
-
-	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, attach, mid, parent_mid, created, expires, mail_isreply )
-		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
+	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, sig, attach, mid, parent_mid, created, expires, mail_isreply )
+		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
 		intval($channel['channel_account_id']),
 		dbesc($conv_guid),
 		intval(1),
@@ -199,6 +199,7 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		dbesc($recipient),
 		dbesc($subject),
 		dbesc($body),
+		dbesc($sig),
 		dbesc($jattach),
 		dbesc($mid),
 		dbesc($replyto),
@@ -392,7 +393,7 @@ function private_messages_fetch_message($channel_id, $messageitem_id, $updatesee
 
 
 	if($updateseen) {
-		$r = q("UPDATE `mail` SET mail_seen = 1 where mail_seen = 0 and id = %d AND channel_id = %d",
+		$r = q("UPDATE mail SET mail_seen = 1 where mail_seen = 0 and id = %d AND channel_id = %d",
 			dbesc($messageitem_id),
 			intval($channel_id)
 		);
@@ -436,7 +437,7 @@ function private_messages_drop($channel_id, $messageitem_id, $drop_conversation 
 			intval($channel_id)
 		);
 		if($z) {
-			q("delete from conv where guid = '%s' and uid = %d limit 1",
+			q("delete from conv where guid = '%s' and uid = %d",
 				dbesc($x[0]['conv_guid']),
 				intval($channel_id)
 			);		
@@ -516,7 +517,7 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 
 
 	if($updateseen) {
-		$r = q("UPDATE `mail` SET mail_seen = 1 where mail_seen = 0 and parent_mid = '%s' AND channel_id = %d",
+		$r = q("UPDATE mail SET mail_seen = 1 where mail_seen = 0 and parent_mid = '%s' AND channel_id = %d",
 			dbesc($r[0]['parent_mid']),
 			intval($channel_id)
 		);

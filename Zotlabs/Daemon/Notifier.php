@@ -4,6 +4,7 @@ namespace Zotlabs\Daemon;
 
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
+require_once('include/conversation.php');
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
@@ -120,7 +121,7 @@ class Notifier {
 			$normal_mode = false;
 			$mail = true;
 			$private = true;
-			$message = q("SELECT * FROM `mail` WHERE `id` = %d LIMIT 1",
+			$message = q("SELECT * FROM mail WHERE id = %d LIMIT 1",
 					intval($item_id)
 			);
 			if(! $message) {
@@ -371,12 +372,13 @@ class Notifier {
 				if(! $encoded_item['flags'])
 					$encoded_item['flags'] = array();
 				$encoded_item['flags'][] = 'relay';
+				$upstream = true;
 			}
 			else {
 				logger('notifier: normal distribution', LOGGER_DEBUG);
 				if($cmd === 'relay')
 					logger('notifier: owner relay');
-
+				$upstream = false;
 				// if our parent is a tag_delivery recipient, uplink to the original author causing
 				// a delivery fork. 
 	
@@ -445,6 +447,7 @@ class Notifier {
 
 		$narr = array(
 			'channel' => $channel,
+			'upstream' => $upstream,
 			'env_recips' => $env_recips,
 			'packet_recips' => $packet_recips,
 			'recipients' => $recipients,
@@ -488,7 +491,7 @@ class Notifier {
 		// Now we have collected recipients (except for external mentions, FIXME)
 		// Let's reduce this to a set of hubs.
 
-		$r = q("select * from hubloc where hubloc_hash in (" . implode(',',$recipients) . ") 
+		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on site_url = hubloc_url where hubloc_hash in (" . implode(',',$recipients) . ") 
 			and hubloc_error = 0 and hubloc_deleted = 0"
 		);		
  
@@ -546,6 +549,7 @@ class Notifier {
 
 				$narr = array(
 					'channel' => $channel,
+					'upstream' => $upstream,
 					'env_recips' => $env_recips,
 					'packet_recips' => $packet_recips,
 					'recipients' => $recipients,
@@ -599,8 +603,8 @@ class Notifier {
 				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
 			}
 			elseif($packet_type === 'request') {
-				$packet = zot_build_packet($channel,$packet_type,$env_recips,$hub['hubloc_sitekey'],$hash,
-					array('message_id' => $request_message_id)
+				$packet = zot_build_packet($channel,$packet_type,$env_recips,$hub['hubloc_sitekey'],$hub['site_crypto'],
+					$hash, array('message_id' => $request_message_id)
 				);
 			}
 
@@ -614,7 +618,7 @@ class Notifier {
 				));
 			}
 			else {
-				$packet = zot_build_packet($channel,'notify',$env_recips,(($private) ? $hub['hubloc_sitekey'] : null),$hash);	
+				$packet = zot_build_packet($channel,'notify',$env_recips,(($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);	
 				queue_insert(array(
 					'hash'       => $hash,
 					'account_id' => $target_item['aid'],

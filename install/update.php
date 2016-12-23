@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1183 );
+define( 'UPDATE_VERSION' , 1185 );
 
 /**
  *
@@ -1095,7 +1095,7 @@ function update_r1097() {
 	$r = q("select hubloc_id, hubloc_addr from hubloc where hubloc_addr like '%%/%%'");
 	if($r) {
 		foreach($r as $rr) {
-			q("update hubloc set hubloc_addr = '%s' where hubloc_id = %d limit 1",
+			q("update hubloc set hubloc_addr = '%s' where hubloc_id = %d",
 				dbesc(substr($rr['hubloc_addr'],0,strpos($rr['hubloc_addr'],'/'))),
 				intval($rr['hubloc_id'])
 			);
@@ -2439,6 +2439,34 @@ function update_r1181() {
 function update_r1182() {
 
 	$r1 = q("alter table site add site_version varchar(32) not null default '' ");
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+
+function update_r1183() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("alter table hook ALTER COLUMN priority TYPE smallint");
+		$r2 = q("alter table hook ALTER COLUMN priority SET NOT NULL");
+		$r3 = q("alter table hook ALTER COLUMN priority SET DEFAULT '0'");
+		$r1 = $r1 && $r2 && $r3;
+	}
+	else {
+		$r1 = q("alter table hook CHANGE priority priority smallint NOT NULL DEFAULT '0' ");
+	}
+	$r2 = q("create index priority_idx on hook (priority)");
+
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1184() {
+
+	$r1 = q("alter table site add site_crypto text not null default '' ");
 
 	if($r1)
 		return UPDATE_SUCCESS;

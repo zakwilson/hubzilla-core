@@ -14,12 +14,13 @@ $(document).ready(function() {
 			}
 		});
 	}
-
 	$('#css3-calc').remove(); // Remove the test element
 
-	$('#left_aside_wrapper').stick_in_parent({
-		offset_top: $('nav').outerHeight(true)
-	});
+	if($(window).width() > 767) {
+		$('#left_aside_wrapper').stick_in_parent({
+			offset_top: $('nav').outerHeight(true)
+		});
+	}
 
 	$('#expand-aside').on('click', toggleAside);
 
@@ -92,7 +93,17 @@ function makeFullScreen(full) {
 }
 
 function toggleAside() {
-	$(window).scroll();
 	$('#expand-aside-icon').toggleClass('fa-arrow-circle-right').toggleClass('fa-arrow-circle-left');
-	$('main').toggleClass('region_1-on');
+	if($('main').hasClass('region_1-on')){
+		$('main').removeClass('region_1-on')
+		$('#overlay').remove();
+		$('#left_aside_wrapper').trigger("sticky_kit:detach");
+	}
+	else {
+		$('main').addClass('region_1-on')
+		$('<div id="overlay"></div>').appendTo('section');
+		$('#left_aside_wrapper').stick_in_parent({
+			offset_top: $('nav').outerHeight(true)
+		});
+	}
 }

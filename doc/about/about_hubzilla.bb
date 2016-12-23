@@ -1,5 +1,5 @@
 [h3]What is Hubzilla?[/h3]
-$Projectname is a [b]free and open source[/b] set of web applications and services running on a special kind of web server, called a "hub", that can connect to other hubs in a decentralized network we like to call "the grid", providing sophisticated communications, identity, and access control services which work together seamlessly across domains and independent websites. It allows anybody to publicly or [b]privately[/b] publish content via "channels", which are the fundamental, cryptographically secured identities that provide authentication independently of the hubs which host them. This revolutionary liberation of online identity from individual servers and domains is called "nomadic identity", and it is powered by the Zot protocol, a new framework for decentralized access control with fine-grained, extensible permissions.
+$Projectname is a [b]free and open source[/b] set of web applications and services running on a special kind of web server, called a "hub", that can connect to other hubs in a decentralised network we like to call "the grid", providing sophisticated communications, identity, and access control services which work together seamlessly across domains and independent websites. It allows anybody to publicly or [b]privately[/b] publish content via "channels", which are the fundamental, cryptographically secured identities that provide authentication independently of the hubs which host them. This revolutionary liberation of online identity from individual servers and domains is called "nomadic identity", and it is powered by the Zot protocol, a new framework for decentralised access control with fine-grained, extensible permissions.
 
 [h3]Right... so what is Hubzilla?[/h3]
 From the practical perspective of hub members who use the software, $Projectname offers a variety of familiar, integrated web apps and services, including: 
@@ -13,20 +13,30 @@ From the practical perspective of hub members who use the software, $Projectname
 While all of these apps and services can be found in other software packages, only $Projectname allows you to set permissions for groups and individuals who may not even have accounts on your hub! In typical web apps, if you want to share things privately on the internet, the people you share with must have accounts on the server hosting your data; otherwise, there is no robust way for your server to [i]authenticate[/i] visitors to the site to know whether to grant them access. $Projectname solves this problem with an advanced system of [i]remote authentication[/i] that validates the identity of visitors by employing techniques that include public key cryptography.
  
 [h3]Software Stack[/h3]
-The $Projectname software stack is a relatively standard webserver application written primarily in PHP/MySQL and requiring little more than a web server, a MySQL-compatible database, and the PHP scripting language. It is designed to be easily installable by those with basic website administration skills on typical shared hosting platforms with a broad range of computing hardware. It is also easily extended via plugins and themes and other third-party tools. 
+The $Projectname software stack is a relatively standard webserver application written primarily in PHP/MySQL and [url=https://github.com/redmatrix/hubzilla/blob/master/install/INSTALL.txt]requiring little more than a web server, a MySQL-compatible database, and the PHP scripting language[/url]. It is designed to be easily installable by those with basic website administration skills on typical shared hosting platforms with a broad range of computing hardware. It is also easily extended via plugins and themes and other third-party tools. 
 
 [h3]Additional Resources and Links[/h3]
-[list]
-[*][url=http://hubzilla.org]Hubzilla project website[/url]
+[list][*][url=http://hubzilla.org]Hubzilla project website[/url]
 [*][url=https://github.com/redmatrix/hubzilla]Hubzilla core code repository[/url]
-[*][url=https://github.com/redmatrix/hubzilla-addons]Hubzilla official addons repository[/url]
-[/list]
+[*][url=https://github.com/redmatrix/hubzilla-addons]Hubzilla official addons repository[/url][/list]
+
+[h3]Glossary[/h3]
+[dl terms="b"]
+[*= hub] An instance of the Hubzilla software running on a standard web server
+
+[*= grid] The global network of hubs that exchange information with each other using the Zot protocol.
+
+[*= channel] The fundamental identity on the grid. A channel can represent a person, a blog, or a forum to name a few. Channels can make connections with other channels to share information with highly detailed permissions.
+
+[*= clone] Channels can have clones associated with separate and otherwise unrelated accounts on independent hubs. Communications shared with a channel are synchronized among the channel clones, allowing a channel to send and receive messages and access shared content from multiple hubs. This provides resilience against network and hardware failures, which can be a significant problem for self-hosted or limited-resource web servers. Cloning allows you to completely move a channel from one hub to another, taking your data and connections with you. See nomadic identity.
+
+[*= nomadic identity] The ability to authenticate and easily migrate an identity across independent hubs and web domains. Nomadic identity provides true ownership of an online identity, because the identities of the channels controlled by an account on a hub are not tied to the hub itself. A hub is more like a "host" for channels. With Hubzilla, you don't have an "account" on a server like you do on typical websites; you own an identity that you can take with you across the grid by using clones.
+
+[*= [url=[baseurl]/help/developer/what_is_zot]Zot[/url]] The novel JSON-based protocol for implementing secure decentralised communications and services. It differs from many other communication protocols by building communications on top of a decentralised identity and authentication framework. The authentication component is similar to OpenID conceptually but is insulated from DNS-based identities. Where possible remote authentication is silent and invisible. This provides a mechanism for internet-scale distributed access control which is unobtrusive.
+[/dl]
 
 [h3]Features[/h3]
-
-$Projectname is a general-purpose web publishing and communication network, with several unique features.  It is designed to be used by the widest range of people on the web, from non-technical bloggers, to expert PHP programmers and seasoned systems administrators.
-
-This page lists some of the core features of $Projectname that are bundled with the official release.  As with most free and open source software, there may be many other extensions, additions, plugins, themes and configurations that are limited only by the needs and imagination of the members.
+This page lists some of the core features of $Projectname that are bundled with the official release. $Projectname is a highly extensible platform, so more features and capabilities can be added via additional themes and plugins.
 
 [h4]Affinity Slider[/h4]
 
@@ -173,9 +183,7 @@ Any number of profiles may be created containing different information and these
 
 [h4]Account Backup[/h4]
 
-Red offers a simple, one-click account backup, where you can download a complete backup of your profile(s).  
-
-Backups can then be used to clone or restore a profile.
+$Projectname offers a simple, one-click account backup, where you can download a complete backup of your profile(s). Backups can then be used to clone or restore a profile.
 
 [h4]Account Deletion[/h4]
 
@@ -201,7 +209,6 @@ Post can be previewed prior to sending and edited after sending.
 [h4]Voting/Consensus[/h4]
 Posts can be turned into "consensus" items which allows readers to offer feedback, which is collated into "agree", "disagree", and "abstain" counters. This lets you gauge interest for ideas and create informal surveys. 
 
-
 [h4]Extending $Projectname[/h4]
 
 $Projectname can be extended in a number of ways, through site customisation, personal customisation, option setting, themes, and addons/plugins. 
@@ -209,55 +216,3 @@ $Projectname can be extended in a number of ways, through site customisation, pe
 [h4]API[/h4]
 
 An API is available for use by third-party services. This is based originally on the early Twitter API (for which hundreds of third-party tools exist). It is currently being extended to provide access to facilities and abilities which are specific to $Projectname. Access may be provided by login/password or OAuth and client registration of OAuth applications is provided.
-
- 
-
-
-[h3]What is Zot?[/h3]
-
-Zot is the protocol that powers $Projectname, providing three core capabilities: Communications, Identity, and Access Control.
-
-The functionality it provides can also be described as follows: 
-
- - a relationship online is just a bunch of permissions
- - the internet is just another folder
-
-[h4]Communications[/h4]
-
-Zot is a revolutionary protocol which provides [i]decentralised communications[/i] and [i]identity management[/i] across the grid. The resulting platform can provide web services comparable to those offered by large corporate providers, but without the large corporate provider and their associated privacy issues, insatiable profit drive, and walled-garden mentality.
-
-Communications and social networking are an integral part of the grid. Any channel (and any services provided by that channel) can make full use of feature-rich social communications on a global scale. These communications may be public or private - and private communications comprise not only fully encrypted transport, but also encrypted storage to help protect against accidental snooping and disclosure by rogue system administrators and internet service providers. 
-
-Zot allows a wide array of background services in the grid, from offering friend suggestions, to directory services. You can also perform other things which would typically only be possibly on a centralized provider - such as &quot;Wall to Wall&quot; posts. Private/multiple profiles can be easily created, and web content can be tailored to the viewer via the [i]Affinity Slider[/i]. 
-
-You won't find these features at all on other decentralized communication services. In addition to providing hub (server) decentralization, perhaps the most innovative and interesting Zot feature is its provision of [i]decentralized identity[/i] services.
-
-[h4]Identity[/h4] 
-
-Zot's identity layer is unique. It provides [i]invisible single sign-on[/i] across all sites in the grid. 
-
-It also provides [i]nomadic identity[/i], so that your communications with friends, family, and or anyone else you're communicating with won't be affected by the loss of your primary communication node - either temporarily or permanently. 
-
-The important bits of your identity and relationships can be backed up to a thumb drive, or your laptop, and may appear at any node in the grid at any time - with all your friends and preferences intact. 
-
-Crucially, these nomadic instances are kept in sync so any instance can take over if another one is compromised or damaged. This protects you against not only major system failure, but also temporary site overloads and governmental manipulation or censorship. 
-
-Nomadic identity, single sign-on, and $Projectname's decentralization of hubs, we believe, introduce a high degree of degree of [i]resiliency[/i] and [i]persistence[/i] in internet communications, that are sorely needed amidst global trends towards corporate centralization, as well as mass and indiscriminate government surveillance and censorship.
-
-As you browse the grid, viewing channels and their unique content, you are seamlessly authenticated as you go, even across completely different server hubs. No passwords to enter. Nothing to type. You're just greeted by name on every new site you visit. 
-
-How does Zot do that? We call it [i]magic-auth[/i], because $Projectname hides the details of the complexities that go into single sign-on logins, and nomadic identities, from the experience of browsing on the grid.  This is one of the design goals of $Projectname: to increase privacy, and freedom on the web, while reducing the complexity and tedium brought by the need to enter new passwords and login names for every different sight that someone might visit online.
-
-You login only once on your home hub (or any nomadic backup hub you have chosen). This allows you to access any authenticated services provided anywhere in the grid - such as shopping, blogs, forums, and access to private information. This is just like the services offered by large corporate providers with huge user databases; however you can be a member of this community, as well as a server on this network using a $35 Rasberry Pi. Your password isn't stored on a thousand different sites, or even worse, only on a few sites like Google and Facebook, beyond your direct control.
-
-You cannot be silenced. You cannot be removed from the grid, unless you yourself choose to exit it.
-
-[h4]Access Control[/h4]
-
-Zot's identity layer allows you to provide fine-grained permissions to any content you wish to publish - and these permissions extend across $Projectname. This is like having one super huge website made up of an army of small individual websites - and where each channel in the grid can completely control their privacy and sharing preferences for any web resources they create. 
-
-Currently, the grid supports communications, photo albums, events, and files. This will be extended in the future to provide content management services (web pages) and cloud storage facilities, such as WebDAV and multi-media libraries. Every object and how it is shared and with whom is completely under your control.
-
-This type of control is available on large corporate providers such as Facebook and Google, because they own the user database. Within the grid, there is no need for a huge user database on your machine - because the grid [i]is[/i] your user database. It has what is essentially infinite capacity (limited by the total number of hubs online across the internet), and is spread amongst hundreds, and potentially millions of computers. 
-
-Access can be granted or denied for any resource, to any channel, or any group of channels; anywhere within the grid. Others can access your content if you permit them to do so, and they do not even need to have an account on your hub. Your private photos cannot be viewed, because permission really work; they are not an addon that was added as an afterthought. If you aren't on the list of allowed viewers for a particular photo, you aren't going to look at it. 

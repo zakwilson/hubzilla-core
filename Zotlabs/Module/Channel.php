@@ -1,6 +1,6 @@
 <?php
-namespace Zotlabs\Module;
 
+namespace Zotlabs\Module;
 
 require_once('include/contact_widgets.php');
 require_once('include/items.php');
@@ -10,6 +10,10 @@ require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
 require_once('include/permissions.php');
 
+/**
+ * @brief Channel Controller
+ *
+ */
 class Channel extends \Zotlabs\Web\Controller {
 
 	function init() {
@@ -34,7 +38,7 @@ class Channel extends \Zotlabs\Web\Controller {
 
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 			$which = $channel['channel_address'];
-			$profile = argv(1);		
+			$profile = argv(1);
 		}
 
 		\App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" title="' . t('Posts and comments') . '" href="' . z_root() . '/feed/' . $which . '" />' . "\r\n" ;
@@ -48,11 +52,9 @@ class Channel extends \Zotlabs\Web\Controller {
 		// we start loading content
 
 		profile_load($which,$profile);
-
 	}
 
 	function get($update = 0, $load = false) {
-
 
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();
@@ -66,12 +68,13 @@ class Channel extends \Zotlabs\Web\Controller {
 		$datequery = ((x($_GET,'dend') && is_a_date_arg($_GET['dend'])) ? notags($_GET['dend']) : '');
 		$datequery2 = ((x($_GET,'dbegin') && is_a_date_arg($_GET['dbegin'])) ? notags($_GET['dbegin']) : '');
 
-		if(observer_prohibited(true)) {			
+		if(observer_prohibited(true)) {
 			return login();
 		}
 
 		$category = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
 		$hashtags = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
+		$static   = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
 
 		$groups = array();
 
@@ -108,15 +111,17 @@ class Channel extends \Zotlabs\Web\Controller {
 
 		if(! $update) {
 
+			$static = channel_manual_conv_update(\App::$profile['profile_uid']);
+
 			$o .= profile_tabs($a, $is_owner, \App::$profile['channel_address']);
 
 			$o .= common_friends_visitor_widget(\App::$profile['profile_uid']);
 
 			if($channel && $is_owner) {
 				$channel_acl = array(
-					'allow_cid' => $channel['channel_allow_cid'], 
-					'allow_gid' => $channel['channel_allow_gid'], 
-					'deny_cid' => $channel['channel_deny_cid'], 
+					'allow_cid' => $channel['channel_allow_cid'],
+					'allow_gid' => $channel['channel_allow_gid'],
+					'deny_cid' => $channel['channel_deny_cid'],
 					'deny_gid' => $channel['channel_deny_gid']
 				);
 			}
@@ -143,9 +148,9 @@ class Channel extends \Zotlabs\Web\Controller {
 					'bbco_autocomplete' => 'bbcode',
 					'bbcode' => true,
 					'jotnets' => true
-        		);
+				);
 
-        		$o .= status_editor($a,$x);
+				$o .= status_editor($a,$x);
 			}
 
 		}
@@ -168,11 +173,14 @@ class Channel extends \Zotlabs\Web\Controller {
 		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
 
 		\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string) . '" title="oembed" />' . "\r\n";
-		
+
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
 		if($load)
 			$simple_update = '';
+
+		if($static && $simple_update)
+			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 		if(($update) && (! $load)) {
 
@@ -183,9 +191,9 @@ class Channel extends \Zotlabs\Web\Controller {
 					intval(\App::$profile['profile_uid'])
 				);
 				$_SESSION['loadtime'] = datetime_convert();
-			} 
+			}
 			else {
-				$r = q("SELECT distinct parent AS `item_id`, created from item
+				$r = q("SELECT distinct parent AS item_id, created from item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 					WHERE uid = %d $item_normal
 					AND item_wall = 1 $simple_update
@@ -201,10 +209,10 @@ class Channel extends \Zotlabs\Web\Controller {
 		else {
 
 			if(x($category)) {
-			        $sql_extra .= protect_sprintf(term_query('item', $category, TERM_CATEGORY));
+				$sql_extra .= protect_sprintf(term_query('item', $category, TERM_CATEGORY));
 			}
 			if(x($hashtags)) {
-			        $sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
+				$sql_extra .= protect_sprintf(term_query('item', $hashtags, TERM_HASHTAG, TERM_COMMUNITYTAG));
 			}
 
 			if($datequery) {
@@ -228,10 +236,9 @@ class Channel extends \Zotlabs\Web\Controller {
 					if (! $r) {
 						notice( t('Permission denied.') . EOL);
 					}
-
-				} 
+				}
 				else {
-					$r = q("SELECT distinct id AS item_id, created FROM item 
+					$r = q("SELECT distinct id AS item_id, created FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
 						WHERE uid = %d $item_normal
 						AND item_wall = 1 and item_thread_top = 1
@@ -250,11 +257,11 @@ class Channel extends \Zotlabs\Web\Controller {
 		if($r) {
 
 			$parents_str = ids_to_querystr($r,'item_id');
- 
-			$items = q("SELECT `item`.*, `item`.`id` AS `item_id` 
-				FROM `item`
-				WHERE `item`.`uid` = %d $item_normal
-				AND `item`.`parent` IN ( %s )
+
+			$items = q("SELECT item.*, item.id AS item_id
+				FROM item
+				WHERE item.uid = %d $item_normal
+				AND item.parent IN ( %s )
 				$sql_extra ",
 				intval(\App::$profile['profile_uid']),
 				dbesc($parents_str)
@@ -270,8 +277,7 @@ class Channel extends \Zotlabs\Web\Controller {
 				notice( t('Permission denied.') . EOL);
 			}
 
-		} 
-		else {
+		} else {
 			$items = array();
 		}
 
@@ -285,7 +291,7 @@ class Channel extends \Zotlabs\Web\Controller {
 				$maxheight = 400;
 
 			$o .= '<div id="live-channel"></div>' . "\r\n";
-			$o .= "<script> var profile_uid = " . \App::$profile['profile_uid'] 
+			$o .= "<script> var profile_uid = " . \App::$profile['profile_uid']
 				. "; var netargs = '?f='; var profile_page = " . \App::$pager['page']
 				. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
 
@@ -304,6 +310,7 @@ class Channel extends \Zotlabs\Web\Controller {
 				'$nouveau' => '0',
 				'$wall' => '1',
 				'$fh' => '0',
+				'$static'  => $static,
 				'$page' => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$search' => '',
 				'$order' => '',
@@ -317,7 +324,6 @@ class Channel extends \Zotlabs\Web\Controller {
 				'$dbegin' => $datequery2
 			));
 
-
 		}
 
 		$update_unseen = '';
@@ -325,10 +331,10 @@ class Channel extends \Zotlabs\Web\Controller {
 		if($page_mode === 'list') {
 
 			/**
-			 * in "list mode", only mark the parent item and any like activities as "seen". 
+			 * in "list mode", only mark the parent item and any like activities as "seen".
 			 * We won't distinguish between comment likes and post likes. The important thing
 			 * is that the number of unseen comments will be accurate. The SQL to separate the
-			 * comment likes could also get somewhat hairy. 
+			 * comment likes could also get somewhat hairy.
 			 */
 
 			if($parents_str) {
@@ -351,7 +357,7 @@ class Channel extends \Zotlabs\Web\Controller {
 
 		if($checkjs->disabled()) {
 			$o .= conversation($a,$items,'channel',$update,'traditional');
-		} 
+		}
 		else {
 			$o .= conversation($a,$items,'channel',$update,$page_mode);
 		}
@@ -362,7 +368,7 @@ class Channel extends \Zotlabs\Web\Controller {
 				\App::$page['title'] = $items[0]['title'] . " - " . \App::$page['title'];
 		}
 
-		if($mid) 
+		if($mid)
 			$o .= '<div id="content-complete"></div>';
 
 		return $o;

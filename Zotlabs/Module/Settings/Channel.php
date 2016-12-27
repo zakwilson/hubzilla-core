@@ -289,7 +289,7 @@ class Channel {
 		$yes_no = array(t('No'),t('Yes'));
 	
 	
-		$p = q("SELECT * FROM `profile` WHERE `is_default` = 1 AND `uid` = %d LIMIT 1",
+		$p = q("SELECT * FROM profile WHERE is_default = 1 AND uid = %d LIMIT 1",
 			intval(local_channel())
 		);
 		if(count($p))
@@ -326,7 +326,11 @@ class Channel {
 			$permiss[] = array($k,$perm,$limits[$k],'',$options);			
 		}
 	
-
+	
+		//		logger('permiss: ' . print_r($permiss,true));
+	
+	
+	
 		$username   = $channel['channel_name'];
 		$nickname   = $channel['channel_address'];
 		$timezone   = $channel['channel_timezone'];
@@ -400,8 +404,11 @@ class Channel {
 			'$desc' => t('Your channel address is'),
 			'$nickname' => $nickname,
 			'$subdir' => $subdir,
+			'$davdesc' => t('Your files/photos are accessible via WebDAV at'),
+			'$davpath' => ((get_account_techlevel() > 3) ? z_root() . '/dav/' . $nickname : ''),
 			'$basepath' => \App::get_hostname()
 		));
+
 	
 		$stpl = get_markup_template('settings.tpl');
 	
@@ -510,6 +517,8 @@ class Channel {
 			'$notify6'  => array('notify6', t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, '', $yes_no),
 			'$notify7'  => array('notify7', t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, '', $yes_no),
 			'$notify8'  => array('notify8', t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, '', $yes_no),
+			
+			'$notify9'  => array('notify9', t('Someone likes your post/comment'), ($notify & NOTIFY_LIKE), NOTIFY_LIKE, '', $yes_no),
 			
 	
 			'$lbl_vnot' 	=> t('Show visual notifications including:'),

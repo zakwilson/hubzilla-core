@@ -25,7 +25,7 @@ class Editpost extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		$itm = q("SELECT * FROM `item` WHERE `id` = %d AND ( owner_xchan = '%s' OR author_xchan = '%s' ) LIMIT 1",
+		$itm = q("SELECT * FROM item WHERE id = %d AND ( owner_xchan = '%s' OR author_xchan = '%s' ) LIMIT 1",
 			intval($post_id),
 			dbesc(get_observer_hash()),
 			dbesc(get_observer_hash())
@@ -85,6 +85,7 @@ class Editpost extends \Zotlabs\Web\Controller {
 			'hide_voting' => true,
 			'hide_future' => true,
 			'hide_location' => true,
+			'parent' => (($itm[0]['mid'] === $itm[0]['parent_mid']) ? 0 : $itm[0]['parent']),
 			'mimetype' => $itm[0]['mimetype'],
 			'ptyp' => $itm[0]['obj_type'],
 			'body' => htmlspecialchars_decode(undo_post_tagging($itm[0]['body']),ENT_COMPAT),

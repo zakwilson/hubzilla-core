@@ -121,6 +121,8 @@ class Display extends \Zotlabs\Web\Controller {
 			 	return '';
 			}
 		}
+		
+		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
 	
 	
 		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
@@ -130,10 +132,13 @@ class Display extends \Zotlabs\Web\Controller {
 		if($load)
 			$simple_update = '';
 	
-	
+		if($static && $simple_update)
+			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 	
 		if((! $update) && (! $load)) {
 	
+
+			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 0);
 	
 			$o .= '<div id="live-display"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
@@ -154,6 +159,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$fh' => '0',
 				'$nouveau' => '0',
 				'$wall' => '0',
+				'$static' => $static,
 				'$page' => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$list' => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$search' => '',
@@ -214,8 +220,8 @@ class Display extends \Zotlabs\Web\Controller {
 	
 					$r = q("SELECT * from item
 						WHERE mid = '%s'
-						AND (((( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' 
-						AND `item`.`deny_gid`  = '' AND item_private = 0 ) 
+						AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
+						AND item.deny_gid  = '' AND item_private = 0 ) 
 						and owner_xchan in ( " . stream_perms_xchans(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 						OR uid = %d )
 						$sql_extra )
@@ -258,8 +264,8 @@ class Display extends \Zotlabs\Web\Controller {
 	
 				$r = q("SELECT * from item
 					WHERE mid = '%s'
-					AND (((( `item`.`allow_cid` = ''  AND `item`.`allow_gid` = '' AND `item`.`deny_cid`  = '' 
-					AND `item`.`deny_gid`  = '' AND item_private = 0 ) 
+					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
+					AND item.deny_gid  = '' AND item_private = 0 ) 
 					and owner_xchan in ( " . stream_perms_xchans(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d )
 					$sql_extra )
@@ -282,8 +288,8 @@ class Display extends \Zotlabs\Web\Controller {
 			$parents_str = ids_to_querystr($r,'id');
 			if($parents_str) {
 	
-				$items = q("SELECT `item`.*, `item`.`id` AS `item_id` 
-					FROM `item`
+				$items = q("SELECT item.*, item.id AS item_id 
+					FROM item
 					WHERE parent in ( %s ) $item_normal ",
 					dbesc($parents_str)
 				);
@@ -321,7 +327,7 @@ class Display extends \Zotlabs\Web\Controller {
 	/*
 		elseif((! $update) && (!  {
 			
-			$r = q("SELECT `id`, item_flags FROM `item` WHERE `id` = '%s' OR `mid` = '%s' LIMIT 1",
+			$r = q("SELECT id, item_flags FROM item WHERE id = '%s' OR mid = '%s' LIMIT 1",
 				dbesc($item_hash),
 				dbesc($item_hash)
 			);

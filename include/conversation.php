@@ -146,7 +146,7 @@ function localize_item(&$item){
 			case ACTIVITY_OBJ_NOTE:
 			default:
 				$post_type = t('status');
-				if($obj['mid'] != $obj['parent_mid'])
+				if($obj['id'] != $obj['parent'])
 					$post_type = t('comment');
 				break;
 		}
@@ -269,8 +269,8 @@ function localize_item(&$item){
 // (and update to json storage)
 
  	if (activity_match($item['verb'],ACTIVITY_TAG)) {
-		$r = q("SELECT * from `item`,`contact` WHERE 
-		`item`.`contact-id`=`contact`.`id` AND `item`.`mid`='%s';",
+		$r = q("SELECT * from item,contact WHERE 
+		item.contact-id=contact.id AND item.mid='%s';",
 		 dbesc($item['parent_mid']));
 		if(count($r)==0) return;
 		$obj=$r[0];
@@ -363,7 +363,7 @@ function localize_item(&$item){
 
 	if(intval($item['item_obscured'])
 		&& strlen($item['body']) && (! strpos($item['body'],'data'))) {
-		$item['body']  = json_encode(crypto_encapsulate($item['body'],get_config('system','pubkey')));
+		$item['body']  = z_obscure($item['body']);
 	}
 
 }
@@ -405,8 +405,6 @@ function count_descendants($item) {
 function visible_activity($item) {
 	$hidden_activities = [ ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE ];
 
-	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)]; 
-
 	if(intval($item['item_notshown']))
 		return false;
 
@@ -416,14 +414,32 @@ function visible_activity($item) {
 		}
 	}
 
+	if(is_edit_activity($item))
+		return false;
+
+	return true;
+}
+
+/**
+ * @brief Check if a given activity is an edit activity
+ * 
+ *
+ * @param array $item
+ * @return boolean
+ */
+
+function is_edit_activity($item) {
+
+	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)]; 
+
 	// In order to share edits with networks which have no concept of editing, we'll create 
 	// separate activities to indicate the edit. Our network will not require them, since our
 	// edits are automatically applied and the activity indicated.  
 
 	if(($item['verb'] === ACTIVITY_UPDATE) && (in_array($item['obj_type'],$post_types)))
-		return false;
+		return true;
 
-	return true;
+	return false;
 }
 
 /**
@@ -456,22 +472,6 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 	if (local_channel())
 		load_pconfig(local_channel(),'');
-
-	$arr_blocked = null;
-
-	if (local_channel())
-		$str_blocked = get_pconfig(local_channel(),'system','blocked');
-	if (! local_channel() && ($mode == 'network')) {
-		$sys = get_sys_channel();
-		$id = $sys['channel_id'];
- 		$str_blocked = get_pconfig($id,'system','blocked');
-	}
-
-	if ($str_blocked) {
-		$arr_blocked = explode(',',$str_blocked);
-		for ($x = 0; $x < count($arr_blocked); $x ++)
-			$arr_blocked[$x] = trim($arr_blocked[$x]);
-	}
 
 	$profile_owner   = 0;
 	$page_writeable  = false;
@@ -599,17 +599,13 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 			foreach($items as $item) {
 
-				if($arr_blocked) {
-					$blocked = false;
-					foreach($arr_blocked as $b) {
-						if(($b) && (($item['author_xchan'] == $b) || ($item['owner_xchan'] == $b))) { 
-							$blocked = true;
-							break;
-						}
-					}
-					if($blocked)
-						continue;
-				}
+				$x = [ 'mode' => $mode, 'item' => $item ];
+				call_hooks('stream_item',$x);
+				
+				if($x['item']['blocked'])
+					continue;
+
+				$item = $x['item'];
 
 				$threadsid++;
 
@@ -771,28 +767,14 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 				// Check for any blocked authors
 
-				if($arr_blocked) {
-					$blocked = false;
-					foreach($arr_blocked as $b) {
-						if(($b) && ($item['author_xchan'] == $b)) {
-							$blocked = true;
-							break;
-						}
-					}
-					if($blocked)
-						continue;
-				}
 
-				// Check all the kids too
+				$x = [ 'mode' => $mode, 'item' => $item ];
+				call_hooks('stream_item',$x);
+				
+				if($x['item']['blocked'])
+					continue;
 
-				if($arr_blocked && $item['children']) {
-					for($d = 0; $d < count($item['children']); $d ++) {
-						foreach($arr_blocked as $b) {
-							if(($b) && ($item['children'][$d]['author_xchan'] == $b))
-								$item['children'][$d]['author_blocked'] = true;
-						}
-					}
-				}
+				$item = $x['item'];
 
 				builtin_activity_puller($item, $conv_responses);
 
@@ -1296,7 +1278,8 @@ function status_editor($a, $x, $popup = false) {
 		'$expiryModalOK' => t('OK'),
 		'$expiryModalCANCEL' => t('Cancel'),
 		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
-		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false)
+		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
+		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0)
 	));
 
 	if ($popup === true) {
@@ -1536,7 +1519,11 @@ function network_tabs() {
 	// tabs
 	$tabs = array();
 
-	if(! get_config('system','disable_discover_tab')) {
+	$d = get_config('system','disable_discover_tab');
+	if($d === false)
+		$d = 1;
+
+	if(! $d) {
 		$tabs[] = array(
 			'label' => t('Discover'),
 			'url' => z_root() . '/' . $cmd . '?f=&fh=1' ,
@@ -1627,7 +1614,6 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 
 	$uid = ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : local_channel());
 	$account_id = ((App::$profile['profile_uid']) ? App::$profile['channel_account_id'] : App::$channel['channel_account_id']);
-
 
 	if($uid == local_channel()) {
 		$cal_link = '';
@@ -1732,7 +1718,7 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 
 	if(feature_enabled($uid,'wiki') && (get_account_techlevel($account_id) > 3)) {
 		$tabs[] = array(
-			'label' => t('Wiki'),
+			'label' => t('Wikis'),
 			'url'   => z_root() . '/wiki/' . $nickname,
 			'sel'   => ((argv(0) == 'wiki') ? 'active' : ''),
 			'title' => t('Wiki'),

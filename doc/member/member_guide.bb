@@ -238,7 +238,7 @@ We highly recommend that you use the "typical social network" settings when you 
   
   [*= Anybody authenticated ] This is similar to "anybody in this network" except that it can include anybody   who can authenticate by any means - and therefore [i]may[/i] include visitors from other networks.
   
-  [*=Guest Access Token] This allows you to share a file, folder, photo, album, or channel with a specific person or group of people. They don't need to be Hubzilla members. You can set an expiration for the Access Token.
+  [*=Guest Access Token] This allows you to share a file, folder, photo, album, or channel with a specific person or group of people. They don't need to be $Projectname members. You can set an expiration for the Access Token.
 
   [*= Anybody on the internet ] Completely public. This permission will be approved for anybody at all.
 [/dl]
@@ -287,6 +287,458 @@ The connection edit screen offers a slider to select a degree of friendship with
 
 The slider on the matrix page has both a minimum and maximum value. Posts will only be shown from people who fall between this range. Affinity has no relation to permissions, and is only useful in conjunction with the affinity tool feature.
 
+[h3]Guest Access Tokens[/h3]
+Guest access tokens (sometimes called "Zot access tokens") allow you to share a file, folder, photo, album, or channel with a specific person or group of people who are not $Projectname members. These tokens allow you to share individual items by sending a link that includes the token in the URL; alternatively, people can actually [i]log in[/i] using the token credentials, after which they can seamlessly view whatever content has been shared with that token.
+
+To create and manage guest tokens, open the [zrl=[baseurl]/settings/tokens/]Guest Access Tokens[/zrl] settings page. A random token is generate with each page load, allowing you to create one by inputting an associated user name and optionally specifying an expiration date. Existing tokens are listed below the dialog and can be edited by selecting them or deleted by pressing the trash icon.
+
+Additional permissions may be granted to the guest token by expanding the [b]Individual Permissions[/b] options and selecting privacy settings such as [b]Can view my channel stream and posts[/b] or [b]Can chat with me[/b].
+
+[img][baseurl]/doc/member/assets/zat_dialog.png[/img]
+
+[h3]Markup Languages[/h3]
+$Projectname supports several markup languages for advanced formatting of content. The default markup language is a [url=[baseurl]/help/member/bbcode]custom variant of BBcode[/url], tailored for use in $Projectname. [url=[baseurl]/help/member/bbcode]BBcode[/url] is supported for posts, wiki pages, and web page elements. Wiki pages and webpage elements may also be written using standard Markdown.
+[table border=0]
+[tr][th]Content Type[/th][th]Supported Markup[/th][/tr]
+[tr][td]Post[/td][td][url=[baseurl]/help/member/bbcode]BBcode[/url][/td][/tr]
+[tr][td]Wiki[/td][td][url=[baseurl]/help/member/bbcode]BBcode[/url], Markdown[/td][/tr]
+[tr][td]Webpage element[/td][td][url=[baseurl]/help/member/bbcode]BBcode[/url], Markdown, HTML[/td][/tr]
+[/table]
+
+[h3]Web Pages[/h3]
+
+$Projectname enables users to create static webpages.  To activate this feature, enable the [b]Web Pages[/b] feature in your [b][url=[baseurl]/settings/features/]Additional Features[/url][/b] section.
+
+Once enabled, a new tab will appear on your channel page labeled &quot;Webpages&quot;. Clicking this link will take you to the webpage editor. Pages will be accessible at [b][baseurl]/page/[observer=1][observer.webname][/observer][observer=0]channelname[/observer]/pagelinktitle[/b]
+
+The &quot;page link title&quot; box allows a user to specify the &quot;pagelinktitle&quot; of this URL.  If no page link title is set, we will set one for you automatically, using the message ID of the item.  
+
+Beneath the page creation box, a list of existing pages will appear with an &quot;edit&quot; link.  Clicking this will take you to an editor, similar to that of the post editor, where you can make changes to your webpages.
+	
+[h4]Using Blocks[/h4]
+
+Blocks can be parts of webpages. The basic HTML of a block looks like this
+[code]
+	<div>
+		Block Content
+	</div>
+
+[/code]
+
+If a block has text/html content type it can also contain menu elements. Sample content of
+[code]
+	<p>HTML block content</p> 
+	[menu]menuname[/menu]
+
+[/code]
+will produce HTML like this
+[code]
+	<div>
+		<p>HTML block content</p>
+		<div>
+			<ul>
+				<li><a href="#">Link 1</a></li>
+				<li><a href="#">Link 2</a></li>
+				<li><a href="#">Link 3</a></li>
+			</ul>
+		</div>
+	</div>
+
+[/code]
+
+Via the $content macro a block can also contain the actual webpage content. For this create a block with only
+[code]
+	$content
+
+[/code]as content.
+
+To make a block appear in the webpage it must be defined in the page layout inside a region.
+[code]
+	[region=aside]
+		[block]blockname[/block]
+	[/region]
+
+[/code]
+
+The block appearance can be manipulated in the page layout.
+
+Custom classes can be assigned
+[code]
+	[region=aside]
+		[block=myclass]blockname[/block]
+	[/region]
+
+[/code]
+will produce this HTML
+[code]
+	<div class="myclass">
+		Block Content
+	</div>
+
+[/code]
+
+Via the wrap variable a block can be stripped off its wrapping <div></div> tag
+[code]
+	[region=aside]
+		[block][var=wrap]none[/var]blockname[/block]
+	[/region]
+
+[/code]
+will produce this HTML
+[code]
+	Block Content
+[/code]
+
+[h4]Webpage element import tool[/h4]
+
+There are two methods of importing webpage elements: uploading a zip file or referencing a local cloud files folder. Both methods require that the webpage elements are specified using a specific folder structure. The import tool makes it possible to import all the elements necessary to construct an entire website or set of websites. The goal is to accommodate external development of webpages as well as tools to simplify and automate deployment on a hub.
+
+[h5] Folder structure [/h5]
+Element definitions must be stored in the repo root under folders called 
+[code]
+	/pages/
+	/blocks/
+	/layouts/
+[/code]
+
+Each element of these types must be defined in an individual subfolder using two files: one JSON-formatted file for the metadata and one plain text file for the element content.
+
+[h5] Page elements [/h5]
+Page element metadata is specified in a JSON-formatted file called [code]page.json[/code] with the following properties:
+[list]
+[*] title
+[*] pagelink
+[*] mimetype
+[*] layout
+[*] contentfile
+[/list]
+[b]Example[/b] 
+
+Files: 
+[code]	
+	/pages/my-page/page.json
+	/pages/my-page/my-page.bbcode
+[/code]	
+Content of [code]page.json[/code]:
+[code]	
+	{
+		"title": "My Page",
+		"pagelink": "mypage",
+		"mimetype": "text/bbcode",
+		"layout": "my-layout",
+		"contentfile": "my-page.bbcode"
+	}
+[/code]	
+[h5] Layout elements [/h5]
+
+Layout element metadata is specified in a JSON-formatted file called [code]layout.json[/code] with the following properties:
+[list]
+[*] name
+[*] description
+[*] contentfile
+[/list]
+[b]Example[/b] 
+
+Files:
+[code]
+	/layouts/my-layout/layout.json
+	/layouts/my-layout/my-layout.bbcode
+[/code]	
+Content of [code]layout.json[/code]:
+[code]
+	{
+		"name": "my-layout",
+		"description": "Layout for my project page",
+		"contentfile": "my-layout.bbcode"
+	}
+[/code]
+
+[h5] Block elements [/h5]
+
+Block element metadata is specified in a JSON-formatted file called [code]block.json[/code] with the following properties:
+[list]
+[*] name
+[*] title
+[*] mimetype
+[*] contentfile
+[/list]
+[b]Example[/b] 
+
+Files:
+[code]	
+	/blocks/my-block/block.json
+	/blocks/my-block/my-block.html
+[/code]
+Content of [code]block.json[/code]:	
+
+[code]
+	{
+		"name": "my-block",
+		"title": "",
+		"mimetype": "text/html",
+		"contentfile": "my-block.html"
+	}
+[/code]
+
+[h3]Comanche Page Description Language[/h3]
+
+Comanche is a markup language similar to [url=[baseurl]/help/member/bbcode]BBcode[/url] with which to create elaborate and complex web pages by assembling them from a series of components - some of which are pre-built and others which can be defined on the fly. Comanche uses a Page Decription Language to create these pages.
+
+Comanche primarily chooses what content will appear in various regions of the page. The various regions have names and these names can change depending on what layout template you choose.
+
+[h4]Page Templates[/h4]
+Currently there are five layout templates, unless your site provides additional layouts.
+
+[dl terms="b"]
+[*= default]
+The default template defines a &quot;nav&quot; region across the top, &quot;aside&quot; as a fixed width sidebar, 
+&quot;content&quot; for the main content region, and &quot;footer&quot; for a page footer.
+
+[*= full]
+The full template defines the same as the default template with the exception that there is no &quot;aside&quot; region.
+
+[*= choklet]
+The choklet template provides a number of fluid layout styles which can be specified by flavour:
+[list]
+[*]	(default flavour) - a two column layout similar to the "default" template, but more fluid
+[*]	bannertwo - a two column layout with a banner region, compatible with the "default" template on small displays
+[*]	three - three column layout (adds a "right_aside" region to the default template)
+[*]	edgestwo - two column layout with fixed side margins
+[*]	edgesthree - three column layout with fixed side margins
+[*]	full - three column layout with fixed side margins and adds a "header" region beneath the navigation bar
+[/list]
+
+[*= redable]
+A template for reading longer texts full screen (so without navigation bar). Three columns: aside, content and right_aside.
+For maximum readability it is advised to only use the middle content column.
+
+[*= zen]
+Gives you the freedom to do everything yourself. Just a blank page with a content region.
+[/dl]
+
+To choose a layout template, use the 'template' tag.
+
+[code]
+	[template]full[/template]
+
+[/code]
+
+To choose the "choklet" template with the "three" flavour:
+
+[code]
+	[template=three]choklet[/template]
+
+[/code]
+
+The default template will be used if no other template is specified. The template can use any names it desires for content regions. You will be using 'region' tags to decide what content to place in the respective regions.
+
+Three &quot;macros&quot; have been defined for your use.
+[code]
+	$htmlhead - replaced with the site head content.
+	$nav - replaced with the site navigation bar content.
+	$content - replaced with the main page content.
+
+[/code]
+
+By default, $nav is placed in the &quot;nav&quot; page region and $content is placed in the &quot;content&quot; region. You only need to use these macros if you wish to re-arrange where these items appear, either to change the order or to move them to other regions.
+
+
+To select a theme for your page, use the 'theme' tag.
+[code]
+	[theme]suckerberg[/theme]
+
+[/code]
+This will select the theme named &quot;suckerberg&quot;. By default your channel's preferred theme will be used.
+
+[code]
+	[theme=passion]suckerberg[/theme]
+
+[/code]
+This will select the theme named &quot;suckerberg&quot; and select the &quot;passion&quot; schema (theme variant). Alternatively it may be possible to use a condensed theme notation for this. 
+
+[code]
+	[theme]suckerberg:passion[/theme]
+
+[/code]
+
+The condensed notation isn't part of Comanche itself but is recognised by $Projectname platform as a theme specifier.
+
+[h4]Regions[/h4]
+Each region has a name, as noted above. You will specify the region of interest using a 'region' tag, which includes the name. Any content you wish placed in this region should be placed between the opening region tag and the closing tag.
+
+[code]
+	[region=htmlhead]....content goes here....[/region]
+	[region=aside]....content goes here....[/region]
+	[region=nav]....content goes here....[/region]
+	[region=content]....content goes here....[/region]
+
+[/code]
+
+[h4]CSS and Javascript[/h4]
+We have the possibility to include javascript and css libraries in the htmlhead region. At present we make use of jquery (js), bootstrap (css/js) and foundation (css/js).
+This will overwrite the selected themes htmlhead.
+
+[code]
+	[region=htmlhead]
+		[css]bootstrap[/css]
+		[js]jquery[/js]
+		[js]bootstrap[/js]
+	[/region]
+
+[/code]
+
+[h4]Menus and Blocks[/h4]
+Your webpage creation tools allow you to create menus and blocks, in addition to page content. These provide a chunk of existing content to be placed in whatever regions and whatever order you specify. Each of these has a name which you define when the menu or block is created.
+
+[code]
+	[menu]mymenu[/menu]
+
+[/code]
+This places the menu called &quot;mymenu&quot; at this location on the page, which must be inside a region. 
+
+[code]
+	[menu=horizontal]mymenu[/menu]
+
+[/code]
+This places the menu called &quot;mymenu&quot; at this location on the page, which must be inside a region. Additionally it applies the "horizontal" class to the menu. "horizontal" is defined in the redbasic theme. It may or may not be available in other themes. 
+
+[code]
+	[menu][var=wrap]none[/var]mymenu[/menu]
+
+[/code]
+The variable [var=wrap]none[/var] in a block removes the wrapping div element from the menu.
+
+[code]
+	[block]contributors[/block]
+[/code]
+This places a block named &quot;contributors&quot; in this region.
+
+[code]
+	[block=someclass]contributors[/block]
+
+[/code]
+This places a block named &quot;contributors&quot; in this region. Additionally it applies the &quot;someclass&quot; class to the block. This replaces the default block classes &quot;bblock widget&quot;.
+
+[code]
+	[block][var=wrap]none[/var]contributors[/block]
+
+[/code]
+The variable [var=wrap]none[/var] in a block removes the wrapping div element from the block.
+
+[h4]Widgets[/h4]
+Widgets are executable apps provided by the system which you can place on your page. Some widgets take arguments which allows you to tailor the widget to your purpose. (TODO: list available widgets and arguments). The base system provides
+
+[code]
+	profile - widget which duplicates the profile sidebar of your channel page. This widget takes no arguments
+	tagcloud - provides a tag cloud of categories
+		count - maximum number of category tags to list	
+
+[/code]
+
+Widgets and arguments are specified with the 'widget' and 'var' tags.
+[code]
+	[widget=recent_visitors][var=count]24[/var][/widget]
+
+[/code]
+
+This loads the &quot;recent_visitors&quot; widget and supplies it with the argument &quot;count&quot; set to &quot;24&quot;. 
+ 
+[h4]Comments[/h4]
+The 'comment' tag is used to delimit comments. These comments will not appear on the rendered page.
+
+[code]
+	[comment]This is a comment[/comment]
+
+[/code]
+
+[h4]Conditional Execution[/h4]
+You can use an 'if' construct to make decisions. These are currently based on system configuration variable or the current observer.
+
+[code]
+	[if $config.system.foo]
+		... the configuration variable system.foo evaluates to 'true'.
+	[else]
+		... the configuration variable system.foo evaluates to 'false'.
+ 	[/if]
+
+	[if $observer]
+		... this content will only be show to authenticated viewers
+	[/if]
+
+[/code]
+
+	The 'else' clause is optional. 
+
+	Several tests are supported besides boolean evaluation.
+
+[code]
+	[if $config.system.foo == bar]
+		... the configuration variable system.foo is equal to the string 'bar'
+	[/if]
+	[if $config.system.foo != bar]
+		... the configuration variable system.foo is not equal to the string 'bar'
+	[/if]
+	[if $config.system.foo {} bar ]
+		... the configuration variable system.foo is a simple array containing a value 'bar'
+	[/if]
+	[if $config.system.foo {*} bar]
+		... the configuration variable system.foo is a simple array containing a key named 'bar'
+	[/if]
+[/code]
+
+[h4]Complex Example[/h4]
+[code]
+	[comment]use an existing page template which provides a banner region plus 3 columns beneath it[/comment]
+
+	[template]3-column-with-header[/template]
+
+	[comment]Use the &quot;darknight&quot; theme[/comment]
+
+	[theme]darkknight[/theme]
+
+	[comment]Use the existing site navigation menu[/comment]
+
+	[region=nav]$nav[/region]
+
+	[region=side]
+
+		[comment]Use my chosen menu and a couple of widgets[/comment]
+
+		[menu]myfavouritemenu[/menu]
+
+		[widget=recent_visitors]
+			[var=count]24[/var]
+			[var=names_only]1[/var]
+		[/widget]
+
+		[widget=tagcloud][/widget]
+		[block]donate[/block]
+
+	[/region]
+
+
+
+	[region=middle]
+
+		[comment]Show the normal page content[/comment]
+
+		$content
+
+	[/region]
+
+
+
+	[region=right]
+
+		[comment]Show my condensed channel &quot;wall&quot; feed and allow interaction if the observer is allowed to interact[/comment]
+
+		[widget]channel[/widget]
+
+	[/region]
+
+[/code]
+
+
 [h3]Personal Cloud Storage[/h3]
 
 $Projectname provides an ability to store privately and/or share arbitrary files with friends.
@@ -320,8 +772,8 @@ RedDav using Windows 7 graphical user interface wizard:
 2. Right-click the My computer icon to access its menu.
 3. Left-click Map network drive... to open the connection dialog wizard.
 4. Type #^[url=https://example.net/dav/your_channel_name]https://example.net/dav/your_channel_name[/url] in the textbox and click the Complete button where &quot;example.net&quot; is the URL of your hub.
-5. Type your Hubzilla account's user name. IMPORTANT - NO at-sign or domain name.
-6. Type your Hubzilla password
+5. Type your $Projectname account's user name. IMPORTANT - NO at-sign or domain name.
+6. Type your $Projectname password
 
 [h4]Cloud Desktop Clients - Linux[/h4]
 

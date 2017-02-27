@@ -163,6 +163,14 @@ class Site {
 			foreach($files as $file) {
 				$vars = '';
 				$f = basename($file);
+
+				$info = get_theme_info($f);
+				$compatible = check_plugin_versions($info);
+				if(!$compatible) {
+					$theme_choices[$f] = $theme_choices_mobile[$f] = sprintf(t('%s - (Incompatible)'), $f);
+					continue;
+				}
+
 				if (file_exists($file . '/library'))
 					continue;
 				if (file_exists($file . '/mobile'))

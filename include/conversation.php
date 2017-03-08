@@ -689,7 +689,8 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
-					'item_photo_menu' => item_photo_menu($item),
+					'thread_action_menu' => thread_action_menu($item,$mode),
+					'thread_author_menu' => thread_author_menu($item,$mode),
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
@@ -732,7 +733,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					'conv' => (($preview) ? '' : array('href'=> z_root() . '/display/' . $item['mid'], 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> z_root() . '/display/' . gen_link_id($item['mid']), 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
@@ -960,6 +961,169 @@ function item_photo_menu($item){
 	return $o;
 }
 
+
+function thread_action_menu($item,$mode = '') {
+
+	$menu = [];
+	
+	if((local_channel()) && local_channel() == $item['uid']) {
+		$menu[] = [ 
+			'menu' => 'view_source',
+			'title' => t('View Source'),
+			'icon' => 'eye',
+			'action' => 'viewsrc(' . $item['id'] . '); return false;',
+			'href' => '#'
+		];
+
+		if(! in_array($mode, [ 'network-new', 'search', 'community'])) {
+			if($item['parent'] == $item['id'] && (get_observer_hash() != $item['author_xchan'])) {
+				$menu[] = [ 
+					'menu' => 'follow_thread',
+					'title' => t('Follow Thread'),
+					'icon' => 'plus',
+					'action' => 'dosubthread(' . $item['id'] . '); return false;',
+					'href' => '#'
+				];
+			}
+
+			$menu[] = [ 
+				'menu' => 'unfollow_thread',
+				'title' => t('Unfollow Thread'),
+				'icon' => 'minus',
+				'action' => 'dounsubthread(' . $item['id'] . '); return false;',
+				'href' => '#'
+			];
+		}
+
+	}
+
+
+
+
+	$args = [ 'item' => $item, 'mode' => $mode, 'menu' => $menu ];
+	call_hooks('thread_action_menu', $args);
+
+	return $args['menu'];
+
+}
+
+function thread_author_menu($item, $mode = '') {
+
+	$menu = [];
+
+	$local_channel = local_channel();
+
+	if($local_channel) {
+		if(! count(App::$contacts))
+			load_contact_links($local_channel);
+		$channel = App::get_channel();
+		$channel_hash = (($channel) ? $channel['channel_hash'] : '');
+	}
+
+	$profile_link = chanlink_hash($item['author_xchan']);
+	if($item['uid'] > 0)
+		$pm_url = z_root() . '/mail/new/?f=&hash=' . $item['author_xchan'];
+
+	if(App::$contacts && array_key_exists($item['author_xchan'],App::$contacts))
+		$contact = App::$contacts[$item['author_xchan']];
+	else
+		if($local_channel && $item['author']['xchan_addr'])
+			$follow_url = z_root() . '/follow/?f=&url=' . $item['author']['xchan_addr'];
+
+	if($contact) {
+		$poke_link = z_root() . '/poke/?f=&c=' . $contact['abook_id'];
+		if (! intval($contact['abook_self']))  
+			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
+		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
+
+		$clean_url = normalise_link($item['author-link']);
+	}
+
+	$rating_enabled = get_config('system','rating_enabled');
+
+	$ratings_url = (($rating_enabled) ? z_root() . '/ratings/' . urlencode($item['author_xchan']) : '');
+
+	if($profile_link) {
+		$menu[] = [ 
+			'menu' => 'view_profile',
+			'title' => t('View Profile'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $profile_link
+		];
+	}
+
+	if($posts_link) {
+		$menu[] = [ 
+			'menu' => 'view_posts',
+			'title' => t('Activity/Posts'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $posts_link
+		];
+	}
+
+	if($follow_url) {
+		$menu[] = [ 
+			'menu' => 'follow',
+			'title' => t('Connect'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $follow_url
+		];
+	}
+
+	if($contact_url) {
+		$menu[] = [ 
+			'menu' => 'connedit',
+			'title' => t('Edit Connection'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $contact_url
+		];
+	}
+
+	if($pm_url) {
+		$menu[] = [ 
+			'menu' => 'prv_message',
+			'title' => t('Message'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $pm_url
+		];
+	}
+
+	if($ratings_url) {
+		$menu[] = [ 
+			'menu' => 'ratings',
+			'title' => t('Ratings'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $ratings_url
+		];
+	}
+
+	if($poke_link) {
+		$menu[] = [ 
+			'menu' => 'poke',
+			'title' => t('Poke'),
+			'icon' => 'fw',
+			'action' => '',
+			'href' => $poke_link
+		];
+	}
+
+	$args = [ 'item' => $item, 'mode' => $mode, 'menu' => $menu ];
+	call_hooks('thread_author_menu', $args);
+
+	return $args['menu'];
+
+}
+
+
+
+
+
 /**
  * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
  *
@@ -1011,8 +1175,8 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
-			$url = (($item['author']['xchan_url'] && $item['author']['xchan_photo_s']) 
-				? '<a href="' . chanlink_url($item['author']['xchan_url']) . '">' . '<img class="dropdown-menu-img-xs" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" />' . $name . '</a>' 
+			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s']) 
+				? '<a href="' . chanlink_hash($item['author_xchan']) . '">' . '<img class="dropdown-menu-img-xs" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" />' . $name . '</a>' 
 				: '<a href="#" class="disabled">' . $name . '</a>'
 			);
 
@@ -1232,11 +1396,11 @@ function status_editor($a, $x, $popup = false) {
 		'$setloc' => $setloc,
 		'$voting' => t('Toggle voting'),
 		'$feature_voting' => $feature_voting,
-		'$consensus' => 0,
+		'$consensus' => ((array_key_exists('item',$x)) ? $x['item']['item_consensus'] : 0),
 		'$nocommenttitle' => t('Disable comments'),
 		'$nocommenttitlesub' => t('Toggle comments'),
 		'$feature_nocomment' => $feature_nocomment,
-		'$nocomment' => 0,
+		'$nocomment' => ((array_key_exists('item',$x)) ? $x['item']['item_nocomment'] : 0),
 		'$clearloc' => $clearloc,
 		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
 		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
@@ -1400,7 +1564,7 @@ function format_location($item) {
 
 	if(strpos($item['location'],'#') === 0) {
 		$location = substr($item['location'],1);
-		$location = ((strpos($location,'[') !== false) ? bbcode($location) : $location);
+		$location = ((strpos($location,'[') !== false) ? zidify_links(bbcode($location)) : $location);
 	}
 	else {
 		$locate = array('location' => $item['location'], 'coord' => $item['coord'], 'html' => '');
@@ -1452,7 +1616,7 @@ function prepare_page($item) {
 		'$author' => (($naked) ? '' : $item['author']['xchan_name']),
 		'$auth_url' => (($naked) ? '' : zid($item['author']['xchan_url'])),
 		'$date' => (($naked) ? '' : datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'Y-m-d H:i')),
-		'$title' => smilies(bbcode($item['title'])),
+		'$title' => zidify_links(smilies(bbcode($item['title']))),
 		'$body' => $body['html'],
 		'$preview' => $preview,
 		'$link' => $link,
@@ -1622,6 +1786,20 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 		$cal_link = '/cal/' . $nickname;
 	}
 
+	require_once('include/security.php');
+	$sql_options = item_permissions_sql($uid);
+
+	$r = q("select item.* from item left join iconfig on item.id = iconfig.iid
+		where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' 
+		and item.item_delayed = 0 and item.item_deleted = 0 
+		and ( iconfig.k = 'WEBPAGE' and item_type = %d ) 
+		$sql_options limit 1",
+		intval($uid),
+		dbesc('home'),
+		intval(ITEM_TYPE_WEBPAGE)
+	);
+
+	$has_webpages = (($r) ? true : false);
 
 	if (get_pconfig($uid, 'system', 'noprofiletabs'))
 		return;
@@ -1706,15 +1884,16 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 		);
 	}
 
-	if ($p['write_pages'] && feature_enabled($uid,'webpages')) {
+	if($has_webpages && feature_enabled($uid,'webpages')) {
 		$tabs[] = array(
 			'label' => t('Webpages'),
-			'url'   => z_root() . '/webpages/' . $nickname,
+			'url'   => z_root() . '/page/' . $nickname . '/home',
 			'sel'   => ((argv(0) == 'webpages') ? 'active' : ''),
-			'title' => t('Manage Webpages'),
+			'title' => t('View Webpages'),
 			'id'    => 'webpages-tab',
 		);
-	} 
+	}
+ 
 
 	if(feature_enabled($uid,'wiki') && (get_account_techlevel($account_id) > 3)) {
 		$tabs[] = array(

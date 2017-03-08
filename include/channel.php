@@ -291,59 +291,63 @@ function create_identity($arr) {
 
 	// Create a verified hub location pointing to this site.
 
-	$r = q("insert into hubloc ( hubloc_guid, hubloc_guid_sig, hubloc_hash, hubloc_addr, hubloc_primary,
-		hubloc_url, hubloc_url_sig, hubloc_host, hubloc_callback, hubloc_sitekey, hubloc_network )
-		values ( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s' )",
-		dbesc($guid),
-		dbesc($sig),
-		dbesc($hash),
-		dbesc(channel_reddress($ret['channel'])),
-		intval($primary),
-		dbesc(z_root()),
-		dbesc(base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey']))),
-		dbesc(App::get_hostname()),
-		dbesc(z_root() . '/post'),
-		dbesc(get_config('system','pubkey')),
-		dbesc('zot')
+	$r = hubloc_store_lowlevel(
+		[
+			'hubloc_guid'     => $guid,
+			'hubloc_guid_sig' => $sig,
+			'hubloc_hash'     => $hash,
+			'hubloc_addr'     => channel_reddress($ret['channel']),
+			'hubloc_primary'  => $primary,
+			'hubloc_url'      => z_root(),
+			'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_host'     => App::get_hostname(),
+			'hubloc_callback' => z_root() . '/post',
+			'hubloc_sitekey'  => get_config('system','pubkey'),
+			'hubloc_network'  => 'zot',
+			'hubloc_updated'  => datetime_convert()
+		]
 	);
 	if(! $r)
 		logger('create_identity: Unable to store hub location');
 
 	$newuid = $ret['channel']['channel_id'];
 
-	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_guid_sig, xchan_pubkey, xchan_photo_l, xchan_photo_m, xchan_photo_s, xchan_addr, xchan_url, xchan_follow, xchan_connurl, xchan_name, xchan_network, xchan_photo_date, xchan_name_date, xchan_system ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d)",
-		dbesc($hash),
-		dbesc($guid),
-		dbesc($sig),
-		dbesc($key['pubkey']),
-		dbesc(z_root() . "/photo/profile/l/{$newuid}"),
-		dbesc(z_root() . "/photo/profile/m/{$newuid}"),
-		dbesc(z_root() . "/photo/profile/s/{$newuid}"),
-		dbesc(channel_reddress($ret['channel'])),
-		dbesc(z_root() . '/channel/' . $ret['channel']['channel_address']),
-		dbesc(z_root() . '/follow?f=&url=%s'),
-		dbesc(z_root() . '/poco/' . $ret['channel']['channel_address']),
-		dbesc($ret['channel']['channel_name']),
-		dbesc('zot'),
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval($system)
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'       => $hash,
+			'xchan_guid'       => $guid,
+			'xchan_guid_sig'   => $sig,
+			'xchan_pubkey'     => $key['pubkey'],
+			'xchan_photo_l'    => z_root() . "/photo/profile/l/{$newuid}",
+			'xchan_photo_m'    => z_root() . "/photo/profile/m/{$newuid}",
+			'xchan_photo_s'    => z_root() . "/photo/profile/s/{$newuid}",
+			'xchan_addr'       => channel_reddress($ret['channel']),
+			'xchan_url'        => z_root() . '/channel/' . $ret['channel']['channel_address'],
+			'xchan_follow'     => z_root() . '/follow?f=&url=%s',
+			'xchan_connurl'    => z_root() . '/poco/' . $ret['channel']['channel_address'],
+			'xchan_name'       => $ret['channel']['channel_name'],
+			'xchan_network'    => 'zot',
+			'xchan_photo_date' => datetime_convert(),
+			'xchan_name_date'  => datetime_convert(),
+			'xchan_system'     => $system
+		]
 	);
 
 	// Not checking return value.
 	// It's ok for this to fail if it's an imported channel, and therefore the hash is a duplicate
 
-	$r = q("INSERT INTO profile ( aid, uid, profile_guid, profile_name, is_default, publish, fullname, photo, thumb)
-		VALUES ( %d, %d, '%s', '%s', %d, %d, '%s', '%s', '%s') ",
-		intval($ret['channel']['channel_account_id']),
-		intval($newuid),
-		dbesc(random_string()),
-		t('Default Profile'),
-		1,
-		$publish,
-		dbesc($ret['channel']['channel_name']),
-		dbesc(z_root() . "/photo/profile/l/{$newuid}"),
-		dbesc(z_root() . "/photo/profile/m/{$newuid}")
+	$r = profile_store_lowlevel(
+		[
+			'aid'          => intval($ret['channel']['channel_account_id']),
+			'uid'          => intval($newuid),
+			'profile_guid' => random_string(),
+			'profile_name' => t('Default Profile'),
+			'is_default'   => 1,
+			'publish'      => $publish,
+			'fullname'     => $ret['channel']['channel_name'],
+			'photo'        => z_root() . "/photo/profile/l/{$newuid}",
+			'thumb'        => z_root() . "/photo/profile/m/{$newuid}"
+		]
 	);
 
 	if($role_permissions) {
@@ -354,15 +358,16 @@ function create_identity($arr) {
 		$myperms = $x['perms_connect'];
 	}
 
-	$r = q("insert into abook ( abook_account, abook_channel, abook_xchan, abook_closeness, abook_created, abook_updated, abook_self )
-		values ( %d, %d, '%s', %d, '%s', '%s', %d ) ",
-		intval($ret['channel']['channel_account_id']),
-		intval($newuid),
-		dbesc($hash),
-		intval(0),
-		dbesc(datetime_convert()),
-		dbesc(datetime_convert()),
-		intval(1)
+	$r = abook_store_lowlevel(
+		[
+			'abook_account'   => intval($ret['channel']['channel_account_id']),
+			'abook_channel'   => intval($newuid),
+			'abook_xchan'     => $hash,
+			'abook_closeness' => 0,
+			'abook_created'   => datetime_convert(),
+			'abook_updated'   => datetime_convert(),
+			'abook_self'      => 1
+		]
 	);
 
 	$x = \Zotlabs\Access\Permissions::FilledPerms($myperms);
@@ -387,6 +392,7 @@ function create_identity($arr) {
 						set_pconfig($newuid,'autoperms',$k,$v);
 					}
 				}
+				// as this is a new channel, this shouldn't do anything and probaby is not needed
 				else {
 					$r = q("delete from pconfig where uid = %d and cat = 'autoperms'",
 						intval($newuid)
@@ -459,6 +465,7 @@ function create_identity($arr) {
  *       if true, set this default unconditionally
  *       if $force is false only do this if there is no existing default
  */
+
 function set_default_login_identity($account_id, $channel_id, $force = true) {
 	$r = q("select account_default_channel from account where account_id = %d limit 1",
 		intval($account_id)
@@ -473,6 +480,16 @@ function set_default_login_identity($account_id, $channel_id, $force = true) {
 	}
 }
 
+
+function get_default_export_sections() {
+	$sections = [ 'channel', 'connections', 'config', 'apps', 'chatrooms', 'events', 'webpages', 'mail', 'wikis' ];
+
+	$cb = [ 'sections' => $sections ];
+	call_hooks('get_default_export_sections', $cb);
+	return $cb['sections'];
+}
+
+
 /**
  * @brief Create an array representing the important channel information
  * which would be necessary to create a nomadic identity clone. This includes
@@ -486,213 +503,279 @@ function set_default_login_identity($account_id, $channel_id, $force = true) {
  * @returns array
  *     See function for details
  */
-function identity_basic_export($channel_id, $items = false) {
+
+function identity_basic_export($channel_id, $sections = null) {
 
 	/*
-	 * Red basic channel export
+	 * basic channel export
 	 */
 
-	$ret = array();
+	if(! $sections) {
+		$sections = get_default_export_sections();
+	}
+		
+	$ret = [];
 
 	// use constants here as otherwise we will have no idea if we can import from a site
 	// with a non-standard platform and version.
-	$ret['compatibility'] = array('project' => PLATFORM_NAME, 'version' => STD_VERSION, 'database' => DB_UPDATE_VERSION, 'server_role' => Zotlabs\Lib\System::get_server_role());
+
+	$ret['compatibility'] = [
+		'project' => PLATFORM_NAME, 
+		'version' => STD_VERSION, 
+		'database' => DB_UPDATE_VERSION, 
+		'server_role' => Zotlabs\Lib\System::get_server_role()
+	];
+
+	/*
+	 * Process channel information regardless of it is one of the sections desired
+	 * because we need the channel relocation information in all export files/streams.
+	 */
 
 	$r = q("select * from channel where channel_id = %d limit 1",
 		intval($channel_id)
 	);
 	if($r) {
 		translate_channel_perms_outbound($r[0]);
-		$ret['channel'] = $r[0];
 		$ret['relocate'] = [ 'channel_address' => $r[0]['channel_address'], 'url' => z_root()];
-	}
-
-	$r = q("select * from profile where uid = %d",
-		intval($channel_id)
-	);
-	if($r)
-		$ret['profile'] = $r;
-
-	$xchans = array();
-	$r = q("select * from abook where abook_channel = %d ",
-		intval($channel_id)
-	);
-	if($r) {
-		$ret['abook'] = $r;
-
-		for($x = 0; $x < count($ret['abook']); $x ++) {
-			$xchans[] = $ret['abook'][$x]['abook_xchan'];
-			$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
-			if($abconfig)
-				$ret['abook'][$x]['abconfig'] = $abconfig;
-			translate_abook_perms_outbound($ret['abook'][$x]);
+		if(in_array('channel',$sections)) {
+			$ret['channel'] = $r[0];
 		}
-		stringify_array_elms($xchans);
 	}
 
-	if($xchans) {
-		$r = q("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
+	if(in_array('channel',$sections)) {
+		$r = q("select * from profile where uid = %d",
+			intval($channel_id)
+		);
 		if($r)
-			$ret['xchan'] = $r;
+			$ret['profile'] = $r;
 
-		$r = q("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
+
+		$r = q("select mimetype, content, os_storage from photo 
+			where imgscale = 4 and photo_usage = %d and uid = %d limit 1",
+			intval(PHOTO_PROFILE),
+			intval($channel_id)
+		);
+
+		if($r) {
+			$ret['photo'] = [
+				'type' => $r[0]['mimetype'], 
+				'data' => (($r[0]['os_storage']) 
+					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode($r[0]['content']))
+			];
+		}
+	}
+
+	if(in_array('connections',$sections)) {
+		$xchans = array();
+		$r = q("select * from abook where abook_channel = %d ",
+			intval($channel_id)
+		);
+		if($r) {
+			$ret['abook'] = $r;
+
+			for($x = 0; $x < count($ret['abook']); $x ++) {
+				$xchans[] = $ret['abook'][$x]['abook_xchan'];
+				$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
+				if($abconfig)
+					$ret['abook'][$x]['abconfig'] = $abconfig;
+				translate_abook_perms_outbound($ret['abook'][$x]);
+			}
+			stringify_array_elms($xchans);
+		}
+
+		if($xchans) {
+			$r = q("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
+			if($r)
+				$ret['xchan'] = $r;
+
+			$r = q("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
+			if($r)
+				$ret['hubloc'] = $r;
+		}
+
+		$r = q("select * from groups where uid = %d ",
+			intval($channel_id)
+		);
+
 		if($r)
-			$ret['hubloc'] = $r;
+			$ret['group'] = $r;
+
+		$r = q("select * from group_member where uid = %d ",
+			intval($channel_id)
+		);
+		if($r)
+			$ret['group_member'] = $r;
+
 	}
 
-	$r = q("select * from groups where uid = %d ",
-		intval($channel_id)
-	);
+	if(in_array('config',$sections)) {
+		$r = q("select * from pconfig where uid = %d",
+			intval($channel_id)
+		);
+		if($r)
+			$ret['config'] = $r;
+	
+		// All other term types will be included in items, if requested.
 
-	if($r)
-		$ret['group'] = $r;
+		$r = q("select * from term where ttype in (%d,%d) and uid = %d",
+			intval(TERM_SAVEDSEARCH),
+			intval(TERM_THING),
+			intval($channel_id)
+		);
+		if($r)
+			$ret['term'] = $r;
 
-	$r = q("select * from group_member where uid = %d ",
-		intval($channel_id)
-	);
-	if($r)
-		$ret['group_member'] = $r;
+		// add psuedo-column obj_baseurl to aid in relocations
 
-	$r = q("select * from pconfig where uid = %d",
-		intval($channel_id)
-	);
-	if($r)
-		$ret['config'] = $r;
+		$r = q("select obj.*, '%s' as obj_baseurl from obj where obj_channel = %d",
+			dbesc(z_root()),
+			intval($channel_id)
+		);
 
-	$r = q("select mimetype, content, os_storage from photo where imgscale = 4 and photo_usage = %d and uid = %d limit 1",
-		intval(PHOTO_PROFILE),
-		intval($channel_id)
-	);
+		if($r)
+			$ret['obj'] = $r;
 
-	if($r) {
-		$ret['photo'] = array('type' => $r[0]['mimetype'], 'data' => (($r[0]['os_storage']) ? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode($r[0]['content'])));
+		$r = q("select * from likes where channel_id = %d",
+			intval($channel_id)
+		);
+
+		if($r)
+			$ret['likes'] = $r;
+
 	}
 
-	// All other term types will be included in items, if requested.
-
-	$r = q("select * from term where ttype in (%d,%d) and uid = %d",
-		intval(TERM_SAVEDSEARCH),
-		intval(TERM_THING),
-		intval($channel_id)
-	);
-	if($r)
-		$ret['term'] = $r;
-
-	// add psuedo-column obj_baseurl to aid in relocations
-
-	$r = q("select obj.*, '%s' as obj_baseurl from obj where obj_channel = %d",
-		dbesc(z_root()),
-		intval($channel_id)
-	);
-
-	if($r)
-		$ret['obj'] = $r;
-
-	$r = q("select * from app where app_channel = %d and app_system = 0",
-		intval($channel_id)
-	);
-	if($r) {
-		for($x = 0; $x < count($r); $x ++) {
-			$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",
-				intval(TERM_OBJ_APP),
-				intval($r[$x]['id'])
-			);
-		}
-		$ret['app'] = $r;
-	}
-
-	$r = q("select * from chatroom where cr_uid = %d",
-		intval($channel_id)
-	);
-	if($r)
-		$ret['chatroom'] = $r;
-
-	$r = q("select * from event where uid = %d",
-		intval($channel_id)
-	);
-	if($r)
-		$ret['event'] = $r;
-
-	$r = q("select * from item where resource_type = 'event' and uid = %d",
-		intval($channel_id)
-	);
-	if($r) {
-		$ret['event_item'] = array();
-		xchan_query($r);
-		$r = fetch_post_tags($r,true);
-		foreach($r as $rr)
-			$ret['event_item'][] = encode_item($rr,true);
-	}
-
-	$x = menu_list($channel_id);
-	if($x) {
-		$ret['menu'] = array();
-		for($y = 0; $y < count($x); $y ++) {
-			$m = menu_fetch($x[$y]['menu_name'],$channel_id,$ret['channel']['channel_hash']);
-			if($m)
-				$ret['menu'][] = menu_element($ret['channel'],$m);
+	if(in_array('apps',$sections)) {
+		$r = q("select * from app where app_channel = %d and app_system = 0",
+			intval($channel_id)
+		);
+		if($r) {
+			for($x = 0; $x < count($r); $x ++) {
+				$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",
+					intval(TERM_OBJ_APP),
+					intval($r[$x]['id'])
+				);
+			}
+			$ret['app'] = $r;
 		}
 	}
 
-	$addon = array('channel_id' => $channel_id,'data' => $ret);
+	if(in_array('chatrooms',$sections)) {
+		$r = q("select * from chatroom where cr_uid = %d",
+			intval($channel_id)
+		);
+		if($r)
+			$ret['chatroom'] = $r;
+	}
+
+
+	if(in_array('events',$sections)) {
+		$r = q("select * from event where uid = %d",
+			intval($channel_id)
+		);
+		if($r)
+			$ret['event'] = $r;
+
+		$r = q("select * from item where resource_type = 'event' and uid = %d",
+			intval($channel_id)
+		);
+		if($r) {
+			$ret['event_item'] = array();
+			xchan_query($r);
+			$r = fetch_post_tags($r,true);
+			foreach($r as $rr)
+				$ret['event_item'][] = encode_item($rr,true);
+		}
+	}
+
+	if(in_array('webpages',$sections)) {
+		$x = menu_list($channel_id);
+		if($x) {
+			$ret['menu'] = array();
+			for($y = 0; $y < count($x); $y ++) {
+				$m = menu_fetch($x[$y]['menu_name'],$channel_id,$ret['channel']['channel_hash']);
+				if($m)
+					$ret['menu'][] = menu_element($ret['channel'],$m);
+			}
+		}
+		$r = q("select * from item where item_type in ( " 
+			. ITEM_TYPE_BLOCK . "," . ITEM_TYPE_PDL . "," . ITEM_TYPE_WEBPAGE . " ) and uid = %d",
+			intval($channel_id)
+		);
+		if($r) {
+			$ret['webpages'] = array();
+			xchan_query($r);
+			$r = fetch_post_tags($r,true);
+			foreach($r as $rr)
+				$ret['webpages'][] = encode_item($rr,true);
+
+		}
+	}
+
+	if(in_array('mail',$sections)) {
+		$r = q("select * from conv where uid = %d",
+			intval($channel_id)
+		);
+		if($r) {
+			for($x = 0; $x < count($r); $x ++) {
+				$r[$x]['subject'] = base64url_decode(str_rot47($r[$x]['subject']));
+			}
+			$ret['conv'] = $r;
+		}
+
+		$r = q("select * from mail where mail.uid = %d",
+			intval($channel_id)
+		);
+		if($r) {
+			$m = array();
+			foreach($r as $rr) {
+				xchan_mail_query($rr);
+				$m[] = mail_encode($rr,true);
+			}
+			$ret['mail'] = $m;
+		}
+	}
+
+	if(in_array('wikis',$sections)) {
+		$r = q("select * from item where resource_type like 'nwiki%%' and uid = %d order by created",
+			intval($channel_id)
+		);
+		if($r) {
+			$ret['wiki'] = array();
+			xchan_query($r);
+			$r = fetch_post_tags($r,true);
+			foreach($r as $rv) {
+				$ret['wiki'][] = encode_item($rv,true);
+			}
+		}
+	}
+
+	if(in_array('items',$sections)) {
+		/** @warning this may run into memory limits on smaller systems */
+
+		/** export three months of posts. If you want to export and import all posts you have to start with
+		 * the first year and export/import them in ascending order.
+		 *
+		 * Don't export linked resource items. we'll have to pull those out separately.
+		 */
+
+		$r = q("select * from item where item_wall = 1 and item_deleted = 0 and uid = %d 
+			and created > %s - INTERVAL %s and resource_type = '' order by created",
+			intval($channel_id),
+			db_utcnow(),
+			db_quoteinterval('3 MONTH')
+		);
+		if($r) {
+			$ret['item'] = array();
+			xchan_query($r);
+			$r = fetch_post_tags($r,true);
+			foreach($r as $rr)
+				$ret['item'][] = encode_item($rr,true);
+		}
+	}
+
+	$addon = [ 'channel_id' => $channel_id, 'sections' => $sections, 'data' => $ret];
 	call_hooks('identity_basic_export',$addon);
 	$ret = $addon['data'];
-
-	if(! $items)
-		return $ret;
-
-	$r = q("select * from likes where channel_id = %d",
-		intval($channel_id)
-	);
-
-	if($r)
-		$ret['likes'] = $r;
-
-
-	$r = q("select * from conv where uid = %d",
-		intval($channel_id)
-	);
-	if($r) {
-		for($x = 0; $x < count($r); $x ++) {
-			$r[$x]['subject'] = base64url_decode(str_rot47($r[$x]['subject']));
-		}
-		$ret['conv'] = $r;
-	}
-
-	$r = q("select * from mail where mail.uid = %d",
-		intval($channel_id)
-	);
-	if($r) {
-		$m = array();
-		foreach($r as $rr) {
-			xchan_mail_query($rr);
-			$m[] = mail_encode($rr,true);
-		}
-		$ret['mail'] = $m;
-	}
-
-
-	/** @warning this may run into memory limits on smaller systems */
-
-
-	/** export three months of posts. If you want to export and import all posts you have to start with
-	  * the first year and export/import them in ascending order.
-	  *
-	  * Don't export linked resource items. we'll have to pull those out separately.
-	  */
-
-	$r = q("select * from item where item_wall = 1 and item_deleted = 0 and uid = %d and created > %s - INTERVAL %s and resource_type = '' order by created",
-		intval($channel_id),
-		db_utcnow(),
-		db_quoteinterval('3 MONTH')
-	);
-	if($r) {
-		$ret['item'] = array();
-		xchan_query($r);
-		$r = fetch_post_tags($r,true);
-		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr,true);
-	}
 
 	return $ret;
 }
@@ -768,7 +851,7 @@ function channel_export_items($channel_id, $start, $finish) {
 		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
 	}
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created < '%s'  and resource_type = '' order by created",
+	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type = '' order by created",
 		intval(ITEM_TYPE_POST),
 		intval($channel_id),
 		dbesc($start),
@@ -1218,7 +1301,7 @@ function advanced_profile(&$a) {
 			$profile['marital'] = array( t('Status:'), App::$profile['marital']);
 
 		if(App::$profile['partner'])
-			$profile['marital']['partner'] = bbcode(App::$profile['partner']);
+			$profile['marital']['partner'] = zidify_links(bbcode(App::$profile['partner']));
 
 		if(strlen(App::$profile['howlong']) && App::$profile['howlong'] > NULL_DATE) {
 			$profile['howlong'] = relative_date(App::$profile['howlong'], t('for %1$d %2$s'));
@@ -1278,10 +1361,14 @@ function advanced_profile(&$a) {
 
 //		logger('mod_profile: things: ' . print_r($things,true), LOGGER_DATA);
 
+		$exportlink = ((App::$profile['profile_vcard']) ? zid(z_root() . '/profile/' . App::$profile['channel_address'] . '/vcard') : '');
+
 		return replace_macros($tpl, array(
 			'$title' => t('Profile'),
 			'$canlike' => (($profile['canlike'])? true : false),
 			'$likethis' => t('Like this thing'),
+			'$export'   => t('Export'),
+			'$exportlink' => $exportlink,
 			'$profile' => $profile,
 			'$fields' => $clean_fields,
 			'$editmenu' => profile_edit_menu(App::$profile['profile_uid']),
@@ -1705,21 +1792,26 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 	$maxwidth = (($args['width']) ? intval($args['width']) : 0);
 	$maxheight = (($args['height']) ? intval($args['height']) : 0);
 
-	if(($maxwidth > 1200) || ($maxwidth < 1))
+	if(($maxwidth > 1200) || ($maxwidth < 1)) {
 		$maxwidth = 1200;
+		$cover_width = 1200;
+	}
 
 	if($maxwidth <= 425) {
 		$width = 425;
+		$cover_width = 425;
 		$size = 'hz_small';
 		$cover_size = PHOTO_RES_COVER_425;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'], 'width' => 80 , 'height' => 80, 'href' => $channel['xchan_photo_m']);
 	} elseif($maxwidth <= 900) {
 		$width = 900;
+		$cover_width = 850;
 		$size = 'hz_medium';
 		$cover_size = PHOTO_RES_COVER_850;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'], 'width' => 160 , 'height' => 160, 'href' => $channel['xchan_photo_l']);
 	} elseif($maxwidth <= 1200) {
 		$width = 1200;
+		$cover_width = 1200;
 		$size = 'hz_large';
 		$cover_size = PHOTO_RES_COVER_1200;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'], 'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l']);
@@ -1741,7 +1833,8 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	} else {
-		$cover = $pphoto;
+		$default_cover = get_config('system','default_cover_photo','pexels-94622');
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard.tpl'), array(
@@ -1765,23 +1858,28 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 	$maxwidth = (($args['width']) ? intval($args['width']) : 0);
 	$maxheight = (($args['height']) ? intval($args['height']) : 0);
 
-	if(($maxwidth > 1200) || ($maxwidth < 1))
+	if(($maxwidth > 1200) || ($maxwidth < 1)) {
 		$maxwidth = 1200;
+		$cover_width = 1200;
+	}
 
 	if($maxwidth <= 425) {
 		$width = 425;
+		$cover_width = 425;
 		$size = 'hz_small';
 		$cover_size = PHOTO_RES_COVER_425;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'],  'width' => 80 , 'height' => 80, 'href' => $channel['xchan_photo_m']);
 	}
 	elseif($maxwidth <= 900) {
 		$width = 900;
+		$cover_width = 850;
 		$size = 'hz_medium';
 		$cover_size = PHOTO_RES_COVER_850;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'],  'width' => 160 , 'height' => 160, 'href' => $channel['xchan_photo_l']);
 	}
 	elseif($maxwidth <= 1200) {
 		$width = 1200;
+		$cover_width = 1200;
 		$size = 'hz_large';
 		$cover_size = PHOTO_RES_COVER_1200;
 		$pphoto = array('mimetype' => $channel['xchan_photo_mimetype'],  'width' => 300 , 'height' => 300, 'href' => $channel['xchan_photo_l']);
@@ -1799,8 +1897,10 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 	if($r) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
-	} else {
-		$cover = $pphoto;
+	}
+	else {
+		$default_cover = get_config('system','default_cover_photo','pexels-94622');
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard_embed.tpl'),array(
@@ -1876,8 +1976,74 @@ function channel_manual_conv_update($channel_id) {
 
 	$x = get_pconfig($channel_id, 'system','manual_conversation_update');
 	if($x === false)
-		$x = get_config('system','manual_conversation_update');
+		$x = get_config('system','manual_conversation_update', 1);
 
 	return intval($x);
 
+}
+
+
+function remote_login() {
+
+		$o = replace_macros(get_markup_template('remote_login.tpl'),array(
+			'$title' => t('Remote Authentication'),
+			'$desc' => t('Enter your channel address (e.g. channel@example.com)'),
+			'$submit' => t('Authenticate')
+		));
+		return $o;
+
+}
+
+
+
+function profile_store_lowlevel($arr) {
+
+    $store = [
+        'profile_guid'  => ((array_key_exists('profile_guid',$arr))  ? $arr['profile_guid']  : ''),
+        'aid'           => ((array_key_exists('aid',$arr))           ? $arr['aid']           : 0),
+        'uid'           => ((array_key_exists('uid',$arr))           ? $arr['uid']           : 0),
+        'profile_name'  => ((array_key_exists('profile_name',$arr))  ? $arr['profile_name']  : ''),
+        'is_default'    => ((array_key_exists('is_default',$arr))    ? $arr['is_default']    : 0),
+        'hide_friends'  => ((array_key_exists('hide_friends',$arr))  ? $arr['hide_friends']  : 0),
+        'fullname'      => ((array_key_exists('fullname',$arr))      ? $arr['fullname']      : ''),
+        'pdesc'         => ((array_key_exists('pdesc',$arr))         ? $arr['pdesc']         : ''),
+        'chandesc'      => ((array_key_exists('chandesc',$arr))      ? $arr['chandesc']      : ''),
+        'dob'           => ((array_key_exists('dob',$arr))           ? $arr['dob']           : ''),
+        'dob_tz'        => ((array_key_exists('dob_tz',$arr))        ? $arr['dob_tz']        : ''),
+        'address'       => ((array_key_exists('address',$arr))       ? $arr['address']       : ''),
+        'locality'      => ((array_key_exists('locality',$arr))      ? $arr['locality']      : ''),
+        'region'        => ((array_key_exists('region',$arr))        ? $arr['region']        : ''),
+        'postal_code'   => ((array_key_exists('postal_code',$arr))   ? $arr['postal_code']   : ''),
+        'country_name'  => ((array_key_exists('country_name',$arr))  ? $arr['country_name']  : ''),
+        'hometown'      => ((array_key_exists('hometown',$arr))      ? $arr['hometown']      : ''),
+        'gender'        => ((array_key_exists('gender',$arr))        ? $arr['gender']        : ''),
+        'marital'       => ((array_key_exists('marital',$arr))       ? $arr['marital']       : ''),
+        'partner'       => ((array_key_exists('partner',$arr))       ? $arr['partner']       : ''),
+        'howlong'       => ((array_key_exists('howlong',$arr))       ? $arr['howlong']       : NULL_DATE),
+        'sexual'        => ((array_key_exists('sexual',$arr))        ? $arr['sexual']        : ''),
+        'politic'       => ((array_key_exists('politic',$arr))       ? $arr['politic']       : ''),
+        'religion'      => ((array_key_exists('religion',$arr))      ? $arr['religion']      : ''),
+        'keywords'      => ((array_key_exists('keywords',$arr))      ? $arr['keywords']      : ''),
+        'likes'         => ((array_key_exists('likes',$arr))         ? $arr['likes']         : ''),
+        'dislikes'      => ((array_key_exists('dislikes',$arr))      ? $arr['dislikes']      : ''),
+        'about'         => ((array_key_exists('about',$arr))         ? $arr['about']         : ''),
+        'summary'       => ((array_key_exists('summary',$arr))       ? $arr['summary']       : ''),
+        'music'         => ((array_key_exists('music',$arr))         ? $arr['music']         : ''),
+        'book'          => ((array_key_exists('book',$arr))          ? $arr['book']          : ''),
+        'tv'            => ((array_key_exists('tv',$arr))            ? $arr['tv']            : ''),
+        'film'          => ((array_key_exists('film',$arr))          ? $arr['film']          : ''),
+        'interest'      => ((array_key_exists('interest',$arr))      ? $arr['interest']      : ''),
+        'romance'       => ((array_key_exists('romance',$arr))       ? $arr['romance']       : ''),
+        'employment'    => ((array_key_exists('employment',$arr))    ? $arr['employment']    : ''),
+        'education'     => ((array_key_exists('education',$arr))     ? $arr['education']     : ''),
+        'contact'       => ((array_key_exists('contact',$arr))       ? $arr['contact']       : ''),
+        'channels'      => ((array_key_exists('channels',$arr))      ? $arr['channels']      : ''),
+        'homepage'      => ((array_key_exists('homepage',$arr))      ? $arr['homepage']      : ''),
+        'photo'         => ((array_key_exists('photo',$arr))         ? $arr['photo']         : ''),
+        'thumb'         => ((array_key_exists('thumb',$arr))         ? $arr['thumb']         : ''),
+        'publish'       => ((array_key_exists('publish',$arr))       ? $arr['publish']       : 0),
+        'profile_vcard' => ((array_key_exists('profile_vcard',$arr)) ? $arr['profile_vcard'] : '')
+	];
+
+	return create_table_from_array('profile',$store);
 }

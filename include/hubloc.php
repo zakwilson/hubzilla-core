@@ -1,5 +1,36 @@
 <?php /** @file */
 
+
+function hubloc_store_lowlevel($arr) {
+
+	$store = [
+		'hubloc_guid'        => ((array_key_exists('hubloc_guid',$arr))        ? $arr['hubloc_guid']        : ''),
+		'hubloc_guid_sig'    => ((array_key_exists('hubloc_guid_sig',$arr))    ? $arr['hubloc_guid_sig']    : ''),
+		'hubloc_hash'        => ((array_key_exists('hubloc_hash',$arr))        ? $arr['hubloc_hash']        : ''),
+		'hubloc_addr'        => ((array_key_exists('hubloc_addr',$arr))        ? $arr['hubloc_addr']        : ''),
+		'hubloc_network'     => ((array_key_exists('hubloc_network',$arr))     ? $arr['hubloc_network']     : ''),
+		'hubloc_flags'       => ((array_key_exists('hubloc_flags',$arr))       ? $arr['hubloc_flags']       : 0),
+		'hubloc_status'      => ((array_key_exists('hubloc_status',$arr))      ? $arr['hubloc_status']      : 0),
+		'hubloc_url'         => ((array_key_exists('hubloc_url',$arr))         ? $arr['hubloc_url']         : ''),
+		'hubloc_url_sig'     => ((array_key_exists('hubloc_url_sig',$arr))     ? $arr['hubloc_url_sig']     : ''),
+		'hubloc_host'        => ((array_key_exists('hubloc_host',$arr))        ? $arr['hubloc_host']        : ''),
+		'hubloc_callback'    => ((array_key_exists('hubloc_callback',$arr))    ? $arr['hubloc_callback']    : ''),
+		'hubloc_connect'     => ((array_key_exists('hubloc_connect',$arr))     ? $arr['hubloc_connect']     : ''),
+		'hubloc_sitekey'     => ((array_key_exists('hubloc_sitekey',$arr))     ? $arr['hubloc_sitekey']     : ''),
+		'hubloc_updated'     => ((array_key_exists('hubloc_updated',$arr))     ? $arr['hubloc_updated']     : NULL_DATE),
+		'hubloc_connected'   => ((array_key_exists('hubloc_connected',$arr))   ? $arr['hubloc_connected']   : NULL_DATE),
+		'hubloc_primary'     => ((array_key_exists('hubloc_primary',$arr))     ? $arr['hubloc_primary']     : 0),
+		'hubloc_orphancheck' => ((array_key_exists('hubloc_orphancheck',$arr)) ? $arr['hubloc_orphancheck'] : 0),
+		'hubloc_error'       => ((array_key_exists('hubloc_error',$arr))       ? $arr['hubloc_error']       : 0),
+		'hubloc_deleted'     => ((array_key_exists('hubloc_deleted',$arr))     ? $arr['hubloc_deleted']     : 0)
+	];
+
+	return create_table_from_array('hubloc',$store);
+
+}
+
+
+
 function prune_hub_reinstalls() {
 
 	$r = q("select site_url from site where site_type = %d",
@@ -175,102 +206,6 @@ function hubloc_mark_as_down($posturl) {
 	);
 }
 
-
-function xchan_store($arr) {
-
-	logger('xchan_store: ' . print_r($arr,true));
-
-	if(! $arr['hash'])
-		$arr['hash'] = $arr['guid'];
-	if(! $arr['hash'])
-		return false;
-
-	$r = q("select * from xchan where xchan_hash = '%s' limit 1",
-		dbesc($arr['hash'])
-	);
-	if($r)
-		return true;
-
-	if(! $arr['network'])
-		$arr['network'] = 'unknown';
-	if(! $arr['name'])
-		$arr['name'] = 'unknown';
-	if(! $arr['url'])
-		$arr['url'] = z_root();
-	if(! $arr['photo'])
-		$arr['photo'] = z_root() . '/' . get_default_profile_photo();
-
-	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_guid_sig, xchan_pubkey, xchan_addr, xchan_url, xchan_connurl, xchan_follow, xchan_connpage, xchan_name, xchan_network, xchan_instance_url, xchan_hidden, xchan_orphan, xchan_censored, xchan_selfcensored, xchan_system, xchan_pubforum, xchan_deleted, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s','%s','%s','%s',%d, %d, %d, %d, %d, %d, %d, '%s') ",
-		dbesc($arr['hash']),
-		dbesc($arr['guid']),
-		dbesc($arr['guid_sig']),
-		dbesc($arr['pubkey']),
-		dbesc($arr['address']),
-		dbesc($arr['url']),
-		dbesc($arr['connurl']),
-		dbesc($arr['follow']),
-		dbesc($arr['connpage']),
-		dbesc($arr['name']),
-		dbesc($arr['network']),
-		dbesc($arr['instance_url']),
-		intval($arr['hidden']),
-		intval($arr['orphan']),
-		intval($arr['censored']),
-		intval($arr['selfcensored']),
-		intval($arr['system']),
-		intval($arr['pubforum']),
-		intval($arr['deleted']),
-		dbesc(datetime_convert())
-	);
-	if(! $r)
-		return $r;
-
-	$photos = import_xchan_photo($arr['photo'],$arr['hash']);
-	$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-		dbesc(datetime_convert()),
-		dbesc($photos[0]),
-		dbesc($photos[1]),
-		dbesc($photos[2]),
-		dbesc($photos[3]),
-		dbesc($arr['hash'])
-	);
-	return $r;
-
-}
-
-
-function xchan_fetch($arr) {
-
-	$key = '';
-	if($arr['hash']) {
-		$key = 'xchan_hash';
-		$v = $arr['hash'];
-	}
-	elseif($arr['guid']) {
-		$key = 'xchan_guid';
-		$v = $arr['guid'];
-	}
-	elseif($arr['address']) {
-		$key = 'xchan_addr';
-		$v = $arr['address'];
-	}
-
-	if(! $key)
-		return false;
-
-	$r = q("select * from xchan where $key = '$v' limit 1");
-	if(! $r)
-		return false;
-
-	$ret = array();
-	foreach($r[0] as $k => $v) {
-		if($k === 'xchan_addr')
-			$ret['address'] = $v;
-		else
-			$ret[str_replace('xchan_','',$k)] = $v;
-	}
-	return $ret;
-}
 
 
 

@@ -45,14 +45,17 @@ require_once('include/channel.php');
 require_once('include/connections.php');
 require_once('include/account.php');
 require_once('include/zid.php');
+require_once('include/xchan.php');
+require_once('include/hubloc.php');
 
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '2.0.7' );
+define ( 'STD_VERSION',             '2.2' );
 define ( 'ZOT_REVISION',            '1.2' );
 
-define ( 'DB_UPDATE_VERSION',       1185  );
+define ( 'DB_UPDATE_VERSION',       1188  );
 
+define ( 'PROJECT_BASE',   __DIR__ );
 
 /**
  * @brief Constant with a HTML line break.
@@ -76,14 +79,14 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 // point to go out and find the rest of the world.
 
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
-define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.pixelbits.de');
+define ( 'DIRECTORY_FALLBACK_MASTER',  'https://gravizot.de');
 
 $DIRECTORY_FALLBACK_SERVERS = array( 
 	'https://hubzilla.site',
 	'https://hubzilla.zottel.net',
-	'https://hub.pixelbits.de',
 	'https://my.federated.social',
-	'https://hubzilla.nl'
+	'https://hubzilla.nl',
+	'https://gravizot.de'
 );
 
 
@@ -798,6 +801,7 @@ class App {
 	public static  $identities;
 	public static  $css_sources = array();
 	public static  $js_sources = array();
+	public static  $linkrel = array();
 	public static  $theme_info = array();
 	public static  $is_sys = false;
 	public static  $nav_sel;
@@ -1160,6 +1164,11 @@ class App {
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 
+		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);
+
+		$x = [ 'header' => '' ];
+		call_hooks('build_pagehead',$x);
+
 		/* put the head template at the beginning of page['htmlhead']
 		 * since the code added by the modules frequently depends on it
 		 * being first
@@ -1172,11 +1181,12 @@ class App {
 			'$baseurl' => self::get_baseurl(),
 			'$local_channel' => local_channel(),
 			'$metas' => self::$meta->get(),
+			'$plugins' => $x['header'],
 			'$update_interval' => $interval,
 			'osearch' => sprintf( t('Search %1$s (%2$s)','opensearch'), Zotlabs\Lib\System::get_site_name(), t('$Projectname','opensearch')), 
-			'$icon' => head_get_icon(),
 			'$head_css' => head_get_css(),
 			'$head_js' => head_get_js(),
+			'$linkrel' => head_get_links(),
 			'$js_strings' => js_strings(),
 			'$zid' => get_my_address(),
 			'$channel_id' => self::$profile['uid'],
@@ -1690,7 +1700,7 @@ function fix_system_urls($oldurl, $newurl) {
 // link. This will most always depend on the value of App::$config['system']['register_policy'].
 // returns the complete html for inserting into the page
 
-function login($register = false, $form_id = 'main-login', $hiddens=false) {
+function login($register = false, $form_id = 'main-login', $hiddens=false, $login_page = true) {
 	$o = '';
 	$reg = false;
 	$reglink = get_config('system', 'register_link');
@@ -1698,7 +1708,7 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
 		$reglink = 'register';
 
 	$reg = array(
-		'title' => t('Create an account to access services and applications within the Hubzilla'),
+		'title' => t('Create an account to access services and applications'),
 		'desc' => t('Register'),
 		'link' => (($register) ? $reglink : 'pubsites')
 	);
@@ -1716,12 +1726,13 @@ function login($register = false, $form_id = 'main-login', $hiddens=false) {
 
 	$o .= replace_macros($tpl,array(
 		'$dest_url'     => $dest_url,
+		'$login_page'   => $login_page,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
 		'$form_id'      => $form_id,
 		'$lname'        => array('username', t('Login/Email') , '', ''),
 		'$lpassword'    => array('password', t('Password'), '', ''),
-		'$remember_me'  => array('remember_me', t('Remember me'), '', '',array(t('No'),t('Yes'))),
+		'$remember_me'  => array((($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '',array(t('No'),t('Yes'))),
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),
@@ -2214,7 +2225,7 @@ function construct_page(&$a) {
 	// Zotlabs\Render\Theme::debug();
 
 	if (($p = theme_include($current_theme[0] . '.js')) != '')
-		head_add_js($p);
+		head_add_js('/' . $p);
 
 	if (($p = theme_include('mod_' . App::$module . '.php')) != '')
 		require_once($p);
@@ -2226,10 +2237,13 @@ function construct_page(&$a) {
 	else
 		head_add_css(((x(App::$page, 'template')) ? App::$page['template'] : 'default' ) . '.css');
 
-	head_add_css('mod_' . App::$module . '.css');
+	if (($p = theme_include('mod_' . App::$module . '.css')) != '')
+		head_add_css('mod_' . App::$module . '.css');
+
 	head_add_css(Zotlabs\Render\Theme::url($installing));
 
-	head_add_js('mod_' . App::$module . '.js');
+	if (($p = theme_include('mod_' . App::$module . '.js')) != '')
+		head_add_js('mod_' . App::$module . '.js');
 
 	App::build_pagehead();
 
@@ -2459,6 +2473,7 @@ function check_for_new_perms() {
 		return;
 
 	$pregistered = get_config('system','perms');
+
 	$pcurrent = array_keys(\Zotlabs\Access\Permissions::Perms());
 
 	if(! $pregistered) {
@@ -2470,6 +2485,7 @@ function check_for_new_perms() {
 
 	foreach($pcurrent as $p) {
 		if(! in_array($p,$pregistered)) {
+
 			$found_new_perm = true;
 			// for all channels
 			$c = q("select channel_id from channel where true");
@@ -2477,12 +2493,12 @@ function check_for_new_perms() {
 				foreach($c as $cc) {
 					// get the permission role
 					$r = q("select v from pconfig where uid = %d and cat = 'system' and k = 'permissions_role'",
-						intval($cc['uid'])
+						intval($cc['channel_id'])
 					);
 					if($r) {
 						// get a list of connections
 						$x = q("select abook_xchan from abook where abook_channel = %d and abook_self = 0",
-							intval($cc['uid'])
+							intval($cc['channel_id'])
 						);
 						// get the permissions role details
 						$rp = \Zotlabs\Access\PermissionRoles::role_perms($r[0]['v']);
@@ -2490,23 +2506,23 @@ function check_for_new_perms() {
 
 							// for custom permission roles we need to customise how we initiate this new permission
 							if(array_key_exists('role',$rp) && ($rp['role'] === 'custom' || $rp['role'] === '')) {
-								\Zotlabs\Access\PermissionRoles::new_custom_perms($cc['uid'],$p,$x);
+								\Zotlabs\Access\PermissionRoles::new_custom_perms($cc['channel_id'],$p,$x);
 							}
 							else {
 								// set the channel limits if appropriate or 0
 								if(array_key_exists('limits',$rp) && array_key_exists($p,$rp['limits'])) {
-									\Zotlabs\Access\PermissionLimits::Set($cc['uid'],$p,$rp['limits'][$p]);
+									\Zotlabs\Access\PermissionLimits::Set($cc['channel_id'],$p,$rp['limits'][$p]);
 								}
 								else {
-									\Zotlabs\Access\PermissionLimits::Set($cc['uid'],$p,0);
+									\Zotlabs\Access\PermissionLimits::Set($cc['channel_id'],$p,0);
 								}
 
 
-								$set = ((array_key_exists('perms_connect',$rp) && array_key_exists($p,$rp['perms_connect'])) ? true : false);
+								$set = ((array_key_exists('perms_connect',$rp) && in_array($p,$rp['perms_connect'])) ? 1 : 0);
 								// foreach connection set to the perms_connect value
 								if($x) {
 									foreach($x as $xx) {
-										set_abconfig($cc['uid'],$xx['abook_xchan'],'my_perms',$p,intval($set));
+										set_abconfig($cc['channel_id'],$xx['abook_xchan'],'my_perms',$p,intval($set));
 									}
 								}
 							}

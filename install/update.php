@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1185 );
+define( 'UPDATE_VERSION' , 1188 );
 
 /**
  *
@@ -2471,4 +2471,41 @@ function update_r1184() {
 	if($r1)
 		return UPDATE_SUCCESS;
 	return UPDATE_FAILED;
+}
+
+function update_r1185() {
+
+	$r1 = q("alter table app add app_plugin char(255) not null default '' ");
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1186() {
+
+	$r1 = q("alter table profile add profile_vcard text not null");
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+
+
+}
+
+function update_r1187() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("alter table outq add outq_scheduled timestamp not null default '0001-01-01 00:00:00' ");
+	}
+	else {
+		$r1 = q("alter table outq add outq_scheduled datetime not null default '0001-01-01 00:00:00' ");
+	}
+	$r2 = q("create index outq_scheduled_idx on outq (outq_scheduled)");
+
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+
+
 }

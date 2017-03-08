@@ -96,19 +96,6 @@ function widget_collections($args) {
 	return group_side($every, $each, $edit, $current, $abook_id, $wmode);
 }
 
-
-function widget_appselect($arr) {
-	return replace_macros(get_markup_template('app_select.tpl'),array(
-		'$title' => t('Apps'),
-		'$system' => t('System'),
-		'$authed' => ((local_channel()) ? true : false),
-		'$personal' => t('Personal'),
-		'$new' => t('New App'),
-		'$edit' => t('Edit App')
-	));
-}
-
-
 function widget_suggestions($arr) {
 
 	if((! local_channel()) || (! feature_enabled(local_channel(),'suggest')))
@@ -441,10 +428,12 @@ function widget_appcategories($arr) {
 	if(! local_channel())
 		return '';
 
-	$cat = ((x($_REQUEST,'cat')) ? htmlspecialchars($_REQUEST['cat'],ENT_COMPAT,'UTF-8') : '');
-	$srchurl = App::$query_string;
+	$selected = ((x($_REQUEST,'cat')) ? htmlspecialchars($_REQUEST['cat'],ENT_COMPAT,'UTF-8') : '');
+
 	$srchurl =  rtrim(preg_replace('/cat\=[^\&].*?(\&|$)/is','',$srchurl),'&');
 	$srchurl = str_replace(array('?f=','&f='),array('',''),$srchurl);
+
+	$srchurl = z_root() . '/apps';
 
 	$terms = array();
 
@@ -453,6 +442,7 @@ function widget_appcategories($arr) {
         where app_channel = %d
         and term.uid = app_channel
         and term.otype = %d
+        and term.term != 'nav_featured_app'
         order by term.term asc",
 		intval(local_channel()),
 	    intval(TERM_OBJ_APP)
@@ -518,9 +508,16 @@ function widget_affinity($arr) {
 
 	if(! local_channel())
 		return '';
-
-	$cmin = ((x($_REQUEST,'cmin')) ? intval($_REQUEST['cmin']) : 0);
-	$cmax = ((x($_REQUEST,'cmax')) ? intval($_REQUEST['cmax']) : 99);
+	
+	// Get default cmin value from pconfig, but allow GET parameter to override
+	$cmin = intval(get_pconfig(local_channel(),'affinity','cmin'));
+	$cmin = (($cmin) ? $cmin : 0);
+	$cmin = ((x($_REQUEST,'cmin')) ? intval($_REQUEST['cmin']) : $cmin);
+	
+	// Get default cmax value from pconfig, but allow GET parameter to override
+	$cmax = intval(get_pconfig(local_channel(),'affinity','cmax'));
+	$cmax = (($cmax) ? $cmax : 99);
+	$cmax = ((x($_REQUEST,'cmax')) ? intval($_REQUEST['cmax']) : $cmax);
 
 
 	if(feature_enabled(local_channel(),'affinity')) {
@@ -647,6 +644,14 @@ function widget_settings_menu($arr) {
 			'label' => t('Guest Access Tokens'),
 			'url' => z_root() . '/settings/tokens',
 			'selected' => ((argv(1) === 'tokens') ? 'active' : ''),
+		);
+	}
+
+	if(feature_enabled(local_channel(),'permcats')) {
+		$tabs[] = array(
+			'label' => t('Permission Groups'),
+			'url' => z_root() . '/settings/permcats',
+			'selected' => ((argv(1) === 'permcats') ? 'active' : ''),
 		);
 	}
 
@@ -898,9 +903,11 @@ function widget_chatroom_members() {
 }
 
 function widget_wiki_list($arr) {
-	require_once("include/wiki.php");
+
 	$channel = channelx_by_n(App::$profile_uid);
-	$wikis = wiki_list($channel, get_observer_hash());
+
+	$wikis = Zotlabs\Lib\NativeWiki::listwikis($channel,get_observer_hash());
+
 	if($wikis) {
 		return replace_macros(get_markup_template('wikilist_widget.tpl'), array(
 			'$header' => t('Wiki List'),
@@ -913,8 +920,9 @@ function widget_wiki_list($arr) {
 
 function widget_wiki_pages($arr) {
 
-	require_once("include/wiki.php");
 	$channelname = ((array_key_exists('channel',$arr)) ? $arr['channel'] : '');
+	$c = channelx_by_nick($channelname);
+
 	$wikiname = '';
 	if (array_key_exists('refresh', $arr)) {
 		$not_refresh = (($arr['refresh']=== true) ? false : true);
@@ -922,11 +930,12 @@ function widget_wiki_pages($arr) {
 		$not_refresh = true;
 	}
 	$pages = array();
-	if (!array_key_exists('resource_id', $arr)) {
+	if (! array_key_exists('resource_id', $arr)) {
 		$hide = true;
 	} else {
-		$p = wiki_page_list($arr['resource_id']);
-		if ($p['pages']) {
+		$p = Zotlabs\Lib\NativeWikiPage::page_list($c['channel_id'],get_observer_hash(),$arr['resource_id']);
+
+		if($p['pages']) {
 			$pages = $p['pages'];
 			$w = $p['wiki'];
 			// Wiki item record is $w['wiki']
@@ -936,31 +945,38 @@ function widget_wiki_pages($arr) {
 			}
 		}
 	}
-	$can_create = perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'write_pages');
+	$can_create = perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'write_wiki');
+
+	$can_delete = ((local_channel() && (local_channel() == \App::$profile['uid'])) ? true : false);
 
 	return replace_macros(get_markup_template('wiki_page_list.tpl'), array(
 			'$hide' => $hide,
+			'$resource_id' => $arr['resource_id'],
 			'$not_refresh' => $not_refresh,
 			'$header' => t('Wiki Pages'),
 			'$channel' => $channelname,
 			'$wikiname' => $wikiname,
 			'$pages' => $pages,
 			'$canadd' => $can_create,
+			'$candel' => $can_delete,
 			'$addnew' => t('Add new page'),
 			'$pageName' => array('pageName', t('Page name')),
 	));
 }
 
 function widget_wiki_page_history($arr) {
-	require_once("include/wiki.php");
+
 	$pageUrlName = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
 	$resource_id = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
-	$pageHistory = wiki_page_history(array('resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
 
-	return replace_macros(get_markup_template('wiki_page_history.tpl'), array(
-			'$pageHistory' => $pageHistory['history'],
-			'$permsWrite' => $arr['permsWrite']
+	$pageHistory = Zotlabs\Lib\NativeWikiPage::page_history(array('channel_id' => App::$profile_uid, 'observer_hash' => get_observer_hash(), 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+	return replace_macros(get_markup_template('nwiki_page_history.tpl'), array(
+		'$pageHistory' => $pageHistory['history'],
+		'$permsWrite' => $arr['permsWrite'],
+		'$name_lbl' => t('Name'),
+		'$msg_label' => t('Message','wiki_history')
 	));
+
 }
 
 function widget_bookmarkedchats($arr) {

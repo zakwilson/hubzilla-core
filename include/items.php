@@ -302,7 +302,7 @@ function add_source_route($iid, $hash) {
  *  * \e boolean \b success true or false
  *  * \e array \b activity the resulting activity if successful
  */
-function post_activity_item($arr) {
+function post_activity_item($arr,$allow_code = false,$deliver = true) {
 
 	$ret = array('success' => false);
 
@@ -328,7 +328,8 @@ function post_activity_item($arr) {
 		return $ret;
 	}
 
-	$arr['public_policy'] = ((x($_REQUEST,'public_policy')) ? escape_tags($_REQUEST['public_policy']) : map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
+	$arr['public_policy'] = ((array_key_exists('public_policy',$arr)) ? escape_tags($arr['public_policy']) : map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
+
 	if($arr['public_policy'])
 		$arr['item_private'] = 1;
 
@@ -359,15 +360,18 @@ function post_activity_item($arr) {
 	if(($is_comment) && ($arr['obj_type'] === ACTIVITY_OBJ_NOTE))
 		$arr['obj_type'] = ACTIVITY_OBJ_COMMENT;
 
-	$arr['allow_cid']    = ((x($arr,'allow_cid')) ? $arr['allow_cid'] : $channel['channel_allow_cid']);
-	$arr['allow_gid']    = ((x($arr,'allow_gid')) ? $arr['allow_gid'] : $channel['channel_allow_gid']);
-	$arr['deny_cid']     = ((x($arr,'deny_cid')) ? $arr['deny_cid'] : $channel['channel_deny_cid']);
-	$arr['deny_gid']     = ((x($arr,'deny_gid')) ? $arr['deny_gid'] : $channel['channel_deny_gid']);
+	if(! ( array_key_exists('allow_cid',$arr) || array_key_exists('allow_gid',$arr) 
+		|| array_key_exists('deny_cid',$arr) || array_key_exists('deny_gid',$arr))) {
+		$arr['allow_cid']    = $channel['channel_allow_cid'];
+		$arr['allow_gid']    = $channel['channel_allow_gid'];
+		$arr['deny_cid']     = $channel['channel_deny_cid'];
+		$arr['deny_gid']     = $channel['channel_deny_gid'];
+	}
 
 	$arr['comment_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
-		$arr['plink'] = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $arr['mid'];
+		$arr['plink'] = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
 	}
 
 
@@ -382,18 +386,22 @@ function post_activity_item($arr) {
 		return $ret;
 	}
 
-	$post = item_store($arr);
-	if($post['success'])
-		$post_id = $post['item_id'];
+	$post = item_store($arr,$allow_code,$deliver);
 
-	if($post_id) {
-		$arr['id'] = $post_id;
-		call_hooks('post_local_end', $arr);
-		Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$post_id));
+	if($post['success']) {
+		$post_id = $post['item_id'];
 		$ret['success'] = true;
+		$ret['item_id'] = $post_id;
 		$ret['activity'] = $post['item'];
+		call_hooks('post_local_end', $ret['activity']);
 	}
 
+	if($post_id && $deliver) {
+		Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$post_id));
+	}
+
+
+	$ret['success'] = true;
 	return $ret;
 }
 
@@ -420,7 +428,7 @@ function validate_item_elements($message,$arr) {
 
 
 /**
- * @brief Limit lenght on imported system messages.
+ * @brief Limit length on imported system messages.
  *
  * The purpose of this function is to apply system message length limits to
  * imported messages without including any embedded photos in the length.
@@ -829,13 +837,15 @@ function import_author_rss($x) {
 	}
 	$name = trim($x['name']);
 
-	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_url, xchan_name, xchan_network )
-		values ( '%s', '%s', '%s', '%s', '%s' )",
-		dbesc($x['guid']),
-		dbesc($x['guid']),
-		dbesc($x['url']),
-		dbesc(($name) ? $name : t('(Unknown)')),
-		dbesc('rss')
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'         => $x['guid'],
+			'xchan_guid'         => $x['guid'],
+			'xchan_url'          => $x['url'],
+			'xchan_name'         => (($name) ? $name : t('(Unknown)')),
+			'xchan_name_date'    => datetime_convert(),
+			'xchan_network'      => 'rss'
+		]
 	);
 
 	if($r && $x['photo']) {
@@ -874,14 +884,17 @@ function import_author_unknown($x) {
 
 	$name = trim($x['name']);
 
-	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_url, xchan_name, xchan_network )
-		values ( '%s', '%s', '%s', '%s', '%s' )",
-		dbesc($x['url']),
-		dbesc($x['url']),
-		dbesc($x['url']),
-		dbesc(($name) ? $name : t('(Unknown)')),
-		dbesc('unknown')
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'         => $x['url'],
+			'xchan_guid'         => $x['url'],
+			'xchan_url'          => $x['url'],
+			'xchan_name'         => (($name) ? $name : t('(Unknown)')),
+			'xchan_name_date'    => datetime_convert(),
+			'xchan_network'      => 'unknown'
+		]
 	);
+
 	if($r && $x['photo']) {
 
 		$photos = import_xchan_photo($x['photo']['src'],$x['url']);
@@ -1512,6 +1525,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['deny_cid']      = ((x($arr,'deny_cid'))      ? trim($arr['deny_cid'])              : '');
 	$arr['deny_gid']      = ((x($arr,'deny_gid'))      ? trim($arr['deny_gid'])              : '');
 	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
+	$arr['route']         = ((x($arr,'route'))         ? trim($arr['route'])                 : '');
 	$arr['item_private']  = ((x($arr,'item_private'))  ? intval($arr['item_private'])        : 0 );
 	$arr['item_wall']     = ((x($arr,'item_wall'))     ? intval($arr['item_wall'])           : 0 );
 	$arr['item_type']     = ((x($arr,'item_type'))     ? intval($arr['item_type'])           : 0 );
@@ -1528,7 +1542,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		// apply the input filter here - if it is obscured it has been filtered already
 		$arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
 
-		if(local_channel() && (! $arr['sig'])) {
+		if(local_channel() && (local_channel() == $arr['uid']) && (! $arr['sig'])) {
 			$channel = App::get_channel();
 			if($channel['channel_hash'] === $arr['author_xchan']) {
 				$arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
@@ -1565,8 +1579,11 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		$arr['attach'] = json_encode($arr['attach']);
 	}
 
-	$arr['aid']           = ((x($arr,'aid'))           ? intval($arr['aid'])                 : 0);
-	$arr['mid']           = ((x($arr,'mid'))           ? notags(trim($arr['mid']))           : random_string());
+	$arr['aid']           = ((x($arr,'aid'))           ? intval($arr['aid'])                           : 0);
+	$arr['mid']           = ((x($arr,'mid'))           ? notags(trim($arr['mid']))                     : random_string());
+	$arr['revision']      = ((x($arr,'revision') && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
+logger('revision: ' . $arr['revision']);
+
 	$arr['author_xchan']  = ((x($arr,'author_xchan'))  ? notags(trim($arr['author_xchan']))  : '');
 	$arr['owner_xchan']   = ((x($arr,'owner_xchan'))   ? notags(trim($arr['owner_xchan']))   : '');
 	$arr['created']       = ((x($arr,'created') !== false) ? datetime_convert('UTC','UTC',$arr['created']) : datetime_convert());
@@ -1622,7 +1639,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if($d2 > $d1)
 		$arr['item_delayed'] = 1;
 
-	$arr['llink'] = z_root() . '/display/' . $arr['mid'];
+	$arr['llink'] = z_root() . '/display/' . gen_link_id($arr['mid']);
 
 	if(! $arr['plink'])
 		$arr['plink'] = $arr['llink'];
@@ -1727,9 +1744,10 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if($parent_deleted)
 		$arr['item_deleted'] = 1;
 
-	$r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+	$r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d and revision = %d LIMIT 1",
 		dbesc($arr['mid']),
-		intval($arr['uid'])
+		intval($arr['uid']),
+		intval($arr['revision'])
 	);
 	if($r) {
 		logger('item_store: duplicate item ignored. ' . print_r($arr,true));
@@ -1784,9 +1802,10 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	// find the item we just created
 
-	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d ORDER BY id ASC ",
+	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
 		$arr['mid'],           // already dbesc'd
-		intval($arr['uid'])
+		intval($arr['uid']),
+		intval($arr['revision'])
 	);
 
 	if($r && count($r)) {
@@ -1945,7 +1964,7 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
         // apply the input filter here - if it is obscured it has been filtered already
         $arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
 
-        if(local_channel() && (! $arr['sig'])) {
+		if(local_channel() && (local_channel() == $arr['uid']) && (! $arr['sig'])) {
             $channel = App::get_channel();
             if($channel['channel_hash'] === $arr['author_xchan']) {
                 $arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
@@ -1996,6 +2015,8 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 
 	$arr['edited']        = ((x($arr,'edited')  !== false) ? datetime_convert('UTC','UTC',$arr['edited'])  : datetime_convert());
 	$arr['expires']       = ((x($arr,'expires')  !== false) ? datetime_convert('UTC','UTC',$arr['expires'])  : $orig[0]['expires']);
+
+	$arr['revision']      = ((x($arr,'revision') && $arr['revision'] > 0)   ? intval($arr['revision']) : 0);
 
 	if(array_key_exists('comments_closed',$arr) && $arr['comments_closed'] > NULL_DATE)
 		$arr['comments_closed'] = datetime_convert('UTC','UTC',$arr['comments_closed']);
@@ -2174,7 +2195,7 @@ function store_diaspora_comment_sig($datarray, $channel, $parent_item, $post_id,
 
 	// since Diaspora doesn't handle edits we can only do this for the original text and not update it.
 
-	require_once('include/bb2diaspora.php');
+	require_once('include/markdown.php');
 	$signed_body = bb2diaspora_itembody($datarray,$walltowall);
 
 	if($walltowall) {
@@ -2273,7 +2294,7 @@ function send_status_notifications($post_id,$item) {
 	if($unfollowed)
 		return;
 
-	$link =  z_root() . '/display/' . $item['mid'];
+	$link =  z_root() . '/display/' . gen_link_id($item['mid']);
 
 	$y = q("select id from notify where link = '%s' and uid = %d limit 1",
 		dbesc($link),
@@ -3300,7 +3321,7 @@ function retain_item($id) {
 	);
 }
 
-function drop_items($items) {
+function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL,$force = false) {
 	$uid = 0;
 
 	if(! local_channel() && ! remote_channel())
@@ -3308,7 +3329,7 @@ function drop_items($items) {
 
 	if(count($items)) {
 		foreach($items as $item) {
-			$owner = drop_item($item,false);
+			$owner = drop_item($item,$interactive,$stage,$force);
 			if($owner && ! $uid)
 				$uid = $owner;
 		}
@@ -3332,6 +3353,11 @@ function drop_items($items) {
 
 function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = false) {
 
+	// These resource types have linked items that should only be removed at the same time
+	// as the linked resource; if we encounter one set it to item_hidden rather than item_deleted.
+
+	$linked_resource_types = [ 'photo' ];
+
 	// locate item to be deleted
 
 	$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
@@ -3347,7 +3373,7 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 
 	$item = $r[0];
 
-	$linked_item = (($item['resource_id']) ? true : false);
+	$linked_item = (($item['resource_id'] && $item['resource_type'] && in_array($item['resource_type'], $linked_resource_types)) ? true : false);
 
 	$ok_to_delete = false;
 
@@ -4464,9 +4490,9 @@ function item_create_edit_activity($post) {
 	$new_item['verb'] = ACTIVITY_UPDATE;
 	$new_item['item_thread_top'] = 0;
 	$new_item['created'] = $new_item['edited'] = datetime_convert();
-
+	$new_item['obj_type'] = (($update_item['item_thread_top']) ? ACTIVITY_OBJ_NOTE : ACTIVITY_OBJ_COMMENT);
 	$new_item['obj'] = json_encode(array(
-		'type'    => (($update_item['item_thread_top']) ? ACTIVITY_OBJ_NOTE : ACTIVITY_OBJ_COMMENT),
+		'type'    => $new_item['obj_type'],
 		'id'      => $update_item['mid'],
 		'parent'  => $update_item['parent_mid'],
 		'link'    => array(array('rel' => 'alternate','type' => 'text/html', 'href' => $update_item['plink'])),

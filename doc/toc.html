@@ -37,6 +37,7 @@
             <ul class="list-group">
                 <li class="doco-list-group-item"><a href="/help/admin/administrator_guide">Guide</a></li>
                 <li class="doco-list-group-item"><a href="/help/admin/hub_snapshots">Hub Snapshots</a></li>
+                <li class="doco-list-group-item"><a href="/help/database">Database Tables</a></li>
             </ul>
         </div>
     </div>
@@ -49,8 +50,10 @@
         <div id="developers" class="panel-collapse collapse in">
             <ul class="list-group">
                 <li class="doco-list-group-item"><a href="/help/developer/developer_guide">Guide</a></li>
+                <li class="doco-list-group-item"><a href="/help/developer/covenant">Code of Conduct</a></li>
                 <li class="doco-list-group-item"><a href="/help/developer/zot_protocol">Zot Protocol</a></li>
                 <li class="doco-list-group-item"><a href="/help/developer/api_zot">Zot API</a></li>
+                <li class="doco-list-group-item"><a href="/help/hooklist">Hooks</a></li>
             </ul>
         </div>
     </div>
@@ -72,13 +75,10 @@
     // Generate the table of contents in the side nav menu (see view/tpl/help.tpl)
     $(document).ready(function () {
         $(".panel-collapse.in").find('a').each(function(){
-            window.console.log($(this).attr('href'));
             var url = document.createElement('a');
             url.href = window.location;
-            var pageName = url.href.split('/').pop().split('#').shift();
-            window.console.log('pageName: ' + pageName);
+            var pageName = url.href.split('/').pop().split('#').shift().split('?').shift();
             var linkName = $(this).attr('href').split('/').pop();
-            window.console.log('linkName: ' + linkName);
             if(pageName === linkName) {
                 var tocUl = $(this).closest('li').append('<ul>').find('ul');
                 tocUl.removeClass();  // Classes are automatically added to <ul> elements by something else
@@ -110,8 +110,24 @@
 			  $('#doco-side-toc li')
 			   .removeClass('selected-doco-nav')
 			   .eq(i).addClass('selected-doco-nav');
+				if (typeof($('#doco-side-toc li').eq(i).find('a').attr('href').split('#')[1]) !== 'undefined') {
+					window.history.pushState({}, '', location.href.split('#')[0] + '#' + $('#doco-side-toc li').eq(i).find('a').attr('href').split('#')[1]);
+				}
 			 }
 			});
 		});
+		
+		// When the page loads, it does not scroll to the section specified in the URL because it
+		// has not been constructed yet by the script. This will reload the URL
+		if (typeof(location.href.split('#')[1]) !== 'undefined') {
+			var p = document.createElement('a');
+			p.href = location.href;
+			var portstr = '';
+			if(p.port !== '') {
+				portstr = ':'+ p.port;
+			}
+			var newref = p.protocol + '//'+  p.hostname + portstr + p.pathname + p.hash.split('?').shift();
+			location.replace(newref)
+		}
 	});
 </script>

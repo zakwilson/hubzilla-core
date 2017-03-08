@@ -99,13 +99,28 @@ class Comanche {
 		}
 	}
 
+	/**
+	 * Currently supported condition variables:
+	 *
+	 * $config.xxx.yyy - get_config with cat = xxx and k = yyy
+	 * $request - request uri for this page
+	 * $observer.language - viewer's preferred language (closest match)
+	 * $observer.address - xchan_addr or false
+	 * $observer.name - xchan_name or false
+	 * $observer - xchan_hash of observer or empty string
+	 */
+
 	function get_condition_var($v) {
 		if($v) {
 			$x = explode('.',$v);
 			if($x[0] == 'config')
 				return get_config($x[1],$x[2]);
+			elseif($x[0] === 'request')
+				return $_SERVER['REQUEST_URI'];
 			elseif($x[0] === 'observer') {
 				if(count($x) > 1) {
+					if($x[1] == 'language')
+						return \App::$language;
 					$y = \App::get_observer();
 					if(! $y)
 						return false;
@@ -125,13 +140,27 @@ class Comanche {
 
 	function test_condition($s) {
 		// This is extensible. The first version of variable testing supports tests of the forms:
+
+		// [if $config.system.foo ~= baz] which will check if get_config('system','foo') contains the string 'baz';
 		// [if $config.system.foo == baz] which will check if get_config('system','foo') is the string 'baz';
 		// [if $config.system.foo != baz] which will check if get_config('system','foo') is not the string 'baz';
-		// You may check numeric entries, but these checks are evaluated as strings. 
+		// [if $config.system.foo >= 3] which will check if get_config('system','foo') is greater than or equal to 3;
+		// [if $config.system.foo > 3] which will check if get_config('system','foo') is greater than 3;
+
+		// [if $config.system.foo <= 3] which will check if get_config('system','foo') is less than or equal to 3;
+		// [if $config.system.foo < 3] which will check if get_config('system','foo') is less than 3;
+
 		// [if $config.system.foo {} baz] which will check if 'baz' is an array element in get_config('system','foo')
 		// [if $config.system.foo {*} baz] which will check if 'baz' is an array key in get_config('system','foo')
 		// [if $config.system.foo] which will check for a return of a true condition for get_config('system','foo');
 		// The values 0, '', an empty array, and an unset value will all evaluate to false.
+
+		if(preg_match('/[\$](.*?)\s\~\=\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if(stripos($x,trim($matches[2])) !== false)
+				return true;
+			return false;
+		}
 
 		if(preg_match('/[\$](.*?)\s\=\=\s(.*?)$/',$s,$matches)) {
 			$x = $this->get_condition_var($matches[1]);
@@ -139,9 +168,35 @@ class Comanche {
 				return true;
 			return false;
 		}
+
 		if(preg_match('/[\$](.*?)\s\!\=\s(.*?)$/',$s,$matches)) {
 			$x = $this->get_condition_var($matches[1]);
 			if($x != trim($matches[2]))
+				return true;
+			return false;
+		}
+
+		if(preg_match('/[\$](.*?)\s\>\=\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x >= trim($matches[2]))
+				return true;
+			return false;
+		}
+		if(preg_match('/[\$](.*?)\s\<\=\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x <= trim($matches[2]))
+				return true;
+			return false;
+		}
+		if(preg_match('/[\$](.*?)\s\>\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x > trim($matches[2]))
+				return true;
+			return false;
+		}
+		if(preg_match('/[\$](.*?)\s\>\s(.*?)$/',$s,$matches)) {
+			$x = $this->get_condition_var($matches[1]);
+			if($x < trim($matches[2]))
 				return true;
 			return false;
 		}

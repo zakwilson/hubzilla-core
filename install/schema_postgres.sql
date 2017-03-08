@@ -111,7 +111,7 @@ CREATE TABLE "app" (
   "app_sig" text NOT NULL DEFAULT '',
   "app_author" text NOT NULL DEFAULT '',
   "app_name" text NOT NULL DEFAULT '',
-  "app_desc" text NOT NULL,
+  "app_desc" text NOT NULL DEFAULT '',
   "app_url" text NOT NULL DEFAULT '',
   "app_photo" text NOT NULL DEFAULT '',
   "app_version" text NOT NULL DEFAULT '',
@@ -122,6 +122,7 @@ CREATE TABLE "app" (
   "app_requires" text NOT NULL DEFAULT '',
   "app_deleted" smallint NOT NULL DEFAULT '0',
   "app_system" smallint NOT NULL DEFAULT '0',
+  "app_plugin" text NOT NULL DEFAULT '',
   "app_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "app_edited" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY ("id")
@@ -137,6 +138,7 @@ create index "app_created" on app ("app_created");
 create index "app_edited" on app ("app_edited");
 create index "app_deleted" on app ("app_deleted");
 create index "app_system" on app ("app_system");
+
 
 CREATE TABLE "atoken" (
   "atoken_id" serial NOT NULL,
@@ -882,6 +884,7 @@ CREATE TABLE "outq" (
   "outq_delivered" numeric(1) NOT NULL DEFAULT '0',
   "outq_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "outq_updated" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "outq_scheduled" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "outq_notify" text NOT NULL,
   "outq_msg" text NOT NULL,
   "outq_priority" smallint NOT NULL DEFAULT '0',
@@ -892,6 +895,7 @@ create index "outq_channel" on outq ("outq_channel");
 create index "outq_hub" on outq ("outq_posturl");
 create index "outq_created" on outq ("outq_created");
 create index "outq_updated" on outq ("outq_updated");
+create index "outq_scheduled" on outq ("outq_scheduled");
 create index "outq_async" on outq ("outq_async");
 create index "outq_delivered" on outq ("outq_delivered");
 create index "outq_priority" on outq ("outq_priority");
@@ -1041,6 +1045,7 @@ CREATE TABLE "profile" (
   "photo" text NOT NULL,
   "thumb" text NOT NULL,
   "publish" numeric(1) NOT NULL DEFAULT '0',
+  "profile_vcard" text NOT NULL DEFAULT '',
   PRIMARY KEY ("id"),
   UNIQUE ("profile_guid","uid")
 

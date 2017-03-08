@@ -70,8 +70,14 @@ class Theme {
 			$chosen_theme = $_GET['theme_preview'];
 
 		// Allow theme selection of the form 'theme_name:schema_name'
-
 		$themepair = explode(':', $chosen_theme);
+
+		// Check if $chosen_theme is compatible with core. If not fall back to default
+		$info = get_theme_info($themepair[0]);
+		$compatible = check_plugin_versions($info);
+		if(!$compatible) {
+			$chosen_theme = '';
+		}
 
 		if($chosen_theme && (file_exists('view/theme/' . $themepair[0] . '/css/style.css') || file_exists('view/theme/' . $themepair[0] . '/php/style.php'))) {
 			return($themepair);
@@ -125,9 +131,9 @@ class Theme {
 		$opts .= $schema_str;
 
 		if(file_exists('view/theme/' . $t . '/php/style.php'))
-			return('view/theme/' . $t . '/php/style.pcss' . $opts);
+			return('/view/theme/' . $t . '/php/style.pcss' . $opts);
 
-		return('view/theme/' . $t . '/css/style.css');
+		return('/view/theme/' . $t . '/css/style.css');
 	}
 
 	function debug() {

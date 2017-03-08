@@ -28,29 +28,31 @@ function z_mime_content_type($filename) {
 
 	$mime_types = array(
 
-	'txt' => 'text/plain',
-	'htm' => 'text/html',
+	'txt'  => 'text/plain',
+	'htm'  => 'text/html',
 	'html' => 'text/html',
-	'php' => 'text/html',
-	'css' => 'text/css',
-	'js' => 'application/javascript',
+	'php'  => 'text/html',
+	'css'  => 'text/css',
+	'md'   => 'text/markdown',
+	'bb'   => 'text/bbcode',
+	'js'   => 'application/javascript',
 	'json' => 'application/json',
-	'xml' => 'application/xml',
-	'swf' => 'application/x-shockwave-flash',
-	'flv' => 'video/x-flv',
+	'xml'  => 'application/xml',
+	'swf'  => 'application/x-shockwave-flash',
+	'flv'  => 'video/x-flv',
 	'epub' => 'application/epub+zip',
 
 	// images
-	'png' => 'image/png',
-	'jpe' => 'image/jpeg',
+	'png'  => 'image/png',
+	'jpe'  => 'image/jpeg',
 	'jpeg' => 'image/jpeg',
-	'jpg' => 'image/jpeg',
-	'gif' => 'image/gif',
-	'bmp' => 'image/bmp',
-	'ico' => 'image/vnd.microsoft.icon',
+	'jpg'  => 'image/jpeg',
+	'gif'  => 'image/gif',
+	'bmp'  => 'image/bmp',
+	'ico'  => 'image/vnd.microsoft.icon',
 	'tiff' => 'image/tiff',
-	'tif' => 'image/tiff',
-	'svg' => 'image/svg+xml',
+	'tif'  => 'image/tiff',
+	'svg'  => 'image/svg+xml',
 	'svgz' => 'image/svg+xml',
 
 	// archives
@@ -61,27 +63,27 @@ function z_mime_content_type($filename) {
 	'cab' => 'application/vnd.ms-cab-compressed',
 
 	// audio/video
-	'mp3' => 'audio/mpeg',
-	'wav' => 'audio/wav',
-	'qt' => 'video/quicktime',
-	'mov' => 'video/quicktime',
-	'ogg' => 'audio/ogg',
-	'ogv' => 'video/ogg',
-	'ogx' => 'application/ogg',
+	'mp3'  => 'audio/mpeg',
+	'wav'  => 'audio/wav',
+	'qt'   => 'video/quicktime',
+	'mov'  => 'video/quicktime',
+	'ogg'  => 'audio/ogg',
+	'ogv'  => 'video/ogg',
+	'ogx'  => 'application/ogg',
 	'flac' => 'audio/flac',
 	'opus' => 'audio/ogg',
 	'webm' => 'video/webm',
 //	'webm' => 'audio/webm',
-	'mp4' => 'video/mp4',
-//	'mp4' => 'audio/mp4',
-	'mkv' => 'video/x-matroska',
+	'mp4'  => 'video/mp4',
+//	'mp4'  => 'audio/mp4',
+	'mkv'  => 'video/x-matroska',
 
 	// adobe
 	'pdf' => 'application/pdf',
 	'psd' => 'image/vnd.adobe.photoshop',
-	'ai' => 'application/postscript',
+	'ai'  => 'application/postscript',
 	'eps' => 'application/postscript',
-	'ps' => 'application/postscript',
+	'ps'  => 'application/postscript',
 
 	// ms office
 	'doc' => 'application/msword',
@@ -1279,8 +1281,10 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		intval($channel_id)
 	);
 
-	if(! $r)
+	if(! $r) {
+		attach_drop_photo($channel_id,$resource);		
 		return;
+	}
 
 	$cloudpath = get_parent_cloudpath($channel_id, $channel_address, $resource);
 	$object = get_file_activity_object($channel_id, $resource, $cloudpath);
@@ -1326,18 +1330,9 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	);
 
 	if($r[0]['is_photo']) {
-		$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'photo' and uid = %d",
-			dbesc($resource),
-			intval($channel_id)
-		);
-		if($x) {
-			drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
-		}
-		q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
-			intval($channel_id),
-			dbesc($resource)
-		);
+		attach_drop_photo($channel_id,$resource);
 	}
+
 
 	// update the parent folder's lastmodified timestamp
 	$e = q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
@@ -1350,6 +1345,24 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 	return;
 }
+
+
+function attach_drop_photo($channel_id,$resource) {
+
+	$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'photo' and uid = %d",
+		dbesc($resource),
+		intval($channel_id)
+	);
+	if($x) {
+		drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
+	}
+	q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
+		intval($channel_id),
+		dbesc($resource)
+	);
+
+}
+
 
 /**
  * @brief Returns path to file in cloud/.
@@ -1464,18 +1477,34 @@ function find_folder_hash_by_attach_hash($channel_id, $attachHash, $recurse = fa
 
 function find_folder_hash_by_path($channel_id, $path) {
 
-	$filename = end(explode('/', $path));
+	if(! $path)
+		return '';
 
-	$r = q("SELECT hash FROM attach WHERE uid = %d AND filename = '%s' LIMIT 1",
-		intval($channel_id),
-		dbesc($filename)
-	);
+	$comps        = explode('/',$path);
+	$errors       = false;
+	$parent_hash  = '';
 
-	$hash = '';
-	if($r && $r[0]['hash']) {
-		$hash = $r[0]['hash'];
+	for($x = 0; $x < count($comps); $x ++) {
+		$element = $comps[$x];
+		$r = q("SELECT hash FROM attach WHERE uid = %d AND filename = '%s' AND folder = '%s' LIMIT 1",
+			intval($channel_id),
+			dbesc($element),
+			dbesc($parent_hash)
+		);
+		if($r) {
+			$parent_hash = $r[0]['hash'];
+		}
+		else {
+			$errors ++;
+			break;
+		}
 	}
-	return $hash;
+
+	if($errors)
+		return '';
+
+	return $parent_hash;
+
 }
 
 /**

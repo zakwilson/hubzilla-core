@@ -21,6 +21,7 @@ require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/attach.php');
 require_once('include/bbcode.php');
+require_once('include/security.php');
 
 
 use \Zotlabs\Lib as Zlib;
@@ -34,9 +35,7 @@ class Item extends \Zotlabs\Web\Controller {
 	
 		if((! local_channel()) && (! remote_channel()) && (! x($_REQUEST,'commenter')))
 			return;
-	
-		require_once('include/security.php');
-	
+
 		$uid = local_channel();
 		$channel = null;
 		$observer = null;
@@ -141,6 +140,7 @@ class Item extends \Zotlabs\Web\Controller {
 	
 	
 		$item_flags = $item_restrict = 0;
+		$expires = NULL_DATE;
 	
 		$route = '';
 		$parent_item = null;
@@ -395,6 +395,7 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			$postopts          = $orig_post['postopts'];
 			$created           = $orig_post['created'];
+			$expires           = $orig_post['expires'];
 			$mid               = $orig_post['mid'];
 			$parent_mid        = $orig_post['parent_mid'];
 			$plink             = $orig_post['plink'];
@@ -428,7 +429,9 @@ class Item extends \Zotlabs\Web\Controller {
 			$body              = trim($_REQUEST['body']);
 			$body              .= trim($_REQUEST['attachment']);
 			$postopts          = '';
-	
+
+			$allow_empty       = ((array_key_exists('allow_empty',$_REQUEST)) ? intval($_REQUEST['allow_empty']) : 0);	
+
 			$private = intval($acl->is_private() || ($public_policy));
 	
 			// If this is a comment, set the permissions from the parent.
@@ -441,7 +444,7 @@ class Item extends \Zotlabs\Web\Controller {
 				$owner_hash        = $parent_item['owner_xchan'];
 			}
 		
-			if(! strlen($body)) {
+			if((! $allow_empty) && (! strlen($body))) {
 				if($preview)
 					killme();
 				info( t('Empty post discarded.') . EOL );
@@ -454,7 +457,6 @@ class Item extends \Zotlabs\Web\Controller {
 		}
 		
 	
-		$expires = NULL_DATE;
 	
 		if(feature_enabled($profile_uid,'content_expire')) {
 			if(x($_REQUEST,'expire')) {
@@ -463,7 +465,8 @@ class Item extends \Zotlabs\Web\Controller {
 					$expires = NULL_DATE;
 			}
 		}
-	
+
+
 		$mimetype = notags(trim($_REQUEST['mimetype']));
 		if(! $mimetype)
 			$mimetype = 'text/bbcode';
@@ -520,7 +523,7 @@ class Item extends \Zotlabs\Web\Controller {
 			// <img src="javascript:alert('hacked');" />
 	
 	//		if($uid && $uid == $profile_uid && feature_enabled($uid,'markdown')) {
-	//			require_once('include/bb2diaspora.php');
+	//			require_once('include/markdown.php');
 	//			$body = escape_tags(trim($body));
 	//			$body = str_replace("\n",'<br />', $body);
 	//			$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_shield',$body);			
@@ -556,42 +559,8 @@ class Item extends \Zotlabs\Web\Controller {
 				if($x)
 					$body .= "\n\n@group+" . $x[0]['abook_id'] . "\n";
 			}
-	
-			/**
-			 * fix naked links by passing through a callback to see if this is a hubzilla site
-			 * (already known to us) which will get a zrl, otherwise link with url, add bookmark tag to both.
-			 * First protect any url inside certain bbcode tags so we don't double link it.
-			 */
-	
-	
-			$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
-			$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
-			$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
-	
 
-			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\(\)]+)/ism", 'nakedoembed', $body);
-			$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\+\,\(\)]+)/ism", '\red_zrl_callback', $body);
-	
-			$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
-			$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
-			$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
-	
-	
-			// fix any img tags that should be zmg
-	
-			$body = preg_replace_callback('/\[img(.*?)\](.*?)\[\/img\]/ism','\red_zrlify_img_callback',$body);
-	
-	
-			$body = bb_translate_video($body);
-	
-			/**
-			 * Fold multi-line [code] sequences
-			 */
-	
-			$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body); 
-	
-			$body = scale_external_images($body,false);
-	
+			$body = cleanup_bbcode($body);
 	
 			// Look for tags and linkify them
 			$results = linkify_tags($a, $body, ($uid) ? $uid : $profile_uid);
@@ -755,6 +724,8 @@ class Item extends \Zotlabs\Web\Controller {
 		if(! $mid) {
 			$mid = (($message_id) ? $message_id : item_message_id());
 		}
+
+
 		if(! $parent_mid) {
 			$parent_mid = $mid;
 		}
@@ -768,7 +739,7 @@ class Item extends \Zotlabs\Web\Controller {
 			$thr_parent = $mid;
 	
 		$datarray = array();
-	
+
 		$item_thread_top = ((! $parent) ? 1 : 0);
 	
 		if ((! $plink) && ($item_thread_top)) {
@@ -966,7 +937,7 @@ class Item extends \Zotlabs\Web\Controller {
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
 						'item'         => $datarray,
-						'link'		   => z_root() . '/display/' . $datarray['mid'],
+						'link'		   => z_root() . '/display/' . gen_link_id($datarray['mid']),
 						'verb'         => ACTIVITY_POST,
 						'otype'        => 'item',
 						'parent'       => $parent,
@@ -984,7 +955,7 @@ class Item extends \Zotlabs\Web\Controller {
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
 						'item'         => $datarray,
-						'link'		   => z_root() . '/display/' . $datarray['mid'],
+						'link'		   => z_root() . '/display/' . gen_link_id($datarray['mid']),
 						'verb'         => ACTIVITY_POST,
 						'otype'        => 'item'
 					));
@@ -1036,7 +1007,7 @@ class Item extends \Zotlabs\Web\Controller {
 		}
 	
 		$datarray['id']    = $post_id;
-		$datarray['llink'] = z_root() . '/display/' . $channel['channel_address'] . '/' . $post_id;
+		$datarray['llink'] = z_root() . '/display/' . gen_link_id($datarray['mid']);
 	
 		call_hooks('post_local_end', $datarray);
 	
@@ -1070,9 +1041,7 @@ class Item extends \Zotlabs\Web\Controller {
 	
 		if((! local_channel()) && (! remote_channel()))
 			return;
-	
-		require_once('include/security.php');
-	
+		
 		if((argc() == 3) && (argv(1) === 'drop') && intval(argv(2))) {
 	
 			require_once('include/items.php');

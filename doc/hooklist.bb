@@ -76,11 +76,17 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/bb_translate_video]bb_translate_video[/zrl]
 	Called when extracting embedded services from bbcode video elements (rarely used)
 
+[zrl=[baseurl]/help/hook/build_pagehead]build_pagehead[/zrl]
+	Called when creating the HTML page header
+
 [zrl=[baseurl]/help/hook/change_channel]change_channel[/zrl]
 	Called when logging in to a channel (either during login or afterward through the channel manager)
 
 [zrl=[baseurl]/help/hook/channel_remove]channel_remove[/zrl]
 	Called when removing a channel
+
+[zrl=[baseurl]/help/hook/channel_settings]channel_settings[/zrl]
+	Called when displaying the channel settings page
 
 [zrl=[baseurl]/help/hook/chat_message]chat_message[/zrl]
 	Called to create a chat message.
@@ -147,6 +153,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/crypto_methods]crypto_methods[/zrl]
 	Called when generating a list of crypto algorithms in the locally preferred order
+
+[zrl=[baseurl]/help/hook/daemon_addon]daemon_addon[/zrl]
+	Called when invoking the extensible background daemon
 
 [zrl=[baseurl]/help/hook/directory_item]directory_item[/zrl]
 	Called when generating a directory listing for display
@@ -238,6 +247,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/get_best_language]get_best_language[/zrl]
 	called when choosing the preferred language for the page
+
+[zrl=[baseurl]/help/hook/get_default_export_sections]get_default_export_sections[/zrl]
+	Called to get the default list of functional data groups to export in identity_basic_export()
 
 [zrl=[baseurl]/help/hook/get_features]get_features[/zrl]
 	Called when get_features() is called

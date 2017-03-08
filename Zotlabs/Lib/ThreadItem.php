@@ -136,7 +136,7 @@ class ThreadItem {
 		$filer = ((($conv->get_profile_owner() == local_channel()) && (! array_key_exists('real_uid',$item))) ? t("Save to Folder") : false);
 
 		$profile_avatar = $item['author']['xchan_photo_m'];
-		$profile_link   = chanlink_url($item['author']['xchan_url']);
+		$profile_link   = chanlink_hash($item['author_xchan']);
 		$profile_name   = $item['author']['xchan_name'];
 
 		$location = format_location($item);
@@ -295,7 +295,7 @@ class ThreadItem {
 		$owner_address = substr($item['owner']['xchan_addr'],0,strpos($item['owner']['xchan_addr'],'@'));
 		$viewthread = $item['llink'];
 		if($conv->get_mode() === 'channel')
-			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . $item['mid'];
+			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode($item['mid']);
 
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
@@ -335,6 +335,8 @@ class ThreadItem {
 			'wall' => t('Wall-to-Wall'),
 			'vwall' => t('via Wall-To-Wall:'),
 			'profile_url' => $profile_link,
+			'thread_action_menu' => thread_action_menu($item,$conv->get_mode()),
+			'thread_author_menu' => thread_author_menu($item,$conv->get_mode()),
 			'item_photo_menu' => item_photo_menu($item),
 			'dreport' => $dreport,
 			'name' => $profile_name,
@@ -407,7 +409,7 @@ class ThreadItem {
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
 			'wait' => t('Please wait'),
-			'submid' => substr($item['mid'],0,32),
+			'submid' => str_replace(['+','='], ['',''], base64_encode(substr($item['mid'],0,32))),
 			'thread_level' => $thread_level
 		);
 
@@ -765,7 +767,7 @@ class ThreadItem {
 			return;
 		
 		if($this->is_toplevel() && ($this->get_data_value('author_xchan') != $this->get_data_value('owner_xchan'))) {
-			$this->owner_url = chanlink_url($this->data['owner']['xchan_url']);
+			$this->owner_url = chanlink_hash($this->data['owner']['xchan_hash']);
 			$this->owner_photo = $this->data['owner']['xchan_photo_m'];
 			$this->owner_name = $this->data['owner']['xchan_name'];
 			$this->wall_to_wall = true;

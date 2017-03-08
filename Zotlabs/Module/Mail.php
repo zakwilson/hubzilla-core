@@ -23,7 +23,34 @@ class Mail extends \Zotlabs\Web\Controller {
 		$rstr      = ((x($_REQUEST,'messagerecip')) ? notags(trim($_REQUEST['messagerecip'])) : '');
 		$preview   = ((x($_REQUEST,'preview'))      ? intval($_REQUEST['preview'])            : 0);
 		$expires   = ((x($_REQUEST,'expires')) ? datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['expires']) : NULL_DATE);
-	
+
+		if($preview) {
+
+			$body = cleanup_bbcode($body);
+			$results = linkify_tags($a, $body, local_channel());
+
+			if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
+				$attachments = array();
+				foreach($match[2] as $mtch) {
+					$hash = substr($mtch,0,strpos($mtch,','));
+					$rev = intval(substr($mtch,strpos($mtch,',')));
+					$r = attach_by_hash_nodata($hash,get_observer_hash(),$rev);
+					if($r['success']) {
+						$attachments[] = array(
+							'href'     => z_root() . '/attach/' . $r['data']['hash'],
+							'length'   =>  $r['data']['filesize'],
+							'type'     => $r['data']['filetype'],
+							'title'    => urlencode($r['data']['filename']),
+							'revision' => $r['data']['revision']
+						);
+					}
+					$body = trim(str_replace($match[1],'',$body));
+				}
+			}
+			echo json_encode(['preview' => zidify_links(smilies(bbcode($body)))]);
+			killme();
+		} 
+
 		// If we have a raw string for a recipient which hasn't been auto-filled,
 		// it means they probably aren't in our address book, hence we don't know
 		// if we have permission to send them private messages.
@@ -82,6 +109,8 @@ class Mail extends \Zotlabs\Web\Controller {
 		require_once('include/text.php');
 		linkify_tags($a, $body, local_channel());
 	
+		// I don't think this is used any more.
+
 		if($preview) {
 			$mail = [
 				'mailbox' => 'outbox',
@@ -90,8 +119,8 @@ class Mail extends \Zotlabs\Web\Controller {
 				'from_name' => $channel['xchan_name'],
 				'from_url' =>  $channel['xchan_url'],
 				'from_photo' => $channel['xchan_photo_s'],
-				'subject' => smilies(bbcode($subject)),
-				'body' => smilies(bbcode($body)),
+				'subject' => zidify_links(smilies(bbcode($subject))),
+				'body' => zidify_links(smilies(bbcode($body))),
 				'attachments' => '',
 				'can_recall' => false,
 				'is_recalled' => '',
@@ -341,7 +370,7 @@ class Mail extends \Zotlabs\Web\Controller {
 				'to_url' =>  chanlink_hash($message['to_xchan']),
 				'to_photo' => $message['to']['xchan_photo_s'],
 				'subject' => $message['title'],
-				'body' => smilies(bbcode($message['body'])),
+				'body' => zidify_links(smilies(bbcode($message['body']))),
 				'attachments' => $s,
 				'delete' => t('Delete message'),
 				'dreport' => t('Delivery report'),

@@ -107,7 +107,7 @@
 <script>
 	window.wiki_resource_id = '{{$resource_id}}';
 	window.wiki_page_name = '{{$page}}';
-	window.wiki_page_content = {{if !$mimeType || $mimeType == 'text/markdown'}}{{$content}}{{else}}`{{$content}}`{{/if}};
+	window.wiki_page_content = `{{$content}}`;
 	window.wiki_page_commit = '{{$commit}}';
 
 	$("#generic-modal-ok-{{$wikiModalID}}").removeClass('btn-primary');
@@ -368,7 +368,7 @@
 		$.post("embedphotos/album", {name: album},
 			function(data) {
 				if (data['status']) {
-					$('#embedPhotoModalLabel').html('{{$modalchooseimages}}');
+					$('#embedPhotoModalLabel').html("{{$modalchooseimages}}");
 					$('#embedPhotoModalBodyAlbumDialog').html('\
 							<div><ul class="nav">\n\
 								<li><a href="#" onclick="initializeEmbedPhotoDialog();return false;">\n\
@@ -402,7 +402,7 @@
 										$('#editor').val(currentContent + ddata['photolink']);
 										{{/if}}
 									} else {
-										window.console.log('{{$modalerrorlink}}' + ':' + ddata['errormsg']);
+										window.console.log("{{$modalerrorlink}}" + ':' + ddata['errormsg']);
 									}
 									return false;
 								},
@@ -413,7 +413,7 @@
 						$('#embedPhotoModal').modal('hide');
 					});
 				} else {
-					window.console.log('{{$modalerroralbum}} ' + JSON.stringify(album) + ':' + data['errormsg']);
+					window.console.log("{{$modalerroralbum}} " + JSON.stringify(album) + ':' + data['errormsg']);
 				}
 				return false;
 			},
@@ -425,19 +425,20 @@
 			function(data) {
 				if (data['status']) {
 					var albums = data['albumlist']; //JSON.parse(data['albumlist']);
-					$('#embedPhotoModalLabel').html('{{$modalchoosealbum}}');
+					$('#embedPhotoModalLabel').html("{{$modalchoosealbum}}");
 					$('#embedPhotoModalBodyAlbumList').html('<ul class="nav"></ul>');
-					for(var i=0; i<albums.length; i++) {
+					for(var i = 0; i < albums.length; i++) {
 						var albumName = albums[i].text;
+						var jsAlbumName = albums[i].jstext;
 						var albumLink = '<li>';
-						albumLink += '<a href="#" onclick="choosePhotoFromAlbum(\'' + albumName + '\');return false;">' + albumName + '</a>';
+						albumLink += '<a href="#" onclick="choosePhotoFromAlbum(\'' + jsAlbumName + '\'); return false;">' + albumName + '</a>';
 						albumLink += '</li>';
 						$('#embedPhotoModalBodyAlbumList').find('ul').append(albumLink);
 					}
 					$('#embedPhotoModalBodyAlbumDialog').addClass('hide');
 					$('#embedPhotoModalBodyAlbumListDialog').removeClass('hide');
 				} else {
-					window.console.log('{{$modalerrorlist}}' + ':' + data['errormsg']);
+					window.console.log("{{$modalerrorlist}}" + ':' + data['errormsg']);
 				}
 				return false;
 			},

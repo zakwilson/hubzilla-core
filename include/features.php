@@ -149,12 +149,30 @@ function get_features($filtered = true) {
 			],
 
 			[
+				'permcats',       
+				t('Permission Groups'),          
+				t('Provide alternate connection permission roles.'),
+				false,
+				get_config('feature_lock','permcats'),
+				feature_level('permcats',2),
+			],
+
+			[
 				'smart_birthdays',       
 				t('Smart Birthdays'),          
 				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
 				true,
 				get_config('feature_lock','smart_birthdays'),
 				feature_level('smart_birthdays',2),
+			],
+
+			[
+				'event_tz_select',       
+				t('Event Timezone Selection'),          
+				t('Allow event creation in timezones other than your own.'),
+				false,
+				get_config('feature_lock','event_tz_select'),
+				feature_level('event_tz_select',2),
 			],
 
 			[ 

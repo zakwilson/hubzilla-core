@@ -65,7 +65,7 @@ class Display {
 		set_pconfig(local_channel(),'system','manual_conversation_update', $manual_update);
 	
 		$newschema = '';
-		if($theme == $existing_theme){
+		if($theme){
 			// call theme_post only if theme has not been changed
 			if( ($themeconfigfile = $this->get_theme_config_file($theme)) != null){
 				require_once($themeconfigfile);
@@ -130,12 +130,20 @@ class Display {
 		if($allowed_themes) {
 			foreach($allowed_themes as $th) {
 				$f = $th;
+
+				$info = get_theme_info($th);
+				$compatible = check_plugin_versions($info);
+				if(!$compatible) {
+					$mobile_themes[$f] = $themes[$f] = sprintf(t('%s - (Incompatible)'), $f);
+					continue;
+				}
+
 				$is_experimental = file_exists('view/theme/' . $th . '/experimental');
 				$unsupported = file_exists('view/theme/' . $th . '/unsupported');
 				$is_mobile = file_exists('view/theme/' . $th . '/mobile');
 				$is_library = file_exists('view/theme/'. $th . '/library');
-				$mobile_themes["---"] = t("No special theme for mobile devices");
-	
+				$mobile_themes['---'] = t("No special theme for mobile devices");
+
 				if (!$is_experimental or ($is_experimental && (get_config('experimentals','exp_themes')==1 or get_config('experimentals','exp_themes')===false))){ 
 					$theme_name = (($is_experimental) ?  sprintf(t('%s - (Experimental)'), $f) : $f);
 					if (! $is_library) {
@@ -147,7 +155,6 @@ class Display {
 						}
 					}
 				}
-
 			}
 		}
 
@@ -206,7 +213,7 @@ class Display {
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
 			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 100 items')),
 			'$nosmile'	=> array('nosmile', t("Show emoticons (smilies) as images"), 1-intval($nosmile), '', $yes_no),
-			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is automatic, which may increase screen jumping'), $yes_no),
+			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),
 			'$title_tosource'	=> array('title_tosource', t("Link post titles to source"), $title_tosource, '', $yes_no),
 			'$layout_editor' => t('System Page Layout Editor - (advanced)'),
 			'$theme_config' => $theme_config,

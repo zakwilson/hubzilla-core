@@ -402,7 +402,7 @@ function photo_upload($channel, $observer, $args) {
 		$arr['item_origin']     = 1;
 		$arr['item_thread_top'] = 1;
 		$arr['item_private']    = intval($acl->is_private());
-		$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $arr['mid'];
+		$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
 		$arr['body']		= $summary;
 
 
@@ -464,10 +464,15 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 	$sort_key = dbesc($sort_key);
 	$direction = dbesc($direction);
 
-	$albums = q("SELECT count( distinct resource_id ) as total, album from photo where uid = %d and photo_usage IN ( %d, %d ) $sql_extra group by album order by $sort_key $direction",
-		intval($channel_id),
-		intval(PHOTO_NORMAL),
-		intval(PHOTO_PROFILE)
+	//$albums = q("SELECT count( distinct resource_id ) as total, album from photo where uid = %d and photo_usage IN ( %d, %d ) $sql_extra group by album order by $sort_key $direction",
+	//	intval($channel_id),
+	//	intval(PHOTO_NORMAL),
+	//	intval(PHOTO_PROFILE)
+	//);
+
+	// this query provides the same results but might perform better
+	$albums = q("SELECT count( distinct resource_id ) as total, album from photo where uid = %d and os_storage = 1 $sql_extra group by album order by $sort_key $direction",
+		intval($channel_id)
 	);
 
 	// add various encodings to the array so we can just loop through and pick them out in a template
@@ -480,6 +485,7 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 		foreach($albums as $k => $album) {
 			$entry = array(
 				'text' => (($album['album']) ? $album['album'] : '/'),
+				'jstext' => (($album['album']) ? addslashes($album['album']) : '/'),
 				'total' => $album['total'],
 				'url' => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album['album']),
 				'urlencode' => urlencode($album['album']),
@@ -488,6 +494,8 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 			$ret['albums'][] = $entry;
 		}
 	}
+
+	App::$data['albums'] = $ret;
 
 	return $ret;
 }
@@ -663,7 +671,7 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 	$arr['deny_cid']        = $photo['deny_cid'];
 	$arr['deny_gid']        = $photo['deny_gid'];
 
-	$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $arr['mid'];
+	$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
 
 	$arr['body']            = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']'
 		. '[zmg]' . z_root() . '/photo/' . $photo['resource_id'] . '-' . $photo['imgscale'] . '[/zmg]'
@@ -710,10 +718,59 @@ function gps2Num($coordPart) {
     return floatval($parts[0]) / floatval($parts[1]);
 }
 
+
+function photo_profile_setperms($channel_id,$resource_id,$profile_id) {
+
+	if(! $profile_id)
+		return;
+
+	$r = q("select profile_guid, is_default from profile where id = %d and uid = %d limit 1",
+		dbesc($profile_id),
+		intval($channel_id)
+	); 
+
+	if(! $r)
+		return;
+
+	$is_default   = $r[0]['is_default'];
+	$profile_guid = $r[0]['profile_guid'];
+
+	if($is_default) {
+		$r = q("update photo set allow_cid = '', allow_gid = '', deny_cid = '', deny_gid = '' 
+			where resource_id = '%s' and uid = %d",
+			dbesc($resource_id),
+			intval($channel_id)
+		);
+		$r = q("update attach set allow_cid = '', allow_gid = '', deny_cid = '', deny_gid = '' 
+			where hash = '%s' and uid = %d",
+			dbesc($resource_id),
+			intval($channel_id)
+		);
+	}
+	else {
+		$r = q("update photo set allow_cid = '', allow_gid = '%s', deny_cid = '', deny_gid = '' 
+			where resource_id = '%s' and uid = %d",
+			dbesc('<vp.' . $profile_guid . '>'),
+			dbesc($resource_id),
+			intval($channel_id)
+		);
+
+		$r = q("update attach set allow_cid = '', allow_gid = '%s', deny_cid = '', deny_gid = '' 
+			where hash = '%s' and uid = %d",
+			dbesc('<vp.' . $profile_guid . '>'),
+			dbesc($resource_id),
+			intval($channel_id)
+		);
+	}
+}
+
 function profile_photo_set_profile_perms($uid, $profileid = 0) {
 
-		$allowcid = '';
-		if($profileid) {
+	$allowcid = '';
+
+
+	if($profileid) {
+
 			$r = q("SELECT photo, profile_guid, id, is_default, uid
 				FROM profile WHERE uid = %d and ( profile.id = %d OR profile.profile_guid = '%s') LIMIT 1",
 				intval($uid),

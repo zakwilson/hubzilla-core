@@ -7,7 +7,7 @@
 require_once('include/oembed.php');
 require_once('include/event.php');
 require_once('include/zot.php');
-require_once('include/hubloc.php');
+
 
 function tryoembed($match) {
 	$url = ((count($match) == 2) ? $match[1] : $match[2]);
@@ -473,11 +473,40 @@ function bb_sanitize_style($input) {
 	return '<span style="' . $css_string_san . '">' . $input[2] . '</span>';
 }
 
+function oblanguage_callback($matches) {
+	if(strlen($matches[1]) == 2) {
+		$compare = strtolower(substr(\App::$language,0,2));
+	}
+	else {
+		$compare = strtolower(\App::$language);
+	}
+
+	if($compare === strtolower($matches[1]))
+		return $matches[2];
+
+	return '';
+}
+
+function oblanguage_necallback($matches) {
+	if(strlen($matches[1]) == 2) {
+		$compare = strtolower(substr(\App::$language,0,2));
+	}
+	else {
+		$compare = strtolower(\App::$language);
+	}
+
+	if($compare !== strtolower($matches[1]))
+		return $matches[2];
+
+	return '';
+}
+
 function bb_observer($Text) {
 
 	$observer = App::get_observer();
 
 	if ((strpos($Text,'[/observer]') !== false) || (strpos($Text,'[/rpost]') !== false)) {
+
 		if ($observer) {
 			$Text = preg_replace("/\[observer\=1\](.*?)\[\/observer\]/ism", '$1', $Text);
 			$Text = preg_replace("/\[observer\=0\].*?\[\/observer\]/ism", '', $Text);
@@ -511,6 +540,20 @@ function bb_code($match) {
 		return '<code class="inline-code">' . trim($match[1]) . '</code>';
 }
 
+function bb_code_options($match) {
+	if(strpos($match[0], "<br />")) {
+		$class = "";
+	} else {
+		$class = "inline-code";
+	}
+	if(strpos($match[1], 'nowrap')) {
+		$style = "overflow-x: auto; white-space: pre;";
+	} else {
+		$style = "";
+	}
+	return '<code class="'. $class .'" style="'. $style .'">' . trim($match[2]) . '</code>';
+}
+
 function bb_highlight($match) {
 	$lang = ((in_array(strtolower($match[1]),['php','css','mysql','sql','abap','diff','html','perl','ruby',
 		'vbscript','avrc','dtd','java','xml','cpp','python','javascript','js','json','sh']))
@@ -530,13 +573,28 @@ function bb_fixtable_lf($match) {
 }
 
 function parseIdentityAwareHTML($Text) {
-   
+
+	// Hide all [noparse] contained bbtags by spacefying them
+	if (strpos($Text,'[noparse]') !== false) {
+		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[nobb]') !== false) {
+		$Text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[pre]') !== false) {
+		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
+	}   
 	// process [observer] tags before we do anything else because we might
 	// be stripping away stuff that then doesn't need to be worked on anymore
 
         $observer = App::get_observer();
 
 	if ((strpos($Text,'[/observer]') !== false) || (strpos($Text,'[/rpost]') !== false)) {
+
+		$Text = preg_replace_callback("/\[observer\.language\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_callback', $Text);
+
+		$Text = preg_replace_callback("/\[observer\.language\!\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_necallback', $Text);
+
 		if ($observer) {
 			$Text = preg_replace("/\[observer\=1\](.*?)\[\/observer\]/ism", '$1', $Text);
 			$Text = preg_replace("/\[observer\=0\].*?\[\/observer\]/ism", '', $Text);
@@ -568,9 +626,21 @@ function parseIdentityAwareHTML($Text) {
 		$Text = str_replace('[observer.photo]','', $Text);
 	}
         
-        $Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
+	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
         
-        return $Text;
+
+	// Unhide all [noparse] contained bbtags unspacefying them 
+	// and triming the [noparse] tag.
+	if (strpos($Text,'[noparse]') !== false) {
+		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_unspacefy_and_trim', $Text);
+	}
+	if (strpos($Text,'[nobb]') !== false) {
+		$Text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'bb_unspacefy_and_trim', $Text);
+	}
+	if (strpos($Text,'[pre]') !== false) {
+		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_unspacefy_and_trim', $Text);
+	}
+	return $Text;
 }
 
 	// BBcode 2 HTML was written by WAY2WEB.net
@@ -607,6 +677,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$observer = App::get_observer();
 
 	if ((strpos($Text,'[/observer]') !== false) || (strpos($Text,'[/rpost]') !== false)) {
+		$Text = preg_replace_callback("/\[observer\.language\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_callback', $Text);
+		$Text = preg_replace_callback("/\[observer\.language\!\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_necallback', $Text);
+
 		if ($observer) {
 			$Text = preg_replace("/\[observer\=1\](.*?)\[\/observer\]/ism", '$1', $Text);
 			$Text = preg_replace("/\[observer\=0\].*?\[\/observer\]/ism", '', $Text);
@@ -891,8 +964,8 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	}
 	if (strpos($Text,'[/table]') !== false) {
 		$Text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $Text);
-		$Text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table border="1" >$1</table>', $Text);
-		$Text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table border="0" >$1</table>', $Text);
+		$Text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table class="table table-responsive table-bordered" >$1</table>', $Text);
+		$Text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table class="table table-responsive" >$1</table>', $Text);
 	}
 	$Text = str_replace('</tr><br /><tr>', "</tr>\n<tr>", $Text);
 	$Text = str_replace('[hr]', '<hr />', $Text);
@@ -909,6 +982,11 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 	// Check for [code] text
 	if (strpos($Text,'[code]') !== false) {
 		$Text = preg_replace_callback("/\[code\](.*?)\[\/code\]/ism", 'bb_code', $Text);
+	}
+
+	// Check for [code options] text
+	if (strpos($Text,'[code ') !== false) {
+		$Text = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism", 'bb_code_options', $Text);
 	}
 
 	// Check for [spoiler] text
@@ -1127,9 +1205,9 @@ function bbcode($Text, $preserve_nl = false, $tryoembed = true, $cache = false) 
 		$Text = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $Text);
 
 	// This is subtle - it's an XSS filter. It only accepts links with a protocol scheme and where
-	// the scheme begins with z (zhttp), h (http(s)), f (ftp), m (mailto), and named anchors.
+	// the scheme begins with z (zhttp), h (http(s)), f (ftp(s)), m (mailto), t (tel) and named anchors.
 
-	$Text = preg_replace("/\<(.*?)(src|href)=\"[^zhfm#](.*?)\>/ism", '<$1$2="">', $Text);
+	$Text = preg_replace("/\<(.*?)(src|href)=\"[^zhfmt#](.*?)\>/ism", '<$1$2="">', $Text);
 
 	$Text = bb_replace_images($Text, $saved_images);
 

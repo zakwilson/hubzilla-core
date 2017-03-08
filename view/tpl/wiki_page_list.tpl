@@ -5,7 +5,7 @@
 		{{if $pages}}
 		{{foreach $pages as $page}}
 		<li id="{{$page.link_id}}">
-			{{if $page.resource_id && $canadd}}
+			{{if $page.resource_id && $candel}}
 			<i class="widget-nav-pills-icons fa fa-trash-o drop-icons" onclick="wiki_delete_page('{{$page.title}}', '{{$page.url}}', '{{$page.resource_id}}', '{{$page.link_id}}')"></i>
 			{{/if}}
 			<a href="/wiki/{{$channel}}/{{$wikiname}}/{{$page.url}}">{{$page.title}}</a>
@@ -19,6 +19,7 @@
 	{{if $canadd}}
 	<div id="new-page-form-wrapper" class="sub-menu" style="display:none;">
 		<form id="new-page-form" action="wiki/{{$channel}}/create/page" method="post" >
+			<input type="hidden" name="resource_id" value="{{$resource_id}}">
 			{{include file="field_input.tpl" field=$pageName}}
 			<button id="new-page-submit" class="btn btn-primary" type="submit" name="submit" >Submit</button>
 		</form>
@@ -29,7 +30,7 @@
 
 <script>
 	$('#new-page-submit').click(function (ev) {
-		$.post("wiki/{{$channel}}/create/page", {name: $('#id_pageName').val(), resource_id: window.wiki_resource_id}, 
+		$.post("wiki/{{$channel}}/create/page", {pageName: $('#id_pageName').val(), resource_id: window.wiki_resource_id}, 
 		function(data) {
 			if(data.success) {
 				window.location = data.url;

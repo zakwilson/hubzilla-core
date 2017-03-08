@@ -8,26 +8,13 @@ require_once('include/attach.php');
 // send a private message
 	
 
-function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='',$expires = ''){ 
+function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $replyto = '', $expires = NULL_DATE) { 
 
 	$ret = array('success' => false);
 	$is_reply = false;
 
 	$a = get_app();
 	$observer_hash = get_observer_hash();
-
-	if(! $recipient) {
-		$ret['message'] = t('No recipient provided.');
-		return $ret;
-	}
-	
-	if(! strlen($subject))
-		$subject = t('[no subject]');
-
-//	if(! $expires)
-//		$expires = NULL_DATE;
-//	else
-//		$expires = datetime_convert(date_default_timezone_get(),'UTC',$expires);
 
 
 	if($uid) {
@@ -45,6 +32,46 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 		$ret['message'] = t('Unable to determine sender.');
 		return $ret;
 	}
+
+
+	$body = cleanup_bbcode($body);
+	$results = linkify_tags($a, $body, $uid);
+
+
+	if(preg_match_all("/\[attachment\](.*?)\[\/attachment\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match))
+		$attaches = $match[1];
+
+	$attachments = '';
+
+	if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
+		$attachments = array();
+		foreach($match[2] as $mtch) {
+			$hash = substr($mtch,0,strpos($mtch,','));
+			$rev = intval(substr($mtch,strpos($mtch,',')));
+			$r = attach_by_hash_nodata($hash,get_observer_hash(),$rev);
+			if($r['success']) {
+				$attachments[] = array(
+					'href'     => z_root() . '/attach/' . $r['data']['hash'],
+					'length'   =>  $r['data']['filesize'],
+					'type'     => $r['data']['filetype'],
+					'title'    => urlencode($r['data']['filename']),
+					'revision' => $r['data']['revision']
+				);
+			}
+			$body = trim(str_replace($match[1],'',$body));
+		}
+	}
+
+	$jattach = (($attachments) ? json_encode($attachments) : '');
+
+
+	if(! $recipient) {
+		$ret['message'] = t('No recipient provided.');
+		return $ret;
+	}
+	
+	if(! strlen($subject))
+		$subject = t('[no subject]');
 
 
 	// look for any existing conversation structure
@@ -156,31 +183,6 @@ function send_message($uid = 0, $recipient='', $body='', $subject='', $replyto='
 
 	$match = false;
 
-	if(preg_match_all("/\[attachment\](.*?)\[\/attachment\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match))
-		$attaches = $match[1];
-
-	$attachments = '';
-
-	if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
-		$attachments = array();
-		foreach($match[2] as $mtch) {
-			$hash = substr($mtch,0,strpos($mtch,','));
-			$rev = intval(substr($mtch,strpos($mtch,',')));
-			$r = attach_by_hash_nodata($hash,get_observer_hash(),$rev);
-			if($r['success']) {
-				$attachments[] = array(
-					'href'     => z_root() . '/attach/' . $r['data']['hash'],
-					'length'   =>  $r['data']['filesize'],
-					'type'     => $r['data']['filetype'],
-					'title'    => urlencode($r['data']['filename']),
-					'revision' => $r['data']['revision']
-				);
-			}
-			$body = trim(str_replace($match[1],'',$body));
-		}
-	}
-
-	$jattach = (($attachments) ? json_encode($attachments) : '');
 
 	if($subject)
 		$subject = str_rot47(base64url_encode($subject));

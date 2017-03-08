@@ -69,8 +69,13 @@
 			logger('api_export_basic: no user');
 			return false;
 		}
-		
-		json_return_and_die(identity_basic_export(api_user(),(($_REQUEST['posts']) ? intval($_REQUEST['posts']) : 0 )));	
+		$sections = (($_REQUEST['sections']) ? explode(',',$_REQUEST['sections']) : '');
+		if($_REQUEST['posts']) {
+			$sections = get_default_export_sections();
+			$sections[] = 'items';
+		}
+
+		json_return_and_die(identity_basic_export(api_user(),$sections));
 	}
 
 
@@ -350,10 +355,9 @@
 		if(api_user() === false)
 			return false;
 		logger('api_xchan');
-		require_once('include/hubloc.php');
 
-		if($_SERVER['REQUEST_METHOD'] === 'POST') {
-			// $r = xchan_store($_REQUEST);
+		if($_SERVER['REQUEST_METHOD'] === 'POST') {			
+			$r = xchan_store($_REQUEST);
 		}
 		$r = xchan_fetch($_REQUEST);
 		json_return_and_die($r);

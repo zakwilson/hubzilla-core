@@ -18,7 +18,7 @@ class Permissions {
 	 * permission roles. You will want to set a default PermissionLimit for each channel and also
 	 * provide a sane default for any existing connections. You may or may not wish to provide a
 	 * default auto permission. If in doubt, leave this alone as custom permissions by definition
-	 * are the responsbility of the channel owner to manage. You just don't want to create any 
+	 * are the responsibility of the channel owner to manage. You just don't want to create any 
 	 * suprises or break things so you have an opportunity to provide sane settings. 
 	 *
 	 * Update the version here and in PermissionRoles
@@ -36,7 +36,7 @@ class Permissions {
 
 	static public function version() {
 		// This must match the version in PermissionRoles.php before permission updates can run.
-		return 1;
+		return 2;
 	}
 
 
@@ -50,7 +50,9 @@ class Permissions {
 			'view_storage'  => t('Can view my file storage and photos'),
 			'write_storage' => t('Can upload/modify my file storage and photos'),
 			'view_pages'    => t('Can view my channel webpages'),
+			'view_wiki'     => t('Can view my wiki pages'),
 			'write_pages'   => t('Can create/edit my channel webpages'),
+			'write_wiki'    => t('Can write to my wiki pages'),
 			'post_wall'     => t('Can post on my channel (wall) page'),
 			'post_comments' => t('Can comment on or like my posts'),
 			'post_mail'     => t('Can send me private mail messages'),
@@ -92,6 +94,10 @@ class Permissions {
 	// Undeclared permissions are set to 0
 
 	static public function FilledPerms($arr) {
+		if(is_null($arr)) {
+			btlogger('FilledPerms: null');
+		}
+
 		$everything = self::Perms();
 		$ret = [];
 		foreach($everything as $k => $v) {
@@ -104,6 +110,17 @@ class Permissions {
 
 	}
 
+	static public function OPerms($arr) {
+		$ret = [];
+		if($arr) {
+			foreach($arr as $k => $v) {
+				$ret[] = [ 'name' => $k, 'value' => $v ];
+			}
+		}
+		return $ret;
+	}
+
+
 	static public function FilledAutoperms($channel_id) {
 		if(! intval(get_pconfig($channel_id,'system','autoperms')))
 			return false;
@@ -114,7 +131,7 @@ class Permissions {
 		);
 		if($r) {
 			foreach($r as $rr) {
-				$arr[$rr['k']] = $arr[$rr['v']];
+				$arr[$rr['k']] = intval($rr['v']);
 			}
 		}
 		return $arr;
@@ -129,4 +146,76 @@ class Permissions {
 		}
 		return true;
 	}
+
+	static public function connect_perms($channel_id) {
+
+		$my_perms = [];
+		$permcat = null;
+		$automatic = 0;
+
+		// If a default permcat exists, use that
+
+		$pc = ((feature_enabled($channel_id,'permcats')) ? get_pconfig($channel_id,'system','default_permcat') : 'default');		
+		if(! in_array($pc, [ '','default' ])) {
+			$pcp = new Zlib\Permcat($channel_id);
+			$permcat = $pcp->fetch($pc);
+			if($permcat && $permcat['perms']) {
+				foreach($permcat['perms'] as $p) {
+					$my_perms[$p['name']] = $p['value'];
+				}
+			}
+		}
+
+		// look up the permission role to see if it specified auto-connect
+		// and if there was no permcat or a default permcat, set the perms 
+		// from the role
+
+		$role = get_pconfig($channel_id,'system','permissions_role');
+		if($role) {
+			$xx = PermissionRoles::role_perms($role);
+			if($xx['perms_auto'])
+				$automatic = 1;
+
+			if((! $my_perms) && ($xx['perms_connect'])) {
+				$default_perms = $xx['perms_connect'];
+				$my_perms = Permissions::FilledPerms($default_perms);
+			}
+		}
+
+		// If we reached this point without having any permission information,
+		// it is likely a custom permissions role. First see if there are any
+		// automatic permissions.
+
+		if(! $my_perms) {
+			$m = Permissions::FilledAutoperms($channel_id);
+			if($m) {
+				$automatic = 1;
+				$my_perms = $m;
+			}
+		}
+
+		// If we reached this point with no permissions, the channel is using
+		// custom perms but they are not automatic. They will be stored in abconfig with 
+		// the channel's channel_hash (the 'self' connection).
+
+		if(! $my_perms) {
+			$r = q("select channel_hash from channel where channel_id = %d",
+				intval($channel_id)
+			);
+			if($r) {
+				$x = q("select * from abconfig where chan = %d and xchan = '%s' and cat = 'my_perms'",
+					intval($channel_id),
+					dbesc($r[0]['channel_hash'])
+				);
+				if($x) {
+					foreach($x as $xv) {
+						$my_perms[$xv['k']] = intval($xv['v']);
+					}
+				}
+			}
+		}
+
+		return ( [ 'perms' => $my_perms, 'automatic' => $automatic ] );
+	}
+
 }

@@ -7,10 +7,9 @@
 {{/if}}
 		<div id="prvmail-wrapper" >
 			<form id="prvmail-form" action="mail" method="post" >
-
 				<input type="hidden" id="inp-prvmail-expires" name="expires" value="{{$defexpire}}" />
 				<input type="hidden" name="media_str" id="jot-media" value="" />
-
+				<input type="hidden" name="preview" id="mail-preview" value="0" />
 				{{if $new}}
 				<div class="form-group">
 					<label for="recip">{{$to}}</label>
@@ -22,20 +21,18 @@
 					<input class="form-control" type="text" maxlength="255" id="prvmail-subject" name="subject" value="{{$subjtxt}}" />
 				</div>
 				{{/if}}
-
 				{{if $reply}}
 				<input type="hidden" name="replyto" value="{{$parent}}" />
 				<input type="hidden" name="messageto" value="{{$recphash}}" />
 				<input type="hidden" name="subject" value="{{$subjtxt}}" />
 				{{/if}}
-
 				<div class="form-group">
 					<label for="prvmail-text">{{$yourmessage}}</label>
 					<textarea class="form-control" id="prvmail-text" name="body">{{$text}}</textarea>
 				</div>
-
 				<div id="prvmail-submit-wrapper" class="form-group">
-					<div id="prvmail-submit" class="pull-right">
+					<div id="prvmail-submit" class="pull-right btn-group">
+						<button class="btn btn-default btn-sm" id="prvmail-preview" title="{{$preview}}" onclick="preview_mail(); return false;"><i class="fa fa-eye"></i></button>
 						<button class="btn btn-primary btn-sm" type="submit" id="prvmail-submit" name="submit" value="{{$submit}}">{{$submit}}</button>
 					</div>
 					<div id="prvmail-tools" class="btn-toolbar pull-left">
@@ -78,7 +75,6 @@
 							{{/if}}
 						</div>
 						{{/if}}
-
 						<div class="btn-group visible-xs visible-sm">
 							<button type="button" id="more-tools" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 								<i id="more-tools-icon" class="fa fa-caret-down jot-icons"></i>
@@ -93,14 +89,13 @@
 								{{/if}}
 							</ul>
 						</div>
-
-
 					</div>
 					<div id="prvmail-rotator-wrapper" class="pull-left">
 						<div id="prvmail-rotator"></div>
 					</div>
 					<div class="clear"></div>
 				</div>
+				<div id="mail-preview-content" style="display: none;"></div>
 			</form>
 		</div>
 {{if $new}}

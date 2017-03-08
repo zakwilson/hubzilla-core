@@ -17,6 +17,16 @@ $(document).ready(function() {
 		else
 			$('#advanced-perm').hide();
 	});
+
+	$('#id_permcat_list').change(function() {
+		$('.loading-role-rotator').spin(true);
+		var permName = $('#id_permcat').val();
+		loadPermcat(permName);
+	});
+
+
+
+
 });
 
 
@@ -27,12 +37,19 @@ function setTheme(elm) {
 
 function previewTheme(elm) {
 	theme = $(elm).val();
+	var schema = $('#id_schema').val();
 	$.getJSON('theme_info/' + theme,function(data) {
 		$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" style="max-width:100%; max-height:300px" alt="' + theme + '"></a>');
 		$('#id_schema').empty();
-		$(data.schemas).each(function(index,item) {
-			$('<option/>',{value:item['key'],text:item['val']}).appendTo('#id_schema');
-		});
+		if(data.schemas.length) {
+			$(data.schemas).each(function(index,item) {
+				$('<option/>',{value:item['key'],text:item['val']}).appendTo('#id_schema');
+			});
+			$('#id_schema').val(schema ? schema : '---');
+		}
+		else {
+			$('<option/>',{value:'',text:'No schemes available'}).appendTo('#id_schema');
+		}
 		$('#custom-settings-content .section-content-tools-wrapper').html(data.config);
 	});
 }
@@ -137,3 +154,25 @@ function channel_privacy_macro(n) {
 		$('#id_profile_in_directory').val(1);
 	}
 }
+
+
+
+function loadPermcat(name) {
+
+	if(! name)
+		name = 'default';
+
+	$('.abook-edit-me').each(function() {
+		if(! $(this).is(':disabled'))
+			$(this).removeAttr('checked');
+	});
+
+	$.get('permcat/' + name, function(data) {
+		$(data.perms).each(function() {
+			if(this.value)
+				$('#me_id_perms_' + this.name).attr('checked','checked');
+		});
+		$('.loading-role-rotator').spin(false);
+	});
+}
+

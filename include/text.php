@@ -4,7 +4,7 @@
  */
 
 require_once("include/bbcode.php");
-require_once('include/hubloc.php');
+
 
 // random string, there are 86 characters max in text mode, 128 for hex
 // output is urlsafe
@@ -586,8 +586,10 @@ function photo_new_resource() {
  * @return boolean true if found
  */
 function attribute_contains($attr, $s) {
+	// remove quotes
+	$attr = str_replace([ '"',"'" ],['',''],$attr);
 	$a = explode(' ', $attr);
-	if(count($a) && in_array($s, $a))
+	if($a && in_array($s, $a))
 		return true;
 
 	return false;
@@ -655,12 +657,28 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
  */
 function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 
+	if(! defined('BTLOGGER_DEBUG_FILE'))
+		define('BTLOGGER_DEBUG_FILE','btlogger.out');
+
 	logger($msg, $level, $priority);
+
+	if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
+		$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
+		$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
+		$s = datetime_convert() . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
+		@file_put_contents(BTLOGGER_DEBUG_FILE, $s, FILE_APPEND);
+	}
+
 	if(version_compare(PHP_VERSION, '5.4.0') >= 0) {
 		$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 		if($stack) {
 			for($x = 1; $x < count($stack); $x ++) {
-				logger('stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()',$level, $priority);
+				$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
+				logger($s,$level, $priority);
+
+				if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
+					@file_put_contents(BTLOGGER_DEBUG_FILE, $s . PHP_EOL, FILE_APPEND);
+				}
 			}
 		}
 	}
@@ -1564,11 +1582,6 @@ function prepare_body(&$item,$attach = false) {
 	$s = $prep_arr['html'];
 	$photo = $prep_arr['photo'];
 	$event = $prep_arr['event'];
-
-//	q("update item set html = '%s' where id = %d",
-//		dbesc($s),
-//		intval($item['id'])
-//	);
 
 	if(! $attach) {
 		return $s;
@@ -3062,3 +3075,66 @@ function create_table_from_array($table, $arr) {
 
 	return $r;
 }
+
+
+
+function cleanup_bbcode($body) {
+
+
+	/**
+	 * fix naked links by passing through a callback to see if this is a hubzilla site
+	 * (already known to us) which will get a zrl, otherwise link with url, add bookmark tag to both.
+	 * First protect any url inside certain bbcode tags so we don't double link it.
+	 */
+
+	$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
+
+
+	$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
++\,\(\)]+)/ism", '\nakedoembed', $body);
+	$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
++\,\(\)]+)/ism", '\red_zrl_callback', $body);
+
+	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
+
+	// fix any img tags that should be zmg
+
+	$body = preg_replace_callback('/\[img(.*?)\](.*?)\[\/img\]/ism','\red_zrlify_img_callback',$body);
+
+
+	$body = bb_translate_video($body);
+
+	/**
+	 * Fold multi-line [code] sequences
+	 */
+
+	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
+
+	$body = scale_external_images($body,false);
+
+
+	return $body;
+
+}
+
+function gen_link_id($mid) {
+	if(strpbrk($mid,':/&?<>"\'') !== false)
+		return 'b64.' . base64url_encode($mid);
+	return $mid;
+}
+
+
+// callback for array_walk
+
+function array_trim(&$v,$k) {
+	$v = trim($v);
+}
+
+function array_escape_tags(&$v,$k) {
+	$v = escape_tags($v);
+}
+

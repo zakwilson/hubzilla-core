@@ -1,6 +1,8 @@
 <?php /** @file */
 
-function nav(&$a) {
+use \Zotlabs\Lib as Zlib;
+
+function nav() {
 
 	/**
 	 *
@@ -12,16 +14,14 @@ function nav(&$a) {
 		App::$page['nav'] = '';
 
 	$base = z_root();
-    App::$page['htmlhead'] .= <<< EOT
 
+	App::$page['htmlhead'] .= <<< EOT
 <script>$(document).ready(function() {
 	$("#nav-search-text").search_autocomplete('$base/acl');
 });
 
 </script>
 EOT;
-
-
 
 	if(local_channel()) {
 		$channel = App::get_channel();
@@ -76,6 +76,20 @@ EOT;
 	$userinfo = null;
 	$nav['loginmenu']=array();
 
+	if($observer) {
+			$userinfo = array(
+			'icon' => $observer['xchan_photo_m'],
+			'name' => $observer['xchan_addr'],
+		);
+	}
+
+	elseif(! $_SESSION['authenticated']) {
+		$nav['remote_login'] = remote_login();
+		$nav['loginmenu'][] = Array('rmagic',t('Remote authentication'),'',t('Click to authenticate to your home hub'),'rmagic_nav_btn');
+	}
+
+
+
 	if(local_channel()) {
 
 
@@ -85,34 +99,42 @@ EOT;
 		$nav['logout'] = Array('logout',t('Logout'), "", t('End this session'),'logout_nav_btn');
 		
 		// user menu
-		$nav['usermenu'][] = Array('channel/' . $channel['channel_address'], t('Home'), "", t('Your posts and conversations'),'channel_nav_btn');
+		//$nav['usermenu'][] = Array('channel/' . $channel['channel_address'], t('Home'), "", t('Your posts and conversations'),'channel_nav_btn');
 		$nav['usermenu'][] = Array('profile/' . $channel['channel_address'], t('View Profile'), "", t('Your profile page'),'profile_nav_btn');
 		if(feature_enabled(local_channel(),'multi_profiles') && (! $basic))
 			$nav['usermenu'][]   = Array('profiles', t('Edit Profiles'),"", t('Manage/Edit profiles'),'profiles_nav_btn');
 		else
 			$nav['usermenu'][]   = Array('profiles/' . $prof[0]['id'], t('Edit Profile'),"", t('Edit your profile'),'profiles_nav_btn');
 
-		$nav['usermenu'][] = Array('photos/' . $channel['channel_address'], t('Photos'), "", t('Your photos'),'photos_nav_btn');
-		$nav['usermenu'][] = Array('cloud/' . $channel['channel_address'],t('Files'),"",t('Your files'),'cloud_nav_btn');
+		//$nav['usermenu'][] = Array('photos/' . $channel['channel_address'], t('Photos'), "", t('Your photos'),'photos_nav_btn');
+		//$nav['usermenu'][] = Array('cloud/' . $channel['channel_address'],t('Files'),"",t('Your files'),'cloud_nav_btn');
 
-		if((! $basic) && feature_enabled(local_channel(),'ajaxchat'))
-			$nav['usermenu'][] = Array('chat/' . $channel['channel_address'], t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
+		//if((! $basic) && feature_enabled(local_channel(),'ajaxchat'))
+		//	$nav['usermenu'][] = Array('chat/' . $channel['channel_address'], t('Chat'),"",t('Your chatrooms'),'chat_nav_btn');
 
 
-		require_once('include/menu.php');
-		$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
-		if(($has_bookmarks) && (! $basic)) {
-			$nav['usermenu'][] = Array('bookmarks', t('Bookmarks'), "", t('Your bookmarks'),'bookmarks_nav_btn');
-		}
+		//require_once('include/menu.php');
+		//$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
+		//if(($has_bookmarks) && (! $basic)) {
+		//	$nav['usermenu'][] = Array('bookmarks', t('Bookmarks'), "", t('Your bookmarks'),'bookmarks_nav_btn');
+		//}
 
-		if(feature_enabled($channel['channel_id'],'webpages') && (! $basic))
-			$nav['usermenu'][] = Array('webpages/' . $channel['channel_address'],t('Webpages'),"",t('Your webpages'),'webpages_nav_btn');
-		if(feature_enabled($channel['channel_id'],'wiki') && (! $basic))
-			$nav['usermenu'][] = Array('wiki/' . $channel['channel_address'],t('Wikis'),"",t('Your wikis'),'wiki_nav_btn');
+		//if(feature_enabled($channel['channel_id'],'webpages') && (! $basic))
+		//	$nav['usermenu'][] = Array('webpages/' . $channel['channel_address'],t('Webpages'),"",t('Your webpages'),'webpages_nav_btn');
+		//if(feature_enabled($channel['channel_id'],'wiki') && (! $basic))
+		//	$nav['usermenu'][] = Array('wiki/' . $channel['channel_address'],t('Wikis'),"",t('Your wikis'),'wiki_nav_btn');
 	}
 	else {
 		if(! get_account_id())  {
+			$nav['login'] = login(true,'main-login',false,false);
 			$nav['loginmenu'][] = Array('login',t('Login'),'',t('Sign in'),'login_nav_btn');
+			App::$page['content'] .= replace_macros(get_markup_template('nav_login.tpl'),
+				[ 
+					'$nav' => $nav,
+					'userinfo' => $userinfo
+				]
+			);
+
 		}
 		else
 			$nav['alogout'] = Array('logout',t('Logout'), "", t('End this session'),'logout_nav_btn');
@@ -120,16 +142,6 @@ EOT;
 
 	}
 
-	if($observer) {
-			$userinfo = array(
-			'icon' => $observer['xchan_photo_m'],
-			'name' => $observer['xchan_addr'],
-		);
-	}
-
-	elseif(! $_SESSION['authenticated']) {
-		$nav['loginmenu'][] = Array('rmagic',t('Remote authentication'),'',t('Click to authenticate to your home hub'),'rmagic_nav_btn');
-	}
 
 	$homelink = get_my_url();
 	if(! $homelink) {
@@ -180,9 +192,11 @@ EOT;
 
 	
 		$nav['network'] = array('network', t('Grid'), "", t('Your grid'),'network_nav_btn');
+		$nav['network']['all'] = [ 'network', t('View your network/grid'), '','' ];
 		$nav['network']['mark'] = array('', t('Mark all grid notifications seen'), '','');
 
 		$nav['home'] = array('channel/' . $channel['channel_address'], t('Channel Home'), "", t('Channel home'),'home_nav_btn');
+		$nav['home']['all'] = [ 'channel/' . $channel['channel_address'], t('View your channel home'), '' , '' ];
 		$nav['home']['mark'] = array('', t('Mark all channel notifications seen'), '','');
 
 
@@ -190,11 +204,11 @@ EOT;
 
 
 		$nav['notifications'] = array('notifications/system',	t('Notices'), "", t('Notifications'),'notifications_nav_btn');
-		$nav['notifications']['all']=array('notifications/system', t('See all notifications'), "", "");
+		$nav['notifications']['all']=array('notifications/system', t('View all notifications'), "", "");
 		$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
 
 		$nav['messages'] = array('mail/combined', t('Mail'), "", t('Private mail'),'mail_nav_btn');
-		$nav['messages']['all']=array('mail/combined', t('See all private messages'), "", "");
+		$nav['messages']['all']=array('mail/combined', t('View your private messages'), "", "");
 		$nav['messages']['mark'] = array('', t('Mark all private messages seen'), '','');
 		$nav['messages']['inbox'] = array('mail/inbox', t('Inbox'), "", t('Inbox'));
 		$nav['messages']['outbox']= array('mail/outbox', t('Outbox'), "", t('Outbox'));
@@ -202,7 +216,7 @@ EOT;
 
 
 		$nav['all_events'] = array('events', t('Events'), "", t('Event Calendar'),'events_nav_btn');
-		$nav['all_events']['all']=array('events', t('See all events'), "", "");
+		$nav['all_events']['all']=array('events', t('View events'), "", "");
 		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
 
 		if(! $basic)		
@@ -234,16 +248,44 @@ EOT;
 	$x = array('nav' => $nav, 'usermenu' => $userinfo );
 	call_hooks('nav', $x);
 
-// Not sure the best place to put this on the page. So I'm implementing it but leaving it 
-// turned off until somebody discovers this and figures out a good location for it. 
-$powered_by = '';
+	// Not sure the best place to put this on the page. So I'm implementing it but leaving it 
+	// turned off until somebody discovers this and figures out a good location for it. 
+	$powered_by = '';
 
-//	$powered_by = '<strong>red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="r#" />matrix</strong>';
+	// $powered_by = '<strong>red<img class="smiley" src="' . z_root() . '/images/rm-16.png" alt="r#" />matrix</strong>';
+
+
+	//app bin
+	if(local_channel()) {
+		if(get_pconfig(local_channel(), 'system','initial_import_system_apps') === false) {
+			Zlib\Apps::import_system_apps();
+			set_pconfig(local_channel(), 'system','initial_import_system_apps', 1);
+		}
+
+		$syslist = array();
+		$list = Zlib\Apps::app_list(local_channel(), false, 'nav_featured_app');
+		if($list) {
+			foreach($list as $li) {
+				$syslist[] = Zlib\Apps::app_encode($li);
+			}
+		}
+		Zlib\Apps::translate_system_apps($syslist);
+	}
+	else {
+		$syslist = Zlib\Apps::get_system_apps(true);
+	}
+
+	usort($syslist,'Zotlabs\\Lib\\Apps::app_name_compare');
+
+	foreach($syslist as $app) {
+		$navapps[] = Zlib\Apps::app_render($app,'nav');
+	}
 
 	$tpl = get_markup_template('nav.tpl');
 
 	App::$page['nav'] .= replace_macros($tpl, array(
 		'$baseurl' => z_root(),
+		'$fulldocs' => t('Help'),
 		'$sitelocation' => $sitelocation,
 		'$nav' => $x['nav'],
 		'$banner' =>  $banner,
@@ -253,9 +295,10 @@ $powered_by = '';
 		'$sel' => 	App::$nav_sel,
 		'$powered_by' => $powered_by,
 		'$help' => t('@name, #tag, ?doc, content'),
-		'$pleasewait' => t('Please wait...')
+		'$pleasewait' => t('Please wait...'),
+		'$navapps' => $navapps,
+		'$addapps' => t('Add Apps')
 	));
-
 
 	if(x($_SESSION, 'reload_avatar') && $observer) {
 		// The avatar has been changed on the server but the browser doesn't know that, 

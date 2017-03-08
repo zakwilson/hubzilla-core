@@ -471,6 +471,8 @@ function get_theme_info($theme){
 		'description' => '',
 		'author' => array(),
 		'version' => '',
+		'minversion' => '',
+		'maxversion' => '',
 		'compat' => '',
 		'credits' => '',
 		'maintainer' => array(),
@@ -556,32 +558,65 @@ function head_add_css($src, $media = 'screen') {
 function head_remove_css($src, $media = 'screen') {
 
 	$index = array_search(array($src, $media), App::$css_sources);
-	if ($index !== false)
+	if($index !== false)
 		unset(App::$css_sources[$index]);
 }
 
 function head_get_css() {
 	$str = '';
 	$sources = App::$css_sources;
-	if (count($sources)) {
-		foreach ($sources as $source)
+	if(count($sources)) {
+		foreach($sources as $source)
 			$str .= format_css_if_exists($source);
 	}
 
 	return $str;
 }
 
-function format_css_if_exists($source) {
-	$path_prefix = script_path() . '/';
+function head_add_link($arr) {
+	if($arr) {
+		App::$linkrel[] = $arr;
+	}
+}
 
-	if (strpos($source[0], '/') !== false) {
-		// The source is a URL
-		$path = $source[0];
+function head_get_links() {
+	$str = '';
+	$sources = App::$linkrel;
+	if(count($sources)) {
+		foreach($sources as $source) {
+			if(is_array($source) && count($source)) {
+				$str .= '<link';
+				foreach($source as $k => $v) {
+					$str .= ' ' . $k . '="' . $v . '"';
+				}
+				$str .= ' />' . "\r\n";
+
+			}
+		}
+	}
+
+	return $str;
+}
+
+
+function format_css_if_exists($source) {
+
+	// script_path() returns https://yoursite.tld
+
+	$path_prefix = script_path();
+
+	$script = $source[0];
+
+	if(strpos($script, '/') !== false) {
+		// The script is a path relative to the server root
+		$path = $script;
 		// If the url starts with // then it's an absolute URL
-		if($source[0][0] === '/' && $source[0][1] === '/') $path_prefix = '';
+		if(substr($script,0,2) === '//') {
+			$path_prefix = '';
+		}
 	} else {
 		// It's a file from the theme
-		$path = theme_include($source[0]);
+		$path = '/' . theme_include($script);
 	}
 
 	if($path) {
@@ -651,7 +686,7 @@ function head_get_js() {
 		foreach(App::$js_sources as $sources) {
 			if(count($sources)) {
 				foreach($sources as $source) {
-					if($src === 'main.js')
+					if($source === 'main.js')
 						continue;
 					$str .= format_js_if_exists($source);
 				}
@@ -671,16 +706,19 @@ function head_get_main_js() {
 }
 
 function format_js_if_exists($source) {
-	$path_prefix = script_path() . '/';
+	$path_prefix = script_path();
 
 	if(strpos($source,'/') !== false) {
-		// The source is a URL
+		// The source is a known path on the system
 		$path = $source;
 		// If the url starts with // then it's an absolute URL
-		if($source[0] === '/' && $source[1] === '/') $path_prefix = '';
-	} else {
+		if(substr($source,0,2) === '//') {
+			$path_prefix = '';
+		}
+	} 
+	else {
 		// It's a file from the theme
-		$path = theme_include($source);
+		$path = '/' . theme_include($source);
 	}
 	if($path) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;

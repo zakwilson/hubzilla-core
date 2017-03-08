@@ -25,7 +25,7 @@ function format_event_html($ev) {
 
 	$o = '<div class="vevent">' . "\r\n";
 
-	$o .= '<div class="event-title"><h3><i class="fa fa-calendar"></i>&nbsp;' . bbcode($ev['summary']) .  '</h3></div>' . "\r\n";
+	$o .= '<div class="event-title"><h3><i class="fa fa-calendar"></i>&nbsp;' . zidify_links(smilies(bbcode($ev['summary']))) .  '</h3></div>' . "\r\n";
 
 	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['dtstart'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
@@ -46,11 +46,11 @@ function format_event_html($ev) {
 				$ev['dtend'] , $bd_format )))
 			. '</span></div>'  . "\r\n";
 
-	$o .= '<div class="event-description">' . bbcode($ev['description']) .  '</div>' . "\r\n";
+	$o .= '<div class="event-description">' . zidify_links(smilies(bbcode($ev['description']))) .  '</div>' . "\r\n";
 
 	if(strlen($ev['location']))
 		$o .= '<div class="event-location"><span class="event-label"> ' . t('Location:') . '</span>&nbsp;<span class="location">' 
-			. bbcode($ev['location'])
+			. zidify_links(smilies(bbcode($ev['location'])))
 			. '</span></div>' . "\r\n";
 
 	$o .= '</div>' . "\r\n";
@@ -69,7 +69,7 @@ function format_event_obj($jobject) {
 		$bd_format = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM
 
 		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
-			'$title'	 => bbcode($object['title']),
+			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
 			'$dtstart_label' => t('Starts:'),
 			'$dtstart_title' => datetime_convert('UTC', 'UTC', $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
 			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
@@ -80,9 +80,9 @@ function format_event_obj($jobject) {
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
-			'$description'	  => bbcode($object['description']),
+			'$description'	  => zidify_links(smilies(bbcode($object['description']))),
 			'$location_label' => t('Location:'),
-			'$location'	  => bbcode($object['location'])
+			'$location'	  => zidify_links(smilies(bbcode($object['location'])))
 		));
 
 	}
@@ -127,12 +127,18 @@ function format_event_ical($ev) {
 		$o .= "\r\nDTSTART:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
 	if($ev['dtend'] && ! $ev['nofinish']) 
 		$o .= "\r\nDTEND:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
-	if($ev['summary']) 
+	if($ev['summary']) {
 		$o .= "\r\nSUMMARY:" . format_ical_text($ev['summary']);
-	if($ev['location'])
+		$o .= "\r\nX-ZOT-SUMMARY:" . format_ical_sourcetext($ev['summary']);
+	}
+	if($ev['location']) {
 		$o .= "\r\nLOCATION:" . format_ical_text($ev['location']);
-	if($ev['description']) 
+		$o .= "\r\nX-ZOT-LOCATION:" . format_ical_sourcetext($ev['location']);
+	}
+	if($ev['description']) {
 		$o .= "\r\nDESCRIPTION:" . format_ical_text($ev['description']);
+		$o .= "\r\nX-ZOT-DESCRIPTION:" . format_ical_sourcetext($ev['description']);
+	}
 	if($ev['event_priority'])
 		$o .= "\r\nPRIORITY:" . intval($ev['event_priority']);
 	$o .= "\r\nUID:" . $ev['event_hash'] ;
@@ -154,8 +160,10 @@ function format_todo_ical($ev) {
 		$o .= "\r\nDTSTART:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
 	if($ev['dtend'] && ! $ev['nofinish']) 
 		$o .= "\r\nDUE:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
-	if($ev['summary']) 
+	if($ev['summary']) {
 		$o .= "\r\nSUMMARY:" . format_ical_text($ev['summary']);
+		$o .= "\r\nX-ZOT-SUMMARY:" . format_ical_sourcetext($ev['summary']);
+	}
 	if($ev['event_status']) {
 		$o .= "\r\nSTATUS:" . $ev['event_status'];
 		if($ev['event_status'] === 'COMPLETED')
@@ -165,10 +173,14 @@ function format_todo_ical($ev) {
 		$o .= "\r\nPERCENT-COMPLETE:" . $ev['event_percent'];		
 	if(intval($ev['event_sequence'])) 
 		$o .= "\r\nSEQUENCE:" . $ev['event_sequence'];
-	if($ev['location'])
+	if($ev['location']) {
 		$o .= "\r\nLOCATION:" . format_ical_text($ev['location']);
-	if($ev['description']) 
+		$o .= "\r\nX-ZOT-LOCATION:" . format_ical_sourcetext($ev['location']);
+	}
+	if($ev['description']) {
 		$o .= "\r\nDESCRIPTION:" . format_ical_text($ev['description']);
+		$o .= "\r\nX-ZOT-DESCRIPTION:" . format_ical_sourcetext($ev['description']);
+	}
 	$o .= "\r\nUID:" . $ev['event_hash'] ;
 	if($ev['event_priority'])
 		$o .= "\r\nPRIORITY:" . intval($ev['event_priority']);
@@ -178,13 +190,18 @@ function format_todo_ical($ev) {
 }
 
 
-
 function format_ical_text($s) {
 	require_once('include/bbcode.php');
 	require_once('include/html2plain.php');
 
 	$s = html2plain(bbcode($s));
 	$s = str_replace(["\r\n","\n"],["",""],$s);
+	return(wordwrap(str_replace(['\\',',',';'],['\\\\','\\,','\\;'],$s),72,"\r\n ",true));
+
+}
+
+function format_ical_sourcetext($s) {
+	$s = base64_encode($s);
 	return(wordwrap(str_replace(['\\',',',';'],['\\\\','\\,','\\;'],$s),72,"\r\n ",true));
 }
 
@@ -623,12 +640,21 @@ function event_import_ical($ical, $uid) {
 		$ev['edited'] = datetime_convert('UTC','UTC',$edited->format(\DateTime::W3C));
 	}
 
-	if(isset($ical->LOCATION))
+	if(isset($ical->{'X-ZOT-LOCATION'}))
+		$ev['location'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-LOCATION'});
+	elseif(isset($ical->LOCATION))
 		$ev['location'] = (string) $ical->LOCATION;
-	if(isset($ical->DESCRIPTION))
+
+	if(isset($ical->{'X-ZOT-DESCRIPTION'}))
+		$ev['description'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-DESCRIPTION'});
+	elseif(isset($ical->DESCRIPTION))
 		$ev['description'] = (string) $ical->DESCRIPTION;
-	if(isset($ical->SUMMARY))
+
+	if(isset($ical->{'X-ZOT-SUMMARY'}))
+		$ev['summary'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-SUMMARY'});
+	elseif(isset($ical->SUMMARY))
 		$ev['summary'] = (string) $ical->SUMMARY;
+
 	if(isset($ical->PRIORITY))
 		$ev['event_priority'] = intval((string) $ical->PRIORITY);
 
@@ -661,6 +687,10 @@ function event_import_ical($ical, $uid) {
 
 	return false;
 
+}
+
+function event_ical_get_sourcetext($s) {
+	return base64_decode($s);
 }
 
 function event_import_ical_task($ical, $uid) {
@@ -718,12 +748,21 @@ function event_import_ical_task($ical, $uid) {
 		$ev['edited'] = datetime_convert('UTC','UTC',$edited->format(\DateTime::W3C));
 	}
 
-	if(isset($ical->LOCATION))
+	if(isset($ical->{'X-ZOT-LOCATION'}))
+		$ev['location'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-LOCATION'});
+	elseif(isset($ical->LOCATION))
 		$ev['location'] = (string) $ical->LOCATION;
-	if(isset($ical->DESCRIPTION))
+
+	if(isset($ical->{'X-ZOT-DESCRIPTION'}))
+		$ev['description'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-DESCRIPTION'});
+	elseif(isset($ical->DESCRIPTION))
 		$ev['description'] = (string) $ical->DESCRIPTION;
-	if(isset($ical->SUMMARY))
+
+	if(isset($ical->{'X-ZOT-SUMMARY'}))
+		$ev['summary'] = event_ical_get_sourcetext( (string) $ical->{'X-ZOT-SUMMARY'});
+	elseif(isset($ical->SUMMARY))
 		$ev['summary'] = (string) $ical->SUMMARY;
+
 	if(isset($ical->PRIORITY))
 		$ev['event_priority'] = intval((string) $ical->PRIORITY);
 
@@ -977,9 +1016,9 @@ function event_store_item($arr, $event) {
 		// otherwise we'll fallback to /display/$message_id
 
 		if($wall)
-			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . $item_arr['mid'];
+			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . urlencode($item_arr['mid']);
 		else
-			$item_arr['plink'] = z_root() . '/display/' . $item_arr['mid'];
+			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
 
 		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
 				dbesc($arr['event_xchan'])

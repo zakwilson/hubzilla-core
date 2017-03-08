@@ -43,6 +43,10 @@ class Events extends \Zotlabs\Web\Controller {
 		$adjust   = intval($_POST['adjust']);
 		$nofinish = intval($_POST['nofinish']);
 	
+		$timezone = ((x($_POST,'timezone_select')) ? notags(trim($_POST['timezone_select']))     : '');
+
+		$tz = (($timezone) ? $timezone : date_default_timezone_get());
+
 		$categories = escape_tags(trim($_POST['category']));
 	
 		// only allow editing your own events. 
@@ -71,9 +75,9 @@ class Events extends \Zotlabs\Web\Controller {
 
 	
 		if($adjust) {
-			$start = datetime_convert(date_default_timezone_get(),'UTC',$start);
+			$start = datetime_convert($tz,'UTC',$start);
 			if(! $nofinish)
-				$finish = datetime_convert(date_default_timezone_get(),'UTC',$finish);
+				$finish = datetime_convert($tz,'UTC',$finish);
 		}
 		else {
 			$start = datetime_convert('UTC','UTC',$start);
@@ -374,11 +378,14 @@ class Events extends \Zotlabs\Web\Controller {
 			$event_xchan = ((x($orig_event)) ? $orig_event['event_xchan'] : $channel['channel_hash']);
 			$mid = ((x($orig_event)) ? $orig_event['mid'] : '');
 	
-			if(! x($orig_event))
+			if(! x($orig_event)) {
 				$sh_checked = '';
-			else
+				$a_checked = ' checked="checked" ';
+			}
+			else {
 				$sh_checked = ((($orig_event['allow_cid'] === '<' . $channel['channel_hash'] . '>' || (! $orig_event['allow_cid'])) && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
-	
+			}
+
 			if($orig_event['event_xchan'])
 				$sh_checked .= ' disabled="disabled" ';
 	
@@ -478,6 +485,8 @@ class Events extends \Zotlabs\Web\Controller {
 				'$allow_gid' => acl2json($permissions['allow_gid']),
 				'$deny_cid' => acl2json($permissions['deny_cid']),
 				'$deny_gid' => acl2json($permissions['deny_gid']),
+				'$tz_choose' => feature_enabled(local_channel(),'event_tz_select'),
+				'$timezone' => array('timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()),
 
 				'$lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
 
@@ -625,14 +634,14 @@ class Events extends \Zotlabs\Web\Controller {
 	
 					$drop = array(z_root().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
 	
-					$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
+					$title = strip_tags(html_entity_decode(zidify_links(bbcode($rr['summary'])),ENT_QUOTES,'UTF-8'));
 					if(! $title) {
 						list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
 						$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
 					}
 					$html = format_event_html($rr);
-					$rr['desc'] = bbcode($rr['desc']);
-					$rr['location'] = bbcode($rr['location']);
+					$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
+					$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
 					$events[] = array(
 						'id'=>$rr['id'],
 						'hash' => $rr['event_hash'],

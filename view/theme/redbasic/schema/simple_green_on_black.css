@@ -367,7 +367,6 @@ pre {
 
 .contextual-help-content-open {
 	background: $nav_bg;
-	top: 50px;
 	border-bottom: #1C5419 1px solid;
 	box-shadow: 0px 3px 3px rgba(28,84,25,0.2);
 }
@@ -382,4 +381,24 @@ pre {
 
 .contextual-help-tool i {
 	color: $link_colour;
+}
+
+.profile-match-wrapper {
+	width: 150px;	
+	height: 120px;
+	border: none;
+}
+
+.profile-match-name {
+    	width: 144px;
+    	white-space: nowrap;
+    	text-overflow: ellipsis;
+}
+
+.widget-nav-pills-icons:hover + a {
+	background-color: #143D12;
+}
+
+.widget-nav-pills-checkbox:hover + a {
+	background-color: #143D12;
 }

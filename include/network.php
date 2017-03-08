@@ -51,7 +51,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; Red)");
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -84,7 +84,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $opts['custom']);
 
 	if(x($opts,'timeout') && intval($opts['timeout'])) {
-		@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
+		@curl_setopt($ch, CURLOPT_TIMEOUT, intval($opts['timeout']));
 	}
 	else {
 		$curl_time = intval(@get_config('system','curl_timeout'));
@@ -218,7 +218,7 @@ function z_post_url($url,$params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Red");
+	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -714,6 +714,10 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
 
 			if($i['success']) {
 				$ph = photo_factory($i['body'], $type);
+
+				if(! is_object($ph))
+					continue;
+
 				if($ph->is_valid()) {
 					$orig_width = $ph->getWidth();
 					$orig_height = $ph->getHeight();
@@ -1117,16 +1121,17 @@ function discover_by_url($url,$arr = null) {
 	if(! $photo)
 		$photo = z_root() . '/images/rss_icon.png';
 
-	$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_instance_url, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-		dbesc($guid),
-		dbesc($guid),
-		dbesc($pubkey),
-		dbesc($addr),
-		dbesc($profile),
-		dbesc($name),
-		dbesc($network),
-		dbesc(z_root()),
-		dbesc(datetime_convert())
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'         => $guid,
+			'xchan_guid'         => $guid,
+			'xchan_pubkey'       => $pubkey,
+			'xchan_addr'         => $addr,
+			'xchan_url'          => $profile,
+			'xchan_name'         => $name,
+			'xchan_name_date'    => datetime_convert(),
+			'xchan_network'      => $network
+		]
 	);
 
 	$photos = import_xchan_photo($photo,$guid);
@@ -1445,15 +1450,17 @@ function discover_by_webbie($webbie) {
 			);
 		}
 		else {
-			$r = q("insert into xchan ( xchan_hash, xchan_guid, xchan_pubkey, xchan_addr, xchan_url, xchan_name, xchan_network, xchan_name_date ) values ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-				dbesc($address),
-				dbesc(($diaspora_guid) ? $diaspora_guid : $location),
-				dbesc($pubkey),
-				dbesc($address),
-				dbesc($location),
-				dbesc($fullname),
-				dbesc($network),
-				dbescdate(datetime_convert())
+			$r = xchan_store_lowlevel(
+				[
+					'xchan_hash'         => $address,
+					'xchan_guid'         => (($diaspora_guid) ? $diaspora_guid : $location),
+					'xchan_pubkey'       => $pubkey,
+					'xchan_addr'         => $address,
+					'xchan_url'          => $location,
+					'xchan_name'         => $fullname,
+					'xchan_name_date'    => datetime_convert(),
+					'xchan_network'      => $network
+				]
 			);
 		}
 
@@ -1462,15 +1469,18 @@ function discover_by_webbie($webbie) {
 		);
 
 		if(! $r) {
-			$r = q("insert into hubloc ( hubloc_guid, hubloc_hash, hubloc_addr, hubloc_network, hubloc_url, hubloc_host, hubloc_callback, hubloc_updated, hubloc_primary ) values ('%s','%s','%s','%s','%s','%s','%s','%s', 1)",
-				dbesc(($diaspora_guid) ? $diaspora_guid : $location),
-				dbesc($address),
-				dbesc($address),
-				dbesc($network),
-				dbesc($base),
-				dbesc($host),
-				dbesc($notify),
-				dbescdate(datetime_convert())
+			$r = hubloc_store_lowlevel(
+				[
+					'hubloc_guid'     => (($diaspora_guid) ? $diaspora_guid : $location),
+					'hubloc_hash'     => $address,
+					'hubloc_addr'     => $address,
+					'hubloc_network'  => $network,
+					'hubloc_url'      => $base,
+					'hubloc_host'     => $host,
+					'hubloc_callback' => $notify,
+					'hubloc_updated'  => datetime_convert(),
+					'hubloc_primary'  => 1
+				]
 			);
 		}
 		$photos = import_xchan_photo($avatar,$address);

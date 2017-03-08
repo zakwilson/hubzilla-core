@@ -188,13 +188,12 @@ class Photos extends \Zotlabs\Web\Controller {
 		}
 	
 		if((argc() > 2) && (x($_REQUEST,'delete')) && ($_REQUEST['delete'] === t('Delete Photo'))) {
-	
 			// same as above but remove single photo
 	
 			$ob_hash = get_observer_hash();
 			if(! $ob_hash)
 				goaway(z_root() . '/' . $_SESSION['photo_return']);
-	
+
 			$r = q("SELECT id, resource_id FROM photo WHERE ( xchan = '%s' or uid = %d ) AND resource_id = '%s' LIMIT 1",
 				dbesc($ob_hash),
 				intval(local_channel()),
@@ -686,36 +685,32 @@ class Photos extends \Zotlabs\Web\Controller {
 					notice( t('Album name could not be decoded') . EOL);
 					logger('mod_photos: illegal album encoding: ' . $datum);
 					$datum = '';
+					goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
 				}
 			}
 	
 			$album = (($datum) ? hex2bin($datum) : '');
-	
-	
+
 			\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
-	
-	
-			$r = q("SELECT resource_id, max(imgscale) AS imgscale FROM photo WHERE uid = %d AND album = '%s' 
-				AND imgscale <= 4 and photo_usage IN ( %d, %d ) and is_nsfw = %d $sql_extra GROUP BY resource_id",
+
+			//check if the album exists and if we have perms
+			$r = q("SELECT album FROM photo WHERE uid = %d AND album = '%s' and is_nsfw = %d $sql_extra LIMIT 1",
 				intval($owner_uid),
 				dbesc($album),
-				intval(PHOTO_NORMAL),
-				intval(PHOTO_PROFILE),
 				intval($unsafe)
 			);
-			if(count($r)) {
-				\App::set_pager_total(count($r));
+
+			if($r) {
 				\App::set_pager_itemspage(60);
 			} else {
 				goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
 			}
-	
+
 			if($_GET['order'] === 'posted')
 				$order = 'ASC';
 			else
 				$order = 'DESC';
-	
-				
+
 			$r = q("SELECT p.resource_id, p.id, p.filename, p.mimetype, p.imgscale, p.description, p.created FROM photo p INNER JOIN
 					(SELECT resource_id, max(imgscale) imgscale FROM photo WHERE uid = %d AND album = '%s' AND imgscale <= 4 AND photo_usage IN ( %d, %d ) and is_nsfw = %d $sql_extra GROUP BY resource_id) ph 
 					ON (p.resource_id = ph.resource_id AND p.imgscale = ph.imgscale)
@@ -1280,9 +1275,9 @@ class Photos extends \Zotlabs\Web\Controller {
 		// Default - show recent photos with upload link (if applicable)
 		//$o = '';
 	
-			\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
+		\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
 	
-	
+		/*
 		$r = q("SELECT resource_id, max(imgscale) AS imgscale FROM photo WHERE uid = %d 
 			and photo_usage in ( %d, %d ) and is_nsfw = %d $sql_extra GROUP BY resource_id",
 			intval(\App::$data['channel']['channel_id']),
@@ -1294,6 +1289,9 @@ class Photos extends \Zotlabs\Web\Controller {
 			\App::set_pager_total(count($r));
 			\App::set_pager_itemspage(60);
 		}
+		*/
+
+		\App::set_pager_itemspage(60);
 		
 		$r = q("SELECT p.resource_id, p.id, p.filename, p.mimetype, p.album, p.imgscale, p.created FROM photo p 
 			INNER JOIN ( SELECT resource_id, max(imgscale) imgscale FROM photo 

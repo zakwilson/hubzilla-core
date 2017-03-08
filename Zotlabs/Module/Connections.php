@@ -228,10 +228,18 @@ class Connections extends \Zotlabs\Web\Controller {
 	
 		$contacts = array();
 	
-		if(count($r)) {
-	
+		if($r) {
+
+			vcard_query($r);
+
+
 			foreach($r as $rr) {
 				if($rr['xchan_url']) {
+
+					if(($rr['vcard']) && is_array($rr['vcard']['tels']) && $rr['vcard']['tels'][0]['nr'])
+						$phone = ((\App::$is_mobile || \App::$is_tablet) ? $rr['vcard']['tels'][0]['nr'] : '');
+					else
+						$phone = '';
 	
 					$status_str = '';
 					$status = array(
@@ -261,12 +269,14 @@ class Connections extends \Zotlabs\Web\Controller {
 						'link' => z_root() . '/connedit/' . $rr['abook_id'],
 						'deletelink' => z_root() . '/connedit/' . intval($rr['abook_id']) . '/drop',
 						'delete' => t('Delete'),
-						'url' => chanlink_url($rr['xchan_url']),
+						'url' => chanlink_hash($rr['xchan_hash']),
 						'webbie_label' => t('Channel address'),
 						'webbie' => $rr['xchan_addr'],
 						'network_label' => t('Network'),
 						'network' => network_to_name($rr['xchan_network']),
 						'public_forum' => ((intval($rr['xchan_pubforum'])) ? true : false),
+						'call' => t('Call'),
+						'phone' => $phone,
 						'status_label' => t('Status'),
 						'status' => $status_str,
 						'connected_label' => t('Connected'),

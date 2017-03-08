@@ -37,8 +37,6 @@ class Cloud extends \Zotlabs\Web\Controller {
 
 		$profile = 0;
 
-		\App::$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . z_root() . '/feed/' . $which . '" />' . "\r\n";
-
 		if ($which)
 			profile_load( $which, $profile);
 
@@ -59,8 +57,6 @@ class Cloud extends \Zotlabs\Web\Controller {
 			$auth->observer = $ob_hash;
 		}
 
-		if ($_GET['davguest'])
-			$_SESSION['davguest'] = true;
 
 		$_SERVER['QUERY_STRING'] = str_replace(array('?f=', '&f='), array('', ''), $_SERVER['QUERY_STRING']);
 		$_SERVER['QUERY_STRING'] = strip_zids($_SERVER['QUERY_STRING']);

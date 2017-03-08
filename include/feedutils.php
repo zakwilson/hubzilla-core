@@ -236,7 +236,7 @@ function get_atom_elements($feed, $item, &$author) {
 	if(substr($author['author_link'],-1,1) == '/')
 		$author['author_link'] = substr($author['author_link'],0,-1);
 
-	$res['mid'] = base64url_encode(unxmlify($item->get_id()));
+	$res['mid'] = unxmlify($item->get_id());
 	$res['title'] = unxmlify($item->get_title());
 	$res['body'] = unxmlify($item->get_content());
 	$res['plink'] = unxmlify($item->get_link(0));
@@ -331,6 +331,8 @@ function get_atom_elements($feed, $item, &$author) {
 		}
 	}
 
+	$ostatus_protocol = (($item->get_item_tags(NAMESPACE_OSTATUS,'conversation')) ? true : false);
+
 	$apps = $item->get_item_tags(NAMESPACE_STATUSNET,'notice_info');
 	if($apps && $apps[0]['attribs']['']['source']) {
 		$res['app'] = strip_tags(unxmlify($apps[0]['attribs']['']['source']));
@@ -343,6 +345,8 @@ function get_atom_elements($feed, $item, &$author) {
 	$have_real_body = false;
 
 	$rawenv = $item->get_item_tags(NAMESPACE_DFRN, 'env');
+	if(! $rawenv)
+		$rawenv = $item->get_item_tags(NAMESPACE_ZOT,'source');
 	if($rawenv) {
 		$have_real_body = true;
 		$res['body'] = $rawenv[0]['data'];
@@ -388,7 +392,15 @@ function get_atom_elements($feed, $item, &$author) {
 		$res['body'] = escape_tags($res['body']);
 	}
 
-	if($res['plink'] && $res['title']) {
+
+	// strip title and don't apply "title-in-body" if the feed involved 
+	// uses the OStatus stack. We need a more generalised way for the calling
+	// function to specify this behaviour or for plugins to alter it. 
+
+	if($ostatus_protocol) {
+		$res['title'] = '';
+	}
+	elseif($res['plink'] && $res['title']) {
 		$res['body'] = '#^[url=' . $res['plink'] . ']' . $res['title'] . '[/url]' . "\n\n" . $res['body'];
 		$terms = array();
 		$terms[] = array(
@@ -623,14 +635,16 @@ function get_atom_elements($feed, $item, &$author) {
 		$res['target'] = $obj;
 	}
 
-	$arr = array('feed' => $feed, 'item' => $item, 'result' => $res);
+
+	$arr = array('feed' => $feed, 'item' => $item, 'author' => $author, 'result' => $res);
 
 	call_hooks('parse_atom', $arr);
-	logger('get_atom_elements: author: ' . print_r($author,true),LOGGER_DATA);
 
-	logger('get_atom_elements: ' . print_r($res,true),LOGGER_DATA);
+	logger('get_atom_elements: author: ' . print_r($arr['author'],true),LOGGER_DATA);
 
-	return $res;
+	logger('get_atom_elements: ' . print_r($arr['result'],true),LOGGER_DATA);
+
+	return $arr['result'];
 }
 
 function encode_rel_links($links) {
@@ -718,7 +732,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 		foreach($del_entries as $dentry) {
 			$deleted = false;
 			if(isset($dentry['attribs']['']['ref'])) {
-				$mid = $dentry['attribs']['']['ref'];
+				$mid = normalise_id($dentry['attribs']['']['ref']);
 				$deleted = true;
 				if(isset($dentry['attribs']['']['when'])) {
 					$when = $dentry['attribs']['']['when'];
@@ -730,7 +744,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 			if($deleted && is_array($contact)) {
 				$r = q("SELECT * from item where mid = '%s' and author_xchan = '%s' and uid = %d limit 1",
-					dbesc(base64url_encode($mid)),
+					dbesc($mid),
 					dbesc($contact['xchan_hash']),
 					intval($importer['channel_id'])
 				);
@@ -739,7 +753,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					$item = $r[0];
 
 					if(! intval($item['item_deleted'])) {
-						logger('consume_feed: deleting item ' . $item['id'] . ' mid=' . base64url_decode($item['mid']), LOGGER_DEBUG);
+						logger('consume_feed: deleting item ' . $item['id'] . ' mid=' . $item['mid'], LOGGER_DEBUG);
 						drop_item($item['id'],false);
 					}
 				}
@@ -758,14 +772,14 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 		foreach($items as $item) {
 
 			$is_reply = false;
-			$item_id = base64url_encode($item->get_id());
+			$item_id = normalise_id($item->get_id());
 
-			logger('consume_feed: processing ' . $item_id, LOGGER_DEBUG);
+			logger('consume_feed: processing ' . $raw_item_id, LOGGER_DEBUG);
 
 			$rawthread = $item->get_item_tags( NAMESPACE_THREAD,'in-reply-to');
 			if(isset($rawthread[0]['attribs']['']['ref'])) {
 				$is_reply = true;
-				$parent_mid = base64url_encode($rawthread[0]['attribs']['']['ref']);
+				$parent_mid = normalise_id($rawthread[0]['attribs']['']['ref']);
 			}
 
 			if($is_reply) {
@@ -775,7 +789,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				// Have we seen it? If not, import it.
 
-				$item_id  = base64url_encode($item->get_id());
+				$item_id  = normalise_id($item->get_id());
 				$author = array();
 				$datarray = get_atom_elements($feed,$item,$author);
 
@@ -824,7 +838,16 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					continue;
 				}
 
+				$x = q("select mid from item where mid = '%s' and uid = %d limit 1",
+					dbesc($parent_mid),
+					intval($importer['channel_id'])
+				);
+				if($x)
+					$parent_mid = $x[0]['mid'];
+
 				$datarray['parent_mid'] = $parent_mid;
+
+
 				$datarray['aid'] = $importer['channel_account_id'];
 				$datarray['uid'] = $importer['channel_id'];
 
@@ -838,7 +861,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				// Head post of a conversation. Have we seen it? If not, import it.
 
-				$item_id  = base64url_encode($item->get_id());
+				$item_id  = normalise_id($item->get_id());
 				$author = array();
 				$datarray = get_atom_elements($feed,$item,$author);
 
@@ -943,6 +966,11 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 }
 
 
+function normalise_id($id) {
+	return str_replace('X-ZOT:','',$id);
+}
+
+
 /**
  * @brief Process atom feed and return the first post and structure
  *
@@ -983,14 +1011,14 @@ function process_salmon_feed($xml, $importer) {
 
 		foreach($items as $item) {
 
-			$item_id = base64url_encode($item->get_id());
+			$item_id = normalise_id($item->get_id());
 
 			logger('processing ' . $item_id, LOGGER_DEBUG);
 
 			$rawthread = $item->get_item_tags( NAMESPACE_THREAD,'in-reply-to');
 			if(isset($rawthread[0]['attribs']['']['ref'])) {
 				$is_reply = true;
-				$parent_mid = base64url_encode($rawthread[0]['attribs']['']['ref']);
+				$parent_mid = normalise_id($rawthread[0]['attribs']['']['ref']);
 			}
 
 			if($is_reply)
@@ -1159,7 +1187,8 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 
 	if(($item['parent'] != $item['id']) || ($item['parent_mid'] !== $item['mid']) || (($item['thr_parent'] !== '') && ($item['thr_parent'] !== $item['mid']))) {
 		$parent_item = (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']);
-		$o .= '<thr:in-reply-to ref="' . z_root() . '/display/' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
+		$o .= '<thr:in-reply-to ref="' . 'X-ZOT:' . xmlify($parent_item) . '" type="text/html" href="' .  xmlify($item['plink']) . '" />' . "\r\n";
+
 	}
 
 	if(activity_match($item['obj_type'],ACTIVITY_OBJ_EVENT) && activity_match($item['verb'],ACTIVITY_POST)) {
@@ -1177,7 +1206,7 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 		$o .= '<content type="' . $type . '" >' . xmlify(prepare_text($body,$item['mimetype'])) . '</content>' . "\r\n";
 	}
 
-	$o .= '<id>' . z_root() . '/display/' . xmlify($item['mid']) . '</id>' . "\r\n";
+	$o .= '<id>' . 'X-ZOT:' . xmlify($item['mid']) . '</id>' . "\r\n";
 	$o .= '<published>' . xmlify(datetime_convert('UTC','UTC',$item['created'] . '+00:00',ATOM_TIME)) . '</published>' . "\r\n";
 	$o .= '<updated>' . xmlify(datetime_convert('UTC','UTC',$item['edited'] . '+00:00',ATOM_TIME)) . '</updated>' . "\r\n";
 
@@ -1206,26 +1235,68 @@ function atom_entry($item,$type,$author,$owner,$comment = false,$cid = 0) {
 	if(strlen($actarg))
 		$o .= $actarg;
 
-	// FIXME
-//	$tags = item_getfeedtags($item);
-//	if(count($tags)) {
-//		foreach($tags as $t) {
-//			$o .= '<category scheme="X-DFRN:' . xmlify($t[0]) . ':' . xmlify($t[1]) . '" term="' . xmlify($t[2]) . '" />' . "\r\n";
-//		}
-//	}
 
-// FIXME
-//	$o .= item_getfeedattach($item);
+	if($item['attach']) {
+		$enclosures = json_decode($item['attach'],true);
+		if($enclosures) {
+			foreach($enclosures as $enc) {
+				$o .= '<link rel="enclosure" '
+				. (($enc['href']) ? 'href="' . $enc['href'] . '" ' : '')
+				. (($enc['length']) ? 'length="' . $enc['length'] . '" ' : '')
+				. (($enc['type']) ? 'type="' . $enc['type'] . '" ' : '')
+				. ' />';
+			}
+		}
+	}
 
-//	$mentioned = get_mentions($item,$tags);
-//	if($mentioned)
-//		$o .= $mentioned;
+	if($item['term']) {
+		foreach($item['term'] as $term) {
+			$scheme = '';
+			$label = ''; 
+			switch($term['ttype']) {
+				case TERM_UNKNOWN:
+					$scheme = NAMESPACE_ZOT . '/term/unknown';
+					$label = $term['term'];
+					break;
+				case TERM_HASHTAG:
+				case TERM_COMMUNITYTAG:
+					$scheme = NAMESPACE_ZOT . '/term/hashtag';
+					$label = '#' . $term['term'];
+					break;
+				case TERM_MENTION:
+					$scheme = NAMESPACE_ZOT . '/term/mention';
+					$label = '@' . $term['term'];
+					break;
+				case TERM_CATEGORY:
+					$scheme = NAMESPACE_ZOT . '/term/category';
+					$label = $term['term'];
+					break;
+				default:
+					break;
+			}
+			if(! $scheme)
+				continue;
 
-	call_hooks('atom_entry', $o);
+			$o .= '<category scheme="' . $scheme . '" term="' . $term['term'] . '" label="' . $label . '" />' . "\r\n";
+		}
+	}
 
 	$o .= '</entry>' . "\r\n";
 
-	return $o;
+	$x = [ 
+		'item'     => $item, 
+		'type'     => $type, 
+		'author'   => $author, 
+		'owner'    => $owner, 
+		'comment'  => $comment, 
+		'abook_id' => $cid, 
+		'entry'    => $o 
+	];
+
+
+	call_hooks('atom_entry', $x);
+
+	return $x['entry'];
 }
 
 

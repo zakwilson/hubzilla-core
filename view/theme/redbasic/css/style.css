@@ -21,7 +21,6 @@ body {
 	background-size: cover;
 	color: $font_colour;
 	margin: 0px;
-	overflow-x: hidden;
 }
 
 aside {
@@ -50,6 +49,7 @@ main {
 	left: 0;
 	width: 100%;
 	height: 100%;
+	background: rgba(0, 0, 0, .5);
 	cursor: pointer;
 	z-index: 1029;
 }
@@ -142,14 +142,13 @@ input, optgroup, select, textarea {
 }
 
 .selected-doco-nav {
- font-weight: bold;
- text-shadow: 2px 2px 3px lightgray;
+	font-weight: bold;
+	text-shadow: 2px 2px 3px lightgray;
 }
 
 #doco-content img {
- width: 100%;
+	width: 100%;
 }
-
 
 #help-content pre code {
 	overflow-x: auto;
@@ -255,6 +254,7 @@ header #banner #logo-text {
 	display: block;
 	position: fixed;
 	top: 51px;
+	left: 0px;
 	width: 100%;
 	max-height: 50%;
 	background: $comment_item_colour;
@@ -1105,10 +1105,11 @@ a.rconnect:hover, a.rateme:hover, div.rateme:hover {
 .contact-block-content {
 	margin-top: 10px;
 }
-.contact-block-img.archived {
+.contact-block-img.archived, .app-deleted {
 	opacity: 0.3;
 	filter:alpha(opacity=30);
 }
+
 
 .profile-match-connect { margin-top: 5px; }
 
@@ -1188,6 +1189,16 @@ margin-right: 50px;
 
 .generic-icons:hover {
 	color: $toolicon_colour;
+}
+
+.generic-icons-nav {
+	font-size: 1.2em;
+	margin-right: 7px;
+}
+
+nav .navbar-collapse.in .generic-icons,
+nav .navbar-collapse.collapsing .generic-icons {
+	color: $nav_active_icon_colour;
 }
 
 .admin-icons {
@@ -1303,6 +1314,11 @@ img.mail-conv-sender-photo {
 .jot-icons {
 	color: $toolicon_colour;
 }
+
+.jot-icons.jot-lock-warn {
+	color: darkorange;
+}
+
 
 /* conversation */
 .nsfw-wrap {
@@ -1520,7 +1536,6 @@ img.mail-conv-sender-photo {
 }
 
 /* nav bootstrap */
-
 
 nav img {
 	border-radius: $radiuspx;
@@ -1744,22 +1759,11 @@ blockquote {
 	border-radius: $radiuspx;
 }
 
-nav .badge:hover {
-	background-color: #999;
-}
-
 nav .badge.home-update,
 nav .badge.notify-update,
 nav .badge.intro-update,
 nav .badge.mail-update {
-	background-color:#C9302C;
-}
-
-nav .badge.home-update:hover,
-nav .badge.notify-update:hover,
-nav .badge.intro-update:hover,
-nav .badge.mail-update:hover {
-	background-color:#D9534F;
+	background-color: #C9302C;
 }
 
 .dropdown-menu {
@@ -1824,12 +1828,23 @@ nav .badge.mail-update:hover {
 	background-color: $nav_active_icon_colour;
 }
 
-#expand-aside,
-#expand-tabs,
-#doco-return-to-top-btn,
-#context-help-btn {
+.navbar-toggle-extra {
 	color: $nav_active_icon_colour;
 	padding: 7px 10px;
+}
+
+.navbar-toggle-extra-left {
+	float: left;
+	margin-left: 15px;
+	margin-right: 0px;
+	color: $nav_active_icon_colour;
+	padding: 7px 10px;
+}
+
+a.navbar-toggle-extra:hover,
+a.navbar-toggle-extra-left:hover  {
+	color: $nav_active_icon_colour;
+	text-decoration: none;
 }
 
 .nav-tabs.nav-justified {
@@ -1870,7 +1885,6 @@ nav .badge.mail-update:hover {
 @media screen and (max-width: 767px) {
 
 	aside#region_1 {
-		background: rgba(0, 0, 0, .1);
 		border-right: 1px solid $nav_bd;
 	}
 
@@ -2096,4 +2110,24 @@ dl.bb-dl > dd > li {
 
 .nav-pills-stacked-icons:hover + a {
 	background-color: #eee;
+}
+
+.app-icon {
+	font-size: 80px;
+	color: $toolicon_colour;
+	text-shadow: 3px 3px 3px lightgrey;
+}
+
+.app-detail {
+	text-align: center;
+}
+
+#login-main, .rmagic-button {
+	max-width: 400px;
+	margin-top: 20px;
+	margin-left: auto;
+	margin-right: auto;
+}
+#permcat-index {
+	margin: 10px;
 }

@@ -18,6 +18,7 @@ class Channel {
 	
 		$role = ((x($_POST,'permissions_role')) ? notags(trim($_POST['permissions_role'])) : '');
 		$oldrole = get_pconfig(local_channel(),'system','permissions_role');
+
 	
 		if(($role != $oldrole) || ($role === 'custom')) {
 	
@@ -88,15 +89,17 @@ class Channel {
 							intval(local_channel())
 					);
 				}
-	
-				$x = \Zotlabs\Access\Permissions::FilledPerms($role_permissions['perms_connect']);
-				foreach($x as $k => $v) {
-					set_abconfig(local_channel(),$channel['channel_hash'],'my_perms',$k, $v);
-					if($role_permissions['perms_auto']) {
-						set_pconfig(local_channel(),'autoperms',$k,$v);
-					}
-					else {
-						del_pconfig(local_channel(),'autoperms',$k);
+
+				if($role_permissions['perms_connect']) {	
+					$x = \Zotlabs\Access\Permissions::FilledPerms($role_permissions['perms_connect']);
+					foreach($x as $k => $v) {
+						set_abconfig(local_channel(),$channel['channel_hash'],'my_perms',$k, $v);
+						if($role_permissions['perms_auto']) {
+							set_pconfig(local_channel(),'autoperms',$k,$v);
+						}
+						else {
+							del_pconfig(local_channel(),'autoperms',$k);
+						}
 					}
 				}	
 
@@ -142,6 +145,7 @@ class Channel {
 		$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
 		$post_profilechange   = (($_POST['post_profilechange'] == 1) ? 1: 0);
 		$adult            = (($_POST['adult'] == 1) ? 1 : 0);
+		$defpermcat       = ((x($_POST,'defpermcat')) ? notags(trim($_POST['defpermcat'])) : 'default');
 	
 		$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 	
@@ -230,6 +234,7 @@ class Channel {
 		set_pconfig(local_channel(),'system','photo_path',$photo_path);
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
 		set_pconfig(local_channel(),'system','cal_first_day',$cal_first_day);
+		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 	
 		$r = q("update channel set channel_name = '%s', channel_pageflags = %d, channel_timezone = '%s', channel_location = '%s', channel_notifyflags = %d, channel_max_anon_mail = %d, channel_max_friend_req = %d, channel_expire_days = %d $set_perms where channel_id = %d",
 			dbesc($username),
@@ -409,6 +414,19 @@ class Channel {
 			'$basepath' => \App::get_hostname()
 		));
 
+
+
+		$pcat = new \Zotlabs\Lib\Permcat(local_channel());
+		$pcatlist = $pcat->listing();
+		$permcats = [];
+		if($pcatlist) {
+			foreach($pcatlist as $pc) {
+				$permcats[$pc['name']] = $pc['localname'];
+			}
+		}
+
+		$default_permcat = get_pconfig(local_channel(),'system','default_permcat','default');
+
 	
 		$stpl = get_markup_template('settings.tpl');
 	
@@ -448,7 +466,10 @@ class Channel {
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
 		if($vnotify === false)
 			$vnotify = (-1);
-	
+
+		$plugin = [ 'basic' => '', 'security' => '', 'notify' => '', 'misc' => '' ];
+		call_hooks('channel_settings',$plugin);
+
 		$o .= replace_macros($stpl,array(
 			'$ptitle' 	=> t('Channel Settings'),
 	
@@ -495,7 +516,8 @@ class Channel {
 			'$suggestme' => $suggestme,
 			'$group_select' => $group_select,
 			'$role' => array('permissions_role' , t('Channel permissions category:'), $permissions_role, '', $perm_roles),
-	
+			'$defpermcat' => [ 'defpermcat', t('Default Permissions Group'), $default_permcat, '', $permcats ],	
+			'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
 			'$profile_in_dir' => $profile_in_dir,
 			'$hide_friends' => $hide_friends,
 			'$hide_wall' => $hide_wall,
@@ -537,6 +559,10 @@ class Channel {
 			'$always_show_in_notices'  => array('always_show_in_notices', t('Also show new wall posts, private messages and connections under Notices'), $always_show_in_notices, 1, '', $yes_no),
 	
 			'$evdays' => array('evdays', t('Notify me of events this many days in advance'), $evdays, t('Must be greater than 0')),			
+			'$basic_addon' => $plugin['basic'],
+			'$sec_addon'  => $plugin['security'],
+			'$notify_addon' => $plugin['notify'],
+			'$misc_addon' => $plugin['misc'],
 	
 			'$h_advn' => t('Advanced Account/Page Type Settings'),
 			'$h_descadvn' => t('Change the behaviour of this account for special situations'),

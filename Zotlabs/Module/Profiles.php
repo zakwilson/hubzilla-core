@@ -70,15 +70,16 @@ class Profiles extends \Zotlabs\Web\Controller {
 			$r1 = q("SELECT fullname, photo, thumb FROM profile WHERE uid = %d AND is_default = 1 LIMIT 1",
 				intval(local_channel()));
 			
-			$r2 = q("INSERT INTO profile (aid, uid , profile_guid, profile_name , fullname, photo, thumb)
-				VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s' )",
-				intval(get_account_id()),
-				intval(local_channel()),
-				dbesc(random_string()),
-				dbesc($name),
-				dbesc($r1[0]['fullname']),
-				dbesc($r1[0]['photo']),
-				dbesc($r1[0]['thumb'])
+			$r2 = profile_store_lowlevel(
+				[
+					'aid'          => intval(get_account_id()),
+					'uid'          => intval(local_channel()),
+					'profile_guid' => random_string(),
+					'profile_name' => $name,
+					'fullname'     => $r1[0]['fullname'],
+					'photo'        => $r1[0]['photo'],
+					'thumb'        => $r1[0]['thumb']
+				]
 			);
 	
 			$r3 = q("SELECT id FROM profile WHERE uid = %d AND profile_name = '%s' LIMIT 1",
@@ -191,7 +192,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 		}
 	}
 	
-		function post() {
+	function post() {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
@@ -243,6 +244,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			
 			check_form_security_token_redirectOnErr('/profiles', 'profile_edit');
 			
+
 			$is_default = (($orig[0]['is_default']) ? 1 : 0);
 	
 			$profile_name = notags(trim($_POST['profile_name']));
@@ -315,6 +317,43 @@ class Profiles extends \Zotlabs\Web\Controller {
 	
 			$hide_friends = ((intval($_POST['hide_friends'])) ? 1: 0);
 	
+
+			$orig_vcard = (($orig[0]['profile_vcard']) ? \Sabre\VObject\Reader::read($orig[0]['profile_vcard']) : null); 
+
+			$channel = \App::get_channel();
+
+			$default_vcard_cat = ((defined('DEFAULT_VCARD_CAT')) ? DEFAULT_VCARD_CAT : 'HOME');
+
+			$defcard = [
+				'fn'         => $name,
+				'title'      => $pdesc,
+				'photo'      => $channel['xchan_photo_l'],
+				'adr'        => [],
+				'adr_type'   => [ $default_vcard_cat ],
+				'tel'        => [],
+				'tel_type'   => [ $default_vcard_cat ],
+				'email'      => [],
+				'email_type' => [ $default_vcard_cat ],
+				'impp'       => [],
+				'impp_type'  => [ $default_vcard_cat ],
+				'url'        => [],
+				'url_type'   => [ $default_vcard_cat ]
+			];
+
+			$defcard['adr'][] = [
+				0 => '',
+				1 => '',
+				2 => $address,
+				3 => $locality,
+				4 => $region,
+				5 => $postal_code,
+				6 => $country_name
+			];
+				
+
+			$profile_vcard = update_vcard($defcard,$orig_vcard);
+
+
 			require_once('include/text.php');
 			linkify_tags($a, $likes, local_channel());
 			linkify_tags($a, $dislikes, local_channel());
@@ -511,7 +550,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 				romance = '%s',
 				employment = '%s',
 				education = '%s',
-				hide_friends = %d
+				hide_friends = %d,
+				profile_vcard = '%s'
 				WHERE id = %d AND uid = %d",
 				dbesc($profile_name),
 				dbesc($name),
@@ -546,6 +586,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				dbesc($work),
 				dbesc($education),
 				intval($hide_friends),
+				dbesc($profile_vcard),
 				intval(argv(1)),
 				intval(local_channel())
 			);

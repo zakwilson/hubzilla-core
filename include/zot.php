@@ -10,7 +10,6 @@
 
 require_once('include/crypto.php');
 require_once('include/items.php');
-require_once('include/hubloc.php');
 require_once('include/queue_fn.php');
 require_once('include/perm_upgrade.php');
 
@@ -168,6 +167,11 @@ function zot_best_algorithm($methods) {
 
 	if(\Zotlabs\Lib\System::get_server_role() !== 'pro')
 		return 'aes256cbc';
+
+	$x = [ 'methods' => $methods, 'result' => '' ];
+	call_hooks('zot_best_algorithm',$x);
+	if($x['result'])
+		return $x['result'];
 
 	if($methods) {
 		$x = explode(',',$methods);
@@ -413,28 +417,12 @@ function zot_refresh($them, $channel = null, $force = false) {
 			}
 			else {
 
+				$p = \Zotlabs\Access\Permissions::connect_perms($channel['channel_id']);
+
+				$my_perms  = $p['perms'];
+				$automatic = $p['automatic'];
+
 				// new connection
-
-				$my_perms = null;
-				$automatic = false;
-
-				$role = get_pconfig($channel['channel_id'],'system','permissions_role');
-				if($role) {
-					$xx = \Zotlabs\Access\PermissionRoles::role_perms($role);
-					if($xx['perms_auto']) {
-						$automatic = true;
-						$default_perms = $xx['perms_connect'];
-						$my_perms = \Zotlabs\Access\Permissions::FilledPerms($default_perms);
-					}
-				}
-
-				if(! $my_perms) {
-					$m = \Zotlabs\Access\Permissions::FilledAutoperms($channel['channel_id']);
-					if($m) {
-						$automatic = true;
-						$my_perms = $m;
-					}
-				}
 
 				if($my_perms) {
 					foreach($my_perms as $k => $v) {
@@ -446,15 +434,17 @@ function zot_refresh($them, $channel = null, $force = false) {
 				if($closeness === false)
 					$closeness = 80;
 
-				$y = q("insert into abook ( abook_account, abook_channel, abook_closeness, abook_xchan, abook_created, abook_updated, abook_dob, abook_pending ) values ( %d, %d, %d, '%s', '%s', '%s', '%s', %d )",
-					intval($channel['channel_account_id']),
-					intval($channel['channel_id']),
-					intval($closeness),
-					dbesc($x['hash']),
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					dbesc($next_birthday),
-					intval(($automatic) ? 0 : 1)
+				$y = abook_store_lowlevel(
+					[
+						'abook_account'   => intval($channel['channel_account_id']),
+						'abook_channel'   => intval($channel['channel_id']),
+						'abook_closeness' => intval($closeness),
+						'abook_xchan'     => $x['hash'],
+						'abook_created'   => datetime_convert(),
+						'abook_updated'   => datetime_convert(),
+						'abook_dob'       => $next_birthday,
+						'abook_pending'   => intval(($automatic) ? 0 : 1)
+					]
 				);
 
 				if($y) {
@@ -563,7 +553,7 @@ function zot_gethub($arr, $multiple = false) {
 	}
 	logger('zot_gethub: not found: ' . print_r($arr,true), LOGGER_DEBUG);
 
-	return null;
+	return false;
 }
 
 /**
@@ -754,28 +744,28 @@ function import_xchan($arr,$ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 				&& ($arr['site']['url'] != z_root()))
 			$arr['searchable'] = false;
 
-		$x = q("insert into xchan ( xchan_hash, xchan_guid, xchan_guid_sig, xchan_pubkey, xchan_photo_mimetype,
-				xchan_photo_l, xchan_addr, xchan_url, xchan_connurl, xchan_follow, xchan_connpage, xchan_name, xchan_network, xchan_photo_date, xchan_name_date, xchan_hidden, xchan_selfcensored, xchan_deleted, xchan_pubforum )
-				values ( '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d) ",
-			dbesc($xchan_hash),
-			dbesc($arr['guid']),
-			dbesc($arr['guid_sig']),
-			dbesc($arr['key']),
-			dbesc($arr['photo_mimetype']),
-			dbesc($arr['photo']),
-			dbesc($arr['address']),
-			dbesc($arr['url']),
-			dbesc($arr['connections_url']),
-			dbesc($arr['follow_url']),
-			dbesc($arr['connect_url']),
-			dbesc(($arr['name']) ? $arr['name'] : '-'),
-			dbesc('zot'),
-			dbescdate($arr['photo_updated']),
-			dbescdate($arr['name_updated']),
-			intval(1 - intval($arr['searchable'])),
-			intval($arr['adult_content']),
-			intval($arr['deleted']),
-			intval($arr['public_forum'])
+		$x = xchan_store_lowlevel(
+			[
+				'xchan_hash'           => $xchan_hash, 
+				'xchan_guid'           => $arr['guid'],
+				'xchan_guid_sig'       => $arr['guid_sig'],
+				'xchan_pubkey'         => $arr['key'],
+				'xchan_photo_mimetype' => $arr['photo_mimetype'],
+				'xchan_photo_l'        => $arr['photo'],
+				'xchan_addr'           => $arr['address'],
+				'xchan_url'            => $arr['url'],
+				'xchan_connurl'        => $arr['connections_url'],
+				'xchan_follow'         => $arr['follow_url'],
+				'xchan_connpage'       => $arr['connect_url'],
+				'xchan_name'           => (($arr['name']) ? $arr['name'] : '-'),
+				'xchan_network'        => 'zot',
+				'xchan_photo_date'     => $arr['photo_updated'],
+				'xchan_name_date'      => $arr['name_updated'],
+				'xchan_hidden'         => intval(1 - intval($arr['searchable'])),
+				'xchan_selfcensored'   => $arr['adult_content'],
+				'xchan_deleted'        => $arr['deleted'],
+				'xchan_pubforum'       => $arr['public_forum']
+			]
 		);
 
 		$what .= 'new_xchan';
@@ -1946,6 +1936,7 @@ function update_imported_item($sender, $item, $orig, $uid, $tag_delivery) {
 		return;
 	}
 
+
 	$x = item_store_update($item);
 
 	// If we're updating an event that we've saved locally, we store the item info first
@@ -2463,22 +2454,25 @@ function sync_locations($sender, $arr, $absolute = false) {
 				);
 			}
 			logger('sync_locations: new hub: ' . $location['url']);
-			$r = q("insert into hubloc ( hubloc_guid, hubloc_guid_sig, hubloc_hash, hubloc_addr, hubloc_network, hubloc_primary, hubloc_url, hubloc_url_sig, hubloc_host, hubloc_callback, hubloc_sitekey, hubloc_updated, hubloc_connected)
-					values ( '%s','%s','%s','%s', '%s', %d ,'%s','%s','%s','%s','%s','%s','%s')",
-				dbesc($sender['guid']),
-				dbesc($sender['guid_sig']),
-				dbesc($sender['hash']),
-				dbesc($location['address']),
-				dbesc('zot'),
-				intval($location['primary']),
-				dbesc($location['url']),
-				dbesc($location['url_sig']),
-				dbesc($location['host']),
-				dbesc($location['callback']),
-				dbesc($location['sitekey']),
-				dbesc(datetime_convert()),
-				dbesc(datetime_convert())
+
+			$r = hubloc_store_lowlevel(
+				[
+					'hubloc_guid'      => $sender['guid'],
+					'hubloc_guid_sig'  => $sender['guid_sig'],
+					'hubloc_hash'      => $sender['hash'],
+					'hubloc_addr'      => $location['address'],
+					'hubloc_network'   => 'zot',
+					'hubloc_primary'   => $location['primary'],
+					'hubloc_url'       => $location['url'],
+					'hubloc_url_sig'   => $location['url_sig'],
+					'hubloc_host'      => $location['host'],
+					'hubloc_callback'  => $location['callback'],
+					'hubloc_sitekey'   => $location['sitekey'],
+					'hubloc_updated'   => datetime_convert(),
+					'hubloc_connected' => datetime_convert()
+				]
 			);
+
 			$what .= 'newhub ';
 			$changed = true;
 
@@ -3168,8 +3162,11 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		if(array_key_exists('menu',$arr) && $arr['menu'])
 			sync_menus($channel,$arr['menu']);
 
-		if(array_key_exists('file',$arr) && $arr['file'])
-			sync_files($channel,$arr['file']);
+		if(array_key_exists('menu',$arr) && $arr['menu'])
+			sync_menus($channel,$arr['menu']);
+
+		if(array_key_exists('wiki',$arr) && $arr['wiki'])
+			sync_items($channel,$arr['wiki'],((array_key_exists('relocate',$arr)) ? $arr['relocate'] : null));
 
 		if(array_key_exists('channel',$arr) && is_array($arr['channel']) && count($arr['channel'])) {
 
@@ -3312,10 +3309,12 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 						logger('process_channel_sync_delivery: total_feeds service class limit exceeded');
 						continue;
 					}
-					q("insert into abook ( abook_xchan, abook_account, abook_channel ) values ('%s', %d, %d ) ",
-						dbesc($clean['abook_xchan']),
-						intval($channel['channel_account_id']),
-						intval($channel['channel_id'])
+					abook_store_lowlevel(
+						[
+							'abook_xchan'   => $clean['abook_xchan'],
+							'abook_account' => $channel['channel_account_id'],
+							'abook_channel' => $channel['channel_id']
+						]
 					);
 					$total_friends ++;
 					if(intval($clean['abook_feed']))
@@ -4048,21 +4047,24 @@ function check_zotinfo($channel,$locations,&$ret) {
 			q("delete from hubloc where hubloc_hash = '%s'",
 				dbesc($channel['channel_hash'])
 			);
-			$r = q("insert into hubloc ( hubloc_guid, hubloc_guid_sig, hubloc_hash, hubloc_addr, hubloc_primary,
-				hubloc_url, hubloc_url_sig, hubloc_host, hubloc_callback, hubloc_sitekey, hubloc_network )
-				values ( '%s', '%s', '%s', '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s' )",
-				dbesc($channel['channel_guid']),
-				dbesc($channel['channel_guid_sig']),
-				dbesc($channel['channel_hash']),
-				dbesc(channel_reddress($channel)),
-				intval(1),
-				dbesc(z_root()),
-				dbesc(base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey']))),
-				dbesc(App::get_hostname()),
-				dbesc(z_root() . '/post'),
-				dbesc(get_config('system','pubkey')),
-				dbesc('zot')
+
+			$r = hubloc_store_lowlevel(
+				[
+					'hubloc_guid'     => $channel['channel_guid'],
+					'hubloc_guid_sig' => $channel['channel_guid_sig'],
+					'hubloc_hash'     => $channel['channel_hash'],
+					'hubloc_addr'     => channel_reddress($channel),
+					'hubloc_network'  => 'zot',
+					'hubloc_primary'  => 1,
+					'hubloc_url'      => z_root(),
+					'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+					'hubloc_host'     => App::get_hostname(),
+					'hubloc_callback' => z_root() . '/post',
+					'hubloc_sitekey'  => get_config('system','pubkey'),
+					'hubloc_updated'  => datetime_convert(),
+				]
 			);
+
 			if($r) {
 				$x = zot_encode_locations($channel);
 				if($x) {

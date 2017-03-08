@@ -1,4 +1,5 @@
-Hubzilla 2.2 (2017-??-??)
+Hubzilla 2.2 (2017-03-08)
+	- Don't collapse long nsfw content if nsfw plugin is already collapsing it
 	- Provide version compatibility check for themes (minversion, maxversion)
 	- Use chanlink_hash() instead of chanlink_url() where appropriate
 	- Use head_add_link() for feed discovery

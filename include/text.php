@@ -3,8 +3,10 @@
  * @file include/text.php
  */
 
-require_once("include/bbcode.php");
+use \Zotlabs\Lib as Zlib;
+use \Michelf\MarkdownExtra;
 
+require_once("include/bbcode.php");
 
 // random string, there are 86 characters max in text mode, 128 for hex
 // output is urlsafe
@@ -88,11 +90,9 @@ function escape_tags($string) {
 }
 
 
-function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
+function z_input_filter($s,$type = 'text/bbcode',$allow_code = false) {
 
 	if($type === 'text/bbcode')
-		return escape_tags($s);
-	if($type === 'text/markdown')
 		return escape_tags($s);
 	if($type == 'text/plain')
 		return escape_tags($s);
@@ -103,15 +103,15 @@ function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
 		return $s;
 	}
 
-	$r = q("select account_id, account_roles, channel_pageflags from account left join channel on channel_account_id = account_id where channel_id = %d limit 1",
-		intval($channel_id)
-	);
-	if($r) {
-		if(($r[0]['account_roles'] & ACCOUNT_ROLE_ALLOWCODE) || ($r[0]['channel_pageflags'] & PAGE_ALLOWCODE)) {
-			if(local_channel() && (get_account_id() == $r[0]['account_id'])) {
-				return $s;
-			}
-		}
+	if($allow_code) {
+		if($type === 'text/markdown')
+			return htmlspecialchars($s,ENT_QUOTES);
+		return $s;
+	}
+
+	if($type === 'text/markdown') {
+		$x = new Zlib\MarkdownSoap($s);
+		return $x->clean();
 	}
 
 	if($type === 'text/html')
@@ -121,13 +121,23 @@ function z_input_filter($channel_id,$s,$type = 'text/bbcode') {
 }
 
 
-
+/**
+ * @brief Use HTMLPurifier to get standards compliant HTML.
+ *
+ * Use the <a href="http://htmlpurifier.org/" target="_blank">HTMLPurifier</a>
+ * library to get filtered and standards compliant HTML.
+ *
+ * @see HTMLPurifier
+ *
+ * @param string $s raw HTML
+ * @param boolean $allow_position allow CSS position
+ * @return string standards compliant filtered HTML
+ */
 function purify_html($s, $allow_position = false) {
-	require_once('library/HTMLPurifier.auto.php');
-	require_once('include/html2bbcode.php');
 
 /**
  * @FIXME this function has html output, not bbcode - so safely purify these
+ * require_once('include/html2bbcode.php');
  * $s = html2bb_video($s);
  * $s = oembed_html2bbcode($s);
  */
@@ -135,6 +145,15 @@ function purify_html($s, $allow_position = false) {
 	$config = HTMLPurifier_Config::createDefault();
 	$config->set('Cache.DefinitionImpl', null);
 	$config->set('Attr.EnableID', true);
+
+	// If enabled, target=blank attributes are added to all links.
+	//$config->set('HTML.TargetBlank', true);
+	//$config->set('Attr.AllowedFrameTargets', ['_blank', '_self', '_parent', '_top']);
+	// restore old behavior of HTMLPurifier < 4.8, only used when targets allowed at all
+	// do not add rel="noreferrer" to all links with target attributes
+	//$config->set('HTML.TargetNoreferrer', false);
+	// do not add noopener rel attributes to links which have a target attribute associated with them
+	//$config->set('HTML.TargetNoopener', false);
 
 	//Allow some custom data- attributes used by built-in libs.
 	//In this way members which do not have allowcode set can still use the built-in js libs in webpages to some extent.
@@ -273,7 +292,6 @@ function purify_html($s, $allow_position = false) {
 			new HTMLPurifier_AttrDef_CSS_Length(),
 			new HTMLPurifier_AttrDef_CSS_Percentage()
 		));
-
 	}
 
 	$purifier = new HTMLPurifier($config);
@@ -756,9 +774,9 @@ function activity_match($haystack,$needle) {
 }
 
 /**
- * @brief Pull out all #hashtags and @person tags from $s.
+ * @brief Pull out all \#hashtags and \@person tags from $s.
  *
- * We also get @person@domain.com - which would make
+ * We also get \@person\@domain.com - which would make
  * the regex quite complicated as tags can also
  * end a sentence. So we'll run through our results
  * and strip the period from any tags which end with one.
@@ -853,6 +871,11 @@ function tag_sort_length($a,$b) {
 	return((mb_strlen($b) < mb_strlen($a)) ? (-1) : 1);
 }
 
+function total_sort($a,$b) {
+	if($a['total'] == $b['total'])
+		return 0;
+	return(($b['total'] > $a['total']) ? 1 : (-1));
+}
 
 
 /**
@@ -1143,12 +1166,11 @@ function get_mood_verbs() {
  *
  * @return Returns array with keys 'texts' and 'icons'
  */
-function list_smilies() {
+function list_smilies($default_only = false) {
 
 	$texts =  array(
 		'&lt;3',
 		'&lt;/3',
-		'&lt;\\3',
 		':-)',
 		';-)',
 		':-(',
@@ -1184,7 +1206,6 @@ function list_smilies() {
 	$icons = array(
 		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-heart.gif" alt="&lt;3" />',
 		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-brokenheart.gif" alt="&lt;/3" />',
-		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-brokenheart.gif" alt="&lt;\\3" />',
 		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-smile.gif" alt=":-)" />',
 		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-wink.gif" alt=";-)" />',
 		'<img class="smiley" src="' . z_root() . '/images/emoticons/smiley-frown.gif" alt=":-(" />',
@@ -1218,25 +1239,16 @@ function list_smilies() {
 
 	);
 
-	$x = get_config('feature','emoji');
-	if($x === false)
-		$x = 1;
-	if($x) {
-		if(! App::$emojitab)
-			App::$emojitab = json_decode(file_get_contents('library/emoji.json'),true);
-		foreach(App::$emojitab as $e) {
-			if(strpos($e['shortname'],':tone') === 0)
-				continue;
-			$texts[] = $e['shortname'];
-			$icons[] = '<img class="smiley emoji" height="16" width="16" src="images/emoji/' . $e['unicode'] . '.png' . '" alt="' . $e['name'] . '" />';
-		}
-	}
-
 	$params = array('texts' => $texts, 'icons' => $icons);
+
+	if($default_only)
+		return $params;
+
 	call_hooks('smilie', $params);
 
 	return $params;
 }
+
 /**
  * @brief Replaces text emoticons with graphical images.
  *
@@ -1365,20 +1377,7 @@ function link_compare($a, $b) {
 
 
 function unobscure(&$item) {
-	if(array_key_exists('item_obscured',$item) && intval($item['item_obscured'])) {
-		$key = get_config('system','prvkey');
-		if($item['title'])
-			$item['title'] = crypto_unencapsulate(json_decode($item['title'],true),$key);
-		if($item['body'])
-			$item['body'] = crypto_unencapsulate(json_decode($item['body'],true),$key);
-		if(get_config('system','item_cache')) {
-			q("update item set title = '%s', body = '%s', item_obscured = 0 where id = %d",
-				dbesc($item['title']),
-				dbesc($item['body']),
-				intval($item['id'])
-			);
-		}
-	}
+	return;
 }
 
 function unobscure_mail(&$item) {
@@ -1467,11 +1466,10 @@ function format_hashtags(&$item) {
 				continue;
 			if(strpos($item['body'], $t['url']))
 				continue;
-
 			if($s)
-				$s .= '&nbsp';
+				$s .= ' ';
 
-			$s .= '#<a href="' . zid($t['url']) . '" >' . $term . '</a>';
+			$s .= '<span class="badge badge-pill badge-info"><i class="fa fa-hashtag"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 
@@ -1491,11 +1489,9 @@ function format_mentions(&$item) {
 				continue;
 			if(strpos($item['body'], $t['url']))
 				continue;
-
 			if($s)
-				$s .= '&nbsp';
-
-			$s .= '@<a href="' . zid($t['url']) . '" >' . $term . '</a>';
+				$s .= ' ';
+			$s .= '<span class="badge badge-pill badge-success"><i class="fa fa-at"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 
@@ -1650,8 +1646,8 @@ function prepare_text($text, $content_type = 'text/bbcode', $cache = false) {
 			break;
 
 		case 'text/markdown':
-			require_once('library/markdown.php');
-			$s = Markdown($text);
+			$text = Zlib\MarkdownSoap::unescape($text);
+			$s = MarkdownExtra::defaultTransform($text);
 			break;
 
 		case 'application/x-pdl';
@@ -1806,22 +1802,8 @@ function mimetype_select($channel_id, $current = 'text/bbcode') {
 	);
 
 
-	if(App::$is_sys) {
+	if((App::$is_sys) || (channel_codeallowed($channel_id) && $channel_id == local_channel())){
 		$x[] = 'application/x-php';
-	}
-	else {
-		$r = q("select account_id, account_roles, channel_pageflags from account left join channel on account_id = channel_account_id where
-			channel_id = %d limit 1",
-			intval($channel_id)
-		);
-
-		if($r) {
-			if(($r[0]['account_roles'] & ACCOUNT_ROLE_ALLOWCODE) || ($r[0]['channel_pageflags'] & PAGE_ALLOWCODE)) {
-				if(local_channel() && get_account_id() == $r[0]['account_id']) {
-					$x[] = 'application/x-php';
-				}
-			}
-		}
 	}
 
 	foreach($x as $y) {
@@ -2062,7 +2044,7 @@ function ids_to_array($arr,$idx = 'id') {
 	$t = array();
 	if($arr) {
 		foreach($arr as $x) {
-			if(array_key_exists($idx,$x) && strlen($x[$idx]) && (! in_array($x[$idx],$t))) {			
+			if(array_key_exists($idx,$x) && strlen($x[$idx]) && (! in_array($x[$idx],$t))) {
 				$t[] = $x[$idx];
 			}
 		}
@@ -2078,7 +2060,7 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
 	if($arr) {
 		foreach($arr as $x) {
 			if(! in_array($x[$idx],$t)) {
-				if($quote) 
+				if($quote)
 					$t[] = "'" . dbesc($x[$idx]) . "'";
 				else
 					$t[] = $x[$idx];
@@ -2095,7 +2077,7 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
  * If $abook is true also include the abook info. This is needed in the API to
  * save extra per item lookups there.
  *
- * @param array[in,out] &$items
+ * @param[in,out] array &$items
  * @param boolean $abook If true also include the abook info
  * @param number $effective_uid
  */
@@ -2191,10 +2173,10 @@ function magic_link($s) {
 }
 
 /**
- * if $escape is true, dbesc() each element before adding quotes
+ * @brief If $escape is true, dbesc() each element before adding quotes.
  *
- * @param array[in,out] &$arr
- * @param boolean $escape default false
+ * @param[in,out] array &$arr
+ * @param boolean $escape (optional) default false
  */
 function stringify_array_elms(&$arr, $escape = false) {
 	for($x = 0; $x < count($arr); $x ++)
@@ -2205,7 +2187,6 @@ function stringify_array_elms(&$arr, $escape = false) {
  * @brief Indents a flat JSON string to make it more human-readable.
  *
  * @param string $json The original JSON string to process.
- *
  * @return string Indented version of the original JSON string.
  */
 function jindent($json) {
@@ -3058,7 +3039,15 @@ function array2XML($obj, $array) {
 	}
 }
 
-
+/**
+ * @brief Inserts an array into $table.
+ *
+ * @TODO Why is this function in include/text.php?
+ *
+ * @param string $table
+ * @param array $arr
+ * @return boolean|PDOStatement
+ */
 function create_table_from_array($table, $arr) {
 
 	if(! ($arr && $table))
@@ -3138,3 +3127,14 @@ function array_escape_tags(&$v,$k) {
 	$v = escape_tags($v);
 }
 
+function ellipsify($s,$maxlen) {
+	if($maxlen & 1)
+		$maxlen --;
+	if($maxlen < 4)
+		$maxlen = 4;
+
+	if(mb_strlen($s) < $maxlen)
+		return $s;
+
+	return mb_substr($s,0,$maxlen / 2) . '...' . mb_substr($s,mb_strlen($s) - ($maxlen / 2));
+}

@@ -4,66 +4,85 @@
 
 nav .badge {
 	position: absolute;
-	top: 1px;
-	left: 1px;
-	font-size: 10px;
-	line-height: 20px;
-	padding: 0px 5px;
-	height: 20px;
-	min-width: 20px;
-	border-radius: 10px;
+	font-size: 0.75rem;
 }
 
-#navbar-collapse-1 i,
-.navbar-header i {
-	font-size: 14px;
+@media screen and (min-width: 767px) {
+	nav .badge {
+		top: 0px;
+		left: 0px;
+	}
 }
 
-nav .navbar-header img {
-	height: 49px;
-	width: 49px;
-	margin-top: 1px;
+@media screen and (max-width: 767px) {
+	.navbar {
+		padding: .5rem 7px;
+	}
+
+	nav .badge {
+		top: 0.5rem;
+		left: 1.5rem;
+	}
 }
 
-/* nav overrides end */
+.widget .badge {
+	font-size: 100%;
+}
 
+.nav-item.nav-item-hack {
+	height: 2.3rem;
+}
 
-aside .nav-pills > li > a,
-.response-list .nav-pills > li > a {
-	padding: 6px 10px;
+.navbar-toggler-right {
+	padding: 0.2rem 0;
+}
+
+#navbar-collapse-1 i {
+	font-size: 1rem;
 }
 
 nav .dropdown-menu {
-	margin-top: 0px;
 	max-height: 70vh;
 	overflow: auto;
 }
 
-nav .navbar-collapse.in .dropdown-menu {
-	max-height: none;
-	overflow: none;
+#navbar-collapse-2 {
+	flex-basis: 100%;
+	max-height: 70vh;
+}
+
+#navbar-collapse-2.show {
+	overflow: auto;
+}
+
+
+#navbar-collapse-2.collapsing .dropdown-header,
+#navbar-collapse-2.show .dropdown-header {
+	padding: 0.5rem 0.1rem;
+}
+
+.navbar-inverse .navbar-toggler {
+	color: rgba(255,255,255,1);
+}
+/* nav overrides end */
+
+.btn-outline-secondary {
+	color: #aaa;
 }
 
 .wall-item-tools .dropdown-menu {
 	min-width: auto;
 }
 
-.nav-tabs.nav-justified > li {
-	white-space: nowrap;
-}
-
 code {
 	white-space: normal;
 }
 
-.form-control {
-	font-size: unset;
+label {
+	font-weight: bold;
 }
 
-.panel-group {
-	margin-bottom: 0px;
+small,
+.small {
+	font-size: 0.75rem;
 }
-
-/* Bootstrap assumes that checkboxes are on the left of labels, while it's usually the opposite in Red */
-.field.checkbox input[type="checkbox"] { margin-left: 0px; }
-.field.checkbox label { padding-left: 0px; font-weight: 700}

@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1188 );
+define( 'UPDATE_VERSION' , 1191 );
 
 /**
  *
@@ -2475,7 +2475,7 @@ function update_r1184() {
 
 function update_r1185() {
 
-	$r1 = q("alter table app add app_plugin char(255) not null default '' ");
+	$r1 = q("alter table app add app_plugin text not null default '' ");
 
 	if($r1)
 		return UPDATE_SUCCESS;
@@ -2508,4 +2508,41 @@ function update_r1187() {
 	return UPDATE_FAILED;
 
 
+}
+
+function update_r1188() {
+
+	$r1 = q("alter table channel add channel_password varchar(255) not null default '' ");
+	$r2 = q("alter table channel add channel_salt varchar(255) not null default '' ");
+
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+
+}
+
+function update_r1189() {
+
+	$r1 = q("alter table mail add mail_mimetype varchar(64) not null default 'text/bbcode' ");
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r2 = q("alter table mail add mail_raw smallint not null default 0 ");
+	}
+	else {
+		$r2 = q("alter table mail add mail_raw tinyint(4) not null default 0 ");
+	}
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+
+}
+
+function update_r1190() {
+	$r1 = q("alter table abook add abook_not_here smallint not null default 0 ");
+
+	$r2 = q("create index abook_not_here on abook (abook_not_here)");
+
+	if($r1 && $r2)
+		return UPDATE_SUCCESS;
+    return UPDATE_FAILED;
 }

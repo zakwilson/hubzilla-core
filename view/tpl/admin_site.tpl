@@ -51,6 +51,11 @@
 	{{include file="field_textarea.tpl" field=$banner}}
 	{{include file="field_textarea.tpl" field=$siteinfo}}
 	{{include file="field_textarea.tpl" field=$admininfo}}
+
+    {{include file="field_input.tpl" field=$reply_address}}
+    {{include file="field_input.tpl" field=$from_email}}
+    {{include file="field_input.tpl" field=$from_email_name}}
+
 	{{include file="field_select.tpl" field=$language}}
 	{{include file="field_select.tpl" field=$theme}}
     {{include file="field_select.tpl" field=$theme_mobile}}
@@ -71,9 +76,6 @@
 	{{include file="field_select.tpl" field=$access_policy}}
 	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
 
-	<h3>{{$upload}}</h3>
-	{{include file="field_input.tpl" field=$maximagesize}}
-	
 	<h3>{{$corporate}}</h3>
 	{{include file="field_checkbox.tpl" field=$verify_email}}
 	{{include file="field_checkbox.tpl" field=$feed_contacts}}

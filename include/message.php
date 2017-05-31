@@ -13,9 +13,7 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 	$ret = array('success' => false);
 	$is_reply = false;
 
-	$a = get_app();
 	$observer_hash = get_observer_hash();
-
 
 	if($uid) {
 		$r = q("select * from channel where channel_id = %d limit 1",
@@ -37,13 +35,15 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 	$body = cleanup_bbcode($body);
 	$results = linkify_tags($a, $body, $uid);
 
-
-	if(preg_match_all("/\[attachment\](.*?)\[\/attachment\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match))
-		$attaches = $match[1];
+	if(! $raw) {
+		if(preg_match_all("/\[attachment\](.*?)\[\/attachment\]/",((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$match)) {
+			$attaches = $match[1];
+		}
+	}
 
 	$attachments = '';
 
-	if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
+	if((! $raw) && preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
 		$attachments = array();
 		foreach($match[2] as $mtch) {
 			$hash = substr($mtch,0,strpos($mtch,','));
@@ -186,19 +186,21 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 
 	if($subject)
 		$subject = str_rot47(base64url_encode($subject));
-	if($body)
+	if(($body )&& (! $raw))
 		$body  = str_rot47(base64url_encode($body));
 	
 	$sig = ''; // placeholder
+	$mimetype = ''; //placeholder
 
-	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, title, body, sig, attach, mid, parent_mid, created, expires, mail_isreply )
-		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
+	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, mail_mimetype, title, body, sig, attach, mid, parent_mid, created, expires, mail_isreply )
+		VALUES ( %d, '%s', %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d )",
 		intval($channel['channel_account_id']),
 		dbesc($conv_guid),
 		intval(1),
 		intval($channel['channel_id']),
 		dbesc($channel['channel_hash']),
 		dbesc($recipient),
+		dbesc(($mimetype)? $mimetype : 'text/bbcode'),
 		dbesc($subject),
 		dbesc($body),
 		dbesc($sig),
@@ -514,6 +516,9 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 			if($messages[$k]['body'])
 				$messages[$k]['body'] = base64url_decode(str_rot47($messages[$k]['body']));
 		}
+		if($messages[$k]['mail_raw'])
+			$messages[$k]['body'] = mail_prepare_binary([ 'id' => $messages[$k]['id'] ]);
+
 	}
 
 

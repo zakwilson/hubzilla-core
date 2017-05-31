@@ -1,17 +1,15 @@
 .widget {
-	margin-bottom: 10px;
-	padding: 10px;
+	margin-bottom: 1rem;
+	padding: 0.5rem;
 }
 
 .widget h3 {
 	margin-top: 0px;
 }
 
-.widget-input {
-	width: 100%;
-	border-top-right-radius: 0px;
-	border-bottom-right-radius: 0px;
-	border-right: 0px;
+.widget .active .wall-item-ago,
+.widget .active .dropdown-sub-text {
+	color: #fff;
 }
 
 .tags {
@@ -20,32 +18,13 @@
 
 .widget-nav-pills-icons {
 	opacity: 0;
-	padding: 6px 10px;
 	float: right;
-	position: relative;
-	z-index:1;
 }
-
 
 .widget-nav-pills-checkbox {
-	padding: 6px 10px;
+	padding: 0.6rem 1.4rem;
 	float: right;
-	position: relative;
-	z-index:1;
 	cursor: pointer;
-}
-
-i.widget-nav-pills-icons,
-i.widget-nav-pills-checkbox {
-	margin-top: 2px;
-}
-
-.widget-nav-pills-icons:hover + a {
-	background-color: #eee;
-}
-
-.widget-nav-pills-checkbox:hover + a {
-	background-color: #eee;
 }
 
 li:hover .widget-nav-pills-icons {
@@ -150,16 +129,6 @@ li:hover .group-edit-icon {
 	width: 250px;
 }
 
-/* events tools */
-
-#event-upload-form {
-	margin-top: 10px;
-}
-
-#event-upload-choose {
-	width: 100%;
-}
-
 /* cover photo */
 
 #cover-photo {
@@ -174,20 +143,22 @@ li:hover .group-edit-icon {
 	bottom: 0px;
 	left: 0px;
 	width: 100%;
-	padding: 15px;
+	padding: 1rem;
+}
+
+#cover-photo-caption h1,
+#cover-photo-caption h3 {
 	color: #fff;
 	font-weight: bold;
-	text-shadow: 1px 1px 3px rgba(0,0,0,.7);
-}
-
-.cover-photo-title {
-	font-size: 30px;
-}
-
-.cover-photo-subtitle {
-	font-size: 20px;
+	text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
 }
 
 a.wikilist {
 	z-index: 1;
+}
+
+/* mail list */
+
+.active .conv-participants {
+	color: #fff;
 }

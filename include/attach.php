@@ -209,7 +209,7 @@ function attach_list_files($channel_id, $observer, $hash = '', $filename = '', $
 
 	// Retrieve all columns except 'data'
 
-	$r = q("select id, aid, uid, hash, filename, filetype, filesize, revision, folder, os_storage, is_dir, is_photo, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d $sql_extra ORDER BY $orderby $limit",
+	$r = q("select id, aid, uid, hash, filename, filetype, filesize, revision, folder, os_path, display_path, os_storage, is_dir, is_photo, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d $sql_extra ORDER BY $orderby $limit",
 		intval($channel_id)
 	);
 
@@ -284,6 +284,7 @@ function attach_by_hash($hash, $observer_hash, $rev = 0) {
 	return $ret;
 }
 
+
 function attach_can_view_folder($uid,$ob_hash,$folder_hash) {
 
 	$sql_extra = permissions_sql($uid,$ob_hash);
@@ -348,7 +349,7 @@ function attach_by_hash_nodata($hash, $observer_hash, $rev = 0) {
 
 	// Now we'll see if we can access the attachment
 
-	$r = q("select id, aid, uid, hash, creator, filename, filetype, filesize, revision, folder, os_storage, is_photo, is_dir, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d and hash = '%s' $sql_extra limit 1",
+	$r = q("select id, aid, uid, hash, creator, filename, filetype, filesize, revision, folder, os_storage, is_photo, os_path, display_path, is_dir, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where uid = %d and hash = '%s' $sql_extra limit 1",
 		intval($r[0]['uid']),
 		dbesc($hash)
 	);
@@ -531,7 +532,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		if($options === 'update' &&  $arr && array_key_exists('revision',$arr))
 			$sql_options = " and revision = " . intval($arr['revision']) . " ";
 
-		$x = q("select id, aid, uid, filename, filetype, filesize, hash, revision, folder, os_storage, is_photo, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where hash = '%s' and uid = %d $sql_options limit 1",
+		$x = q("select id, aid, uid, filename, filetype, filesize, hash, revision, folder, os_storage, is_photo, os_path, display_path, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where hash = '%s' and uid = %d $sql_options limit 1",
 			dbesc($arr['hash']),
 			intval($channel_id)
 		);
@@ -702,11 +703,11 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$os_relpath .= $folder_hash . '/';
 	}
 
-	$os_relpath .= $hash;
+	$os_relpath  .= $hash;
+	$os_relpath   = ltrim($os_relpath,'/');
 
-	// not yet used
-	$os_path = '';
-	$display_path = '';
+	$os_path      = $os_relpath;
+	$display_path = $pathname . '/' . $filename;
 
 	if($src)
 		@file_put_contents($os_basepath . $os_relpath,@file_get_contents($src));
@@ -810,7 +811,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	if($is_photo) {
 
-		$args = array( 'source' => $source, 'visible' => $visible, 'resource_id' => $hash, 'album' => basename($pathname), 'os_path' => $os_basepath . $os_relpath, 'filename' => $filename, 'getimagesize' => $gis, 'directory' => $direct, 'options' => $options );
+		$args = array( 'source' => $source, 'visible' => $visible, 'resource_id' => $hash, 'album' => $pathname, 'os_syspath' => $os_basepath . $os_relpath, 'os_path' => $os_path, 'display_path' => $display_path, 'filename' => $filename, 'getimagesize' => $gis, 'directory' => $direct, 'options' => $options );
 		if($arr['contact_allow'])
 			$args['contact_allow'] = $arr['contact_allow'];
 		if($arr['group_allow'])
@@ -914,7 +915,7 @@ function z_readdir($channel_id, $observer_hash, $pathname, $parent_hash = '') {
 		if(count($paths) > 1) {
 			$curpath = array_shift($paths);
 
-			$r = q("select hash, id, is_dir from attach where uid = %d and filename = '%s' and is_dir != 0 " . permissions_sql($channel_id) . " limit 1",
+			$r = q("select hash, id, is_dir from attach where uid = %d and filename = '%s' and is_dir != 0 " . permissions_sql($channel_id,$observer_hash) . " limit 1",
 				intval($channel_id),
 				dbesc($curpath)
 			);
@@ -929,7 +930,7 @@ function z_readdir($channel_id, $observer_hash, $pathname, $parent_hash = '') {
 	else
 		$paths = array($pathname);
 
-	$r = q("select id, aid, uid, hash, creator, filename, filetype, filesize, revision, folder, is_photo, is_dir, os_storage, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where id = %d and folder = '%s' and filename = '%s' and is_dir != 0 " . permissions_sql($channel_id),
+	$r = q("select id, aid, uid, hash, creator, filename, filetype, filesize, revision, folder, os_path, display_path, is_photo, is_dir, os_storage, flags, created, edited, allow_cid, allow_gid, deny_cid, deny_gid from attach where id = %d and folder = '%s' and filename = '%s' and is_dir != 0 " . permissions_sql($channel_id),
 		intval($channel_id),
 		dbesc($parent_hash),
 		dbesc($paths[0])
@@ -968,12 +969,15 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 
 	$sql_options = '';
 
-	$basepath = 'store/' . $channel['channel_address'];
+	$os_basepath = 'store/' . $channel['channel_address'];
 
-	logger('attach_mkdir: basepath: ' . $basepath);
+	logger('attach_mkdir: basepath: ' . $os_basepath);
 
-	if(! is_dir($basepath))
-		os_mkdir($basepath,STORAGE_DEFAULT_PERMISSIONS, true);
+	if(! is_dir($os_basepath))
+		os_mkdir($os_basepath,STORAGE_DEFAULT_PERMISSIONS, true);
+
+
+	$os_basepath .= '/';
 
 	if(! perm_is_allowed($channel_id, $observer_hash, 'write_storage')) {
 		$ret['message'] = t('Permission denied.');
@@ -1019,10 +1023,13 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 
 		$lpath = '';
 		$lfile = $arr['folder'];
+		$dpath = '';
+
 		$sql_options = permissions_sql($channel['channel_id']);
 
+
 		do {
-			$r = q("select filename, hash, flags, is_dir, folder from attach where uid = %d and hash = '%s' and is_dir != 0
+			$r = q("select filename, hash, flags, is_dir, folder, display_path from attach where uid = %d and hash = '%s' and is_dir = 1
 				$sql_options limit 1",
 				intval($channel['channel_id']),
 				dbesc($lfile)
@@ -1032,22 +1039,26 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 				$ret['message'] = t('Path not found.');
 				return $ret;
 			}
+
+			$dpath = $r[0]['filename'] . (($dpath) ? '/' . $dpath : ''); 
+
 			if($lfile)
-				$lpath = $r[0]['hash'] . '/' . $lpath;
+				$lpath = $r[0]['hash'] . (($lpath) ? '/' . $lpath : '');
+
 			$lfile = $r[0]['folder'];
+
 		} while ( ($r[0]['folder']) && intval($r[0]['is_dir'])) ;
-		$path = $basepath . '/' . $lpath;
+
+		$path = $lpath;
 	}
 	else
-		$path = $basepath . '/';
-
-	$path .= $arr['hash'];
+		$path = '';
 
 	$created = datetime_convert();
 
-	// not yet used
-	$os_path = '';
-	$display_path = '';
+	$os_path = ltrim($path . '/' . $arr['hash'],'/');
+	$display_path = ltrim($dpath . '/' . $arr['filename'],'/');
+
 
 	$r = q("INSERT INTO attach ( aid, uid, hash, creator, filename, filetype, filesize, revision, folder, os_storage, is_dir, content, created, edited, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid )
 		VALUES ( %d, %d, '%s', '%s', '%s', '%s', %d, %d, '%s', %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
@@ -1062,7 +1073,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 		dbesc($arr['folder']),
 		intval(1),
 		intval(1),
-		dbescbin($path),
+		dbescbin($os_basepath . $os_path),
 		dbesc($created),
 		dbesc($created),
 		dbesc($os_path),
@@ -1074,7 +1085,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 	);
 
 	if($r) {
-		if(os_mkdir($path, STORAGE_DEFAULT_PERMISSIONS, true)) {
+		if(os_mkdir($os_basepath . $os_path, STORAGE_DEFAULT_PERMISSIONS, true)) {
 			$ret['success'] = true;
 
 			// update the parent folder's lastmodified timestamp
@@ -1092,7 +1103,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 				$ret['data'] = $z[0];
 		}
 		else {
-			logger('attach_mkdir: ' . mkdir . ' ' . $path . ' failed.');
+			logger('attach_mkdir: ' . mkdir . ' ' . $os_basepath . $os_path . ' failed.');
 			$ret['message'] = t('mkdir failed.');
 		}
 	}
@@ -2212,10 +2223,23 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 		intval($r[0]['id'])
 	);
 
+
+	$x = attach_syspaths($channel_id,$resource_id);
+
+	$t1 = q("update attach set os_path = '%s', display_path = '%s' where id = %d",
+		dbesc($x['os_path']),
+		dbesc($x['path']),
+		intval($r[0]['id'])
+	);
+
+
 	if($r[0]['is_photo']) {
-		$t = q("update photo set album = '%s', filename = '%s' where resource_id = '%s' and uid = %d",
+		$t = q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s' 
+			where resource_id = '%s' and uid = %d",
 			dbesc($newdirname),
 			dbesc($filename),
+			dbesc($x['os_path']),
+			dbesc($x['path']),
 			dbesc($resource_id),
 			intval($channel_id)
 		);
@@ -2243,8 +2267,9 @@ function attach_folder_select_list($channel_id) {
 	if($r) {
 		foreach($r as $rv) {
 			$x = attach_folder_rpaths($r,$rv);
-			if($x)
+			if($x) {
 				$out[$x[0]] = $x[1];
+			}
 		}
 	}
 
@@ -2266,7 +2291,6 @@ function attach_folder_rpaths($all_folders,$that_folder) {
 					continue;
 				if($selected['hash'] == $parent_hash) {
 					$path         = '/' . $selected['filename'] . $path;
-					$current_hash = $selected['hash'];
 					$parent_hash  = $selected['folder'];
 					$found = true;
 					break;
@@ -2280,3 +2304,54 @@ function attach_folder_rpaths($all_folders,$that_folder) {
 
 	return (($error) ? false : [ $current_hash , $path ]);
 }
+
+
+function attach_syspaths($channel_id,$attach_hash) {
+
+	$os_path = '';
+	$path = '';
+	do {
+
+		$r = q("select folder, filename, hash from attach where hash = '%s' and uid = %d",
+			dbesc($attach_hash),
+			intval($channel_id)
+		);
+		if(! $r)
+			break;
+
+		$os_path = $r[0]['hash'] . (($os_path) ? '/' . $os_path : '');
+		$path = $r[0]['filename'] . (($path) ? '/' . $path : '');
+		$attach_hash = $r[0]['folder'];
+	}
+	while($attach_hash);
+
+	return [ 'os_path' => $os_path, 'path' => $path ];
+
+
+}
+
+
+
+function attach_upgrade() {
+
+	$r = q("select id, uid, hash from attach where os_path = '' and display_path = '' limit 100");
+	if($r) {
+		foreach($r as $rv) {
+			$x = attach_syspaths($rv['uid'],$rv['hash']);
+			if($x) {
+				$w = q("update attach set os_path = '%s', display_path = '%s' where id = %d",
+					dbesc($x['os_path']),
+					dbesc($x['path']),
+					intval($rv['id'])
+				);
+				$y = q("update photo set os_path = '%s', display_path = '%s' where uid = %d and resource_id = '%s'",
+					dbesc($x['os_path']),
+					dbesc($x['path']),
+					intval($rv['uid']),
+					dbesc($rv['hash'])
+				);
+			}
+		}
+	}
+}
+

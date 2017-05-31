@@ -508,6 +508,7 @@ class Setup extends \Zotlabs\Web\Controller {
 		$this->check_add($ck_funcs, t('PDO database PHP module'), true, true);
 		$this->check_add($ck_funcs, t('mb_string PHP module'), true, true);
 		$this->check_add($ck_funcs, t('xml PHP module'), true, true);
+		$this->check_add($ck_funcs, t('zip PHP module'), true, true);
 
 		if(function_exists('apache_get_modules')){
 			if (! in_array('mod_rewrite', apache_get_modules())) {
@@ -550,8 +551,12 @@ class Setup extends \Zotlabs\Web\Controller {
 			$ck_funcs[4]['help'] = t('Error: mb_string PHP module required but not installed.');
 		}
 		if(! extension_loaded('xml')) {
+			$ck_funcs[5]['status'] = false;
+			$ck_funcs[5]['help'] = t('Error: xml PHP module required for DAV but not installed.');
+		}
+		if(! extension_loaded('zip')) {
 			$ck_funcs[6]['status'] = false;
-			$ck_funcs[6]['help'] = t('Error: xml PHP module required for DAV but not installed.');
+			$ck_funcs[6]['help'] = t('Error: zip PHP module required but not installed.');
 		}
 
 		$checks = array_merge($checks, $ck_funcs);
@@ -624,7 +629,6 @@ class Setup extends \Zotlabs\Web\Controller {
 	 * @param[out] array &$checks
 	 */
 	function check_htaccess(&$checks) {
-		$a = get_app();
 		$status = true;
 		$help = '';
 		$ssl_error = false;
@@ -718,7 +722,6 @@ class Setup extends \Zotlabs\Web\Controller {
 	 * @return string with parsed HTML
 	 */
 	function what_next() {
-		$a = get_app();
 		// install the standard theme
 		set_config('system', 'allowed_themes', 'redbasic');
 

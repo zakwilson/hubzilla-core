@@ -1,6 +1,17 @@
-<?php /** @file */
+<?php
+/**
+ * @file include/hubloc.php
+ * @brief Hubloc related functions.
+ */
 
-
+/**
+ * @brief Create an array for hubloc table and insert record.
+ *
+ * Creates an assoziative array which will be inserted into the hubloc table.
+ *
+  * @param array $arr An assoziative array with hubloc values
+ * @return boolean|PDOStatement
+ */
 function hubloc_store_lowlevel($arr) {
 
 	$store = [
@@ -25,9 +36,35 @@ function hubloc_store_lowlevel($arr) {
 		'hubloc_deleted'     => ((array_key_exists('hubloc_deleted',$arr))     ? $arr['hubloc_deleted']     : 0)
 	];
 
-	return create_table_from_array('hubloc',$store);
-
+	return create_table_from_array('hubloc', $store);
 }
+
+function site_store_lowlevel($arr) {
+
+	$store = [
+		'site_url'        => ((array_key_exists('site_url',$arr))        ? $arr['site_url']         : ''),
+		'site_access'     => ((array_key_exists('site_access',$arr))     ? $arr['site_access']      : 0),
+		'site_flags'      => ((array_key_exists('site_flags',$arr))      ? $arr['site_flags']       : 0),
+		'site_update'     => ((array_key_exists('site_update',$arr))     ? $arr['site_update']      : NULL_DATE),
+		'site_pull'       => ((array_key_exists('site_pull',$arr))       ? $arr['site_pull']        : NULL_DATE),
+		'site_sync'       => ((array_key_exists('site_sync',$arr))       ? $arr['site_sync']        : NULL_DATE),
+		'site_directory'  => ((array_key_exists('site_directory',$arr))  ? $arr['site_directory']   : ''),
+		'site_register'   => ((array_key_exists('site_register',$arr))   ? $arr['site_register']    : 0),
+		'site_sellpage'   => ((array_key_exists('site_sellpage',$arr))   ? $arr['site_sellpage']    : ''),
+		'site_location'   => ((array_key_exists('site_location',$arr))   ? $arr['site_location']    : ''),
+		'site_realm'      => ((array_key_exists('site_realm',$arr))      ? $arr['site_realm']       : ''),
+		'site_valid'      => ((array_key_exists('site_valid',$arr))      ? $arr['site_valid']       : 0),
+		'site_dead'       => ((array_key_exists('site_dead',$arr))       ? $arr['site_dead']        : 0),
+		'site_type'       => ((array_key_exists('site_type',$arr))       ? $arr['site_type']        : 0),
+		'site_project'    => ((array_key_exists('site_project',$arr))    ? $arr['site_project']     : ''),
+		'site_version'    => ((array_key_exists('site_version',$arr))    ? $arr['site_version']     : ''),
+		'site_crypto'     => ((array_key_exists('site_crypto',$arr))     ? $arr['site_crypto']      : '')
+	];
+
+	return create_table_from_array('site', $store);
+}
+
+
 
 
 
@@ -45,9 +82,8 @@ function prune_hub_reinstalls() {
 			// see if this url has more than one sitekey, indicating it has been re-installed.
 
 			if(count($x) > 1) {
-				
-				$d1 = datetime_convert('UTC','UTC',$x[0]['c']);
-				$d2 = datetime_convert('UTC','UTC','now - 3 days');
+				$d1 = datetime_convert('UTC', 'UTC', $x[0]['c']);
+				$d2 = datetime_convert('UTC', 'UTC', 'now - 3 days');
 
 				// allow some slop period, say 3 days - just in case this is a glitch or transient occurrence
 				// Then remove any hublocs pointing to the oldest entry.
@@ -63,18 +99,22 @@ function prune_hub_reinstalls() {
 	}
 }
 
+
+/**
+ * @brief Remove obsolete hublocs.
+ *
+ * Get rid of any hublocs which are ours but aren't valid anymore -
+ * e.g. they point to a different and perhaps transient URL that we aren't using.
+ *
+ * I need to stress that this shouldn't happen. fix_system_urls() fixes hublocs
+ * when it discovers the URL has changed. So it's unclear how we could end up
+ * with URLs pointing to the old site name. But it happens. This may be an artifact
+ * of an old bug or maybe a regression in some newer code. In any event, they
+ * mess up communications and we have to take action if we find any.
+ */
 function remove_obsolete_hublocs() {
 
-	logger('remove_obsolete_hublocs',LOGGER_DEBUG);
-
-	// Get rid of any hublocs which are ours but aren't valid anymore - 
-	// e.g. they point to a different and perhaps transient URL that we aren't using.
-
-	// I need to stress that this shouldn't happen. fix_system_urls() fixes hublocs
-	// when it discovers the URL has changed. So it's unclear how we could end up
-	// with URLs pointing to the old site name. But it happens. This may be an artifact
-	// of an old bug or maybe a regression in some newer code. In any event, they
-	// mess up communications and we have to take action if we find any. 
+	logger('remove_obsolete_hublocs', LOGGER_DEBUG);
 
 	// First make sure we have any hublocs (at all) with this URL and sitekey.
 	// We don't want to perform this operation while somebody is in the process
@@ -82,27 +122,25 @@ function remove_obsolete_hublocs() {
 
 	$r = q("select hubloc_id from hubloc where hubloc_url = '%s' and hubloc_sitekey = '%s'",
 		dbesc(z_root()),
-		dbesc(get_config('system','pubkey'))
+		dbesc(get_config('system', 'pubkey'))
 	);
 	if((! $r) || (! count($r)))
 		return;
-
-	$channels = array();
 
 	// Good. We have at least one *valid* hubloc.
 
 	// Do we have any invalid ones?
 
 	$r = q("select hubloc_id from hubloc where hubloc_sitekey = '%s' and hubloc_url != '%s'",
-		dbesc(get_config('system','pubkey')),
+		dbesc(get_config('system', 'pubkey')),
 		dbesc(z_root())
 	);
 	$p = q("select hubloc_id from hubloc where hubloc_sitekey != '%s' and hubloc_url = '%s'",
-		dbesc(get_config('system','pubkey')),
+		dbesc(get_config('system', 'pubkey')),
 		dbesc(z_root())
 	);
 	if(is_array($r) && is_array($p))
-		$r = array_merge($r,$p);
+		$r = array_merge($r, $p);
 
 	if(! $r)
 		return;
@@ -111,8 +149,8 @@ function remove_obsolete_hublocs() {
 
 	logger('remove_obsolete_hublocs: removing ' . count($r) . ' hublocs.');
 
-	$interval = ((get_config('system','delivery_interval') !== false) 
-			? intval(get_config('system','delivery_interval')) : 2 );
+	$interval = ((get_config('system', 'delivery_interval') !== false)
+			? intval(get_config('system', 'delivery_interval')) : 2 );
 
 	foreach($r as $rr) {
 		q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d",
@@ -120,10 +158,10 @@ function remove_obsolete_hublocs() {
 		);
 
 		$x = q("select channel_id from channel where channel_hash = '%s' limit 1",
-			dbesc($rr['hubloc_hash']) 
+			dbesc($rr['hubloc_hash'])
 		);
 		if($x) {
-			Zotlabs\Daemon\Master::Summon(array('Notifier','location',$x[0]['channel_id']));
+			Zotlabs\Daemon\Master::Summon(array('Notifier', 'location', $x[0]['channel_id']));
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
@@ -131,8 +169,15 @@ function remove_obsolete_hublocs() {
 }
 
 
-// This actually changes other structures to match the given (presumably current) hubloc primary selection
-
+/**
+ * @brief Change primary hubloc.
+ *
+ * This actually changes other structures to match the given (presumably current)
+ * hubloc primary selection.
+ *
+ * @param array $hubloc
+ * @return boolean
+ */
 function hubloc_change_primary($hubloc) {
 
 	if(! is_array($hubloc)) {
@@ -170,7 +215,7 @@ function hubloc_change_primary($hubloc) {
 		dbesc($hubloc['hubloc_hash'])
 	);
 	if(! $r) {
-		logger('xchan not found');		
+		logger('xchan not found');
 		return false;
 	}
 	if($r[0]['xchan_addr'] === $hubloc['hubloc_addr']) {
@@ -179,7 +224,7 @@ function hubloc_change_primary($hubloc) {
 	}
 
 	$url = $hubloc['hubloc_url'];
-	$lwebbie = substr($hubloc['hubloc_addr'],0,strpos($hubloc['hubloc_addr'],'@'));
+	$lwebbie = substr($hubloc['hubloc_addr'], 0, strpos($hubloc['hubloc_addr'], '@'));
 
 	$r = q("update xchan set xchan_addr = '%s', xchan_url = '%s', xchan_follow = '%s', xchan_connurl = '%s' where xchan_hash = '%s'",
 		dbesc($hubloc['hubloc_addr']),
@@ -191,14 +236,19 @@ function hubloc_change_primary($hubloc) {
 	if(! $r)
 		logger('xchan_update failed.');
 
-	logger('primary hubloc changed.' . print_r($hubloc,true),LOGGER_DEBUG);
+	logger('primary hubloc changed.' . print_r($hubloc, true), LOGGER_DEBUG);
 	return true;
-
 }
 
-// We use the post url to distinguish between http and https hublocs. 
-// The https might be alive, and the http dead.
 
+/**
+ * @brief Mark a hubloc as down.
+ *
+ * We use the post url to distinguish between http and https hublocs.
+ * The https might be alive, and the http dead.
+ *
+ * @param string $posturl Hubloc callback url which to disable
+ */
 function hubloc_mark_as_down($posturl) {
 	$r = q("update hubloc set hubloc_status = ( hubloc_status | %d ) where hubloc_callback = '%s'",
 		intval(HUBLOC_OFFLINE),
@@ -208,22 +258,21 @@ function hubloc_mark_as_down($posturl) {
 
 
 
-
 function ping_site($url) {
 
 		$ret = array('success' => false);
 
 		$sys = get_sys_channel();
 
-		$m = zot_build_packet($sys,'ping');
-		$r = zot_zot($url . '/post',$m);
+		$m = zot_build_packet($sys, 'ping');
+		$r = zot_zot($url . '/post', $m);
 		if(! $r['success']) {
 			$ret['message'] = 'no answer from ' . $url;
 			return $ret;
 		}
-		$packet_result = json_decode($r['body'],true);
+		$packet_result = json_decode($r['body'], true);
 		if(! $packet_result['success']) {
-			$ret['message'] = 'packet failure from ' . $url;		
+			$ret['message'] = 'packet failure from ' . $url;
 			return $ret;
 		}
 

@@ -11,9 +11,6 @@ namespace Zotlabs\Module;
 require_once('include/socgraph.php');
 require_once('include/selectors.php');
 require_once('include/group.php');
-require_once('include/contact_widgets.php');
-require_once('include/zot.php');
-require_once('include/widgets.php');
 require_once('include/photos.php');
 
 
@@ -391,30 +388,22 @@ class Connedit extends \Zotlabs\Web\Controller {
 	
 		$section = ((array_key_exists('section',$_REQUEST)) ? $_REQUEST['section'] : '');
 		$channel = \App::get_channel();
-		$my_perms = get_channel_default_perms(local_channel());
-		$role = get_pconfig(local_channel(),'system','permissions_role');
-		if($role) {
-			$x = \Zotlabs\Access\PermissionRoles::role_perms($role);
-			if($x['perms_connect'])
-				$my_perms = $x['perms_connect'];
-		}
 	
 		$yes_no = array(t('No'),t('Yes'));
 	
-		if($my_perms) {
-			$o .= "<script>function connectDefaultShare() {
-			\$('.abook-edit-me').each(function() {
-				if(! $(this).is(':disabled'))
-					$(this).prop('checked', false);
-			});\n\n";
-			$perms = get_perms();
-			foreach($perms as $p => $v) {
-				if($my_perms & $v[1]) {
-					$o .= "\$('#me_id_perms_" . $p . "').prop('checked', true); \n";
-				}
+		$connect_perms = \Zotlabs\Access\Permissions::connect_perms(local_channel());
+
+		$o .= "<script>function connectDefaultShare() {
+		\$('.abook-edit-me').each(function() {
+			if(! $(this).is(':disabled'))
+				$(this).prop('checked', false);
+		});\n\n";
+		foreach($connect_perms['perms'] as $p => $v) {
+			if($v) {
+				$o .= "\$('#me_id_perms_" . $p . "').prop('checked', true); \n";
 			}
-			$o .= " }\n</script>\n";
 		}
+		$o .= " }\n</script>\n";
 	
 		if(argc() == 3) {
 	
@@ -441,6 +430,34 @@ class Connedit extends \Zotlabs\Web\Controller {
 				goaway(z_root() . '/connedit/' . $contact_id);
 	
 			}
+
+			if($cmd === 'fetchvc') {
+				$url = str_replace('/channel/','/profile/',$orig_record[0]['xchan_url']) . '/vcard';
+				$recurse = 0;
+				$x = z_fetch_url(zid($url),false,$recurse,['session' => true]);
+				if($x['success']) {
+					$h = new \Zotlabs\Web\HTTPHeaders($x['header']);
+					$fields = $h->fetch();
+					if($fields) {
+						foreach($fields as $y) {
+							 if(array_key_exists('content-type',$y)) {
+								$type = explode(';',trim($y['content-type']));
+								if($type && $type[0] === 'text/vcard' && $x['body']) {
+									$vc = \Sabre\VObject\Reader::read($x['body']);
+									$vcard = $vc->serialize();
+									if($vcard) {
+										set_abconfig(local_channel(),$orig_record[0]['abook_xchan'],'system','vcard',$vcard);
+										$this->connedit_clone($a);
+									}
+								}
+							}
+						}
+					}
+				}
+				goaway(z_root() . '/connedit/' . $contact_id);
+			}
+
+
 			if($cmd === 'resetphoto') {
 				q("update xchan set xchan_photo_date = '2001-01-01 00:00:00' where xchan_hash = '%s'",
 					dbesc($orig_record[0]['xchan_hash'])
@@ -582,6 +599,13 @@ class Connedit extends \Zotlabs\Web\Controller {
 					'sel'   => '',
 					'title' => t('Fetch updated permissions'),
 				),
+
+				'rephoto' => array(
+					'label' => t('Refresh Photo'),
+					'url'   => z_root() . '/connedit/' . $contact['abook_id'] . '/resetphoto',
+					'sel'   => '',
+					'title' => t('Fetch updated photo'),
+				),
 	
 				'recent' => array(
 					'label' => t('Recent Activity'),
@@ -630,6 +654,17 @@ class Connedit extends \Zotlabs\Web\Controller {
 				),
 	
 			);
+
+
+			if($contact['xchan_network'] === 'zot') {
+				$tools['fetchvc'] = [
+					'label' => t('Fetch Vcard'),
+					'url'    => z_root() . '/connedit/' . $contact['abook_id'] . '/fetchvc',
+					'sel'   => '',
+					'title' => t('Fetch electronic calling card for this connection')
+				];
+			}
+
 
 			$sections = [];
 

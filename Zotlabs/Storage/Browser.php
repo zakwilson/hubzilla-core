@@ -84,7 +84,7 @@ class Browser extends DAV\Browser\Plugin {
 		require_once('include/conversation.php');
 		require_once('include/text.php');
 		if ($this->auth->owner_nick) {
-			$html = profile_tabs(get_app(), (($is_owner) ? true : false), $this->auth->owner_nick);
+			$html = '';
 		}
 
 		$files = $this->server->getPropertiesForPath($path, array(
@@ -240,9 +240,11 @@ class Browser extends DAV\Browser\Plugin {
 				'$nick' => $this->auth->getCurrentUser()
 			));
 
-		$a = get_app();
+
+		$a = false;
+
 		\App::$page['content'] = $html;
-		load_pdl($a);
+		load_pdl();
 
 		$current_theme = \Zotlabs\Render\Theme::current();
 
@@ -255,7 +257,7 @@ class Browser extends DAV\Browser\Plugin {
 			}
 		}
 		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
-		construct_page($a);
+		construct_page();
 	}
 
 	/**
@@ -322,12 +324,16 @@ class Browser extends DAV\Browser\Plugin {
 		if(strpos($path,$special) === 0)
 			$path = trim(substr($path,$count),'/');
 
+		$info = t('Please use DAV to upload large (video, audio) files.<br>See <a class="zrl" href="help/member/member_guide#Cloud_Desktop_Clients">Cloud Desktop Clients</a>');
+
+
 		$output .= replace_macros(get_markup_template('cloud_actionspanel.tpl'), array(
 				'$folder_header' => t('Create new folder'),
 				'$folder_submit' => t('Create'),
 				'$upload_header' => t('Upload file'),
 				'$upload_submit' => t('Upload'),
 				'$quota' => $quota,
+				'$info' => $info,
 				'$channick' => $this->auth->owner_nick,
 				'$aclselect' => $aclselect,
 				'$allow_cid' => acl2json($channel_acl['allow_cid']),

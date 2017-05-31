@@ -82,7 +82,8 @@ class ThreadItem {
 		$dropping = false;
 		$star = false;
 		$isstarred = "unstarred fa-star-o";
-		$indent = '';
+		$is_comment = false;
+		$is_item = false;
 		$osparkle = '';
 		$total_children = $this->count_descendants();
 		$unseen_comments = (($item['real_uid']) ? 0 : $this->count_unseen_descendants());
@@ -183,7 +184,7 @@ class ThreadItem {
 		$like_list = ((x($conv_responses['like'],$item['mid'])) ? $conv_responses['like'][$item['mid'] . '-l'] : '');
 		if (count($like_list) > MAX_LIKERS) {
 			$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
-			array_push($like_list_part, '<a href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
+			array_push($like_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
 		} else {
 			$like_list_part = '';
 		}
@@ -195,7 +196,7 @@ class ThreadItem {
 			$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
 			if (count($dislike_list) > MAX_LIKERS) {
 				$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
-				array_push($dislike_list_part, '<a href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
+				array_push($dislike_list_part, '<a class="dropdown-item" href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
 			} else {
 				$dislike_list_part = '';
 			}
@@ -232,7 +233,7 @@ class ThreadItem {
 			}
 		} 
 		else {
-			$indent = 'comment';
+			$is_comment = true;
 		}
 
 
@@ -276,13 +277,13 @@ class ThreadItem {
 
 		$keep_reports = intval(get_config('system','expire_delivery_reports'));
 		if($keep_reports === 0)
-			$keep_reports = 30;
+			$keep_reports = 10;
 
 		if((! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0)
 			$dreport = t('Delivery Report');
 
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
-			$indent .= ' shiny';
+			$is_new = true;
 
 
 		localize_item($item);
@@ -337,7 +338,6 @@ class ThreadItem {
 			'profile_url' => $profile_link,
 			'thread_action_menu' => thread_action_menu($item,$conv->get_mode()),
 			'thread_author_menu' => thread_author_menu($item,$conv->get_mode()),
-			'item_photo_menu' => item_photo_menu($item),
 			'dreport' => $dreport,
 			'name' => $profile_name,
 			'thumb' => $profile_avatar,
@@ -361,7 +361,8 @@ class ThreadItem {
 			'attend_title' => t('Attendance Options'),
 			'vote_label' => t('Vote'),
 			'vote_title' => t('Voting Options'),
-			'indent' => $indent,
+			'is_comment' => $is_comment,
+			'is_new' => $is_new,
 			'owner_url' => $this->get_owner_url(),
 			'owner_photo' => $this->get_owner_photo(),
 			'owner_name' => $this->get_owner_name(),
@@ -407,7 +408,7 @@ class ThreadItem {
 			'showlike' => $showlike,
 			'showdislike' => $showdislike,
 			'comment' => $this->get_comment_box($indent),
-			'previewing' => ($conv->is_preview() ? ' preview ' : ''),
+			'previewing' => ($conv->is_preview() ? true : false ),
 			'wait' => t('Please wait'),
 			'submid' => str_replace(['+','='], ['',''], base64_encode(substr($item['mid'],0,32))),
 			'thread_level' => $thread_level

@@ -21,12 +21,23 @@ class NativeWikiPage {
 		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
 
 		$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and item_deleted = 0 
-			$sql_extra group by mid",
+			$sql_extra order by created asc",
 			dbesc($resource_id),
 			intval($channel_id)
 		);
 		if($r) {
-			$items = fetch_post_tags($r,true);
+			$x = [];
+			$y = [];
+
+			foreach($r as $rv) {
+				if(! in_array($rv['mid'],$x)) {
+					$y[] = $rv;
+					$x[] = $rv['mid'];
+				}
+			}
+
+			$items = fetch_post_tags($y,true);
+
 			foreach($items as $page_item) {
 				$title = get_iconfig($page_item['id'],'nwikipage','pagetitle',t('(No Title)'));
 				if(urldecode($title) !== 'Home') {
@@ -156,7 +167,7 @@ class NativeWikiPage {
 			$content = $item['body'];
 
 			return [ 
-				'content' => json_encode($content), 
+				'content' => $content,
 				'mimeType' => $w['mimeType'], 
 				'message' => '', 
 				'success' => true
@@ -307,48 +318,22 @@ class NativeWikiPage {
 		return null;
 	}
 
-
-
-	static public function prepare_content($s) {
-			
-		$text = preg_replace_callback('{
-					(?:\n\n|\A\n?)
-					(	            # $1 = the code block -- one or more lines, starting with a space/tab
-					  (?>
-						[ ]{'.'4'.'}  # Lines must start with a tab or a tab-width of spaces
-						.*\n+
-					  )+
-					)
-					((?=^[ ]{0,'.'4'.'}\S)|\Z)	# Lookahead for non-space at line-start, or end of doc
-				}xm',
-				'self::nwiki_prepare_content_callback', $s);
-	
-		return $text;
-	}
-	
-	static public function nwiki_prepare_content_callback($matches) {
-		$codeblock = $matches[1];
-	
-		$codeblock = htmlspecialchars($codeblock, ENT_NOQUOTES, UTF8, false);
-		return "\n\n" . $codeblock ;
-	}
-	
-	
-	
 	static public function save_page($arr) {
 
-		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
-		$content = ((array_key_exists('content',$arr)) ? purify_html(Zlib\NativeWikiPage::prepare_content($arr['content'])) : '');
-		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
+		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
+		$content       = ((array_key_exists('content',$arr))       ? $arr['content']       : '');
+		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
 		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
 		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
-		$revision = ((array_key_exists('revision',$arr))    ? $arr['revision']    : 0);
+		$revision      = ((array_key_exists('revision',$arr))      ? $arr['revision']      : 0);
 
 		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
 		if (!$w['wiki']) {
 			return array('message' => t('Error reading wiki'), 'success' => false);
 		}
+
+		$mimetype = $w['mimeType'];
 	
 		// fetch the most recently saved revision. 
 
@@ -367,6 +352,7 @@ class NativeWikiPage {
 		$item['author_xchan'] = $observer_hash;
 		$item['revision']     = (($arr['revision']) ? intval($arr['revision']) + 1 : intval($item['revision']) + 1);
 		$item['edited']       = datetime_convert();
+		$item['mimetype']     = $mimetype;
 
 		if($item['iconfig'] && is_array($item['iconfig']) && count($item['iconfig'])) {
 			for($x = 0; $x < count($item['iconfig']); $x ++) {
@@ -534,6 +520,29 @@ class NativeWikiPage {
 		}
 		return $s;
 	}
+
+	static public function render_page_history($arr) {
+
+		$pageUrlName = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
+		$resource_id = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+
+		$pageHistory = self::page_history([
+			'channel_id'    => \App::$profile_uid, 
+			'observer_hash' => get_observer_hash(),
+			'resource_id'   => $resource_id,
+			'pageUrlName'   => $pageUrlName
+		]);
+
+		return replace_macros(get_markup_template('nwiki_page_history.tpl'), array(
+			'$pageHistory' => $pageHistory['history'],
+			'$permsWrite'  => $arr['permsWrite'],
+			'$name_lbl'    => t('Name'),
+			'$msg_label'   => t('Message','wiki_history')
+		));
+
+	}
+
+
 	
 	/**
 	 * Replace the instances of the string [toc] with a list element that will be populated by

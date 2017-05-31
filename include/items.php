@@ -298,11 +298,13 @@ function add_source_route($iid, $hash) {
  * or other processing is performed.
  *
  * @param array $arr
+ * @param boolean $allow_code (optional) default false
+ * @param boolean $deliver (optional) default true
  * @returns array
  *  * \e boolean \b success true or false
  *  * \e array \b activity the resulting activity if successful
  */
-function post_activity_item($arr,$allow_code = false,$deliver = true) {
+function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
 	$ret = array('success' => false);
 
@@ -336,18 +338,6 @@ function post_activity_item($arr,$allow_code = false,$deliver = true) {
 	if(! array_key_exists('mimetype',$arr))
 		$arr['mimetype'] = 'text/bbcode';
 
-	if(array_key_exists('item_private',$arr) && $arr['item_private']) {
-
-		$arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
-
-		if($channel) {
-			if($channel['channel_hash'] === $arr['author_xchan']) {
-				$arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
-				$arr['item_verified'] = 1;
-			}
-		}
-	}
-
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : item_message_id());
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
 	$arr['thr_parent']   = ((x($arr,'thr_parent')) ? $arr['thr_parent'] : $arr['mid']);
@@ -360,7 +350,7 @@ function post_activity_item($arr,$allow_code = false,$deliver = true) {
 	if(($is_comment) && ($arr['obj_type'] === ACTIVITY_OBJ_NOTE))
 		$arr['obj_type'] = ACTIVITY_OBJ_COMMENT;
 
-	if(! ( array_key_exists('allow_cid',$arr) || array_key_exists('allow_gid',$arr) 
+	if(! ( array_key_exists('allow_cid',$arr) || array_key_exists('allow_gid',$arr)
 		|| array_key_exists('deny_cid',$arr) || array_key_exists('deny_gid',$arr))) {
 		$arr['allow_cid']    = $channel['channel_allow_cid'];
 		$arr['allow_gid']    = $channel['channel_allow_gid'];
@@ -542,12 +532,7 @@ function get_item_elements($x,$allow_code = false) {
 
 	$arr = array();
 
-	if($allow_code)
-		$arr['body'] = $x['body'];
-	else
-		$arr['body'] = (($x['body']) ? htmlspecialchars($x['body'],ENT_COMPAT,'UTF-8',false) : '');
-
-	$key = get_config('system','pubkey');
+	$arr['body'] = $x['body'];
 
 	$maxlen = get_max_import_size();
 
@@ -629,6 +614,9 @@ function get_item_elements($x,$allow_code = false) {
 		if(in_array('notshown',$x['flags']))
 			$arr['item_notshown'] = 1;
 
+		if(in_array('obscured',$x['flags']))
+			$arr['item_obscured'] = 1;
+
 		// hidden item are no longer propagated - notshown may be a suitable alternative
 
 		if(in_array('hidden',$x['flags']))
@@ -649,25 +637,61 @@ function get_item_elements($x,$allow_code = false) {
 		return array();
 
 	// save a potentially expensive lookup if author == owner
+
 	if($arr['author_xchan'] === make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']))
 		$arr['owner_xchan'] = $arr['author_xchan'];
 	else {
 		$xchan_hash = import_author_xchan($x['owner']);
-		if($xchan_hash)
+		if($xchan_hash) {
 			$arr['owner_xchan'] = $xchan_hash;
-		else
+		}
+		else {
 			return array();
+		}
 	}
 
+	// Check signature on the body text received.
+	// This presents an issue that we aren't verifying the text that is actually displayed
+	// on this site. We are however verifying the received text was exactly as received.
+	// We have every right to strip content that poses a security risk. You are welcome to
+	// create a plugin to verify the content after filtering if this offends you.
+
 	if($arr['sig']) {
+
+		// check the supplied signature against the supplied content.
+		// Note that we will purify the content which could change it.
+
 		$r = q("select xchan_pubkey from xchan where xchan_hash = '%s' limit 1",
 			dbesc($arr['author_xchan'])
 		);
-		if($r && rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey']))
-			$arr['item_verified'] = 1;
-		else
-			logger('get_item_elements: message verification failed.');
+		if($r) {
+			if($r[0]['xchan_pubkey']) {
+				if(rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey'])) {
+					$arr['item_verified'] = 1;
+				}
+				else {
+					logger('get_item_elements: message verification failed.');
+				}
+			}
+			else {
+
+				// If we don't have a public key, strip the signature so it won't show as invalid.
+				// This won't happen in normal use, but could happen if import_author_xchan()
+				// failed to load the zot-info packet due to a server failure and had
+				// to create an alternate xchan with network 'unknown'
+
+				unset($arr['sig']);
+			}
+		}
 	}
+
+	// if the input is markdown, remove one level of html escaping.
+	// It will be re-applied in item_store() and/or item_store_update().
+	// Do this after signature checking as the original signature
+	// was generated on the escaped content.
+
+	if($arr['mimetype'] === 'text/markdown')
+		$arr['body'] = \Zotlabs\Lib\MarkdownSoap::unescape($arr['body']);
 
 	if(array_key_exists('revision',$x)) {
 
@@ -695,7 +719,7 @@ function get_item_elements($x,$allow_code = false) {
 		// local only		$arr['item_relay'] = $x['item_relay'];
 		$arr['item_mentionsme'] = $x['item_mentionsme'];
 		$arr['item_nocomment'] = $x['item_nocomment'];
-		// local only $arr['item_obscured'] = $x['item_obscured'];
+		$arr['item_obscured'] = $x['item_obscured'];
 		// local only $arr['item_verified'] = $x['item_verified'];
 		$arr['item_retained'] = $x['item_retained'];
 		$arr['item_rss'] = $x['item_rss'];
@@ -768,6 +792,8 @@ function import_author_xchan($x) {
 	if($arr['xchan_hash'])
 		return $arr['xchan_hash'];
 
+	$y = false;
+
 	if((! array_key_exists('network', $x)) || ($x['network'] === 'zot')) {
 		$y = import_author_zot($x);
 	}
@@ -778,11 +804,11 @@ function import_author_xchan($x) {
 		$y = import_author_rss($x);
 	}
 
-	if($x['network'] === 'unknown') {
+	if(! $y) {
 		$y = import_author_unknown($x);
 	}
 
-	return(($y) ? $y : false);
+	return($y);
 }
 
 /**
@@ -939,13 +965,6 @@ function encode_item($item,$mirror = false) {
 	$c_scope = map_scope($comment_scope);
 
 	$key = get_config('system','prvkey');
-
-	if(array_key_exists('item_obscured',$item) && intval($item['item_obscured'])) {
-		if($item['title'])
-			$item['title'] = crypto_unencapsulate(json_decode($item['title'],true),$key);
-		if($item['body'])
-			$item['body'] = crypto_unencapsulate(json_decode($item['body'],true),$key);
-	}
 
 	// If we're trying to backup an item so that it's recoverable or for export/imprt,
 	// add all the attributes we need to recover it
@@ -1120,7 +1139,7 @@ function encode_item_xchan($xchan) {
 	$ret['address']  = $xchan['xchan_addr'];
 	$ret['url']      = $xchan['xchan_url'];
 	$ret['network']  = $xchan['xchan_network'];
-	$ret['photo']    = array('mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m']);
+	$ret['photo']    = [ 'mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m'] ];
 	$ret['guid']     = $xchan['xchan_guid'];
 	$ret['guid_sig'] = $xchan['xchan_guid_sig'];
 
@@ -1304,6 +1323,8 @@ function encode_item_flags($item) {
 		$ret[] = 'nsfw';
 	if(intval($item['item_consensus']))
 		$ret[] = 'consensus';
+	if(intval($item['item_obscured']))
+		$ret[] = 'obscured';
 	if(intval($item['item_private']))
 		$ret[] = 'private';
 
@@ -1456,6 +1477,26 @@ function get_profile_elements($x) {
 }
 
 
+
+
+function item_sign(&$item) {
+
+	if(array_key_exists('sig',$item) && $item['sig'])
+		return;
+
+	$r = q("select channel_prvkey from channel where channel_id = %d and channel_hash = '%s' ",
+			intval($item['uid']),
+			dbesc($item['author_xchan'])
+	);
+	if(! $r)
+		return;
+
+	$item['sig'] = base64url_encode(rsa_sign($item['body'],$r[0]['channel_prvkey']));
+	$item['item_verified'] = 1;
+
+}
+
+
 /**
  * @brief
  *
@@ -1479,7 +1520,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if(array_key_exists('cancel',$arr) && $arr['cancel']) {
 		logger('cancelled by plugin');
 		return $ret;
-	}		
+	}
 
 	if(! $arr['uid']) {
 		logger('item_store: no uid');
@@ -1533,35 +1574,30 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	// obsolete, but needed so as not to throw not-null constraints on some database driveres
 	$arr['item_flags']    = ((x($arr,'item_flags'))    ? intval($arr['item_flags'])          : 0 );
 
-	// only detect language if we have text content, and if the post is private but not yet
-	// obscured, make it so.
 
-	if((! array_key_exists('item_obscured',$arr)) || $arr['item_obscured'] == 0) {
 
-		$arr['lang'] = detect_language($arr['body']);
-		// apply the input filter here - if it is obscured it has been filtered already
-		$arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
+	$arr['lang'] = detect_language($arr['body']);
 
-		if(local_channel() && (local_channel() == $arr['uid']) && (! $arr['sig'])) {
-			$channel = App::get_channel();
-			if($channel['channel_hash'] === $arr['author_xchan']) {
-				$arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
-				$arr['item_verified'] = 1;
-			}
+	// apply the input filter here
+
+	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
+
+	item_sign($arr);
+
+	if(! array_key_exists('sig',$arr))
+		$arr['sig'] = '';
+
+	$allowed_languages = get_pconfig($arr['uid'],'system','allowed_languages');
+
+	if((is_array($allowed_languages)) && ($arr['lang']) && (! array_key_exists($arr['lang'],$allowed_languages))) {
+		$translate = array('item' => $arr, 'from' => $arr['lang'], 'to' => $allowed_languages, 'translated' => false);
+		call_hooks('item_translate', $translate);
+		if((! $translate['translated']) && (intval(get_pconfig($arr['uid'],'system','reject_disallowed_languages')))) {
+			logger('item_store: language ' . $arr['lang'] . ' not accepted for uid ' . $arr['uid']);
+			$ret['message'] = 'language not accepted';
+			return $ret;
 		}
-
-		$allowed_languages = get_pconfig($arr['uid'],'system','allowed_languages');
-
-		if((is_array($allowed_languages)) && ($arr['lang']) && (! array_key_exists($arr['lang'],$allowed_languages))) {
-			$translate = array('item' => $arr, 'from' => $arr['lang'], 'to' => $allowed_languages, 'translated' => false);
-			call_hooks('item_translate', $translate);
-			if((! $translate['translated']) && (intval(get_pconfig($arr['uid'],'system','reject_disallowed_languages')))) {
-				logger('item_store: language ' . $arr['lang'] . ' not accepted for uid ' . $arr['uid']);
-				$ret['message'] = 'language not accepted';
-				return $ret;
-			}
-			$arr = $translate['item'];
-		}
+		$arr = $translate['item'];
 	}
 
 	if((x($arr,'obj')) && is_array($arr['obj'])) {
@@ -1808,9 +1844,12 @@ logger('revision: ' . $arr['revision']);
 		intval($arr['revision'])
 	);
 
-	if($r && count($r)) {
+	if($r) {
+		// This will gives us a fresh copy of what's now in the DB and undo the db escaping,
+		// which really messes up the notifications
+
 		$current_post = $r[0]['id'];
-		$arr = $r[0];  // This will gives us a fresh copy of what's now in the DB and undo the db escaping, which really messes up the notifications
+		$arr = $r[0];
 		logger('item_store: created item ' . $current_post, LOGGER_DEBUG);
 	}
 	else {
@@ -1869,7 +1908,7 @@ logger('revision: ' . $arr['revision']);
 
 	// update the commented timestamp on the parent - unless this is potentially a clone of an older item
 	// which we don't wish to bring to the surface. As the queue only holds deliveries for 3 days, it's
-	// suspected of being an older cloned item if the creation time is older than that. 
+	// suspected of being an older cloned item if the creation time is older than that.
 
 	if($arr['created'] > datetime_convert('','','now - 4 days')) {
 		$z = q("select max(created) as commented from item where parent_mid = '%s' and uid = %d and item_delayed = 0 ",
@@ -1915,7 +1954,7 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 	if(array_key_exists('cancel',$arr) && $arr['cancel']) {
 		logger('cancelled by plugin');
 		return $ret;
-	}		
+	}
 
 	if(! intval($arr['uid'])) {
 		logger('item_store_update: no uid');
@@ -1957,33 +1996,25 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 		return $ret;
 	}
 
-    if((! array_key_exists('item_obscured', $arr)) || $arr['item_obscured'] == 0) {
+	$arr['lang'] = detect_language($arr['body']);
 
-		$arr['lang'] = detect_language($arr['body']);
+	// apply the input filter here
 
-        // apply the input filter here - if it is obscured it has been filtered already
-        $arr['body'] = trim(z_input_filter($arr['uid'],$arr['body'],$arr['mimetype']));
+	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
-		if(local_channel() && (local_channel() == $arr['uid']) && (! $arr['sig'])) {
-            $channel = App::get_channel();
-            if($channel['channel_hash'] === $arr['author_xchan']) {
-                $arr['sig'] = base64url_encode(rsa_sign($arr['body'],$channel['channel_prvkey']));
-                $arr['item_verified'] = 1;
-            }
-        }
+	item_sign($arr);
 
-		$allowed_languages = get_pconfig($arr['uid'],'system','allowed_languages');
+	$allowed_languages = get_pconfig($arr['uid'],'system','allowed_languages');
 
-		if((is_array($allowed_languages)) && ($arr['lang']) && (! array_key_exists($arr['lang'],$allowed_languages))) {
-			$translate = array('item' => $arr, 'from' => $arr['lang'], 'to' => $allowed_languages, 'translated' => false);
-			call_hooks('item_translate', $translate);
-			if((! $translate['translated']) && (intval(get_pconfig($arr['uid'],'system','reject_disallowed_languages')))) {
-				logger('item_store: language ' . $arr['lang'] . ' not accepted for uid ' . $arr['uid']);
-				$ret['message'] = 'language not accepted';
-				return $ret;
-			}
-			$arr = $translate['item'];
+	if((is_array($allowed_languages)) && ($arr['lang']) && (! array_key_exists($arr['lang'],$allowed_languages))) {
+		$translate = array('item' => $arr, 'from' => $arr['lang'], 'to' => $allowed_languages, 'translated' => false);
+		call_hooks('item_translate', $translate);
+		if((! $translate['translated']) && (intval(get_pconfig($arr['uid'],'system','reject_disallowed_languages')))) {
+			logger('item_store: language ' . $arr['lang'] . ' not accepted for uid ' . $arr['uid']);
+			$ret['message'] = 'language not accepted';
+			return $ret;
 		}
+		$arr = $translate['item'];
 	}
 
 	if((x($arr,'obj')) && is_array($arr['obj'])) {
@@ -2515,15 +2546,7 @@ function tag_deliver($uid, $item_id) {
 		// Now let's check if this mention was inside a reshare so we don't spam a forum
 		// If it's private we may have to unobscure it momentarily so that we can parse it.
 
-		$body = '';
-
-		if(intval($item['item_obscured'])) {
-			$key = get_config('system','prvkey');
-			if($item['body'])
-				$body = crypto_unencapsulate(json_decode($item['body'],true),$key);
-		}
-		else
-			$body = $item['body'];
+		$body = $item['body'];
 
 		$body = preg_replace('/\[share(.*?)\[\/share\]/','',$body);
 
@@ -2674,11 +2697,6 @@ function tgroup_check($uid,$item) {
 
 	$body = $item['body'];
 
-	if(array_key_exists('item_obscured',$item) && intval($item['item_obscured']) && $body) {
-		$key = get_config('system','prvkey');
-		$body = crypto_unencapsulate(json_decode($body,true),$key);
-	}
-
 	$body = preg_replace('/\[share(.*?)\[\/share\]/','',$body);
 
 //	$pattern = '/@\!?\[zrl\=' . preg_quote($term['url'],'/') . '\]' . preg_quote($term['term'] . '+','/') . '\[\/zrl\]/';
@@ -2772,7 +2790,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 	$item_origin = 1;
 	$item_uplink = 0;
 	$item_nocomment = 0;
-	$item_obscured = 0;
 
 	$flag_bits = $item['item_flags'];
 
@@ -2795,11 +2812,10 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 	$title = $item['title'];
 	$body  = $item['body'];
 
-	$r = q("update item set item_uplink = %d, item_nocomment = %d, item_obscured = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
+	$r = q("update item set item_uplink = %d, item_nocomment = %d, item_flags = %d, owner_xchan = '%s', allow_cid = '%s', allow_gid = '%s',
 		deny_cid = '%s', deny_gid = '%s', item_private = %d, public_policy = '%s', comment_policy = '%s', title = '%s', body = '%s', item_wall = %d, item_origin = %d  where id = %d",
 		intval($item_uplink),
 		intval($item_nocomment),
-		intval($item_obscured),
 		intval($flag_bits),
 		dbesc($channel['channel_hash']),
 		dbesc($channel['channel_allow_cid']),
@@ -2989,8 +3005,14 @@ function mail_store($arr) {
 			$arr['body'] = escape_tags($arr['body']);
 	}
 
-	if(array_key_exists('attach',$arr) && is_array($arr['attach']))
-		$arr['attach'] = json_encode($arr['attach']);
+	if(array_key_exists('attach',$arr)) {
+		if(is_array($arr['attach'])) {
+			$arr['attach'] = json_encode($arr['attach']);
+		}
+	}
+	else {
+		$arr['attach'] = '';
+	}
 
 	$arr['account_id']    = ((x($arr,'account_id'))           ? intval($arr['account_id'])                 : 0);
 	$arr['mid']           = ((x($arr,'mid'))           ? notags(trim($arr['mid']))           : random_string());
@@ -3001,6 +3023,7 @@ function mail_store($arr) {
 	$arr['title']         = ((x($arr,'title'))         ? trim($arr['title'])         : '');
 	$arr['parent_mid']    = ((x($arr,'parent_mid'))    ? notags(trim($arr['parent_mid']))    : '');
 	$arr['body']          = ((x($arr,'body'))          ? trim($arr['body'])                  : '');
+	$arr['sig']           = ((x($arr,'sig'))           ? trim($arr['sig'])                   : '');
 	$arr['conv_guid']     = ((x($arr,'conv_guid'))     ? trim($arr['conv_guid'])             : '');
 
 	$arr['mail_flags']    = ((x($arr,'mail_flags'))    ? intval($arr['mail_flags'])          : 0 );
@@ -3773,7 +3796,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 	if(! is_sys_channel($uid))
 		$sql_extra = item_permissions_sql($uid,$observer_hash);
 
-	$limit = " LIMIT 100 ";
+	$limit = " LIMIT 5000 ";
 
 	if($mindate > NULL_DATE) {
 		$sql_extra .= " and ( created > '$mindate' or changed > '$mindate' ) ";
@@ -3785,15 +3808,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 	}
 
 
-	$items = array();
-
-	/** @FIXME re-unite these SQL statements. There is no need for them to be separate. The mySQL is convoluted with misuse of group by. As it stands, there is a slight difference where the postgres version doesn't remove the duplicate parents up to 100. In practice this doesn't matter. It could be made to match behavior by adding "distinct on (parent) " to the front of the selection list, at a not-worth-it performance penalty (page temp results to disk). duplicates are still ignored in the in() clause, you just get less than 100 parents if there are many children. */
-
-	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-		$groupby = '';
-	} else {
-		$groupby = 'GROUP BY parent';
-	}
+	$items = [];
 
 	$item_normal = item_normal();
 
@@ -3802,7 +3817,7 @@ function zot_feed($uid,$observer_hash,$arr) {
 			WHERE uid != %d
 			$item_normal
 			AND item_wall = 1
-			and item_private = 0 $sql_extra $groupby ORDER BY created ASC $limit",
+			and item_private = 0 $sql_extra ORDER BY created ASC $limit",
 			intval($uid)
 		);
 	}
@@ -3810,19 +3825,25 @@ function zot_feed($uid,$observer_hash,$arr) {
 		$r = q("SELECT parent, created, postopts from item
 			WHERE uid = %d $item_normal
 			AND item_wall = 1
-			$sql_extra $groupby ORDER BY created ASC $limit",
+			$sql_extra ORDER BY created ASC $limit",
 			intval($uid)
 		);
 	}
 
+	$parents = [];
+
 	if($r) {
-		for($x = 0; $x < count($r); $x ++) {
-			if(strpos($r[$x]['postopts'],'nodeliver') !== false) {
-				unset($r[$x]);
-			}
+		foreach($r as $rv) {
+			if(array_key_exists($rv['parent'],$parents))
+				continue;
+			if(strpos($rv['postopts'],'nodeliver') !== false)
+				continue;
+			$parents[$rv['parent']] = $rv;
+			if(count($parents) > 200)
+				break;
 		}
 
-		$parents_str = ids_to_querystr($r,'parent');
+		$parents_str = ids_to_querystr($parents,'parent');
 		$sys_query = ((is_sys_channel($uid)) ? $sql_extra : '');
 		$item_normal = item_normal();
 
@@ -3938,6 +3959,10 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			$result['message'] = t('Connection not found.');
 			return $result;
 		}
+	}
+
+	if(intval($arr['compat']) === 1) {
+		$sql_extra = " AND author_xchan = owner_xchan and item_wall = 1 and item_private = 0 ";
 	}
 
 	if ($arr['datequery']) {
@@ -4479,12 +4504,12 @@ function item_create_edit_activity($post) {
 	$new_item['id'] = 0;
 	$new_item['parent'] = 0;
 	$new_item['mid'] = item_message_id();
-	
+
 	$new_item['body'] = sprintf( t('[Edited %s]'), (($update_item['item_thread_top']) ? t('Post','edit_activity') : t('Comment','edit_activity')));
 
 	$new_item['body'] .= "\n\n";
 	$new_item['body'] .= $update_item['body'];
-	
+
 	$new_item['sig'] = '';
 
 	$new_item['verb'] = ACTIVITY_UPDATE;
@@ -4510,10 +4535,10 @@ function item_create_edit_activity($post) {
 				array('rel' => 'photo', 'type' => $item_author['xchan_photo_mimetype'], 'href' => $item_author['xchan_photo_m'])),
 			),
 	));
-	
 
 
-	$x = post_activity_item($new_item);	
+
+	$x = post_activity_item($new_item);
 
 	$post_id = $x['id'];
 	if($post_id) {
@@ -4528,5 +4553,5 @@ function item_create_edit_activity($post) {
 	}
 
 	\Zotlabs\Daemon\Master::Summon(array('Notifier', 'edit_activity', $post_id));
-	
+
 }

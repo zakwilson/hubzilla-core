@@ -110,6 +110,7 @@ class Item extends \Zotlabs\Web\Controller {
 		$preview     = ((x($_REQUEST,'preview'))     ? intval($_REQUEST['preview'])        : 0);
 		$categories  = ((x($_REQUEST,'category'))    ? escape_tags($_REQUEST['category'])  : '');
 		$webpage     = ((x($_REQUEST,'webpage'))     ? intval($_REQUEST['webpage'])        : 0);
+		$item_obscured = ((x($_REQUEST,'obscured'))  ? intval($_REQUEST['obscured'])        : 0);
 		$pagetitle   = ((x($_REQUEST,'pagetitle'))   ? escape_tags(urlencode($_REQUEST['pagetitle'])) : '');
 		$layout_mid  = ((x($_REQUEST,'layout_mid'))  ? escape_tags($_REQUEST['layout_mid']): '');
 		$plink       = ((x($_REQUEST,'permalink'))   ? escape_tags($_REQUEST['permalink']) : '');
@@ -471,23 +472,15 @@ class Item extends \Zotlabs\Web\Controller {
 		if(! $mimetype)
 			$mimetype = 'text/bbcode';
 	
+
+		$execflag = ((intval($uid) == intval($profile_uid) 
+			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
+
 		if($preview) {
-			$body = z_input_filter($profile_uid,$body,$mimetype);
+			$body = z_input_filter($body,$mimetype,$execflag);
 		}
-	
 	
 		// Verify ability to use html or php!!!
-	
-		$execflag = false;
-	
-		$z = q("select account_id, account_roles, channel_pageflags from account left join channel on channel_account_id = account_id where channel_id = %d limit 1",
-			intval($profile_uid)
-		);
-		if($z && (($z[0]['account_roles'] & ACCOUNT_ROLE_ALLOWCODE) || ($z[0]['channel_pageflags'] & PAGE_ALLOWCODE))) {
-			if($uid && (get_account_id() == $z[0]['account_id'])) {
-				$execflag = true;
-			}
-		}
 	
 		$gacl = $acl->get();
 		$str_contact_allow = $gacl['allow_cid'];
@@ -852,18 +845,6 @@ class Item extends \Zotlabs\Web\Controller {
 		if(mb_strlen($datarray['title']) > 255)
 			$datarray['title'] = mb_substr($datarray['title'],0,255);
 	
-		if(array_key_exists('item_private',$datarray) && $datarray['item_private']) {
-	
-			$datarray['body'] = trim(z_input_filter($datarray['uid'],$datarray['body'],$datarray['mimetype']));
-	
-			if($uid) {
-				if($channel['channel_hash'] === $datarray['author_xchan']) {
-					$datarray['sig'] = base64url_encode(rsa_sign($datarray['body'],$channel['channel_prvkey']));
-					$datarray['item_verified'] = 1;
-				}
-			}
-		}
-	
 		if($webpage) {
 			Zlib\IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
 				(($pagetitle) ? $pagetitle : substr($datarray['mid'],0,16)),true);
@@ -879,7 +860,17 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			$x = item_store_update($datarray,$execflag);
 			
-			item_create_edit_activity($x);			
+			// We only need edit activities for other federated protocols
+			// which do not support edits natively. While this does federate 
+			// edits, it presents a number of issues locally - such as #757 and #758.
+			// The SQL check for an edit activity would not perform that well so to fix these issues
+			// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the 
+			// query for searches and notifications.
+
+			// For now we'll just forget about trying to make edits work on network protocols that 
+			// don't support them.   
+
+			// item_create_edit_activity($x);			
 
 			if(! $parent) {
 				$r = q("select * from item where id = %d",

@@ -4,44 +4,36 @@
 		<div class="pull-right">
 			{{if $tools || $map || $edit}}
 			<div class="btn-group">
-				<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-					<i class="fa fa-caret-down"></i>&nbsp;{{$tools_label}}
+				<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
+					<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 				</button>
-				<ul class="dropdown-menu dropdown-menu-right">
+				<div class="dropdown-menu dropdown-menu-right flex-column">
 					{{if $tools}}
-					<li class="nav-item">
-						<a class="nav-link" href="{{$tools.profile.0}}"><i class="fa fa-user"></i>&nbsp;{{$tools.profile.1}}</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="{{$tools.cover.0}}"><i class="fa fa-picture-o"></i>&nbsp;{{$tools.cover.1}}</a>
-					</li>
+					<a class="dropdown-item" href="{{$tools.profile.0}}"><i class="fa fa-user"></i>&nbsp;{{$tools.profile.1}}</a>
+					<a class="dropdown-item" href="{{$tools.cover.0}}"><i class="fa fa-picture-o"></i>&nbsp;{{$tools.cover.1}}</a>
 					{{/if}}
 					{{if $map}}
-					<li class="nav-item">
-						<a class="nav-link" href="#" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); } return false; " ><i class="fa fa-globe"></i>&nbsp;{{$map_text}}</a>
-					</li>
+					<a class="dropdown-item" href="#" onclick="var pos = $('#photo-map').css('position'); if(pos === 'absolute') { $('#photo-map').css( { position: 'relative', left: 'auto', top: 'auto' }); } else { $('#photo-map').css( { position: 'absolute', left: '-9999px', top: '-9999px' }); } return false; " ><i class="fa fa-globe"></i>&nbsp;{{$map_text}}</a>
 					{{/if}}
 					{{if $edit}}
-					<li class="nav-item">
-						<a class="nav-link acl-form-trigger" href="#"  title="" onclick="openClose('photo-edit'); return false;" data-form_id="photo_edit_form"><i class="fa fa-pencil"></i>&nbsp;{{$edit.edit}}</a>
-					</li>
+					<a class="dropdown-item acl-form-trigger" href="#"  title="" onclick="openClose('photo-edit'); return false;" data-form_id="photo_edit_form"><i class="fa fa-pencil"></i>&nbsp;{{$edit.edit}}</a>
 					{{/if}}
-				</ul>
+				</div>
 			</div>
 			{{/if}}
 			{{if $lock}}
 			<div class="btn-group">
-				<button id="lockview" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="fa fa-lock"></i></button>
+				<button id="lockview" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="fa fa-lock"></i></button>
 				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
 			</div>
 			{{/if}}
 			{{if $prevlink || $nextlink}}
 			<div class="btn-group">
 				{{if $prevlink}}
-				<a href="{{$prevlink.0}}" class="btn btn-default btn-xs" title="{{$prevlink.1}}"><i class="fa fa-backward"></i></a>
+				<a href="{{$prevlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$prevlink.1}}"><i class="fa fa-backward"></i></a>
 				{{/if}}
 				{{if $nextlink}}
-				<a href="{{$nextlink.0}}" class="btn btn-default btn-xs" title="{{$nextlink.1}}"><i class="fa fa-forward"></i></a>
+				<a href="{{$nextlink.0}}" class="btn btn-outline-secondary btn-sm" title="{{$nextlink.1}}"><i class="fa fa-forward"></i></a>
 				{{/if}}
 			</div>
 			{{/if}}
@@ -96,7 +88,7 @@
 			</div>
 			<div class="form-group btn-group pull-right">
 				{{if $edit.aclselect}}
-				<button id="dbtn-acl" class="btn btn-default btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
+				<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
 					<i id="jot-perms-icon" class="fa fa-{{$edit.lockstate}}"></i>
 				</button>
 				{{/if}}
@@ -124,7 +116,7 @@
 				{{foreach $responses as $verb=>$response}}
 					{{if $response.count}}
 					<div class="btn-group">
-						<button type="button" class="btn btn-default btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="wall-item-{{$verb}}-{{$id}}">{{$response.count}} {{$response.button}}</button>
+						<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="wall-item-{{$verb}}-{{$id}}">{{$response.count}} {{$response.button}}</button>
 						{{if $response.list_part}}
 						<ul class="dropdown-menu" role="menu" aria-labelledby="wall-item-{{$verb}}-{{$id}}">{{foreach $response.list_part as $liker}}<li role="presentation">{{$liker}}</li>{{/foreach}}</ul>
 						{{else}}
@@ -142,7 +134,7 @@
 										<ul>{{foreach $response.list as $liker}}<li role="presentation">{{$liker}}</li>{{/foreach}}</ul>
 									</div>
 									<div class="modal-footer clear">
-										<button type="button" class="btn btn-default" data-dismiss="modal">{{$modal_dismiss}}</button>
+										<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{{$modal_dismiss}}</button>
 									</div>
 								</div><!-- /.modal-content -->
 							</div><!-- /.modal-dialog -->
@@ -156,10 +148,10 @@
 			{{/if}}
 			{{if $likebuttons}}
 			<div class="photo-item-tools-right btn-group pull-right">
-				<button type="button" class="btn btn-default btn-sm" onclick="dolike({{$likebuttons.id}},'like'); return false">
+				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'like'); return false">
 					<i class="fa fa-thumbs-o-up" title="{{$likebuttons.likethis}}"></i>
 				</button>
-				<button type="button" class="btn btn-default btn-sm" onclick="dolike({{$likebuttons.id}},'dislike'); return false">
+				<button type="button" class="btn btn-outline-secondary btn-sm" onclick="dolike({{$likebuttons.id}},'dislike'); return false">
 					<i class="fa fa-thumbs-o-down" title="{{$likebuttons.nolike}}"></i>
 				</button>
 			</div>

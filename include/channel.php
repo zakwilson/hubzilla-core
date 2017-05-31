@@ -57,8 +57,9 @@ function identity_check_service_class($account_id) {
  * Plugins can set additional policies such as full name requirements, character
  * sets, multi-byte length, etc.
  *
+ * @hooks validate_channelname
+ *   * \e array \b name
  * @param string $name
- *
  * @returns nil return if name is valid, or string describing the error state.
  */
 function validate_channelname($name) {
@@ -69,7 +70,7 @@ function validate_channelname($name) {
 	if (strlen($name) > 255)
 		return t('Name too long');
 
-	$arr = array('name' => $name);
+	$arr = ['name' => $name];
 	call_hooks('validate_channelname', $arr);
 
 	if (x($arr, 'message'))
@@ -242,24 +243,22 @@ function create_identity($arr) {
 
 	$expire = 0;
 
-	$r = q("insert into channel ( channel_account_id, channel_primary,
-		channel_name, channel_address, channel_guid, channel_guid_sig,
-		channel_hash, channel_prvkey, channel_pubkey, channel_pageflags, channel_system, channel_expire_days, channel_timezone )
-		values ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s' ) ",
-
-		intval($arr['account_id']),
-		intval($primary),
-		dbesc($name),
-		dbesc($nick),
-		dbesc($guid),
-		dbesc($sig),
-		dbesc($hash),
-		dbesc($key['prvkey']),
-		dbesc($key['pubkey']),
-		intval($pageflags),
-		intval($system),
-		intval($expire),
-		dbesc(App::$timezone)
+	$r = channel_store_lowlevel(
+		[
+			'channel_account_id'  => intval($arr['account_id']),
+			'channel_primary'     => intval($primary),
+			'channel_name'        => $name,
+			'channel_address'     => $nick,
+			'channel_guid'        => $guid,
+			'channel_guid_sig'    => $sig,
+			'channel_hash'        => $hash,
+			'channel_prvkey'      => $key['prvkey'],
+			'channel_pubkey'      => $key['pubkey'],
+			'channel_pageflags'   => intval($pageflags),
+			'channel_system'      => intval($system),
+			'channel_expire_days' => intval($expire),
+			'channel_timezone'    => App::$timezone
+		]
 	);
 
 	$r = q("select * from channel where channel_account_id = %d
@@ -465,7 +464,6 @@ function create_identity($arr) {
  *       if true, set this default unconditionally
  *       if $force is false only do this if there is no existing default
  */
-
 function set_default_login_identity($account_id, $channel_id, $force = true) {
 	$r = q("select account_default_channel from account where account_id = %d limit 1",
 		intval($account_id)
@@ -480,12 +478,29 @@ function set_default_login_identity($account_id, $channel_id, $force = true) {
 	}
 }
 
-
+/**
+ * @brief Return an array with default list of sections to export.
+ *
+ * @hooks get_default_export_sections
+ *   * \e array \b sections
+ * @return array with default section names to export
+ */
 function get_default_export_sections() {
-	$sections = [ 'channel', 'connections', 'config', 'apps', 'chatrooms', 'events', 'webpages', 'mail', 'wikis' ];
+	$sections = [
+			'channel',
+			'connections',
+			'config',
+			'apps',
+			'chatrooms',
+			'events',
+			'webpages',
+			'mail',
+			'wikis'
+	];
 
 	$cb = [ 'sections' => $sections ];
 	call_hooks('get_default_export_sections', $cb);
+
 	return $cb['sections'];
 }
 
@@ -495,15 +510,17 @@ function get_default_export_sections() {
  * which would be necessary to create a nomadic identity clone. This includes
  * most channel resources and connection information with the exception of content.
  *
+ * @hooks identity_basic_export
+ *   * \e int \b channel_id
+ *   * \e array \b sections
+ *   * \e array \b data
  * @param int $channel_id
  *     Channel_id to export
- * @param boolean $items
- *     Include channel posts (wall items), default false
- *
+ * @param array $sections (optional)
+ *     Which sections to include in the export, default see get_default_export_sections()
  * @returns array
  *     See function for details
  */
-
 function identity_basic_export($channel_id, $sections = null) {
 
 	/*
@@ -513,16 +530,16 @@ function identity_basic_export($channel_id, $sections = null) {
 	if(! $sections) {
 		$sections = get_default_export_sections();
 	}
-		
+
 	$ret = [];
 
 	// use constants here as otherwise we will have no idea if we can import from a site
 	// with a non-standard platform and version.
 
 	$ret['compatibility'] = [
-		'project' => PLATFORM_NAME, 
-		'version' => STD_VERSION, 
-		'database' => DB_UPDATE_VERSION, 
+		'project' => PLATFORM_NAME,
+		'version' => STD_VERSION,
+		'database' => DB_UPDATE_VERSION,
 		'server_role' => Zotlabs\Lib\System::get_server_role()
 	];
 
@@ -539,6 +556,8 @@ function identity_basic_export($channel_id, $sections = null) {
 		$ret['relocate'] = [ 'channel_address' => $r[0]['channel_address'], 'url' => z_root()];
 		if(in_array('channel',$sections)) {
 			$ret['channel'] = $r[0];
+			unset($ret['channel']['channel_password']);
+			unset($ret['channel']['channel_salt']);
 		}
 	}
 
@@ -549,8 +568,7 @@ function identity_basic_export($channel_id, $sections = null) {
 		if($r)
 			$ret['profile'] = $r;
 
-
-		$r = q("select mimetype, content, os_storage from photo 
+		$r = q("select mimetype, content, os_storage from photo
 			where imgscale = 4 and photo_usage = %d and uid = %d limit 1",
 			intval(PHOTO_PROFILE),
 			intval($channel_id)
@@ -558,8 +576,8 @@ function identity_basic_export($channel_id, $sections = null) {
 
 		if($r) {
 			$ret['photo'] = [
-				'type' => $r[0]['mimetype'], 
-				'data' => (($r[0]['os_storage']) 
+				'type' => $r[0]['mimetype'],
+				'data' => (($r[0]['os_storage'])
 					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode($r[0]['content']))
 			];
 		}
@@ -605,7 +623,6 @@ function identity_basic_export($channel_id, $sections = null) {
 		);
 		if($r)
 			$ret['group_member'] = $r;
-
 	}
 
 	if(in_array('config',$sections)) {
@@ -614,7 +631,7 @@ function identity_basic_export($channel_id, $sections = null) {
 		);
 		if($r)
 			$ret['config'] = $r;
-	
+
 		// All other term types will be included in items, if requested.
 
 		$r = q("select * from term where ttype in (%d,%d) and uid = %d",
@@ -641,7 +658,6 @@ function identity_basic_export($channel_id, $sections = null) {
 
 		if($r)
 			$ret['likes'] = $r;
-
 	}
 
 	if(in_array('apps',$sections)) {
@@ -666,7 +682,6 @@ function identity_basic_export($channel_id, $sections = null) {
 		if($r)
 			$ret['chatroom'] = $r;
 	}
-
 
 	if(in_array('events',$sections)) {
 		$r = q("select * from event where uid = %d",
@@ -697,7 +712,7 @@ function identity_basic_export($channel_id, $sections = null) {
 					$ret['menu'][] = menu_element($ret['channel'],$m);
 			}
 		}
-		$r = q("select * from item where item_type in ( " 
+		$r = q("select * from item where item_type in ( "
 			. ITEM_TYPE_BLOCK . "," . ITEM_TYPE_PDL . "," . ITEM_TYPE_WEBPAGE . " ) and uid = %d",
 			intval($channel_id)
 		);
@@ -707,7 +722,6 @@ function identity_basic_export($channel_id, $sections = null) {
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
 				$ret['webpages'][] = encode_item($rr,true);
-
 		}
 	}
 
@@ -758,7 +772,7 @@ function identity_basic_export($channel_id, $sections = null) {
 		 * Don't export linked resource items. we'll have to pull those out separately.
 		 */
 
-		$r = q("select * from item where item_wall = 1 and item_deleted = 0 and uid = %d 
+		$r = q("select * from item where item_wall = 1 and item_deleted = 0 and uid = %d
 			and created > %s - INTERVAL %s and resource_type = '' order by created",
 			intval($channel_id),
 			db_utcnow(),
@@ -1193,11 +1207,6 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 	else
 		$tpl = get_markup_template('profile_vcard.tpl');
 
-	require_once('include/widgets.php');
-
-//	if(! feature_enabled($profile['uid'],'hide_rating'))
-	$z = widget_rating(array('target' => $profile['channel_hash']));
-
 	$o .= replace_macros($tpl, array(
 		'$zcard'         => $zcard,
 		'$profile'       => $profile,
@@ -1211,7 +1220,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 		'$chanmenu'      => $channel_menu,
 		'$diaspora'      => $diaspora,
 		'$reddress'      => $reddress,
-		'$rating'        => $z,
+		'$rating'        => '',
 		'$contact_block' => $contact_block,
 		'$editmenu'	 => profile_edit_menu($profile['uid'])
 	));
@@ -1399,15 +1408,15 @@ function get_my_address() {
 }
 
 /**
- * @brief
+ * @brief Add visitor's zid to our xchan and attempt authentication.
  *
- * If somebody arrives at our site using a zid, add their xchan to our DB if we don't have it already.
+ * If somebody arrives at our site using a zid, add their xchan to our DB if we
+ * don't have it already.
  * And if they aren't already authenticated here, attempt reverse magic auth.
  *
- *
- * @hooks 'zid_init'
- *      string 'zid' - their zid
- *      string 'url' - the destination url
+ * @hooks zid_init
+ *   * \e string \b zid - their zid
+ *   * \e string \b url - the destination url
  */
 function zid_init() {
 	$tmp_str = get_my_address();
@@ -1436,12 +1445,9 @@ function zid_init() {
 }
 
 /**
- * @brief
- *
- * If somebody arrives at our site using a zat, authenticate them
+ * @brief If somebody arrives at our site using a zat, authenticate them.
  *
  */
-
 function zat_init() {
 	if(local_channel() || remote_channel())
 		return;
@@ -1453,7 +1459,6 @@ function zat_init() {
 		$xchan = atoken_xchan($r[0]);
 		atoken_login($xchan);
 	}
-
 }
 
 
@@ -1486,7 +1491,7 @@ function get_theme_uid() {
 *
 * @param int $size
 *  one of (300, 80, 48)
-* @returns string
+* @returns string with path to profile photo
 */
 function get_default_profile_photo($size = 300) {
 	$scheme = get_config('system','default_profile_photo');
@@ -1608,7 +1613,7 @@ function get_profile_fields_basic($filter = 0) {
 
 	$profile_fields_basic = (($filter == 0) ? get_config('system','profile_fields_basic') : null);
 	if(! $profile_fields_basic)
-		$profile_fields_basic = array('fullname','pdesc','chandesc','gender','dob','dob_tz','address','locality','region','postal_code','country_name','marital','sexual','homepage','hometown','keywords','about','contact');
+		$profile_fields_basic = array('fullname','pdesc','chandesc','comms','gender','dob','dob_tz','address','locality','region','postal_code','country_name','marital','sexual','homepage','hometown','keywords','about','contact');
 
 	$x = array();
 	if($profile_fields_basic)
@@ -1979,7 +1984,6 @@ function channel_manual_conv_update($channel_id) {
 		$x = get_config('system','manual_conversation_update', 1);
 
 	return intval($x);
-
 }
 
 
@@ -1994,6 +1998,47 @@ function remote_login() {
 
 }
 
+
+function channel_store_lowlevel($arr) {
+
+	$store = [
+		'channel_account_id'      => ((array_key_exists('channel_account_id',$arr))      ? $arr['channel_account_id']      : '0'),
+		'channel_primary'         => ((array_key_exists('channel_primary',$arr))         ? $arr['channel_primary']         : '0'),
+		'channel_name'            => ((array_key_exists('channel_name',$arr))            ? $arr['channel_name']            : ''),
+		'channel_address'         => ((array_key_exists('channel_address',$arr))         ? $arr['channel_address']         : ''),
+		'channel_guid'            => ((array_key_exists('channel_guid',$arr))            ? $arr['channel_guid']            : ''),
+		'channel_guid_sig'        => ((array_key_exists('channel_guid_sig',$arr))        ? $arr['channel_guid_sig']        : ''),
+		'channel_hash'            => ((array_key_exists('channel_hash',$arr))            ? $arr['channel_hash']            : ''),
+		'channel_timezone'        => ((array_key_exists('channel_timezone',$arr))        ? $arr['channel_timezone']        : 'UTC'),
+		'channel_location'        => ((array_key_exists('channel_location',$arr))        ? $arr['channel_location']        : ''),
+		'channel_theme'           => ((array_key_exists('channel_theme',$arr))           ? $arr['channel_theme']           : ''),
+		'channel_startpage'       => ((array_key_exists('channel_startpage',$arr))       ? $arr['channel_startpage']       : ''),
+		'channel_pubkey'          => ((array_key_exists('channel_pubkey',$arr))          ? $arr['channel_pubkey']          : ''),
+		'channel_prvkey'          => ((array_key_exists('channel_prvkey',$arr))          ? $arr['channel_prvkey']          : ''),
+		'channel_notifyflags'     => ((array_key_exists('channel_notifyflags',$arr))     ? $arr['channel_notifyflags']     : '65535'),
+		'channel_pageflags'       => ((array_key_exists('channel_pageflags',$arr))       ? $arr['channel_pageflags']       : '0'),
+		'channel_dirdate'         => ((array_key_exists('channel_dirdate',$arr))         ? $arr['channel_dirdate']         : NULL_DATE),
+		'channel_lastpost'        => ((array_key_exists('channel_lastpost',$arr))        ? $arr['channel_lastpost']        : NULL_DATE),
+		'channel_deleted'         => ((array_key_exists('channel_deleted',$arr))         ? $arr['channel_deleted']         : NULL_DATE),
+		'channel_max_anon_mail'   => ((array_key_exists('channel_max_anon_mail',$arr))   ? $arr['channel_max_anon_mail']   : '10'),
+		'channel_max_friend_req'  => ((array_key_exists('channel_max_friend_req',$arr))  ? $arr['channel_max_friend_req']  : '10'),
+		'channel_expire_days'     => ((array_key_exists('channel_expire_days',$arr))     ? $arr['channel_expire_days']     : '0'),
+		'channel_passwd_reset'    => ((array_key_exists('channel_passwd_reset',$arr))    ? $arr['channel_passwd_reset']    : ''),
+		'channel_default_group'   => ((array_key_exists('channel_default_group',$arr))   ? $arr['channel_default_group']   : ''),
+		'channel_allow_cid'       => ((array_key_exists('channel_allow_cid',$arr))       ? $arr['channel_allow_cid']       : ''),
+		'channel_allow_gid'       => ((array_key_exists('channel_allow_gid',$arr))       ? $arr['channel_allow_gid']       : ''),
+		'channel_deny_cid'        => ((array_key_exists('channel_deny_cid',$arr))        ? $arr['channel_deny_cid']        : ''),
+		'channel_deny_gid'        => ((array_key_exists('channel_deny_gid',$arr))        ? $arr['channel_deny_gid']        : ''),
+		'channel_removed'         => ((array_key_exists('channel_removed',$arr))         ? $arr['channel_removed']         : '0'),
+		'channel_system'          => ((array_key_exists('channel_system',$arr))          ? $arr['channel_system']          : '0'),
+		'channel_moved'           => ((array_key_exists('channel_moved',$arr))           ? $arr['channel_moved']           : ''),
+		'channel_password'        => ((array_key_exists('channel_password',$arr))        ? $arr['channel_password']        : ''),
+		'channel_salt'            => ((array_key_exists('channel_salt',$arr))            ? $arr['channel_salt']            : '')
+	];
+
+	return create_table_from_array('channel',$store);
+
+}
 
 
 function profile_store_lowlevel($arr) {
@@ -2046,4 +2091,235 @@ function profile_store_lowlevel($arr) {
 	];
 
 	return create_table_from_array('profile',$store);
+}
+
+
+// Included here for completeness, but this is a very dangerous operation.
+// It is the caller's responsibility to confirm the requestor's intent and
+// authorisation to do this.
+
+function account_remove($account_id,$local = true,$unset_session=true) {
+
+	logger('account_remove: ' . $account_id);
+
+	if(! intval($account_id)) {
+		logger('account_remove: no account.');
+		return false;
+	}
+
+	// Don't let anybody nuke the only admin account.
+
+	$r = q("select account_id from account where (account_roles & %d) > 0",
+		intval(ACCOUNT_ROLE_ADMIN)
+	);
+
+	if($r !== false && count($r) == 1 && $r[0]['account_id'] == $account_id) {
+		logger("Unable to remove the only remaining admin account");
+		return false;
+	}
+
+	$r = q("select * from account where account_id = %d limit 1",
+		intval($account_id)
+	);
+	$account_email=$r[0]['account_email'];
+
+	if(! $r) {
+		logger('account_remove: No account with id: ' . $account_id);
+		return false;
+	}
+
+	$x = q("select channel_id from channel where channel_account_id = %d",
+		intval($account_id)
+	);
+	if($x) {
+		foreach($x as $xx) {
+			channel_remove($xx['channel_id'],$local,false);
+		}
+	}
+
+	$r = q("delete from account where account_id = %d",
+		intval($account_id)
+	);
+
+
+	if ($unset_session) {
+		unset($_SESSION['authenticated']);
+		unset($_SESSION['uid']);
+		notice( sprintf(t("User '%s' deleted"),$account_email) . EOL);
+		goaway(z_root());
+	}
+	return $r;
+
+}
+
+/**
+ * @brief Removes a channel.
+ *
+ * @hooks channel_remove
+ *   * \e array \b entry from channel tabel for $channel_id
+ * @param int $channel_id
+ * @param boolean $local default true
+ * @param boolean $unset_session default false
+ */
+function channel_remove($channel_id, $local = true, $unset_session = false) {
+
+	if(! $channel_id)
+		return;
+
+	logger('Removing channel: ' . $channel_id);
+	logger('local only: ' . intval($local));
+
+	$r = q("select * from channel where channel_id = %d limit 1", intval($channel_id));
+	if(! $r) {
+		logger('channel not found: ' . $channel_id);
+		return;
+	}
+
+	$channel = $r[0];
+
+	call_hooks('channel_remove', $r[0]);
+
+	if(! $local) {
+
+		$r = q("update channel set channel_deleted = '%s', channel_removed = 1 where channel_id = %d",
+			dbesc(datetime_convert()),
+			intval($channel_id)
+		);
+
+		q("delete from pconfig where uid = %d",
+			intval($channel_id)
+		);
+
+		logger('deleting hublocs',LOGGER_DEBUG);
+
+		$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
+			dbesc($channel['channel_hash'])
+		);
+
+		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
+			dbesc($channel['channel_hash'])
+		);
+
+		Zotlabs\Daemon\Master::Summon(array('Notifier','purge_all',$channel_id));
+	}
+
+
+	$r = q("select * from iconfig left join item on item.id = iconfig.iid
+		where item.uid = %d",
+		intval($channel_id)
+	);
+	if($r) {
+		foreach($r as $rr) {
+			q("delete from iconfig where iid = %d",
+				intval($rr['iid'])
+			);
+		}
+	}
+
+
+	q("DELETE FROM groups WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM group_member WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM event WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM item WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM mail WHERE channel_id = %d", intval($channel_id));
+	q("DELETE FROM notify WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM photo WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM attach WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM profile WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM pconfig WHERE uid = %d", intval($channel_id));
+
+	/// @FIXME At this stage we need to remove the file resources located under /store/$nickname
+
+	q("delete from abook where abook_xchan = '%s' and abook_self = 1 ",
+		dbesc($channel['channel_hash'])
+	);
+
+	$r = q("update channel set channel_deleted = '%s', channel_removed = 1 where channel_id = %d",
+		dbesc(datetime_convert()),
+		intval($channel_id)
+	);
+
+	// if this was the default channel, set another one as default
+	if(App::$account['account_default_channel'] == $channel_id) {
+		$r = q("select channel_id from channel where channel_account_id = %d and channel_removed = 0 limit 1",
+			intval(App::$account['account_id']),
+			intval(PAGE_REMOVED));
+		if ($r) {
+			$rr = q("update account set account_default_channel = %d where account_id = %d",
+				intval($r[0]['channel_id']),
+				intval(App::$account['account_id']));
+			logger("Default channel deleted, changing default to channel_id " . $r[0]['channel_id']);
+		}
+		else {
+			$rr = q("update account set account_default_channel = 0 where account_id = %d",
+				intval(App::$account['account_id'])
+			);
+		}
+	}
+
+	logger('deleting hublocs',LOGGER_DEBUG);
+
+	$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s' and hubloc_url = '%s' ",
+		dbesc($channel['channel_hash']),
+		dbesc(z_root())
+	);
+
+	// Do we have any valid hublocs remaining?
+
+	$hublocs = 0;
+
+	$r = q("select hubloc_id from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0",
+		dbesc($channel['channel_hash'])
+	);
+	if($r)
+		$hublocs = count($r);
+
+	if(! $hublocs) {
+		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s' ",
+			dbesc($channel['channel_hash'])
+		);
+	}
+
+	//remove from file system
+	$r = q("select channel_address from channel where channel_id = %d limit 1",
+		intval($channel_id)
+	);
+
+	if($r) {
+		$channel_address = $r[0]['channel_address'] ;
+	}
+	if($channel_address) {
+		$f = 'store/' . $channel_address.'/';
+		logger('delete '. $f);
+		if(is_dir($f)) {
+				@rrmdir($f);
+		}
+	}
+
+	Zotlabs\Daemon\Master::Summon(array('Directory',$channel_id));
+
+	if($channel_id == local_channel() && $unset_session) {
+		App::$session->nuke();
+		goaway(z_root());
+	}
+}
+
+/**
+ * @brief This checks if a channel is allowed to publish executable code.
+ *
+ * It is up to the caller to determine if the observer or local_channel
+ * is in fact the resource owner whose channel_id is being checked.
+ *
+ * @param int $channel_id
+ * @return boolean
+ */
+function channel_codeallowed($channel_id) {
+	if(! intval($channel_id))
+		return false;
+
+	$x = channelx_by_n($channel_id);
+	if(($x) && ($x['channel_pageflags'] & PAGE_ALLOWCODE))
+		return true;
+
+	return false;
 }

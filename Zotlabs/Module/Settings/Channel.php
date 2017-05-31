@@ -277,8 +277,8 @@ class Channel {
 		if($email_changed && \App::$config['system']['register_policy'] == REGISTER_VERIFY) {
 	
 			// FIXME - set to un-verified, blocked and redirect to logout
-			// Why? Are we verifying people or email addresses?
-	
+			// Q: Why? Are we verifying people or email addresses?
+			// A: the policy is to verify email addresses
 		}
 	
 		goaway(z_root() . '/settings' );
@@ -575,7 +575,7 @@ class Channel {
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
 			'$firefoxshare' => t('Firefox Share $Projectname provider'),
-			'$cal_first_day' => array('first_day', t('Start calendar week on monday'), ((get_pconfig(local_channel(),'system','cal_first_day')) ? 1 : ''), '', $yes_no),
+			'$cal_first_day' => array('first_day', t('Start calendar week on Monday'), ((get_pconfig(local_channel(),'system','cal_first_day')) ? 1 : ''), '', $yes_no),
 		));
 	
 		call_hooks('settings_form',$o);

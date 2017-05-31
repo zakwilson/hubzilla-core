@@ -165,9 +165,6 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 
 function zot_best_algorithm($methods) {
 
-	if(\Zotlabs\Lib\System::get_server_role() !== 'pro')
-		return 'aes256cbc';
-
 	$x = [ 'methods' => $methods, 'result' => '' ];
 	call_hooks('zot_best_algorithm',$x);
 	if($x['result'])
@@ -313,8 +310,6 @@ function zot_refresh($them, $channel = null, $force = false) {
 
 	$result = z_post_url($url . $rhs,$postvars);
 
-	logger('zot_refresh: zot-info: ' . print_r($result,true), LOGGER_DATA, LOG_DEBUG);
-
 	if ($result['success']) {
 
 		$j = json_decode($result['body'],true);
@@ -323,6 +318,8 @@ function zot_refresh($them, $channel = null, $force = false) {
 			logger('zot_refresh: result not decodable');
 			return false;
 		}
+
+		logger('zot-info: ' . print_r($result,true), LOGGER_DATA, LOG_DEBUG);
 
 		$signed_token = ((is_array($j) && array_key_exists('signed_token',$j)) ? $j['signed_token'] : null);
 		if($signed_token) {
@@ -334,10 +331,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 		}
 		else {
 			logger('No signed token from '  . $url . $rhs, LOGGER_NORMAL, LOG_WARNING);
-			// after 2017-01-01 this will be a hard error unless you over-ride it.
-			if((time() > 1483228800) && (! get_config('system','allow_unsigned_zotfinger'))) {
-				return false;
-			}
+			return false;
 		}
 
 		$x = import_xchan($j, (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
@@ -2903,22 +2897,24 @@ function import_site($arr, $pubkey) {
 	else {
 		$update = true;
 
-		$r = q("insert into site ( site_location, site_url, site_access, site_flags, site_update, site_directory, site_register, site_sellpage, site_realm, site_type, site_project, site_version, site_crypto )
-			values ( '%s', '%s', %d, %d, '%s', '%s', %d, '%s', '%s', %d, '%s', '%s', '%s' )",
-			dbesc($site_location),
-			dbesc($url),
-			intval($access_policy),
-			intval($site_directory),
-			dbesc(datetime_convert()),
-			dbesc($directory_url),
-			intval($register_policy),
-			dbesc($sellpage),
-			dbesc($site_realm),
-			intval(SITE_TYPE_ZOT),
-			dbesc($site_project),
-			dbesc($site_version),
-			dbesc($site_crypto)
+		$r = site_store_lowlevel( 
+			[
+				'site_location'  => $site_location,
+				'site_url'       => $url,
+				'site_access'    => intval($access_policy),
+				'site_flags'     => intval($site_directory),
+				'site_update'    => datetime_convert(),
+				'site_directory' => $directory_url,
+				'site_register'  => intval($register_policy),
+				'site_sellpage'  => $sellpage,
+				'site_realm'     => $site_realm,
+				'site_type'      => intval(SITE_TYPE_ZOT),
+				'site_project'   => $site_project,
+				'site_version'   => $site_version,
+				'site_crypto'    => $site_crypto
+			]
 		);
+
 		if(! $r) {
 			logger('import_site: record create failed. ' . print_r($arr,true));
 		}
@@ -2960,6 +2956,8 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 		return;
 
 	$channel = $r[0];
+	unset($channel['channel_password']);
+	unset($channel['channel_salt']);
 
 	translate_channel_perms_outbound($channel);
 	if($packet && array_key_exists('abook',$packet) && $packet['abook']) {
@@ -3162,8 +3160,8 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		if(array_key_exists('menu',$arr) && $arr['menu'])
 			sync_menus($channel,$arr['menu']);
 
-		if(array_key_exists('menu',$arr) && $arr['menu'])
-			sync_menus($channel,$arr['menu']);
+		if(array_key_exists('file',$arr) && $arr['file'])
+			sync_files($channel,$arr['file']);
 
 		if(array_key_exists('wiki',$arr) && $arr['wiki'])
 			sync_items($channel,$arr['wiki'],((array_key_exists('relocate',$arr)) ? $arr['relocate'] : null));
@@ -3228,11 +3226,9 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 			}
 
 
-			$disallowed = array('abook_id','abook_account','abook_channel','abook_rating','abook_rating_text');
+			$disallowed = array('abook_id','abook_account','abook_channel','abook_rating','abook_rating_text','abook_not_here');
 
 			foreach($arr['abook'] as $abook) {
-
-
 
 				$abconfig = null;
 
@@ -3584,21 +3580,62 @@ function get_rpost_path($observer) {
 
 function import_author_zot($x) {
 
+	// Check that we have both a hubloc and xchan record - as occasionally storage calls will fail and
+	// we may only end up with one; which results in posts with no author name or photo and are a bit
+	// of a hassle to repair. If either or both are missing, do a full discovery probe.
+
 	$hash = make_xchan_hash($x['guid'],$x['guid_sig']);
-	$r = q("select hubloc_url from hubloc where hubloc_guid = '%s' and hubloc_guid_sig = '%s' and hubloc_primary = 1 limit 1",
+
+	$r1 = q("select hubloc_url, hubloc_updated, site_dead from hubloc left join site on
+		hubloc_url = site_url where hubloc_guid = '%s' and hubloc_guid_sig = '%s' and hubloc_primary = 1 limit 1",
 		dbesc($x['guid']),
 		dbesc($x['guid_sig'])
 	);
 
-	if ($r) {
-		logger('import_author_zot: in cache', LOGGER_DEBUG);
+	$r2 = q("select xchan_hash from xchan where xchan_guid = '%s' and xchan_guid_sig = '%s' limit 1",
+		dbesc($x['guid']),
+		dbesc($x['guid_sig'])
+	);
+
+	$site_dead = false;
+
+	if($r1 && intval($r1[0]['site_dead'])) {
+		$site_dead = true;
+	}
+
+	// We have valid and somewhat fresh information. 
+
+	if($r1 && $r2 && $r1[0]['hubloc_updated'] > datetime_convert('UTC','UTC','now - 1 week')) {
+		logger('in cache', LOGGER_DEBUG);
 		return $hash;
 	}
 
-	logger('import_author_zot: entry not in cache - probing: ' . print_r($x,true), LOGGER_DEBUG);
+	logger('not in cache or cache stale - probing: ' . print_r($x,true), LOGGER_DEBUG,LOG_INFO);
+
+	// The primary hub may be dead. Try to find another one associated with this identity that is 
+	// still alive. If we find one, use that url for the discovery/refresh probe. Otherwise, the dead site 
+	// is all we have and there is no point probing it. Just return the hash indicating we have a 
+	// cached entry and the identity is valid. It's just unreachable until they bring back their 
+	// server from the grave or create another clone elsewhere. 
+
+	if($site_dead) {
+		logger('dead site - ignoring', LOGGER_DEBUG,LOG_INFO);
+
+		$r = q("select hubloc_url from hubloc left join site on hubloc_url = site_url 
+			where hubloc_hash = '%s' and site_dead = 0",
+			dbesc($hash)
+		);
+		if($r) {
+			logger('found another site that is not dead: ' . $r[0]['hubloc_url'], LOGGER_DEBUG,LOG_INFO);
+			$x['url'] = $r[0]['hubloc_url'];
+		}
+		else {
+			return $hash;
+		}
+	} 
 
 	$them = array('hubloc_url' => $x['url'], 'xchan_guid' => $x['guid'], 'xchan_guid_sig' => $x['guid_sig']);
-	if (zot_refresh($them))
+	if(zot_refresh($them))
 		return $hash;
 
 	return false;

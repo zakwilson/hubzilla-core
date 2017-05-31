@@ -67,8 +67,8 @@ function photo_upload($channel, $observer, $args) {
 
 	$os_storage = 0;
 
-	if($args['os_path'] && $args['getimagesize']) {
-		$imagedata = @file_get_contents($args['os_path']);
+	if($args['os_syspath'] && $args['getimagesize']) {
+		$imagedata = @file_get_contents($args['os_syspath']);
 		$filename = $args['filename'];
 		$filesize = strlen($imagedata);
 		// this is going to be deleted if it exists
@@ -153,7 +153,7 @@ function photo_upload($channel, $observer, $args) {
 		return $ret;
 	}
 
-	$exif = $ph->orient(($args['os_path']) ? $args['os_path'] : $src);
+	$exif = $ph->orient(($args['os_syspath']) ? $args['os_syspath'] : $src);
 
 	@unlink($src);
 
@@ -180,7 +180,8 @@ function photo_upload($channel, $observer, $args) {
 		'filename' => $filename, 'album' => $album, 'imgscale' => 0, 'photo_usage' => PHOTO_NORMAL,
 		'allow_cid' => $ac['allow_cid'], 'allow_gid' => $ac['allow_gid'],
 		'deny_cid' => $ac['deny_cid'], 'deny_gid' => $ac['deny_gid'],
-		'os_storage' => $os_storage, 'os_path' => $args['os_path']
+		'os_storage' => $os_storage, 'os_syspath' => $args['os_syspath'],
+		'os_path' => $args['os_path'], 'display_path' => $args['display_path']
 	);
 	if($args['created'])
 		$p['created'] = $args['created'];
@@ -205,7 +206,7 @@ function photo_upload($channel, $observer, $args) {
 		$errors = true;
 
 	unset($p['os_storage']);
-	unset($p['os_path']);
+	unset($p['os_syspath']);
 
 	if(($width > 1024 || $height > 1024) && (! $errors))
 		$ph->scaleImage(1024);
@@ -336,19 +337,13 @@ function photo_upload($channel, $observer, $args) {
 			if($item['mid'] === $item['parent_mid']) {
 
 				$item['body'] = $summary;
+				$item['mimetype'] = 'text/bbcode';
 				$item['obj_type'] = ACTIVITY_OBJ_PHOTO;
 				$item['obj']	= json_encode($object);
 
 				$item['tgt_type'] = ACTIVITY_OBJ_ALBUM;
 				$item['target']	= json_encode($target);
 
-				if($item['author_xchan'] === $channel['channel_hash']) {
-					$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
-					$item['item_verified']  = 1;
-				}
-				else {
-					$item['sig'] = '';
-				}
 				$force = true;
 
 			}
@@ -451,7 +446,7 @@ function photo_upload($channel, $observer, $args) {
  *   * \e boolean \b success
  *   * \e array \b albums
  */
-function photos_albums_list($channel, $observer, $sort_key = 'album', $direction = 'asc') {
+function photos_albums_list($channel, $observer, $sort_key = 'display_path', $direction = 'asc') {
 
 	$channel_id     = $channel['channel_id'];
 	$observer_xchan = (($observer) ? $observer['xchan_hash'] : '');
@@ -464,16 +459,33 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 	$sort_key = dbesc($sort_key);
 	$direction = dbesc($direction);
 
-	//$albums = q("SELECT count( distinct resource_id ) as total, album from photo where uid = %d and photo_usage IN ( %d, %d ) $sql_extra group by album order by $sort_key $direction",
-	//	intval($channel_id),
-	//	intval(PHOTO_NORMAL),
-	//	intval(PHOTO_PROFILE)
-	//);
-
-	// this query provides the same results but might perform better
-	$albums = q("SELECT count( distinct resource_id ) as total, album from photo where uid = %d and os_storage = 1 $sql_extra group by album order by $sort_key $direction",
+	$r = q("select display_path, hash from attach where is_dir = 1 and uid = %d $sql_extra order by $sort_key $direction",
 		intval($channel_id)
 	);
+
+	array_unshift($r,[ 'display_path' => '/', 'hash' => '' ]);
+	$str = ids_to_querystr($r,'hash',true);
+
+	$albums = [];
+
+	if($str) {
+		$x = q("select count( distinct hash ) as total, folder from attach where is_photo = 1 and uid = %d and folder in ( $str ) $sql_extra group by folder ",
+			intval($channel_id)
+		);
+		if($x) {
+			require_once('include/attach.php');
+			foreach($r as $rv) {
+				foreach($x as $xv) {
+					if($xv['folder'] === $rv['hash']) {
+						if($xv['total'] != 0 && attach_can_view_folder($channel_id,$observer_xchan,$xv['folder'])) {
+							$albums[] = [ 'album' => $rv['display_path'], 'folder' => $xv['folder'], 'total' => $xv['total'] ];
+						}
+						continue;
+					}
+				}
+			}
+		}
+	}
 
 	// add various encodings to the array so we can just loop through and pick them out in a template
 
@@ -485,11 +497,12 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 		foreach($albums as $k => $album) {
 			$entry = array(
 				'text' => (($album['album']) ? $album['album'] : '/'),
+				'shorttext' => (($album['album']) ? ellipsify($album['album'],28) : '/'),
 				'jstext' => (($album['album']) ? addslashes($album['album']) : '/'),
 				'total' => $album['total'],
-				'url' => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album['album']),
+				'url' => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . $album['folder'],
 				'urlencode' => urlencode($album['album']),
-				'bin2hex' => bin2hex($album['album'])
+				'bin2hex' => $album['folder']
 			);
 			$ret['albums'][] = $entry;
 		}
@@ -500,7 +513,7 @@ function photos_albums_list($channel, $observer, $sort_key = 'album', $direction
 	return $ret;
 }
 
-function photos_album_widget($channelx,$observer,$sortkey = 'album',$direction = 'asc') {
+function photos_album_widget($channelx,$observer,$sortkey = 'display_path',$direction = 'asc') {
 
 	$o = '';
 
@@ -513,6 +526,7 @@ function photos_album_widget($channelx,$observer,$sortkey = 'album',$direction =
 		$o = replace_macros(get_markup_template('photo_albums.tpl'),array(
 			'$nick'    => $channelx['channel_address'],
 			'$title'   => t('Photo Albums'),
+			'$recent'  => t('Recent Photos'),
 			'$albums'  => $albums['albums'],
 			'$baseurl' => z_root(),
 			'$upload'  => ((perm_is_allowed($channelx['channel_id'],(($observer) ? $observer['xchan_hash'] : ''),'write_storage'))
@@ -570,13 +584,15 @@ function photos_list_photos($channel, $observer, $album = '') {
  * @param string $album name of the album
  * @return boolean
  */
-function photos_album_exists($channel_id, $album) {
-	$r = q("SELECT id FROM photo WHERE album = '%s' AND uid = %d limit 1",
+function photos_album_exists($channel_id, $observer_hash, $album) {
+	$sql_extra = permissions_sql($channel_id,$observer_hash);
+
+	$r = q("SELECT folder, hash, is_dir, filename, os_path, display_path FROM attach WHERE hash = '%s' AND is_dir = 1 AND uid = %d $sql_extra limit 1",
 		dbesc($album),
 		intval($channel_id)
 	);
 
-	return (($r) ? true : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -609,14 +625,15 @@ function photos_album_rename($channel_id, $oldname, $newname) {
  */
 function photos_album_get_db_idstr($channel_id, $album, $remote_xchan = '') {
 
-	if ($remote_xchan) {
-		$r = q("SELECT distinct resource_id from photo where xchan = '%s' and uid = %d and album = '%s' ",
+	if($remote_xchan) {
+		$r = q("SELECT hash from attach where creator = '%s' and uid = %d and folder = '%s' ",
 			dbesc($remote_xchan),
 			intval($channel_id),
 			dbesc($album)
 		);
-	} else {
-		$r = q("SELECT distinct resource_id from photo where uid = %d and album = '%s' ",
+	}
+	else {
+		$r = q("SELECT hash from attach where uid = %d and folder = '%s' ",
 			intval($channel_id),
 			dbesc($album)
 		);
@@ -624,7 +641,7 @@ function photos_album_get_db_idstr($channel_id, $album, $remote_xchan = '') {
 	if ($r) {
 		$arr = array();
 		foreach ($r as $rr) {
-			$arr[] = "'" . dbesc($rr['resource_id']) . "'" ;
+			$arr[] = "'" . dbesc($rr['hash']) . "'" ;
 		}
 		$str = implode(',',$arr);
 		return $str;

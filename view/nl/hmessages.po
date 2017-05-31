@@ -1601,54 +1601,60 @@ msgid ""
 "domains"
 msgstr "Door komma's gescheiden lijst met e-maildomeinen waarvan e-mailadressen op deze hub mogen registeren. Wildcards zijn toegestaan. Laat leeg om alle domeinen toe te laten."
 
-#: ../../Zotlabs/Module/Dreport.php:97
-msgid "queued"
-msgstr "in wachtrij"
+#: ../../Zotlabs/Module/Admin/Security.php:93
+msgid "Not allowed email domains"
+msgstr "Niet toegestane e-maildomeinen"
 
-#: ../../Zotlabs/Module/Dreport.php:101
-msgid "posted"
-msgstr "verstuurd"
+#: ../../Zotlabs/Module/Admin/Security.php:93
+msgid ""
+"Comma separated list of domains which are not allowed in email addresses for"
+" registrations to this site. Wildcards are accepted. Empty to allow any "
+"domains, unless allowed domains have been defined."
+msgstr "Door komma's gescheiden lijst met e-maildomeinen waarvan e-mailadressen niet op deze hub mogen registeren. Wildcards zijn toegestaan. Laat leeg om alle domeinen toe te staan, tenzij er toegestane domeinen zijn ingesteld. "
 
-#: ../../Zotlabs/Module/Dreport.php:105
-msgid "accepted for delivery"
-msgstr "geaccepteerd om afgeleverd te worden"
+#: ../../Zotlabs/Module/Admin/Security.php:94
+msgid "Allow communications only from these sites"
+msgstr "Alleen communicatie met deze hubs toestaan"
 
-#: ../../Zotlabs/Module/Dreport.php:109
-msgid "updated"
-msgstr "geüpdatet"
+#: ../../Zotlabs/Module/Admin/Security.php:94
+msgid ""
+"One site per line. Leave empty to allow communication from anywhere by "
+"default"
+msgstr "Eén hub per regel. Laat leeg om communicatie standaard met alle hubs toe te staan"
 
-#: ../../Zotlabs/Module/Dreport.php:112
-msgid "update ignored"
-msgstr "update genegeerd"
+#: ../../Zotlabs/Module/Admin/Security.php:95
+msgid "Block communications from these sites"
+msgstr "Communicatie met deze hubs blokkeren"
 
-#: ../../Zotlabs/Module/Dreport.php:115
-msgid "permission denied"
-msgstr "toegang geweigerd"
+#: ../../Zotlabs/Module/Admin/Security.php:96
+msgid "Allow communications only from these channels"
+msgstr "Sta alleen communicatie toe met deze kanalen"
 
-#: ../../Zotlabs/Module/Dreport.php:119
-msgid "recipient not found"
-msgstr "ontvanger niet gevonden"
+#: ../../Zotlabs/Module/Admin/Security.php:96
+msgid ""
+"One channel (hash) per line. Leave empty to allow from any channel by "
+"default"
+msgstr "Eén kanaal (hash) per regel. Laat leeg om communicatie standaard met alle kanalen toe te staan"
 
-#: ../../Zotlabs/Module/Dreport.php:122
-msgid "mail recalled"
-msgstr "Privébericht ingetrokken"
+#: ../../Zotlabs/Module/Admin/Security.php:97
+msgid "Block communications from these channels"
+msgstr "Communicatie met deze kanalen blokkeren"
 
-#: ../../Zotlabs/Module/Dreport.php:125
-msgid "duplicate mail received"
-msgstr "dubbel privébericht ontvangen"
+#: ../../Zotlabs/Module/Admin/Security.php:98
+msgid "Only allow embeds from secure (SSL) websites and links."
+msgstr "Alleen ingesloten (embedded) inhoud van veilige (SSL) websites en links toestaan."
 
-#: ../../Zotlabs/Module/Dreport.php:128
-msgid "mail delivered"
-msgstr "privébericht afgeleverd"
+#: ../../Zotlabs/Module/Admin/Security.php:99
+msgid "Allow unfiltered embedded HTML content only from these domains"
+msgstr "Alleen ongefilterde ingesloten (embedded) HTML van deze websites toestaan"
 
-#: ../../Zotlabs/Module/Dreport.php:148
-#, php-format
-msgid "Delivery report for %1$s"
-msgstr "Afleveringsrapport voor %1$s"
+#: ../../Zotlabs/Module/Admin/Security.php:99
+msgid "One site per line. By default embedded content is filtered."
+msgstr "Eén website per regel. Standaard wordt ingesloten (embedded) inhoud gefilterd."
 
-#: ../../Zotlabs/Module/Dreport.php:151
-msgid "Options"
-msgstr "Opties"
+#: ../../Zotlabs/Module/Admin/Security.php:100
+msgid "Block embedded HTML from these domains"
+msgstr "Ingesloten (embedded) HTML vanaf deze domeinen blokkeren"
 
 #: ../../Zotlabs/Module/Admin/Account_edit.php:29
 #, php-format
@@ -2705,30 +2711,27 @@ msgid ""
 " please import or restore these in date order (oldest first)."
 msgstr "Deze back-up-bestanden kunnen geïmporteerd of hersteld worden door op jouw hub en met jouw kanaal <a href=\"%1$s\">%2$s</a> te bezoeken. Voor het beste resultaat kan je de bestanden in chronologische volgorde importeren of herstellen."
 
-#: ../../Zotlabs/Module/Like.php:421 ../../include/conversation.php:167
-#, php-format
-msgid "%1$s doesn't like %2$s's %3$s"
-msgstr "%1$s vindt %3$s van %2$s niet leuk"
+#: ../../Zotlabs/Module/Editlayout.php:127
+#: ../../Zotlabs/Module/Layouts.php:128 ../../Zotlabs/Module/Layouts.php:188
+msgid "Layout Name"
+msgstr "Naam lay-out"
 
 #: ../../Zotlabs/Module/Editlayout.php:128
 #: ../../Zotlabs/Module/Layouts.php:131
 msgid "Layout Description (Optional)"
 msgstr "Lay-out-omschrijving (niet verplicht)"
 
-#: ../../Zotlabs/Module/Like.php:425
-#, php-format
-msgid "%1$s doesn't agree with %2$s's %3$s"
-msgstr "%1$s is het niet eens met %2$s's %3$s"
+#: ../../Zotlabs/Module/Editlayout.php:136
+msgid "Edit Layout"
+msgstr "Lay-out bewerken"
 
-#: ../../Zotlabs/Module/Like.php:427
-#, php-format
-msgid "%1$s abstains from a decision on %2$s's %3$s"
-msgstr "%1$s onthoudt zich van een besluit over %2$s's %3$s"
+#: ../../Zotlabs/Module/Editwebpage.php:142
+msgid "Page link"
+msgstr "Paginalink"
 
-#: ../../Zotlabs/Module/Like.php:429
-#, php-format
-msgid "%1$s is attending %2$s's %3$s"
-msgstr "%1$s is aanwezig op %2$s's %3$s"
+#: ../../Zotlabs/Module/Editwebpage.php:169
+msgid "Edit Webpage"
+msgstr "Webpagina bewerken"
 
 #: ../../Zotlabs/Module/Apps.php:45 ../../include/nav.php:178
 msgid "Apps"
@@ -2795,43 +2798,37 @@ msgstr "Niet in staat om menu aan te maken."
 msgid "Menu Name"
 msgstr "Menunaam"
 
-#: ../../Zotlabs/Module/Like.php:539
-msgid "Thank you."
-msgstr "Bedankt"
+#: ../../Zotlabs/Module/Menu.php:98
+msgid "Unique name (not visible on webpage) - required"
+msgstr "Unieke naam vereist (niet zichtbaar op webpagina)"
 
-#: ../../Zotlabs/Module/Profile_photo.php:186
-#: ../../extend/addon/addon/openclipatar/openclipatar.php:293
-msgid ""
-"Shift-reload the page or clear browser cache if the new photo does not "
-"display immediately."
-msgstr "Vernieuw de pagina met shift+R of shift+F5, of leeg je browserbuffer, wanneer de nieuwe foto niet meteen wordt weergegeven."
+#: ../../Zotlabs/Module/Menu.php:99 ../../Zotlabs/Module/Menu.php:111
+msgid "Menu Title"
+msgstr "Menutitel"
 
-#: ../../Zotlabs/Module/Profile_photo.php:409
-msgid "Use Photo for Profile"
-msgstr "Als profielfoto gebruiken"
+#: ../../Zotlabs/Module/Menu.php:99
+msgid "Visible on webpage - leave empty for no title"
+msgstr "Zichtbaar op webpagina (leeg laten voor geen titel)"
 
-#: ../../Zotlabs/Module/Profile_photo.php:409
-msgid "Upload Profile Photo"
-msgstr "Profielfoto uploaden"
+#: ../../Zotlabs/Module/Menu.php:100
+msgid "Allow Bookmarks"
+msgstr "Bladwijzers toestaan"
 
-#: ../../Zotlabs/Module/Profile_photo.php:410
-#: ../../extend/addon/addon/openclipatar/openclipatar.php:181
-#: ../../extend/addon/addon/openclipatar/openclipatar.php:193
-msgid "Use"
-msgstr "Gebruiken"
+#: ../../Zotlabs/Module/Menu.php:100 ../../Zotlabs/Module/Menu.php:157
+msgid "Menu may be used to store saved bookmarks"
+msgstr "Menu kan gebruikt worden om bladwijzers in op te slaan"
 
-#: ../../Zotlabs/Module/Search.php:223
-#, php-format
-msgid "Items tagged with: %s"
-msgstr "Items getagd met %s"
+#: ../../Zotlabs/Module/Menu.php:101 ../../Zotlabs/Module/Menu.php:159
+msgid "Submit and proceed"
+msgstr "Opslaan en doorgaan"
 
 #: ../../Zotlabs/Module/Menu.php:107 ../../include/text.php:2289
 msgid "Menus"
 msgstr "Menu's"
 
-#: ../../Zotlabs/Module/Common.php:14
-msgid "No channel."
-msgstr "Geen kanaal."
+#: ../../Zotlabs/Module/Menu.php:113 ../../Zotlabs/Module/Locs.php:120
+msgid "Drop"
+msgstr "Verwijderen"
 
 #: ../../Zotlabs/Module/Menu.php:114 ../../Zotlabs/Module/Webpages.php:255
 #: ../../Zotlabs/Module/Blocks.php:157 ../../Zotlabs/Module/Layouts.php:190
@@ -2845,63 +2842,62 @@ msgstr "Aangemaakt"
 msgid "Edited"
 msgstr "Bewerkt"
 
-#: ../../Zotlabs/Module/Api.php:72 ../../Zotlabs/Module/Api.php:93
-msgid "Authorize application connection"
-msgstr "Geef toestemming voor applicatiekoppeling"
+#: ../../Zotlabs/Module/Menu.php:117
+msgid "Bookmarks allowed"
+msgstr "Bladwijzers toegestaan"
 
-#: ../../Zotlabs/Module/Api.php:73
-msgid "Return to your app and insert this Security Code:"
-msgstr "Ga terug naar je app en voeg deze beveiligingscode in:"
+#: ../../Zotlabs/Module/Menu.php:119
+msgid "Delete this menu"
+msgstr "Menu verwijderen"
 
-#: ../../Zotlabs/Module/Api.php:83
-msgid "Please login to continue."
-msgstr "Inloggen om verder te kunnen gaan."
+#: ../../Zotlabs/Module/Menu.php:120 ../../Zotlabs/Module/Menu.php:154
+msgid "Edit menu contents"
+msgstr "Bewerk de inhoud van het menu"
 
-#: ../../Zotlabs/Module/Api.php:95
-msgid ""
-"Do you want to authorize this application to access your posts and contacts,"
-" and/or create new posts for you?"
-msgstr "Wil je deze applicatie toestemming geven om jouw berichten en connecties te zien, en/of nieuwe berichten voor jou te plaatsen?"
+#: ../../Zotlabs/Module/Menu.php:121
+msgid "Edit this menu"
+msgstr "Dit menu bewerken"
 
-#: ../../Zotlabs/Module/Ping.php:254
-msgid "sent you a private message"
-msgstr "stuurde jou een privébericht"
+#: ../../Zotlabs/Module/Menu.php:136
+msgid "Menu could not be deleted."
+msgstr "Menu kon niet verwijderd worden."
 
-#: ../../Zotlabs/Module/Ping.php:302
-msgid "added your channel"
-msgstr "voegde jouw kanaal toe"
+#: ../../Zotlabs/Module/Menu.php:144 ../../Zotlabs/Module/Mitem.php:28
+msgid "Menu not found."
+msgstr "Menu niet gevonden."
 
-#: ../../Zotlabs/Module/Ping.php:312
-msgid "g A l F d"
-msgstr "G:i, l d F"
+#: ../../Zotlabs/Module/Menu.php:149
+msgid "Edit Menu"
+msgstr "Menu bewerken"
 
-#: ../../Zotlabs/Module/Ping.php:330
-msgid "[today]"
-msgstr "[vandaag]"
+#: ../../Zotlabs/Module/Menu.php:153
+msgid "Add or remove entries to this menu"
+msgstr "Items aan dit menu toevoegen of verwijder"
 
-#: ../../Zotlabs/Module/Ping.php:339
-msgid "posted an event"
-msgstr "plaatste een gebeurtenis"
+#: ../../Zotlabs/Module/Menu.php:155
+msgid "Menu name"
+msgstr "Naam van menu"
 
-#: ../../Zotlabs/Module/Siteinfo.php:20
-msgid "About this site"
-msgstr "Over deze hub"
+#: ../../Zotlabs/Module/Menu.php:155
+msgid "Must be unique, only seen by you"
+msgstr "Moet uniek zijn en is alleen zichtbaar voor jou."
 
-#: ../../Zotlabs/Module/Siteinfo.php:21
-msgid "Site Name"
-msgstr "Hubnaam"
+#: ../../Zotlabs/Module/Menu.php:156
+msgid "Menu title"
+msgstr "Titel van menu"
 
-#: ../../Zotlabs/Module/Siteinfo.php:25 ../../include/network.php:1962
-msgid "Administrator"
-msgstr "Beheerder"
+#: ../../Zotlabs/Module/Menu.php:156
+msgid "Menu title as seen by others"
+msgstr "Titel van menu zoals anderen dat zien."
 
-#: ../../Zotlabs/Module/Siteinfo.php:28
-msgid "Software and Project information"
-msgstr "Software- en projectinformatie"
+#: ../../Zotlabs/Module/Menu.php:157
+msgid "Allow bookmarks"
+msgstr "Bladwijzers toestaan"
 
-#: ../../Zotlabs/Module/Siteinfo.php:29
-msgid "This site is powered by $Projectname"
-msgstr "Dit is een $Projectname-hub"
+#: ../../Zotlabs/Module/Menu.php:166 ../../Zotlabs/Module/Mitem.php:120
+#: ../../Zotlabs/Module/Xchan.php:41
+msgid "Not found."
+msgstr "Niet gevonden."
 
 #: ../../Zotlabs/Module/Rpost.php:138 ../../Zotlabs/Module/Editpost.php:108
 msgid "Edit post"
@@ -2967,44 +2963,43 @@ msgstr "Gebruik dit formulier om de locatie te verwijderen wanneer de hub van de
 msgid "Public Hubs"
 msgstr "Openbare hubs"
 
-#: ../../Zotlabs/Module/Lostpass.php:130
-msgid "Forgot your Password?"
-msgstr "Wachtwoord vergeten?"
-
-#: ../../Zotlabs/Module/Lostpass.php:131
+#: ../../Zotlabs/Module/Pubsites.php:27
 msgid ""
-"Enter your email address and submit to have your password reset. Then check "
-"your email for further instructions."
-msgstr "Voer je e-mailadres in en verstuur deze om je wachtwoord opnieuw in te stellen. Controleer hierna hier je e-mail voor verdere instructies."
+"The listed hubs allow public registration for the $Projectname network. All "
+"hubs in the network are interlinked so membership on any of them conveys "
+"membership in the network as a whole. Some hubs may require subscription or "
+"provide tiered service plans. The hub itself <strong>may</strong> provide "
+"additional details."
+msgstr "Op de hier weergegeven hubs kan iedereen zich voor het $Projectname-netwerk aanmelden. Alle hubs in het netwerk zijn met elkaar verbonden, dus maakt het qua lidmaatschap niet uit waar je je aanmeldt. Op sommige hubs heb je eerst goedkeuring nodig en sommige hubs vereisen een financiële tegemoetkoming voor bepaalde uitbreidingen. <strong>Mogelijk</strong> wordt hierover op de hub zelf meer informatie gegeven."
 
-#: ../../Zotlabs/Module/Lostpass.php:132
-msgid "Email Address"
-msgstr "E-mailadres"
+#: ../../Zotlabs/Module/Pubsites.php:33
+msgid "Hub URL"
+msgstr "Hub-URL"
 
-#: ../../Zotlabs/Module/Lostpass.php:133
-msgid "Reset"
-msgstr "Opnieuw instellen"
+#: ../../Zotlabs/Module/Pubsites.php:33
+msgid "Access Type"
+msgstr "Toegangs-<br/>&nbsp;type"
 
-#: ../../Zotlabs/Module/Rbmark.php:94
-msgid "Select a bookmark folder"
-msgstr "Kies een bladwijzermap"
+#: ../../Zotlabs/Module/Pubsites.php:33
+msgid "Registration Policy"
+msgstr "Registratie-<br/>&nbsp;beleid"
 
-#: ../../Zotlabs/Module/Rbmark.php:99
-msgid "Save Bookmark"
-msgstr "Bladwijzer opslaan"
+#: ../../Zotlabs/Module/Pubsites.php:33
+msgid "Stats"
+msgstr "Stats"
 
-#: ../../Zotlabs/Module/Rbmark.php:100
-msgid "URL of bookmark"
-msgstr "URL van bladwijzer"
+#: ../../Zotlabs/Module/Pubsites.php:33
+msgid "Software"
+msgstr "Software"
 
 #: ../../Zotlabs/Module/Pubsites.php:35 ../../Zotlabs/Module/Ratings.php:97
 #: ../../include/conversation.php:941 ../../include/conversation.php:1099
 msgid "Ratings"
 msgstr "Beoordelingen"
 
-#: ../../Zotlabs/Module/Dirsearch.php:33
-msgid "This directory server requires an access token"
-msgstr "Deze kanalengidshub (directoryserver) heeft een toegangs-token nodig"
+#: ../../Zotlabs/Module/Pubsites.php:48
+msgid "Rate"
+msgstr "Beoordeel"
 
 #: ../../Zotlabs/Module/Pubsites.php:59 ../../Zotlabs/Module/Events.php:694
 #: ../../Zotlabs/Module/Webpages.php:250 ../../Zotlabs/Module/Blocks.php:166

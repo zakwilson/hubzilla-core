@@ -197,7 +197,23 @@ class Wiki extends \Zotlabs\Web\Controller {
 				// Fetch the wiki info and determine observer permissions
 
 				$wikiUrlName = urldecode(argv(2));
-				$pageUrlName = urldecode(argv(3));
+
+				$page_name = '';
+				$ignore_language = false;
+
+				for($x = 3; $x < argc(); $x ++) {
+					if($page_name === '' && argv($x) === '-') {
+						$ignore_language = true;
+						continue;
+					}
+					if($page_name) {
+						$page_name .= '/';
+					}
+					$page_name .= argv($x);
+				}
+
+				$pageUrlName = urldecode($page_name);
+				$langPageUrlName = urldecode(\App::$language . '/' . $page_name);
 
 				$w = Zlib\NativeWiki::exists_by_name($owner['channel_id'], $wikiUrlName);
 
@@ -274,7 +290,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 			'$showPageControls' => $showPageControls,
 			'$editOrSourceLabel' => (($showPageControls) ? t('Edit') : t('Source')),
 			'$tools_label' => 'Page Tools',
-			'$channel' => $owner['channel_address'],
+			'$channel_address' => $owner['channel_address'],
+			'$channel_id' => $owner['channel_id'],
 			'$resource_id' => $resource_id,
 			'$page' => $pageUrlName,
 			'$mimeType' => $mimeType,
@@ -473,10 +490,12 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 			$x = new \Zotlabs\Widget\Wiki_pages();
 
-			$page_list_html = $x->widget(array(
-					'resource_id' => $resource_id, 
-					'refresh' => true, 
-					'channel' => argv(1)));
+			$page_list_html = $x->widget([
+				'resource_id' => $resource_id,
+				'channel_id' => $owner['channel_id'],
+				'channel_address' => $owner['channel_address'],
+				'refresh' => true
+			]);
 			json_return_and_die(array('pages' => $page_list_html, 'message' => '', 'success' => true));					
 		}
 		

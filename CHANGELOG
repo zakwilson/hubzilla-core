@@ -1,3 +1,6 @@
+Hubzilla 2.4.1 (2017-07-06)
+	- Fix the wiki bug preventing page list display to observers other than the channel owner
+
 Hubzilla 2.4 (2017-05-31)
 	- Silence php warning during install
 	- Implemented switch statement logic in Comanche layout parser

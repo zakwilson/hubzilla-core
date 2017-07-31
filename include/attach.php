@@ -1677,17 +1677,9 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 		$arr['obj']           = $u_jsonobject;
 		$arr['body']          = '';
 
-		$post = item_store($arr);
-		$item_id = $post['item_id'];
-		if($item_id) {
-			Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$item_id));
-		}
-
-		call_hooks('post_local_end', $arr);
+		post_activity_item($arr);
 
 		$update = false;
-
-		//notice( t('File activity updated') . EOL);
 	}
 
 	//don't create new activity if notify was not enabled
@@ -1712,16 +1704,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 	$arr['obj']           = (($update) ? $u_jsonobject : $jsonobject);
 	$arr['body']          = '';
 
-	$post = item_store($arr);
-	$item_id = $post['item_id'];
-
-	if($item_id) {
-		Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$item_id));
-	}
-
-	call_hooks('post_local_end', $arr);
-
-	//(($verb === 'post') ?  notice( t('File activity posted') . EOL) : notice( t('File activity dropped') . EOL));
+	post_activity_item($arr);
 
 	return;
 }
@@ -1887,7 +1870,7 @@ function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny
 
 	//if none is allowed restrict to self
 	if(($r_arr_allow_gid === false) && ($r_arr_allow_cid === false)) {
-		$ret['allow_cid'] = $poster['xchan_hash'];
+		$ret['allow_cid'] = [$poster['xchan_hash']];
 	} else {
 		$ret['allow_gid'] = $r_arr_allow_gid;
 		$ret['allow_cid'] = $r_arr_allow_cid;

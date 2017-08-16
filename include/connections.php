@@ -341,6 +341,11 @@ function contact_remove($channel_id, $abook_id) {
 
 	logger('removing contact ' . $abook_id . ' for channel ' . $channel_id,LOGGER_DEBUG);
 
+
+	$x = [ 'channel_id' => $channel_id, 'abook_id' => $abook_id ];
+	call_hooks('connection_remove',$x);
+
+
 	$archive = get_pconfig($channel_id, 'system','archive_removed_contacts');
 	if($archive) {
 		q("update abook set abook_archived = 1 where abook_id = %d and abook_channel = %d",
@@ -415,9 +420,9 @@ function random_profile() {
 
 	for($i = 0; $i < $retryrandom; $i++) {
 
-		$r = q("select xchan_url from xchan left join hubloc on hubloc_hash = xchan_hash where xchan_addr not like '%s' and xchan_hidden = 0 and hubloc_connected > %s - interval %s order by $randfunc limit 1",
-			dbesc('sys@%'),
-			db_utcnow(), db_quoteinterval('30 day')
+		$r = q("select xchan_url, xchan_hash from xchan left join hubloc on hubloc_hash = xchan_hash where xchan_hidden = 0 and xchan_system = 0 and hubloc_connected > %s - interval %s order by $randfunc limit 1",
+			db_utcnow(),
+			db_quoteinterval('30 day')
 		);
 
 		if(!$r) return ''; // Couldn't get a random channel
@@ -425,12 +430,12 @@ function random_profile() {
 		if($checkrandom) {
 			$x = z_fetch_url($r[0]['xchan_url']);
 			if($x['success'])
-				return $r[0]['xchan_url'];
+				return $r[0]['xchan_hash'];
 			else
 				logger('Random channel turned out to be bad.');
 		}
 		else {
-			return $r[0]['xchan_url'];
+			return $r[0]['xchan_hash'];
 		}
 
 	}
@@ -629,7 +634,7 @@ function get_vcard_array($vc,$id) {
 				'address' => $adr->getParts()
 			];
 			$last_entry = end($adrs);
-			if($adrs[$last_entry]['address'])
+			if($last_entry && is_array($adrs[$last_entry]['address']))
 				array_walk($adrs[$last_entry]['address'],'array_escape_tags');
 		}
 	}

@@ -49,7 +49,7 @@ class Invite extends \Zotlabs\Web\Controller {
 			if(! $recip)
 				continue;
 	
-			if(! valid_email($recip)) {
+			if(! validate_email($recip)) {
 				notice(  sprintf( t('%s : Not a valid email address.'), $recip) . EOL);
 				continue;
 			}
@@ -88,12 +88,14 @@ class Invite extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
+
+		nav_set_selected(t('Invite'));
 	
 		$tpl = get_markup_template('invite.tpl');
 		$invonly = false;

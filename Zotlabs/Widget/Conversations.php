@@ -12,10 +12,6 @@ class Conversations {
 		if(argc() > 1) {
 
 			switch(argv(1)) {
-				case 'combined':
-					$mailbox = 'combined';
-					$header = t('Conversations');
-					break;
 				case 'inbox':
 					$mailbox = 'inbox';
 					$header = t('Received Messages');
@@ -44,6 +40,8 @@ class Conversations {
 
 			foreach($r as $rr) {
 
+				$selected = ((argc() == 3) ? intval(argv(2)) == intval($rr['id']) : $r[0]['id'] == $rr['id']);
+
 				$messages[] = array(
 					'mailbox'      => $mailbox,
 					'id'           => $rr['id'],
@@ -58,7 +56,7 @@ class Conversations {
 					'body'         => $rr['body'],
 					'date'         => datetime_convert('UTC',date_default_timezone_get(),$rr['created'], 'c'),
 					'seen'         => $rr['seen'],
-					'selected'     => ((argv(2)) ? (argv(2) == $rr['id']) : ($r[0]['id'] == $rr['id']))
+					'selected'     => ((argv(1) != 'new') ? $selected : '')
 				);
 			}
 
@@ -71,4 +69,6 @@ class Conversations {
 		}
 		return $o;
 	}
+
 }
+

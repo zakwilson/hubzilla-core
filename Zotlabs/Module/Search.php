@@ -15,14 +15,14 @@ class Search extends \Zotlabs\Web\Controller {
 		if((get_config('system','block_public')) || (get_config('system','block_public_search'))) {
 			if ((! local_channel()) && (! remote_channel())) {
 				notice( t('Public access denied.') . EOL);
-			return;
+				return;
 			}
 		}
 	
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();
 	
-		nav_set_selected('search');
+		nav_set_selected(t('Search'));
 	
 		require_once("include/bbcode.php");
 		require_once('include/security.php');
@@ -81,11 +81,12 @@ class Search extends \Zotlabs\Web\Controller {
 			return $o;
 	
 		if($tag) {
-			$sql_extra = sprintf(" AND item.id IN (select oid from term where otype = %d and ttype in ( %d , %d) and term = '%s') ",
+			$wildtag = str_replace('*','%',$search);
+			$sql_extra = sprintf(" AND item.id IN (select oid from term where otype = %d and ttype in ( %d , %d) and term like '%s') ",
 				intval(TERM_OBJ_POST),
 				intval(TERM_HASHTAG),
 				intval(TERM_COMMUNITYTAG),
-				dbesc(protect_sprintf($search))
+				dbesc(protect_sprintf($wildtag))
 			);
 		}
 		else {
@@ -144,7 +145,7 @@ class Search extends \Zotlabs\Web\Controller {
 	
 		}
 	
-		$item_normal = item_normal();
+		$item_normal = item_normal_search();
 		$pub_sql = public_permissions_sql($observer_hash);
 	
 		require_once('include/channel.php');
@@ -225,7 +226,7 @@ class Search extends \Zotlabs\Web\Controller {
 		else
 			$o .= '<h2>' . sprintf( t('Search results for: %s'),htmlspecialchars($search, ENT_COMPAT,'UTF-8')) . '</h2>';
 	
-		$o .= conversation($a,$items,'search',$update,'client');
+		$o .= conversation($items,'search',$update,'client');
 	
 		$o .= '</div>';
 	

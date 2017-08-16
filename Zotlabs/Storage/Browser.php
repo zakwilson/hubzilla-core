@@ -17,6 +17,7 @@ use Sabre\DAV;
  */
 class Browser extends DAV\Browser\Plugin {
 
+	public $build_page = false;
 	/**
 	 * @see set_writeable()
 	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
@@ -243,6 +244,8 @@ class Browser extends DAV\Browser\Plugin {
 
 		$a = false;
 
+		nav_set_selected(t('Files'));
+
 		\App::$page['content'] = $html;
 		load_pdl();
 
@@ -257,7 +260,7 @@ class Browser extends DAV\Browser\Plugin {
 			}
 		}
 		$this->server->httpResponse->setHeader('Content-Security-Policy', "script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
-		construct_page();
+		$this->build_page = true;
 	}
 
 	/**

@@ -610,7 +610,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 		// A freshly uploaded file. Check for duplicate and resolve with the channel's overwrite settings.
 
-		$r = q("select filename, id, hash, filesize from attach where filename = '%s' and folder = '%s' ",
+		$r = q("select filename, id, hash, filesize from attach where uid = %d and filename = '%s' and folder = '%s' ",
+			intval($channel_id),
 			dbesc($filename),
 			dbesc($folder_hash)
 		);
@@ -632,7 +633,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 					$ext = $def_extension;
 				}
 
-				$r = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' ",
+				$r = q("select filename from attach where uid = %d and ( filename = '%s' OR filename like '%s' ) and folder = '%s' ",
+					intval($channel_id),
 					dbesc($basename . $ext),
 					dbesc($basename . '(%)' . $ext),
 					dbesc($folder_hash)
@@ -1596,7 +1598,10 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 		$folder_hash = $object['folder'];
 
-		$r_perms = recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $arr_deny_gid, $folder_hash);
+		$r_perms = attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $arr_deny_gid, $folder_hash);
+
+		if($r_perms === false) //nobody has recursive perms - nobody must be notified
+			return;
 
 		//split up returned perms
 		$arr_allow_cid = $r_perms['allow_cid'];
@@ -1675,17 +1680,9 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 		$arr['obj']           = $u_jsonobject;
 		$arr['body']          = '';
 
-		$post = item_store($arr);
-		$item_id = $post['item_id'];
-		if($item_id) {
-			Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$item_id));
-		}
-
-		call_hooks('post_local_end', $arr);
+		post_activity_item($arr);
 
 		$update = false;
-
-		//notice( t('File activity updated') . EOL);
 	}
 
 	//don't create new activity if notify was not enabled
@@ -1710,16 +1707,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 	$arr['obj']           = (($update) ? $u_jsonobject : $jsonobject);
 	$arr['body']          = '';
 
-	$post = item_store($arr);
-	$item_id = $post['item_id'];
-
-	if($item_id) {
-		Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$item_id));
-	}
-
-	call_hooks('post_local_end', $arr);
-
-	//(($verb === 'post') ?  notice( t('File activity posted') . EOL) : notice( t('File activity dropped') . EOL));
+	post_activity_item($arr);
 
 	return;
 }
@@ -1776,7 +1764,7 @@ function get_file_activity_object($channel_id, $hash, $cloudpath) {
 }
 
 /**
- * @brief Returns array of channels which have recursive permission for a file
+ * @brief Returns recursive permissions array or false if nobody has recursive permissions
  *
  * @param array $arr_allow_cid
  * @param array $arr_allow_gid
@@ -1784,19 +1772,20 @@ function get_file_activity_object($channel_id, $hash, $cloudpath) {
  * @param array $arr_deny_gid
  * @param string $folder_hash
  */
-function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $arr_deny_gid, $folder_hash) {
+function attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $arr_deny_gid, $folder_hash) {
 
 	$ret = array();
 	$parent_arr = array();
 	$count_values = array();
 	$poster = App::get_observer();
 
-	//turn allow_gid into allow_cid's
-	foreach($arr_allow_gid as $gid) {
-		$in_group = group_get_members($gid);
+	//lookup all channels in sharee group and add them to sharee $arr_allow_cid
+	if($arr_allow_gid) {
+		$in_group = expand_groups($arr_allow_gid);
 		$arr_allow_cid = array_unique(array_merge($arr_allow_cid, $in_group));
 	}
 
+	//count existing parent folders - we will compare to that count later
 	$count = 0;
 	while($folder_hash) {
 		$x = q("SELECT allow_cid, allow_gid, deny_cid, deny_gid, folder FROM attach WHERE hash = '%s' LIMIT 1",
@@ -1805,29 +1794,19 @@ function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny
 
 		//only process private folders
 		if($x[0]['allow_cid'] || $x[0]['allow_gid'] || $x[0]['deny_cid'] || $x[0]['deny_gid']) {
-
 			$parent_arr['allow_cid'][] = expand_acl($x[0]['allow_cid']);
 			$parent_arr['allow_gid'][] = expand_acl($x[0]['allow_gid']);
-
-			/**
-			 * @TODO should find a much better solution for the allow_cid <-> allow_gid problem.
-			 * Do not use allow_gid for now. Instead lookup the members of the group directly and add them to allow_cid.
-			 * */
-			if($parent_arr['allow_gid']) {
-				foreach($parent_arr['allow_gid'][$count] as $gid) {
-					$in_group = group_get_members($gid);
-					$parent_arr['allow_cid'][$count] = array_unique(array_merge($parent_arr['allow_cid'][$count], $in_group));
-				}
-			}
-
 			$parent_arr['deny_cid'][] = expand_acl($x[0]['deny_cid']);
 			$parent_arr['deny_gid'][] = expand_acl($x[0]['deny_gid']);
 
+			//this is the number of all existing parent folders - we will compare to that count later
 			$count++;
 		}
 
 		$folder_hash = $x[0]['folder'];
 	}
+
+	//logger(EOL . 'parent_arr: ' . print_r($parent_arr,true));
 
 	//if none of the parent folders is private just return file perms
 	if(!$parent_arr['allow_cid'] && !$parent_arr['allow_gid'] && !$parent_arr['deny_cid'] && !$parent_arr['deny_gid']) {
@@ -1839,7 +1818,7 @@ function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny
 		return $ret;
 	}
 
-	//if there are no perms on the file we get them from the first parent folder
+	//if there are no perms on the file we will work with the perms from the first parent folder
 	if(!$arr_allow_cid && !$arr_allow_gid && !$arr_deny_cid && !$arr_deny_gid) {
 		$arr_allow_cid = $parent_arr['allow_cid'][0];
 		$arr_allow_gid = $parent_arr['allow_gid'][0];
@@ -1847,51 +1826,82 @@ function recursive_activity_recipients($arr_allow_cid, $arr_allow_gid, $arr_deny
 		$arr_deny_gid = $parent_arr['deny_gid'][0];
 	}
 
-	//allow_cid
-	$r_arr_allow_cid = false;
-	foreach ($parent_arr['allow_cid'] as $folder_arr_allow_cid) {
-		foreach ($folder_arr_allow_cid as $ac_hash) {
-			$count_values[$ac_hash]++;
+
+	/***
+	*
+	* check if sharee has perms for all parent folders
+	*
+	***/
+
+	$r_arr_allow_cid = [];
+
+	if($parent_arr['allow_cid']) {
+		//check sharee arr_allow_cid against allow_cid of all parent folders
+		foreach($parent_arr['allow_cid'] as $folder_arr_allow_cid) {
+			foreach($folder_arr_allow_cid as $ac_hash) {
+				$count_values[$ac_hash]++;
+			}
 		}
-	}
-	foreach ($arr_allow_cid as $fac_hash) {
-		if($count_values[$fac_hash] == $count)
-			$r_arr_allow_cid[] = $fac_hash;
+		foreach($arr_allow_cid as $fac_hash) {
+			if($count_values[$fac_hash] == $count)
+				$r_arr_allow_cid[] = $fac_hash;
+		}
+		//logger(EOL . 'r_arr_allow_cid: ' . print_r($r_arr_allow_cid,true));
 	}
 
-	//allow_gid
-	$r_arr_allow_gid = false;
-	foreach ($parent_arr['allow_gid'] as $folder_arr_allow_gid) {
-		foreach ($folder_arr_allow_gid as $ag_hash) {
-			$count_values[$ag_hash]++;
+	if($parent_arr['allow_gid']) {
+		//check sharee arr_allow_cid against members of allow_gid of all parent folders
+		foreach($parent_arr['allow_gid'] as $folder_arr_allow_gid) {
+			//get the group members
+			$folder_arr_allow_cid = expand_groups($folder_arr_allow_gid);
+			foreach($folder_arr_allow_cid as $ac_hash) {
+				$count_values[$ac_hash]++;
+			}
 		}
+		foreach($arr_allow_cid as $fac_hash) {
+			if($count_values[$fac_hash] == $count)
+				$r_arr_allow_cid[] = $fac_hash;
+		}
+		//logger(EOL . 'groups - r_arr_allow_cid: ' . print_r($r_arr_allow_cid,true));
 	}
-	foreach ($arr_allow_gid as $fag_hash) {
-		if($count_values[$fag_hash] == $count)
-			$r_arr_allow_gid[] = $fag_hash;
+
+
+	/***
+	*
+	* check if sharee is denied somewhere in parent folders and deny him if so
+	*
+	***/
+
+	//deny_cid
+	$r_arr_deny_cid = [];
+
+	if($parent_arr['deny_cid']) {
+		foreach($parent_arr['deny_cid'] as $folder_arr_deny_cid) {
+			$r_arr_deny_cid = array_merge($arr_deny_cid, $folder_arr_deny_cid);
+		}
+		$r_arr_deny_cid = array_unique($r_arr_deny_cid);
+		//logger(EOL . 'r_arr_deny_cid: ' . print_r($r_arr_deny_cid,true));
 	}
 
 	//deny_gid
-	foreach($parent_arr['deny_gid'] as $folder_arr_deny_gid) {
-		$r_arr_deny_gid = array_merge($arr_deny_gid, $folder_arr_deny_gid);
-	}
-	$r_arr_deny_gid = array_unique($r_arr_deny_gid);
+	$r_arr_deny_gid = [];
 
-	//deny_cid
-	foreach($parent_arr['deny_cid'] as $folder_arr_deny_cid) {
-		$r_arr_deny_cid = array_merge($arr_deny_cid, $folder_arr_deny_cid);
+	if($parent_arr['deny_cid']) {
+		foreach($parent_arr['deny_gid'] as $folder_arr_deny_gid) {
+			$r_arr_deny_gid = array_merge($arr_deny_gid, $folder_arr_deny_gid);
+		}
+		$r_arr_deny_gid = array_unique($r_arr_deny_gid);
+		//logger(EOL . 'r_arr_deny_gid: ' . print_r($r_arr_dr_arr_deny_gideny_cid,true));
 	}
-	$r_arr_deny_cid = array_unique($r_arr_deny_cid);
 
-	//if none is allowed restrict to self
-	if(($r_arr_allow_gid === false) && ($r_arr_allow_cid === false)) {
-		$ret['allow_cid'] = $poster['xchan_hash'];
-	} else {
-		$ret['allow_gid'] = $r_arr_allow_gid;
-		$ret['allow_cid'] = $r_arr_allow_cid;
-		$ret['deny_gid'] = $r_arr_deny_gid;
-		$ret['deny_cid'] = $r_arr_deny_cid;
-	}
+	//if no channel is allowed return false
+	if(! $r_arr_allow_cid)
+		return false;
+
+	$ret['allow_gid'] = []; // eventual group members are already collected in $r_arr_allow_cid
+	$ret['allow_cid'] = $r_arr_allow_cid;
+	$ret['deny_gid'] = $r_arr_deny_gid;
+	$ret['deny_cid'] = $r_arr_deny_cid;
 
 	return $ret;
 }
@@ -2353,5 +2363,106 @@ function attach_upgrade() {
 			}
 		}
 	}
+}
+
+
+function save_chunk($channel,$start,$end,$len) {
+
+	$result = [];
+
+	$tmp_path = $_FILES['files']['tmp_name'];
+	$new_base = 'store/[data]/' . $channel['channel_address'] . '/tmp';
+	os_mkdir($new_base,STORAGE_DEFAULT_PERMISSIONS,true);
+	
+	$new_path = $new_base . '/' . $_FILES['files']['name'];
+
+	if(! file_exists($new_path)) {
+		rename($tmp_path,$new_path);
+	}
+	else {
+		$istream = fopen($tmp_path,'rb');
+		$ostream = fopen($new_path,'ab');
+		if($istream && $ostream) {
+			pipe_streams($istream,$ostream);
+			fclose($istream);
+			fclose($ostream);
+		}
+	}
+	if(($len - 1) == $end) {
+		unlink($tmp_path);
+		$result['name']     = $_FILES['files']['tmp_name'];
+		$result['type']     = $_FILES['files']['type'];
+		$result['tmp_name'] = $new_path;
+		$result['error']    = 0;
+		$result['size']     = $len;
+		$result['complete'] = true;
+		return $result;
+	}
+	$result['partial'] = true;
+	$result['length']  = intval(filesize($new_path));
+	return $result;
+}
+
+
+/*
+ * chunkloader
+ * Submit handler for chunked uploads
+ * 
+ */
+
+function chunkloader($channel,$arr) {
+
+	logger('request: ' . print_r($arr,true), LOGGER_DEBUG);
+	logger('files: ' . print_r($_FILES,true), LOGGER_DEBUG);
+	
+
+	$result = [];
+		
+
+	$tmp_path = $_FILES['file']['tmp_name'];
+	$new_base = 'store/[data]/' . $channel['channel_address'] . '/tmp';
+	os_mkdir($new_base,STORAGE_DEFAULT_PERMISSIONS,true);
+
+	$new_path = $new_base . '/' . $arr['resumableFilename'];
+
+	rename($tmp_path,$new_path . '.' . intval($arr['resumableChunkNumber']));
+	
+	$missing_parts = false;
+	for($x = 1; $x <= intval($arr['resumableTotalChunks']); $x ++) {
+		if(! file_exists($new_path . '.' . $x)) {
+			$missing_parts = true;
+			break;
+		}
+	}
+
+	if($missing_parts) {
+		$result['partial'] = true;
+		return $result;
+	}
+
+	if(intval($arr['resumableTotalChunks']) === 1) {
+		rename($new_path . '.' . '1', $new_path);
+	}
+	else {
+		for($x = 1; $x <= intval($arr['resumableTotalChunks']); $x ++) {
+			$istream = fopen($new_path . '.' . $x,'rb');
+			$ostream = fopen($new_path,'ab');
+			if($istream && $ostream) {
+				pipe_streams($istream,$ostream);
+				fclose($istream);
+				fclose($ostream);
+			}
+			unlink($new_path . '.' . $x);
+		}
+	}
+
+	$result['name'] = $arr['resumableFilename'];
+	$result['type'] = $arr['resumableType'];
+	$result['tmp_name'] = $new_path;
+	$result['error'] = 0;
+	$result['size'] = $arr['resumableTotalSize'];
+	$result['complete'] = true;
+	return $result;
+
 }
 

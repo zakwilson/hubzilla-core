@@ -22,10 +22,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             'Zotlabs\\' => 8,
         ),
-        'T' => 
-        array (
-            'Test\\Markdownify\\' => 17,
-        ),
         'S' => 
         array (
             'Sabre\\Xml\\' => 10,
@@ -42,9 +38,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             'Psr\\Log\\' => 8,
         ),
-        'M' => 
+        'L' => 
         array (
-            'Markdownify\\' => 12,
+            'League\\HTMLToMarkdown\\' => 22,
         ),
         'H' => 
         array (
@@ -56,10 +52,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
-        ),
-        'Test\\Markdownify\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/pixel418/markdownify/test',
         ),
         'Sabre\\Xml\\' => 
         array (
@@ -101,9 +93,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/psr/log/Psr/Log',
         ),
-        'Markdownify\\' => 
+        'League\\HTMLToMarkdown\\' => 
         array (
-            0 => __DIR__ . '/..' . '/pixel418/markdownify/src',
+            0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
         'Hubzilla\\' => 
         array (
@@ -378,9 +370,29 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'HTMLPurifier_VarParser_Native' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Native.php',
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
         'Hubzilla\\Import\\Import' => __DIR__ . '/../..' . '/include/Import/Importer.php',
-        'Markdownify\\Converter' => __DIR__ . '/..' . '/pixel418/markdownify/src/Converter.php',
-        'Markdownify\\ConverterExtra' => __DIR__ . '/..' . '/pixel418/markdownify/src/ConverterExtra.php',
-        'Markdownify\\Parser' => __DIR__ . '/..' . '/pixel418/markdownify/src/Parser.php',
+        'League\\HTMLToMarkdown\\Configuration' => __DIR__ . '/..' . '/league/html-to-markdown/src/Configuration.php',
+        'League\\HTMLToMarkdown\\ConfigurationAwareInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ConfigurationAwareInterface.php',
+        'League\\HTMLToMarkdown\\Converter\\BlockquoteConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/BlockquoteConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\CodeConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/CodeConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\CommentConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/CommentConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ConverterInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ConverterInterface.php',
+        'League\\HTMLToMarkdown\\Converter\\DefaultConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/DefaultConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\DivConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/DivConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\EmphasisConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/EmphasisConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HardBreakConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HardBreakConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HeaderConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HeaderConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\HorizontalRuleConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/HorizontalRuleConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ImageConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ImageConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\LinkConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/LinkConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ListBlockConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ListBlockConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ListItemConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ListItemConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\ParagraphConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/ParagraphConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\PreformattedConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/PreformattedConverter.php',
+        'League\\HTMLToMarkdown\\Converter\\TextConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/TextConverter.php',
+        'League\\HTMLToMarkdown\\Element' => __DIR__ . '/..' . '/league/html-to-markdown/src/Element.php',
+        'League\\HTMLToMarkdown\\ElementInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ElementInterface.php',
+        'League\\HTMLToMarkdown\\Environment' => __DIR__ . '/..' . '/league/html-to-markdown/src/Environment.php',
+        'League\\HTMLToMarkdown\\HtmlConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/HtmlConverter.php',
         'Michelf\\Markdown' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/Markdown.php',
         'Michelf\\MarkdownExtra' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
         'Michelf\\MarkdownInterface' => __DIR__ . '/..' . '/michelf/php-markdown/Michelf/MarkdownInterface.php',
@@ -710,6 +722,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Sabre\\HTTP\\URLUtil' => __DIR__ . '/..' . '/sabre/http/lib/URLUtil.php',
         'Sabre\\HTTP\\Util' => __DIR__ . '/..' . '/sabre/http/lib/Util.php',
         'Sabre\\HTTP\\Version' => __DIR__ . '/..' . '/sabre/http/lib/Version.php',
+        'Sabre\\Uri\\InvalidUriException' => __DIR__ . '/..' . '/sabre/uri/lib/InvalidUriException.php',
         'Sabre\\Uri\\Version' => __DIR__ . '/..' . '/sabre/uri/lib/Version.php',
         'Sabre\\VObject\\BirthdayCalendarGenerator' => __DIR__ . '/..' . '/sabre/vobject/lib/BirthdayCalendarGenerator.php',
         'Sabre\\VObject\\Cli' => __DIR__ . '/..' . '/sabre/vobject/lib/Cli.php',
@@ -864,6 +877,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Identity\\ProfilePhoto\\ProfilePhoto' => __DIR__ . '/../..' . '/Zotlabs/Identity/ProfilePhoto.php',
         'Zotlabs\\Lib\\AConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AConfig.php',
         'Zotlabs\\Lib\\AbConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AbConfig.php',
+        'Zotlabs\\Lib\\ActivityStreams2' => __DIR__ . '/../..' . '/Zotlabs/Lib/ActivityStreams2.php',
         'Zotlabs\\Lib\\Api_router' => __DIR__ . '/../..' . '/Zotlabs/Lib/Api_router.php',
         'Zotlabs\\Lib\\Apps' => __DIR__ . '/../..' . '/Zotlabs/Lib/Apps.php',
         'Zotlabs\\Lib\\Cache' => __DIR__ . '/../..' . '/Zotlabs/Lib/Cache.php',
@@ -902,16 +916,20 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Admin\\Security' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Security.php',
         'Zotlabs\\Module\\Admin\\Site' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Site.php',
         'Zotlabs\\Module\\Admin\\Themes' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Themes.php',
+        'Zotlabs\\Module\\Ap_probe' => __DIR__ . '/../..' . '/Zotlabs/Module/Ap_probe.php',
         'Zotlabs\\Module\\Api' => __DIR__ . '/../..' . '/Zotlabs/Module/Api.php',
         'Zotlabs\\Module\\Appman' => __DIR__ . '/../..' . '/Zotlabs/Module/Appman.php',
+        'Zotlabs\\Module\\Apporder' => __DIR__ . '/../..' . '/Zotlabs/Module/Apporder.php',
         'Zotlabs\\Module\\Apps' => __DIR__ . '/../..' . '/Zotlabs/Module/Apps.php',
         'Zotlabs\\Module\\Attach' => __DIR__ . '/../..' . '/Zotlabs/Module/Attach.php',
+        'Zotlabs\\Module\\Authorize' => __DIR__ . '/../..' . '/Zotlabs/Module/Authorize.php',
         'Zotlabs\\Module\\Authtest' => __DIR__ . '/../..' . '/Zotlabs/Module/Authtest.php',
         'Zotlabs\\Module\\Block' => __DIR__ . '/../..' . '/Zotlabs/Module/Block.php',
         'Zotlabs\\Module\\Blocks' => __DIR__ . '/../..' . '/Zotlabs/Module/Blocks.php',
         'Zotlabs\\Module\\Bookmarks' => __DIR__ . '/../..' . '/Zotlabs/Module/Bookmarks.php',
         'Zotlabs\\Module\\Branchtopic' => __DIR__ . '/../..' . '/Zotlabs/Module/Branchtopic.php',
         'Zotlabs\\Module\\Cal' => __DIR__ . '/../..' . '/Zotlabs/Module/Cal.php',
+        'Zotlabs\\Module\\Cdav' => __DIR__ . '/../..' . '/Zotlabs/Module/Cdav.php',
         'Zotlabs\\Module\\Channel' => __DIR__ . '/../..' . '/Zotlabs/Module/Channel.php',
         'Zotlabs\\Module\\Chanview' => __DIR__ . '/../..' . '/Zotlabs/Module/Chanview.php',
         'Zotlabs\\Module\\Chat' => __DIR__ . '/../..' . '/Zotlabs/Module/Chat.php',
@@ -967,6 +985,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Menu' => __DIR__ . '/../..' . '/Zotlabs/Module/Menu.php',
         'Zotlabs\\Module\\Message' => __DIR__ . '/../..' . '/Zotlabs/Module/Message.php',
         'Zotlabs\\Module\\Mitem' => __DIR__ . '/../..' . '/Zotlabs/Module/Mitem.php',
+        'Zotlabs\\Module\\Moderate' => __DIR__ . '/../..' . '/Zotlabs/Module/Moderate.php',
         'Zotlabs\\Module\\Mood' => __DIR__ . '/../..' . '/Zotlabs/Module/Mood.php',
         'Zotlabs\\Module\\Network' => __DIR__ . '/../..' . '/Zotlabs/Module/Network.php',
         'Zotlabs\\Module\\New_channel' => __DIR__ . '/../..' . '/Zotlabs/Module/New_channel.php',
@@ -1028,7 +1047,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Share' => __DIR__ . '/../..' . '/Zotlabs/Module/Share.php',
         'Zotlabs\\Module\\Sharedwithme' => __DIR__ . '/../..' . '/Zotlabs/Module/Sharedwithme.php',
         'Zotlabs\\Module\\Siteinfo' => __DIR__ . '/../..' . '/Zotlabs/Module/Siteinfo.php',
-        'Zotlabs\\Module\\Siteinfo_json' => __DIR__ . '/../..' . '/Zotlabs/Module/Siteinfo_json.php',
         'Zotlabs\\Module\\Sitelist' => __DIR__ . '/../..' . '/Zotlabs/Module/Sitelist.php',
         'Zotlabs\\Module\\Smilies' => __DIR__ . '/../..' . '/Zotlabs/Module/Smilies.php',
         'Zotlabs\\Module\\Snap' => __DIR__ . '/../..' . '/Zotlabs/Module/Snap.php',
@@ -1044,6 +1062,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Thing' => __DIR__ . '/../..' . '/Zotlabs/Module/Thing.php',
         'Zotlabs\\Module\\Toggle_mobile' => __DIR__ . '/../..' . '/Zotlabs/Module/Toggle_mobile.php',
         'Zotlabs\\Module\\Toggle_safesearch' => __DIR__ . '/../..' . '/Zotlabs/Module/Toggle_safesearch.php',
+        'Zotlabs\\Module\\Token' => __DIR__ . '/../..' . '/Zotlabs/Module/Token.php',
         'Zotlabs\\Module\\Uexport' => __DIR__ . '/../..' . '/Zotlabs/Module/Uexport.php',
         'Zotlabs\\Module\\Update_channel' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_channel.php',
         'Zotlabs\\Module\\Update_display' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_display.php',
@@ -1100,6 +1119,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Widget\\Bookmarkedchats' => __DIR__ . '/../..' . '/Zotlabs/Widget/Bookmarkedchats.php',
         'Zotlabs\\Widget\\Catcloud_wall' => __DIR__ . '/../..' . '/Zotlabs/Widget/Catcloud_wall.php',
         'Zotlabs\\Widget\\Categories' => __DIR__ . '/../..' . '/Zotlabs/Widget/Categories.php',
+        'Zotlabs\\Widget\\Cdav' => __DIR__ . '/../..' . '/Zotlabs/Widget/Cdav.php',
         'Zotlabs\\Widget\\Chatroom_list' => __DIR__ . '/../..' . '/Zotlabs/Widget/Chatroom_list.php',
         'Zotlabs\\Widget\\Chatroom_members' => __DIR__ . '/../..' . '/Zotlabs/Widget/Chatroom_members.php',
         'Zotlabs\\Widget\\Clock' => __DIR__ . '/../..' . '/Zotlabs/Widget/Clock.php',
@@ -1123,6 +1143,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Widget\\Photo' => __DIR__ . '/../..' . '/Zotlabs/Widget/Photo.php',
         'Zotlabs\\Widget\\Photo_albums' => __DIR__ . '/../..' . '/Zotlabs/Widget/Photo_albums.php',
         'Zotlabs\\Widget\\Photo_rand' => __DIR__ . '/../..' . '/Zotlabs/Widget/Photo_rand.php',
+        'Zotlabs\\Widget\\Portfolio' => __DIR__ . '/../..' . '/Zotlabs/Widget/Portfolio.php',
         'Zotlabs\\Widget\\Profile' => __DIR__ . '/../..' . '/Zotlabs/Widget/Profile.php',
         'Zotlabs\\Widget\\Pubsites' => __DIR__ . '/../..' . '/Zotlabs/Widget/Pubsites.php',
         'Zotlabs\\Widget\\Random_block' => __DIR__ . '/../..' . '/Zotlabs/Widget/Random_block.php',

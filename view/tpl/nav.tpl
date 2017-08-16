@@ -1,10 +1,10 @@
 {{if $nav.login && !$userinfo}}
-<div class="d-md-none p-1">
+<div class="d-md-none pt-1 pb-1">
 	<a class="btn btn-primary btn-sm text-white" href="#" title="{{$nav.loginmenu.1.3}}" id="{{$nav.loginmenu.1.4}}_collapse" data-toggle="modal" data-target="#nav-login">
 		{{$nav.loginmenu.1.1}}
 	</a>
 	{{if $nav.register}}
-	<a class="btn btn-warning btn-sm text-white" href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}" >
+	<a class="btn btn-warning btn-sm text-dark" href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}" >
 		{{$nav.register.1}}
 	</a>
 	{{/if}}
@@ -16,17 +16,17 @@
 		<img id="avatar" src="{{$userinfo.icon}}" alt="{{$userinfo.name}}">
 		<i class="fa fa-caret-down"></i>
 	</div>
-	{{if $localuser}}
+	{{if $is_owner}}
 	<div class="dropdown-menu">
 		{{foreach $nav.usermenu as $usermenu}}
-		<a class="dropdown-item"  href="{{$usermenu.0}}" title="{{$usermenu.3}}" role="menuitem" id="{{$usermenu.4}}">{{$usermenu.1}}</a>
+		<a class="dropdown-item{{if $usermenu.2}} active{{/if}}"  href="{{$usermenu.0}}" title="{{$usermenu.3}}" role="menuitem" id="{{$usermenu.4}}">{{$usermenu.1}}</a>
 		{{/foreach}}
 		{{if $nav.manage}}
-		<a class="dropdown-item" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}" role="menuitem" id="{{$nav.manage.4}}">{{$nav.manage.1}}</a>
+		<a class="dropdown-item{{if $sel.active == Manage}} active{{/if}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}" role="menuitem" id="{{$nav.manage.4}}">{{$nav.manage.1}}</a>
 		{{/if}}	
 		{{if $nav.channels}}
 		{{foreach $nav.channels as $chan}}
-		<a class="dropdown-item" href="manage/{{$chan.channel_id}}" title="{{$chan.channel_name}}" role="menuitem">{{$chan.channel_name}}</a>
+		<a class="dropdown-item" href="manage/{{$chan.channel_id}}" title="{{$chan.channel_name}}" role="menuitem"><i class="fa fa-circle{{if $localuser == $chan.channel_id}} text-success{{else}} invisible{{/if}}"></i> {{$chan.channel_name}}</a>
 		{{/foreach}}
 		{{/if}}
 		{{if $nav.profiles}}
@@ -34,24 +34,23 @@
 		{{/if}}
 		{{if $nav.settings}}
 		<div class="dropdown-divider"></div>
-		<a class="dropdown-item" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}" role="menuitem" id="{{$nav.settings.4}}">{{$nav.settings.1}}</a>
+		<a class="dropdown-item{{if $sel.active == Settings}} active{{/if}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}" role="menuitem" id="{{$nav.settings.4}}">{{$nav.settings.1}}</a>
 		{{/if}}
 		{{if $nav.admin}}
 		<div class="dropdown-divider"></div>
-		<a class="dropdown-item" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" role="menuitem" id="{{$nav.admin.4}}">{{$nav.admin.1}}</a>
+		<a class="dropdown-item{{if $sel.active == Admin}} active{{/if}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" role="menuitem" id="{{$nav.admin.4}}">{{$nav.admin.1}}</a>
 		{{/if}}
 		{{if $nav.logout}}
 		<div class="dropdown-divider"></div>
 		<a class="dropdown-item" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" role="menuitem" id="{{$nav.logout.4}}">{{$nav.logout.1}}</a>
 		{{/if}}
 	</div>
-	{{else}}
-	{{if $nav.rusermenu}}
+	{{/if}}
+	{{if ! $is_owner}}
 	<div class="dropdown-menu" role="menu" aria-labelledby="avatar">
 		<a class="dropdown-item" href="{{$nav.rusermenu.0}}" role="menuitem">{{$nav.rusermenu.1}}</a>
 		<a class="dropdown-item" href="{{$nav.rusermenu.2}}" role="menuitem">{{$nav.rusermenu.3}}</a>
 	</div>
-	{{/if}}
 	{{/if}}
 </div>
 {{/if}}
@@ -69,7 +68,7 @@
 		<i class="fa fa-exclamation-circle"></i>
 	</button>
 	{{/if}}
-	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse-2">
+	<button id="menu-btn" class="navbar-toggler border-0" type="button" data-toggle="collapse" data-target="#navbar-collapse-2">
 		<i class="fa fa-bars"></i>
 	</button>
 </div>
@@ -79,11 +78,11 @@
 		<li class="nav-item dropdown net-button" style="display: none;">
 			<a class="nav-link" href="#" title="{{$nav.network.3}}" id="{{$nav.network.4}}" data-toggle="dropdown" rel="#nav-network-menu">
 				<i class="fa fa-fw fa-th"></i>
-				<span class="badge badge-pill badge-default net-update"></span>
+				<span class="badge badge-pill badge-secondary net-update"></span>
 			</a>
 			<div id="nav-network-menu" class="dropdown-menu" rel="network">
 				<a class="dropdown-item" id="nav-network-see-all" href="{{$nav.network.all.0}}">{{$nav.network.all.1}}</a>
-				<a class="dropdown-item" id="nav-network-mark-all"href="#" onclick="markRead('network'); return false;">{{$nav.network.mark.1}}</a>
+				<a class="dropdown-item" id="nav-network-mark-all" href="#" onclick="markRead('network'); return false;">{{$nav.network.mark.1}}</a>
 				{{$emptynotifications}}
 			</div>
 		</li>
@@ -118,7 +117,7 @@
 		<li class="nav-item dropdown all_events-button" style="display: none;">
 			<a class="nav-link" href="#" title="{{$nav.all_events.3}}" id="{{$nav.all_events.4}}" data-toggle="dropdown" rel="#nav-all_events-menu">
 				<i class="fa fa-fw fa-calendar"></i>
-				<span class="badge badge-pill badge-default all_events-update"></span>
+				<span class="badge badge-pill badge-secondary all_events-update"></span>
 			</a>
 			<div id="nav-all_events-menu" class="dropdown-menu" rel="all_events">
 				<a class="dropdown-item" id="nav-all_events-see-all" href="{{$nav.all_events.all.0}}">{{$nav.all_events.all.1}}</a>
@@ -204,9 +203,10 @@
 				{{if $channel_apps.0}}
 				</div>
 				{{/if}}
-				{{if $localuser}}
+				{{if $is_owner}}
 				<div class="dropdown-divider"></div>
 				<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
+				<a class="dropdown-item" href="/apporder"><i class="generic-icons-nav fa fa-fw fa-sort"></i>{{$orderapps}}</a>
 				{{/if}}
 			</div>
 		</li>
@@ -229,9 +229,10 @@
 		{{if $channel_apps.0}}
 		</div>
 		{{/if}}
-		{{if $localuser}}
+		{{if $is_owner}}
 		<div class="dropdown-divider"></div>
 		<a class="nav-link" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
+		<a class="nav-link" href="/apporder"><i class="generic-icons-nav fa fa-fw fa-sort"></i>{{$orderapps}}</a>
 		{{/if}}
 	</div>
 </div>

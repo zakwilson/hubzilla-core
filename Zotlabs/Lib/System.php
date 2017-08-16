@@ -19,6 +19,9 @@ class System {
 	static public function get_project_version() {
 		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['hide_version'])
 			return '';
+		if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('std_version',\App::$config['system']))
+			return \App::$config['system']['std_version'];
+
 		return self::get_std_version();
 	}
 
@@ -54,12 +57,8 @@ class System {
 		return 'https://github.com/redmatrix/hubzilla';
 	}
 
-
-
 	static public function get_server_role() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && \App::$config['system']['server_role'])
-			return \App::$config['system']['server_role'];
-		return 'standard';
+		return 'pro';
 	}
 
 	static public function get_std_version() {
@@ -72,11 +71,8 @@ class System {
 
 		if(get_directory_realm() != DIRECTORY_REALM)
 			return true;
-
-		foreach(['hubzilla','zap'] as $t) {
-			if(stristr($p,$t))
-				return true;
-		}
+		if(in_array(strtolower($p),['hubzilla','zap','red']))
+			return true;
 		return false;
 	}
 }

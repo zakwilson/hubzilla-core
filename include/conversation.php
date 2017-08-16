@@ -353,14 +353,6 @@ function localize_item(&$item){
 	}
 */
 
-	// if item body was obscured and we changed it, re-obscure it
-	// FIXME - we need a better filter than just the string 'data'; try and
-	// match the fact that it's json encoded
-
-	if(intval($item['item_obscured'])
-		&& strlen($item['body']) && (! strpos($item['body'],'data'))) {
-		$item['body']  = z_obscure($item['body']);
-	}
 
 }
 
@@ -450,7 +442,6 @@ function is_edit_activity($item) {
  * figures out how to determine page owner and other contextual items
  * that are based on unique features of the calling module.
  *
- * @param App &$a
  * @param array $items
  * @param string $mode
  * @param boolean $update
@@ -458,7 +449,7 @@ function is_edit_activity($item) {
  * @param string $prepared_item
  * @return string
  */
-function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $prepared_item = '') {
+function conversation($items, $mode, $update, $page_mode = 'traditional', $prepared_item = '') {
 
 	$content_html = '';
 	$o = '';
@@ -541,8 +532,12 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 		$live_update_div = '<div id="live-search"></div>' . "\r\n";
 	}
 
+	elseif ($mode === 'moderate') {
+		$profile_owner = local_channel();
+	}
+
 	elseif ($mode === 'photos') {
-		$profile_onwer = App::$profile['profile_uid'];
+		$profile_owner = App::$profile['profile_uid'];
 		$page_writeable = ($profile_owner == local_channel());
 		$live_update_div = '<div id="live-photos"></div>' . "\r\n";
 		// for photos we've already formatted the top-level item (the photo)
@@ -585,7 +580,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 
 	if($items) {
 
-		if($mode === 'network-new' || $mode === 'search' || $mode === 'community') {
+		if(in_array($mode, [ 'network-new', 'search', 'community', 'moderate' ])) {
 
 			// "New Item View" on network page or search page results
 			// - just loop through the items and format them minimally for display
@@ -617,14 +612,14 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) 
 						&& ($item['id'] != $item['parent']))
 						continue;
-					$nickname = $item['nickname'];
+//					$nickname = $item['nickname'];
 				}
-				else
-					$nickname = App::$user['nickname'];
+//				else
+//					$nickname = App::$user['nickname'];
 
-				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
-				if($item['author-link'] && (! $item['author-name']))
-					$profile_name = $item['author-link'];
+//				$profile_name   = ((strlen($item['author-name']))   ? $item['author-name']   : $item['name']);
+//				if($item['author-link'] && (! $item['author-name']))
+//					$profile_name = $item['author-link'];
 
 				$sp = false;
 				$profile_link = best_link_url($item,$sp);
@@ -633,7 +628,7 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 				else
 					$profile_link = zid($profile_link);
 
-				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
+//				$normalised = normalise_link((strlen($item['author-link'])) ? $item['author-link'] : $item['url']);
 
 				$profile_name = $item['author']['xchan_name'];
 				$profile_link = $item['author']['xchan_url'];
@@ -687,6 +682,8 @@ function conversation(&$a, $items, $mode, $update, $page_mode = 'traditional', $
 					'template' => $tpl,
 					'toplevel' => 'toplevel_item',
 					'mode' => $mode,
+					'approve' => t('Approve'),
+					'delete' => t('Delete'),
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
@@ -917,9 +914,9 @@ function thread_action_menu($item,$mode = '') {
 
 }
 
-function author_is_pmable($xchan) {
+function author_is_pmable($xchan, $abook) {
 
-	$x = [ 'xchan' => $xchan, 'result' => 'unset' ];
+	$x = [ 'xchan' => $xchan, 'abook' => $abook, 'result' => 'unset' ];
 	call_hooks('author_is_pmable',$x);
 	if($x['result'] !== 'unset')
 		return $x['result'];
@@ -949,7 +946,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	$profile_link = chanlink_hash($item['author_xchan']);
-
+	$contact = false;
 
 	if(App::$contacts && array_key_exists($item['author_xchan'],App::$contacts))
 		$contact = App::$contacts[$item['author_xchan']];
@@ -958,9 +955,9 @@ function thread_author_menu($item, $mode = '') {
 			$follow_url = z_root() . '/follow/?f=&url=' . urlencode($item['author']['xchan_addr']);
 
 	
-	if($item['uid'] > 0 && author_is_pmable($item['author']))
+	if($item['uid'] > 0 && author_is_pmable($item['author'],$contact)) {
 		$pm_url = z_root() . '/mail/new/?f=&hash=' . urlencode($item['author_xchan']);
-
+	}
 
 
 	if($contact) {
@@ -1625,11 +1622,9 @@ function network_tabs() {
 	// tabs
 	$tabs = array();
 
-	$d = get_config('system','disable_discover_tab');
-	if($d === false)
-		$d = 1;
+	$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
 
-	if(! $d) {
+	if(! $disable_discover_tab) {
 		$tabs[] = array(
 			'label' => t('Discover'),
 			'url' => z_root() . '/' . $cmd . '?f=&fh=1' ,

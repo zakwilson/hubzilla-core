@@ -16,8 +16,8 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				return login();
 		}
 	
-	
-		if(get_config('system','disable_discover_tab'))
+		$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
+		if($disable_discover_tab)
 			return;
 	
 		$item_normal = item_normal();
@@ -167,7 +167,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 		// fake it
 		$mode = ('network');
 	
-		$o .= conversation($a,$items,$mode,$update,$page_mode);
+		$o .= conversation($items,$mode,$update,$page_mode);
 	
 		if(($items) && (! $update))
 			$o .= alt_pager($a,count($items));

@@ -1,157 +1,5 @@
 [
     {
-        "name": "sabre/uri",
-        "version": "1.1.0",
-        "version_normalized": "1.1.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fruux/sabre-uri.git",
-            "reference": "9012116434d84ef6e5e37a89dfdbfbe2204a8704"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fruux/sabre-uri/zipball/9012116434d84ef6e5e37a89dfdbfbe2204a8704",
-            "reference": "9012116434d84ef6e5e37a89dfdbfbe2204a8704",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.4.7"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "*",
-            "sabre/cs": "~0.0.1"
-        },
-        "time": "2016-03-08T02:29:27+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "lib/functions.php"
-            ],
-            "psr-4": {
-                "Sabre\\Uri\\": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "me@evertpot.com",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            }
-        ],
-        "description": "Functions for making sense out of URIs.",
-        "homepage": "http://sabre.io/uri/",
-        "keywords": [
-            "rfc3986",
-            "uri",
-            "url"
-        ]
-    },
-    {
-        "name": "sabre/vobject",
-        "version": "4.1.1",
-        "version_normalized": "4.1.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fruux/sabre-vobject.git",
-            "reference": "a3a59b06947f122af2d45d52b72172cdc1efd68f"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fruux/sabre-vobject/zipball/a3a59b06947f122af2d45d52b72172cdc1efd68f",
-            "reference": "a3a59b06947f122af2d45d52b72172cdc1efd68f",
-            "shasum": ""
-        },
-        "require": {
-            "ext-mbstring": "*",
-            "php": ">=5.5",
-            "sabre/xml": "~1.1"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "*",
-            "sabre/cs": "~0.0.3"
-        },
-        "suggest": {
-            "hoa/bench": "If you would like to run the benchmark scripts"
-        },
-        "time": "2016-07-15T19:52:17+00:00",
-        "bin": [
-            "bin/vobject",
-            "bin/generate_vcards"
-        ],
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "4.0.x-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Sabre\\VObject\\": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "me@evertpot.com",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            },
-            {
-                "name": "Dominik Tobschall",
-                "email": "dominik@fruux.com",
-                "homepage": "http://tobschall.de/",
-                "role": "Developer"
-            },
-            {
-                "name": "Ivan Enderlin",
-                "email": "ivan.enderlin@hoa-project.net",
-                "homepage": "http://mnt.io/",
-                "role": "Developer"
-            }
-        ],
-        "description": "The VObject library for PHP allows you to easily parse and manipulate iCalendar and vCard objects",
-        "homepage": "http://sabre.io/vobject/",
-        "keywords": [
-            "availability",
-            "freebusy",
-            "iCalendar",
-            "ical",
-            "ics",
-            "jCal",
-            "jCard",
-            "recurrence",
-            "rfc2425",
-            "rfc2426",
-            "rfc2739",
-            "rfc4770",
-            "rfc5545",
-            "rfc5546",
-            "rfc6321",
-            "rfc6350",
-            "rfc6351",
-            "rfc6474",
-            "rfc6638",
-            "rfc6715",
-            "rfc6868",
-            "vCalendar",
-            "vCard",
-            "vcf",
-            "xCal",
-            "xCard"
-        ]
-    },
-    {
         "name": "sabre/event",
         "version": "3.0.0",
         "version_normalized": "3.0.0.0",
@@ -208,148 +56,6 @@
             "plugin",
             "promise",
             "signal"
-        ]
-    },
-    {
-        "name": "sabre/http",
-        "version": "4.2.1",
-        "version_normalized": "4.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fruux/sabre-http.git",
-            "reference": "2e93bc8321524c67be4ca5b8415daebd4c8bf85e"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fruux/sabre-http/zipball/2e93bc8321524c67be4ca5b8415daebd4c8bf85e",
-            "reference": "2e93bc8321524c67be4ca5b8415daebd4c8bf85e",
-            "shasum": ""
-        },
-        "require": {
-            "ext-mbstring": "*",
-            "php": ">=5.4",
-            "sabre/event": ">=1.0.0,<4.0.0",
-            "sabre/uri": "~1.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "~4.3",
-            "sabre/cs": "~0.0.1"
-        },
-        "suggest": {
-            "ext-curl": " to make http requests with the Client class"
-        },
-        "time": "2016-01-06T23:00:08+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "files": [
-                "lib/functions.php"
-            ],
-            "psr-4": {
-                "Sabre\\HTTP\\": "lib/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "me@evertpot.com",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            }
-        ],
-        "description": "The sabre/http library provides utilities for dealing with http requests and responses. ",
-        "homepage": "https://github.com/fruux/sabre-http",
-        "keywords": [
-            "http"
-        ]
-    },
-    {
-        "name": "sabre/dav",
-        "version": "3.2.0",
-        "version_normalized": "3.2.0.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/fruux/sabre-dav.git",
-            "reference": "5b9737cc2f0182e368d14c80df7f6b2d77dc1457"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/5b9737cc2f0182e368d14c80df7f6b2d77dc1457",
-            "reference": "5b9737cc2f0182e368d14c80df7f6b2d77dc1457",
-            "shasum": ""
-        },
-        "require": {
-            "ext-ctype": "*",
-            "ext-date": "*",
-            "ext-dom": "*",
-            "ext-iconv": "*",
-            "ext-mbstring": "*",
-            "ext-pcre": "*",
-            "ext-simplexml": "*",
-            "ext-spl": "*",
-            "lib-libxml": ">=2.7.0",
-            "php": ">=5.5.0",
-            "psr/log": "^1.0",
-            "sabre/event": ">=2.0.0, <4.0.0",
-            "sabre/http": "^4.2.1",
-            "sabre/uri": "^1.0.1",
-            "sabre/vobject": "^4.1.0",
-            "sabre/xml": "^1.4.0"
-        },
-        "require-dev": {
-            "evert/phpdoc-md": "~0.1.0",
-            "monolog/monolog": "^1.18",
-            "phpunit/phpunit": "> 4.8, <=6.0.0",
-            "sabre/cs": "~0.0.5"
-        },
-        "suggest": {
-            "ext-curl": "*",
-            "ext-pdo": "*"
-        },
-        "time": "2016-06-28T02:44:05+00:00",
-        "bin": [
-            "bin/sabredav",
-            "bin/naturalselection"
-        ],
-        "type": "library",
-        "extra": {
-            "branch-alias": {
-                "dev-master": "3.1.0-dev"
-            }
-        },
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Sabre\\DAV\\": "lib/DAV/",
-                "Sabre\\DAVACL\\": "lib/DAVACL/",
-                "Sabre\\CalDAV\\": "lib/CalDAV/",
-                "Sabre\\CardDAV\\": "lib/CardDAV/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "BSD-3-Clause"
-        ],
-        "authors": [
-            {
-                "name": "Evert Pot",
-                "email": "me@evertpot.com",
-                "homepage": "http://evertpot.com/",
-                "role": "Developer"
-            }
-        ],
-        "description": "WebDAV Framework for PHP",
-        "homepage": "http://sabre.io/",
-        "keywords": [
-            "CalDAV",
-            "CardDAV",
-            "WebDAV",
-            "framework",
-            "iCalendar"
         ]
     },
     {
@@ -520,64 +226,6 @@
         ]
     },
     {
-        "name": "pixel418/markdownify",
-        "version": "v2.2.1",
-        "version_normalized": "2.2.1.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Elephant418/Markdownify.git",
-            "reference": "0160677f04c784550dd10fd72fdf3994967db848"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Elephant418/Markdownify/zipball/0160677f04c784550dd10fd72fdf3994967db848",
-            "reference": "0160677f04c784550dd10fd72fdf3994967db848",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.3.0"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^4.8"
-        },
-        "time": "2016-09-21T13:01:43+00:00",
-        "type": "lib",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Markdownify\\": "src",
-                "Test\\Markdownify\\": "test"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "LGPL"
-        ],
-        "authors": [
-            {
-                "name": "Peter Kruithof",
-                "email": "pkruithof@gmail.com",
-                "homepage": "http://pkruithof.tumblr.com/"
-            },
-            {
-                "name": "Milian Wolff",
-                "email": "mail@milianw.de",
-                "homepage": "http://milianw.de"
-            },
-            {
-                "name": "Thomas Zilliox",
-                "email": "hello@tzi.fr",
-                "homepage": "http://tzi.fr"
-            }
-        ],
-        "description": "The HTML to Markdown converter for PHP ",
-        "homepage": "https://github.com/elephant418/Markdownify",
-        "keywords": [
-            "markdown",
-            "markdownify"
-        ]
-    },
-    {
         "name": "bshaffer/oauth2-server-php",
         "version": "v1.9.0",
         "version_normalized": "1.9.0.0",
@@ -633,55 +281,6 @@
             "auth",
             "oauth",
             "oauth2"
-        ]
-    },
-    {
-        "name": "ezyang/htmlpurifier",
-        "version": "v4.9.2",
-        "version_normalized": "4.9.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/ezyang/htmlpurifier.git",
-            "reference": "6d50e5282afdfdfc3e0ff6d192aff56c5629b3d4"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/6d50e5282afdfdfc3e0ff6d192aff56c5629b3d4",
-            "reference": "6d50e5282afdfdfc3e0ff6d192aff56c5629b3d4",
-            "shasum": ""
-        },
-        "require": {
-            "php": ">=5.2"
-        },
-        "require-dev": {
-            "simpletest/simpletest": "^1.1"
-        },
-        "time": "2017-03-13T06:30:53+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-0": {
-                "HTMLPurifier": "library/"
-            },
-            "files": [
-                "library/HTMLPurifier.composer.php"
-            ]
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "LGPL"
-        ],
-        "authors": [
-            {
-                "name": "Edward Z. Yang",
-                "email": "admin@htmlpurifier.org",
-                "homepage": "http://ezyang.com"
-            }
-        ],
-        "description": "Standards compliant HTML filter written in PHP",
-        "homepage": "http://htmlpurifier.org/",
-        "keywords": [
-            "html"
         ]
     },
     {
@@ -748,5 +347,415 @@
             "source": "https://github.com/simplepie/simplepie/tree/1.5",
             "issues": "https://github.com/simplepie/simplepie/issues"
         }
+    },
+    {
+        "name": "sabre/dav",
+        "version": "3.2.2",
+        "version_normalized": "3.2.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fruux/sabre-dav.git",
+            "reference": "e987775e619728f12205606c9cc3ee565ffb1516"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fruux/sabre-dav/zipball/e987775e619728f12205606c9cc3ee565ffb1516",
+            "reference": "e987775e619728f12205606c9cc3ee565ffb1516",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-date": "*",
+            "ext-dom": "*",
+            "ext-iconv": "*",
+            "ext-mbstring": "*",
+            "ext-pcre": "*",
+            "ext-simplexml": "*",
+            "ext-spl": "*",
+            "lib-libxml": ">=2.7.0",
+            "php": ">=5.5.0",
+            "psr/log": "^1.0",
+            "sabre/event": ">=2.0.0, <4.0.0",
+            "sabre/http": "^4.2.1",
+            "sabre/uri": "^1.0.1",
+            "sabre/vobject": "^4.1.0",
+            "sabre/xml": "^1.4.0"
+        },
+        "require-dev": {
+            "evert/phpdoc-md": "~0.1.0",
+            "monolog/monolog": "^1.18",
+            "phpunit/phpunit": "> 4.8, <6.0.0",
+            "sabre/cs": "^1.0.0"
+        },
+        "suggest": {
+            "ext-curl": "*",
+            "ext-pdo": "*"
+        },
+        "time": "2017-02-15T03:06:08+00:00",
+        "bin": [
+            "bin/sabredav",
+            "bin/naturalselection"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "3.1.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Sabre\\DAV\\": "lib/DAV/",
+                "Sabre\\DAVACL\\": "lib/DAVACL/",
+                "Sabre\\CalDAV\\": "lib/CalDAV/",
+                "Sabre\\CardDAV\\": "lib/CardDAV/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "me@evertpot.com",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "WebDAV Framework for PHP",
+        "homepage": "http://sabre.io/",
+        "keywords": [
+            "CalDAV",
+            "CardDAV",
+            "WebDAV",
+            "framework",
+            "iCalendar"
+        ]
+    },
+    {
+        "name": "league/html-to-markdown",
+        "version": "4.4.1",
+        "version_normalized": "4.4.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/thephpleague/html-to-markdown.git",
+            "reference": "82ea375b5b2b1da1da222644c0565c695bf88186"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/82ea375b5b2b1da1da222644c0565c695bf88186",
+            "reference": "82ea375b5b2b1da1da222644c0565c695bf88186",
+            "shasum": ""
+        },
+        "require": {
+            "ext-dom": "*",
+            "ext-xml": "*",
+            "php": ">=5.3.3"
+        },
+        "require-dev": {
+            "mikehaertl/php-shellcommand": "~1.1.0",
+            "phpunit/phpunit": "4.*",
+            "scrutinizer/ocular": "~1.1"
+        },
+        "time": "2017-03-16T00:45:59+00:00",
+        "bin": [
+            "bin/html-to-markdown"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "4.5-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "League\\HTMLToMarkdown\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Colin O'Dell",
+                "email": "colinodell@gmail.com",
+                "homepage": "http://www.colinodell.com",
+                "role": "Lead Developer"
+            },
+            {
+                "name": "Nick Cernis",
+                "email": "nick@cern.is",
+                "homepage": "http://modernnerd.net",
+                "role": "Original Author"
+            }
+        ],
+        "description": "An HTML-to-markdown conversion helper for PHP",
+        "homepage": "https://github.com/thephpleague/html-to-markdown",
+        "keywords": [
+            "html",
+            "markdown"
+        ]
+    },
+    {
+        "name": "sabre/uri",
+        "version": "1.2.1",
+        "version_normalized": "1.2.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fruux/sabre-uri.git",
+            "reference": "ada354d83579565949d80b2e15593c2371225e61"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fruux/sabre-uri/zipball/ada354d83579565949d80b2e15593c2371225e61",
+            "reference": "ada354d83579565949d80b2e15593c2371225e61",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.4.7"
+        },
+        "require-dev": {
+            "phpunit/phpunit": ">=4.0,<6.0",
+            "sabre/cs": "~1.0.0"
+        },
+        "time": "2017-02-20T19:59:28+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/functions.php"
+            ],
+            "psr-4": {
+                "Sabre\\Uri\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "me@evertpot.com",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "Functions for making sense out of URIs.",
+        "homepage": "http://sabre.io/uri/",
+        "keywords": [
+            "rfc3986",
+            "uri",
+            "url"
+        ]
+    },
+    {
+        "name": "sabre/vobject",
+        "version": "4.1.2",
+        "version_normalized": "4.1.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fruux/sabre-vobject.git",
+            "reference": "d0fde2fafa2a3dad1f559c2d1c2591d4fd75ae3c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fruux/sabre-vobject/zipball/d0fde2fafa2a3dad1f559c2d1c2591d4fd75ae3c",
+            "reference": "d0fde2fafa2a3dad1f559c2d1c2591d4fd75ae3c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-mbstring": "*",
+            "php": ">=5.5",
+            "sabre/xml": ">=1.5 <3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "*",
+            "sabre/cs": "^1.0.0"
+        },
+        "suggest": {
+            "hoa/bench": "If you would like to run the benchmark scripts"
+        },
+        "time": "2016-12-06T04:14:09+00:00",
+        "bin": [
+            "bin/vobject",
+            "bin/generate_vcards"
+        ],
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "4.0.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Sabre\\VObject\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "me@evertpot.com",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            },
+            {
+                "name": "Dominik Tobschall",
+                "email": "dominik@fruux.com",
+                "homepage": "http://tobschall.de/",
+                "role": "Developer"
+            },
+            {
+                "name": "Ivan Enderlin",
+                "email": "ivan.enderlin@hoa-project.net",
+                "homepage": "http://mnt.io/",
+                "role": "Developer"
+            }
+        ],
+        "description": "The VObject library for PHP allows you to easily parse and manipulate iCalendar and vCard objects",
+        "homepage": "http://sabre.io/vobject/",
+        "keywords": [
+            "availability",
+            "freebusy",
+            "iCalendar",
+            "ical",
+            "ics",
+            "jCal",
+            "jCard",
+            "recurrence",
+            "rfc2425",
+            "rfc2426",
+            "rfc2739",
+            "rfc4770",
+            "rfc5545",
+            "rfc5546",
+            "rfc6321",
+            "rfc6350",
+            "rfc6351",
+            "rfc6474",
+            "rfc6638",
+            "rfc6715",
+            "rfc6868",
+            "vCalendar",
+            "vCard",
+            "vcf",
+            "xCal",
+            "xCard"
+        ]
+    },
+    {
+        "name": "ezyang/htmlpurifier",
+        "version": "v4.9.3",
+        "version_normalized": "4.9.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ezyang/htmlpurifier.git",
+            "reference": "95e1bae3182efc0f3422896a3236e991049dac69"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/95e1bae3182efc0f3422896a3236e991049dac69",
+            "reference": "95e1bae3182efc0f3422896a3236e991049dac69",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2"
+        },
+        "require-dev": {
+            "simpletest/simpletest": "^1.1"
+        },
+        "time": "2017-06-03T02:28:16+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "HTMLPurifier": "library/"
+            },
+            "files": [
+                "library/HTMLPurifier.composer.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL"
+        ],
+        "authors": [
+            {
+                "name": "Edward Z. Yang",
+                "email": "admin@htmlpurifier.org",
+                "homepage": "http://ezyang.com"
+            }
+        ],
+        "description": "Standards compliant HTML filter written in PHP",
+        "homepage": "http://htmlpurifier.org/",
+        "keywords": [
+            "html"
+        ]
+    },
+    {
+        "name": "sabre/http",
+        "version": "4.2.3",
+        "version_normalized": "4.2.3.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/fruux/sabre-http.git",
+            "reference": "0295f9a3ee39be97e0898592fc19e42421e0cd93"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/fruux/sabre-http/zipball/0295f9a3ee39be97e0898592fc19e42421e0cd93",
+            "reference": "0295f9a3ee39be97e0898592fc19e42421e0cd93",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-mbstring": "*",
+            "php": ">=5.4",
+            "sabre/event": ">=1.0.0,<4.0.0",
+            "sabre/uri": "~1.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.3",
+            "sabre/cs": "~0.0.1"
+        },
+        "suggest": {
+            "ext-curl": " to make http requests with the Client class"
+        },
+        "time": "2017-06-12T07:53:04+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "files": [
+                "lib/functions.php"
+            ],
+            "psr-4": {
+                "Sabre\\HTTP\\": "lib/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD-3-Clause"
+        ],
+        "authors": [
+            {
+                "name": "Evert Pot",
+                "email": "me@evertpot.com",
+                "homepage": "http://evertpot.com/",
+                "role": "Developer"
+            }
+        ],
+        "description": "The sabre/http library provides utilities for dealing with http requests and responses. ",
+        "homepage": "https://github.com/fruux/sabre-http",
+        "keywords": [
+            "http"
+        ]
     }
 ]

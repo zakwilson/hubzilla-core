@@ -373,6 +373,10 @@ class Like extends \Zotlabs\Web\Controller {
 	
 			$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $item['plink']));
 			$objtype = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE ); 
+
+			if($objtype === ACTIVITY_OBJ_NOTE && (! intval($item['item_thread_top'])))
+				$objtype = ACTIVITY_OBJ_COMMENT;
+
 	
 			$body = $item['body'];
 	
@@ -500,6 +504,11 @@ class Like extends \Zotlabs\Web\Controller {
 	
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
+
+		// save the conversation from expiration
+
+		if(local_channel() && array_key_exists('item',$post) && (intval($post['item']['id']) != intval($post['item']['parent'])))
+			retain_item($post['item']['parent']); 
 	
 		$arr['id'] = $post_id;
 	

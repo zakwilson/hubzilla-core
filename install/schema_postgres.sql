@@ -16,23 +16,23 @@ CREATE TABLE "abook" (
   "abook_account" bigint  NOT NULL,
   "abook_channel" bigint  NOT NULL,
   "abook_xchan" text NOT NULL DEFAULT '',
-  "abook_my_perms" bigint NOT NULL DEFAULT 0,
-  "abook_their_perms" bigint NOT NULL DEFAULT 0,
-  "abook_closeness" numeric(3)  NOT NULL DEFAULT 99,
+  "abook_my_perms" bigint NOT NULL,
+  "abook_their_perms" bigint NOT NULL,
+  "abook_closeness" numeric(3)  NOT NULL DEFAULT '99',
   "abook_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "abook_updated" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "abook_connected" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "abook_dob" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
-  "abook_flags" bigint NOT NULL DEFAULT 0 ,
-  "abook_blocked" smallint NOT NULL DEFAULT 0 ,
-  "abook_ignored" smallint NOT NULL DEFAULT 0 ,
-  "abook_hidden" smallint NOT NULL DEFAULT 0 ,
-  "abook_archived" smallint NOT NULL DEFAULT 0 ,
-  "abook_pending" smallint NOT NULL DEFAULT 0 ,
-  "abook_unconnected" smallint NOT NULL DEFAULT 0 ,
-  "abook_self" smallint NOT NULL DEFAULT 0 ,
-  "abook_feed" smallint NOT NULL DEFAULT 0 ,
-  "abook_not_here" smallint NOT NULL DEFAULT 0 ,
+  "abook_flags" bigint NOT NULL DEFAULT '0',
+  "abook_blocked" smallint NOT NULL DEFAULT '0',
+  "abook_ignored" smallint NOT NULL DEFAULT '0',
+  "abook_hidden" smallint NOT NULL DEFAULT '0',
+  "abook_archived" smallint NOT NULL DEFAULT '0',
+  "abook_pending" smallint NOT NULL DEFAULT '0',
+  "abook_unconnected" smallint NOT NULL DEFAULT '0',
+  "abook_self" smallint NOT NULL DEFAULT '0',
+  "abook_feed" smallint NOT NULL DEFAULT '0',
+  "abook_not_here" smallint NOT NULL DEFAULT '0',
   "abook_profile" varchar(64) NOT NULL DEFAULT '',
   "abook_incl" TEXT NOT NULL DEFAULT '',
   "abook_excl" TEXT NOT NULL DEFAULT '',
@@ -42,8 +42,8 @@ CREATE TABLE "abook" (
   create index  "abook_account" on abook ("abook_account");
   create index  "abook_channel" on abook  ("abook_channel");
   create index  "abook_xchan"  on abook ("abook_xchan");
-  create index  "abook_my_perms" on abook  ("abook_my_perms");
-  create index  "abook_their_perms" on abook  ("abook_their_perms");
+  create index  "abook_my_perms"  on abook ("abook_my_perms");
+  create index  "abook_their_perms"  on abook ("abook_their_perms");
   create index  "abook_closeness" on abook  ("abook_closeness");
   create index  "abook_created"  on abook ("abook_created");
   create index  "abook_updated"  on abook ("abook_updated");
@@ -64,8 +64,8 @@ CREATE TABLE "abook" (
 
 CREATE TABLE "account" (
   "account_id" serial  NOT NULL,
-  "account_parent" bigint  NOT NULL DEFAULT 0 ,
-  "account_default_channel" bigint  NOT NULL DEFAULT 0 ,
+  "account_parent" bigint  NOT NULL DEFAULT '0',
+  "account_default_channel" bigint  NOT NULL DEFAULT '0',
   "account_salt" varchar(32) NOT NULL DEFAULT '',
   "account_password" text NOT NULL DEFAULT '',
   "account_email" text NOT NULL DEFAULT '',
@@ -261,26 +261,8 @@ CREATE TABLE "channel" (
   "channel_allow_gid" text ,
   "channel_deny_cid" text ,
   "channel_deny_gid" text ,
-  "channel_r_stream" bigint  NOT NULL DEFAULT 0,
-  "channel_r_profile" bigint  NOT NULL DEFAULT 0,
-  "channel_r_photos" bigint  NOT NULL DEFAULT 0,
-  "channel_r_abook" bigint  NOT NULL DEFAULT 0,
-  "channel_w_stream" bigint  NOT NULL DEFAULT 0,
-  "channel_w_wall" bigint  NOT NULL DEFAULT 0,
-  "channel_w_tagwall" bigint  NOT NULL DEFAULT 0,
-  "channel_w_comment" bigint  NOT NULL DEFAULT 0,
-  "channel_w_mail" bigint  NOT NULL DEFAULT 0,
-  "channel_w_photos" bigint  NOT NULL DEFAULT 0,
-  "channel_w_chat" bigint  NOT NULL DEFAULT 0,
-  "channel_a_delegate" bigint  NOT NULL DEFAULT 0 ,
-  "channel_r_storage" bigint  NOT NULL DEFAULT 0,
-  "channel_w_storage" bigint  NOT NULL DEFAULT 0,
-  "channel_r_pages" bigint  NOT NULL DEFAULT 0,
-  "channel_w_pages" bigint  NOT NULL DEFAULT 0,
-  "channel_a_republish" bigint  NOT NULL DEFAULT 0,
-  "channel_w_like" bigint  NOT NULL DEFAULT 0,
-  "channel_removed" smallint NOT NULL DEFAULT 0 ,
-  "channel_system" smallint NOT NULL DEFAULT 0 ,
+  "channel_removed" smallint NOT NULL DEFAULT '0',
+  "channel_system" smallint NOT NULL DEFAULT '0',
   "channel_moved" text NOT NULL DEFAULT '',
   "channel_password" varchar(255) NOT NULL,
   "channel_salt" varchar(255) NOT NULL,
@@ -298,28 +280,10 @@ create index "channel_pageflags" on channel ("channel_pageflags");
 create index "channel_max_anon_mail" on channel ("channel_max_anon_mail");
 create index "channel_max_friend_req" on channel ("channel_max_friend_req");
 create index "channel_default_gid" on channel ("channel_default_group");
-create index "channel_r_stream" on channel ("channel_r_stream");
-create index "channel_r_profile" on channel ("channel_r_profile");
-create index "channel_r_photos" on channel ("channel_r_photos");
-create index "channel_r_abook" on channel ("channel_r_abook");
-create index "channel_w_stream" on channel ("channel_w_stream");
-create index "channel_w_wall" on channel ("channel_w_wall");
-create index "channel_w_tagwall" on channel ("channel_w_tagwall");
-create index "channel_w_comment" on channel ("channel_w_comment");
-create index "channel_w_mail" on channel ("channel_w_mail");
-create index "channel_w_photos" on channel ("channel_w_photos");
-create index "channel_w_chat" on channel ("channel_w_chat");
 create index "channel_guid" on channel ("channel_guid");
 create index "channel_hash" on channel ("channel_hash");
 create index "channel_expire_days" on channel ("channel_expire_days");
-create index "channel_a_delegate" on channel ("channel_a_delegate");
-create index "channel_r_storage" on channel ("channel_r_storage");
-create index "channel_w_storage" on channel ("channel_w_storage");
-create index "channel_r_pages" on channel ("channel_r_pages");
-create index "channel_w_pages" on channel ("channel_w_pages");
 create index "channel_deleted" on channel ("channel_deleted");
-create index "channel_a_republish" on channel ("channel_a_republish");
-create index "channel_w_like" on channel ("channel_w_like");
 create index "channel_dirdate" on channel ("channel_dirdate");
 create index "channel_lastpost" on channel ("channel_lastpost");
 create index "channel_removed" on channel ("channel_removed");
@@ -403,7 +367,7 @@ create index "conv_updated_idx" on conv ("updated");
 
 CREATE TABLE IF NOT EXISTS "dreport" (
   "dreport_id" serial NOT NULL,
-  "dreport_channel" int NOT NULL DEFAULT 0 ,
+  "dreport_channel" int NOT NULL DEFAULT '0',
   "dreport_mid" varchar(255) NOT NULL DEFAULT '',
   "dreport_site" varchar(255) NOT NULL DEFAULT '',
   "dreport_recip" varchar(255) NOT NULL DEFAULT '',
@@ -613,7 +577,6 @@ CREATE TABLE "item" (
   "resource_type" varchar(16) NOT NULL DEFAULT '',
   "attach" text NOT NULL,
   "sig" text NOT NULL DEFAULT '',
-  "diaspora_meta" text NOT NULL DEFAULT '',
   "location" text NOT NULL DEFAULT '',
   "coord" text NOT NULL DEFAULT '',
   "public_policy" text NOT NULL DEFAULT '',
@@ -668,6 +631,7 @@ create index "item_restrict" on item ("item_restrict");
 create index "item_flags" on item ("item_flags");
 create index "item_commented" on item ("commented");
 create index "item_verb" on item ("verb");
+create index "item_obj_type" on item ("obj_type");
 create index "item_private" on item ("item_private");
 create index "item_llink" on item ("llink");
 create index "item_expires" on item ("expires");
@@ -725,10 +689,10 @@ create index "itemid_service" on item_id ("service");
 create index "itemid_iid" on item_id ("iid");
 CREATE TABLE "likes" (
   "id" serial  NOT NULL,
-  "channel_id" bigint  NOT NULL DEFAULT 0 ,
+  "channel_id" bigint  NOT NULL DEFAULT '0',
   "liker" varchar(128) NOT NULL DEFAULT '',
   "likee" varchar(128) NOT NULL DEFAULT '',
-  "iid" bigint  NOT NULL DEFAULT 0 ,
+  "iid" bigint  NOT NULL DEFAULT '0',
   "i_mid" varchar(255) NOT NULL DEFAULT '',
   "verb" text NOT NULL DEFAULT '',
   "target_type" text NOT NULL DEFAULT '',
@@ -751,9 +715,9 @@ CREATE TABLE "mail" (
   "mail_flags" bigint  NOT NULL DEFAULT 0 ,
   "from_xchan" text NOT NULL DEFAULT '',
   "to_xchan" text NOT NULL DEFAULT '',
-  "account_id" bigint  NOT NULL DEFAULT 0 ,
-  "channel_id" bigint  NOT NULL DEFAULT 0 ,
-  "mail_mimetype" varchar(64) NOT NULL DEFAULT 'text/bbcode',
+  "account_id" bigint  NOT NULL DEFAULT '0',
+  "channel_id" bigint  NOT NULL DEFAULT '0',
+  "mail_mimetype" varchar(64) NOT NULL DEFAULT '0',
   "title" text NOT NULL,
   "body" text NOT NULL,
   "sig" text NOT NULL,
@@ -1009,7 +973,7 @@ create index "profext_k" on profext ("k");
 CREATE TABLE "profile" (
   "id" serial NOT NULL,
   "profile_guid" varchar(64) NOT NULL DEFAULT '',
-  "aid" bigint  NOT NULL DEFAULT 0 ,
+  "aid" bigint  NOT NULL DEFAULT '0',
   "uid" bigint NOT NULL,
   "profile_name" text NOT NULL,
   "is_default" numeric(1) NOT NULL DEFAULT 0 ,
@@ -1399,3 +1363,225 @@ CREATE TABLE "xtag" (
 create index "xtag_term" on xtag ("xtag_term");
 create index "xtag_hash" on xtag ("xtag_hash");
 create index "xtag_flags" on xtag ("xtag_flags");
+
+CREATE TABLE addressbooks (
+    id SERIAL NOT NULL,
+    principaluri VARCHAR(255),
+    displayname VARCHAR(255),
+    uri VARCHAR(200),
+    description TEXT,
+    synctoken INTEGER NOT NULL DEFAULT 1
+);
+
+ALTER TABLE ONLY addressbooks
+    ADD CONSTRAINT addressbooks_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX addressbooks_ukey
+    ON addressbooks USING btree (principaluri, uri);
+
+CREATE TABLE cards (
+    id SERIAL NOT NULL,
+    addressbookid INTEGER NOT NULL,
+    carddata BYTEA,
+    uri VARCHAR(200),
+    lastmodified INTEGER,
+    etag VARCHAR(32),
+    size INTEGER NOT NULL
+);
+
+ALTER TABLE ONLY cards
+    ADD CONSTRAINT cards_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX cards_ukey
+    ON cards USING btree (addressbookid, uri);
+
+CREATE TABLE addressbookchanges (
+    id SERIAL NOT NULL,
+    uri VARCHAR(200) NOT NULL,
+    synctoken INTEGER NOT NULL,
+    addressbookid INTEGER NOT NULL,
+    operation SMALLINT NOT NULL
+);
+
+ALTER TABLE ONLY addressbookchanges
+    ADD CONSTRAINT addressbookchanges_pkey PRIMARY KEY (id);
+
+CREATE INDEX addressbookchanges_addressbookid_synctoken_ix
+    ON addressbookchanges USING btree (addressbookid, synctoken);
+
+CREATE TABLE calendarobjects (
+    id SERIAL NOT NULL,
+    calendardata BYTEA,
+    uri VARCHAR(200),
+    calendarid INTEGER NOT NULL,
+    lastmodified INTEGER,
+    etag VARCHAR(32),
+    size INTEGER NOT NULL,
+    componenttype VARCHAR(8),
+    firstoccurence INTEGER,
+    lastoccurence INTEGER,
+    uid VARCHAR(200)
+);
+
+ALTER TABLE ONLY calendarobjects
+    ADD CONSTRAINT calendarobjects_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX calendarobjects_ukey
+    ON calendarobjects USING btree (calendarid, uri);
+
+
+CREATE TABLE calendars (
+    id SERIAL NOT NULL,
+    synctoken INTEGER NOT NULL DEFAULT 1,
+    components VARCHAR(21)
+);
+
+ALTER TABLE ONLY calendars
+    ADD CONSTRAINT calendars_pkey PRIMARY KEY (id);
+
+
+CREATE TABLE calendarinstances (
+    id SERIAL NOT NULL,
+    calendarid INTEGER NOT NULL,
+    principaluri VARCHAR(100),
+    access SMALLINT NOT NULL DEFAULT '1', -- '1 = owner, 2 = read, 3 = readwrite'
+    displayname VARCHAR(100),
+    uri VARCHAR(200),
+    description TEXT,
+    calendarorder INTEGER NOT NULL DEFAULT 0,
+    calendarcolor VARCHAR(10),
+    timezone TEXT,
+    transparent SMALLINT NOT NULL DEFAULT '0',
+    share_href VARCHAR(100),
+    share_displayname VARCHAR(100),
+    share_invitestatus SMALLINT NOT NULL DEFAULT '2' --  '1 = noresponse, 2 = accepted, 3 = declined, 4 = invalid'
+);
+
+ALTER TABLE ONLY calendarinstances
+    ADD CONSTRAINT calendarinstances_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX calendarinstances_principaluri_uri
+    ON calendarinstances USING btree (principaluri, uri);
+
+
+CREATE UNIQUE INDEX calendarinstances_principaluri_calendarid
+    ON calendarinstances USING btree (principaluri, calendarid);
+
+CREATE UNIQUE INDEX calendarinstances_principaluri_share_href
+    ON calendarinstances USING btree (principaluri, share_href);
+
+CREATE TABLE calendarsubscriptions (
+    id SERIAL NOT NULL,
+    uri VARCHAR(200) NOT NULL,
+    principaluri VARCHAR(100) NOT NULL,
+    source TEXT,
+    displayname VARCHAR(100),
+    refreshrate VARCHAR(10),
+    calendarorder INTEGER NOT NULL DEFAULT 0,
+    calendarcolor VARCHAR(10),
+    striptodos SMALLINT NULL,
+    stripalarms SMALLINT NULL,
+    stripattachments SMALLINT NULL,
+    lastmodified INTEGER
+);
+
+ALTER TABLE ONLY calendarsubscriptions
+    ADD CONSTRAINT calendarsubscriptions_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX calendarsubscriptions_ukey
+    ON calendarsubscriptions USING btree (principaluri, uri);
+
+CREATE TABLE calendarchanges (
+    id SERIAL NOT NULL,
+    uri VARCHAR(200) NOT NULL,
+    synctoken INTEGER NOT NULL,
+    calendarid INTEGER NOT NULL,
+    operation SMALLINT NOT NULL DEFAULT 0
+);
+
+ALTER TABLE ONLY calendarchanges
+    ADD CONSTRAINT calendarchanges_pkey PRIMARY KEY (id);
+
+CREATE INDEX calendarchanges_calendarid_synctoken_ix
+    ON calendarchanges USING btree (calendarid, synctoken);
+
+CREATE TABLE schedulingobjects (
+    id SERIAL NOT NULL,
+    principaluri VARCHAR(255),
+    calendardata BYTEA,
+    uri VARCHAR(200),
+    lastmodified INTEGER,
+    etag VARCHAR(32),
+    size INTEGER NOT NULL
+);
+
+CREATE TABLE locks (
+    id SERIAL NOT NULL,
+    owner VARCHAR(100),
+    timeout INTEGER,
+    created INTEGER,
+    token VARCHAR(100),
+    scope SMALLINT,
+    depth SMALLINT,
+    uri TEXT
+);
+
+ALTER TABLE ONLY locks
+    ADD CONSTRAINT locks_pkey PRIMARY KEY (id);
+
+CREATE INDEX locks_token_ix
+    ON locks USING btree (token);
+
+CREATE INDEX locks_uri_ix
+    ON locks USING btree (uri);
+
+CREATE TABLE principals (
+    id SERIAL NOT NULL,
+    uri VARCHAR(200) NOT NULL,
+    email VARCHAR(80),
+    displayname VARCHAR(80)
+);
+
+ALTER TABLE ONLY principals
+    ADD CONSTRAINT principals_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX principals_ukey
+    ON principals USING btree (uri);
+
+CREATE TABLE groupmembers (
+    id SERIAL NOT NULL,
+    principal_id INTEGER NOT NULL,
+    member_id INTEGER NOT NULL
+);
+
+ALTER TABLE ONLY groupmembers
+    ADD CONSTRAINT groupmembers_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX groupmembers_ukey
+    ON groupmembers USING btree (principal_id, member_id);
+
+CREATE TABLE propertystorage (
+    id SERIAL NOT NULL,
+    path VARCHAR(1024) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    valuetype INT,
+    value BYTEA
+);
+
+ALTER TABLE ONLY propertystorage
+    ADD CONSTRAINT propertystorage_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX propertystorage_ukey
+    ON propertystorage (path, name);
+
+CREATE TABLE users (
+    id SERIAL NOT NULL,
+    username VARCHAR(50),
+    digesta1 VARCHAR(32)
+);
+
+ALTER TABLE ONLY users
+    ADD CONSTRAINT users_pkey PRIMARY KEY (id);
+
+CREATE UNIQUE INDEX users_ukey
+    ON users USING btree (username);

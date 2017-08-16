@@ -209,6 +209,7 @@ class Apps {
 
 	static public function translate_system_apps(&$arr) {
 		$apps = array(
+			'Apps' => t('Apps'),
 			'Site Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
 			'View Bookmarks' => t('View Bookmarks'),
@@ -371,6 +372,7 @@ class Apps {
 			'$feature' => (($papp['embed']) ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$navapps' => (($mode == 'nav') ? true : false),
+			'$order' => (($mode == 'nav-order') ? true : false),
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray')
 		));
@@ -539,6 +541,129 @@ class Apps {
 		return($r);
 	}
 
+	static public function app_order($uid,$apps) {
+
+		if(! $apps)
+			return $apps;
+
+		$x = (($uid) ? get_pconfig($uid,'system','app_order') : get_config('system','app_order'));
+		if(($x) && (! is_array($x))) {
+			$y = explode(',',$x);
+			$y = array_map('trim',$y);
+			$x = $y;
+		}
+
+		if(! (is_array($x) && ($x)))
+			return $apps;
+
+		$ret = [];
+		foreach($x as $xx) {
+			$y = self::find_app_in_array($xx,$apps);
+			if($y) {
+				$ret[] = $y;
+			}
+		}
+		foreach($apps as $ap) {
+			if(! self::find_app_in_array($ap['name'],$ret)) {
+				$ret[] = $ap;
+			}
+		}
+		return $ret;
+
+	}
+
+	static function find_app_in_array($name,$arr) {
+		if(! $arr)
+			return false;
+		foreach($arr as $x) {
+			if($x['name'] === $name) {
+					return $x;
+			}
+		}
+		return false;
+	}
+
+	static function moveup($uid,$guid) {
+		$syslist = array();
+		$list = self::app_list($uid, false, 'nav_featured_app');
+		if($list) {
+			foreach($list as $li) {
+				$syslist[] = self::app_encode($li);
+			}
+		}
+		self::translate_system_apps($syslist);
+
+		usort($syslist,'self::app_name_compare');
+
+		$syslist = self::app_order($uid,$syslist);
+
+		if(! $syslist)
+			return;
+
+		$newlist = [];
+
+		foreach($syslist as $k => $li) {
+			if($li['guid'] === $guid) {
+				$position = $k;
+				break;
+			}
+		}
+		if(! $position)
+			return;
+		$dest_position = $position - 1;
+		$saved = $syslist[$dest_position];
+		$syslist[$dest_position] = $syslist[$position];
+		$syslist[$position] = $saved;
+
+		$narr = [];
+		foreach($syslist as $x) {
+			$narr[] = $x['name'];
+		}
+
+		set_pconfig($uid,'system','app_order',implode(',',$narr));
+
+	}
+
+	static function movedown($uid,$guid) {
+		$syslist = array();
+		$list = self::app_list($uid, false, 'nav_featured_app');
+		if($list) {
+			foreach($list as $li) {
+				$syslist[] = self::app_encode($li);
+			}
+		}
+		self::translate_system_apps($syslist);
+
+		usort($syslist,'self::app_name_compare');
+
+		$syslist = self::app_order($uid,$syslist);
+
+		if(! $syslist)
+			return;
+
+		$newlist = [];
+
+		foreach($syslist as $k => $li) {
+			if($li['guid'] === $guid) {
+				$position = $k;
+				break;
+			}
+		}
+		if($position >= count($syslist) - 1)
+			return;
+		$dest_position = $position + 1;
+		$saved = $syslist[$dest_position];
+		$syslist[$dest_position] = $syslist[$position];
+		$syslist[$position] = $saved;
+
+		$narr = [];
+		foreach($syslist as $x) {
+			$narr[] = $x['name'];
+		}
+
+		set_pconfig($uid,'system','app_order',implode(',',$narr));
+
+	}
 
 	static public function app_decode($s) {
 		$x = base64_decode(str_replace(array('<br />',"\r","\n",' '),array('','','',''),$s));

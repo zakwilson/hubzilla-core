@@ -74,13 +74,13 @@ if ((!$schema) || ($schema == '---')) {
 //Set some defaults - we have to do this after pulling owner settings, and we have to check for each setting
 //individually.  If we don't, we'll have problems if a user has set one, but not all options.
 if (! $nav_bg)
-	$nav_bg = '#222';
+	$nav_bg = '#343a40';
 if (! $nav_icon_colour)
 	$nav_icon_colour = 'rgba(255, 255, 255, 0.5)';
 if (! $nav_active_icon_colour)
 	$nav_active_icon_colour = 'rgba(255, 255, 255, 0.75)';
 if (! $link_colour)
-	$link_colour = '#0275d8';
+	$link_colour = '#007bff';
 if (! $banner_colour)
 	$banner_colour = '#fff';
 if (! $bgcolour)

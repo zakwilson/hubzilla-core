@@ -82,6 +82,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/build_pagehead]build_pagehead[/zrl]
 	Called when creating the HTML page header
 
+[zrl=[baseurl]/help/hook/can_comment_on_post]can_comment_on_post[/zrl]
+	Called when deciding whether or not to present a comment box for a post
+
 [zrl=[baseurl]/help/hook/change_channel]change_channel[/zrl]
 	Called when logging in to a channel (either during login or afterward through the channel manager)
 
@@ -117,6 +120,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/connect_premium]connect_premium[/zrl]
 	Called when connecting to a premium channel
+
+[zrl=[baseurl]/help/hook/connection_remove]connection_remove[/zrl]
+	Called when deleting/removing a connection
 
 [zrl=[baseurl]/help/hook/connector_settings]connector_settings[/zrl]
 	Called when posting to the features/addon settings page
@@ -316,6 +322,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/jot_tool]jot_tool[/zrl]
 	Deprecated and possibly obsolete. Allows one to add action buttons to the post editor.
+
+[zrl=[baseurl]/help/hook/legal_webbie]legal_webbie[/zrl]
+	Called to validate a channel address
+
+[zrl=[baseurl]/help/hook/legal_webbie_text]legal_webbie_text[/zrl]
+	Provides an explanation of text/character restrictions for legal_webbie()
 
 [zrl=[baseurl]/help/hook/load_pdl]load_pdl[/zrl]
 	Called when we load a PDL file or description

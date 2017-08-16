@@ -628,16 +628,18 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 				$item_result = item_store($item,$allow_code,$deliver);
 			}
 
+			// preserve conversations you've been involved in from being expired
+
+			$stored = $item_result['item'];
+			if((is_array($stored)) && ($stored['id'] != $stored['parent']) 
+				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
+				retain_item($stored['item']['parent']);
+			}
+
 			fix_attached_photo_permissions($channel['channel_id'],$item['author_xchan'],$item['body'],$item['allow_cid'],$item['allow_gid'],$item['deny_cid'],$item['deny_gid']);
 
 			fix_attached_file_permissions($channel,$item['author_xchan'],$item['body'],$item['allow_cid'],$item['allow_gid'],$item['deny_cid'],$item['deny_gid']);
 
-			if($sync && $item['item_wall']) {
-				// deliver singletons if we have any
-				if($item_result && $item_result['success']) {
-					Zotlabs\Daemon\Master::Summon( [ 'Notifier','single_activity',$item_result['item_id'] ]);
-				}
-			}
 		}
 	}
 }
@@ -1011,9 +1013,6 @@ function import_mail($channel, $mails, $sync = false) {
 			$m['aid'] = $channel['channel_account_id'];
 			$m['uid'] = $channel['channel_id'];
 			$mail_id = mail_store($m);
-			if($sync && $mail_id) {
-				Zotlabs\Daemon\Master::Summon(array('Notifier','single_mail',$mail_id));
-			}
  		}
 	}
 }
@@ -1094,11 +1093,12 @@ function sync_files($channel, $files) {
 						$ext = '';
 					}
 
-					$r = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' and hash != '%s' ",
+					$r = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' and hash != '%s' and uid = %d ",
 						dbesc($basename . $ext),
 						dbesc($basename . '(%)' . $ext),
 						dbesc($att['folder']),
-						dbesc($att['hash'])
+						dbesc($att['hash']),
+						intval($channel['channel_id'])
 					);
 
 					if($r) {
@@ -1264,7 +1264,7 @@ function sync_files($channel, $files) {
 						$r = dbq("update photo set " . $str . " where id = " . intval($exists[0]['id']) );
 					}
 					else {
-						create_attach_from_array('photo',$p);
+						create_table_from_array('photo',$p);
 					}
 				}
 			}

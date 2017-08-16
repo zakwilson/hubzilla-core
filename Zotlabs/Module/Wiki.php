@@ -42,7 +42,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 		if(! feature_enabled(\App::$profile_uid,'wiki')) {
 			notice( t('Not found') . EOL);
-     		return;
+			return;
  		}
 
 
@@ -75,6 +75,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 		if (local_channel() === intval($owner['channel_id'])) {
 
 			$wiki_owner = true;
+
+			nav_set_selected(t('Wiki'));
 
 			// Obtain the default permission settings of the channel
 			$owner_acl = array(
@@ -192,6 +194,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 				goaway(z_root() . '/' . argv(0) . '/' . argv(1) . '/' . $wikiUrlName . '/Home');
 
 			case 4:
+			default:
 
 				// GET /wiki/channel/wiki/page
 				// Fetch the wiki info and determine observer permissions
@@ -243,9 +246,15 @@ class Wiki extends \Zotlabs\Web\Controller {
 				$wikiheaderPage = urldecode($pageUrlName);
 
 				$renamePage = (($wikiheaderPage === 'Home') ? '' : t('Rename page'));
+				$p = [];
 
-				$p = Zlib\NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
-				if(! $p['success']) {
+				if(! $ignore_language) {
+					$p = Zlib\NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $langPageUrlName));
+				}
+				if(! ($p && $p['success'])) {
+					$p = Zlib\NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+				}
+				if(! ($p && $p['success'])) {
 					notice( t('Error retrieving page content') . EOL);
 					goaway(z_root() . '/' . argv(0) . '/' . argv(1) );
 				}
@@ -267,8 +276,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 				}
 				$showPageControls = $wiki_editor;
 				break;
-			default:	// Strip the extraneous URL components
-				goaway('/' . argv(0) . '/' . argv(1) . '/' . $wikiUrlName . '/' . $pageUrlName);
+//			default:	// Strip the extraneous URL components
+//				goaway('/' . argv(0) . '/' . argv(1) . '/' . $wikiUrlName . '/' . $pageUrlName);
 		}
 		
 
@@ -348,6 +357,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 				$html = Zlib\NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))),$wikiURL);
 			}
 			else {
+
 				$bb = Zlib\NativeWikiPage::bbcode($content);
 				$x = new ZLib\MarkdownSoap($bb);
 				$md = $x->clean();

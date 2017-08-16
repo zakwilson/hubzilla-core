@@ -484,6 +484,7 @@ footer {
 
 #nav-search-text {
 	width: 280px;
+	padding: .15rem .5rem;
 }
 
 #nav-search-text::-webkit-input-placeholder {
@@ -1235,24 +1236,24 @@ img.mail-conv-sender-photo {
 
 .section-content-info-wrapper {
 	padding: 21px 10px;
-	color: #31708f;
-	background-color: #d9edf7;
+	color: #0c5460;
+	background-color: #d1ecf1;
 	border-bottom: 3px solid $comment_item_colour;
 	text-align: center;
 }
 
 .section-content-warning-wrapper {
 	padding: 21px 10px;
-	color: #8a6d3b;
-	background-color: #fcf8e3;
+	color: #856404;
+	background-color: #fff3cd;
 	border-bottom: 3px solid $comment_item_colour;
 	text-align: center;
 }
 
 .section-content-danger-wrapper {
 	padding: 21px 10px;
-	color: #a94442;
-	background-color: #f2dede;
+	color: #721c24;
+	background-color: #f8d7da;
 	border-bottom: 3px solid $comment_item_colour;
 	text-align: center;
 }
@@ -1339,6 +1340,18 @@ main.fullscreen .section-content-wrapper-np {
 }
 /* bootstrap overrides */
 
+.btn,
+.form-control,
+.nav-pills .nav-link,
+.nav-tabs .nav-link {
+	border-radius: $radius;
+}
+
+.rounded-top {
+	border-top-left-radius: $radius !important;
+	border-top-right-radius: $radius !important;
+}
+
 blockquote {
 	font-size: 1rem;
 	font-style: italic;
@@ -1350,10 +1363,6 @@ blockquote {
 .dropdown-menu {
 	color: $font_colour;
 	font-size: 0.9rem;
-	border-radius: $radius;
-}
-
-.dropdown-menu img {
 	border-radius: $radius;
 }
 
@@ -1372,17 +1381,22 @@ blockquote {
 	background-color: $item_colour;
 }
 
-.bg-inverse {
+.dropdown-item.active {
+	color: #fff;
+	background-color: #007bff;
+}
+
+.bg-dark {
 	background-color: $nav_bg !important;
 }
 
-.navbar-inverse .navbar-nav .nav-link,
+.navbar-dark .navbar-nav .nav-link,
 .usermenu i {
 	color: $nav_icon_colour;
 }
 
-.navbar-inverse .navbar-nav .nav-link:focus,
-.navbar-inverse .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus,
+.navbar-dark .navbar-nav .nav-link:hover,
 .usermenu:focus i,
 .usermenu:hover i {
 	color: $nav_active_icon_colour;
@@ -1491,7 +1505,7 @@ dl.bb-dl > dd > li {
 .form-group.checkbox > div label {
     display: block; overflow: hidden; cursor: pointer;
     border: 1px solid #ccc;
-    border-radius: 4px;
+    border-radius: $radius;
     margin:0px;
 	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
 	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;

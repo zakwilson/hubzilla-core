@@ -34,15 +34,17 @@ EOT;
 			intval($channel['channel_id'])
 		);
 
-		$chans = q("select channel_name, channel_id from channel where channel_account_id = %d and channel_removed = 0 order by channel_name ",
-			intval(get_account_id())
-		);
+		if(! $_SESSION['delegate']) {
+			$chans = q("select channel_name, channel_id from channel where channel_account_id = %d and channel_removed = 0 order by channel_name ",
+				intval(get_account_id())
+			);
+		}
 	}
 	elseif(remote_channel())
 		$observer = App::get_observer();
 
 	require_once('include/conversation.php');
-	$is_owner = (((local_channel()) && (App::$profile['profile_uid'] == local_channel())) ? true : false);
+	$is_owner = (((local_channel()) && ((App::$profile_uid == local_channel()) || (App::$profile_uid == 0))) ? true : false);
 	$channel_apps[] = channel_apps($is_owner, App::$profile['channel_address']);
 
 	$myident = (($channel) ? $channel['xchan_addr'] : '');
@@ -65,8 +67,6 @@ EOT;
 		//we could additionally use this to display important system notifications e.g. for updates
 	));
 
-	$server_role = get_config('system','server_role');
-	$basic = (($server_role === 'basic') ? true : false);
 	$techlevel = get_account_techlevel();
 
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
@@ -95,20 +95,18 @@ EOT;
 
 
 	if(local_channel()) {
-
-
-		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select') && (! $basic))
+		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select'))
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = ['logout',t('Logout'), "", t('End this session'),'logout_nav_btn'];
 		
 		// user menu
-		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), "", t('Your profile page'),'profile_nav_btn'];
+		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), ((\App::$nav_sel['active'] == 'Profile') ? 'active' : ''), t('Your profile page'),'profile_nav_btn'];
 
-		if(feature_enabled(local_channel(),'multi_profiles') && (! $basic))
-			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'),"", t('Manage/Edit profiles'),'profiles_nav_btn'];
+		if(feature_enabled(local_channel(),'multi_profiles'))
+			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'), ((\App::$nav_sel['active'] == 'Profiles') ? 'active' : '') , t('Manage/Edit profiles'),'profiles_nav_btn'];
 		else
-			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'),"", t('Edit your profile'),'profiles_nav_btn'];
+			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'), ((\App::$nav_sel['active'] == 'Profiles') ? 'active' : ''), t('Edit your profile'),'profiles_nav_btn'];
 
 	}
 	else {
@@ -136,12 +134,12 @@ EOT;
 		$homelink = (($observer) ? $observer['xchan_url'] : '');
 	}
 
-	if(! local_channel()) {
+	if(! $is_owner) {
 		$nav['rusermenu'] = array(
 			$homelink,
 			t('Take me home'),
 			'logout',
-			t('Log me out of this site')
+			((local_channel()) ? t('Logout') : t('Log me out of this site'))
 		);
 	}
 
@@ -172,7 +170,6 @@ EOT;
 
 	if(local_channel()) {
 
-	
 		$nav['network'] = array('network', t('Grid'), "", t('Your grid'),'network_nav_btn');
 		$nav['network']['all'] = [ 'network', t('View your network/grid'), '','' ];
 		$nav['network']['mark'] = array('', t('Mark all grid notifications seen'), '','');
@@ -201,8 +198,9 @@ EOT;
 		$nav['all_events']['all']=array('events', t('View events'), "", "");
 		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
 
-		if(! $basic)		
+		if(! $_SESSION['delegate']) {
 			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
+		}
 
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
 
@@ -224,7 +222,7 @@ EOT;
 	$powered_by = '';
 
 	//app bin
-	if(local_channel()) {
+	if($is_owner) {
 		if(get_pconfig(local_channel(), 'system','initial_import_system_apps') === false) {
 			Zlib\Apps::import_system_apps();
 			set_pconfig(local_channel(), 'system','initial_import_system_apps', 1);
@@ -245,8 +243,16 @@ EOT;
 
 	usort($syslist,'Zotlabs\\Lib\\Apps::app_name_compare');
 
+	$syslist = Zlib\Apps::app_order(local_channel(),$syslist);
+
 	foreach($syslist as $app) {
-		$nav_apps[] = Zlib\Apps::app_render($app,'nav');
+		if(\App::$nav_sel['active'] == $app['name'])
+			$app['active'] = true;
+
+		if($is_owner)
+			$nav_apps[] = Zlib\Apps::app_render($app,'nav');
+		elseif(! $is_owner && strpos($app['requires'], 'local_channel') === false)
+			$nav_apps[] = Zlib\Apps::app_render($app,'nav');
 	}
 
 	$tpl = get_markup_template('nav.tpl');
@@ -260,6 +266,7 @@ EOT;
 		'$emptynotifications' => t('Loading...'),
 		'$userinfo' => $x['usermenu'],
 		'$localuser' => local_channel(),
+		'$is_owner' => $is_owner,
 		'$sel' => 	App::$nav_sel,
 		'$powered_by' => $powered_by,
 		'$help' => t('@name, #tag, ?doc, content'),
@@ -267,6 +274,7 @@ EOT;
 		'$nav_apps' => $nav_apps,
 		'$channel_apps' => $channel_apps,
 		'$addapps' => t('Add Apps'),
+		'$orderapps' => t('Arrange Apps'),
 		'$sysapps_toggle' => t('Toggle System Apps')
 	));
 
@@ -290,21 +298,7 @@ EOT;
  * 
  */
 function nav_set_selected($item){
-    App::$nav_sel = array(
-		'community' 	=> null,
-		'network' 		=> null,
-		'home'			=> null,
-		'profiles'		=> null,
-		'intros'        => null,
-		'notifications'	=> null,
-		'messages'		=> null,
-		'directory'	    => null,
-		'settings'		=> null,
-		'contacts'		=> null,
-		'manage'        => null,
-		'register'      => null,
-	);
-	App::$nav_sel[$item] = 'active';
+	App::$nav_sel['active'] = $item;
 }
 
 

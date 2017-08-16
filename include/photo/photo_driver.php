@@ -252,11 +252,10 @@ abstract class photo_driver {
 		 */
 
 		if(! $this->is_valid())
-			return FALSE;
-
+			return false;
 
 		if((! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg'))
-			return;
+			return false;
 
 		$exif = @exif_read_data($filename,null,true);
 
@@ -489,20 +488,32 @@ function guess_image_type($filename, $headers = '') {
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
 			$ph = photo_factory('');
 			$types = $ph->supportedTypes();
-			foreach ($types as $m=>$e){
-				if ($ext==$e) $type = $m;
+			foreach($types as $m => $e) {
+				if($ext === $e) {
+					$type = $m;
+				}
 			}
 		}
 
-		if(is_null($type)) {
+		if(is_null($type) && (strpos($filename,'http') === false)) {
 			$size = getimagesize($filename);
 			$ph = photo_factory('');
 			$types = $ph->supportedTypes();
 			$type = ((array_key_exists($size['mime'], $types)) ? $size['mime'] : 'image/jpeg');
 		}
+		if(is_null($type)) {
+			if(strpos(strtolower($filename),'jpg') !== false)
+				$type = 'image/jpeg';
+			elseif(strpos(strtolower($filename),'jpeg') !== false)
+				$type = 'image/jpeg';
+			elseif(strpos(strtolower($filename),'gif') !== false)
+				$type = 'image/gif';
+			elseif(strpos(strtolower($filename),'png') !== false)
+				$type = 'image/png';
+		}
 
 	}
-	logger('Photo: guess_image_type: type='.$type, LOGGER_DEBUG);
+	logger('Photo: guess_image_type: type = ' . $type, LOGGER_DEBUG);
 	return $type;
 
 }

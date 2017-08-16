@@ -122,7 +122,7 @@ function poco_load($xchan = '', $url = null) {
 					$profile_url = $url['value'];
 					continue;
 				}
-				if($url['type'] == 'zot' || $url['type'] == 'diaspora' || $url['type'] == 'friendica') {
+				if($url['type'] == 'zot') {
 					$network = $url['type'];
 					$address = str_replace('acct:' , '', $url['value']);
 					continue;
@@ -159,12 +159,6 @@ function poco_load($xchan = '', $url = null) {
 					$x = q("select xchan_hash from xchan where xchan_hash = '%s' limit 1",
 						dbesc($hash)
 					);
-					if(! $x) {
-						continue;
-					}
-				}
-				else {
-					$x = import_author_diaspora(array('address' => $address));
 					if(! $x) {
 						continue;
 					}
@@ -241,77 +235,6 @@ function common_friends($uid,$xchan,$start = 0,$limit=100000000,$shuffle = false
 
 	return $r;
 }
-
-
-function count_common_friends_zcid($uid,$zcid) {
-
-	$r = q("SELECT count(*) as total 
-		FROM glink left join gcontact on glink.gcid = gcontact.id
-		where glink.zcid = %d
-		and gcontact.nurl in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
-		intval($zcid),
-		intval($uid)
-	);
-
-	if(count($r))
-		return $r[0]['total'];
-
-	return 0;
-}
-
-function common_friends_zcid($uid,$zcid,$start = 0, $limit = 9999,$shuffle = false) {
-
-	if($shuffle)
-		$sql_extra = " order by rand() ";
-	else
-		$sql_extra = " order by gcontact.name asc "; 
-
-	$r = q("SELECT gcontact.* 
-		FROM glink left join gcontact on glink.gcid = gcontact.id
-		where glink.zcid = %d
-		and gcontact.nurl in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) 
-		$sql_extra limit %d offset %d",
-		intval($zcid),
-		intval($uid),
-		intval($limit),
-		intval($start)
-	);
-
-	return $r;
-}
-
-
-function count_all_friends($uid,$cid) {
-
-	$r = q("SELECT count(*) as total
-		FROM glink left join gcontact on glink.gcid = gcontact.id
-		where glink.cid = %d and glink.uid = %d ",
-		intval($cid),
-		intval($uid)
-	);
-
-	if(count($r))
-		return $r[0]['total'];
-
-	return 0;
-}
-
-
-function all_friends($uid,$cid,$start = 0, $limit = 80) {
-
-	$r = q("SELECT gcontact.* 
-		FROM glink left join gcontact on glink.gcid = gcontact.id
-		where glink.cid = %d and glink.uid = %d 
-		order by gcontact.name asc LIMIT %d OFFSET %d ",
-		intval($cid),
-		intval($uid),
-		intval($limit),
-		intval($start)
-	);
-
-	return $r;
-}
-
 
 
 function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
@@ -564,8 +487,6 @@ function poco($a,$extended = false) {
 				if($fields_ret['urls']) {
 					$entry['urls'] = array(array('value' => $rr['xchan_url'], 'type' => 'profile'));
 					$network = $rr['xchan_network'];
-					if(strpos($network,'friendica') !== false)
-						$network = 'friendica';
 					if($rr['xchan_addr'])
 						$entry['urls'][] = array('value' => 'acct:' . $rr['xchan_addr'], 'type' => $network);  
 				}

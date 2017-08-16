@@ -18,6 +18,7 @@ class ThreadStream {
 	private $observer = null;
 	private $writable = false;
 	private $commentable = false;
+	private $uploadable = false;
 	private $profile_owner = 0;
 	private $preview = false;
 	private $prepared_item = '';
@@ -158,7 +159,7 @@ class ThreadStream {
 			if(intval($item->get_data_value('item_nocomment'))) {
 				$item->set_commentable(false);
 			}
-			elseif(($this->observer) && (! $item->is_commentable())) {
+			elseif(! $item->is_commentable()) {
 				if((array_key_exists('owner',$item->data)) && intval($item->data['owner']['abook_self']))
 					$item->set_commentable(perm_is_allowed($this->profile_owner,$ob_hash,'post_comments'));
 				else

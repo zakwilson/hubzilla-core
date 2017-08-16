@@ -48,12 +48,11 @@ require_once('include/xchan.php');
 require_once('include/hubloc.php');
 require_once('include/attach.php');
 
-
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '2.4.2' );
+define ( 'STD_VERSION',             '2.6' );
 define ( 'ZOT_REVISION',            '1.2' );
 
-define ( 'DB_UPDATE_VERSION',       1191  );
+define ( 'DB_UPDATE_VERSION',       1193  );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -82,7 +81,6 @@ define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
 define ( 'DIRECTORY_FALLBACK_MASTER',  'https://gravizot.de');
 
 $DIRECTORY_FALLBACK_SERVERS = array( 
-	//'https://hubzilla.site',
 	'https://hubzilla.zottel.net',
 	'https://my.federated.social',
 	'https://hubzilla.nl',
@@ -160,14 +158,6 @@ define ( 'LOGGER_DEBUG',           2 );
 define ( 'LOGGER_DATA',            3 );
 define ( 'LOGGER_ALL',             4 );
 
-
-/**
- * Server roles
- */
-
-define ( 'SERVER_ROLE_BASIC',     0x0001 );
-define ( 'SERVER_ROLE_STANDARD',  0x0002 );
-define ( 'SERVER_ROLE_PRO',       0x0004 );
 
 /**
  * registration policies
@@ -465,6 +455,8 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
  * activity stream defines
  */
 
+define ( 'ACTIVITY_PUBLIC_INBOX', 'https://www.w3.org/ns/activitystreams#Public' );
+
 define ( 'ACTIVITY_REACT',       NAMESPACE_ZOT   . '/activity/react' );
 define ( 'ACTIVITY_LIKE',        NAMESPACE_ACTIVITY_SCHEMA . 'like' );
 define ( 'ACTIVITY_DISLIKE',     NAMESPACE_ZOT   . '/activity/dislike' );
@@ -499,6 +491,7 @@ define ( 'ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke' );
 define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
 
 define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
+define ( 'ACTIVITY_OBJ_ACTIVITY',NAMESPACE_ACTIVITY_SCHEMA . 'activity' );
 define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
 define ( 'ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person' );
 define ( 'ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo' );
@@ -599,28 +592,19 @@ function sys_boot() {
 
 	$a->convert();
 
-	if(defined('UNO')) {
-		if(UNO)
-			App::$config['system']['server_role'] = 'basic';
-		else
-			App::$config['system']['server_role'] = 'standard';
-	}
-
-	if(! (array_key_exists('server_role',App::$config['system']) && App::$config['system']['server_role']))
-		App::$config['system']['server_role'] = 'standard';
+	App::$config['system']['server_role'] = 'pro';
 
 	App::$timezone = ((App::$config['system']['timezone']) ? App::$config['system']['timezone'] : 'UTC');
 	date_default_timezone_set(App::$timezone);
 
 
 	if(! defined('DEFAULT_PLATFORM_ICON')) {
-		define( 'DEFAULT_PLATFORM_ICON', '/images/hz-32.png' );
+		define( 'DEFAULT_PLATFORM_ICON', '/images/rm-32.png' );
 	}
 
 	if(! defined('DEFAULT_NOTIFY_ICON')) {
-		define( 'DEFAULT_NOTIFY_ICON', '/images/hz-white-32.png' );
+		define( 'DEFAULT_NOTIFY_ICON', '/images/rm-32.png' );
 	}
-
 
 	/*
 	 * Try to open the database;
@@ -732,7 +716,6 @@ class miniApp {
 class App {
 
 	public  static $install    = false;           // true if we are installing the software
-	public  static $role       = 0;               // server role (constant, not the string)
 	public  static $account    = null;            // account record of the logged-in account
 	public  static $channel    = null;            // channel record of the current channel of the logged-in account
 	public  static $observer   = null;            // xchan record of the page observer
@@ -918,6 +901,11 @@ class App {
 		self::$argv = explode('/', self::$cmd);
 		self::$argc = count(self::$argv);
 		if ((array_key_exists('0', self::$argv)) && strlen(self::$argv[0])) {
+			if(strpos(self::$argv[0],'.')) {
+				$_REQUEST['module_format'] = substr(self::$argv[0],strpos(self::$argv[0],'.')+1);
+				self::$argv[0] =  substr(self::$argv[0],0,strpos(self::$argv[0],'.'));
+			}
+
 			self::$module = str_replace(".", "_", self::$argv[0]);
 			self::$module = str_replace("-", "_", self::$module);
 			if(strpos(self::$module,'_') === 0)
@@ -1007,35 +995,9 @@ class App {
 		}
 	}
 
-	public static function get_role() {
-		if(! self::$role)
-			return self::set_role();
-		return self::$role;
-	}
-
-	public static function set_role() {
-		$role_str = \Zotlabs\Lib\System::get_server_role();
-		switch($role_str) {
-			case 'basic':
-				$role = SERVER_ROLE_BASIC;
-				break;
-			case 'pro':
-				$role = SERVER_ROLE_PRO;
-				break;
-			case 'standard':
-			default:
-				$role = SERVER_ROLE_STANDARD;
-				break;
-		}
-		self::$role = $role;
-		return $role;
-	}
-
-
 	public static function get_scheme() {
 		return self::$scheme;
 	}
-
 
 	public static function get_hostname() {
 		return self::$hostname;
@@ -1150,24 +1112,25 @@ class App {
 		 * since the code added by the modules frequently depends on it
 		 * being first
 		 */
-		$tpl = get_markup_template('head.tpl');
-		self::$page['htmlhead'] = replace_macros($tpl, array(
-			'$preload_images' => $preload_images,
-			'$user_scalable' => $user_scalable,
-			'$query' => urlencode(self::$query_string),
-			'$baseurl' => self::get_baseurl(),
-			'$local_channel' => local_channel(),
-			'$metas' => self::$meta->get(),
-			'$plugins' => $x['header'],
-			'$update_interval' => $interval,
-			'osearch' => sprintf( t('Search %1$s (%2$s)','opensearch'), Zotlabs\Lib\System::get_site_name(), t('$Projectname','opensearch')), 
-			'$head_css' => head_get_css(),
-			'$head_js' => head_get_js(),
-			'$linkrel' => head_get_links(),
-			'$js_strings' => js_strings(),
-			'$zid' => get_my_address(),
-			'$channel_id' => self::$profile['uid'],
-		)) . self::$page['htmlhead'];
+
+		self::$page['htmlhead'] = replace_macros(get_markup_template('head.tpl'), 
+			[
+				'$preload_images'  => $preload_images,
+				'$user_scalable'   => $user_scalable,
+				'$query'           => urlencode(self::$query_string),
+				'$baseurl'         => self::get_baseurl(),
+				'$local_channel'   => local_channel(),
+				'$metas'           => self::$meta->get(),
+				'$plugins'         => $x['header'],
+				'$update_interval' => $interval,
+				'$head_css'        => head_get_css(),
+				'$head_js'         => head_get_js(),
+				'$linkrel'         => head_get_links(),
+				'$js_strings'      => js_strings(),
+				'$zid'             => get_my_address(),
+				'$channel_id'      => self::$profile['uid']
+			]
+		) . self::$page['htmlhead'];
 
 		// always put main.js at the end
 		self::$page['htmlhead'] .= head_get_main_js();
@@ -1180,11 +1143,13 @@ class App {
 	* @param string $name
 	*/
 	public static function register_template_engine($class, $name = '') {
-		if ($name === ""){
-			$v = get_class_vars( $class );
-			if(x($v, "name")) $name = $v['name'];
+		if(! $name) {
+			$v = get_class_vars($class);
+			if(x($v, "name")) { 
+				$name = $v['name'];
+			}
 		}
-		if ($name === ""){
+		if (! $name) {
 			echo "template engine <tt>$class</tt> cannot be registered without a name.\n";
 			killme();
 		}
@@ -1200,19 +1165,21 @@ class App {
 	* @return object Template Engine instance
 	*/
 	public static function template_engine($name = ''){
-		if ($name !== "") {
+		if($name !== '') {
 			$template_engine = $name;
-		} else {
+		}
+		else {
 			$template_engine = 'smarty3';
-			if (x(self::$theme, 'template_engine')) {
+			if(x(self::$theme, 'template_engine')) {
 				$template_engine = self::$theme['template_engine'];
 			}
 		}
 
-		if (isset(self::$template_engines[$template_engine])){
+		if(isset(self::$template_engines[$template_engine])){
 			if(isset(self::$template_engine_instance[$template_engine])){
 				return self::$template_engine_instance[$template_engine];
-			} else {
+			}
+			else {
 				$class = self::$template_engines[$template_engine];
 				$obj = new $class;
 				self::$template_engine_instance[$template_engine] = $obj;
@@ -1220,7 +1187,8 @@ class App {
 			}
 		}
 
-		echo "template engine <tt>$template_engine</tt> is not registered!\n"; killme();
+		echo "template engine <tt>$template_engine</tt> is not registered!\n"; 
+		killme();
 	}
 
 	/**
@@ -2335,6 +2303,7 @@ function cert_bad_email() {
 			)
 		]
 	);
+
 }
 
 

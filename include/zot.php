@@ -1326,8 +1326,10 @@ function public_recips($msg) {
 	$include_sys = false;
 
 	if($msg['message']['type'] === 'activity') {
-		if(! get_config('system','disable_discover_tab'))
+		$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
+		if(! $disable_discover_tab)
 			$include_sys = true;
+
 		$perm = 'send_stream';
 
 		if(array_key_exists('flags',$msg['message']) && in_array('thread_parent', $msg['message']['flags'])) {
@@ -1761,7 +1763,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 					$result[] = $DR->get();
 				}
 				else {
-					update_imported_item($sender,$arr,$r[0],$channel['channel_id'],$tag_delivery);
+					$item_result = update_imported_item($sender,$arr,$r[0],$channel['channel_id'],$tag_delivery);
 					$DR->update('updated');
 					$result[] = $DR->get();
 					if(! $relay)
@@ -1808,6 +1810,14 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 				$DR->update(($item_id) ? 'posted' : 'storage failed: ' . $item_result['message']);
 				$result[] = $DR->get();
 			}
+		}
+
+		// preserve conversations with which you are involved from expiration
+
+		$stored = (($item_result && $item_result['item']) ? $item_result['item'] : false);
+		if((is_array($stored)) && ($stored['id'] != $stored['parent'])
+			&& ($stored['author_xchan'] === $channel['channel_hash'])) {
+			retain_item($stored['item']['parent']);
 		}
 
 		if($relay && $item_id) {
@@ -1946,6 +1956,8 @@ function update_imported_item($sender, $item, $orig, $uid, $tag_delivery) {
 		logger('update_imported_item: failed: ' . $x['message']);
 	else
 		logger('update_imported_item');
+
+	return $x;
 }
 
 /**
@@ -2235,9 +2247,6 @@ function process_location_delivery($sender,$arr,$deliveries) {
 function check_location_move($sender_hash,$locations) {
 
 	if(! $locations)
-		return;
-
-	if(get_config('system','server_role') !== 'basic')
 		return;
 
 	if(count($locations) != 1)
@@ -2824,7 +2833,7 @@ function import_site($arr, $pubkey) {
 		$access_policy = ACCESS_PRIVATE;
 
 	if($access_policy != ACCESS_PRIVATE) {
-		$x = z_fetch_url($arr['url'] . '/siteinfo/json');
+		$x = z_fetch_url($arr['url'] . '/siteinfo.json');
 		if(! $x['success'])
 			$access_policy = ACCESS_PRIVATE;
 	}
@@ -2935,8 +2944,6 @@ function import_site($arr, $pubkey) {
 
 function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
-	if(get_config('system','server_role') === 'basic')
-		return;
 
 	logger('build_sync_packet');
 
@@ -3086,8 +3093,6 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
-	if(get_config('system','server_role') === 'basic')
-		return;
 
 	require_once('include/import.php');
 
@@ -3289,6 +3294,11 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 				if(! array_key_exists('abook_xchan',$clean))
 					continue;
 
+				if(array_key_exists('abook_instance',$clean) && $clean['abook_instance'] && strpos($clean['abook_instance'],z_root()) === false) {
+					$clean['abook_not_here'] = 1;
+				} 
+
+
 				$r = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 					dbesc($clean['abook_xchan']),
 					intval($channel['channel_id'])
@@ -3364,7 +3374,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 								dbesc($cl['name']),
 								intval($cl['visible']),
 								intval($cl['deleted']),
-								dbesc($cl['hash']),
+								dbesc($cl['collection']),
 								intval($channel['channel_id'])
 							);
 						}
@@ -3586,6 +3596,14 @@ function import_author_zot($x) {
 
 	$hash = make_xchan_hash($x['guid'],$x['guid_sig']);
 
+	// also - this function may get passed a profile url as 'url' and zot_refresh wants a hubloc_url (site baseurl),
+	// so deconstruct the url (if we have one) and rebuild it with just the baseurl components.
+
+	if(array_key_exists('url',$x)) {
+		$m = parse_url($x['url']);
+		$desturl = $m['scheme'] . '://' . $m['host'];
+	}
+
 	$r1 = q("select hubloc_url, hubloc_updated, site_dead from hubloc left join site on
 		hubloc_url = site_url where hubloc_guid = '%s' and hubloc_guid_sig = '%s' and hubloc_primary = 1 limit 1",
 		dbesc($x['guid']),
@@ -3627,14 +3645,16 @@ function import_author_zot($x) {
 		);
 		if($r) {
 			logger('found another site that is not dead: ' . $r[0]['hubloc_url'], LOGGER_DEBUG,LOG_INFO);
-			$x['url'] = $r[0]['hubloc_url'];
+			$desturl = $r[0]['hubloc_url'];
 		}
 		else {
 			return $hash;
 		}
 	} 
 
-	$them = array('hubloc_url' => $x['url'], 'xchan_guid' => $x['guid'], 'xchan_guid_sig' => $x['guid_sig']);
+
+
+	$them = array('hubloc_url' => $desturl, 'xchan_guid' => $x['guid'], 'xchan_guid_sig' => $x['guid_sig']);
 	if(zot_refresh($them))
 		return $hash;
 
@@ -3921,6 +3941,7 @@ function zotinfo($arr) {
 	$ret['photo_updated']  = $e['xchan_photo_date'];
 	$ret['url']            = $e['xchan_url'];
 	$ret['connections_url']= (($e['xchan_connurl']) ? $e['xchan_connurl'] : z_root() . '/poco/' . $e['channel_address']);
+	$ret['follow_url']     = $e['xchan_follow'];
 	$ret['target']         = $ztarget;
 	$ret['target_sig']     = $zsig;
 	$ret['searchable']     = $searchable;
@@ -3928,19 +3949,22 @@ function zotinfo($arr) {
 	$ret['public_forum']   = $public_forum;
 	if($deleted)
 		$ret['deleted']        = $deleted;
+
 	if(intval($e['channel_removed']))
 		$ret['deleted_locally'] = true;
+
+
 
 	// premium or other channel desiring some contact with potential followers before connecting.
 	// This is a template - %s will be replaced with the follow_url we discover for the return channel.
 
-	if($special_channel)
-		$ret['connect_url'] = z_root() . '/connect/' . $e['channel_address'];
-
+	if($special_channel) {
+		$ret['connect_url'] = (($e['xchan_connpage']) ? $e['xchan_connpage'] : z_root() . '/connect/' . $e['channel_address']);
+	}
 	// This is a template for our follow url, %s will be replaced with a webbie
 
-	$ret['follow_url'] = z_root() . '/follow?f=&url=%s';
-
+	if(! $ret['follow_url'])
+		$ret['follow_url'] = z_root() . '/follow?f=&url=%s';
 
 	$permissions = get_all_perms($e['channel_id'],$ztarget_hash,false);
 

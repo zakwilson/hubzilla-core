@@ -51,6 +51,7 @@ class Cron_daily {
 		update_channels_active_halfyear_stat();
 		update_channels_active_monthly_stat();
 		update_local_posts_stat();
+		update_local_comments_stat();
 
 
 		// expire old delivery reports
@@ -87,7 +88,7 @@ class Cron_daily {
 
 		call_hooks('cron_daily',datetime_convert());
 
-		set_config('system','last_expire_day',$d2);
+		set_config('system','last_expire_day',intval(datetime_convert('UTC','UTC','now','d')));
 
 		/**
 		 * End Cron Daily

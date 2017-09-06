@@ -133,7 +133,7 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 	}
 
 	if ($secret) {
-		$data['secret'] = $secret;
+		$data['secret'] = preg_replace('/[^0-9a-fA-F]/','',$secret);
 		$data['secret_sig'] = base64url_encode(rsa_sign($secret,$channel['channel_prvkey']));
 	}
 

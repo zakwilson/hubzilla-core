@@ -123,7 +123,13 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					'type' => $r[0]['xchan_photo_mimetype'],
 					'href' => $r[0]['xchan_photo_l']	
 				],
-	
+
+				[
+					'rel'  => 'http://microformats.org/profile/hcard',
+					'type' => 'text/html',
+					'href' => z_root() . '/hcard/' . $r[0]['channel_address']
+				],
+
 				[
 					'rel'  => 'http://webfinger.net/rel/profile-page',
 					'href' => z_root() . '/profile/' . $r[0]['channel_address'],

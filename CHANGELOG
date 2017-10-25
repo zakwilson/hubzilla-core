@@ -1,4 +1,4 @@
-Hubzilla 2.8 (????-??-??)
+Hubzilla 2.8 (2017-10-25)
 	- Redirect to be moderated items to /moderate
 	- Update notifications if notifications area remains open
 	- Create an actual logout module instead of relying on internal variables

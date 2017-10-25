@@ -555,7 +555,7 @@ class Photos extends \Zotlabs\Web\Controller {
 		$sql_extra = permissions_sql($owner_uid,get_observer_hash(),'photo');
 		$sql_attach = permissions_sql($owner_uid,get_observer_hash(),'attach');
 
-		nav_set_selected(t('Photos'));
+		nav_set_selected('Photos');
 	
 		$o = "";
 	
@@ -671,8 +671,13 @@ class Photos extends \Zotlabs\Web\Controller {
 		 */
 	
 		if($datatype === 'album') {
-	
-			\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
+
+			head_add_link([ 
+				'rel'   => 'alternate',
+				'type'  => 'application/json+oembed',
+				'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string),
+				'title' => 'oembed'
+			]);
 
 			if($x = photos_album_exists($owner_uid, get_observer_hash(), $datum)) {
 				\App::set_pager_itemspage(60);
@@ -765,7 +770,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				if($photos) {
 					$o = replace_macros(get_markup_template('photosajax.tpl'),array(
 						'$photos' => $photos,
-						'$album_id' => bin2hex($album)
+						'$album_id' => $datum
 					));
 				}
 				else {

@@ -76,7 +76,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 			$wiki_owner = true;
 
-			nav_set_selected(t('Wiki'));
+			nav_set_selected('Wiki');
 
 			// Obtain the default permission settings of the channel
 			$owner_acl = array(
@@ -113,12 +113,13 @@ class Wiki extends \Zotlabs\Web\Controller {
 		$o = '';
 
 		// Download a wiki
-/*
+
 		if((argc() > 3) && (argv(2) === 'download') && (argv(3) === 'wiki')) {
 
 			$resource_id = argv(4);
+			$w = Zlib\NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
 
-			$w = Zlib\NativeWiki::get_wiki($owner,$observer_hash,$resource_id);
+//			$w = Zlib\NativeWiki::get_wiki($owner,$observer_hash,$resource_id);
 			if(! $w['htmlName']) {
 				notice(t('Error retrieving wiki') . EOL);
 			}
@@ -133,8 +134,41 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$zip_filename = $w['urlName'];
 			$zip_filepath = '/tmp/' . $zip_folder_name . '/' . $zip_filename;
 
+
 			// Generate the zip file
-			ZLib\ExtendedZip::zipTree($w['path'], $zip_filepath, \ZipArchive::CREATE);
+
+			$zip = new \ZipArchive;
+			$r = $zip->open($zip_filepath, \ZipArchive::CREATE);
+			if($r === true) {
+				$pages = [];
+				$i = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' order by revision desc",
+					dbesc($resource_id)
+				);
+
+				if($i) {
+					foreach($i as $iv) {
+						if(in_array($iv['mid'],$pages))
+							continue;
+
+						if($iv['mimetype'] === 'text/plain') {
+							$content = html_entity_decode($iv['body'],ENT_COMPAT,'UTF-8');
+						}
+						elseif($iv['mimetype'] === 'text/bbcode') {
+							$content = html_entity_decode($iv['body'],ENT_COMPAT,'UTF-8');
+						}
+						elseif($iv['mimetype'] === 'text/markdown') {
+							$content = html_entity_decode(Zlib\MarkdownSoap::unescape($iv['body']),ENT_COMPAT,'UTF-8');
+						}
+						$fname = get_iconfig($iv['id'],'nwikipage','pagetitle') . Zlib\NativeWikiPage::get_file_ext($iv);
+						$zip->addFromString($fname,$content);
+						$pages[] = $iv['mid'];
+					}
+
+
+				}
+
+			}
+			$zip->close();
 
 			// Output the file for download
 
@@ -153,10 +187,11 @@ class Wiki extends \Zotlabs\Web\Controller {
 			killme();
 
 		}
-*/
+
 		switch(argc()) {
 			case 2:
 				$wikis = Zlib\NativeWiki::listwikis($owner, get_observer_hash());
+
 				if($wikis) {
 					$o .= replace_macros(get_markup_template('wikilist.tpl'), array(
 						'$header' => t('Wikis'),
@@ -170,16 +205,19 @@ class Wiki extends \Zotlabs\Web\Controller {
 						'$create' => t('Create New'),
 						'$submit' => t('Submit'),
 						'$wikiName' => array('wikiName', t('Wiki name')),
-						'$mimeType' => array('mimeType', t('Content type'), '', '', ['text/markdown' => 'Markdown', 'text/bbcode' => 'BB Code']),
+						'$mimeType' => array('mimeType', t('Content type'), '', '', ['text/markdown' => t('Markdown'), 'text/bbcode' => t('BBcode'), 'text/plain' => t('Text') ]),
 						'$name' => t('Name'),
 						'$type' => t('Type'),
+						'$unlocked' => t('Any&nbsp;type'),
 						'$lockstate' => $x['lockstate'],
 						'$acl' => $x['acl'],
 						'$allow_cid' => $x['allow_cid'],
 						'$allow_gid' => $x['allow_gid'],
 						'$deny_cid' => $x['deny_cid'],
 						'$deny_gid' => $x['deny_gid'],
-						'$notify' => array('postVisible', t('Create a status post for this wiki'), '', '', array(t('No'), t('Yes')))
+						'$typelock' => array('typelock', t('Lock content type'), '', '', array(t('No'), t('Yes'))),
+						'$notify' => array('postVisible', t('Create a status post for this wiki'), '', '', array(t('No'), t('Yes'))),
+						'$edit_wiki_name' => t('Edit Wiki Name')
 					));
 
 					return $o;
@@ -259,9 +297,11 @@ class Wiki extends \Zotlabs\Web\Controller {
 					goaway(z_root() . '/' . argv(0) . '/' . argv(1) );
 				}
 
-				$mimeType = $p['mimeType'];
+				$mimeType = $p['pageMimeType'];
 
 				$sampleContent = (($mimeType == 'text/bbcode') ? '[h3]' . t('New page') . '[/h3]' : '### ' . t('New page'));
+				if($mimeType === 'text/plain')
+					$sampleContent = t('New page');
 
 				$content = (($p['content'] == '') ? $sampleContent : $p['content']);
 
@@ -269,7 +309,10 @@ class Wiki extends \Zotlabs\Web\Controller {
 				if($mimeType == 'text/bbcode') {
 					$renderedContent = Zlib\NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))), argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
 				}
-				else {
+				elseif($mimeType === 'text/plain') {
+					$renderedContent = str_replace(["\n",' ',"\t"],[EOL,'&nbsp;','&nbsp;&nbsp;&nbsp;&nbsp;'],htmlentities($content,ENT_COMPAT,'UTF-8',false));
+				}
+				elseif($mimeType === 'text/markdown') {
 					$content = Zlib\MarkdownSoap::unescape($content);
 					$html = Zlib\NativeWikiPage::generate_toc(zidify_text(MarkdownExtra::defaultTransform(Zlib\NativeWikiPage::bbcode($content))));
 					$renderedContent = Zlib\NativeWikiPage::convert_links($html, argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
@@ -290,6 +333,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 			'$cancel' => t('Cancel')
 		));
 
+		$types = [ 'text/bbcode' => t('BBcode'), 'text/markdown' => t('Markdown'), 'text/plain' => 'Text' ];
+		$currenttype = $types[$mimeType];
+
 		$placeholder = t('Short description of your changes (optional)');
 				
 		$o .= replace_macros(get_markup_template('wiki.tpl'),array(
@@ -304,6 +350,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			'$resource_id' => $resource_id,
 			'$page' => $pageUrlName,
 			'$mimeType' => $mimeType,
+			'$typename' => $currenttype,
 			'$content' => $content,
 			'$renderedContent' => $renderedContent,
 			'$pageRename' => array('pageRename', t('New page name'), '', ''),
@@ -323,7 +370,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			'$modalerroralbum' => t('Error getting album'),
 		));
 
-		if($p['mimeType'] != 'text/bbcode')
+		if($p['pageMimeType'] === 'text/markdown')
 			head_add_js('/library/ace/ace.js');	// Ace Code Editor
 
 		return $o;
@@ -347,17 +394,17 @@ class Wiki extends \Zotlabs\Web\Controller {
 		if((argc() > 2) && (argv(2) === 'preview')) {
 			$content = $_POST['content'];
 			$resource_id = $_POST['resource_id'];
+
 			$w = Zlib\NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
 
 			$wikiURL = argv(0) . '/' . argv(1) . '/' . $w['urlName'];
 
-			$mimeType = $w['mimeType'];
+			$mimeType = $_POST['mimetype'];
 
-			if($mimeType == 'text/bbcode') {
+			if($mimeType === 'text/bbcode') {
 				$html = Zlib\NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))),$wikiURL);
 			}
-			else {
-
+			elseif($mimeType === 'text/markdown') {
 				$bb = Zlib\NativeWikiPage::bbcode($content);
 				$x = new ZLib\MarkdownSoap($bb);
 				$md = $x->clean();
@@ -365,6 +412,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 				$html = MarkdownExtra::defaultTransform($md);
 				$html = Zlib\NativeWikiPage::generate_toc(zidify_text($html));
 				$html = Zlib\NativeWikiPage::convert_links($html,$wikiURL);
+			}
+			elseif($mimeType === 'text/plain') {
+				$html = str_replace(["\n",' ',"\t"],[EOL,'&nbsp;','&nbsp;&nbsp;&nbsp;&nbsp;'],htmlentities($content,ENT_COMPAT,'UTF-8',false));
 			}
 			json_return_and_die(array('html' => $html, 'success' => true));
 		}
@@ -386,6 +436,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$wiki['htmlName']    = escape_tags($_POST['wikiName']);
 			$wiki['urlName']     = urlencode(urlencode($_POST['wikiName'])); 
 			$wiki['mimeType']    = $_POST['mimeType'];
+			$wiki['typelock']    = $_POST['typelock'];
 
 			if($wiki['urlName'] === '') {				
 				notice( t('Error creating wiki. Invalid name.') . EOL);
@@ -406,7 +457,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$r = Zlib\NativeWiki::create_wiki($owner, $observer_hash, $wiki, $acl);
 			if($r['success']) {
 				Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
-				$homePage = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash,'Home', $r['item']['resource_id']);
+				$homePage = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash,'Home', $r['item']['resource_id'], $wiki['mimeType']);
 				if(! $homePage['success']) {
 					notice( t('Wiki created, but error creating Home page.'));
 					goaway(z_root() . '/wiki/' . $nick . '/' . $wiki['urlName']);
@@ -418,6 +469,52 @@ class Wiki extends \Zotlabs\Web\Controller {
 				notice( t('Error creating wiki'));
 				goaway(z_root() . '/wiki');
 			}
+		}
+
+		// Update a wiki
+		// /wiki/channel/update/wiki
+		if ((argc() > 3) && (argv(2) === 'update') && (argv(3) === 'wiki')) {
+			// Only the channel owner can update a wiki, at least until we create a 
+			// more detail permissions framework
+
+			if (local_channel() !== intval($owner['channel_id'])) {
+				goaway('/' . argv(0) . '/' . $nick . '/');
+			}
+
+			$arr = [];
+
+			$arr['urlName'] = urlencode(urlencode($_POST['origRawName']));
+
+			if($_POST['updateRawName'])
+				$arr['updateRawName'] = $_POST['updateRawName'];
+
+			if(($arr['urlName'] || $arr['updateRawName']) === '') {
+				notice( t('Error updating wiki. Invalid name.') . EOL);
+				goaway('/wiki');
+				return; //not reached
+			}
+
+			$wiki = Zlib\NativeWiki::exists_by_name($owner['channel_id'], $arr['urlName']);
+
+			if($wiki['resource_id']) {
+
+				$arr['resource_id'] = $wiki['resource_id'];
+				
+				$acl = new \Zotlabs\Access\AccessList($owner);
+				$acl->set_from_array($_POST);
+
+				$r = Zlib\NativeWiki::update_wiki($owner['channel_id'], $observer_hash, $arr, $acl);
+				if($r['success']) {
+					Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
+					goaway(z_root() . '/wiki/' . $nick);
+				}
+				else {
+					notice( t('Error updating wiki'));
+					goaway(z_root() . '/wiki');
+				}
+
+			}
+			goaway(z_root() . '/wiki');
 		}
 
 		// Delete a wiki
@@ -445,11 +542,13 @@ class Wiki extends \Zotlabs\Web\Controller {
 		// Create a page
 		if ((argc() === 4) && (argv(2) === 'create') && (argv(3) === 'page')) {
 
+			$mimetype = $_POST['mimetype'];
+
 			$resource_id = $_POST['resource_id']; 
 			// Determine if observer has permission to create a page
+			
 
-
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash, $mimetype);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
@@ -459,7 +558,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			if(urlencode(escape_tags($_POST['pageName'])) === '') {				
 				json_return_and_die(array('message' => 'Error creating page. Invalid name.', 'success' => false));
 			}
-			$page = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id);
+			$page = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id, $mimetype);
 
 			if($page['item_id']) {
 				$commit = Zlib\NativeWikiPage::commit(array(

@@ -65,6 +65,10 @@ function categories_widget($baseurl,$selected = '') {
 	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
 		return '';
 
+	require_once('include/security.php');
+
+	$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
+
 	$item_normal = item_normal();
 
 	$terms = array();
@@ -77,6 +81,7 @@ function categories_widget($baseurl,$selected = '') {
                 and item.owner_xchan = '%s'
 				and item.item_wall = 1
 				$item_normal
+				$sql_extra
                 order by term.term asc",
 		intval(App::$profile['profile_uid']),
 	        intval(TERM_CATEGORY),
@@ -100,7 +105,53 @@ function categories_widget($baseurl,$selected = '') {
 	return '';
 }
 
-function common_friends_visitor_widget($profile_uid) {
+function cardcategories_widget($baseurl,$selected = '') {
+	
+	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
+		return '';
+
+	$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
+
+	$item_normal = "and item.item_hidden = 0 and item.item_type = 6 and item.item_deleted = 0
+		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
+		and item.item_blocked = 0 ";
+
+	$terms = array();
+	$r = q("select distinct(term.term)
+                from term join item on term.oid = item.id
+                where item.uid = %d
+                and term.uid = item.uid
+                and term.ttype = %d
+				and term.otype = %d
+                and item.owner_xchan = '%s'
+				$item_normal
+				$sql_extra
+                order by term.term asc",
+		intval(App::$profile['profile_uid']),
+	        intval(TERM_CATEGORY),
+			intval(TERM_OBJ_POST),
+	        dbesc(App::$profile['channel_hash'])
+	);
+	if($r && count($r)) {
+		foreach($r as $rr)
+			$terms[] = array('name' => $rr['term'], 'selected' => (($selected == $rr['term']) ? 'selected' : ''));
+
+		return replace_macros(get_markup_template('categories_widget.tpl'),array(
+			'$title' => t('Categories'),
+			'$desc' => '',
+			'$sel_all' => (($selected == '') ? 'selected' : ''),
+			'$all' => t('Everything'),
+			'$terms' => $terms,
+			'$base' => $baseurl,
+
+		));
+	}
+	return '';
+}
+
+
+
+function common_friends_visitor_widget($profile_uid,$cnt = 25) {
 
 	if(local_channel() == $profile_uid)
 		return;
@@ -113,19 +164,20 @@ function common_friends_visitor_widget($profile_uid) {
 	require_once('include/socgraph.php');
 
 	$t = count_common_friends($profile_uid,$observer_hash);
+
 	if(! $t)
 		return;
 
-	$r = common_friends($profile_uid,$observer_hash,0,5,true);
-
+	$r = common_friends($profile_uid,$observer_hash,0,$cnt,true);
+	
 	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
-		'$desc' =>  sprintf( tt("%d connection in common", "%d connections in common", $t), $t),
-		'$base' => z_root(),
-		'$uid' => $profile_uid,
-		'$cid' => $observer,
-		'$linkmore' => (($t > 5) ? 'true' : ''),
-		'$more' => t('show more'),
-		'$items' => $r
+		'$desc'     => t('Common Connections'),
+		'$base'     => z_root(),
+		'$uid'      => $profile_uid,
+		'$cid'      => $observer,
+		'$linkmore' => (($t > $cnt) ? 'true' : ''),
+		'$more'     => sprintf( t('View all %d common connections'), $t),
+		'$items'    => $r
 	)); 
 
 };

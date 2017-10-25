@@ -27,7 +27,7 @@ class Register extends \Zotlabs\Web\Controller {
 				$result = check_account_email($_REQUEST['email']);
 				break;
 			case 'password_check.json':
-				$result = check_account_password($_REQUEST['password']);
+				$result = check_account_password($_REQUEST['password1']);
 				break;
 			default: 
 				break;
@@ -123,12 +123,19 @@ class Register extends \Zotlabs\Web\Controller {
 		if($policy == REGISTER_OPEN ) {
 			if($email_verify) {
 				$res = verify_email_address($result);
+				if($res) {
+					info( t('Registration successful. Please check your email for validation instructions.') . EOL ) ;
+				}
 			}
 			else {
 				$res = send_register_success_email($result['email'],$result['password']);
 			}
 			if($res) {
-				info( t('Registration successful. Please check your email for validation instructions.') . EOL ) ;
+				if($invite_code) {
+					info( t('Registration successful. Continue to create your first channel...') . EOL ) ;
+				} else {
+					info( t('Registration successful. Please check your email for validation instructions.') . EOL ) ;
+				}
 			}
 		}
 		elseif($policy == REGISTER_APPROVE) {
@@ -167,7 +174,8 @@ class Register extends \Zotlabs\Web\Controller {
 			$next_page = $x;
 			$_SESSION['workflow'] = true;
 		}
-	
+
+		unset($_SESSION['login_return_url']);
 		goaway(z_root() . '/' . $next_page);
 	
 	}
@@ -231,8 +239,8 @@ class Register extends \Zotlabs\Web\Controller {
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 	
 		$email        = array('email', t('Your email address'), ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : ""));
-		$password     = array('password', t('Choose a password'), ((x($_REQUEST,'password')) ? trim($_REQUEST['password']) : ""));
-		$password2    = array('password2', t('Please re-enter your password'), ((x($_REQUEST,'password2')) ? trim($_REQUEST['password2']) : ""));
+		$password     = array('password', t('Choose a password'), ''); 
+		$password2    = array('password2', t('Please re-enter your password'), ''); 
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 		$name = array('name', t('Name or caption'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Examples: "Bob Jameson", "Lisa and her Horses", "Soccer", "Aviation Group"'));
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));

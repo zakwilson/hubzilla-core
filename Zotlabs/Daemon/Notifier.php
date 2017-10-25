@@ -59,14 +59,19 @@ require_once('include/bbcode.php');
  *
  * ZOT 
  *       permission_create      abook_id
+ *       permission_accept      abook_id
+ *       permission_reject      abook_id
  *       permission_update      abook_id
  *       refresh_all            channel_id
  *       purge_all              channel_id
  *       expire                 channel_id
  *       relay					item_id (item was relayed to owner, we will deliver it as owner)
+ *       single_activity        item_id (deliver to a singleton network from the appropriate clone)
+ *       single_mail            mail_id (deliver to a singleton network from the appropriate clone)
  *       location               channel_id
  *       request                channel_id            xchan_hash             message_id
  *       rating                 xlink_id
+ *       keychange              channel_id
  *
  */
 
@@ -103,7 +108,7 @@ class Notifier {
 		$normal_mode = true;
 		$packet_type = 'undefined';
 
-		if($cmd === 'mail') {
+		if($cmd === 'mail' || $cmd === 'single_mail') {
 			$normal_mode = false;
 			$mail = true;
 			$private = true;
@@ -144,7 +149,21 @@ class Notifier {
 			$packet_type = 'request';
 			$normal_mode = false;
 		}
-		elseif($cmd == 'permission_update' || $cmd == 'permission_create') {
+		elseif($cmd === 'keychange') {
+			$channel = channelx_by_n($item_id);
+			$r = q("select abook_xchan from abook where abook_channel = %d",
+				intval($item_id)
+			);
+			if($r) {
+				foreach($r as $rr) {
+					$recipients[] = $rr['abook_xchan'];
+				}
+			}
+			$private = false;
+			$packet_type = 'keychange';
+			$normal_mode = false;
+		}
+		elseif(in_array($cmd, [ 'permission_update', 'permission_reject', 'permission_accept', 'permission_create' ])) {
 			// Get the (single) recipient	
 			$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_id = %d and abook_self = 0",
 				intval($item_id)
@@ -156,8 +175,12 @@ class Notifier {
 				if($channel) {
 					$perm_update = array('sender' => $channel, 'recipient' => $r[0], 'success' => false, 'deliveries' => '');	
 
-					if($cmd == 'permission_create')
+					if($cmd === 'permission_create')
 						call_hooks('permissions_create',$perm_update);
+					elseif($cmd === 'permission_accept')
+						call_hooks('permissions_accept',$perm_update);
+					elseif($cmd === 'permission_reject')
+						call_hooks('permissions_reject',$perm_update);
 					else
 						call_hooks('permissions_update',$perm_update);
 
@@ -261,7 +284,7 @@ class Notifier {
 				$deleted_item = true;
 			}
 
-			if(intval($target_item['item_type']) != ITEM_TYPE_POST) {
+			if(! in_array(intval($target_item['item_type']), [ ITEM_TYPE_POST ] )) {
 				logger('notifier: target item not forwardable: type ' . $target_item['item_type'], LOGGER_DEBUG);
 				return;
 			}
@@ -410,7 +433,7 @@ class Notifier {
 
 		$env_recips = (($private) ? array() : null);
 
-		$details = q("select xchan_hash, xchan_instance_url, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . implode(',',$recipients) . ")");
+		$details = q("select xchan_hash, xchan_instance_url, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . protect_sprintf(implode(',',$recipients)) . ")");
 
 
 		$recip_list = array();
@@ -445,7 +468,7 @@ class Notifier {
 			'uplink'         => $uplink,
 			'cmd'            => $cmd,
 			'mail'           => $mail,
-			'single'         => false,
+			'single'         => (($cmd === 'single_mail' || $cmd === 'single_activity') ? true : false),
 			'location'       => $location,
 			'request'        => $request,
 			'normal_mode'    => $normal_mode,
@@ -477,7 +500,7 @@ class Notifier {
 		// Now we have collected recipients (except for external mentions, FIXME)
 		// Let's reduce this to a set of hubs; checking that the site is not dead.
 
-		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on site_url = hubloc_url where hubloc_hash in (" . implode(',',$recipients) . ") 
+		$r = q("select hubloc.*, site.site_crypto, site.site_flags from hubloc left join site on site_url = hubloc_url where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
 			and hubloc_error = 0 and hubloc_deleted = 0 and ( site_dead = 0 OR site_dead is null ) "
 		);		
  
@@ -518,14 +541,14 @@ class Notifier {
 
 			if($hub['hubloc_network'] == 'zot') {
 				if(! in_array($hub['hubloc_sitekey'],$keys)) {
-					$hublist[] = $hub['hubloc_host'];
+					$hublist[] = $hub['hubloc_host'] . ' ' . $hub['hubloc_network'];
 					$dhubs[]   = $hub;
 					$keys[]    = $hub['hubloc_sitekey'];
 				}
 			}
 			else {
 				if(! in_array($hub['hubloc_url'],$urls)) {
-					$hublist[] = $hub['hubloc_host'];
+					$hublist[] = $hub['hubloc_host'] . ' ' . $hub['hubloc_network'];
 					$dhubs[]   = $hub;
 					$urls[]    = $hub['hubloc_url'];
 				}
@@ -553,7 +576,7 @@ class Notifier {
 					'uplink'         => $uplink,
 					'cmd'            => $cmd,
 					'mail'           => $mail,
-					'single'         => false,
+					'single'         => (($cmd === 'single_mail' || $cmd === 'single_activity') ? true : false),
 					'location'       => $location,
 					'request'        => $request,
 					'normal_mode'    => $normal_mode,
@@ -572,11 +595,31 @@ class Notifier {
 
 			}
 
-			$hash = random_string();
+			// singleton deliveries by definition 'not got zot'.
+            // Single deliveries are other federated networks (plugins) and we're essentially
+			// delivering only to those that have this site url in their abook_instance
+			// and only from within a sync operation. This means if you post from a clone,
+			// and a connection is connected to one of your other clones; assuming that hub
+			// is running it will receive a sync packet. On receipt of this sync packet it
+			// will invoke a delivery to those connections which are connected to just that
+			// hub instance.
+
+			if($cmd === 'single_mail' || $cmd === 'single_activity') {
+				continue;
+			}
+
+			// default: zot protocol
+
+			$hash   = random_string();
 			$packet = null;
+			$pmsg   = '';
 
 			if($packet_type === 'refresh' || $packet_type === 'purge') {
 				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+			}
+			if($packet_type === 'keychange') {
+				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				$pmsg = get_pconfig($channel['channel_id'],'system','keychange');
 			}
 			elseif($packet_type === 'request') {
 				$env = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
@@ -591,7 +634,8 @@ class Notifier {
 					'account_id' => $channel['channel_account_id'],
 					'channel_id' => $channel['channel_id'],
 					'posturl'    => $hub['hubloc_callback'],
-					'notify'     => $packet
+					'notify'     => $packet,
+					'msg'        => (($pmsg) ? json_encode($pmsg) : '')
 				));
 			}
 			else {

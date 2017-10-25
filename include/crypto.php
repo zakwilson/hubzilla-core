@@ -148,6 +148,7 @@ function other_encapsulate($data,$pubkey,$alg) {
 		// compromised by state actors and evidence is mounting that this has
 		// already happened.   
 
+		$result = [ 'encrypted' => true ];
 		$key = openssl_random_pseudo_bytes(256);
 		$iv  = openssl_random_pseudo_bytes(256);
 		$result['data'] = base64url_encode($fn($data,$key,$iv),true);
@@ -185,11 +186,24 @@ function crypto_methods() {
 }
 
 
+function signing_methods() {
+
+
+	$r = [ 'sha256' ];
+	call_hooks('signing_methods',$r);
+	return $r;
+
+}
+
+
 function aes_encapsulate($data,$pubkey) {
 	if(! $pubkey)
 		logger('aes_encapsulate: no key. data: ' . $data);
 	$key = openssl_random_pseudo_bytes(32);
 	$iv  = openssl_random_pseudo_bytes(16);
+
+	$result = [ 'encrypted' => true ];
+
 	$result['data'] = base64url_encode(AES256CBC_encrypt($data,$key,$iv),true);
 	// log the offending call so we can track it down
 	if(! openssl_public_encrypt($key,$k,$pubkey)) {

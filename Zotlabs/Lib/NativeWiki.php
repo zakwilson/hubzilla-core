@@ -18,11 +18,18 @@ class NativeWiki {
 
 		if($wikis) {
 			foreach($wikis as &$w) {
+
+				$w['json_allow_cid']  = acl2json($w['allow_cid']);
+				$w['json_allow_gid']  = acl2json($w['allow_gid']);
+				$w['json_deny_cid']   = acl2json($w['deny_cid']);
+				$w['json_deny_gid']   = acl2json($w['deny_gid']);
+
 				$w['rawName']  = get_iconfig($w, 'wiki', 'rawName');
 				$w['htmlName'] = escape_tags($w['rawName']);
 				$w['urlName']  = urlencode(urlencode($w['rawName']));
 				$w['mimeType'] = get_iconfig($w, 'wiki', 'mimeType');
-				$w['lock']     = (($w['item_private'] || $w['allow_cid'] || $w['allow_gid'] || $w['deny_cid'] || $w['deny_gid']) ? true : false);
+				$w['typelock'] = get_iconfig($w, 'wiki', 'typelock');
+				$w['lockstate']     = (($w['allow_cid'] || $w['allow_gid'] || $w['deny_cid'] || $w['deny_gid']) ? 'lock' : 'unlock');
 			}
 		}
 		// TODO: query db for wikis the observer can access. Return with two lists, for read and write access
@@ -84,7 +91,9 @@ class NativeWiki {
 		if(! set_iconfig($arr, 'wiki', 'mimeType', $wiki['mimeType'], true)) {
 			return array('item' => null, 'success' => false);
 		}
-	
+
+		set_iconfig($arr,'wiki','typelock',$wiki['typelock'],true);
+
 		$post = item_store($arr);
 
 		$item_id = $post['item_id'];
@@ -92,6 +101,61 @@ class NativeWiki {
 		if($item_id) {
 			\Zotlabs\Daemon\Master::Summon(array('Notifier', 'activity', $item_id));
 			return array('item' => $post['item'], 'item_id' => $item_id, 'success' => true);
+		}
+		else {
+			return array('item' => null, 'success' => false);
+		}
+	}
+
+	function update_wiki($channel_id, $observer_hash, $arr, $acl) {
+
+		$w = self::get_wiki($channel_id, $observer_hash, $arr['resource_id']);
+		$item = $w['wiki'];
+
+		if(! $item) {
+			return array('item' => null, 'success' => false);
+		}
+
+		$x = $acl->get();
+
+		$item['allow_cid']    = $x['allow_cid'];
+		$item['allow_gid']    = $x['allow_gid'];
+		$item['deny_cid']     = $x['deny_cid'];
+		$item['deny_gid']     = $x['deny_gid'];
+		$item['item_private'] = intval($acl->is_private());
+
+		$update_title = false;
+
+		if($item['title'] !== $arr['updateRawName']) {
+			$update_title = true;
+			$item['title'] = $arr['updateRawName'];
+		}
+
+		$update = item_store_update($item);
+
+		$item_id = $update['item_id'];
+
+		// update acl for any existing wiki pages
+
+		q("update item set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s', item_private = %d where resource_type = 'nwikipage' and resource_id = '%s'",
+			dbesc($item['allow_cid']), 
+			dbesc($item['allow_gid']), 
+			dbesc($item['deny_cid']), 
+			dbesc($item['deny_gid']), 
+			dbesc($item['item_private']), 
+			dbesc($arr['resource_id'])
+		); 
+
+
+		if($update['item_id']) {
+			info( t('Wiki updated successfully'));
+			if($update_title) {
+				// Update the wiki name information using iconfig.
+				if(! set_iconfig($update['item_id'], 'wiki', 'rawName', $arr['updateRawName'], true)) {
+					return array('item' => null, 'success' => false);
+				}
+			}
+			return array('item' => $update['item'], 'item_id' => $update['item_id'], 'success' => $update['success']);
 		}
 		else {
 			return array('item' => null, 'success' => false);
@@ -108,6 +172,12 @@ class NativeWiki {
 			dbesc($resource_id)
 		);
 		if($r) {
+			$q = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s'",
+				dbesc($r[0]['resource_type'])
+			);
+			if($q) {
+				$r = array_merge($r,$q);
+			}
 			xchan_query($r);
 			$sync_item = fetch_post_tags($r);
 			build_sync_packet($uid,array('wiki' => array(encode_item($sync_item[0],true))));
@@ -150,13 +220,15 @@ class NativeWiki {
 			// Get wiki metadata
 			$rawName  = get_iconfig($w, 'wiki', 'rawName');
 			$mimeType = get_iconfig($w, 'wiki', 'mimeType');
+			$typelock = get_iconfig($w, 'wiki', 'typelock');
 
 			return array(
-				'wiki' => $w,
-				'rawName' => $rawName,
+				'wiki'     => $w,
+				'rawName'  => $rawName,
 				'htmlName' => escape_tags($rawName),
-				'urlName' => urlencode(urlencode($rawName)),
-				'mimeType' => $mimeType
+				'urlName'  => urlencode(urlencode($rawName)),
+				'mimeType' => $mimeType,
+				'typelock' => $typelock
 			);
 		}
 	}

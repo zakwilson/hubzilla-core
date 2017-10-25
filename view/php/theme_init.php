@@ -15,15 +15,13 @@ head_add_js('jquery.js');
 head_add_js('/library/justifiedGallery/jquery.justifiedGallery.min.js');
 head_add_js('/library/sprintf.js/dist/sprintf.min.js');
 
-head_add_js('spin.js');
-head_add_js('jquery.spin.js');
 head_add_js('jquery.textinputs.js');
 head_add_js('autocomplete.js');
 head_add_js('/library/jquery-textcomplete/jquery.textcomplete.js');
 
 head_add_js('/library/jquery.timeago.js');
 head_add_js('/library/readmore.js/readmore.js');
-head_add_js('/library/sticky-kit/sticky-kit.js');
+head_add_js('/library/sticky-kit/sticky-kit.min.js');
 head_add_js('/library/jgrowl/jquery.jgrowl_minimized.js');
 head_add_js('/library/cryptojs/components/core-min.js');
 head_add_js('/library/cryptojs/rollups/aes.js');

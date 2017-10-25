@@ -169,6 +169,14 @@ class Apps {
 			$requires = explode(',',$ret['requires']);
 			foreach($requires as $require) {
 				$require = trim(strtolower($require));
+				$config = false;
+
+				if(substr($require, 0, 7) == 'config:') {
+					$config = true;
+					$require = ltrim($require, 'config:');
+					$require = explode('=', $require);
+				}
+
 				switch($require) {
 					case 'nologin':
 						if(local_channel())
@@ -191,10 +199,13 @@ class Apps {
 							unset($ret);
 						break;
 					default:
-						if(! (local_channel() && feature_enabled(local_channel(),$require)))
+						if($config)
+							$unset = ((get_config('system', $require[0]) == $require[1]) ? false : true);
+						else
+							$unset = ((local_channel() && feature_enabled(local_channel(),$require)) ? false : true);
+						if($unset)
 							unset($ret);
 						break;
-
 				}
 			}
 		}
@@ -210,7 +221,8 @@ class Apps {
 	static public function translate_system_apps(&$arr) {
 		$apps = array(
 			'Apps' => t('Apps'),
-			'Site Admin' => t('Site Admin'),
+			'Cards' => t('Cards'),
+			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
 			'View Bookmarks' => t('View Bookmarks'),
 			'My Chatrooms' => t('My Chatrooms'),
@@ -305,8 +317,17 @@ class Apps {
 
 			if($k === 'requires') {
 				$requires = explode(',',$v);
+
 				foreach($requires as $require) {
 					$require = trim(strtolower($require));
+					$config = false;
+
+					if(substr($require, 0, 7) == 'config:') {
+						$config = true;
+						$require = ltrim($require, 'config:');
+						$require = explode('=', $require);
+					}
+
 					switch($require) {
 						case 'nologin':
 							if(local_channel())
@@ -330,10 +351,13 @@ class Apps {
 								return '';
 							break;
 						default:
-							if(! (local_channel() && feature_enabled(local_channel(),$require)))
+							if($config)
+								$unset = ((get_config('system', $require[0]) == $require[1]) ? false : true);
+							else
+								$unset = ((local_channel() && feature_enabled(local_channel(),$require)) ? false : true);
+							if($unset)
 								return '';
 							break;
-
 					}
 				}
 			}
@@ -358,6 +382,13 @@ class Apps {
 
 		$install_action = (($installed) ? t('Update') : t('Install'));
 		$icon = ((strpos($papp['photo'],'icon:') === 0) ? substr($papp['photo'],5) : '');
+
+		if($mode === 'navbar') {
+			return replace_macros(get_markup_template('app_nav.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+			));
+		}
 
 		return replace_macros(get_markup_template('app.tpl'),array(
 			'$app' => $papp,

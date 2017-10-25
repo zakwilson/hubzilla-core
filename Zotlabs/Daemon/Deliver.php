@@ -53,6 +53,9 @@ class Deliver {
 						remove_queue_item($r[0]['outq_hash']);
 
 						if($dresult && is_array($dresult)) {
+
+							// delivery reports for local deliveries do not require encryption
+
 							foreach($dresult as $xx) {
 								if(is_array($xx) && array_key_exists('message_id',$xx)) {
 									if(delivery_report_is_storable($xx)) {

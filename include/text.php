@@ -651,7 +651,7 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
-	$s = datetime_convert() . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
+	$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
 	$pluginfo = array('filename' => $logfile, 'loglevel' => $level, 'message' => $s,'priority' => $priority, 'logged' => false);
 
 	if(! (App::$module == 'setup'))
@@ -679,7 +679,7 @@ function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
 		$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 		$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
-		$s = datetime_convert() . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
+		$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
 		@file_put_contents(BTLOGGER_DEBUG_FILE, $s, FILE_APPEND);
 	}
 
@@ -750,7 +750,7 @@ function dlogger($msg, $level = 0) {
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
 
-	@file_put_contents($logfile, datetime_convert() . ':' . session_id() . ' ' . $where . $msg . PHP_EOL, FILE_APPEND);
+	@file_put_contents($logfile, datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . session_id() . ' ' . $where . $msg . PHP_EOL, FILE_APPEND);
 }
 
 
@@ -761,9 +761,17 @@ function profiler($t1,$t2,$label) {
 
 
 function activity_match($haystack,$needle) {
-	if(($haystack === $needle) || ((basename($needle) === $haystack) && strstr($needle,NAMESPACE_ACTIVITY_SCHEMA)))
-		return true;
 
+	if(! is_array($needle))
+		$needle = [ $needle ];
+
+	if($needle) {
+		foreach($needle as $n) {
+			if(($haystack === $n) || (strtolower(basename($n)) === strtolower(basename($haystack)))) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 
@@ -794,7 +802,7 @@ function get_tags($s) {
 
 	// match any double quoted tags
 
-	if(preg_match_all('/([@#]\&quot\;.*?\&quot\;)/',$s,$match)) {
+	if(preg_match_all('/([@#!]\&quot\;.*?\&quot\;)/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
 		}
@@ -823,7 +831,7 @@ function get_tags($s) {
 	// Otherwise pull out single word tags. These can be @nickname, @first_last
 	// and #hash tags.
 
-	if(preg_match_all('/(?<![a-zA-Z0-9=\/\?\;])([@#][^ \x0D\x0A,;:?\[]+)/',$s,$match)) {
+	if(preg_match_all('/(?<![a-zA-Z0-9=\/\?\;])([@#\!][^ \x0D\x0A,;:?\[]+)/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			if(substr($mtch,-1,1) === '.')
 				$mtch = substr($mtch,0,-1);
@@ -987,7 +995,7 @@ function chanlink_cid($d) {
 
 function magiclink_url($observer,$myaddr,$url) {
 	return (($observer)
-		? z_root() . '/magic?f=&dest=' . $url . '&addr=' . $myaddr
+		? z_root() . '/magic?f=&owa=1&dest=' . $url . '&addr=' . $myaddr
 		: $url
 	);
 }
@@ -1389,7 +1397,7 @@ function theme_attachments(&$item) {
 			if(is_foreigner($item['author_xchan']))
 				$url = $r['href'];
 			else
-				$url = z_root() . '/magic?f=&hash=' . $item['author_xchan'] . '&dest=' . $r['href'] . '/' . $r['revision'];
+				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&dest=' . $r['href'] . '/' . $r['revision'];
 
 			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
 			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
@@ -1786,28 +1794,28 @@ function layout_select($channel_id, $current = '') {
 }
 
 
-function mimetype_select($channel_id, $current = 'text/bbcode') {
+function mimetype_select($channel_id, $current = 'text/bbcode', $choices = null, $element = 'mimetype') {
 
-	$x = array(
-		'text/bbcode',
-		'text/html',
-		'text/markdown',
-		'text/plain',
-		'application/x-pdl'
-	);
+	$x = (($choices) ? $choices : [
+		'text/bbcode'       => t('BBcode'),
+		'text/html'         => t('HTML'),
+		'text/markdown'     => t('Markdown'),
+		'text/plain'        => t('Text'),
+		'application/x-pdl' => t('Comanche Layout')
+	]);
 
 
 	if((App::$is_sys) || (channel_codeallowed($channel_id) && $channel_id == local_channel())){
-		$x[] = 'application/x-php';
+		$x['application/x-php'] = t('PHP');
 	}
 
-	foreach($x as $y) {
+	foreach($x as $y => $z) {
 		$selected = (($y == $current) ? ' selected="selected" ' : '');
-		$options .= '<option name="' . $y . '"' . $selected . '>' . $y . '</option>';
+		$options .= '<option value="' . $y . '"' . $selected . '>' . $z . '</option>';
 	}
 
 	$o = replace_macros(get_markup_template('field_select_raw.tpl'), array(
-		'$field'	=> array('mimetype', t('Page content type'), $selected, '', $options)
+		'$field'	=> array( $element, t('Page content type'), $selected, '', $options)
 	));
 
 	return $o;
@@ -1984,14 +1992,14 @@ function is_a_date_arg($s) {
 }
 
 function legal_webbie($s) {
-	if(! strlen($s))
+	if(! $s)
 		return '';
 
-	// WARNING: This regex will not work in a federated environment.
+	// WARNING: This regex may not work in a federated environment.
 	// You will probably want something like 
 	// preg_replace('/([^a-z0-9\_])/','',strtolower($s));
 
-	$r = preg_replace('/([^a-z0-9\-\_\.])/','',strtolower($s));
+	$r = preg_replace('/([^a-z0-9\-\_])/','',strtolower($s));
 
 	$x = [ 'input' => $s, 'output' => $r ];
 	call_hooks('legal_webbie',$x);
@@ -2003,7 +2011,7 @@ function legal_webbie_text() {
 
 	// WARNING: This will not work in a federated environment.
 
-	$s = t('a-z, 0-9, -, _, and . only');
+	$s = t('a-z, 0-9, -, and _ only');
 
 	$x = [ 'text' => $s ];
 	call_hooks('legal_webbie_text',$x);
@@ -2383,8 +2391,9 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 	$r = null;
 	$match = array();
 
-	$termtype = ((strpos($tag,'#') === 0)   ? TERM_HASHTAG : TERM_UNKNOWN);
-	$termtype = ((strpos($tag,'@') === 0)   ? TERM_MENTION : $termtype);
+	$termtype = ((strpos($tag,'#') === 0)   ? TERM_HASHTAG  : TERM_UNKNOWN);
+	$termtype = ((strpos($tag,'@') === 0)   ? TERM_MENTION  : $termtype);
+	$termtype = ((strpos($tag,'!') === 0)   ? TERM_FORUM    : $termtype);
 	$termtype = ((strpos($tag,'#^[') === 0) ? TERM_BOOKMARK : $termtype);
 
 	//is it a hash tag?
@@ -2401,16 +2410,9 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 			//...do nothing
 			return $replaced;
 		}
-		if($tag == '#getzot') {
-			$basetag = 'getzot';
-			$url = 'http://hubzilla.org';
-			$newtag = '#[zrl=' . $url . ']' . $basetag . '[/zrl]';
-			$body = str_replace($tag,$newtag,$body);
-			$replaced = true;
-		}
 		if(! $replaced) {
 
-			//base tag has the tags name only
+			// base tag has the tags name only
 
 			if((substr($tag,0,7) === '#&quot;') && (substr($tag,-6,6) === '&quot;')) {
 				$basetag = substr($tag,7);
@@ -2448,10 +2450,16 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 
 	//is it a person tag?
 
-	if(strpos($tag,'@') === 0) {
+	$grouptag = false;
+
+	if(strpos($tag,'!') === 0) {
+		$grouptag = true;
+	}
+
+	if(strpos($tag,'@') === 0 || $grouptag) {
 
 		// The @! tag will alter permissions
-		$exclusive = ((strpos($tag,'!') === 1 && (! $diaspora)) ? true : false);
+		$exclusive = (((! $grouptag) && (strpos($tag,'!') === 1) && (! $diaspora)) ? true : false);
 
 		//is it already replaced?
 		if(strpos($tag,'[zrl='))
@@ -2492,7 +2500,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 		if(($t2) && (! $diaspora)) {
 			//get the id
 
-			$tagcid = substr($newname,$t2 + 1);
+			$tagcid = urldecode(substr($newname,$t2 + 1));
 
 			if(strrpos($tagcid,' '))
 				$tagcid = substr($tagcid,0,strrpos($tagcid,' '));
@@ -2623,8 +2631,15 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 			//create profile link
 			$profile = str_replace(',','%2c',$profile);
 			$url = $profile;
-			$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. (($forum &&  ! $trailing_plus_name) ? '+' : '') . '[/zrl]';
-			$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+			if($grouptag) {
+				$newtag = '!' . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+				$body = str_replace('!' . $name, $newtag, $body);
+			}
+			else {
+				$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. (($forum &&  ! $trailing_plus_name) ? '+' : '') . '[/zrl]';
+				$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+			}
+
 			//append tag to str_tags
 			if(! stristr($str_tags,$newtag)) {
 				if(strlen($str_tags))
@@ -2831,7 +2846,7 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
  */
 function sanitise_acl(&$item) {
 	if (strlen($item))
-		$item = '<' . notags(trim($item)) . '>';
+		$item = '<' . notags(trim(urldecode($item))) . '>';
 	else
 		unset($item);
 }
@@ -2973,6 +2988,9 @@ function flatten_array_recursive($arr) {
  * @param string $s Text to highlight
  * @param string $lang Which language should be highlighted
  * @return string
+ *     Important: The returned text has the text pattern 'http' translated to '%eY9-!' which should be converted back
+ * after further processing. This was done to prevent oembed links from occurring inside code blocks. 
+ * See include/bbcode.php
  */
 function text_highlight($s, $lang) {
 
@@ -2992,6 +3010,8 @@ function text_highlight($s, $lang) {
 		$o = $arr['text'];
 	else
 		$o = $s;
+
+	$o = str_replace('http','%eY9-!',$o);
 
 	return('<code>' . $o . '</code>');
 }
@@ -3135,4 +3155,10 @@ function ellipsify($s,$maxlen) {
 		return $s;
 
 	return mb_substr($s,0,$maxlen / 2) . '...' . mb_substr($s,mb_strlen($s) - ($maxlen / 2));
+}
+
+function purify_filename($s) {
+	if(($s[0] === '.') || strpos($s,'/') !== false)
+		return '';
+	return $s;
 }

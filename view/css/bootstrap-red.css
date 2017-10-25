@@ -7,6 +7,10 @@ nav .badge {
 	font-size: 0.75rem;
 }
 
+nav .dropdown-menu {
+	min-width: 16rem;
+}
+
 @media screen and (min-width: 767px) {
 	nav .badge {
 		top: 0px;
@@ -14,6 +18,7 @@ nav .badge {
 		line-height: 0.75;
 	}
 }
+
 
 @media screen and (max-width: 767px) {
 	.navbar {
@@ -69,10 +74,6 @@ nav .dropdown-menu {
 
 .wall-item-tools .dropdown-menu {
 	min-width: auto;
-}
-
-code {
-	white-space: normal;
 }
 
 label {

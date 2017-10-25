@@ -6,7 +6,7 @@ require_once('include/security.php');
 require_once('include/menu.php');
 
 
-function nav() {
+function nav($template = 'default') {
 
 	/**
 	 *
@@ -62,7 +62,6 @@ EOT;
 	if($banner === false) 
 		$banner = get_config('system','sitename');
 
-	//the notifications template is in hdr.tpl
 	App::$page['header'] .= replace_macros(get_markup_template('hdr.tpl'), array(
 		//we could additionally use this to display important system notifications e.g. for updates
 	));
@@ -92,34 +91,77 @@ EOT;
 		$nav['loginmenu'][] = Array('rmagic',t('Remote authentication'),'',t('Click to authenticate to your home hub'),'rmagic_nav_btn');
 	}
 
-
-
 	if(local_channel()) {
+
+
+
+		$nav['network'] = array('network', t('Activity'), "", t('Network Activity'),'network_nav_btn');
+		$nav['network']['all'] = [ 'network', t('View your network activity'), '','' ];
+		$nav['network']['mark'] = array('', t('Mark all activity notifications seen'), '','');
+
+		$nav['home'] = array('channel/' . $channel['channel_address'], t('Channel Home'), "", t('Channel home'),'home_nav_btn');
+		$nav['home']['all'] = [ 'channel/' . $channel['channel_address'], t('View your channel home'), '' , '' ];
+		$nav['home']['mark'] = array('', t('Mark all channel notifications seen'), '','');
+
+
+		$nav['intros'] = array('connections/ifpending',	t('Connections'), "", t('Connections'),'connections_nav_btn');
+		if(is_site_admin())
+			$nav['registrations'] = array('admin/accounts',	t('Registrations'), "", t('Registrations'),'registrations_nav_btn');
+
+
+		$nav['notifications'] = array('notifications/system',	t('Notices'), "", t('Notifications'),'notifications_nav_btn');
+		$nav['notifications']['all']=array('notifications/system', t('View all notifications'), "", "");
+		$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
+
+		$nav['messages'] = array('mail/combined', t('Mail'), "", t('Private mail'),'mail_nav_btn');
+		$nav['messages']['all']=array('mail/combined', t('View your private messages'), "", "");
+		$nav['messages']['mark'] = array('', t('Mark all private messages seen'), '','');
+		$nav['messages']['inbox'] = array('mail/inbox', t('Inbox'), "", t('Inbox'));
+		$nav['messages']['outbox']= array('mail/outbox', t('Outbox'), "", t('Outbox'));
+		$nav['messages']['new'] = array('mail/new', t('New Message'), "", t('New Message'));
+
+
+		$nav['all_events'] = array('events', t('Events'), "", t('Event Calendar'),'events_nav_btn');
+		$nav['all_events']['all']=array('events', t('View events'), "", "");
+		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
+
+ 		if(! $_SESSION['delegate']) {
+ 			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
+ 		}
+
+ 		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
+
+	
 		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select'))
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = ['logout',t('Logout'), "", t('End this session'),'logout_nav_btn'];
 		
 		// user menu
-		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), ((\App::$nav_sel['active'] == 'Profile') ? 'active' : ''), t('Your profile page'),'profile_nav_btn'];
+		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), ((\App::$nav_sel['name'] == 'Profile') ? 'active' : ''), t('Your profile page'),'profile_nav_btn'];
 
 		if(feature_enabled(local_channel(),'multi_profiles'))
-			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'), ((\App::$nav_sel['active'] == 'Profiles') ? 'active' : '') , t('Manage/Edit profiles'),'profiles_nav_btn'];
+			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'), ((\App::$nav_sel['name'] == 'Profiles') ? 'active' : '') , t('Manage/Edit profiles'),'profiles_nav_btn'];
 		else
-			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'), ((\App::$nav_sel['active'] == 'Profiles') ? 'active' : ''), t('Edit your profile'),'profiles_nav_btn'];
+			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'), ((\App::$nav_sel['name'] == 'Profiles') ? 'active' : ''), t('Edit your profile'),'profiles_nav_btn'];
 
 	}
 	else {
 		if(! get_account_id())  {
-			$nav['login'] = login(true,'main-login',false,false);
-			$nav['loginmenu'][] = ['login',t('Login'),'',t('Sign in'),'login_nav_btn'];
-			App::$page['content'] .= replace_macros(get_markup_template('nav_login.tpl'),
-				[ 
-					'$nav' => $nav,
-					'userinfo' => $userinfo
-				]
-			);
-
+			if(App::$module === 'channel') {
+				$nav['login'] = login(true,'main-login',false,false);
+				$nav['loginmenu'][] = ['login',t('Login'),'',t('Sign in'),''];
+			}
+			else {
+				$nav['login'] = login(true,'main-login',false,false);
+				$nav['loginmenu'][] = ['login',t('Login'),'',t('Sign in'),'login_nav_btn'];
+				App::$page['content'] .= replace_macros(get_markup_template('nav_login.tpl'),
+					[ 
+						'$nav' => $nav,
+						'userinfo' => $userinfo
+					]
+				);
+			}
 		}
 		else
 			$nav['alogout'] = ['logout',t('Logout'), "", t('End this session'),'logout_nav_btn'];
@@ -169,47 +211,16 @@ EOT;
 	 */
 
 	if(local_channel()) {
-
-		$nav['network'] = array('network', t('Grid'), "", t('Your grid'),'network_nav_btn');
-		$nav['network']['all'] = [ 'network', t('View your network/grid'), '','' ];
-		$nav['network']['mark'] = array('', t('Mark all grid notifications seen'), '','');
-
-		$nav['home'] = array('channel/' . $channel['channel_address'], t('Channel Home'), "", t('Channel home'),'home_nav_btn');
-		$nav['home']['all'] = [ 'channel/' . $channel['channel_address'], t('View your channel home'), '' , '' ];
-		$nav['home']['mark'] = array('', t('Mark all channel notifications seen'), '','');
-
-
-		$nav['intros'] = array('connections/ifpending',	t('Connections'), "", t('Connections'),'connections_nav_btn');
-
-
-		$nav['notifications'] = array('notifications/system',	t('Notices'), "", t('Notifications'),'notifications_nav_btn');
-		$nav['notifications']['all']=array('notifications/system', t('View all notifications'), "", "");
-		$nav['notifications']['mark'] = array('', t('Mark all system notifications seen'), '','');
-
-		$nav['messages'] = array('mail/combined', t('Mail'), "", t('Private mail'),'mail_nav_btn');
-		$nav['messages']['all']=array('mail/combined', t('View your private messages'), "", "");
-		$nav['messages']['mark'] = array('', t('Mark all private messages seen'), '','');
-		$nav['messages']['inbox'] = array('mail/inbox', t('Inbox'), "", t('Inbox'));
-		$nav['messages']['outbox']= array('mail/outbox', t('Outbox'), "", t('Outbox'));
-		$nav['messages']['new'] = array('mail/new', t('New Message'), "", t('New Message'));
-
-
-		$nav['all_events'] = array('events', t('Events'), "", t('Event Calendar'),'events_nav_btn');
-		$nav['all_events']['all']=array('events', t('View events'), "", "");
-		$nav['all_events']['mark'] = array('', t('Mark all events seen'), '','');
-
 		if(! $_SESSION['delegate']) {
 			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage Your Channels'),'manage_nav_btn');
 		}
-
 		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
-
 	}
 
 	/**
 	 * Admin page
 	 */
-	 if (is_site_admin()){
+	 if (is_site_admin()) {
 		 $nav['admin'] = array('admin/', t('Admin'), "", t('Site Setup and Configuration'),'admin_nav_btn');
 	 }
 
@@ -220,6 +231,17 @@ EOT;
 	// Not sure the best place to put this on the page. So I'm implementing it but leaving it 
 	// turned off until somebody discovers this and figures out a good location for it. 
 	$powered_by = '';
+
+	if(App::$profile_uid && App::$nav_sel['raw_name']) {
+		$active_app = q("SELECT app_url FROM app WHERE app_channel = %d AND app_name = '%s' LIMIT 1",
+			intval(App::$profile_uid),
+			dbesc(App::$nav_sel['raw_name'])
+		);
+	
+		if($active_app) {
+			$url = $active_app[0]['app_url'];
+		}
+	}
 
 	//app bin
 	if($is_owner) {
@@ -246,16 +268,33 @@ EOT;
 	$syslist = Zlib\Apps::app_order(local_channel(),$syslist);
 
 	foreach($syslist as $app) {
-		if(\App::$nav_sel['active'] == $app['name'])
+		if(\App::$nav_sel['name'] == $app['name'])
 			$app['active'] = true;
 
-		if($is_owner)
+		if($is_owner) {
 			$nav_apps[] = Zlib\Apps::app_render($app,'nav');
-		elseif(! $is_owner && strpos($app['requires'], 'local_channel') === false)
+			if(strpos($app['categories'],'navbar_' . $template)) {
+				$navbar_apps[] = Zlib\Apps::app_render($app,'navbar');
+			}
+		}
+		elseif(! $is_owner && strpos($app['requires'], 'local_channel') === false) {
 			$nav_apps[] = Zlib\Apps::app_render($app,'nav');
+			if(strpos($app['categories'],'navbar_' . $template)) {
+				$navbar_apps[] = Zlib\Apps::app_render($app,'navbar');
+			}
+		}
 	}
 
-	$tpl = get_markup_template('nav.tpl');
+	$c = theme_include('navbar_' . purify_filename($template) . '.css');
+	$tpl = get_markup_template('navbar_' . purify_filename($template) . '.tpl');
+
+	if($c && $tpl) {
+		head_add_css('navbar_' . $template . '.css');
+	}
+
+	if(! $tpl) {
+		$tpl = get_markup_template('navbar_default.tpl');
+	}
 
 	App::$page['nav'] .= replace_macros($tpl, array(
 		'$baseurl' => z_root(),
@@ -267,15 +306,19 @@ EOT;
 		'$userinfo' => $x['usermenu'],
 		'$localuser' => local_channel(),
 		'$is_owner' => $is_owner,
-		'$sel' => 	App::$nav_sel,
+		'$sel' => App::$nav_sel,
 		'$powered_by' => $powered_by,
 		'$help' => t('@name, #tag, ?doc, content'),
 		'$pleasewait' => t('Please wait...'),
 		'$nav_apps' => $nav_apps,
+		'$navbar_apps' => $navbar_apps,
+		'$channel_menu' => get_config('system','channel_menu'),
+		'$channel_thumb' => ((App::$profile) ? App::$profile['thumb'] : ''),
 		'$channel_apps' => $channel_apps,
 		'$addapps' => t('Add Apps'),
 		'$orderapps' => t('Arrange Apps'),
-		'$sysapps_toggle' => t('Toggle System Apps')
+		'$sysapps_toggle' => t('Toggle System Apps'),
+		'$url' => (($url) ? $url : App::$cmd)
 	));
 
 	if(x($_SESSION, 'reload_avatar') && $observer) {
@@ -298,7 +341,10 @@ EOT;
  * 
  */
 function nav_set_selected($item){
-	App::$nav_sel['active'] = $item;
+	App::$nav_sel['raw_name'] = $item;
+	$item = ['name' => $item];
+	Zlib\Apps::translate_system_apps($item);
+	App::$nav_sel['name'] = $item['name'];
 }
 
 
@@ -428,6 +474,18 @@ function channel_apps($is_owner = false, $nickname = null) {
 		];
 	}
 
+	if($p['view_pages'] && feature_enabled($uid,'cards')) {
+		$tabs[] = [
+			'label' => t('Cards'),
+			'url'   => z_root() . '/cards/' . $nickname ,
+			'sel'   => ((argv(0) == 'cards') ? 'active' : ''),
+			'title' => t('View Cards'),
+			'id'    => 'cards-tab',
+			'icon'  => 'list'
+		];
+	}
+
+
 	if($has_webpages && feature_enabled($uid,'webpages')) {
 		$tabs[] = [
 			'label' => t('Webpages'),
@@ -461,7 +519,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 		[
 			'$tabs'  => $arr['tabs'],
 			'$name'  => App::$profile['channel_name'],
-			'$thumb' => App::$profile['thumb']
+			'$thumb' => App::$profile['thumb'],
 		]
 	);
 }

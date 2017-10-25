@@ -114,9 +114,9 @@ function atoken_xchan($atoken) {
 			'atoken_id' => $atoken['atoken_id'],
 			'xchan_hash' =>  substr($c['channel_hash'],0,16) . '.' . $atoken['atoken_name'],
 			'xchan_name' => $atoken['atoken_name'],
-			'xchan_addr' => t('guest:') . $atoken['atoken_name'] . '@' . \App::get_hostname(),
+			'xchan_addr' => 'guest:' . $atoken['atoken_name'] . '@' . \App::get_hostname(),
 			'xchan_network' => 'unknown',
-			'xchan_url' => z_root(),
+			'xchan_url' => z_root() . '/guest/' . substr($c['channel_hash'],0,16) . '.' . $atoken['atoken_name'],
 			'xchan_hidden' => 1,
 			'xchan_photo_mimetype' => 'image/jpeg',
 			'xchan_photo_l' => get_default_profile_photo(300),
@@ -640,7 +640,7 @@ function stream_perms_xchans($perms = NULL ) {
 	if(local_channel())
 		$ret[] = get_observer_hash();
 
-	$x = q("select uid from pconfig where cat = 'perm_limits' and k = 'view_stream' ");
+	$x = q("select uid, v from pconfig where cat = 'perm_limits' and k = 'view_stream' ");
 	if($x) {
 		$y = [];
 		foreach($x as $xv) {
@@ -650,6 +650,7 @@ function stream_perms_xchans($perms = NULL ) {
 		}
 		if($y) {		
 			$ids = ids_to_querystr($y,'uid');
+
 			$r = q("select channel_hash from channel where channel_id in ( $ids ) and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 ",
 				intval(PAGE_ADULT|PAGE_CENSORED)
 			);

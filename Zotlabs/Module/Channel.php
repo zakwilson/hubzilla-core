@@ -92,11 +92,6 @@ class Channel extends \Zotlabs\Web\Controller {
 			// Ensure we've got a profile owner if updating.
 			\App::$profile['profile_uid'] = \App::$profile_uid = $update;
 		}
-		else {
-			if(\App::$profile['profile_uid'] == local_channel()) {
-				nav_set_selected(t('Channel Home'));
-			}
-		}
 
 		$is_owner = (((local_channel()) && (\App::$profile['profile_uid'] == local_channel())) ? true : false);
 
@@ -119,11 +114,13 @@ class Channel extends \Zotlabs\Web\Controller {
 
 		if(! $update) {
 
+			nav_set_selected('Channel Home');
+
 			$static = channel_manual_conv_update(\App::$profile['profile_uid']);
 
 			//$o .= profile_tabs($a, $is_owner, \App::$profile['channel_address']);
 
-			$o .= common_friends_visitor_widget(\App::$profile['profile_uid']);
+			// $o .= common_friends_visitor_widget(\App::$profile['profile_uid']);
 
 			if($channel && $is_owner) {
 				$channel_acl = array(
@@ -169,6 +166,7 @@ class Channel extends \Zotlabs\Web\Controller {
 		 */
 
 		$item_normal = item_normal();
+		$item_normal_update = item_normal_update();
 		$sql_extra = item_permissions_sql(\App::$profile['profile_uid']);
 
 		if(get_pconfig(\App::$profile['profile_uid'],'system','channel_list_mode') && (! $mid))
@@ -180,7 +178,12 @@ class Channel extends \Zotlabs\Web\Controller {
 
 		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
 
-		\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string) . '" title="oembed" />' . "\r\n";
+		head_add_link([ 
+			'rel'   => 'alternate',
+			'type'  => 'application/json+oembed',
+			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string),
+			'title' => 'oembed'
+		]);
 
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
@@ -188,12 +191,12 @@ class Channel extends \Zotlabs\Web\Controller {
 			$simple_update = '';
 
 		if($static && $simple_update)
-			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
+			$simple_update .= " and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 		if(($update) && (! $load)) {
 
 			if($mid) {
-				$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
+				$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update $sql_extra limit 1",
 					dbesc($mid . '%'),
 					intval(\App::$profile['profile_uid'])
@@ -203,7 +206,7 @@ class Channel extends \Zotlabs\Web\Controller {
 			else {
 				$r = q("SELECT distinct parent AS item_id, created from item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
-					WHERE uid = %d $item_normal
+					WHERE uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update
 					AND (abook.abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra
@@ -236,7 +239,7 @@ class Channel extends \Zotlabs\Web\Controller {
 
 			if($load || ($checkjs->disabled())) {
 				if($mid) {
-					$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
+					$r = q("SELECT distinct parent AS item_id from item where mid like '%s' and uid = %d $item_normal
 						AND item_wall = 1 $sql_extra limit 1",
 						dbesc($mid . '%'),
 						intval(\App::$profile['profile_uid'])
@@ -358,9 +361,13 @@ class Channel extends \Zotlabs\Web\Controller {
 		}
 
 		if($is_owner && $update_unseen) {
-			$r = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 and item_wall = 1 AND uid = %d $update_unseen",
-				intval(local_channel())
-			);
+			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
+			call_hooks('update_unseen',$x);
+			if($x['update'] === 'unset' || intval($x['update'])) {
+				$r = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 and item_wall = 1 AND uid = %d $update_unseen",
+					intval(local_channel())
+				);
+			}
 		}
 
 

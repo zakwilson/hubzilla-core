@@ -21,7 +21,7 @@ class NativeWikiPage {
 		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
 
 		$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and item_deleted = 0 
-			$sql_extra order by created asc",
+			$sql_extra order by title asc",
 			dbesc($resource_id),
 			intval($channel_id)
 		);
@@ -55,7 +55,12 @@ class NativeWikiPage {
 	}
 
 
-	static public function create_page($channel_id, $observer_hash, $name, $resource_id) {
+	static public function create_page($channel_id, $observer_hash, $name, $resource_id, $mimetype = 'text/bbcode') {
+
+		logger('mimetype: ' . $mimetype);
+
+		if(! in_array($mimetype,[ 'text/markdown','text/bbcode','text/plain','text/html' ]))
+			$mimetype = 'text/markdown';
 
 		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
@@ -68,6 +73,8 @@ class NativeWikiPage {
 		$arr = [];
 		$arr['uid']           = $channel_id;
 		$arr['author_xchan']  = $observer_hash;
+		$arr['mimetype']      = $mimetype;
+		$arr['title']         = $name;
 		$arr['resource_type'] = 'nwikipage';
 		$arr['resource_id']   = $resource_id;
 		$arr['allow_cid']     = $w['wiki']['allow_cid'];
@@ -133,7 +140,13 @@ class NativeWikiPage {
 		if($ic) {
 			foreach($ic as $c) {
 				set_iconfig($c['item_id'],'nwikipage','pagetitle',$pageNewName);
+				$ids[] = $c['item_id'];
 			}
+
+			$str_ids = implode(',', $ids);
+			q("update item set title = '%s' where id in ($str_ids)",
+				dbesc($pageNewName)
+			);
 
 			$page = [ 
 				'rawName'  => $pageNewName, 
@@ -167,10 +180,11 @@ class NativeWikiPage {
 			$content = $item['body'];
 
 			return [ 
-				'content' => $content,
-				'mimeType' => $w['mimeType'], 
-				'message' => '', 
-				'success' => true
+				'content'      => $content,
+				'mimeType'     => $w['mimeType'],
+				'pageMimeType' => $item['mimetype'], 
+				'message'      => '', 
+				'success'      => true
 			];
 		}
 	
@@ -333,7 +347,6 @@ class NativeWikiPage {
 			return array('message' => t('Error reading wiki'), 'success' => false);
 		}
 
-		$mimetype = $w['mimeType'];
 	
 		// fetch the most recently saved revision. 
 
@@ -341,6 +354,8 @@ class NativeWikiPage {
 		if(! $item) {
 			return array('message' => t('Page not found'), 'success' => false);
 		}
+
+		$mimetype = $item['mimetype'];
 
 		// change just the fields we need to change to create a revision; 
 
@@ -599,10 +614,13 @@ class NativeWikiPage {
 	}
 	
 	static public function get_file_ext($arr) {
-		if($arr['mimeType'] == 'text/bbcode')
+		if($arr['mimetype'] === 'text/bbcode')
 			return '.bb';
-		else
+		elseif($arr['mimetype'] === 'text/markdown')
 			return '.md';
+		elseif($arr['mimetype'] === 'text/plain')
+			return '.txt';
+
 	}
 	
 	// This function is derived from 

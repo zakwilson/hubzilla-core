@@ -6,10 +6,10 @@ var pretext = '{{$pretext}}';
 
 function initEditor(cb){
 	if (editor==false){
-		$("#profile-jot-text-loading").spin('small').show();
+		$("#profile-jot-text-loading").show();
 		{{$geotag}}
 		if(plaintext == 'none') {
-			$("#profile-jot-text-loading").spin(false).hide();
+			$("#profile-jot-text-loading").hide();
 			$("#profile-jot-text").css({ 'height': 200 });
 			{{if $bbco_autocomplete}}
 			$("#profile-jot-text").bbco_autocomplete('{{$bbco_autocomplete}}'); // autocomplete bbcode
@@ -80,7 +80,7 @@ function initEditor(cb){
 
 				ed.onInit.add(function(ed) {
 					ed.pasteAsPlainText = true;
-					$("#profile-jot-text-loading").spin(false).hide();
+					$("#profile-jot-text-loading").hide();
 					$(".jothidden").show();
 					if (typeof cb!="undefined") cb();
 				});
@@ -106,6 +106,9 @@ function enableOnUser(){
 <script src="library/blueimp_upload/js/jquery.fileupload.js"></script>
 
 <script>
+var activeCommentID = 0;
+var activeCommentText = '';
+
 	$(document).ready(function() {
 		/* enable tinymce on focus and click */
 		$("#profile-jot-text").focus(enableOnUser);
@@ -118,7 +121,7 @@ function enableOnUser(){
 			dropZone: $('#profile-jot-text'),
 			maxChunkSize: 4 * 1024 * 1024,
 			add: function(e,data) {
-				$('#profile-rotator').spin('tiny');
+				$('#profile-rotator').show();
 				data.submit();
 			},
 			done: function(e,data) {
@@ -126,7 +129,8 @@ function enableOnUser(){
 				$('#jot-media').val($('#jot-media').val() + data.result.message);
 			},
 			stop: function(e,data) {
-				$('#profile-rotator').spin(false);
+				preview_post();
+				$('#profile-rotator').hide();
 			},
 		});
 
@@ -138,6 +142,34 @@ function enableOnUser(){
           DragDropUploadInit();
         }
 
+
+		$('#invisible-comment-upload').fileupload({
+			url: 'wall_attach/{{$nickname}}',
+			dataType: 'json',
+			maxChunkSize: 4 * 1024 * 1024,
+			add: function(e,data) {
+
+				var tmpStr = $("#comment-edit-text-" + activeCommentID).val();
+				if(tmpStr == activeCommentText) {
+					tmpStr = "";
+					$("#comment-edit-text-" + activeCommentID).addClass("comment-edit-text-full");
+					$("#comment-edit-text-" + activeCommentID).removeClass("comment-edit-text-empty");
+					openMenu("comment-tools-" + activeCommentID);
+					$("#comment-edit-text-" + activeCommentID).val(tmpStr);
+				}
+				data.submit();
+			},
+
+			done: function(e,data) {
+				textarea = document.getElementById("comment-edit-text-" + activeCommentID);
+				textarea.value = textarea.value + data.result.message;
+			},
+			stop: function(e,data) {
+				$('body').css('cursor', 'auto');
+				preview_comment(activeCommentID);
+				activeCommentID = 0;
+			},
+		});
 	});
 
 	function deleteCheckedItems() {
@@ -172,10 +204,11 @@ function enableOnUser(){
                         reply = prompt("{{$linkurl}}");
                         if(reply && reply.length) {
                             reply = bin2hex(reply);
-                            $('#profile-rotator').spin('tiny');
+                            $('#profile-rotator').show();
                             $.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
                                     addeditortext(data);
-                                    $('#profile-rotator').spin(false);
+									preview_post();
+                                    $('#profile-rotator').hide();
                             });
                         }
                     }
@@ -214,18 +247,23 @@ function enableOnUser(){
 	}
 
 
-	function jotShare(id) {
-		if ($('#jot-popup').length != 0) $('#jot-popup').show();
+	function jotShare(id,post_type) {
+		if(post_type == 6) {
+			window.location.href = 'rpost?f=&post_id='+id;
+		}
+		else {
+			if ($('#jot-popup').length != 0) $('#jot-popup').show();
 
-		$('#like-rotator-' + id).spin('tiny');
-		$.get('{{$baseurl}}/share/' + id, function(data) {
-			if (!editor) $("#profile-jot-text").val("");
-			initEditor(function(){
-				addeditortext(data);
-				$('#like-rotator-' + id).spin(false);
-				$(window).scrollTop(0);
+			$('#like-rotator-' + id).show();
+			$.get('{{$baseurl}}/share/' + id, function(data) {
+				if (!editor) $("#profile-jot-text").val("");
+				initEditor(function(){
+					addeditortext(data);
+					$('#like-rotator-' + id).hide();
+					$(window).scrollTop(0);
+				});
 			});
-		});
+		}
 	}
 
 	function linkdropper(event) {
@@ -274,17 +312,17 @@ function enableOnUser(){
 
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
-			$('#profile-rotator').spin('tiny');
+			$('#profile-rotator').show();
 			$.get('{{$baseurl}}/linkinfo?f=&binurl=' + reply, function(data) {
 				if(commentwin) {
 					$(editwin).val( $(editwin).val() + data );
-					$('#profile-rotator').spin(false);
+					$('#profile-rotator').hide();
 				}
 				else {
 					if (!editor) $("#profile-jot-text").val("");
 					initEditor(function(){
 					addeditortext(data);
-					$('#profile-rotator').spin(false);
+					$('#profile-rotator').hide();
 					});
 				}
 			});
@@ -421,6 +459,7 @@ function enableOnUser(){
                                 function(ddata) {
                                     if (ddata['status']) {
                                         addeditortext(ddata['photolink']);
+										preview_post();
                                     } else {
                                         window.console.log("{{$modalerrorlink}}" + ':' + ddata['errormsg']);
                                     }

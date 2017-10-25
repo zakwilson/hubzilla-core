@@ -659,14 +659,23 @@ class Item extends \Zotlabs\Web\Controller {
 	// BBCODE end alert
 	
 		if(strlen($categories)) {
+
 			$cats = explode(',',$categories);
 			foreach($cats as $cat) {
+
+				if($webpage == ITEM_TYPE_CARD) {
+					$catlink = z_root() . '/cards/' . $channel['channel_address'] . '?f=&cat=' . urlencode(trim($cat));
+				}
+				else {
+					$catlink = $owner_xchan['xchan_url'] . '?f=&cat=' . urlencode(trim($cat));
+				}
+
 				$post_tags[] = array(
 					'uid'   => $profile_uid, 
 					'ttype' => TERM_CATEGORY,
 					'otype' => TERM_OBJ_POST,
 					'term'  => trim($cat),
-					'url'   => $owner_xchan['xchan_url'] . '?f=&cat=' . urlencode(trim($cat))
+					'url'   => $catlink
 				); 				
 			}
 		}
@@ -734,7 +743,9 @@ class Item extends \Zotlabs\Web\Controller {
 	
 		if($parent_item)
 			$parent_mid = $parent_item['mid'];
-	
+
+
+
 		// Fallback so that we alway have a thr_parent
 	
 		if(!$thr_parent)
@@ -744,6 +755,21 @@ class Item extends \Zotlabs\Web\Controller {
 
 		$item_thread_top = ((! $parent) ? 1 : 0);
 	
+
+		// fix permalinks for cards
+	
+		if($webpage == ITEM_TYPE_CARD) {
+			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+		}
+		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_CARD)) {
+			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'CARD' and iconfig.iid = %d limit 1",
+				intval($parent_item['id'])
+			);
+			if($r) {
+				$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . $r[0]['v'];
+			}
+		}
+
 		if ((! $plink) && ($item_thread_top)) {
 			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $mid;
 		}
@@ -1079,21 +1105,28 @@ class Item extends \Zotlabs\Web\Controller {
 	
 				// if this is a different page type or it's just a local delete
 				// but not by the item author or owner, do a simple deletion
-	
+
+				$complex = false;	
+
 				if(intval($i[0]['item_type']) || ($local_delete && (! $can_delete))) {
 					drop_item($i[0]['id']);
 				}
 				else {
 					// complex deletion that needs to propagate and be performed in phases
 					drop_item($i[0]['id'],true,DROPITEM_PHASE1);
-					$r = q("select * from item where id = %d",
-						intval($i[0]['id'])
-					);
-					if($r) {
-						xchan_query($r);
-						$sync_item = fetch_post_tags($r);
-						build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
-					}
+					$complex = true;
+				}
+
+				$r = q("select * from item where id = %d",
+					intval($i[0]['id'])
+				);
+				if($r) {
+					xchan_query($r);
+					$sync_item = fetch_post_tags($r);
+					build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
+				}
+
+				if($complex) {
 					tag_deliver($i[0]['uid'],$i[0]['id']);
 				}
 			}

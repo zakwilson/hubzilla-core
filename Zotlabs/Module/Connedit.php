@@ -248,6 +248,10 @@ class Connedit extends \Zotlabs\Web\Controller {
 			notice( t('Failed to update connection record.') . EOL);
 
 		if(! intval(\App::$poi['abook_self'])) {
+			if($new_friend) {
+				\Zotlabs\Daemon\Master::Summon( [ 'Notifier', 'permission_accept', $contact_id ] ); 
+			}
+
 			\Zotlabs\Daemon\Master::Summon( [ 
 				'Notifier', 
 				(($new_friend) ? 'permission_create' : 'permission_update'), 
@@ -841,7 +845,7 @@ class Connedit extends \Zotlabs\Web\Controller {
 				}
 			}
 			else
-				$locstr = t('none');
+				$locstr = $contact['xchan_url'];
 
 			$clone_warn = '';
 			$clonable = (in_array($contact['xchan_network'],['zot','rss']) ? true : false);
@@ -866,6 +870,7 @@ class Connedit extends \Zotlabs\Web\Controller {
 				'$permcat_new'    => t('Add permission role'),
 				'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
 				'$addr'           => $contact['xchan_addr'],
+				'$primeurl'       => $contact['xchan_url'],
 				'$section'        => $section,
 				'$sections'       => $sections,
 				'$vcard'          => $vcard,

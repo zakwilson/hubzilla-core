@@ -115,7 +115,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 		App::$profile_uid = $xchan['channel_id'];
 
 	$url = (($observer) 
-		? z_root() . '/magic?f=&dest=' . $xchan['xchan_url'] . '&addr=' . $xchan['xchan_addr'] 
+		? z_root() . '/magic?f=&owa=1&dest=' . $xchan['xchan_url'] . '&addr=' . $xchan['xchan_addr'] 
 		: $xchan['xchan_url']
 	);
 					
@@ -369,7 +369,8 @@ function contact_remove($channel_id, $abook_id) {
 		return false;
 
 
-	$r = q("select * from item where author_xchan = '%s' and uid = %d",
+	$r = q("select * from item where (owner_xchan = '%s' or author_xchan = '%s') and uid = %d",
+		dbesc($abook['abook_xchan']),
 		dbesc($abook['abook_xchan']),
 		intval($channel_id)
 	);
@@ -629,13 +630,20 @@ function get_vcard_array($vc,$id) {
 	if($vc->ADR) {
 		foreach($vc->ADR as $adr) {
 			$type = (($adr['TYPE']) ? vcard_translate_type((string)$adr['TYPE']) : '');
-			$adrs[] = [
+			$entry = [
 				'type' => $type,
 				'address' => $adr->getParts()
 			];
-			$last_entry = end($adrs);
-			if($last_entry && is_array($adrs[$last_entry]['address']))
-				array_walk($adrs[$last_entry]['address'],'array_escape_tags');
+
+			if(is_array($entry['address'])) {
+				array_walk($entry['address'],'array_escape_tags');
+			}
+			else { 
+				$entry['address'] = (string) escape_tags($entry['address']);
+			}
+
+			$adrs[] = $entry;
+				
 		}
 	}
 

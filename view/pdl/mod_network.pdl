@@ -1,5 +1,3 @@
-[region=nav]$nav[/region]
-
 [region=aside]
 [widget=collections][/widget]
 [widget=forums][/widget]
@@ -14,3 +12,6 @@
 $content
 [/region]
 
+[region=right_aside]
+[widget=notifications][/widget]
+[/region]

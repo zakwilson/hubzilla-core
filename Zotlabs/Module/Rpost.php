@@ -20,6 +20,7 @@ require_once('include/zot.php');
  * body= Body of post
  * url= URL which will be parsed and the results appended to the body
  * source= Source application
+ * post_id= post_id of post to 'share' (local use only) 
  * remote_return= absolute URL to return after posting is finished
  * type= choices are 'html' or 'bbcode', default is 'bbcode'
  *
@@ -60,7 +61,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			return login();
 		}
 
-		nav_set_selected(t('Post'));
+		nav_set_selected('Post');
 	
 		// If we have saved rpost session variables, but nothing in the current $_REQUEST, recover the saved variables
 	
@@ -90,8 +91,6 @@ class Rpost extends \Zotlabs\Web\Controller {
 		}
 	
 		$plaintext = true;
-	//	if(feature_enabled(local_channel(),'richtext'))
-	//		$plaintext = false;
 	
 		if(array_key_exists('type', $_REQUEST) && $_REQUEST['type'] === 'html') {
 			require_once('include/html2bbcode.php');
@@ -110,28 +109,67 @@ class Rpost extends \Zotlabs\Web\Controller {
 			if($x['success'])
 				$_REQUEST['body'] = $_REQUEST['body'] . $x['body'];
 		}
+
+		if($_REQUEST['post_id']) {
+			$r = q("SELECT * from item WHERE id = %d  LIMIT 1",
+				intval($_REQUEST['post_id'])
+			);
+			if(($r) && (! intval($r[0]['item_private']))) {
+				$sql_extra = item_permissions_sql($r[0]['uid']);
+	
+				$r = q("select * from item where id = %d $sql_extra",
+					intval($_REQUEST['post_id'])
+				);
+				if($r && $r[0]['mimetype'] === 'text/bbcode') {
+	
+					xchan_query($r);
+	
+					$is_photo = (($r[0]['obj_type'] === ACTIVITY_OBJ_PHOTO) ? true : false);
+					if($is_photo) {
+						$object = json_decode($r[0]['obj'],true);
+						$photo_bb = $object['body'];
+					}
+	
+					if (strpos($r[0]['body'], "[/share]") !== false) {
+						$pos = strpos($r[0]['body'], "[share");
+						$i = substr($r[0]['body'], $pos);
+					} else {
+						$i = "[share author='".urlencode($r[0]['author']['xchan_name']).
+							"' profile='".$r[0]['author']['xchan_url'] .
+							"' avatar='".$r[0]['author']['xchan_photo_s'].
+							"' link='".$r[0]['plink'].
+							"' posted='".$r[0]['created'].
+							"' message_id='".$r[0]['mid']."']";
+						if($r[0]['title'])
+							$i .= '[b]'.$r[0]['title'].'[/b]'."\r\n";
+						$i .= (($is_photo) ? $photo_bb . "\r\n" . $r[0]['body'] : $r[0]['body']);
+						$i .= "[/share]";
+					}
+				}
+			}	
+			$_REQUEST['body'] = $_REQUEST['body'] . $i;
+		}
 	
 		$x = array(
-			'is_owner' => true,
-			'allow_location' => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
-			'default_location' => $channel['channel_location'],
-			'nickname' => $channel['channel_address'],
-			'lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
-			'acl' => populate_acl($channel_acl, true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
-			'permissions' => $channel_acl,
-			'bang' => '',
-			'visitor' => true,
-			'profile_uid' => local_channel(),
-			'title' => $_REQUEST['title'],
-			'body' => $_REQUEST['body'],
-			'attachment' => $_REQUEST['attachment'],
-			'source' => ((x($_REQUEST,'source')) ? strip_tags($_REQUEST['source']) : ''),
-			'return_path' => 'rpost/return',
-			'bbco_autocomplete' => 'bbcode',
-			'editor_autocomplete'=> true,
-			'bbcode' => true,
-			'jotnets' => true
-
+			'is_owner'            => true,
+			'allow_location'      => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
+			'default_location'    => $channel['channel_location'],
+			'nickname'            => $channel['channel_address'],
+			'lockstate'           => (($acl->is_private()) ? 'lock' : 'unlock'),
+			'acl'                 => populate_acl($channel_acl, true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
+			'permissions'         => $channel_acl,
+			'bang'                => '',
+			'visitor'             => true,
+			'profile_uid'         => local_channel(),
+			'title'               => $_REQUEST['title'],
+			'body'                => $_REQUEST['body'],
+			'attachment'          => $_REQUEST['attachment'],
+			'source'              => ((x($_REQUEST,'source')) ? strip_tags($_REQUEST['source']) : ''),
+			'return_path'         => 'rpost/return',
+			'bbco_autocomplete'   => 'bbcode',
+			'editor_autocomplete' => true,
+			'bbcode'              => true,
+			'jotnets'             => true
 		);
 	
 		$editor = status_editor($a,$x);

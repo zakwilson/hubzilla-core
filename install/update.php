@@ -1,6 +1,6 @@
 <?php
 
-define( 'UPDATE_VERSION' , 1193 );
+define( 'UPDATE_VERSION' , 1196 );
 
 /**
  *
@@ -2972,6 +2972,50 @@ function update_r1192() {
 	}
 	else {
 		$r1 = q("ALTER TABLE item ADD INDEX (obj_type)");
+	}
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+function update_r1193() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("CREATE INDEX item_uid_unseen ON item (uid, item_unseen)");
+	}
+	else {
+		$r1 = q("ALTER TABLE item ADD INDEX uid_item_unseen (uid, item_unseen)");
+	}
+
+	if($r1)
+		return UPDATE_SUCCESS;
+	return UPDATE_FAILED;
+}
+
+
+function update_r1194() {
+	$r = q("select id, resource_id from item where resource_type = 'nwiki'"); 
+	if($r) {
+		foreach($r as $rv) {
+			$mimetype = get_iconfig($rv['id'],'wiki','mimeType');
+			q("update item set mimetype = '%s' where resource_type = 'nwikipage' and resource_id = '%s'",
+				dbesc($mimetype),
+				dbesc($rv['resource_id'])
+			);
+		}
+	}
+
+	return UPDATE_SUCCESS;
+}
+
+function update_r1195() {
+
+	if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
+		$r1 = q("CREATE INDEX item_resource_id ON item (resource_id)");
+	}
+	else {
+		$r1 = q("ALTER TABLE item ADD INDEX (resource_id)");
 	}
 
 	if($r1)

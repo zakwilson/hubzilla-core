@@ -411,7 +411,7 @@ function http_status($val, $msg = '') {
 	if ($val >= 200 && $val < 300)
 		$msg = (($msg) ? $msg : 'OK');
 
-	logger('' . $val . ' ' . $msg);
+	logger(\App::$query_string . ':' . $val . ' ' . $msg);
 	header($_SERVER['SERVER_PROTOCOL'] . ' ' . $val . ' ' . $msg);
 }
 
@@ -1137,13 +1137,13 @@ function discover_by_url($url, $arr = null) {
 	return true;
 }
 
-function discover_by_webbie($webbie) {
+function discover_by_webbie($webbie,$protocol = '') {
 
 	$result   = [];
 
 	$network  = null;
 
-	$webbie = strtolower($webbie);
+//	$webbie = strtolower($webbie);
 
 	$x = webfinger_rfc7033($webbie,true);
 	if($x && array_key_exists('links',$x) && $x['links']) {
@@ -1153,7 +1153,7 @@ function discover_by_webbie($webbie) {
 				// If we discover zot - don't search further; grab the info and get out of
 				// here.
 
-				if($link['rel'] === PROTOCOL_ZOT) {
+				if($link['rel'] === PROTOCOL_ZOT && ((! $protocol) || (strtolower($protocol) === 'zot'))) {
 					logger('discover_by_webbie: zot found for ' . $webbie, LOGGER_DEBUG);
 					if(array_key_exists('zot',$x) && $x['zot']['success']) {
 						$i = import_xchan($x['zot']);
@@ -1174,7 +1174,7 @@ function discover_by_webbie($webbie) {
 
 	logger('webfinger: ' . print_r($x,true), LOGGER_DATA, LOG_INFO);
 
-	$arr = array('address' => $webbie, 'success' => false, 'webfinger' => $x);
+	$arr = array('address' => $webbie, 'protocol' => $protocol, 'success' => false, 'webfinger' => $x);
 	call_hooks('discover_channel_webfinger', $arr);
 	if($arr['success'])
 		return true;
@@ -1291,7 +1291,7 @@ function fetch_xrd_links($url) {
 		return array();
 
 	$h = parse_xml_string($xml);
-	if(! $h)
+	if($h === false)
 		return array();
 
 	$arr = convert_xml_element_to_array($h);
@@ -1652,9 +1652,17 @@ function check_channelallowed($hash) {
 }
 
 function deliverable_singleton($channel_id,$xchan) {
+
+	if(array_key_exists('xchan_hash',$xchan))
+		$xchan_hash = $xchan['xchan_hash'];
+	elseif(array_key_exists('hubloc_hash',$xchan))
+		$xchan_hash = $xchan['hubloc_hash'];
+	else
+		return true;
+
 	$r = q("select abook_instance from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
 		intval($channel_id),
-		dbesc($xchan['xchan_hash'])
+		dbesc($xchan_hash)
 	);
 	if($r) {
 		if(! $r[0]['abook_instance'])
@@ -1689,18 +1697,19 @@ function get_repository_version($branch = 'master') {
 function network_to_name($s) {
 
 	$nets = array(
-		NETWORK_DFRN      => t('Friendica'),
-		NETWORK_FRND      => t('Friendica'),
-		NETWORK_OSTATUS   => t('OStatus'),
-		NETWORK_GNUSOCIAL => t('GNU-Social'),
-		NETWORK_FEED      => t('RSS/Atom'),
-		NETWORK_MAIL      => t('Email'),
-		NETWORK_DIASPORA  => t('Diaspora'),
-		NETWORK_FACEBOOK  => t('Facebook'),
-		NETWORK_ZOT       => t('Zot'),
-		NETWORK_LINKEDIN  => t('LinkedIn'),
-		NETWORK_XMPP      => t('XMPP/IM'),
-		NETWORK_MYSPACE   => t('MySpace'),
+		NETWORK_DFRN        => t('Friendica'),
+		NETWORK_FRND        => t('Friendica'),
+		NETWORK_OSTATUS     => t('OStatus'),
+		NETWORK_GNUSOCIAL   => t('GNU-Social'),
+		NETWORK_FEED        => t('RSS/Atom'),
+		NETWORK_ACTIVITYPUB => t('ActivityPub'),
+		NETWORK_MAIL        => t('Email'),
+		NETWORK_DIASPORA    => t('Diaspora'),
+		NETWORK_FACEBOOK    => t('Facebook'),
+		NETWORK_ZOT         => t('Zot'),
+		NETWORK_LINKEDIN    => t('LinkedIn'),
+		NETWORK_XMPP        => t('XMPP/IM'),
+		NETWORK_MYSPACE     => t('MySpace'),
 	);
 
 	call_hooks('network_to_name', $nets);
@@ -1934,4 +1943,35 @@ function getBestSupportedMimeType($mimeTypes = null, $acceptedTypes = false) {
     }
     // no mime-type found
     return null;
+}
+
+
+function jsonld_document_loader($url) {
+
+	// perform caching for jsonld normaliser
+
+	require_once('library/jsonld/jsonld.php');
+
+	$cachepath = 'store/[data]/ldcache';
+	if(! is_dir($cachepath))
+		os_mkdir($cachepath,STORAGE_DEFAULT_PERMISSIONS,true);
+
+	$filename = $cachepath . '/' . urlencode($url);
+	if(file_exists($filename) && filemtime($filename) > time() - (12 * 60 * 60)) {
+		return json_decode(file_get_contents($filename));
+	}
+
+	$r = jsonld_default_document_loader($url);
+	if($r) {
+		file_put_contents($filename,json_encode($r));
+		return $r;
+	}
+
+	logger('not found');
+	if(file_exists($filename)) {
+		return json_decode(file_get_contents($filename));
+	}
+
+	return [];
+
 }

@@ -29,6 +29,7 @@ class ThreadItem {
 	private $visiting = false;
 	private $channel = null;
 	private $display_mode = 'normal';
+	private $reload = '';
 
 
 	public function __construct($data) {
@@ -101,10 +102,13 @@ class ThreadItem {
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
+
 		$mode = $conv->get_mode();
 
+		$edlink = (($item['item_type'] == ITEM_TYPE_CARD) ? 'card_edit' : 'editpost');
+
 		if(local_channel() && $observer['xchan_hash'] === $item['author_xchan'])
-			$edpost = array(z_root()."/editpost/".$item['id'], t("Edit"));
+			$edpost = array(z_root() . '/' . $edlink . '/' . $item['id'], t('Edit'));
 		else
 			$edpost = false;
 
@@ -309,7 +313,8 @@ class ThreadItem {
 
 		$tmp_item = array(
 			'template' => $this->get_template(),
-			'mode' => $mode,			
+			'mode' => $mode,
+			'item_type' => intval($item['item_type']),			
 			'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'body' => $body['html'],
 			'tags' => $body['tags'],
@@ -407,8 +412,9 @@ class ThreadItem {
 			'showdislike' => $showdislike,
 			'comment' => $this->get_comment_box($indent),
 			'previewing' => ($conv->is_preview() ? true : false ),
+			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
-			'submid' => str_replace(['+','='], ['',''], base64_encode(substr($item['mid'],0,32))),
+			'submid' => str_replace(['+','='], ['',''], base64_encode($item['mid'])),
 			'thread_level' => $thread_level
 		);
 
@@ -477,6 +483,14 @@ class ThreadItem {
 
 	public function is_threaded() {
 		return $this->threaded;
+	}
+
+	public function set_reload($val) {
+		$this->reload = $val;
+	}
+
+	public function get_reload() {
+		return $this->reload;
 	}
 
 	public function set_commentable($val) {
@@ -715,7 +729,7 @@ class ThreadItem {
 		$comment_box = replace_macros($template,array(
 			'$return_path' => '',
 			'$threaded' => $this->is_threaded(),
-			'$jsreload' => '', //(($conv->get_mode() === 'display') ? $_SESSION['return_url'] : ''),
+			'$jsreload' => $conv->reload,
 			'$type' => (($conv->get_mode() === 'channel') ? 'wall-comment' : 'net-comment'),
 			'$id' => $this->get_id(),
 			'$parent' => $this->get_id(),
@@ -733,19 +747,21 @@ class ThreadItem {
 			'$edquote' => t('Quote'),
 			'$edcode' => t('Code'),
 			'$edimg' => t('Image'),
+			'$edatt' => t('Attach File'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),
 			'$preview' => t('Preview'), // ((feature_enabled($conv->get_profile_owner(),'preview')) ? t('Preview') : ''),
 			'$indent' => $indent,
+			'$can_upload' => (perm_is_allowed($conv->get_profile_owner(),get_observer_hash(),'write_storage') && $conv->is_uploadable()),
 			'$feature_encrypt' => ((feature_enabled($conv->get_profile_owner(),'content_encrypt')) ? true : false),
 			'$encrypt' => t('Encrypt text'),
 			'$cipher' => $conv->get_cipher(),
 			'$sourceapp' => \App::$sourcename,
 			'$observer' => get_observer_hash(),
-			'$anoncomments' => (($conv->get_mode() === 'channel' && perm_is_allowed($conv->get_profile_owner(),'','post_comments')) ? true : false),
-			'$anonname' => [ 'anonname', t('Your full name (required)'),'','','','onBlur="commentCloseUI(this,\'' . $this->get_id() . '\')"' ],
-			'$anonmail' => [ 'anonmail', t('Your email address (required)'),'','','','onBlur="commentCloseUI(this,\'' . $this->get_id() . '\')"' ],
-			'$anonurl'  => [ 'anonurl',  t('Your website URL (optional)'),'','','','onBlur="commentCloseUI(this,\'' . $this->get_id() . '\')"' ]
+			'$anoncomments' => ((($conv->get_mode() === 'channel' || $conv->get_mode() === 'display') && perm_is_allowed($conv->get_profile_owner(),'','post_comments')) ? true : false),
+			'$anonname' => [ 'anonname', t('Your full name (required)') ],
+			'$anonmail' => [ 'anonmail', t('Your email address (required)') ],
+			'$anonurl'  => [ 'anonurl',  t('Your website URL (optional)') ]
 		));
 
 		return $comment_box;

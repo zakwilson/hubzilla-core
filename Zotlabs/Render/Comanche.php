@@ -121,6 +121,11 @@ class Comanche {
 		if($cnt)
 			\App::$layout['theme'] = trim($matches[1]);
 
+		$cnt = preg_match("/\[navbar\](.*?)\[\/navbar\]/ism", $s, $matches);
+		if($cnt)
+			\App::$layout['navbar'] = trim($matches[1]);
+
+
 		$cnt = preg_match_all("/\[webpage\](.*?)\[\/webpage\]/ism", $s, $matches, PREG_SET_ORDER);
 		if($cnt) {
 			// only the last webpage definition is used if there is more than one
@@ -148,6 +153,7 @@ class Comanche {
 	 * $observer.address - xchan_addr or false
 	 * $observer.name - xchan_name or false
 	 * $observer - xchan_hash of observer or empty string
+	 * $local_channel - logged in channel_id or false
 	 */
 
 	function get_condition_var($v) {
@@ -157,6 +163,9 @@ class Comanche {
 				return get_config($x[1],$x[2]);
 			elseif($x[0] === 'request')
 				return $_SERVER['REQUEST_URI'];
+			elseif($x[0] === 'local_channel') {
+				return local_channel();
+			}
 			elseif($x[0] === 'observer') {
 				if(count($x) > 1) {
 					if($x[1] == 'language')
@@ -168,6 +177,8 @@ class Comanche {
 						return $y['xchan_addr'];
 					elseif($x[1] == 'name')
 						return $y['xchan_name'];
+					elseif($x[1] == 'webname')
+						return substr($y['xchan_addr'],0,strpos($y['xchan_addr'],'@'));
 					return false;
 				}
 				return get_observer_hash();
@@ -449,6 +460,9 @@ class Comanche {
 				$vars[$mtch[1]] = $mtch[2];
 			}
 		}
+
+		if(! purify_filename($name))
+			return '';
 
 		$clsname = ucfirst($name);
 		$nsname = "\\Zotlabs\\Widget\\" . $clsname;

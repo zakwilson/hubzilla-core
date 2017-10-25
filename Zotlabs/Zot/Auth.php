@@ -43,6 +43,12 @@ class Auth {
 			$this->Finalise();
 		}
 
+		if(strpbrk($this->sec,'.:')) {
+			logger('illegal security context');
+			$this->Debug('illegal security context.');
+			$this->Finalise();
+		}
+
 		$x = $this->GetHublocs($this->address);
 
 		if($x) {
@@ -108,6 +114,14 @@ class Auth {
 		$this->remote_level         = 0;
 		$this->remote_hub           = $hubloc['hubloc_url'];
 		$this->dnt                  = 0;
+
+		if(! $this->sec) {
+			logger('missing security context.');
+			if($this->test)
+				$this->Debug('missing security context.');
+			return false;
+		}
+
 
 		// check credentials and access
 

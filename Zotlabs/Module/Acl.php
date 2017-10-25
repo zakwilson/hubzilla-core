@@ -21,7 +21,7 @@ class Acl extends \Zotlabs\Web\Controller {
 
 	function init() {
 	
-		//	logger('mod_acl: ' . print_r($_REQUEST,true));
+		logger('mod_acl: ' . print_r($_REQUEST,true));
 	
 		$start    = (x($_REQUEST,'start')  ? $_REQUEST['start']  : 0);
 		$count    = (x($_REQUEST,'count')  ? $_REQUEST['count']  : 500);
@@ -33,6 +33,7 @@ class Acl extends \Zotlabs\Web\Controller {
 		// $type = 
 		//  ''   =>  standard ACL request
 		//  'g'  =>  Groups only ACL request
+		//  'f'  =>  forums only ACL request
 		//  'c'  =>  Connections only ACL request or editor (textarea) mention request
 		// $_REQUEST['search'] contains ACL search text.
 
@@ -56,12 +57,12 @@ class Acl extends \Zotlabs\Web\Controller {
 			$search = $_REQUEST['query'];
 		}
 	
-		if( (! local_channel()) && (! ($type == 'x' || $type == 'c')))
+		if( (! local_channel()) && (! in_array($type, [ 'x', 'c', 'f' ])))
 			killme();
 
 		$permitted = [];
 
-		if(in_array($type, [ 'm', 'a', 'c' ])) {
+		if(in_array($type, [ 'm', 'a', 'c', 'f' ])) {
 
 			// These queries require permission checking. We'll create a simple array of xchan_hash for those with
 			// the requisite permissions which we can check against. 
@@ -154,7 +155,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		if($type == '' || $type == 'c') {
+		if($type == '' || $type == 'c' || $type === 'f') {
 
 			$extra_channels_sql  = ''; 
 
@@ -307,7 +308,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					$contacts[] = array(
 						"photo"    => $g['photo'],
 						"name"     => $g['name'],
-						"nick"     => $g['address'],
+						"nick"     => $g['address']
 					);
 				}
 			}
@@ -324,18 +325,24 @@ class Acl extends \Zotlabs\Web\Controller {
 			$r = array();
 	
 		if($r) {
-			foreach($r as $g){
+			foreach($r as $g) {
 	
-				// remove RSS feeds from ACLs - they are inaccessible
-				if(strpos($g['hash'],'/') && $type != 'a')
+				if(($g['network'] === 'rss') && ($type != 'a'))
 					continue;
-	
-				if(in_array($g['hash'],$permitted) && $type == 'c' && (! $noforums)) {
+
+				$g['hash'] = urlencode($g['hash']);
+				
+				if(! $g['nick']) {
+					$t = explode(' ',strtolower($g['name']));
+					$g['nick'] = $t[0] . '@';
+				}
+
+				if(in_array($g['hash'],$permitted) && in_array($type, [ 'c', 'f' ]) && (! $noforums)) {
 					$contacts[] = array(
 						"type"     => "c",
 						"photo"    => "images/twopeople.png",
-						"name"     => $g['name'] . '+',
-						"id"	   => $g['id'] . '+',
+						"name"     => $g['name'] . (($type === 'f') ? '' : '+'),
+						"id"	   => urlencode($g['id']) . (($type === 'f') ? '' : '+'),
 						"xid"      => $g['hash'],
 						"link"     => $g['nick'],
 						"nick"     => substr($g['nick'],0,strpos($g['nick'],'@')),
@@ -344,18 +351,20 @@ class Acl extends \Zotlabs\Web\Controller {
 						"label"    => t('network')
 					);
 				}
-				$contacts[] = array(
-					"type"     => "c",
-					"photo"    => $g['micro'],
-					"name"     => $g['name'],
-					"id"	   => $g['id'],
-					"xid"      => $g['hash'],
-					"link"     => $g['nick'],
-					"nick"     => (($g['nick']) ? substr($g['nick'],0,strpos($g['nick'],'@')) : t('RSS')),
-					"self"     => (intval($g['abook_self']) ? 'abook-self' : ''),
-					"taggable" => '',
-					"label"    => '',
-				);
+				if($type !== 'f') {
+					$contacts[] = array(
+						"type"     => "c",
+						"photo"    => $g['micro'],
+						"name"     => $g['name'],
+						"id"	   => urlencode($g['id']),
+						"xid"      => $g['hash'],
+						"link"     => $g['nick'],
+						"nick"     => (($g['nick']) ? substr($g['nick'],0,strpos($g['nick'],'@')) : $g['nick']),
+						"self"     => (intval($g['abook_self']) ? 'abook-self' : ''),
+						"taggable" => '',
+						"label"    => '',
+					);
+				}
 			}			
 		}
 			

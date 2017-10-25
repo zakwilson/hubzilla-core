@@ -12,7 +12,7 @@
 			dropZone: $('#prvmail-text'),
 			maxChunkSize: 4 * 1024 * 1024,
 			add: function(e,data) {
-				$('#prvmail-rotator').spin('tiny');
+				$('#prvmail-rotator').show();
 				data.submit();
 			},
 			done: function(e,data) {
@@ -20,7 +20,8 @@
 				$('#jot-media').val($('#jot-media').val() + data.result.message);
 			},
 			stop: function(e,data) {
-				$('#prvmail-rotator').spin(false);
+				preview_mail();
+				$('#prvmail-rotator').hide();
 			},
 		});
 
@@ -33,10 +34,11 @@
 	function prvmailJotGetLink() {
 		reply = prompt("{{$linkurl}}");
 		if(reply && reply.length) {
-			$('#prvmail-rotator').spin('tiny');
+			$('#prvmail-rotator').show();
 			$.get('linkinfo?f=&url=' + reply, function(data) {
 				addmailtext(data);
-				$('#prvmail-rotator').spin(false);
+				preview_mail();
+				$('#prvmail-rotator').hide();
 			});
 		}
 	}
@@ -59,10 +61,11 @@
 		event.target.textContent = reply;
 		event.preventDefault();
 		if(reply && reply.length) {
-			$('#prvmail-rotator').spin('tiny');
+			$('#prvmail-rotator').show();
 			$.get('linkinfo?f=&url=' + reply, function(data) {
 				addmailtext(data);
-				$('#prvmail-rotator').spin(false);
+				preview_mail();
+				$('#prvmail-rotator').hide();
 			});
 		}
 	}

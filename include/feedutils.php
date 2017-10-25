@@ -255,7 +255,7 @@ function get_atom_elements($feed, $item, &$author) {
 		$author['author_is_feed'] = false;
 
 		$rawauthor = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10, 'author');
-		logger('rawauthor: ' . print_r($rawauthor, true));
+		//logger('rawauthor: ' . print_r($rawauthor, true));
 
 	}
 	else {
@@ -519,7 +519,7 @@ function get_atom_elements($feed, $item, &$author) {
 
 	// turn Mastodon content warning into a #nsfw hashtag
 	if($mastodon && $summary) {
-		$res['body'] .= "\n\n#ContentWarning\n";
+		$res['body'] = $summary . "\n\n" . $res['body'] . "\n\n#ContentWarning\n";
 	}
 
 
@@ -811,6 +811,7 @@ function feed_get_reshare(&$res,$item) {
 		}
 	
 		$attach = $share['links'];
+
 		if($attach) {
 			foreach($attach as $att) {
 				if($att['rel'] === 'alternate') {
@@ -845,6 +846,10 @@ function feed_get_reshare(&$res,$item) {
 			}
 		}
 	
+		if((! $body) && ($share['alternate'])) {
+			$body = $share['alternate'];
+		}			
+
 		$res['body'] = "[share author='" . urlencode($share['author']) . 
 			"' profile='"    . $share['profile'] .
 			"' avatar='"     . $share['avatar']  .
@@ -894,6 +899,41 @@ function encode_rel_links($links) {
 
 	return $o;
 }
+
+
+function process_feed_tombstones($feed,$importer,$contact,$pass) {
+
+	$arr_deleted = [];
+
+	$del_entries = $feed->get_feed_tags(NAMESPACE_TOMB, 'deleted-entry');
+	if(is_array($del_entries) && count($del_entries) && $pass != 2) {
+		foreach($del_entries as $dentry) {
+			if(isset($dentry['attribs']['']['ref'])) {
+				$arr_deleted[] = normalise_id($dentry['attribs']['']['ref']);
+			}
+		}
+	}
+
+	if($arr_deleted && is_array($contact)) {
+		foreach($arr_deleted as $mid) {
+			$r = q("SELECT * from item where mid = '%s' and author_xchan = '%s' and uid = %d limit 1",
+				dbesc($mid),
+				dbesc($contact['xchan_hash']),
+				intval($importer['channel_id'])
+			);
+
+			if($r) {
+				$item = $r[0];
+
+				if(! intval($item['item_deleted'])) {
+					logger('deleting item ' . $item['id'] . ' mid=' . $item['mid'], LOGGER_DEBUG);
+					drop_item($item['id'],false);
+				}
+			}
+		}
+	}
+}
+
 
 /**
  * @brief Process atom feed and update anything/everything we might need to update.
@@ -950,43 +990,11 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 	$permalink = $feed->get_permalink();
 
-	// Check at the feed level for updated contact name and/or photo
 
-	// process any deleted entries
+	// Check at the feed level for tombstones
 
-	$del_entries = $feed->get_feed_tags(NAMESPACE_TOMB, 'deleted-entry');
-	if(is_array($del_entries) && count($del_entries) && $pass != 2) {
-		foreach($del_entries as $dentry) {
-			$deleted = false;
-			if(isset($dentry['attribs']['']['ref'])) {
-				$mid = normalise_id($dentry['attribs']['']['ref']);
-				$deleted = true;
-				if(isset($dentry['attribs']['']['when'])) {
-					$when = $dentry['attribs']['']['when'];
-					$when = datetime_convert('UTC','UTC', $when, 'Y-m-d H:i:s');
-				}
-				else
-					$when = datetime_convert('UTC','UTC','now','Y-m-d H:i:s');
-			}
+	process_feed_tombstones($feed,$importer,$contact,$pass);
 
-			if($deleted && is_array($contact)) {
-				$r = q("SELECT * from item where mid = '%s' and author_xchan = '%s' and uid = %d limit 1",
-					dbesc($mid),
-					dbesc($contact['xchan_hash']),
-					intval($importer['channel_id'])
-				);
-
-				if($r) {
-					$item = $r[0];
-
-					if(! intval($item['item_deleted'])) {
-						logger('deleting item ' . $item['id'] . ' mid=' . $item['mid'], LOGGER_DEBUG);
-						drop_item($item['id'],false);
-					}
-				}
-			}
-		}
-	}
 
 	// Now process the feed
 
@@ -1027,6 +1035,13 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				if(! $datarray['mid'])
 					continue;
+
+
+				$item_parent_mid = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
+					dbesc($parent_mid),
+					intval($importer['channel_id'])
+				);
+
 
 				// This probably isn't an appropriate default but we're about to change it
 				// if it's wrong.
@@ -1079,7 +1094,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				$datarray['owner_xchan'] = $contact['xchan_hash'];
 
-				$r = q("SELECT id, edited FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+				$r = q("SELECT id, edited, author_xchan, item_deleted FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
 					dbesc($datarray['mid']),
 					intval($importer['channel_id'])
 				);
@@ -1088,6 +1103,15 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				// Update content if 'updated' changes
 
 				if($r) {
+					if(activity_match($datarray['verb'],ACTIVITY_DELETE) 
+						&& $datarray['author_xchan'] === $r[0]['author_xchan']) {
+						if(! intval($r[0]['item_deleted'])) {
+							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
+							drop_item($r[0]['id'],false);
+						}
+						continue;
+					}
+
 					if((x($datarray,'edited') !== false)
 						&& (datetime_convert('UTC','UTC',$datarray['edited']) !== $r[0]['edited'])) {
 
@@ -1123,18 +1147,12 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 						$datarray['parent_mid'] = $pmid;
 					}
 				}
-				if(! $pmid) {
-					$x = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
-						dbesc($parent_mid),
-						intval($importer['channel_id'])
-					);
-				
-					if($x) {
-						logger('find_parent: matched in-reply-to: ' . $parent_mid, LOGGER_DEBUG);
-						$pmid = $x[0]['parent_mid'];
-						$datarray['parent_mid'] = $pmid;
-					}
+				if(($item_parent_mid) && (! $pmid)) {
+					logger('find_parent: matched in-reply-to: ' . $parent_mid, LOGGER_DEBUG);
+					$pmid = $item_parent_mid[0]['parent_mid'];
+					$datarray['parent_mid'] = $pmid;
 				}
+
 				if((! $pmid) && $parent_link !== '') {
 					$f = feed_conversation_fetch($importer,$contact,$parent_link);
 					if($f) {
@@ -1156,6 +1174,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 							);
 				
 							if($x) {
+								$item_parent_mid = $x;
 								$pmid = $x[0]['parent_mid'];
 								$datarray['parent_mid'] = $pmid;
 							}
@@ -1237,6 +1256,13 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					set_iconfig($datarray,'system','parent_mid',$parent_mid,true);
 				}
 				
+
+				// allow likes of comments
+
+				if($item_parent_mid && activity_match($datarray['verb'],ACTVITY_LIKE)) {
+					$datarray['thr_parent'] = $item_parent_mid[0]['parent_mid'];
+				}
+
 				$datarray['aid'] = $importer['channel_account_id'];
 				$datarray['uid'] = $importer['channel_id'];
 
@@ -1330,8 +1356,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					}
 				}
 
-
-				$r = q("SELECT id, edited FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+				$r = q("SELECT id, edited, author_xchan, item_deleted FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
 					dbesc($datarray['mid']),
 					intval($importer['channel_id'])
 				);
@@ -1339,6 +1364,15 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				// Update content if 'updated' changes
 
 				if($r) {
+					if(activity_match($datarray['verb'],ACTIVITY_DELETE) 
+						&& $datarray['author_xchan'] === $r[0]['author_xchan']) {
+						if(! intval($r[0]['item_deleted'])) {
+							logger('deleting item ' . $r[0]['id'] . ' mid=' . $datarray['mid'], LOGGER_DEBUG);
+							drop_item($r[0]['id'],false);
+						}
+						continue;
+					}
+
 					if((x($datarray,'edited') !== false)
 						&& (datetime_convert('UTC','UTC',$datarray['edited']) !== $r[0]['edited'])) {
 
@@ -1706,7 +1740,7 @@ function compat_photos_list($s) {
 	$found = preg_match_all('/\[[zi]mg(.*?)\](.*?)\[/ism',$s,$matches,PREG_SET_ORDER);
 
 	if($found) {
-		foreach($matches as $match) {
+		foreach($matches as $match) {			
 			$ret[] = [
 				'href' => $match[2],
 				'length' => 0,

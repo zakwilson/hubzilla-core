@@ -37,6 +37,7 @@ class Wiki_pages {
 			if (!$wikiname) {
 				$wikiname = '';
 			}
+			$typelock = $w['typelock'];
 		}
 
 		$can_create = perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'write_wiki');
@@ -52,8 +53,14 @@ class Wiki_pages {
 				'$canadd' => $can_create,
 				'$candel' => $can_delete,
 				'$addnew' => t('Add new page'),
+				'$typelock' => $typelock,
+				'$lockedtype' => $w['mimeType'],
+				'$mimetype' => mimetype_select(0,$w['mimeType'], 
+					[ 'text/markdown' => t('Markdown'), 'text/bbcode' => t('BBcode'), 'text/plain' => t('Text') ]),
 				'$pageName' => array('pageName', t('Page name')),
-				'$refresh' => $arr['refresh']
+				'$refresh' => $arr['refresh'],
+				'$options' => t('Options'),
+				'$submit' => t('Submit')
 		));
 	}
 }

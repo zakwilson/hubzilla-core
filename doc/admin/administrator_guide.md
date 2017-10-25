@@ -246,7 +246,7 @@ a _standard_ and _premium_ class using the following lines:
     
     App::$config['system']['default_service_class']='standard'; // this is the default service class that is attached to every new account
     
-    // configuration for parent service class
+    // configuration for standard service class
     App::$config['service_class']['standard'] =
     array('photo_upload_limit'=>2097152, // total photo storage limit per channel (here 2MB)
     'total_identities' =>1, // number of channels an account can create
@@ -256,7 +256,7 @@ a _standard_ and _premium_ class using the following lines:
     'attach_upload_limit' =>2097152, // total attachment storage limit per channel (here 2MB)
     'chatters_inroom' =>20);
     
-    // configuration for teacher service class
+    // configuration for premium service class
     App::$config['service_class']['premium'] =
     array('photo_upload_limit'=>20000000000, // total photo storage limit per channel (here 20GB)
     'total_identities' =>20, // number of channels an account can create
@@ -345,6 +345,19 @@ empty:
 1. Inform your Friendica and Diaspora contacts that your channel moves. They need to reconnect to your new address.  
 1. After successful import (check!) delete your channel on the old RedMatrix Server.
 1. On the $Projectname server visit new.hub/locs and upgrade to your channel to a primary one. And when the old Redmatrix server is still listed delete them here as well. Press "Sync" to inform all other server in the grid.
+
+### Administration
+
+#### Site Administration
+
+Administration of the website is commonly done through the admin webpage located at /admin on your website. In order to access this page you must have administration rights to the server. Administration rights are granted to the first account to register on your site, **provided** the email address of that account exactly matches the email address you provided as the administrator's email address during setup. 
+
+There are several ways that this can fail and leave the system without an administrator account, for instance if the first account that was created provided a different email address than the administrator email address that was supplied during setup. 
+
+For security reasons there is no web page or interface on the system which will give you administrator access. If you need to correct a situation where a system has no administrator account it **must** be done by editing the account table in the database. There is no other way. To do this, you will need to locate the entry in the account table which belongs to the desired administrator, and set 'account_roles' for that entry to 4096. You will then be able to access the admin page from your system's profile menu or directly via /admin .
+
+A hub can have multiple admins and there is no limit to how administrators you can have. Repeat the above process for every account you wish to provide with administration rights.   
+
 
 ### Troubleshooting
 

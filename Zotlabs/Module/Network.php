@@ -44,6 +44,7 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		$channel = \App::get_channel();
 		$item_normal = item_normal();
+		$item_normal_update = item_normal_update();
 	
 		$datequery = $datequery2 = '';
 	
@@ -116,7 +117,6 @@ class Network extends \Zotlabs\Web\Controller {
 		$spam     = ((x($_GET,'spam'))  ? intval($_GET['spam'])  : 0);
 		$cmin     = ((x($_GET,'cmin'))  ? intval($_GET['cmin'])  : 0);
 		$cmax     = ((x($_GET,'cmax'))  ? intval($_GET['cmax'])  : 99);
-		$firehose = ((x($_GET,'fh'))    ? intval($_GET['fh'])    : 0);
 		$file     = ((x($_GET,'file'))  ? $_GET['file']          : '');
 		$xchan    = ((x($_GET,'xchan')) ? $_GET['xchan']         : '');
 		
@@ -154,7 +154,7 @@ class Network extends \Zotlabs\Web\Controller {
 				));
 			}
 	
-			nav_set_selected(t('Activity'));
+			nav_set_selected('Grid');
 
 			$channel_acl = array(
 				'allow_cid' => $channel['channel_allow_cid'], 
@@ -290,9 +290,6 @@ class Network extends \Zotlabs\Web\Controller {
 			// We only launch liveUpdate if you aren't filtering in some incompatible
 			// way and also you aren't writing a comment (discovered in javascript).
 	
-			if($gid || $cid || $cmin || ($cmax != 99) || $star || $liked || $conv || $spam || $nouveau || $list)
-				$firehose = 0;
-	
 			$maxheight = get_pconfig(local_channel(),'system','network_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
@@ -315,7 +312,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'$liked'   => (($liked) ? $liked : '0'),
 				'$conv'    => (($conv) ? $conv : '0'),
 				'$spam'    => (($spam) ? $spam : '0'),
-				'$fh'      => (($firehose) ? $firehose : '0'),
+				'$fh'      => '0',
 				'$nouveau' => (($nouveau) ? $nouveau : '0'),
 				'$wall'    => '0',
 				'$static'  => $static, 
@@ -409,17 +406,7 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 	
 		$abook_uids = " and abook.abook_channel = " . local_channel() . " ";
-
-		$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
-		if($firehose && (! $disable_discover_tab)) {
-			require_once('include/channel.php');
-			$sys = get_sys_channel();
-			$uids = " and item.uid  = " . intval($sys['channel_id']) . " ";
-			\App::$data['firehose'] = intval($sys['channel_id']);
-		}
-		else {
-			$uids = " and item.uid = " . local_channel() . " ";
-		}
+		$uids = " and item.uid = " . local_channel() . " ";
 	
 		if(get_pconfig(local_channel(),'system','network_list_mode'))
 			$page_mode = 'list';
@@ -491,10 +478,11 @@ class Network extends \Zotlabs\Web\Controller {
 	
 			}
 			else {
+
 				// this is an update
 				$r = q("SELECT item.parent AS item_id FROM item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
-					WHERE true $uids $item_normal $simple_update
+					WHERE true $uids $item_normal_update $simple_update
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra3 $sql_extra $sql_nets "
 				);
@@ -516,14 +504,14 @@ class Network extends \Zotlabs\Web\Controller {
 					dbesc($parents_str)
 				);
 	
-				xchan_query($items,true,(($firehose) ? local_channel() : 0));
+				xchan_query($items,true);
 				$items = fetch_post_tags($items,true);
 				$items = conv_sort($items,$ordering);
 			}
 			else {
 				$items = array();
 			}
-	
+
 			if($page_mode === 'list') {
 	
 				/**
@@ -535,20 +523,26 @@ class Network extends \Zotlabs\Web\Controller {
 	
 				if($parents_str) {
 					$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
+					$update_unseen .= " AND obj_type != '" . dbesc(ACTIVITY_OBJ_FILE) . "'";
 					$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
 				}
 			}
 			else {
 				if($parents_str) {
-					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
+					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " ) AND obj_type != '" . dbesc(ACTIVITY_OBJ_FILE) . "'";
 				}
 			}
 		}
 	
-		if(($update_unseen) && (! $firehose))
-			$r = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d $update_unseen ",
-				intval(local_channel())
-			);
+		if($update_unseen) {
+			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
+			call_hooks('update_unseen',$x);
+			if($x['update'] === 'unset' || intval($x['update'])) {
+				$r = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d $update_unseen ",
+					intval(local_channel())
+				);
+			}
+		}
 	
 		$mode = (($nouveau) ? 'network-new' : 'network');
 	

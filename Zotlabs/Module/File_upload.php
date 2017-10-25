@@ -34,10 +34,26 @@ class File_upload extends \Zotlabs\Web\Controller {
 		$_REQUEST['deny_gid'] = perms2str($_REQUEST['group_deny']);
 
 		if($_REQUEST['filename']) {
-			$r = attach_mkdir($channel,get_observer_hash(),$_REQUEST);
+			$r = attach_mkdir($channel, get_observer_hash(), $_REQUEST);
+			if($r['success']) {
+				$hash = $r['data']['hash'];
+
+				$sync = attach_export_data($channel,$hash);
+				if($sync) {
+					build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+				}
+				goaway(z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path']);
+
+			}
 		}
 		else {
-			$r = attach_store($channel,get_observer_hash(), '', $_REQUEST);
+			$r = attach_store($channel, get_observer_hash(), '', $_REQUEST);
+			if($r['success']) {
+				$sync = attach_export_data($channel,$r['data']['hash']);
+				if($sync)
+					build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+
+			}
 		}
 		goaway(z_root() . '/' . $_REQUEST['return_url']);
 	

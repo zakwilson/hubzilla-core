@@ -1,3 +1,4 @@
+
 /* jot */
 
 .jothidden input[type="text"] {
@@ -65,10 +66,6 @@
 
 #profile-jot-submit-wrapper {
 	border-top: 1px solid #ccc;
-}
-
-#profile-rotator {
-	padding: 15px 0px 0px 15px;
 }
 
 /* conversation */
@@ -140,11 +137,6 @@ a.wall-item-name-link {
 	cursor: pointer;
 }
 
-.like-rotator {
-	float: right;
-	margin: 16px;
-}
-
 .item-select {
 	opacity: 0.1;
 	filter:alpha(opacity=10);
@@ -183,24 +175,19 @@ a.wall-item-name-link {
 
 /* comment_item */
 
-.comment-edit-text-empty,
-.comment-edit-text-full {
+
+.comment-edit-text {
 	padding: 0.5rem;
 	width: 100%;
 	display: inherit;
-}
-
-.comment-edit-text-empty {
-	height: 2rem;
 	line-height: 1;
-	overflow: hidden;
+	height: 2rem;
 	resize: none;
 }
 
-.comment-edit-text-full {
-	height: 7rem;
+.comment-edit-text.expanded {
 	line-height: 1.25;
-	overflow: auto;
+	height: 7rem;
 	resize: vertical;
 }
 
@@ -278,6 +265,7 @@ code {
 	font-size: 1em;
 	padding: 1em 1.5em;
 	display: block;
+	white-space: pre-wrap;
 }
 
 code.inline-code {

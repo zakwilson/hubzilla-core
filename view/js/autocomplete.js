@@ -5,7 +5,7 @@
  */
 function contact_search(term, callback, backend_url, type, extra_channels, spinelement) {
 	if(spinelement) {
-		$(spinelement).spin('tiny');
+		$(spinelement).show();
 	}
 	// Check if there is a cached result that contains the same information we would get with a full server-side search
 	var bt = backend_url+type;
@@ -14,7 +14,7 @@ function contact_search(term, callback, backend_url, type, extra_channels, spine
 	var lterm = term.toLowerCase(); // Ignore case
 	for(var t in contact_search.cache[bt]) {
 		if(lterm.indexOf(t) >= 0) { // A more broad search has been performed already, so use those results
-			$(spinelement).spin(false);
+			$(spinelement).hide();
 			// Filter old results locally
 			var matching = contact_search.cache[bt][t].filter(function (x) { return (x.name.toLowerCase().indexOf(lterm) >= 0 || (typeof x.nick !== 'undefined' && x.nick.toLowerCase().indexOf(lterm) >= 0)); }); // Need to check that nick exists because groups don't have one
 			matching.unshift({taggable:false, text: term, replace: term});
@@ -47,7 +47,7 @@ function contact_search(term, callback, backend_url, type, extra_channels, spine
 			var items = data.items.slice(0);
 			items.unshift({taggable:false, text: term, replace: term});
 			callback(items);
-			$(spinelement).spin(false);
+			$(spinelement).hide();
 		},
 	}).fail(function () {callback([]); }); // Callback must be invoked even if something went wrong.
 }
@@ -192,6 +192,16 @@ function string2bb(element) {
 			template: contact_format
 		};
 
+		// Autocomplete forums
+		forums = {
+			match: /(^|\s)(\!)([^ \n]+)$/,
+			index: 3,
+			search: function(term, callback) { contact_search(term, callback, backend_url, 'f', extra_channels, spinelement=false); },
+			replace: editor_replace,
+			template: contact_format
+		};
+
+
 		smilies = {
 			match: /(^|\s)(:[a-z_:]{2,})$/,
 			index: 2,
@@ -201,7 +211,7 @@ function string2bb(element) {
 			template: smiley_format
 		};
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts,smilies], {className:'acpopup', zIndex:1020});
+		this.textcomplete([contacts,forums,smilies], {className:'acpopup', zIndex:1020});
 	};
 })( jQuery );
 

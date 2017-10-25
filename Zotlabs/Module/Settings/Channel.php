@@ -199,6 +199,10 @@ class Channel {
 			$vnotify += intval($_POST['vnotify10']);
 		if(x($_POST,'vnotify11'))
 			$vnotify += intval($_POST['vnotify11']);
+		if(x($_POST,'vnotify12'))
+			$vnotify += intval($_POST['vnotify12']);
+		if(x($_POST,'vnotify13') && (get_config('system', 'disable_discover_tab') != 1))
+			$vnotify += intval($_POST['vnotify13']);
 	
 		$always_show_in_notices = x($_POST,'always_show_in_notices') ? 1 : 0;
 		
@@ -505,7 +509,7 @@ class Channel {
 	
 			'$expire' => array('expire',t('Expire other channel content after this many days'),$expire, t('0 or blank to use the website limit.') . ' ' . ((intval($sys_expire)) ? sprintf( t('This website expires after %d days.'),intval($sys_expire)) : t('This website does not expire imported content.')) . ' ' . t('The website limit takes precedence if lower than your limit.')),
 			'$maxreq' 	=> array('maxreq', t('Maximum Friend Requests/Day:'), intval($channel['channel_max_friend_req']) , t('May reduce spam activity')),
-			'$permissions' => t('Default Access Control List (ACL)'),
+			'$permissions' => t('Default Privacy Group'),
 			'$permdesc' => t("\x28click to open/close\x29"),
 			'$aclselect' => populate_acl($perm_defaults, false, \Zotlabs\Lib\PermissionDescription::fromDescription(t('Use my default audience setting for the type of object published'))),
 			'$allow_cid' => acl2json($perm_defaults['allow_cid']),
@@ -555,6 +559,8 @@ class Channel {
 			'$vnotify9'  => array('vnotify9', t('System critical alerts'), ($vnotify & VNOTIFY_ALERT), VNOTIFY_ALERT, t('Recommended'), $yes_no),
 			'$vnotify10'  => array('vnotify10', t('New connections'), ($vnotify & VNOTIFY_INTRO), VNOTIFY_INTRO, t('Recommended'), $yes_no),
 			'$vnotify11'  => array('vnotify11', t('System Registrations'), ($vnotify & VNOTIFY_REGISTER), VNOTIFY_REGISTER, '', $yes_no),
+			'$vnotify12'  => array('vnotify12', t('Unseen shared files'), ($vnotify & VNOTIFY_FILES), VNOTIFY_FILES, '', $yes_no),
+			'$vnotify13'  => ((get_config('system', 'disable_discover_tab') != 1) ? array('vnotify13', t('Unseen public activity'), ($vnotify & VNOTIFY_PUBS), VNOTIFY_PUBS, '', $yes_no) : array()),
 			'$always_show_in_notices'  => array('always_show_in_notices', t('Also show new wall posts, private messages and connections under Notices'), $always_show_in_notices, 1, '', $yes_no),
 	
 			'$evdays' => array('evdays', t('Notify me of events this many days in advance'), $evdays, t('Must be greater than 0')),			

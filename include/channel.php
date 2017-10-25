@@ -7,6 +7,7 @@ require_once('include/zot.php');
 require_once('include/crypto.php');
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');
+require_once('include/photo/photo_driver.php');
 
 /**
  * @brief Called when creating a new channel.
@@ -52,7 +53,7 @@ function identity_check_service_class($account_id) {
  *
  * This action is pluggable.
  * We're currently only checking for an empty name or one that exceeds our
- * storage limit (255 chars). 255 chars is probably going to create a mess on
+ * storage limit (191 chars). 191 chars is probably going to create a mess on
  * some pages.
  * Plugins can set additional policies such as full name requirements, character
  * sets, multi-byte length, etc.
@@ -67,7 +68,7 @@ function validate_channelname($name) {
 	if (! $name)
 		return t('Empty name');
 
-	if (strlen($name) > 255)
+	if (mb_strlen($name) > 191)
 		return t('Name too long');
 
 	$arr = ['name' => $name];
@@ -273,6 +274,19 @@ function create_identity($arr) {
 		return $ret;
 	}
 
+	$a = q("select * from account where account_id = %d",
+		intval($arr['account_id'])
+	);
+
+	$photo_type = null;
+
+	$z = [ 'account' => $a[0], 'channel' => $r[0], 'photo_url' => '' ];
+	call_hooks('create_channel_photo',$z);
+ 
+	if($z['photo_url']) {
+		$photo_type = import_channel_photo_from_url($z['photo_url'],$arr['account_id'],$r[0]['channel_id']);
+	}
+
 	if($role_permissions && array_key_exists('limits',$role_permissions))
 		$perm_limits = $role_permissions['limits'];
 	else
@@ -318,6 +332,7 @@ function create_identity($arr) {
 			'xchan_guid'       => $guid,
 			'xchan_guid_sig'   => $sig,
 			'xchan_pubkey'     => $key['pubkey'],
+			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'    => z_root() . "/photo/profile/l/{$newuid}",
 			'xchan_photo_m'    => z_root() . "/photo/profile/m/{$newuid}",
 			'xchan_photo_s'    => z_root() . "/photo/profile/s/{$newuid}",
@@ -453,6 +468,194 @@ function create_identity($arr) {
 	$ret['success'] = true;
 	return $ret;
 }
+
+
+function change_channel_keys($channel) {
+
+	$ret = array('success' => false);
+
+	$stored = [];
+
+	$key = new_keypair(4096);
+
+	$sig = base64url_encode(rsa_sign($channel['channel_guid'],$key['prvkey']));
+	$hash = make_xchan_hash($channel['channel_guid'],$sig);
+
+	$stored['old_guid']     = $channel['channel_guid'];
+	$stored['old_guid_sig'] = $channel['channel_guid_sig'];
+	$stored['old_key']      = $channel['channel_pubkey'];
+	$stored['old_hash']     = $channel['channel_hash'];
+
+	$stored['new_key']      = $key['pubkey'];
+	$stored['new_sig']      = base64url_encode(rsa_sign($key['pubkey'],$channel['channel_prvkey']));
+
+	// Save this info for the notifier to collect
+
+	set_pconfig($channel['channel_id'],'system','keychange',$stored);
+
+	$r = q("update channel set channel_prvkey = '%s', channel_pubkey = '%s', channel_guid_sig = '%s', channel_hash = '%s' where channel_id = %d",
+		dbesc($key['prvkey']),
+		dbesc($key['pubkey']),
+		dbesc($sig),
+		dbesc($hash),
+		intval($channel['channel_id'])
+	);
+	if(! $r) {
+		return $ret;
+ 	}
+
+	$r = q("select * from channel where channel_id = %d",
+		intval($channel['channel_id'])
+	);
+
+	if(! $r) {
+		$ret['message'] = t('Unable to retrieve modified identity');
+		return $ret;
+	}
+
+	$modified = $r[0];
+
+	$h = q("select * from hubloc where hubloc_hash = '%s' and hubloc_url = '%s' ",
+		dbesc($stored['old_hash']),
+		dbesc(z_root())
+	);
+
+	if($h) {
+		foreach($h as $hv) {
+			$hv['hubloc_guid_sig'] = $sig;
+			$hv['hubloc_hash']     = $hash;
+			$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$modifed['channel_prvkey']));
+			hubloc_store_lowlevel($hv);
+		}
+	}
+
+	$x = q("select * from xchan where xchan_hash = '%s' ",
+		dbesc($stored['old_hash'])
+	);
+
+	$check = q("select * from xchan where xchan_hash = '%s'",
+		dbesc($hash)
+	);
+
+	if(($x) && (! $check)) {
+		$oldxchan = $x[0];
+		foreach($x as $xv) {
+			$xv['xchan_guid_sig']  = $sig;
+			$xv['xchan_hash']      = $hash;
+			$xv['xchan_pubkey']    = $key['pubkey'];
+			xchan_store_lowlevel($xv);
+			$newxchan = $xv;
+		}
+	}
+
+	build_sync_packet($channel['channel_id'], [ 'keychange' => $stored ]);
+
+	$a = q("select * from abook where abook_xchan = '%s' and abook_self = 1",
+		dbesc($stored['old_hash'])
+	);
+
+	if($a) {
+		q("update abook set abook_xchan = '%s' where abook_id = %d",
+			dbesc($hash),
+			intval($a[0]['abook_id'])
+		);
+	}
+
+	xchan_change_key($oldxchan,$newxchan,$stored);
+
+	Zotlabs\Daemon\Master::Summon(array('Notifier', 'keychange', $channel['channel_id']));
+
+	$ret['success'] = true;
+	return $ret;
+}
+
+function channel_change_address($channel,$new_address) {
+
+	$ret = array('success' => false);
+
+	$old_address = $channel['channel_address'];
+
+	if($new_address === 'sys') {
+        $ret['message'] = t('Reserved nickname. Please choose another.');
+        return $ret;
+    }
+
+    if(check_webbie(array($new_address)) !== $new_address) {
+        $ret['message'] = t('Nickname has unsupported characters or is already being used on this site.');
+        return $ret;
+    }
+
+	$r = q("update channel set channel_address = '%s' where channel_id = %d",
+		dbesc($new_address),
+		intval($channel['channel_id'])
+	);
+	if(! $r) {
+		return $ret;
+ 	}
+
+	$r = q("select * from channel where channel_id = %d",
+		intval($channel['channel_id'])
+	);
+
+	if(! $r) {
+		$ret['message'] = t('Unable to retrieve modified identity');
+		return $ret;
+	}
+
+	$r = q("update xchan set xchan_addr = '%s' where xchan_hash = '%s'",
+		dbesc($new_address . '@' . App::get_hostname()),
+		dbesc($channel['channel_hash'])
+	);
+
+	$h = q("select * from hubloc where hubloc_hash = '%s' and hubloc_url = '%s' ",
+		dbesc($channel['channel_hash']),
+		dbesc(z_root())
+	);
+
+	if($h) {
+		foreach($h as $hv) {
+			if($hv['hubloc_primary']) {
+				q("update hubloc set hubloc_primary = 0 where hubloc_id = %d",
+					intval($hv['hubloc_id'])
+				);
+			}
+			q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d",
+				intval($hv['hubloc_id'])
+			);
+
+			unset($hv['hubloc_id']);
+			$hv['hubloc_addr'] = $new_address . '@' . App::get_hostname();
+			hubloc_store_lowlevel($hv);
+		}
+	}
+
+	// fix apps which were stored with the actual name rather than a macro
+
+	$r = q("select * from app where app_channel = %d and app_system = 1",
+		intval($channel['channel_id'])
+	);
+	if($r) {
+		foreach($r as $rv) {
+			$replace = preg_replace('/([\=\/])(' . $old_address . ')($|[\%\/])/ism','$1' . $new_address . '$3',$rv['app_url']);
+			if($replace != $rv['app_url']) {
+				q("update app set app_url = '%s' where id = %d",
+					dbesc($replace),
+					intval($rv['id'])
+				);
+			}
+		}
+	}		
+
+	Zotlabs\Daemon\Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
+
+	$ret['success'] = true;
+	return $ret;
+}
+
+
+
+
+
 
 /**
  * @brief Set default channel to be used on login.
@@ -1170,7 +1373,6 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 		? trim(substr($profile['channel_name'],0,strpos($profile['channel_name'],' '))) : $profile['channel_name']);
 	$lastname = (($firstname === $profile['channel_name']) ? '' : trim(substr($profile['channel_name'],strlen($firstname))));
 
-	// @fixme move this to the diaspora plugin itself
 
 	$contact_block = contact_block();
 
@@ -1428,13 +1630,15 @@ function get_my_address() {
 function zid_init() {
 	$tmp_str = get_my_address();
 	if(validate_email($tmp_str)) {
-		Zotlabs\Daemon\Master::Summon(array('Gprobe',bin2hex($tmp_str)));
 		$arr = array('zid' => $tmp_str, 'url' => App::$cmd);
 		call_hooks('zid_init',$arr);
 		if(! local_channel()) {
 			$r = q("select * from hubloc where hubloc_addr = '%s' order by hubloc_connected desc limit 1",
 				dbesc($tmp_str)
 			);
+			if(! $r) {
+				Zotlabs\Daemon\Master::Summon(array('Gprobe',bin2hex($tmp_str)));
+			}
 			if($r && remote_channel() && remote_channel() === $r[0]['hubloc_hash'])
 				return;
 			logger('zid_init: not authenticated. Invoking reverse magic-auth for ' . $tmp_str);
@@ -1443,7 +1647,7 @@ function zid_init() {
 			$query = str_replace(array('?zid=','&zid='),array('?rzid=','&rzid='),$query);
 			$dest = '/' . urlencode($query);
 			if($r && ($r[0]['hubloc_url'] != z_root()) && (! strstr($dest,'/magic')) && (! strstr($dest,'/rmagic'))) {
-				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&rev=1&dest=' . z_root() . $dest);
+				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&rev=1&owa=1&dest=' . z_root() . $dest);
 			}
 			else
 				logger('zid_init: no hubloc found.');
@@ -2104,7 +2308,7 @@ function profile_store_lowlevel($arr) {
 // It is the caller's responsibility to confirm the requestor's intent and
 // authorisation to do this.
 
-function account_remove($account_id,$local = true,$unset_session=true) {
+function account_remove($account_id,$local = true,$unset_session = true) {
 
 	logger('account_remove: ' . $account_id);
 
@@ -2149,13 +2353,12 @@ function account_remove($account_id,$local = true,$unset_session=true) {
 
 
 	if ($unset_session) {
-		unset($_SESSION['authenticated']);
-		unset($_SESSION['uid']);
-		notice( sprintf(t("User '%s' deleted"),$account_email) . EOL);
+		App::$session->nuke();
+		notice( sprintf(t('Account \'%s\' deleted'),$account_email) . EOL);
 		goaway(z_root());
 	}
-	return $r;
 
+	return $r;
 }
 
 /**

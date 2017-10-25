@@ -18,7 +18,7 @@
 					{{$anon_extras}}
 				</div>
 				{{/if}}
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" onFocus="commentOpenUI(this,{{$id}});" onBlur="commentCloseUI(this,{{$id}});" ondragenter="linkdropper(event);" ondragleave="linkdropexit(event);" ondragover="linkdropper(event);" ondrop="linkdrop(event);" >{{$comment}}</textarea>
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text" placeholder="{{$comment}}" name="body" ondragenter="linkdropper(event);" ondragleave="linkdropexit(event);" ondragover="linkdropper(event);" ondrop="linkdrop(event);" ></textarea>
 				{{if $qcomment}}
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});" >
 					<option value=""></option>
@@ -47,6 +47,11 @@
 							</button>
 						</div>
 						<div class="btn-group mr-2">
+							{{if $can_upload}}
+							<button class="btn btn-outline-secondary btn-sm" title="{{$edatt}}" onclick="insertCommentAttach('{{$comment}}',{{$id}}); return false;">
+								<i class="fa fa-paperclip comment-icon"></i>
+							</button>
+							{{/if}}
 							<button class="btn btn-outline-secondary btn-sm" title="{{$edurl}}" onclick="insertCommentURL('{{$comment}}',{{$id}}); return false;">
 								<i class="fa fa-link comment-icon"></i>
 							</button>

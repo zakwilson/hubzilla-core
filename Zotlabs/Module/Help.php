@@ -15,7 +15,7 @@ require_once('include/help.php');
 class Help extends \Zotlabs\Web\Controller {
 
 	function get() {
-		nav_set_selected(t('Help'));
+		nav_set_selected('Help');
 
 		if($_REQUEST['search']) {
 			$o .= '<div id="help-content" class="generic-content-wrapper">';
@@ -88,12 +88,15 @@ class Help extends \Zotlabs\Web\Controller {
 			$heading = $headings[argv(1)];
 
 		$content =  get_help_content();
+		
+		$language = determine_help_language()['language'];
 
 		return replace_macros(get_markup_template('help.tpl'), array(
 			'$title'      => t('$Projectname Documentation'),
 			'$tocHeading' => t('Contents'),
 			'$content'    => $content,
-			'$heading'    => $heading
+			'$heading'    => $heading,
+			'$language'   => $language
 		));
 	}
 

@@ -446,7 +446,7 @@ abstract class photo_driver {
  */
 
 function guess_image_type($filename, $headers = '') {
-	logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
+//	logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
 	$type = null;
 	if ($headers) {
 
@@ -513,10 +513,31 @@ function guess_image_type($filename, $headers = '') {
 		}
 
 	}
-	logger('Photo: guess_image_type: type = ' . $type, LOGGER_DEBUG);
+	logger('Photo: guess_image_type: filename = ' . $filename . ' type = ' . $type, LOGGER_DEBUG);
 	return $type;
 
 }
+
+
+function delete_thing_photo($url,$ob_hash) {
+
+	$hash = basename($url);
+	$hash = substr($hash,0,strpos($hash,'-'));
+
+	// hashes should be 32 bytes. 
+
+	if((! $ob_hash) || (strlen($hash) < 16))
+		return;	
+
+	$r = q("delete from photo where xchan = '%s' and photo_usage = %d and resource_id = '%s'",
+		dbesc($ob_hash),
+		intval(PHOTO_THING),
+		dbesc($hash)
+	);
+	
+}
+
+
 
 function import_xchan_photo($photo,$xchan,$thing = false) {
 
@@ -637,6 +658,37 @@ function import_xchan_photo($photo,$xchan,$thing = false) {
 
 }
 
+function import_channel_photo_from_url($photo,$aid,$uid) {
+
+	if($photo) {
+		$filename = basename($photo);
+
+		$result = z_fetch_url($photo,true);
+
+		if($result['success']) {
+			$img_str = $result['body'];
+			$type = guess_image_type($photo, $result['header']);
+
+			$h = explode("\n",$result['header']);
+			if($h) {
+				foreach($h as $hl) {
+					if(stristr($hl,'content-type:')) {
+						if(! stristr($hl,'image/')) {
+							$photo_failure = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	else {
+		$photo_failure = true;
+	}
+
+	import_channel_photo($img_str,$type,$aid,$uid);
+
+	return $type;
+}
 
 
 function import_channel_photo($photo,$type,$aid,$uid) {

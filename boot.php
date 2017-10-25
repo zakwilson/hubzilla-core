@@ -49,10 +49,10 @@ require_once('include/hubloc.php');
 require_once('include/attach.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '2.6.3' );
-define ( 'ZOT_REVISION',            '1.2' );
+define ( 'STD_VERSION',             '2.8' );
+define ( 'ZOT_REVISION',            '1.3' );
 
-define ( 'DB_UPDATE_VERSION',       1193  );
+define ( 'DB_UPDATE_VERSION',       1196  );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -64,7 +64,7 @@ define ( 'PROJECT_BASE',   __DIR__ );
  * This can be used in HTML and JavaScript where needed a line break.
  */
 define ( 'EOL',                    '<br>' . "\r\n"        );
-define ( 'ATOM_TIME',              'Y-m-d\TH:i:s\Z'       );
+define ( 'ATOM_TIME',              'Y-m-d\\TH:i:s\\Z'     ); // aka ISO 8601 "Zulu"
 define ( 'TEMPLATE_BUILD_PATH',    'store/[data]/smarty3' );
 
 define ( 'DIRECTORY_MODE_NORMAL',      0x0000); // A directory client
@@ -256,6 +256,7 @@ define ( 'NETWORK_OSTATUS',          'stat');    // status.net, identi.ca, GNU-s
 define ( 'NETWORK_GNUSOCIAL',        'gnusoc');    // status.net, identi.ca, GNU-social, other OStatus implementations
 define ( 'NETWORK_FEED',             'rss');    // RSS/Atom feeds with no known "post/notify" protocol
 define ( 'NETWORK_DIASPORA',         'diaspora');    // Diaspora
+define ( 'NETWORK_ACTIVITYPUB',      'activitypub');
 define ( 'NETWORK_MAIL',             'mail');    // IMAP/POP
 define ( 'NETWORK_MAIL2',            'mai2');    // extended IMAP/POP
 define ( 'NETWORK_FACEBOOK',         'face');    // Facebook API
@@ -402,6 +403,8 @@ define ( 'VNOTIFY_INFO',       0x0080 );
 define ( 'VNOTIFY_ALERT',      0x0100 );
 define ( 'VNOTIFY_INTRO',      0x0200 );
 define ( 'VNOTIFY_REGISTER',   0x0400 );
+define ( 'VNOTIFY_FILES',      0x0800 );
+define ( 'VNOTIFY_PUBS',       0x1000 );
 
 
 
@@ -420,6 +423,7 @@ define ( 'TERM_THING',        7 );
 define ( 'TERM_BOOKMARK',     8 );
 define ( 'TERM_HIERARCHY',    9 );
 define ( 'TERM_COMMUNITYTAG', 10 );
+define ( 'TERM_FORUM',        11 );
 
 define ( 'TERM_OBJ_POST',    1 );
 define ( 'TERM_OBJ_PHOTO',   2 );
@@ -451,6 +455,17 @@ define ( 'NAMESPACE_STATUSNET',       'http://status.net/schema/api/1/' );
 define ( 'NAMESPACE_ATOM1',           'http://www.w3.org/2005/Atom' );
 define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
+// We should be using versioned jsonld contexts so that signatures will be slightly more reliable. 
+// Why signatures are unreliable by design is a problem nobody seems to care about 
+// "because it's a proposed W3C standard". .
+
+// Anyway, if you use versioned contexts, communication with Mastodon fails. Have not yet investigated
+// the reason for the dependency but for the current time, use the standard non-versioned context.
+//define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams-history/v1.8.jsonld' );
+
+define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
+
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.2' );
 /**
  * activity stream defines
  */
@@ -482,6 +497,7 @@ define ( 'ACTIVITY_TAG',         NAMESPACE_ACTIVITY_SCHEMA . 'tag' );
 define ( 'ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share' );
 define ( 'ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite' );
 define ( 'ACTIVITY_CREATE',      NAMESPACE_ACTIVITY_SCHEMA . 'create' );
+define ( 'ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete' );
 define ( 'ACTIVITY_WIN',         NAMESPACE_ACTIVITY_SCHEMA . 'win' );
 define ( 'ACTIVITY_LOSE',        NAMESPACE_ACTIVITY_SCHEMA . 'lose' );
 define ( 'ACTIVITY_TIE',         NAMESPACE_ACTIVITY_SCHEMA . 'tie' );
@@ -506,6 +522,7 @@ define ( 'ACTIVITY_OBJ_PROFILE', NAMESPACE_ZOT  . '/activity/profile' );
 define ( 'ACTIVITY_OBJ_THING',   NAMESPACE_ZOT  . '/activity/thing' );
 define ( 'ACTIVITY_OBJ_LOCATION',NAMESPACE_ZOT  . '/activity/location' );
 define ( 'ACTIVITY_OBJ_FILE',    NAMESPACE_ZOT  . '/activity/file' );
+define ( 'ACTIVITY_OBJ_CARD',    NAMESPACE_ZOT  . '/activity/card' );
 
 /**
  * Account Flags
@@ -544,6 +561,8 @@ define ( 'ITEM_PDL',			 0x0200);	// Page Description Language - e.g. Comanche
 define ( 'ITEM_BUG',			 0x0400);	// Is a bug, can be used by the internal bug tracker
 define ( 'ITEM_PENDING_REMOVE',  0x0800);   // deleted, notification period has lapsed
 define ( 'ITEM_DOC',             0x1000);   // hubzilla only, define here so that item import does the right thing
+define ( 'ITEM_CARD',            0x2000);
+
 
 define ( 'ITEM_TYPE_POST',       0 );
 define ( 'ITEM_TYPE_BLOCK',      1 );
@@ -551,6 +570,7 @@ define ( 'ITEM_TYPE_PDL',        2 );
 define ( 'ITEM_TYPE_WEBPAGE',    3 );
 define ( 'ITEM_TYPE_BUG',        4 );
 define ( 'ITEM_TYPE_DOC',        5 );
+define ( 'ITEM_TYPE_CARD',       6 );
 
 define ( 'ITEM_IS_STICKY',       1000 );
 
@@ -771,6 +791,10 @@ class App {
 	public static $is_tablet = false;
 	public static $comanche;
 
+
+	public static $channel_links;
+
+
 	public static  $category;
 
 	// Allow themes to control internal parameters
@@ -898,6 +922,9 @@ class App {
 		 *
 		 * There will always be one argument. If provided a naked domain
 		 * URL, self::$argv[0] is set to "home".
+		 * 
+		 * If $argv[0] has a period in it, for example foo.json; rewrite
+		 * to module = 'foo' and set $_REQUEST['module_format'] = 'json';
 		 */
 
 		self::$argv = explode('/', self::$cmd);
@@ -917,6 +944,7 @@ class App {
 			self::$argv = array('home');
 			self::$module = 'home';
 		}
+
 
 		/*
 		 * See if there is any page number information, and initialise
@@ -1015,6 +1043,19 @@ class App {
 		return self::$path;
 	}
 
+	public static function get_channel_links() {
+		$s = '';
+		$x = self::$channel_links;
+		if($x && is_array($x) && count($x)) {
+			foreach($x as $y) {
+				if($s) {
+					$s .= ',';
+				}
+				$s .= '<' . $y['url'] . '>; rel="' . $y['rel'] . '"; type="' . $y['type'] . '"';
+			}
+		}
+		return $s;
+	}
 	public static function set_account($acct) {
 		self::$account = $acct;
 	}
@@ -1596,6 +1637,7 @@ function login($register = false, $form_id = 'main-login', $hiddens=false, $logi
 		'$login_page'   => $login_page,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
+		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
 		'$lname'        => array('username', t('Login/Email') , '', ''),
 		'$lpassword'    => array('password', t('Password'), '', ''),
@@ -2048,17 +2090,23 @@ function construct_page() {
 
 	$installing = false;
 
+	$uid = ((App::$profile_uid) ? App::$profile_uid : local_channel());
+
+	$navbar = get_config('system','navbar','default');
+	if($uid) {
+		$navbar = get_pconfig($uid,'system','navbar',$navbar);
+	}
+	
+	if($comanche && App::$layout['navbar']) {
+		$navbar = App::$layout['navbar'];
+	}
+
 	if (App::$module == 'setup') {
 		$installing = true;
 	} else {
-		nav($a);
+		nav($navbar);
 	}
 
-	if ($comanche) {
-		if (App::$layout['nav']) {
-			App::$page['nav'] = get_custom_nav(App::$layout['nav']);
-		}
-	}
 
 	$current_theme = Zotlabs\Render\Theme::current();
 

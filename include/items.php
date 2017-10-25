@@ -177,7 +177,13 @@ function item_normal() {
 }
 
 function item_normal_search() {
-	return " and item.item_hidden = 0 and item.item_type in (0,3) and item.item_deleted = 0
+	return " and item.item_hidden = 0 and item.item_type in (0,3,6) and item.item_deleted = 0
+		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
+		and item.item_blocked = 0 ";
+}
+
+function item_normal_update() {
+	return " and item.item_hidden = 0 and item.item_type = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
 		and item.item_blocked = 0 ";
 }
@@ -1124,7 +1130,7 @@ function encode_item_xchan($xchan) {
 function encode_item_terms($terms,$mirror = false) {
 	$ret = array();
 
-	$allowed_export_terms = array( TERM_UNKNOWN, TERM_HASHTAG, TERM_MENTION, TERM_CATEGORY, TERM_BOOKMARK, TERM_COMMUNITYTAG );
+	$allowed_export_terms = array( TERM_UNKNOWN, TERM_HASHTAG, TERM_MENTION, TERM_CATEGORY, TERM_BOOKMARK, TERM_COMMUNITYTAG, TERM_FORUM );
 
 	if($mirror) {
 		$allowed_export_terms[] = TERM_PCATEGORY;
@@ -1172,7 +1178,7 @@ function decode_item_meta($meta) {
  * @return string
  */
 function termtype($t) {
-	$types = array('unknown','hashtag','mention','category','private_category','file','search','thing','bookmark', 'hierarchy', 'communitytag');
+	$types = array('unknown','hashtag','mention','category','private_category','file','search','thing','bookmark', 'hierarchy', 'communitytag', 'forum');
 
 	return(($types[$t]) ? $types[$t] : 'unknown');
 }
@@ -1220,6 +1226,9 @@ function decode_tags($t) {
 					break;
 				case 'communitytag':
 					$tag['ttype'] = TERM_COMMUNITYTAG;
+					break;
+				case 'forum':
+					$tag['ttype'] = TERM_FORUM;
 					break;
 				default:
 				case 'unknown':
@@ -1600,7 +1609,6 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['aid']           = ((x($arr,'aid'))           ? intval($arr['aid'])                           : 0);
 	$arr['mid']           = ((x($arr,'mid'))           ? notags(trim($arr['mid']))                     : random_string());
 	$arr['revision']      = ((x($arr,'revision') && intval($arr['revision']) > 0)   ? intval($arr['revision']) : 0);
-logger('revision: ' . $arr['revision']);
 
 	$arr['author_xchan']  = ((x($arr,'author_xchan'))  ? notags(trim($arr['author_xchan']))  : '');
 	$arr['owner_xchan']   = ((x($arr,'owner_xchan'))   ? notags(trim($arr['owner_xchan']))   : '');
@@ -1999,17 +2007,17 @@ function item_store_update($arr,$allow_exec = false, $deliver = true) {
 		$arr = $translate['item'];
 	}
 
-	if((x($arr,'obj')) && is_array($arr['obj'])) {
+	if((array_key_exists('obj',$arr)) && is_array($arr['obj'])) {
 		activity_sanitise($arr['obj']);
 		$arr['obj'] = json_encode($arr['obj']);
 	}
 
-	if((x($arr,'target')) && is_array($arr['target'])) {
+	if((array_key_exists('target',$arr)) && is_array($arr['target'])) {
 		activity_sanitise($arr['target']);
 		$arr['target'] = json_encode($arr['target']);
 	}
 
-	if((x($arr,'attach')) && is_array($arr['attach'])) {
+	if((array_key_exists('attach',$arr)) && is_array($arr['attach'])) {
 		activity_sanitise($arr['attach']);
 		$arr['attach'] = json_encode($arr['attach']);
 	}
@@ -2452,7 +2460,7 @@ function tag_deliver($uid, $item_id) {
 	 * Now we've got those out of the way. Let's see if this is a post that's tagged for re-delivery
 	 */
 
-	$terms = get_terms_oftype($item['term'],TERM_MENTION);
+	$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
 
 	if($terms)
 		logger('tag_deliver: post mentions: ' . print_r($terms,true), LOGGER_DATA);
@@ -2487,22 +2495,46 @@ function tag_deliver($uid, $item_id) {
 		$plustagged = false;
 		$matches = array();
 
-		$pattern = '/@\!?\[zrl\=' . preg_quote($term['url'],'/') . '\]' . preg_quote($term['term'],'/') . '\[\/zrl\]/';
+		$pattern = '/[\!@]\!?\[zrl\=' . preg_quote($term['url'],'/') . '\]' . preg_quote($term['term'],'/') . '\[\/zrl\]/';
 		if(preg_match($pattern,$body,$matches))
 			$tagged = true;
 
-		$pattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
+		// original red forum tagging sequence @forumname+
+		// standard forum tagging sequence !forumname
 
-		if(preg_match_all($pattern,$body,$matches,PREG_SET_ORDER)) {
-			$max_forums = get_config('system','max_tagged_forums');
-			if(! $max_forums)
-				$max_forums = 2;
-			$matched_forums = 0;
+		$pluspattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
+
+		$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
+
+		$found = false;
+
+		$max_forums = get_config('system','max_tagged_forums');
+		if(! $max_forums)
+			$max_forums = 2;
+		$matched_forums = 0;
+		$matches = array();
+
+		if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
 			foreach($matches as $match) {
 				$matched_forums ++;
 				if($term['url'] === $match[1] && $term['term'] === $match[2]) {
 					if($matched_forums <= $max_forums) {
 						$plustagged = true;
+						$found = true;
+						break;
+					}
+					logger('forum ' . $term['term'] . ' exceeded max_tagged_forums - ignoring');
+				}
+			}
+		}
+
+		if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
+			foreach($matches as $match) {
+				$matched_forums ++;
+				if($term['url'] === $match[1] && $term['term'] === $match[2]) {
+					if($matched_forums <= $max_forums) {
+						$plustagged = true;
+						$found = true;
 						break;
 					}
 					logger('forum ' . $term['term'] . ' exceeded max_tagged_forums - ignoring');
@@ -2601,7 +2633,8 @@ function tgroup_check($uid,$item) {
 	if(! $u)
 		return false;
 
-	$terms = get_terms_oftype($item['term'],TERM_MENTION);
+
+	$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
 
 	if($terms)
 		logger('tgroup_check: post mentions: ' . print_r($terms,true), LOGGER_DATA);
@@ -2632,18 +2665,34 @@ function tgroup_check($uid,$item) {
 
 	$body = preg_replace('/\[share(.*?)\[\/share\]/','',$body);
 
-//	$pattern = '/@\!?\[zrl\=' . preg_quote($term['url'],'/') . '\]' . preg_quote($term['term'] . '+','/') . '\[\/zrl\]/';
 
-	$pattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
+	$pluspattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
+
+	$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
+
 
 	$found = false;
+
+	$max_forums = get_config('system','max_tagged_forums');
+	if(! $max_forums)
+		$max_forums = 2;
+	$matched_forums = 0;
 	$matches = array();
 
-	if(preg_match_all($pattern,$body,$matches,PREG_SET_ORDER)) {
-		$max_forums = get_config('system','max_tagged_forums');
-		if(! $max_forums)
-			$max_forums = 2;
-		$matched_forums = 0;
+	if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
+		foreach($matches as $match) {
+			$matched_forums ++;
+			if($term['url'] === $match[1] && $term['term'] === $match[2]) {
+				if($matched_forums <= $max_forums) {
+					$found = true;
+					break;
+				}
+				logger('forum ' . $term['term'] . ' exceeded max_tagged_forums - ignoring');
+			}
+		}
+	}
+
+	if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
 		foreach($matches as $match) {
 			$matched_forums ++;
 			if($term['url'] === $match[1] && $term['term'] === $match[2]) {
@@ -4084,7 +4133,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 			//$third = dba_timer();
 
-			$items = fetch_post_tags($items,true);
+			$items = fetch_post_tags($items,false);
 
 			//$fourth = dba_timer();
 
@@ -4112,6 +4161,8 @@ function webpage_to_namespace($webpage) {
 		$page_type = 'BUILDBLOCK';
 	elseif($webpage == ITEM_TYPE_PDL)
 		$page_type = 'PDL';
+	elseif($webpage == ITEM_TYPE_CARD)
+		$page_type = 'CARD';
 	elseif($webpage == ITEM_TYPE_DOC)
 		$page_type = 'docfile';
 	else

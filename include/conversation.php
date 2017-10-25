@@ -295,7 +295,7 @@ function localize_item(&$item){
 		}
 		$plink = '[zrl=' . $obj['plink'] . ']' . $post_type . '[/zrl]';
 
-		$parsedobj = parse_xml_string($xmlhead.$item['obj']);
+//		$parsedobj = parse_xml_string($xmlhead.$item['obj']);
 
 		$tag = sprintf('#[zrl=%s]%s[/zrl]', $parsedobj->id, $parsedobj->content);
 		$item['body'] = sprintf( t('%1$s tagged %2$s\'s %3$s with %4$s'), $author, $objauthor, $plink, $tag );
@@ -312,7 +312,7 @@ function localize_item(&$item){
 
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
 
-		$obj = parse_xml_string($xmlhead.$item['obj']);
+//		$obj = parse_xml_string($xmlhead.$item['obj']);
 		if(strlen($obj->id)) {
 			$r = q("select * from item where mid = '%s' and uid = %d limit 1",
 					dbesc($obj->id),
@@ -464,9 +464,11 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 	$profile_owner   = 0;
 	$page_writeable  = false;
 	$live_update_div = '';
+	$jsreload        = '';
 
 	$preview = (($page_mode === 'preview') ? true : false);
 	$previewing = (($preview) ? ' preview ' : '');
+	$preview_lbl = t('This is an unsaved preview');
 
 	if ($mode === 'network') {
 
@@ -516,6 +518,16 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		}
 	}
 
+	elseif ($mode === 'cards') {
+		$profile_owner = App::$profile['profile_uid'];
+		$page_writeable = ($profile_owner == local_channel());
+		$live_update_div = '<div id="live-cards"></div>' . "\r\n"
+			. "<script> var profile_uid = " . App::$profile['profile_uid']
+			. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . "; </script>\r\n";
+		$jsreload = $_SESSION['return_url'];
+	}
+
+
 	elseif ($mode === 'display') {
 		$profile_owner = local_channel();
 		$page_writeable = false;
@@ -548,6 +560,19 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	if (! feature_enabled($profile_owner,'multi_delete'))
 		$page_dropping = false;
+
+	$uploading = true;
+
+	if($profile_owner > 0) {
+		$owner_channel = channelx_by_n($profile_owner);
+		if($owner_channel['channel_allow_cid'] || $owner_channel['channel_allow_gid']
+			|| $owner_channel['channel_deny_cid'] || $owner_channel['channel_deny_gid']) {
+			$uploading = false;
+		}
+	}
+	else {
+		$uploading = false;
+	}
 
 
 	$channel = App::get_channel();
@@ -678,12 +703,19 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 					$is_new = true;
 
+				$conv_link_mid = (($mode == 'moderate') ? $item['parent_mid'] : $item['mid']);
+
+				$conv_link = (($item['item_type'] == ITEM_TYPE_CARD) ? $item['plink'] : z_root() . '/display/' . gen_link_id($conv_link_mid));
+
+
 				$tmp_item = array(
 					'template' => $tpl,
 					'toplevel' => 'toplevel_item',
+					'item_type' => intval($item['item_type']),			
 					'mode' => $mode,
 					'approve' => t('Approve'),
 					'delete' => t('Delete'),
+					'preview_lbl' => $preview_lbl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
@@ -731,7 +763,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					'conv' => (($preview) ? '' : array('href'=> z_root() . '/display/' . gen_link_id($item['mid']), 'title'=> t('View in context'))),
+					'conv' => (($preview) ? '' : array('href'=> $conv_link, 'title'=> t('View in context'))),
 					'previewing' => $previewing,
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
@@ -751,7 +783,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 			// Normal View
 //			logger('conv: items: ' . print_r($items,true));
 
-			$conv = new Zotlabs\Lib\ThreadStream($mode, $preview, $prepared_item);
+			$conv = new Zotlabs\Lib\ThreadStream($mode, $preview, $uploading, $prepared_item);
 
 			// In the display mode we don't have a profile owner. 
 
@@ -793,6 +825,10 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 						$item_object->set_template('conv_list.tpl');
 						$item_object->set_display_mode('list');
 					}
+					if($page_mode === 'cards') {
+						$item_object->set_reload($jsreload);
+					}
+
 				}
 			}
 
@@ -1290,6 +1326,11 @@ function status_editor($a, $x, $popup = false) {
 	if(! $cipher)
 		$cipher = 'aes256';
 
+	if(array_key_exists('catsenabled',$x))
+		$catsenabled = $x['catsenabled'];
+	else
+		$catsenabled = ((feature_enabled($x['profile_uid'], 'categories') && (! $webpage)) ? 'categories' : '');
+
 	// avoid illegal offset errors
 	if(! array_key_exists('permissions',$x)) 
 		$x['permissions'] = [ 'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
@@ -1302,10 +1343,14 @@ function status_editor($a, $x, $popup = false) {
 		call_hooks('jot_networks', $jotnets);
 	}
 
+	$sharebutton = (x($x,'button') ? $x['button'] : t('Share'));
+	$placeholdtext = (x($x,'content_label') ? $x['content_label'] : $sharebutton);
+
 	$o .= replace_macros($tpl, array(
 		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
 		'$action' =>  z_root() . '/item',
-		'$share' => (x($x,'button') ? $x['button'] : t('Share')),
+		'$share' => $sharebutton,
+		'$placeholdtext' => $placeholdtext,
 		'$webpage' => $webpage,
 		'$placeholdpagetitle' => ((x($x,'ptlabel')) ? $x['ptlabel'] : t('Page link name')),
 		'$pagetitle' => (x($x,'pagetitle') ? $x['pagetitle'] : ''),
@@ -1334,7 +1379,7 @@ function status_editor($a, $x, $popup = false) {
 		'$clearloc' => $clearloc,
 		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
 		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
-		'$catsenabled' => ((feature_enabled($x['profile_uid'], 'categories') && (! $webpage)) ? 'categories' : ''),
+		'$catsenabled' => $catsenabled,
 		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
 		'$permset' => t('Permission settings'),
@@ -1441,6 +1486,8 @@ function conv_sort($arr, $order) {
 		usort($parents,'sort_thr_created');
 	elseif(stristr($order,'commented'))
 		usort($parents,'sort_thr_commented');
+	elseif(stristr($order,'updated'))
+		usort($parents,'sort_thr_updated');
 	elseif(stristr($order,'ascending'))
 		usort($parents,'sort_thr_created_rev');
 
@@ -1480,6 +1527,12 @@ function sort_thr_created_rev($a,$b) {
 
 function sort_thr_commented($a,$b) {
 	return strcmp($b['commented'],$a['commented']);
+}
+
+function sort_thr_updated($a,$b) {
+	$indexa = (($a['changed'] > $a['edited']) ? $a['changed'] : $a['edited']);
+	$indexb = (($b['changed'] > $b['edited']) ? $b['changed'] : $b['edited']);
+	return strcmp($indexb,$indexa);
 }
 
 function find_thread_parent_index($arr,$x) {
@@ -1573,7 +1626,6 @@ function network_tabs() {
 	$conv_active = '';
 	$spam_active = '';
 	$postord_active = '';
-	$public_active = '';
 
 	if(x($_GET,'new')) {
 		$new_active = 'active';
@@ -1595,16 +1647,11 @@ function network_tabs() {
 		$spam_active = 'active';
 	}
 
-	if(x($_GET,'fh')) {
-		$public_active = 'active';
-	}
-
 	if (($new_active == '') 
 		&& ($starred_active == '') 
 		&& ($conv_active == '')
 		&& ($search_active == '')
-		&& ($spam_active == '')
-		&& ($public_active == '')) {
+		&& ($spam_active == '')) {
 			$no_active = 'active';
 	}
 
@@ -1621,17 +1668,6 @@ function network_tabs() {
 
 	// tabs
 	$tabs = array();
-
-	$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
-
-	if(! $disable_discover_tab) {
-		$tabs[] = array(
-			'label' => t('Discover'),
-			'url' => z_root() . '/' . $cmd . '?f=&fh=1' ,
-			'sel' => $public_active,
-			'title' => t('Imported public streams'),
-		);
-	}
 
 	$tabs[] = array(
 		'label' => t('Commented Order'),
@@ -1820,7 +1856,8 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 
 	require_once('include/menu.php');
 	$has_bookmarks = menu_list_count(local_channel(),'',MENU_BOOKMARK) + menu_list_count(local_channel(),'',MENU_SYSTEM|MENU_BOOKMARK);
-	if ($is_owner && $has_bookmarks) {
+
+	if($is_owner && $has_bookmarks) {
 		$tabs[] = array(
 			'label' => t('Bookmarks'),
 			'url'   => z_root() . '/bookmarks',
@@ -1831,6 +1868,17 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 		);
 	}
 
+	if(feature_enabled($uid,'cards')) {
+		$tabs[] = array(
+			'label' => t('Cards'),
+			'url'   => z_root() . '/cards/' . $nickname,
+			'sel'   => ((argv(0) == 'cards') ? 'active' : ''),
+			'title' => t('View Cards'),
+			'id'    => 'cards-tab',
+			'icon'  => 'list'
+		);
+	}
+ 
 	if($has_webpages && feature_enabled($uid,'webpages')) {
 		$tabs[] = array(
 			'label' => t('Webpages'),
@@ -1841,7 +1889,7 @@ function profile_tabs($a, $is_owner = false, $nickname = null){
 			'icon'  => 'newspaper-o'
 		);
 	}
- 
+
 
 	if ($p['view_wiki']) {
 		if(feature_enabled($uid,'wiki') && (get_account_techlevel($account_id) > 3)) {

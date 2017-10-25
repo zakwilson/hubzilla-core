@@ -4,7 +4,7 @@
 </div>
 <div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
-	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} mb-4 generic-content-wrapper h-entry {{else}} u-comment h-cite {{/if}} item_{{$item.submid}}">
+	<div id="thread-wrapper-{{$item.id}}" class="thread-wrapper{{if $item.toplevel}} {{$item.toplevel}} generic-content-wrapper h-entry {{else}} u-comment h-cite {{/if}} item_{{$item.submid}}">
 		<a name="item_{{$item.id}}" ></a>
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 			<div class="clearfix wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
@@ -39,6 +39,7 @@
 					</div>
 					{{/if}}
 					<div class="wall-item-author">
+						{{if $item.previewing}}<span class="preview-indicator"><i class="fa fa-eye" title="{{$item.preview_lbl}}"></i></span>&nbsp;{{/if}}
 						<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name}}</span></a>{{if $item.owner_url}}&nbsp;{{$item.via}}&nbsp;<a href="{{$item.owner_url}}" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 					</div>
 					<div class="wall-item-ago"  id="wall-item-ago-{{$item.id}}">
@@ -85,6 +86,11 @@
 				{{/if}}
 				<div class="p-2 clearfix wall-item-tools">
 					<div class="float-right wall-item-tools-right">
+						<div class="btn-group">
+							<div id="like-rotator-{{$item.id}}" class="spinner-wrapper">
+								<div class="spinner s"></div>
+							</div>
+						</div>
 						{{if $item.toplevel && $item.emojis && $item.reactions}}
 						<div class="btn-group">
 							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-react-{{$item.id}}">
@@ -150,7 +156,7 @@
 								</button>
 								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
 									{{if $item.share}}
-									<a class="dropdown-item" href="#" onclick="jotShare({{$item.id}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$item.share.0}}"></i>{{$item.share.0}}</a>
+									<a class="dropdown-item" href="#" onclick="jotShare({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$item.share.0}}"></i>{{$item.share.0}}</a>
 									{{/if}}
 									{{if $item.plink}}
 									<a class="dropdown-item" href="{{$item.plink.href}}" title="{{$item.plink.title}}" class="u-url"><i class="generic-icons-nav fa fa-fw fa-external-link"></i>{{$item.plink.title}}</a>
@@ -194,7 +200,6 @@
 							</div>
 						</div>
 					</div>
-					<div id="like-rotator-{{$item.id}}" class="like-rotator"></div>
 
 					{{if $item.responses || $item.attachments}}
 					<div class="wall-item-tools-left{{if ($item.responses.count > 1) || ($item.responses.count &&  $item.attachments)}} btn-group{{/if}}">

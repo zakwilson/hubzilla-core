@@ -1257,11 +1257,6 @@ img.mail-conv-sender-photo {
 	white-space: nowrap;
 }
 
-#nav-app-link-wrapper {
-	min-width: 0;
-	flex-basis: 25%;
-}
-
 .page-title {
 	margin: 7px 0px;
 }
@@ -1497,6 +1492,11 @@ blockquote {
 
 	main.region_1-on {
 		left: 0px;
+	}
+
+	#nav-app-link-wrapper {
+		min-width: 0;
+		flex-basis: 25%;
 	}
 
 }

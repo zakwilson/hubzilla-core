@@ -43,15 +43,10 @@
 # Security - password  is the same for mysql-server, phpmyadmin and hubzilla db
 # - The script runs into installation errors for phpmyadmin if it uses
 #   different passwords. For the sake of simplicity one singel password.
-# 
-# Security - suhosin for PHP
-# - The script does not install suhosin.
-# - Is the security package suhosin usefull or not usefull?
 #
 # Hubzilla - email verification
 # - The script switches off email verification off in all htconfig.tpl.
 #   Example: /var/www/html/view/en/htconfig.tpl
-# - Is this a silly idea or not?
 #
 # 
 # Remove Hubzilla (for a fresh start using the script)
@@ -253,11 +248,9 @@ function install_sendmail {
 }
 
 function install_php {
-    # openssl and mbstring are included in libapache2-mod-php5
-    # to_to:  php5-suhosin
+    # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
-    nocheck_install "libapache2-mod-php5 php5 php-pear php5-xcache php5-curl php5-mcrypt php5-gd"
-    php5enmod mcrypt
+    nocheck_install "libapache2-mod-php php php-pear php-curl php-mcrypt php-gd"
 }
 
 function install_mysql {
@@ -277,18 +270,17 @@ function install_mysql {
     # want to be prompted for it then this can be arranged by preseeding the
     # DebConf database with the required information.
     #
-    #     echo mysql-server-5.5 mysql-server/root_password password xyzzy | debconf-set-selections
-    #     echo mysql-server-5.5 mysql-server/root_password_again password xyzzy | debconf-set-selections
+    #     echo mysql-server mysql-server/root_password password xyzzy | debconf-set-selections
+    #     echo mysql-server mysql-server/root_password_again password xyzzy | debconf-set-selections
     #
     print_info "installing mysql..."
     if [ -z "$mysqlpass" ]
     then
         die "mysqlpass not set in $configfile"
     fi
-    echo mysql-server-5.5 mysql-server/root_password password $mysqlpass | debconf-set-selections
-    echo mysql-server-5.5 mysql-server/root_password_again password $mysqlpass | debconf-set-selections
-    nocheck_install "php5-mysql mysql-server mysql-client"
-    php5enmod mcrypt
+    echo mysql-server mysql-server/root_password password $mysqlpass | debconf-set-selections
+    echo mysql-server mysql-server/root_password_again password $mysqlpass | debconf-set-selections
+    nocheck_install "php-mysql mysql-server mysql-client"
 }
 
 function install_phpmyadmin {
@@ -305,7 +297,7 @@ function install_phpmyadmin {
     echo phpmyadmin    phpmyadmin/reconfigure-webserver multiselect apache2 | debconf-set-selections
     nocheck_install "phpmyadmin"
 
-    # It seems to be not neccessary to check rewrite.load because it comes
+    # It seems not to be neccessary to check rewrite.load because it comes
     # with the installation. To be sure you could check this manually by:
     #
     #    nano /etc/apache2/mods-available/rewrite.load
@@ -327,6 +319,7 @@ function install_phpmyadmin {
         echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
     fi
     service apache2 restart
+    /etc/init.d/mysql start
 }
 
 function create_hubzilla_db {
@@ -455,11 +448,6 @@ function configure_cron_selfhost {
     fi
 }
 
-function install_git {
-    print_info "installing git..."
-    nocheck_install "git"
-}
-
 function install_letsencrypt {
     print_info "installing let's encrypt ..."
     # check if user gave domain
@@ -511,6 +499,8 @@ END
     then
         die "Failed to load $url_http"
     fi
+    # accept terms of service of letsencrypt
+    ./dehydrated --register --accept-terms
     # run script dehydrated
     # 
     ./dehydrated --cron --config $le_dir/config.sh
@@ -607,7 +597,6 @@ function install_hubzilla_plugins {
         echo "#   cd /var/www/html/.homeinstall" >> $plugin_install
         echo "#   ./hubzilla-setup.sh" >> $plugin_install
         echo "https://gitlab.com/zot/ownmapp.git ownMapp" >> $plugin_install
-        echo "https://gitlab.com/zot/hubzilla-chess.git chess" >> $plugin_install
     fi
     # install plugins
     while read -r line; do
@@ -801,10 +790,7 @@ echo "# update" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - updating dehydrated...\"" >> /var/www/$hubzilladaily
 echo "git -C /var/www/letsencrypt/ pull" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - updating hubhilla core...\"" >> /var/www/$hubzilladaily
-echo "git -C /var/www/html/ pull" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - updating hubhilla addons...\"" >> /var/www/$hubzilladaily
-echo "git -C /var/www/html/addon/ pull" >> /var/www/$hubzilladaily
-echo "bash /var/www/html/$plugins_update" >> /var/www/$hubzilladaily
+echo "(cd /var/www/html/ ; util/udall)" >> /var/www/$hubzilladaily
 echo "chown -R www-data:www-data /var/www/html/ # make all accessable for the webserver" >> /var/www/$hubzilladaily
 echo "chown root:www-data /var/www/html/.htaccess" >> /var/www/$hubzilladaily
 echo "chmod 0644 /var/www/html/.htaccess # www-data can read but not write it" >> /var/www/$hubzilladaily
@@ -894,7 +880,6 @@ install_run_selfhost
 ping_domain
 configure_cron_freedns
 configure_cron_selfhost
-install_git
 install_letsencrypt
 configure_apache_for_https
 check_https

@@ -7,7 +7,7 @@ The script is known to work with Debian 9 stable (Stretch)
 + Home-PC (Debian-9.2-amd64)
 + Raspian (Debian-9.3 on a Rapberry 3)
 
-This script is not recommended for Debian 8 (Jessie) any longer.
+This script does not work for Debian 8 (Jessie).
 
 # Step-by-Step Overwiew
 

@@ -251,6 +251,9 @@ function install_php {
     # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
     nocheck_install "libapache2-mod-php php php-pear php-curl php-mcrypt php-gd"
+    print_info "increase upload file size to 100M..."
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/7.0/apache2/php.ini
+    sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/7.0/apache2/php.ini
 }
 
 function install_mysql {

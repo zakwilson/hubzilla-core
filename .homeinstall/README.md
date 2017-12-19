@@ -4,12 +4,16 @@ Run hubzilla-setup.sh for an unattended installation of hubzilla.
 
 The script is known to work without adjustments with
 
-+ Home-PC (Debian-9.2-amd64) or Raspian (Debian-9.3 on a Rapberry 3)
-+ DynDNS from selfHOST.de or freedns.afraid.org/
++ Hardware
+  - Mini-PC with Debian-9.2-amd64, or
+  - Rapberry 3 with Raspbian, Debian-9.3
++ DynDNS
+  - selfHOST.de
+  - freedns.afraid.org
 
 ## Disclaimers
 
-- This script does work with Debian 9 (Stretch) only without adjustments.
+- This script does work with Debian 9 only.
 - This script has to be used on a fresh debian install only (it does not take account for a possibly already installed and configured webserver or sql implementation).
 
 # Step-by-Step Overwiew

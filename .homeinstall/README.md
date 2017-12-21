@@ -189,7 +189,7 @@ Follow the instructions in the next pages.
 
 ## Note for the Rasperry 
 
-The script was tested with an Raspberry 3 under Raspian (Debian 9.3, 2017-11-29-raspbian-stretch.img).
+The script was tested with a Raspberry 3 under Raspian (Debian 9.3, 2017-11-29-raspbian-stretch.img).
 
 Be patient when a page is loaded by your Raspi-Hub for the very first time. Especially the config pages after the install will load very slowly.
 
@@ -202,8 +202,6 @@ It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
     sudo raspi-config
 
-to boot the Rapsi to the client console.
-
-DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
+**DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!**
 
 

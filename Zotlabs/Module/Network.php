@@ -35,9 +35,12 @@ class Network extends \Zotlabs\Web\Controller {
 			return login(false);
 		}
 	
-		if($load)
+		$o = '';
+
+		if($load) {
 			$_SESSION['loadtime'] = datetime_convert();
-	
+		}
+
 		$arr = array('query' => \App::$query_string);
 	
 		call_hooks('network_content_init', $arr);
@@ -104,7 +107,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$def_acl    = array('allow_gid' => '<' . $r[0]['hash'] . '>');
 		}
 	
-		$o = '';
 	
 	
 		// if no tabs are selected, defaults to comments

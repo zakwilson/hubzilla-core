@@ -459,11 +459,6 @@ function configure_cron_selfhost {
     fi
 }
 
-function install_git {
-    print_info "installing git..."
-    nocheck_install "git"
-}
-
 function install_letsencrypt {
     print_info "installing let's encrypt ..."
     # check if user gave domain

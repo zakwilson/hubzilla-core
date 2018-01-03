@@ -710,12 +710,11 @@ echo "    fi" >> /var/www/$hubzilladaily
 echo "fi" >> /var/www/$hubzilladaily
 echo "if [ \$device_mounted == 0 ]" >> /var/www/$hubzilladaily
 echo "then" >> /var/www/$hubzilladaily
-echo "    echo \"device could not be mounted $backup_device_name. Using internal disk for backup...\"" >> /var/www/$hubzilladaily
-echo "	rsnapshot -c $snapshotconfig alpha" >> /var/www/$hubzilladaily
+echo "    echo \"device could not be mounted $backup_device_name. No backup written.\"" >> /var/www/$hubzilladaily
 echo "fi" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - db size...\"" >> /var/www/$hubzilladaily
-echo "du -h /var/cache/rsnapshot/ | grep mysql/hubzilla" >> /var/www/$hubzilladaily
+echo "#du -h /var/cache/rsnapshot/ | grep mysql/hubzilla" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "# update" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - updating dehydrated...\"" >> /var/www/$hubzilladaily

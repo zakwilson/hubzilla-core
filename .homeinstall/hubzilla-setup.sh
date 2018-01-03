@@ -571,19 +571,12 @@ function check_https {
 
 function install_hubzilla {
     print_info "installing hubzilla..."
-    # rm -R /var/www/html/ # for "stand alone" usage
-    cd /var/www/
-    # git clone https://github.com/redmatrix/hubzilla html # for "stand alone" usage
-    cd html/
-    git clone https://github.com/redmatrix/hubzilla-addons addon
+    cd /var/www/html/
+    util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git hzaddons
     mkdir -p "store/[data]/smarty3"
     chmod -R 777 store
     touch .htconfig.php
     chmod ou+w .htconfig.php
-    # uncomment the last function call "install_hubzilla_plugins" 
-    # - if you want to install addons and themes that are not officially supported
-    # - and read the comments in function "install_hubzilla_plugins" how do do it
-    # install_hubzilla_plugins
     cd /var/www/
     chown -R www-data:www-data html
 	chown root:www-data /var/www/html/
@@ -596,72 +589,6 @@ function install_hubzilla {
         print_warn "Hubzillas registration prozess might have email verification switched on."
     fi
     print_info "installed hubzilla"
-}
-
-function install_hubzilla_plugins {
-    print_info "installing hubzilla plugins..."
-    cd /var/www/html
-    plugin_install=.homeinstall/plugin_install.txt
-    theme_install=.homeinstall/theme_install.txt
-    # overwrite script to update the plugin and themes
-    rm -f $plugins_update
-    echo "cd /var/www/html" >> $plugins_update
-    ###################
-    # write plugin file
-    if [ ! -f "$plugin_install" ]
-    then
-        echo "# To install a plugin" >> $plugin_install
-        echo "# 1. add the plugin in a new line and run" >> $plugin_install
-        echo "# 2. run" >> $plugin_install
-        echo "#   cd /var/www/html/.homeinstall" >> $plugin_install
-        echo "#   ./hubzilla-setup.sh" >> $plugin_install
-        echo "https://gitlab.com/zot/ownmapp.git ownMapp" >> $plugin_install
-    fi
-    # install plugins
-    while read -r line; do
-        [[ "$line" =~ ^#.*$ ]] && continue
-        p_url=$(echo $line | awk -F' ' '{print $1}')
-        p_name=$(echo $line | awk -F' ' '{print $2}')
-        # basic check of format
-	    if [ ${#p_url} -ge 1 ] && [ ${#p_name} -ge 1 ]
-	    then
-            # install addon
-            util/add_addon_repo $line
-            util/update_addon_repo $p_name # not sure if this line is neccessary
-            echo "util/update_addon_repo $p_name" >> $plugins_update
-        else
-            print_info "skipping installation of a plugin from file $plugin_install - something wrong with format in line: $line"
-	    fi
-    done < "$plugin_install"
-    ###################
-    # write theme file
-    if [ ! -f "$theme_install" ]
-    then
-        echo "# To install a theme" >> $theme_install
-        echo "# 1. add the theme in a new line and run" >> $theme_install
-        echo "# 2. run" >> $theme_install
-        echo "#   cd /var/www/html/.homeinstall" >> $theme_install
-        echo "#   ./hubzilla-setup.sh" >> $theme_install
-        echo "https://github.com/DeadSuperHero/hubzilla-themes.git DeadSuperHeroThemes" >> $theme_install
-
-    fi
-    # install plugins
-    while read -r line; do
-        [[ "$line" =~ ^#.*$ ]] && continue
-        p_url=$(echo $line | awk -F' ' '{print $1}')
-        p_name=$(echo $line | awk -F' ' '{print $2}')
-        # basic check of format
-	    if [ ${#p_url} -ge 1 ] && [ ${#p_name} -ge 1 ]
-	    then
-            # install addon
-            util/add_theme_repo $line
-            util/update_theme_repo $p_name # not sure if this line is neccessary
-            echo "util/update_theme_repo $p_name" >> $plugins_update
-        else
-            print_info "skipping installation of a theme from file $theme_install - something wrong with format in line: $line"
-	    fi
-    done < "$theme_install"
-    print_info "installed hubzilla plugins and themes"
 }
 
 function rewrite_to_https {

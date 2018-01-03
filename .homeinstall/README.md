@@ -34,9 +34,7 @@ Software
 ## The basic steps (quick overview)
 
 + Register your own domain (for example at selfHOST) or a free subdomain (for example at freeDNS)
-+ Install Debian 9
-+ On your router: Open the ports 80 and 443
-+ Log on to your fresh Debian
++ Log on to your new debian (server)
   - apt-get install git
   - mkdir -p /var/www
   - cd /var/www
@@ -72,10 +70,10 @@ The USB drive must be compatible with the filesystems
 
 ### Install Debian Linux on the Mini-PC
 
-Download the stable Debian 9 at https://www.debian.org/  
+Download the stable Debian at https://www.debian.org/  
 (Debian 8 is no longer supported.)
 
-Create bootable USB drive with Debian on it. You could use
+Create bootable USB drive with Debian on it.You could use
 
 - unetbootin, https://en.wikipedia.org/wiki/UNetbootin
 - or simply the linux command "dd"
@@ -109,7 +107,7 @@ You can use subdomains as well
 
     my.cooldomain.org
 
-There are two ways to get a domain
+There are two way to get a domain
 
 - buy a domain, or
 - register a free subdomain
@@ -129,7 +127,7 @@ Follow the instructions in .homeinstall/hubzilla-config.txt.
 
 ## Install Hubzilla on your Debian
 
-Login to your Debian
+Login to your debian
 (Provided your username is "you" and the name of the mini pc is "debian". You
 could take the IP address instead of "debian")
 
@@ -160,7 +158,7 @@ Copy the template file
     
     cp hubzilla-config.txt.template hubzilla-config.txt
 
-Modify the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
+Change the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
 
     nano hubzilla-config.txt
 
@@ -189,9 +187,7 @@ Follow the instructions in the next pages.
 
 ## Note for the Rasperry 
 
-The script was tested with a Raspberry 3 under Raspian (Debian 9.3, 2017-11-29-raspbian-stretch.img).
-
-Be patient when a page is loaded by your Raspi-Hub for the very first time. Especially the config pages after the install will load very slowly.
+The script was tested with an Raspberry 3 under Raspian (Debian 9.3, 2017-11-29-raspbian-stretch.img).
 
 It is recommended to deinstall these programms to avoid endless updates. Use...
 
@@ -202,6 +198,8 @@ It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
     sudo raspi-config
 
-**DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!**
+to boot the Rapsi to the client console.
+
+DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
 

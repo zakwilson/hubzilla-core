@@ -565,7 +565,7 @@ function check_https {
 }
 
 function install_hubzilla {
-    print_info "installing hubzilla..."
+    print_info "installing hubzilla addons..."
     cd /var/www/html/
     util/add_addon_repo https://github.com/redmatrix/hubzilla-addons.git hzaddons
     mkdir -p "store/[data]/smarty3"
@@ -714,7 +714,7 @@ echo "    echo \"device could not be mounted $backup_device_name. No backup writ
 echo "fi" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - db size...\"" >> /var/www/$hubzilladaily
-echo "#du -h /var/cache/rsnapshot/ | grep mysql/hubzilla" >> /var/www/$hubzilladaily
+echo "du -h /var/lib/mysql/ | grep mysql/hubzilla" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "# update" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - updating dehydrated...\"" >> /var/www/$hubzilladaily

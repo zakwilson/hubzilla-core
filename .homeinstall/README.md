@@ -112,7 +112,7 @@ You can use subdomains as well
 
     my.cooldomain.org
 
-There are two way to get a domain...
+There are two ways to get a domain...
 
 ### Method 1: Buy a Domain 
 
@@ -160,7 +160,7 @@ Copy the template file
     
     cp hubzilla-config.txt.template hubzilla-config.txt
 
-Change the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
+Modify the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
 
     nano hubzilla-config.txt
 

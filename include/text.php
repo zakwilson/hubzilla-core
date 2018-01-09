@@ -1679,9 +1679,9 @@ function prepare_text($text, $content_type = 'text/bbcode', $cache = false) {
 			require_once('include/bbcode.php');
 
 			if(stristr($text,'[nosmile]'))
-				$s = bbcode($text,false,true,$cache);
+				$s = bbcode($text, [ 'cache' => $cache ]);
 			else
-				$s = smilies(bbcode($text,false,true,$cache));
+				$s = smilies(bbcode($text, [ 'cache' => $cache ]));
 
 			$s = zidify_links($s);
 
@@ -1754,9 +1754,14 @@ function get_plink($item,$conversation_mode = true) {
 	else
 		$key = 'llink';
 
+	$zidify = true;
+
+	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot')
+		$zidify = false;
+
 	if(x($item,$key)) {
 		return array(
-			'href' => zid($item[$key]),
+			'href' => (($zidify) ? zid($item[$key]) : $item[$key]),
 			'title' => t('Link to Source'),
 		);
 	}
@@ -2704,12 +2709,15 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
 function getIconFromType($type) {
 	$iconMap = array(
 		//Folder
-		t('Collection') => 'fa-folder',
-		'multipart/mixed' => 'fa-folder', //dirs in attach use this mime type
+		t('Collection') => 'fa-folder-o',
+		'multipart/mixed' => 'fa-folder-o', //dirs in attach use this mime type
 		//Common file
 		'application/octet-stream' => 'fa-file-o',
 		//Text
 		'text/plain' => 'fa-file-text-o',
+		'text/markdown' => 'fa-file-text-o',
+		'text/bbcode' => 'fa-file-text-o',
+		'text/html' => 'fa-file-text-o',
 		'application/msword' => 'fa-file-word-o',
 		'application/pdf' => 'fa-file-pdf-o',
 		'application/vnd.oasis.opendocument.text' => 'fa-file-word-o',
@@ -2739,11 +2747,33 @@ function getIconFromType($type) {
 		'video/x-matroska' => 'fa-file-video-o'
 	);
 
-	$iconFromType = 'fa-file-o';
+	$catMap = [ 
+		'application' => 'fa-file-code-o',
+		'multipart'   => 'fa-folder',
+		'audio'       => 'fa-file-audio-o',
+		'video'       => 'fa-file-video-o',
+		'text'        => 'fa-file-text-o',
+		'image'       => 'fa=file-picture-o',
+		'message'     => 'fa-file-text-o'
+	]; 
+
+
+	$iconFromType = '';
 
 	if (array_key_exists($type, $iconMap)) {
 		$iconFromType = $iconMap[$type];
 	}
+	else {
+		$parts = explode('/',$type);
+		if($parts[0] && $catMap[$parts[0]]) { 
+			$iconFromType = $catMap[$parts[0]];
+		}
+	}
+
+	if(! $iconFromType)	{
+		$iconFromType = 'fa-file-o';
+	}
+
 
 	return $iconFromType;
 }

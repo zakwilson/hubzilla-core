@@ -140,7 +140,7 @@ class Ping extends \Zotlabs\Web\Controller {
 			db_utcnow(), db_quoteinterval('3 MINUTE')
 		);
 
-		$discover_tab_on = ((get_config('system','disable_discover_tab') != 1) ? true : false);
+		$discover_tab_on = ((get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false) ? false : true);
 		$notify_pubs = ((local_channel()) ? ($vnotify & VNOTIFY_PUBS) && $discover_tab_on : $discover_tab_on);
 
 		if($notify_pubs) {
@@ -169,15 +169,13 @@ class Ping extends \Zotlabs\Web\Controller {
 			$r = q("SELECT * FROM item
 				WHERE uid = %d
 				AND author_xchan != '%s'
-				AND obj_type != '%s'
 				AND item_unseen = 1
 				AND created > '" . datetime_convert('UTC','UTC',$_SESSION['static_loadtime']) . "'
 				$item_normal
 				ORDER BY created DESC
 				LIMIT 300",
 				intval($sys['channel_id']),
-				dbesc(get_observer_hash()),
-				dbesc(ACTIVITY_OBJ_FILE)
+				dbesc(get_observer_hash())
 			);
 
 			if($r) {
@@ -264,6 +262,16 @@ class Ping extends \Zotlabs\Web\Controller {
 
 			if($t) {
 				foreach($t as $tt) {
+					$message = trim(strip_tags(bbcode($tt['msg'])));
+
+					if(strpos($message, $tt['xname']) === 0)
+						$message = substr($message, strlen($tt['xname']) + 1);
+
+
+					$mid = basename($tt['link']);
+
+					$b64mid = ((strpos($mid, 'b64.' === 0)) ? $mid : 'b64.' . base64url_encode($mid));
+
 					$notifs[] = array(
 						'notify_link' => z_root() . '/notify/view/' . $tt['id'],
 						'name' => $tt['xname'],
@@ -271,7 +279,9 @@ class Ping extends \Zotlabs\Web\Controller {
 						'photo' => $tt['photo'],
 						'when' => relative_date($tt['created']),
 						'hclass' => (($tt['seen']) ? 'notify-seen' : 'notify-unseen'),
-						'message' => strip_tags(bbcode($tt['msg']))
+						'b64mid' => (($tt['otype'] == 'item') ? $b64mid : 'undefined'),
+						'notify_id' => (($tt['otype'] == 'item') ? $tt['id'] : 'undefined'),
+						'message' => $message
 					);
 				}
 			}
@@ -313,11 +323,9 @@ class Ping extends \Zotlabs\Web\Controller {
 			$r = q("SELECT * FROM item
 				WHERE item_unseen = 1 and uid = %d $item_normal
 				AND author_xchan != '%s'
-				AND obj_type != '%s'
 				ORDER BY created DESC limit 300",
 				intval(local_channel()),
-				dbesc($ob_hash),
-				dbesc(ACTIVITY_OBJ_FILE)
+				dbesc($ob_hash)
 			);
 
 			if($r) {
@@ -484,14 +492,13 @@ class Ping extends \Zotlabs\Web\Controller {
 		$t3 = dba_timer();
 
 		if($vnotify & (VNOTIFY_NETWORK|VNOTIFY_CHANNEL)) {
+			
 			$r = q("SELECT id, item_wall FROM item
 				WHERE item_unseen = 1 and uid = %d
 				$item_normal
-				AND author_xchan != '%s'
-				AND obj_type != '%s'",
+				AND author_xchan != '%s'",
 				intval(local_channel()),
-				dbesc($ob_hash),
-				dbesc(ACTIVITY_OBJ_FILE)
+				dbesc($ob_hash)
 			);
 
 			if($r) {

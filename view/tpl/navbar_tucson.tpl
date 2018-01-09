@@ -1,5 +1,5 @@
 {{if $nav.login && !$userinfo}}
-<div class="d-xl-none pt-1 pb-1">
+<div class="d-lg-none pt-1 pb-1">
 	{{if $nav.loginmenu.1.4}}
 	<a class="btn btn-primary btn-sm text-white" href="#" title="{{$nav.loginmenu.1.3}}" id="{{$nav.loginmenu.1.4}}_collapse" data-toggle="modal" data-target="#nav-login">
 		{{$nav.loginmenu.1.1}}
@@ -87,8 +87,8 @@
 	</button>
 
 	{{if $localuser || $nav.pubs}}
-	<button id="notifications-btn" type="button" class="navbar-toggler border-0 text-white" data-toggle="collapse" data-target="#navbar-collapse-1">
-		<i id="notifications-btn-icon" class="fa fa-exclamation"></i>
+	<button id="notifications-btn-1" type="button" class="navbar-toggler border-0 text-white notifications-btn" data-toggle="collapse" data-target="#navbar-collapse-1">
+		<i id="notifications-btn-icon-1" class="fa fa-exclamation notifications-btn-icon"></i>
 	</button>
 	{{/if}}
 
@@ -113,7 +113,7 @@
 			<div id="navbar-network-menu" class="dropdown-menu" rel="network">
 				<a class="dropdown-item" id="nav-network-see-all" href="{{$nav.network.all.0}}">{{$nav.network.all.1}}</a>
 				<a class="dropdown-item" id="nav-network-mark-all" href="#" onclick="markRead('network'); return false;">{{$nav.network.mark.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -126,7 +126,7 @@
 			<div id="navbar-home-menu" class="dropdown-menu" rel="home">
 				<a class="dropdown-item" id="nav-home-see-all" href="{{$nav.home.all.0}}">{{$nav.home.all.1}}</a>
 				<a class="dropdown-item" id="nav-home-mark-all" href="#" onclick="markRead('home'); return false;">{{$nav.home.mark.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -139,7 +139,7 @@
 			<div id="navbar-mail-menu" class="dropdown-menu" rel="messages">
 				<a class="dropdown-item" id="nav-messages-see-all" href="{{$nav.messages.all.0}}">{{$nav.messages.all.1}}</a>
 				<a class="dropdown-item" id="nav-messages-mark-all" href="#" onclick="markRead('messages'); return false;">{{$nav.messages.mark.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -152,7 +152,7 @@
 			<div id="navbar-all_events-menu" class="dropdown-menu" rel="all_events">
 				<a class="dropdown-item" id="nav-all_events-see-all" href="{{$nav.all_events.all.0}}">{{$nav.all_events.all.1}}</a>
 				<a class="dropdown-item" id="nav-all_events-mark-all" href="#" onclick="markRead('all_events'); return false;">{{$nav.all_events.mark.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -164,7 +164,7 @@
 			</a>
 			<div id="navbar-intros-menu" class="dropdown-menu" rel="intros">
 				<a class="dropdown-item" id="nav-intros-see-all" href="{{$nav.intros.all.0}}">{{$nav.intros.all.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -177,7 +177,7 @@
 			<div id="navbar-notify-menu" class="dropdown-menu" rel="notify">
 				<a class="dropdown-item" id="nav-notify-see-all" href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a>
 				<a class="dropdown-item" id="nav-notify-mark-all" href="#" onclick="markRead('notify'); return false;">{{$nav.notifications.mark.1}}</a>
-				{{$emptynotifications}}
+				{{$emptynotifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 			</div>
 		</li>
 		{{/if}}
@@ -231,6 +231,11 @@
 			<a class="nav-link {{$nav.help.2}}" target="hubzilla-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" id="{{$nav.help.4}}" onclick="contextualHelp(); return false;"><i class="fa fa-fw fa-question-circle"></i></a>
 		</li>
 		{{/if}}
+		{{if $localuser || $nav.pubs}}
+		<li id="notifications-btn" class="nav-item d-xl-none">
+			<a class="nav-link text-white notifications-btn" href="#"><i id="notifications-btn-icon" class="fa fa-exclamation-circle  notifications-btn-icon"></i></a>
+		</li>
+		{{/if}}
 		{{if $channel_apps.0}}
 		<li class="nav-item dropdown" id="channel-menu">
 			<a class="nav-link" href="#" data-toggle="dropdown"><img src="{{$channel_thumb}}" style="height:14px; width:14px;position:relative; top:-2px;" /></a>
@@ -258,7 +263,7 @@
 </div>
 
 
-<div class="collapse d-xl-none" id="navbar-collapse-2">
+<div class="collapse d-lg-none" id="navbar-collapse-2">
 	<div class="navbar-nav mr-auto">
 		{{if $channel_apps.0}}
 		{{foreach $channel_apps as $channel_app}}

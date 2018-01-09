@@ -55,18 +55,20 @@ function term_item_parent_query($uid,$table,$s,$type = TERM_UNKNOWN, $type2 = ''
 	$s = str_replace('*','%',$s);
 
 	if($type2) {
-		$r = q("select parent from item left join term on term.oid = item.id where term.ttype in (%d, %d) and term.term like '%s' and term.uid = %d and term.otype = 1",
+		$r = q("select parent from item left join term on term.oid = item.id where term.ttype in (%d, %d) and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb != '%s'",
 			intval($type),
 			intval($type2),
 			dbesc($s),
-			intval($uid)
+			intval($uid),
+			dbesc(ACTIVITY_UPDATE)
 		);
 	}
 	else {
-		$r = q("select parent from item left join term on term.oid = item.id where term.ttype = %d and term.term like '%s' and term.uid = %d and term.otype = 1",
+		$r = q("select parent from item left join term on term.oid = item.id where term.ttype = %d and term.term like '%s' and term.uid = %d and term.otype = 1 and item.verb != '%s'",
 			intval($type),
 			dbesc($s),
-			intval($uid)
+			intval($uid),
+			dbesc(ACTIVITY_UPDATE)
 		);
 	}
 
@@ -253,6 +255,56 @@ function card_tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0
 
 }
 
+function article_tagadelic($uid, $count = 0, $authors = '', $owner = '', $flags = 0, $restrict = 0, $type = TERM_CATEGORY) {
+
+	require_once('include/security.php');
+
+	if(! perm_is_allowed($uid,get_observer_hash(),'view_pages'))
+		return array();
+
+
+	$item_normal = item_normal();
+	$sql_options = item_permissions_sql($uid);
+	$count = intval($count);
+
+	if($flags) {
+		if($flags === 'wall')
+			$sql_options .= " and item_wall = 1 ";
+	}
+
+	if($authors) {
+		if(! is_array($authors))
+			$authors = array($authors);
+
+		stringify_array_elms($authors,true);
+		$sql_options .= " and author_xchan in (" . implode(',',$authors) . ") "; 
+	}
+
+	if($owner) {
+		$sql_options .= " and owner_xchan  = '" . dbesc($owner) . "' ";
+	}	
+
+
+	// Fetch tags
+	$r = q("select term, count(term) as total from term left join item on term.oid = item.id
+		where term.uid = %d and term.ttype = %d 
+		and otype = %d and item_type = %d and item_private = 0
+		$sql_options $item_normal
+		group by term order by total desc %s",
+		intval($uid),
+		intval($type),
+		intval(TERM_OBJ_POST),
+		intval($restrict),
+		((intval($count)) ? "limit $count" : '')
+	);
+
+	if(! $r)
+		return array();
+
+	return Zotlabs\Text\Tagadelic::calc($r);
+
+}
+
 
 
 
@@ -261,12 +313,25 @@ function dir_tagadelic($count = 0) {
 
 	$count = intval($count);
 
-	// Fetch tags
-	$r = q("select xtag_term as term, count(xtag_term) as total from xtag where xtag_flags = 0
-		group by xtag_term order by total desc %s",
-		((intval($count)) ? "limit $count" : '')
-	);
+	$dirmode = get_config('system','directory_mode');
 
+	if($dirmode == DIRECTORY_MODE_STANDALONE) {
+		// Fetch tags
+		$r = q("select xtag_term as term, count(xtag_term) as total from xtag 
+			left join hubloc on xtag_hash = hubloc_hash 
+			where xtag_flags = 0 and hubloc_url = '%s'
+			group by xtag_term order by total desc %s",
+			dbesc(z_root()),
+			((intval($count)) ? "limit $count" : '')
+		);
+	}
+	else {
+		// Fetch tags
+		$r = q("select xtag_term as term, count(xtag_term) as total from xtag where xtag_flags = 0
+			group by xtag_term order by total desc %s",
+			((intval($count)) ? "limit $count" : '')
+		);
+	}
 	if(! $r)
 		return array();
 
@@ -387,6 +452,27 @@ function card_catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$re
 		$o = '<div class="tagblock widget"><h3>' . t('Categories') . '</h3><div class="tags" align="center">';
 		foreach($r as $rr) { 
 			$o .= '<a href="cards/' . $c[0]['channel_address']. '?f=&cat=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
+		}
+		$o .= '</div></div>';
+	}
+
+	return $o;
+}
+
+
+function article_catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,$restrict = 0,$type = TERM_CATEGORY) {
+	$o = '';
+
+	$r = article_tagadelic($uid,$count,$authors,$owner,$flags,$restrict,$type);
+
+	if($r) {
+		$c = q("select channel_address from channel where channel_id = %d limit 1",
+			intval($uid)
+		);
+	
+		$o = '<div class="tagblock widget"><h3>' . t('Categories') . '</h3><div class="tags" align="center">';
+		foreach($r as $rr) { 
+			$o .= '<a href="articles/' . $c[0]['channel_address']. '?f=&cat=' . urlencode($rr[0]).'" class="tag'.$rr[2].'">'.$rr[0].'</a> ' . "\r\n";
 		}
 		$o .= '</div></div>';
 	}

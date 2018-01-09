@@ -178,9 +178,11 @@ function poco_load($xchan = '', $url = null) {
 		);
 
 		if(! $r) {
-			q("insert into xlink ( xlink_xchan, xlink_link, xlink_updated, xlink_static ) values ( '%s', '%s', '%s', 0 ) ",
+			q("insert into xlink ( xlink_xchan, xlink_link, xlink_rating, xlink_rating_text, xlink_updated, xlink_static ) values ( '%s', '%s', %d, '%s', '%s', 0 ) ",
 				dbesc($xchan),
 				dbesc($hash),
+				intval(0),
+				dbesc(''),
 				dbesc(datetime_convert())
 			);
 		}
@@ -385,7 +387,7 @@ function poco($a,$extended = false) {
 		$sql_extra = " and abook_self = 0 ";
 
 	if($cid)
-		$sql_extra = sprintf(" and abook_id = %d and abook_hidden = 0 ",intval($cid));
+		$sql_extra = sprintf(" and abook_id = %d and abook_hidden = 0 and abook_pending = 0 ",intval($cid));
 
 	if($system_mode) {
 		$r = q("SELECT count(*) as total from abook where abook_self = 1 

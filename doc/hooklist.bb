@@ -229,6 +229,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/feature_settings_post]feature_settings_post[/zrl]
 	called from settings page when posting from 'addon/feature settings'
 
+[zrl=[baseurl]/help/hook/file_thumbnail]file_thumbnail[/zrl]
+	called when generating thumbnail images for cloud page in 'view tiles' mode
+
 [zrl=[baseurl]/help/hook/follow]follow[/zrl]
 	called when a follow operation takes place
 
@@ -243,7 +246,6 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/gender_selector_min]gender_selector_min[/zrl]
 	called when creating the 'gender' drop down list (normal profile)
-
 
 [zrl=[baseurl]/help/hook/generate_map]generate_map[/zrl]
 	called to generate the HTML for displaying a map location by coordinates
@@ -574,6 +576,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/tagged]tagged[/zrl]
 	Called when a delivery is processed which results in you being tagged
+
+[zrl=[baseurl]/help/hook/thumbnail]thumbnail[/zrl]
+	Called when generating thumbnails for cloud storage 'tile' view
 
 [zrl=[baseurl]/help/hook/update_unseen]update_unseen[/zrl]
 	Called prior to automatically marking items seen which were loaded in the browser

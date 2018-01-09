@@ -59,6 +59,7 @@ class Item extends \Zotlabs\Web\Controller {
 	
 		$profile_uid = ((x($_REQUEST,'profile_uid')) ? intval($_REQUEST['profile_uid'])    : 0);
 		require_once('include/channel.php');
+
 		$sys = get_sys_channel();
 		if($sys && $profile_uid && ($sys['channel_id'] == $profile_uid) && is_site_admin()) {
 			$uid = intval($sys['channel_id']);
@@ -155,7 +156,7 @@ class Item extends \Zotlabs\Web\Controller {
 			if(! x($_REQUEST,'type'))
 				$_REQUEST['type'] = 'net-comment';
 	
-			if($obj_type == ACTIVITY_OBJ_POST)
+			if($obj_type == ACTIVITY_OBJ_NOTE)
 				$obj_type = ACTIVITY_OBJ_COMMENT;
 	
 			if($parent) {
@@ -171,7 +172,7 @@ class Item extends \Zotlabs\Web\Controller {
 				);
 			}
 			// if this isn't the real parent of the conversation, find it
-			if($r !== false && count($r)) {
+			if($r) {
 				$parid = $r[0]['parent'];
 				$parent_mid = $r[0]['mid'];
 				if($r[0]['id'] != $r[0]['parent']) {
@@ -179,9 +180,16 @@ class Item extends \Zotlabs\Web\Controller {
 						intval($parid)
 					);
 				}
+
+				// if interacting with a pubstream item, 
+				// create a copy of the parent in your stream
+
+				if($r[0]['uid'] === $sys['channel_id'] && local_channel()) {
+					$r = [ copy_of_pubitem(\App::get_channel(), $r[0]['mid']) ];
+				}
 			}
-	
-			if(($r === false) || (! count($r))) {
+
+			if(! $r) {
 				notice( t('Unable to locate original post.') . EOL);
 				if($api_source)
 					return ( [ 'success' => false, 'message' => 'invalid post id' ] );	
@@ -189,15 +197,12 @@ class Item extends \Zotlabs\Web\Controller {
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
-	
-			// can_comment_on_post() needs info from the following xchan_query 
-			// This may be from the discover tab which means we need to correct the effective uid
 
-			xchan_query($r,true,(($r[0]['uid'] == local_channel()) ? 0 : local_channel()));
-	
+			xchan_query($r,true);
+
 			$parent_item = $r[0];
 			$parent = $r[0]['id'];
-	
+
 			// multi-level threading - preserve the info but re-parent to our single level threading
 	
 			$thr_parent = $parent_mid;
@@ -511,48 +516,20 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			require_once('include/text.php');			
 	
-			// Markdown doesn't work correctly. Do not re-enable unless you're willing to fix it and support it.
-	
-			// Sample that will probably give you grief - you must preserve the linebreaks
-			// and provide the correct markdown interpretation and you cannot allow unfiltered HTML
-	
-			// Markdown
-			// ========
-			//
-			// **bold** abcde
-			// fghijkl
-			// *italic*
-			// <img src="javascript:alert('hacked');" />
-	
-	//		if($uid && $uid == $profile_uid && feature_enabled($uid,'markdown')) {
-	//			require_once('include/markdown.php');
-	//			$body = escape_tags(trim($body));
-	//			$body = str_replace("\n",'<br />', $body);
-	//			$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_shield',$body);			
-	//			$body = markdown_to_bb($body,true);
-	//			$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_unshield',$body);
-	//		}
+			if($uid && $uid == $profile_uid && feature_enabled($uid,'markdown')) {
+				require_once('include/markdown.php');
+				$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_shield',$body);			
+				$body = markdown_to_bb($body,true,['preserve_lf' => true]);
+				$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_unshield',$body);
+
+			}
 	
 			// BBCODE alert: the following functions assume bbcode input
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
-	
-			// Work around doubled linefeeds in Tinymce 3.5b2
-			// First figure out if it's a status post that would've been
-			// created using tinymce. Otherwise leave it alone. 
-	
-			$plaintext = true;
-	
-	//		$plaintext = ((feature_enabled($profile_uid,'richtext')) ? false : true);
-	//		if((! $parent) && (! $api_source) && (! $plaintext)) {
-	//			$body = fix_mce_lf($body);
-	//		}
-	
-	
-	
+			
 			// If we're sending a private top-level message with a single @-taggable channel as a recipient, @-tag it, if our pconfig is set.
-	
-	
+		
 			if((! $parent) && (get_pconfig($profile_uid,'system','tagifonlyrecip')) && (substr_count($str_contact_allow,'<') == 1) && ($str_group_allow == '') && ($str_contact_deny == '') && ($str_group_deny == '')) {
 				$x = q("select abook_id, abconfig.v from abook left join abconfig on abook_xchan = abconfig.xchan and abook_channel = abconfig.chan and cat= 'their_perms' and abconfig.k = 'tag_deliver' and abconfig.v = 1 and abook_xchan = '%s' and abook_channel = %d limit 1",
 					dbesc(str_replace(array('<','>'),array('',''),$str_contact_allow)),
@@ -605,15 +582,6 @@ class Item extends \Zotlabs\Web\Controller {
 			 * so we'll set the permissions regardless and realise that the media may not be 
 			 * referenced in the post. 
 			 *
-			 * What is preventing us from being able to upload photos into comments is dealing with
-			 * the photo and attachment permissions, since we don't always know who was in the 
-			 * distribution for the top level post.
-			 * 
-			 * We might be able to provide this functionality with a lot of fiddling:
-			 * - if the top level post is public (make the photo public)
-			 * - if the top level post was written by us or a wall post that belongs to us (match the top level post)
-			 * - if the top level post has privacy mentions, add those to the permissions.
-			 * - otherwise disallow the photo *or* make the photo public. This is the part that gets messy. 
 			 */
 	
 			if(! $preview) {
@@ -665,6 +633,9 @@ class Item extends \Zotlabs\Web\Controller {
 
 				if($webpage == ITEM_TYPE_CARD) {
 					$catlink = z_root() . '/cards/' . $channel['channel_address'] . '?f=&cat=' . urlencode(trim($cat));
+				}
+				elseif($webpage == ITEM_TYPE_ARTICLE) {
+					$catlink = z_root() . '/articles/' . $channel['channel_address'] . '?f=&cat=' . urlencode(trim($cat));
 				}
 				else {
 					$catlink = $owner_xchan['xchan_url'] . '?f=&cat=' . urlencode(trim($cat));
@@ -767,6 +738,18 @@ class Item extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . $r[0]['v'];
+			}
+		}
+
+		if($webpage == ITEM_TYPE_ARTICLE) {
+			$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+		}
+		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_ARTICLE)) {
+			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'ARTICLE' and iconfig.iid = %d limit 1",
+				intval($parent_item['id'])
+			);
+			if($r) {
+				$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . $r[0]['v'];
 			}
 		}
 
@@ -1156,7 +1139,29 @@ class Item extends \Zotlabs\Web\Controller {
 			$ret['message'] = t('Unable to obtain post information from database.');
 			return $ret;
 		} 
-	
+
+		// auto-upgrade beginner (techlevel 0) accounts - if they have at least two friends and ten posts
+		// and have uploaded something (like a profile photo), promote them to level 1. 
+
+		$a = q("select account_id, account_level from account where account_id = (select channel_account_id from channel where channel_id = %d limit 1)",
+			intval($channel_id)
+		);
+		if((! intval($a[0]['account_level'])) && intval($r[0]['total']) > 10) {
+			$x = q("select count(abook_id) as total from abook where abook_channel = %d",
+				intval($channel_id)
+			);
+			if($x && intval($x[0]['total']) > 2) {
+				$y = q("select count(id) as total from attach where uid = %d",
+					intval($channel_id)
+				);
+				if($y && intval($y[0]['total']) > 1) {
+					q("update account set account_level = 1 where account_id = %d limit 1",
+						intval($a[0]['account_id'])
+					);
+				}
+			}
+		} 
+
 		if (!$iswebpage) {
 			$max = engr_units_to_bytes(service_class_fetch($channel_id,'total_items'));
 			if(! service_class_allows($channel_id,'total_items',$r[0]['total'])) {

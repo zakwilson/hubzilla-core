@@ -778,10 +778,14 @@ class Enotify {
 
 		// Call localize_item to get a one line status for activities. 
 		// This should set $item['localized'] to indicate we have a brief summary.
+		// and perhaps $item['shortlocalized'] for an even briefer summary
 
 		localize_item($item);
 
-		if($item['localize']) {
+		if($item['shortlocalize']) {
+			$itemem_text = $item['shortlocalize'];
+		}
+		elseif($item['localize']) {
 			$itemem_text = $item['localize'];
 		}
 		else {
@@ -800,6 +804,8 @@ class Enotify {
 			'when' => relative_date($item['created']), 
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
 			'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
+			'notify_id' => 'undefined',
+			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => strip_tags(bbcode($itemem_text))
 		);
 

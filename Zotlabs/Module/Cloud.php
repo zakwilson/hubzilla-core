@@ -57,12 +57,12 @@ class Cloud extends \Zotlabs\Web\Controller {
 			$auth->observer = $ob_hash;
 		}
 
+		// if we arrived at this path with any query parameters in the url, build a clean url without
+		// them and redirect.
 
-		$_SERVER['QUERY_STRING'] = str_replace(array('?f=', '&f='), array('', ''), $_SERVER['QUERY_STRING']);
-		$_SERVER['QUERY_STRING'] = strip_zids($_SERVER['QUERY_STRING']);
-
-		$_SERVER['REQUEST_URI'] = str_replace(array('?f=', '&f='), array('', ''), $_SERVER['REQUEST_URI']);
-		$_SERVER['REQUEST_URI'] = strip_zids($_SERVER['REQUEST_URI']);
+		$x = clean_query_string();
+		if($x !== \App::$query_string)
+			goaway(z_root() . '/' . $x);
 
 		$rootDirectory = new \Zotlabs\Storage\Directory('/', $auth);
 
@@ -83,17 +83,42 @@ class Cloud extends \Zotlabs\Web\Controller {
 		$server->addPlugin($browser);
 
 		// Experimental QuotaPlugin
-	//	require_once('\Zotlabs\Storage/QuotaPlugin.php');
-	//	$server->addPlugin(new \Zotlabs\Storage\\QuotaPlugin($auth));
+		//	require_once('\Zotlabs\Storage/QuotaPlugin.php');
+		//	$server->addPlugin(new \Zotlabs\Storage\\QuotaPlugin($auth));
 
-//		ob_start();
+
+		// over-ride the default XML output on thrown exceptions
+
+		$server->on('exception', [ $this, 'DAVException' ]);
+
 		// All we need to do now, is to fire up the server
+
 		$server->exec();
 
-//		ob_end_flush();
 		if($browser->build_page)
 			construct_page();
+		
+		killme();
+	}
+
+
+	function DAVException($err) {
+			
+		if($err instanceof \Sabre\DAV\Exception\NotFound) {
+			notice( t('Not found') . EOL);
+		}
+		elseif($err instanceof \Sabre\DAV\Exception\Forbidden) {
+			notice( t('Permission denied') . EOL);
+		}
+		else {
+			notice( t('Unknown error') . EOL);
+		}
+
+		construct_page();
+			
 		killme();
 	}
 
 }
+
+

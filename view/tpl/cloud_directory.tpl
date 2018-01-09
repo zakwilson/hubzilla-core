@@ -1,4 +1,42 @@
 <div id="cloud-drag-area" class="section-content-wrapper-np">
+	{{if $tiles}}
+	<table id="cloud-index">
+		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
+	</table>
+
+	{{if $parentpath}}
+	<div class="cloud-container" >
+
+	<div class="cloud-icon tiles"><a href="{{$parentpath.path}}">
+	<div class="cloud-icon-container"><i class="fa fa-fw fa-level-up" ></i></div>
+	</a>
+	</div>
+	<div class="cloud-title"><a href="{{$parentpath.path}}">..</a>
+	</div>
+	</div>
+	{{/if}}
+
+	{{foreach $entries as $item}}
+	<div class="cloud-container">
+	<div class="cloud-icon tiles"><a href="{{$item.fullPath}}">
+	{{if $item.photo_icon}}
+	<img src="{{$item.photo_icon}}" title="{{$item.type}}" >
+	{{else}}
+	<div class="cloud-icon-container"><i class="fa fa-fw {{$item.iconFromType}}" title="{{$item.type}}"></i></div>
+	{{/if}}
+	</a>
+	</div>
+	<div class="cloud-title"><a href="{{$item.fullPath}}">
+	{{$item.displayName}}
+	</a>
+	</div>
+	{{if $item.is_owner}}
+
+	{{/if}}
+	</div>
+	{{/foreach}}
+	<div class="clear"></div>
+	{{else}}
 	<table id="cloud-index">
 		<tr>
 			<th width="1%"></th>
@@ -18,7 +56,7 @@
 			<td class="d-none d-md-table-cell"></td>
 		</tr>
 	{{/if}}
-		<tr id="new-upload-progress-bar--1"></tr> {{* this is needed to append the upload files in the right order *}}
+		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
 	{{foreach $entries as $item}}
 		<tr id="cloud-index-{{$item.attachId}}">
 			<td><i class="fa {{$item.iconFromType}}" title="{{$item.type}}"></i></td>
@@ -42,4 +80,5 @@
 
 	{{/foreach}}
 	</table>
+	{{/if}}
 </div>

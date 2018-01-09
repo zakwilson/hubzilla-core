@@ -28,8 +28,8 @@ Hardware
 
 Software
 
-+ Fresh installation of Debian 9 (Stretch) on your mini-pc
-+ Router with open ports 80 and 443 for your Debian
++ Fresh installation of Debian 9 (Stretch)
++ Router with open ports 80 and 443 for your Hub
 
 ## The basic steps (quick overview)
 
@@ -39,10 +39,12 @@ Software
   - mkdir -p /var/www
   - cd /var/www
   - git clone https://github.com/redmatrix/hubzilla.git html
-  - cp .homeinstall/hubzilla-config.txt.template .homeinstall/hubzilla-config.txt
-  - nano .homeinstall/hubzilla-config.txt
+  - cd /html/.homeinstall
+  - cp hubzilla-config.txt.template hubzilla-config.txt
+  - nano hubzilla-config.txt
     - Read the comments carefully
     - Enter your values: db pass, domain, values for dyn DNS
+  - Make sure your your external drive (for backups) is mounted
   - hubzilla-setup.sh as root
     - ... wait, wait, wait until the script is finised
   - reboot
@@ -56,15 +58,18 @@ Software
 
 ### Recommended: USB Drive for Backups
 
-The installation will create a daily backup.
-
-If the backup process does not find an external device than the backup goes to
-the internal disk.
+The installation will create a daily backup written to an external drive.
 
 The USB drive must be compatible with the filesystems
 
 - ext4 (if you do not want to encrypt the USB) 
 - LUKS + ext4 (if you want to encrypt the USB) 
+
+The backup includes 
+
+- Hubzilla DB
+- Hubzilla installation /var/www/html
+- Certificates for letsencrypt
 
 ## Preparations Software
 
@@ -107,20 +112,17 @@ You can use subdomains as well
 
     my.cooldomain.org
 
-There are two way to get a domain
+There are two ways to get a domain...
 
-- buy a domain, or
-- register a free subdomain
-
-### Method 1: Buy an own Domain 
+### Method 1: Buy a Domain 
 
 ...for example buy at selfHOST.de  
 
 The cost are around 10,- € once and 1,50 € per month (2017).
 
-### Method 2 Register a (free) Subdomain
+The cost are around 10,- € once and 1,50 € per month (2017).
 
-...for example register at freeDNS
+...for example register at freedns.afraid.org
 
 Follow the instructions in .homeinstall/hubzilla-config.txt.  
 
@@ -158,9 +160,11 @@ Copy the template file
     
     cp hubzilla-config.txt.template hubzilla-config.txt
 
-Change the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
+Modify the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
 
     nano hubzilla-config.txt
+
+Make sure your external drive (for backups) is plugged in and can be mounted as configured in "hubzilla-config.txt". Otherwise the daily backups will not work.
 
 Run the script
 
@@ -184,6 +188,13 @@ Enter
 Leave db type "MySQL" untouched.
 
 Follow the instructions in the next pages.
+
+After the daily script was executed at 05:30 (am)
+
+- look at var/www/html/hubzilla-daily.log
+- check your backup on the external drive
+- optionally view the daily log under yourdomain.org/admin/logs/
+  - set the logfile to var/www/html/hubzilla-daily.log
 
 ## Note for the Rasperry 
 

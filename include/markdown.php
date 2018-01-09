@@ -14,26 +14,24 @@ require_once("include/bbcode.php");
 
 
 /**
- * @brief
+ * @brief Convert Markdown to bbcode.
  *
  * We don't want to support a bbcode specific markdown interpreter
  * and the markdown library we have is pretty good, but provides HTML output.
  * So we'll use that to convert to HTML, then convert the HTML back to bbcode,
  * and then clean up a few Diaspora specific constructs.
  *
- * @param string $s
+ * @param string $s The message as Markdown
  * @param boolean $use_zrl default false
- * @return string
+ * @param array $options default empty
+ * @return string The message converted to bbcode
  */
-
 function markdown_to_bb($s, $use_zrl = false, $options = []) {
 
-
 	if(is_array($s)) {
-		btlogger('markdown_to_bb called with array. ' . print_r($s,true), LOGGER_NORMAL, LOG_WARNING);
+		btlogger('markdown_to_bb called with array. ' . print_r($s, true), LOGGER_NORMAL, LOG_WARNING);
 		return '';
 	}
-
 
 	$s = str_replace("&#xD;","\r",$s);
 	$s = str_replace("&#xD;\n&gt;","",$s);
@@ -43,20 +41,32 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	// if empty link text replace with the url
 	$s = preg_replace("/\[\]\((.*?)\)/ism",'[$1]($1)',$s);
 
-	$x = [ 'text' => $s , 'zrl' => $use_zrl, 'options' => $options ];	
-
-	call_hooks('markdown_to_bb_init',$x);
+	$x = [
+			'text' => $s,
+			'zrl' => $use_zrl,
+			'options' => $options
+	];
+	/**
+	 * @hooks markdown_to_bb_init
+	 *   * \e string \b text - The message as Markdown and what will get returned
+	 *   * \e boolean \b zrl
+	 *   * \e array \b options
+	 */
+	call_hooks('markdown_to_bb_init', $x);
 
 	$s = $x['text'];
 
-	// Escaping the hash tags - doesn't always seem to work
-	// $s = preg_replace('/\#([^\s\#])/','\\#$1',$s);
-	// This seems to work
+	// Escaping the hash tags
 	$s = preg_replace('/\#([^\s\#])/','&#35;$1',$s);
 
 	$s = MarkdownExtra::defaultTransform($s);
 
-	$s = str_replace("\r","",$s);
+	if($options && $options['preserve_lf']) {
+		$s = str_replace(["\r","\n"],["",'<br>'],$s);
+	}
+	else {
+		$s = str_replace("\r","",$s);
+	}
 
 	$s = str_replace('&#35;','#',$s);
 
@@ -77,13 +87,22 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	// Don't show link to full picture (until it is fixed)
 	$s = scale_external_images($s, false);
 
-	call_hooks('markdown_to_bb',$s);
+	/**
+	 * @hooks markdown_to_bb
+	 *   * \e string - The already converted message as bbcode
+	 */
+	call_hooks('markdown_to_bb', $s);
 
 	return $s;
 }
 
 
-
+/**
+ * @brief
+ *
+ * @param array $match
+ * @return string
+ */
 function bb_to_markdown_share($match) {
 
 	$matches = array();
@@ -150,16 +169,21 @@ function bb_to_markdown_share($match) {
 }
 
 
-
+/**
+ * @brief Convert bbcode to Markdown.
+ *
+ * @param string $Text The message as bbcode
+ * @param array $options default empty
+ * @return string The message converted to Markdown
+ */
 function bb_to_markdown($Text, $options = []) {
 
 	/*
 	 * Transform #tags, strip off the [url] and replace spaces with underscore
 	 */
 
-	$Text = preg_replace_callback('/#\[([zu])rl\=(.*?)\](.*?)\[\/[(zu)]rl\]/i', 
+	$Text = preg_replace_callback('/#\[([zu])rl\=(.*?)\](.*?)\[\/[(zu)]rl\]/i',
 		create_function('$match', 'return \'#\'. str_replace(\' \', \'_\', $match[3]);'), $Text);
-
 
 	$Text = preg_replace('/#\^\[([zu])rl\=(.*?)\](.*?)\[\/([zu])rl\]/i', '[$1rl=$2]$3[/$4rl]', $Text);
 
@@ -170,12 +194,17 @@ function bb_to_markdown($Text, $options = []) {
 
 	$x = [ 'bbcode' => $Text, 'options' => $options ];
 
-	call_hooks('bb_to_markdown_bb',$x);
+	/**
+	 * @hooks bb_to_markdown_bb
+	 *   * \e string \b bbcode - The message as bbcode and what will get returned
+	 *   * \e array \b options
+	 */
+	call_hooks('bb_to_markdown_bb', $x);
 
 	$Text = $x['bbcode'];
 
 	// Convert it to HTML - don't try oembed
-	$Text = bbcode($Text, $preserve_nl, false);
+	$Text = bbcode($Text, [ 'tryoembed' => false ]);
 
 	// Markdownify does not preserve previously escaped html entities such as <> and &.
 	$Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
@@ -199,12 +228,14 @@ function bb_to_markdown($Text, $options = []) {
 
 	$Text = trim($Text);
 
+	/**
+	 * @hooks bb_to_markdown
+	 *   * \e string - The already converted message as bbcode and what will get returned
+	 */
 	call_hooks('bb_to_markdown', $Text);
 
 	return $Text;
-
 }
-
 
 
 /**
@@ -213,8 +244,6 @@ function bb_to_markdown($Text, $options = []) {
  * This function uses the library league/html-to-markdown for this task.
  *
  * If the HTML text can not get parsed it will return an empty string.
- *
- * @see HTMLToMarkdown
  *
  * @param string $html The HTML code to convert
  * @return string Markdown representation of the given HTML text, empty on error
@@ -229,8 +258,5 @@ function html2markdown($html) {
 		logger("Invalid HTML. HTMLToMarkdown library threw an exception.");
 	}
 
-	// The old html 2 markdown library "pixel418/markdownify": "^2.2",
-	//$md = new HtmlConverter();
-	//$markdown = $md->convert($Text);
 	return $markdown;
 }

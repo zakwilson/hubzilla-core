@@ -129,7 +129,14 @@ abstract class photo_driver {
 		return $this->types[$this->getType()];
 	}
 
-	public function scaleImage($max) {
+	/**
+	 * @brief scale image
+	 * int $max maximum pixel size in either dimension
+	 * boolean $float_height - if true allow height to float to any length on tall images, 
+	 *     constraining only the width
+	 */
+
+	public function scaleImage($max, $float_height = true) {
 		if(!$this->is_valid())
 			return FALSE;
 
@@ -146,7 +153,7 @@ abstract class photo_driver {
 			// very tall image (greater than 16:9)
 			// constrain the width - let the height float.
 
-			if((($height * 9) / 16) > $width) {
+			if(((($height * 9) / 16) > $width) && ($float_height)) {
 				$dest_width = $max;
 	 			$dest_height = intval(( $height * $max ) / $width);
 			}
@@ -173,7 +180,7 @@ abstract class photo_driver {
 					// very tall image (greater than 16:9)
 					// but width is OK - don't do anything
 
-					if((($height * 9) / 16) > $width) {
+					if(((($height * 9) / 16) > $width) && ($float_height)) {
 						$dest_width = $width;
 	 					$dest_height = $height;
 					}
@@ -241,73 +248,93 @@ abstract class photo_driver {
 	}
 
 
+	/**
+	 * @brief reads exif data from filename
+	 */
+
+	public function exif($filename) {
 
 
-	public function orient($filename) {
+		if((! function_exists('exif_read_data')) 
+			|| (! in_array($this->getType(), [ 'image/jpeg' , 'image/tiff'] ))) {
+			return false;
+		}
 
-		/**
-		 * This function is a bit unusual, because it is operating on a file, but you must
-		 * first create an image from that file to initialise the type and check validity
-		 * of the image.
+		/*
+		 * PHP 7.2 allows you to use a stream resource, which should reduce/avoid
+		 * memory exhaustion on large images. 
 		 */
 
-		if(! $this->is_valid())
-			return false;
-
-		if((! function_exists('exif_read_data')) || ($this->getType() !== 'image/jpeg'))
-			return false;
-
-		$exif = @exif_read_data($filename,null,true);
-
-		if($exif) {
-			$ort = $exif['IFD0']['Orientation'];
-
-			switch($ort)
-			{
-				case 1: // nothing
-					break;
-
-				case 2: // horizontal flip
-					$this->flip();
-					break;
-
-				case 3: // 180 rotate left
-					$this->rotate(180);
-					break;
-
-				case 4: // vertical flip
-					$this->flip(false, true);
-					break;
-
-				case 5: // vertical flip + 90 rotate right
-					$this->flip(false, true);
-					$this->rotate(-90);
-					break;
-
-				case 6: // 90 rotate right
-					$this->rotate(-90);
-					break;
-
-				case 7: // horizontal flip + 90 rotate right
-					$this->flip();
-					$this->rotate(-90);
-					break;
-
-				case 8:	// 90 rotate left
-					$this->rotate(90);
-					break;
-			}
-
-			return $exif;
-
+		if(version_compare(PHP_VERSION,'7.2.0') >= 0) {
+			$f = @fopen($filename,'rb');
 		}
-		
-		return false;
+		else {
+			$f = $filename;
+		}
 
+		if($f) {
+			return @exif_read_data($f);
+		}
+
+		return false;
+	}
+
+	/**
+	 * @brief orients current image based on exif orientation information
+	 */
+
+	public function orient($exif) {
+
+		if(! ($this->is_valid() && $exif)) {
+			return false;
+		}
+
+		$ort = $exif['IFD0']['Orientation'];
+
+		if(! $ort) {
+			return false;
+		}
+
+		switch($ort) {
+			case 1: // nothing
+				break;
+			case 2: // horizontal flip
+				$this->flip();
+				break;
+			case 3: // 180 rotate left
+				$this->rotate(180);
+				break;
+			case 4: // vertical flip
+				$this->flip(false, true);
+				break;
+			case 5: // vertical flip + 90 rotate right
+				$this->flip(false, true);
+				$this->rotate(-90);
+				break;
+			case 6: // 90 rotate right
+				$this->rotate(-90);
+				break;
+			case 7: // horizontal flip + 90 rotate right
+				$this->flip();
+				$this->rotate(-90);
+				break;
+			case 8:	// 90 rotate left
+				$this->rotate(90);
+				break;
+			default:
+				break;
+		}
+
+		return true;
 	}
 
 
 	public function save($arr) {
+
+		if(! $this->is_valid()) {
+			logger('attempt to store invalid photo.');
+			return false;
+		}
 
 		$p = array();
 
@@ -331,6 +358,8 @@ abstract class photo_driver {
 		$p['os_path'] = $arr['os_path'];
 		$p['os_syspath'] = ((array_key_exists('os_syspath',$arr)) ? $arr['os_syspath'] : '');
 		$p['display_path'] = (($arr['display_path']) ? $arr['display_path'] : '');
+		$p['width'] = (($arr['width']) ? $arr['width'] : $this->getWidth());
+		$p['height'] = (($arr['height']) ? $arr['height'] : $this->getHeight());
 
 		if(! intval($p['imgscale']))
 			logger('save: ' . print_r($arr,true), LOGGER_DATA);
@@ -378,8 +407,8 @@ abstract class photo_driver {
 				dbesc(basename($p['filename'])),
 				dbesc($this->getType()),
 				dbesc($p['album']),
-				intval($this->getHeight()),
-				intval($this->getWidth()),
+				intval($p['height']),
+				intval($p['width']),
 				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
 				intval($p['os_storage']),
 				intval(strlen($this->imageString())),
@@ -409,8 +438,8 @@ abstract class photo_driver {
 				dbesc(basename($p['filename'])),
 				dbesc($this->getType()),
 				dbesc($p['album']),
-				intval($this->getHeight()),
-				intval($this->getWidth()),
+				intval($p['height']),
+				intval($p['width']),
 				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
 				intval($p['os_storage']),
 				intval(strlen($this->imageString())),
@@ -426,6 +455,7 @@ abstract class photo_driver {
 				dbesc($p['deny_gid'])
 			);
 		}
+		logger('photo save ' . $p['imgscale'] . ' returned ' . intval($r));
 		return $r;
 	}
 

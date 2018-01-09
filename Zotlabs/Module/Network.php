@@ -35,9 +35,12 @@ class Network extends \Zotlabs\Web\Controller {
 			return login(false);
 		}
 	
-		if($load)
+		$o = '';
+
+		if($load) {
 			$_SESSION['loadtime'] = datetime_convert();
-	
+		}
+
 		$arr = array('query' => \App::$query_string);
 	
 		call_hooks('network_content_init', $arr);
@@ -104,7 +107,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$def_acl    = array('allow_gid' => '<' . $r[0]['hash'] . '>');
 		}
 	
-		$o = '';
 	
 	
 		// if no tabs are selected, defaults to comments
@@ -119,6 +121,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$cmax     = ((x($_GET,'cmax'))  ? intval($_GET['cmax'])  : 99);
 		$file     = ((x($_GET,'file'))  ? $_GET['file']          : '');
 		$xchan    = ((x($_GET,'xchan')) ? $_GET['xchan']         : '');
+		$net      = ((x($_GET,'net'))   ? $_GET['net']           : '');
 		
 		$deftag = '';
 	
@@ -326,7 +329,8 @@ class Network extends \Zotlabs\Web\Controller {
 				'$tags'    => urlencode($hashtags),
 				'$dend'    => $datequery,
 				'$mid'     => '',
-				'$verb'     => $verb,
+				'$verb'    => $verb,
+				'$net'     => $net,
 				'$dbegin'  => $datequery2
 			));
 		}
@@ -404,7 +408,10 @@ class Network extends \Zotlabs\Web\Controller {
 	
 	
 		}
-	
+
+		$net_query = (($net) ? " left join xchan on xchan_hash = author_xchan " : ''); 
+		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
+
 		$abook_uids = " and abook.abook_channel = " . local_channel() . " ";
 		$uids = " and item.uid = " . local_channel() . " ";
 	
@@ -441,10 +448,12 @@ class Network extends \Zotlabs\Web\Controller {
 	
 			$items = q("SELECT item.*, item.id AS item_id, received FROM item
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
+				$net_query
 				WHERE true $uids $item_normal
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)
 				$simple_update
 				$sql_extra $sql_nets
+				$net_query2
 				ORDER BY item.received DESC $pager_sql "
 			);
 	
@@ -469,10 +478,12 @@ class Network extends \Zotlabs\Web\Controller {
 	
 				$r = q("SELECT distinct item.id AS item_id, $ordering FROM item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
+					$net_query
 					WHERE true $uids $item_normal
 					AND item.parent = item.id
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra3 $sql_extra $sql_nets
+					$net_query2
 					ORDER BY $ordering DESC $pager_sql "
 				);
 	
@@ -482,9 +493,10 @@ class Network extends \Zotlabs\Web\Controller {
 				// this is an update
 				$r = q("SELECT item.parent AS item_id FROM item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
+					$net_query
 					WHERE true $uids $item_normal_update $simple_update
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
-					$sql_extra3 $sql_extra $sql_nets "
+					$sql_extra3 $sql_extra $sql_nets $net_query2"
 				);
 				$_SESSION['loadtime'] = datetime_convert();
 			}
@@ -523,13 +535,12 @@ class Network extends \Zotlabs\Web\Controller {
 	
 				if($parents_str) {
 					$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
-					$update_unseen .= " AND obj_type != '" . dbesc(ACTIVITY_OBJ_FILE) . "'";
 					$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
 				}
 			}
 			else {
 				if($parents_str) {
-					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " ) AND obj_type != '" . dbesc(ACTIVITY_OBJ_FILE) . "'";
+					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
 				}
 			}
 		}

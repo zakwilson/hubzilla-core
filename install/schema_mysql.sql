@@ -609,7 +609,6 @@ CREATE TABLE IF NOT EXISTS `item` (
   `resource_type` char(16) NOT NULL DEFAULT '',
   `attach` mediumtext NOT NULL,
   `sig` text NOT NULL,
-  `diaspora_meta` mediumtext NOT NULL,
   `location` char(191) NOT NULL DEFAULT '',
   `coord` char(191) NOT NULL DEFAULT '',
   `public_policy` char(191) NOT NULL DEFAULT '',
@@ -899,6 +898,19 @@ CREATE TABLE IF NOT EXISTS `outq` (
   KEY `outq_delivered` (`outq_delivered`),
   KEY `outq_priority` (`outq_priority`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE IF NOT EXISTS pchan (
+  `pchan_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `pchan_guid` char(191) NOT NULL DEFAULT '',
+  `pchan_hash` char(191) NOT NULL DEFAULT '',
+  `pchan_pubkey` text NOT NULL,
+  `pchan_prvkey` text NOT NULL,
+  PRIMARY KEY (`pchan_id`),
+  KEY `pchan_guid` (`pchan_guid`),
+  KEY `pchan_hash` (`pchan_hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 CREATE TABLE IF NOT EXISTS `pconfig` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

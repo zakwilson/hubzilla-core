@@ -42,9 +42,17 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             'League\\HTMLToMarkdown\\' => 22,
         ),
+        'I' => 
+        array (
+            'ID3Parser\\' => 10,
+        ),
         'H' => 
         array (
             'Hubzilla\\' => 9,
+        ),
+        'C' => 
+        array (
+            'CommerceGuys\\Intl\\' => 18,
         ),
     );
 
@@ -97,13 +105,28 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         array (
             0 => __DIR__ . '/..' . '/league/html-to-markdown/src',
         ),
+        'ID3Parser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/lukasreschke/id3parser/src',
+        ),
         'Hubzilla\\' => 
         array (
             0 => __DIR__ . '/../..' . '/include',
         ),
+        'CommerceGuys\\Intl\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/commerceguys/intl/src',
+        ),
     );
 
     public static $prefixesPsr0 = array (
+        'T' => 
+        array (
+            'Text' => 
+            array (
+                0 => __DIR__ . '/..' . '/pear/text_languagedetect',
+            ),
+        ),
         'S' => 
         array (
             'SimplePie' => 
@@ -135,6 +158,36 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $classMap = array (
+        'CommerceGuys\\Intl\\Calculator' => __DIR__ . '/..' . '/commerceguys/intl/src/Calculator.php',
+        'CommerceGuys\\Intl\\Country\\Country' => __DIR__ . '/..' . '/commerceguys/intl/src/Country/Country.php',
+        'CommerceGuys\\Intl\\Country\\CountryEntityInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Country/CountryEntityInterface.php',
+        'CommerceGuys\\Intl\\Country\\CountryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Country/CountryInterface.php',
+        'CommerceGuys\\Intl\\Country\\CountryRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/Country/CountryRepository.php',
+        'CommerceGuys\\Intl\\Country\\CountryRepositoryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Country/CountryRepositoryInterface.php',
+        'CommerceGuys\\Intl\\Currency\\Currency' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/Currency.php',
+        'CommerceGuys\\Intl\\Currency\\CurrencyEntityInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyEntityInterface.php',
+        'CommerceGuys\\Intl\\Currency\\CurrencyInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyInterface.php',
+        'CommerceGuys\\Intl\\Currency\\CurrencyRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyRepository.php',
+        'CommerceGuys\\Intl\\Currency\\CurrencyRepositoryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Currency/CurrencyRepositoryInterface.php',
+        'CommerceGuys\\Intl\\Exception\\ExceptionInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/ExceptionInterface.php',
+        'CommerceGuys\\Intl\\Exception\\InvalidArgumentException' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/InvalidArgumentException.php',
+        'CommerceGuys\\Intl\\Exception\\UnknownCountryException' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/UnknownCountryException.php',
+        'CommerceGuys\\Intl\\Exception\\UnknownCurrencyException' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/UnknownCurrencyException.php',
+        'CommerceGuys\\Intl\\Exception\\UnknownLanguageException' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/UnknownLanguageException.php',
+        'CommerceGuys\\Intl\\Exception\\UnknownLocaleException' => __DIR__ . '/..' . '/commerceguys/intl/src/Exception/UnknownLocaleException.php',
+        'CommerceGuys\\Intl\\Formatter\\NumberFormatter' => __DIR__ . '/..' . '/commerceguys/intl/src/Formatter/NumberFormatter.php',
+        'CommerceGuys\\Intl\\Formatter\\NumberFormatterInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Formatter/NumberFormatterInterface.php',
+        'CommerceGuys\\Intl\\Language\\Language' => __DIR__ . '/..' . '/commerceguys/intl/src/Language/Language.php',
+        'CommerceGuys\\Intl\\Language\\LanguageEntityInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Language/LanguageEntityInterface.php',
+        'CommerceGuys\\Intl\\Language\\LanguageInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Language/LanguageInterface.php',
+        'CommerceGuys\\Intl\\Language\\LanguageRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/Language/LanguageRepository.php',
+        'CommerceGuys\\Intl\\Language\\LanguageRepositoryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/Language/LanguageRepositoryInterface.php',
+        'CommerceGuys\\Intl\\LocaleResolverTrait' => __DIR__ . '/..' . '/commerceguys/intl/src/LocaleResolverTrait.php',
+        'CommerceGuys\\Intl\\NumberFormat\\NumberFormat' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormat.php',
+        'CommerceGuys\\Intl\\NumberFormat\\NumberFormatEntityInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatEntityInterface.php',
+        'CommerceGuys\\Intl\\NumberFormat\\NumberFormatInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatInterface.php',
+        'CommerceGuys\\Intl\\NumberFormat\\NumberFormatRepository' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatRepository.php',
+        'CommerceGuys\\Intl\\NumberFormat\\NumberFormatRepositoryInterface' => __DIR__ . '/..' . '/commerceguys/intl/src/NumberFormat/NumberFormatRepositoryInterface.php',
         'HTMLPurifier' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.php',
         'HTMLPurifier_Arborize' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Arborize.php',
         'HTMLPurifier_AttrCollections' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/AttrCollections.php',
@@ -370,6 +423,13 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'HTMLPurifier_VarParser_Native' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/VarParser/Native.php',
         'HTMLPurifier_Zipper' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier/Zipper.php',
         'Hubzilla\\Import\\Import' => __DIR__ . '/../..' . '/include/Import/Importer.php',
+        'ID3Parser\\ID3Parser' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/ID3Parser.php',
+        'ID3Parser\\getID3\\Tags\\getid3_id3v1' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
+        'ID3Parser\\getID3\\Tags\\getid3_id3v2' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
+        'ID3Parser\\getID3\\getID3' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3.php',
+        'ID3Parser\\getID3\\getid3_exception' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_exception.php',
+        'ID3Parser\\getID3\\getid3_handler' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_handler.php',
+        'ID3Parser\\getID3\\getid3_lib' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_lib.php',
         'League\\HTMLToMarkdown\\Configuration' => __DIR__ . '/..' . '/league/html-to-markdown/src/Configuration.php',
         'League\\HTMLToMarkdown\\ConfigurationAwareInterface' => __DIR__ . '/..' . '/league/html-to-markdown/src/ConfigurationAwareInterface.php',
         'League\\HTMLToMarkdown\\Converter\\BlockquoteConverter' => __DIR__ . '/..' . '/league/html-to-markdown/src/Converter/BlockquoteConverter.php',
@@ -846,6 +906,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'SimplePie_Source' => __DIR__ . '/..' . '/simplepie/simplepie/library/SimplePie/Source.php',
         'SimplePie_XML_Declaration_Parser' => __DIR__ . '/..' . '/simplepie/simplepie/library/SimplePie/XML/Declaration/Parser.php',
         'SimplePie_gzdecode' => __DIR__ . '/..' . '/simplepie/simplepie/library/SimplePie/gzdecode.php',
+        'Text_LanguageDetect' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect.php',
+        'Text_LanguageDetect_Exception' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
+        'Text_LanguageDetect_ISO639' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
+        'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
         'Zotlabs\\Access\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Access/AccessList.php',
         'Zotlabs\\Access\\PermissionLimits' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionLimits.php',
         'Zotlabs\\Access\\PermissionRoles' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionRoles.php',
@@ -873,6 +937,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Daemon\\Poller' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Poller.php',
         'Zotlabs\\Daemon\\Queue' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Queue.php',
         'Zotlabs\\Daemon\\Ratenotif' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Ratenotif.php',
+        'Zotlabs\\Daemon\\Thumbnail' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Thumbnail.php',
         'Zotlabs\\Extend\\Hook' => __DIR__ . '/../..' . '/Zotlabs/Extend/Hook.php',
         'Zotlabs\\Identity\\BasicId\\BasicId' => __DIR__ . '/../..' . '/Zotlabs/Identity/BasicId.php',
         'Zotlabs\\Identity\\ProfilePhoto\\ProfilePhoto' => __DIR__ . '/../..' . '/Zotlabs/Identity/ProfilePhoto.php',
@@ -920,11 +985,12 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Admin\\Security' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Security.php',
         'Zotlabs\\Module\\Admin\\Site' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Site.php',
         'Zotlabs\\Module\\Admin\\Themes' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Themes.php',
-        'Zotlabs\\Module\\Ap_probe' => __DIR__ . '/../..' . '/Zotlabs/Module/Ap_probe.php',
         'Zotlabs\\Module\\Api' => __DIR__ . '/../..' . '/Zotlabs/Module/Api.php',
         'Zotlabs\\Module\\Appman' => __DIR__ . '/../..' . '/Zotlabs/Module/Appman.php',
         'Zotlabs\\Module\\Apporder' => __DIR__ . '/../..' . '/Zotlabs/Module/Apporder.php',
         'Zotlabs\\Module\\Apps' => __DIR__ . '/../..' . '/Zotlabs/Module/Apps.php',
+        'Zotlabs\\Module\\Article_edit' => __DIR__ . '/../..' . '/Zotlabs/Module/Article_edit.php',
+        'Zotlabs\\Module\\Articles' => __DIR__ . '/../..' . '/Zotlabs/Module/Articles.php',
         'Zotlabs\\Module\\Attach' => __DIR__ . '/../..' . '/Zotlabs/Module/Attach.php',
         'Zotlabs\\Module\\Authorize' => __DIR__ . '/../..' . '/Zotlabs/Module/Authorize.php',
         'Zotlabs\\Module\\Authtest' => __DIR__ . '/../..' . '/Zotlabs/Module/Authtest.php',
@@ -942,6 +1008,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Chat' => __DIR__ . '/../..' . '/Zotlabs/Module/Chat.php',
         'Zotlabs\\Module\\Chatsvc' => __DIR__ . '/../..' . '/Zotlabs/Module/Chatsvc.php',
         'Zotlabs\\Module\\Cloud' => __DIR__ . '/../..' . '/Zotlabs/Module/Cloud.php',
+        'Zotlabs\\Module\\Cloud_tiles' => __DIR__ . '/../..' . '/Zotlabs/Module/Cloud_tiles.php',
         'Zotlabs\\Module\\Common' => __DIR__ . '/../..' . '/Zotlabs/Module/Common.php',
         'Zotlabs\\Module\\Connect' => __DIR__ . '/../..' . '/Zotlabs/Module/Connect.php',
         'Zotlabs\\Module\\Connections' => __DIR__ . '/../..' . '/Zotlabs/Module/Connections.php',
@@ -949,6 +1016,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Contactgroup' => __DIR__ . '/../..' . '/Zotlabs/Module/Contactgroup.php',
         'Zotlabs\\Module\\Cover_photo' => __DIR__ . '/../..' . '/Zotlabs/Module/Cover_photo.php',
         'Zotlabs\\Module\\Dav' => __DIR__ . '/../..' . '/Zotlabs/Module/Dav.php',
+        'Zotlabs\\Module\\Defperms' => __DIR__ . '/../..' . '/Zotlabs/Module/Defperms.php',
         'Zotlabs\\Module\\Directory' => __DIR__ . '/../..' . '/Zotlabs/Module/Directory.php',
         'Zotlabs\\Module\\Dirsearch' => __DIR__ . '/../..' . '/Zotlabs/Module/Dirsearch.php',
         'Zotlabs\\Module\\Display' => __DIR__ . '/../..' . '/Zotlabs/Module/Display.php',
@@ -973,6 +1041,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Help' => __DIR__ . '/../..' . '/Zotlabs/Module/Help.php',
         'Zotlabs\\Module\\Home' => __DIR__ . '/../..' . '/Zotlabs/Module/Home.php',
         'Zotlabs\\Module\\Hostxrd' => __DIR__ . '/../..' . '/Zotlabs/Module/Hostxrd.php',
+        'Zotlabs\\Module\\Hq' => __DIR__ . '/../..' . '/Zotlabs/Module/Hq.php',
         'Zotlabs\\Module\\Impel' => __DIR__ . '/../..' . '/Zotlabs/Module/Impel.php',
         'Zotlabs\\Module\\Import' => __DIR__ . '/../..' . '/Zotlabs/Module/Import.php',
         'Zotlabs\\Module\\Import_items' => __DIR__ . '/../..' . '/Zotlabs/Module/Import_items.php',
@@ -1073,13 +1142,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Toggle_safesearch' => __DIR__ . '/../..' . '/Zotlabs/Module/Toggle_safesearch.php',
         'Zotlabs\\Module\\Token' => __DIR__ . '/../..' . '/Zotlabs/Module/Token.php',
         'Zotlabs\\Module\\Uexport' => __DIR__ . '/../..' . '/Zotlabs/Module/Uexport.php',
-        'Zotlabs\\Module\\Update_cards' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_cards.php',
-        'Zotlabs\\Module\\Update_channel' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_channel.php',
-        'Zotlabs\\Module\\Update_display' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_display.php',
-        'Zotlabs\\Module\\Update_home' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_home.php',
-        'Zotlabs\\Module\\Update_network' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_network.php',
-        'Zotlabs\\Module\\Update_pubstream' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_pubstream.php',
-        'Zotlabs\\Module\\Update_search' => __DIR__ . '/../..' . '/Zotlabs/Module/Update_search.php',
+        'Zotlabs\\Module\\Update' => __DIR__ . '/../..' . '/Zotlabs/Module/Update.php',
         'Zotlabs\\Module\\View' => __DIR__ . '/../..' . '/Zotlabs/Module/View.php',
         'Zotlabs\\Module\\Viewconnections' => __DIR__ . '/../..' . '/Zotlabs/Module/Viewconnections.php',
         'Zotlabs\\Module\\Viewsrc' => __DIR__ . '/../..' . '/Zotlabs/Module/Viewsrc.php',
@@ -1110,6 +1173,11 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Storage\\File' => __DIR__ . '/../..' . '/Zotlabs/Storage/File.php',
         'Zotlabs\\Storage\\GitRepo' => __DIR__ . '/../..' . '/Zotlabs/Storage/GitRepo.php',
         'Zotlabs\\Text\\Tagadelic' => __DIR__ . '/../..' . '/Zotlabs/Text/Tagadelic.php',
+        'Zotlabs\\Thumbs\\Epubthumb' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Epubthumb.php',
+        'Zotlabs\\Thumbs\\Mp3audio' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Mp3audio.php',
+        'Zotlabs\\Thumbs\\Pdf' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Pdf.php',
+        'Zotlabs\\Thumbs\\Text' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Text.php',
+        'Zotlabs\\Thumbs\\Video' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Video.php',
         'Zotlabs\\Web\\CheckJS' => __DIR__ . '/../..' . '/Zotlabs/Web/CheckJS.php',
         'Zotlabs\\Web\\Controller' => __DIR__ . '/../..' . '/Zotlabs/Web/Controller.php',
         'Zotlabs\\Web\\HTTPHeaders' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPHeaders.php',
@@ -1148,6 +1216,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Widget\\Forums' => __DIR__ . '/../..' . '/Zotlabs/Widget/Forums.php',
         'Zotlabs\\Widget\\Fullprofile' => __DIR__ . '/../..' . '/Zotlabs/Widget/Fullprofile.php',
         'Zotlabs\\Widget\\Helpindex' => __DIR__ . '/../..' . '/Zotlabs/Widget/Helpindex.php',
+        'Zotlabs\\Widget\\Hq_controls' => __DIR__ . '/../..' . '/Zotlabs/Widget/Hq_controls.php',
         'Zotlabs\\Widget\\Item' => __DIR__ . '/../..' . '/Zotlabs/Widget/Item.php',
         'Zotlabs\\Widget\\Mailmenu' => __DIR__ . '/../..' . '/Zotlabs/Widget/Mailmenu.php',
         'Zotlabs\\Widget\\Menu_preview' => __DIR__ . '/../..' . '/Zotlabs/Widget/Menu_preview.php',

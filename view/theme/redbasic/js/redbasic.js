@@ -2,14 +2,13 @@
  * redbasic theme specific JavaScript
  */
 
-var notifications_parent;
 $(document).ready(function() {
 
 	// CSS3 calc() fallback (for unsupported browsers)
 	$('body').append('<div id="css3-calc" style="width: 10px; width: calc(10px + 10px); display: none;"></div>');
 	if( $('#css3-calc').width() == 10) {
 		$(window).resize(function() {
-			if($(window).width() < 767) {
+			if($(window).width() < 992) {
 				$('main').css('width', $(window).width() + $('aside').outerWidth() );
 			} else {
 				$('main').css('width', '100%' );
@@ -18,7 +17,7 @@ $(document).ready(function() {
 	}
 	$('#css3-calc').remove(); // Remove the test element
 
-	if($(window).width() >= 767) {
+	if($(window).width() >= 992) {
 		$('#left_aside_wrapper').stick_in_parent({
 			offset_top: parseInt($('aside').css('padding-top')),
 			parent: 'main',
@@ -26,7 +25,7 @@ $(document).ready(function() {
 		});
 	}
 
-	if($(window).width() >= 1200) {
+	if($(window).width() >= 992) {
 		$('#right_aside_wrapper').stick_in_parent({
 			offset_top: parseInt($('aside').css('padding-top')),
 			parent: 'main',
@@ -78,20 +77,9 @@ $(document).ready(function() {
 		}
 	});
 
-	$('#notifications-btn').click(function() {
-		if($('#navbar-collapse-2').hasClass('show')){
-			$('#navbar-collapse-2').removeClass('show');
-		}
-	});
-
-	notifications_parent = $('#notifications_wrapper')[0].parentElement.id;
-	$('#notifications-btn').click(function() {
-		if($('#notifications_wrapper').hasClass('fs'))
-			$('#notifications_wrapper').prependTo('#' + notifications_parent);
-		else
-			$('#notifications_wrapper').prependTo('section');
-
-		$('#notifications_wrapper').toggleClass('fs');
+	$('.notifications-btn').click(function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 		if($('#navbar-collapse-2').hasClass('show')){
 			$('#navbar-collapse-2').removeClass('show');
 		}

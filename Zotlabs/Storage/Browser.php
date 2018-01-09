@@ -12,7 +12,7 @@ use Sabre\DAV;
  *
  * @extends \\Sabre\\DAV\\Browser\\Plugin
  *
- * @link http://github.com/friendica/red
+ * @link http://github.com/redmatrix/hubzilla
  * @license http://opensource.org/licenses/mit-license.php The MIT License (MIT)
  */
 class Browser extends DAV\Browser\Plugin {
@@ -173,6 +173,7 @@ class Browser extends DAV\Browser\Plugin {
 			$displayName = $this->escapeHTML($displayName);
 			$type = $this->escapeHTML($type);
 
+
 			$icon = '';
 
 			if ($this->enableAssets) {
@@ -196,12 +197,53 @@ class Browser extends DAV\Browser\Plugin {
 				}
 			}
 
+
+			// generate preview icons for tile view. 
+			// Currently we only handle images, but this could potentially be extended with plugins
+			// to provide document and video thumbnails. SVG, PDF and office documents have some 
+			// security concerns and should only be allowed on single-user sites with tightly controlled
+			// upload access. system.thumbnail_security should be set to 1 if you want to include these 
+			// types 
+
+			$photo_icon = '';
+			$preview_style = intval(get_config('system','thumbnail_security',0));
+
+			$r = q("select content from attach where hash = '%s' and uid = %d limit 1",
+				dbesc($attachHash),
+				intval($owner)
+			);
+
+			if($r && file_exists(dbunescbin($r[0]['content']) . '.thumb')) {
+				$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents(dbunescbin($r[0]['content']) . '.thumb'));
+//				logger('found thumb: ' . $photo_icon);
+			}
+
+			if(strpos($type,'image/') === 0 && $attachHash) {
+				$r = q("select resource_id, imgscale from photo where resource_id = '%s' and imgscale in ( %d, %d ) order by imgscale asc limit 1",
+					dbesc($attachHash),
+					intval(PHOTO_RES_320),
+					intval(PHOTO_RES_PROFILE_80)
+				);
+				if($r) {
+					$photo_icon = 'photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];				
+				}
+				if($type === 'image/svg+xml' && $preview_style > 0) {
+					$photo_icon = $fullPath;
+				}
+			}
+
+			$g = [ 'resource_id' => $attachHash, 'thumbnail' => $photo_icon, 'security' => $preview_style ];
+			call_hooks('file_thumbnail', $g);
+			$photo_icon = $g['thumbnail'];
+
+
 			$attachIcon = ""; // "<a href=\"attach/".$attachHash."\" title=\"".$displayName."\"><i class=\"fa fa-arrow-circle-o-down\"></i></a>";
 
 			// put the array for this file together
 			$ft['attachId'] = $this->findAttachIdByHash($attachHash);
 			$ft['fileStorageUrl'] = substr($fullPath, 0, strpos($fullPath, "cloud/")) . "filestorage/" . $this->auth->getCurrentUser();
 			$ft['icon'] = $icon;
+			$ft['photo_icon'] = $photo_icon;
 			$ft['attachIcon'] = (($size) ? $attachIcon : '');
 			// @todo Should this be an item value, not a global one?
 			$ft['is_owner'] = $is_owner;
@@ -216,10 +258,12 @@ class Browser extends DAV\Browser\Plugin {
 			$f[] = $ft;
 		}
 
+
 		$output = '';
 		if ($this->enablePost) {
 			$this->server->emit('onHTMLActionsPanel', array($parent, &$output, $path));
 		}
+
 
 		$html .= replace_macros(get_markup_template('cloud.tpl'), array(
 				'$header' => t('Files') . ": " . $this->escapeHTML($path) . "/",
@@ -230,6 +274,8 @@ class Browser extends DAV\Browser\Plugin {
 				'$upload' => t('Upload'),
 				'$is_owner' => $is_owner,
 				'$parentpath' => $parentpath,
+				'$cpath' => bin2hex(\App::$query_string),
+				'$tiles' => intval($_SESSION['cloud_tiles']),
 				'$entries' => $f,
 				'$name' => t('Name'),
 				'$type' => t('Type'),
@@ -327,8 +373,6 @@ class Browser extends DAV\Browser\Plugin {
 		if(strpos($path,$special) === 0)
 			$path = trim(substr($path,$count),'/');
 
-		$info = t('Please use DAV to upload large (video, audio) files.<br>See <a class="zrl" href="help/member/member_guide#Cloud_Desktop_Clients">Cloud Desktop Clients</a>');
-
 
 		$output .= replace_macros(get_markup_template('cloud_actionspanel.tpl'), array(
 				'$folder_header' => t('Create new folder'),
@@ -336,7 +380,6 @@ class Browser extends DAV\Browser\Plugin {
 				'$upload_header' => t('Upload file'),
 				'$upload_submit' => t('Upload'),
 				'$quota' => $quota,
-				'$info' => $info,
 				'$channick' => $this->auth->owner_nick,
 				'$aclselect' => $aclselect,
 				'$allow_cid' => acl2json($channel_acl['allow_cid']),

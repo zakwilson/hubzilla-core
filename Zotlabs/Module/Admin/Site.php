@@ -24,23 +24,28 @@ class Site {
 		$siteinfo			=	((x($_POST,'siteinfo'))		    ? trim($_POST['siteinfo'])				: '');
 		$language			=	((x($_POST,'language'))			? notags(trim($_POST['language']))			: '');
 		$theme				=	((x($_POST,'theme'))			? notags(trim($_POST['theme']))				: '');
-		$theme_mobile			=	((x($_POST,'theme_mobile'))		? notags(trim($_POST['theme_mobile']))			: '');
+//		$theme_mobile			=	((x($_POST,'theme_mobile'))		? notags(trim($_POST['theme_mobile']))			: '');
 //		$site_channel			=	((x($_POST,'site_channel'))	? notags(trim($_POST['site_channel']))				: '');
 		$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))				:  0);
 
 		$register_policy	=	((x($_POST,'register_policy'))	? intval(trim($_POST['register_policy']))	:  0);
-
+		$minimum_age           = ((x($_POST,'minimum_age'))          ? intval(trim($_POST['minimum_age']))    : 13);
 		$access_policy	=	((x($_POST,'access_policy'))	? intval(trim($_POST['access_policy']))	:  0);
 		$invite_only	= ((x($_POST,'invite_only'))		? True	: False);
 		$abandon_days	=	((x($_POST,'abandon_days'))	    ? intval(trim($_POST['abandon_days']))	    :  0);
 
 		$register_text		=	((x($_POST,'register_text'))	? notags(trim($_POST['register_text']))		: '');
+		$site_sellpage		=	((x($_POST,'site_sellpage'))	? notags(trim($_POST['site_sellpage']))		: '');
+		$site_location		=	((x($_POST,'site_location'))	? notags(trim($_POST['site_location']))		: '');
 		$frontpage			=	((x($_POST,'frontpage'))	? notags(trim($_POST['frontpage']))		: '');
+		$firstpage		    =	((x(trim($_POST,'firstpage')))	? notags(trim($_POST['firstpage']))		: 'profiles');
 		$mirror_frontpage	=	((x($_POST,'mirror_frontpage'))	? intval(trim($_POST['mirror_frontpage']))		: 0);
 		$directory_server	=	((x($_POST,'directory_server')) ? trim($_POST['directory_server']) : '');
 		$allowed_sites		=	((x($_POST,'allowed_sites'))	? notags(trim($_POST['allowed_sites']))		: '');
 		$force_publish		=	((x($_POST,'publish_all'))		? True	: False);
 		$disable_discover_tab =	((x($_POST,'disable_discover_tab'))		? False	:	True);
+		$site_firehose      =   ((x($_POST,'site_firehose')) ? True : False);
+		$open_pubstream     =   ((x($_POST,'open_pubstream')) ? True : False);
 		$login_on_homepage	=	((x($_POST,'login_on_homepage'))		? True	:	False);
 		$enable_context_help = ((x($_POST,'enable_context_help'))		? True	:	False);
 		$global_directory     = ((x($_POST,'directory_submit_url'))	? notags(trim($_POST['directory_submit_url']))	: '');
@@ -76,6 +81,9 @@ class Site {
 		set_config('system', 'poll_interval', $poll_interval);
 		set_config('system', 'maxloadavg', $maxloadavg);
 		set_config('system', 'frontpage', $frontpage);
+		set_config('system', 'sellpage', $site_sellpage);
+		set_config('system', 'workflow_channel_next', $firstpage);
+		set_config('system', 'site_location', $site_location);
 		set_config('system', 'mirror_frontpage', $mirror_frontpage);
 		set_config('system', 'sitename', $sitename);
 		set_config('system', 'login_on_homepage', $login_on_homepage);
@@ -114,15 +122,16 @@ class Site {
 		set_config('system','siteinfo',$siteinfo);
 		set_config('system', 'language', $language);
 		set_config('system', 'theme', $theme);
-		if ( $theme_mobile === '---' ) {
-			del_config('system', 'mobile_theme');
-		} else {
-			set_config('system', 'mobile_theme', $theme_mobile);
-		}
+//		if ( $theme_mobile === '---' ) {
+//			del_config('system', 'mobile_theme');
+//		} else {
+//			set_config('system', 'mobile_theme', $theme_mobile);
+//		}
 	//	set_config('system','site_channel', $site_channel);
 		set_config('system','maximagesize', $maximagesize);
 
 		set_config('system','register_policy', $register_policy);
+		set_config('system','minimum_age', $minimum_age);
 		set_config('system','invitation_only', $invite_only);
 		set_config('system','access_policy', $access_policy);
 		set_config('system','account_abandon_days', $abandon_days);
@@ -130,6 +139,8 @@ class Site {
 		set_config('system','allowed_sites', $allowed_sites);
 		set_config('system','publish_all', $force_publish);
 		set_config('system','disable_discover_tab', $disable_discover_tab);
+		set_config('system','site_firehose', $site_firehose);
+		set_config('system','open_pubstream', $open_pubstream);
 		set_config('system','force_queue_threshold', $force_queue);
 		if ($global_directory == '') {
 			del_config('system', 'directory_submit_url');
@@ -209,9 +220,10 @@ class Site {
 		$realm = get_directory_realm();
 
 		// directory server should not be set or settable unless we are a directory client
+		// avoid older redmatrix servers which don't have modern encryption
 
 		if($dirmode == DIRECTORY_MODE_NORMAL) {
-			$x = q("select site_url from site where site_flags in (%d,%d) and site_realm = '%s' and site_dead = 0",
+			$x = q("select site_url from site where site_flags in (%d,%d) and site_realm = '%s' and site_dead = 0 and site_project != 'redmatrix'",
 				intval(DIRECTORY_MODE_SECONDARY),
 				intval(DIRECTORY_MODE_PRIMARY),
 				dbesc($realm)
@@ -288,17 +300,18 @@ class Site {
 
 			'$techlock' => [ 'techlock', t('Lock the technical skill level setting'), get_config('system','techlevel_lock'), t('Members can set their own technical comfort level by default') ],
 
-			'$banner'			=> array('banner', t("Banner/Logo"), $banner, ""),
+			'$banner'			=> array('banner', t("Banner/Logo"), $banner, t('Unfiltered HTML/CSS/JS is allowed')),
 			'$admininfo'		=> array('admininfo', t("Administrator Information"), $admininfo, t("Contact information for site administrators.  Displayed on siteinfo page.  BBCode can be used here")),
 			'$siteinfo'		=> array('siteinfo', t('Site Information'), get_config('system','siteinfo'), t("Publicly visible description of this site.  Displayed on siteinfo page.  BBCode can be used here")),
 			'$language' 		=> array('language', t("System language"), get_config('system','language'), "", $lang_choices),
 			'$theme' 			=> array('theme', t("System theme"), get_config('system','theme'), t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices),
-			'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile_theme'), t("Theme for mobile devices"), $theme_choices_mobile),
+//			'$theme_mobile' 	=> array('theme_mobile', t("Mobile system theme"), get_config('system','mobile_theme'), t("Theme for mobile devices"), $theme_choices_mobile),
 //			'$site_channel' 	=> array('site_channel', t("Channel to use for this website's static pages"), get_config('system','site_channel'), t("Site Channel")),
 			'$feed_contacts'    => array('feed_contacts', t('Allow Feeds as Connections'),get_config('system','feed_contacts'),t('(Heavy system resource usage)')),
 			'$maximagesize'		=> array('maximagesize', t("Maximum image size"), intval(get_config('system','maximagesize')), t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")),
 			'$register_policy'	=> array('register_policy', t("Does this site allow new member registration?"), get_config('system','register_policy'), "", $register_choices),
 			'$invite_only'		=> array('invite_only', t("Invitation only"), get_config('system','invitation_only'), t("Only allow new member registrations with an invitation code. Above register policy must be set to Yes.")),
+			'$minimum_age'		=> array('minimum_age', t("Minimum age"), (x(get_config('system','minimum_age'))?get_config('system','minimum_age'):13), t("Minimum age (in years) for who may register on this site.")),
 			'$access_policy'	=> array('access_policy', t("Which best describes the types of account offered by this hub?"), get_config('system','access_policy'), "This is displayed on the public server site list.", $access_choices),
 			'$register_text'	=> array('register_text', t("Register text"), htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'), t("Will be displayed prominently on the registration page.")),
 			'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), get_config('system','frontpage'), t("example: 'public' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
@@ -308,6 +321,8 @@ class Site {
 			'$verify_email'		=> array('verify_email', t("Verify Email Addresses"), get_config('system','verify_email'), t("Check to verify email addresses used in account registration (recommended).")),
 			'$force_publish'	=> array('publish_all', t("Force publish"), get_config('system','publish_all'), t("Check to force all profiles on this site to be listed in the site directory.")),
 			'$disable_discover_tab'	=> array('disable_discover_tab', t('Import Public Streams'), $discover_tab, t('Import and allow access to public content pulled from other sites. Warning: this content is unmoderated.')),
+			'$site_firehose'	=> array('site_firehose', t('Site only Public Streams'), get_config('system','site_firehose'), t('Allow access to public content originating only from this site if Imported Public Streams are disabled.')),
+			'$open_pubstream'	=> array('open_pubstream', t('Allow anybody on the internet to access the Public streams'), get_config('system','open_pubstream',1), t('Disable to require authentication before viewing. Warning: this content is unmoderated.')),
 			'$login_on_homepage'	=> array('login_on_homepage', t("Login on Homepage"),((intval($homelogin) || $homelogin === false) ? 1 : '') , t("Present a login box to visitors on the home page if no other content has been configured.")),
 			'$enable_context_help'	=> array('enable_context_help', t("Enable context help"),((intval($enable_context_help) === 1 || $enable_context_help === false) ? 1 : 0) , t("Display contextual help for the current page when the help button is pressed.")),
 
@@ -328,6 +343,13 @@ class Site {
 			'$thumbnail_security'			=> array('thumbnail_security', t("Allow SVG thumbnails in file browser"), get_config('system','thumbnail_security',0), t("WARNING: SVG images may contain malicious code.")),
 			'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 			'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(get_config('system','default_expire_days')), t('0 for no expiration of imported content')),
+
+			'$sellpage' => array('site_sellpage', t('Public servers: Optional landing (marketing) webpage for new registrants'), get_config('system','sellpage',''), sprintf( t('Create this page first. Default is %s/register'),z_root())),
+			'$firstpage' => array('firstpage', t('Page to display after creating a new channel'), get_config('system','workflow_channel_next','profiles'), t('Recommend: profiles, go, or settings')),
+
+			'$location' => array('site_location', t('Optional: site location'), get_config('system','site_location',''), t('Region or country')),
+
+
 			'$form_security_token' => get_form_security_token("admin_site"),
 		));
 	}

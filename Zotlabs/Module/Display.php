@@ -215,6 +215,7 @@ class Display extends \Zotlabs\Web\Controller {
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']),intval(\App::$pager['start']));
 
 			if($load || ($checkjs->disabled()) || ($module_format !== 'html')) {
+
 				$r = null;
 
 				require_once('include/channel.php');
@@ -235,7 +236,7 @@ class Display extends \Zotlabs\Web\Controller {
 					}
 				}
 
-				if($r === null) {
+				if(! $r) {
 
 					// in case somebody turned off public access to sys channel content using permissions
 					// make that content unsearchable by ensuring the owner uid can't match
@@ -281,7 +282,7 @@ class Display extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			if($r === null) {
+			if(! $r) {
 				// in case somebody turned off public access to sys channel content using permissions
 				// make that content unsearchable by ensuring the owner_xchan can't match
 				if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))
@@ -343,14 +344,15 @@ class Display extends \Zotlabs\Web\Controller {
 		case 'atom':
 
 			$atom = replace_macros(get_markup_template('atom_feed.tpl'), array(
-				'$version'      => xmlify(\Zotlabs\Lib\System::get_project_version()),
-				'$red'          => xmlify(\Zotlabs\Lib\System::get_platform_name()),
-				'$feed_id'      => xmlify(\App::$cmd),
-				'$feed_title'   => xmlify(t('Article')),
-				'$feed_updated' => xmlify(datetime_convert('UTC', 'UTC', 'now', ATOM_TIME)),
-				'$author'       => '',
-				'$owner'        => '',
-				'$profile_page' => xmlify(z_root() . '/display/' . $target_item['mid']),
+				'$version'       => xmlify(\Zotlabs\Lib\System::get_project_version()),
+				'$generator'     => xmlify(\Zotlabs\Lib\System::get_platform_name()),
+				'$generator_uri' => 'https://hubzilla.org',
+				'$feed_id'       => xmlify(\App::$cmd),
+				'$feed_title'    => xmlify(t('Article')),
+				'$feed_updated'  => xmlify(datetime_convert('UTC', 'UTC', 'now', ATOM_TIME)),
+				'$author'        => '',
+				'$owner'         => '',
+				'$profile_page'  => xmlify(z_root() . '/display/' . $target_item['mid']),
 			));
 				
 			$x = [ 'xml' => $atom, 'channel' => $channel, 'observer_hash' => $observer_hash, 'params' => $params ];

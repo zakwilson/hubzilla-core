@@ -6,6 +6,8 @@
 
 use Sabre\VObject;
 
+require_once('include/bbcode.php');
+
 /**
  * @brief Returns an event as HTML.
  *
@@ -14,7 +16,6 @@ use Sabre\VObject;
  */
 function format_event_html($ev) {
 
-	require_once('include/bbcode.php');
 
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
@@ -192,7 +193,7 @@ function format_todo_ical($ev) {
 
 
 function format_ical_text($s) {
-	require_once('include/bbcode.php');
+
 	require_once('include/html2plain.php');
 
 	$s = html2plain(bbcode($s));
@@ -983,7 +984,6 @@ function event_store_item($arr, $event) {
 
 	require_once('include/datetime.php');
 	require_once('include/items.php');
-	require_once('include/bbcode.php');
 
 	$item = null;
 
@@ -1199,6 +1199,13 @@ function event_store_item($arr, $event) {
 					),
 			));
 		}
+
+		// propagate the event resource_id so that posts containing it are easily searchable in downstream copies
+		// of the item which have not stored the actual event. Required for Diaspora event federation as Diaspora 
+		// event_participation messages refer to the event resource_id as a parent, while out own event attendance
+		// activities refer to the item message_id as the parent. 
+
+		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
 
 		$res = item_store($item_arr);
 

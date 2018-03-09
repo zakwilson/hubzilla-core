@@ -54,14 +54,6 @@ function get_features($filtered = true) {
 			t('General Features'),
 
 
-			[
-				'multi_profiles',      
-				t('Multiple Profiles'),      
-				t('Ability to create multiple profiles'), 
-				false, 
-				get_config('feature_lock','multi_profiles'),
-				feature_level('multi_profiles',3),
-			],
 
 			[
 				'advanced_profiles',   
@@ -126,7 +118,7 @@ function get_features($filtered = true) {
 				feature_level('cards',1),
 			],
 
-/* reserved, work in progress 
+
 			[
 				'articles',       
 				t('Articles'),          
@@ -135,7 +127,7 @@ function get_features($filtered = true) {
 				get_config('feature_lock','articles'),
 				feature_level('articles',1),
 			],
-*/
+
 			[
 				'nav_channel_select',  
 				t('Navigation Channel Select'), 
@@ -163,14 +155,6 @@ function get_features($filtered = true) {
 				feature_level('ajaxchat',1),
 			],
 
-			[
-				'permcats',       
-				t('Permission Groups'),          
-				t('Provide alternate connection permission roles.'),
-				false,
-				get_config('feature_lock','permcats'),
-				feature_level('permcats',2),
-			],
 
 			[
 				'smart_birthdays',       
@@ -190,6 +174,16 @@ function get_features($filtered = true) {
 				feature_level('event_tz_select',2),
 			],
 
+
+			[
+				'premium_channel', 
+				t('Premium Channel'), 
+				t('Allows you to set restrictions and terms on those that connect with your channel'),
+				false,
+				get_config('feature_lock','premium_channel'),
+				feature_level('premium_channel',4),
+			],
+
 			[ 
 				'advanced_dirsearch', 
 				t('Advanced Directory Search'),
@@ -207,6 +201,58 @@ function get_features($filtered = true) {
 				get_config('feature_lock','advanced_theming'),
 				feature_level('advanced_theming',4),
 			],
+		],
+
+
+		'access_control' => [
+			t('Access Control and Permissions'),
+
+			[
+				'groups',    		
+				t('Privacy Groups'),		
+				t('Enable management and selection of privacy groups'),
+				true,
+				get_config('feature_lock','groups'),
+				feature_level('groups',0),
+			],
+
+			[
+				'multi_profiles',      
+				t('Multiple Profiles'),      
+				t('Ability to create multiple profiles'), 
+				false, 
+				get_config('feature_lock','multi_profiles'),
+				feature_level('multi_profiles',3),
+			],
+
+
+			[
+				'permcats',       
+				t('Permission Groups'),          
+				t('Provide alternate connection permission roles.'),
+				false,
+				get_config('feature_lock','permcats'),
+				feature_level('permcats',2),
+			],
+
+			[
+				'oauth_clients',       
+				t('OAuth Clients'),          
+				t('Manage authenticatication tokens for mobile and remote apps.'),
+				false,
+				get_config('feature_lock','oauth_clients'),
+				feature_level('oauth_clients',1),
+			],
+
+			[
+				'access_tokens',       
+				t('Access Tokens'),          
+				t('Create access tokens so that non-members can access private content.'),
+				false,
+				get_config('feature_lock','access_tokens'),
+				feature_level('access_tokens',2),
+			],
+
 		],
 
 		// Post composition
@@ -302,14 +348,6 @@ function get_features($filtered = true) {
 				feature_level('archives',1),
 			],
 
-			[
-				'groups',    		
-				t('Privacy Groups'),		
-				t('Enable management and selection of privacy groups'),
-				true,
-				get_config('feature_lock','groups'),
-				feature_level('groups',0),
-			],
 
 			[
 				'savedsearch',    
@@ -372,15 +410,6 @@ function get_features($filtered = true) {
 		'tools' => [
 
 			t('Post/Comment Tools'),
-
-			[
-				'markdown',        
-				t('Markdown'),					
-				t('Use markdown for editing posts'),
-				false,
-				get_config('feature_lock','markdown'),
-				feature_level('markdown',2),
-			],
 
 			[
 				'commtag',        
@@ -447,16 +476,10 @@ function get_features($filtered = true) {
 		],
 	];
 
+	$x = [ 'features' => $arr, ];
+	call_hooks('get_features',$x);
 
-	$arr['general'][] = [
-		'premium_channel', 
-		t('Premium Channel'), 
-		t('Allows you to set restrictions and terms on those that connect with your channel'),
-		false,
-		get_config('feature_lock','premium_channel'),
-		feature_level('premium_channel',4),
-	];
-
+	$arr = $x['features'];
 
 	$techlevel = get_account_techlevel();
 
@@ -490,6 +513,6 @@ function get_features($filtered = true) {
 	else {
 		$narr = $arr;
 	}
-	call_hooks('get_features',$narr);
+
 	return $narr;
 }

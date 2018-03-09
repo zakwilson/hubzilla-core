@@ -232,7 +232,7 @@ class Connections extends \Zotlabs\Web\Controller {
 				if($rr['xchan_url']) {
 
 					if(($rr['vcard']) && is_array($rr['vcard']['tels']) && $rr['vcard']['tels'][0]['nr'])
-						$phone = ((\App::$is_mobile || \App::$is_tablet) ? $rr['vcard']['tels'][0]['nr'] : '');
+						$phone = $rr['vcard']['tels'][0]['nr'];
 					else
 						$phone = '';
 	
@@ -245,6 +245,11 @@ class Connections extends \Zotlabs\Web\Controller {
 						((intval($rr['abook_blocked'])) ? t('Blocked') : ''),
 						((intval($rr['abook_not_here'])) ? t('Not connected at this location') : '')
 					);
+
+					$oneway = false;
+					if(! intval(get_abconfig(local_channel(),$rr['xchan_hash'],'their_perms','post_comments'))) {
+						$oneway = true;
+					}
 	
 					foreach($status as $str) {
 						if(!$str)
@@ -283,7 +288,8 @@ class Connections extends \Zotlabs\Web\Controller {
 						'ignore_hover' => t('Ignore connection'),
 						'ignore' => ((! $rr['abook_ignored']) ? t('Ignore') : false),
 						'recent_label' => t('Recent activity'),
-						'recentlink' => z_root() . '/network/?f=&cid=' . intval($rr['abook_id'])
+						'recentlink' => z_root() . '/network/?f=&cid=' . intval($rr['abook_id']),
+						'oneway' => $oneway
 					);
 				}
 			}

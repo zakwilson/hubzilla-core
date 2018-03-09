@@ -23,7 +23,8 @@ class Notifications {
 					'label' => t('Mark all notifications read')
 				],
 				'filter' => [
-					'label' => t('Show new posts only')
+					'posts_label' => t('Show new posts only'),
+					'name_label' => t('Filter by name')
 				]
 			];
 
@@ -41,7 +42,8 @@ class Notifications {
 					'label' => t('Mark all notifications seen')
 				],
 				'filter' => [
-					'label' => t('Show new posts only')
+					'posts_label' => t('Show new posts only'),
+					'name_label' => t('Filter by name')
 				]
 			];
 
@@ -67,7 +69,7 @@ class Notifications {
 				'label' => t('New Events'),
 				'title' => t('New Events Notifications'),
 				'viewall' => [
-					'url' => 'mail/combined',
+					'url' => 'events',
 					'label' => t('View events')
 				],
 				'markall' => [
@@ -136,7 +138,8 @@ class Notifications {
 					'label' => t('Mark all notifications seen')
 				],
 				'filter' => [
-					'label' => t('Show new posts only')
+					'posts_label' => t('Show new posts only'),
+					'name_label' => t('Filter by name')
 				]
 			];
 		}
@@ -145,7 +148,8 @@ class Notifications {
 			'$module' => \App::$module,
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
-			'$loading' => t('Loading')
+			'$loading' => t('Loading'),
+			'$startpage' => get_pconfig(local_channel(), 'system', 'startpage')
 		));
 
 		return $o;

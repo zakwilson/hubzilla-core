@@ -119,6 +119,7 @@ class Apps {
 
 
 	static public function parse_app_description($f,$translate = true) {
+
 		$ret = array();
 
 		$baseurl = z_root();
@@ -194,6 +195,10 @@ class Apps {
 						if(! is_public_profile())
 							unset($ret);
 						break;
+					case 'public_stream':
+						if(! can_view_public_stream())
+							unset($ret);
+						break;
 					case 'observer':
 						if(! $observer)
 							unset($ret);
@@ -221,6 +226,7 @@ class Apps {
 	static public function translate_system_apps(&$arr) {
 		$apps = array(
 			'Apps' => t('Apps'),
+			'Articles' => t('Articles'),
 			'Cards' => t('Cards'),
 			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
@@ -343,6 +349,10 @@ class Apps {
 							break;
 						case 'public_profile':
 							if(! is_public_profile())
+								return '';
+							break;
+						case 'public_stream':
+							if(! can_view_public_stream())
 								return '';
 							break;
 						case 'observer':

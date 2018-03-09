@@ -39,6 +39,7 @@ class Item extends \Zotlabs\Web\Controller {
 		$uid = local_channel();
 		$channel = null;
 		$observer = null;
+		$datarray = [];
 	
 	
 		/**
@@ -504,7 +505,12 @@ class Item extends \Zotlabs\Web\Controller {
 			$body = z_input_filter($body,$mimetype,$execflag);
 		}
 	
-		// Verify ability to use html or php!!!
+
+		$arr = [ 'profile_uid' => $profile_uid, 'content' => $body, 'mimetype' => $mimetype ];
+		call_hooks('post_content',$arr);
+		$body = $arr['content'];
+		$mimetype = $arr['mimetype'];
+
 	
 		$gacl = $acl->get();
 		$str_contact_allow = $gacl['allow_cid'];
@@ -516,13 +522,6 @@ class Item extends \Zotlabs\Web\Controller {
 	
 			require_once('include/text.php');			
 	
-			if($uid && $uid == $profile_uid && feature_enabled($uid,'markdown')) {
-				require_once('include/markdown.php');
-				$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_shield',$body);			
-				$body = markdown_to_bb($body,true,['preserve_lf' => true]);
-				$body = preg_replace_callback('/\[share(.*?)\]/ism','\share_unshield',$body);
-
-			}
 	
 			// BBCODE alert: the following functions assume bbcode input
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
@@ -618,6 +617,21 @@ class Item extends \Zotlabs\Web\Controller {
 					elseif(strpos($r['data']['filetype'],'video/') !== false)
 						$attach_link =  '[video]' . z_root() . '/attach/' . $r['data']['hash'] . '/' . $r['data']['revision'] . (($ext) ? $ext : '') . '[/video]';
 					$body = str_replace($match[1][$i],$attach_link,$body);
+					$i++;
+				}
+			}
+
+
+			if(preg_match_all('/(\[share=(.*?)\](.*?)\[\/share\])/',$body,$match)) {
+				// process share by id				
+
+				$verb = ACTIVITY_SHARE;
+				$i = 0;
+				foreach($match[2] as $mtch) {
+					$reshare = new \Zotlabs\Lib\Share($mtch);
+					$datarray['obj'] = $reshare->obj();
+					$datarray['obj_type'] = $datarray['obj']['type'];
+					$body = str_replace($match[1][$i],$reshare->bbcode(),$body);
 					$i++;
 				}
 			}
@@ -722,7 +736,6 @@ class Item extends \Zotlabs\Web\Controller {
 		if(!$thr_parent)
 			$thr_parent = $mid;
 	
-		$datarray = array();
 
 		$item_thread_top = ((! $parent) ? 1 : 0);
 	
@@ -755,6 +768,7 @@ class Item extends \Zotlabs\Web\Controller {
 
 		if ((! $plink) && ($item_thread_top)) {
 			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $mid;
+			$plink = substr($plink,0,190);
 		}
 		
 		$datarray['aid']                 = $channel['channel_account_id'];

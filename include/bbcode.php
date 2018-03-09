@@ -108,7 +108,11 @@ function tryzrlvideo($match) {
 	if($zrl)
 		$link = zid($link);
 
-	return '<video controls="controls" preload="none" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . App::$videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
+	$static_link = get_config('system','video_default_poster','images/video_poster.jpg');
+	if($static_link)
+		$poster = 'poster="' . escape_tags($static_link) . '" ' ;
+
+	return '<video ' . $poster . ' controls="controls" preload="none" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . App::$videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
 }
 
 // [noparse][i]italic[/i][/noparse] turns into
@@ -428,6 +432,16 @@ function bb_spoilertag($match) {
 	return '<div onclick="openClose(\'opendiv-' . $rnd . '\'); return false;" class="fakelink">' . $openclose . '</div><blockquote id="opendiv-' . $rnd . '" style="display: none;">' . $text . '</blockquote>';
 }
 
+function bb_summary($match) {
+	$rnd1 = mt_rand();
+	$rnd2 = mt_rand();
+	$rnd3 = mt_rand();
+	$rnd4 = mt_rand();
+
+	return $match[1] . '<div style="display: block;" id="opendiv-' . $rnd2 . '">' . $match[2] . '</div><div style="display: block;" id="opendiv-' . $rnd3 . '" onclick="openClose(\'opendiv-' . $rnd1 . '\'); openClose(\'opendiv-' . $rnd2 . '\'); openClose(\'opendiv-' . $rnd3 . '\'); openClose(\'opendiv-' . $rnd4 . '\'); return false;" class="fakelink view-article">' . t('View article') . '</div><div style="display: none;" id="opendiv-' . $rnd4 . '" onclick="openClose(\'opendiv-' . $rnd1 . '\'); openClose(\'opendiv-' . $rnd2 . '\'); openClose(\'opendiv-' . $rnd3 . '\'); openClose(\'opendiv-' . $rnd4 . '\'); return false;" class="fakelink view-summary">' . t('View summary') . '</div><div id="opendiv-' . $rnd1 . '" style="display: none;">' . $match[3] . '</div>';
+}
+
+
 function bb_definitionList($match) {
 	// $match[1] is the markup styles for the "terms" in the definition list.
 	// $match[2] is the content between the [dl]...[/dl] tags
@@ -600,29 +614,47 @@ function bb_observer($Text) {
 	return $Text;
 }
 
+function bb_code_protect($s) {
+	return 'b64.^9e%.' . base64_encode($s) . '.b64.$9e%';
+}
+
+function bb_code_unprotect($s) {
+	return preg_replace_callback('|b64\.\^9e\%\.(.*?)\.b64\.\$9e\%|ism','bb_code_unprotect_sub',$s);
+}
+
+function bb_code_unprotect_sub($match) {
+	return base64_decode($match[1]);
+}
+
 function bb_code($match) {
 	if(strpos($match[0], "<br />"))
-		return '<code>' . trim($match[1]) . '</code>';
+		return '<pre><code>' . bb_code_protect(trim($match[1])) . '</code></pre>';
 	else
-		return '<code class="inline-code">' . trim($match[1]) . '</code>';
+		return '<code class="inline-code">' . bb_code_protect(trim($match[1])) . '</code>';
 }
 
 function bb_code_options($match) {
 	if(strpos($match[0], "<br />")) {
 		$class = "";
+		$pre = true;
 	} else {
 		$class = "inline-code";
+		$pre = false;
 	}
 	if(strpos($match[1], 'nowrap')) {
 		$style = "overflow-x: auto; white-space: pre;";
 	} else {
 		$style = "";
 	}
-	return '<code class="'. $class .'" style="'. $style .'">' . trim($match[2]) . '</code>';
+	if($pre) {
+		return '<pre><code class="'. $class .'" style="'. $style .'">' . bb_code_protect(trim($match[2])) . '</code></pre>';
+	} else {	
+		return '<code class="'. $class .'" style="'. $style .'">' . bb_code_protect(trim($match[2])) . '</code>';
+	}
 }
 
 function bb_highlight($match) {
-	return text_highlight($match[2],strtolower($match[1]));
+	return bb_code_protect(text_highlight($match[2],strtolower($match[1])));
 }
 
 function bb_fixtable_lf($match) {
@@ -811,6 +843,17 @@ function bbcode($Text, $options = []) {
 
 
 	$Text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $Text);
+
+
+	// Check for [code] text
+	if (strpos($Text,'[code]') !== false) {
+		$Text = preg_replace_callback("/\[code\](.*?)\[\/code\]/ism", 'bb_code', $Text);
+	}
+
+	// Check for [code options] text
+	if (strpos($Text,'[code ') !== false) {
+		$Text = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism", 'bb_code_options', $Text);
+	}
 
 	// Set up the parameters for a URL search string
 	$URLSearchString = "^\[\]";
@@ -1052,14 +1095,9 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $Text);
 	}
 
-	// Check for [code] text
-	if (strpos($Text,'[code]') !== false) {
-		$Text = preg_replace_callback("/\[code\](.*?)\[\/code\]/ism", 'bb_code', $Text);
-	}
 
-	// Check for [code options] text
-	if (strpos($Text,'[code ') !== false) {
-		$Text = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism", 'bb_code_options', $Text);
+	if(strpos($Text,'[/summary]') !== false) {
+		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", 'bb_summary', $Text);
 	}
 
 	// Check for [spoiler] text
@@ -1273,6 +1311,7 @@ function bbcode($Text, $options = []) {
 
 	// replace escaped links in code= blocks
 	$Text = str_replace('%eY9-!','http', $Text);
+	$Text = bb_code_unprotect($Text);
 
 	$Text = preg_replace('/\[\&amp\;([#a-z0-9]+)\;\]/', '&$1;', $Text);
 

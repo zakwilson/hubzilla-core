@@ -826,27 +826,10 @@ class Connedit extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$locstr = '';
-	
-			$locs = q("select hubloc_addr as location from hubloc left join site on hubloc_url = site_url where hubloc_hash = '%s'
-				and hubloc_deleted = 0 and site_dead = 0",
-				dbesc($contact['xchan_hash'])
-			);
-	
-			if($locs) {
-				foreach($locs as $l) {
-					if(!($l['location']))
-						continue;
-					if(strpos($locstr,$l['location']) !== false)
-						continue;
-					if(strlen($locstr))
-						$locstr .= ', ';
-					$locstr .= $l['location'];
-				}
-			}
-			else
+			$locstr = locations_by_netid($contact['xchan_hash']);
+			if(! $locstr)
 				$locstr = $contact['xchan_url'];
-
+	
 			$clone_warn = '';
 			$clonable = (in_array($contact['xchan_network'],['zot','rss']) ? true : false);
 			if(! $clonable) {
@@ -912,7 +895,6 @@ class Connedit extends \Zotlabs\Web\Controller {
 				'$permnote_self'  => t('Some permissions may be inherited from your channel\'s <a href="settings"><strong>privacy settings</strong></a>, which have higher priority than individual settings. You can change those settings here but they wont have any impact unless the inherited setting changes.'),
 				'$lastupdtext'    => t('Last update:'),
 				'$last_update'    => relative_date($contact['abook_connected']),
-				'$is_mobile'      => ((\App::$is_mobile || \App::$is_tablet) ? true : false),
 				'$profile_select' => contact_profile_assign($contact['abook_profile']),
 				'$multiprofs'     => $multiprofs,
 				'$contact_id'     => $contact['abook_id'],

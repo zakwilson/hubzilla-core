@@ -6,25 +6,22 @@
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 		<div class="panel-group" id="settings" role="tablist" aria-multiselectable="true">
-			{{if $theme || $mobile_theme}}
+			{{if $theme}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="theme-settings-title">
 					<h3>
-						<a data-toggle="collapse" data-parent="#settings" href="#theme-settings-content" aria-expanded="true" aria-controls="theme-settings-content">
+						<a data-toggle="collapse" data-target="#theme-settings-content" href="#" aria-expanded="true" aria-controls="theme-settings-content">
 							{{$d_tset}}
 						</a>
 					</h3>
 				</div>
-				<div id="theme-settings-content" class="collapse show" role="tabpanel" aria-labelledby="theme-settings">
+				<div id="theme-settings-content" class="collapse show" role="tabpanel" aria-labelledby="theme-settings" data-parent="#settings" >
 					<div class="section-content-tools-wrapper">
 						{{if $theme}}
 							{{include file="field_themeselect.tpl" field=$theme}}
 						{{/if}}
 						{{if $schema}}
 							{{include file="field_select.tpl" field=$schema}}
-						{{/if}}
-						{{if $mobile_theme}}
-							{{include file="field_themeselect.tpl" field=$mobile_theme}}
 						{{/if}}
 						<div class="settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
@@ -36,12 +33,12 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="custom-settings-title">
 					<h3>
-						<a data-toggle="collapse" data-parent="#settings" href="#custom-settings-content" aria-expanded="true" aria-controls="custom-settings-content">
+						<a data-toggle="collapse" data-target="#custom-settings-content" href="" aria-expanded="true" aria-controls="custom-settings-content">
 							{{$d_ctset}}
 						</a>
 					</h3>
 				</div>
-				<div id="custom-settings-content" class="collapse{{if !$theme && !$mobile_theme}} in{{/if}}" role="tabpanel" aria-labelledby="custom-settings">
+				<div id="custom-settings-content" class="collapse{{if !$theme}} in{{/if}}" role="tabpanel" aria-labelledby="custom-settings" data-parent="#settings" >
 					<div class="section-content-tools-wrapper">
 						{{if $theme_config}}
 							{{$theme_config}}
@@ -52,12 +49,12 @@
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="content-settings-title">
 					<h3>
-						<a data-toggle="collapse" data-parent="#settings" href="#content-settings-content" aria-expanded="true" aria-controls="content-settings-content">
+						<a data-toggle="collapse" data-target="#content-settings-content" href="" aria-expanded="true" aria-controls="content-settings-content">
 							{{$d_cset}}
 						</a>
 					</h3>
 				</div>
-				<div id="content-settings-content" class="collapse{{if !$theme && !$mobile_theme && !$theme_config}} in{{/if}}" role="tabpanel" aria-labelledby="content-settings">
+				<div id="content-settings-content" class="collapse{{if !$theme && !$theme_config}} in{{/if}}" role="tabpanel" aria-labelledby="content-settings" data-parent="#settings">
 					<div class="section-content-wrapper">
 						{{include file="field_input.tpl" field=$ajaxint}}
 						{{include file="field_input.tpl" field=$itemspage}}

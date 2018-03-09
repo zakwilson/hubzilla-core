@@ -390,7 +390,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	$arr['comment_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
-		$arr['plink'] = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
+		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']),0,190);
 	}
 
 
@@ -1412,6 +1412,13 @@ function get_mail_elements($x) {
 	}
 	else {
 		$arr['body']         = (($x['body']) ? htmlspecialchars($x['body'], ENT_COMPAT,'UTF-8',false) : '');
+
+		$maxlen = get_max_import_size();
+
+		if($maxlen && mb_strlen($arr['body']) > $maxlen) {
+			$arr['body'] = mb_substr($arr['body'],0,$maxlen,'UTF-8');
+			logger('message length exceeds max_import_size: truncated');
+		}
 	}
 
 	$arr['title']        = (($x['title'])? htmlspecialchars($x['title'],ENT_COMPAT,'UTF-8',false) : '');
@@ -2327,6 +2334,16 @@ function send_status_notifications($post_id,$item) {
 
 	$parent = 0;
 
+	if(array_key_exists('verb',$item) && (activity_match($item['verb'], ACTIVITY_LIKE) || activity_match($item['verb'], ACTIVITY_DISLIKE))) {
+
+		$r = q("select id from item where mid = '%s' and uid = %d limit 1",
+			dbesc($item['thr_parent']),
+			intval($item['uid'])
+		);
+
+		$thr_parent_id = $r[0]['id'];
+	}
+
 	$r = q("select channel_hash from channel where channel_id = %d limit 1",
 		intval($item['uid'])
 	);
@@ -2392,10 +2409,10 @@ function send_status_notifications($post_id,$item) {
 		'to_xchan'     => $r[0]['channel_hash'],
 		'item'         => $item,
 		'link'         => $link,
-		'verb'         => ACTIVITY_POST,
+		'verb'         => $item['verb'],
 		'otype'        => 'item',
-		'parent'       => $parent,
-		'parent_mid'   => $item['parent_mid']
+		'parent'       => $thr_parent_id ? $thr_parent_id : $parent,
+		'parent_mid'   => $thr_parent_id ? $item['thr_parent'] : $item['parent_mid']
 	));
 }
 
@@ -2454,7 +2471,7 @@ function tag_deliver($uid, $item_id) {
 		// this is an update (edit) to a post which was already processed by us and has a second delivery chain
 		// Just start the second delivery chain to deliver the updated post
 		// after resetting ownership and permission bits
-
+		logger('updating edited tag_deliver post for ' . $u[0]['channel_address']);
 		start_delivery_chain($u[0], $item, $item_id, 0);
 		return;
 	}
@@ -2757,6 +2774,16 @@ function tgroup_check($uid, $item) {
 
 		return false;
 	}
+
+	// see if we already have this item. Maybe it is being updated.
+
+	$r = q("select id from item where mid = '%s' and uid = %d limit 1",
+		dbesc($item['mid']),
+		intval($uid)
+	);
+	if($r)
+		return true;
+
 	if(! perm_is_allowed($uid,$item['author_xchan'],'tag_deliver'))
 		return false;
 
@@ -3009,14 +3036,17 @@ function check_item_source($uid, $item) {
 	$words = explode("\n",$r[0]['src_patt']);
 	if($words) {
 		foreach($words as $word) {
-			if(substr($word,0,1) === '#' && $tags) {
+			$w = trim($word);
+			if(! $w)
+				continue;
+			if(substr($w,0,1) === '#' && $tags) {
 				foreach($tags as $t)
-					if((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($word,1)) || (substr($word,1) === '*')))
+					if((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($w,1)) || (substr($w,1) === '*')))
 						return true;
 			}
-			elseif((strpos($word,'/') === 0) && preg_match($word,$text))
+			elseif((strpos($w,'/') === 0) && preg_match($w,$text))
 				return true;
-			elseif(stristr($text,$word) !== false)
+			elseif(stristr($text,$w) !== false)
 				return true;
 		}
 	}
@@ -3650,7 +3680,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 
 	$linked_item = (($item['resource_id']) ? true : false);
 
-	logger('item: ' . $item . ' stage: ' . $stage . ' force: ' . $force, LOGGER_DATA);
+	logger('item: ' . $item['id'] . ' stage: ' . $stage . ' force: ' . $force, LOGGER_DATA);
 
 	switch($stage) {
 		case DROPITEM_PHASE2:
@@ -3990,18 +4020,24 @@ function zot_feed($uid, $observer_hash, $arr) {
 	$item_normal = item_normal();
 
 	if(is_sys_channel($uid)) {
-		$r = q("SELECT parent, created, postopts from item
-			WHERE uid != %d
-			$item_normal
+
+		$nonsys_uids = q("SELECT channel_id FROM channel WHERE channel_system = 0");
+		$nonsys_uids_str = ids_to_querystr($nonsys_uids,'channel_id');
+
+		$r = q("SELECT parent, postopts FROM item
+			WHERE uid IN ( %s )
 			AND item_wall = 1
-			and item_private = 0 $sql_extra ORDER BY created ASC $limit",
-			intval($uid)
+			AND item_private = 0
+			$item_normal
+			$sql_extra ORDER BY created ASC $limit",
+			intval($nonsys_uids_str)
 		);
 	}
 	else {
-		$r = q("SELECT parent, created, postopts from item
-			WHERE uid = %d $item_normal
+		$r = q("SELECT parent, postopts FROM item
+			WHERE uid = %d
 			AND item_wall = 1
+			$item_normal
 			$sql_extra ORDER BY created ASC $limit",
 			intval($uid)
 		);

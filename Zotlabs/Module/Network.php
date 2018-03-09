@@ -108,6 +108,9 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 	
 	
+		$default_cmin = ((feature_enabled(local_channel(),'affinity')) ? get_pconfig(local_channel(),'affinity','cmin',0) : 0);
+		$default_cmax = ((feature_enabled(local_channel(),'affinity')) ? get_pconfig(local_channel(),'affinity','cmax',99) : 99);
+
 	
 		// if no tabs are selected, defaults to comments
 	
@@ -117,8 +120,8 @@ class Network extends \Zotlabs\Web\Controller {
 		$liked    = ((x($_GET,'liked')) ? intval($_GET['liked']) : 0);
 		$conv     = ((x($_GET,'conv'))  ? intval($_GET['conv'])  : 0);
 		$spam     = ((x($_GET,'spam'))  ? intval($_GET['spam'])  : 0);
-		$cmin     = ((x($_GET,'cmin'))  ? intval($_GET['cmin'])  : 0);
-		$cmax     = ((x($_GET,'cmax'))  ? intval($_GET['cmax'])  : 99);
+		$cmin     = ((array_key_exists('cmin',$_GET))  ? intval($_GET['cmin'])  : $default_cmin);
+		$cmax     = ((array_key_exists('cmax',$_GET))  ? intval($_GET['cmax'])  : $default_cmax);
 		$file     = ((x($_GET,'file'))  ? $_GET['file']          : '');
 		$xchan    = ((x($_GET,'xchan')) ? $_GET['xchan']         : '');
 		$net      = ((x($_GET,'net'))   ? $_GET['net']           : '');
@@ -141,7 +144,7 @@ class Network extends \Zotlabs\Web\Controller {
 				// NOTREACHED
 			}
 			if($_GET['pf'] === '1')
-				$deftag = '@' . t('forum') . '+' . intval($cid) . '+';
+				$deftag = '!' . t('forum') . '+' . intval($cid);
 			else
 				$def_acl = [ 'allow_cid' => '<' . $r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 		}
@@ -206,8 +209,11 @@ class Network extends \Zotlabs\Web\Controller {
 			: '');
 	
 		$sql_nets = '';
+
+		$distinct = '';
+		$item_thread_top = ' AND item_thread_top = 1 ';
 	
-		$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE item_thread_top = 1 $sql_options ) ";
+		$sql_extra = $sql_options;
 	
 		if($group) {
 			$contact_str = '';
@@ -223,7 +229,8 @@ class Network extends \Zotlabs\Web\Controller {
 				$contact_str = ' 0 ';
 				info( t('Privacy group is empty'));
 			}
-	
+			$distinct = ' distinct ';
+			$item_thread_top = '';
 			$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND (( author_xchan IN ( $contact_str ) OR owner_xchan in ( $contact_str )) or allow_gid like '" . protect_sprintf('%<' . dbesc($group_hash) . '>%') . "' ) and id = parent $item_normal ) ";
 	
 			$x = group_rec_byhash(local_channel(), $group_hash);
@@ -247,6 +254,8 @@ class Network extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 			if($r) {
+				$distinct = ' distinct ';
+				$item_thread_top = '';
 				$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($r[0]['abook_xchan']) . "' or owner_xchan = '" . dbesc($r[0]['abook_xchan']) . "' ) $item_normal ) ";
 				$title = replace_macros(get_markup_template("section_title.tpl"),array(
 					'$title' => '<a href="' . zid($r[0]['xchan_url']) . '" ><img src="' . zid($r[0]['xchan_photo_s'])  . '" alt="' . urlencode($r[0]['xchan_name']) . '" /></a> <a href="' . zid($r[0]['xchan_url']) . '" >' . $r[0]['xchan_name'] . '</a>'
@@ -261,13 +270,15 @@ class Network extends \Zotlabs\Web\Controller {
 			}
 		}
 		elseif($xchan) {
-				$r = q("select * from xchan where xchan_hash = '%s'",
-					dbesc($xchan)
-				);
-				if($r) {
-					$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($xchan) . "' or owner_xchan = '" . dbesc($xchan) . "' ) $item_normal ) ";
-					$title = replace_macros(get_markup_template("section_title.tpl"),array(
-						'$title' => '<a href="' . zid($r[0]['xchan_url']) . '" ><img src="' . zid($r[0]['xchan_photo_s'])  . '" alt="' . urlencode($r[0]['xchan_name']) . '" /></a> <a href="' . zid($r[0]['xchan_url']) . '" >' . $r[0]['xchan_name'] . '</a>'
+			$r = q("select * from xchan where xchan_hash = '%s'",
+				dbesc($xchan)
+			);
+			if($r) {
+				$distinct = ' distinct ';
+				$item_thread_top = '';
+				$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($xchan) . "' or owner_xchan = '" . dbesc($xchan) . "' ) $item_normal ) ";
+				$title = replace_macros(get_markup_template("section_title.tpl"),array(
+					'$title' => '<a href="' . zid($r[0]['xchan_url']) . '" ><img src="' . zid($r[0]['xchan_photo_s'])  . '" alt="' . urlencode($r[0]['xchan_name']) . '" /></a> <a href="' . zid($r[0]['xchan_url']) . '" >' . $r[0]['xchan_name'] . '</a>'
 				));
 				$o = $tabs;
 				$o .= $title;
@@ -370,6 +381,8 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 	
 		if($conv) {
+			$distinct = ' distinct ';
+			$item_thread_top = '';
 			$sql_extra .= sprintf(" AND parent IN (SELECT distinct(parent) from item where ( author_xchan like '%s' or item_mentionsme = 1 )) ",
 				dbesc(protect_sprintf($channel['channel_hash']))
 			);
@@ -405,7 +418,6 @@ class Network extends \Zotlabs\Web\Controller {
 	
 			if($cmax == 99)
 				$sql_nets .= " OR abook.abook_closeness IS NULL ) ";
-	
 	
 		}
 
@@ -446,7 +458,7 @@ class Network extends \Zotlabs\Web\Controller {
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
 	
-			$items = q("SELECT item.*, item.id AS item_id, received FROM item
+			$items = q("SELECT item.*, item.id AS item_id, received FROM item 
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 				$net_query
 				WHERE true $uids $item_normal
@@ -475,18 +487,16 @@ class Network extends \Zotlabs\Web\Controller {
 			if($load) {
 
 				// Fetch a page full of parent items for this page
-	
-				$r = q("SELECT distinct item.id AS item_id, $ordering FROM item
+				$r = q("SELECT $distinct item.parent AS item_id FROM item 
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 					$net_query
-					WHERE true $uids $item_normal
-					AND item.parent = item.id
+					WHERE true $uids $item_thread_top $item_normal
+					AND item.mid = item.parent_mid
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra3 $sql_extra $sql_nets
 					$net_query2
 					ORDER BY $ordering DESC $pager_sql "
 				);
-	
 			}
 			else {
 

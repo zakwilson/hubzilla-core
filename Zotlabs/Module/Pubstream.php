@@ -12,14 +12,26 @@ class Pubstream extends \Zotlabs\Web\Controller {
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();
 
-	
-		if(observer_prohibited(true)) {
-				return login();
+		if((observer_prohibited(true))) {
+			return login();
 		}
-	
-		$disable_discover_tab = get_config('system','disable_discover_tab') || get_config('system','disable_discover_tab') === false;
-		if($disable_discover_tab)
-			return;
+
+		if(! intval(get_config('system','open_pubstream',1))) {
+			if(! get_observer_hash()) {
+				return login();
+			}
+		}
+
+		$site_firehose = ((intval(get_config('system','site_firehose',0))) ? true : false);
+		$net_firehose  = ((get_config('system','disable_discover_tab',1)) ? false : true);
+
+		if(! ($site_firehose || $net_firehose)) {
+			return '';
+		}
+
+		if($net_firehose) {
+			$site_firehose = false;
+		}
 
 		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
 
@@ -142,7 +154,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 		require_once('include/channel.php');
 		require_once('include/security.php');
 	
-		if(get_config('system','site_firehose')) {
+		if($site_firehose) {
 			$uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
 		}
 		else {
@@ -160,7 +172,8 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		$net_query = (($net) ? " left join xchan on xchan_hash = author_xchan " : ''); 
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
-	
+
+		$abook_uids = " and abook.abook_channel = " . intval(\App::$profile['profile_uid']) . " ";
 	
 		$simple_update = (($_SESSION['loadtime']) ? " AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' " : '');
 	
@@ -179,7 +192,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			if($load) {
 				if($mid) {
 					$r = q("SELECT parent AS item_id FROM item
-						left join abook on item.author_xchan = abook.abook_xchan
+						left join abook on item.author_xchan = abook.abook_xchan 
 						$net_query
 						WHERE mid like '%s' $uids $item_normal
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
@@ -189,11 +202,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				}
 				else {
 					// Fetch a page full of parent items for this page
-					$r = q("SELECT distinct item.id AS item_id, $ordering FROM item
-						left join abook on item.author_xchan = abook.abook_xchan
+					$r = q("SELECT item.id AS item_id FROM item 
+						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
 						$net_query
-						WHERE true $uids $item_normal
-						AND item.parent = item.id
+						WHERE true $uids and item.item_thread_top = 1 $item_normal
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
 						$sql_extra3 $sql_extra $sql_nets $net_query2
 						ORDER BY $ordering DESC $pager_sql "

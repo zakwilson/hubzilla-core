@@ -17,12 +17,8 @@ class Featured {
 			$cmin = intval($_POST['affinity_cmin']);
 			if($cmin < 0 || $cmin > 99)
 				$cmin = 0;
-			if($cmin !== 0 || $cmax !== 99) {
-				set_pconfig(local_channel(),'system','network_page_default','cmin=' . $cmin . '&cmax=' . $cmax);
-			}
-			else {
-				set_pconfig(local_channel(),'system','network_page_default','');
-			}
+			set_pconfig(local_channel(),'affinity','cmin',$cmin);
+			set_pconfig(local_channel(),'affinity','cmax',$cmax);
 
 			info( t('Affinity Slider settings updated.') . EOL);
 
@@ -46,12 +42,12 @@ class Featured {
 			$cmax = intval(get_pconfig(local_channel(),'affinity','cmax'));
 			$cmax = (($cmax) ? $cmax : 99);
 			$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
-				'$field'    => array('affinity_cmax', t('Default maximum affinity level'), $cmax, '')
+				'$field'    => array('affinity_cmax', t('Default maximum affinity level'), $cmax, t('0-99 default 99'))
 			));
 			$cmin = intval(get_pconfig(local_channel(),'affinity','cmin'));
 			$cmin = (($cmin) ? $cmin : 0);
 			$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
-				'$field'    => array('affinity_cmin', t('Default minimum affinity level'), $cmin, '')
+				'$field'    => array('affinity_cmin', t('Default minimum affinity level'), $cmin, t('0-99 - default 0'))
 			));
 
 			$settings_addons .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(
@@ -65,7 +61,8 @@ class Featured {
 		$tpl = get_markup_template("settings_addons.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_featured"),
-			'$title'	=> t('Feature/Addon Settings'),
+			'$title'	=> t('Addon Settings'),
+			'$descrip'  => t('Please save/submit changes to any panel before opening another.'),
 			'$settings_addons' => $settings_addons
 		));
 		return $o;

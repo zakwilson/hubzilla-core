@@ -63,7 +63,9 @@ class Enotify {
 		$thanks     = t('Thank You,');
 		$sitename   = get_config('system','sitename');
 		$site_admin = sprintf( t('%s Administrator'), $sitename);
-
+		$opt_out1   = sprintf( t('This email was sent by %1$s at %2$s.'), t('$Projectname'), \App::get_hostname());
+		$opt_out2   = sprintf( t('To stop receiving these messages, please adjust your Notification Settings at %s'), z_root() . '/settings');		
+		$hopt_out2  = sprintf( t('To stop receiving these messages, please adjust your %s.'), '<a href="' . z_root() . '/settings' . '">' . t('Notification Settings')  . '</a>');
 		$sender_name = $product;
 		$hostname = \App::get_hostname();
 		if(strpos($hostname,':'))
@@ -112,6 +114,8 @@ class Enotify {
 		}
 
 
+	$always_show_in_notices = get_pconfig($recip['channel_id'],'system','always_show_in_notices');
+
 	// e.g. "your post", "David's photo", etc.
 	$possess_desc = t('%s <!item_type!>');
 
@@ -128,18 +132,28 @@ class Enotify {
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
-//		logger("notification: params = " . print_r($params, true), LOGGER_DEBUG);
+		//logger("notification: params = " . print_r($params, true), LOGGER_DEBUG);
 
 		$moderated = (($params['item']['item_blocked'] == ITEM_MODERATED) ? true : false);
 
 		$itemlink = $params['link'];
 
-		// ignore like/unlike activity on posts - they probably require a separate notification preference
+		$action = t('commented on');
 
-		if (array_key_exists('item',$params) && (! visible_activity($params['item']))) {
-			logger('notification: not a visible activity. Ignoring.');
-			pop_lang();
-			return;
+		if(array_key_exists('item',$params) && in_array($params['item']['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+
+			if(! $always_show_in_notices) {
+				logger('notification: not a visible activity. Ignoring.');
+				pop_lang();
+				return;
+			}
+
+			if(activity_match($params['verb'], ACTIVITY_LIKE))
+				$action = t('liked');
+
+			if(activity_match($params['verb'], ACTIVITY_DISLIKE))
+				$action = t('disliked');
+
 		}
 
 		$parent_mid = $params['parent_mid'];
@@ -181,26 +195,29 @@ class Enotify {
 		//$possess_desc = str_replace('<!item_type!>',$possess_desc);
 
 		// "a post"
-		$dest_str = sprintf(t('%1$s, %2$s commented on [zrl=%3$s]a %4$s[/zrl]'),
+		$dest_str = sprintf(t('%1$s, %2$s %3$s [zrl=%4$s]a %5$s[/zrl]'),
 			$recip['channel_name'],
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
+			$action,
 			$itemlink,
 			$item_post_type);
 
 		// "George Bull's post"
 		if($p)
-			$dest_str = sprintf(t('%1$s, %2$s commented on [zrl=%3$s]%4$s\'s %5$s[/zrl]'),
+			$dest_str = sprintf(t('%1$s, %2$s %3$s [zrl=%4$s]%5$s\'s %6$s[/zrl]'),
 				$recip['channel_name'],
 				'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
+				$action,
 				$itemlink,
 				$p[0]['author']['xchan_name'],
 				$item_post_type);
 		
 		// "your post"
 		if($p[0]['owner']['xchan_name'] == $p[0]['author']['xchan_name'] && intval($p[0]['item_wall']))
-			$dest_str = sprintf(t('%1$s, %2$s commented on [zrl=%3$s]your %4$s[/zrl]'),
+			$dest_str = sprintf(t('%1$s, %2$s %3$s [zrl=%4$s]your %5$s[/zrl]'),
 				$recip['channel_name'],
 				'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
+				$action,
 				$itemlink,
 				$item_post_type);
 
@@ -231,12 +248,12 @@ class Enotify {
 
 		$itemlink =  $params['link'];
 
-		// ignore like/unlike activity on posts - they probably require a separate notification preference
-
 		if (array_key_exists('item',$params) && (! activity_match($params['item']['verb'],ACTIVITY_LIKE))) {
-			logger('notification: not a like activity. Ignoring.');
-			pop_lang();
-			return;
+			if(! $always_show_in_notices) {
+				logger('notification: not a visible activity. Ignoring.');
+				pop_lang();
+				return;
+			}
 		}
 
 		$parent_mid = $params['parent_mid'];
@@ -496,8 +513,6 @@ class Enotify {
 	// Another option would be to not add them to the DB, and change how emails are handled 
 	// (probably would be better that way)
 
-	$always_show_in_notices = get_pconfig($recip['channel_id'],'system','always_show_in_notices');
-
 	if (!$always_show_in_notices) {
 		if (($params['type'] == NOTIFY_WALL) || ($params['type'] == NOTIFY_MAIL) || ($params['type'] == NOTIFY_INTRO)) {
 			$seen = 1;
@@ -600,6 +615,9 @@ class Enotify {
 		$datarray['titemlink']    = $itemlink;
 		$datarray['thanks']       = $thanks;
 		$datarray['site_admin']   = $site_admin;
+		$datarray['opt_out1']     = $opt_out1;
+		$datarray['opt_out2']     = $opt_out2;
+		$datarray['hopt_out2']    = $hopt_out2;
 		$datarray['title']        = stripslashes($title);
 		$datarray['htmlversion']  = $htmlversion;
 		$datarray['textversion']  = $textversion;
@@ -657,6 +675,8 @@ class Enotify {
 			'$hitemlink'    => $datarray['hitemlink'],
 			'$thanks'       => $datarray['thanks'],
 			'$site_admin'   => $datarray['site_admin'],
+			'$opt_out1'     => $datarray['opt_out1'],
+			'$opt_out2'     => $datarray['hopt_out2'],
 			'$title'        => $datarray['title'],
 			'$htmlversion'  => $datarray['htmlversion'],
 		));
@@ -677,6 +697,8 @@ class Enotify {
 			'$titemlink'    => $datarray['titemlink'],
 			'$thanks'       => $datarray['thanks'],
 			'$site_admin'   => $datarray['site_admin'],
+			'$opt_out1'     => $datarray['opt_out1'],
+			'$opt_out2'     => $datarray['opt_out2'],
 			'$title'        => $datarray['title'],
 			'$textversion'  => $datarray['textversion'],
 		));
@@ -794,6 +816,20 @@ class Enotify {
 				: sprintf( t('commented on %s\'s post'), $item['owner']['xchan_name']));
 		}
 
+		$edit = false;
+
+		if($item['edited'] > $item['created']) {
+			if($item['item_thread_top']) {
+				$itemem_text = sprintf( t('edited a post dated %s'), relative_date($item['created']));
+				$edit = true;
+			}
+			else {
+				$itemem_text = sprintf( t('edited a comment dated %s'), relative_date($item['created']));
+				$edit = true;
+			}
+		}
+
+
 		// convert this logic into a json array just like the system notifications
 
 		return array(
@@ -801,7 +837,7 @@ class Enotify {
 			'name' => $item['author']['xchan_name'],
 			'url' => $item['author']['xchan_url'],
 			'photo' => $item['author']['xchan_photo_s'],
-			'when' => relative_date($item['created']), 
+			'when' => relative_date(($edit)? $item['edited'] : $item['created']), 
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
 			'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'notify_id' => 'undefined',

@@ -127,8 +127,11 @@ function clean_query_string($s = '') {
  * @return string
  */
 function zidify_callback($match) {
-	$is_zid = ((feature_enabled(local_channel(), 'sendzid')) || (strpos($match[1], 'zrl')) ? true : false);
-	$replace = '<a' . $match[1] . ' href="' . (($is_zid) ? zid($match[2]) : $match[2]) . '"';
+
+	$arr = [ 'zid' => ((strpos($match[1],'zrl')) ? true : false), 'url' => $match[2] ];
+	call_hooks('zidify', $arr);
+
+	$replace = '<a' . $match[1] . ' href="' . (intval($arr['zid']) ? zid($arr['url']) : $arr['url']) . '"';
 
 	$x = str_replace($match[0], $replace, $match[0]);
 
@@ -136,8 +139,11 @@ function zidify_callback($match) {
 }
 
 function zidify_img_callback($match) {
-	$is_zid = ((feature_enabled(local_channel(), 'sendzid')) || (strpos($match[1], 'zrl')) ? true : false);
-	$replace = '<img' . $match[1] . ' src="' . (($is_zid) ? zid($match[2]) : $match[2]) . '"';
+
+	$arr = [ 'zid' => ((strpos($match[1],'zrl')) ? true : false), 'url' => $match[2] ];
+	call_hooks('zidify', $arr);
+
+	$replace = '<img' . $match[1] . ' src="' . (intval($arr['zid']) ? zid($arr['url']) : $arr['url']) . '"';
 
 	$x = str_replace($match[0], $replace, $match[0]);
 
@@ -259,9 +265,9 @@ function red_zrlify_img_callback($matches) {
  */
 function owt_init($token) {
 
-	\Zotlabs\Zot\Verify::purge('owt', '3 MINUTE');
+	\Zotlabs\Lib\Verify::purge('owt', '3 MINUTE');
 
-	$ob_hash = \Zotlabs\Zot\Verify::get_meta('owt', 0, $token);
+	$ob_hash = \Zotlabs\Lib\Verify::get_meta('owt', 0, $token);
 
 	if($ob_hash === false) {
 		return;

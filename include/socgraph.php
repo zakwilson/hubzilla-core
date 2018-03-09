@@ -52,7 +52,7 @@ function poco_load($xchan = '', $url = null) {
 		elseif($s['return_code'] == 404)
 			logger('poco_load: nothing found');
 		else
-			logger('poco_load: returns ' . print_r($s,true));
+			logger('poco_load: returns ' . print_r($s,true), LOGGER_DATA);
 		return;
 	}
 
@@ -178,10 +178,11 @@ function poco_load($xchan = '', $url = null) {
 		);
 
 		if(! $r) {
-			q("insert into xlink ( xlink_xchan, xlink_link, xlink_rating, xlink_rating_text, xlink_updated, xlink_static ) values ( '%s', '%s', %d, '%s', '%s', 0 ) ",
+			q("insert into xlink ( xlink_xchan, xlink_link, xlink_rating, xlink_rating_text, xlink_sig, xlink_updated, xlink_static ) values ( '%s', '%s', %d, '%s', '%s', '%s', 0 ) ",
 				dbesc($xchan),
 				dbesc($hash),
 				intval(0),
+				dbesc(''),
 				dbesc(''),
 				dbesc(datetime_convert())
 			);
@@ -287,11 +288,14 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 
 function update_suggestions() {
 
-	$dirmode = get_config('system', 'directory_mode');
-	if($dirmode === false)
-		$dirmode = DIRECTORY_MODE_NORMAL;
+	$dirmode = get_config('system', 'directory_mode', DIRECTORY_MODE_NORMAL);
 
-	if(($dirmode == DIRECTORY_MODE_PRIMARY) || ($dirmode == DIRECTORY_MODE_STANDALONE)) {
+	if($dirmode == DIRECTORY_MODE_STANDALONE) {
+		poco_load('', z_root() . '/poco');
+		return;
+	}
+
+	if($dirmode == DIRECTORY_MODE_PRIMARY) {
 		$url = z_root() . '/sitelist';
 	}
 	else {

@@ -110,10 +110,21 @@ var activeCommentID = 0;
 var activeCommentText = '';
 
 	$(document).ready(function() {
+
 		/* enable tinymce on focus and click */
 		$("#profile-jot-text").focus(enableOnUser);
 		$("#profile-jot-text").click(enableOnUser);
 
+		$('#id_mimetype').on('load', jotSetMime);
+		$('#id_mimetype').on('change', jotSetMime);
+
+		function jotSetMime() { 
+			var mtype = $('#id_mimetype').val(); 
+			if(mtype == 'text/bbcode')
+				$('#profile-jot-submit-left').show();
+			else
+				$('#profile-jot-submit-left').hide();
+		}
 
 		$('#invisible-wall-file-upload').fileupload({
 			url: 'wall_attach/{{$nickname}}',
@@ -448,13 +459,7 @@ var activeCommentText = '';
                         if (typeof($(image).parent()[0]) !== 'undefined') {
                             var imageparent = document.getElementById($(image).parent()[0].id);
                             $(imageparent).toggleClass('embed-photo-selected-photo');
-                        }
-                    });
-                    $('#embedPhotoModalBodyAlbumListDialog').addClass('d-none');
-                    $('#embedPhotoModalBodyAlbumDialog').removeClass('d-none');
-                    $('#embed-photo-OKButton').click(function () {
-                        $('.embed-photo-selected-photo').each(function (index) {
-                            var href = $(this).attr('href');
+                            var href = $(imageparent).attr('href');
                             $.post("embedphotos/photolink", {href: href},
                                 function(ddata) {
                                     if (ddata['status']) {
@@ -465,12 +470,14 @@ var activeCommentText = '';
                                     }
                                     return false;
                                 },
-                            'json');
-                        });
-                        $('#embedPhotoModalBodyAlbumDialog').html('');
-                        $('#embedPhotoModalBodyAlbumDialog').off('click');
-                        $('#embedPhotoModal').modal('hide');
+         	                   'json');
+	                        $('#embedPhotoModalBodyAlbumDialog').html('');
+    	                    $('#embedPhotoModalBodyAlbumDialog').off('click');
+        	                $('#embedPhotoModal').modal('hide');
+                        }
                     });
+                    $('#embedPhotoModalBodyAlbumListDialog').addClass('d-none');
+                    $('#embedPhotoModalBodyAlbumDialog').removeClass('d-none');
                 } else {
                     window.console.log("{{$modalerroralbum}} " + JSON.stringify(album) + ':' + data['errormsg']);
                 }

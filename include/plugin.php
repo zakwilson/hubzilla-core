@@ -47,7 +47,10 @@ function uninstall_plugin($plugin) {
 }
 
 /**
- * @brief installs an addon.
+ * @brief Installs an addon.
+ *
+ * This function is called once to install the addon (either from the cli or via
+ * the web admin). This will also call load_plugin() once.
  *
  * @param string $plugin name of the addon
  * @return bool
@@ -176,19 +179,91 @@ function reload_plugins() {
 }
 
 
+function plugins_installed_list() {
+
+	$r = q("select * from addon where installed = 1 order by aname asc");
+	return(($r) ? ids_to_array($r,'aname') : []);
+}
+
+
+function plugins_sync() {
+
+	/**
+	 *
+	 * Synchronise plugins:
+	 *
+	 * App::$config['system']['addon'] contains a comma-separated list of names
+	 * of plugins/addons which are used on this system.
+	 * Go through the database list of already installed addons, and if we have
+	 * an entry, but it isn't in the config list, call the unload procedure
+	 * and mark it uninstalled in the database (for now we'll remove it).
+	 * Then go through the config list and if we have a plugin that isn't installed,
+	 * call the install procedure and add it to the database.
+	 *
+	 */
+
+	$installed = plugins_installed_list();
+
+	$plugins = get_config('system', 'addon', '');
+
+	$plugins_arr = explode(',', $plugins);
+
+	// array_trim is in include/text.php
+
+	if(! array_walk($plugins_arr,'array_trim'))
+		return;
+
+	App::$plugins = $plugins_arr;
+
+	$installed_arr = [];
+
+	if(count($installed)) {
+		foreach($installed as $i) {
+			if(! in_array($i, $plugins_arr)) {
+				unload_plugin($i);
+			}
+			else {
+				$installed_arr[] = $i;
+			}
+		}
+	}
+
+	if(count($plugins_arr)) {
+		foreach($plugins_arr as $p) {
+			if(! in_array($p, $installed_arr)) {
+				load_plugin($p);
+			}
+		}
+	}
+
+}
+
+
 /**
  * @brief Get a list of non hidden addons.
  *
  * @return array
  */
 function visible_plugin_list() {
+	
 	$r = q("select * from addon where hidden = 0 order by aname asc");
-	return(($r) ? ids_to_array($r,'aname') : array());
+	$x = (($r) ? ids_to_array($r,'aname') : array());
+	$y = [];
+	if($x) {
+		foreach($x as $xv) {
+			if(is_dir('addon/' . $xv)) {
+				$y[] = $xv;
+			}
+		}
+	}			
+	return $y;
 }
 
 
 /**
- * @brief registers a hook.
+ * @brief Registers a hook.
+ *
+ * @see ::Zotlabs::Extend::Hook::register()
  *
  * @param string $hook the name of the hook
  * @param string $file the name of the file that hooks into
@@ -218,6 +293,8 @@ function register_hook($hook, $file, $function, $priority = 0) {
 
 /**
  * @brief unregisters a hook.
+ *
+ * @see ::Zotlabs::Extend::Hook::unregister
  *
  * @param string $hook the name of the hook
  * @param string $file the name of the file that hooks into
@@ -396,6 +473,83 @@ function get_plugin_info($plugin){
 
 	return $info;
 }
+
+/**
+ * @brief Parse widget comment in search of widget info.
+ *
+ * like
+ * \code
+ *   * Name: MyWidget
+ *   * Description: A widget
+ *   * Version: 1.2.3
+ *   * Author: John <profile url>
+ *   * Author: Jane <email>
+ *   *
+ *\endcode
+ * @param string $widget the name of the widget
+ * @return array with the information
+ */
+function get_widget_info($widget){
+	$m = array();
+	$info = array(
+		'name' => $widget,
+		'description' => '',
+		'author' => array(),
+		'maintainer' => array(),
+		'version' => '',
+		'requires' => ''
+	);
+
+	$ucwidget = ucfirst($widget);
+
+	$checkpaths = [
+		"Zotlabs/SiteWidget/$ucwidget.php",
+		"Zotlibs/Widget/$ucwidget.php",
+		"addon/$ucwidget/$ucwidget.php",
+		"addon/$widget.php"
+	];
+
+	$widget_found = false;
+
+	foreach ($checkpaths as $path) {
+		if (is_file($path)) {
+			$widget_found = true;
+			$f = file_get_contents($path);
+			break;
+		}
+	}
+
+	if(! ($widget_found && $f))		
+		return $info;
+
+	$f = escape_tags($f);
+	$r = preg_match("|/\*.*\*/|msU", $f, $m);
+
+	if ($r) {
+		$ll = explode("\n", $m[0]);
+		foreach( $ll as $l ) {
+			$l = trim($l, "\t\n\r */");
+			if ($l != ""){
+				list($k, $v) = array_map("trim", explode(":", $l, 2));
+				$k = strtolower($k);
+				if ($k == 'author' || $k == 'maintainer'){
+					$r = preg_match("|([^<]+)<([^>]+)>|", $v, $m);
+					if ($r) {
+						$info[$k][] = array('name' => $m[1], 'link' => $m[2]);
+					} else {
+						$info[$k][] = array('name' => $v);
+					}
+				}
+				else {
+					$info[$k] = $v;
+				}
+			}
+		}
+	}
+
+	return $info;
+}
+
 
 function check_plugin_versions($info) {
 

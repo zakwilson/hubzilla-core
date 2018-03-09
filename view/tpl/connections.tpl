@@ -5,7 +5,7 @@
 				<i class="fa fa-search"></i>&nbsp;{{$label}}
 			</button>
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
-				<i class="fa fa-sort"></i>
+				<i class="fa fa-filter"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-right">
 				{{foreach $tabs as $menu}}
@@ -19,13 +19,13 @@
 		<form action="{{$cmd}}" method="get" >
 			<div class="input-group form-group">
 				<input type="text" name="search" id="contacts-search" class="form-control" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc}}" />
-				<div class="input-group-btn">
+				<div class="input-group-append">
 					<button id="contacts-search-submit" class="btn btn-outline-secondary" type="submit" name="submit" value="{{$submit}}"><i class="fa fa-fw fa-search"></i></button>
 				</div>
 			</div>
 		</form>
 	</div>
-	<div id="connections-wrapper clearfix">
+	<div class="connections-wrapper clearfix">
 		{{foreach $contacts as $contact}}
 			{{include file="connection_template.tpl"}}
 		{{/foreach}}

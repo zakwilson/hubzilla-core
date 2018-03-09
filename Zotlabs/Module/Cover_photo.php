@@ -64,12 +64,12 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				$image_id = substr($image_id,0,-2);
 			}
 				
-	
-			$srcX = $_POST['xstart'];
-			$srcY = $_POST['ystart'];
-			$srcW = $_POST['xfinal'] - $srcX;
-			$srcH = $_POST['yfinal'] - $srcY;
-	
+
+
+			$srcX = intval($_POST['xstart']);
+			$srcY = intval($_POST['ystart']);
+			$srcW = intval($_POST['xfinal']) - $srcX;
+			$srcH = intval($_POST['yfinal']) - $srcY;
 	
 			$r = q("select gender from profile where uid = %d and is_default = 1 limit 1",
 				intval(local_channel())
@@ -207,7 +207,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		$imagedata = (($os_storage) ? @file_get_contents($imagedata) : $imagedata);
+		$imagedata = (($os_storage) ? @file_get_contents(dbunescbin($imagedata)) : dbunescbin($imagedata));
 		$ph = photo_factory($imagedata, $filetype);
 	
 		if(! $ph->is_valid()) {
@@ -357,12 +357,23 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				'$user'                => \App::$channel['channel_address'],
 				'$lbl_upfile'          => t('Upload File:'),
 				'$lbl_profiles'        => t('Select a profile:'),
-				'$title'               => t('Upload Cover Photo'),
+				'$title'               => t('Change Cover Photo'),
 				'$submit'              => t('Upload'),
 				'$profiles'            => $profiles,
+				'$embedPhotos' => t('Use a photo from your albums'),
+				'$embedPhotosModalTitle' => t('Use a photo from your albums'),
+				'$embedPhotosModalCancel' => t('Cancel'),
+				'$embedPhotosModalOK' => t('OK'),
+				'$modalchooseimages' => t('Choose images to embed'),
+				'$modalchoosealbum' => t('Choose an album'),
+				'$modaldiffalbum' => t('Choose a different album'),
+				'$modalerrorlist' => t('Error getting album list'),
+				'$modalerrorlink' => t('Error getting photo link'),
+				'$modalerroralbum' => t('Error getting album'),
 				'$form_security_token' => get_form_security_token("cover_photo"),
 					/// @FIXME - yuk  
-				'$select'              => sprintf('%s %s', t('or'), ($newuser) ? '<a href="' . z_root() . '">' . t('skip this step') . '</a>' : '<a href="'. z_root() . '/photos/' . \App::$channel['channel_address'] . '">' . t('select a photo from your photo albums') . '</a>')
+				'$select' => t('Select existing photo'),
+
 			));
 			
 			call_hooks('cover_photo_content_end', $o);

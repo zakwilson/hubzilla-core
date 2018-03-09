@@ -89,9 +89,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 	
 		change_channel($result['channel']['channel_id']);
 	
-		if(! strlen($next_page = get_config('system','workflow_channel_next')))
-			$next_page = 'settings';
-		
+		$next_page = get_config('system', 'workflow_channel_next', 'profiles');		
 		goaway(z_root() . '/' . $next_page);
 	
 	}
@@ -144,6 +142,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			'$role'		=> $role,
 			'$default_role' => $default_role,
 			'$nickname'     => $nickname,
+			'$validate'     => t('Validate'),
 			'$submit'       => t('Create'),
 			'$channel_usage_message' => $channel_usage_message
 		));

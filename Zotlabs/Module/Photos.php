@@ -695,8 +695,8 @@ class Photos extends \Zotlabs\Web\Controller {
 				'$newalbum_label' => t('Enter an album name'),
 				'$newalbum_placeholder' => t('or select an existing album (doubleclick)'),
 				'$visible' => array('visible', t('Create a status post for this upload'), 0,'', array(t('No'), t('Yes')), 'onclick="showHideBodyTextarea();"'),
-				'$caption' => array('description', t('Caption (optional):')),
-				'$body' => array('body', t('Description (optional):'),'', 'Description will only appear in the status post'),
+				'$caption' => array('description', t('Title (optional)')),
+				'$body' => array('body', t('Description (optional)'),'', 'Description will only appear in the status post'),
 				'$albums' => $albums['albums'],
 				'$selname' => $selname,
 				'$permissions' => t('Permissions'),
@@ -841,7 +841,7 @@ class Photos extends \Zotlabs\Web\Controller {
 					'$album_id' => $datum,
 					'$album_edit' => array(t('Edit Album'), $album_edit),
 					'$can_post' => $can_post,
-					'$upload' => array(t('Upload'), z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/upload/' . $datum),
+					'$upload' => array(t('Add Photos'), z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/upload/' . $datum),
 					'$order' => $order,
 					'$upload_form' => $upload_form,
 					'$usage' => $usage_message
@@ -1065,7 +1065,7 @@ class Photos extends \Zotlabs\Web\Controller {
 					'newalbum_placeholder' => t('or select an existing one (doubleclick)'),
 					'nickname'             => \App::$data['channel']['channel_address'],
 					'resource_id'          => $ph[0]['resource_id'],
-					'capt_label'           => t('Caption'),
+					'capt_label'           => t('Title (optional)'),
 					'caption'              => $caption_e,
 					'tag_label'            => t('Add a Tag'),
 					'permissions'          => t('Permissions'),
@@ -1148,10 +1148,10 @@ class Photos extends \Zotlabs\Web\Controller {
 						builtin_activity_puller($item, $conv_responses);
 					}
 	
-	
 					$like_count = ((x($alike,$link_item['mid'])) ? $alike[$link_item['mid']] : '');
 					$like_list = ((x($alike,$link_item['mid'])) ? $alike[$link_item['mid'] . '-l'] : '');
-					if (count($like_list) > MAX_LIKERS) {
+
+					if(is_array($like_list) && (count($like_list) > MAX_LIKERS)) {
 						$like_list_part = array_slice($like_list, 0, MAX_LIKERS);
 						array_push($like_list_part, '<a href="#" data-toggle="modal" data-target="#likeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
 					} else {
@@ -1163,7 +1163,7 @@ class Photos extends \Zotlabs\Web\Controller {
 						$dislike_count = ((x($dlike,$link_item['mid'])) ? $dlike[$link_item['mid']] : '');
 						$dislike_list = ((x($dlike,$link_item['mid'])) ? $dlike[$link_item['mid'] . '-l'] : '');
 						$dislike_button_label = tt('Dislike','Dislikes',$dislike_count,'noun');
-						if (count($dislike_list) > MAX_LIKERS) {
+						if (is_array($dislike_list) && (count($dislike_list) > MAX_LIKERS)) {
 							$dislike_list_part = array_slice($dislike_list, 0, MAX_LIKERS);
 							array_push($dislike_list_part, '<a href="#" data-toggle="modal" data-target="#dislikeModal-' . $this->get_id() . '"><b>' . t('View all') . '</b></a>');
 						} else {
@@ -1378,7 +1378,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				'$title' => t('Recent Photos'),
 				'$album_id' => bin2hex(t('Recent Photos')),
 				'$can_post' => $can_post,
-				'$upload' => array(t('Upload'), z_root().'/photos/'.\App::$data['channel']['channel_address'].'/upload'),
+				'$upload' => array(t('Add Photos'), z_root().'/photos/'.\App::$data['channel']['channel_address'].'/upload'),
 				'$photos' => $photos,
 				'$upload_form' => $upload_form,
 				'$usage' => $usage_message

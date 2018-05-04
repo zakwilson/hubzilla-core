@@ -252,9 +252,10 @@ CREATE TABLE "channel" (
   "channel_dirdate" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "channel_lastpost" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "channel_deleted" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
-  "channel_max_anon_mail" bigint  NOT NULL DEFAULT 10,
-  "channel_max_friend_req" bigint  NOT NULL DEFAULT 10,
-  "channel_expire_days" bigint NOT NULL DEFAULT 0 ,
+  "channel_active" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "channel_max_anon_mail" bigint  NOT NULL DEFAULT '10',
+  "channel_max_friend_req" bigint  NOT NULL DEFAULT '10',
+  "channel_expire_days" bigint NOT NULL DEFAULT '0',
   "channel_passwd_reset" text NOT NULL DEFAULT '',
   "channel_default_group" text NOT NULL DEFAULT '',
   "channel_allow_cid" text ,
@@ -284,6 +285,7 @@ create index "channel_guid" on channel ("channel_guid");
 create index "channel_hash" on channel ("channel_hash");
 create index "channel_expire_days" on channel ("channel_expire_days");
 create index "channel_deleted" on channel ("channel_deleted");
+create index "channel_active" on channel ("channel_active");
 create index "channel_dirdate" on channel ("channel_dirdate");
 create index "channel_lastpost" on channel ("channel_lastpost");
 create index "channel_removed" on channel ("channel_removed");
@@ -944,6 +946,7 @@ CREATE TABLE "poll" (
   "poll_id" serial  NOT NULL,
   "poll_guid" text NOT NULL,
   "poll_channel" bigint  NOT NULL DEFAULT '0',
+  "poll_author" text NOT NULL,
   "poll_desc" text NOT NULL,
   "poll_flags" bigint NOT NULL DEFAULT 0 ,
   "poll_votes" bigint NOT NULL DEFAULT 0 ,
@@ -952,6 +955,7 @@ CREATE TABLE "poll" (
 );
 create index "poll_guid" on poll ("poll_guid");
 create index "poll_channel" on poll ("poll_channel");
+create index "poll_author" on poll ("poll_author");
 create index "poll_flags" on poll ("poll_flags");
 create index "poll_votes" on poll ("poll_votes");
 CREATE TABLE "poll_elm" (
@@ -959,13 +963,15 @@ CREATE TABLE "poll_elm" (
   "pelm_guid" text NOT NULL,
   "pelm_poll" bigint  NOT NULL DEFAULT '0',
   "pelm_desc" text NOT NULL,
-  "pelm_flags" bigint NOT NULL DEFAULT 0 ,
-  "pelm_result" float NOT NULL DEFAULT 0 ,
+  "pelm_flags" bigint NOT NULL DEFAULT '0',
+  "pelm_result" float NOT NULL DEFAULT '0',
+  "pelm_order" numeric(6) NOT NULL DEFAULT '0',
   PRIMARY KEY ("pelm_id")
 );
 create index "pelm_guid" on poll_elm ("pelm_guid");
 create index "pelm_poll" on poll_elm ("pelm_poll");
 create index "pelm_result" on poll_elm ("pelm_result");
+create index "pelm_order" on poll_elm ("pelm_order");
 
 CREATE TABLE "profdef" (
   "id" serial  NOT NULL,
@@ -1606,3 +1612,57 @@ ALTER TABLE ONLY users
 
 CREATE UNIQUE INDEX users_ukey
     ON users USING btree (username);
+
+
+CREATE TABLE oauth_clients (
+  client_id             VARCHAR(80)   NOT NULL,
+  client_secret         VARCHAR(80),
+  redirect_uri          VARCHAR(2000),
+  grant_types           VARCHAR(80),
+  scope                 VARCHAR(4000),
+  user_id               VARCHAR(80),
+  PRIMARY KEY (client_id)
+);
+
+CREATE TABLE oauth_access_tokens (
+  access_token         VARCHAR(40)    NOT NULL,
+  client_id            VARCHAR(80)    NOT NULL,
+  user_id              VARCHAR(255),
+  expires              TIMESTAMP      NOT NULL,
+  scope                VARCHAR(4000),
+  PRIMARY KEY (access_token)
+);
+
+CREATE TABLE oauth_authorization_codes (
+  authorization_code  VARCHAR(40)     NOT NULL,
+  client_id           VARCHAR(80)     NOT NULL,
+  user_id             VARCHAR(255),
+  redirect_uri        VARCHAR(2000),
+  expires             TIMESTAMP       NOT NULL,
+  scope               VARCHAR(4000),
+  id_token            VARCHAR(1000),
+  PRIMARY KEY (authorization_code)
+);
+
+CREATE TABLE oauth_refresh_tokens (
+  refresh_token       VARCHAR(40)     NOT NULL,
+  client_id           VARCHAR(80)     NOT NULL,
+  user_id             VARCHAR(255),
+  expires             TIMESTAMP       NOT NULL,
+  scope               VARCHAR(4000),
+  PRIMARY KEY (refresh_token)
+);
+
+CREATE TABLE oauth_scopes (
+  scope               VARCHAR(191)    NOT NULL,
+  is_default          SMALLINT,
+  PRIMARY KEY (scope)
+);
+
+CREATE TABLE oauth_jwt (
+  client_id           VARCHAR(80)     NOT NULL,
+  subject             VARCHAR(80),
+  public_key          VARCHAR(2000)   NOT NULL
+);
+
+

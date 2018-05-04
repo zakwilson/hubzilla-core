@@ -780,7 +780,7 @@ function identity_basic_export($channel_id, $sections = null) {
 		}
 	}
 
-	if(in_array('channel',$sections)) {
+	if(in_array('channel',$sections) || in_array('profile',$sections)) {
 		$r = q("select * from profile where uid = %d",
 			intval($channel_id)
 		);
@@ -1234,7 +1234,7 @@ function profile_load($nickname, $profile = '') {
 	);
 	if($z) {
 		$p[0]['picdate'] = $z[0]['xchan_photo_date'];
-		$p[0]['reddress'] = str_replace('@','&#x40;',$z[0]['xchan_addr']);
+		$p[0]['reddress'] = str_replace('@','&#x40;',unpunify($z[0]['xchan_addr']));
 	}
 
 	// fetch user tags if this isn't the default profile
@@ -1255,7 +1255,7 @@ function profile_load($nickname, $profile = '') {
 
 	App::$profile = $p[0];
 	App::$profile_uid = $p[0]['profile_uid'];
-	App::$page['title'] = App::$profile['channel_name'] . " - " . channel_reddress(App::$profile);
+	App::$page['title'] = App::$profile['channel_name'] . " - " . unpunify(channel_reddress(App::$profile));
 
 	App::$profile['permission_to_view'] = $can_view_profile;
 
@@ -1573,13 +1573,24 @@ function advanced_profile() {
 			$profile['howlong'] = relative_date(App::$profile['howlong'], t('for %1$d %2$s'));
 		}
 
+		if(App::$profile['keywords']) { 
+			$keywords = str_replace(',',' ', App::$profile['keywords']);
+			$keywords = str_replace('  ',' ', $keywords);
+			$karr = explode(' ', $keywords);
+			if($karr) {
+				for($cnt = 0; $cnt < count($karr); $cnt ++) {
+					$karr[$cnt] = '<a href="' . z_root() . '/directory/f=&keywords=' . trim($karr[$cnt]) . '">' . $karr[$cnt] . '</a>';
+				}
+			}
+			$profile['keywords'] = array( t('Tags:'), implode(' ', $karr));
+		}
+
+
 		if(App::$profile['sexual']) $profile['sexual'] = array( t('Sexual Preference:'), App::$profile['sexual'] );
 
 		if(App::$profile['homepage']) $profile['homepage'] = array( t('Homepage:'), linkify(App::$profile['homepage']) );
 
 		if(App::$profile['hometown']) $profile['hometown'] = array( t('Hometown:'), linkify(App::$profile['hometown']) );
-
-		if(App::$profile['keywords']) $profile['keywords'] = array( t('Tags:'), App::$profile['keywords']);
 
 		if(App::$profile['politic']) $profile['politic'] = array( t('Political Views:'), App::$profile['politic']);
 
@@ -2552,7 +2563,7 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	q("DELETE FROM photo WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM attach WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM profile WHERE uid = %d", intval($channel_id));
-	q("DELETE FROM src WHERE src_channel_id = %d", intval($channel_id));
+	q("DELETE FROM source WHERE src_channel_id = %d", intval($channel_id));
 
 	$r = q("select hash FROM attach WHERE uid = %d", intval($channel_id));
 	if($r) {
@@ -2714,7 +2725,7 @@ function anon_identity_init($reqvars) {
 
 	$hash = hash('md5',$anon_email);
 
-	$x = q("select * from xchan where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'unknown' limit 1",
+	$x = q("select * from xchan where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'anon' limit 1",
 		dbesc($anon_email),
 		dbesc($hash)
 	);
@@ -2725,19 +2736,19 @@ function anon_identity_init($reqvars) {
 			'xchan_hash'    => $hash,
 			'xchan_name'    => $anon_name,
 			'xchan_url'     => $anon_url,
-			'xchan_network' => 'unknown',
+			'xchan_network' => 'anon',
 			'xchan_name_date' => datetime_convert()
 		]);
 
 
-		$x = q("select * from xchan where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'unknown' limit 1",
+		$x = q("select * from xchan where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'anon' limit 1",
 			dbesc($anon_email),
 			dbesc($hash)
 		);
 
 		$photo = z_root() . '/' . get_default_profile_photo(300);
 		$photos = import_xchan_photo($photo,$hash);
-		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'unknown' ",
+		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_guid = '%s' and xchan_hash = '%s' and xchan_network = 'anon' ",
 			dbesc(datetime_convert()),
 			dbesc($photos[0]),
 			dbesc($photos[1]),

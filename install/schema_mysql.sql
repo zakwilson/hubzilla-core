@@ -259,6 +259,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `channel_dirdate` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `channel_lastpost` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `channel_deleted` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `channel_active` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `channel_max_anon_mail` int(10) unsigned NOT NULL DEFAULT 10,
   `channel_max_friend_req` int(10) unsigned NOT NULL DEFAULT 10,
   `channel_expire_days` int(11) NOT NULL DEFAULT 0 ,
@@ -308,6 +309,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   KEY `channel_hash` (`channel_hash`),
   KEY `channel_expire_days` (`channel_expire_days`),
   KEY `channel_deleted` (`channel_deleted`),
+  KEY `channel_active` (`channel_active`),
   KEY `channel_dirdate` (`channel_dirdate`),
   KEY `channel_removed` (`channel_removed`),
   KEY `channel_system` (`channel_system`),
@@ -966,12 +968,14 @@ CREATE TABLE IF NOT EXISTS `poll` (
   `poll_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `poll_guid` varchar(191) NOT NULL,
   `poll_channel` int(10) unsigned NOT NULL DEFAULT 0 ,
+  `poll_author` varchar(191) NOT NULL,
   `poll_desc` text NOT NULL,
   `poll_flags` int(11) NOT NULL DEFAULT 0 ,
   `poll_votes` int(11) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`poll_id`),
   KEY `poll_guid` (`poll_guid`),
   KEY `poll_channel` (`poll_channel`),
+  KEY `poll_author` (`poll_author`),
   KEY `poll_flags` (`poll_flags`),
   KEY `poll_votes` (`poll_votes`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -983,10 +987,12 @@ CREATE TABLE IF NOT EXISTS `poll_elm` (
   `pelm_desc` text NOT NULL,
   `pelm_flags` int(11) NOT NULL DEFAULT 0 ,
   `pelm_result` float NOT NULL DEFAULT 0 ,
+  `pelm_order` int(11) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`pelm_id`),
   KEY `pelm_guid` (`pelm_guid`),
   KEY `pelm_poll` (`pelm_poll`),
-  KEY `pelm_result` (`pelm_result`)
+  KEY `pelm_result` (`pelm_result`),
+  KEY `pelm_order` (`pelm_order`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `profdef` (
@@ -1592,4 +1598,56 @@ CREATE TABLE if not exists calendarinstances (
     UNIQUE(principaluri, uri),
     UNIQUE(calendarid, principaluri),
     UNIQUE(calendarid, share_href)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+CREATE TABLE if not exists oauth_clients (
+  client_id             VARCHAR(80)   NOT NULL,
+  client_secret         VARCHAR(80),
+  redirect_uri          VARCHAR(2000),
+  grant_types           VARCHAR(80),
+  scope                 VARCHAR(4000),
+  user_id               VARCHAR(80),
+  PRIMARY KEY (client_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE if not exists oauth_access_tokens (
+  access_token         VARCHAR(40)    NOT NULL,
+  client_id            VARCHAR(80)    NOT NULL,
+  user_id              VARCHAR(255),
+  expires              TIMESTAMP      NOT NULL,
+  scope                VARCHAR(4000),
+  PRIMARY KEY (access_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE if not exists oauth_authorization_codes (
+  authorization_code  VARCHAR(40)     NOT NULL,
+  client_id           VARCHAR(80)     NOT NULL,
+  user_id             VARCHAR(255),
+  redirect_uri        VARCHAR(2000),
+  expires             TIMESTAMP       NOT NULL,
+  scope               VARCHAR(4000),
+  id_token            VARCHAR(1000),
+  PRIMARY KEY (authorization_code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE if not exists oauth_refresh_tokens (
+  refresh_token       VARCHAR(40)     NOT NULL,
+  client_id           VARCHAR(80)     NOT NULL,
+  user_id             VARCHAR(255),
+  expires             TIMESTAMP       NOT NULL,
+  scope               VARCHAR(4000),
+  PRIMARY KEY (refresh_token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE if not exists oauth_scopes (
+  scope               VARCHAR(191)    NOT NULL,
+  is_default          TINYINT(1),
+  PRIMARY KEY (scope)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE if not exists oauth_jwt (
+  client_id           VARCHAR(80)     NOT NULL,
+  subject             VARCHAR(80),
+  public_key          VARCHAR(2000)   NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

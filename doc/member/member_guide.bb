@@ -22,11 +22,102 @@ Click the link to read the site's [zrl=[baseurl]/help/TermsOfService]Terms of Se
 
 Once you have provided the necessary details, click the 'Register' button. Some sites may require administrator approval before the registration is processed, and you will be alerted if this is the case. Please watch your email (including spam folders) for your registration approval.
 
-[b]Create a Channel[/b]
 
-Next, you will be presented with the &quot;Add a channel&quot; screen. Normally, your first channel will be one that represents you - so using your own name (or psuedonym) as the channel name is a good idea. The channel name should be thought of as a title, or brief description of your channel. The &quot;choose a short nickname&quot; box is similar to a &quot;username&quot; field. We will use whatever you enter here to create a channel address, which other people will use to connect to you, and you will use to log in to other sites. This looks like an email address, and takes the form nickname@siteyouregisteredat.xyz
 
-When your channel is created you will be taken straight to your settings page where you can define permissions, enable features, etc. All these things are covered in the appropriate section of the helpfiles.
+[h3]Channels[/h3]
+
+[h4]What are channels?[/h4]
+
+Channels are simply collections of content stored in one place. A channel can represent anything. It could represent you, a website, a forum, photo albums, anything. For most people, their first channel with be &quot;Me&quot;.
+
+The most important features for a channel that represents &quot;me&quot; are:
+[ul]
+[*]Secure and private &quot;spam free&quot; communications
+
+[*]Identity and &quot;single-signon&quot; across the entire network
+
+[*]Privacy controls and permissions which extend to the entire network
+
+[*]Directory services (like a phone book)
+[/ul]
+In short, a channel that represents yourself is &quot;me, on the internet&quot;.
+
+
+
+[h3]Channel Permission Roles[/h3]
+
+When you create a new channel, you will be asked to select a permission role based on how you envision using this channel. The most popular permission roles are the Social Networking roles. You have many other choices, providing options which are analagous to Facebook Groups and Pages, collaborative spaces, newsfeeds, and more. These roles automatically configure several different system variables ranging from what permissions are granted to friends, to your default privacy settings and visibility choices. Advanced configurations are available to let you adjust each of these parameters to your needs, but we've found that most people prefer to "set it and forget it". Thew following describes some of the different roles which are currently available and how they impact your privacy and ability to interact. 
+
+[h4]Social[/h4]
+
+[b]Federation[/b]
+
+The channel is a very permissive social networking profile which is compatible with other federated social networks. The permission policies are similar to Twitter and mostly compatible with Diaspora and Mastodon. Privacy is a lower priority than ease of access and connecting with others. Anybody in the network can comment on your public posts and send you private mail. By default posts and published items are public, but you can over-ride this when creating the item and restrict it. You are listed in the directory. Your online presence and connections are visible to others. This mode [i]may[/i] increase your exposure to undesired communications and spam. This role is not generally recommended [i]unless[/i] you need to interact regularly with members of other networks.  
+
+[b]Mostly Public[/b]
+
+The channel is a typical social networking profile. By default posts and published items are public, but you can over-ride this when creating the item and restrict it. You are listed in the directory. Your online presence and connections are visible to others. Only your immediate connections can comment on your public posts and send you private mail. The permission policies are similar to Facebook.   
+
+
+[b]Restricted[/b]
+
+By default all posts and published items are sent to your 'Friends' privacy group and not made public. New friends are added to this privacy group. You can over-ride this and create a public post or published item if you desire. You are listed in the directory. Your online presence (for chat) and your connections (friends) are visible to your profile viewers.
+
+[b]Private[/b]
+
+By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. You can over-ride this and create a public post or public item if you desire. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. 
+
+
+[h4]Forum[/h4]
+
+[b]Mostly Public[/b]
+
+The channel is a typical forum. By default posts and published items are public. Members may post by !mention or wall-to-wall post. Posting photos and other published items is blocked. The channel is visible in the directory. Members are added automatically.
+
+
+[b]Restricted[/b]
+
+By default all posts and published items are sent to the channel's 'Friends' privacy group. New friends are added to this privacy group. Members may post by !mention or wall-to-wall post, but posts and replies may also be seen by other receipients of the top-level post who are not members. The channel is visible in the directory. Members must be manually added by the forum owner. 
+
+[b]Private[/b]
+
+By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. The owner can over-ride this and create a public post or public item if desired. Members cannot. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. Members must be manually added by the forum owner. Posting by !mention is disabled. Posts can only be made via wall-to-wall posts, and sent to members of the 'Friends' privacy group. They are not publicly visible.  
+
+
+[h4]Feed[/h4]
+
+
+[b]Public[/b]
+
+Similiar to Social - Mostly Public, but tailored for RSS feed sources. Items may be freely republished and sourced. Online presence is meaningless, therefore hidden. New connections are automatically approved.  
+
+
+[b]Restricted[/b]
+
+Not listed in directory. Online presence is meaningless, therefore hidden. Feed is published only to members of the 'Friends' privacy group. New connections are automatically added to this privacy group. Members must be manually approved by the channel owner. 
+
+
+[h4]Special[/h4]
+
+[b]Celebrity/Soapbox[/b]
+
+Listed in directory. Communications are by default public. Online presence is hidden. No commenting or feedback of any form is allowed, though connections have the ability to "like" your profile. 
+
+
+[b]Group Repository[/b]
+
+A public forum which allows members to post files/photos/webpages. 
+
+
+[h4]Custom/Expert Mode[/h4]
+
+Set all the privacy and permissions manually to suit your specific needs. 
+
+
+[h3]Creating channels[/h3]
+
+
+After creating your account, you will be presented with the &quot;Add a channel&quot; screen. Normally, your first channel will be one that represents you - so using your own name (or psuedonym) as the channel name is a good idea. The channel name should be thought of as a title, or brief description of your channel. The &quot;choose a short nickname&quot; box is similar to a &quot;username&quot; field. We will use whatever you enter here to create a channel address, which other people will use to connect to you, and you will use to log in to other sites. This looks like an email address, and takes the form nickname@siteyouregisteredat.xyz
 
 See Also
 [zrl=[baseurl]/help/accounts_profiles_channels_basics]The Basics about Identities within $Projectname[/zrl]
@@ -34,6 +125,11 @@ See Also
 [zrl=[baseurl]/help/profiles]Profiles[/zrl]
 [zrl=[baseurl]/help/permissions]Permissions[/zrl]
 [zrl=[baseurl]/help/remove_account]Remove Account[/zrl]
+
+
+You can create additonal channels from the &quot;Channel Manager&quot; link.
+
+Once you have done this, your channel is ready to use. At [observer=1][observer.url][/observer][observer=0][baseurl]/channel/username[/observer] you will find your channel &quot;stream&quot;. This is where your recent activity will appear, in reverse chronological order. If you post in the box marked &quot;share&quot;, the entry will appear at the top of your stream. You will also find links to all the other communication areas for this channel here. The "hamburger" menu in most themes will provide you with navigation to other system components and apps. The Photos page contain photo albums, and the Events page contains events share by both yourself and your contacts.
 
 [b]Profiles[/b]
 
@@ -71,98 +167,6 @@ See Also
 
 [zrl=[baseurl]/help/AdvancedSearch]Advanced Searching[/zrl]
 
-[h3]Account Permission Roles[/h3]
-
-
-[h4]Social[/h4]
-
-[b]Mostly Public[/b]
-
-The channel is a typical social networking profile. By default posts and published items are public, but one can over-ride this when creating the item and restrict it. You are listed in the directory. Your online presence and connections are visible to others. 
-
-
-[b]Restricted[/b]
-
-By default all posts and published items are sent to your 'Friends' privacy group and not made public. New friends are added to this privacy group. You can over-ride this and create a public post or published item if you desire. You are listed in the directory. Your online presence (for chat) and your connections (friends) are visible to your profile viewers.
-
-[b]Private[/b]
-
-By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. You can over-ride this and create a public post or public item if you desire. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. 
-
-
-[h4]Forum[/h4]
-
-[b]Mostly Public[/b]
-
-The channel is a typical forum. By default posts and published items are public. Members may post by @mention+ or wall-to-wall post. Posting photos and other published items is blocked. The channel is visible in the directory. Members are added automatically.
-
-
-[b]Restricted[/b]
-
-By default all posts and published items are sent to the channel's 'Friends' privacy group. New friends are added to this privacy group. Members may post by @mention+ or wall-to-wall post, but posts and replies may also be seen by other receipients of the top-level post who are not members. The channel is visible in the directory. Members must be manually added by the forum owner. 
-
-[b]Private[/b]
-
-By default all posts and published items are sent to your 'Friends' privacy group. New friends are added to this privacy group. The owner can over-ride this and create a public post or public item if desired. Members cannot. You are NOT listed in the directory. Only your connections can see your other connections. Your online presence is hidden. Members must be manually added by the forum owner. Posting by @mention+ is disabled. Posts can only be made via wall-to-wall posts, and sent to members of the 'Friends' privacy group. They are not publicly visible.  
-
-
-[h4]Feed[/h4]
-
-
-[b]Public[/b]
-
-Similiar to Social - Mostly Public, but tailored for RSS feed sources. Items may be freely republished and sourced. Online presence is meaningless, therefore hidden. New connections are automatically approved.  
-
-
-[b]Restricted[/b]
-
-Not listed in directory. Online presence is meaningless, therefore hidden. Feed is published only to members of the 'Friends' privacy group. New connections are automatically added to this privacy group. Members must be manually approved by the channel owner. 
-
-
-[h4]Special[/h4]
-
-[b]Celebrity/Soapbox[/b]
-
-Listed in directory. Communications are by default public. Online presence is hidden. No commenting or feedback of any form is allowed, though connections have the ability to "like" your profile. 
-
-
-[b]Group Repository[/b]
-
-A public forum which allows members to post files/photos/webpages. 
-
-
-[h4]Custom/Expert Mode[/h4]
-
-Set all the privacy and permissions manually to suit your specific needs. 
-
-
-[h3]Channels[/h3]
-
-[h4]What are channels?[/h4]
-
-Channels are simply collections of content stored in one place. A channel can represent anything. It could represent you, a website, a forum, photo albums, anything. For most people, their first channel with be &quot;Me&quot;.
-
-The most important features for a channel that represents &quot;me&quot; are:
-[ul]
-[*]Secure and private &quot;spam free&quot; communications
-
-[*]Identity and &quot;single-signon&quot; across the entire network
-
-[*]Privacy controls and permissions which extend to the entire network
-
-[*]Directory services (like a phone book)
-[/ul]
-In short, a channel that represents yourself is &quot;me, on the internet&quot;.
-
-[h4]Creating channels[/h4]
-
-You will be required to create your first channel as part of the sign up process. You can also create additonal channels from the &quot;Select channel&quot; link.
-
-You will be asked to provide a channel name, and a short nick name. For a channel that represents yourself, it is a good idea to use your real name here to ensure your friends can find you, and connect to your channel. The short nickname will be used to generate a &quot;webbie&quot;. This is a bit like a username, and will look like an email address, taking the form nickname@domain. You should put a little thought into what you want to use here. Imagine somebody asking for your webbie and having to tell them it is &quot;llamas-are_kewl.123&quot;. &quot;llamasarecool&quot; would be a much better choice.
-
-Once you have created your channel, you will be taken to the settings page, where you can configure your channel, and set your default permissions.
-
-Once you have done this, your channel is ready to use. At [observer=1][observer.url][/observer][observer=0][baseurl]/channel/username[/observer] you will find your channel &quot;stream&quot;. This is where your recent activity will appear, in reverse chronological order. If you post in the box marked &quot;share&quot;, the entry will appear at the top of your stream. You will also find links to all the other communication areas for this channel here. The &quot;About&quot; tab contains your &quot;profile&quot;, the photos page contain photo albums, and the events page contains events share by both yourself and your contacts.
 
 [h4]The grid, permissions and delegation[/h4]
 
@@ -195,7 +199,7 @@ The process for connecting to channels on other networks (such as GNU-Social, Ma
 Some communications offer more than one protocol. If you wish to connect with somebody on Mastodon (for instance) they can use either the 'ostatus' or the 'activitypub' protocol for communication. Generally the 'activitypub' protocol will provide a better experience than 'ostatus', but $Projectname will often choose the first protocol it discovers and this may not be the one you want. You may connect with somebody over a specific protocol by prepending the protocol name in square brackets to their &quot;webbie&quot;. For example
 
 [code]
-[activitypub]foobar@foo.bar
+[activitypub]https://foo.bar/foobar
 [ostatus]foobar@foo.bar
 [diaspora]foobar@foo.bar
 [zot]foobar@foo.bar
@@ -360,12 +364,14 @@ Note: In previous releases, forums were delivered by using @forum+ with a plus s
 [h4]Private Mentions[/h4]
 If you wish to restrict a post to a single person or a number of people, you can do this by selecting channels or privacy groups from the privacy tool. You can also just tag them with a privacy tag. A privacy tag is a name preceded by the two characters @! - and in addition to tagging these channels, will also change the privacy permissions of the post to only include them. You can have more than one privacy tag, for instance @!bob and @!linda will send the post only to Bob and Linda. This mechanism over-rides the privacy selector.  
 
+Forums may be mentioned in the same way. !!dogs will post to the dogs forum privately. The forum will redeliver the post to all the forum members, but your own followers will not see the post unless they are also members of the dogs forum.
+
 You may also tag privacy groups which are "public". When you create or edit a privacy group, there is a checkbox to allow the group members to be seen by others. If this box is checked for a group and you tag (for instance) @!Friends - the post will be restricted to the Friends group. Check that the group is public before doing this - as there is no way to take back a post except to delete it. The group name will appear in the post and will alert members of that group that they are members of it.    
 
 [h4]Mentions and Comments[/h4]
 The above mechanisms only apply to "top-level" posts you create. Mentioning a channel with any of the above mechanisms has no effect in comments, except that the mentioned channel may receive a notification if they were already included as a recipient in the conversation. 
 
-[h4]Topical Tags[/h4]
+[h4]Topical Tags (also known as Hashtags)[/h4]
 Topical tags are indicated by preceding the tag name with the  # character. This will create a link in the post to a generalised site search for the term provided.  For example, #[zrl=[baseurl]/search?tag=cars]cars[/zrl] will provide a search link for all posts mentioning 'cars' on your site. Topical tags are generally a minimum of three characters in length.  Shorter search terms are not likely to yield any search results, although this depends on the database configuration. 
 
 Topical tags are also not linked if they are purely numeric, e.g. #1. If you wish to use a numeric hashtag, please add some descriptive text such as #2012-elections.

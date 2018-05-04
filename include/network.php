@@ -368,27 +368,6 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	return($ret);
 }
 
-/**
- * @brief Like z_post_url() but with an application/json HTTP header.
- *
- * Add a "Content-Type: application/json" HTTP-header to $opts and call z_post_url().
- *
- * @see z_post_url()
- *
- * @param string $url
- * @param array $params
- * @param number $redirects default 0
- * @param array $opts (optional) curl options
- * @return z_post_url()
- */
-function z_post_url_json($url, $params, $redirects = 0, $opts = array()) {
-
-	$opts = array_merge($opts, array('headers' => array('Content-Type: application/json')));
-
-	return z_post_url($url,json_encode($params),$redirects,$opts);
-}
-
-
 function json_return_and_die($x, $content_type = 'application/json') {
 	header("Content-type: $content_type");
 	echo json_encode($x);
@@ -669,6 +648,7 @@ function parse_xml_string($s, $strict = true) {
 
 	libxml_use_internal_errors(true);
 
+
 	$x = @simplexml_load_string($s2);
 	if($x === false) {
 		logger('libxml: parse: error: ' . $s2, LOGGER_DATA);
@@ -681,6 +661,16 @@ function parse_xml_string($s, $strict = true) {
 
 	return $x;
 }
+
+
+function sxml2array ( $xmlObject, $out = array () )
+{
+    foreach ( (array) $xmlObject as $index => $node )
+        $out[$index] = ( is_object ( $node ) ) ? sxml2array ( $node ) : $node;
+
+    return $out;
+}
+
 
 /**
  * @brief Scales an external image.
@@ -779,7 +769,7 @@ function scale_external_images($s, $include_link = true, $scale_replace = false)
  * @brief xml2array() will convert the given XML text to an array in the XML structure.
  *
  * Link: http://www.bin-co.com/php/scripts/xml2array/
- * Portions significantly re-written by mike@macgirvin.com for Friendica
+ * Portions significantly re-written by mike@macgirvin.com 
  * (namespaces, lowercase tags, get_attribute default changed, more...)
  *
  * Examples: $array =  xml2array(file_get_contents('feed.xml'));
@@ -1160,8 +1150,6 @@ function discover_by_webbie($webbie, $protocol = '') {
 
 	$network  = null;
 
-//	$webbie = strtolower($webbie);
-
 	$x = webfinger_rfc7033($webbie, true);
 	if($x && array_key_exists('links',$x) && $x['links']) {
 		foreach($x['links'] as $link) {
@@ -1192,9 +1180,10 @@ function discover_by_webbie($webbie, $protocol = '') {
 	logger('webfinger: ' . print_r($x,true), LOGGER_DATA, LOG_INFO);
 
 	$arr = [
-			'address' => $webbie,
-			'protocol' => $protocol,
-			'success' => false,
+			'address'   => $webbie,
+			'protocol'  => $protocol,
+			'success'   => false,
+			'xchan'     => '',
 			'webfinger' => $x
 	];
 	/**
@@ -1207,7 +1196,7 @@ function discover_by_webbie($webbie, $protocol = '') {
 	 */
 	call_hooks('discover_channel_webfinger', $arr);
 	if($arr['success'])
-		return true;
+		return $arr['xchan'];
 
 	return false;
 }
@@ -1240,16 +1229,9 @@ function webfinger_rfc7033($webbie, $zot = false) {
 	}
 	logger('fetching url from resource: ' . $rhs . ':' . $webbie);
 
-	// The default curl Accept: header is */*, which is incorrectly handled by Mastodon servers
-	// and results in a 406 (Not Acceptable) response, and will also incorrectly produce an XML
-	// document if you use 'application/jrd+json, */*'. We could set this to application/jrd+json,
-	// but some test webfinger servers may not explicitly set the content type and they would be
-	// blocked. The best compromise until Mastodon is fixed is to remove the Accept header which is
-	// accomplished by setting it to nothing.
-
 	$counter = 0;
 	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''),
-		false, $counter, [ 'headers' => [ 'Accept:' ] ]);
+		false, $counter, [ 'headers' => [ 'Accept: application/jrd+json, */*' ] ]);
 
 	if($s['success']) {
 		$j = json_decode($s['body'], true);
@@ -1607,6 +1589,7 @@ function get_site_info() {
 		'register_policy'              =>  $register_policy[get_config('system','register_policy')],
 		'invitation_only'              => (bool) intval(get_config('system','invitation_only')),
 		'directory_mode'               =>  $directory_mode[get_config('system','directory_mode')],
+		'directory_server'             => get_config('system','directory_server'),
 		'language'                     => get_config('system','language'),
 		'rss_connections'              => (bool) intval(get_config('system','feed_contacts')),
 		'expiration'                   => $site_expire,
@@ -1844,7 +1827,8 @@ function z_mail($params) {
 	$messageHeader =
 		$params['additionalMailHeader'] .
 		"From: $fromName <{$params['fromEmail']}>\n" .
-		"Reply-To: $fromName <{$params['replyTo']}>";
+		"Reply-To: $fromName <{$params['replyTo']}>\n" .
+		"Content-Type: text/plain; charset=UTF-8";
 
 	// send the message
 	$res = mail(

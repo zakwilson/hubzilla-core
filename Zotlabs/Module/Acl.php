@@ -24,7 +24,7 @@ class Acl extends \Zotlabs\Web\Controller {
 
 	function init() {
 
-		logger('mod_acl: ' . print_r($_REQUEST,true));
+		logger('mod_acl: ' . print_r($_REQUEST,true),LOGGER_DATA);
 
 		$start    = (x($_REQUEST,'start')  ? $_REQUEST['start']  : 0);
 		$count    = (x($_REQUEST,'count')  ? $_REQUEST['count']  : 500);
@@ -82,7 +82,7 @@ class Acl extends \Zotlabs\Web\Controller {
 
 		if($search) {
 			$sql_extra = " AND groups.gname LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
-			$sql_extra2 = "AND ( xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'%" . dbesc($search) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
+			$sql_extra2 = "AND ( xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'%" . dbesc(punify($search)) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
 	
 			// This horrible mess is needed because position also returns 0 if nothing is found. 
 			// Would be MUCH easier if it instead returned a very large value
@@ -92,10 +92,10 @@ class Acl extends \Zotlabs\Web\Controller {
 			$order_extra2 = "CASE WHEN xchan_name LIKE " 
 					. protect_sprintf( "'%" . dbesc($search) . "%'" ) 
 					. " then POSITION('" . protect_sprintf(dbesc($search)) 
-					. "' IN xchan_name) else position('" . protect_sprintf(dbesc($search)) . "' IN xchan_addr) end, ";
+					. "' IN xchan_name) else position('" . protect_sprintf(dbesc(punify($search))) . "' IN xchan_addr) end, ";
 
 			$col = ((strpos($search,'@') !== false) ? 'xchan_addr' : 'xchan_name' );
-			$sql_extra3 = "AND $col like " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
+			$sql_extra3 = "AND $col like " . protect_sprintf( "'%" . dbesc(($col === 'xchan_addr') ? punify($search) : $search) . "%'" ) . " ";
 	
 		}
 		else {
@@ -435,7 +435,7 @@ class Acl extends \Zotlabs\Web\Controller {
 		$count = (x($_REQUEST,'count') ?  $_REQUEST['count'] : 100);
 		if($url) {
 			$query = $url . '?f=' . (($token) ? '&t=' . urlencode($token) : '');
-			$query .= '&name=' . urlencode($search) . "&limit=$count" . (($address) ? '&address=' . urlencode($search) : '');
+			$query .= '&name=' . urlencode($search) . "&limit=$count" . (($address) ? '&address=' . urlencode(punify($search)) : '');
 	
 			$x = z_fetch_url($query);
 			if($x['success']) {

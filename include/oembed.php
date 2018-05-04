@@ -32,6 +32,7 @@ function oembed_action($embedurl) {
 			$action = 'block';
 		}
 	}
+
 	if(strpos($embedurl,'.well-known') !== false)
 		$action = 'block';
 
@@ -233,9 +234,11 @@ function oembed_fetch_url($embedurl){
 
 			if(preg_match('#\<iframe(.*?)src\=[\'\"](.*?)[\'\"]#',$j['html'],$matches)) {
 				$x = z_fetch_url($matches[2]);
-				$j['html'] = $x['body'];
+				$orig = $j['html'] = $x['body'];
 			}
-			
+
+			logger('frame src: ' . $j['html'], LOGGER_DATA);
+		
 			$j['html'] = purify_html($j['html'],$allow_position);
 			if($j['html'] != $orig) {
 				logger('oembed html was purified. original: ' . $orig . ' purified: ' . $j['html'], LOGGER_DEBUG, LOG_INFO); 

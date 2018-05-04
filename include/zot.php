@@ -171,6 +171,8 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
  *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
  * @param array $recipients
  *   envelope information, array ( 'guid' => string, 'guid_sig' => string ); empty for public posts
+ * @param string msg
+ *   optional message
  * @param string $remote_key
  *   optional public site key of target hub used to encrypt entire packet
  *   NOTE: remote_key and encrypted packets are required for 'auth_check' packets, optional for all others
@@ -299,7 +301,7 @@ function zot_zot($url, $data, $channel = null,$crypto = null) {
 	if($channel) {
 		$headers['X-Zot-Token'] = random_string();
 		$hash = \Zotlabs\Web\HTTPSig::generate_digest($data,false);
-		$headers['X-Zot-Digest'] = 'SHA-256=' . $hash;  
+		$headers['X-Zot-Digest'] = 'SHA-256=' . $hash;
 		$h = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
 	}
 
@@ -393,7 +395,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 	if($s && intval($s[0]['site_dead']) && (! $force)) {
 		logger('zot_refresh: site ' . $url . ' is marked dead and force flag is not set. Cancelling operation.');
 		return false;
-	} 
+	}
 
 
 	$token = random_string();
@@ -1159,7 +1161,7 @@ function zot_process_response($hub, $arr, $outq) {
  * and also that the signer and the sender match.
  * If that happens, we do not need to fetch/pickup the message - we have it already and it is verified.
  * Translate it into the form we need for zot_import() and import it.
- * 
+ *
  * Otherwise send back a pickup message, using our message tracking ID ($arr['secret']), which we will sign with our site
  * private key.
  * The entire pickup message is encrypted with the remote site's public key.
@@ -2283,12 +2285,30 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 			continue;
 		}
 
+
 		if(! perm_is_allowed($channel['channel_id'],$sender['hash'],'post_mail')) {
-			logger("permission denied for mail delivery {$channel['channel_id']}");
-			$DR->update('permission denied');
-			$result[] = $DR->get();
-			continue;
+
+			/* 
+			 * Always allow somebody to reply if you initiated the conversation. It's anti-social
+			 * and a bit rude to send a private message to somebody and block their ability to respond.
+			 * If you are being harrassed and want to put an end to it, delete the conversation.
+			 */
+
+			$return = false;
+			if($arr['parent_mid']) {
+				$return = q("select * from mail where mid = '%s' and channel_id = %d limit 1",
+					dbesc($arr['parent_mid']),
+					intval($channel['channel_id'])
+				);
+			}
+			if(! $return) {
+				logger("permission denied for mail delivery {$channel['channel_id']}");
+				$DR->update('permission denied');
+				$result[] = $DR->get();
+				continue;
+			}
 		}
+
 
 		$r = q("select id from mail where mid = '%s' and channel_id = %d limit 1",
 			dbesc($arr['mid']),
@@ -3188,6 +3208,9 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 	$channel = $r[0];
 
+	// don't provide these in the export 
+
+	unset($channel['channel_active']);
 	unset($channel['channel_password']);
 	unset($channel['channel_salt']);
 
@@ -3454,6 +3477,14 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 			continue;
 		}
 
+		// if the clone is active, so are we
+
+		if(substr($channel['channel_active'],0,10) !== substr(datetime_convert(),0,10)) {
+			q("UPDATE channel set channel_active = '%s' where channel_id = %d",
+				dbesc(datetime_convert()),
+				intval($channel['channel_id'])
+			);
+		}
 
 		if(array_key_exists('config',$arr) && is_array($arr['config']) && count($arr['config'])) {
 			foreach($arr['config'] as $cat => $k) {
@@ -3780,25 +3811,27 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 					foreach($x as $y) {
 
 						// for each group, loop on members list we just received
-						foreach($members[$y['hash']] as $member) {
-							$found = false;
-							$z = q("select xchan from group_member where gid = %d and uid = %d and xchan = '%s' limit 1",
-								intval($y['id']),
-								intval($channel['channel_id']),
-								dbesc($member)
-							);
-							if($z)
-								$found = true;
-
-							// if somebody is in the group that wasn't before - add them
-
-							if(! $found) {
-								q("INSERT INTO group_member (uid, gid, xchan)
-									VALUES( %d, %d, '%s' ) ",
-									intval($channel['channel_id']),
+						if(isset($y['hash']) && isset($members[$y['hash']])) {
+							foreach($members[$y['hash']] as $member) {
+								$found = false;
+								$z = q("select xchan from group_member where gid = %d and uid = %d and xchan = '%s' limit 1",
 									intval($y['id']),
+									intval($channel['channel_id']),
 									dbesc($member)
 								);
+								if($z)
+									$found = true;
+
+								// if somebody is in the group that wasn't before - add them
+
+								if(! $found) {
+									q("INSERT INTO group_member (uid, gid, xchan)
+										VALUES( %d, %d, '%s' ) ",
+										intval($channel['channel_id']),
+										intval($y['id']),
+										dbesc($member)
+									);
+								}
 							}
 						}
 
@@ -3835,11 +3868,14 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 					intval($channel['channel_id'])
 				);
 				if(! $x) {
-					q("insert into profile ( profile_guid, aid, uid ) values ('%s', %d, %d)",
-						dbesc($profile['profile_guid']),
-						intval($channel['channel_account_id']),
-						intval($channel['channel_id'])
+					profile_store_lowlevel(
+						[
+							'aid'          => $channel['channel_account_id'],
+							'uid'          => $channel['channel_id'],
+							'profile_guid' => $profile['profile_guid'],
+						]
 					);
+
 					$x = q("select * from profile where profile_guid = '%s' and uid = %d limit 1",
 						dbesc($profile['profile_guid']),
 						intval($channel['channel_id'])
@@ -5093,7 +5129,7 @@ function zot_reply_refresh($sender, $recipients) {
 function zot6_check_sig() {
 
 	$ret = [ 'success' => false ];
-	  
+
 	logger('server: ' . print_r($_SERVER,true), LOGGER_DATA);
 
 	if(array_key_exists('HTTP_SIGNATURE',$_SERVER)) {

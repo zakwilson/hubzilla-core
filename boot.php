@@ -50,9 +50,11 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.2.2' );
-define ( 'ZOT_REVISION',            '1.3' );
-define ( 'DB_UPDATE_VERSION',       1207 );
+define ( 'STD_VERSION',             '3.4' );
+define ( 'ZOT_REVISION',            '6.0a' );
+
+
+define ( 'DB_UPDATE_VERSION',       1212 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -79,11 +81,12 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 // point to go out and find the rest of the world.
 
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
-define ( 'DIRECTORY_FALLBACK_MASTER',  'https://gravizot.de');
+define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://hubzilla.zottel.net',
-	'https://gravizot.de'
+	'https://gravizot.de',
+	'https://zotadel.net'
 );
 
 
@@ -401,6 +404,7 @@ define ( 'VNOTIFY_INTRO',      0x0200 );
 define ( 'VNOTIFY_REGISTER',   0x0400 );
 define ( 'VNOTIFY_FILES',      0x0800 );
 define ( 'VNOTIFY_PUBS',       0x1000 );
+define ( 'VNOTIFY_LIKE',       0x2000 );
 
 
 
@@ -477,6 +481,7 @@ define ( 'ACTIVITY_ABSTAIN',     NAMESPACE_ZOT   . '/activity/abstain' );
 define ( 'ACTIVITY_ATTEND',      NAMESPACE_ZOT   . '/activity/attendyes' );
 define ( 'ACTIVITY_ATTENDNO',    NAMESPACE_ZOT   . '/activity/attendno' );
 define ( 'ACTIVITY_ATTENDMAYBE', NAMESPACE_ZOT   . '/activity/attendmaybe' );
+define ( 'ACTIVITY_POLLRESPONSE', NAMESPACE_ZOT  . '/activity/pollresponse' );
 
 define ( 'ACTIVITY_OBJ_HEART',   NAMESPACE_ZOT   . '/activity/heart' );
 
@@ -854,7 +859,7 @@ class App {
 			self::$scheme = 'https';
 
 		if(x($_SERVER,'SERVER_NAME')) {
-			self::$hostname = $_SERVER['SERVER_NAME'];
+			self::$hostname = punify($_SERVER['SERVER_NAME']);
 
 			if(x($_SERVER,'SERVER_PORT') && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443)
 				self::$hostname .= ':' . $_SERVER['SERVER_PORT'];
@@ -951,6 +956,9 @@ class App {
 			&& is_array(self::$config['system'])
 			&& array_key_exists('baseurl',self::$config['system'])
 			&& strlen(self::$config['system']['baseurl'])) {
+			// get_baseurl() is a heavily used function.
+			// Do not use punify() here until we find a library that performs better than what we have now.
+			//$url = punify(self::$config['system']['baseurl']);
 			$url = self::$config['system']['baseurl'];
 			$url = trim($url,'\\/');
 			return $url;
@@ -958,7 +966,7 @@ class App {
 
 		$scheme = self::$scheme;
 
-		self::$baseurl = $scheme . "://" . self::$hostname . ((isset(self::$path) && strlen(self::$path)) ? '/' . self::$path : '' );
+		self::$baseurl = $scheme . "://" . punify(self::$hostname) . ((isset(self::$path) && strlen(self::$path)) ? '/' . self::$path : '' );
 
 		return self::$baseurl;
 	}
@@ -969,7 +977,7 @@ class App {
 			&& is_array(self::$config['system'])
 			&& array_key_exists('baseurl',self::$config['system'])
 			&& strlen(self::$config['system']['baseurl'])) {
-			$url = self::$config['system']['baseurl'];
+			$url = punify(self::$config['system']['baseurl']);
 			$url = trim($url,'\\/');
 		}
 
@@ -980,7 +988,7 @@ class App {
 		if($parsed !== false) {
 			self::$scheme = $parsed['scheme'];
 
-			self::$hostname = $parsed['host'];
+			self::$hostname = punify($parsed['host']);
 			if(x($parsed,'port'))
 				self::$hostname .= ':' . $parsed['port'];
 			if(x($parsed,'path'))

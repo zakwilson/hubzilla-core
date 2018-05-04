@@ -5,7 +5,6 @@
 <div class="section-content-tools-wrapper">
 <form method="POST">
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-
 {{include file="field_input.tpl" field=$name}}
 {{include file="field_input.tpl" field=$key}}
 {{include file="field_input.tpl" field=$secret}}

@@ -169,7 +169,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$x = attach_syspaths($this->auth->owner_id,$this->folder_hash);
 
-		$y = q("update attach set display_path = '%s where hash = '%s' and uid = %d",
+		$y = q("update attach set display_path = '%s' where hash = '%s' and uid = %d",
 			dbesc($x['path']),
 			dbesc($this->folder_hash),
 			intval($this->auth->owner_id)
@@ -389,8 +389,12 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		);
 
 		if ($r) {
+
+			// When initiated from DAV, set the 'force' flag on attach_mkdir(). This will cause the operation to report success even if the 
+			// folder already exists. 
+
 			require_once('include/attach.php');
-			$result = attach_mkdir($r[0], $this->auth->observer, array('filename' => $name, 'folder' => $this->folder_hash));
+			$result = attach_mkdir($r[0], $this->auth->observer, array('filename' => $name, 'folder' => $this->folder_hash, 'force' => true));
 
 			if($result['success']) {
 				$sync = attach_export_data($r[0],$result['data']['hash']);
@@ -680,7 +684,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 				throw new DAV\Exception\Forbidden('Permission denied.');
 			}
 			else {
-				throw new DAV\Exception\NotFound('A component of the request file path could not be found.');
+				throw new DAV\Exception\NotFound('A component of the requested file path could not be found.');
 			}
 		}
 
@@ -691,7 +695,23 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		}
 
 		$prefix = '';
-		$suffix = ' order by is_dir desc, filename asc ';
+
+		if(! array_key_exists('cloud_sort',$_SESSION))
+			$_SESSION['cloud_sort'] = 'name';
+
+		switch($_SESSION['cloud_sort']) {
+			case 'size': 
+				$suffix = ' order by is_dir desc, filesize asc ';
+				break;
+			// The following provides inconsistent results for directories because we re-calculate the date for directories based on the most recent change
+			case 'date':
+				$suffix = ' order by is_dir desc, edited asc ';
+				break;
+			case 'name':
+			default:
+				$suffix = ' order by is_dir desc, filename asc ';
+				break;
+		}
 
 		$r = q("select $prefix id, uid, hash, filename, filetype, filesize, revision, folder, flags, is_dir, created, edited from attach where folder = '%s' and uid = %d $perms $suffix",
 			dbesc($folder),

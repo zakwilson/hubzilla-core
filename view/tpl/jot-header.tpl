@@ -560,3 +560,96 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 	}
 });
 </script>
+
+
+<script>
+	var postSaveTimer = null;
+
+	function postSaveChanges(action, type) {
+		if({{$auto_save_draft}}) {
+
+			var doctype = $('#jot-webpage').val();
+			var postid = '-' + doctype + '-' + $('#jot-postid').val();
+
+			if(action != 'clean') {
+				localStorage.setItem("post_title" + postid, $("#jot-title").val());
+				localStorage.setItem("post_body" + postid, $("#profile-jot-text").val());
+				if($("#jot-category").length)
+					localStorage.setItem("post_category + postid", $("#jot-category").val());
+			}
+
+			if(action == 'start') {
+				postSaveTimer = setTimeout(function () {
+					postSaveChanges('start');
+				},10000);
+			}
+
+			if(action == 'stop') {
+				clearTimeout(postSaveTimer);
+				postSaveTimer = null;
+			}
+
+			if(action == 'clean') {
+				clearTimeout(postSaveTimer);
+				postSaveTimer = null;
+				localStorage.removeItem("post_title" + postid);
+				localStorage.removeItem("post_body" + postid);
+				localStorage.removeItem("post_category" + postid);
+			}
+		} 
+
+	}
+
+	$(document).ready(function() {
+
+		var cleaned = false;
+
+		if({{$auto_save_draft}}) {
+			var doctype = $('#jot-webpage').val();
+			var postid = '-' + doctype + '-' + $('#jot-postid').val();
+			var postTitle = localStorage.getItem("post_title" + postid);
+			var postBody = localStorage.getItem("post_body" + postid);
+			var postCategory = (($("#jot-category").length) ? localStorage.getItem("post_category" + postid) : '');
+			var openEditor = false;
+
+			if(postTitle) {
+				$('#jot-title').val(postTitle);
+				openEditor = true;
+			}
+			if(postBody) {
+				$('#profile-jot-text').val(postBody);
+				openEditor = true;
+			}
+			if(postCategory) {
+				var categories = postCategory.split(',');
+				categories.forEach(function(cat) {
+					$('#jot-category').tagsinput('add', cat);
+				});
+				openEditor = true;
+			}
+			if(openEditor) {
+				initEditor();
+			}
+		} else {
+			postSaveChanges('clean');
+		}
+
+		$(document).on('submit', '#profile-jot-form', function() {
+			postSaveChanges('clean');
+			cleaned = true;
+		});
+
+		$(document).on('focusout',"#profile-jot-wrapper",function(e){
+			if(! cleaned)
+				postSaveChanges('stop');
+		});
+
+		$(document).on('focusin',"#profile-jot-wrapper",function(e){
+			postSaveTimer = setTimeout(function () {
+				postSaveChanges('start');
+			},10000);
+		});
+
+
+	});
+</script>

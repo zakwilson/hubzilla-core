@@ -21,7 +21,7 @@ $(document).ready(function () {
 		var pageName = url.href.split('/').pop().split('#').shift().split('?').shift();
 		var linkName = $(this).attr('href').split('/').pop();
 		if (pageName === linkName) {
-			var tocUl = $(this).closest('a').append('<ul>').find('ul');
+			var tocUl = $(this).closest('a').after('<ul>').next('ul');
 			tocUl.removeClass();  // Classes are automatically added to <ul> elements by something else
 			tocUl.toc({content: "#doco-content", headings: "h3"});
 			tocUl.addClass('toc-content');
@@ -53,7 +53,7 @@ $(document).ready(function () {
 						.removeClass('selected-doco-nav')
 						.eq(i).addClass('selected-doco-nav');
 				if (typeof ($('#doco-side-toc li').eq(i).find('a').attr('href').split('#')[1]) !== 'undefined') {
-					window.history.pushState({}, '', location.href.split('#')[0] + '#' + $('#doco-side-toc li').eq(i).find('a').attr('href').split('#')[1]);
+					window.history.replaceState({}, '', location.href.split('#')[0] + '#' + $('#doco-side-toc li').eq(i).find('a').attr('href').split('#')[1]);
 				}
 			}
 		});
@@ -100,7 +100,7 @@ $(document).ready(function () {
 		
 	}
 	// Update the address bar to reflect the loaded language
-	window.history.pushState({}, '', '/' + pathParts.join('/'));
+	window.history.replaceState({}, '', '/' + pathParts.join('/'));
 	
 	// Highlight the language in the language selector that is currently viewed
 	$('.lang-selector').find('.lang-choice:contains("' + help_language + '")').addClass('active');

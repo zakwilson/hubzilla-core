@@ -72,7 +72,7 @@ class Oep extends \Zotlabs\Web\Controller {
 		$url = $args['url'];
 		$maxwidth  = intval($args['maxwidth']);
 		$maxheight = intval($args['maxheight']);
-	logger('processing display');
+
 		if(preg_match('#//(.*?)/display/(.*?)(&|\?|$)#',$url,$matches)) {
 			$res = $matches[2];
 		}
@@ -125,6 +125,7 @@ class Oep extends \Zotlabs\Web\Controller {
             "' profile='".$p[0]['author']['xchan_url'] .
             "' avatar='".$p[0]['author']['xchan_photo_s'].
             "' link='".$p[0]['plink'].
+			"' auth='".(($p[0]['author']['network'] === 'zot') ? 'true' : 'false') .
             "' posted='".$p[0]['created'].
             "' message_id='".$p[0]['mid']."']";
 	    if($p[0]['title'])
@@ -209,6 +210,7 @@ class Oep extends \Zotlabs\Web\Controller {
             "' profile='".$p[0]['author']['xchan_url'] .
             "' avatar='".$p[0]['author']['xchan_photo_s'].
             "' link='".$p[0]['plink'].
+			"' auth='".(($p[0]['author']['network'] === 'zot') ? 'true' : 'false') .
             "' posted='".$p[0]['created'].
             "' message_id='".$p[0]['mid']."']";
 	    if($p[0]['title'])
@@ -292,6 +294,7 @@ class Oep extends \Zotlabs\Web\Controller {
             "' profile='".$p[0]['author']['xchan_url'] .
             "' avatar='".$p[0]['author']['xchan_photo_s'].
             "' link='".$p[0]['plink'].
+			"' auth='".(($p[0]['author']['network'] === 'zot') ? 'true' : 'false') .
             "' posted='".$p[0]['created'].
             "' message_id='".$p[0]['mid']."']";
 	    if($p[0]['title'])
@@ -366,6 +369,7 @@ class Oep extends \Zotlabs\Web\Controller {
 			"' profile='".$p[0]['author']['xchan_url'] .
 			"' avatar='".$p[0]['author']['xchan_photo_s'].
 			"' link='".$p[0]['plink'].
+			"' auth='".(($p[0]['author']['network'] === 'zot') ? 'true' : 'false') .
 			"' posted='".$p[0]['created'].
 			"' message_id='".$p[0]['mid']."']";
 		if($p[0]['title'])

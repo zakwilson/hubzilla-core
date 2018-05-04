@@ -531,7 +531,7 @@ function paginate(&$a) {
 }
 
 
-function alt_pager(&$a, $i, $more = '', $less = '') {
+function alt_pager($i, $more = '', $less = '') {
 
 	if(! $more)
 		$more = t('older');
@@ -1588,7 +1588,7 @@ function generate_named_map($location) {
 }
 
 
-function prepare_body(&$item,$attach = false) {
+function prepare_body(&$item,$attach = false,$opts = false) {
 
 	call_hooks('prepare_body_init', $item);
 
@@ -1616,7 +1616,7 @@ function prepare_body(&$item,$attach = false) {
 		$s .= prepare_binary($item);
 	}
 	else {
-		$s .= prepare_text($item['body'],$item['mimetype'], false);
+		$s .= prepare_text($item['body'],$item['mimetype'], $opts);
 	}
 
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
@@ -1698,7 +1698,8 @@ function prepare_binary($item) {
  *
  * @return string
  */
-function prepare_text($text, $content_type = 'text/bbcode', $cache = false) {
+function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
+
 
 	switch($content_type) {
 		case 'text/plain':
@@ -1742,7 +1743,7 @@ function prepare_text($text, $content_type = 'text/bbcode', $cache = false) {
 			if(stristr($text,'[nosmile]'))
 				$s = bbcode($text, [ 'cache' => $cache ]);
 			else
-				$s = smilies(bbcode($text, [ 'cache' => $cache ]));
+				$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
 
 			$s = zidify_links($s);
 
@@ -2189,13 +2190,13 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
  * @returns string
  */
 
-function array_elm_to_str($arr,$elm,$delim = ',') {
+function array_elm_to_str($arr,$elm,$delim = ',',$each = 'trim') {
 
 	$tmp = [];
 	if($arr && is_array($arr)) {
 		foreach($arr as $x) {
 			if(is_array($x) && array_key_exists($elm,$x)) {
-				$z = trim($x[$elm]);
+				$z = $each($x[$elm]);
 				if(($z) && (! in_array($z,$tmp))) {
 					$tmp[] = $z;
 				}
@@ -2205,7 +2206,9 @@ function array_elm_to_str($arr,$elm,$delim = ',') {
 	return implode($delim,$tmp);
 }
 
-
+function trim_and_unpunify($s) {
+	return unpunify(trim($s));
+}
 
 
 /**
@@ -2248,7 +2251,7 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 			$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
 				where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
 		}
-		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown')");
+		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown', 'anon')");
 		if(! $chans)
 			$chans = $xchans;
 		else
@@ -2321,6 +2324,23 @@ function stringify_array_elms(&$arr, $escape = false) {
 		$arr[$x] = "'" . (($escape) ? dbesc($arr[$x]) : $arr[$x]) . "'";
 }
 
+
+/**
+ * @brief Similar to stringify_array_elms but returns a string. If $escape is true, dbesc() each element before adding quotes.
+ *
+ * @param array $arr
+ * @param boolean $escape (optional) default false
+ * @return string
+ */
+function stringify_array($arr, $escape = false) {
+	if($arr) {
+		stringify_array_elms($arr);
+		return(implode(',',$arr));
+	}
+	return EMPTY_STR;
+}
+
+
 /**
  * @brief Indents a flat JSON string to make it more human-readable.
  *
@@ -2384,7 +2404,7 @@ function jindent($json) {
  */
 function design_tools() {
 
-	$channel  = App::get_channel();
+	$channel  = channelx_by_n(App::$profile['profile_uid']);
 	$sys = false;
 
 	if(App::$is_sys && is_site_admin()) {
@@ -2574,6 +2594,9 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 
 		// The @! tag will alter permissions
 		$exclusive = (((! $grouptag) && (strpos($tag,'!') === 1) && (! $diaspora)) ? true : false);
+		if(($grouptag) && (strpos($tag,'!!') === 0)) {
+			$exclusive = true;
+		}
 
 		//is it already replaced?
 		if(strpos($tag,'[zrl='))
@@ -2746,8 +2769,8 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 			$profile = str_replace(',','%2c',$profile);
 			$url = $profile;
 			if($grouptag) {
-				$newtag = '!' . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-				$body = str_replace('!' . $name, $newtag, $body);
+				$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+				$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 			}
 			else {
 				$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. (($forum &&  ! $trailing_plus_name) ? '+' : '') . '[/zrl]';
@@ -2797,6 +2820,7 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
 				continue;
 
 			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $diaspora);
+
 			$results[] = array('success' => $success, 'access_tag' => $access_tag);
 			if($success['replaced']) $tagged[] = $tag;
 		}
@@ -3243,6 +3267,7 @@ function cleanup_bbcode($body) {
 	 * First protect any url inside certain bbcode tags so we don't double link it.
 	 */
 
+
 	$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
@@ -3271,7 +3296,6 @@ function cleanup_bbcode($body) {
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
 	$body = scale_external_images($body,false);
-
 
 	return $body;
 }
@@ -3311,4 +3335,26 @@ function purify_filename($s) {
 	return $s;
 }
 
+// callback for sorting the settings/featured entries.
+
+function featured_sort($a,$b) {
+	$s1 = substr($a,strpos($a,'id='),20);
+	$s2 = substr($b,strpos($b,'id='),20);
+	return(strcmp($s1,$s2));
+}
+
+
+function punify($s) {
+	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
+	$x = new idna_convert(['encoding' => 'utf8']);
+	return $x->encode($s);
+
+}
+
+function unpunify($s) {
+	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
+	$x = new idna_convert(['encoding' => 'utf8']);
+	return $x->decode($s);
+
+}
 

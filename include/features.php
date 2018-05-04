@@ -28,8 +28,9 @@ function get_feature_default($feature) {
 	$f = get_features(false);
 	foreach($f as $cat) {
 		foreach($cat as $feat) {
-			if(is_array($feat) && $feat[0] === $feature)
+			if(is_array($feat) && $feat[0] === $feature) {
 				return $feat[3];
+			}
 		}
 	}
 	return false;
@@ -43,8 +44,9 @@ function feature_level($feature,$def) {
 	return $def;
 }
 
-function get_features($filtered = true) {
+function get_features($filtered = true, $level = (-1)) {
 
+	$account = \App::get_account();
 
 	$arr = [
 
@@ -53,7 +55,14 @@ function get_features($filtered = true) {
 
 			t('General Features'),
 
-
+			[
+				'start_menu',   
+				t('New Member Links'),      
+				t('Display new member quick links menu'),
+				(($account['account_created'] > datetime_convert('','','now - 60 days')) ? true : false),
+				get_config('feature_lock','start_menu'),
+				feature_level('start_menu',1),
+			],
 
 			[
 				'advanced_profiles',   
@@ -237,11 +246,20 @@ function get_features($filtered = true) {
 
 			[
 				'oauth_clients',       
-				t('OAuth Clients'),          
-				t('Manage authenticatication tokens for mobile and remote apps.'),
+				t('OAuth1 Clients'),          
+				t('Manage OAuth1 authenticatication tokens for mobile and remote apps.'),
 				false,
 				get_config('feature_lock','oauth_clients'),
 				feature_level('oauth_clients',1),
+			],
+
+			[
+				'oauth2_clients',       
+				t('OAuth2 Clients'),          
+				t('Manage OAuth2 authenticatication tokens for mobile and remote apps.'),
+				false,
+				get_config('feature_lock','oauth2_clients'),
+				feature_level('oauth2_clients',1),
 			],
 
 			[
@@ -330,6 +348,15 @@ function get_features($filtered = true) {
 				true,
 				get_config('feature_lock','suppress_duplicates'),
 				feature_level('suppress_duplicates',1),
+			],
+
+			[
+				'auto_save_draft', 
+				t('Auto-save drafts of posts and comments'),  
+				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
+				true,
+				get_config('feature_lock','auto_save_draft'),
+				feature_level('auto_save_draft',1),
 			],
 
 		],
@@ -481,7 +508,7 @@ function get_features($filtered = true) {
 
 	$arr = $x['features'];
 
-	$techlevel = get_account_techlevel();
+	$techlevel = (($level >= 0) ? $level : get_account_techlevel());
 
 	// removed any locked features and remove the entire category if this makes it empty
 

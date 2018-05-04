@@ -1977,23 +1977,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('post_remote_end', $arr);
 
-	// update the commented timestamp on the parent - unless this is potentially a clone of an older item
-	// which we don't wish to bring to the surface. As the queue only holds deliveries for 3 days, it's
-	// suspected of being an older cloned item if the creation time is older than that.
-
-	if($arr['created'] > datetime_convert('','','now - 4 days')) {
-		$z = q("select max(created) as commented from item where parent_mid = '%s' and uid = %d and item_delayed = 0 ",
-			dbesc($arr['parent_mid']),
-			intval($arr['uid'])
-		);
-
-		q("UPDATE item set commented = '%s', changed = '%s' WHERE id = %d",
-			dbesc(($z) ? $z[0]['commented'] : (datetime_convert())),
-			dbesc(datetime_convert()),
-			intval($parent_id)
-		);
-	}
-
+	item_update_parent_commented($arr);
 
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
 	// We need to store the item details just in case the delete came in before the original post,
@@ -2324,6 +2308,36 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	return $ret;
 }
 
+function item_update_parent_commented($item) {
+
+
+	$update_parent = true;
+
+	// update the commented timestamp on the parent 
+	// - unless this is a moderated comment or a potential clone of an older item
+	// which we don't wish to bring to the surface. As the queue only holds deliveries 
+	// for 3 days, it's suspected of being an older cloned item if the creation time 
+	//is older than that.
+
+	if(intval($item['item_blocked']) === ITEM_MODERATED)
+		$update_parent = false;
+ 
+	if($item['created'] < datetime_convert('','','now - 4 days'))
+		$update_parent = false;
+
+	if($update_parent) {
+		$z = q("select max(created) as commented from item where parent_mid = '%s' and uid = %d and item_delayed = 0 ",
+			dbesc($item['parent_mid']),
+			intval($item['uid'])
+		);
+
+		q("UPDATE item set commented = '%s', changed = '%s' WHERE id = %d",
+			dbesc(($z) ? $z[0]['commented'] : datetime_convert()),
+			dbesc(datetime_convert()),
+			intval($item['parent'])
+		);
+	}
+}
 
 
 function send_status_notifications($post_id,$item) {
@@ -2518,43 +2532,7 @@ function tag_deliver($uid, $item_id) {
 	 */
 
 	if($item['obj_type'] === ACTIVITY_OBJ_TAGTERM) {
-
-		// We received a community tag activity for a post.
-		// See if we are the owner of the parent item and have given permission to tag our posts.
-		// If so tag the parent post.
-
-		logger('tag_deliver: community tag activity received');
-
-		if(($item['owner_xchan'] === $u[0]['channel_hash']) && (! get_pconfig($u[0]['channel_id'],'system','blocktags'))) {
-			logger('tag_deliver: community tag recipient: ' . $u[0]['channel_name']);
-			$j_tgt = json_decode($item['target'],true);
-			if($j_tgt && $j_tgt['id']) {
-				$p = q("select * from item where mid = '%s' and uid = %d limit 1",
-					dbesc($j_tgt['id']),
-					intval($u[0]['channel_id'])
-				);
-				if($p) {
-					$j_obj = json_decode($item['obj'],true);
-					logger('tag_deliver: tag object: ' . print_r($j_obj,true), LOGGER_DATA);
-					if($j_obj && $j_obj['id'] && $j_obj['title']) {
-						if(is_array($j_obj['link']))
-							$taglink = get_rel_link($j_obj['link'],'alternate');
-
-						store_item_tag($u[0]['channel_id'],$p[0]['id'],TERM_OBJ_POST,TERM_COMMUNITYTAG,$j_obj['title'],$j_obj['id']);
-						$x = q("update item set edited = '%s', received = '%s', changed = '%s' where mid = '%s' and uid = %d",
-							dbesc(datetime_convert()),
-							dbesc(datetime_convert()),
-							dbesc(datetime_convert()),
-							dbesc($j_tgt['id']),
-							intval($u[0]['channel_id'])
-						);
-						Zotlabs\Daemon\Master::Summon(array('Notifier','edit_post',$p[0]['id']));
-					}
-				}
-			}
-		}
-		else
-			logger('Tag permission denied for ' . $u[0]['channel_address']);
+		item_community_tag($u[0],$item);
 	}
 
 	/*
@@ -2748,6 +2726,61 @@ function tag_deliver($uid, $item_id) {
 	}
 
 }
+
+
+function item_community_tag($channel,$item) {
+
+
+	// We received a community tag activity for a post.
+	// See if we are the owner of the parent item and have given permission to tag our posts.
+	// If so tag the parent post.
+
+	logger('tag_deliver: community tag activity received: channel: ' . $channel['channel_name']);
+
+	$tag_the_post = false;
+	$p = null;
+
+	$j_obj = json_decode($item['obj'],true);
+	$j_tgt = json_decode($item['target'],true);
+	if($j_tgt && $j_tgt['id']) {
+		$p = q("select * from item where mid = '%s' and uid = %d limit 1",
+			dbesc($j_tgt['id']),
+			intval($channel['channel_id'])
+		);
+	}
+	if($p) {
+		xchan_query($p);
+		$items = fetch_post_tags($p,true);
+		$pitem = $items[0];
+		$auth = get_iconfig($item,'system','communitytagauth');
+		if($auth) {
+			if(rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
+				logger('tag_deliver: tagging the post: ' . $channel['channel_name']);
+				$tag_the_post = true;
+			}
+		}
+		else {
+			if(($pitem['owner_xchan'] === $channel['channel_hash']) && (! intval(get_pconfig($channel['channel_id'],'system','blocktags')))) {
+				logger('tag_deliver: community tag recipient: ' . $channel['channel_name']);
+				$tag_the_post = true;
+				$sig = rsa_sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
+				logger('tag_deliver: setting iconfig for ' . $item['id']);
+				set_iconfig($item['id'],'system','communitytagauth',base64url_encode($sig),1);
+			}
+		}
+
+		if($tag_the_post) {
+			store_item_tag($channel['channel_id'],$pitem['id'],TERM_OBJ_POST,TERM_COMMUNITYTAG,$j_obj['title'],$j_obj['id']);
+		}
+		else {
+			logger('Tag permission denied for ' . $channel['channel_address']);
+		}
+	}
+
+}
+
+
+
 
 /**
  * @brief This function is called pre-deliver to see if a post matches the criteria to be tag delivered.
@@ -3471,11 +3504,14 @@ function item_getfeedattach($item) {
 }
 
 
-function item_expire($uid,$days) {
+function item_expire($uid,$days,$comment_days = 7) {
 
 	if((! $uid) || ($days < 1))
 		return;
 
+	if(! $comment_days)
+		$comment_days = 7;
+	
 	// $expire_network_only = save your own wall posts
 	// and just expire conversations started by others
 	// do not enable this until we can pass bulk delete messages through zot
@@ -3494,6 +3530,7 @@ function item_expire($uid,$days) {
 	$r = q("SELECT id FROM item
 		WHERE uid = %d
 		AND created < %s - INTERVAL %s
+		AND commented < %s - INTERVAL %s
 		AND item_retained = 0
 		AND item_thread_top = 1
 		AND resource_type = ''
@@ -3501,7 +3538,9 @@ function item_expire($uid,$days) {
 		$sql_extra $item_normal LIMIT $expire_limit ",
 		intval($uid),
 		db_utcnow(),
-		db_quoteinterval(intval($days).' DAY')
+		db_quoteinterval(intval($days) . ' DAY'),
+		db_utcnow(),
+		db_quoteinterval(intval($comment_days) . ' DAY')
 	);
 
 	if(! $r)

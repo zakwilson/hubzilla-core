@@ -114,15 +114,16 @@ class Import extends \Zotlabs\Web\Controller {
 				return;
 		}
 
-		if(array_key_exists('compatibility',$data) && array_key_exists('database',$data['compatibility'])) {
-			$v1 = substr($data['compatibility']['database'],-4);
-			$v2 = substr(DB_UPDATE_VERSION,-4);
-			if($v2 > $v1) {
-				$t = sprintf( t('Warning: Database versions differ by %1$d updates.'), $v2 - $v1 );
-				notice($t);
-			}
-
-		}
+// This is only an info message but it is alarming to folks who then report failure with this as the cause, when in fact we ignore this completely.
+//		if(array_key_exists('compatibility',$data) && array_key_exists('database',$data['compatibility'])) {
+//			$v1 = substr($data['compatibility']['database'],-4);
+//			$v2 = substr(DB_UPDATE_VERSION,-4);
+//			if($v2 > $v1) {
+//				$t = sprintf( t('Warning: Database versions differ by %1$d updates.'), $v2 - $v1 );
+//				notice($t);
+//			}
+//
+//		}
 
 		if($moving)
 			$seize = 1;
@@ -362,11 +363,27 @@ class Import extends \Zotlabs\Web\Controller {
 						continue;
 				}
 
-				abook_store_lowlevel($abook);
+				$r = q("select abook_id from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
+					dbesc($abook['abook_xchan']),
+					intval($channel['channel_id'])
+				);
+				if($r) {
+					foreach($abook as $k => $v) {
+						$r = q("UPDATE abook SET " . TQUOT . "%s" . TQUOT . " = '%s' WHERE abook_xchan = '%s' AND abook_channel = %d",
+							dbesc($k),
+							dbesc($v),
+							dbesc($abook['abook_xchan']),
+							intval($channel['channel_id'])
+						);
+					}
+				}
+				else {
+					abook_store_lowlevel($abook);
 
-				$friends ++;
-				if(intval($abook['abook_feed']))
-					$feeds ++;
+					$friends ++;
+					if(intval($abook['abook_feed']))
+						$feeds ++;
+				}
 
 				translate_abook_perms_inbound($channel,$abook_copy);
 
@@ -515,16 +532,19 @@ class Import extends \Zotlabs\Web\Controller {
 			'$desc' => t('Use this form to import an existing channel from a different server/hub. You may retrieve the channel identity from the old server/hub via the network or provide an export file.'),
 			'$label_filename' => t('File to Upload'),
 			'$choice' => t('Or provide the old server/hub details'),
-			'$label_old_address' => t('Your old identity address (xyz@example.com)'),
-			'$label_old_email' => t('Your old login email address'),
-			'$label_old_pass' => t('Your old login password'),
+
+			'$old_address' => [ 'old_address', t('Your old identity address (xyz@example.com)'), '', ''],
+			'$email' => [ 'email', t('Your old login email address'), '', '' ],
+			'$password' => [ 'password', t('Your old login password'), '', '' ],
+			'$import_posts' => [ 'import_posts', t('Import a few months of posts if possible (limited by available memory'), false, '', [ t('No'), t('Yes') ]],
+
 			'$common' => t('For either option, please choose whether to make this hub your new primary address, or whether your old location should continue this role. You will be able to post from either location, but only one can be marked as the primary location for files, photos, and media.'),
-			'$label_import_primary' => t('Make this hub my primary location'),
-			'$label_import_moving' => t('Move this channel (disable all previous locations)'),
-			'$label_import_posts' => t('Import a few months of posts if possible (limited by available memory'),
+
+			'$make_primary' => [ 'make_primary', t('Make this hub my primary location'), false, '', [ t('No'), t('Yes') ] ],
+			'$moving' => [ 'moving', t('Move this channel (disable all previous locations)'), false, '', [ t('No'), t('Yes') ] ],
+
 			'$pleasewait' => t('This process may take several minutes to complete. Please submit the form only once and leave this page open until finished.'),
-			'$email' => '',
-			'$pass' => '',
+
 			'$form_security_token' => get_form_security_token('channel_import'),
 			'$submit' => t('Submit')
 		));

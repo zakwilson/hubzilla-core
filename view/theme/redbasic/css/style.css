@@ -120,7 +120,12 @@ a:focus,
 
 input, optgroup, select, textarea {
 	font-size: 0.9rem !important;
+}
+
+input[type=text], textarea {
 	resize: vertical;
+	background-color: $comment_item_colour;
+	color: $font_colour;
 }
 
 .selected-doco-nav {
@@ -1046,12 +1051,14 @@ img.mail-conv-sender-photo {
 }
 
 #profile-jot-wrapper {
-	background-color: rgba(254,254,254,1);
-	border: 1px solid #ccc;
+	background-color: rgba(254, 254, 254, 1);
+	border: 1px solid rgba(0, 0, 0, .2);
 	border-radius: $radius;
 
 }
 
+#jot-title,
+#jot-pagetitle,
 #profile-jot-text {
 	border-radius: $radius;
 }
@@ -1203,7 +1210,6 @@ img.mail-conv-sender-photo {
 }
 
 #note-text {
-	border: 1px solid #ccc;
 	border-radius: $radius;
 }
 
@@ -1298,8 +1304,7 @@ img.mail-conv-sender-photo {
 }
 
 .generic-content-wrapper {
-	border: 1px solid #ccc;
-	box-shadow: 0px 0px 5px 1px rgba(0,0,0,0.2);
+	border: 1px solid rgba(0, 0, 0, .2);
 	border-radius: $radius;
 	margin-bottom: 1.5rem;
 }
@@ -1334,7 +1339,7 @@ img.mail-conv-sender-photo {
 .section-content-tools-wrapper {
 	padding: 7px 10px;
 	background-color: $comment_item_colour;
-	border-bottom: 3px solid comment_item_colour;
+	border-bottom: 3px solid $comment_item_colour;
 }
 
 .section-content-info-wrapper {
@@ -1789,4 +1794,8 @@ dl.bb-dl > dd > li {
 .oneway-overlay {
     position: absolute;
     text-shadow: -2px 0 1px #fff, 0 2px 1px#fff, 2px 0 1px #fff, 0 -2px 1px #fff;
+}
+
+.cover-photo-review {
+	margin-bottom: 10px;
 }

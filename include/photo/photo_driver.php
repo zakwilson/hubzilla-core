@@ -75,6 +75,7 @@ abstract class photo_driver {
 
 	abstract function imageString();
 
+	abstract function clearexif();
 
 	public function __construct($data, $type='') {
 		$this->types = $this->supportedTypes();
@@ -273,7 +274,7 @@ abstract class photo_driver {
 		}
 
 		if($f) {
-			return @exif_read_data($f);
+			return @exif_read_data($f,null,true);
 		}
 
 		return false;
@@ -289,12 +290,12 @@ abstract class photo_driver {
 			return false;
 		}
 
-		$ort = $exif['IFD0']['Orientation'];
+		$ort = ((array_key_exists('IFD0',$exif)) ? $exif['IFD0']['Orientation'] : $exif['Orientation']);
 
 		if(! $ort) {
 			return false;
 		}
-
+		
 		switch($ort) {
 			case 1: // nothing
 				break;

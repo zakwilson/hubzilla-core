@@ -100,7 +100,6 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	if(! $xchan)
 		return;
 
-// FIXME - show connect button to observer if appropriate
 	$connect = false;
 	if(local_channel()) {
 		$r = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
@@ -109,6 +108,12 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 		);
 		if(! $r)
 			$connect = t('Connect');
+	}
+
+	// don't provide a connect button for transient or one-way identities
+
+	if(in_array($xchan['xchan_network'],['rss','anon','unknown']) || strpos($xchan['xchan_addr'],'guest:') === 0) {
+		$connect = false;
 	}
 
 	if(array_key_exists('channel_id',$xchan))
@@ -122,7 +127,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	return replace_macros(get_markup_template('xchan_vcard.tpl'),array(
 		'$name'    => $xchan['xchan_name'],
 		'$photo'   => ((is_array(App::$profile) && array_key_exists('photo',App::$profile)) ? App::$profile['photo'] : $xchan['xchan_photo_l']),
-		'$follow'  => $xchan['xchan_addr'],
+		'$follow'  => (($xchan['xchan_addr']) ? $xchan['xchan_addr'] : $xchan['xchan_url']),
 		'$link'    => zid($xchan['xchan_url']),
 		'$connect' => $connect,
 		'$newwin'  => (($mode === 'chanview') ? t('New window') : ''),
@@ -421,7 +426,10 @@ function random_profile() {
 
 	for($i = 0; $i < $retryrandom; $i++) {
 
-		$r = q("select xchan_url, xchan_hash from xchan left join hubloc on hubloc_hash = xchan_hash where xchan_hidden = 0 and xchan_system = 0 and hubloc_connected > %s - interval %s order by $randfunc limit 1",
+		$r = q("select xchan_url, xchan_hash from xchan left join hubloc on hubloc_hash = xchan_hash where
+			xchan_hidden = 0 and xchan_system = 0 and
+			xchan_network = 'zot' and xchan_deleted = 0 and
+			hubloc_connected > %s - interval %s order by $randfunc limit 1",
 			db_utcnow(),
 			db_quoteinterval('30 day')
 		);

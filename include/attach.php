@@ -266,14 +266,12 @@ function attach_by_hash($hash, $observer_hash, $rev = 0) {
 		return $ret;
 	}
 
-	if(! perm_is_allowed($r[0]['uid'], $observer_hash, 'view_storage')) {
+	if(! attach_can_view($r[0]['uid'], $observer_hash, $hash)) {
 		$ret['message'] = t('Permission denied.');
 		return $ret;
 	}
 
-	$sql_extra = permissions_sql($r[0]['uid'],$observer_hash);
-
-	// Now we'll see if we can access the attachment
+	// We've already checked for existence and permissions
 
 	$r = q("SELECT * FROM attach WHERE hash = '%s' and uid = %d $sql_extra LIMIT 1",
 		dbesc($hash),
@@ -281,25 +279,40 @@ function attach_by_hash($hash, $observer_hash, $rev = 0) {
 	);
 
 	if(! $r) {
-		$ret['message'] = t('Permission denied.');
+		$ret['message'] = t('Unknown error.');
 		return $ret;
 	}
 
 	$r[0]['content'] = dbunescbin($r[0]['content']);
-
-	if($r[0]['folder']) {
-		$x = attach_can_view_folder($r[0]['uid'],$observer_hash,$r[0]['folder']);
-		if(! $x) {
-			$ret['message'] = t('Permission denied.');
-			return $ret;
-		}
-	}
 
 	$ret['success'] = true;
 	$ret['data'] = $r[0];
 
 	return $ret;
 }
+
+
+function attach_can_view($uid,$ob_hash,$resource) {
+
+	$sql_extra = permissions_sql($uid,$ob_hash);
+	$hash = $resource;
+
+	if(! perm_is_allowed($uid,$ob_hash,'view_storage')) {
+		return false;
+	}
+
+	$r = q("select folder from attach where hash = '%s' and uid = %d $sql_extra",
+		dbesc($hash),
+		intval($uid)
+	);
+	if(! $r) {
+		return false;
+	}
+
+	return attach_can_view_folder($uid,$ob_hash,$r[0]['folder']);
+
+}
+
 
 
 function attach_can_view_folder($uid,$ob_hash,$folder_hash) {
@@ -946,6 +959,16 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		call_hooks('photo_upload_end', $ret);
 
 		return $ret;
+	}
+
+	// Update the folder timestamp @todo recurse to the storage root folder
+
+	if($folder_hash) {
+		q("UPDATE attach set edited = '%s' where hash = '%s' and uid = %d and is_dir = 1",
+			dbesc($edited),
+			dbesc($folder_hash),
+			intval($channel_id)
+		);
 	}
 
 	// Caution: This re-uses $sql_options set further above
@@ -2276,33 +2299,22 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 	if(! ($c && $resource_id))
 		return false;
 
+
+	// find the resource to be moved
+
 	$r = q("select * from attach where hash = '%s' and uid = %d limit 1",
 		dbesc($resource_id),
 		intval($channel_id)
 	);
-	if(! $r)
+	if(! $r) {
+		logger('resource_id not found');
 		return false;
+	}
 
 	$oldstorepath = dbunescbin($r[0]['content']);
 
-	if($r[0]['is_dir']) {
-		$move_success = true;
-		$x = q("select hash from attach where folder = '%s' and uid = %d",
-			dbesc($r[0]['hash']),
-			intval($channel_id)
-		);
-		if($x) {
-			foreach($x as $xv) {
-				$rs = attach_move($channel_id,$xv['hash'],$r[0]['hash']);
-				if(! $rs) {
-					$move_success = false;
-					break;
-				}
-			}
-		}
-		return $move_success;
-	}
 
+	// find the resource we are moving to
 
 	if($new_folder_hash) {
 		$n = q("select * from attach where hash = '%s' and uid = %d and is_dir = 1 limit 1",
@@ -2316,6 +2328,10 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 		$newstorepath = dbunescbin($n[0]['content']) . '/' . $resource_id;
 	}
 	else {
+
+		// root directory
+
+		$newdirname = EMPTY_STR;
 		$newstorepath = 'store/' . $c['channel_address'] . '/' . $resource_id;
 	}
 
@@ -2325,56 +2341,61 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 	$filename = $r[0]['filename'];
 
-	$s = q("select filename, id, hash, filesize from attach where filename = '%s' and folder = '%s' ",
-		dbesc($filename),
-		dbesc($new_folder_hash)
-	);
+	// don't do duplicate check unless our parent folder has changed. 
 
-	if($s) {
-		$overwrite = get_pconfig($channel_id,'system','overwrite_dup_files');
-		if($overwrite) {
-			/// @fixme
-			return;
-		}
-		else {
-			if(strpos($filename,'.') !== false) {
-				$basename = substr($filename,0,strrpos($filename,'.'));
-				$ext = substr($filename,strrpos($filename,'.'));
+	if($r[0]['folder'] !== $new_folder_hash) {
+
+		$s = q("select filename, id, hash, filesize from attach where filename = '%s' and folder = '%s' ",
+			dbesc($filename),
+			dbesc($new_folder_hash)
+		);
+
+		if($s) {
+			$overwrite = get_pconfig($channel_id,'system','overwrite_dup_files');
+			if($overwrite) {
+				/// @fixme
+				return;
 			}
 			else {
-				$basename = $filename;
-				$ext = '';
-			}
-
-			$matches = false;
-			if(preg_match('/(.*?)\([0-9]{1,}\)$/',$basename,$matches))
-				$basename = $matches[1];
-
-			$v = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' ",
-				dbesc($basename . $ext),
-				dbesc($basename . '(%)' . $ext),
-				dbesc($new_folder_hash)
-			);
-
-			if($v) {
-				$x = 1;
-
-				do {
-					$found = false;
-					foreach($v as $vv) {
-						if($vv['filename'] === $basename . '(' . $x . ')' . $ext) {
-							$found = true;
-							break;
-						}
-					}
-					if($found)
-						$x++;
+				if(strpos($filename,'.') !== false) {
+					$basename = substr($filename,0,strrpos($filename,'.'));
+					$ext = substr($filename,strrpos($filename,'.'));
 				}
-				while($found);
-				$filename = $basename . '(' . $x . ')' . $ext;
+				else {
+					$basename = $filename;
+					$ext = '';
+				}
+
+				$matches = false;
+				if(preg_match('/(.*?)\([0-9]{1,}\)$/',$basename,$matches))
+					$basename = $matches[1];
+
+				$v = q("select filename from attach where ( filename = '%s' OR filename like '%s' ) and folder = '%s' ",
+					dbesc($basename . $ext),
+					dbesc($basename . '(%)' . $ext),
+					dbesc($new_folder_hash)
+				);
+
+				if($v) {
+					$x = 1;
+
+					do {
+						$found = false;
+						foreach($v as $vv) {
+							if($vv['filename'] === $basename . '(' . $x . ')' . $ext) {
+								$found = true;
+								break;
+							}
+						}
+						if($found)
+							$x++;
+					}
+					while($found);
+					$filename = $basename . '(' . $x . ')' . $ext;
+				}
+				else
+					$filename = $basename . $ext;
 			}
-			else
-				$filename = $basename . $ext;
 		}
 	}
 
@@ -2411,6 +2432,24 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 			dbesc($resource_id),
 			intval($channel_id)
 		);
+	}
+
+	if($r[0]['is_dir']) {
+		$move_success = true;
+		$x = q("select hash from attach where folder = '%s' and uid = %d",
+			dbesc($r[0]['hash']),
+			intval($channel_id)
+		);
+		if($x) {
+			foreach($x as $xv) {
+				$rs = attach_move($channel_id,$xv['hash'],$r[0]['hash']);
+				if(! $rs) {
+					$move_success = false;
+					break;
+				}
+			}
+		}
+		return $move_success;
 	}
 
 	return true;

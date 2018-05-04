@@ -39,9 +39,10 @@ class Site {
 		$site_location		=	((x($_POST,'site_location'))	? notags(trim($_POST['site_location']))		: '');
 		$frontpage			=	((x($_POST,'frontpage'))	? notags(trim($_POST['frontpage']))		: '');
 		$firstpage		    =	((x($_POST,'firstpage'))	? notags(trim($_POST['firstpage']))		: 'profiles');
+		$first_page		    =	((x($_POST,'first_page'))	? notags(trim($_POST['first_page']))		: 'profiles');
 		// check value after trim
-		if(! $firstpage) {
-			$firstpage = 'profiles';
+		if(! $first_page) {
+			$first_page = 'profiles';
 		}
 		$mirror_frontpage	=	((x($_POST,'mirror_frontpage'))	? intval(trim($_POST['mirror_frontpage']))		: 0);
 		$directory_server	=	((x($_POST,'directory_server')) ? trim($_POST['directory_server']) : '');
@@ -55,6 +56,7 @@ class Site {
 		$global_directory     = ((x($_POST,'directory_submit_url'))	? notags(trim($_POST['directory_submit_url']))	: '');
 		$no_community_page    = !((x($_POST,'no_community_page'))	? True	:	False);
 		$default_expire_days  = ((array_key_exists('default_expire_days',$_POST)) ? intval($_POST['default_expire_days']) : 0);
+		$active_expire_days  = ((array_key_exists('active_expire_days',$_POST)) ? intval($_POST['active_expire_days']) : 7);
 
 		$reply_address      = ((array_key_exists('reply_address',$_POST) && trim($_POST['reply_address'])) ? trim($_POST['reply_address']) : 'noreply@' . \App::get_hostname());
 		$from_email         = ((array_key_exists('from_email',$_POST) && trim($_POST['from_email'])) ? trim($_POST['from_email']) : 'Administrator@' . \App::get_hostname());
@@ -86,7 +88,7 @@ class Site {
 		set_config('system', 'maxloadavg', $maxloadavg);
 		set_config('system', 'frontpage', $frontpage);
 		set_config('system', 'sellpage', $site_sellpage);
-		set_config('system', 'workflow_channel_next', $firstpage);
+		set_config('system', 'workflow_channel_next', $first_page);
 		set_config('system', 'site_location', $site_location);
 		set_config('system', 'mirror_frontpage', $mirror_frontpage);
 		set_config('system', 'sitename', $sitename);
@@ -94,6 +96,7 @@ class Site {
 		set_config('system', 'enable_context_help', $enable_context_help);
 		set_config('system', 'verify_email', $verify_email);
 		set_config('system', 'default_expire_days', $default_expire_days);
+		set_config('system', 'active_expire_days', $active_expire_days);
 		set_config('system', 'reply_address', $reply_address);
 		set_config('system', 'from_email', $from_email);
 		set_config('system', 'from_email_name' , $from_email_name);
@@ -347,9 +350,10 @@ class Site {
 			'$thumbnail_security'			=> array('thumbnail_security', t("Allow SVG thumbnails in file browser"), get_config('system','thumbnail_security',0), t("WARNING: SVG images may contain malicious code.")),
 			'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 			'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(get_config('system','default_expire_days')), t('0 for no expiration of imported content')),
+			'$active_expire_days' => array('active_expire_days', t('Do not expire any posts which have comments less than this many days ago'), intval(get_config('system','active_expire_days',7)), ''),
 
 			'$sellpage' => array('site_sellpage', t('Public servers: Optional landing (marketing) webpage for new registrants'), get_config('system','sellpage',''), sprintf( t('Create this page first. Default is %s/register'),z_root())),
-			'$firstpage' => array('firstpage', t('Page to display after creating a new channel'), get_config('system','workflow_channel_next','profiles'), t('Recommend: profiles, go, or settings')),
+			'$first_page' => array('first_page', t('Page to display after creating a new channel'), get_config('system','workflow_channel_next','profiles'), t('Recommend: profiles, go, or settings')),
 
 			'$location' => array('site_location', t('Optional: site location'), get_config('system','site_location',''), t('Region or country')),
 

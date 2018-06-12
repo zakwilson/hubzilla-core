@@ -6545,7 +6545,7 @@ msgstr "Homepage del progetto"
 
 #: ../../Zotlabs/Module/Siteinfo.php:32
 msgid "Developer homepage"
-msgstr "Homepege dello sviluppatore"
+msgstr "Homepage dello sviluppatore"
 
 #: ../../Zotlabs/Module/Ratings.php:70
 msgid "No ratings"

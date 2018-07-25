@@ -572,7 +572,7 @@ function item_message_id() {
 
 		$r = q("SELECT id FROM item WHERE mid = '%s' LIMIT 1",
 			dbesc($mid));
-		if(count($r))
+		if($r)
 			$dups = true;
 	} while($dups == true);
 
@@ -593,7 +593,7 @@ function photo_new_resource() {
 
 		$r = q("SELECT id FROM photo WHERE resource_id = '%s' LIMIT 1",
 			dbesc($resource));
-		if(count($r))
+		if($r)
 			$found = true;
 	} while($found === true);
 
@@ -665,7 +665,7 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
-	$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
+	$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
 	$pluginfo = array('filename' => $logfile, 'loglevel' => $level, 'message' => $s,'priority' => $priority, 'logged' => false);
 
 	if(! (App::$module == 'setup'))
@@ -673,6 +673,13 @@ function logger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 
 	if(! $pluginfo['logged'])
 		@file_put_contents($pluginfo['filename'], $pluginfo['message'], FILE_APPEND);
+}
+
+function logid() {
+	$x = session_id();
+	if(! $x)
+		$x = getmypid();
+	return substr(hash('whirlpool',$x),0,10);
 }
 
 /**
@@ -693,7 +700,7 @@ function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 	if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
 		$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2);
 		$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
-		$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . session_id() . ':' . $where . $msg . PHP_EOL;
+		$s = datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . log_priority_str($priority) . ':' . logid() . ':' . $where . $msg . PHP_EOL;
 		@file_put_contents(BTLOGGER_DEBUG_FILE, $s, FILE_APPEND);
 	}
 
@@ -764,7 +771,7 @@ function dlogger($msg, $level = 0) {
 	$where = basename($stack[0]['file']) . ':' . $stack[0]['line'] . ':' . $stack[1]['function'] . ': ';
 
 
-	@file_put_contents($logfile, datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . session_id() . ' ' . $where . $msg . PHP_EOL, FILE_APPEND);
+	@file_put_contents($logfile, datetime_convert('UTC','UTC', 'now', ATOM_TIME) . ':' . logid() . ' ' . $where . $msg . PHP_EOL, FILE_APPEND);
 }
 
 
@@ -816,41 +823,36 @@ function get_tags($s) {
 
 	// match any double quoted tags
 
-	if(preg_match_all('/([@#!]\&quot\;.*?\&quot\;)/',$s,$match)) {
+	if(preg_match_all('/([@#\!]\&quot\;.*?\&quot\;)/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
 		}
 	}
 
-	// Match full names against @tags including the space between first and last
-	// We will look these up afterward to see if they are full names or not recognisable.
+	// match bracket mentions
 
-	// The lookbehind is used to prevent a match in the middle of a word
-	// '=' needs to be avoided because when the replacement is made (in handle_tag()) it has to be ignored there
-	// Feel free to allow '=' if the issue with '=' is solved in handle_tag()
-	// added / ? and [ to avoid issues with hashchars in url paths
-
-	// added ; to single word tags to allow emojis and other unicode character constructs in bbcode
-	// (this would actually be &#xnnnnn; but the ampersand will have been escaped to &amp; by the time we see it.)
-
-	if(preg_match_all('/(?<![a-zA-Z0-9=\pL\/\?])(@[^ \x0D\x0A,:?\[]+ [^ \x0D\x0A@,:?\[]+)/u',$s,$match)) {
+	if(preg_match_all('/([@!]\!?\{.*?\})/',$s,$match)) {
 		foreach($match[1] as $mtch) {
-			if(substr($mtch,-1,1) === '.')
-				$ret[] = substr($mtch,0,-1);
-			else
-				$ret[] = $mtch;
+			$ret[] = $mtch;
 		}
 	}
 
-	// Otherwise pull out single word tags. These can be @nickname, @first_last
+	// Pull out single word tags. These can be @nickname, @first_last
 	// and #hash tags.
 
-	if(preg_match_all('/(?<![a-zA-Z0-9=\pL\/\?\;])([@#\!][^ \x0D\x0A,;:?\[]+)/u',$s,$match)) {
+	if(preg_match_all('/(?<![a-zA-Z0-9=\pL\/\?\;])([@#\!]\!?[^ \x0D\x0A,;:\?\[\{\&]+)/u',$s,$match)) {
 		foreach($match[1] as $mtch) {
+
+			// Cleanup/ignore false positives
+
+			// Just ignore these rather than try and adjust the regex to deal with them
+			if(in_array($mtch,[ '@!', '!!' ]))
+				continue;
+			// likewise for trailing period. Strip it off rather than complicate the regex further.
 			if(substr($mtch,-1,1) === '.')
 				$mtch = substr($mtch,0,-1);
 			// ignore strictly numeric tags like #1 or #^ bookmarks or ## double hash
-			if((strpos($mtch,'#') === 0) && ( ctype_digit(substr($mtch,1)) || substr($mtch,1,1) === '^') || substr($mtch,1,1) === '#')
+			if((strpos($mtch,'#') === 0) && ( ctype_digit(substr($mtch,1)) || in_array(substr($mtch,1,1), [ '^', '#' ])))
 				continue;
 			// or quote remnants from the quoted strings we already picked out earlier
 			if(strpos($mtch,'&quot'))
@@ -875,7 +877,7 @@ function get_tags($s) {
 
 	usort($ret,'tag_sort_length');
 
-//	logger('get_tags: ' . print_r($ret,true));
+	//	logger('get_tags: ' . print_r($ret,true));
 
 	return $ret;
 }
@@ -1016,28 +1018,37 @@ function chanlink_cid($d) {
 
 function magiclink_url($observer,$myaddr,$url) {
 	return (($observer)
-		? z_root() . '/magic?f=&owa=1&dest=' . $url . '&addr=' . $myaddr
+		? z_root() . '/magic?f=&owa=1&bdest=' . bin2hex($url) . '&addr=' . $myaddr
 		: $url
 	);
 }
 
 
 
-function micropro($contact, $redirect = false, $class = '', $textmode = false) {
+function micropro($contact, $redirect = false, $class = '', $mode = false) {
 
 	if($contact['click'])
 		$url = '#';
 	else
 		$url = chanlink_hash($contact['xchan_hash']);
 
-	return replace_macros(get_markup_template(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'),array(
+
+	$tpl = 'micropro_img.tpl';
+	if($mode === true)
+		$tpl = 'micropro_txt.tpl';
+	if($mode === 'card')
+		$tpl = 'micropro_card.tpl';
+
+	return replace_macros(get_markup_template($tpl), array(
 		'$click' => (($contact['click']) ? $contact['click'] : ''),
 		'$class' => $class . (($contact['archived']) ? ' archived' : ''),
 		'$oneway' => (($contact['oneway']) ? true : false),
 		'$url' => $url,
 		'$photo' => $contact['xchan_photo_s'],
 		'$name' => $contact['xchan_name'],
+		'$addr' => $contact['xchan_addr'],
 		'$title' => $contact['xchan_name'] . ' [' . $contact['xchan_addr'] . ']',
+		'$network' => sprintf(t('Network: %s'), $contact['xchan_network'])
 	));
 }
 
@@ -1420,15 +1431,21 @@ function unobscure_mail(&$item) {
 function theme_attachments(&$item) {
 
 	$arr = json_decode($item['attach'],true);
+
 	if(is_array($arr) && count($arr)) {
 		$attaches = array();
 		foreach($arr as $r) {
 
 			$icon = getIconFromType($r['type']);
-			$label = (($r['title']) ? urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8')) : t('Unknown Attachment'));
+			
+			if($r['title'])
+				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
+
+			if(! $label && $r['href'])
+				$label = basename($r['href']);
 
 			//some feeds provide an attachment where title an empty space
-			if($label  == ' ')
+			if(! $label || $label  == ' ')
 				$label = t('Unknown Attachment');
 
 			$title = t('Size') . ' ' . (($r['length']) ? userReadableSize($r['length']) : t('unknown'));
@@ -1437,7 +1454,7 @@ function theme_attachments(&$item) {
 			if(is_foreigner($item['author_xchan']))
 				$url = $r['href'];
 			else
-				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&dest=' . $r['href'] . '/' . $r['revision'];
+				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
 
 			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
 			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
@@ -2025,21 +2042,39 @@ function item_post_type($item) {
 function undo_post_tagging($s) {
 
 	$matches = null;
+	$x = null;
 	// undo tags and mentions
 	$cnt = preg_match_all('/([@#])(\!*)\[zrl=(.*?)\](.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
-			$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . quote_tag($mtch[4]),$s);
+			if($mtch[1] === '@') {
+				$x = q("select xchan_addr, xchan_url from xchan where xchan_url = '%s' limit 1",
+					dbesc($mtch[3])
+				);
+			}
+			if($x) {
+				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
+			}
+			else {
+				$s = str_replace($mtch[0], $mtch[1] . $mtch[2] . quote_tag($mtch[4]),$s);
+			}
 		}
 	}
 	// undo forum tags
 	$cnt = preg_match_all('/\!\[zrl=(.*?)\](.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
-			$s = str_replace($mtch[0], '!' . quote_tag($mtch[2]),$s);
+			$x = q("select xchan_addr, xchan_url from xchan where xchan_url = '%s' limit 1",
+				dbesc($mtch[1])
+			);
+			if($x) {
+				$s = str_replace($mtch[0], '!' . '{' . (($x[0]['xchan_addr']) ? $x[0]['xchan_addr'] : $x[0]['xchan_url']) . '}', $s);
+			}
+			else {
+				$s = str_replace($mtch[0], '!' . quote_tag($mtch[2]),$s);
+			}
 		}
 	}
-
 
 	return $s;
 }
@@ -2187,6 +2222,7 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
  * @param $arr array
  * @param $elm array key to extract from sub-array
  * @param $delim string default ','
+ * @param $each filter function to apply to each element before evaluation, default is 'trim'.
  * @returns string
  */
 
@@ -2516,10 +2552,10 @@ function extra_query_args() {
  * @param[in,out] string &$str_tags string to add the tag to
  * @param int $profile_uid
  * @param string $tag the tag to replace
- * @param boolean $diaspora default false
+ * @param boolean $in_network default true
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $diaspora = false) {
+function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $in_network = true) {
 
 	$replaced = false;
 	$r = null;
@@ -2530,9 +2566,10 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 	$termtype = ((strpos($tag,'!') === 0)   ? TERM_FORUM    : $termtype);
 	$termtype = ((strpos($tag,'#^[') === 0) ? TERM_BOOKMARK : $termtype);
 
-	//is it a hash tag?
-	if(strpos($tag,'#') === 0) {
-		if(strpos($tag,'#^[') === 0) {
+	// Is it a hashtag of some kind?
+
+	if ( in_array($termtype, [ TERM_HASHTAG, TERM_BOOKMARK ] )) {
+		if($termtype === TERM_BOOKMARK) {
 			if(preg_match('/#\^\[(url|zrl)(.*?)\](.*?)\[\/(url|zrl)\]/',$tag,$match)) {
 				$basetag = $match[3];
 				$url = ((substr($match[2],0,1) === '=') ? substr($match[2],1) : $match[3]);
@@ -2541,33 +2578,35 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 		}
 		// if the tag is already replaced...
 		elseif((strpos($tag,'[zrl=')) || (strpos($tag,'[url='))) {
-			//...do nothing
+			// ...do nothing
 			return $replaced;
 		}
+
 		if(! $replaced) {
 
-			// base tag has the tags name only
+			// double-quoted hashtags: base tag has the htmlentity name only
 
 			if((substr($tag,0,7) === '#&quot;') && (substr($tag,-6,6) === '&quot;')) {
 				$basetag = substr($tag,7);
 				$basetag = substr($basetag,0,-6);
 			}
 			else
-				$basetag = str_replace('_',' ',substr($tag,1));
+				$basetag = substr($tag,1);
 
-			//create text for link
+			// create text for link
+
 			$url = z_root() . '/search?tag=' . rawurlencode($basetag);
 			$newtag = '#[zrl=' . z_root() . '/search?tag=' . rawurlencode($basetag) . ']' . $basetag . '[/zrl]';
-			//replace tag by the link. Make sure to not replace something in the middle of a word
-			// The '=' is needed to not replace color codes if the code is also used as a tag
-			// Much better would be to somehow completely avoiding things in e.g. [color]-tags.
-			// This would allow writing things like "my favourite tag=#foobar".
+
+			// replace tag by the link. Make sure to not replace something in the middle of a word
+
 			$body = preg_replace('/(?<![a-zA-Z0-9=])'.preg_quote($tag,'/').'/', $newtag, $body);
 			$replaced = true;
 		}
-		//is the link already in str_tags?
+
+		// is the link already in str_tags?
 		if(! stristr($str_tags,$newtag)) {
-			//append or set str_tags
+			// append or set str_tags
 			if(strlen($str_tags))
 				$str_tags .= ',';
 
@@ -2578,123 +2617,84 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 			'termtype' => $termtype,
 			'term'     => $basetag,
 			'url'      => $url,
-			'contact'  => $r[0]
+			'contact'  => []
 		];
+
 	}
 
-	//is it a person tag?
+	// END hashtags
 
-	$grouptag = false;
+	// BEGIN mentions
 
-	if(strpos($tag,'!') === 0) {
-		$grouptag = true;
-	}
 
-	if(strpos($tag,'@') === 0 || $grouptag) {
+	if ( in_array($termtype, [ TERM_MENTION, TERM_FORUM ] )) {
 
-		// The @! tag will alter permissions
-		$exclusive = (((! $grouptag) && (strpos($tag,'!') === 1) && (! $diaspora)) ? true : false);
-		if(($grouptag) && (strpos($tag,'!!') === 0)) {
-			$exclusive = true;
-		}
+		// The @! tag and !! tag will alter permissions
+
+		// $in_network is set to false to avoid false positives on posts originating
+		// on a network which does not implement privacy tags or implements them differently.
+
+		$exclusive = (((strpos(substr($tag,1), '!') === 0) && $in_network) ? true : false);
 
 		//is it already replaced?
-		if(strpos($tag,'[zrl='))
+		if(strpos($tag,'[zrl=') || strpos($tag,'[url='))
 			return $replaced;
 
-		//get the person's name
+		// get the channel name
+		// First extract the name or name fragment we are going to replace
 
-		$name = substr($tag,(($exclusive) ? 2 : 1)); // The name or name fragment we are going to replace
-		$newname = $name; // a copy that we can mess with
+		$name = substr($tag,(($exclusive) ? 2 : 1)); 
+		$newname = $name; // make a copy that we can mess with
 		$tagcid = 0;
 
 		$r = null;
 
-		// is it some generated name?
+		// is it some generated (autocompleted) name?
 
-		$forum = false;
-		$trailing_plus_name = false;
-
-		// @channel+ is a forum or network delivery tag
-
-		if(substr($newname,-1,1) === '+') {
-			$forum = true;
+		if(substr($name,0,1) === '{' && substr($name,-1,1) === '}') {
+			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
-		}
 
-		// Here we're looking for an address book entry as provided by the auto-completer
-		// of the form something+nnn where nnn is an abook_id or the first chars of xchan_hash
-
-
-		// If there's a +nnn in the string make sure there isn't a space preceding it
-
-		$t1 = strpos($newname,' ');
-		$t2 = strrpos($newname,'+');
-
-		if($t1 && $t2 && $t1 < $t2)
-			$t2 = 0;
-
-		if(($t2) && (! $diaspora)) {
-			//get the id
-
-			$tagcid = urldecode(substr($newname,$t2 + 1));
-
-			if(strrpos($tagcid,' '))
-				$tagcid = substr($tagcid,0,strrpos($tagcid,' '));
-
-			if(strlen($tagcid) < 16)
-				$abook_id = intval($tagcid);
-			//remove the next word from tag's name
-			if(strpos($name,' ')) {
-				$name = substr($name,0,strpos($name,' '));
-			}
-
-			if($abook_id) { // if there was an id
-				// select channel with that id from the logged in user's address book
-				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE abook_id = %d AND abook_channel = %d LIMIT 1",
-						intval($abook_id),
-						intval($profile_uid)
-				);
-			}
-			else {
-				$r = q("SELECT * FROM xchan
-					WHERE xchan_hash like '%s%%' LIMIT 1",
-						dbesc($tagcid)
-				);
-			}
+			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s' limit 1",
+				dbesc($newname),
+				dbesc($newname)
+			);
 		}
 
 		if(! $r) {
 
 			// look for matching names in the address book
 
-			// Two ways to deal with spaces - double quote the name or use underscores
-			// we see this after input filtering so quotes have been html entity encoded
+			// Double quote the entire mentioned term to include special characters
+			// such as spaces and some punctuation.
+
+			// We see this after input filtering so quotes have been html entity encoded
 
 			if((substr($name,0,6) === '&quot;') && (substr($name,-6,6) === '&quot;')) {
 				$newname = substr($name,6);
 				$newname = substr($newname,0,-6);
 			}
-			else
-				$newname = str_replace('_',' ',$name);
 
-			// do this bit over since we started over with $name
+			// select someone from this user's contacts by name
 
-			if(substr($newname,-1,1) === '+') {
-				$forum = true;
-				$newname = substr($newname,0,-1);
-			}
-
-			//select someone from this user's contacts by name
 			$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE xchan_name = '%s' AND abook_channel = %d LIMIT 1",
 					dbesc($newname),
 					intval($profile_uid)
 			);
 
+			// select anybody by full hubloc_addr
+
+			if((! $r) && strpos($newname,'@')) {
+				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash 
+					WHERE hubloc_addr = '%s' LIMIT 1",
+						dbesc($newname)
+				);
+			}
+
+			// select someone by attag or nick and the name passed in
+
 			if(! $r) {
-				//select someone by attag or nick and the name passed in
 				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
 					WHERE xchan_addr like ('%s') AND abook_channel = %d LIMIT 1",
 						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
@@ -2702,24 +2702,12 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 				);
 			}
 
-			if(! $r) {
-				// it's possible somebody has a name ending with '+', which we stripped off as a forum indicator
-				// This is very rare but we want to get it right.
-
-				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE xchan_name = '%s' AND abook_channel = %d LIMIT 1",
-						dbesc($newname . '+'),
-						intval($profile_uid)
-				);
-				if($r)
-					$trailing_plus_name = true;
-			}
 		}
 
 		// $r is set if we found something
 
 		$channel = App::get_channel();
-
+ 
 		if($r) {
 			$profile = $r[0]['xchan_url'];
 			$newname = $r[0]['xchan_name'];
@@ -2757,27 +2745,24 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 			}
 		}
 
-		if(($exclusive) && (! $access_tag)) {
-			$access_tag .= 'cid:' . $channel['channel_hash'];
-		}
-
-		// if there is an url for this channel
+		// if there is a url for this channel
 
 		if(isset($profile)) {
 			$replaced = true;
 			//create profile link
 			$profile = str_replace(',','%2c',$profile);
 			$url = $profile;
-			if($grouptag) {
+			if($termtype === TERM_FORUM) {
 				$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 				$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 			}
 			else {
-				$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. (($forum &&  ! $trailing_plus_name) ? '+' : '') . '[/zrl]';
+				// ( $termtype === TERM_MENTION )
+				$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 				$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 			}
 
-			//append tag to str_tags
+			// append tag to str_tags
 			if(! stristr($str_tags,$newtag)) {
 				if(strlen($str_tags))
 					$str_tags .= ',';
@@ -2791,14 +2776,14 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $d
 		'termtype' => $termtype,
 		'term'     => $newname,
 		'url'      => $url,
-		'contact'  => $r[0]
+		'contact'  => (($r) ? $r[0] : [])
 	];
 }
 
-function linkify_tags($a, &$body, $uid, $diaspora = false) {
-	$str_tags = '';
-	$tagged = array();
-	$results = array();
+function linkify_tags($a, &$body, $uid, $in_network = true) {
+	$str_tags = EMPTY_STR;
+	$tagged = [];
+	$results = [];
 
 	$tags = get_tags($body);
 
@@ -2806,20 +2791,7 @@ function linkify_tags($a, &$body, $uid, $diaspora = false) {
 		foreach($tags as $tag) {
 			$access_tag = '';
 
-			// If we already tagged 'Robert Johnson', don't try and tag 'Robert'.
-			// Robert Johnson should be first in the $tags array
-
-			$fullnametagged = false;
-			for($x = 0; $x < count($tagged); $x ++) {
-				if(stristr($tagged[$x],$tag . ' ')) {
-					$fullnametagged = true;
-					break;
-				}
-			}
-			if($fullnametagged)
-				continue;
-
-			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $diaspora);
+			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $in_network);
 
 			$results[] = array('success' => $success, 'access_tag' => $access_tag);
 			if($success['replaced']) $tagged[] = $tag;
@@ -3230,21 +3202,33 @@ function array2XML($obj, $array) {
  *
  * @param string $table
  * @param array $arr
+ * @param array $binary_fields - fields which will be cleansed with dbescbin rather than dbesc; this is critical for postgres
  * @return boolean|PDOStatement
  */
-function create_table_from_array($table, $arr) {
+function create_table_from_array($table, $arr, $binary_fields = []) {
 
 	if(! ($arr && $table))
 		return false;
 
-	if(dbesc_array($arr)) {
-		$r = dbq("INSERT INTO " . TQUOT . $table . TQUOT . " (" . TQUOT
-			. implode(TQUOT . ', ' . TQUOT, array_keys($arr))
-			. TQUOT . ") VALUES ('"
-			. implode("', '", array_values($arr))
-			. "')"
-		);
+	$clean = [];
+	foreach($arr as $k => $v) {
+		$matches = false;
+		if(preg_match('/([^a-zA-Z0-9\-\_\.])/',$k,$matches)) {
+			return false;
+		}
+		if(in_array($k,$binary_fields)) {
+			$clean[$k] = dbescbin($v);
+		}
+		else {
+			$clean[$k] = dbesc($v);
+		}
 	}
+	$r = dbq("INSERT INTO " . TQUOT . $table . TQUOT . " (" . TQUOT
+		. implode(TQUOT . ', ' . TQUOT, array_keys($clean))
+		. TQUOT . ") VALUES ('"
+		. implode("', '", array_values($clean))
+		. "')"
+	);
 
 	return $r;
 }
@@ -3273,9 +3257,9 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 
 
-	$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
+	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\nakedoembed', $body);
-	$body = preg_replace_callback("/([^\]\='".'"'."\/]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
+	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\red_zrl_callback', $body);
 
 	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
@@ -3344,12 +3328,17 @@ function featured_sort($a,$b) {
 }
 
 
+// Be aware that punify will convert domain names and pathnames
+
+
 function punify($s) {
 	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
 	$x = new idna_convert(['encoding' => 'utf8']);
 	return $x->encode($s);
 
 }
+
+// Be aware that unpunify will only convert domain names and not pathnames
 
 function unpunify($s) {
 	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
@@ -3358,3 +3347,68 @@ function unpunify($s) {
 
 }
 
+
+function unique_multidim_array($array, $key) {
+    $temp_array = array();
+    $i = 0;
+    $key_array = array();
+   
+    foreach($array as $val) {
+        if (!in_array($val[$key], $key_array)) {
+            $key_array[$i] = $val[$key];
+            $temp_array[$i] = $val;
+        }
+        $i++;
+    }
+    return $temp_array;
+}
+
+function get_forum_channels($uid) {
+
+	if(! $uid)
+		return;
+
+	$xf = false;
+
+	$x1 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'send_stream' and v = '0'",
+		intval($uid)
+	);
+	if($x1) {
+		$xc = ids_to_querystr($x1,'xchan',true);
+
+		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . $xc . ") ",
+			intval($uid)
+		);
+
+		if($x2) { 
+			$xf = ids_to_querystr($x2,'xchan',true);
+
+			// private forums
+			$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") and not xchan in (" . $xf . ") ",
+				intval(local_channel())
+			);
+			if($x3) {
+				$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
+			}
+		}
+	}
+
+	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 "); 
+
+	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name",
+		intval($uid)
+	);
+
+	for($x = 0; $x < count($r); $x ++) {
+		if($x3) {
+			foreach($x3 as $xx) {
+				if($r[$x]['xchan_hash'] == $xx['xchan']) {
+					$r[$x]['private_forum'] = 1;
+				}
+			}
+		}
+	}
+
+	return $r;
+
+}

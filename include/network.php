@@ -468,13 +468,21 @@ function z_dns_check($h,$check_mx = 0) {
 		&& \App::$config['system']['do_not_check_dns'])
 		return true;
 
+	// This will match either Windows or Mac ('Darwin')
+	if(stripos(PHP_OS,'win') !== false)
+		return true;
 
-	//$opts = DNS_A + DNS_CNAME + DNS_PTR;
-	//if($check_mx)
-	//	$opts += DNS_MX;
-	// Specific record type flags are unreliable on FreeBSD and Mac,
-	// so now we'll ignore these and just check for the existence of any DNS record.
-	return((@dns_get_record($h) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
+	// BSD variants have dns_get_record() but it only works reliably without any options
+	if(stripos(PHP_OS,'bsd') !== false)
+		return((@dns_get_record($h) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
+
+	// Otherwise we will assume dns_get_record() works as documented
+
+	$opts = DNS_A + DNS_CNAME + DNS_PTR;
+	if($check_mx)
+		$opts += DNS_MX;
+
+	return((@dns_get_record($h,$opts) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
 }
 
 /**
@@ -999,7 +1007,7 @@ function discover_by_url($url, $arr = null) {
 			return false;
 
 		$network = (($arr['network']) ? $arr['network'] : 'unknown');
-		$name    = (($arr['name']) ? $arr['name'] : 'unknown');
+		$name    = (trim($arr['name']) ? trim($arr['name']) : 'unknown');
 		$photo   = (($arr['photo']) ? $arr['photo'] : '');
 		$addr    = (($arr['addr']) ? $arr['addr'] : '');
 		$guid    = $url;
@@ -1102,6 +1110,9 @@ function discover_by_url($url, $arr = null) {
 
 	if(! $name)
 		$name = notags($feed->get_description());
+
+	if(! trim($name))
+		$name = 'unknown';
 
 	$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 		dbesc($guid)
@@ -1213,7 +1224,7 @@ function webfinger_rfc7033($webbie, $zot = false) {
 	if(strpos($webbie,'@')) {
 		$lhs = substr($webbie,0,strpos($webbie,'@'));
 		$rhs = substr($webbie,strpos($webbie,'@')+1);
-		$resource = 'acct:' . $webbie;
+		$resource = urlencode('acct:' . $webbie);
 	}
 	else {
 		$m = parse_url($webbie);
@@ -1231,7 +1242,7 @@ function webfinger_rfc7033($webbie, $zot = false) {
 
 	$counter = 0;
 	$s = z_fetch_url('https://' . $rhs . '/.well-known/webfinger?f=&resource=' . $resource . (($zot) ? '&zot=1' : ''),
-		false, $counter, [ 'headers' => [ 'Accept: application/jrd+json, */*' ] ]);
+		false, $counter, [ 'headers' => [ 'Accept: application/jrd+json, application/json, */*' ] ]);
 
 	if($s['success']) {
 		$j = json_decode($s['body'], true);

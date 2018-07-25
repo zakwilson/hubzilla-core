@@ -158,7 +158,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 				$feeds = get_config('system','feed_contacts');
 
-				if(($feeds) && ($protocol === '' || $protocol === 'feed')) {
+				if(($feeds) && ($protocol === '' || $protocol === 'feed' || $protocol === 'rss')) {
 					$d = discover_by_url($url);
 				}
 				else {
@@ -204,7 +204,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 	$singleton = intval($x['singleton']);
 
 	$aid = $channel['channel_account_id'];
-	$hash = get_observer_hash();
+	$hash = $channel['channel_hash'];
 	$default_group = $channel['channel_default_group'];
 
 	if($hash == $xchan_hash) {

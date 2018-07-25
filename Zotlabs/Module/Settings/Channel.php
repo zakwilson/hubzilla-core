@@ -21,6 +21,10 @@ class Channel {
 		$role = ((x($_POST,'permissions_role')) ? notags(trim($_POST['permissions_role'])) : '');
 		$oldrole = get_pconfig(local_channel(),'system','permissions_role');
 
+		// This mapping can be removed after 3.4 release
+		if($oldrole === 'social_party') {
+			$oldrole = 'social_federation';
+		}
 	
 		if(($role != $oldrole) || ($role === 'custom')) {
 	
@@ -142,6 +146,7 @@ class Channel {
 		$unkmail          = (((x($_POST,'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
 		$cntunkmail       = ((x($_POST,'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
 		$suggestme        = ((x($_POST,'suggestme')) ? intval($_POST['suggestme'])  : 0);  
+		$autoperms        = ((x($_POST,'autoperms')) ? intval($_POST['autoperms'])  : 0);  
 	
 		$post_newfriend   = (($_POST['post_newfriend'] == 1) ? 1: 0);
 		$post_joingroup   = (($_POST['post_joingroup'] == 1) ? 1: 0);
@@ -210,6 +215,8 @@ class Channel {
 			$vnotify += intval($_POST['vnotify13']);
 		if(x($_POST,'vnotify14'))
 			$vnotify += intval($_POST['vnotify14']);
+		if(x($_POST,'vnotify15'))
+			$vnotify += intval($_POST['vnotify15']);
 	
 		$always_show_in_notices = x($_POST,'always_show_in_notices') ? 1 : 0;
 		
@@ -248,6 +255,7 @@ class Channel {
 		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 		set_pconfig(local_channel(),'system','email_notify_host',$mailhost);
 		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);
+		set_pconfig(local_channel(),'system','autoperms',$autoperms);
 	
 		$r = q("update channel set channel_name = '%s', channel_pageflags = %d, channel_timezone = '%s', channel_location = '%s', channel_notifyflags = %d, channel_max_anon_mail = %d, channel_max_friend_req = %d, channel_expire_days = %d $set_perms where channel_id = %d",
 			dbesc($username),
@@ -471,12 +479,24 @@ class Channel {
 		$permissions_role = get_pconfig(local_channel(),'system','permissions_role');
 		if(! $permissions_role)
 			$permissions_role = 'custom';
-	
+		// compatibility mapping - can be removed after 3.4 release
+		if($permissions_role === 'social_party') 
+			$permissions_role = 'social_federation';
+
+		if(in_array($permissions_role,['forum','repository'])) 	
+			$autoperms = replace_macros(get_markup_template('field_checkbox.tpl'), [
+				'$field' =>  [ 'autoperms',t('Automatic membership approval'), ((get_pconfig(local_channel(),'system','autoperms')) ? 1 : 0), t('If enabled, connection requests will be approved without your interaction'), $yes_no ]]);
+		else
+			$autoperms = '<input type="hidden" name="autoperms" value="' . intval(get_pconfig(local_channel(),'system','autoperms')) . '" />';
+
 		$permissions_set = (($permissions_role != 'custom') ? true : false);
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
 		if((get_account_techlevel() < 4) && $permissions_role !== 'custom')
 			unset($perm_roles[t('Other')]);
+
+
+		
 
 		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
@@ -488,6 +508,7 @@ class Channel {
 
 		$disable_discover_tab = intval(get_config('system','disable_discover_tab',1)) == 1;
 		$site_firehose = intval(get_config('system','site_firehose',0)) == 1;
+
 
 		$o .= replace_macros($stpl,array(
 			'$ptitle' 	=> t('Channel Settings'),
@@ -545,7 +566,7 @@ class Channel {
 			'$unkmail' => $unkmail,		
 			'$cntunkmail' 	=> array('cntunkmail', t('Maximum private messages per day from unknown people:'), intval($channel['channel_max_anon_mail']) ,t("Useful to reduce spamming")),
 			
-			
+			'$autoperms' => $autoperms,			
 			'$h_not' 	=> t('Notification Settings'),
 			'$activity_options' => t('By default post a status message when:'),
 			'$post_newfriend' => array('post_newfriend',  t('accepting a friend request'), $post_newfriend, '', $yes_no),
@@ -580,6 +601,7 @@ class Channel {
 			'$vnotify12'  => array('vnotify12', t('Unseen shared files'), ($vnotify & VNOTIFY_FILES), VNOTIFY_FILES, '', $yes_no),
 			'$vnotify13'  => (($disable_discover_tab && !$site_firehose) ? array() : array('vnotify13', t('Unseen public activity'), ($vnotify & VNOTIFY_PUBS), VNOTIFY_PUBS, '', $yes_no)),
 			'$vnotify14'	=> array('vnotify14', t('Unseen likes and dislikes'), ($vnotify & VNOTIFY_LIKE), VNOTIFY_LIKE, '', $yes_no),
+			'$vnotify15'	=> array('vnotify15', t('Unseen forum posts'), ($vnotify & VNOTIFY_FORUMS), VNOTIFY_FORUMS, '', $yes_no),
 			'$mailhost' => [ 'mailhost', t('Email notification hub (hostname)'), get_pconfig(local_channel(),'system','email_notify_host',\App::get_hostname()), sprintf( t('If your channel is mirrored to multiple hubs, set this to your preferred location. This will prevent duplicate email notifications. Example: %s'),\App::get_hostname()) ],
 			'$always_show_in_notices'  => array('always_show_in_notices', t('Show new wall posts, private messages and connections under Notices'), $always_show_in_notices, 1, '', $yes_no),
 	

@@ -27,6 +27,16 @@
 	padding: 0.5rem;
 }
 
+#jot-text-wrap {
+	position: relative;
+}
+
+#profile-jot-reset {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+}
+
 #profile-jot-text {
 	resize: none;
 	border-width: 0px;
@@ -39,6 +49,7 @@
 
 #profile-jot-text.jot-expanded {
 	resize: vertical;
+	height: 200px;
 }
 
 #profile-jot-text.hover {
@@ -125,7 +136,7 @@ a.wall-item-name-link {
 .wall-item-ago,
 .wall-item-ago i {
 	font-size: 0.75rem;
-	line-height: 1;
+	line-height: 1.1;
 }
 
 .wall-item-ago .fa-check {
@@ -286,7 +297,6 @@ code {
 	font-size: 1em;
 	padding: 1em 1.5em;
 	display: block;
-	white-space: pre-wrap;
 }
 
 code.inline-code {

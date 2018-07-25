@@ -14,7 +14,7 @@ require_once('include/perm_upgrade.php');
  * @param int $seize
  * @return boolean|array
  */
-function import_channel($channel, $account_id, $seize) {
+function import_channel($channel, $account_id, $seize, $newname = '') {
 
 	if(! array_key_exists('channel_system',$channel)) {
 		$channel['channel_system']  = (($channel['channel_pageflags'] & 0x1000) ? 1 : 0);
@@ -29,6 +29,11 @@ function import_channel($channel, $account_id, $seize) {
 	// Ignore the hash provided and re-calculate
 
 	$channel['channel_hash'] = make_xchan_hash($channel['channel_guid'],$channel['channel_guid_sig']);
+
+	if($newname) {
+		$channel['channel_address'] = $newname;
+	}
+
 
 	// Check for duplicate channels
 
@@ -1322,20 +1327,23 @@ function sync_files($channel, $files) {
 					);
 
 					if($exists) {
-						if(! dbesc_array($p))
-							continue;
 
 						$str = '';
 						foreach($p as $k => $v) {
+							$matches = false;
+							if(preg_match('/([^a-zA-Z0-9\-\_\.])/',$k,$matches)) {
+								continue;
+							}
+
 							if($str)
 								$str .= ",";
-
-							$str .= " " . TQUOT . $k . TQUOT . " = '" . $v . "' ";
+							
+							$str .= " " . TQUOT . $k . TQUOT . " = '" . (($k === 'content') ? dbescbin($v) : dbesc($v)) . "' ";
 						}
 						$r = dbq("update photo set " . $str . " where id = " . intval($exists[0]['id']) );
 					}
 					else {
-						create_table_from_array('photo',$p);
+						create_table_from_array('photo',$p, [ 'content' ] );
 					}
 				}
 			}

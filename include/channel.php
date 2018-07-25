@@ -1710,9 +1710,9 @@ function zid_init() {
 			// try to avoid recursion - but send them home to do a proper magic auth
 			$query = App::$query_string;
 			$query = str_replace(array('?zid=','&zid='),array('?rzid=','&rzid='),$query);
-			$dest = '/' . urlencode($query);
+			$dest = '/' . $query;
 			if($r && ($r[0]['hubloc_url'] != z_root()) && (! strstr($dest,'/magic')) && (! strstr($dest,'/rmagic'))) {
-				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&rev=1&owa=1&dest=' . z_root() . $dest);
+				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&rev=1&owa=1&bdest=' . bin2hex(z_root() . $dest));
 			}
 			else
 				logger('No hubloc found.');
@@ -1775,6 +1775,17 @@ function get_default_profile_photo($size = 300) {
 	$scheme = get_config('system','default_profile_photo');
 	if(! $scheme)
 		$scheme = 'rainbow_man';
+
+	if(! is_dir('images/default_profile_photos/' . $scheme)) {
+		$x = [ 'scheme' => $scheme, 'size' => $size, 'url' => '' ];
+		call_hooks('default_profile_photo',$x);
+		if($x['url']) {
+			return $x['url'];
+		}
+		else {
+			$scheme = 'rainbow_man';
+		}
+	}
 
 	return 'images/default_profile_photos/' . $scheme . '/' . $size . '.png';
 }
@@ -2240,6 +2251,11 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
  *   - false if no channel with $nick was found
  */
 function channelx_by_nick($nick) {
+
+	// If we are provided a Unicode nickname convert to IDN
+
+	$nick = punify($nick);
+
 	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s'  and channel_removed = 0 LIMIT 1",
 		dbesc($nick)
 	);

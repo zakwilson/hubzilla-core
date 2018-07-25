@@ -62,6 +62,9 @@ $(document).ready(function() {
 		numbers       : aStr['t17'],
 	};
 
+	//mod_mail only
+	$(".mail-conv-detail .autotime").timeago();
+
 	savedTitle = document.title;
 
 	updateInit();
@@ -420,6 +423,14 @@ function notificationsUpdate(cached_data) {
 			// Put the object into storage
 			sessionStorage.setItem('notifications_cache', JSON.stringify(data));
 
+			var fnotifs = [];
+			if(data.forums) {
+				$.each(data.forums_sub, function() {
+					fnotifs.push(this);
+				});
+				handleNotificationsItems('forums', fnotifs);
+			}
+
 			if(data.invalid == 1) {
 				window.location.href=window.location.href;
 			}
@@ -451,7 +462,7 @@ function notificationsUpdate(cached_data) {
 }
 
 function handleNotifications(data) {
-	if(data.network || data.home || data.intros || data.register || data.mail || data.all_events || data.notify || data.files || data.pubs) {
+	if(data.network || data.home || data.intros || data.register || data.mail || data.all_events || data.notify || data.files || data.pubs || data.forums) {
 		$('.notifications-btn').css('opacity', 1);
 		$('#no_notifications').hide();
 	}
@@ -495,13 +506,13 @@ function handleNotifications(data) {
 }
 
 function handleNotificationsItems(notifyType, data) {
-	var notifications_tpl= unescape($("#nav-notifications-template[rel=template]").html());
+	var notifications_tpl = ((notifyType == 'forums') ? unescape($("#nav-notifications-forums-template[rel=template]").html()) : unescape($("#nav-notifications-template[rel=template]").html()));
 	var notify_menu = $("#nav-" + notifyType + "-menu");
 
 	notify_menu.html('');
 
 	$(data).each(function() {
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top);
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
 		notify_menu.append(html);
 	});
 
@@ -812,6 +823,15 @@ function updateInit() {
 	if (initialLoad && (sessionStorage.getItem('notifications_cache') !== null)) {
 		var cached_data = JSON.parse(sessionStorage.getItem('notifications_cache'));
 		notificationsUpdate(cached_data);
+
+		var fnotifs = [];
+		if(cached_data.forums) {
+			$.each(cached_data.forums_sub, function() {
+				fnotifs.push(this);
+			});
+			handleNotificationsItems('forums', fnotifs);
+		}
+
 	}
 
 	if(! src) {
@@ -1022,6 +1042,7 @@ function loadNotificationItems(notifyType) {
 	}
 
 	console.log('updating ' + notifyType + ' notifications...');
+
 	$.get(pingExCmd, function(data) {
 		if(data.invalid == 1) {
 			window.location.href=window.location.href;
@@ -1057,7 +1078,9 @@ function doprofilelike(ident, verb) {
 	$.get('like/' + ident + '?verb=' + verb, function() { window.location.href=window.location.href; });
 }
 
+
 function dropItem(url, object) {
+
 	var confirm = confirmDelete();
 	if(confirm) {
 		$('body').css('cursor', 'wait');

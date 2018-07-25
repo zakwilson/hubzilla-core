@@ -237,8 +237,8 @@ function get_features($filtered = true, $level = (-1)) {
 
 			[
 				'permcats',       
-				t('Permission Groups'),          
-				t('Provide alternate connection permission roles.'),
+				t('Permission Categories'),
+				t('Create custom connection permission limits'),
 				false,
 				get_config('feature_lock','permcats'),
 				feature_level('permcats',2),
@@ -386,21 +386,39 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'personal_tab',   
-				t('Network Personal Tab'),		
-				t('Enable tab to display only Network posts that you\'ve interacted on'),
+				'order_tab',
+				t('Alternate Stream Order'),
+				t('Ability to order the stream by last post date, last comment date or unthreaded activities'),
 				false,
-				get_config('feature_lock','personal_tab'),
-				feature_level('personal_tab',1),
+				get_config('feature_lock','order_tab'),
+				feature_level('order_tab',2),
 			],
 
 			[
-				'new_tab',   		
-				t('Network New Tab'),			
-				t('Enable tab to display all new Network activity'),
+				'name_tab',
+				t('Contact Filter'),
+				t('Ability to display only posts of a selected contact'),
 				false,
-				get_config('feature_lock','new_tab'),
-				feature_level('new_tab',2),
+				get_config('feature_lock','name_tab'),
+				feature_level('name_tab',1),
+			],
+
+			[
+				'forums_tab',         
+				t('Forum Filter'),				
+				t('Ability to display only posts of a specific forum'),
+				false,
+				get_config('feature_lock','forums_tab'),
+				feature_level('forums_tab',1),
+			],
+
+			[
+				'personal_tab',
+				t('Personal Posts Filter'),
+				t('Ability to display only posts that you\'ve interacted on'),
+				false,
+				get_config('feature_lock','personal_tab'),
+				feature_level('personal_tab',1),
 			],
 
 			[

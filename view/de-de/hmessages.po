@@ -8059,23 +8059,6 @@ msgstr "Um diese Nachrichten nicht mehr zu erhalten, passe bitte Deine Benachric
 msgid "To stop receiving these messages, please adjust your %s."
 msgstr "Um diese Nachrichten nicht mehr zu erhalten, passe bitte Deine %s an."
 
-#: ../../Zotlabs/Lib/Enotify.php:66
-#, php-format
-msgid "This email was sent by %1$s at %2$s."
-msgstr "Diese Email wurde von %1$s auf %2$s gesendet."
-
-#: ../../Zotlabs/Lib/Enotify.php:67
-#, php-format
-msgid ""
-"To stop receiving these messages, please adjust your Notification Settings "
-"at %s"
-msgstr "Um diese Nachrichten nicht mehr zu erhalten, passe bitte Deine Benachrichtigungseinstellungen unter folgendem Link an: %s"
-
-#: ../../Zotlabs/Lib/Enotify.php:68
-#, php-format
-msgid "To stop receiving these messages, please adjust your %s."
-msgstr "Um diese Nachrichten nicht mehr zu erhalten, passe bitte Deine %s an."
-
 #: ../../Zotlabs/Lib/Enotify.php:123
 #, php-format
 msgid "%s <!item_type!>"
@@ -10010,12 +9993,12 @@ msgid "Login failed."
 msgstr "Login fehlgeschlagen."
 
 #: ../../addon/openid/Mod_Id.php:85 ../../include/selectors.php:49
-#: ../../include/selectors.php:66 ../../include/channel.php:1481
+#: ../../include/selectors.php:66 ../../include/channel.php:1480
 msgid "Male"
 msgstr "Männlich"
 
 #: ../../addon/openid/Mod_Id.php:87 ../../include/selectors.php:49
-#: ../../include/selectors.php:66 ../../include/channel.php:1479
+#: ../../include/selectors.php:66 ../../include/channel.php:1478
 msgid "Female"
 msgstr "Weiblich"
 
@@ -11882,11 +11865,11 @@ msgstr "Transsexuell"
 msgid "Hermaphrodite"
 msgstr "Zwitter"
 
-#: ../../include/selectors.php:49 ../../include/channel.php:1485
+#: ../../include/selectors.php:49 ../../include/channel.php:1484
 msgid "Neuter"
 msgstr "Geschlechtslos"
 
-#: ../../include/selectors.php:49 ../../include/channel.php:1487
+#: ../../include/selectors.php:49 ../../include/channel.php:1486
 msgid "Non-specific"
 msgstr "unklar"
 
@@ -13331,23 +13314,23 @@ msgstr "Dein Profilfoto ändern"
 msgid "Trans"
 msgstr "Trans"
 
-#: ../../include/channel.php:1529
+#: ../../include/channel.php:1528
 msgid "Like this channel"
 msgstr "Dieser Kanal gefällt mir"
 
-#: ../../include/channel.php:1553
+#: ../../include/channel.php:1552
 msgid "j F, Y"
 msgstr "j. F Y"
 
-#: ../../include/channel.php:1554
+#: ../../include/channel.php:1553
 msgid "j F"
 msgstr "j. F"
 
-#: ../../include/channel.php:1561
+#: ../../include/channel.php:1560
 msgid "Birthday:"
 msgstr "Geburtstag:"
 
-#: ../../include/channel.php:1574
+#: ../../include/channel.php:1573
 #, php-format
 msgid "for %1$d %2$s"
 msgstr "seit %1$d %2$s"

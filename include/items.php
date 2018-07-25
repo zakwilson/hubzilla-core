@@ -19,9 +19,10 @@ require_once('include/permissions.php');
  *
  * @param array $item
  * @param[out] boolean $private_envelope
+ * @param boolean $include_groups 
  * @return array containing the recipients
  */
-function collect_recipients($item, &$private_envelope) {
+function collect_recipients($item, &$private_envelope,$include_groups = true) {
 
 	require_once('include/group.php');
 
@@ -34,7 +35,12 @@ function collect_recipients($item, &$private_envelope) {
 
 		$allow_people = expand_acl($item['allow_cid']);
 
-		$allow_groups = expand_groups(expand_acl($item['allow_gid']));
+		if($include_groups) {
+			$allow_groups = expand_groups(expand_acl($item['allow_gid']));
+		}
+		else {
+			$allow_groups = [];
+		}
 
 		$recipients = array_unique(array_merge($allow_people,$allow_groups));
 
@@ -178,7 +184,7 @@ function item_normal() {
 }
 
 function item_normal_search() {
-	return " and item.item_hidden = 0 and item.item_type in (0,3,6) and item.item_deleted = 0
+	return " and item.item_hidden = 0 and item.item_type in (0,3,6,7) and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
 		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
 }
@@ -974,11 +980,9 @@ function empty_acl($item) {
 }
 
 function encode_item($item,$mirror = false) {
-	$x = array();
+	$x = [];
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
-
-//	logger('encode_item: ' . print_r($item,true));
 
 	$r = q("select channel_id from channel where channel_id = %d limit 1",
 		intval($item['uid'])
@@ -1356,7 +1360,7 @@ function encode_item_flags($item) {
 }
 
 function encode_mail($item,$extended = false) {
-	$x = array();
+	$x = [];
 	$x['type'] = 'mail';
 	$x['encoding'] = 'zot';
 
@@ -2948,6 +2952,20 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 				}
 			}
 		}
+
+		// This will change the author to the post owner. Useful for RSS feeds which are to be syndicated
+		// to federated platforms which can't verify the identity of the author. 
+		// This MAY cause you to run afoul of copyright law.
+
+		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
+		if($rewrite_author) {
+			$item['author_xchan'] = $channel['channel_hash'];
+
+			$r = q("update item set author_xchan = '%s' where id = %d",
+				dbesc($item['author_xchan']),
+				intval($item_id)
+			);
+		}
 	}
 
 	// Change this copy of the post to a forum head message and deliver to all the tgroup members
@@ -3007,9 +3025,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 		intval($item_id)
 	);
 
-
-
-
 	if($r)
 		Zotlabs\Daemon\Master::Summon(array('Notifier','tgroup',$item_id));
 	else {
@@ -3032,62 +3047,56 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
  * @param array $item
  */
 function check_item_source($uid, $item) {
+
+	logger('source: uid: ' . $uid, LOGGER_DEBUG);
+	$xchan = (($item['source_xchan']) ?  $item['source_xchan'] : $item['owner_xchan']);
+
 	$r = q("select * from source where src_channel_id = %d and ( src_xchan = '%s' or src_xchan = '*' ) limit 1",
 		intval($uid),
-		dbesc(($item['source_xchan']) ?  $item['source_xchan'] : $item['owner_xchan'])
+		dbesc($xchan)
 	);
 
-	if(! $r)
+	if(! $r) {
+		logger('source: no source record for this channel and source', LOGGER_DEBUG);
 		return false;
-
-	$x = q("select abook_their_perms, abook_feed from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
-		intval($uid),
-		dbesc($item['owner_xchan'])
-	);
-
-	if(! $x)
-		return false;
-
-	if(! get_abconfig($uid,$item['owner_xchan'],'their_perms','republish'))
-		return false;
-
-	if($item['item_private'] && (! intval($x[0]['abook_feed'])))
-		return false;
-
-	if($r[0]['src_channel_xchan'] === $item['owner_xchan'])
-		return false;
-
-
-	// since we now have connection filters with more features, the source filter is redundant and can probably go away
-
-	if(! $r[0]['src_patt'])
-		return true;
-
-
-	require_once('include/html2plain.php');
-	$text = prepare_text($item['body'],$item['mimetype']);
-	$text = html2plain($text);
-
-	$tags = ((count($item['term'])) ? $item['term'] : false);
-
-	$words = explode("\n",$r[0]['src_patt']);
-	if($words) {
-		foreach($words as $word) {
-			$w = trim($word);
-			if(! $w)
-				continue;
-			if(substr($w,0,1) === '#' && $tags) {
-				foreach($tags as $t)
-					if((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($w,1)) || (substr($w,1) === '*')))
-						return true;
-			}
-			elseif((strpos($w,'/') === 0) && preg_match($w,$text))
-				return true;
-			elseif(stristr($text,$w) !== false)
-				return true;
-		}
 	}
 
+	$x = q("select abook_feed from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
+		intval($uid),
+		dbesc($xchan)
+	);
+
+	if(! $x) {
+		logger('source: not connected to this channel.');
+		return false;
+	}
+
+	if(! get_abconfig($uid,$xchan,'their_perms','republish')) {
+		logger('source: no republish permission');
+		return false;
+	}
+
+	if($item['item_private'] && (! intval($x[0]['abook_feed']))) {
+		logger('source: item is private');
+		return false;
+	}
+
+	if($r[0]['src_channel_xchan'] === $xchan) {
+		logger('source: cannot source yourself');
+		return false;
+	}
+
+	if (! $r[0]['src_patt']) {
+		logger('source: success');
+		return true;
+	}
+
+	if (\Zotlabs\Lib\MessageFilter::evaluate($item, $r[0]['src_patt'], EMPTY_STR)) {
+		logger('source: text filter success');
+		return true;
+	}
+
+	logger('source: filter fail');
 	return false;
 }
 
@@ -3105,69 +3114,8 @@ function post_is_importable($item,$abook) {
 	if(! ($abook['abook_incl'] || $abook['abook_excl']))
 		return true;
 
-	require_once('include/html2plain.php');
+	return \Zotlabs\Lib\MessageFilter::evaluate($item,$abook['abook_incl'],$abook['abook_excl']);
 
-	unobscure($item);
-
-	$text = prepare_text($item['body'],$item['mimetype']);
-	$text = html2plain(($item['title']) ? $item['title'] . ' ' . $text : $text);
-
-
-	$lang = null;
-
-	if((strpos($abook['abook_incl'],'lang=') !== false) || (strpos($abook['abook_excl'],'lang=') !== false)) {
-		$lang = detect_language($text);
-	}
-	$tags = ((count($item['term'])) ? $item['term'] : false);
-
-	// exclude always has priority
-
-	$exclude = (($abook['abook_excl']) ? explode("\n",$abook['abook_excl']) : null);
-
-	if($exclude) {
-		foreach($exclude as $word) {
-			$word = trim($word);
-			if(! $word)
-				continue;
-			if(substr($word,0,1) === '#' && $tags) {
-				foreach($tags as $t)
-					if((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($word,1)) || (substr($word,1) === '*')))
-						return false;
-			}
-			elseif((strpos($word,'/') === 0) && preg_match($word,$text))
-				return false;
-			elseif((strpos($word,'lang=') === 0) && ($lang) && (strcasecmp($lang,trim(substr($word,5))) == 0))
-				return false;
-			elseif(stristr($text,$word) !== false)
-				return false;
-		}
-	}
-
-	$include = (($abook['abook_incl']) ? explode("\n",$abook['abook_incl']) : null);
-
-	if($include) {
-		foreach($include as $word) {
-			$word = trim($word);
-			if(! $word)
-				continue;
-			if(substr($word,0,1) === '#' && $tags) {
-				foreach($tags as $t)
-					if((($t['ttype'] == TERM_HASHTAG) || ($t['ttype'] == TERM_COMMUNITYTAG)) && (($t['term'] === substr($word,1)) || (substr($word,1) === '*')))
-						return true;
-			}
-			elseif((strpos($word,'/') === 0) && preg_match($word,$text))
-				return true;
-			elseif((strpos($word,'lang=') === 0) && ($lang) && (strcasecmp($lang,trim(substr($word,5))) == 0))
-				return true;
-			elseif(stristr($text,$word) !== false)
-				return true;
-		}
-	}
-	else {
-		return true;
-	}
-
-	return false;
 }
 
 
@@ -3561,7 +3509,6 @@ function item_expire($uid,$days,$comment_days = 7) {
 		drop_item($item['id'],false);
 	}
 
-//	Zotlabs\Daemon\Master::Summon(array('Notifier','expire',$uid));
 }
 
 function retain_item($id) {

@@ -100,8 +100,12 @@ class Admin extends \Zotlabs\Web\Controller {
 		}
 
 		// pending registrations
-		$r = q("SELECT COUNT(id) AS rtotal FROM register WHERE uid != '0'");
-		$pending = $r[0]['rtotal'];
+
+		$pdg = q("SELECT account.*, register.hash from account left join register on account_id = register.uid where (account_flags & %d ) > 0 ",
+			intval(ACCOUNT_PENDING)
+		);
+
+		$pending = (($pdg) ? count($pdg) : 0);
 
 		// available channels, primary and clones
 		$channels = array();
@@ -140,7 +144,7 @@ class Admin extends \Zotlabs\Web\Controller {
 			'$accounts' => array( t('Registered accounts'), $accounts),
 			'$pending'  => array( t('Pending registrations'), $pending),
 			'$channels' => array( t('Registered channels'), $channels),
-			'$plugins'  => array( t('Active plugins'), $plugins ),
+			'$plugins'  => array( t('Active addons'), $plugins ),
 			'$version'  => array( t('Version'), STD_VERSION),
 			'$vmaster'  => array( t('Repository version (master)'), $vmaster),
 			'$vdev'     => array( t('Repository version (dev)'), $vdev),

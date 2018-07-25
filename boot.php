@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.4.2' );
+define ( 'STD_VERSION',             '3.6RC1' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 
@@ -404,6 +404,7 @@ define ( 'VNOTIFY_REGISTER',   0x0400 );
 define ( 'VNOTIFY_FILES',      0x0800 );
 define ( 'VNOTIFY_PUBS',       0x1000 );
 define ( 'VNOTIFY_LIKE',       0x2000 );
+define ( 'VNOTIFY_FORUMS',     0x4000 );
 
 
 
@@ -872,20 +873,21 @@ class App {
 				self::$path = $path;
 		}
 
-		set_include_path("include/self::$hostname" . PATH_SEPARATOR . get_include_path());
-
 		if((x($_SERVER,'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
-			self::$query_string = escape_tags(substr($_SERVER['QUERY_STRING'], 2));
+			self::$query_string = str_replace(['<','>'],['&lt;','&gt;'],substr($_SERVER['QUERY_STRING'], 2));
 			// removing trailing / - maybe a nginx problem
 			if (substr(self::$query_string, 0, 1) == "/")
 				self::$query_string = substr(self::$query_string, 1);
+			// change the first & to ? 
+			self::$query_string = preg_replace('/&/','?',self::$query_string,1);
 		}
+
 		if(x($_GET,'q'))
 			self::$cmd = escape_tags(trim($_GET['q'],'/\\'));
 
 		// unix style "homedir"
 
-		if(substr(self::$cmd, 0, 1) === '~')
+		if((substr(self::$cmd, 0, 1) === '~') || (substr(self::$cmd, 0, 1) === '@'))
 			self::$cmd = 'channel/' . substr(self::$cmd, 1);
 
 		/*
@@ -1558,17 +1560,43 @@ function fix_system_urls($oldurl, $newurl) {
  * @return string Parsed HTML code.
  */
 function login($register = false, $form_id = 'main-login', $hiddens = false, $login_page = true) {
-	$o = '';
-	$reg = false;
-	$reglink = get_config('system', 'register_link');
-	if(! strlen($reglink))
-		$reglink = 'register';
 
-	$reg = array(
-		'title' => t('Create an account to access services and applications'),
-		'desc' => t('Register'),
-		'link' => (($register) ? $reglink : 'pubsites')
-	);
+	$o = '';
+	$reg = null;
+
+	// Here's the current description of how the register link works (2018-05-15)
+
+	// Register links are enabled on the site home page and login page and navbar. 
+	// They are not shown by default on other pages which may require login.
+
+	// If the register link is enabled and registration is closed, the request is directed
+	// to /pubsites. If registration is allowed, /register is the default destination
+
+	// system.register_link can over-ride the default behaviour and redirect to an arbitrary
+	// webpage for paid/custom or organisational registrations, regardless of whether
+	// registration is allowed.
+
+	// system.register_link may or may not be the same destination as system.sellpage
+
+	// system.sellpage is the destination linked from the /pubsites page on other sites. If 
+	// system.sellpage is not set, the 'register' link in /pubsites will go to 'register' on your
+	// site. 
+	
+	// If system.register_link is set to the word 'none', no registration link will be shown on
+	// your site.
+
+
+	$register_policy = get_config('system','register_policy');
+
+	$reglink = get_config('system', 'register_link', z_root() . '/' . ((intval($register_policy) === REGISTER_CLOSED) ? 'pubsites' : 'register'));
+
+	if($reglink !== 'none') {
+		$reg = [
+			'title' => t('Create an account to access services and applications'),
+			'desc'  => t('Register'),
+			'link'  => $reglink
+		];
+	}
 
 	$dest_url = z_root() . '/' . App::$query_string;
 
@@ -1695,7 +1723,7 @@ function can_view_public_stream() {
 	if(observer_prohibited(true)) {
 		return false;
 	}
- 
+
 	if(! (intval(get_config('system','open_pubstream',1)))) {
 		if(! get_observer_hash()) {
 			return false;
@@ -2209,8 +2237,35 @@ function construct_page() {
 	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(App::$config['system']['content_security_policy'])
-		header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'");
+	if(App::$config['system']['content_security_policy']) {
+		$cspsettings = Array (
+			'script-src' => Array ("'self'","'unsafe-inline'","'unsafe-eval'"),
+			'style-src' => Array ("'self'","'unsafe-inline'")
+		);
+		call_hooks('content_security_policy',$cspsettings);
+
+		// Legitimate CSP directives (cxref: https://content-security-policy.com/)
+		$validcspdirectives=Array(
+			"default-src", "script-src", "style-src",
+			"img-src", "connect-src", "font-src",
+			"object-src", "media-src", 'frame-src',
+			'sandbox', 'report-uri', 'child-src',
+			'form-action', 'frame-ancestors', 'plugin-types'
+		);
+		$cspheader = "Content-Security-Policy:";
+		foreach ($cspsettings as $cspdirective => $csp) {
+			if (!in_array($cspdirective,$validcspdirectives)) {
+                                logger("INVALID CSP DIRECTIVE: ".$cspdirective,LOGGER_DEBUG);
+				continue;
+			}
+			$cspsettingsarray=array_unique($cspsettings[$cspdirective]);
+			$cspsetpolicy = implode(' ',$cspsettingsarray);
+			if ($cspsetpolicy) {
+				$cspheader .= " ".$cspdirective." ".$cspsetpolicy.";";
+			}
+		}
+		header($cspheader);
+	}
 
 	if(App::$config['system']['x_security_headers']) {
 		header("X-Frame-Options: SAMEORIGIN");
@@ -2492,8 +2547,8 @@ function check_cron_broken() {
  * @return boolean
  */
 function observer_prohibited($allow_account = false) {
-	if($allow_account)
+	if($allow_account) {
 		return (((get_config('system', 'block_public')) && (! get_account_id()) && (! remote_channel())) ? true : false );
-
+	}
 	return (((get_config('system', 'block_public')) && (! local_channel()) && (! remote_channel())) ? true : false );
 }

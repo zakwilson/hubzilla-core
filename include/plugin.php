@@ -53,10 +53,15 @@ function unload_plugin($plugin){
  * @return boolean
  */
 function uninstall_plugin($plugin) {
+
 	unload_plugin($plugin);
 
-	if(! file_exists('addon/' . $plugin . '/' . $plugin . '.php'))
+	if(! file_exists('addon/' . $plugin . '/' . $plugin . '.php')) {
+		q("DELETE FROM addon WHERE aname = '%s' ",
+			dbesc($plugin)
+		);
 		return false;
+	}
 
 	logger("Addons: uninstalling " . $plugin);
 	//$t = @filemtime('addon/' . $plugin . '/' . $plugin . '.php');
@@ -73,6 +78,7 @@ function uninstall_plugin($plugin) {
 	q("DELETE FROM addon WHERE aname = '%s' ",
 		dbesc($plugin)
 	);
+
 }
 
 /**
@@ -553,7 +559,7 @@ function get_widget_info($widget){
 
 	$checkpaths = [
 		"Zotlabs/SiteWidget/$ucwidget.php",
-		"Zotlibs/Widget/$ucwidget.php",
+		"Zotlabs/Widget/$ucwidget.php",
 		"addon/$ucwidget/$ucwidget.php",
 		"addon/$widget.php"
 	];

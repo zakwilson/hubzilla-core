@@ -571,39 +571,6 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		return datetime_convert('UTC', 'UTC', $r[0]['edited'], 'U');
 	}
 
-	/**
-	 * @brief Return quota usage.
-	 *
-	 * @fixme Should guests relly see the used/free values from filesystem of the
-	 * complete store directory?
-	 *
-	 * @return array with used and free values in bytes.
-	 */
-	public function getQuotaInfo() {
-		// values from the filesystem of the complete <i>store/</i> directory
-		$limit = disk_total_space('store');
-		$free = disk_free_space('store');
-
-		if ($this->auth->owner_id) {
-			$c = q("select * from channel where channel_id = %d and channel_removed = 0 limit 1",
-				intval($this->auth->owner_id)
-			);
-
-			$ulimit = engr_units_to_bytes(service_class_fetch($c[0]['channel_id'], 'attach_upload_limit'));
-			$limit = (($ulimit) ? $ulimit : $limit);
-
-			$x = q("select sum(filesize) as total from attach where aid = %d",
-				intval($c[0]['channel_account_id'])
-			);
-			$free = (($x) ? $limit - $x[0]['total'] : 0);
-		}
-
-		return array(
-			$limit - $free,
-			$free
-		);
-	}
-
 
 	/**
 	 * @brief Array with all Directory and File DAV\\Node items for the given path.
@@ -719,6 +686,8 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		);
 
 		foreach ($r as $rr) {
+			if(\App::$module === 'cloud' && (strpos($rr['filename'],'.') === 0) && (! get_pconfig($channel_id,'system','show_dot_files')) )
+				continue;
 
 			// @FIXME I don't think we use revisions currently in attach structures.
 			// In case we see any in the wild provide a unique filename. This 
@@ -753,14 +722,13 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 	function ChannelList(&$auth) {
 		$ret = array();
 
-		$r = q("SELECT channel_id, channel_address FROM channel WHERE channel_removed = 0
-			AND channel_system = 0 AND (channel_pageflags & %d) = 0",
+		$r = q("SELECT channel_id, channel_address, profile.publish FROM channel left join profile on profile.uid = channel.channel_id WHERE channel_removed = 0 AND channel_system = 0 AND (channel_pageflags & %d) = 0",
 			intval(PAGE_HIDDEN)
 		);
 
 		if ($r) {
 			foreach ($r as $rr) {
-				if (perm_is_allowed($rr['channel_id'], $auth->observer, 'view_storage')) {
+				if (perm_is_allowed($rr['channel_id'], $auth->observer, 'view_storage') && $rr['publish']) {
 					logger('found channel: /cloud/' . $rr['channel_address'], LOGGER_DATA);
 					// @todo can't we drop '/cloud'? It gets stripped off anyway in RedDirectory
 					$ret[] = new Directory('/cloud/' . $rr['channel_address'], $auth);
@@ -891,6 +859,50 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			}
 		}
 		return false;
+	}
+
+	public function getQuotaInfo() {
+
+		/**
+		 * Returns the quota information
+		 *
+		 * This method MUST return an array with 2 values, the first being the total used space,
+		 * the second the available space (in bytes)
+		 */
+
+		$used  = 0;
+		$limit = 0;
+		$free  = 0;
+		
+		if ($this->auth->owner_id) {
+			$channel = channelx_by_n($this->auth->owner_id);
+			if($channel) {
+				$r = q("SELECT SUM(filesize) AS total FROM attach WHERE aid = %d",
+					intval($channel['channel_account_id'])
+				);
+				$used  = (($r) ? (float) $r[0]['total'] : 0);
+				$limit = (float) service_class_fetch($this->auth->owner_id, 'attach_upload_limit');
+				if($limit) {
+					// Don't let the result go negative
+					$free = (($limit > $used) ? $limit - $used : 0);
+				}
+			}
+		}
+
+		if(! $limit) {
+			$free = disk_free_space('store');
+			$used = disk_total_space('store') - $free;
+		}
+
+		// prevent integer overflow on 32-bit systems
+
+		if($used > (float) PHP_INT_MAX)
+			$used = PHP_INT_MAX;
+		if($free > (float) PHP_INT_MAX)
+			$free = PHP_INT_MAX;
+
+		return [ (int) $used, (int) $free ];
+
 	}
 
 }

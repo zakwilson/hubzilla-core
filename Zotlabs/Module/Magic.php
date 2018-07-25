@@ -24,8 +24,6 @@ class Magic extends \Zotlabs\Web\Controller {
 		if($bdest)
 			$dest = hex2bin($bdest);
 
-		$dest = html_entity_decode($dest);	
-
 		$parsed = parse_url($dest);
 		if(! $parsed) {
 			if($test) {
@@ -144,6 +142,9 @@ class Magic extends \Zotlabs\Web\Controller {
 			// OpenWebAuth
 
 			if($owa) {
+
+				$dest = strip_zids($dest);
+				$dest = strip_query_param($dest,'f');
 
 				$headers = [];
 				$headers['Accept'] = 'application/x-zot+json' ;

@@ -593,7 +593,8 @@ footer {
 	background-color: $comment_item_colour;
 }
 
-#nav-notifications-template {
+#nav-notifications-template,
+#nav-notifications-forums-template {
 	display: none;
 }
 
@@ -691,31 +692,6 @@ nav .acpopup {
 .side-link {
 	margin-bottom: 15px;
 }
-
-#group-members {
-	margin-top: 20px;
-	padding: 10px;
-	height: 250px;
-	overflow: auto;
-	border: 1px solid #ddd;
-}
-
-#group-separator {
-	margin-top: 10px;
-	margin-bottom: 10px;
-}
-
-#group-all-contacts {
-	padding: 10px;
-	height: 450px;
-	overflow: auto;
-	border: 1px solid #ddd;
-}
-
-#group-edit-desc {
-	margin-top: 15px;
-}
-
 
 #prof-members {
 	margin-top: 20px;
@@ -829,12 +805,17 @@ div.jGrowl div.jGrowl-notification {
 .dropdown-notification,
 .notification,
 .member-item {
-	line-height: 1.1em;
+	line-height: 1.2em;
 	font-size: 0.75rem;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	display: block;
 	white-space: nowrap;
+}
+
+.notification.notification-forum {
+	font-size: 0.9rem;
+	color: $font_colour;
 }
 
 #acl-search::-webkit-input-placeholder {
@@ -1271,9 +1252,8 @@ img.mail-conv-sender-photo {
 }
 
 .menu-img-1 {
-	height: 1.5em;
-	width: 1.5em;
-	margin-right: 5px;
+	height: 1.28571429em;
+	width: 1.28571429em;
 	border-radius: $radius;
 }
 
@@ -1411,6 +1391,9 @@ main.fullscreen .generic-content-wrapper {
 
 main.fullscreen .section-title-wrapper {
 	border-radius: 0px;
+	position: sticky;
+	top: 0;
+	z-index: 1020;
 }
 
 main.fullscreen .section-content-wrapper,
@@ -1424,6 +1407,7 @@ main.fullscreen .section-content-wrapper-np {
 
 .atoken-index-row:hover td,
 .chatroom-index-row:hover td,
+.group-index-row:hover td,
 .wikis-index-row:hover td,
 .locs-index-row:hover td,
 [id^="cloud-index-"]:hover td,
@@ -1627,7 +1611,7 @@ dl.bb-dl > dd > li {
 .form-group.checkbox > div label {
     display: block; overflow: hidden; cursor: pointer;
     border: 1px solid #ccc;
-    border-radius: $radius;
+    border-radius: 12px;
     margin:0px;
 	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
 	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
@@ -1798,4 +1782,12 @@ dl.bb-dl > dd > li {
 
 .cover-photo-review {
 	margin-bottom: 10px;
+}
+
+.hover-fx-hide  {
+	opacity: 0;
+}
+
+.hover-fx-show:hover .hover-fx-hide {
+	opacity: 1;
 }

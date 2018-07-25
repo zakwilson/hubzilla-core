@@ -102,6 +102,13 @@ class ThreadItem {
 		if($item['author']['xchan_network'] === 'rss')
 			$shareable = true;
 
+		$privacy_warning = false;
+		if(($item['item_private'] == 1) && ($item['owner']['xchan_network'] === 'activitypub')) {
+			$recips = get_iconfig($item['parent'], 'activitypub', 'recips');
+
+			if(! in_array($observer['xchan_url'], $recips['to']))
+				$privacy_warning = true;
+		}
 
 		$mode = $conv->get_mode();
 
@@ -141,6 +148,10 @@ class ThreadItem {
 				'delete' => t('Delete'),
 			);
 		}		
+		elseif(is_site_admin()) {
+			$drop = [ 'dropping' => true, 'delete' => t('Admin Delete') ];
+		}
+
 // FIXME
 		if($observer_is_pageowner) {		
 			$multidrop = array(
@@ -232,16 +243,9 @@ class ThreadItem {
 			// FIXME check this permission
 			if(($conv->get_profile_owner() == local_channel()) && (! array_key_exists('real_uid',$item))) {
 
-// FIXME we don't need all this stuff, some can be done in the template
-
 				$star = array(
-					'do' => t("Add Star"),
-					'undo' => t("Remove Star"),
 					'toggle' => t("Toggle Star Status"),
-					'classdo' => ((intval($item['item_starred'])) ? "hidden" : ""),
-					'classundo' => ((intval($item['item_starred'])) ? "" : "hidden"),
 					'isstarred' => ((intval($item['item_starred'])) ? true : false),
-					'starred' =>  t('starred'),
 				);
 
 			}
@@ -366,6 +370,7 @@ class ThreadItem {
 			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
 			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
 			'lock' => $lock,
+			'privacy_warning' => $privacy_warning,
 			'verified' => $verified,
 			'unverified' => $unverified,
 			'forged' => $forged,
@@ -756,7 +761,7 @@ class ThreadItem {
 			'$edquote' => t('Quote'),
 			'$edcode' => t('Code'),
 			'$edimg' => t('Image'),
-			'$edatt' => t('Attach File'),
+			'$edatt' => t('Attach/Upload file'),
 			'$edurl' => t('Insert Link'),
 			'$edvideo' => t('Video'),
 			'$preview' => t('Preview'), // ((feature_enabled($conv->get_profile_owner(),'preview')) ? t('Preview') : ''),

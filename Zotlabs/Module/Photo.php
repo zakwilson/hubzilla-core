@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 require_once('include/security.php');
 require_once('include/attach.php');
 require_once('include/photo/photo_driver.php');
+require_once('include/photos.php');
 
 
 class Photo extends \Zotlabs\Web\Controller {
@@ -13,7 +14,8 @@ class Photo extends \Zotlabs\Web\Controller {
 		$prvcachecontrol = false;
 		$streaming = null;
 		$channel = null;
-	
+		$person = 0;
+
 		switch(argc()) {
 			case 4:
 				$person = argv(3);
@@ -30,8 +32,8 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 	
 		$observer_xchan = get_observer_hash();
-	
-		$default = get_default_profile_photo();
+
+		$default = z_root() . '/' . get_default_profile_photo();
 	
 		if(isset($type)) {
 	
@@ -45,11 +47,11 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 					case 'm':
 						$resolution = 5;
-						$default = get_default_profile_photo(80);
+						$default = z_root() . '/' . get_default_profile_photo(80);
 						break;
 					case 's':
 						$resolution = 6;
-						$default = get_default_profile_photo(48);
+						$default = z_root() . '/' . get_default_profile_photo(48);
 						break;
 					case 'l':
 					default:
@@ -83,7 +85,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					$data = file_get_contents($data);
 			}
 			if(! $data) {
-				$data = file_get_contents($default);
+				$data = fetch_image_from_url($default,$mimetype);
 			}
 			if(! $mimetype) {
 				$mimetype = 'image/png';
@@ -144,6 +146,20 @@ class Photo extends \Zotlabs\Web\Controller {
 						if(! in_array($resolution,[4,5,6]))
 							$allowed = (-1);
 				}
+
+				if($allowed === (-1)) {
+					$allowed = attach_can_view($r[0]['uid'],$observer_xchan,$photo);
+				}
+
+				if(intval($r[0]['photo_usage'])) {
+					$allowed = 1;
+					if(intval($r[0]['photo_usage']) === PHOTO_COVER) 
+						if($resolution < PHOTO_RES_COVER_1200)
+							$allowed = (-1);
+					if(intval($r[0]['photo_usage']) === PHOTO_PROFILE)
+						if(! in_array($resolution,[4,5,6]))
+							$allowed = (-1);
+				}
 				if($allowed === (-1))
 					$allowed = attach_can_view($r[0]['uid'],$observer_xchan,$photo);
 				
@@ -166,13 +182,12 @@ class Photo extends \Zotlabs\Web\Controller {
 				}
 				else {
 					if(! $allowed) {
-						logger('mod_photo: forbidden. ' . \App::$query_string);
-						$observer = \App::get_observer();
-						logger('mod_photo: observer = ' . (($observer) ? $observer['xchan_addr'] : '(not authenticated)'));
-						$data = file_get_contents('images/nosign.png');
-						$mimetype = 'image/png';
-						$prvcachecontrol = true;
+						http_status_exit(403,'forbidden');
 					}
+					if(! $exists) {
+						http_status_exit(404,'not found');
+					}
+
 				}
 			}
 		}
@@ -182,16 +197,13 @@ class Photo extends \Zotlabs\Web\Controller {
 				switch($resolution) {
 	
 					case 4:
-						$data = file_get_contents(get_default_profile_photo());
-						$mimetype = 'image/png';
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(),$mimetype);
 						break;
 					case 5:
-						$data = file_get_contents(get_default_profile_photo(80));
-						$mimetype = 'image/png';
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(80),$mimetype);
 						break;
 					case 6:
-						$data = file_get_contents(get_default_profile_photo(48));
-						$mimetype = 'image/png';
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(48),$mimetype);
 						break;
 					default:
 						killme();

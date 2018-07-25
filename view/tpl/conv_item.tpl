@@ -29,9 +29,9 @@
 				<div class="p-2 clearfix wall-item-head{{if $item.is_new && !$item.title && !$item.event && !$item.is_comment}} wall-item-head-new rounded-top{{/if}}">
 					<div class="wall-item-info " id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$item.id}}">
-							<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}"  data-toggle="dropdown" />
+							<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" data-toggle="dropdown" />
 							{{if $item.thread_author_menu}}
-							<i class="fa fa-caret-down wall-item-photo-caret"></i>
+							<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-toggle="dropdown"></i>
 							<div class="dropdown-menu">
 								{{foreach $item.thread_author_menu as $mitem}}
 								<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} >{{$mitem.title}}</a>
@@ -43,7 +43,7 @@
 					</div>
 					{{if $item.lock}}
 					<div class="wall-item-lock dropdown">
-						<i class="fa fa-lock lockview" data-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i>&nbsp;
+						<i class="fa fa-lock lockview{{if $item.privacy_warning}} text-danger{{/if}}" data-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i>&nbsp;
 						<div id="panel-{{$item.id}}" class="dropdown-menu"></div>
 					</div>
 					{{/if}}

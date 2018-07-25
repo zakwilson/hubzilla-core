@@ -7,21 +7,6 @@ function contact_search(term, callback, backend_url, type, extra_channels, spine
 	if(spinelement) {
 		$(spinelement).show();
 	}
-	// Check if there is a cached result that contains the same information we would get with a full server-side search
-	var bt = backend_url+type;
-	if(!(bt in contact_search.cache)) contact_search.cache[bt] = {};
-
-	var lterm = term.toLowerCase(); // Ignore case
-	for(var t in contact_search.cache[bt]) {
-		if(lterm.indexOf(t) >= 0) { // A more broad search has been performed already, so use those results
-			$(spinelement).hide();
-			// Filter old results locally
-			var matching = contact_search.cache[bt][t].filter(function (x) { return (x.name.toLowerCase().indexOf(lterm) >= 0 || (typeof x.nick !== 'undefined' && x.nick.toLowerCase().indexOf(lterm) >= 0)); }); // Need to check that nick exists because groups don't have one
-			matching.unshift({taggable:false, text: term, replace: term});
-			setTimeout(function() { callback(matching); } , 1); // Use "pseudo-thread" to avoid some problems
-			return;
-		}
-	}
 
 	var postdata = {
 		start:0,
@@ -38,12 +23,7 @@ function contact_search(term, callback, backend_url, type, extra_channels, spine
 		url: backend_url,
 		data: postdata,
 		dataType: 'json',
-		success: function(data){
-			// Cache results if we got them all (more information would not improve results)
-			// data.count represents the maximum number of items
-			if(data.items.length -1 < data.count) {
-				contact_search.cache[bt][lterm] = data.items;
-			}
+		success: function(data) {
 			var items = data.items.slice(0);
 			items.unshift({taggable:false, text: term, replace: term});
 			callback(items);
@@ -60,7 +40,7 @@ function contact_format(item) {
 		var desc = ((item.label) ? item.nick + ' ' + item.label : item.nick);
 		if(typeof desc === 'undefined') desc = '';
 		if(desc) desc = ' ('+desc+')';
-		return "<div class='{0} dropdown-item dropdown-notification clearfix' title='{4}'><img class='menu-img-2' src='{1}'><span class='contactname'>{2}</span><span class='dropdown-sub-text'>{3}</span></div>".format(item.taggable, item.photo, item.name, desc, typeof(item.link) !== 'undefined' ? item.link : desc.replace('(','').replace(')',''));
+		return "<div class='{0} dropdown-item dropdown-notification clearfix' title='{4}'><img class='menu-img-2' src='{1}'><span class='contactname'>{2}</span><span class='dropdown-sub-text'>{4}</span></div>".format(item.taggable, item.photo, item.name, desc, typeof(item.link) !== 'undefined' ? item.link : desc.replace('(','').replace(')',''));
 	}
 	else
 		return "<div>" + item.text + "</div>";
@@ -84,13 +64,8 @@ function editor_replace(item) {
 	}
 
 	// $2 ensures that prefix (@,@!) is preserved
-	var id = item.id;
-	 // 16 chars of hash should be enough. Full hash could be used if it can be done in a visually appealing way.
-	// 16 chars is also the minimum length in the backend (otherwise it's interpreted as a local id).
-	if(id.length > 16) 
-		id = item.id.substring(0,16);
 
-	return '$1$2' + item.nick.replace(' ', '') + '+' + id + ' ';
+	return '$1$2{' + item.link + '} ';
 }
 
 function basic_replace(item) {
@@ -105,11 +80,6 @@ function trim_replace(item) {
 		return '$1'+item.replace;
 
 	return '$1'+item.name;
-}
-
-
-function submit_form(e) {
-	$(e).parents('form').submit();
 }
 
 function getWord(text, caretPos) {
@@ -185,12 +155,17 @@ function string2bb(element) {
  */
 (function( $ ) {
 	$.fn.editor_autocomplete = function(backend_url, extra_channels) {
+
+		if(! this.length)
+			return;
+
 		if (typeof extra_channels === 'undefined') extra_channels = false;
 
 		// Autocomplete contacts
 		contacts = {
-			match: /(^|\s)(@\!*)([^ \n]+)$/,
+			match: /(^|\s)(@\!*)([^ \n]{2,})$/,
 			index: 3,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'c', extra_channels, spinelement=false); },
 			replace: editor_replace,
 			template: contact_format
@@ -198,8 +173,9 @@ function string2bb(element) {
 
 		// Autocomplete forums
 		forums = {
-			match: /(^|\s)(\!\!*)([^ \n]+)$/,
+			match: /(^|\s)(\!\!*)([^ \n]{2,})$/,
 			index: 3,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'f', extra_channels, spinelement=false); },
 			replace: editor_replace,
 			template: contact_format
@@ -210,6 +186,7 @@ function string2bb(element) {
 		tags = {
 			match: /(^|\s)(\#)([^ \n]{2,})$/,
 			index: 3,
+			cache: true,
 			search: function(term, callback) { $.getJSON('/hashtags/' + '$f=&t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.toLowerCase().indexOf(term.toLowerCase()) === 0 ? entry : null; })); }); },
 			replace: function(item) { return "$1$2" + item.text + ' '; },
 			context: function(text) { return text.toLowerCase(); },
@@ -220,13 +197,23 @@ function string2bb(element) {
 		smilies = {
 			match: /(^|\s)(:[a-z_:]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
 			//template: function(item) { return item.icon + item.text; },
 			replace: function(item) { return "$1" + item.text + ' '; },
 			template: smiley_format
 		};
 		this.attr('autocomplete','off');
-		this.textcomplete([contacts,forums,smilies,tags], {className:'acpopup', zIndex:1020});
+
+		var Textarea = Textcomplete.editors.Textarea;
+
+		$(this).each(function() {
+			var editor = new Textarea(this);
+			var textcomplete = new Textcomplete(editor);
+			textcomplete.register([contacts,forums,smilies,tags], {className:'acpopup', zIndex:1020});
+		});
+
+
 	};
 })( jQuery );
 
@@ -235,10 +222,15 @@ function string2bb(element) {
  */
 (function( $ ) {
 	$.fn.search_autocomplete = function(backend_url) {
+
+		if(! this.length)
+			return;
+
 		// Autocomplete contacts
 		contacts = {
-			match: /(^@)([^\n]{3,})$/,
+			match: /(^@)([^\n]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'x', [], spinelement='#nav-search-spinner'); },
 			replace: basic_replace,
 			template: contact_format,
@@ -246,8 +238,9 @@ function string2bb(element) {
 
 		// Autocomplete forums
 		forums = {
-			match: /(^\!)([^\n]{3,})$/,
+			match: /(^\!)([^\n]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'f', [], spinelement='#nav-search-spinner'); },
 			replace: basic_replace,
 			template: contact_format
@@ -255,8 +248,9 @@ function string2bb(element) {
 
 		// Autocomplete hashtags
 		tags = {
-			match: /(^\#)([^ \n]{3,})$/,
+			match: /(^\#)([^ \n]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { $.getJSON('/hashtags/' + '$f=&t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.toLowerCase().indexOf(term.toLowerCase()) === 0 ? entry : null; })); }); },
 			replace: function(item) { return "$1" + item.text + ' '; },
 			context: function(text) { return text.toLowerCase(); },
@@ -264,64 +258,104 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete', 'off');
-		var a = this.textcomplete([contacts,forums,tags], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'nav'});
-		a.on('textComplete:select', function(e, value, strategy) { submit_form(this); });
+
+		var textcomplete;
+		var Textarea = Textcomplete.editors.Textarea;
+
+		$(this).each(function() {
+			var editor = new Textarea(this);
+			textcomplete = new Textcomplete(editor);
+			textcomplete.register([contacts,forums,tags], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'nav'});
+		});
+
+		textcomplete.on('selected', function() { this.editor.el.form.submit(); });
+
 	};
 })( jQuery );
 
 (function( $ ) {
 	$.fn.contact_autocomplete = function(backend_url, typ, autosubmit, onselect) {
+
+		if(! this.length)
+			return;
+
 		if(typeof typ === 'undefined') typ = '';
 		if(typeof autosubmit === 'undefined') autosubmit = false;
 
 		// Autocomplete contacts
 		contacts = {
-			match: /(^)([^\n]+)$/,
+			match: /(^)([^\n]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, typ,[], spinelement=false); },
 			replace: basic_replace,
 			template: contact_format,
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'acpopup', zIndex:1020});
+
+		var textcomplete;
+		var Textarea = Textcomplete.editors.Textarea;
+
+		$(this).each(function() {
+			var editor = new Textarea(this);
+			textcomplete = new Textcomplete(editor);
+			textcomplete.register([contacts], {className:'acpopup', zIndex:1020});
+		});
 
 		if(autosubmit)
-			a.on('textComplete:select', function(e,value,strategy) { submit_form(this); });
+			textcomplete.on('selected', function() { this.editor.el.form.submit(); });
 
 		if(typeof onselect !== 'undefined')
-			a.on('textComplete:select', function(e, value, strategy) { onselect(value); });
+			textcomplete.on('select', function() { var item = this.dropdown.getActiveItem(); onselect(item.searchResult.data); });
 	};
 })( jQuery );
 
 
 (function( $ ) {
 	$.fn.name_autocomplete = function(backend_url, typ, autosubmit, onselect) {
+
+		if(! this.length)
+			return;
+
 		if(typeof typ === 'undefined') typ = '';
 		if(typeof autosubmit === 'undefined') autosubmit = false;
 
 		// Autocomplete contacts
 		names = {
-			match: /(^)([^\n]+)$/,
+			match: /(^)([^\n]{2,})$/,
 			index: 2,
+			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, typ,[], spinelement=false); },
 			replace: trim_replace,
 			template: contact_format,
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([names], {className:'acpopup', zIndex:1020});
+
+		var textcomplete;
+		var Textarea = Textcomplete.editors.Textarea;
+
+		$(this).each(function() {
+			var editor = new Textarea(this);
+			textcomplete = new Textcomplete(editor);
+			textcomplete.register([names], {className:'acpopup', zIndex:1020});
+		});
 
 		if(autosubmit)
-			a.on('textComplete:select', function(e,value,strategy) { submit_form(this); });
+			textcomplete.on('selected', function() { this.editor.el.form.submit(); });
 
 		if(typeof onselect !== 'undefined')
-			a.on('textComplete:select', function(e, value, strategy) { onselect(value); });
+			textcomplete.on('select', function() { var item = this.dropdown.getActiveItem(); onselect(item.searchResult.data); });
+
 	};
 })( jQuery );
 
 (function( $ ) {
 	$.fn.bbco_autocomplete = function(type) {
+
+		if(! this.length)
+			return;
 
 		if(type=='bbcode') {
 			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'map', 'nobb', 'list', 'checklist', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer', 'observer.language','embed', 'highlight', 'url', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
@@ -380,11 +414,16 @@ function string2bb(element) {
 		};
 
 		this.attr('autocomplete','off');
-		var a = this.textcomplete([bbco], {className:'acpopup', zIndex:1020});
 
-		a.on('textComplete:select', function(e, value, strategy) { value; });
+		var Textarea = Textcomplete.editors.Textarea;
 
-		a.keypress(function(e){
+		$(this).each(function() {
+			var editor = new Textarea(this);
+			var textcomplete = new Textcomplete(editor);
+			textcomplete.register([bbco], {className:'acpopup', zIndex:1020});
+		});
+
+		this.keypress(function(e){
 			if (e.keyCode == 13) {
 				var x = listNewLineAutocomplete(this.id);
 				if(x) {

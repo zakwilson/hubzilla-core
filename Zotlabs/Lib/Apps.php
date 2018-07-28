@@ -327,7 +327,11 @@ class Apps {
 			'Features' => t('Features'),
 			'Language' => t('Language'),
 			'Post' => t('Post'),
-			'Profile Photo' => t('Profile Photo')
+			'Profile Photo' => t('Profile Photo'),
+			'Profile' => t('Profile'),
+			'Profiles' => t('Profiles'),
+			'Privacy Groups' => t('Privacy Groups'),
+			'Notifications' => t('Notifications')
 		);
 
 		if(array_key_exists('name',$arr)) {

@@ -37,7 +37,6 @@ class Network {
 			'$form_security_token' => get_form_security_token("settings_network"),
 			'$title' => t('Activity Settings'),
 			'$features'  => $arr,
-			'$baseurl'   => z_root(),
 			'$submit'    => t('Submit'),
 		));
 	

@@ -37,7 +37,7 @@ class Network {
 			'$form_security_token' => get_form_security_token("settings_network"),
 			'$title' => t('Activity Settings'),
 			'$features'  => $arr,
-			'$submit'    => t('Submit'),
+			'$submit'    => t('Submit')
 		));
 	
 		return $o;

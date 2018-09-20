@@ -113,7 +113,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Validate the email provided in an account registration
 
 [zrl=[baseurl]/help/hook/check_account_invite]check_account_invite[/zrl]
-	Validate an invitation code when using site invitations	
+	Validate an invitation code when using site invitations
 
 [zrl=[baseurl]/help/hook/check_account_password]check_account_password[/zrl]
 	Used to provide policy control over account passwords (minimum length, character set inclusion, etc.)
@@ -137,7 +137,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Called when posting to the features/addon settings page
 
 [zrl=[baseurl]/help/hook/construct_page]construct_page[/zrl]
-	General purpose hook to provide content to certain page regions. Called when constructing the Comanche page. 
+	General purpose hook to provide content to certain page regions. Called when constructing the Comanche page.
 
 [zrl=[baseurl]/help/hook/contact_block_end]contact_block_end[/zrl]
 	Called when generating the sidebar "Connections" widget
@@ -152,7 +152,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Deprecated/unused
 
 [zrl=[baseurl]/help/hook/conversation_start]conversation_start[/zrl]
-	Called in the beginning of rendering a conversation (message or message collection or stream)	
+	Called in the beginning of rendering a conversation (message or message collection or stream)
 
 [zrl=[baseurl]/help/hook/cover_photo_content_end]cover_photo_content_end[/zrl]
 	Called after a cover photo has been uplaoded
@@ -183,7 +183,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/display_item]display_item[/zrl]
 	Called for each item being displayed in a conversation thread
-	
+
 [zrl=[baseurl]/help/hook/display_settings]display_settings[/zrl]
 	Called from settings module when displaying the 'display settings' section
 
@@ -260,7 +260,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	called to generate the HTML for displaying a map location by text location
 
 [zrl=[baseurl]/help/hook/get_all_api_perms]get_all_api_perms[/zrl]
-	Called when retrieving the permissions for API uses 
+	Called when retrieving the permissions for API uses
 
 [zrl=[baseurl]/help/hook/get_all_perms]get_all_perms[/zrl]
 	called when get_all_perms() is used
@@ -446,7 +446,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Called when probing a URL to generate post content from it
 
 [zrl=[baseurl]/help/hook/pdl_selector]pdl_selector[/zrl]
-	Called when creating a layout selection in a form	
+	Called when creating a layout selection in a form
 
 [zrl=[baseurl]/help/hook/perm_is_allowed]perm_is_allowed[/zrl]
 	Called during perm_is_allowed() to determine if a permission is allowed for this channel and observer
@@ -456,6 +456,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/permissions_update]permissions_update[/zrl]
 	Called when a permissions refresh is transmitted
+
+[zrl=[baseurl]/help/hook/permit_hook]permit_hook[/zrl]
+	Called before a registered hook is actually executed to determine if it should be allowed or blocked
 
 [zrl=[baseurl]/help/hook/personal_xrd]personal_xrd[/zrl]
 	Called when generating the personal XRD for "old webfinger" (Diaspora)
@@ -540,7 +543,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/queue_deliver]queue_deliver[/zrl]
 	Called when delivering a queued message
- 
+
 [zrl=[baseurl]/help/hook/register_account]register_account[/zrl]
 	Called when an account has been created
 

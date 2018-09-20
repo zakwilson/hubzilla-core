@@ -458,6 +458,18 @@ function call_hooks($name, &$data = null) {
 
 	if (isset(App::$hooks[$name])) { 
 		foreach(App::$hooks[$name] as $hook) {
+
+			if ($name != 'permit_hook') { // avoid looping
+				$checkhook = [
+ 					'name'=>$name,
+ 					'hook'=>$hook,
+ 					'permit'=>true
+ 					];
+ 				call_hooks('permit_hook',$checkhook);
+ 				if (!$checkhook['permit']) {
+ 					continue;
+ 				}
+			}
 			$origfn = $hook[1];
 			if($hook[0])
 				@include_once($hook[0]);

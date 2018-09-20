@@ -98,14 +98,6 @@ class Network {
 				t('Show friend and connection suggestions'),
 				false,
 				get_config('feature_lock','suggest')
-			],
-
-			[
-				'connfilter',
-				t('Connection Filtering'),
-				t('Filter incoming posts from connections based on keywords/content'),
-				false,
-				get_config('feature_lock','connfilter')
 			]
 
 		];

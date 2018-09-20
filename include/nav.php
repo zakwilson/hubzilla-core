@@ -206,7 +206,14 @@ function nav($template = 'default') {
 		);
 	
 		if($active_app) {
-			$url = $active_app[0]['app_url'];
+			if(strpos($active_app[0]['app_url'], ',')) {
+				$urls = explode(',', $active_app[0]['app_url']);
+				$url = trim($urls[0]);
+				$settings_url = trim($urls[1]);
+			}
+			else {
+				$url = $active_app[0]['app_url'];
+			}
 		}
 	}
 

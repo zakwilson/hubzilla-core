@@ -469,6 +469,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/permissions_update]permissions_update[/zrl]
 	Called when a permissions refresh is transmitted
 
+[zrl=[baseurl]/help/hook/permit_hook]permit_hook[/zrl]
+	Called before a registered hook is actually executed to determine if it should be allowed or blocked
+
 [zrl=[baseurl]/help/hook/personal_xrd]personal_xrd[/zrl]
 	Called when generating the personal XRD for "old webfinger" (Diaspora)
 

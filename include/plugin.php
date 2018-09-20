@@ -463,12 +463,19 @@ function call_hooks($name, &$data = null) {
 				$checkhook = [
  					'name'=>$name,
  					'hook'=>$hook,
+                                        'data'=>$data,
+						// Note: Since PHP uses COPY-ON-WRITE
+                                                // for variables, there is no cost to
+						// passing the $data structure (unless
+						// the permit_hook processors change the
+						// information it contains.
  					'permit'=>true
  					];
  				call_hooks('permit_hook',$checkhook);
  				if (!$checkhook['permit']) {
  					continue;
  				}
+				$data = $checkhook['data'];
 			}
 			$origfn = $hook[1];
 			if($hook[0])

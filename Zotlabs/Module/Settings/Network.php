@@ -10,13 +10,7 @@ class Network {
 	
 		$features = self::get_features();
 
-		foreach($features as $f) {
-			$k = $f[0];
-			if(array_key_exists("feature_$k",$_POST))
-				set_pconfig(local_channel(),'feature',$k, (string) $_POST["feature_$k"]);
-			else
-				set_pconfig(local_channel(),'feature', $k, '');
-		}
+		process_features_post(local_channel(), $features, $_POST);
 		
 		build_sync_packet();
 		return;
@@ -26,17 +20,13 @@ class Network {
 		
 		$features = self::get_features();
 
-		foreach($features as $f) {
-			$arr[] = array('feature_' . $f[0],$f[1],((intval(feature_enabled(local_channel(),$f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
-		}
-
 		$tpl = get_markup_template("settings_module.tpl");
 
 		$o .= replace_macros($tpl, array(
 			'$action_url' => 'settings/network',
 			'$form_security_token' => get_form_security_token("settings_network"),
 			'$title' => t('Activity Settings'),
-			'$features'  => $arr,
+			'$features'  => process_features_get(local_channel(), $features),
 			'$submit'    => t('Submit')
 		));
 	

@@ -8,7 +8,7 @@
 	{{include file="field_input.tpl" field=$logfile}}
 	{{include file="field_select.tpl" field=$loglevel}}
 	
-	<div class="submit"><input type="submit" name="page_logs" value="{{$submit}}" /></div>
+	<div class="submit"><button type="submit" name="page_logs" class="btn btn-primary">{{$submit}}</button></div>
 	
 	</form>
 	

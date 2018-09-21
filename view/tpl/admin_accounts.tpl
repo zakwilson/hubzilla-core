@@ -42,8 +42,8 @@
 			</table>
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('pending_ckbx');">{{$select_all}}</a></div>
 			<div class="submit">
-                <button type="submit" name="page_accounts_deny" class="btn btn-primary">{{$deny}}</button> 
-                <button type="submit" name="page_accounts_approve" class="btn btn-primary">{{$approve}}"></button>
+                <input type="submit" name="page_accounts_deny" class="btn btn-primary" value="{{$deny}}" /> 
+                <input type="submit" name="page_accounts_approve" class="btn btn-primary" value="{{$approve}}" />
             </div>
 		{{else}}
 			<p>{{$no_pending}}</p>
@@ -85,8 +85,8 @@
 			</table>
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('users_ckbx');">{{$select_all}}</a></div>
 			<div class="submit">
-                <button type="submit" name="page_accounts_block" class="btn btn-primary">{{$block}}/{{$unblock}}</button> 
-                <button type="submit" name="page_accounts_delete" class="btn btn-primary" onclick="return confirm_delete_multi()">{{$delete}}</button>
+                <input type="submit" name="page_accounts_block" class="btn btn-primary" value="{{$block}}/{{$unblock}}" /> 
+                <input type="submit" name="page_accounts_delete" class="btn btn-primary" onclick="return confirm_delete_multi()" value="{{$delete}}" />
             </div>
 		{{else}}
 			NO USERS?!?

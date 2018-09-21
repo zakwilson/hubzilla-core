@@ -20,7 +20,8 @@ $(document).ready(function() {
 	if($(window).width() >= 992) {
 		$('#left_aside_wrapper, #right_aside_wrapper').stick_in_parent({
 			offset_top: parseInt($('aside').css('padding-top')),
-			parent: 'main'
+			parent: 'main',
+			spacer: '.aside_spacer'
 		});
 	}
 

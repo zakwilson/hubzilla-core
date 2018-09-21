@@ -44,9 +44,9 @@
 			</table>
 			<div class='selectall'><a href='#' onclick="return selectall('channels_ckbx');">{{$select_all}}</a></div>
 			<div class="submit">
-                <button type="submit" name="page_channels_block" class="btn btn-primary">{{$block}}/{{$unblock}}</button> 
-                <button type="submit" name="page_channels_code" class="btn btn-primary">{{$code}}/{{$uncode}}</button> 
-                <button type="submit" name="page_channels_delete" class="btn btn-primary" onclick="return confirm_delete_multi()">{{$delete}}</button>
+                <input type="submit" name="page_channels_block" class="btn btn-primary" value="{{$block}}/{{$unblock}}" /> 
+                <input type="submit" name="page_channels_code" class="btn btn-primary" value="{{$code}}/{{$uncode}}" /> 
+                <input type="submit" name="page_channels_delete" class="btn btn-primary" onclick="return confirm_delete_multi()" value="{{$delete}}" />
             </div>						
 		{{else}}
 			NO CHANNELS?!?

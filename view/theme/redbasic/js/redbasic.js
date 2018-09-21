@@ -43,7 +43,7 @@ $(document).ready(function() {
 	});
 
 
-	var right_aside_height = $('#rightt_aside_wrapper').height();
+	var right_aside_height = $('#right_aside_wrapper').height();
 
 	$('#right_aside_wrapper').on('click', function() {
 		if(right_aside_height != $('#right_aside_wrapper').height()) {

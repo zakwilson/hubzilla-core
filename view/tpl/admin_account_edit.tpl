@@ -13,6 +13,6 @@
 {{include file="field_input.tpl" field=$service_class}}
 
 
-<input type="submit" name="submit" value="{{$submit}}" class="btn btn-primary" />
+<input type="submit" name="submit" class="btn btn-primary" value="{{$submit}}" />
 
 </form>

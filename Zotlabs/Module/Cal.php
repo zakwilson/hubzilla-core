@@ -294,7 +294,7 @@ class Cal extends \Zotlabs\Web\Controller {
 					}
 					$html = format_event_html($rr);
 					$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
-					$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8');
+					$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8',false);
 					$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
 					$events[] = array(
 						'id'=>$rr['id'],

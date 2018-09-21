@@ -42,11 +42,14 @@
 		</div>
 		{{/if}}
 		<div id="jot-text-wrap">
-			{{if $reset}}
-			<button id="profile-jot-reset" class="btn btn-outline-secondary btn-sm d-none border-0" title="{{$reset}}" onclick="itemCancel(); return false;">
-				<i class="fa fa-close"></i>
-			</button>
-			{{/if}}
+			<div id="profile-jot-tools" class="btn-group d-none">
+				<a id="profile-jot-settings" class="btn btn-outline-secondary btn-sm border-0" href="/settings/editor/?f=&rpath=/{{$return_path}}"><i class="fa fa-cog"></i></a>
+				{{if $reset}}
+				<button id="profile-jot-reset" class="btn btn-outline-secondary btn-sm border-0" title="{{$reset}}" onclick="itemCancel(); return false;">
+					<i class="fa fa-close"></i>
+				</button>
+				{{/if}}
+			</div>
 			<textarea class="profile-jot-text" id="profile-jot-text" name="body" tabindex="2" placeholder="{{$placeholdtext}}" >{{$content}}</textarea>
 		</div>
 		{{if $attachment}}

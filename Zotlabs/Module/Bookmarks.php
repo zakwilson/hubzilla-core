@@ -59,7 +59,7 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 		killme();
 	}
 	
-		function get() {
+	function get() {
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;

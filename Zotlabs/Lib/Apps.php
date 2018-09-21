@@ -388,9 +388,10 @@ class Apps {
 
 		// This will catch somebody clicking on a system "available" app that hasn't had the path macros replaced
 		// and they are allowed to see the app
-		if(strpos($papp['url'],'$baseurl') || strpos($papp['url'],'$nick') || strpos($papp['photo'],'$baseurl') || strpos($papp['photo'],'$nick')) {
+		if(strpos($papp['url'],'$baseurl') !== false || strpos($papp['url'],'$nick') !== false || strpos($papp['photo'],'$baseurl') !== false || strpos($papp['photo'],'$nick') !== false) {
 			$view_channel = local_channel();
 			if(! $view_channel) {
+
 				$sys = get_sys_channel();
 				$view_channel = $sys['channel_id'];
 			}

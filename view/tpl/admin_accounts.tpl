@@ -33,15 +33,18 @@
 					<td class="email">{{$u.account_email}}</td>
 					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}"></td>
 					<td class="tools">
-						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="btn btn-outline-secondary btn-sm" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
-						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="btn btn-outline-secondary btn-sm" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
+						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
+						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
 					</td>
 				</tr>
 			{{/foreach}}
 				</tbody>
 			</table>
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('pending_ckbx');">{{$select_all}}</a></div>
-			<div class="submit"><input type="submit" name="page_accounts_deny" value="{{$deny}}"> <input type="submit" name="page_accounts_approve" value="{{$approve}}"></div>
+			<div class="submit">
+                <button type="submit" name="page_accounts_deny" class="btn btn-primary">{{$deny}}</button> 
+                <button type="submit" name="page_accounts_approve" class="btn btn-primary">{{$approve}}"></button>
+            </div>
 		{{else}}
 			<p>{{$no_pending}}</p>
 		{{/if}}
@@ -73,14 +76,18 @@
 						<td class="service_class">{{$u.account_service_class}}</td>
 						<td class="checkbox_bulkedit"><input type="checkbox" class="users_ckbx" id="id_user_{{$u.account_id}}" name="user[]" value="{{$u.account_id}}"><input type="hidden" name="blocked[]" value="{{$u.blocked}}"></td>
 						<td class="tools">
-							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}"  class="btn btn-outline-secondary btn-sm" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="fa fa-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a><a href="{{$baseurl}}/admin/accounts/delete/{{$u.account_id}}?t={{$form_security_token}}" class="btn btn-outline-secondary btn-sm" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><i class="fa fa-trash-o admin-icons"></i></a>
+							<a href="{{$baseurl}}/admin/accounts/{{if ($u.blocked)}}un{{/if}}block/{{$u.account_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{if ($u.blocked)}}{{$unblock}}{{else}}{{$block}}{{/if}}'><i class="fa fa-ban admin-icons{{if ($u.blocked)}} dim{{/if}}"></i></a>
+							<a href="{{$baseurl}}/admin/accounts/delete/{{$u.account_id}}?t={{$form_security_token}}" class="btn btn-default btn-xs" title='{{$delete}}' onclick="return confirm_delete('{{$u.name}}')"><i class="fa fa-trash-o admin-icons"></i></a>
 						</td>
 					</tr>
 				{{/foreach}}
 				</tbody>
 			</table>
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('users_ckbx');">{{$select_all}}</a></div>
-			<div class="submit"><input type="submit" name="page_accounts_block" value="{{$block}}/{{$unblock}}"> <input type="submit" name="page_accounts_delete" value="{{$delete}}" onclick="return confirm_delete_multi()"></div>
+			<div class="submit">
+                <button type="submit" name="page_accounts_block" class="btn btn-primary">{{$block}}/{{$unblock}}</button> 
+                <button type="submit" name="page_accounts_delete" class="btn btn-primary" onclick="return confirm_delete_multi()">{{$delete}}</button>
+            </div>
 		{{else}}
 			NO USERS?!?
 		{{/if}}

@@ -27,7 +27,7 @@
 
 
 	<div class="admin-submit-wrapper">
-		<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+		<input type="submit" name="submit" class="btn btn-primary" value="{{$submit}}" />
 	</div>
 
 	</form>

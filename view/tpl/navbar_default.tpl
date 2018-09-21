@@ -63,7 +63,7 @@
 	{{/if}}
 </div>
 {{if $sel.name}}
-<div id="nav-app-link-wrapper" class="navbar-nav{{if $sitelocation}} has_location mr-auto{{/if}}">
+<div id="nav-app-link-wrapper" class="navbar-nav{{if $sitelocation || ! $settings_url}} has_location mr-auto{{/if}}">
 	<a id="nav-app-link" href="{{$url}}" class="nav-link text-truncate">
 		{{$sel.name}}
 		{{if $sitelocation}}

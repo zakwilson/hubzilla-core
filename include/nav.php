@@ -199,14 +199,25 @@ function nav($template = 'default') {
 	// turned off until somebody discovers this and figures out a good location for it. 
 	$powered_by = '';
 
+	$url = '';
+	$settings_url = '';
+
 	if(App::$profile_uid && App::$nav_sel['raw_name']) {
 		$active_app = q("SELECT app_url FROM app WHERE app_channel = %d AND app_name = '%s' LIMIT 1",
 			intval(App::$profile_uid),
 			dbesc(App::$nav_sel['raw_name'])
 		);
-	
+
 		if($active_app) {
-			$url = $active_app[0]['app_url'];
+			if(strpos($active_app[0]['app_url'], ',')) {
+				$urls = explode(',', $active_app[0]['app_url']);
+				$url = trim($urls[0]);
+				if($is_owner)
+					$settings_url = trim($urls[1]);
+			}
+			else {
+				$url = $active_app[0]['app_url'];
+			}
 		}
 	}
 
@@ -289,7 +300,8 @@ function nav($template = 'default') {
 		'$addapps' => t('Add Apps'),
 		'$orderapps' => t('Arrange Apps'),
 		'$sysapps_toggle' => t('Toggle System Apps'),
-		'$url' => (($url) ? $url : App::$cmd)
+		'$url' => (($url) ? $url : App::$cmd),
+		'$settings_url' => $settings_url
 	));
 
 	if(x($_SESSION, 'reload_avatar') && $observer) {

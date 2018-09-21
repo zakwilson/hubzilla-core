@@ -44,6 +44,23 @@ function feature_level($feature,$def) {
 	return $def;
 }
 
+function process_features_get($uid, $features) {
+	foreach($features as $f) {
+		$arr[] = array('feature_' . $f[0],$f[1],((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
+	}
+	return $arr;
+}
+
+function process_features_post($uid, $features, $post_arr) {
+	foreach($features as $f) {
+		$k = $f[0];
+		if(array_key_exists("feature_$k",$post_arr))
+			set_pconfig($uid,'feature',$k, (string) $post_arr["feature_$k"]);
+		else
+			set_pconfig($uid,'feature', $k, '');
+	}
+}
+
 function get_features($filtered = true, $level = (-1)) {
 
 	$account = \App::get_account();

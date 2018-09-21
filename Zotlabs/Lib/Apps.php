@@ -388,9 +388,7 @@ class Apps {
 
 		// This will catch somebody clicking on a system "available" app that hasn't had the path macros replaced
 		// and they are allowed to see the app
-
-
-		if(strstr($papp['url'],'$baseurl') || strstr($papp['url'],'$nick') || strstr($papp['photo'],'$baseurl') || strstr($pap['photo'],'$nick')) {
+		if(strpos($papp['url'],'$baseurl') || strpos($papp['url'],'$nick') || strpos($papp['photo'],'$baseurl') || strpos($papp['photo'],'$nick')) {
 			$view_channel = local_channel();
 			if(! $view_channel) {
 				$sys = get_sys_channel();
@@ -399,7 +397,13 @@ class Apps {
 			self::app_macros($view_channel,$papp); 
 		}
 
-		if(! strstr($papp['url'],'://'))
+		if(strpos($papp['url'], ',')) {
+			$urls = explode(',', $papp['url']);
+			$papp['url'] = trim($urls[0]);
+			$papp['settings_url'] = trim($urls[1]);
+		}
+
+		if(! strpos($papp['url'],'://'))
 			$papp['url'] = z_root() . ((strpos($papp['url'],'/') === 0) ? '' : '/') . $papp['url'];
 
 
@@ -468,7 +472,9 @@ class Apps {
 		$hosturl = '';
 
 		if(local_channel()) {
-			$installed = self::app_installed(local_channel(),$papp);
+			if(self::app_installed(local_channel(),$papp) && !$papp['deleted'])
+				$installed = true;
+
 			$hosturl = z_root() . '/';
 		}
 		elseif(remote_channel()) {
@@ -495,6 +501,7 @@ class Apps {
 		if($mode === 'install') {
 			$papp['embed'] = true;
 		}
+
 		return replace_macros(get_markup_template('app.tpl'),array(
 			'$app' => $papp,
 			'$icon' => $icon,
@@ -503,11 +510,12 @@ class Apps {
 			'$installed' => $installed,
 			'$action_label' => (($hosturl && in_array($mode, ['view','install'])) ? $install_action : ''),
 			'$edit' => ((local_channel() && $installed && $mode == 'edit') ? t('Edit') : ''),
-			'$delete' => ((local_channel() && $installed && $mode == 'edit') ? t('Delete') : ''),
-			'$undelete' => ((local_channel() && $installed && $mode == 'edit') ? t('Undelete') : ''),
+			'$delete' => ((local_channel() && $mode == 'edit') ? t('Delete') : ''),
+			'$undelete' => ((local_channel() && $mode == 'edit') ? t('Undelete') : ''),
+			'$settings_url' => ((local_channel() && $installed && $mode == 'list') ? $papp['settings_url'] : ''),
 			'$deleted' => $papp['deleted'],
-			'$feature' => (($papp['embed']) ? false : true),
-			'$pin' => (($papp['embed']) ? false : true),
+			'$feature' => (($papp['embed'] || $mode == 'edit') ? false : true),
+			'$pin' => (($papp['embed'] || $mode == 'edit') ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
 			'$navapps' => (($mode == 'nav') ? true : false),
@@ -912,7 +920,7 @@ class Apps {
 			$arr['author'] = $sys['channel_hash'];
 		}
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strstr($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}
@@ -998,7 +1006,7 @@ class Apps {
 		if((! $darray['app_url']) || (! $darray['app_id']))
 			return $ret;
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strstr($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}

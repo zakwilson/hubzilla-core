@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
 
 require_once('include/socgraph.php');
 require_once('include/selectors.php');
@@ -12,8 +13,10 @@ class Connections extends \Zotlabs\Web\Controller {
 	
 		if(! local_channel())
 			return;
+
+		App::$profile_uid = local_channel();
 	
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 		if($channel)
 			head_set_icon($channel['xchan_photo_s']);
 	
@@ -43,7 +46,7 @@ class Connections extends \Zotlabs\Web\Controller {
 		$all         = false;
 	
 		if(! $_REQUEST['aj'])
-			$_SESSION['return_url'] = \App::$query_string;
+			$_SESSION['return_url'] = App::$query_string;
 	
 		$search_flags = "";
 		$head = '';
@@ -88,14 +91,14 @@ class Connections extends \Zotlabs\Web\Controller {
 						$search_flags = " and abook_pending = 1 ";
 						$head = t('New');
 						$pending = true;
-						\App::$argv[1] = 'pending';
+						App::$argv[1] = 'pending';
 					}
 					else {
 						$head = t('All');
 						$search_flags = '';
 						$all = true;
-						\App::$argc = 1;
-						unset(\App::$argv[1]);
+						App::$argc = 1;
+						unset(App::$argv[1]);
 					}
 					break;
 	//			case 'unconnected':
@@ -225,15 +228,15 @@ class Connections extends \Zotlabs\Web\Controller {
 			intval(local_channel())
 		);
 		if($r) {
-			\App::set_pager_total($r[0]['total']);
+			App::set_pager_total($r[0]['total']);
 			$total = $r[0]['total'];
 		}
 	
 		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash
 			WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ORDER BY xchan_name LIMIT %d OFFSET %d ",
 			intval(local_channel()),
-			intval(\App::$pager['itemspage']),
-			intval(\App::$pager['start'])
+			intval(App::$pager['itemspage']),
+			intval(App::$pager['start'])
 		);
 	
 		$contacts = array();
@@ -337,7 +340,7 @@ class Connections extends \Zotlabs\Web\Controller {
 				'$finding' => (($searching) ? t('Connections search') . ": '" . $search . "'" : ""),
 				'$submit' => t('Find'),
 				'$edit' => t('Edit'),
-				'$cmd' => \App::$cmd,
+				'$cmd' => App::$cmd,
 				'$contacts' => $contacts,
 				'$paginate' => paginate($a),
 	

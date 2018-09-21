@@ -59,6 +59,8 @@ function process_features_post($uid, $features, $post_arr) {
 		else
 			set_pconfig($uid,'feature', $k, '');
 	}
+	if($post_arr['rpath'])
+		goaway($post_arr['rpath']);
 }
 
 function get_features($filtered = true, $level = (-1)) {

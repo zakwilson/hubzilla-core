@@ -19,10 +19,12 @@ class Connections {
 	function get() {
 		
 		$features = self::get_features();
+		$rpath = (($_GET['rpath']) ? $_GET['rpath'] : '');
 
 		$tpl = get_markup_template("settings_module.tpl");
 
 		$o .= replace_macros($tpl, array(
+			'$rpath' => $rpath,
 			'$action_url' => 'settings/connections',
 			'$form_security_token' => get_form_security_token("settings_connections"),
 			'$title' => t('Connections Settings'),

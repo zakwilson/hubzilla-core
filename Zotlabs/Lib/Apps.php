@@ -524,7 +524,8 @@ class Apps {
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray'),
 			'$add_nav' => t('Pin to navbar'),
-			'$remove_nav' => t('Unpin from navbar')
+			'$remove_nav' => t('Unpin from navbar'),
+			'$rpath' => z_root() . '/apps'
 		));
 	}
 

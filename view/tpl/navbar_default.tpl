@@ -74,7 +74,7 @@
 </div>
 {{if $settings_url}}
 <div id="nav-app-settings-link-wrapper" class="navbar-nav mr-auto">
-	<a id="nav-app-settings-link" href="{{$settings_url}}" class="nav-link">
+	<a id="nav-app-settings-link" href="{{$settings_url}}/?f=&rpath={{$url}}" class="nav-link">
 		<i class="fa fa-fw fa-cog"></i>
 	</a>
 </div>

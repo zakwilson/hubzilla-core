@@ -47,15 +47,6 @@ class Editor {
 			],
 
 			[
-				//TODO: This should be its own app
-				'channel_sources', 
-				t('Channel Sources'),          
-				t('Automatically import channel content from other channels or feeds'),
-				false,
-				get_config('feature_lock','channel_sources'),
-			],
-			
-			[
 				'content_encrypt', 
 				t('Even More Encryption'),          
 				t('Allow optional encryption of content end-to-end with a shared secret key'),

@@ -451,6 +451,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/page_header]page_header[/zrl]
 	Called when generating the navigation bar
 
+[zrl=[baseurl]/help/hook/page_header]page_meta[/zrl]
+	Called when generating the meta data in the page header.
+
 [zrl=[baseurl]/help/hook/parse_atom]parse_atom[/zrl]
 	Called when parsing an atom/RSS feed item
 

@@ -1119,8 +1119,12 @@ class App {
 		if(! x(self::$page,'title'))
 			self::$page['title'] = self::$config['system']['sitename'];
 
-		if(! self::$meta->get_field('og:title'))
-			self::$meta->set('og:title',self::$page['title']);
+		$pagemeta = [ 'og:title' => self::$page['title'] ];
+
+		call_hooks('page_meta',$pagemeta);
+		foreach ($pagemeta as $metaproperty => $metavalue) {
+			self::$meta->set($metaproperty,$metavalue);
+		}
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 

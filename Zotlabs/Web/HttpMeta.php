@@ -54,8 +54,19 @@ class HttpMeta {
 			}
 		}
 		if($this->check_required()) {
+			$arrayproperties = [ 'og:image' ];
 			foreach($this->og as $k => $v) {
-				$o .= '<meta property="' . $k . '" content="' . urlencode($v) . '" />' . "\r\n" ;
+				if (in_array($k,$arrayproperties)) {
+					if (is_array($v)) {
+						foreach ($v as $v2) {
+							$o .= '<meta property="' . $k . '" content="' . $v2 . '" />' . "\r\n" ;
+						}
+					} else {
+						$o .= '<meta property="' . $k . '" content="' . $v . '" />' . "\r\n" ;
+					}
+				} else {
+					$o .= '<meta property="' . $k . '" content="' . $v . '" />' . "\r\n" ;
+				}
 			}
 		}
 		if($o)

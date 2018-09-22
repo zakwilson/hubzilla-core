@@ -221,6 +221,9 @@ function nav($template = 'default') {
 		}
 	}
 
+	if(! $settings_url && isset(App::$nav_sel['settings_url']))
+		$settings_url = App::$nav_sel['settings_url'];
+
 	//app bin
 	if($is_owner) {
 		if(get_pconfig(local_channel(), 'system','import_system_apps') !== datetime_convert('UTC','UTC','now','Y-m-d')) {
@@ -300,7 +303,7 @@ function nav($template = 'default') {
 		'$addapps' => t('Add Apps'),
 		'$orderapps' => t('Arrange Apps'),
 		'$sysapps_toggle' => t('Toggle System Apps'),
-		'$url' => (($url) ? $url : App::$cmd),
+		'$url' => (($url) ? $url : z_root() . '/' . App::$cmd),
 		'$settings_url' => $settings_url
 	));
 
@@ -323,11 +326,16 @@ function nav($template = 'default') {
  * Set a menu item in navbar as selected
  * 
  */
-function nav_set_selected($item){
-	App::$nav_sel['raw_name'] = $item;
-	$item = ['name' => $item];
+function nav_set_selected($raw_name, $settings_url = ''){
+	App::$nav_sel['raw_name'] = $raw_name;
+
+	$item = ['name' => $raw_name];
 	Apps::translate_system_apps($item);
+
 	App::$nav_sel['name'] = $item['name'];
+
+	if($settings_url)
+		App::$nav_sel['settings_url'] = z_root() . '/' . $settings_url;
 }
 
 function channel_apps($is_owner = false, $nickname = null) {

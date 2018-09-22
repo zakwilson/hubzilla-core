@@ -11,7 +11,7 @@ class Manage extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		nav_set_selected('Channel Manager');
+		nav_set_selected('Channel Manager', 'settings/manage');
 	
 		require_once('include/security.php');
 	

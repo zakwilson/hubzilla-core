@@ -75,7 +75,7 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 		$sql_extra = permissions_sql($channel['channel_id'],get_observer_hash(),'event');
 	
-		$first_day = feature_enabled($channel['channel_id'], 'cal_first_day');
+		$first_day = feature_enabled($channel['channel_id'], 'events_cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
 		$htpl = get_markup_template('event_head.tpl');

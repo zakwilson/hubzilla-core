@@ -358,11 +358,11 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Events'),
 
 			[
-				'cal_first_day',
+				'events_cal_first_day',
 				t('Start calendar week on Monday'),
 				t('Default is Sunday'),
 				false,
-				get_config('feature_lock','cal_first_day')
+				get_config('feature_lock','events_cal_first_day')
 			],
 
 			[

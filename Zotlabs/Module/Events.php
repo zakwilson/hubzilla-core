@@ -290,7 +290,7 @@ class Events extends \Zotlabs\Web\Controller {
 			);
 		}
 	
-		$first_day = feature_enabled(local_channel(), 'cal_first_day');
+		$first_day = feature_enabled(local_channel(), 'events_cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
 		$htpl = get_markup_template('event_head.tpl');

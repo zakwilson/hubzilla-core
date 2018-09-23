@@ -850,6 +850,8 @@ class Cdav extends Controller {
 			return $o;
 		}
 
+		App::$profile_uid = local_channel();
+
 		$channel = App::get_channel();
 		$principalUri = 'principals/' . $channel['channel_address'];
 
@@ -905,7 +907,7 @@ class Cdav extends Controller {
 
 			$sources = rtrim($sources, ', ');
 
-			$first_day = get_pconfig(local_channel(),'system','cal_first_day');
+			$first_day = feature_enabled(local_channel(), 'cal_first_day');
 			$first_day = (($first_day) ? $first_day : 0);
 
 			$title = ['title', t('Event title')];

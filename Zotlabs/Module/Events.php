@@ -271,8 +271,10 @@ class Events extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
+		\App::$profile_uid = local_channel();
 		nav_set_selected('Events');
+
 	
 		if((argc() > 2) && (argv(1) === 'ignore') && intval(argv(2))) {
 			$r = q("update event set dismissed = 1 where id = %d and uid = %d",
@@ -288,7 +290,7 @@ class Events extends \Zotlabs\Web\Controller {
 			);
 		}
 	
-		$first_day = get_pconfig(local_channel(),'system','cal_first_day');
+		$first_day = feature_enabled(local_channel(), 'cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
 		$htpl = get_markup_template('event_head.tpl');

@@ -9,9 +9,11 @@
 			{{$channel_usage_message}}
 		</div>
 		{{/if}}
+		{{if $desc}}
 		<div id="channels-desc" class="section-content-info-wrapper">
 			{{$desc}}
 		</div>
+		{{/if}}
 		{{foreach $all_channels as $chn}}
 			{{include file="channel.tpl" channel=$chn}}
 		{{/foreach}}

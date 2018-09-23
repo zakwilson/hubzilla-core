@@ -1274,6 +1274,14 @@ img.mail-conv-sender-photo {
 	white-space: nowrap;
 }
 
+#nav-app-settings-link {
+	opacity: 0;
+}
+
+nav:hover #nav-app-settings-link {
+	opacity: 1;
+}
+
 .page-title {
 	margin: 7px 0px;
 }

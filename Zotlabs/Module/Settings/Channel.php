@@ -154,7 +154,6 @@ class Channel {
 		$adult            = (($_POST['adult'] == 1) ? 1 : 0);
 		$defpermcat       = ((x($_POST,'defpermcat')) ? notags(trim($_POST['defpermcat'])) : 'default');
 	
-		$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 		$mailhost        = ((array_key_exists('mailhost',$_POST)) ? notags(trim($_POST['mailhost'])) : '');
 		$profile_assign  = ((x($_POST,'profile_assign')) ? notags(trim($_POST['profile_assign'])) : '');
 
@@ -251,7 +250,6 @@ class Channel {
 		set_pconfig(local_channel(),'system','evdays',$evdays);
 		set_pconfig(local_channel(),'system','photo_path',$photo_path);
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
-		set_pconfig(local_channel(),'system','cal_first_day',$cal_first_day);
 		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 		set_pconfig(local_channel(),'system','email_notify_host',$mailhost);
 		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);

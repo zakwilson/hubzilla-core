@@ -105,15 +105,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'photo_location',       
-				t('Photo Location'),          
-				t('If location data is available on uploaded photos, link this to a map.'),
-				false,
-				get_config('feature_lock','photo_location'),
-				feature_level('photo_location',2),
-			],
-
-			[
 				'smart_birthdays',       
 				t('Smart Birthdays'),          
 				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
@@ -369,7 +360,7 @@ function get_features($filtered = true, $level = (-1)) {
 
 		'manage' => [
 
-			t('Channel Manager'),
+			t('Manage'),
 
 			[
 				'nav_channel_select',  
@@ -383,7 +374,7 @@ function get_features($filtered = true, $level = (-1)) {
 
 		'network' => [
 
-			t('Activity'),
+			t('Network'),
 
 			[
 				'archives',       
@@ -447,6 +438,20 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Show friend and connection suggestions'),
 				false,
 				get_config('feature_lock','suggest')
+			]
+
+		],
+
+		'photos' => [
+
+			t('Photos'),
+
+			[
+				'photo_location',
+				t('Photo Location'),
+				t('If location data is available on uploaded photos, link this to a map.'),
+				false,
+				get_config('feature_lock','photo_location'),
 			]
 
 		],

@@ -6,9 +6,12 @@ namespace Zotlabs\Module\Settings;
 class Editor {
 
 	function post() {
-		check_form_security_token_redirectOnErr('/settings/editor', 'settings_editor');
+
+		$module = substr(strrchr(strtolower(static::class), '\\'), 1);
+
+		check_form_security_token_redirectOnErr('/settings/' . $module, 'settings_' . $module);
 	
-		$features = get_module_features('editor');
+		$features = get_module_features($module);
 
 		process_module_features_post(local_channel(), $features, $_POST);
 		
@@ -17,16 +20,18 @@ class Editor {
 	}
 
 	function get() {
-		
-		$features = get_module_features('editor');
+
+		$module = substr(strrchr(strtolower(static::class), '\\'), 1);
+
+		$features = get_module_features($module);
 		$rpath = (($_GET['rpath']) ? $_GET['rpath'] : '');
 
 		$tpl = get_markup_template("settings_module.tpl");
 
 		$o .= replace_macros($tpl, array(
 			'$rpath' => $rpath,
-			'$action_url' => 'settings/editor',
-			'$form_security_token' => get_form_security_token("settings_editor"),
+			'$action_url' => 'settings/' . $module,
+			'$form_security_token' => get_form_security_token('settings_' . $module),
 			'$title' => t('Editor Settings'),
 			'$features'  => process_module_features_get(local_channel(), $features),
 			'$submit'    => t('Submit')

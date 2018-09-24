@@ -1280,6 +1280,9 @@ img.mail-conv-sender-photo {
 
 nav:hover #nav-app-settings-link {
 	opacity: 1;
+	transition: opacity .3s ease-in-out;
+	-moz-transition: opacity .3s ease-in-out;
+	-webkit-transition: opacity .3s ease-in-out;
 }
 
 .page-title {

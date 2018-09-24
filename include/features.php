@@ -114,15 +114,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[ 
-				'advanced_dirsearch', 
-				t('Advanced Directory Search'),
-				t('Allows creation of complex directory search queries'),
-				false, 
-				get_config('feature_lock','advanced_dirsearch'),
-				feature_level('advanced_dirsearch',4),
-			],
-
-			[ 
 				'advanced_theming', 
 				t('Advanced Theme and Layout Settings'),
 				t('Allows fine tuning of themes and page layouts'),
@@ -281,6 +272,20 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','connfilter')
 			]
+		],
+
+		'directory' => [
+
+			t('Directory'),
+
+			[
+				'advanced_dirsearch',
+				t('Advanced Directory Search'),
+				t('Allows creation of complex directory search queries'),
+				false,
+				get_config('feature_lock','advanced_dirsearch'),
+			]
+
 		],
 
 		'editor' => [

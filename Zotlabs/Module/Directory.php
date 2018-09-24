@@ -12,13 +12,16 @@ class Directory extends \Zotlabs\Web\Controller {
 	function init() {
 		\App::set_pager_itemspage(60);
 	
-		if(x($_GET,'ignore')) {
+		if(local_channel() && x($_GET,'ignore')) {
 			q("insert into xign ( uid, xchan ) values ( %d, '%s' ) ",
 				intval(local_channel()),
 				dbesc($_GET['ignore'])
 			);
 			goaway(z_root() . '/directory?f=&suggest=1');
 		}
+
+		if(local_channel())
+			\App::$profile_uid = local_channel();
 	
 		$observer = get_observer_hash();
 		$global_changed = false;
@@ -55,6 +58,7 @@ class Directory extends \Zotlabs\Web\Controller {
 			if($observer)
 				set_xconfig($observer,'directory','pubforums',$pubforums);
 		}
+
 	}
 	
 	function get() {

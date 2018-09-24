@@ -190,15 +190,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'categories',     
-				t('Post Categories'),			
-				t('Add categories to your posts'),
-				false,
-				get_config('feature_lock','categories'),
-				feature_level('categories',1),
-			],
-
-			[
 				'emojis',     
 				t('Emoji Reactions'),			
 				t('Add emoji reaction ability to posts'),
@@ -291,6 +282,15 @@ function get_features($filtered = true, $level = (-1)) {
 		'editor' => [
 
 			t('Editor'),
+
+			[
+				'categories',
+				t('Post Categories'),
+				t('Add categories to your posts'),
+				false,
+				get_config('feature_lock','categories'),
+				feature_level('categories',1),
+			],
 
 			[
 				'large_photos',   

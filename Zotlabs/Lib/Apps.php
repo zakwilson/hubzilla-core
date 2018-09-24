@@ -532,7 +532,7 @@ class Apps {
 	static public function app_install($uid,$app) {
 		$app['uid'] = $uid;
 
-		if(self::app_installed($uid,$app))
+		if(self::app_installed($uid,$app,true))
 			$x = self::app_update($app);
 		else
 			$x = self::app_store($app);
@@ -660,33 +660,60 @@ class Apps {
 		}
 	}
 
-	static public function app_installed($uid,$app) {
+	static public function app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc((array_key_exists('guid',$app)) ? $app['guid'] : ''), 
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
 
-	static public function addon_app_installed($uid,$app) {
+	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_plugin = '%s' and app_channel = %d limit 1",
 			dbesc($app),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('addon_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
-	static public function system_app_installed($uid,$app) {
+	static public function system_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc(hash('whirlpool',$app)),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('system_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}

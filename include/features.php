@@ -85,25 +85,6 @@ function get_features($filtered = true, $level = (-1)) {
 				feature_level('start_menu',1),
 			],
 
-/*
-			[
-				'hide_rating',       
-				t('Hide Rating'),          
-				t('Hide the rating buttons on your channel and profile pages. Note: People can still rate you somewhere else.'),
-				false,
-				get_config('feature_lock','hide_rating'),
-				feature_level('hide_rating',3),
-			],
-*/			
-			[
-				'private_notes',       
-				t('Private Notes'),          
-				t('Enables a tool to store notes and reminders (note: not encrypted)'),
-				false,
-				get_config('feature_lock','private_notes'),
-				feature_level('private_notes',1),
-			],
-
 			[
 				'premium_channel', 
 				t('Premium Channel'), 

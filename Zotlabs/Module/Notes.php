@@ -1,13 +1,19 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
 
-class Notes extends \Zotlabs\Web\Controller {
+class Notes extends Controller {
 
-	function init() {
+	function post() {
 	
 		if(! local_channel())
-			return;
+			return EMPTY_STR;
+
+		if(! Apps::system_app_installed(local_channel(), 'Notes'))
+			return EMPTY_STR;
 	
 		$ret = array('success' => true);
 		if(array_key_exists('note_text',$_REQUEST)) {
@@ -24,17 +30,38 @@ class Notes extends \Zotlabs\Web\Controller {
 			}
 			set_pconfig(local_channel(),'notes','text',$body);
 		}
-	
+
 		// push updates to channel clones
-	
+
 		if((argc() > 1) && (argv(1) === 'sync')) {
 			require_once('include/zot.php');
 			build_sync_packet();
 		}
-	
+
 		logger('notes saved.', LOGGER_DEBUG);
 		json_return_and_die($ret);
-		
+
+	}
+
+	function get() {
+
+		if(! local_channel())
+			return EMPTY_STR;
+
+		if(! Apps::system_app_installed(local_channel(), 'Notes')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = EMPTY_STR;
+
+			$o = '<b>Notes App (Not Installed):</b><br>';
+			$o .= t('A simple notes app with a widget (note: notes are not encrypted)');
+			return $o;
+		}
+
+		$w = new \Zotlabs\Widget\Notes;
+		$arr = ['app' => true];
+
+		return $w->widget($arr);
+
 	}
 	
 }

@@ -69,6 +69,7 @@
 						{{include file="field_checkbox.tpl" field=$preload_images}}
 						{{include file="field_checkbox.tpl" field=$manual_update}}
 						{{include file="field_checkbox.tpl" field=$start_menu}}
+						{{include file="field_checkbox.tpl" field=$advanced_theming}}
 						{{if $expert}}
 						<div class="form-group">
 							<a class="btn btn-outline-secondary "href="pdledit">{{$layout_editor}}</a>

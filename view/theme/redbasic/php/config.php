@@ -85,7 +85,7 @@ class RedbasicConfig {
 
 	function form($arr) {
 
-		if(feature_enabled(local_channel(),'advanced_theming')) 
+		if(get_pconfig(local_channel(), 'system', 'advanced_theming'))
 			$expert = 1;
 					
 

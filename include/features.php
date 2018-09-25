@@ -71,22 +71,6 @@ function get_features($filtered = true, $level = (-1)) {
 
 	$arr = [
 
-		// General
-		'general' => [
-
-			t('General Features'),
-
-			[ 
-				'advanced_theming', 
-				t('Advanced Theme and Layout Settings'),
-				t('Allows fine tuning of themes and page layouts'),
-				false, 
-				get_config('feature_lock','advanced_theming'),
-				feature_level('advanced_theming',4),
-			],
-		],
-
-
 		'access_control' => [
 			t('Access Control and Permissions'),
 

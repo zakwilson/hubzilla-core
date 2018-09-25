@@ -85,15 +85,6 @@ function get_features($filtered = true, $level = (-1)) {
 				feature_level('start_menu',1),
 			],
 
-			[
-				'premium_channel', 
-				t('Premium Channel'), 
-				t('Allows you to set restrictions and terms on those that connect with your channel'),
-				false,
-				get_config('feature_lock','premium_channel'),
-				feature_level('premium_channel',4),
-			],
-
 			[ 
 				'advanced_theming', 
 				t('Advanced Theme and Layout Settings'),

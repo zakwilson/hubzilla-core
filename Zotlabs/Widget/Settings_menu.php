@@ -111,27 +111,10 @@ class Settings_menu {
 			);
 		}
 
-
 		if($role === false || $role === 'custom') {
 			$tabs[] = array(
 				'label' => t('Connection Default Permissions'),
 				'url' => z_root() . '/defperms',
-				'selected' => ''
-			);
-		}
-
-		if(feature_enabled(local_channel(),'premium_channel')) {
-			$tabs[] = array(
-				'label' => t('Premium Channel Settings'),
-				'url' => z_root() . '/connect/' . $channel['channel_address'],
-				'selected' => ''
-			);
-		}
-
-		if(feature_enabled(local_channel(),'channel_sources')) {
-			$tabs[] = array(
-				'label' => t('Channel Sources'),
-				'url' => z_root() . '/sources',
 				'selected' => ''
 			);
 		}

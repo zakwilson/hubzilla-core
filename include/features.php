@@ -75,15 +75,6 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Access Control and Permissions'),
 
 			[
-				'groups',    		
-				t('Privacy Groups'),		
-				t('Enable management and selection of privacy groups'),
-				true,
-				get_config('feature_lock','groups'),
-				feature_level('groups',0),
-			],
-
-			[
 				'permcats',       
 				t('Permission Categories'),
 				t('Create custom connection permission limits'),

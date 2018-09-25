@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Apps;
+
 class Activity_filter {
 
 	function widget($arr) {
@@ -44,7 +46,7 @@ class Activity_filter {
 			];
 		}
 
-		if(feature_enabled(local_channel(),'groups')) {
+		if(Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
 			$groups = q("SELECT * FROM groups WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 				intval(local_channel())
 			);

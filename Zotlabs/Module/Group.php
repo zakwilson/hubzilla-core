@@ -1,11 +1,13 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
+
 require_once('include/group.php');
 
-
-
-class Group extends \Zotlabs\Web\Controller {
+class Group extends Controller {
 
 	function init() {
 		if(! local_channel()) {
@@ -13,7 +15,11 @@ class Group extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		\App::$profile_uid = local_channel();
+		if(! Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
+			return;
+		}
+
+		App::$profile_uid = local_channel();
 
 		nav_set_selected('Privacy Groups');
 	}
@@ -22,6 +28,10 @@ class Group extends \Zotlabs\Web\Controller {
 	
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
+			return;
+		}
+
+		if(! Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
 			return;
 		}
 	
@@ -77,11 +87,20 @@ class Group extends \Zotlabs\Web\Controller {
 
 		$change = false;
 	
-		logger('mod_group: ' . \App::$cmd,LOGGER_DEBUG);
+		logger('mod_group: ' . App::$cmd,LOGGER_DEBUG);
 		
 		if(! local_channel()) {
 			notice( t('Permission denied') . EOL);
 			return;
+		}
+
+		if(! Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>Privacy Groups App (Not Installed):</b><br>';
+			$o .= t('Management of privacy groups');
+			return $o;
 		}
 
 		// Switch to text mode interface if we have more than 'n' contacts or group members

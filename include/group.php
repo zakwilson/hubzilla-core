@@ -274,7 +274,7 @@ function group_side($every="connections",$each="group",$edit = false, $group_id 
 
 	$o = '';
 
-	if(! (local_channel() && feature_enabled(local_channel(),'groups'))) {
+	if(! (local_channel() && \Zotlabs\Lib\Apps::system_app_installed(local_channel(), 'Privacy Groups'))) {
 		return '';
 	}
 

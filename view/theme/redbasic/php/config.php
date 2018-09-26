@@ -113,7 +113,7 @@ class RedbasicConfig {
 			'$converse_width' => array('redbasic_converse_width',t('Set maximum width of content region in pixel'),$arr['converse_width'], t('Leave empty for default width')),
 			'$top_photo' => array('redbasic_top_photo', t('Set size of conversation author photo'), $arr['top_photo']),
 			'$reply_photo' => array('redbasic_reply_photo', t('Set size of followup author photos'), $arr['reply_photo']),
-			'$advanced_theming' => ['redbasic_advanced_theming', t('Show more custom theme settings'), $arr['advanced_theming'], '', [t('No'), t('Yes')]]
+			'$advanced_theming' => ['redbasic_advanced_theming', t('Show advanced settings'), $arr['advanced_theming'], '', [t('No'), t('Yes')]]
 			));
 
 		return $o;

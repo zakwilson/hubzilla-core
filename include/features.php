@@ -84,24 +84,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'oauth_clients',       
-				t('OAuth1 Clients'),          
-				t('Manage OAuth1 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth_clients'),
-				feature_level('oauth_clients',1),
-			],
-
-			[
-				'oauth2_clients',       
-				t('OAuth2 Clients'),          
-				t('Manage OAuth2 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth2_clients'),
-				feature_level('oauth2_clients',1),
-			],
-
-			[
 				'access_tokens',       
 				t('Access Tokens'),          
 				t('Create access tokens so that non-members can access private content.'),

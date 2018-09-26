@@ -79,22 +79,6 @@ class Settings_menu {
 			'selected' => ''
 		);
 
-		if(feature_enabled(local_channel(),'oauth_clients')) {
-			$tabs[] =	array(
-				'label' => t('OAuth1 apps'),
-				'url' => z_root() . '/settings/oauth',
-				'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
-			);
-		}
-
-		if(feature_enabled(local_channel(),'oauth2_clients')) {
-			$tabs[] =	array(
-				'label' => t('OAuth2 apps'),
-				'url' => z_root() . '/settings/oauth2',
-				'selected' => ((argv(1) === 'oauth2') ? 'active' : ''),
-			);
-		}
-
 		if(feature_enabled(local_channel(),'access_tokens')) {
 			$tabs[] =	array(
 				'label' => t('Guest Access Tokens'),

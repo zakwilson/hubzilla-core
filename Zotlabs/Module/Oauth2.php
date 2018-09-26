@@ -11,6 +11,9 @@ class Oauth2 extends Controller {
 
 	function post() {
 
+		if(! local_channel())
+			return;
+
 		if(! Apps::system_app_installed(local_channel(), 'OAuth2 Apps Manager'))
 			return;
 	
@@ -92,6 +95,9 @@ class Oauth2 extends Controller {
 	}
 
 	function get() {
+
+		if(! local_channel())
+			return;
 
 		if(! Apps::system_app_installed(local_channel(), 'OAuth2 Apps Manager')) {
 			//Do not display any associated widgets at this point

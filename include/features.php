@@ -71,21 +71,6 @@ function get_features($filtered = true, $level = (-1)) {
 
 	$arr = [
 
-		'access_control' => [
-			t('Access Control and Permissions'),
-
-			[
-				'access_tokens',       
-				t('Access Tokens'),          
-				t('Create access tokens so that non-members can access private content.'),
-				false,
-				get_config('feature_lock','access_tokens'),
-				feature_level('access_tokens',2),
-			],
-
-		],
-
-
 		// Item tools
 		'tools' => [
 

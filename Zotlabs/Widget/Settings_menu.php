@@ -79,14 +79,6 @@ class Settings_menu {
 			'selected' => ''
 		);
 
-		if(feature_enabled(local_channel(),'access_tokens')) {
-			$tabs[] =	array(
-				'label' => t('Guest Access Tokens'),
-				'url' => z_root() . '/settings/tokens',
-				'selected' => ((argv(1) === 'tokens') ? 'active' : ''),
-			);
-		}
-
 		if($role === false || $role === 'custom') {
 			$tabs[] = array(
 				'label' => t('Connection Default Permissions'),

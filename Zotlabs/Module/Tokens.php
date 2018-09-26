@@ -1,16 +1,24 @@
 <?php
 
-namespace Zotlabs\Module\Settings;
+namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
 
-
-class Tokens {
+class Tokens extends Controller {
 
 	function post() {
 
-		$channel = \App::get_channel();
+		if(! local_channel())
+			return;
 
-		check_form_security_token_redirectOnErr('/settings/tokens', 'settings_tokens');
+		if(! Apps::system_app_installed(local_channel(), 'Guest Access'))
+			return;
+
+		$channel = App::get_channel();
+
+		check_form_security_token_redirectOnErr('tokens', 'tokens');
 		$token_errs = 0;
 		if(array_key_exists('token',$_POST)) {
 			$atoken_id = (($_POST['atoken_id']) ? intval($_POST['atoken_id']) : 0);
@@ -81,7 +89,19 @@ class Tokens {
 
 	function get() {
 
-		$channel = \App::get_channel();
+		if(! local_channel())
+			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'Guest Access')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>Guest Access App (Not Installed):</b><br>';
+			$o .= t('Create access tokens so that non-members can access private content');
+			return $o;
+		}
+
+		$channel = App::get_channel();
 
 		$atoken = null;
 		$atoken_xchan = '';
@@ -144,9 +164,9 @@ class Tokens {
 
 
 
-		$tpl = get_markup_template("settings_tokens.tpl");
+		$tpl = get_markup_template("tokens.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("settings_tokens"),
+			'$form_security_token' => get_form_security_token("tokens"),
 			'$title'	=> t('Guest Access Tokens'),
 			'$desc'     => $desc,
 			'$desc2' => $desc2,

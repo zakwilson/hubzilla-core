@@ -14,8 +14,7 @@ class Permcats extends Controller {
 			return;
 
 		if(! Apps::system_app_installed(local_channel(), 'Permission Categories'))
-			return
-
+			return;
 
 		$channel = App::get_channel();
 
@@ -66,7 +65,6 @@ class Permcats extends Controller {
 		}
 
 		$channel = App::get_channel();
-
 
 		if(argc() > 1) 
 			$name = hex2bin(argv(1));			

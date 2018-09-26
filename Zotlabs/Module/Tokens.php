@@ -106,8 +106,8 @@ class Tokens extends Controller {
 		$atoken = null;
 		$atoken_xchan = '';
 
-		if(argc() > 2) {
-			$id = argv(2);			
+		if(argc() > 1) {
+			$id = argv(1);
 
 			$atoken = q("select * from atoken where atoken_id = %d and atoken_uid = %d",
 				intval($id),
@@ -119,7 +119,7 @@ class Tokens extends Controller {
 				$atoken_xchan = substr($channel['channel_hash'],0,16) . '.' . $atoken['atoken_name'];
 			}
 
-			if($atoken && argc() > 3 && argv(3) === 'drop') {
+			if($atoken && argc() > 2 && argv(2) === 'drop') {
 				atoken_delete($id);
 				$atoken = null;
 				$atoken_xchan = '';

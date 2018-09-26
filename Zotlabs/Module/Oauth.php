@@ -11,7 +11,7 @@ class Oauth extends Controller {
 
 	function post() {
 
-		if(! Apps::system_app_installed(local_channel(), 'OAuth'))
+		if(! Apps::system_app_installed(local_channel(), 'OAuth Apps Manager'))
 			return;
 	
 		if(x($_POST,'remove')){

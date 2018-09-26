@@ -75,15 +75,6 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Access Control and Permissions'),
 
 			[
-				'permcats',       
-				t('Permission Categories'),
-				t('Create custom connection permission limits'),
-				false,
-				get_config('feature_lock','permcats'),
-				feature_level('permcats',2),
-			],
-
-			[
 				'access_tokens',       
 				t('Access Tokens'),          
 				t('Create access tokens so that non-members can access private content.'),

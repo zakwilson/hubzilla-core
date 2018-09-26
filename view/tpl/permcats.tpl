@@ -8,7 +8,7 @@
 			{{$desc}}
 		</div>
 
-		<form action="settings/permcats" id="settings-permcats-form" method="post" autocomplete="off" >
+		<form action="permcats" id="settings-permcats-form" method="post" autocomplete="off" >
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 			{{include file="field_input.tpl" field=$name}}
 
@@ -50,8 +50,8 @@
 			<table id="permcat-index">
 			{{foreach $permcats as $k => $v}}
 			<tr class="permcat-row-{{$k}}">
-				<td width="99%"><a href="settings/permcats/{{$k}}">{{$v}}</a></td>
-				<td width="1%"><i class="fa fa-trash-o drop-icons" onClick="dropItem('/settings/permcats/{{$k}}/drop', '.permcat-row-{{$k}}')"></i></td>
+				<td width="99%"><a href="permcats/{{$k}}">{{$v}}</a></td>
+				<td width="1%"><i class="fa fa-trash-o drop-icons" onClick="dropItem('permcats/{{$k}}/drop', '.permcat-row-{{$k}}')"></i></td>
 			</tr>
 			{{/foreach}}
 			</table>

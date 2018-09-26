@@ -1,19 +1,25 @@
 <?php
 
-namespace Zotlabs\Module\Settings;
+namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
 
-
-class Permcats {
+class Permcats extends Controller {
 
 	function post() {
 
 		if(! local_channel())
 			return;
 
-		$channel = \App::get_channel();
+		if(! Apps::system_app_installed(local_channel(), 'Permission Categories'))
+			return
 
-		check_form_security_token_redirectOnErr('/settings/permcats', 'settings_permcats');
+
+		$channel = App::get_channel();
+
+		check_form_security_token_redirectOnErr('/permcats', 'permcats');
 
 
 		$all_perms = \Zotlabs\Access\Permissions::Perms();
@@ -50,13 +56,22 @@ class Permcats {
 		if(! local_channel())
 			return;
 
-		$channel = \App::get_channel();
+		if(! Apps::system_app_installed(local_channel(), 'Permission Categories')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>Permission Categories App (Not Installed):</b><br>';
+			$o .= t('Create custom connection permission limits');
+			return $o;
+		}
+
+		$channel = App::get_channel();
 
 
-		if(argc() > 2) 
-			$name = hex2bin(argv(2));			
+		if(argc() > 1) 
+			$name = hex2bin(argv(1));			
 
-		if(argc() > 3 && argv(3) === 'drop') {
+		if(argc() > 2 && argv(2) === 'drop') {
 			\Zotlabs\Lib\Permcat::delete(local_channel(),$name);
 			build_sync_packet();
 			json_return_and_die([ 'success' => true ]);
@@ -93,9 +108,9 @@ class Permcats {
 
 
 
-		$tpl = get_markup_template("settings_permcats.tpl");
+		$tpl = get_markup_template("permcats.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("settings_permcats"),
+			'$form_security_token' => get_form_security_token("permcats"),
 			'$title'	=> t('Permission Categories'),
 			'$desc'     => $desc,
 			'$desc2' => $desc2,

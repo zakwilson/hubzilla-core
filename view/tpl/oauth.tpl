@@ -4,13 +4,13 @@
 </div>
 
 <div class="section-content-tools-wrapper">
-<form action="settings/oauth" method="post" autocomplete="off">
+<form action="oauth" method="post" autocomplete="off">
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 	<div id="profile-edit-links">
 		<ul>
 			<li>
-				<a id="profile-edit-view-link" href="{{$baseurl}}/settings/oauth/add">{{$add}}</a>
+				<a id="profile-edit-view-link" href="{{$baseurl}}/oauth/add">{{$add}}</a>
 			</li>
 		</ul>
 	</div>
@@ -25,8 +25,8 @@
 			{{/if}}
 		{{/if}}
 		{{if $app.my}}
-		<a href="{{$baseurl}}/settings/oauth/edit/{{$app.client_id}}" title="{{$edit}}"><i class="fa fa-pencil btn btn-outline-secondary"></i></a>
-		<a href="{{$baseurl}}/settings/oauth/delete/{{$app.client_id}}?t={{$form_security_token}}" title="{{$delete}}"><i class="fa fa-trash-o btn btn-outline-secondary"></i></a>
+		<a href="{{$baseurl}}/oauth/edit/{{$app.client_id}}" title="{{$edit}}"><i class="fa fa-pencil btn btn-outline-secondary"></i></a>
+		<a href="{{$baseurl}}/oauth/delete/{{$app.client_id}}?t={{$form_security_token}}" title="{{$delete}}"><i class="fa fa-trash-o btn btn-outline-secondary"></i></a>
 		{{/if}}		
 	</div>
 	{{/foreach}}

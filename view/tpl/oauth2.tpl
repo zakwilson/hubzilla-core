@@ -8,13 +8,13 @@
 	<div id="profile-edit-links">
 		<ul>
 			<li>
-				<a id="profile-edit-view-link" href="{{$baseurl}}/settings/oauth2/add">{{$add}}</a>
+				<a id="profile-edit-view-link" href="{{$baseurl}}/oauth2/add">{{$add}}</a>
 			</li>
 		</ul>
 	</div>
 
 	{{foreach $apps as $app}}
-<form action="settings/oauth2" method="post" autocomplete="off">
+<form action="oauth2" method="post" autocomplete="off">
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 <input type='hidden' name='name' value='{{$app.client_id}}'>
 	<div class='oauthapp'>
@@ -25,8 +25,8 @@
 			{{/if}}
 		{{/if}}
 		{{if $app.my}}
-		<a href="{{$baseurl}}/settings/oauth2/edit/{{$app.client_id}}" title="{{$edit}}"><i class="fa fa-pencil btn btn-outline-secondary"></i></a>
-		<a href="{{$baseurl}}/settings/oauth2/delete/{{$app.client_id}}?t={{$form_security_token}}" title="{{$delete}}"><i class="fa fa-trash-o btn btn-outline-secondary"></i></a>
+		<a href="{{$baseurl}}/oauth2/edit/{{$app.client_id}}" title="{{$edit}}"><i class="fa fa-pencil btn btn-outline-secondary"></i></a>
+		<a href="{{$baseurl}}/oauth2/delete/{{$app.client_id}}?t={{$form_security_token}}" title="{{$delete}}"><i class="fa fa-trash-o btn btn-outline-secondary"></i></a>
 		{{/if}}		
 	</div>
 </form>

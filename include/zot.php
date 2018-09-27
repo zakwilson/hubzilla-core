@@ -4818,7 +4818,7 @@ function zot_reply_pickup($data) {
 		json_return_and_die($ret);
 	}
 
-	$r = q("select distinct hubloc_sitekey from hubloc where hubloc_url = '%s' and hubloc_callback = '%s' and hubloc_sitekey != '' pgrp by hubloc_sitekey ",
+	$r = q("select distinct hubloc_sitekey from hubloc where hubloc_url = '%s' and hubloc_callback = '%s' and hubloc_sitekey != '' group by hubloc_sitekey ",
 		dbesc($data['url']),
 		dbesc($data['callback'])
 	);

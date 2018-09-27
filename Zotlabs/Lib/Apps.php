@@ -337,7 +337,20 @@ class Apps {
 			'Profiles' => t('Profiles'),
 			'Privacy Groups' => t('Privacy Groups'),
 			'Notifications' => t('Notifications'),
-			'Order Apps' => t('Order Apps')
+			'Order Apps' => t('Order Apps'),
+			'CalDAV' => t('CalDAV'),
+			'CardDAV' => t('CardDAV'),
+			'Channel Sources' => t('Channel Sources'),
+			'Gallery' => t('Gallery'),
+			'Guest Access' => t('Guest Access'),
+			'Notes' => t('Notes'),
+			'OAuth Apps Manager' => t('OAuth Apps Manager'),
+			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
+			'PDL Editor' => t('PDL Editor'),
+			'Permission Categories' => t('Permission Categories'),
+			'Premium Channel' => t('Premium Channel'),
+			'Public Stream' => t('Public Stream'),
+			'My Chatrooms' => t('My Chatrooms')
 		);
 
 		if(array_key_exists('name',$arr)) {
@@ -349,6 +362,9 @@ class Apps {
 			for($x = 0; $x < count($arr); $x++) {
 				if(array_key_exists($arr[$x]['name'],$apps)) {
 					$arr[$x]['name'] = $apps[$arr[$x]['name']];
+				} else {
+				    // Try to guess by app name if not in list
+				    $arr[$x]['name'] = t(trim($arr[$x]['name']));
 				}
 			}
 		}
@@ -763,7 +779,6 @@ class Apps {
 			call_hooks('app_list',$hookinfo);
 			$r = $hookinfo['apps'];
 			for($x = 0; $x < count($r); $x ++) {
-				$r[$x]['app_name']=t(trim($r[$x]['app_name']));
 				if(! $r[$x]['app_system'])
 					$r[$x]['type'] = 'personal';
 				$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",

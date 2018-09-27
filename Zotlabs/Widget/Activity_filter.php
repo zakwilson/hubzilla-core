@@ -47,7 +47,7 @@ class Activity_filter {
 		}
 
 		if(Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
-			$groups = q("SELECT * FROM groups WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
+			$groups = q("SELECT * FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 				intval(local_channel())
 			);
 

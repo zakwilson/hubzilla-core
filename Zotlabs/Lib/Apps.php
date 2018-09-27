@@ -763,6 +763,7 @@ class Apps {
 			call_hooks('app_list',$hookinfo);
 			$r = $hookinfo['apps'];
 			for($x = 0; $x < count($r); $x ++) {
+				$r[$x]['app_name']=t(trim($r[$x]['app_name']));
 				if(! $r[$x]['app_system'])
 					$r[$x]['type'] = 'personal';
 				$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",

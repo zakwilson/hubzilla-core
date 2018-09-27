@@ -4,5 +4,16 @@
 <div id="page-spinner" class="spinner-wrapper">
 	<div  class="spinner m"></div>
 </div>
-
-
+<div class="modal" id="conversation_settings" tabindex="-1" role="dialog" aria-labelledby="conversation_settings_label" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3 class="modal-title" id="conversation_settings_label">{{$conversation_tools}}</h3>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+			<div class="modal-body" id="conversation_settings_body">
+				{{$wait}}
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->

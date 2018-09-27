@@ -41,6 +41,8 @@ $.ajaxSetup({cache: false});
 $(document).ready(function() {
 
 	$(document).on('click focus', '.comment-edit-form', handle_comment_form);
+	$(document).on('click', '.conversation-settings-link', getConversationSettings);
+	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
 	jQuery.timeago.settings.strings = {
 		prefixAgo     : aStr['t01'],
@@ -121,6 +123,33 @@ $(document).ready(function() {
 	initialLoad = false;
 
 });
+
+function getConversationSettings() {
+	$.get('settings/conversation/?f=&aj=1',function(data) {
+		$('#conversation_settings_body').html(data);
+	});
+
+
+
+}
+
+function postConversationSettings() {
+	$.post(
+		'settings/conversation',
+		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
+	);
+
+	if(next_page === 1) {
+		page_load = true;
+	}
+
+	$('#conversation_settings').modal('hide');
+
+	if(timer) clearTimeout(timer);
+	timer = setTimeout(updateInit,100);
+
+	return false;
+}
 
 function datasrc2src(selector) {
 	$(selector).each(function(i, el) {

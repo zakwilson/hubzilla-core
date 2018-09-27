@@ -45,14 +45,6 @@ class Settings_menu {
 
 		);
 
-		if(get_account_techlevel() > 0 && get_features()) {
-			$tabs[] = 	array(
-					'label'	=> t('Additional features'),
-					'url' 	=> z_root().'/settings/features',
-					'selected'	=> ((argv(1) === 'features') ? 'active' : ''),
-			);
-		}
-
 		$tabs[] =	array(
 			'label'	=> t('Addon settings'),
 			'url' 	=> z_root().'/settings/featured',

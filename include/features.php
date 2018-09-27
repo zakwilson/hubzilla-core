@@ -71,69 +71,6 @@ function get_features($filtered = true, $level = (-1)) {
 
 	$arr = [
 
-		// Item tools
-		'tools' => [
-
-			t('Post/Comment Tools'),
-
-			[
-				'commtag',        
-				t('Community Tagging'),					
-				t('Ability to tag existing posts'),
-				false,
-				get_config('feature_lock','commtag'),
-				feature_level('commtag',1),
-			],
-
-			[
-				'emojis',     
-				t('Emoji Reactions'),			
-				t('Add emoji reaction ability to posts'),
-				true,
-				get_config('feature_lock','emojis'),
-				feature_level('emojis',1),
-			],
-
-			[
-				'filing',         
-				t('Saved Folders'),				
-				t('Ability to file posts under folders'),
-				false,
-				get_config('feature_lock','filing'),
-				feature_level('filing',2),
-			],
-
-			[
-				'dislike',        
-				t('Dislike Posts'),				
-				t('Ability to dislike posts/comments'),
-				false,
-				get_config('feature_lock','dislike'),
-				feature_level('dislike',1),
-			],
-
-			[
-				'star_posts',     
-				t('Star Posts'),				
-				t('Ability to mark special posts with a star indicator'),
-				false,
-				get_config('feature_lock','star_posts'),
-				feature_level('star_posts',1),
-			],
-
-			[
-				'tagadelic',      
-				t('Tag Cloud'),				    
-				t('Provide a personal tag cloud on your channel page'),
-				false,
-				get_config('feature_lock','tagadelic'),
-				feature_level('tagadelic',2),
-			],
-		],
-
-############################################
-############################################
-
 		'calendar' => [
 
 			t('CalDAV'),
@@ -159,6 +96,60 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','connfilter')
 			]
+		],
+
+		'conversation' => [
+
+			t('Conversation'),
+
+			[
+				'commtag',        
+				t('Community Tagging'),					
+				t('Ability to tag existing posts'),
+				false,
+				get_config('feature_lock','commtag'),
+			],
+
+			[
+				'emojis',     
+				t('Emoji Reactions'),			
+				t('Add emoji reaction ability to posts'),
+				true,
+				get_config('feature_lock','emojis'),
+			],
+
+			[
+				'filing',         
+				t('Saved Folders'),				
+				t('Ability to file posts under folders'),
+				false,
+				get_config('feature_lock','filing'),
+			],
+
+			[
+				'dislike',        
+				t('Dislike Posts'),				
+				t('Ability to dislike posts/comments'),
+				false,
+				get_config('feature_lock','dislike'),
+			],
+
+			[
+				'star_posts',     
+				t('Star Posts'),				
+				t('Ability to mark special posts with a star indicator'),
+				false,
+				get_config('feature_lock','star_posts'),
+			],
+
+			[
+				'tagadelic',      
+				t('Tag Cloud'),				    
+				t('Provide a personal tag cloud on your channel page'),
+				false,
+				get_config('feature_lock','tagadelic'),
+			]
+
 		],
 
 		'directory' => [

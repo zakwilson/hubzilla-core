@@ -60,8 +60,6 @@ function nav($template = 'default') {
 		//we could additionally use this to display important system notifications e.g. for updates
 	));
 
-	$techlevel = get_account_techlevel();
-
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = [];
 

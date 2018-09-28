@@ -142,9 +142,12 @@ class New_channel extends \Zotlabs\Web\Controller {
 			}
 	
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');
-	
+			$canadd = true;
 			if($r && ($limit !== false)) {
 				$channel_usage_message = sprintf( t("You have created %1$.0f of %2$.0f allowed channels."), $r[0]['total'], $limit);
+				if ($r[0]['total'] >= $limit) {
+					$canadd = false;
+				}
 			}
 			else {
 				$channel_usage_message = '';
@@ -186,7 +189,8 @@ class New_channel extends \Zotlabs\Web\Controller {
 			'$nickname'     => $nickname,
 			'$validate'     => t('Validate'),
 			'$submit'       => t('Create'),
-			'$channel_usage_message' => $channel_usage_message
+			'$channel_usage_message' => $channel_usage_message,
+			'$canadd'	=> $canadd
 		));
 	
 		return $o;

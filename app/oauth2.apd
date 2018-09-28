@@ -1,0 +1,6 @@
+version: 1
+url: $baseurl/oauth2
+requires: local_channel
+name: OAuth2 Apps Manager
+photo: icon:chevron-circle-up
+categories: Access Control

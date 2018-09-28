@@ -1,15 +1,20 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
 
-class Pdledit extends \Zotlabs\Web\Controller {
+class Pdledit extends Controller {
 
 	function post() {
 		if(! local_channel())
 			return;
-		if(! $_REQUEST['module'])
+
+		if(! Apps::system_app_installed(local_channel(), 'PDL Editor'))
 			return;
-		if(! feature_enabled(local_channel(),'advanced_theming'))
+
+		if(! $_REQUEST['module'])
 			return;
 
 		if(! trim($_REQUEST['content'])) {
@@ -30,9 +35,13 @@ class Pdledit extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		if(! feature_enabled(local_channel(),'advanced_theming')) {
-			notice( t('Feature disabled.') . EOL);
-			return;
+		if(! Apps::system_app_installed(local_channel(), 'PDL Editor')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>PDL Editor App (Not Installed):</b><br>';
+			$o .= t('Provides the ability to edit system page layouts');
+			return $o;
 		}
 
 		if(argc() > 2 && argv(2) === 'reset') {

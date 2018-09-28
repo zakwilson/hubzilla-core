@@ -17,7 +17,14 @@ class Newmember {
 		if(! $a)
 			return EMPTY_STR;
 
-		if(! feature_enabled(local_channel(),'start_menu'))
+		if($a['account_created'] > datetime_convert('','','now - 60 days')) {
+			$enabled = get_pconfig(local_channel(), 'system', 'start_menu', 1);
+		}
+		else {
+			$enabled = get_pconfig(local_channel(), 'system', 'start_menu', 0);
+		}
+
+		if(! $enabled)
 			return EMPTY_STR;
 
 		$options = [

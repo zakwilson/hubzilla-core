@@ -428,7 +428,7 @@ class Import extends \Zotlabs\Web\Controller {
 
 				create_table_from_array('groups', $group);
 			}
-			$r = q("select * from groups where uid = %d",
+			$r = q("select * from pgrp where uid = %d",
 				intval($channel['channel_id'])
 			);
 			if($r) {

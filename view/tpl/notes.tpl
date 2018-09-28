@@ -1,5 +1,13 @@
+{{if $app}}
+<div class="generic-content-wrapper">
+	<div class="section-title-wrapper">
+		<h2>{{$banner}}</h2>
+	</div>
+	<div class="section-content-wrapper">
+{{else}}
 <div class="widget">
 	<h3>{{$banner}}</h3>
+{{/if}}
 	<textarea name="note_text" id="note-text">{{$text}}</textarea>
 	<script>
 		var noteSaveTimer = null;
@@ -32,4 +40,7 @@
 			noteSaveTimer = setTimeout(noteSaveChanges,10000);
 		}
 	</script>
+{{if $app}}
+</div>
+{{/if}}
 </div>

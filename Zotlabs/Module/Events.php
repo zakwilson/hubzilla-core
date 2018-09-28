@@ -6,7 +6,7 @@ require_once('include/bbcode.php');
 require_once('include/datetime.php');
 require_once('include/event.php');
 require_once('include/items.php');
-
+require_once('include/html2plain.php');
 
 class Events extends \Zotlabs\Web\Controller {
 
@@ -271,8 +271,10 @@ class Events extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
+		\App::$profile_uid = local_channel();
 		nav_set_selected('Events');
+
 	
 		if((argc() > 2) && (argv(1) === 'ignore') && intval(argv(2))) {
 			$r = q("update event set dismissed = 1 where id = %d and uid = %d",
@@ -288,7 +290,7 @@ class Events extends \Zotlabs\Web\Controller {
 			);
 		}
 	
-		$first_day = get_pconfig(local_channel(),'system','cal_first_day');
+		$first_day = feature_enabled(local_channel(), 'events_cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
 		$htpl = get_markup_template('event_head.tpl');
@@ -641,6 +643,7 @@ class Events extends \Zotlabs\Web\Controller {
 					}
 					$html = format_event_html($rr);
 					$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
+					$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8',false);
 					$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
 					$events[] = array(
 						'id'=>$rr['id'],
@@ -659,8 +662,6 @@ class Events extends \Zotlabs\Web\Controller {
 						'html'=>$html,
 						'plink' => array($rr['plink'],t('Link to Source'),'',''),
 					);
-	
-	
 				}
 			}
 			

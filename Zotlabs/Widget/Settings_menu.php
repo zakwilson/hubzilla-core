@@ -45,24 +45,17 @@ class Settings_menu {
 
 		);
 
-		if(get_account_techlevel() > 0 && get_features()) {
-			$tabs[] = 	array(
-					'label'	=> t('Additional features'),
-					'url' 	=> z_root().'/settings/features',
-					'selected'	=> ((argv(1) === 'features') ? 'active' : ''),
-			);
-		}
-
-		$tabs[] =	array(
-			'label'	=> t('Addon settings'),
-			'url' 	=> z_root().'/settings/featured',
-			'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
-		);
 
 		$tabs[] =	array(
 			'label'	=> t('Display settings'),
 			'url' 	=> z_root().'/settings/display',
 			'selected'	=> ((argv(1) === 'display') ? 'active' : ''),
+		);
+
+		$tabs[] =	array(
+			'label'	=> t('Addon settings'),
+			'url' 	=> z_root().'/settings/featured',
+			'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
 		);
 
 		if($hublocs) {
@@ -79,59 +72,10 @@ class Settings_menu {
 			'selected' => ''
 		);
 
-		if(feature_enabled(local_channel(),'oauth_clients')) {
-			$tabs[] =	array(
-				'label' => t('OAuth1 apps'),
-				'url' => z_root() . '/settings/oauth',
-				'selected' => ((argv(1) === 'oauth') ? 'active' : ''),
-			);
-		}
-
-		if(feature_enabled(local_channel(),'oauth2_clients')) {
-			$tabs[] =	array(
-				'label' => t('OAuth2 apps'),
-				'url' => z_root() . '/settings/oauth2',
-				'selected' => ((argv(1) === 'oauth2') ? 'active' : ''),
-			);
-		}
-
-		if(feature_enabled(local_channel(),'access_tokens')) {
-			$tabs[] =	array(
-				'label' => t('Guest Access Tokens'),
-				'url' => z_root() . '/settings/tokens',
-				'selected' => ((argv(1) === 'tokens') ? 'active' : ''),
-			);
-		}
-
-		if(feature_enabled(local_channel(),'permcats')) {
-			$tabs[] = array(
-				'label' => t('Permission Categories'),
-				'url' => z_root() . '/settings/permcats',
-				'selected' => ((argv(1) === 'permcats') ? 'active' : ''),
-			);
-		}
-
-
 		if($role === false || $role === 'custom') {
 			$tabs[] = array(
 				'label' => t('Connection Default Permissions'),
 				'url' => z_root() . '/defperms',
-				'selected' => ''
-			);
-		}
-
-		if(feature_enabled(local_channel(),'premium_channel')) {
-			$tabs[] = array(
-				'label' => t('Premium Channel Settings'),
-				'url' => z_root() . '/connect/' . $channel['channel_address'],
-				'selected' => ''
-			);
-		}
-
-		if(feature_enabled(local_channel(),'channel_sources')) {
-			$tabs[] = array(
-				'label' => t('Channel Sources'),
-				'url' => z_root() . '/sources',
 				'selected' => ''
 			);
 		}

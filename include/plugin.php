@@ -109,11 +109,16 @@ function install_plugin($plugin) {
 
 	$plugin_admin = (function_exists($plugin . '_plugin_admin') ? 1 : 0);
 
-	q("INSERT INTO addon (aname, installed, tstamp, plugin_admin) VALUES ( '%s', 1, %d , %d ) ",
-		dbesc($plugin),
-		intval($t),
-		$plugin_admin
+	$d = q("select * from addon where aname = '%s' limit 1",
+		dbesc($plugin)
 	);
+	if(! $d) {
+		q("INSERT INTO addon (aname, installed, tstamp, plugin_admin) VALUES ( '%s', 1, %d , %d ) ",
+			dbesc($plugin),
+			intval($t),
+			$plugin_admin
+		);
+	}
 
 	load_plugin($plugin);
 }
@@ -366,28 +371,47 @@ function unregister_hook($hook, $file, $function) {
 	return $r;
 }
 
-
-//
-// It might not be obvious but themes can manually add hooks to the App::$hooks
-// array in their theme_init() and use this to customise the app behaviour.
-// UPDATE: use insert_hook($hookname,$function_name) to do this
-//
+/**
+ * @brief loads all active hooks into memory
+ * alters: App::$hooks
+ * Called during initialisation
+ * Duplicated hooks are removed and the duplicates ignored
+ *
+ * It might not be obvious but themes can manually add hooks to the App::$hooks
+ * array in their theme_init() and use this to customise the app behaviour.
+ * use insert_hook($hookname,$function_name) to do this.
+ */
 
 
 function load_hooks() {
 
-	App::$hooks = array();
+	App::$hooks = [];
 
 	$r = q("SELECT * FROM hook WHERE true ORDER BY priority DESC");
 	if($r) {
-		foreach($r as $rr) {
-			if(! array_key_exists($rr['hook'],App::$hooks))
-				App::$hooks[$rr['hook']] = array();
 
-			App::$hooks[$rr['hook']][] = array($rr['file'],$rr['fn'],$rr['priority'],$rr['hook_version']);
+		foreach($r as $rv) {
+			$duplicated = false;
+			if(! array_key_exists($rv['hook'],App::$hooks)) {
+				App::$hooks[$rv['hook']] = [];
+			}
+			else {
+				foreach(App::$hooks[$rv['hook']] as $h) {
+					if($h[0] === $rv['file'] && $h[1] === $rv['fn']) {
+						$duplicated = true;
+						q("delete from hook where id = %d",
+							intval($rv['id'])
+						);
+						logger('duplicate hook ' . $h[1] . ' removed');
+					}
+				}
+			}
+			if(! $duplicated) {
+				App::$hooks[$rv['hook']][] = [ $rv['file'], $rv['fn'], $rv['priority'], $rv['hook_version']];
+			}
 		}
 	}
-	//logger('hooks: ' . print_r(App::$hooks,true));
+	//	logger('hooks: ' . print_r(App::$hooks,true));
 }
 
 /**
@@ -432,8 +456,27 @@ function insert_hook($hook, $fn, $version = 0, $priority = 0) {
 function call_hooks($name, &$data = null) {
 	$a = 0;
 
-	if((is_array(App::$hooks)) && (array_key_exists($name, App::$hooks))) {
+	if (isset(App::$hooks[$name])) { 
 		foreach(App::$hooks[$name] as $hook) {
+
+			if ($name != 'permit_hook') { // avoid looping
+				$checkhook = [
+ 					'name'=>$name,
+ 					'hook'=>$hook,
+                                        'data'=>$data,
+						// Note: Since PHP uses COPY-ON-WRITE
+                                                // for variables, there is no cost to
+						// passing the $data structure (unless
+						// the permit_hook processors change the
+						// information it contains.
+ 					'permit'=>true
+ 					];
+ 				call_hooks('permit_hook',$checkhook);
+ 				if (!$checkhook['permit']) {
+ 					continue;
+ 				}
+				$data = $checkhook['data'];
+			}
 			$origfn = $hook[1];
 			if($hook[0])
 				@include_once($hook[0]);

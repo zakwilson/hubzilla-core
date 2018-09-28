@@ -30,6 +30,7 @@ class Display {
 		$channel_list_mode = ((x($_POST,'channel_list_mode')) ? intval($_POST['channel_list_mode']) : 0);
 		$network_list_mode = ((x($_POST,'network_list_mode')) ? intval($_POST['network_list_mode']) : 0);
 		$manual_update     = ((array_key_exists('manual_update',$_POST)) ? intval($_POST['manual_update']) : 0);
+		$start_menu        = ((x($_POST,'start_menu')) ? intval($_POST['start_menu']) : 0);
 
 		$channel_divmore_height = ((x($_POST,'channel_divmore_height')) ? intval($_POST['channel_divmore_height']) : 400);
 		if($channel_divmore_height < 50)
@@ -60,6 +61,7 @@ class Display {
 		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
 		set_pconfig(local_channel(),'system','manual_conversation_update', $manual_update);
 		set_pconfig(local_channel(),'system','channel_menu', $channel_menu);
+		set_pconfig(local_channel(),'system','start_menu', $start_menu);
 
 		$newschema = '';
 		if($theme){
@@ -150,6 +152,14 @@ class Display {
 			$theme_selected = explode(':', $theme_selected)[0];
 		}
 
+		$account = \App::get_account();
+
+		if($account['account_created'] > datetime_convert('','','now - 60 days')) {
+			$start_menu = get_pconfig(local_channel(), 'system', 'start_menu', 1);
+		}
+		else {
+			$start_menu = get_pconfig(local_channel(), 'system', 'start_menu', 0);
+		}
 
 		$preload_images = get_pconfig(local_channel(),'system','preload_images');
 		$preload_images = (($preload_images===false)? '0': $preload_images); // default if not set: 0
@@ -204,15 +214,12 @@ class Display {
 			'$channel_menu' => [ 'channel_menu', t('Provide channel menu in navigation bar'), get_pconfig(local_channel(),'system','channel_menu',get_config('system','channel_menu',0)), t('Default: channel menu located in app menu'),$yes_no ],
 			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),
 			'$title_tosource'	=> array('title_tosource', t("Link post titles to source"), $title_tosource, '', $yes_no),
-			'$layout_editor' => t('System Page Layout Editor - (advanced)'),
 			'$theme_config' => $theme_config,
-			'$expert' => feature_enabled(local_channel(),'advanced_theming'),
 			'$channel_list_mode' => array('channel_list_mode', t('Use blog/list mode on channel page'), get_pconfig(local_channel(),'system','channel_list_mode'), t('(comments displayed separately)'), $yes_no),
 			'$network_list_mode' => array('network_list_mode', t('Use blog/list mode on grid page'), get_pconfig(local_channel(),'system','network_list_mode'), t('(comments displayed separately)'), $yes_no),
 			'$channel_divmore_height' => array('channel_divmore_height', t('Channel page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','channel_divmore_height')) ? get_pconfig(local_channel(),'system','channel_divmore_height') : 400), t('click to expand content exceeding this height')),
 			'$network_divmore_height' => array('network_divmore_height', t('Grid page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','network_divmore_height')) ? get_pconfig(local_channel(),'system','network_divmore_height') : 400) , t('click to expand content exceeding this height')),
-
-
+			'$start_menu' => ['start_menu', t('New Member Links'), $start_menu, t('Display new member quick links menu'), $yes_no]
 		));
 
 		call_hooks('display_settings',$o);

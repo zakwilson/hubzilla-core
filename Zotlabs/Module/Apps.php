@@ -47,11 +47,11 @@ class Apps extends \Zotlabs\Web\Controller {
 		return replace_macros(get_markup_template('myapps.tpl'), array(
 			'$sitename' => get_config('system','sitename'),
 			'$cat' => $cat,
-			'$title' => t('Apps'),
+			'$title' => (($available) ? t('Available Apps') : t('Installed Apps')),
 			'$apps' => $apps,
 			'$authed' => ((local_channel()) ? true : false),
-			'$manage' => (($available) ? '' : t('Manage apps')),
-			'$create' => (($mode == 'edit') ? t('Create new app') : '')
+			'$manage' => (($available) ? '' : t('Manage Apps')),
+			'$create' => (($mode == 'edit') ? t('Create Custom App') : '')
 		));
 	
 	}

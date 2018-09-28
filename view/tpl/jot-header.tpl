@@ -7,7 +7,7 @@ var pretext = '{{$pretext}}';
 function initEditor(cb){
 	if(editor == false){
 		$("#profile-jot-text-loading").show();
-		$("#profile-jot-reset").removeClass('d-none');
+		$("#profile-jot-tools").removeClass('d-none');
 		{{$geotag}}
 		if(plaintext == 'none') {
 			$("#profile-jot-text-loading").hide();
@@ -308,7 +308,7 @@ var activeCommentText = '';
 		{{if $reset}}
 		$(".jothidden").hide();
 		$("#profile-jot-text").removeClass('jot-expanded');
-		$("#profile-jot-reset").addClass('d-none');
+		$("#profile-jot-tools").addClass('d-none');
 		$("#jot-preview-content").html('').hide();
 		editor = false;
 		{{else}}

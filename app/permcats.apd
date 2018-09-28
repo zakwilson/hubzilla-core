@@ -1,0 +1,6 @@
+version: 1
+url: $baseurl/permcats
+requires: local_channel
+name: Permission Categories
+photo: icon:unlock-alt
+categories: Access Control

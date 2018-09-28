@@ -50,11 +50,11 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.7.1' );
+define ( 'STD_VERSION',             '3.7.4' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 
-define ( 'DB_UPDATE_VERSION',       1218 );
+define ( 'DB_UPDATE_VERSION',       1221 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -424,6 +424,7 @@ define ( 'TERM_BOOKMARK',     8 );
 define ( 'TERM_HIERARCHY',    9 );
 define ( 'TERM_COMMUNITYTAG', 10 );
 define ( 'TERM_FORUM',        11 );
+define ( 'TERM_EMOJI',        12 );
 
 define ( 'TERM_OBJ_POST',    1 );
 define ( 'TERM_OBJ_PHOTO',   2 );
@@ -1118,8 +1119,12 @@ class App {
 		if(! x(self::$page,'title'))
 			self::$page['title'] = self::$config['system']['sitename'];
 
-		if(! self::$meta->get_field('og:title'))
-			self::$meta->set('og:title',self::$page['title']);
+		$pagemeta = [ 'og:title' => self::$page['title'] ];
+
+		call_hooks('page_meta',$pagemeta);
+		foreach ($pagemeta as $metaproperty => $metavalue) {
+			self::$meta->set($metaproperty,$metavalue);
+		}
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 

@@ -63,7 +63,7 @@ class Channel {
 				}
 				$hide_presence    = 1 - (intval($role_permissions['online']));
 				if($role_permissions['default_collection']) {
-					$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+					$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 						intval(local_channel()),
 						dbesc( t('Friends') )
 					);
@@ -71,7 +71,7 @@ class Channel {
 						require_once('include/group.php');
 						group_add(local_channel(), t('Friends'));
 						group_add_member(local_channel(),t('Friends'),$channel['channel_hash']);
-						$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+						$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 							intval(local_channel()),
 							dbesc( t('Friends') )
 						);
@@ -154,7 +154,6 @@ class Channel {
 		$adult            = (($_POST['adult'] == 1) ? 1 : 0);
 		$defpermcat       = ((x($_POST,'defpermcat')) ? notags(trim($_POST['defpermcat'])) : 'default');
 	
-		$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 		$mailhost        = ((array_key_exists('mailhost',$_POST)) ? notags(trim($_POST['mailhost'])) : '');
 		$profile_assign  = ((x($_POST,'profile_assign')) ? notags(trim($_POST['profile_assign'])) : '');
 
@@ -251,7 +250,6 @@ class Channel {
 		set_pconfig(local_channel(),'system','evdays',$evdays);
 		set_pconfig(local_channel(),'system','photo_path',$photo_path);
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
-		set_pconfig(local_channel(),'system','cal_first_day',$cal_first_day);
 		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 		set_pconfig(local_channel(),'system','email_notify_host',$mailhost);
 		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);
@@ -622,7 +620,7 @@ class Channel {
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
 			'$firefoxshare' => t('Firefox Share $Projectname provider'),
-			'$cal_first_day' => array('first_day', t('Start calendar week on Monday'), ((get_pconfig(local_channel(),'system','cal_first_day')) ? 1 : ''), '', $yes_no),
+
 		));
 	
 		call_hooks('settings_form',$o);

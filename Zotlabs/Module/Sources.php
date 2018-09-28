@@ -1,15 +1,18 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
-class Sources extends \Zotlabs\Web\Controller {
+class Sources extends Controller {
 
 	function post() {
 		if(! local_channel())
 			return;
 
-		if(! feature_enabled(local_channel(),'channel_sources'))
-			return '';
+		if(! Apps::system_app_installed(local_channel(), 'Channel Sources'))
+			return;
 	
 		$source = intval($_REQUEST['source']);
 		$xchan = escape_tags($_REQUEST['xchan']);
@@ -75,12 +78,17 @@ class Sources extends \Zotlabs\Web\Controller {
 	function get() {
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
-			return '';
+			return;
 		}
 	
-		if(! feature_enabled(local_channel(),'channel_sources')) {
-			return '';
-		} 
+		if(! Apps::system_app_installed(local_channel(), 'Channel Sources')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>Sources App (Not Installed):</b><br>';
+			$o .= t('Automatically import channel content from other channels or feeds');
+			return $o;
+		}
 	
 		// list sources
 		if(argc() == 1) {

@@ -259,7 +259,7 @@ class ThreadItem {
 		$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
 		$unverified = '' ; // (($this->is_wall_to_wall() && (! intval($item['item_verified']))) ? t('Message cannot be verified') : '');
 
-
+		$settings = '';
 
 		// FIXME - check this permission
 		if($conv->get_profile_owner() == local_channel()) {
@@ -267,6 +267,8 @@ class ThreadItem {
 				'tagit' => t("Add Tag"),
 				'classtagger' => "",
 			);
+
+			$settings = t('Conversation Tools');
 		}
 
 		$has_bookmarks = false;
@@ -324,6 +326,10 @@ class ThreadItem {
 		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
+
+                $dropdown_extras_arr = [ 'item' => $item , 'dropdown_extras' => '' ];
+                call_hooks('dropdown_extras',$dropdown_extras_arr);
+                $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
 		$tmp_item = array(
 			'template' => $this->get_template(),
@@ -404,6 +410,7 @@ class ThreadItem {
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
 			'multidrop' => ((feature_enabled($conv->get_profile_owner(),'multi_delete')) ? $multidrop : ''),
+                        'dropdown_extras' => $dropdown_extras,
 // end toolbar buttons
 
 			'unseen_comments' => $unseen_comments,
@@ -431,7 +438,8 @@ class ThreadItem {
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
 			'submid' => str_replace(['+','='], ['',''], base64_encode($item['mid'])),
-			'thread_level' => $thread_level
+			'thread_level' => $thread_level,
+			'settings' => $settings
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

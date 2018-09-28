@@ -251,9 +251,15 @@ function bb_to_markdown($Text, $options = []) {
 	// Markdownify does not preserve previously escaped html entities such as <> and &.
 	//$Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
 
+	// This might fix PHP Warning: DOMDocument::loadHTML(): htmlParseEntityRef: no name in Entity
+	$Text = str_replace("&", "&amp;", $Text);
+
 	// Now convert HTML to Markdown
 
 	$Text = html2markdown($Text);
+
+	//html2markdown adds backslashes infront of hashes after a new line. remove them
+	$Text = str_replace("\n\#", "\n#", $Text);
 
 	// It also adds backslashes to our attempt at getting around the html entity preservation for some weird reason.
 
@@ -292,7 +298,7 @@ function bb_to_markdown($Text, $options = []) {
  */
 function html2markdown($html,$options = []) {
 	$markdown = '';
- 
+
 	$environment = Environment::createDefaultEnvironment($options);
 	$environment->addConverter(new TableConverter());
 	$converter = new HtmlConverter($environment);

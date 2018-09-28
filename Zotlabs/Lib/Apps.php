@@ -303,7 +303,7 @@ class Apps {
 			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
 			'View Bookmarks' => t('View Bookmarks'),
-			'My Chatrooms' => t('My Chatrooms'),
+			'Chatrooms' => t('Chatrooms'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),
 			'Suggest Channels' => t('Suggest Channels'),
@@ -337,7 +337,20 @@ class Apps {
 			'Profiles' => t('Profiles'),
 			'Privacy Groups' => t('Privacy Groups'),
 			'Notifications' => t('Notifications'),
-			'Order Apps' => t('Order Apps')
+			'Order Apps' => t('Order Apps'),
+			'CalDAV' => t('CalDAV'),
+			'CardDAV' => t('CardDAV'),
+			'Channel Sources' => t('Channel Sources'),
+			'Gallery' => t('Gallery'),
+			'Guest Access' => t('Guest Access'),
+			'Notes' => t('Notes'),
+			'OAuth Apps Manager' => t('OAuth Apps Manager'),
+			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
+			'PDL Editor' => t('PDL Editor'),
+			'Permission Categories' => t('Permission Categories'),
+			'Premium Channel' => t('Premium Channel'),
+			'Public Stream' => t('Public Stream'),
+			'My Chatrooms' => t('My Chatrooms')
 		);
 
 		if(array_key_exists('name',$arr)) {
@@ -349,6 +362,9 @@ class Apps {
 			for($x = 0; $x < count($arr); $x++) {
 				if(array_key_exists($arr[$x]['name'],$apps)) {
 					$arr[$x]['name'] = $apps[$arr[$x]['name']];
+				} else {
+				    // Try to guess by app name if not in list
+				    $arr[$x]['name'] = t(trim($arr[$x]['name']));
 				}
 			}
 		}
@@ -388,18 +404,23 @@ class Apps {
 
 		// This will catch somebody clicking on a system "available" app that hasn't had the path macros replaced
 		// and they are allowed to see the app
-
-
-		if(strstr($papp['url'],'$baseurl') || strstr($papp['url'],'$nick') || strstr($papp['photo'],'$baseurl') || strstr($pap['photo'],'$nick')) {
+		if(strpos($papp['url'],'$baseurl') !== false || strpos($papp['url'],'$nick') !== false || strpos($papp['photo'],'$baseurl') !== false || strpos($papp['photo'],'$nick') !== false) {
 			$view_channel = local_channel();
 			if(! $view_channel) {
+
 				$sys = get_sys_channel();
 				$view_channel = $sys['channel_id'];
 			}
 			self::app_macros($view_channel,$papp); 
 		}
 
-		if(! strstr($papp['url'],'://'))
+		if(strpos($papp['url'], ',')) {
+			$urls = explode(',', $papp['url']);
+			$papp['url'] = trim($urls[0]);
+			$papp['settings_url'] = trim($urls[1]);
+		}
+
+		if(! strpos($papp['url'],'://'))
 			$papp['url'] = z_root() . ((strpos($papp['url'],'/') === 0) ? '' : '/') . $papp['url'];
 
 
@@ -468,7 +489,9 @@ class Apps {
 		$hosturl = '';
 
 		if(local_channel()) {
-			$installed = self::app_installed(local_channel(),$papp);
+			if(self::app_installed(local_channel(),$papp) && !$papp['deleted'])
+				$installed = true;
+
 			$hosturl = z_root() . '/';
 		}
 		elseif(remote_channel()) {
@@ -495,18 +518,21 @@ class Apps {
 		if($mode === 'install') {
 			$papp['embed'] = true;
 		}
+
 		return replace_macros(get_markup_template('app.tpl'),array(
 			'$app' => $papp,
 			'$icon' => $icon,
 			'$hosturl' => $hosturl,
 			'$purchase' => (($papp['page'] && (! $installed)) ? t('Purchase') : ''),
-			'$install' => (($hosturl && in_array($mode, ['view','install'])) ? $install_action : ''),
+			'$installed' => $installed,
+			'$action_label' => (($hosturl && in_array($mode, ['view','install'])) ? $install_action : ''),
 			'$edit' => ((local_channel() && $installed && $mode == 'edit') ? t('Edit') : ''),
-			'$delete' => ((local_channel() && $installed && $mode == 'edit') ? t('Delete') : ''),
-			'$undelete' => ((local_channel() && $installed && $mode == 'edit') ? t('Undelete') : ''),
+			'$delete' => ((local_channel() && $mode == 'edit') ? t('Delete') : ''),
+			'$undelete' => ((local_channel() && $mode == 'edit') ? t('Undelete') : ''),
+			'$settings_url' => ((local_channel() && $installed && $mode == 'list') ? $papp['settings_url'] : ''),
 			'$deleted' => $papp['deleted'],
-			'$feature' => (($papp['embed']) ? false : true),
-			'$pin' => (($papp['embed']) ? false : true),
+			'$feature' => (($papp['embed'] || $mode == 'edit') ? false : true),
+			'$pin' => (($papp['embed'] || $mode == 'edit') ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
 			'$navapps' => (($mode == 'nav') ? true : false),
@@ -514,14 +540,15 @@ class Apps {
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray'),
 			'$add_nav' => t('Pin to navbar'),
-			'$remove_nav' => t('Unpin from navbar')
+			'$remove_nav' => t('Unpin from navbar'),
+			'$rpath' => z_root() . '/apps'
 		));
 	}
 
 	static public function app_install($uid,$app) {
 		$app['uid'] = $uid;
 
-		if(self::app_installed($uid,$app))
+		if(self::app_installed($uid,$app,true))
 			$x = self::app_update($app);
 		else
 			$x = self::app_store($app);
@@ -649,33 +676,60 @@ class Apps {
 		}
 	}
 
-	static public function app_installed($uid,$app) {
+	static public function app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc((array_key_exists('guid',$app)) ? $app['guid'] : ''), 
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
 
-	static public function addon_app_installed($uid,$app) {
+	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_plugin = '%s' and app_channel = %d limit 1",
 			dbesc($app),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('addon_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
-	static public function system_app_installed($uid,$app) {
+	static public function system_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc(hash('whirlpool',$app)),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('system_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
@@ -721,6 +775,9 @@ class Apps {
 		);
 
 		if($r) {
+                        $hookinfo = Array('uid'=>$uid,'deleted'=>$deleted,'cats'=>$cats,'apps'=>$r);
+			call_hooks('app_list',$hookinfo);
+			$r = $hookinfo['apps'];
 			for($x = 0; $x < count($r); $x ++) {
 				if(! $r[$x]['app_system'])
 					$r[$x]['type'] = 'personal';
@@ -908,7 +965,7 @@ class Apps {
 			$arr['author'] = $sys['channel_hash'];
 		}
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strstr($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}
@@ -994,7 +1051,7 @@ class Apps {
 		if((! $darray['app_url']) || (! $darray['app_id']))
 			return $ret;
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strstr($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}

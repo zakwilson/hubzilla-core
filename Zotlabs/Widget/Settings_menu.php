@@ -45,16 +45,17 @@ class Settings_menu {
 
 		);
 
-		$tabs[] =	array(
-			'label'	=> t('Addon settings'),
-			'url' 	=> z_root().'/settings/featured',
-			'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
-		);
 
 		$tabs[] =	array(
 			'label'	=> t('Display settings'),
 			'url' 	=> z_root().'/settings/display',
 			'selected'	=> ((argv(1) === 'display') ? 'active' : ''),
+		);
+
+		$tabs[] =	array(
+			'label'	=> t('Addon settings'),
+			'url' 	=> z_root().'/settings/featured',
+			'selected'	=> ((argv(1) === 'featured') ? 'active' : ''),
 		);
 
 		if($hublocs) {

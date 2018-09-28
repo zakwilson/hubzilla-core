@@ -52,7 +52,7 @@ class Notes extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = EMPTY_STR;
 
-			$o = '<b>Notes App (Not Installed):</b><br>';
+			$o = '<b>' . t('Notes App (Not Installed):') . '</b><br>';
 			$o .= t('A simple notes app with a widget (note: notes are not encrypted)');
 			return $o;
 		}

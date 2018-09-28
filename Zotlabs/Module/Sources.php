@@ -85,7 +85,7 @@ class Sources extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Sources App (Not Installed):</b><br>';
+			$o = '<b>' . t('Sources App (Not Installed):') . '</b><br>';
 			$o .= t('Automatically import channel content from other channels or feeds');
 			return $o;
 		}

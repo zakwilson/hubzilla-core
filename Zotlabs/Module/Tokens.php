@@ -96,7 +96,7 @@ class Tokens extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Guest Access App (Not Installed):</b><br>';
+			$o = '<b>' . t('Guest Access App (Not Installed):') . '</b><br>';
 			$o .= t('Create access tokens so that non-members can access private content');
 			return $o;
 		}

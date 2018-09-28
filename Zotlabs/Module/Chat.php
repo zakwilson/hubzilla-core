@@ -99,7 +99,7 @@ class Chat extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Chatrooms App (Not Installed):</b><br>';
+			$o = '<b>' . t('Chatrooms App (Not Installed):') . '</b><br>';
 			$o .= t('Access Controlled Chatrooms');
 			return $o;
 		}

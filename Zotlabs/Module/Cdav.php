@@ -836,7 +836,7 @@ class Cdav extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>CalDAV App (Not Installed):</b><br>';
+			$o = '<b>' . t('CalDAV App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('CalDAV capable calendar');
 			return $o;
 		}
@@ -845,7 +845,7 @@ class Cdav extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>CardDAV App (Not Installed):</b><br>';
+			$o = '<b>' . t('CardDAV App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('CalDAV capable addressbook');
 			return $o;
 		}

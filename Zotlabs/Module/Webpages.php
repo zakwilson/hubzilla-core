@@ -45,7 +45,7 @@ class Webpages extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Webpages App (Not Installed):</b><br>';
+			$o = '<b>' . t('Webpages App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Provide managed web pages on your channel');
 			return $o;
 		}

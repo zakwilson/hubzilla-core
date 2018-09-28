@@ -97,7 +97,7 @@ class Oauth extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>OAuth Apps Manager App (Not Installed):</b><br>';
+			$o = '<b>' . t('OAuth Apps Manager App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('OAuth authentication tokens for mobile and remote apps');
 			return $o;
 		}

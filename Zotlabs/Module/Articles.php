@@ -40,7 +40,7 @@ class Articles extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Articles App (Not Installed):</b><br>';
+			$o = '<b>' . t('Articles App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Create interactive articles');
 			return $o;
 		}

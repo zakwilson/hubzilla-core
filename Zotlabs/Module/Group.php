@@ -98,7 +98,7 @@ class Group extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Privacy Groups App (Not Installed):</b><br>';
+			$o = '<b>' . t('Privacy Groups App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Management of privacy groups');
 			return $o;
 		}

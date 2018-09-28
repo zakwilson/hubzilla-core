@@ -59,7 +59,7 @@ class Permcats extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Permission Categories App (Not Installed):</b><br>';
+			$o = '<b>' . t('Permission Categories App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Create custom connection permission limits');
 			return $o;
 		}

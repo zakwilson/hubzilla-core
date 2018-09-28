@@ -63,7 +63,7 @@ class Channel {
 				}
 				$hide_presence    = 1 - (intval($role_permissions['online']));
 				if($role_permissions['default_collection']) {
-					$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+					$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 						intval(local_channel()),
 						dbesc( t('Friends') )
 					);
@@ -71,7 +71,7 @@ class Channel {
 						require_once('include/group.php');
 						group_add(local_channel(), t('Friends'));
 						group_add_member(local_channel(),t('Friends'),$channel['channel_hash']);
-						$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+						$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 							intval(local_channel()),
 							dbesc( t('Friends') )
 						);

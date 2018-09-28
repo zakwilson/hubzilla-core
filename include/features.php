@@ -288,7 +288,7 @@ function get_features($filtered = true, $level = (-1)) {
 				'nav_channel_select',  
 				t('Navigation Channel Select'), 
 				t('Change channels directly from within the navigation dropdown menu'),
-				true,
+				false,
 				get_config('feature_lock','nav_channel_select'),
 			]
 

@@ -107,7 +107,7 @@ class Invite extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Invite App (Not Installed):</b><br>';
+			$o = '<b>' . t('Invite App (Not Installed):') . '</b><br>';
 			$o .= t('Send email invitations to join this network');
 			return $o;
 		}

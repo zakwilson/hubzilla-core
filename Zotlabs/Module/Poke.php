@@ -162,7 +162,7 @@ class Poke extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>' . t('Poke App (Not Installed):') . '</b><br>';
+			$o = '<b>' . t('Poke App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Poke somebody in your addressbook');
 			return $o;
 		}

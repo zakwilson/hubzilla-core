@@ -432,7 +432,7 @@ class Channel {
 			'$nickname' => (($intl_nickname === $webbie) ? $webbie : $intl_nickname . '&nbsp;(' . $webbie . ')'),
 			'$subdir' => $subdir,
 			'$davdesc' => t('Your files/photos are accessible via WebDAV at'),
-			'$davpath' => ((get_account_techlevel() > 3) ? z_root() . '/dav/' . $nickname : ''),
+			'$davpath' => z_root() . '/dav/' . $nickname,
 			'$basepath' => \App::get_hostname()
 		));
 
@@ -490,11 +490,6 @@ class Channel {
 		$permissions_set = (($permissions_role != 'custom') ? true : false);
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-		if((get_account_techlevel() < 4) && $permissions_role !== 'custom')
-			unset($perm_roles[t('Other')]);
-
-
-		
 
 		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');

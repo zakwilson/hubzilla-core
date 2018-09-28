@@ -968,9 +968,6 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a class="zrl" href="$1" ' . $target . ' rel="nofollow noopener" >$2</a>', $Text);
 	}
 
-	if (get_account_techlevel() < 2)
-		$Text = str_replace('<span class="bookmark-identifier">#^</span>', '', $Text);
-
 	// Perform MAIL Search
 	if (strpos($Text,'[/mail]') !== false) {
 		$Text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1" ' . $target . ' rel="nofollow noopener" >$1</a>', $Text);

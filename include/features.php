@@ -85,6 +85,19 @@ function get_features($filtered = true, $level = (-1)) {
 
 		],
 
+		'channel_home' => [
+
+			t('Channel Home'),
+
+			[
+				'tagadelic',
+				t('Tag Cloud'),
+				t('Provide a personal tag cloud on your channel page'),
+				false,
+				get_config('feature_lock','tagadelic'),
+			]
+		],
+
 		'connections' => [
 
 			t('Connections'),
@@ -140,14 +153,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to mark special posts with a star indicator'),
 				false,
 				get_config('feature_lock','star_posts'),
-			],
-
-			[
-				'tagadelic',      
-				t('Tag Cloud'),				    
-				t('Provide a personal tag cloud on your channel page'),
-				false,
-				get_config('feature_lock','tagadelic'),
 			]
 
 		],

@@ -39,7 +39,7 @@ class Pdledit extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>PDL Editor App (Not Installed):</b><br>';
+			$o = '<b>' . t('PDL Editor App (Not Installed):') . '</b><br>';
 			$o .= t('Provides the ability to edit system page layouts');
 			return $o;
 		}

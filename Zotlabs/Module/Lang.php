@@ -14,7 +14,7 @@ class Lang extends Controller {
 				//Do not display any associated widgets at this point
 				App::$pdl = '';
 
-				$o = '<b>' . t('Language App (Not Installed):') . '</b><br>';
+				$o = '<b>' . t('Language App') . ' (' . t('Not Installed') . '):</b><br>';
 				$o .= t('Change UI language');
 				return $o;
 			}

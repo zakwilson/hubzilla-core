@@ -132,7 +132,7 @@ class Articles extends Controller {
 				$x['title'] = $_REQUEST['title'];
 			if($_REQUEST['body'])
 				$x['body'] = $_REQUEST['body'];
-			$editor = status_editor($a,$x);
+			$editor = status_editor($a,$x,false,'Articles');
 
 		}
 		else {

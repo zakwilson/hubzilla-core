@@ -196,7 +196,7 @@ class Network extends \Zotlabs\Web\Controller {
 				$x['pretext'] = $deftag;
 	
 	
-			$status_editor = status_editor($a,$x);
+			$status_editor = status_editor($a,$x,false,'Network');
 			$o .= $status_editor;
 
 			$static = channel_manual_conv_update(local_channel());

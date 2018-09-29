@@ -86,7 +86,7 @@ class Network extends \Zotlabs\Web\Controller {
 		if($search) {
 			if(strpos($search,'#') === 0) {
 				$hashtags = substr($search,1);
-				$search = $_GET['search'] = '';
+				$search = '';
 			}
 		}
 	

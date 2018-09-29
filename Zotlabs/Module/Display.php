@@ -81,7 +81,7 @@ class Display extends \Zotlabs\Web\Controller {
 			);
 	
 			$o = '<div id="jot-popup">';
-			$o .= status_editor($a,$x);
+			$o .= status_editor($a,$x,false,'Display');
 			$o .= '</div>';
 		}
 	

@@ -208,7 +208,7 @@ class Webpages extends Controller {
 		if(! $r)
 			$x['pagetitle'] = 'home';
 
-		$editor = status_editor($a,$x);
+		$editor = status_editor($a,$x,false,'Webpages');
 
 		$pages = null;
 	

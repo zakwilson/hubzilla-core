@@ -81,7 +81,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			);
 	
 			$o = '<div id="jot-popup">';
-			$o .= status_editor($a,$x);
+			$o .= status_editor($a,$x,false,'Pubstream');
 			$o .= '</div>';
 		}
 

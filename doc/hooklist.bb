@@ -595,6 +595,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/smilie]smilie[/zrl]
 	Called when translating emoticons
 
+[zrl=[baseurl]/help/hook/status_editor]status_editor[/zrl]
+	Called when generating the status_editor.
+
 [zrl=[baseurl]/help/hook/stream_item]stream_item[/zrl]
 	Called for each item which is rendered for viewing via conversation()
 

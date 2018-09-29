@@ -84,18 +84,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$search = (($_GET['search']) ? $_GET['search'] : '');
 		if($search) {
-			$_GET['netsearch'] = escape_tags($search);
-			if(strpos($search,'@') === 0) {
-				$r = q("select abook_id from abook left join xchan on abook_xchan = xchan_hash where xchan_name = '%s' and abook_channel = %d limit 1",
-					dbesc(substr($search,1)),
-					intval(local_channel())
-				);
-				if($r) {
-					$_GET['cid'] = $r[0]['abook_id'];
-					$search = $_GET['search'] = '';
-				}
-			}
-			elseif(strpos($search,'#') === 0) {
+			if(strpos($search,'#') === 0) {
 				$hashtags = substr($search,1);
 				$search = $_GET['search'] = '';
 			}
@@ -143,7 +132,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$deftag = '';
 	
 
-		if(x($_GET,'search') || $file || (!$pf && $cid))
+		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category)
 			$nouveau = true;
 
 		if($cid) {
@@ -169,9 +158,9 @@ class Network extends \Zotlabs\Web\Controller {
 		if(! $update) {
 	
 			// search terms header
-			if($search) {
+			if($search || $hashtags) {
 				$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-					'$title' => t('Search Results For:') . ' ' . htmlspecialchars($search, ENT_COMPAT,'UTF-8')
+					'$title' => t('Search Results For:') . ' ' . (($search) ? htmlspecialchars($search, ENT_COMPAT,'UTF-8') : '#' . htmlspecialchars($hashtags, ENT_COMPAT,'UTF-8'))
 				));
 			}
 	

@@ -101,7 +101,7 @@ class Connect extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Premium Channel App (Not Installed):</b><br>';
+			$o = '<b>' . t('Premium Channel App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Allows you to set restrictions and terms on those that connect with your channel');
 			return $o;
 		}

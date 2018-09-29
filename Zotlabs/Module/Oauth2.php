@@ -103,7 +103,7 @@ class Oauth2 extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>OAuth2 Apps Manager App (Not Installed):</b><br>';
+			$o = '<b>' . t('OAuth2 Apps Manager App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('OAuth2 authenticatication tokens for mobile and remote apps');
 			return $o;
 		}

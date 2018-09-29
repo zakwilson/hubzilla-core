@@ -546,6 +546,17 @@ class Apps {
 	}
 
 	static public function app_install($uid,$app) {
+
+		if(! is_array($app)) {
+			$r = q("select * from app where app_name = '%s' and app_channel = 0",
+				dbesc($app)
+			);
+			if(! $r)
+				return false;
+
+			$app = self::app_encode($r[0]);
+		}
+
 		$app['uid'] = $uid;
 
 		if(self::app_installed($uid,$app,true))

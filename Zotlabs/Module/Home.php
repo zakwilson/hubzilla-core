@@ -13,14 +13,12 @@ class Home extends \Zotlabs\Web\Controller {
 		$ret = array();
 	
 		call_hooks('home_init',$ret);
-	
+
 		$splash = ((argc() > 1 && argv(1) === 'splash') ? true : false);
 	
 		$channel = \App::get_channel();
 		if(local_channel() && $channel && $channel['xchan_url'] && ! $splash) {
-			$dest = $channel['channel_startpage'];
-			if(! $dest)
-				$dest = get_pconfig(local_channel(),'system','startpage');
+			$dest = (($ret['startpage']) ? $ret['startpage'] : '');
 			if(! $dest)
 				$dest = get_config('system','startpage');
 			if(! $dest)

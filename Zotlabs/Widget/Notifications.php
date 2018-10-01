@@ -160,7 +160,7 @@ class Notifications {
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
 			'$loading' => t('Loading'),
-			'$startpage' => get_pconfig(local_channel(), 'system', 'startpage')
+			'$startpage' => $channel['channel_startpage']
 		));
 
 		return $o;

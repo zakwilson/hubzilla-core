@@ -6,7 +6,7 @@ namespace Zotlabs\Module\Settings;
 class Directory {
 
 	function post() {
-		
+
 		$module = substr(strrchr(strtolower(static::class), '\\'), 1);
 
 		check_form_security_token_redirectOnErr('/settings/' . $module, 'settings_' . $module);

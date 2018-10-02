@@ -623,6 +623,7 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($x[0]['id'])
 						);
+						call_hooks('app_destroy', $x[0]);
 					}
 					else {
 						$r = q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",

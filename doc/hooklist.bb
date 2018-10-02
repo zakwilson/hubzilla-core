@@ -52,6 +52,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/api_perm_is_allowed]api_perm_is_allowed[/zrl]
 	Called when perm_is_allowed() is executed from an API call.
 
+[zrl=[baseurl]/help/hook/app_destroy]app_destroy[/zrl]
+	Called when an app is deleted
+
 [zrl=[baseurl]/help/hook/app_installed_filter]app_installed_filter[/zrl]
 	Called when determining whether an app is installed
 

@@ -172,26 +172,28 @@
 				</div>
 				<div id="miscellaneous-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="miscellaneous-settings" data-parent="#settings" >
 					<div class="section-content-tools-wrapper">
-						{{if $profselect}}
-						<label for="contact-profile-selector">{{$profseltxt}}</label>
-						{{$profselect}}
-						{{/if}}
-						{{if $menus}}
-						<div class="form-group channel-menu">
-							<label for="channel_menu">{{$menu_desc}}</label>
-							<select name="channel_menu" class="form-control">
-							{{foreach $menus as $menu }}
-								<option value="{{$menu.name}}" {{$menu.selected}} >{{$menu.name}} </option>
-							{{/foreach}}
-							</select>
-						</div>
-						{{/if}}
-						{{if $misc_addon}}
-						{{$misc_addon}}
-						{{/if}}
+					    <div class="form-group">
+						    {{if $profselect}}
+						        <label for="contact-profile-selector">{{$profseltxt}}</label>
+						        {{$profselect}}
+						    {{/if}}
+						    {{if $menus}}
+						    <div class="form-group channel-menu">
+							    <label for="channel_menu">{{$menu_desc}}</label>
+							    <select name="channel_menu" class="form-control">
+							    {{foreach $menus as $menu }}
+								    <option value="{{$menu.name}}" {{$menu.selected}}>{{$menu.name}}</option>
+							    {{/foreach}}
+							    </select>
+						    </div>
+						    {{/if}}
+						    {{if $misc_addon}}
+						        {{$misc_addon}}
+						    {{/if}}
 
-						<div class="settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+						    <div class="settings-submit-wrapper" >
+							    <button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+						    </div>
 						</div>
 					</div>
 				</div>

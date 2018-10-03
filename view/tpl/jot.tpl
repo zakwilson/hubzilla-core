@@ -43,7 +43,9 @@
 		{{/if}}
 		<div id="jot-text-wrap">
 			<div id="profile-jot-tools" class="btn-group d-none">
+				{{if $is_owner}}
 				<a id="profile-jot-settings" class="btn btn-outline-secondary btn-sm border-0" href="/settings/editor/?f=&rpath=/{{$return_path}}"><i class="fa fa-cog"></i></a>
+				{{/if}}
 				{{if $reset}}
 				<button id="profile-jot-reset" class="btn btn-outline-secondary btn-sm border-0" title="{{$reset}}" onclick="itemCancel(); return false;">
 					<i class="fa fa-close"></i>

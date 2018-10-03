@@ -1462,7 +1462,8 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
 		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
-		'$reset' => $reset
+		'$reset' => $reset,
+		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false)
 	));
 
 	if ($popup === true) {

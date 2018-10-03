@@ -132,14 +132,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'filing',         
-				t('Saved Folders'),				
-				t('Ability to file posts under folders'),
-				false,
-				get_config('feature_lock','filing'),
-			],
-
-			[
 				'dislike',        
 				t('Dislike Posts'),				
 				t('Ability to dislike posts/comments'),
@@ -312,6 +304,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Save search terms for re-use'),
 				false,
 				get_config('feature_lock','savedsearch')
+			],
+
+			[
+				'filing',
+				t('Saved Folders'),
+				t('Ability to file posts under folders'),
+				false,
+				get_config('feature_lock','filing'),
 			],
 
 			[

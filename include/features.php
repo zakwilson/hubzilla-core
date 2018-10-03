@@ -90,6 +90,14 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Channel Home'),
 
 			[
+				'archives',
+				t('Search by Date'),
+				t('Ability to select posts by date ranges'),
+				false,
+				get_config('feature_lock','archives')
+			],
+
+			[
 				'tagadelic',
 				t('Tag Cloud'),
 				t('Provide a personal tag cloud on your channel page'),
@@ -289,14 +297,6 @@ function get_features($filtered = true, $level = (-1)) {
 		'network' => [
 
 			t('Network'),
-
-			[
-				'archives',       
-				t('Search by Date'),			
-				t('Ability to select posts by date ranges'),
-				false,
-				get_config('feature_lock','archives')
-			],
 
 			[
 				'savedsearch',    

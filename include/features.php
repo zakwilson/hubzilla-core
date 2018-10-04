@@ -47,7 +47,15 @@ function feature_level($feature,$def) {
 function process_module_features_get($uid, $features) {
 	unset($features[0]);
 	foreach($features as $f) {
-		$arr[] = array('feature_' . $f[0],$f[1],((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),$f[2], array(t('Off'),t('On')), (($f[4] === false) ? '' : 'disabled'));
+		$arr[] = [
+			'feature_' . $f[0],
+			$f[1],
+			((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),
+			$f[2],
+			[t('Off'),t('On')],
+			(($f[4] === false) ? '' : 'disabled'),
+			$f[5]
+		];
 	}
 	return $arr;
 }
@@ -61,8 +69,6 @@ function process_module_features_post($uid, $features, $post_arr) {
 		else
 			set_pconfig($uid,'feature', $k, '');
 	}
-	if($post_arr['rpath'])
-		goaway($post_arr['rpath']);
 }
 
 function get_features($filtered = true, $level = (-1)) {

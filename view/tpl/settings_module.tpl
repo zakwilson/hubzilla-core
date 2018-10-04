@@ -11,6 +11,9 @@
 			{{foreach $features as $feature}}
 			{{include file="field_checkbox.tpl" field=$feature}}
 			{{/foreach}}
+			{{if $extra_settings_html}}
+			{{$extra_settings_html}}
+			{{/if}}
 			<div class="settings-submit-wrapper" >
 				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 			</div>

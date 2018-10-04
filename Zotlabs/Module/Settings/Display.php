@@ -30,13 +30,6 @@ class Display {
 		$manual_update     = ((array_key_exists('manual_update',$_POST)) ? intval($_POST['manual_update']) : 0);
 		$start_menu        = ((x($_POST,'start_menu')) ? intval($_POST['start_menu']) : 0);
 
-		$channel_divmore_height = ((x($_POST,'channel_divmore_height')) ? intval($_POST['channel_divmore_height']) : 400);
-		if($channel_divmore_height < 50)
-			$channel_divmore_height = 50;
-		$network_divmore_height = ((x($_POST,'network_divmore_height')) ? intval($_POST['network_divmore_height']) : 400);
-		if($network_divmore_height < 50)
-			$network_divmore_height = 50;
-
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
 		$browser_update   = $browser_update * 1000;
 		if($browser_update < 10000)
@@ -53,8 +46,6 @@ class Display {
 		set_pconfig(local_channel(),'system','itemspage', $itemspage);
 		set_pconfig(local_channel(),'system','no_smilies',1-intval($nosmile));
 		set_pconfig(local_channel(),'system','title_tosource',$title_tosource);
-		set_pconfig(local_channel(),'system','channel_divmore_height', $channel_divmore_height);
-		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
 		set_pconfig(local_channel(),'system','manual_conversation_update', $manual_update);
 		set_pconfig(local_channel(),'system','channel_menu', $channel_menu);
 		set_pconfig(local_channel(),'system','start_menu', $start_menu);
@@ -211,8 +202,6 @@ class Display {
 			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),
 			'$title_tosource'	=> array('title_tosource', t("Link post titles to source"), $title_tosource, '', $yes_no),
 			'$theme_config' => $theme_config,
-			'$channel_divmore_height' => array('channel_divmore_height', t('Channel page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','channel_divmore_height')) ? get_pconfig(local_channel(),'system','channel_divmore_height') : 400), t('click to expand content exceeding this height')),
-			'$network_divmore_height' => array('network_divmore_height', t('Grid page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','network_divmore_height')) ? get_pconfig(local_channel(),'system','network_divmore_height') : 400) , t('click to expand content exceeding this height')),
 			'$start_menu' => ['start_menu', t('New Member Links'), $start_menu, t('Display new member quick links menu'), $yes_no]
 		));
 

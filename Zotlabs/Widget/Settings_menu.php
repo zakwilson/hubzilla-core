@@ -15,8 +15,6 @@ class Settings_menu {
 
 		// Retrieve the 'self' address book entry for use in the auto-permissions link
 
-		$role = get_pconfig(local_channel(),'system','permissions_role');
-
 		$abk = q("select abook_id from abook where abook_channel = %d and abook_self = 1 limit 1",
 			intval(local_channel())
 		);

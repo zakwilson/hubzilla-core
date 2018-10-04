@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/selectors.php');
 
 
@@ -551,8 +553,8 @@ class Channel {
 			'$suggestme' => $suggestme,
 			'$group_select' => $group_select,
 			'$role' => array('permissions_role' , t('Channel role and privacy'), $permissions_role, '', $perm_roles),
-			'$defpermcat' => [ 'defpermcat', t('Default Permissions Group'), $default_permcat, '', $permcats ],	
-			'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
+			'$defpermcat' => [ 'defpermcat', t('Default permissions category'), $default_permcat, '', $permcats ],
+			'$permcat_enable' => Apps::system_app_installed(local_channel(), 'Permission Categories'),
 			'$profile_in_dir' => $profile_in_dir,
 			'$hide_friends' => $hide_friends,
 			'$hide_wall' => $hide_wall,

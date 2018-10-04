@@ -49,7 +49,6 @@ class Channel_home {
 			]
 		);
 
-
 		$tpl = get_markup_template("settings_module.tpl");
 
 		$o .= replace_macros($tpl, array(

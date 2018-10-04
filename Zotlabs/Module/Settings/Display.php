@@ -27,8 +27,6 @@ class Display {
 		$user_scalable     = ((x($_POST,'user_scalable')) ? intval($_POST['user_scalable'])  : 0);
 		$nosmile           = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
 		$title_tosource    = ((x($_POST,'title_tosource')) ? intval($_POST['title_tosource'])  : 0);
-		$channel_list_mode = ((x($_POST,'channel_list_mode')) ? intval($_POST['channel_list_mode']) : 0);
-		$network_list_mode = ((x($_POST,'network_list_mode')) ? intval($_POST['network_list_mode']) : 0);
 		$manual_update     = ((array_key_exists('manual_update',$_POST)) ? intval($_POST['manual_update']) : 0);
 		$start_menu        = ((x($_POST,'start_menu')) ? intval($_POST['start_menu']) : 0);
 
@@ -55,8 +53,6 @@ class Display {
 		set_pconfig(local_channel(),'system','itemspage', $itemspage);
 		set_pconfig(local_channel(),'system','no_smilies',1-intval($nosmile));
 		set_pconfig(local_channel(),'system','title_tosource',$title_tosource);
-		set_pconfig(local_channel(),'system','channel_list_mode', $channel_list_mode);
-		set_pconfig(local_channel(),'system','network_list_mode', $network_list_mode);
 		set_pconfig(local_channel(),'system','channel_divmore_height', $channel_divmore_height);
 		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
 		set_pconfig(local_channel(),'system','manual_conversation_update', $manual_update);
@@ -215,8 +211,6 @@ class Display {
 			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),
 			'$title_tosource'	=> array('title_tosource', t("Link post titles to source"), $title_tosource, '', $yes_no),
 			'$theme_config' => $theme_config,
-			'$channel_list_mode' => array('channel_list_mode', t('Use blog/list mode on channel page'), get_pconfig(local_channel(),'system','channel_list_mode'), t('(comments displayed separately)'), $yes_no),
-			'$network_list_mode' => array('network_list_mode', t('Use blog/list mode on grid page'), get_pconfig(local_channel(),'system','network_list_mode'), t('(comments displayed separately)'), $yes_no),
 			'$channel_divmore_height' => array('channel_divmore_height', t('Channel page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','channel_divmore_height')) ? get_pconfig(local_channel(),'system','channel_divmore_height') : 400), t('click to expand content exceeding this height')),
 			'$network_divmore_height' => array('network_divmore_height', t('Grid page max height of content (in pixels)'), ((get_pconfig(local_channel(),'system','network_divmore_height')) ? get_pconfig(local_channel(),'system','network_divmore_height') : 400) , t('click to expand content exceeding this height')),
 			'$start_menu' => ['start_menu', t('New Member Links'), $start_menu, t('Display new member quick links menu'), $yes_no]

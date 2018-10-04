@@ -437,7 +437,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$abook_uids = " and abook.abook_channel = " . local_channel() . " ";
 		$uids = " and item.uid = " . local_channel() . " ";
 	
-		if(get_pconfig(local_channel(),'system','network_list_mode'))
+		if(feature_enabled(local_channel(), 'network_list_mode'))
 			$page_mode = 'list';
 		else
 			$page_mode = 'client';

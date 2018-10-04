@@ -103,6 +103,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Provide a personal tag cloud on your channel page'),
 				false,
 				get_config('feature_lock','tagadelic'),
+			],
+
+			[
+				'channel_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
+				false,
+				get_config('feature_lock','channel_list_mode'),
 			]
 		],
 
@@ -360,6 +368,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Show friend and connection suggestions'),
 				false,
 				get_config('feature_lock','suggest')
+			],
+
+			[
+				'network_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
+				false,
+				get_config('feature_lock','network_list_mode'),
 			]
 
 		],

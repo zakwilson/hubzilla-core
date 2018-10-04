@@ -190,11 +190,10 @@
 						    {{if $misc_addon}}
 						        {{$misc_addon}}
 						    {{/if}}
-
-						    <div class="settings-submit-wrapper" >
-							    <button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
-						    </div>
-						</div>
+                        </div>
+					    <div class="settings-submit-wrapper" >
+				            <button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+				        </div>
 					</div>
 				</div>
 			</div>

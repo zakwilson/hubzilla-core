@@ -25,7 +25,7 @@ class Permcats extends Controller {
 
 		$name = escape_tags(trim($_POST['name']));
 		if(! $name) {
-			notice( t('Permission Name is required.') . EOL);
+			notice( t('Permission category name is required.') . EOL);
 			return;
 		}
 
@@ -117,7 +117,7 @@ class Permcats extends Controller {
 			'$atoken' => $atoken,
 			'$url1' => z_root() . '/channel/' . $channel['channel_address'],
 			'$url2' => z_root() . '/photos/' . $channel['channel_address'],
-			'$name' => array('name', t('Permission Name') . ' <span class="required">*</span>', (($name) ? $name : ''), ''),
+			'$name' => array('name', t('Permission category name') . ' <span class="required">*</span>', (($name) ? $name : ''), ''),
 			'$me' => t('My Settings'),
 			'$perms' => $perms,
 			'$inherited' => t('inherited'),

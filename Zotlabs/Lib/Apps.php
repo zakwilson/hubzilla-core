@@ -271,6 +271,10 @@ class Apps {
 						if(! can_view_public_stream())
 							unset($ret);
 						break;
+					case 'custom_role':
+						if(get_pconfig(local_channel(),'system','permissions_role') != 'custom')
+							unset($ret);
+						break;
 					case 'observer':
 						if(! $observer)
 							unset($ret);
@@ -466,6 +470,10 @@ class Apps {
 							break;
 						case 'public_stream':
 							if(! can_view_public_stream())
+								return '';
+							break;
+						case 'custom_role':
+							if(get_pconfig(local_channel(),'system','permissions_role') != 'custom')
 								return '';
 							break;
 						case 'observer':

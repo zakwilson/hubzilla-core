@@ -65,14 +65,6 @@ class Settings_menu {
 			);
 		}
 
-		if($role === false || $role === 'custom') {
-			$tabs[] = array(
-				'label' => t('Connection Default Permissions'),
-				'url' => z_root() . '/defperms',
-				'selected' => ''
-			);
-		}
-
 		$tabtpl = get_markup_template("generic_links_widget.tpl");
 		return replace_macros($tabtpl, array(
 			'$title' => t('Settings'),

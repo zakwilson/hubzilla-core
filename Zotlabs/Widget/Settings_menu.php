@@ -9,7 +9,6 @@ class Settings_menu {
 		if(! local_channel())
 			return;
 
-
 		$channel = \App::get_channel();
 
 		$abook_self_id = 0;
@@ -65,12 +64,6 @@ class Settings_menu {
 				'selected' => ((argv(1) === 'locs') ? 'active' : ''),
 			);
 		}
-
-		$tabs[] =	array(
-			'label' => t('Export channel'),
-			'url' => z_root() . '/uexport',
-			'selected' => ''
-		);
 
 		if($role === false || $role === 'custom') {
 			$tabs[] = array(

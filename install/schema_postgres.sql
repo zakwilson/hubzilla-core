@@ -434,18 +434,18 @@ create index "event_status_idx" on event ("event_status");
 create index "event_sequence_idx" on event ("event_sequence");
 create index "event_priority_idx" on event ("event_priority");
 
-CREATE TABLE "group_member" (
+CREATE TABLE "pgrp_member" (
   "id" serial  NOT NULL,
   "uid" bigint  NOT NULL,
   "gid" bigint  NOT NULL,
   "xchan" text NOT NULL DEFAULT '',
   PRIMARY KEY ("id")
 );
-create index "groupmember_uid" on group_member ("uid");
-create index "groupmember_gid" on group_member ("gid");
-create index "groupmember_xchan" on group_member ("xchan");
+create index "groupmember_uid" on pgrp_member ("uid");
+create index "groupmember_gid" on pgrp_member ("gid");
+create index "groupmember_xchan" on pgrp_member ("xchan");
 
-CREATE TABLE "groups" (
+CREATE TABLE "pgrp" (
   "id" serial  NOT NULL,
   "hash" text NOT NULL DEFAULT '',
   "uid" bigint  NOT NULL,
@@ -455,10 +455,10 @@ CREATE TABLE "groups" (
   PRIMARY KEY ("id")
 
 );
-create index "groups_uid_idx" on groups ("uid");
-create index "groups_visible_idx" on groups  ("visible");
-create index "groups_deleted_idx" on groups ("deleted");
-create index "groups_hash_idx" on groups ("hash");
+create index "groups_uid_idx" on pgrp ("uid");
+create index "groups_visible_idx" on pgrp  ("visible");
+create index "groups_deleted_idx" on pgrp ("deleted");
+create index "groups_hash_idx" on pgrp ("hash");
 
 CREATE TABLE "hook" (
   "id" serial NOT NULL,

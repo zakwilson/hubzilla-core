@@ -888,6 +888,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$user' => App::$user,
 		'$threads' => $threads,
 		'$wait' => t('Loading...'),
+		'$conversation_tools' => t('Conversation Tools'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
 	));
 
@@ -1231,13 +1232,27 @@ function format_like($cnt, $arr, $type, $id) {
 	return $o;
 }
 
+
+/**
+ * Wrapper to allow addons to replace the status editor if desired.
+ */
+function status_editor($a, $x, $popup = false, $module='') {
+	$hook_info = ['editor_html' => '', 'x' => $x, 'popup' => $popup, 'module' => $module];
+	call_hooks('status_editor',$hook_info);
+	if ($hook_info['editor_html'] == '') {
+		return hz_status_editor($a, $x, $popup);
+	} else {
+		return $hook_info['editor_html'];
+	}
+}
+
 /**
  * This is our general purpose content editor. 
  * It was once nicknamed "jot" and you may see references to "jot" littered throughout the code.
  * They are referring to the content editor or components thereof. 
  */
 
-function status_editor($a, $x, $popup = false) {
+function hz_status_editor($a, $x, $popup = false) {
 
 	$o = '';
 
@@ -1447,7 +1462,8 @@ function status_editor($a, $x, $popup = false) {
 		'$expanded' => ((x($x, 'expanded')) ? $x['expanded'] : false),
 		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
-		'$reset' => $reset
+		'$reset' => $reset,
+		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false)
 	));
 
 	if ($popup === true) {

@@ -1,4 +1,4 @@
-<div class="panel">
+<div class="panel" id="settings">
 	<div class="section-subtitle-wrapper" role="tab" id="{{$addon.0}}-settings">
 		<h3>
 			<a title="{{$addon.2}}" data-toggle="collapse" data-target="#{{$addon.0}}-settings-content" href="#" aria-controls="{{$addon.0}}-settings-content">

@@ -183,6 +183,10 @@
 									<div class="dropdown-divider"></div>
 									<a class="dropdown-item" href="dreport/{{$item.mid}}">{{$item.dreport}}</a>
 									{{/if}}
+									{{if $item.settings}}
+									<div class="dropdown-divider"></div>
+									<a class="dropdown-item conversation-settings-link" href="" data-toggle="modal" data-target="#conversation_settings">{{$item.settings}}</a>
+									{{/if}}
 								</div>
 							</div>
 						</div>
@@ -210,7 +214,7 @@
 								<div class="modal-dialog">
 									<div class="modal-content">
 										<div class="modal-header">
-											<h4 class="modal-title">{{$response.count}} {{$response.button}}</h4>
+											<h3 class="modal-title">{{$response.count}} {{$response.button}}</h3>
 											<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 										</div>
 										<div class="modal-body response-list">

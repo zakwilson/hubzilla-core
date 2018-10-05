@@ -43,7 +43,7 @@ class Cards extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Cards App (Not Installed):</b><br>';
+			$o = '<b>' . t('Cards App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Create personal planning cards');
 			return $o;
 		}
@@ -133,7 +133,7 @@ class Cards extends Controller {
 			if($_REQUEST['body'])
 				$x['body'] = $_REQUEST['body'];
 
-			$editor = status_editor($a, $x);
+			$editor = status_editor($a, $x, false, 'Cards');
 		}
 		else {
 			$editor = '';

@@ -122,7 +122,7 @@ class Article_edit extends \Zotlabs\Web\Controller {
 			'bbcode' => (($mimetype  == 'text/bbcode') ? true : false)
 		);
 
-		$editor = status_editor($a, $x);
+		$editor = status_editor($a, $x, false, 'Article_edit');
 
 		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit Article'),

@@ -142,9 +142,12 @@ class New_channel extends \Zotlabs\Web\Controller {
 			}
 	
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');
-	
+			$canadd = true;
 			if($r && ($limit !== false)) {
 				$channel_usage_message = sprintf( t("You have created %1$.0f of %2$.0f allowed channels."), $r[0]['total'], $limit);
+				if ($r[0]['total'] >= $limit) {
+					$canadd = false;
+				}
 			}
 			else {
 				$channel_usage_message = '';
@@ -168,8 +171,6 @@ class New_channel extends \Zotlabs\Web\Controller {
 		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] :  "" );
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-		if((get_account_techlevel() < 4) && $privacy_role !== 'custom')
-			unset($perm_roles[t('Other')]);
 
 		$name = array('name', t('Channel name'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), $name_help, "*");
 		$nickhub = '@' . \App::get_hostname();
@@ -186,7 +187,8 @@ class New_channel extends \Zotlabs\Web\Controller {
 			'$nickname'     => $nickname,
 			'$validate'     => t('Validate'),
 			'$submit'       => t('Create'),
-			'$channel_usage_message' => $channel_usage_message
+			'$channel_usage_message' => $channel_usage_message,
+			'$canadd'	=> $canadd
 		));
 	
 		return $o;

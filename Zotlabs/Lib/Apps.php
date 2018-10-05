@@ -271,6 +271,10 @@ class Apps {
 						if(! can_view_public_stream())
 							unset($ret);
 						break;
+					case 'custom_role':
+						if(get_pconfig(local_channel(),'system','permissions_role') != 'custom')
+							unset($ret);
+						break;
 					case 'observer':
 						if(! $observer)
 							unset($ret);
@@ -337,7 +341,20 @@ class Apps {
 			'Profiles' => t('Profiles'),
 			'Privacy Groups' => t('Privacy Groups'),
 			'Notifications' => t('Notifications'),
-			'Order Apps' => t('Order Apps')
+			'Order Apps' => t('Order Apps'),
+			'CalDAV' => t('CalDAV'),
+			'CardDAV' => t('CardDAV'),
+			'Channel Sources' => t('Channel Sources'),
+			'Gallery' => t('Gallery'),
+			'Guest Access' => t('Guest Access'),
+			'Notes' => t('Notes'),
+			'OAuth Apps Manager' => t('OAuth Apps Manager'),
+			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
+			'PDL Editor' => t('PDL Editor'),
+			'Permission Categories' => t('Permission Categories'),
+			'Premium Channel' => t('Premium Channel'),
+			'Public Stream' => t('Public Stream'),
+			'My Chatrooms' => t('My Chatrooms')
 		);
 
 		if(array_key_exists('name',$arr)) {
@@ -349,6 +366,9 @@ class Apps {
 			for($x = 0; $x < count($arr); $x++) {
 				if(array_key_exists($arr[$x]['name'],$apps)) {
 					$arr[$x]['name'] = $apps[$arr[$x]['name']];
+				} else {
+				    // Try to guess by app name if not in list
+				    $arr[$x]['name'] = t(trim($arr[$x]['name']));
 				}
 			}
 		}
@@ -452,6 +472,10 @@ class Apps {
 							if(! can_view_public_stream())
 								return '';
 							break;
+						case 'custom_role':
+							if(get_pconfig(local_channel(),'system','permissions_role') != 'custom')
+								return '';
+							break;
 						case 'observer':
 							$observer = \App::get_observer();
 							if(! $observer)
@@ -530,9 +554,20 @@ class Apps {
 	}
 
 	static public function app_install($uid,$app) {
+
+		if(! is_array($app)) {
+			$r = q("select * from app where app_name = '%s' and app_channel = 0",
+				dbesc($app)
+			);
+			if(! $r)
+				return false;
+
+			$app = self::app_encode($r[0]);
+		}
+
 		$app['uid'] = $uid;
 
-		if(self::app_installed($uid,$app))
+		if(self::app_installed($uid,$app,true))
 			$x = self::app_update($app);
 		else
 			$x = self::app_store($app);
@@ -596,6 +631,7 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($x[0]['id'])
 						);
+						call_hooks('app_destroy', $x[0]);
 					}
 					else {
 						$r = q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
@@ -660,33 +696,60 @@ class Apps {
 		}
 	}
 
-	static public function app_installed($uid,$app) {
+	static public function app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc((array_key_exists('guid',$app)) ? $app['guid'] : ''), 
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
 
-	static public function addon_app_installed($uid,$app) {
+	static public function addon_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_plugin = '%s' and app_channel = %d limit 1",
 			dbesc($app),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('addon_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}
 
-	static public function system_app_installed($uid,$app) {
+	static public function system_app_installed($uid,$app,$bypass_filter=false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc(hash('whirlpool',$app)),
 			intval($uid)
 		);
+		if (!$bypass_filter) {
+			$filter_arr = [
+				'uid'=>$uid,
+				'app'=>$app,
+				'installed'=>$r
+			];
+			call_hooks('system_app_installed_filter',$filter_arr);
+			$r = $filter_arr['installed'];
+		}
 		return(($r) ? true : false);
 
 	}

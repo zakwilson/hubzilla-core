@@ -2,20 +2,26 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Apps;
+
 class Notes {
 
 	function widget($arr) {
 		if(! local_channel())
-			return '';
-		if(! feature_enabled(local_channel(),'private_notes'))
-			return '';
+			return EMPTY_STR;
+
+		if(! Apps::system_app_installed(local_channel(), 'Notes'))
+			return EMPTY_STR;
 
 		$text = get_pconfig(local_channel(),'notes','text');
 
-		$o = replace_macros(get_markup_template('notes.tpl'), array(
+		$tpl = get_markup_template('notes.tpl');
+
+		$o = replace_macros($tpl, array(
 			'$banner' => t('Notes'),
 			'$text' => $text,
 			'$save' => t('Save'),
+			'$app' => ((isset($arr['app'])) ? true : false)
 		));
 
 		return $o;

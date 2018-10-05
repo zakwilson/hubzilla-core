@@ -40,7 +40,7 @@ class Articles extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Articles App (Not Installed):</b><br>';
+			$o = '<b>' . t('Articles App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Create interactive articles');
 			return $o;
 		}
@@ -132,7 +132,7 @@ class Articles extends Controller {
 				$x['title'] = $_REQUEST['title'];
 			if($_REQUEST['body'])
 				$x['body'] = $_REQUEST['body'];
-			$editor = status_editor($a,$x);
+			$editor = status_editor($a,$x,false,'Articles');
 
 		}
 		else {

@@ -124,7 +124,7 @@ function account_store_lowlevel($arr) {
         'account_expires'          => ((array_key_exists('account_expires',$arr))          ? $arr['account_expires']          : '0001-01-01 00:00:00'),
         'account_expire_notified'  => ((array_key_exists('account_expire_notified',$arr))  ? $arr['account_expire_notified']  : '0001-01-01 00:00:00'),
         'account_service_class'    => ((array_key_exists('account_service_class',$arr))    ? $arr['account_service_class']    : ''),
-        'account_level'            => ((array_key_exists('account_level',$arr))            ? $arr['account_level']            : '0'),
+        'account_level'            => '5',
         'account_password_changed' => ((array_key_exists('account_password_changed',$arr)) ? $arr['account_password_changed'] : '0001-01-01 00:00:00')
 	];
 
@@ -215,7 +215,7 @@ function create_account($arr) {
 			'account_created'       => datetime_convert(),
 			'account_flags'         => intval($flags),
 			'account_roles'         => intval($roles),
-			'account_level'         => intval($techlevel),
+			'account_level'         => 5,
 			'account_expires'       => $expires,
 			'account_service_class' => $default_service_class
 		]
@@ -821,13 +821,6 @@ function upgrade_bool_message($bbcode = false) {
 
 function get_account_techlevel($account_id = 0) {
 
-	if(! $account_id) {
-		$x = \App::get_account();
-	}
-	else { 
-		$x = get_account_by_id($account_id);
-	}
-
-	return (($x) ? intval($x['account_level']) : 0);
+	return (5);
 
 }

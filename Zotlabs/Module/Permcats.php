@@ -1,26 +1,31 @@
 <?php
 
-namespace Zotlabs\Module\Settings;
+namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
 
-
-class Permcats {
+class Permcats extends Controller {
 
 	function post() {
 
 		if(! local_channel())
 			return;
 
-		$channel = \App::get_channel();
+		if(! Apps::system_app_installed(local_channel(), 'Permission Categories'))
+			return;
 
-		check_form_security_token_redirectOnErr('/settings/permcats', 'settings_permcats');
+		$channel = App::get_channel();
+
+		check_form_security_token_redirectOnErr('/permcats', 'permcats');
 
 
 		$all_perms = \Zotlabs\Access\Permissions::Perms();
 
 		$name = escape_tags(trim($_POST['name']));
 		if(! $name) {
-			notice( t('Permission Name is required.') . EOL);
+			notice( t('Permission category name is required.') . EOL);
 			return;
 		}
 
@@ -50,13 +55,21 @@ class Permcats {
 		if(! local_channel())
 			return;
 
-		$channel = \App::get_channel();
+		if(! Apps::system_app_installed(local_channel(), 'Permission Categories')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
 
+			$o = '<b>' . t('Permission Categories App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Create custom connection permission limits');
+			return $o;
+		}
 
-		if(argc() > 2) 
-			$name = hex2bin(argv(2));			
+		$channel = App::get_channel();
 
-		if(argc() > 3 && argv(3) === 'drop') {
+		if(argc() > 1) 
+			$name = hex2bin(argv(1));			
+
+		if(argc() > 2 && argv(2) === 'drop') {
 			\Zotlabs\Lib\Permcat::delete(local_channel(),$name);
 			build_sync_packet();
 			json_return_and_die([ 'success' => true ]);
@@ -93,9 +106,9 @@ class Permcats {
 
 
 
-		$tpl = get_markup_template("settings_permcats.tpl");
+		$tpl = get_markup_template("permcats.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("settings_permcats"),
+			'$form_security_token' => get_form_security_token("permcats"),
 			'$title'	=> t('Permission Categories'),
 			'$desc'     => $desc,
 			'$desc2' => $desc2,
@@ -104,7 +117,7 @@ class Permcats {
 			'$atoken' => $atoken,
 			'$url1' => z_root() . '/channel/' . $channel['channel_address'],
 			'$url2' => z_root() . '/photos/' . $channel['channel_address'],
-			'$name' => array('name', t('Permission Name') . ' <span class="required">*</span>', (($name) ? $name : ''), ''),
+			'$name' => array('name', t('Permission category name') . ' <span class="required">*</span>', (($name) ? $name : ''), ''),
 			'$me' => t('My Settings'),
 			'$perms' => $perms,
 			'$inherited' => t('inherited'),

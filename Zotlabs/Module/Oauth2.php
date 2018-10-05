@@ -1,15 +1,24 @@
 <?php
 
-namespace Zotlabs\Module\Settings;
+namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
-class Oauth2 {
+class Oauth2 extends Controller {
 
 
 	function post() {
+
+		if(! local_channel())
+			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'OAuth2 Apps Manager'))
+			return;
 	
 		if(x($_POST,'remove')){
-			check_form_security_token_redirectOnErr('/settings/oauth2', 'settings_oauth2');
+			check_form_security_token_redirectOnErr('oauth2', 'oauth2');
 			$name   	= ((x($_POST,'name')) ? escape_tags(trim($_POST['name'])) : '');
 		logger("REMOVE! ".$name." uid: ".local_channel());	
 			$key = $_POST['remove'];
@@ -25,13 +34,13 @@ class Oauth2 {
 				dbesc($name),
 				intval(local_channel())
 			);
-			goaway(z_root()."/settings/oauth2/");
+			goaway(z_root()."/oauth2");
 			return;			
 		}
 	
-		if((argc() > 2) && (argv(2) === 'edit' || argv(2) === 'add') && x($_POST,'submit')) {
+		if((argc() > 1) && (argv(1) === 'edit' || argv(1) === 'add') && x($_POST,'submit')) {
 			
-			check_form_security_token_redirectOnErr('/settings/oauth2', 'settings_oauth2');
+			check_form_security_token_redirectOnErr('oauth2', 'oauth2');
 			
 			$name   	= ((x($_POST,'name')) ? escape_tags(trim($_POST['name'])) : '');
 			$secret		= ((x($_POST,'secret')) ? escape_tags(trim($_POST['secret'])) : '');
@@ -80,17 +89,29 @@ class Oauth2 {
 					);
 				}
 			}
-			goaway(z_root()."/settings/oauth2/");
+			goaway(z_root()."/oauth2");
 			return;
 		}
 	}
 
 	function get() {
+
+		if(! local_channel())
+			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'OAuth2 Apps Manager')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('OAuth2 Apps Manager App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('OAuth2 authenticatication tokens for mobile and remote apps');
+			return $o;
+		}
 			
-		if((argc() > 2) && (argv(2) === 'add')) {
-			$tpl = get_markup_template("settings_oauth2_edit.tpl");
+		if((argc() > 1) && (argv(1) === 'add')) {
+			$tpl = get_markup_template("oauth2_edit.tpl");
 			$o .= replace_macros($tpl, array(
-				'$form_security_token' => get_form_security_token("settings_oauth2"),
+				'$form_security_token' => get_form_security_token("oauth2"),
 				'$title'	=> t('Add OAuth2 application'),
 				'$submit'	=> t('Submit'),
 				'$cancel'	=> t('Cancel'),
@@ -103,9 +124,9 @@ class Oauth2 {
 			return $o;
 		}
 			
-		if((argc() > 3) && (argv(2) === 'edit')) {
+		if((argc() > 2) && (argv(1) === 'edit')) {
 			$r = q("SELECT * FROM oauth_clients WHERE client_id='%s' AND user_id= %d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					intval(local_channel())
 			);
 			
@@ -116,9 +137,9 @@ class Oauth2 {
 
 			$app = $r[0];
 				
-			$tpl = get_markup_template("settings_oauth2_edit.tpl");
+			$tpl = get_markup_template("oauth2_edit.tpl");
 			$o .= replace_macros($tpl, array(
-				'$form_security_token' => get_form_security_token("settings_oauth2"),
+				'$form_security_token' => get_form_security_token("oauth2"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Update'),
 				'$cancel'	=> t('Cancel'),
@@ -131,26 +152,26 @@ class Oauth2 {
 			return $o;
 		}
 			
-		if((argc() > 3) && (argv(2) === 'delete')) {
-			check_form_security_token_redirectOnErr('/settings/oauth2', 'settings_oauth2', 't');
+		if((argc() > 2) && (argv(1) === 'delete')) {
+			check_form_security_token_redirectOnErr('oauth2', 'oauth2', 't');
 			
 			$r = q("DELETE FROM oauth_clients WHERE client_id = '%s' AND user_id = %d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					intval(local_channel())
 			);
 			$r = q("DELETE FROM oauth_access_tokens WHERE client_id = '%s' AND user_id = %d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					intval(local_channel())
 			);
 			$r = q("DELETE FROM oauth_authorization_codes WHERE client_id = '%s' AND user_id = %d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					intval(local_channel())
 			);
 			$r = q("DELETE FROM oauth_refresh_tokens WHERE client_id = '%s' AND user_id = %d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					intval(local_channel())
 			);
-			goaway(z_root()."/settings/oauth2/");
+			goaway(z_root()."/oauth2");
 			return;			
 		}
 			
@@ -164,9 +185,9 @@ class Oauth2 {
 				intval(local_channel())
 		);
 			
-		$tpl = get_markup_template("settings_oauth2.tpl");
+		$tpl = get_markup_template("oauth2.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("settings_oauth2"),
+			'$form_security_token' => get_form_security_token("oauth2"),
 			'$baseurl'	=> z_root(),
 			'$title'	=> t('Connected OAuth2 Apps'),
 			'$add'		=> t('Add application'),

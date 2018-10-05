@@ -37,6 +37,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/activity_order]activity_order[/zrl]
 	Called when generating the list of order options for the network page
 
+[zrl=[baseurl]/help/hook/addon_app_installed_filter]addon_app_installed_filter[/zrl]
+	Called when determining whether an addon_app is installed
+
 [zrl=[baseurl]/help/hook/activity_received]activity_received[/zrl]
 	Called when an activity (post, comment, like, etc.) has been received from a zot source
 
@@ -48,6 +51,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/api_perm_is_allowed]api_perm_is_allowed[/zrl]
 	Called when perm_is_allowed() is executed from an API call.
+
+[zrl=[baseurl]/help/hook/app_destroy]app_destroy[/zrl]
+	Called when an app is deleted
+
+[zrl=[baseurl]/help/hook/app_installed_filter]app_installed_filter[/zrl]
+	Called when determining whether an app is installed
 
 [zrl=[baseurl]/help/hook/app_menu]app_menu[/zrl]
 	Called when generating the app_menu dropdown (may be obsolete)
@@ -589,8 +598,14 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/smilie]smilie[/zrl]
 	Called when translating emoticons
 
+[zrl=[baseurl]/help/hook/status_editor]status_editor[/zrl]
+	Called when generating the status_editor.
+
 [zrl=[baseurl]/help/hook/stream_item]stream_item[/zrl]
 	Called for each item which is rendered for viewing via conversation()
+
+[zrl=[baseurl]/help/hook/system_app_installed_filter]system_app_installed_filter[/zrl]
+	Called when determining whether a system app is installed
 
 [zrl=[baseurl]/help/hook/tagged]tagged[/zrl]
 	Called when a delivery is processed which results in you being tagged

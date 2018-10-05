@@ -138,7 +138,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'jotnets'             => true
 		);
 	
-		$editor = status_editor($a,$x);
+		$editor = status_editor($a,$x,false,'Rpost');
 	
 		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit post'),

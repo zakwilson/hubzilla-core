@@ -49,7 +49,7 @@ class Wiki extends Controller {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
 
-			$o = '<b>Wiki App (Not Installed):</b><br>';
+			$o = '<b>' . t('Wiki App') . ' (' . t('Not Installed') . '):</b><br>';
 			$o .= t('Provide a wiki for your channel');
 			return $o;
 		}

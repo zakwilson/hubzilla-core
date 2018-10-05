@@ -47,7 +47,15 @@ function feature_level($feature,$def) {
 function process_module_features_get($uid, $features) {
 	unset($features[0]);
 	foreach($features as $f) {
-		$arr[] = array('feature_' . $f[0],$f[1],((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),$f[2],array(t('Off'),t('On')));
+		$arr[] = [
+			'feature_' . $f[0],
+			$f[1],
+			((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),
+			$f[2],
+			[t('Off'),t('On')],
+			(($f[4] === false) ? '' : 'disabled'),
+			$f[5]
+		];
 	}
 	return $arr;
 }
@@ -61,8 +69,6 @@ function process_module_features_post($uid, $features, $post_arr) {
 		else
 			set_pconfig($uid,'feature', $k, '');
 	}
-	if($post_arr['rpath'])
-		goaway($post_arr['rpath']);
 }
 
 function get_features($filtered = true, $level = (-1)) {
@@ -70,191 +76,6 @@ function get_features($filtered = true, $level = (-1)) {
 	$account = \App::get_account();
 
 	$arr = [
-
-		// General
-		'general' => [
-
-			t('General Features'),
-
-			[
-				'start_menu',   
-				t('New Member Links'),      
-				t('Display new member quick links menu'),
-				(($account['account_created'] > datetime_convert('','','now - 60 days')) ? true : false),
-				get_config('feature_lock','start_menu'),
-				feature_level('start_menu',1),
-			],
-
-/*
-			[
-				'hide_rating',       
-				t('Hide Rating'),          
-				t('Hide the rating buttons on your channel and profile pages. Note: People can still rate you somewhere else.'),
-				false,
-				get_config('feature_lock','hide_rating'),
-				feature_level('hide_rating',3),
-			],
-*/			
-			[
-				'private_notes',       
-				t('Private Notes'),          
-				t('Enables a tool to store notes and reminders (note: not encrypted)'),
-				false,
-				get_config('feature_lock','private_notes'),
-				feature_level('private_notes',1),
-			],
-
-			[
-				'premium_channel', 
-				t('Premium Channel'), 
-				t('Allows you to set restrictions and terms on those that connect with your channel'),
-				false,
-				get_config('feature_lock','premium_channel'),
-				feature_level('premium_channel',4),
-			],
-
-			[ 
-				'advanced_dirsearch', 
-				t('Advanced Directory Search'),
-				t('Allows creation of complex directory search queries'),
-				false, 
-				get_config('feature_lock','advanced_dirsearch'),
-				feature_level('advanced_dirsearch',4),
-			],
-
-			[ 
-				'advanced_theming', 
-				t('Advanced Theme and Layout Settings'),
-				t('Allows fine tuning of themes and page layouts'),
-				false, 
-				get_config('feature_lock','advanced_theming'),
-				feature_level('advanced_theming',4),
-			],
-		],
-
-
-		'access_control' => [
-			t('Access Control and Permissions'),
-
-			[
-				'groups',    		
-				t('Privacy Groups'),		
-				t('Enable management and selection of privacy groups'),
-				true,
-				get_config('feature_lock','groups'),
-				feature_level('groups',0),
-			],
-
-			[
-				'permcats',       
-				t('Permission Categories'),
-				t('Create custom connection permission limits'),
-				false,
-				get_config('feature_lock','permcats'),
-				feature_level('permcats',2),
-			],
-
-			[
-				'oauth_clients',       
-				t('OAuth1 Clients'),          
-				t('Manage OAuth1 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth_clients'),
-				feature_level('oauth_clients',1),
-			],
-
-			[
-				'oauth2_clients',       
-				t('OAuth2 Clients'),          
-				t('Manage OAuth2 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth2_clients'),
-				feature_level('oauth2_clients',1),
-			],
-
-			[
-				'access_tokens',       
-				t('Access Tokens'),          
-				t('Create access tokens so that non-members can access private content.'),
-				false,
-				get_config('feature_lock','access_tokens'),
-				feature_level('access_tokens',2),
-			],
-
-		],
-
-
-		// Item tools
-		'tools' => [
-
-			t('Post/Comment Tools'),
-
-			[
-				'commtag',        
-				t('Community Tagging'),					
-				t('Ability to tag existing posts'),
-				false,
-				get_config('feature_lock','commtag'),
-				feature_level('commtag',1),
-			],
-
-			[
-				'categories',     
-				t('Post Categories'),			
-				t('Add categories to your posts'),
-				false,
-				get_config('feature_lock','categories'),
-				feature_level('categories',1),
-			],
-
-			[
-				'emojis',     
-				t('Emoji Reactions'),			
-				t('Add emoji reaction ability to posts'),
-				true,
-				get_config('feature_lock','emojis'),
-				feature_level('emojis',1),
-			],
-
-			[
-				'filing',         
-				t('Saved Folders'),				
-				t('Ability to file posts under folders'),
-				false,
-				get_config('feature_lock','filing'),
-				feature_level('filing',2),
-			],
-
-			[
-				'dislike',        
-				t('Dislike Posts'),				
-				t('Ability to dislike posts/comments'),
-				false,
-				get_config('feature_lock','dislike'),
-				feature_level('dislike',1),
-			],
-
-			[
-				'star_posts',     
-				t('Star Posts'),				
-				t('Ability to mark special posts with a star indicator'),
-				false,
-				get_config('feature_lock','star_posts'),
-				feature_level('star_posts',1),
-			],
-
-			[
-				'tagadelic',      
-				t('Tag Cloud'),				    
-				t('Provide a personal tag cloud on your channel page'),
-				false,
-				get_config('feature_lock','tagadelic'),
-				feature_level('tagadelic',2),
-			],
-		],
-
-############################################
-############################################
 
 		'calendar' => [
 
@@ -270,6 +91,35 @@ function get_features($filtered = true, $level = (-1)) {
 
 		],
 
+		'channel_home' => [
+
+			t('Channel Home'),
+
+			[
+				'archives',
+				t('Search by Date'),
+				t('Ability to select posts by date ranges'),
+				false,
+				get_config('feature_lock','archives')
+			],
+
+			[
+				'tagadelic',
+				t('Tag Cloud'),
+				t('Provide a personal tag cloud on your channel page'),
+				false,
+				get_config('feature_lock','tagadelic'),
+			],
+
+			[
+				'channel_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
+				false,
+				get_config('feature_lock','channel_list_mode'),
+			]
+		],
+
 		'connections' => [
 
 			t('Connections'),
@@ -283,9 +133,70 @@ function get_features($filtered = true, $level = (-1)) {
 			]
 		],
 
+		'conversation' => [
+
+			t('Conversation'),
+
+			[
+				'commtag',        
+				t('Community Tagging'),					
+				t('Ability to tag existing posts'),
+				false,
+				get_config('feature_lock','commtag'),
+			],
+
+			[
+				'emojis',     
+				t('Emoji Reactions'),			
+				t('Add emoji reaction ability to posts'),
+				true,
+				get_config('feature_lock','emojis'),
+			],
+
+			[
+				'dislike',        
+				t('Dislike Posts'),				
+				t('Ability to dislike posts/comments'),
+				false,
+				get_config('feature_lock','dislike'),
+			],
+
+			[
+				'star_posts',     
+				t('Star Posts'),				
+				t('Ability to mark special posts with a star indicator'),
+				false,
+				get_config('feature_lock','star_posts'),
+			]
+
+		],
+
+		'directory' => [
+
+			t('Directory'),
+
+			[
+				'advanced_dirsearch',
+				t('Advanced Directory Search'),
+				t('Allows creation of complex directory search queries'),
+				false,
+				get_config('feature_lock','advanced_dirsearch'),
+			]
+
+		],
+
 		'editor' => [
 
 			t('Editor'),
+
+			[
+				'categories',
+				t('Post Categories'),
+				t('Add categories to your posts'),
+				false,
+				get_config('feature_lock','categories'),
+				feature_level('categories',1),
+			],
 
 			[
 				'large_photos',   
@@ -391,7 +302,7 @@ function get_features($filtered = true, $level = (-1)) {
 				'nav_channel_select',  
 				t('Navigation Channel Select'), 
 				t('Change channels directly from within the navigation dropdown menu'),
-				true,
+				false,
 				get_config('feature_lock','nav_channel_select'),
 			]
 
@@ -402,19 +313,19 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Network'),
 
 			[
-				'archives',       
-				t('Search by Date'),			
-				t('Ability to select posts by date ranges'),
-				false,
-				get_config('feature_lock','archives')
-			],
-
-			[
 				'savedsearch',    
 				t('Saved Searches'),			
 				t('Save search terms for re-use'),
 				false,
 				get_config('feature_lock','savedsearch')
+			],
+
+			[
+				'filing',
+				t('Saved Folders'),
+				t('Ability to file posts under folders'),
+				false,
+				get_config('feature_lock','filing'),
 			],
 
 			[
@@ -463,6 +374,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Show friend and connection suggestions'),
 				false,
 				get_config('feature_lock','suggest')
+			],
+
+			[
+				'network_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
+				false,
+				get_config('feature_lock','network_list_mode'),
 			]
 
 		],
@@ -519,8 +438,6 @@ function get_features($filtered = true, $level = (-1)) {
 
 	$arr = $x['features'];
 
-	$techlevel = (($level >= 0) ? $level : get_account_techlevel());
-
 	// removed any locked features and remove the entire category if this makes it empty
 
 	if($filtered) {
@@ -531,9 +448,6 @@ function get_features($filtered = true, $level = (-1)) {
 			for($y = 0; $y < count($arr[$k]); $y ++) {
 				$disabled = false;
 				if(is_array($arr[$k][$y])) {
-					if($arr[$k][$y][5] > $techlevel) {
-						$disabled = true;
-					}
 					if($arr[$k][$y][4] !== false) { 
 						$disabled = true;
 					}

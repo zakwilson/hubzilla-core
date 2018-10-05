@@ -43,7 +43,9 @@
 		{{/if}}
 		<div id="jot-text-wrap">
 			<div id="profile-jot-tools" class="btn-group d-none">
+				{{if $is_owner}}
 				<a id="profile-jot-settings" class="btn btn-outline-secondary btn-sm border-0" href="/settings/editor/?f=&rpath=/{{$return_path}}"><i class="fa fa-cog"></i></a>
+				{{/if}}
 				{{if $reset}}
 				<button id="profile-jot-reset" class="btn btn-outline-secondary btn-sm border-0" title="{{$reset}}" onclick="itemCancel(); return false;">
 					<i class="fa fa-close"></i>
@@ -212,7 +214,7 @@
 				<div class="modal-dialog">
 					<div class="modal-content">
 						<div class="modal-header">
-							<h4 class="modal-title" id="expiryModalLabel">{{$jotnets_label}}</h4>
+							<h3 class="modal-title" id="expiryModalLabel">{{$jotnets_label}}</h3>
 							<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 						</div>
 						<div class="modal-body">
@@ -239,7 +241,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="expiryModalLabel">{{$expires}}</h4>
+				<h3 class="modal-title" id="expiryModalLabel">{{$expires}}</h3>
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body form-group" style="width:90%">
@@ -266,7 +268,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="createdModalLabel">{{$future_txt}}</h4>
+				<h3 class="modal-title" id="createdModalLabel">{{$future_txt}}</h3>
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body form-group" style="width:90%">
@@ -293,7 +295,7 @@
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title" id="embedPhotoModalLabel">{{$embedPhotosModalTitle}}</h4>
+				<h3 class="modal-title" id="embedPhotoModalLabel">{{$embedPhotosModalTitle}}</h3>
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 			</div>
 			<div class="modal-body" id="embedPhotoModalBody" >

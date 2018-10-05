@@ -8,7 +8,7 @@
 			{{$desc}}
 		</div>
 
-		<form action="settings/tokens" id="settings-account-form" method="post" autocomplete="off" >
+		<form action="tokens" id="settings-account-form" method="post" autocomplete="off" >
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 			{{if $atoken}}<input type="hidden" name="atoken_id" value="{{$atoken.atoken_id}}" />{{/if}}
 			{{include file="field_input.tpl" field=$name}}
@@ -19,10 +19,10 @@
 			</div>
 	</div>
 
-	<div class="panel">
+	<div class="panel" id="permission-settings">
 		<div class="section-subtitle-wrapper" role="tab" id="perms-tool">
 			<h3>
-				<a data-toggle="collapse" data-parent="#contact-edit-tools" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
+				<a data-toggle="collapse" data-parent="#permission-settings" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
 				{{$permlbl}}
 				</a>
 			</h3>
@@ -61,8 +61,8 @@
 		<table id="atoken-index">
 			{{foreach $tokens as $t}}
 			<tr id="atoken-index-{{$t.atoken_id}}" class="atoken-index-row">
-				<td width="99%"><a href="settings/tokens/{{$t.atoken_id}}">{{$t.atoken_name}}</a></td>
-				<td width="1%" class="atoken-index-tool"><i class="fa fa-trash-o drop-icons" onClick="dropItem('/settings/tokens/{{$t.atoken_id}}/drop', '#atoken-index-{{$t.atoken_id}}')"></i></td>
+				<td width="99%"><a href="tokens/{{$t.atoken_id}}">{{$t.atoken_name}}</a></td>
+				<td width="1%" class="atoken-index-tool"><i class="fa fa-trash-o drop-icons" onClick="dropItem('tokens/{{$t.atoken_id}}/drop', '#atoken-index-{{$t.atoken_id}}')"></i></td>
 			</tr>
 			{{/foreach}}
 		</table>

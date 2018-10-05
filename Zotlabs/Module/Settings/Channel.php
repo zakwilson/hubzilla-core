@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/selectors.php');
 
 
@@ -63,7 +65,7 @@ class Channel {
 				}
 				$hide_presence    = 1 - (intval($role_permissions['online']));
 				if($role_permissions['default_collection']) {
-					$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+					$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 						intval(local_channel()),
 						dbesc( t('Friends') )
 					);
@@ -71,7 +73,7 @@ class Channel {
 						require_once('include/group.php');
 						group_add(local_channel(), t('Friends'));
 						group_add_member(local_channel(),t('Friends'),$channel['channel_hash']);
-						$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+						$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 							intval(local_channel()),
 							dbesc( t('Friends') )
 						);
@@ -432,7 +434,7 @@ class Channel {
 			'$nickname' => (($intl_nickname === $webbie) ? $webbie : $intl_nickname . '&nbsp;(' . $webbie . ')'),
 			'$subdir' => $subdir,
 			'$davdesc' => t('Your files/photos are accessible via WebDAV at'),
-			'$davpath' => ((get_account_techlevel() > 3) ? z_root() . '/dav/' . $nickname : ''),
+			'$davpath' => z_root() . '/dav/' . $nickname,
 			'$basepath' => \App::get_hostname()
 		));
 
@@ -490,11 +492,6 @@ class Channel {
 		$permissions_set = (($permissions_role != 'custom') ? true : false);
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-		if((get_account_techlevel() < 4) && $permissions_role !== 'custom')
-			unset($perm_roles[t('Other')]);
-
-
-		
 
 		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
@@ -556,8 +553,8 @@ class Channel {
 			'$suggestme' => $suggestme,
 			'$group_select' => $group_select,
 			'$role' => array('permissions_role' , t('Channel role and privacy'), $permissions_role, '', $perm_roles),
-			'$defpermcat' => [ 'defpermcat', t('Default Permissions Group'), $default_permcat, '', $permcats ],	
-			'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
+			'$defpermcat' => [ 'defpermcat', t('Default permissions category'), $default_permcat, '', $permcats ],
+			'$permcat_enable' => Apps::system_app_installed(local_channel(), 'Permission Categories'),
 			'$profile_in_dir' => $profile_in_dir,
 			'$hide_friends' => $hide_friends,
 			'$hide_wall' => $hide_wall,

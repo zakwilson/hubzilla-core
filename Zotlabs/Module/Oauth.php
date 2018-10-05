@@ -1,27 +1,37 @@
 <?php
 
-namespace Zotlabs\Module\Settings;
+namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
-class Oauth {
+class Oauth extends Controller {
 
 
 	function post() {
+
+		if(! local_channel())
+			return;
+
+
+		if(! Apps::system_app_installed(local_channel(), 'OAuth Apps Manager'))
+			return;
 	
 		if(x($_POST,'remove')){
-			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
+			check_form_security_token_redirectOnErr('/oauth', 'oauth');
 			
 			$key = $_POST['remove'];
 			q("DELETE FROM tokens WHERE id='%s' AND uid=%d",
 				dbesc($key),
 				local_channel());
-			goaway(z_root()."/settings/oauth/");
+			goaway(z_root()."/oauth");
 			return;			
 		}
 	
-		if((argc() > 2) && (argv(2) === 'edit' || argv(2) === 'add') && x($_POST,'submit')) {
+		if((argc() > 1) && (argv(1) === 'edit' || argv(1) === 'add') && x($_POST,'submit')) {
 			
-			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth');
+			check_form_security_token_redirectOnErr('oauth', 'oauth');
 			
 			$name   	= ((x($_POST,'name')) ? escape_tags($_POST['name']) : '');
 			$key		= ((x($_POST,'key')) ? escape_tags($_POST['key']) : '');
@@ -73,17 +83,30 @@ class Oauth {
 					);
 				}
 			}
-			goaway(z_root()."/settings/oauth/");
+			goaway(z_root()."/oauth");
 			return;
 		}
 	}
 
 	function get() {
+
+		if(! local_channel())
+			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'OAuth Apps Manager')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('OAuth Apps Manager App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('OAuth authentication tokens for mobile and remote apps');
+			return $o;
+		}
+
 			
-		if((argc() > 2) && (argv(2) === 'add')) {
-			$tpl = get_markup_template("settings_oauth_edit.tpl");
+		if((argc() > 1) && (argv(1) === 'add')) {
+			$tpl = get_markup_template("oauth_edit.tpl");
 			$o .= replace_macros($tpl, array(
-				'$form_security_token' => get_form_security_token("settings_oauth"),
+				'$form_security_token' => get_form_security_token("oauth"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Submit'),
 				'$cancel'	=> t('Cancel'),
@@ -96,9 +119,9 @@ class Oauth {
 			return $o;
 		}
 			
-		if((argc() > 3) && (argv(2) === 'edit')) {
+		if((argc() > 2) && (argv(1) === 'edit')) {
 			$r = q("SELECT * FROM clients WHERE client_id='%s' AND uid=%d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					local_channel());
 			
 			if (!count($r)){
@@ -107,9 +130,9 @@ class Oauth {
 			}
 			$app = $r[0];
 				
-			$tpl = get_markup_template("settings_oauth_edit.tpl");
+			$tpl = get_markup_template("oauth_edit.tpl");
 			$o .= replace_macros($tpl, array(
-				'$form_security_token' => get_form_security_token("settings_oauth"),
+				'$form_security_token' => get_form_security_token("oauth"),
 				'$title'	=> t('Add application'),
 				'$submit'	=> t('Update'),
 				'$cancel'	=> t('Cancel'),
@@ -122,13 +145,13 @@ class Oauth {
 			return $o;
 		}
 			
-		if((argc() > 3) && (argv(2) === 'delete')) {
-			check_form_security_token_redirectOnErr('/settings/oauth', 'settings_oauth', 't');
+		if((argc() > 2) && (argv(1) === 'delete')) {
+			check_form_security_token_redirectOnErr('/oauth', 'oauth', 't');
 			
 			$r = q("DELETE FROM clients WHERE client_id='%s' AND uid=%d",
-					dbesc(argv(3)),
+					dbesc(argv(2)),
 					local_channel());
-			goaway(z_root()."/settings/oauth/");
+			goaway(z_root()."/oauth");
 			return;			
 		}
 			
@@ -141,11 +164,11 @@ class Oauth {
 				local_channel());
 		
 			
-		$tpl = get_markup_template("settings_oauth.tpl");
+		$tpl = get_markup_template("oauth.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("settings_oauth"),
+			'$form_security_token' => get_form_security_token("oauth"),
 			'$baseurl'	=> z_root(),
-			'$title'	=> t('Connected Apps'),
+			'$title'	=> t('Connected OAuth Apps'),
 			'$add'		=> t('Add application'),
 			'$edit'		=> t('Edit'),
 			'$delete'		=> t('Delete'),

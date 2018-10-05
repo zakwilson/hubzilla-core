@@ -1677,11 +1677,9 @@ dl.bb-dl > dd > li {
 
 
 .form-group.checkbox > div > input:disabled + label .onoffswitch-switch {
-    background-color: red;
-	border-radius: 3px;
+	background-color: red;
 	opacity: 0.3;
 	filter:alpha(opacity=30);
-
 }
 
 

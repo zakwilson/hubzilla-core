@@ -41,7 +41,7 @@ function replace_macros($s, $r) {
         try {
 	        $output = $t->replace_macros($arr['template'], $arr['params']);
         } catch (Exception $e) {
-                logger("Unable to render template: ",$e->getMessage());
+                logger("Unable to render template: ".$e->getMessage());
                 $output = "<h3>ERROR: there was an error creating the output.</h3>";
         }
 
@@ -2737,7 +2737,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 				$grp = group_byname($profile_uid,$name);
 
 				if($grp) {
-					$g = q("select hash from groups where id = %d and visible = 1 limit 1",
+					$g = q("select hash from pgrp where id = %d and visible = 1 limit 1",
 						intval($grp)
 					);
 					if($g && $exclusive) {

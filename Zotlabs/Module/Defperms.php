@@ -1,14 +1,16 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
 require_once('include/socgraph.php');
 require_once('include/selectors.php');
 require_once('include/group.php');
 require_once('include/photos.php');
 
-
-class Defperms extends \Zotlabs\Web\Controller {
+class Defperms extends Controller {
 
 	/* @brief Initialize the connection-editor
 	 *
@@ -19,6 +21,9 @@ class Defperms extends \Zotlabs\Web\Controller {
 	
 		if(! local_channel())
 			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'Default Permissions'))
+			return;
 	
 		$r = q("SELECT abook.*, xchan.*
 			FROM abook left join xchan on abook_xchan = xchan_hash
@@ -26,10 +31,10 @@ class Defperms extends \Zotlabs\Web\Controller {
 			intval(local_channel())
 		);
 		if($r) {
-			\App::$poi = $r[0];
+			App::$poi = $r[0];
 		}
 
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 		if($channel)
 			head_set_icon($channel['xchan_photo_s']);	
 	}
@@ -43,12 +48,15 @@ class Defperms extends \Zotlabs\Web\Controller {
 	
 		if(! local_channel())
 			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'Default Permissions'))
+			return;
 	
 		$contact_id = intval(argv(1));
 		if(! $contact_id)
 			return;
 	
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 	
 		$orig_record = q("SELECT * FROM abook WHERE abook_id = %d AND abook_channel = %d LIMIT 1",
 			intval($contact_id),
@@ -112,7 +120,7 @@ class Defperms extends \Zotlabs\Web\Controller {
 			intval($contact_id)
 		);
 		if($r) {
-			\App::$poi = $r[0];
+			App::$poi = $r[0];
 		}
 	
 	
@@ -131,22 +139,22 @@ class Defperms extends \Zotlabs\Web\Controller {
 	
 	function defperms_clone(&$a) {
 	
-			if(! \App::$poi)
+			if(! App::$poi)
 				return;
 		
-			$channel = \App::get_channel();
+			$channel = App::get_channel();
 	
 			$r = q("SELECT abook.*, xchan.*
 				FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d and abook_id = %d LIMIT 1",
 				intval(local_channel()),
-				intval(\App::$poi['abook_id'])
+				intval(App::$poi['abook_id'])
 			);
 			if($r) {
-				\App::$poi = array_shift($r);
+				App::$poi = array_shift($r);
 			}
 	
-			$clone = \App::$poi;
+			$clone = App::$poi;
 	
 			unset($clone['abook_id']);
 			unset($clone['abook_account']);
@@ -173,9 +181,18 @@ class Defperms extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return login();
 		}
+
+		if(! Apps::system_app_installed(local_channel(), 'Default Permissions')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Default Permissions App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Set custom default permissions for new connections');
+			return $o;
+		}
 	
 		$section = ((array_key_exists('section',$_REQUEST)) ? $_REQUEST['section'] : '');
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 	
 		$yes_no = array(t('No'),t('Yes'));
 	
@@ -193,7 +210,7 @@ class Defperms extends \Zotlabs\Web\Controller {
 		}
 		$o .= " }\n</script>\n";
 	
-		if(\App::$poi) {
+		if(App::$poi) {
 	
 			$sections = [];
 
@@ -203,9 +220,9 @@ class Defperms extends \Zotlabs\Web\Controller {
 	
 	
 			$perms = array();
-			$channel = \App::get_channel();
+			$channel = App::get_channel();
 
-			$contact = \App::$poi;
+			$contact = App::$poi;
 	
 			$global_perms = \Zotlabs\Access\Permissions::Perms();
 
@@ -238,7 +255,7 @@ class Defperms extends \Zotlabs\Web\Controller {
 				'$autoperms'      => array('autoperms',t('Apply these permissions automatically'), ((get_pconfig(local_channel(),'system','autoperms')) ? 1 : 0), t('If enabled, connection requests will be approved without your interaction'), $yes_no),
 				'$permcat'        => [ 'permcat', t('Permission role'), '', '<span class="loading invisible">' . t('Loading') . '<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span></span>',$permcats ],
 				'$permcat_new'    => t('Add permission role'),
-				'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
+				'$permcat_enable' => Apps::system_app_installed(local_channel(), 'Permission Categories'),
 				'$section'        => $section,
 				'$sections'       => $sections,
 				'$autolbl'        => t('The permissions indicated on this page will be applied to all new connections.'),

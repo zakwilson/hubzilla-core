@@ -259,7 +259,7 @@ class ThreadItem {
 		$forged = ((($item['sig']) && (! intval($item['item_verified']))) ? t('Message signature incorrect') : '');
 		$unverified = '' ; // (($this->is_wall_to_wall() && (! intval($item['item_verified']))) ? t('Message cannot be verified') : '');
 
-
+		$settings = '';
 
 		// FIXME - check this permission
 		if($conv->get_profile_owner() == local_channel()) {
@@ -267,12 +267,14 @@ class ThreadItem {
 				'tagit' => t("Add Tag"),
 				'classtagger' => "",
 			);
+
+			$settings = t('Conversation Tools');
 		}
 
 		$has_bookmarks = false;
 		if(is_array($item['term'])) {
 			foreach($item['term'] as $t) {
-				if((get_account_techlevel() > 0) && ($t['ttype'] == TERM_BOOKMARK))
+				if(($t['ttype'] == TERM_BOOKMARK))
 					$has_bookmarks = true;
 			}
 		}
@@ -436,7 +438,8 @@ class ThreadItem {
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),
 			'submid' => str_replace(['+','='], ['',''], base64_encode($item['mid'])),
-			'thread_level' => $thread_level
+			'thread_level' => $thread_level,
+			'settings' => $settings
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

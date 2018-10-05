@@ -129,7 +129,7 @@ class Manage extends \Zotlabs\Web\Controller {
 			}
 
 		}			
-		
+
 		$r = q("select count(channel_id) as total from channel where channel_account_id = %d and channel_removed = 0",
 			intval(get_account_id())
 		);
@@ -170,7 +170,7 @@ class Manage extends \Zotlabs\Web\Controller {
 			'$header'           => t('Channel Manager'),
 			'$msg_selected'     => t('Current Channel'),
 			'$selected'         => local_channel(),
-			'$desc'             => t('Switch to one of your channels by selecting it.'),
+			'$desc'             => ((count($channels) > 1 || $delegates) ? t('Switch to one of your channels by selecting it.') : ''),
 			'$msg_default'      => t('Default Channel'),
 			'$msg_make_default' => t('Make Default'),
 			'$create'           => $create,

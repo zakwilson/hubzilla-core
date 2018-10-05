@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.7.4' );
+define ( 'STD_VERSION',             '3.8RC' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 
@@ -1055,7 +1055,6 @@ class App {
 	public static function set_observer($xchan) {
 		self::$observer = $xchan;
 	}
-
 
 	public static function get_observer() {
 		return self::$observer;

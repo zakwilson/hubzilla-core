@@ -42,7 +42,6 @@ class Hook {
 			intval($version)
 		);
 
-		self::insert($hook, $function, $version, $priority);
 		return $r;
 	}
 

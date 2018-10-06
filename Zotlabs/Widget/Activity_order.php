@@ -120,7 +120,7 @@ class Activity_order {
 			]);
 
 			$o = replace_macros(get_markup_template('common_widget.tpl'), [
-				'$title' => t('Activity Order'),
+				'$title' => t('Stream Order'),
 				'$content' => $content,
 			]);
 		}

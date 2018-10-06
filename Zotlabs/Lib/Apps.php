@@ -59,7 +59,6 @@ class Apps {
 	static public function get_base_apps() {
 		return get_config('system','base_apps',[ 
 			'Connections',
-			'Suggest Channels',
 			'Grid',
 			'Settings',
 			'Files',
@@ -74,8 +73,6 @@ class Apps {
 			'Profile Photo'
 		]);
 	}
-
-
 
 	static public function import_system_apps() {
 		if(! local_channel())

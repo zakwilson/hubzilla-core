@@ -76,7 +76,7 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 			App::$pdl = '';
 
 			$o = '<b>' . t('Bookmarks App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Bookmark links from the item dropdown and manage them');
+			$o .= t('Bookmark links from posts and manage them');
 			return $o;
 		}
 	

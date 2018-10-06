@@ -54,7 +54,7 @@ define ( 'STD_VERSION',             '3.9' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 
-define ( 'DB_UPDATE_VERSION',       1221 );
+define ( 'DB_UPDATE_VERSION',       1222 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 

@@ -161,42 +161,6 @@
 					</div>
 				</div>
 			</div>
-			
-			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="miscellaneous-settings">
-					<h3>
-						<a data-toggle="collapse" data-target="#miscellaneous-settings-collapse" href="#" aria-expanded="true" aria-controls="miscellaneous-settings-collapse">
-							{{$lbl_misc}}
-						</a>
-					</h3>
-				</div>
-				<div id="miscellaneous-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="miscellaneous-settings" data-parent="#settings" >
-					<div class="section-content-tools-wrapper">
-					    <div class="form-group">
-						    {{if $profselect}}
-						        <label for="contact-profile-selector">{{$profseltxt}}</label>
-						        {{$profselect}}
-						    {{/if}}
-						    {{if $menus}}
-						    <div class="form-group channel-menu">
-							    <label for="channel_menu">{{$menu_desc}}</label>
-							    <select name="channel_menu" class="form-control">
-							    {{foreach $menus as $menu }}
-								    <option value="{{$menu.name}}" {{$menu.selected}}>{{$menu.name}}</option>
-							    {{/foreach}}
-							    </select>
-						    </div>
-						    {{/if}}
-						    {{if $misc_addon}}
-						        {{$misc_addon}}
-						    {{/if}}
-                        </div>
-					    <div class="settings-submit-wrapper" >
-				            <button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
-				        </div>
-					</div>
-				</div>
-			</div>
 		</div>
 	</form>
 	{{$aclselect}}

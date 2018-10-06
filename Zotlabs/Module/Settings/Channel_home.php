@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+require_once('include/menu.php');
 
 class Channel_home {
 
@@ -18,8 +19,10 @@ class Channel_home {
 		$channel_divmore_height = ((x($_POST,'channel_divmore_height')) ? intval($_POST['channel_divmore_height']) : 400);
 		if($channel_divmore_height < 50)
 			$channel_divmore_height = 50;
-
 		set_pconfig(local_channel(),'system','channel_divmore_height', $channel_divmore_height);
+
+		$channel_menu = ((x($_POST['channel_menu'])) ? htmlspecialchars_decode(trim($_POST['channel_menu']),ENT_QUOTES) : '');
+		set_pconfig(local_channel(),'system','channel_menu',$channel_menu);
 		
 		build_sync_packet();
 
@@ -43,11 +46,36 @@ class Channel_home {
 			t('Click to expand content exceeding this height')
 		];
 
+		$menus = menu_list(local_channel());
+		if($menus) {
+			$current = get_pconfig(local_channel(),'system','channel_menu');
+			$menu[] = '';
+			foreach($menus as $m) {
+				$menu[$m['menu_name']] = htmlspecialchars($m['menu_name'],ENT_COMPAT,'UTF-8');
+			}
+
+			$menu_select = [
+				'channel_menu',
+				t('Personal menu to display in your channel pages'),
+				$current,
+				'',
+				$menu
+			];
+		}
+
 		$extra_settings_html = replace_macros(get_markup_template('field_input.tpl'),
 			[
 				'$field' => $channel_divmore_height
 			]
 		);
+
+		if($menu) {
+			$extra_settings_html .= replace_macros(get_markup_template('field_select.tpl'),
+				[
+					'$field' => $menu_select
+				]
+			);
+		}
 
 		$tpl = get_markup_template("settings_module.tpl");
 

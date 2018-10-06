@@ -2,8 +2,6 @@
 
 namespace Zotlabs\Update;
 
-use Zotlabs\Lib\Apps;
-
 class _1222 {
 
 	function run() {
@@ -14,9 +12,6 @@ class _1222 {
 
 		if($r1) {
 			q("COMMIT");
-
-			Apps::import_system_apps();
-
 			return UPDATE_SUCCESS;
 		}
 

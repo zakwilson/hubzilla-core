@@ -306,7 +306,7 @@ class Apps {
 			'Cards' => t('Cards'),
 			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
-			'View Bookmarks' => t('View Bookmarks'),
+			'Bookmarks' => t('Bookmarks'),
 			'Chatrooms' => t('Chatrooms'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),

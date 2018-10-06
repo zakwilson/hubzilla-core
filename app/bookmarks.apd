@@ -1,6 +1,6 @@
-version: 1
+version: 1.1
 url: $baseurl/bookmarks
 requires: local_channel
-name: View Bookmarks
+name: Bookmarks
 photo: icon:bookmark
 categories: Productivity

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/text.php');
 
 /**
@@ -272,7 +274,7 @@ class ThreadItem {
 		}
 
 		$has_bookmarks = false;
-		if(is_array($item['term'])) {
+		if(Apps::system_app_installed(local_channel(), 'Bookmarks') && is_array($item['term'])) {
 			foreach($item['term'] as $t) {
 				if(($t['ttype'] == TERM_BOOKMARK))
 					$has_bookmarks = true;

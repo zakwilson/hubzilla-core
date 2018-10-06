@@ -230,12 +230,6 @@ function nav($template = 'default') {
 			set_pconfig(local_channel(), 'system','import_system_apps', datetime_convert('UTC','UTC','now','Y-m-d'));
 		}
 
-		//force system apps import once on major version upgrade if needed
-		if(get_pconfig(local_channel(), 'system','force_import_system_apps') !== '3.8RC') {
-			Apps::import_system_apps();
-			set_pconfig(local_channel(), 'system','force_import_system_apps', '3.8RC');
-		}
-
 		$syslist = array();
 		$list = Apps::app_list(local_channel(), false, ['nav_featured_app', 'nav_pinned_app']);
 		if($list) {

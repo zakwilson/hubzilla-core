@@ -135,8 +135,6 @@ class Channel {
 		$photo_path       = ((x($_POST,'photo_path')) ? escape_tags(trim($_POST['photo_path'])) : '');
 		$attach_path      = ((x($_POST,'attach_path')) ? escape_tags(trim($_POST['attach_path'])) : '');
 	
-		$channel_menu     = ((x($_POST['channel_menu'])) ? htmlspecialchars_decode(trim($_POST['channel_menu']),ENT_QUOTES) : '');
-	
 		$expire_items     = ((x($_POST,'expire_items')) ? intval($_POST['expire_items'])	 : 0);
 		$expire_starred   = ((x($_POST,'expire_starred')) ? intval($_POST['expire_starred']) : 0);
 		$expire_photos    = ((x($_POST,'expire_photos'))? intval($_POST['expire_photos'])	 : 0);
@@ -157,8 +155,6 @@ class Channel {
 		$defpermcat       = ((x($_POST,'defpermcat')) ? notags(trim($_POST['defpermcat'])) : 'default');
 	
 		$mailhost        = ((array_key_exists('mailhost',$_POST)) ? notags(trim($_POST['mailhost'])) : '');
-		$profile_assign  = ((x($_POST,'profile_assign')) ? notags(trim($_POST['profile_assign'])) : '');
-
 	
 		$pageflags = $channel['channel_pageflags'];
 		$existing_adult = (($pageflags & PAGE_ADULT) ? 1 : 0);
@@ -246,7 +242,6 @@ class Channel {
 		set_pconfig(local_channel(),'system','post_joingroup', $post_joingroup);
 		set_pconfig(local_channel(),'system','post_profilechange', $post_profilechange);
 		set_pconfig(local_channel(),'system','blocktags',$blocktags);
-		set_pconfig(local_channel(),'system','channel_menu',$channel_menu);
 		set_pconfig(local_channel(),'system','vnotify',$vnotify);
 		set_pconfig(local_channel(),'system','always_show_in_notices',$always_show_in_notices);
 		set_pconfig(local_channel(),'system','evdays',$evdays);
@@ -254,7 +249,6 @@ class Channel {
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
 		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 		set_pconfig(local_channel(),'system','email_notify_host',$mailhost);
-		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);
 		set_pconfig(local_channel(),'system','autoperms',$autoperms);
 	
 		$r = q("update channel set channel_name = '%s', channel_pageflags = %d, channel_timezone = '%s', channel_location = '%s', channel_notifyflags = %d, channel_max_anon_mail = %d, channel_max_friend_req = %d, channel_expire_days = %d $set_perms where channel_id = %d",
@@ -460,18 +454,6 @@ class Channel {
 		require_once('include/group.php');
 		$group_select = mini_group_select(local_channel(),$channel['channel_default_group']);
 	
-		require_once('include/menu.php');
-		$m1 = menu_list(local_channel());
-		$menu = false;
-		if($m1) {
-			$menu = array();
-			$current = get_pconfig(local_channel(),'system','channel_menu');
-			$menu[] = array('name' => '', 'selected' => ((! $current) ? true : false));
-			foreach($m1 as $m) {
-				$menu[] = array('name' => htmlspecialchars($m['menu_name'],ENT_COMPAT,'UTF-8'), 'selected' => (($m['menu_name'] === $current) ? ' selected="selected" ' : false));
-			}
-		}
-	
 		$evdays = get_pconfig(local_channel(),'system','evdays');
 		if(! $evdays)
 			$evdays = 3;
@@ -498,7 +480,7 @@ class Channel {
 		if($vnotify === false)
 			$vnotify = (-1);
 
-		$plugin = [ 'basic' => '', 'security' => '', 'notify' => '', 'misc' => '' ];
+		$plugin = [ 'basic' => '', 'security' => '', 'notify' => '' ];
 		call_hooks('channel_settings',$plugin);
 
 		$disable_discover_tab = intval(get_config('system','disable_discover_tab',1)) == 1;
@@ -543,8 +525,6 @@ class Channel {
 			'$permissions' => t('Default Privacy Group'),
 			'$permdesc' => t("\x28click to open/close\x29"),
 			'$aclselect' => populate_acl($perm_defaults, false, \Zotlabs\Lib\PermissionDescription::fromDescription(t('Use my default audience setting for the type of object published'))),
-			'$profseltxt' => t('Profile to assign new connections'),
-			'$profselect' => ((feature_enabled(local_channel(),'multi_profiles')) ? contact_profile_assign(get_pconfig(local_channel(),'system','profile_assign','')) : ''),
 
 			'$allow_cid' => acl2json($perm_defaults['allow_cid']),
 			'$allow_gid' => acl2json($perm_defaults['allow_gid']),
@@ -604,7 +584,6 @@ class Channel {
 			'$basic_addon' => $plugin['basic'],
 			'$sec_addon'  => $plugin['security'],
 			'$notify_addon' => $plugin['notify'],
-			'$misc_addon' => $plugin['misc'],
 	
 			'$h_advn' => t('Advanced Account/Page Type Settings'),
 			'$h_descadvn' => t('Change the behaviour of this account for special situations'),
@@ -612,12 +591,8 @@ class Channel {
 			'$lbl_misc' => t('Miscellaneous Settings'),
 			'$photo_path' => array('photo_path', t('Default photo upload folder'), get_pconfig(local_channel(),'system','photo_path'), t('%Y - current year, %m -  current month')),
 			'$attach_path' => array('attach_path', t('Default file upload folder'), get_pconfig(local_channel(),'system','attach_path'), t('%Y - current year, %m -  current month')),
-			'$menus' => $menu,			
-			'$menu_desc' => t('Personal menu to display in your channel pages'),
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
-			'$firefoxshare' => t('Firefox Share $Projectname provider'),
-
 		));
 	
 		call_hooks('settings_form',$o);

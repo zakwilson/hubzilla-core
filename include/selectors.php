@@ -3,21 +3,32 @@
 
 function contact_profile_assign($current) {
 
-	$o = '';
-
-	$o .= "<select id=\"contact-profile-selector\" name=\"profile_assign\" class=\"form-control\"/>\r\n";
-
 	$r = q("SELECT profile_guid, profile_name FROM profile WHERE uid = %d",
-		intval($_SESSION['uid']));
+		intval($_SESSION['uid'])
+	);
 
 	if($r) {
 		foreach($r as $rr) {
-			$selected = (($rr['profile_guid'] == $current) ? " selected=\"selected\" " : "");
-			$o .= "<option value=\"{$rr['profile_guid']}\" $selected >{$rr['profile_name']}</option>\r\n";
+			$options[$rr['profile_guid']] = $rr['profile_name'];
 		}
 	}
-	$o .= "</select>\r\n";
+
+	$select = [
+		'profile_assign',
+		t('Profile to assign new connections'),
+		$current,
+		'',
+		$options
+	];
+
+	$o = replace_macros(get_markup_template('field_select.tpl'),
+		[
+			'$field' => $select
+		]
+	);
+
 	return $o;
+
 }
 
 function contact_poll_interval($current, $disabled = false) {

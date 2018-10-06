@@ -1,6 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+
 
 class Bookmarks extends \Zotlabs\Web\Controller {
 
@@ -8,7 +11,10 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 		if(! local_channel())
 			return;
 
-		nav_set_selected('View Bookmarks');
+		if(! Apps::system_app_installed(local_channel(), 'Bookmarks'))
+			return;
+
+		nav_set_selected('Bookmarks');
 
 		$item_id = intval($_REQUEST['item']);
 		$burl = trim($_REQUEST['burl']);
@@ -64,7 +70,15 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
+		if(! Apps::system_app_installed(local_channel(), 'Bookmarks')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Bookmarks App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Bookmark links from the item dropdown and manage them');
+			return $o;
+		}
 	
 		require_once('include/menu.php');
 		require_once('include/conversation.php');

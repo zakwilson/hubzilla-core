@@ -345,7 +345,6 @@ class Apps {
 			'CalDAV' => t('CalDAV'),
 			'CardDAV' => t('CardDAV'),
 			'Channel Sources' => t('Channel Sources'),
-			'Gallery' => t('Gallery'),
 			'Guest Access' => t('Guest Access'),
 			'Notes' => t('Notes'),
 			'OAuth Apps Manager' => t('OAuth Apps Manager'),

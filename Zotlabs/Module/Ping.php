@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/bbcode.php');
 
 /**
@@ -147,9 +149,12 @@ class Ping extends \Zotlabs\Web\Controller {
 		if(! ($vnotify & VNOTIFY_LIKE))
 			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 
-		$discover_tab_on = can_view_public_stream();
-
-		$notify_pubs = ((local_channel()) ? ($vnotify & VNOTIFY_PUBS) && $discover_tab_on : $discover_tab_on);
+		if(local_channel()) {
+			$notify_pubs = ($vnotify & VNOTIFY_PUBS) && can_view_public_stream() && Apps::system_app_installed(local_channel(), 'Public Stream');
+		}
+		else {
+			$notify_pubs = can_view_public_stream();
+		}
 
 		if($notify_pubs) {
 			$sys = get_sys_channel();

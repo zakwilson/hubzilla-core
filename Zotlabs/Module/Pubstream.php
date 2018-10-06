@@ -1,6 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
 
@@ -8,6 +11,17 @@ require_once('include/acl_selectors.php');
 class Pubstream extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
+
+		if(local_channel()) {
+			if(! Apps::system_app_installed(local_channel(), 'Public Stream')) {
+				//Do not display any associated widgets at this point
+				App::$pdl = '';
+
+				$o = '<b>' . t('Public Stream App') . ' (' . t('Not Installed') . '):</b><br>';
+				$o .= t('The unmoderated public stream of this hub');
+				return $o;
+			}
+		}
 
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();

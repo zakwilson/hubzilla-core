@@ -1075,8 +1075,9 @@ function get_markup_template($s, $root = '') {
                            $newroot .= '/';
                    }
                    $template = $t->get_markup_template($s, $newroot);
-                }
-                $template = $t->get_markup_template($s, $root);
+                } else {
+                	$template = $t->get_markup_template($s, $root);
+		}
                 return $template;
         }
 }

@@ -26,7 +26,8 @@ class NativeWiki {
 
 				$w['rawName']  = get_iconfig($w, 'wiki', 'rawName');
 				$w['htmlName'] = escape_tags($w['rawName']);
-				$w['urlName']  = urlencode(urlencode($w['rawName']));
+				//$w['urlName']  = urlencode(urlencode($w['rawName']));
+				$w['urlName']  = self::name_encode($w['rawName']);
 				$w['mimeType'] = get_iconfig($w, 'wiki', 'mimeType');
 				$w['typelock'] = get_iconfig($w, 'wiki', 'typelock');
 				$w['lockstate']     = (($w['allow_cid'] || $w['allow_gid'] || $w['deny_cid'] || $w['deny_gid']) ? 'lock' : 'unlock');
@@ -233,7 +234,8 @@ class NativeWiki {
 				'wiki'     => $w,
 				'rawName'  => $rawName,
 				'htmlName' => escape_tags($rawName),
-				'urlName'  => urlencode(urlencode($rawName)),
+				//'urlName'  => urlencode(urlencode($rawName)),
+				'urlName'  => self::name_encode($rawName),
 				'mimeType' => $mimeType,
 				'typelock' => $typelock
 			);
@@ -249,7 +251,8 @@ class NativeWiki {
 			WHERE resource_type = '%s' AND iconfig.v = '%s' AND uid = %d 
 			AND item_deleted = 0 $sql_extra limit 1", 
 			dbesc(NWIKI_ITEM_RESOURCE_TYPE), 
-			dbesc(urldecode($urlName)), 
+			//dbesc(urldecode($urlName)), 
+			dbesc($urlName), 
 			intval($uid)
 		);
 
@@ -286,4 +289,31 @@ class NativeWiki {
 			return array('read' => true, 'write' => $write, 'success' => true);
 		}
 	}
+
+	public static function name_encode ($string) {
+
+		$encoding = mb_internal_encoding();
+		mb_internal_encoding("UTF-8");
+		$ret = mb_ereg_replace_callback ('[^A-Za-z0-9\-\_\.\~]',function ($char) {
+	                $charhex = unpack('H*',$char[0]);
+                	$ret = '('.$charhex[1].')';
+                	return $ret;
+ 			}
+			,$string);
+		mb_internal_encoding($encoding);
+		return $ret;
+	}
+
+	public static function name_decode ($string) {
+
+		$encoding = mb_internal_encoding();
+		mb_internal_encoding("UTF-8");
+		$ret = mb_ereg_replace_callback ('(\(([0-9a-f]+)\))',function ($chars) {
+			return pack('H*',$chars[2]);
+			}
+			,$string);
+		mb_internal_encoding($encoding);
+		return $ret;
+	}
+
 }

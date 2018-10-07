@@ -44,7 +44,8 @@ class NativeWikiPage {
 					$pages[] = [
 						'resource_id' => $resource_id,
 						'title'       => escape_tags($title),
-						'url'         => str_replace('%2F','/',urlencode(str_replace('%2F','/',urlencode($title)))),
+						//'url'         => str_replace('%2F','/',urlencode(str_replace('%2F','/',urlencode($title)))),
+						'url'		=> Zlib\NativeWiki::name_encode($title),
 						'link_id'     => 'id_' . substr($resource_id, 0, 10) . '_' . $page_item['id']
 					];
 				}
@@ -98,7 +99,8 @@ class NativeWikiPage {
 			$page = [ 
 				'rawName'  => $name,
 				'htmlName' => escape_tags($name),
-				'urlName'  => urlencode($name), 
+				//'urlName'  => urlencode($name), 
+				Zlib\NativeWiki::name_encode($name)
 
 			];
 
@@ -154,7 +156,8 @@ class NativeWikiPage {
 			$page = [ 
 				'rawName'  => $pageNewName, 
 				'htmlName' => escape_tags($pageNewName), 
-				'urlName'  => urlencode(escape_tags($pageNewName))
+				//'urlName'  => urlencode(escape_tags($pageNewName))
+				Zlib\NativeWiki::name_encode($pageNewName)
 			];
 
 			return [ 'success' => true, 'page' => $page ];
@@ -527,7 +530,8 @@ class NativeWikiPage {
 			$pages = $pageURLs = array();
 			foreach ($match[1] as $m) {
 				// TODO: Why do we need to double urlencode for this to work?
-				$pageURLs[] = urlencode(urlencode(escape_tags($m)));
+				//$pageURLs[] = urlencode(urlencode(escape_tags($m)));
+				$pageURLs[] = Zlib\NativeWiki::name_encode(escape_tags($m));
 				$pages[] = $m;
 			}
 			$idx = 0;

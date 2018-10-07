@@ -269,7 +269,7 @@ class Apps {
 							unset($ret);
 						break;
 					case 'custom_role':
-						if(get_pconfig(local_channel(),'system','permissions_role') != 'custom')
+						if(get_pconfig(local_channel(),'system','permissions_role') !== 'custom')
 							unset($ret);
 						break;
 					case 'observer':
@@ -532,8 +532,8 @@ class Apps {
 			'$installed' => $installed,
 			'$action_label' => (($hosturl && in_array($mode, ['view','install'])) ? $install_action : ''),
 			'$edit' => ((local_channel() && $installed && $mode == 'edit') ? t('Edit') : ''),
-			'$delete' => ((local_channel() && $mode == 'edit') ? t('Delete') : ''),
-			'$undelete' => ((local_channel() && $mode == 'edit') ? t('Undelete') : ''),
+			'$delete' => ((local_channel() && $installed && $mode == 'edit') ? t('Delete') : ''),
+			'$undelete' => ((local_channel() && $installed && $mode == 'edit') ? t('Undelete') : ''),
 			'$settings_url' => ((local_channel() && $installed && $mode == 'list') ? $papp['settings_url'] : ''),
 			'$deleted' => $papp['deleted'],
 			'$feature' => (($papp['embed'] || $mode == 'edit') ? false : true),
@@ -982,7 +982,7 @@ class Apps {
 			$arr['author'] = $sys['channel_hash'];
 		}
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (strpos($arr['photo'],z_root()) !== false)) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}
@@ -1068,7 +1068,7 @@ class Apps {
 		if((! $darray['app_url']) || (! $darray['app_id']))
 			return $ret;
 
-		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (! strpos($arr['photo'],z_root()))) {
+		if($arr['photo'] && (strpos($arr['photo'],'icon:') === false) && (strpos($arr['photo'],z_root()) !== false)) {
 			$x = import_xchan_photo(str_replace('$baseurl',z_root(),$arr['photo']),get_observer_hash(),true);
 			$arr['photo'] = $x[1];
 		}

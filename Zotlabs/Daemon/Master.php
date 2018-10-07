@@ -126,7 +126,6 @@ class Master {
 
 	static public function ClearQueue() {
 			$work = q("select * from config where cat='queuework' and k like '%s'",
-				'workitem_%',
 				dbesc('workitem%'));
 			foreach ($work as $workitem) {
 				$workinfo = unserialize($workitem['v']);
@@ -137,7 +136,6 @@ class Master {
 				$cls::run($argc,$argv);
 			}
 			$work = q("delete from config where cat='queuework' and k like '%s'",
-				'workitem_%',
 				dbesc('workitem%'));
 	}
 	

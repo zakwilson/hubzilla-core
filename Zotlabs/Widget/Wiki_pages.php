@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\NativeWiki;
 
 class Wiki_pages {
 
@@ -10,7 +11,7 @@ class Wiki_pages {
 			return;
 
 		$c = channelx_by_nick(argv(1));
-		$w = \Zotlabs\Lib\NativeWiki::exists_by_name($c['channel_id'],urldecode(argv(2)));
+		$w = \Zotlabs\Lib\NativeWiki::exists_by_name($c['channel_id'],NativeWiki::name_decode(argv(2)));
 		$arr = array(
 			'resource_id' => $w['resource_id'],
 			'channel_id' => $c['channel_id'],
@@ -21,8 +22,9 @@ class Wiki_pages {
 		$can_create = perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'write_wiki');
 
 		$can_delete = ((local_channel() && (local_channel() == \App::$profile['uid'])) ? true : false);
-                $pageName = addslashes(escape_tags(urldecode(argv(3))));
+                $pageName = NativeWiki::name_decode(escape_tags(argv(3)));
 
+		$wikiname = $w['urlName'];
 		return replace_macros(get_markup_template('wiki_page_not_found.tpl'), array(
 				'$resource_id' => $arr['resource_id'],
 				'$channel_address' => $arr['channel_address'],
@@ -48,7 +50,7 @@ class Wiki_pages {
 
 		if(! $arr['resource_id']) {
 			$c = channelx_by_nick(argv(1));
-			$w = \Zotlabs\Lib\NativeWiki::exists_by_name($c['channel_id'],urldecode(argv(2)));
+			$w = \Zotlabs\Lib\NativeWiki::exists_by_name($c['channel_id'],NativeWiki::name_decode(argv(2)));
 			$arr = array(
 				'resource_id' => $w['resource_id'],
 				'channel_id' => $c['channel_id'],

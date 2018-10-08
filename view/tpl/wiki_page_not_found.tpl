@@ -1,7 +1,7 @@
 	<h3>Page does not exist</h3>
         <br /><br /><br />
 		{{if $canadd}}
-			<form id="new-page-form" action="wiki/{{$channel_address}}/create/page" method="post" >
+			<form id="new-page-form" action="/wiki/{{$channel_address}}/create/page" method="post" >
 				<input type="hidden" name="resource_id" value="{{$resource_id}}">
 				{{include file="field_input.tpl" field=$pageName}}
 				{{if $typelock}}

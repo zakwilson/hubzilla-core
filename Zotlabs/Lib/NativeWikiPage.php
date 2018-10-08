@@ -100,7 +100,7 @@ class NativeWikiPage {
 				'rawName'  => $name,
 				'htmlName' => escape_tags($name),
 				//'urlName'  => urlencode($name), 
-				Zlib\NativeWiki::name_encode($name)
+				'urlName' => Zlib\NativeWiki::name_encode($name)
 
 			];
 
@@ -368,7 +368,6 @@ class NativeWikiPage {
 
 		unset($item['id']);
 		unset($item['author']);
-
 		$item['parent']       = 0;
 		$item['body']         = $content;
 		$item['author_xchan'] = $observer_hash;

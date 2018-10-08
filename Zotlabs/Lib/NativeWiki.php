@@ -292,6 +292,7 @@ class NativeWiki {
 
 	public static function name_encode ($string) {
 
+		$string = html_entity_decode($string);
 		$encoding = mb_internal_encoding();
 		mb_internal_encoding("UTF-8");
 		$ret = mb_ereg_replace_callback ('[^A-Za-z0-9\-\_\.\~]',function ($char) {

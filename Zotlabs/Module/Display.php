@@ -12,7 +12,7 @@ class Display extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
 
-		$noscript_content = get_config('system', 'noscript_content', '1');
+		$noscript_content = (get_config('system', 'noscript_content', '1') && (! $update));
 
 		$module_format = 'html';
 
@@ -299,7 +299,6 @@ class Display extends \Zotlabs\Web\Controller {
 			require_once('include/channel.php');
 			$sys = get_sys_channel();
 			$sysid = $sys['channel_id'];
-
 			if(local_channel()) {
 				$r = q("SELECT item.parent AS item_id from item
 					WHERE uid = %d
@@ -340,7 +339,7 @@ class Display extends \Zotlabs\Web\Controller {
 		else {
 			$r = array();
 		}
-	
+
 		if($r) {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {

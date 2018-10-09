@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-06 17:07+0200\n"
-"PO-Revision-Date: 2018-10-08 17:43+0000\n"
+"PO-Revision-Date: 2018-10-09 09:38+0000\n"
 "Last-Translator: Manuel Jiménez Friaza <mjfriaza@disroot.org>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/Friendica/hubzilla/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -910,7 +910,7 @@ msgstr "Se ha guardado la categoría del permiso."
 
 #: ../../Zotlabs/Module/Permcats.php:62
 msgid "Permission Categories App"
-msgstr "App de categorías de permisos"
+msgstr "App Categorías de permisos"
 
 #: ../../Zotlabs/Module/Permcats.php:63
 msgid "Create custom connection permission limits"
@@ -998,7 +998,7 @@ msgstr "Cambiar el idioma de la interfaz de usuario"
 
 #: ../../Zotlabs/Module/Uexport.php:61
 msgid "Channel Export App"
-msgstr "App de exportación de canales"
+msgstr "App Exportación de canales"
 
 #: ../../Zotlabs/Module/Uexport.php:62
 msgid "Export your channel"
@@ -2331,7 +2331,7 @@ msgstr "Continuar"
 
 #: ../../Zotlabs/Module/Connect.php:104
 msgid "Premium Channel App"
-msgstr "App canal premium"
+msgstr "App Canal premium"
 
 #: ../../Zotlabs/Module/Connect.php:105
 msgid ""
@@ -4037,7 +4037,7 @@ msgstr "Ajustes guardados. Recargue la página, por favor."
 
 #: ../../Zotlabs/Module/Settings/Conversation.php:46
 msgid "Conversation Settings"
-msgstr "Ajustes de Conversation"
+msgstr "Ajustes de Conversación"
 
 #: ../../Zotlabs/Module/Settings/Connections.php:39
 msgid "Connections Settings"
@@ -4307,7 +4307,7 @@ msgstr "Token salvado."
 
 #: ../../Zotlabs/Module/Tokens.php:99
 msgid "Guest Access App"
-msgstr "App de acceso para invitados"
+msgstr "App Acceso para invitados"
 
 #: ../../Zotlabs/Module/Tokens.php:100
 msgid "Create access tokens so that non-members can access private content"
@@ -4647,7 +4647,7 @@ msgstr "Elemento no disponible"
 
 #: ../../Zotlabs/Module/Randprof.php:29
 msgid "Random Channel App"
-msgstr "App canal aleatorio"
+msgstr "App Canal aleatorio"
 
 #: ../../Zotlabs/Module/Randprof.php:30
 msgid "Visit a random channel in the $Projectname network"
@@ -4685,7 +4685,7 @@ msgstr "%1$s está %2$s"
 
 #: ../../Zotlabs/Module/Mood.php:132
 msgid "Mood App"
-msgstr "App estados de ánimo"
+msgstr "App Estados de ánimo"
 
 #: ../../Zotlabs/Module/Mood.php:133 ../../Zotlabs/Module/Mood.php:153
 msgid "Set your current mood and tell your friends"
@@ -4864,7 +4864,7 @@ msgstr "Marcador añadido"
 
 #: ../../Zotlabs/Module/Bookmarks.php:78
 msgid "Bookmarks App"
-msgstr "App marcadores"
+msgstr "App Marcadores"
 
 #: ../../Zotlabs/Module/Bookmarks.php:79
 msgid "Bookmark links from posts and manage them"
@@ -5155,7 +5155,7 @@ msgstr "Perfil no disponible"
 
 #: ../../Zotlabs/Module/Wiki.php:52
 msgid "Wiki App"
-msgstr "App wiki"
+msgstr "App Wiki"
 
 #: ../../Zotlabs/Module/Wiki.php:53
 msgid "Provide a wiki for your channel"
@@ -5401,7 +5401,7 @@ msgstr "Plantilla actualizada."
 
 #: ../../Zotlabs/Module/Pdledit.php:42
 msgid "PDL Editor App"
-msgstr "App editor PDL"
+msgstr "App Editor PDL"
 
 #: ../../Zotlabs/Module/Pdledit.php:43
 msgid "Provides the ability to edit system page layouts"
@@ -5441,7 +5441,7 @@ msgstr "Diseño del sistema"
 
 #: ../../Zotlabs/Module/Poke.php:165
 msgid "Poke App"
-msgstr "App toques"
+msgstr "App Toques"
 
 #: ../../Zotlabs/Module/Poke.php:166
 msgid "Poke somebody in your addressbook"
@@ -5995,7 +5995,7 @@ msgstr "Detalles"
 
 #: ../../Zotlabs/Module/Chat.php:102
 msgid "Chatrooms App"
-msgstr "App salas de chat"
+msgstr "App Salas de chat"
 
 #: ../../Zotlabs/Module/Chat.php:103
 msgid "Access Controlled Chatrooms"
@@ -6188,7 +6188,7 @@ msgstr "Descargar el fichero PDL"
 
 #: ../../Zotlabs/Module/Notes.php:55
 msgid "Notes App"
-msgstr "App notas"
+msgstr "App Notas"
 
 #: ../../Zotlabs/Module/Notes.php:56
 msgid "A simple notes app with a widget (note: notes are not encrypted)"
@@ -6267,7 +6267,7 @@ msgstr "Atención: El cambio de algunos ajustes puede volver inutilizable su can
 
 #: ../../Zotlabs/Module/Defperms.php:189
 msgid "Default Permissions App"
-msgstr "App de Permisos por defecto"
+msgstr "App Permisos por defecto"
 
 #: ../../Zotlabs/Module/Defperms.php:190
 msgid "Set custom default permissions for new connections"
@@ -6319,7 +6319,7 @@ msgstr "Grupo de canales actualizado."
 
 #: ../../Zotlabs/Module/Group.php:101
 msgid "Privacy Groups App"
-msgstr "App de Grupos de canales"
+msgstr "App Grupos de canales"
 
 #: ../../Zotlabs/Module/Group.php:102
 msgid "Management of privacy groups"
@@ -7330,7 +7330,7 @@ msgstr "Buscar un canal (o un \"webbie\") que comience por:"
 
 #: ../../Zotlabs/Module/Suggest.php:40
 msgid "Suggest Channels App"
-msgstr "App de Sugerir canales"
+msgstr "App Sugerencia de canales"
 
 #: ../../Zotlabs/Module/Suggest.php:41
 msgid ""
@@ -7549,7 +7549,7 @@ msgstr "Guardar en carpeta"
 
 #: ../../Zotlabs/Module/Probe.php:18
 msgid "Remote Diagnostics App"
-msgstr "App de Diagnósticos remotos"
+msgstr "App Diagnósticos remotos"
 
 #: ../../Zotlabs/Module/Probe.php:19
 msgid "Perform diagnostics on remote channels"
@@ -8034,7 +8034,7 @@ msgstr "\"Key\" y \"Secret\" son obligatorios"
 
 #: ../../Zotlabs/Module/Oauth.php:100
 msgid "OAuth Apps Manager App"
-msgstr "App de Gestión de apps OAuth"
+msgstr "App Gestión de apps OAuth"
 
 #: ../../Zotlabs/Module/Oauth.php:101
 msgid "OAuth authentication tokens for mobile and remote apps"
@@ -8843,7 +8843,7 @@ msgstr "Añadir etiqueta"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:273 ../../include/conversation.php:891
 msgid "Conversation Tools"
-msgstr "Herramientas de Conversation"
+msgstr "Herramientas de Conversación"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:289 ../../include/taxonomy.php:575
 msgid "like"
@@ -14399,7 +14399,7 @@ msgstr "Filtrar publicaciones entrantes de conexiones por palabras clave o conte
 
 #: ../../include/features.php:138
 msgid "Conversation"
-msgstr "Conversation"
+msgstr "Conversación"
 
 #: ../../include/features.php:142
 msgid "Community Tagging"

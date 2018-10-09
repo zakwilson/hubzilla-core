@@ -59,8 +59,7 @@ class Apps {
 	static public function get_base_apps() {
 		return get_config('system','base_apps',[ 
 			'Connections',
-			'Suggest Channels',
-			'Grid',
+			'Network',
 			'Settings',
 			'Files',
 			'Channel Home',
@@ -74,8 +73,6 @@ class Apps {
 			'Profile Photo'
 		]);
 	}
-
-
 
 	static public function import_system_apps() {
 		if(! local_channel())
@@ -306,14 +303,14 @@ class Apps {
 			'Cards' => t('Cards'),
 			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
-			'View Bookmarks' => t('View Bookmarks'),
+			'Bookmarks' => t('Bookmarks'),
 			'Chatrooms' => t('Chatrooms'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),
 			'Suggest Channels' => t('Suggest Channels'),
 			'Login' => t('Login'),
 			'Channel Manager' => t('Channel Manager'), 
-			'Grid' => t('Activity'), 
+			'Network' => t('Stream'),
 			'Settings' => t('Settings'),
 			'Files' => t('Files'),
 			'Webpages' => t('Webpages'),
@@ -345,7 +342,6 @@ class Apps {
 			'CalDAV' => t('CalDAV'),
 			'CardDAV' => t('CardDAV'),
 			'Channel Sources' => t('Channel Sources'),
-			'Gallery' => t('Gallery'),
 			'Guest Access' => t('Guest Access'),
 			'Notes' => t('Notes'),
 			'OAuth Apps Manager' => t('OAuth Apps Manager'),
@@ -354,7 +350,8 @@ class Apps {
 			'Permission Categories' => t('Permission Categories'),
 			'Premium Channel' => t('Premium Channel'),
 			'Public Stream' => t('Public Stream'),
-			'My Chatrooms' => t('My Chatrooms')
+			'My Chatrooms' => t('My Chatrooms'),
+			'Channel Export' => t('Channel Export')
 		);
 
 		if(array_key_exists('name',$arr)) {

@@ -1,14 +1,19 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+
 require_once('include/socgraph.php');
 require_once('include/contact_widgets.php');
-
 
 class Suggest extends \Zotlabs\Web\Controller {
 
 	function init() {
 		if(! local_channel())
+			return;
+
+		if(! Apps::system_app_installed(local_channel(), 'Suggest Channels'))
 			return;
 	
 		if(x($_GET,'ignore')) {
@@ -22,12 +27,22 @@ class Suggest extends \Zotlabs\Web\Controller {
 			
 	
 	function get() {
-	
-		$o = '';
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
+
+		if(! Apps::system_app_installed(local_channel(), 'Suggest Channels')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Suggest Channels App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Suggestions for channels in the $Projectname network you might be interested in');
+			return $o;
+		}
+
+		$o = '';
 
 		nav_set_selected('Suggest Channels');
 	

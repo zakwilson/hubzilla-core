@@ -1,16 +1,29 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/zot.php');
+use App;
+use Zotlabs\Lib\Apps;
 
+require_once('include/zot.php');
 
 class Probe extends \Zotlabs\Web\Controller {
 
 	function get() {
 
+		if(local_channel()) {
+			if(! Apps::system_app_installed(local_channel(), 'Remote Diagnostics')) {
+				//Do not display any associated widgets at this point
+				App::$pdl = '';
+
+				$o = '<b>' . t('Remote Diagnostics App') . ' (' . t('Not Installed') . '):</b><br>';
+				$o .= t('Perform diagnostics on remote channels');
+				return $o;
+			}
+		}
+
 		nav_set_selected('Remote Diagnostics');
 
-		$o .= '<h3>Probe Diagnostic</h3>';
+		$o .= '<h3>Remote Diagnostics</h3>';
 	
 		$o .= '<form action="probe" method="get">';
 		$o .= 'Lookup address: <input type="text" style="width: 250px;" name="addr" value="' . $_GET['addr'] .'" />';
@@ -19,7 +32,7 @@ class Probe extends \Zotlabs\Web\Controller {
 		$o .= '<br /><br />';
 	
 		if(x($_GET,'addr')) {
-			$channel = \App::get_channel();
+			$channel = App::get_channel();
 			$addr = trim($_GET['addr']);
 			$do_import = ((intval($_GET['import']) && is_site_admin()) ? true : false);
 			

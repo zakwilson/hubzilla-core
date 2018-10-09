@@ -505,7 +505,7 @@ CREATE TABLE IF NOT EXISTS `hubloc` (
   `hubloc_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `hubloc_guid` char(191) NOT NULL DEFAULT '',
   `hubloc_guid_sig` text NOT NULL,
-  `hubloc_id_url` char(191) NOT NULL DEFAULT '0',
+  `hubloc_id_url` char(191) NOT NULL DEFAULT '',
   `hubloc_hash` char(191) NOT NULL DEFAULT '',
   `hubloc_addr` char(191) NOT NULL DEFAULT '',
   `hubloc_network` char(32) NOT NULL DEFAULT '',

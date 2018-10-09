@@ -229,6 +229,11 @@ function nav($template = 'default') {
 			set_pconfig(local_channel(), 'system','import_system_apps', datetime_convert('UTC','UTC','now','Y-m-d'));
 		}
 
+		if(get_pconfig(local_channel(), 'system','force_import_system_apps') !== STD_VERSION) {
+			Apps::import_system_apps();
+			set_pconfig(local_channel(), 'system','force_import_system_apps', STD_VERSION);
+		}
+
 		$syslist = array();
 		$list = Apps::app_list(local_channel(), false, ['nav_featured_app', 'nav_pinned_app']);
 		if($list) {

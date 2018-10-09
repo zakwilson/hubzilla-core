@@ -262,7 +262,8 @@
 			if (data.success) {
 				window.saved = true;
 				window.console.log('Page saved successfully.');
-				window.wiki_page_content = currentContent;
+				//window.wiki_page_content = currentContent;
+				window.wiki_page_content = data.content;
 				$('#id_commitMsg').val(''); // Clear the commit message box
 				$('#save-page').addClass('disabled');  // Disable the save button
 				{{if !$mimeType || $mimeType == 'text/markdown'}}

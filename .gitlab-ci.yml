@@ -10,7 +10,7 @@ before_script:
 # Install git, the php image doesn't have installed
 - apt-get update -yqq
 - apt-get install git -yqq
-- apt-get install php-gd -yqq
+- apt-get install php7.0-gd -yqq
 
 # Install mysql driver
 - docker-php-ext-install pdo_mysql

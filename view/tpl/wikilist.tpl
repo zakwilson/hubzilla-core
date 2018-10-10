@@ -53,7 +53,7 @@
 				</td>
 				<td><i class="fa fa-download" onclick="wiki_download_wiki('{{$wiki.resource_id}}'); return false;"></i></td>
 				{{if $owner}}
-				<td><i class="fa fa-trash-o drop-icons" onclick="wiki_delete_wiki('{{$wiki.title}}', '{{$wiki.resource_id}}'); return false;"></i></td>
+				<td><i class="fa fa-trash-o drop-icons" onclick="wiki_delete_wiki('{{$wiki.title|escape:'javascript'}}', '{{$wiki.resource_id}}'); return false;"></i></td>
 				{{/if}}
 			</tr>
 			{{if $owner}}

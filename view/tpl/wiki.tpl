@@ -98,8 +98,8 @@
 
 <script>
 	window.wiki_resource_id = '{{$resource_id}}';
-	window.wiki_page_name = '{{$page|escape:"javascript"}}';
-	window.wiki_page_content = '{{$content|escape:"javascript"}}';
+	window.wiki_page_name = '{{$page|escape:'javascript'}}';
+	window.wiki_page_content = '{{$content|escape:'javascript'}}';
 	window.wiki_page_commit = '{{$commit}}';
 	window.saved = true;
 

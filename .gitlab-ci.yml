@@ -10,13 +10,12 @@ before_script:
 # Install git, the php image doesn't have installed
 - apt-get update -yqq
 - apt-get install git -yqq
-- apt-get install libfreetype6-dev libjpeg62-turbo-dev libpng12-dev -yqq
 
 # Install mysql driver
 - docker-php-ext-install pdo_mysql
 
-# Install php-gd
-- docker-php-ext-install gd
+# Enable gd
+- docker-php-ext-enable gd
 
 # Install composer
 - curl -sS https://getcomposer.org/installer | php

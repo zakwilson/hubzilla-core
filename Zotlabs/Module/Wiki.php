@@ -293,9 +293,9 @@ class Wiki extends Controller {
 				}
 
 				//$wikiheaderName = urldecode($wikiUrlName);
-				$wikiheaderName = $wikiUrlName;
+				$wikiheaderName = NativeWiki::name_decode($wikiUrlName);
 				//$wikiheaderPage = urldecode($pageUrlName);
-				$wikiheaderPage = $pageUrlName;
+				$wikiheaderPage = NativeWiki::name_decode($pageUrlName);
 
 				$renamePage = (($wikiheaderPage === 'Home') ? '' : t('Rename page'));
 				$sharePage  = t('Share');
@@ -812,7 +812,7 @@ class Wiki extends Controller {
 			if ($pageUrlName === 'Home') {
 				json_return_and_die(array('message' => 'Cannot rename Home','success' => false));
 			}
-			if(NativeWiki::encode_name(escape_tags($pageNewName)) === '') {				
+			if(NativeWiki::name_encode(escape_tags($pageNewName)) === '') {
 				json_return_and_die(array('message' => 'Error renaming page. Invalid name.', 'success' => false));
 			}
 			// Determine if observer has permission to rename pages

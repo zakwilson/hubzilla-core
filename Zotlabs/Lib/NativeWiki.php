@@ -252,7 +252,7 @@ class NativeWiki {
 			AND item_deleted = 0 $sql_extra limit 1", 
 			dbesc(NWIKI_ITEM_RESOURCE_TYPE), 
 			//dbesc(urldecode($urlName)), 
-			dbesc($urlName), 
+			dbesc(self::name_decode($urlName)),
 			intval($uid)
 		);
 

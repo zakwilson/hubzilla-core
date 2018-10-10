@@ -157,7 +157,7 @@ class NativeWikiPage {
 				'rawName'  => $pageNewName, 
 				'htmlName' => escape_tags($pageNewName), 
 				//'urlName'  => urlencode(escape_tags($pageNewName))
-				Zlib\NativeWiki::name_encode($pageNewName)
+				'urlName' => Zlib\NativeWiki::name_encode($pageNewName)
 			];
 
 			return [ 'success' => true, 'page' => $page ];

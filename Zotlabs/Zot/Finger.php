@@ -93,7 +93,7 @@ class Finger {
 			$headers = [];
 			$headers['X-Zot-Channel'] = $channel['channel_address'] . '@' . \App::get_hostname();
 			$headers['X-Zot-Nonce']   = random_string();
-			$headers['Host']          = $parsed['host'];
+			$headers['Host']          = $parsed_host;
 
 			$xhead = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],
 				'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false);

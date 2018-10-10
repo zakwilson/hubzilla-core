@@ -71,6 +71,11 @@ class Finger {
 			$url = 'https://' . $host;
 		}
 
+		$m = parse_url($url);
+		if($m) {
+			$parsed_host = strtolower($m['host']);
+		}
+
 		$rhs = '/.well-known/zot-info';
 		$https = ((strpos($url,'https://') === 0) ? true : false);
 
@@ -88,6 +93,8 @@ class Finger {
 			$headers = [];
 			$headers['X-Zot-Channel'] = $channel['channel_address'] . '@' . \App::get_hostname();
 			$headers['X-Zot-Nonce']   = random_string();
+			$headers['Host']          = $parsed['host'];
+
 			$xhead = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],
 				'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false);
 

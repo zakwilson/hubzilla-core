@@ -146,12 +146,17 @@ class Magic extends \Zotlabs\Web\Controller {
 				$dest = strip_zids($dest);
 				$dest = strip_query_param($dest,'f');
 
+				$data = json_encode([ 'OpenWebAuth' => random_string() ]);
+
 				$headers = [];
 				$headers['Accept'] = 'application/x-zot+json' ;
 				$headers['X-Open-Web-Auth'] = random_string();
+				$headers['Host'] = $parsed['host'];
+				$headers['Digest'] = 'SHA-256=' . \Zotlabs\Web\HTTPSig::generate_digest($data,false);
+
 				$headers = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],
 					'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,true,'sha512');
-				$x = z_fetch_url($basepath . '/owa',false,$redirects,[ 'headers' => $headers ]);
+				$x = z_post_url($basepath . '/owa',$data,$redirects,[ 'headers' => $headers ]);
 
 				if($x['success']) {
 					$j = json_decode($x['body'],true);

@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-06 17:07+0200\n"
-"PO-Revision-Date: 2018-10-09 09:38+0000\n"
+"PO-Revision-Date: 2018-10-11 10:13+0000\n"
 "Last-Translator: Manuel Jiménez Friaza <mjfriaza@disroot.org>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/Friendica/hubzilla/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -4037,7 +4037,7 @@ msgstr "Ajustes guardados. Recargue la página, por favor."
 
 #: ../../Zotlabs/Module/Settings/Conversation.php:46
 msgid "Conversation Settings"
-msgstr "Ajustes de Conversación"
+msgstr "Ajustes de conversación"
 
 #: ../../Zotlabs/Module/Settings/Connections.php:39
 msgid "Connections Settings"
@@ -8843,7 +8843,7 @@ msgstr "Añadir etiqueta"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:273 ../../include/conversation.php:891
 msgid "Conversation Tools"
-msgstr "Herramientas de Conversación"
+msgstr "Herramientas de conversación"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:289 ../../include/taxonomy.php:575
 msgid "like"
@@ -11185,7 +11185,7 @@ msgstr "La reputación se recupera automáticamente a esta tasa por hora hasta q
 msgid ""
 "When minimum_to_moderate > reputation > minimum_to_post reputation recovers "
 "at this rate per hour"
-msgstr "Cuando la reputación mínima a moderar > reputación > la reputación mínima a publicar se recupera a esta tasa por hora"
+msgstr "Cuando el mínimo_a_moderar > reputación > mínimo_a_publicar la reputación se recupera a esta tasa por hora "
 
 #: ../../addon/channelreputation/channelreputation.php:138
 msgid "Community Moderation Settings"

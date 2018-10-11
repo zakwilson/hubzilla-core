@@ -619,7 +619,7 @@ class NativeWikiPage {
 			$s = str_replace('[observer.webname]', '', $s);
 			$s = str_replace('[observer.photo]', '', $s);
 		}
-	
+
 		return $s;
 	}
 	

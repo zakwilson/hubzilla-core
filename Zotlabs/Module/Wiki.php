@@ -331,6 +331,10 @@ class Wiki extends Controller {
 				        $sampleContent = t('New page');
 
 				    $content = (($p['content'] == '') ? $sampleContent : $p['content']);
+
+				    $hookinfo = ['content' => $content, 'mimetype' => $mimeType];
+				    call_hooks('wiki_preprocess',$hookinfo);
+				    $content = $hookinfo['content'];
     
 				    // Render the Markdown-formatted page content in HTML
 				    if($mimeType == 'text/bbcode') {

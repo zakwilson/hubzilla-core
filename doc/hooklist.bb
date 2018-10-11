@@ -625,6 +625,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/well_known]well_known[/zrl]
 	Called when accessing the '.well-known' special site addresses
 
+[zrl=[baseurl]/help/hook/wiki_preprocess]wiki_preprocess[/zrl]
+	Called before markdown/bbcode processors are run for wiki pages
+
 [zrl=[baseurl]/help/hook/zot_best_algorithm]zot_best_algorithm[/zrl]
 	Called when negotiating crypto algorithms with remote sites
 

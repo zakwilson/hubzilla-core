@@ -319,7 +319,7 @@ msgstr "Панель навигации, цвет активного значк�
 
 #: ../../view/theme/redbasic/php/config.php:103
 msgid "Link color"
-msgstr "цвет ссылок"
+msgstr "Цвет ссылок"
 
 #: ../../view/theme/redbasic/php/config.php:104
 msgid "Set font-color for banner"

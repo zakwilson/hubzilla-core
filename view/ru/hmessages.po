@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-25 21:40+0200\n"
-"PO-Revision-Date: 2018-10-07 13:05+0200\n"
+"POT-Creation-Date: 2018-10-06 17:07+0200\n"
+"PO-Revision-Date: 2018-10-11 23:03+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Source channel not found."
 msgstr "Канал-источник не найден."
 
-#: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3085
+#: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3087
 #: ../../Zotlabs/Module/Admin/Site.php:187
 msgid "Default"
 msgstr "По умолчанию"
@@ -85,8 +85,8 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../Zotlabs/Module/Pdledit.php:107 ../../Zotlabs/Module/Wiki.php:215
 #: ../../Zotlabs/Module/Import.php:565
 #: ../../Zotlabs/Module/Import_items.php:129
-#: ../../Zotlabs/Widget/Wiki_pages.php:40
-#: ../../Zotlabs/Widget/Wiki_pages.php:97
+#: ../../Zotlabs/Widget/Wiki_pages.php:42
+#: ../../Zotlabs/Widget/Wiki_pages.php:99
 #: ../../Zotlabs/Widget/Eventstools.php:16 ../../Zotlabs/Lib/ThreadItem.php:767
 #: ../../extend/addon/hzaddons/dwpost/dwpost.php:89
 #: ../../extend/addon/hzaddons/fuzzloc/fuzzloc.php:191
@@ -673,7 +673,7 @@ msgstr "Спроси меня"
 #: ../../Zotlabs/Module/Item.php:229 ../../Zotlabs/Module/Item.php:248
 #: ../../Zotlabs/Module/Item.php:258 ../../Zotlabs/Module/Item.php:1110
 #: ../../Zotlabs/Module/Achievements.php:34
-#: ../../Zotlabs/Module/Display.php:449 ../../Zotlabs/Module/Poke.php:157
+#: ../../Zotlabs/Module/Display.php:448 ../../Zotlabs/Module/Poke.php:157
 #: ../../Zotlabs/Module/Profile.php:85 ../../Zotlabs/Module/Profile.php:101
 #: ../../Zotlabs/Module/Appman.php:87 ../../Zotlabs/Module/Profiles.php:198
 #: ../../Zotlabs/Module/Profiles.php:635 ../../Zotlabs/Module/Photos.php:69
@@ -721,8 +721,8 @@ msgstr "Спроси меня"
 #: ../../Zotlabs/Module/Blocks.php:80 ../../Zotlabs/Module/Invite.php:21
 #: ../../Zotlabs/Module/Invite.php:102 ../../Zotlabs/Module/Articles.php:80
 #: ../../Zotlabs/Module/Cloud.php:40 ../../Zotlabs/Module/Pdledit.php:34
-#: ../../Zotlabs/Module/Wiki.php:59 ../../Zotlabs/Module/Wiki.php:282
-#: ../../Zotlabs/Module/Wiki.php:415 ../../Zotlabs/Module/Manage.php:10
+#: ../../Zotlabs/Module/Wiki.php:59 ../../Zotlabs/Module/Wiki.php:285
+#: ../../Zotlabs/Module/Wiki.php:429 ../../Zotlabs/Module/Manage.php:10
 #: ../../Zotlabs/Module/Suggest.php:32 ../../Zotlabs/Module/Cards.php:81
 #: ../../Zotlabs/Module/Layouts.php:71 ../../Zotlabs/Module/Layouts.php:78
 #: ../../Zotlabs/Module/Layouts.php:89 ../../Zotlabs/Web/WebServer.php:123
@@ -892,7 +892,7 @@ msgstr "Просмотреть все %d общих контактов"
 #: ../../Zotlabs/Module/Connections.php:342
 #: ../../Zotlabs/Module/Card_edit.php:99
 #: ../../Zotlabs/Module/Article_edit.php:99 ../../Zotlabs/Module/Blocks.php:160
-#: ../../Zotlabs/Module/Wiki.php:211 ../../Zotlabs/Module/Wiki.php:371
+#: ../../Zotlabs/Module/Wiki.php:211 ../../Zotlabs/Module/Wiki.php:385
 #: ../../Zotlabs/Module/Layouts.php:193 ../../Zotlabs/Widget/Cdav.php:126
 #: ../../Zotlabs/Widget/Cdav.php:162 ../../Zotlabs/Lib/Apps.php:534
 #: ../../Zotlabs/Lib/ThreadItem.php:130
@@ -1255,7 +1255,7 @@ msgid "Visible to specific connections."
 msgstr "Видно указанным контактам."
 
 #: ../../include/items.php:3587 ../../Zotlabs/Module/Display.php:45
-#: ../../Zotlabs/Module/Display.php:453 ../../Zotlabs/Module/Admin.php:62
+#: ../../Zotlabs/Module/Display.php:452 ../../Zotlabs/Module/Admin.php:62
 #: ../../Zotlabs/Module/Filestorage.php:24 ../../Zotlabs/Module/Viewsrc.php:25
 #: ../../Zotlabs/Module/Admin/Addons.php:259
 #: ../../Zotlabs/Module/Admin/Themes.php:72 ../../Zotlabs/Module/Thing.php:94
@@ -1989,8 +1989,8 @@ msgid "You can create your own with the layouts tool"
 msgstr "Вы можете создать свой собственный с помощью инструмента шаблонов"
 
 #: ../../include/text.php:1890 ../../Zotlabs/Module/Wiki.php:217
-#: ../../Zotlabs/Module/Wiki.php:359 ../../Zotlabs/Widget/Wiki_pages.php:36
-#: ../../Zotlabs/Widget/Wiki_pages.php:93
+#: ../../Zotlabs/Module/Wiki.php:372 ../../Zotlabs/Widget/Wiki_pages.php:38
+#: ../../Zotlabs/Widget/Wiki_pages.php:95
 msgid "BBcode"
 msgstr ""
 
@@ -1999,15 +1999,15 @@ msgid "HTML"
 msgstr ""
 
 #: ../../include/text.php:1892 ../../Zotlabs/Module/Wiki.php:217
-#: ../../Zotlabs/Module/Wiki.php:359 ../../Zotlabs/Widget/Wiki_pages.php:36
-#: ../../Zotlabs/Widget/Wiki_pages.php:93
+#: ../../Zotlabs/Module/Wiki.php:372 ../../Zotlabs/Widget/Wiki_pages.php:38
+#: ../../Zotlabs/Widget/Wiki_pages.php:95
 #: ../../extend/addon/hzaddons/mdpost/mdpost.php:41
 msgid "Markdown"
 msgstr "Разметка Markdown"
 
 #: ../../include/text.php:1893 ../../Zotlabs/Module/Wiki.php:217
-#: ../../Zotlabs/Widget/Wiki_pages.php:36
-#: ../../Zotlabs/Widget/Wiki_pages.php:93
+#: ../../Zotlabs/Widget/Wiki_pages.php:38
+#: ../../Zotlabs/Widget/Wiki_pages.php:95
 msgid "Text"
 msgstr "Текст"
 
@@ -2342,7 +2342,7 @@ msgstr "Не найдено"
 #: ../../include/help.php:132 ../../Zotlabs/Module/Display.php:140
 #: ../../Zotlabs/Module/Display.php:157 ../../Zotlabs/Module/Display.php:174
 #: ../../Zotlabs/Module/Page.php:136 ../../Zotlabs/Module/Block.php:77
-#: ../../Zotlabs/Web/Router.php:185 ../../Zotlabs/Lib/NativeWikiPage.php:519
+#: ../../Zotlabs/Web/Router.php:185 ../../Zotlabs/Lib/NativeWikiPage.php:521
 msgid "Page not found."
 msgstr "Страница не найдена."
 
@@ -2418,7 +2418,7 @@ msgid "View summary"
 msgstr "Просмотр резюме"
 
 #: ../../include/bbcode.php:746 ../../include/bbcode.php:916
-#: ../../Zotlabs/Lib/NativeWikiPage.php:600
+#: ../../Zotlabs/Lib/NativeWikiPage.php:603
 msgid "Different viewers will see this text differently"
 msgstr "Различные зрители увидят этот текст по-разному"
 
@@ -2756,13 +2756,13 @@ msgid "Where are you right now?"
 msgstr "Где вы сейчас?"
 
 #: ../../include/conversation.php:1342 ../../Zotlabs/Module/Cover_photo.php:401
-#: ../../Zotlabs/Module/Profile_photo.php:467 ../../Zotlabs/Module/Wiki.php:390
+#: ../../Zotlabs/Module/Profile_photo.php:467 ../../Zotlabs/Module/Wiki.php:404
 #: ../../extend/addon/hzaddons/hsse/hsse.php:139
 msgid "Choose images to embed"
 msgstr "Выбрать изображения для встраивания"
 
 #: ../../include/conversation.php:1343 ../../Zotlabs/Module/Cover_photo.php:402
-#: ../../Zotlabs/Module/Profile_photo.php:468 ../../Zotlabs/Module/Wiki.php:391
+#: ../../Zotlabs/Module/Profile_photo.php:468 ../../Zotlabs/Module/Wiki.php:405
 #: ../../extend/addon/hzaddons/hsse/hsse.php:140
 msgid "Choose an album"
 msgstr "Выбрать альбом"
@@ -2773,19 +2773,19 @@ msgid "Choose a different album..."
 msgstr "Выбрать другой альбом..."
 
 #: ../../include/conversation.php:1345 ../../Zotlabs/Module/Cover_photo.php:404
-#: ../../Zotlabs/Module/Profile_photo.php:470 ../../Zotlabs/Module/Wiki.php:393
+#: ../../Zotlabs/Module/Profile_photo.php:470 ../../Zotlabs/Module/Wiki.php:407
 #: ../../extend/addon/hzaddons/hsse/hsse.php:142
 msgid "Error getting album list"
 msgstr "Ошибка получения списка альбомов"
 
 #: ../../include/conversation.php:1346 ../../Zotlabs/Module/Cover_photo.php:405
-#: ../../Zotlabs/Module/Profile_photo.php:471 ../../Zotlabs/Module/Wiki.php:394
+#: ../../Zotlabs/Module/Profile_photo.php:471 ../../Zotlabs/Module/Wiki.php:408
 #: ../../extend/addon/hzaddons/hsse/hsse.php:143
 msgid "Error getting photo link"
 msgstr "Ошибка получения ссылки на фотографию"
 
 #: ../../include/conversation.php:1347 ../../Zotlabs/Module/Cover_photo.php:406
-#: ../../Zotlabs/Module/Profile_photo.php:472 ../../Zotlabs/Module/Wiki.php:395
+#: ../../Zotlabs/Module/Profile_photo.php:472 ../../Zotlabs/Module/Wiki.php:409
 #: ../../extend/addon/hzaddons/hsse/hsse.php:144
 msgid "Error getting album"
 msgstr "Ошибка получения альбома"
@@ -2809,7 +2809,7 @@ msgstr "Предварительный просмотр"
 
 #: ../../include/conversation.php:1389 ../../Zotlabs/Module/Photos.php:1104
 #: ../../Zotlabs/Module/Webpages.php:256 ../../Zotlabs/Module/Blocks.php:161
-#: ../../Zotlabs/Module/Wiki.php:296 ../../Zotlabs/Module/Layouts.php:194
+#: ../../Zotlabs/Module/Wiki.php:301 ../../Zotlabs/Module/Layouts.php:194
 #: ../../Zotlabs/Widget/Cdav.php:124
 #: ../../extend/addon/hzaddons/hsse/hsse.php:186
 msgid "Share"
@@ -2855,7 +2855,7 @@ msgstr "Код"
 msgid "Attach/Upload file"
 msgstr "Прикрепить/загрузить файл"
 
-#: ../../include/conversation.php:1411 ../../Zotlabs/Module/Wiki.php:387
+#: ../../include/conversation.php:1411 ../../Zotlabs/Module/Wiki.php:401
 #: ../../extend/addon/hzaddons/hsse/hsse.php:208
 msgid "Embed an image from your albums"
 msgstr "Встроить изображение из ваших альбомов"
@@ -2874,8 +2874,8 @@ msgstr "Встроить изображение из ваших альбомов
 #: ../../Zotlabs/Module/Profile_photo.php:465
 #: ../../Zotlabs/Module/Editpost.php:109 ../../Zotlabs/Module/Connedit.php:925
 #: ../../Zotlabs/Module/Card_edit.php:131
-#: ../../Zotlabs/Module/Article_edit.php:131 ../../Zotlabs/Module/Wiki.php:356
-#: ../../Zotlabs/Module/Wiki.php:388 ../../Zotlabs/Module/Filer.php:55
+#: ../../Zotlabs/Module/Article_edit.php:131 ../../Zotlabs/Module/Wiki.php:369
+#: ../../Zotlabs/Module/Wiki.php:402 ../../Zotlabs/Module/Filer.php:55
 #: ../../extend/addon/hzaddons/hsse/hsse.php:209
 #: ../../extend/addon/hzaddons/hsse/hsse.php:258
 msgid "Cancel"
@@ -2883,7 +2883,7 @@ msgstr "Отменить"
 
 #: ../../include/conversation.php:1413 ../../include/conversation.php:1460
 #: ../../Zotlabs/Module/Cover_photo.php:400
-#: ../../Zotlabs/Module/Profile_photo.php:466 ../../Zotlabs/Module/Wiki.php:389
+#: ../../Zotlabs/Module/Profile_photo.php:466 ../../Zotlabs/Module/Wiki.php:403
 #: ../../extend/addon/hzaddons/hsse/hsse.php:210
 #: ../../extend/addon/hzaddons/hsse/hsse.php:257
 msgid "OK"
@@ -4080,7 +4080,7 @@ msgstr "Удалено администратором"
 #: ../../Zotlabs/Module/Connedit.php:907 ../../Zotlabs/Module/Group.php:144
 #: ../../Zotlabs/Module/Wiki.php:218
 #: ../../Zotlabs/Widget/Wiki_page_history.php:22
-#: ../../Zotlabs/Lib/NativeWikiPage.php:558
+#: ../../Zotlabs/Lib/NativeWikiPage.php:561
 #: ../../extend/addon/hzaddons/rendezvous/rendezvous.php:172
 msgid "Name"
 msgstr "Имя"
@@ -4467,8 +4467,8 @@ msgstr "почта доставлен"
 msgid "Delivery report for %1$s"
 msgstr "Отчёт о доставке для %1$s"
 
-#: ../../Zotlabs/Module/Dreport.php:151 ../../Zotlabs/Widget/Wiki_pages.php:39
-#: ../../Zotlabs/Widget/Wiki_pages.php:96
+#: ../../Zotlabs/Module/Dreport.php:151 ../../Zotlabs/Widget/Wiki_pages.php:41
+#: ../../Zotlabs/Widget/Wiki_pages.php:98
 msgid "Options"
 msgstr "Параметры"
 
@@ -4593,16 +4593,16 @@ msgstr "Некоторые предложения о том, что делать
 msgid "Public access denied."
 msgstr "Публичный доступ запрещен."
 
-#: ../../Zotlabs/Module/Display.php:375 ../../Zotlabs/Module/Channel.php:424
+#: ../../Zotlabs/Module/Display.php:374 ../../Zotlabs/Module/Channel.php:424
 msgid ""
 "You must enable javascript for your browser to be able to view this content."
 msgstr "Для просмотра этого содержимого в вашем браузере должен быть включён JavaScript"
 
-#: ../../Zotlabs/Module/Display.php:394
+#: ../../Zotlabs/Module/Display.php:393
 msgid "Article"
 msgstr "Статья"
 
-#: ../../Zotlabs/Module/Display.php:446
+#: ../../Zotlabs/Module/Display.php:445
 msgid "Item has been removed."
 msgstr "Элемент был удалён."
 
@@ -5985,7 +5985,7 @@ msgstr "Создать событие"
 
 #: ../../Zotlabs/Module/Events.php:695 ../../Zotlabs/Module/Pubsites.php:60
 #: ../../Zotlabs/Module/Webpages.php:261 ../../Zotlabs/Module/Blocks.php:166
-#: ../../Zotlabs/Module/Wiki.php:213 ../../Zotlabs/Module/Wiki.php:396
+#: ../../Zotlabs/Module/Wiki.php:213 ../../Zotlabs/Module/Wiki.php:410
 #: ../../Zotlabs/Module/Layouts.php:198
 msgid "View"
 msgstr "Просмотр"
@@ -6161,7 +6161,7 @@ msgid "Use a photo from your albums"
 msgstr "Использовать фотографию из ваших альбомов"
 
 #: ../../Zotlabs/Module/Cover_photo.php:403
-#: ../../Zotlabs/Module/Profile_photo.php:469 ../../Zotlabs/Module/Wiki.php:392
+#: ../../Zotlabs/Module/Profile_photo.php:469 ../../Zotlabs/Module/Wiki.php:406
 msgid "Choose a different album"
 msgstr "Выбрать другой альбом"
 
@@ -8850,9 +8850,9 @@ msgstr "Домашняя страница, которая будет показ�
 
 #: ../../Zotlabs/Module/Admin/Site.php:314
 msgid ""
-"example: 'public' to show public stream, 'page/sys/home' to show a system "
+"example: 'pubstream' to show public stream, 'page/sys/home' to show a system "
 "webpage called 'home' or 'include:home.html' to include a file."
-msgstr "например: 'public' для показа публичного потока, 'page/sys/home' показывает системную страницу home или 'include:home.html' для подключения файла."
+msgstr "например: 'pubstream' для показа публичного потока, 'page/sys/home' для показа системной домашней веб-страницы или 'include:home.html' для включения файла."
 
 #: ../../Zotlabs/Module/Admin/Site.php:315
 msgid "Preserve site homepage URL"
@@ -10458,101 +10458,101 @@ msgstr "Создать публикацию о статусе этой Wiki"
 msgid "Edit Wiki Name"
 msgstr "Редактировать наименование Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:271
+#: ../../Zotlabs/Module/Wiki.php:274
 msgid "Wiki not found"
 msgstr "Wiki не найдена"
 
-#: ../../Zotlabs/Module/Wiki.php:295
+#: ../../Zotlabs/Module/Wiki.php:300
 msgid "Rename page"
 msgstr "Переименовать страницу"
 
-#: ../../Zotlabs/Module/Wiki.php:316
+#: ../../Zotlabs/Module/Wiki.php:321
 msgid "Error retrieving page content"
 msgstr "Ошибка при получении содержимого страницы"
 
-#: ../../Zotlabs/Module/Wiki.php:324 ../../Zotlabs/Module/Wiki.php:326
+#: ../../Zotlabs/Module/Wiki.php:329 ../../Zotlabs/Module/Wiki.php:331
 msgid "New page"
 msgstr "Новая страница"
 
-#: ../../Zotlabs/Module/Wiki.php:354
+#: ../../Zotlabs/Module/Wiki.php:367
 msgid "Revision Comparison"
 msgstr "Сравнение ревизий"
 
-#: ../../Zotlabs/Module/Wiki.php:355
+#: ../../Zotlabs/Module/Wiki.php:368
 #: ../../Zotlabs/Widget/Wiki_page_history.php:25
-#: ../../Zotlabs/Lib/NativeWikiPage.php:561
+#: ../../Zotlabs/Lib/NativeWikiPage.php:564
 msgid "Revert"
 msgstr "Отменить"
 
-#: ../../Zotlabs/Module/Wiki.php:362
+#: ../../Zotlabs/Module/Wiki.php:375
 msgid "Short description of your changes (optional)"
 msgstr "Краткое описание ваших изменений (необязательно)"
 
-#: ../../Zotlabs/Module/Wiki.php:371
+#: ../../Zotlabs/Module/Wiki.php:385
 msgid "Source"
 msgstr "Источник"
 
-#: ../../Zotlabs/Module/Wiki.php:381
+#: ../../Zotlabs/Module/Wiki.php:395
 msgid "New page name"
 msgstr "Новое имя страницы"
 
-#: ../../Zotlabs/Module/Wiki.php:386
+#: ../../Zotlabs/Module/Wiki.php:400
 msgid "Embed image from photo albums"
 msgstr "Встроить изображение из фотоальбома"
 
-#: ../../Zotlabs/Module/Wiki.php:397
+#: ../../Zotlabs/Module/Wiki.php:411
 msgid "History"
 msgstr "История"
 
-#: ../../Zotlabs/Module/Wiki.php:473
+#: ../../Zotlabs/Module/Wiki.php:489
 msgid "Error creating wiki. Invalid name."
 msgstr "Ошибка создания Wiki. Неверное имя."
 
-#: ../../Zotlabs/Module/Wiki.php:480
+#: ../../Zotlabs/Module/Wiki.php:496
 msgid "A wiki with this name already exists."
 msgstr "Wiki с таким именем уже существует."
 
-#: ../../Zotlabs/Module/Wiki.php:493
+#: ../../Zotlabs/Module/Wiki.php:509
 msgid "Wiki created, but error creating Home page."
 msgstr "Wiki создана, но возникла ошибка при создании домашней страницы"
 
-#: ../../Zotlabs/Module/Wiki.php:500
+#: ../../Zotlabs/Module/Wiki.php:516
 msgid "Error creating wiki"
 msgstr "Ошибка при создании Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:523
+#: ../../Zotlabs/Module/Wiki.php:540
 msgid "Error updating wiki. Invalid name."
 msgstr "Ошибка при обновлении Wiki. Неверное имя."
 
-#: ../../Zotlabs/Module/Wiki.php:543
+#: ../../Zotlabs/Module/Wiki.php:560
 msgid "Error updating wiki"
 msgstr "Ошибка при обновлении Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:558
+#: ../../Zotlabs/Module/Wiki.php:575
 msgid "Wiki delete permission denied."
 msgstr "Нет прав на удаление Wiki."
 
-#: ../../Zotlabs/Module/Wiki.php:568
+#: ../../Zotlabs/Module/Wiki.php:585
 msgid "Error deleting wiki"
 msgstr "Ошибка удаления Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:601
+#: ../../Zotlabs/Module/Wiki.php:618
 msgid "New page created"
 msgstr "Создана новая страница"
 
-#: ../../Zotlabs/Module/Wiki.php:722
+#: ../../Zotlabs/Module/Wiki.php:740
 msgid "Cannot delete Home"
 msgstr "Невозможно удалить домашнюю страницу"
 
-#: ../../Zotlabs/Module/Wiki.php:786
+#: ../../Zotlabs/Module/Wiki.php:804
 msgid "Current Revision"
 msgstr "Текущая ревизия"
 
-#: ../../Zotlabs/Module/Wiki.php:786
+#: ../../Zotlabs/Module/Wiki.php:804
 msgid "Selected Revision"
 msgstr "Выбранная ревизия"
 
-#: ../../Zotlabs/Module/Wiki.php:836
+#: ../../Zotlabs/Module/Wiki.php:854
 msgid "You must be authenticated."
 msgstr "Вы должны быть аутентифицированы."
 
@@ -11264,16 +11264,16 @@ msgstr "Исходящие"
 msgid "New Message"
 msgstr "Новое сообщение"
 
-#: ../../Zotlabs/Widget/Wiki_pages.php:32
-#: ../../Zotlabs/Widget/Wiki_pages.php:89
+#: ../../Zotlabs/Widget/Wiki_pages.php:34
+#: ../../Zotlabs/Widget/Wiki_pages.php:91
 msgid "Add new page"
 msgstr "Добавить новую страницу"
 
-#: ../../Zotlabs/Widget/Wiki_pages.php:83
+#: ../../Zotlabs/Widget/Wiki_pages.php:85
 msgid "Wiki Pages"
 msgstr "Wiki страницы"
 
-#: ../../Zotlabs/Widget/Wiki_pages.php:94
+#: ../../Zotlabs/Widget/Wiki_pages.php:96
 msgid "Page name"
 msgstr "Название страницы"
 
@@ -11464,18 +11464,18 @@ msgid "Delete conversation"
 msgstr "Удалить беседу"
 
 #: ../../Zotlabs/Widget/Wiki_page_history.php:23
-#: ../../Zotlabs/Lib/NativeWikiPage.php:559
+#: ../../Zotlabs/Lib/NativeWikiPage.php:562
 msgctxt "wiki_history"
 msgid "Message"
 msgstr "Сообщение"
 
 #: ../../Zotlabs/Widget/Wiki_page_history.php:24
-#: ../../Zotlabs/Lib/NativeWikiPage.php:560
+#: ../../Zotlabs/Lib/NativeWikiPage.php:563
 msgid "Date"
 msgstr "Дата"
 
 #: ../../Zotlabs/Widget/Wiki_page_history.php:26
-#: ../../Zotlabs/Lib/NativeWikiPage.php:562
+#: ../../Zotlabs/Lib/NativeWikiPage.php:565
 msgid "Compare"
 msgstr "Сравнить"
 
@@ -11896,59 +11896,59 @@ msgid "edited a comment dated %s"
 msgstr "отредактировал комментарий датированный %s"
 
 #: ../../Zotlabs/Lib/NativeWikiPage.php:42
-#: ../../Zotlabs/Lib/NativeWikiPage.php:93
+#: ../../Zotlabs/Lib/NativeWikiPage.php:94
 msgid "(No Title)"
 msgstr "(нет заголовка)"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:107
+#: ../../Zotlabs/Lib/NativeWikiPage.php:109
 msgid "Wiki page create failed."
 msgstr "Не удалось создать страницу Wiki."
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:120
+#: ../../Zotlabs/Lib/NativeWikiPage.php:122
 msgid "Wiki not found."
 msgstr "Wiki не найдена."
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:131
+#: ../../Zotlabs/Lib/NativeWikiPage.php:133
 msgid "Destination name already exists"
 msgstr "Имя назначения уже существует"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:163
-#: ../../Zotlabs/Lib/NativeWikiPage.php:359
+#: ../../Zotlabs/Lib/NativeWikiPage.php:166
+#: ../../Zotlabs/Lib/NativeWikiPage.php:362
 msgid "Page not found"
 msgstr "Страница не найдена."
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:194
+#: ../../Zotlabs/Lib/NativeWikiPage.php:197
 msgid "Error reading page content"
 msgstr "Ошибка чтения содержимого страницы"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:350
-#: ../../Zotlabs/Lib/NativeWikiPage.php:400
-#: ../../Zotlabs/Lib/NativeWikiPage.php:467
-#: ../../Zotlabs/Lib/NativeWikiPage.php:508
+#: ../../Zotlabs/Lib/NativeWikiPage.php:353
+#: ../../Zotlabs/Lib/NativeWikiPage.php:402
+#: ../../Zotlabs/Lib/NativeWikiPage.php:469
+#: ../../Zotlabs/Lib/NativeWikiPage.php:510
 msgid "Error reading wiki"
 msgstr "Ошибка чтения Wiki"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:388
+#: ../../Zotlabs/Lib/NativeWikiPage.php:390
 msgid "Page update failed."
 msgstr "Не удалось обновить страницу."
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:422
+#: ../../Zotlabs/Lib/NativeWikiPage.php:424
 msgid "Nothing deleted"
 msgstr "Ничего не удалено"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:488
+#: ../../Zotlabs/Lib/NativeWikiPage.php:490
 msgid "Compare: object not found."
 msgstr "Сравнение: объект не найден."
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:494
+#: ../../Zotlabs/Lib/NativeWikiPage.php:496
 msgid "Page updated"
 msgstr "Страница обновлена"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:497
+#: ../../Zotlabs/Lib/NativeWikiPage.php:499
 msgid "Untitled"
 msgstr "Не озаглавлено"
 
-#: ../../Zotlabs/Lib/NativeWikiPage.php:503
+#: ../../Zotlabs/Lib/NativeWikiPage.php:505
 msgid "Wiki resource_id required for git commit"
 msgstr "Требуется resource_id Wiki для отправки в Git"
 
@@ -12312,11 +12312,11 @@ msgstr "4. Эксперт - я умею программировать"
 msgid "5. Wizard - I probably know more than you do"
 msgstr "5. Волшебник - возможно я знаю больше чем ты"
 
-#: ../../Zotlabs/Lib/NativeWiki.php:151
+#: ../../Zotlabs/Lib/NativeWiki.php:152
 msgid "Wiki updated successfully"
 msgstr "Wiki успешно обновлена"
 
-#: ../../Zotlabs/Lib/NativeWiki.php:205
+#: ../../Zotlabs/Lib/NativeWiki.php:206
 msgid "Wiki files deleted successfully"
 msgstr "Wiki успешно удалена"
 
@@ -12596,7 +12596,7 @@ msgstr "Ваш аккаунт на %s перестанет работать че
 
 #: ../../extend/addon/hzaddons/testdrive/testdrive.php:105
 msgid "Your $Productname test account is about to expire."
-msgstr "Ваша пробная учётная запись в $Productname близка к окончанию срока действия."
+msgstr "Ваш тестовый аккаунт в $Productname близок к окончанию срока действия."
 
 #: ../../extend/addon/hzaddons/redfiles/redfiles.php:119
 msgid "Redmatrix File Storage Import"
@@ -14465,11 +14465,11 @@ msgstr ""
 
 #: ../../extend/addon/hzaddons/upload_limits/upload_limits.php:29
 msgid "PHP post_max_size (must be larger than upload_max_filesize): "
-msgstr ""
+msgstr "PHP post_max_size (должен быть больше чем upload_max_filesize): "
 
 #: ../../extend/addon/hzaddons/flattrwidget/flattrwidget.php:45
 msgid "Flattr this!"
-msgstr ""
+msgstr "Flattr это!"
 
 #: ../../extend/addon/hzaddons/flattrwidget/flattrwidget.php:83
 msgid "Flattr widget settings updated."

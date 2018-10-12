@@ -263,7 +263,7 @@ function tt($singular, $plural, $count, $ctx = ''){
 function ta($k){
 
         $t = App::$strings[$k];
-        if (is_array($t)) {
+        if (is_array($t))
                 $t = implode("/", $t);
         return $t;
 }

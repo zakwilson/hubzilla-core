@@ -264,10 +264,8 @@ function ta($k){
 
         $t = App::$strings[$k];
         if (is_array($t)) {
-                return implode("/", $t);
-        } else {
-                return $t;
-        }
+                $t = implode("/", $t);
+        return $t;
 }
 
 /**

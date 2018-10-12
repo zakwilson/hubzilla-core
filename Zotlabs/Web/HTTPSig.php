@@ -52,6 +52,7 @@ class HTTPSig {
 			$h = new \Zotlabs\Web\HTTPHeaders($data['header']);
 			$headers = $h->fetcharr();
 			$body = $data['body'];
+			$headers['(request-target)'] = $data['request_target'];
 		}
 
 		else {
@@ -60,6 +61,7 @@ class HTTPSig {
 				strtolower($_SERVER['REQUEST_METHOD']) . ' ' .
 				$_SERVER['REQUEST_URI'];
 			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 
 			foreach($_SERVER as $k => $v) {
 				if(strpos($k,'HTTP_') === 0) {
@@ -103,10 +105,6 @@ class HTTPSig {
 			}
 			if(strpos($h,'.')) {
 				$spoofable = true;
-			}
-			if($h === 'host' && (strpos(strtolower(\App::get_hostname()),strtolower($headers[$h])) === false)) {
-				logger('bad host: ' . $sig_block['keyId'] . ' != ' . $headers[$h]);
-				return $result;
 			}
 			if($h === 'date') {
 				$d = new \DateTime($headers[$h]);

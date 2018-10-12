@@ -48,6 +48,10 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	if(($redirects > 8) || (! $ch))
 		return $ret;
 
+	if(! array_key_exists('request_target',$opts)) {
+		$opts['request_target'] = 'get ' . get_request_string($url);
+	}
+
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
@@ -179,6 +183,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	}
 	$ret['body'] = substr($s,strlen($header));
 	$ret['header'] = $header;
+	$ret['request_target'] = $opts['request_target'];
 
 	if(x($opts,'debug')) {
 		$ret['debug'] = $curl_info;
@@ -226,6 +231,10 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	$ch = curl_init($url);
 	if(($redirects > 8) || (! $ch))
 		return $ret;
+
+	if(! array_key_exists('request_target',$opts)) {
+		$opts['request_target'] = 'get ' . get_request_string($url);
+	}
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);
 	@curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -359,6 +368,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 
 	$ret['body'] = substr($s, strlen($header));
 	$ret['header'] = $header;
+	$ret['request_target'] = $opts['request_target'];
 
 	if(x($opts,'debug')) {
 		$ret['debug'] = $curl_info;
@@ -2079,4 +2089,18 @@ function jsonld_document_loader($url) {
 	}
 
 	return [];
+}
+
+/**
+ * @brief Given a URL, return everything after the host portion.
+ * example https://foobar.com/gravy?g=5&y=6
+ * returns /gravy?g=5&y=6
+ * result always returns the leading slash
+ */
+
+function get_request_string($url) {
+
+	$a = explode('/',$url,4);
+	return '/' . ((count($a) > 3) ? $a[3] : EMPTY_STR);
+
 }

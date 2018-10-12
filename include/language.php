@@ -255,7 +255,7 @@ function tt($singular, $plural, $count, $ctx = ''){
 }
 
 /**
- * @brief Return slash separated string of plurals translation form
+ * @brief Return slash separated string of plurals translation forms
  *
  * @param string $k key in translations array
  * @return string

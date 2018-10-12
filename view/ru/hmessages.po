@@ -11481,7 +11481,7 @@ msgstr "Сравнить"
 
 #: ../../Zotlabs/Access/Permissions.php:56
 msgid "Can view my channel stream and posts"
-msgstr "Может просматривать мою ленту и сообщения"
+msgstr "Может просматривать мой поток и сообщения"
 
 #: ../../Zotlabs/Access/Permissions.php:57
 msgid "Can send me their channel stream and posts"
@@ -11545,7 +11545,7 @@ msgstr "Может общаться со мной в чате"
 
 #: ../../Zotlabs/Access/Permissions.php:72
 msgid "Can source my public posts in derived channels"
-msgstr "Может использовать мои публичные сообщения в клонированных  лентах сообщений"
+msgstr "Может использовать мои публичные сообщения в клонированных лентах сообщений"
 
 #: ../../Zotlabs/Access/Permissions.php:73
 msgid "Can administer my channel"

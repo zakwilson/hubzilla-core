@@ -255,6 +255,37 @@ function tt($singular, $plural, $count, $ctx = ''){
 }
 
 /**
+ * @brief Return slash separated string of plurals translation form
+ *
+ * @param string $k key in translations array
+ * @return string
+ */
+function ta($k){
+
+        $t = App::$strings[$k];
+        if (is_array($t)) {
+                return implode("/", $t);
+        } else {
+                return $k;
+        }
+}
+
+/**
+ * @brief Return string_plural_select_xx function code
+ *
+ * @return string
+ */
+function tf() {
+
+        $r = '';
+        $lang = str_replace('-', '_', App::$language);
+        if(function_exists('string_plural_select_'.$lang)) {
+                $r = trim(shell_exec("sed -n '5p' view/".$lang."/hstrings.php | tr -d '$'"));
+        }
+        return $r;
+}
+
+/**
  * @brief Provide a fallback which will not collide with a function defined in
  * any language file.
  *

@@ -276,8 +276,7 @@ function ta($k){
 function tf() {
 
         $r = "";
-        $lang = str_replace('-', '_', App::$language);
-        $file = "view/$lang/hstrings.php";
+        $file = "view/".str_replace('-', '_', App::$language)."/hstrings.php";
         if(file_exists($file))
                 $r = trim(shell_exec("sed -n '5p' ".$file." | tr -d '$'"));
         return $r != "" ? $r : "return 0;";

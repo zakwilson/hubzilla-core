@@ -277,12 +277,12 @@ function ta($k){
  */
 function tf() {
 
-        $r = '';
+        $r = "";
         $lang = str_replace('-', '_', App::$language);
-        if(function_exists('string_plural_select_'.$lang)) {
-                $r = trim(shell_exec("sed -n '5p' view/".$lang."/hstrings.php | tr -d '$'"));
-        }
-        return $r;
+        $file = "view/$lang/hstrings.php";
+        if(file_exists($file))
+                $r = trim(shell_exec("sed -n '5p' ".$file." | tr -d '$'"));
+        return $r != "" ? $r : "return 0;";
 }
 
 /**

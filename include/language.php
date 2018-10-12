@@ -266,7 +266,7 @@ function ta($k){
         if (is_array($t)) {
                 return implode("/", $t);
         } else {
-                return $k;
+                return $t;
         }
 }
 

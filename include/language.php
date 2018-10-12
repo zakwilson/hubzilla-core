@@ -265,7 +265,7 @@ function ta($k){
         $t = App::$strings[$k];
         if (is_array($t))
                 $t = implode("/", $t);
-        return $t;
+        return ($t == "" ? $k : $t);
 }
 
 /**
@@ -279,7 +279,7 @@ function tf() {
         $file = "view/".str_replace('-', '_', App::$language)."/hstrings.php";
         if(file_exists($file))
                 $r = trim(shell_exec("sed -n '5p' ".$file." | tr -d '$'"));
-        return $r != "" ? $r : "return 0;";
+        return ($r != "" ? $r : "return 0;");
 }
 
 /**

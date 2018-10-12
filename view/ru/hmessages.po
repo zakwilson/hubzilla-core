@@ -3186,7 +3186,7 @@ msgstr ""
 
 #: ../../include/js_strings.php:42
 msgid "timeago.prefixFromNow"
-msgstr ""
+msgstr "через"
 
 #: ../../include/js_strings.php:43
 msgid "timeago.suffixAgo"

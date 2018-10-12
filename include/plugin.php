@@ -1067,10 +1067,11 @@ function get_markup_template($s, $root = '') {
         } else {
                 if (isset(\App::$override_markup_templates[$testroot][$s]["root"]) && 
                    isset(\App::$override_markup_templates[$testroot][$s]["file"])) {
-                        $s = \App::$override_markup_templates[$testroot][$s]["file"];
                         $root = \App::$override_markup_templates[$testroot][$s]["root"];
+                        $s = \App::$override_markup_templates[$testroot][$s]["file"];
+                	$template = $t->get_markup_template($s, $root);
                 } elseif (\App::$override_templateroot) {
-                   $newroot = \App::$override_templateroot.$root;
+                   $newroot = \App::$override_templateroot . $root;
                    if ($newroot != '' && substr($newroot,-1) != '/' ) {
                            $newroot .= '/';
                    }

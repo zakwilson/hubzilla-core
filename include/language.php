@@ -255,6 +255,32 @@ function tt($singular, $plural, $count, $ctx = ''){
 }
 
 /**
+ * @brief Return slash separated string of plurals translation forms
+ *
+ * @param string $k key in translations array
+ * @return string
+ */
+function ta($k){
+
+        $t = App::$strings[$k];
+        if (is_array($t))
+                $t = implode("/", $t);
+        return ($t == "" ? $k : $t);
+}
+
+/**
+ * @brief Return string_plural_select_xx function code
+ *
+ * @return string
+ */
+
+function tf() {
+
+        $s = "plural_function_code";
+        return (x(App::$strings, $s) ? App::$strings[$s] : "return 0;");
+}
+
+/**
  * @brief Provide a fallback which will not collide with a function defined in
  * any language file.
  *

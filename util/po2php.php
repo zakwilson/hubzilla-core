@@ -58,8 +58,9 @@ function po2php_run($argc,$argv) {
 			$out .= 'function string_plural_select_' . $lang . '($n){'."\n";
 			$out .= '	return '.$cond.';'."\n";
 			$out .= '}}'."\n";
-
-			$out .= 'App::$rtl = ' . intval($rtl) ;
+			
+			$out .= 'App::$rtl = ' . intval($rtl) . ";\n" ;
+			$out .= 'App::$strings["plural_function_code"] = "return ' . str_replace("$", "", $cond) . ';"';
 		}
 		
 		if ($k!="" && substr($l,0,7)=="msgstr "){

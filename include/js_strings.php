@@ -55,15 +55,15 @@ function js_strings() {
 		// translatable main strings for jquery.timeago
 		'$t05' => t('less than a minute'),
 		'$t06' => t('about a minute'),
-		'$t07' => t('%d minutes'),
+		'$t07' => ta('%d minutes'),
 		'$t08' => t('about an hour'),
-		'$t09' => t('about %d hours'),
+		'$t09' => ta('about %d hours'),
 		'$t10' => t('a day'),
-		'$t11' => t('%d days'),
+		'$t11' => ta('%d days'),
 		'$t12' => t('about a month'),
-		'$t13' => t('%d months'),
+		'$t13' => ta('%d months'),
 		'$t14' => t('about a year'),
-		'$t15' => t('%d years'),
+		'$t15' => ta('%d years'),
 		'$t16' => t(' '), // wordSeparator
 		'$t17' => ((t('timeago.numbers') != 'timeago.numbers') ? t('timeago.numbers') : '[]'),
 

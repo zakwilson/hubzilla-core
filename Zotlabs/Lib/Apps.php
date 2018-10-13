@@ -350,7 +350,8 @@ class Apps {
 			'Permission Categories' => t('Permission Categories'),
 			'Premium Channel' => t('Premium Channel'),
 			'Public Stream' => t('Public Stream'),
-			'My Chatrooms' => t('My Chatrooms')
+			'My Chatrooms' => t('My Chatrooms'),
+			'Channel Export' => t('Channel Export')
 		);
 
 		if(array_key_exists('name',$arr)) {

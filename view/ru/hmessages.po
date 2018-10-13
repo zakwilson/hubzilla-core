@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-06 17:07+0200\n"
-"PO-Revision-Date: 2018-10-11 23:03+0200\n"
+"PO-Revision-Date: 2018-10-12 21:32+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -1874,47 +1874,47 @@ msgstr "расслабленный"
 msgid "surprised"
 msgstr "удивленный"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:86
+#: ../../include/text.php:1377 ../../include/js_strings.php:93
 msgid "Monday"
 msgstr "Понедельник"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:87
+#: ../../include/text.php:1377 ../../include/js_strings.php:94
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:88
+#: ../../include/text.php:1377 ../../include/js_strings.php:95
 msgid "Wednesday"
 msgstr "Среда"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:89
+#: ../../include/text.php:1377 ../../include/js_strings.php:96
 msgid "Thursday"
 msgstr "Четверг"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:90
+#: ../../include/text.php:1377 ../../include/js_strings.php:97
 msgid "Friday"
 msgstr "Пятница"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:91
+#: ../../include/text.php:1377 ../../include/js_strings.php:98
 msgid "Saturday"
 msgstr "Суббота"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:85
+#: ../../include/text.php:1377 ../../include/js_strings.php:92
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:61
+#: ../../include/text.php:1381 ../../include/js_strings.php:68
 msgid "January"
 msgstr "Январь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:62
+#: ../../include/text.php:1381 ../../include/js_strings.php:69
 msgid "February"
 msgstr "Февраль"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:63
+#: ../../include/text.php:1381 ../../include/js_strings.php:70
 msgid "March"
 msgstr "Март"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:64
+#: ../../include/text.php:1381 ../../include/js_strings.php:71
 msgid "April"
 msgstr "Апрель"
 
@@ -1922,31 +1922,31 @@ msgstr "Апрель"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:66
+#: ../../include/text.php:1381 ../../include/js_strings.php:73
 msgid "June"
 msgstr "Июнь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:67
+#: ../../include/text.php:1381 ../../include/js_strings.php:74
 msgid "July"
 msgstr "Июль"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:68
+#: ../../include/text.php:1381 ../../include/js_strings.php:75
 msgid "August"
 msgstr "Август"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:69
+#: ../../include/text.php:1381 ../../include/js_strings.php:76
 msgid "September"
 msgstr "Сентябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:70
+#: ../../include/text.php:1381 ../../include/js_strings.php:77
 msgid "October"
 msgstr "Октябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:71
+#: ../../include/text.php:1381 ../../include/js_strings.php:78
 msgid "November"
 msgstr "Ноябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:72
+#: ../../include/text.php:1381 ../../include/js_strings.php:79
 msgid "December"
 msgstr "Декабрь"
 
@@ -3180,182 +3180,197 @@ msgstr "Это "
 msgid " channel name"
 msgstr " название канала"
 
-#: ../../include/js_strings.php:41
+#: ../../include/js_strings.php:42 ../../include/js_strings.php:56
+#, php-format
+msgid "%d minutes"
+msgid_plural "%d minutes"
+msgstr[0] "%d минуту"
+msgstr[1] "%d минуты"
+msgstr[2] "%d минут"
+
+#: ../../include/js_strings.php:43 ../../include/js_strings.php:58
+#, php-format
+msgid "about %d hours"
+msgid_plural "about %d hours"
+msgstr[0] "около %d часa"
+msgstr[1] "около %d часов"
+msgstr[2] "около %d часов"
+
+#: ../../include/js_strings.php:44 ../../include/js_strings.php:60
+#, php-format
+msgid "%d days"
+msgid_plural "%d days"
+msgstr[0] "%d день"
+msgstr[1] "%d дня"
+msgstr[2] "%d дней"
+
+#: ../../include/js_strings.php:45 ../../include/js_strings.php:62
+#, php-format
+msgid "%d months"
+msgid_plural "%d months"
+msgstr[0] "%d месяц"
+msgstr[1] "%d месяца"
+msgstr[2] "%d месяцев"
+
+#: ../../include/js_strings.php:46 ../../include/js_strings.php:64
+#, php-format
+msgid "%d years"
+msgid_plural "%d years"
+msgstr[0] "%d год"
+msgstr[1] "%d года"
+msgstr[2] "%d лет"
+
+#: ../../include/js_strings.php:48
 msgid "timeago.prefixAgo"
 msgstr ""
 
-#: ../../include/js_strings.php:42
+#: ../../include/js_strings.php:49
 msgid "timeago.prefixFromNow"
 msgstr "через"
 
-#: ../../include/js_strings.php:43
+#: ../../include/js_strings.php:50
 msgid "timeago.suffixAgo"
 msgstr "назад"
 
-#: ../../include/js_strings.php:44
+#: ../../include/js_strings.php:51
 msgid "timeago.suffixFromNow"
 msgstr ""
 
-#: ../../include/js_strings.php:47
+#: ../../include/js_strings.php:54
 msgid "less than a minute"
 msgstr "менее чем одну минуту"
 
-#: ../../include/js_strings.php:48
+#: ../../include/js_strings.php:55
 msgid "about a minute"
 msgstr "около минуты"
 
-#: ../../include/js_strings.php:49
-#, php-format
-msgid "%d minutes"
-msgstr "%d минут"
-
-#: ../../include/js_strings.php:50
+#: ../../include/js_strings.php:57
 msgid "about an hour"
 msgstr "около часа"
 
-#: ../../include/js_strings.php:51
-#, php-format
-msgid "about %d hours"
-msgstr "около %d часов"
-
-#: ../../include/js_strings.php:52
+#: ../../include/js_strings.php:59
 msgid "a day"
 msgstr "день"
 
-#: ../../include/js_strings.php:53
-#, php-format
-msgid "%d days"
-msgstr "%d дней"
-
-#: ../../include/js_strings.php:54
+#: ../../include/js_strings.php:61
 msgid "about a month"
 msgstr "около месяца"
 
-#: ../../include/js_strings.php:55
-#, php-format
-msgid "%d months"
-msgstr "%d месяцев"
-
-#: ../../include/js_strings.php:56
+#: ../../include/js_strings.php:63
 msgid "about a year"
 msgstr "около года"
 
-#: ../../include/js_strings.php:57
-#, php-format
-msgid "%d years"
-msgstr "%d лет"
-
-#: ../../include/js_strings.php:58
+#: ../../include/js_strings.php:65
 msgid " "
 msgstr " "
 
-#: ../../include/js_strings.php:59
+#: ../../include/js_strings.php:66
 msgid "timeago.numbers"
 msgstr ""
 
-#: ../../include/js_strings.php:65
+#: ../../include/js_strings.php:72
 msgctxt "long"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:73
+#: ../../include/js_strings.php:80
 msgid "Jan"
 msgstr "Янв"
 
-#: ../../include/js_strings.php:74
+#: ../../include/js_strings.php:81
 msgid "Feb"
 msgstr "Фев"
 
-#: ../../include/js_strings.php:75
+#: ../../include/js_strings.php:82
 msgid "Mar"
 msgstr "Мар"
 
-#: ../../include/js_strings.php:76
+#: ../../include/js_strings.php:83
 msgid "Apr"
 msgstr "Апр"
 
-#: ../../include/js_strings.php:77
+#: ../../include/js_strings.php:84
 msgctxt "short"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:78
+#: ../../include/js_strings.php:85
 msgid "Jun"
 msgstr "Июн"
 
-#: ../../include/js_strings.php:79
+#: ../../include/js_strings.php:86
 msgid "Jul"
 msgstr "Июл"
 
-#: ../../include/js_strings.php:80
+#: ../../include/js_strings.php:87
 msgid "Aug"
 msgstr "Авг"
 
-#: ../../include/js_strings.php:81
+#: ../../include/js_strings.php:88
 msgid "Sep"
 msgstr "Сен"
 
-#: ../../include/js_strings.php:82
+#: ../../include/js_strings.php:89
 msgid "Oct"
 msgstr "Окт"
 
-#: ../../include/js_strings.php:83
+#: ../../include/js_strings.php:90
 msgid "Nov"
 msgstr "Ноя"
 
-#: ../../include/js_strings.php:84
+#: ../../include/js_strings.php:91
 msgid "Dec"
 msgstr "Дек"
 
-#: ../../include/js_strings.php:92
+#: ../../include/js_strings.php:99
 msgid "Sun"
 msgstr "Вск"
 
-#: ../../include/js_strings.php:93
+#: ../../include/js_strings.php:100
 msgid "Mon"
 msgstr "Пон"
 
-#: ../../include/js_strings.php:94
+#: ../../include/js_strings.php:101
 msgid "Tue"
 msgstr "Вт"
 
-#: ../../include/js_strings.php:95
+#: ../../include/js_strings.php:102
 msgid "Wed"
 msgstr "Ср"
 
-#: ../../include/js_strings.php:96
+#: ../../include/js_strings.php:103
 msgid "Thu"
 msgstr "Чет"
 
-#: ../../include/js_strings.php:97
+#: ../../include/js_strings.php:104
 msgid "Fri"
 msgstr "Пят"
 
-#: ../../include/js_strings.php:98
+#: ../../include/js_strings.php:105
 msgid "Sat"
 msgstr "Суб"
 
-#: ../../include/js_strings.php:99
+#: ../../include/js_strings.php:106
 msgctxt "calendar"
 msgid "today"
 msgstr "сегодня"
 
-#: ../../include/js_strings.php:100
+#: ../../include/js_strings.php:107
 msgctxt "calendar"
 msgid "month"
 msgstr "месяц"
 
-#: ../../include/js_strings.php:101
+#: ../../include/js_strings.php:108
 msgctxt "calendar"
 msgid "week"
 msgstr "неделя"
 
-#: ../../include/js_strings.php:102
+#: ../../include/js_strings.php:109
 msgctxt "calendar"
 msgid "day"
 msgstr "день"
 
-#: ../../include/js_strings.php:103
+#: ../../include/js_strings.php:110
 msgctxt "calendar"
 msgid "All day"
 msgstr "Весь день"
@@ -3376,27 +3391,27 @@ msgstr "Только публичные форумы"
 msgid "This Website Only"
 msgstr "Только этот веб-сайт"
 
-#: ../../include/network.php:760
+#: ../../include/network.php:770
 msgid "view full size"
 msgstr "посмотреть в полный размер"
 
-#: ../../include/network.php:1763 ../../include/network.php:1764
+#: ../../include/network.php:1773 ../../include/network.php:1774
 msgid "Friendica"
 msgstr ""
 
-#: ../../include/network.php:1765
+#: ../../include/network.php:1775
 msgid "OStatus"
 msgstr ""
 
-#: ../../include/network.php:1766
+#: ../../include/network.php:1776
 msgid "GNU-Social"
 msgstr ""
 
-#: ../../include/network.php:1767
+#: ../../include/network.php:1777
 msgid "RSS/Atom"
 msgstr ""
 
-#: ../../include/network.php:1768 ../../Zotlabs/Lib/Activity.php:1417
+#: ../../include/network.php:1778 ../../Zotlabs/Lib/Activity.php:1417
 #: ../../Zotlabs/Lib/Activity.php:1614
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1222
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1377
@@ -3404,7 +3419,7 @@ msgstr ""
 msgid "ActivityPub"
 msgstr ""
 
-#: ../../include/network.php:1769 ../../Zotlabs/Module/Cdav.php:1219
+#: ../../include/network.php:1779 ../../Zotlabs/Module/Cdav.php:1219
 #: ../../Zotlabs/Module/Profiles.php:787
 #: ../../Zotlabs/Module/Admin/Accounts.php:171
 #: ../../Zotlabs/Module/Admin/Accounts.php:183
@@ -3416,27 +3431,27 @@ msgstr ""
 msgid "Email"
 msgstr "Электронная почта"
 
-#: ../../include/network.php:1770
+#: ../../include/network.php:1780
 msgid "Diaspora"
 msgstr ""
 
-#: ../../include/network.php:1771
+#: ../../include/network.php:1781
 msgid "Facebook"
 msgstr ""
 
-#: ../../include/network.php:1772
+#: ../../include/network.php:1782
 msgid "Zot"
 msgstr ""
 
-#: ../../include/network.php:1773
+#: ../../include/network.php:1783
 msgid "LinkedIn"
 msgstr ""
 
-#: ../../include/network.php:1774
+#: ../../include/network.php:1784
 msgid "XMPP/IM"
 msgstr ""
 
-#: ../../include/network.php:1775
+#: ../../include/network.php:1785
 msgid "MySpace"
 msgstr ""
 
@@ -11501,7 +11516,7 @@ msgstr "Может просматривать мое хранилище файл
 
 #: ../../Zotlabs/Access/Permissions.php:61
 msgid "Can upload/modify my file storage and photos"
-msgstr "Может загружать/изменять мои  файлы и фотографии в хранилище"
+msgstr "Может загружать/изменять мои файлы и фотографии в хранилище"
 
 #: ../../Zotlabs/Access/Permissions.php:62
 msgid "Can view my channel webpages"
@@ -11545,7 +11560,7 @@ msgstr "Может общаться со мной в чате"
 
 #: ../../Zotlabs/Access/Permissions.php:72
 msgid "Can source my public posts in derived channels"
-msgstr "Может использовать мои публичные сообщения в клонированных лентах сообщений"
+msgstr "Может использовать мои публичные сообщения в клонированных  лентах сообщений"
 
 #: ../../Zotlabs/Access/Permissions.php:73
 msgid "Can administer my channel"

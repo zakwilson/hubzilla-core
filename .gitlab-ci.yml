@@ -1,0 +1,36 @@
+# Select image from https://hub.docker.com/_/php/
+image: php:7.1
+
+# Select what we should cache
+cache:
+  paths:
+  - vendor/
+
+variables:
+  # Configure mysql service (https://hub.docker.com/_/mysql/)
+  MYSQL_DATABASE: hello_world_test
+  MYSQL_ROOT_PASSWORD: mysql
+
+
+services:
+- mysql:5.7
+
+before_script:
+- apt-get update -yqq
+- apt-get install -yqq git mysql-server mysql-client libmcrypt-dev libpq-dev libcurl4-gnutls-dev libicu-dev libvpx-dev libjpeg-dev libpng-dev libxpm-dev zlib1g-dev libfreetype6-dev libxml2-dev libexpat1-dev libbz2-dev libgmp3-dev libldap2-dev unixodbc-dev libsqlite3-dev libaspell-dev libsnmp-dev libpcre3-dev libtidy-dev
+# Install PHP extensions
+- docker-php-ext-install mbstring mcrypt pdo_mysql pdo_pgsql curl json intl gd xml zip bz2 opcache
+# Install & enable Xdebug for code coverage reports
+- pecl install xdebug
+- docker-php-ext-enable xdebug
+# Install and run Composer
+- curl -sS https://getcomposer.org/installer | php
+- php composer.phar install
+
+# We test PHP7 with MySQL, but we allow it to fail
+test:php:mysql:
+  script:
+  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text

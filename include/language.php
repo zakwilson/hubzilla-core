@@ -277,9 +277,8 @@ function tf() {
 
         $r = "";
         $lang = str_replace('-', '_', App::$language);
-        $file = "view/$lang/hstrings.php";
         if(function_exists("string_plural_select_".$lang))
-                $r = trim(shell_exec("sed -n '5p' ".$file." | grep 'return' | tr -d '$'"));
+                $r = trim(shell_exec("sed -n '5p' view/".$lang."/hstrings.php | grep 'return' | tr -d '$'"));
         return ($r != "" ? $r : "return 0;");
 }
 

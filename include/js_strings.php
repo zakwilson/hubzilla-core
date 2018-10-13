@@ -38,6 +38,15 @@ function js_strings() {
 		// using the defaults set below if left untranslated, empty strings if
 		// translated to "NONE" and the corresponding language strings
 		// if translated to anything else
+		'minutes'       => tt('%d minutes', '%d minutes', '%d'),
+		'hours'         => tt('about %d hours', 'about %d hours', '%d'),
+		'days'          => tt('%d days', '%d days', '%d'),
+		'months'        => tt('%d months', '%d months', '%d'),
+		'years'         => tt('%d years', '%d years', '%d'),
+		
+		// get plural function code
+		'plural_func'   => tf(),
+                
 		'$t01' => ((t('timeago.prefixAgo') == 'timeago.prefixAgo') ? '' : ((t('timeago.prefixAgo') == 'NONE') ? '' : t('timeago.prefixAgo'))),
 		'$t02' => ((t('timeago.prefixFromNow') == 'timeago.prefixFromNow') ? '' : ((t('timeago.prefixFromNow') == 'NONE') ? '' : t('timeago.prefixFromNow'))),
 		'$t03' => ((t('timeago.suffixAgo') == 'timeago.suffixAgo') ? 'ago' : ((t('timeago.suffixAgo') == 'NONE') ? '' : t('timeago.suffixAgo'))),

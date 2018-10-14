@@ -277,7 +277,7 @@ function ta($k){
 function tf() {
 
         $s = "plural_function_code";
-        return (x(App::$strings, $s) ? App::$strings[$s] : "return 0;");
+        return (x(App::$strings, $s) ? App::$strings[$s] : "0");
 }
 
 /**

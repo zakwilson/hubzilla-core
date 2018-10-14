@@ -44,7 +44,7 @@ $(document).ready(function() {
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
-    var tf = new Function('n', aStr['plural_func']);
+    var tf = new Function('n', 'return '+aStr['plural_func']+';');
 
     jQuery.timeago.settings.strings = {
         prefixAgo     : aStr['t01'],

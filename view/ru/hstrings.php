@@ -5,6 +5,7 @@ function string_plural_select_ru($n){
 	return ($n%10==1 && $n%100!=11 ? 0 : ($n%10>=2 && $n%10<=4 && ($n%100<12 || $n%100>14) ? 1 : 2));
 }}
 App::$rtl = 0;
+App::$strings["plural_function_code"] = "return (n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2));";
 App::$strings["Source channel not found."] = "Канал-источник не найден.";
 App::$strings["Default"] = "По умолчанию";
 App::$strings["Focus (Hubzilla default)"] = "Фокус (по умолчанию Hubzilla)";

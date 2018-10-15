@@ -51,7 +51,13 @@ class Newmember {
 			t('Miscellaneous'),
 			[
 				'settings'      => t('Settings'),
-				'help'    	    => t('Documentation'),
+				'help'    	=> t('Documentation'),
+			],
+
+			t('Missing Features?'),
+			[
+				'apps' => t('Pin apps to navigation bar'),
+				'apps/available' => t('Install more apps')
 			]
 		];
 

@@ -44,7 +44,7 @@ $(document).ready(function() {
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
-    var tf = new Function('n', aStr['plural_func']);
+    var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
 
     jQuery.timeago.settings.strings = {
         prefixAgo     : aStr['t01'],
@@ -53,18 +53,19 @@ $(document).ready(function() {
         suffixFromNow : aStr['t04'],
         seconds       : aStr['t05'],
         minute        : aStr['t06'],
-        minutes       : function(value){var str=aStr['t07'].split("/")[tf(value)]; return (str ? str : aStr['t07']);},
+        minutes       : function(value){return tf(value, aStr['t07']);},
         hour          : aStr['t08'],
-        hours         : function(value){var str=aStr['t09'].split("/")[tf(value)]; return (str ? str : aStr['t09']);},
+        hours         : function(value){return tf(value, aStr['t09']);},
         day           : aStr['t10'],
-        days          : function(value){var str=aStr['t11'].split("/")[tf(value)]; return (str ? str : aStr['t11']);},
+        days          : function(value){return tf(value, aStr['t11']);},
         month         : aStr['t12'],
-        months        : function(value){var str=aStr['t13'].split("/")[tf(value)]; return (str ? str : aStr['t13']);},
+        months        : function(value){return tf(value, aStr['t13']);},
         year          : aStr['t14'],
-        years         : function(value){var str=aStr['t15'].split("/")[tf(value)]; return (str ? str : aStr['t15']);},
+        years         : function(value){return tf(value, aStr['t15']);},
         wordSeparator : aStr['t16'],
         numbers       : aStr['t17'],
     };
+
 
 	//mod_mail only
 	$(".mail-conv-detail .autotime").timeago();

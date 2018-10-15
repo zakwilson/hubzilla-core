@@ -55,7 +55,7 @@ class dba_pdoTest extends DatabaseTestCase {
 		return new YamlDataSet(dirname(__FILE__) . '/_files/account.yml');
 	}
 
-	protected function setUp() {
+	protected function setUp(): void {
 		// Will invoke getDataSet() to load fixtures into DB
 		parent::setUp();
 
@@ -74,7 +74,7 @@ class dba_pdoTest extends DatabaseTestCase {
 		$this->assertTrue($this->dba->connected, 'Pre condition failed, DB is not connected.');
 		$this->assertInstanceOf('PDO', $this->dba->db);
 	}
-	protected function tearDown() {
+	protected function tearDown(): void {
 		$this->dba = null;
 	}
 

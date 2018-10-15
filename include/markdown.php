@@ -251,9 +251,6 @@ function bb_to_markdown($Text, $options = []) {
 	// Markdownify does not preserve previously escaped html entities such as <> and &.
 	//$Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
 
-	// This might fix PHP Warning: DOMDocument::loadHTML(): htmlParseEntityRef: no name in Entity
-	$Text = str_replace("&", "&amp;", $Text);
-
 	// Now convert HTML to Markdown
 
 	$Text = html2markdown($Text);
@@ -299,6 +296,8 @@ function bb_to_markdown($Text, $options = []) {
 function html2markdown($html,$options = []) {
 	$markdown = '';
 
+	$internal_errors = libxml_use_internal_errors(true);
+
 	$environment = Environment::createDefaultEnvironment($options);
 	$environment->addConverter(new TableConverter());
 	$converter = new HtmlConverter($environment);
@@ -308,6 +307,8 @@ function html2markdown($html,$options = []) {
 	} catch (InvalidArgumentException $e) {
 		logger("Invalid HTML. HTMLToMarkdown library threw an exception.");
 	}
+
+	libxml_use_internal_errors($internal_errors);
 
 	return $markdown;
 }

@@ -60,7 +60,7 @@ function po2php_run($argc,$argv) {
 			$out .= '}}'."\n";
 			
 			$out .= 'App::$rtl = ' . intval($rtl) . ";\n" ;
-			$out .= 'App::$strings["plural_function_code"] = "return ' . str_replace("$", "", $cond) . ';"';
+			$out .= 'App::$strings["plural_function_code"] = "' . str_replace("$", "", $cond) . '"';
 		}
 		
 		if ($k!="" && substr($l,0,7)=="msgstr "){

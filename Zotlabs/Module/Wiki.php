@@ -338,9 +338,8 @@ class Wiki extends Controller {
     
 				    // Render the Markdown-formatted page content in HTML
 				    if($mimeType == 'text/bbcode') {
-					$renderedContent = NativeWikiPage::convert_links($content,argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName));
-					$renderedContent = zidify_links(smilies(bbcode($renderedContent)));
-				        //$renderedContent = NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))), argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
+					$renderedContent = zidify_links(smilies(bbcode($content)));
+					$renderedContent = NativeWikiPage::convert_links($renderedContent,argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName));
 				    }
 			 	    elseif($mimeType === 'text/plain') {
 				        $renderedContent = str_replace(["\n",' ',"\t"],[EOL,'&nbsp;','&nbsp;&nbsp;&nbsp;&nbsp;'],htmlentities($content,ENT_COMPAT,'UTF-8',false));

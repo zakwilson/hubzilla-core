@@ -1,4 +1,71 @@
-Hubzilla 3.6 (????-??-??)
+Hubzilla 3.8 (????-??-??)
+	- Re-implement basic build test via gitlab-ci
+	- Rework wiki encoding/decoding
+	- Implement improved worker (experimental - off by default)
+	- Rework hubzilla settings infrastructure
+	- Port the features to stand-alone apps
+	- Add app_destroy hook
+	- Improve mod network search
+	- Extend app_install() to allow installing by app name
+	- Remove tech levels
+	- Hide channel creation form when at or over service_class['limit_identities']
+	- Rename groups and group_members tables for MySQL 8 compatibility
+	- Improve checks for image magick and pdo at setup
+	- Allow a second url in apd files for settings
+	- Add contact autocomplete to mod photo comments
+	- Add hook to allow addons to filter the list returned by app_list
+	- Do not sync channel moved field
+	- Add attach_delete hook
+	- Catch errors in template rendering
+	- Provide a noscript_content switch for mod channel and display
+	- Install and update bootstrap via composer
+	- Improve cover-photo handling
+	- Improve notification handling on small screens
+	- Detect and automatically repair duplicate plugin hook scenarios
+	- Add dreport_process hook
+	- Redirect stdout/stderr on cron command
+	- Update composer libs and add ramsey/uuid
+	- Add hook to extend conv_item cog dropdown menu
+	- Trigger the query options off of the active module rather than passed parameters in first_post_date()
+	- Tweak archive widget for articles
+	- Add api_not_found hook
+	- Ignore deleted hublocs in zot finger
+	- Don't use "checkjs" with an associated page reload - wrap a static copy of the content in noscript tags instead
+	- Add possibility to override helpfiles
+	- Add support for overriding the default template location and individual templates via .htconfig.php
+	- Add table support to markdown
+	- Make channel_remove less memory hungry
+	- Prevent json-ld bombing
+	- Turn off browser autocomplete on channel sources creation
+	- Add alter_pdl hook
+	- Add ability for addons to create .pdl files and load them automatically
+	- Sanitise vcard fields
+	- Don't sync system apps
+
+	
+	Bugfixes
+	- Fix issue with timeago plurals
+	- Fix issue with HTTP signatures
+	- Fix issues with channel import
+	- Fix double linebreaks in viewsrc output
+	- Fix jsonld signature issue (library is using sha1, spec requires sha256)
+	- Fix bookmarks not syncing between clones
+	- Fix combined view getting lost when deleting first message in pm thread
+	- Fix authors unable to comment on posts they authored when owned by others in certain circumstances
+	- Fix syschannel included in total channels count
+	- Fix html-to-markdown adds a backslash infront of a hash after each new line
+	- Fix profile likes dropdown
+	- Fix tags corruption when editing posts
+	- Fix duplicate info() messages
+	- Fix zid leaking to nonzot sites if markdown is enabled
+	- Fix app delete issue with base installed apps and app photo being reloaded uneccessarily
+	- Fix app update and ownership issues
+
+
+
+
+
+Hubzilla 3.6 (2018-07-25)
 	- Update jquery.timeago library
 	- Implement Hookable CSP
 	- ActivityStreams: accept header changes to support plume 

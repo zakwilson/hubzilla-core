@@ -53,8 +53,10 @@ class Master {
 
 		if (count($workers) > $maxworkers) {
 			foreach ($workers as $idx => $worker) {
-				$curtime = time();
-				if (($time - $worker['v']) > $workermaxage) {
+                                $curtime = time();
+                                $age = (intval($curtime) - intval($worker['v']));
+                                if ( $age > $workermaxage) {
+					logger("Prune worker: ".$worker['k'], LOGGER_ALL, LOGGER_DEBUG);
 					$k = explode('_',$worker['k']);
 					q("delete from config where cat='queueworkers' and k='%s'",
 						'workerstarted_'.$k[1]);
@@ -100,6 +102,11 @@ class Master {
 				$argc = $workinfo['argc'];
 				$argv = $workinfo['argv'];
 				logger('Master: process: ' . print_r($argv,true), LOGGER_ALL,LOG_DEBUG);
+
+				//Delete unclaimed duplicate workitems.
+				q("delete from config where cat='queuework' and k='workitem' and v='%s'",
+					serialize($argv));
+
 				$cls = '\\Zotlabs\\Daemon\\' . $argv[0];
 				$cls::run($argc,$argv);
 

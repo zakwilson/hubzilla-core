@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-06 17:07+0200\n"
-"PO-Revision-Date: 2018-10-12 21:32+0200\n"
+"POT-Creation-Date: 2018-10-15 21:15+0200\n"
+"PO-Revision-Date: 2018-10-15 21:17+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -722,7 +722,7 @@ msgstr "Спроси меня"
 #: ../../Zotlabs/Module/Invite.php:102 ../../Zotlabs/Module/Articles.php:80
 #: ../../Zotlabs/Module/Cloud.php:40 ../../Zotlabs/Module/Pdledit.php:34
 #: ../../Zotlabs/Module/Wiki.php:59 ../../Zotlabs/Module/Wiki.php:285
-#: ../../Zotlabs/Module/Wiki.php:429 ../../Zotlabs/Module/Manage.php:10
+#: ../../Zotlabs/Module/Wiki.php:428 ../../Zotlabs/Module/Manage.php:10
 #: ../../Zotlabs/Module/Suggest.php:32 ../../Zotlabs/Module/Cards.php:81
 #: ../../Zotlabs/Module/Layouts.php:71 ../../Zotlabs/Module/Layouts.php:78
 #: ../../Zotlabs/Module/Layouts.php:89 ../../Zotlabs/Web/WebServer.php:123
@@ -892,7 +892,7 @@ msgstr "Просмотреть все %d общих контактов"
 #: ../../Zotlabs/Module/Connections.php:342
 #: ../../Zotlabs/Module/Card_edit.php:99
 #: ../../Zotlabs/Module/Article_edit.php:99 ../../Zotlabs/Module/Blocks.php:160
-#: ../../Zotlabs/Module/Wiki.php:211 ../../Zotlabs/Module/Wiki.php:385
+#: ../../Zotlabs/Module/Wiki.php:211 ../../Zotlabs/Module/Wiki.php:384
 #: ../../Zotlabs/Module/Layouts.php:193 ../../Zotlabs/Widget/Cdav.php:126
 #: ../../Zotlabs/Widget/Cdav.php:162 ../../Zotlabs/Lib/Apps.php:534
 #: ../../Zotlabs/Lib/ThreadItem.php:130
@@ -1874,47 +1874,47 @@ msgstr "расслабленный"
 msgid "surprised"
 msgstr "удивленный"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:93
+#: ../../include/text.php:1377 ../../include/js_strings.php:95
 msgid "Monday"
 msgstr "Понедельник"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:94
+#: ../../include/text.php:1377 ../../include/js_strings.php:96
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:95
+#: ../../include/text.php:1377 ../../include/js_strings.php:97
 msgid "Wednesday"
 msgstr "Среда"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:96
+#: ../../include/text.php:1377 ../../include/js_strings.php:98
 msgid "Thursday"
 msgstr "Четверг"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:97
+#: ../../include/text.php:1377 ../../include/js_strings.php:99
 msgid "Friday"
 msgstr "Пятница"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:98
+#: ../../include/text.php:1377 ../../include/js_strings.php:100
 msgid "Saturday"
 msgstr "Суббота"
 
-#: ../../include/text.php:1377 ../../include/js_strings.php:92
+#: ../../include/text.php:1377 ../../include/js_strings.php:94
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:68
+#: ../../include/text.php:1381 ../../include/js_strings.php:70
 msgid "January"
 msgstr "Январь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:69
+#: ../../include/text.php:1381 ../../include/js_strings.php:71
 msgid "February"
 msgstr "Февраль"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:70
+#: ../../include/text.php:1381 ../../include/js_strings.php:72
 msgid "March"
 msgstr "Март"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:71
+#: ../../include/text.php:1381 ../../include/js_strings.php:73
 msgid "April"
 msgstr "Апрель"
 
@@ -1922,31 +1922,31 @@ msgstr "Апрель"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:73
+#: ../../include/text.php:1381 ../../include/js_strings.php:75
 msgid "June"
 msgstr "Июнь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:74
+#: ../../include/text.php:1381 ../../include/js_strings.php:76
 msgid "July"
 msgstr "Июль"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:75
+#: ../../include/text.php:1381 ../../include/js_strings.php:77
 msgid "August"
 msgstr "Август"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:76
+#: ../../include/text.php:1381 ../../include/js_strings.php:78
 msgid "September"
 msgstr "Сентябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:77
+#: ../../include/text.php:1381 ../../include/js_strings.php:79
 msgid "October"
 msgstr "Октябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:78
+#: ../../include/text.php:1381 ../../include/js_strings.php:80
 msgid "November"
 msgstr "Ноябрь"
 
-#: ../../include/text.php:1381 ../../include/js_strings.php:79
+#: ../../include/text.php:1381 ../../include/js_strings.php:81
 msgid "December"
 msgstr "Декабрь"
 
@@ -1976,7 +1976,7 @@ msgstr "удалить из файла"
 msgid "Link to Source"
 msgstr "Ссылка на источник"
 
-#: ../../include/text.php:1872 ../../include/language.php:397
+#: ../../include/text.php:1872 ../../include/language.php:423
 msgid "default"
 msgstr "по умолчанию"
 
@@ -1989,7 +1989,7 @@ msgid "You can create your own with the layouts tool"
 msgstr "Вы можете создать свой собственный с помощью инструмента шаблонов"
 
 #: ../../include/text.php:1890 ../../Zotlabs/Module/Wiki.php:217
-#: ../../Zotlabs/Module/Wiki.php:372 ../../Zotlabs/Widget/Wiki_pages.php:38
+#: ../../Zotlabs/Module/Wiki.php:371 ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95
 msgid "BBcode"
 msgstr ""
@@ -1999,7 +1999,7 @@ msgid "HTML"
 msgstr ""
 
 #: ../../include/text.php:1892 ../../Zotlabs/Module/Wiki.php:217
-#: ../../Zotlabs/Module/Wiki.php:372 ../../Zotlabs/Widget/Wiki_pages.php:38
+#: ../../Zotlabs/Module/Wiki.php:371 ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95
 #: ../../extend/addon/hzaddons/mdpost/mdpost.php:41
 msgid "Markdown"
@@ -2756,13 +2756,13 @@ msgid "Where are you right now?"
 msgstr "Где вы сейчас?"
 
 #: ../../include/conversation.php:1342 ../../Zotlabs/Module/Cover_photo.php:401
-#: ../../Zotlabs/Module/Profile_photo.php:467 ../../Zotlabs/Module/Wiki.php:404
+#: ../../Zotlabs/Module/Profile_photo.php:467 ../../Zotlabs/Module/Wiki.php:403
 #: ../../extend/addon/hzaddons/hsse/hsse.php:139
 msgid "Choose images to embed"
 msgstr "Выбрать изображения для встраивания"
 
 #: ../../include/conversation.php:1343 ../../Zotlabs/Module/Cover_photo.php:402
-#: ../../Zotlabs/Module/Profile_photo.php:468 ../../Zotlabs/Module/Wiki.php:405
+#: ../../Zotlabs/Module/Profile_photo.php:468 ../../Zotlabs/Module/Wiki.php:404
 #: ../../extend/addon/hzaddons/hsse/hsse.php:140
 msgid "Choose an album"
 msgstr "Выбрать альбом"
@@ -2773,19 +2773,19 @@ msgid "Choose a different album..."
 msgstr "Выбрать другой альбом..."
 
 #: ../../include/conversation.php:1345 ../../Zotlabs/Module/Cover_photo.php:404
-#: ../../Zotlabs/Module/Profile_photo.php:470 ../../Zotlabs/Module/Wiki.php:407
+#: ../../Zotlabs/Module/Profile_photo.php:470 ../../Zotlabs/Module/Wiki.php:406
 #: ../../extend/addon/hzaddons/hsse/hsse.php:142
 msgid "Error getting album list"
 msgstr "Ошибка получения списка альбомов"
 
 #: ../../include/conversation.php:1346 ../../Zotlabs/Module/Cover_photo.php:405
-#: ../../Zotlabs/Module/Profile_photo.php:471 ../../Zotlabs/Module/Wiki.php:408
+#: ../../Zotlabs/Module/Profile_photo.php:471 ../../Zotlabs/Module/Wiki.php:407
 #: ../../extend/addon/hzaddons/hsse/hsse.php:143
 msgid "Error getting photo link"
 msgstr "Ошибка получения ссылки на фотографию"
 
 #: ../../include/conversation.php:1347 ../../Zotlabs/Module/Cover_photo.php:406
-#: ../../Zotlabs/Module/Profile_photo.php:472 ../../Zotlabs/Module/Wiki.php:409
+#: ../../Zotlabs/Module/Profile_photo.php:472 ../../Zotlabs/Module/Wiki.php:408
 #: ../../extend/addon/hzaddons/hsse/hsse.php:144
 msgid "Error getting album"
 msgstr "Ошибка получения альбома"
@@ -2855,7 +2855,7 @@ msgstr "Код"
 msgid "Attach/Upload file"
 msgstr "Прикрепить/загрузить файл"
 
-#: ../../include/conversation.php:1411 ../../Zotlabs/Module/Wiki.php:401
+#: ../../include/conversation.php:1411 ../../Zotlabs/Module/Wiki.php:400
 #: ../../extend/addon/hzaddons/hsse/hsse.php:208
 msgid "Embed an image from your albums"
 msgstr "Встроить изображение из ваших альбомов"
@@ -2874,8 +2874,8 @@ msgstr "Встроить изображение из ваших альбомов
 #: ../../Zotlabs/Module/Profile_photo.php:465
 #: ../../Zotlabs/Module/Editpost.php:109 ../../Zotlabs/Module/Connedit.php:925
 #: ../../Zotlabs/Module/Card_edit.php:131
-#: ../../Zotlabs/Module/Article_edit.php:131 ../../Zotlabs/Module/Wiki.php:369
-#: ../../Zotlabs/Module/Wiki.php:402 ../../Zotlabs/Module/Filer.php:55
+#: ../../Zotlabs/Module/Article_edit.php:131 ../../Zotlabs/Module/Wiki.php:368
+#: ../../Zotlabs/Module/Wiki.php:401 ../../Zotlabs/Module/Filer.php:55
 #: ../../extend/addon/hzaddons/hsse/hsse.php:209
 #: ../../extend/addon/hzaddons/hsse/hsse.php:258
 msgid "Cancel"
@@ -2883,7 +2883,7 @@ msgstr "Отменить"
 
 #: ../../include/conversation.php:1413 ../../include/conversation.php:1460
 #: ../../Zotlabs/Module/Cover_photo.php:400
-#: ../../Zotlabs/Module/Profile_photo.php:466 ../../Zotlabs/Module/Wiki.php:403
+#: ../../Zotlabs/Module/Profile_photo.php:466 ../../Zotlabs/Module/Wiki.php:402
 #: ../../extend/addon/hzaddons/hsse/hsse.php:210
 #: ../../extend/addon/hzaddons/hsse/hsse.php:257
 msgid "OK"
@@ -3045,7 +3045,7 @@ msgstr "не нравится"
 msgid "dislikes"
 msgstr "не нравится"
 
-#: ../../include/language.php:410
+#: ../../include/language.php:436
 msgid "Select an alternate language"
 msgstr "Выбор дополнительного языка"
 
@@ -3180,7 +3180,7 @@ msgstr "Это "
 msgid " channel name"
 msgstr " название канала"
 
-#: ../../include/js_strings.php:42 ../../include/js_strings.php:56
+#: ../../include/js_strings.php:41
 #, php-format
 msgid "%d minutes"
 msgid_plural "%d minutes"
@@ -3188,7 +3188,7 @@ msgstr[0] "%d минуту"
 msgstr[1] "%d минуты"
 msgstr[2] "%d минут"
 
-#: ../../include/js_strings.php:43 ../../include/js_strings.php:58
+#: ../../include/js_strings.php:42
 #, php-format
 msgid "about %d hours"
 msgid_plural "about %d hours"
@@ -3196,7 +3196,7 @@ msgstr[0] "около %d часa"
 msgstr[1] "около %d часов"
 msgstr[2] "около %d часов"
 
-#: ../../include/js_strings.php:44 ../../include/js_strings.php:60
+#: ../../include/js_strings.php:43
 #, php-format
 msgid "%d days"
 msgid_plural "%d days"
@@ -3204,7 +3204,7 @@ msgstr[0] "%d день"
 msgstr[1] "%d дня"
 msgstr[2] "%d дней"
 
-#: ../../include/js_strings.php:45 ../../include/js_strings.php:62
+#: ../../include/js_strings.php:44
 #, php-format
 msgid "%d months"
 msgid_plural "%d months"
@@ -3212,7 +3212,7 @@ msgstr[0] "%d месяц"
 msgstr[1] "%d месяца"
 msgstr[2] "%d месяцев"
 
-#: ../../include/js_strings.php:46 ../../include/js_strings.php:64
+#: ../../include/js_strings.php:45
 #, php-format
 msgid "%d years"
 msgid_plural "%d years"
@@ -3220,157 +3220,157 @@ msgstr[0] "%d год"
 msgstr[1] "%d года"
 msgstr[2] "%d лет"
 
-#: ../../include/js_strings.php:48
+#: ../../include/js_strings.php:50
 msgid "timeago.prefixAgo"
 msgstr ""
 
-#: ../../include/js_strings.php:49
+#: ../../include/js_strings.php:51
 msgid "timeago.prefixFromNow"
 msgstr "через"
 
-#: ../../include/js_strings.php:50
+#: ../../include/js_strings.php:52
 msgid "timeago.suffixAgo"
 msgstr "назад"
 
-#: ../../include/js_strings.php:51
+#: ../../include/js_strings.php:53
 msgid "timeago.suffixFromNow"
 msgstr ""
 
-#: ../../include/js_strings.php:54
+#: ../../include/js_strings.php:56
 msgid "less than a minute"
 msgstr "менее чем одну минуту"
 
-#: ../../include/js_strings.php:55
+#: ../../include/js_strings.php:57
 msgid "about a minute"
 msgstr "около минуты"
 
-#: ../../include/js_strings.php:57
+#: ../../include/js_strings.php:59
 msgid "about an hour"
 msgstr "около часа"
 
-#: ../../include/js_strings.php:59
+#: ../../include/js_strings.php:61
 msgid "a day"
 msgstr "день"
 
-#: ../../include/js_strings.php:61
+#: ../../include/js_strings.php:63
 msgid "about a month"
 msgstr "около месяца"
 
-#: ../../include/js_strings.php:63
+#: ../../include/js_strings.php:65
 msgid "about a year"
 msgstr "около года"
 
-#: ../../include/js_strings.php:65
+#: ../../include/js_strings.php:67
 msgid " "
 msgstr " "
 
-#: ../../include/js_strings.php:66
+#: ../../include/js_strings.php:68
 msgid "timeago.numbers"
 msgstr ""
 
-#: ../../include/js_strings.php:72
+#: ../../include/js_strings.php:74
 msgctxt "long"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:80
+#: ../../include/js_strings.php:82
 msgid "Jan"
 msgstr "Янв"
 
-#: ../../include/js_strings.php:81
+#: ../../include/js_strings.php:83
 msgid "Feb"
 msgstr "Фев"
 
-#: ../../include/js_strings.php:82
+#: ../../include/js_strings.php:84
 msgid "Mar"
 msgstr "Мар"
 
-#: ../../include/js_strings.php:83
+#: ../../include/js_strings.php:85
 msgid "Apr"
 msgstr "Апр"
 
-#: ../../include/js_strings.php:84
+#: ../../include/js_strings.php:86
 msgctxt "short"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:85
+#: ../../include/js_strings.php:87
 msgid "Jun"
 msgstr "Июн"
 
-#: ../../include/js_strings.php:86
+#: ../../include/js_strings.php:88
 msgid "Jul"
 msgstr "Июл"
 
-#: ../../include/js_strings.php:87
+#: ../../include/js_strings.php:89
 msgid "Aug"
 msgstr "Авг"
 
-#: ../../include/js_strings.php:88
+#: ../../include/js_strings.php:90
 msgid "Sep"
 msgstr "Сен"
 
-#: ../../include/js_strings.php:89
+#: ../../include/js_strings.php:91
 msgid "Oct"
 msgstr "Окт"
 
-#: ../../include/js_strings.php:90
+#: ../../include/js_strings.php:92
 msgid "Nov"
 msgstr "Ноя"
 
-#: ../../include/js_strings.php:91
+#: ../../include/js_strings.php:93
 msgid "Dec"
 msgstr "Дек"
 
-#: ../../include/js_strings.php:99
+#: ../../include/js_strings.php:101
 msgid "Sun"
 msgstr "Вск"
 
-#: ../../include/js_strings.php:100
+#: ../../include/js_strings.php:102
 msgid "Mon"
 msgstr "Пон"
 
-#: ../../include/js_strings.php:101
+#: ../../include/js_strings.php:103
 msgid "Tue"
 msgstr "Вт"
 
-#: ../../include/js_strings.php:102
+#: ../../include/js_strings.php:104
 msgid "Wed"
 msgstr "Ср"
 
-#: ../../include/js_strings.php:103
+#: ../../include/js_strings.php:105
 msgid "Thu"
 msgstr "Чет"
 
-#: ../../include/js_strings.php:104
+#: ../../include/js_strings.php:106
 msgid "Fri"
 msgstr "Пят"
 
-#: ../../include/js_strings.php:105
+#: ../../include/js_strings.php:107
 msgid "Sat"
 msgstr "Суб"
 
-#: ../../include/js_strings.php:106
+#: ../../include/js_strings.php:108
 msgctxt "calendar"
 msgid "today"
 msgstr "сегодня"
 
-#: ../../include/js_strings.php:107
+#: ../../include/js_strings.php:109
 msgctxt "calendar"
 msgid "month"
 msgstr "месяц"
 
-#: ../../include/js_strings.php:108
+#: ../../include/js_strings.php:110
 msgctxt "calendar"
 msgid "week"
 msgstr "неделя"
 
-#: ../../include/js_strings.php:109
+#: ../../include/js_strings.php:111
 msgctxt "calendar"
 msgid "day"
 msgstr "день"
 
-#: ../../include/js_strings.php:110
+#: ../../include/js_strings.php:112
 msgctxt "calendar"
 msgid "All day"
 msgstr "Весь день"
@@ -6000,7 +6000,7 @@ msgstr "Создать событие"
 
 #: ../../Zotlabs/Module/Events.php:695 ../../Zotlabs/Module/Pubsites.php:60
 #: ../../Zotlabs/Module/Webpages.php:261 ../../Zotlabs/Module/Blocks.php:166
-#: ../../Zotlabs/Module/Wiki.php:213 ../../Zotlabs/Module/Wiki.php:410
+#: ../../Zotlabs/Module/Wiki.php:213 ../../Zotlabs/Module/Wiki.php:409
 #: ../../Zotlabs/Module/Layouts.php:198
 msgid "View"
 msgstr "Просмотр"
@@ -6176,7 +6176,7 @@ msgid "Use a photo from your albums"
 msgstr "Использовать фотографию из ваших альбомов"
 
 #: ../../Zotlabs/Module/Cover_photo.php:403
-#: ../../Zotlabs/Module/Profile_photo.php:469 ../../Zotlabs/Module/Wiki.php:406
+#: ../../Zotlabs/Module/Profile_photo.php:469 ../../Zotlabs/Module/Wiki.php:405
 msgid "Choose a different album"
 msgstr "Выбрать другой альбом"
 
@@ -6835,7 +6835,7 @@ msgid "Link post titles to source"
 msgstr "Ссылки на источник заголовков публикаций"
 
 #: ../../Zotlabs/Module/Settings/Display.php:205
-#: ../../Zotlabs/Widget/Newmember.php:69
+#: ../../Zotlabs/Widget/Newmember.php:75
 msgid "New Member Links"
 msgstr "Ссылки для новичков"
 
@@ -10489,85 +10489,85 @@ msgstr "Ошибка при получении содержимого стран
 msgid "New page"
 msgstr "Новая страница"
 
-#: ../../Zotlabs/Module/Wiki.php:367
+#: ../../Zotlabs/Module/Wiki.php:366
 msgid "Revision Comparison"
 msgstr "Сравнение ревизий"
 
-#: ../../Zotlabs/Module/Wiki.php:368
+#: ../../Zotlabs/Module/Wiki.php:367
 #: ../../Zotlabs/Widget/Wiki_page_history.php:25
 #: ../../Zotlabs/Lib/NativeWikiPage.php:564
 msgid "Revert"
 msgstr "Отменить"
 
-#: ../../Zotlabs/Module/Wiki.php:375
+#: ../../Zotlabs/Module/Wiki.php:374
 msgid "Short description of your changes (optional)"
 msgstr "Краткое описание ваших изменений (необязательно)"
 
-#: ../../Zotlabs/Module/Wiki.php:385
+#: ../../Zotlabs/Module/Wiki.php:384
 msgid "Source"
 msgstr "Источник"
 
-#: ../../Zotlabs/Module/Wiki.php:395
+#: ../../Zotlabs/Module/Wiki.php:394
 msgid "New page name"
 msgstr "Новое имя страницы"
 
-#: ../../Zotlabs/Module/Wiki.php:400
+#: ../../Zotlabs/Module/Wiki.php:399
 msgid "Embed image from photo albums"
 msgstr "Встроить изображение из фотоальбома"
 
-#: ../../Zotlabs/Module/Wiki.php:411
+#: ../../Zotlabs/Module/Wiki.php:410
 msgid "History"
 msgstr "История"
 
-#: ../../Zotlabs/Module/Wiki.php:489
+#: ../../Zotlabs/Module/Wiki.php:488
 msgid "Error creating wiki. Invalid name."
 msgstr "Ошибка создания Wiki. Неверное имя."
 
-#: ../../Zotlabs/Module/Wiki.php:496
+#: ../../Zotlabs/Module/Wiki.php:495
 msgid "A wiki with this name already exists."
 msgstr "Wiki с таким именем уже существует."
 
-#: ../../Zotlabs/Module/Wiki.php:509
+#: ../../Zotlabs/Module/Wiki.php:508
 msgid "Wiki created, but error creating Home page."
 msgstr "Wiki создана, но возникла ошибка при создании домашней страницы"
 
-#: ../../Zotlabs/Module/Wiki.php:516
+#: ../../Zotlabs/Module/Wiki.php:515
 msgid "Error creating wiki"
 msgstr "Ошибка при создании Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:540
+#: ../../Zotlabs/Module/Wiki.php:539
 msgid "Error updating wiki. Invalid name."
 msgstr "Ошибка при обновлении Wiki. Неверное имя."
 
-#: ../../Zotlabs/Module/Wiki.php:560
+#: ../../Zotlabs/Module/Wiki.php:559
 msgid "Error updating wiki"
 msgstr "Ошибка при обновлении Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:575
+#: ../../Zotlabs/Module/Wiki.php:574
 msgid "Wiki delete permission denied."
 msgstr "Нет прав на удаление Wiki."
 
-#: ../../Zotlabs/Module/Wiki.php:585
+#: ../../Zotlabs/Module/Wiki.php:584
 msgid "Error deleting wiki"
 msgstr "Ошибка удаления Wiki"
 
-#: ../../Zotlabs/Module/Wiki.php:618
+#: ../../Zotlabs/Module/Wiki.php:617
 msgid "New page created"
 msgstr "Создана новая страница"
 
-#: ../../Zotlabs/Module/Wiki.php:740
+#: ../../Zotlabs/Module/Wiki.php:739
 msgid "Cannot delete Home"
 msgstr "Невозможно удалить домашнюю страницу"
 
-#: ../../Zotlabs/Module/Wiki.php:804
+#: ../../Zotlabs/Module/Wiki.php:803
 msgid "Current Revision"
 msgstr "Текущая ревизия"
 
-#: ../../Zotlabs/Module/Wiki.php:804
+#: ../../Zotlabs/Module/Wiki.php:803
 msgid "Selected Revision"
 msgstr "Выбранная ревизия"
 
-#: ../../Zotlabs/Module/Wiki.php:854
+#: ../../Zotlabs/Module/Wiki.php:853
 msgid "You must be authenticated."
 msgstr "Вы должны быть аутентифицированы."
 
@@ -11255,7 +11255,19 @@ msgstr "Просмотреть ваш сетевой поток"
 msgid "Documentation"
 msgstr "Документация"
 
-#: ../../Zotlabs/Widget/Newmember.php:65
+#: ../../Zotlabs/Widget/Newmember.php:57
+msgid "Missing Features?"
+msgstr "Отсутствует функция?"
+
+#: ../../Zotlabs/Widget/Newmember.php:59
+msgid "Pin apps to navigation bar"
+msgstr "Прикрепить приложение к панели"
+
+#: ../../Zotlabs/Widget/Newmember.php:60
+msgid "Install more apps"
+msgstr "Установить больше приложений"
+
+#: ../../Zotlabs/Widget/Newmember.php:71
 msgid "View public stream"
 msgstr "Просмотреть публичный поток"
 

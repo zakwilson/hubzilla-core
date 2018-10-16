@@ -13,14 +13,15 @@ class Pconfig extends \Zotlabs\Web\Controller {
 			return;
 	
 	
-	   if($_SESSION['delegate'])
-	        return;
+		if($_SESSION['delegate'])
+			return;
 	
 		check_form_security_token_redirectOnErr('/pconfig', 'pconfig');
 	
 		$cat = trim(escape_tags($_POST['cat']));
 		$k = trim(escape_tags($_POST['k']));
 		$v = trim($_POST['v']);
+		$aj = intval($_POST['aj']);
 	
 		if(in_array(argv(2),$this->disallowed_pconfig())) {
 			notice( t('This setting requires special processing and editing has been blocked.') . EOL);
@@ -33,9 +34,12 @@ class Pconfig extends \Zotlabs\Web\Controller {
 	
 		set_pconfig(local_channel(),$cat,$k,$v);
 		build_sync_packet();
-	
-		goaway(z_root() . '/pconfig/' . $cat . '/' .  $k);
-	
+
+		if($aj)
+			killme();
+		else
+			goaway(z_root() . '/pconfig/' . $cat . '/' .  $k);
+
 	}
 	
 	

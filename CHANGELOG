@@ -61,8 +61,40 @@ Hubzilla 3.8 (????-??-??)
 	- Fix app delete issue with base installed apps and app photo being reloaded uneccessarily
 	- Fix app update and ownership issues
 
-
-
+	Addons
+	- Superblock: fix issue with not removeable channels
+	- Cart: fix subscription table not created on install
+	- Hsse: new addon - a WYSIWYG editor for certain modules
+	- Rainbowtag: convert to app infrastructure
+	- Superblock: convert to app infrastructure
+	- Send ZID: convert to app infrastructure
+	- Adultphotoflag: move setting to mod photos
+	- GNU-Social: convert to app infrastructure
+	- Pubcrawl: convert to app infrastructure
+	- Startpage: convert to app infrastructure
+	- Wppost: convert to app infrastructure
+	- Diaspora: convert to app infrastructure
+	- Mdpost: move setting to editor settings
+	- Cart: convert to app infrastructure
+	- Cart: reflect renaming of groups table
+	- Authchoose: convert to app infrastructure
+	- Channelreputation: new addon - reputation system for community channels (forums, etc.)
+	- Diaspora: fix commenting on diaspora reshares
+	- Gallery: convert to app infrastructure
+	- Nsfw: convert to app infrastructure
+	- Diaspora: change top level retraction type from StatusMessage to Post
+	- Delivery Notice: new addon - display delivery status information at the top of items
+	- Diaspora: exclude xchan_networks rss, anon and unknown from the query to make the results more reliable
+	- Diaspora: provide xchan_url if we have no xchan_addr for mentions
+	- Diaspora: fix x-social-relay tags converted to associative array
+	- Twitter API: improvements for the twidere client
+	- Pubcrawl: partial support for inbound AP events
+	- Pubcrawl: add support for image objects
+	- Gallery: provide a way to direct link to a photo album gallery
+	- Pubcrawl: improve can_comment_on_post handler
+	- Pubcrawl: implement pleroma quirks regarding follow activities
+	- Cart: add ability to create catalog entries for physical and/or manually fulfilled items
+	- Cart: add subscriptions submodule
 
 
 Hubzilla 3.6 (2018-07-25)

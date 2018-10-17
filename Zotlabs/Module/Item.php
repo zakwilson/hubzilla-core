@@ -1178,7 +1178,7 @@ logger('linkify: ' . print_r($results,true));
 					intval($channel_id)
 				);
 				if($y && intval($y[0]['total']) > 1) {
-					q("update account set account_level = 1 where account_id = %d limit 1",
+					q("update account set account_level = 1 where account_id = %d",
 						intval($a[0]['account_id'])
 					);
 				}

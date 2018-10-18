@@ -1071,10 +1071,11 @@ function get_markup_template($s, $root = '') {
                         $s = \App::$override_markup_templates[$testroot][$s]["file"];
                 	$template = $t->get_markup_template($s, $root);
                 } elseif (\App::$override_templateroot) {
-                   $newroot = \App::$override_templateroot . $root;
+                   $newroot = \App::$override_templateroot;
                    if ($newroot != '' && substr($newroot,-1) != '/' ) {
                            $newroot .= '/';
                    }
+		   $newroot .= $root;
                    $template = $t->get_markup_template($s, $newroot);
                 } else {
                 	$template = $t->get_markup_template($s, $root);

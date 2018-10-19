@@ -20,6 +20,16 @@ class Cover_photo {
 		if(! $channel_id)
 			return '';
 
+		// only show cover photos once per login session
+		$hide_cover = false;
+		if(array_key_exists('channels_visited',$_SESSION) && is_array($_SESSION['channels_visited']) && in_array($channel_id,$_SESSION['channels_visited'])) {
+			$hide_cover = true;
+		}
+		if(! array_key_exists('channels_visited',$_SESSION)) {
+			$_SESSION['channels_visited'] = [];
+		}
+		$_SESSION['channels_visited'][] = $channel_id;
+
 		$channel = channelx_by_n($channel_id);
 
 		if(array_key_exists('style', $arr) && isset($arr['style']))
@@ -45,6 +55,7 @@ class Cover_photo {
 		$c = get_cover_photo($channel_id,'html');
 
 		if($c) {
+			$c = str_replace('src=', 'data-src=', $c);
 			$photo_html = (($style) ? str_replace('alt=',' style="' . $style . '" alt=',$c) : $c);
 
 			$o = replace_macros(get_markup_template('cover_photo_widget.tpl'),array(
@@ -52,6 +63,7 @@ class Cover_photo {
 				'$title'	=> $title,
 				'$subtitle'	=> $subtitle,
 				'$hovertitle' => t('Click to show more'),
+				'$hide_cover' => $hide_cover
 			));
 		}
 		return $o;

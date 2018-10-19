@@ -125,6 +125,7 @@ CREATE TABLE "app" (
   "app_deleted" smallint NOT NULL DEFAULT 0 ,
   "app_system" smallint NOT NULL DEFAULT 0 ,
   "app_plugin" text NOT NULL DEFAULT '',
+  "app_options" smallint NOT NULL DEFAULT '0',
   "app_created" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "app_edited" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY ("id")
@@ -433,18 +434,18 @@ create index "event_status_idx" on event ("event_status");
 create index "event_sequence_idx" on event ("event_sequence");
 create index "event_priority_idx" on event ("event_priority");
 
-CREATE TABLE "group_member" (
+CREATE TABLE "pgrp_member" (
   "id" serial  NOT NULL,
   "uid" bigint  NOT NULL,
   "gid" bigint  NOT NULL,
   "xchan" text NOT NULL DEFAULT '',
   PRIMARY KEY ("id")
 );
-create index "groupmember_uid" on group_member ("uid");
-create index "groupmember_gid" on group_member ("gid");
-create index "groupmember_xchan" on group_member ("xchan");
+create index "groupmember_uid" on pgrp_member ("uid");
+create index "groupmember_gid" on pgrp_member ("gid");
+create index "groupmember_xchan" on pgrp_member ("xchan");
 
-CREATE TABLE "groups" (
+CREATE TABLE "pgrp" (
   "id" serial  NOT NULL,
   "hash" text NOT NULL DEFAULT '',
   "uid" bigint  NOT NULL,
@@ -454,10 +455,10 @@ CREATE TABLE "groups" (
   PRIMARY KEY ("id")
 
 );
-create index "groups_uid_idx" on groups ("uid");
-create index "groups_visible_idx" on groups  ("visible");
-create index "groups_deleted_idx" on groups ("deleted");
-create index "groups_hash_idx" on groups ("hash");
+create index "groups_uid_idx" on pgrp ("uid");
+create index "groups_visible_idx" on pgrp  ("visible");
+create index "groups_deleted_idx" on pgrp ("deleted");
+create index "groups_hash_idx" on pgrp ("hash");
 
 CREATE TABLE "hook" (
   "id" serial NOT NULL,
@@ -473,10 +474,12 @@ create index "hook_idx" on hook ("hook");
 create index "hook_version_idx" on hook ("hook_version");
 create index "hook_priority_idx" on hook ("priority");
 
+
 CREATE TABLE "hubloc" (
   "hubloc_id" serial  NOT NULL,
   "hubloc_guid" text NOT NULL DEFAULT '',
   "hubloc_guid_sig" text NOT NULL DEFAULT '',
+  "hubloc_id_url" text NOT NULL DEFAULT '',
   "hubloc_hash" text NOT NULL,
   "hubloc_addr" text NOT NULL DEFAULT '',
   "hubloc_network" text NOT NULL DEFAULT '',
@@ -484,6 +487,7 @@ CREATE TABLE "hubloc" (
   "hubloc_status" bigint  NOT NULL DEFAULT 0 ,
   "hubloc_url" text NOT NULL DEFAULT '',
   "hubloc_url_sig" text NOT NULL DEFAULT '',
+  "hubloc_site_id" text NOT NULL DEFAULT '',
   "hubloc_host" text NOT NULL DEFAULT '',
   "hubloc_callback" text NOT NULL DEFAULT '',
   "hubloc_connect" text NOT NULL DEFAULT '',
@@ -497,7 +501,9 @@ CREATE TABLE "hubloc" (
   PRIMARY KEY ("hubloc_id")
 );
 create index "hubloc_url" on hubloc ("hubloc_url");
+create index "hubloc_site_id" on hubloc ("hubloc_site_id");
 create index "hubloc_guid" on hubloc ("hubloc_guid");
+create index "hubloc_id_url" on hubloc ("hubloc_id_url");
 create index "hubloc_flags" on hubloc ("hubloc_flags");
 create index "hubloc_connect" on hubloc ("hubloc_connect");
 create index "hubloc_host" on hubloc ("hubloc_host");
@@ -712,6 +718,17 @@ create index "likes_i_mid" on likes ("i_mid");
 create index "likes_verb" on likes ("verb");
 create index "likes_target_type" on likes ("target_type");
 create index "likes_target_id" on likes ("target_id");
+CREATE TABLE listeners (
+  id serial NOT NULL,
+  target_id text NOT NULL,
+  portable_id text NOT NULL,
+  ltype smallint NOT NULL DEFAULT '0',
+  PRIMARY KEY (id)
+);
+create index "target_id_idx" on listeners ("target_id");
+create index "portable_id_idx" on listeners ("portable_id");
+create index "ltype_idx" on listeners ("ltype");
+
 CREATE TABLE "mail" (
   "id" serial  NOT NULL,
   "convid" bigint  NOT NULL DEFAULT 0 ,

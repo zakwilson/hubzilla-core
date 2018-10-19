@@ -1,15 +1,18 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
-class Sources extends \Zotlabs\Web\Controller {
+class Sources extends Controller {
 
 	function post() {
 		if(! local_channel())
 			return;
 
-		if(! feature_enabled(local_channel(),'channel_sources'))
-			return '';
+		if(! Apps::system_app_installed(local_channel(), 'Channel Sources'))
+			return;
 	
 		$source = intval($_REQUEST['source']);
 		$xchan = escape_tags($_REQUEST['xchan']);
@@ -75,12 +78,17 @@ class Sources extends \Zotlabs\Web\Controller {
 	function get() {
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
-			return '';
+			return;
 		}
 	
-		if(! feature_enabled(local_channel(),'channel_sources')) {
-			return '';
-		} 
+		if(! Apps::system_app_installed(local_channel(), 'Channel Sources')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Sources App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Automatically import channel content from other channels or feeds');
+			return $o;
+		}
 	
 		// list sources
 		if(argc() == 1) {
@@ -111,7 +119,7 @@ class Sources extends \Zotlabs\Web\Controller {
 				'$title' => t('New Source'),
 				'$desc' => t('Import all or selected content from the following channel into this channel and distribute it according to your channel settings.'),
 				'$words' => array( 'words', t('Only import content with these words (one per line)'),'',t('Leave blank to import all public content')),
-				'$name' => array( 'name', t('Channel Name'), '', ''),
+				'$name' => array( 'name', t('Channel Name'), '', '', '', 'autocomplete="off"'),
 				'$tags' => array('tags', t('Add the following categories to posts imported from this source (comma separated)'),'',t('Optional')),
 				'$resend' => [ 'resend', t('Resend posts with this channel as author'), 0, t('Copyrights may apply'), [ t('No'), t('Yes') ]],  
 				'$submit' => t('Submit')

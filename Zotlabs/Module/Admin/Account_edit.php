@@ -31,7 +31,7 @@ class Account_edit {
 		}
 
 		$service_class = trim($_REQUEST['service_class']);
-		$account_level = intval(trim($_REQUEST['account_level']));
+		$account_level = 5;
 		$account_language = trim($_REQUEST['account_language']);
 
 		$r = q("update account set account_service_class = '%s', account_level = %d, account_language = '%s' 
@@ -68,7 +68,6 @@ class Account_edit {
 			'$title' => t('Account Edit'),
 			'$pass1' => [ 'pass1', t('New Password'), ' ','' ],
 			'$pass2' => [ 'pass2', t('New Password again'), ' ','' ],
-			'$account_level' => [ 'account_level', t('Technical skill level'), $x[0]['account_level'], '', \Zotlabs\Lib\Techlevels::levels() ],
 			'$account_language' => [ 'account_language' , t('Account language (for emails)'), $x[0]['account_language'], '', language_list() ],
 			'$service_class' => [ 'service_class', t('Service class'), $x[0]['account_service_class'], '' ],
 			'$submit' => t('Submit'),

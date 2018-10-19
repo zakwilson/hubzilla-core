@@ -1,0 +1,6 @@
+version: 2
+url: $baseurl/network, $baseurl/settings/network
+requires: local_channel
+name: Network
+photo: icon:th
+categories: nav_featured_app, Networking

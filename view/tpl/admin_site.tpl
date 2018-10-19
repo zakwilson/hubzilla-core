@@ -42,9 +42,6 @@
 
 	{{include file="field_input.tpl" field=$sitename}}
 
-	{{include file="field_select.tpl" field=$techlevel}}
-    {{include file="field_checkbox.tpl" field=$techlock}}
-
 	{{include file="field_textarea.tpl" field=$banner}}
 	{{include file="field_textarea.tpl" field=$siteinfo}}
 	{{include file="field_textarea.tpl" field=$admininfo}}
@@ -64,7 +61,9 @@
 		{{include file="field_select.tpl" field=$directory_server}}
 	{{/if}}
 	
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit">
+	    <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" />
+    </div>
 	
 	<h3>{{$registration}}</h3>
 	{{include file="field_input.tpl" field=$register_text}}
@@ -77,7 +76,9 @@
 	{{include file="field_input.tpl" field=$sellpage}}
 	{{include file="field_input.tpl" field=$first_page}}
 
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit">
+	    <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" />
+    </div>
 
 	<h3>{{$corporate}}</h3>
 	{{include file="field_checkbox.tpl" field=$verify_email}}
@@ -89,7 +90,9 @@
 	{{include file="field_textarea.tpl" field=$incl}}
 	{{include file="field_textarea.tpl" field=$excl}}
 	
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit">
+        <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" /></div>
+    </div>
 	
 	<h3>{{$advanced}}</h3>
 	{{include file="field_input.tpl" field=$imagick_path}}
@@ -106,7 +109,9 @@
 	{{include file="field_input.tpl" field=$default_expire_days}}
 	{{include file="field_input.tpl" field=$active_expire_days}}
 	
-	<div class="submit"><input type="submit" name="page_site" value="{{$submit}}" /></div>
+	<div class="submit">
+        <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" />
+    </div>
 	
 	</form>
 </div>

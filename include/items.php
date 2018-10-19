@@ -4,7 +4,13 @@
  * @brief Items related functions.
  */
 
-use Zotlabs\Lib as Zlib;
+use Zotlabs\Lib\Enotify;
+use Zotlabs\Lib\MarkdownSoap;
+use Zotlabs\Lib\MessageFilter;
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\AccessList;
+use Zotlabs\Daemon\Master;
 
 require_once('include/bbcode.php');
 require_once('include/oembed.php');
@@ -234,10 +240,11 @@ function can_comment_on_post($observer_xchan, $item) {
 //	logger('Comment_policy: ' . $item['comment_policy'], LOGGER_DEBUG);
 
 	$x = [
-			'observer_hash' => $observer_xchan,
-			'item' => $item,
-			'allowed' => 'unset'
+		'observer_hash' => $observer_xchan,
+		'item' => $item,
+		'allowed' => 'unset'
 	];
+
 	/**
 	 * @hooks can_comment_on_post
 	 *   Called when deciding whether or not to present a comment box for a post.
@@ -245,26 +252,34 @@ function can_comment_on_post($observer_xchan, $item) {
 	 *   * \e array \b item
 	 *   * \e boolean \b allowed - return value
 	 */
+
 	call_hooks('can_comment_on_post', $x);
-	if($x['allowed'] !== 'unset')
+
+	if($x['allowed'] !== 'unset') {
 		return $x['allowed'];
+	}
 
-	if(! $observer_xchan)
+	if(! $observer_xchan) {
 		return false;
+	}
 
-	if($item['comment_policy'] === 'none')
+	if($item['comment_policy'] === 'none') {
 		return false;
+	}
 
-	if(comments_are_now_closed($item))
+	if(comments_are_now_closed($item)) {
 		return false;
+	}
 
-	if($observer_xchan === $item['author_xchan'] || $observer_xchan === $item['owner_xchan'])
+	if($observer_xchan === $item['author_xchan'] || $observer_xchan === $item['owner_xchan']) {
 		return true;
+	}
 
 	switch($item['comment_policy']) {
 		case 'self':
-			if($observer_xchan === $item['author_xchan'] || $observer_xchan === $item['owner_xchan'])
+			if($observer_xchan === $item['author_xchan'] || $observer_xchan === $item['owner_xchan']) {
 				return true;
+			}
 			break;
 		case 'public':
 		case 'authenticated':
@@ -276,17 +291,22 @@ function can_comment_on_post($observer_xchan, $item) {
 		case 'any connections':
 		case 'contacts':
 		case '':
-			if(array_key_exists('owner',$item) && get_abconfig($item['uid'],$item['owner']['abook_xchan'],'their_perms','post_comments')) {
-					return true;
+			if(local_channel() && get_abconfig(local_channel(),$item['owner_xchan'],'their_perms','post_comments')) {
+				return true;
+			}
+			if(intval($item['item_wall']) && perm_is_allowed($item['uid'],$observer_xchan,'post_comments')) {
+				return true;
 			}
 			break;
 		default:
 			break;
 	}
-	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'red'))
+	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'red')) {
 		return true;
-	if(strstr($item['comment_policy'],'site:') && strstr($item['comment_policy'],App::get_hostname()))
+	}
+	if(strstr($item['comment_policy'],'site:') && strstr($item['comment_policy'],App::get_hostname())) {
 		return true;
+	}
 
 	return false;
 }
@@ -365,7 +385,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		return $ret;
 	}
 
-	$arr['public_policy'] = ((array_key_exists('public_policy',$arr)) ? escape_tags($arr['public_policy']) : map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
+	$arr['public_policy'] = ((array_key_exists('public_policy',$arr)) ? escape_tags($arr['public_policy']) : map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true));
 
 	if($arr['public_policy'])
 		$arr['item_private'] = 1;
@@ -393,7 +413,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		$arr['deny_gid']     = $channel['channel_deny_gid'];
 	}
 
-	$arr['comment_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'post_comments'));
+	$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
 		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']),0,190);
@@ -432,7 +452,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	}
 
 	if($post_id && $deliver) {
-		Zotlabs\Daemon\Master::Summon(array('Notifier','activity',$post_id));
+		Master::Summon([ 'Notifier','activity',$post_id ]);
 	}
 
 	$ret['success'] = true;
@@ -730,7 +750,7 @@ function get_item_elements($x,$allow_code = false) {
 	// was generated on the escaped content.
 
 	if($arr['mimetype'] === 'text/markdown')
-		$arr['body'] = \Zotlabs\Lib\MarkdownSoap::unescape($arr['body']);
+		$arr['body'] = MarkdownSoap::unescape($arr['body']);
 
 	if(array_key_exists('revision',$x)) {
 
@@ -989,7 +1009,7 @@ function encode_item($item,$mirror = false) {
 	);
 
 	if($r)
-		$comment_scope = \Zotlabs\Access\PermissionLimits::Get($item['uid'],'post_comments');
+		$comment_scope = PermissionLimits::Get($item['uid'],'post_comments');
 	else
 		$comment_scope = 0;
 
@@ -2425,7 +2445,7 @@ function send_status_notifications($post_id,$item) {
 		return;
 
 
-	Zlib\Enotify::submit(array(
+	Enotify::submit(array(
 		'type'         => NOTIFY_COMMENT,
 		'from_xchan'   => $item['author_xchan'],
 		'to_xchan'     => $r[0]['channel_hash'],
@@ -2518,7 +2538,7 @@ function tag_deliver($uid, $item_id) {
 
 		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
 		if($poke_notify) {
-			Zlib\Enotify::submit(array(
+			Enotify::submit(array(
 				'to_xchan'     => $u[0]['channel_hash'],
 				'from_xchan'   => $item['author_xchan'],
 				'type'         => NOTIFY_POKE,
@@ -2672,7 +2692,7 @@ function tag_deliver($uid, $item_id) {
 			 * Kill two birds with one stone. As long as we're here, send a mention notification.
 			 */
 
-			Zlib\Enotify::submit(array(
+			Enotify::submit(array(
 				'to_xchan'     => $u[0]['channel_hash'],
 				'from_xchan'   => $item['author_xchan'],
 				'type'         => NOTIFY_TAGSELF,
@@ -2974,7 +2994,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 	$private = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
 
-	$new_public_policy = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
+	$new_public_policy = map_scope(PermissionLimits::Get($channel['channel_id'],'view_stream'),true);
 
 	if((! $private) && $new_public_policy)
 		$private = 1;
@@ -3017,7 +3037,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 		dbesc($channel['channel_deny_gid']),
 		intval($private),
 		dbesc($new_public_policy),
-		dbesc(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'post_comments'))),
+		dbesc(map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'))),
 		dbesc($title),
 		dbesc($body),
 		intval($item_wall),
@@ -3026,7 +3046,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent) {
 	);
 
 	if($r)
-		Zotlabs\Daemon\Master::Summon(array('Notifier','tgroup',$item_id));
+		Master::Summon([ 'Notifier','tgroup',$item_id ]);
 	else {
 		logger('start_delivery_chain: failed to update item');
 		// reset the source xchan to prevent loops
@@ -3091,7 +3111,7 @@ function check_item_source($uid, $item) {
 		return true;
 	}
 
-	if (\Zotlabs\Lib\MessageFilter::evaluate($item, $r[0]['src_patt'], EMPTY_STR)) {
+	if (MessageFilter::evaluate($item, $r[0]['src_patt'], EMPTY_STR)) {
 		logger('source: text filter success');
 		return true;
 	}
@@ -3114,7 +3134,7 @@ function post_is_importable($item,$abook) {
 	if(! ($abook['abook_incl'] || $abook['abook_excl']))
 		return true;
 
-	return \Zotlabs\Lib\MessageFilter::evaluate($item,$abook['abook_incl'],$abook['abook_excl']);
+	return MessageFilter::evaluate($item,$abook['abook_incl'],$abook['abook_excl']);
 
 }
 
@@ -3250,7 +3270,7 @@ function mail_store($arr) {
 			'otype'      => 'mail'
 		);
 
-		Zlib\Enotify::submit($notif_params);
+		Enotify::submit($notif_params);
 	}
 
 	if($arr['conv_guid']) {
@@ -3533,8 +3553,9 @@ function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL,$force 
 
 	// multiple threads may have been deleted, send an expire notification
 
-	if($uid)
-		Zotlabs\Daemon\Master::Summon(array('Notifier','expire',$uid));
+	if($uid) {
+		Master::Summon([ 'Notifier','expire',$uid ]);
+	}
 }
 
 
@@ -3642,8 +3663,9 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		// We'll rely on the undocumented behaviour that DROPITEM_PHASE1 is (hopefully) only
 		// set if we know we're going to send delete notifications out to others.
 
-		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1))
-			Zotlabs\Daemon\Master::Summon(array('Notifier','drop',$notify_id));
+		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1)) {
+			Master::Summon([ 'Notifier','drop',$notify_id ]);
+		}
 
 		goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
@@ -3767,21 +3789,34 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
  * @brief Return the first post date.
  *
  * @param int $uid
- * @param boolean $wall (optional) default false
+ * @param boolean $wall (optional) no longer used
  * @return string|boolean date string, otherwise false
  */
 function first_post_date($uid, $wall = false) {
 
-	$wall_sql = (($wall) ? " and item_wall = 1 " : "" );
-	$item_normal = item_normal();
+	$sql_extra = '';
+
+	switch(App::$module) {
+		case 'articles':
+			$sql_extra .= " and item_type = 7 ";
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 7 and item.item_deleted = 0
+				and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
+				and item.item_blocked = 0 ";
+			break;
+		case 'channel':
+			$sql_extra = " and item_wall = 1 ";
+		default:
+			$item_normal = item_normal();
+			break;
+	}
 
 	$r = q("select id, created from item
-		where uid = %d and id = parent $item_normal $wall_sql
+		where uid = %d and id = parent $item_normal $sql_extra
 		order by created asc limit 1",
 		intval($uid)
 	);
+
 	if($r) {
-//		logger('first_post_date: ' . $r[0]['id'] . ' ' . $r[0]['created'], LOGGER_DATA);
 		return substr(datetime_convert('',date_default_timezone_get(),$r[0]['created']),0,10);
 	}
 
@@ -3962,6 +3997,7 @@ function zot_feed($uid, $observer_hash, $arr) {
 	$result = array();
 	$mindate = null;
 	$message_id = null;
+	$wall = true;
 
 	require_once('include/security.php');
 
@@ -3971,6 +4007,10 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	if(array_key_exists('message_id',$arr)) {
 		$message_id = $arr['message_id'];
+	}
+
+	if(array_key_exists('wall',$arr)) {
+		$wall = intval($arr['wall']);
 	}
 
 	if(! $mindate)
@@ -4001,6 +4041,10 @@ function zot_feed($uid, $observer_hash, $arr) {
 		$limit = '';
 	}
 
+	if($wall) {
+		$sql_extra .= " and item_wall = 1 ";
+	}
+
 
 	$items = [];
 
@@ -4013,7 +4057,6 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 		$r = q("SELECT parent, postopts FROM item
 			WHERE uid IN ( %s )
-			AND item_wall = 1
 			AND item_private = 0
 			$item_normal
 			$sql_extra ORDER BY created ASC $limit",
@@ -4023,7 +4066,6 @@ function zot_feed($uid, $observer_hash, $arr) {
 	else {
 		$r = q("SELECT parent, postopts FROM item
 			WHERE uid = %d
-			AND item_wall = 1
 			$item_normal
 			$sql_extra ORDER BY created ASC $limit",
 			intval($uid)
@@ -4117,7 +4159,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$sql_extra .= protect_sprintf(term_query('item', $arr['cat'], TERM_CATEGORY));
 
 	if($arr['gid'] && $uid) {
-		$r = q("SELECT * FROM groups WHERE id = %d AND uid = %d LIMIT 1",
+		$r = q("SELECT * FROM pgrp WHERE id = %d AND uid = %d LIMIT 1",
 			intval($arr['group']),
 			intval($uid)
 		);
@@ -4379,7 +4421,7 @@ function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remo
 		// sixteen bytes of the mid - which makes the link portable and not quite as daunting
 		// as the entire mid. If it were the post_id the link would be less portable.
 
-		\Zotlabs\Lib\IConfig::Set(
+		IConfig::Set(
 			intval($post_id),
 			'system',
 			$page_type,
@@ -4512,7 +4554,7 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 
 	$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
 
-	$acl = new Zotlabs\Access\AccessList($channel);
+	$acl = new AccessList($channel);
 	$x = $acl->get();
 	$arr['allow_cid'] = $x['allow_cid'];
 
@@ -4743,7 +4785,7 @@ function item_create_edit_activity($post) {
 		}
 	}
 
-	\Zotlabs\Daemon\Master::Summon(array('Notifier', 'edit_activity', $post_id));
+	Master::Summon([ 'Notifier', 'edit_activity', $post_id ]);
 }
 
 /**

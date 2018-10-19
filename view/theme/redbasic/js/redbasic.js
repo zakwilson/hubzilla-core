@@ -18,25 +18,12 @@ $(document).ready(function() {
 	$('#css3-calc').remove(); // Remove the test element
 
 	if($(window).width() >= 992) {
-		$('#left_aside_wrapper').stick_in_parent({
+		$('#left_aside_wrapper, #right_aside_wrapper').stick_in_parent({
 			offset_top: parseInt($('aside').css('padding-top')),
 			parent: 'main',
-			spacer: '#left_aside_spacer'
+			spacer: '.aside_spacer'
 		});
 	}
-
-	if($(window).width() >= 992) {
-		$('#right_aside_wrapper').stick_in_parent({
-			offset_top: parseInt($('aside').css('padding-top')),
-			parent: 'main',
-			spacer: '#right_aside_spacer'
-		});
-	}
-
-
-	$('#notifications_wrapper.fs #notifications').stick_in_parent({
-		parent: '#notifications_wrapper'
-	});
 
 	$('#expand-aside').on('click', toggleAside);
 
@@ -56,7 +43,7 @@ $(document).ready(function() {
 	});
 
 
-	var right_aside_height = $('#rightt_aside_wrapper').height();
+	var right_aside_height = $('#right_aside_wrapper').height();
 
 	$('#right_aside_wrapper').on('click', function() {
 		if(right_aside_height != $('#right_aside_wrapper').height()) {

@@ -42,8 +42,8 @@
 	<div id="wiki-content-container" class="section-content-wrapper">
 		<ul class="nav nav-tabs" id="wiki-nav-tabs">
 			<li class="nav-item" id="edit-pane-tab"><a class="nav-link" data-toggle="tab" href="#edit-pane">{{$editOrSourceLabel}}</a></li>
-			<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#preview-pane" id="wiki-get-preview">View</a></li>
-			<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#page-history-pane" id="wiki-get-history">History</a></li>
+			<li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#preview-pane" id="wiki-get-preview">{{$view_lbl}}</a></li>
+			<li class="nav-item"><a class="nav-link" data-toggle="tab" href="#page-history-pane" id="wiki-get-history">{{$history_lbl}}</a></li>
 		</ul>
 		<div class="tab-content" id="wiki-page-tabs">
 			<div id="edit-pane" class="tab-pane">
@@ -66,7 +66,7 @@
 			{{if $showPageControls}}
 			<div id="id_{{$commitMsg.0}}_wrapper" class="field input" style="display: none">
 				<div class="input-group">
-					<input class="form-control form-control-sm" name="{{$commitMsg.0}}" id="id_{{$commitMsg.0}}" type="text" value="{{$commitMsg.2}}"{{if $commitMsg.5}} {{$commitMsg.5}}{{/if}}>
+					<input class="form-control" name="{{$commitMsg.0}}" id="id_{{$commitMsg.0}}" type="text" value="{{$commitMsg.2}}"{{if $commitMsg.5}} {{$commitMsg.5}}{{/if}}>
 					<div class="input-group-append">
 						<button id="save-page" type="button" class="btn btn-primary disabled">Save</button>
 					</div>
@@ -98,7 +98,7 @@
 
 <script>
 	window.wiki_resource_id = '{{$resource_id}}';
-	window.wiki_page_name = '{{$page}}';
+	window.wiki_page_name = '{{$page|escape:'javascript'}}';
 	window.wiki_page_content = '{{$content|escape:'javascript'}}';
 	window.wiki_page_commit = '{{$commit}}';
 	window.saved = true;
@@ -122,7 +122,7 @@
 			if (data.success) {
 				$('#rename-page-form-wrapper').hide();
 				window.console.log('data: ' + JSON.stringify(data));
-				window.wiki_page_name = data.name.urlName;
+				window.wiki_page_name = data.name.htmlName;
 				$('#wiki-header-page').html(data.name.htmlName);
 				wiki_refresh_page_list();
 			} else {
@@ -262,7 +262,8 @@
 			if (data.success) {
 				window.saved = true;
 				window.console.log('Page saved successfully.');
-				window.wiki_page_content = currentContent;
+				//window.wiki_page_content = currentContent;
+				window.wiki_page_content = data.content;
 				$('#id_commitMsg').val(''); // Clear the commit message box
 				$('#save-page').addClass('disabled');  // Disable the save button
 				{{if !$mimeType || $mimeType == 'text/markdown'}}

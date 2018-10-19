@@ -34,6 +34,7 @@ class Activity_order {
 					break;
 				default:
 					$commentord_active = 'active';
+					break;
 			}
 		}
 		else {
@@ -54,7 +55,7 @@ class Activity_order {
 		}
 
 		// override order for search, filer and cid results
-		if(x($_GET,'search') || x($_GET,'file') || (! x($_GET,'pf') && x($_GET,'cid'))) {
+		if(x($_GET,'search') || x($_GET,'file') || (! x($_GET,'pf') && x($_GET,'cid')) || x($_GET,'verb') || x($_GET,'tag') || x($_GET,'cat')) {
 			$unthreaded_active = 'active';
 			$commentord_active = $postord_active = 'disabled';
 		}
@@ -109,7 +110,7 @@ class Activity_order {
 
 		$arr = ['tabs' => $tabs];
 
-		call_hooks('network_tabs', $arr);
+		call_hooks('activity_order', $arr);
 
 		$o = '';
 
@@ -119,7 +120,7 @@ class Activity_order {
 			]);
 
 			$o = replace_macros(get_markup_template('common_widget.tpl'), [
-				'$title' => t('Activity Order'),
+				'$title' => t('Stream Order'),
 				'$content' => $content,
 			]);
 		}

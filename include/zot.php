@@ -12,6 +12,7 @@ require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/queue_fn.php');
 require_once('include/perm_upgrade.php');
+require_once('include/msglib.php');
 
 
 /**
@@ -491,7 +492,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 			$profile_assign = get_pconfig($channel['channel_id'],'system','profile_assign','');
 
 			// Keep original perms to check if we need to notify them
-			$previous_perms = get_all_perms($channel['channel_id'],$x['hash']);
+			$previous_perms = get_all_perms($channel['channel_id'],$x['hash'],false);
 
 			$r = q("select * from abook where abook_xchan = '%s' and abook_channel = %d and abook_self = 0 limit 1",
 				dbesc($x['hash']),
@@ -560,7 +561,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 
 				if($y) {
 					logger("New introduction received for {$channel['channel_name']}");
-					$new_perms = get_all_perms($channel['channel_id'],$x['hash']);
+					$new_perms = get_all_perms($channel['channel_id'],$x['hash'],false);
 
 					// Send a clone sync packet and a permissions update if permissions have changed
 
@@ -1118,6 +1119,7 @@ function zot_process_response($hub, $arr, $outq) {
 		}
 
 		foreach($x['delivery_report'] as $xx) {
+                        call_hooks('dreport_process',$xx);
 			if(is_array($xx) && array_key_exists('message_id',$xx) && delivery_report_is_storable($xx)) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
 					dbesc($xx['message_id']),
@@ -1807,13 +1809,28 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		else {
 			$arr['item_wall'] = 0;
 		}
+		
 
-		if((! perm_is_allowed($channel['channel_id'],$sender['hash'],$perm)) && (! $tag_delivery) && (! $local_public)) {
-			logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
-			$DR->update('permission denied');
-			$result[] = $DR->get();
-			continue;
-		}
+                if ((! $tag_delivery) && (! $local_public)) {
+                        $allowed = (perm_is_allowed($channel['channel_id'],$sender['hash'],$perm));
+
+		        if((! $allowed) && $perm == 'post_comments') {
+                                $parent = q("select * from item where mid = '%s' and uid = %d limit 1",
+                                        dbesc($arr['parent_mid']),
+                                        intval($channel['channel_id'])
+                                );
+                                if ($parent) {
+                                        $allowed = can_comment_on_post($d['hash'],$parent[0]);
+                                }
+                        }
+        
+                        if (! $allowed) {
+			        logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
+			        $DR->update('permission denied');
+			        $result[] = $DR->get();
+			        continue;
+		        }
+                }
 
 		if($arr['mid'] != $arr['parent_mid']) {
 
@@ -2315,16 +2332,13 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 
-		$r = q("select id from mail where mid = '%s' and channel_id = %d limit 1",
+		$r = q("select id, conv_guid from mail where mid = '%s' and channel_id = %d limit 1",
 			dbesc($arr['mid']),
 			intval($channel['channel_id'])
 		);
 		if($r) {
 			if(intval($arr['mail_recalled'])) {
-				$x = q("delete from mail where id = %d and channel_id = %d",
-					intval($r[0]['id']),
-					intval($channel['channel_id'])
-				);
+                msg_drop($r[0]['id'], $channel['channel_id'], $r[0]['conv_guid']);
 				$DR->update('mail recalled');
 				$result[] = $DR->get();
 				logger('mail_recalled');
@@ -3306,13 +3320,13 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	}
 
 	if($groups_changed) {
-		$r = q("select hash as collection, visible, deleted, gname as name from groups where uid = %d",
+		$r = q("select hash as collection, visible, deleted, gname as name from pgrp where uid = %d",
 			intval($uid)
 		);
 		if($r)
 			$info['collections'] = $r;
 
-		$r = q("select groups.hash as collection, group_member.xchan as member from groups left join group_member on groups.id = group_member.gid where group_member.uid = %d",
+		$r = q("select pgrp.hash as collection, pgrp_member.xchan as member from pgrp left join pgrp_member on pgrp.id = pgrp_member.gid where pgrp_member.uid = %d",
 			intval($uid)
 		);
 		if($r)
@@ -3557,13 +3571,13 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 			}
 
 			$disallowed = [
-				'channel_id',        'channel_account_id',  'channel_primary',   'channel_prvkey',
-				'channel_address',   'channel_notifyflags', 'channel_removed',   'channel_deleted',
-				'channel_system',    'channel_r_stream',    'channel_r_profile', 'channel_r_abook',
-				'channel_r_storage', 'channel_r_pages',     'channel_w_stream',  'channel_w_wall',
-				'channel_w_comment', 'channel_w_mail',      'channel_w_like',    'channel_w_tagwall',
-				'channel_w_chat',    'channel_w_storage',   'channel_w_pages',   'channel_a_republish',
-				'channel_a_delegate'
+				'channel_id',         'channel_account_id',  'channel_primary',   'channel_prvkey',
+				'channel_address',    'channel_notifyflags', 'channel_removed',   'channel_deleted',
+				'channel_system',     'channel_r_stream',    'channel_r_profile', 'channel_r_abook',
+				'channel_r_storage',  'channel_r_pages',     'channel_w_stream',  'channel_w_wall',
+				'channel_w_comment',  'channel_w_mail',      'channel_w_like',    'channel_w_tagwall',
+				'channel_w_chat',     'channel_w_storage',   'channel_w_pages',   'channel_a_republish',
+				'channel_a_delegate', 'channel_moved'
 			];
 
 			$clean = array();
@@ -3720,7 +3734,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		// sync collections (privacy groups) oh joy...
 
 		if(array_key_exists('collections',$arr) && is_array($arr['collections']) && count($arr['collections'])) {
-			$x = q("select * from groups where uid = %d",
+			$x = q("select * from pgrp where uid = %d",
 				intval($channel['channel_id'])
 			);
 			foreach($arr['collections'] as $cl) {
@@ -3736,7 +3750,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 						if(($y['gname'] != $cl['name'])
 							|| ($y['visible'] != $cl['visible'])
 							|| ($y['deleted'] != $cl['deleted'])) {
-							q("update groups set gname = '%s', visible = %d, deleted = %d where hash = '%s' and uid = %d",
+							q("update pgrp set gname = '%s', visible = %d, deleted = %d where hash = '%s' and uid = %d",
 								dbesc($cl['name']),
 								intval($cl['visible']),
 								intval($cl['deleted']),
@@ -3745,14 +3759,14 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 							);
 						}
 						if(intval($cl['deleted']) && (! intval($y['deleted']))) {
-							q("delete from group_member where gid = %d",
+							q("delete from pgrp_member where gid = %d",
 								intval($y['id'])
 							);
 						}
 					}
 				}
 				if(! $found) {
-					$r = q("INSERT INTO groups ( hash, uid, visible, deleted, gname )
+					$r = q("INSERT INTO pgrp ( hash, uid, visible, deleted, gname )
 						VALUES( '%s', %d, %d, %d, '%s' ) ",
 						dbesc($cl['collection']),
 						intval($channel['channel_id']),
@@ -3776,10 +3790,10 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 							}
 						}
 						if(! $found_local) {
-							q("delete from group_member where gid = %d",
+							q("delete from pgrp_member where gid = %d",
 								intval($y['id'])
 							);
-							q("update groups set deleted = 1 where id = %d and uid = %d",
+							q("update pgrp set deleted = 1 where id = %d and uid = %d",
 								intval($y['id']),
 								intval($channel['channel_id'])
 							);
@@ -3789,7 +3803,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 			}
 
 			// reload the group list with any updates
-			$x = q("select * from groups where uid = %d",
+			$x = q("select * from pgrp where uid = %d",
 				intval($channel['channel_id'])
 			);
 
@@ -3816,7 +3830,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 						if(isset($y['hash']) && isset($members[$y['hash']])) {
 							foreach($members[$y['hash']] as $member) {
 								$found = false;
-								$z = q("select xchan from group_member where gid = %d and uid = %d and xchan = '%s' limit 1",
+								$z = q("select xchan from pgrp_member where gid = %d and uid = %d and xchan = '%s' limit 1",
 									intval($y['id']),
 									intval($channel['channel_id']),
 									dbesc($member)
@@ -3827,7 +3841,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 								// if somebody is in the group that wasn't before - add them
 
 								if(! $found) {
-									q("INSERT INTO group_member (uid, gid, xchan)
+									q("INSERT INTO pgrp_member (uid, gid, xchan)
 										VALUES( %d, %d, '%s' ) ",
 										intval($channel['channel_id']),
 										intval($y['id']),
@@ -3838,7 +3852,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 						}
 
 						// now retrieve a list of members we have on this site
-						$m = q("select xchan from group_member where gid = %d and uid = %d",
+						$m = q("select xchan from pgrp_member where gid = %d and uid = %d",
 							intval($y['id']),
 							intval($channel['channel_id'])
 						);
@@ -3846,7 +3860,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 							foreach($m as $mm) {
 								// if the local existing member isn't in the list we just received - remove them
 								if(! in_array($mm['xchan'],$members[$y['hash']])) {
-									q("delete from group_member where xchan = '%s' and gid = %d and uid = %d",
+									q("delete from pgrp_member where xchan = '%s' and gid = %d and uid = %d",
 										dbesc($mm['xchan']),
 										intval($y['id']),
 										intval($channel['channel_id'])
@@ -4419,7 +4433,7 @@ function zotinfo($arr) {
 	if(! $ret['follow_url'])
 		$ret['follow_url'] = z_root() . '/follow?f=&url=%s';
 
-	$permissions = get_all_perms($e['channel_id'],$ztarget_hash,false);
+	$permissions = get_all_perms($e['channel_id'],$ztarget_hash,false,false);
 
 	if($ztarget_hash) {
 		$permissions['connected'] = false;

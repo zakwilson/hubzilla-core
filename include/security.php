@@ -370,7 +370,7 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 }
 
 /**
- * @brief Creates an addiontal SQL where statement to check permissions for an item.
+ * @brief Creates an additional SQL where statement to check permissions for an item.
  *
  * @param int $owner_id
  * @param bool $remote_observer (optional) use current observer if unset
@@ -577,7 +577,7 @@ function init_groups_visitor($contact_id) {
 
 	// physical groups this channel is a member of
 
-	$r = q("SELECT hash FROM groups left join group_member on groups.id = group_member.gid WHERE xchan = '%s' ",
+	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan = '%s' ",
 		dbesc($contact_id)
 	);
 	if($r) {

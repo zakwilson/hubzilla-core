@@ -8,8 +8,8 @@ require_once('include/selectors.php');
 class Profiles extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
-		nav_set_selected('Profiles');
+
+		nav_set_selected('Profiles', 'settings/profiles');
 	
 		if(! local_channel()) {
 			return;

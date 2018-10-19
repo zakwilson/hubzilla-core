@@ -25,5 +25,8 @@ Hubzilla is completely decentralised and open source, for you modify or adapt to
 
 The Hubzilla community consists of passionate volunteers creating an open source commons of decentralised services which are highly integrated and can rival the feature set of large centralised providers. We do our best to provide ethical software which places you in control of your online communications and privacy expectations.
 
+Build status master branch:
+[![Build Status Master](https://framagit.org/hubzilla/core/badges/master/build.svg)](https://framagit.org/hubzilla/core/badges/master/build.svg)
 
-[![Build Status](https://travis-ci.org/redmatrix/hubzilla.svg)](https://travis-ci.org/redmatrix/hubzilla)
+Build status dev branch:
+[![Build Status Dev](https://framagit.org/hubzilla/core/badges/dev/build.svg)](https://framagit.org/hubzilla/core/badges/dev/build.svg)

@@ -441,7 +441,7 @@ class Comanche {
 				$path = 'view/js/jquery.js';
 				break;
 			case 'bootstrap':
-				$path = 'library/bootstrap/js/bootstrap.min.js';
+				$path = 'vendor/twbs/bootstrap/dist/js/bootstrap.bundle.min.js';
 				break;
 			case 'foundation':
 				$path = 'library/foundation/js/foundation.js';
@@ -466,7 +466,7 @@ class Comanche {
 
 		switch($s) {
 			case 'bootstrap':
-				$path = 'library/bootstrap/css/bootstrap.min.css';
+				$path = 'vendor/twbs/bootstrap/dist/css/bootstrap.min.css';
 				break;
 			case 'foundation':
 				$path = 'library/foundation/css/foundation.min.css';
@@ -528,18 +528,32 @@ class Comanche {
 		$clsname = ucfirst($name);
 		$nsname = "\\Zotlabs\\Widget\\" . $clsname;
 
-		if(file_exists('Zotlabs/SiteWidget/' . $clsname . '.php'))
-			require_once('Zotlabs/SiteWidget/' . $clsname . '.php');
-		elseif(file_exists('widget/' . $clsname . '/' . $clsname . '.php'))
-			require_once('widget/' . $clsname . '/' . $clsname . '.php');
-		elseif(file_exists('Zotlabs/Widget/' . $clsname . '.php'))
-			require_once('Zotlabs/Widget/' . $clsname . '.php');
-		else {
-			$pth = theme_include($clsname . '.php');
-			if($pth) {
-				require_once($pth);
+		$found = false;
+		$widgets = \Zotlabs\Extend\Widget::get();
+		if($widgets) {
+			foreach($widgets as $widget) {
+				if(is_array($widget) && strtolower($widget[1]) === strtolower($name) && file_exists($widget[0])) {
+					require_once($widget[0]);
+					$found = true;
+				}
 			}
 		}
+
+		if(! $found) {
+			if(file_exists('Zotlabs/SiteWidget/' . $clsname . '.php'))
+				require_once('Zotlabs/SiteWidget/' . $clsname . '.php');
+			elseif(file_exists('widget/' . $clsname . '/' . $clsname . '.php'))
+				require_once('widget/' . $clsname . '/' . $clsname . '.php');
+			elseif(file_exists('Zotlabs/Widget/' . $clsname . '.php'))
+				require_once('Zotlabs/Widget/' . $clsname . '.php');
+			else {
+				$pth = theme_include($clsname . '.php');
+				if($pth) {
+					require_once($pth);
+				}
+			}
+		}
+
 		if(class_exists($nsname)) {
 			$x = new $nsname;
 			$f = 'widget';

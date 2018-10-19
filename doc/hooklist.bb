@@ -31,6 +31,15 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/account_settings_post]account_settings_post[/zrl]
 	Called when posting from the account settings form
 
+[zrl=[baseurl]/help/hook/activity_filter]activity_filter[/zrl]
+	Called when generating the list of filters for the network page
+
+[zrl=[baseurl]/help/hook/activity_order]activity_order[/zrl]
+	Called when generating the list of order options for the network page
+
+[zrl=[baseurl]/help/hook/addon_app_installed_filter]addon_app_installed_filter[/zrl]
+	Called when determining whether an addon_app is installed
+
 [zrl=[baseurl]/help/hook/activity_received]activity_received[/zrl]
 	Called when an activity (post, comment, like, etc.) has been received from a zot source
 
@@ -43,8 +52,17 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/api_perm_is_allowed]api_perm_is_allowed[/zrl]
 	Called when perm_is_allowed() is executed from an API call.
 
+[zrl=[baseurl]/help/hook/app_destroy]app_destroy[/zrl]
+	Called when an app is deleted
+
+[zrl=[baseurl]/help/hook/app_installed_filter]app_installed_filter[/zrl]
+	Called when determining whether an app is installed
+
 [zrl=[baseurl]/help/hook/app_menu]app_menu[/zrl]
 	Called when generating the app_menu dropdown (may be obsolete)
+
+[zrl=[baseurl]/help/hook/attach_delete]attach_delete[/zrl]
+	Called when attachments are deleted from the attach table
 
 [zrl=[baseurl]/help/hook/atom_author]atom_author[/zrl]
 	Called when generating an author or owner element for an Atom ActivityStream feed
@@ -107,7 +125,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Validate the email provided in an account registration
 
 [zrl=[baseurl]/help/hook/check_account_invite]check_account_invite[/zrl]
-	Validate an invitation code when using site invitations	
+	Validate an invitation code when using site invitations
 
 [zrl=[baseurl]/help/hook/check_account_password]check_account_password[/zrl]
 	Used to provide policy control over account passwords (minimum length, character set inclusion, etc.)
@@ -131,7 +149,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Called when posting to the features/addon settings page
 
 [zrl=[baseurl]/help/hook/construct_page]construct_page[/zrl]
-	General purpose hook to provide content to certain page regions. Called when constructing the Comanche page. 
+	General purpose hook to provide content to certain page regions. Called when constructing the Comanche page.
 
 [zrl=[baseurl]/help/hook/contact_block_end]contact_block_end[/zrl]
 	Called when generating the sidebar "Connections" widget
@@ -145,8 +163,11 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/contact_select_options]contact_select_options[/zrl]
 	Deprecated/unused
 
+[zrl=[baseurl]/help/hook/content_security_policy]content_security_policy[/zrl]
+	Called prior to output of the Content-Security-Policy header
+
 [zrl=[baseurl]/help/hook/conversation_start]conversation_start[/zrl]
-	Called in the beginning of rendering a conversation (message or message collection or stream)	
+	Called in the beginning of rendering a conversation (message or message collection or stream)
 
 [zrl=[baseurl]/help/hook/cover_photo_content_end]cover_photo_content_end[/zrl]
 	Called after a cover photo has been uplaoded
@@ -177,7 +198,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/display_item]display_item[/zrl]
 	Called for each item being displayed in a conversation thread
-	
+
 [zrl=[baseurl]/help/hook/display_settings]display_settings[/zrl]
 	Called from settings module when displaying the 'display settings' section
 
@@ -195,6 +216,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/dreport_is_storable]dreport_is_storable[/zrl]
 	called before storing a dreport record to determine whether to store it
+
+[zrl=[baseurl]/help/hook/dreport_process]dreport_process[/zrl]
+	called for each valid delivery report
+
+[zrl=[baseurl]/help/hook/dropdown_extras]dropdown_extras[/zrl]
+	Add additional items to the dropdown cog when item/threads are displayed.
 
 [zrl=[baseurl]/help/hook/drop_item]drop_item[/zrl]
 	called when an 'item' is removed
@@ -254,7 +281,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	called to generate the HTML for displaying a map location by text location
 
 [zrl=[baseurl]/help/hook/get_all_api_perms]get_all_api_perms[/zrl]
-	Called when retrieving the permissions for API uses 
+	Called when retrieving the permissions for API uses
 
 [zrl=[baseurl]/help/hook/get_all_perms]get_all_perms[/zrl]
 	called when get_all_perms() is used
@@ -394,9 +421,6 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/network_ping]network_ping[/zrl]
 	Called during a ping request
 
-[zrl=[baseurl]/help/hook/network_tabs]network_tabs[/zrl]
-	Called when generating the list of tabs for the network page
-
 [zrl=[baseurl]/help/hook/network_to_name]network_to_name[/zrl]
 	Deprecated
 
@@ -436,6 +460,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/page_header]page_header[/zrl]
 	Called when generating the navigation bar
 
+[zrl=[baseurl]/help/hook/page_header]page_meta[/zrl]
+	Called when generating the meta data in the page header.
+
 [zrl=[baseurl]/help/hook/parse_atom]parse_atom[/zrl]
 	Called when parsing an atom/RSS feed item
 
@@ -443,7 +470,7 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 	Called when probing a URL to generate post content from it
 
 [zrl=[baseurl]/help/hook/pdl_selector]pdl_selector[/zrl]
-	Called when creating a layout selection in a form	
+	Called when creating a layout selection in a form
 
 [zrl=[baseurl]/help/hook/perm_is_allowed]perm_is_allowed[/zrl]
 	Called during perm_is_allowed() to determine if a permission is allowed for this channel and observer
@@ -453,6 +480,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/permissions_update]permissions_update[/zrl]
 	Called when a permissions refresh is transmitted
+
+[zrl=[baseurl]/help/hook/permit_hook]permit_hook[/zrl]
+	Called before a registered hook is actually executed to determine if it should be allowed or blocked
 
 [zrl=[baseurl]/help/hook/personal_xrd]personal_xrd[/zrl]
 	Called when generating the personal XRD for "old webfinger" (Diaspora)
@@ -535,12 +565,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/profile_sidebar_enter]profile_sidebar_enter[/zrl]
 	Called before generating the 'channel sidebar' or mini-profile
 
-[zrl=[baseurl]/help/hook/profile_tabs]profile_tabs[/zrl]
-	Called when generating the tabs for channel related pages (channel,profile,files,etc.)
-
 [zrl=[baseurl]/help/hook/queue_deliver]queue_deliver[/zrl]
 	Called when delivering a queued message
- 
+
 [zrl=[baseurl]/help/hook/register_account]register_account[/zrl]
 	Called when an account has been created
 
@@ -571,8 +598,14 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/smilie]smilie[/zrl]
 	Called when translating emoticons
 
+[zrl=[baseurl]/help/hook/status_editor]status_editor[/zrl]
+	Called when generating the status_editor.
+
 [zrl=[baseurl]/help/hook/stream_item]stream_item[/zrl]
 	Called for each item which is rendered for viewing via conversation()
+
+[zrl=[baseurl]/help/hook/system_app_installed_filter]system_app_installed_filter[/zrl]
+	Called when determining whether a system app is installed
 
 [zrl=[baseurl]/help/hook/tagged]tagged[/zrl]
 	Called when a delivery is processed which results in you being tagged
@@ -591,6 +624,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/well_known]well_known[/zrl]
 	Called when accessing the '.well-known' special site addresses
+
+[zrl=[baseurl]/help/hook/wiki_preprocess]wiki_preprocess[/zrl]
+	Called before markdown/bbcode processors are run for wiki pages
 
 [zrl=[baseurl]/help/hook/zot_best_algorithm]zot_best_algorithm[/zrl]
 	Called when negotiating crypto algorithms with remote sites

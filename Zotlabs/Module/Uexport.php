@@ -1,18 +1,24 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Web\Controller;
 
-class Uexport extends \Zotlabs\Web\Controller {
+class Uexport extends Controller {
 
 	function init() {
 		if(! local_channel())
 			killme();
-	
+
+		if(! Apps::system_app_installed(local_channel(), 'Channel Export'))
+			return;
+
 		if(argc() > 1) {
 
 			$sections = (($_REQUEST['sections']) ? explode(',',$_REQUEST['sections']) : '');
 
-			$channel = \App::get_channel();
+			$channel = App::get_channel();
 
 			if(argc() > 1 && intval(argv(1)) > 1900) {
 				$year = intval(argv(1));
@@ -47,6 +53,15 @@ class Uexport extends \Zotlabs\Web\Controller {
 	}
 		
 	function get() {
+
+		if(! Apps::system_app_installed(local_channel(), 'Channel Export')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Channel Export App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Export your channel');
+			return $o;
+		}
 	
 		$y = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 	

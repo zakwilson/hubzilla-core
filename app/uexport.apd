@@ -1,0 +1,6 @@
+version: 2
+url: $baseurl/uexport
+requires: local_channel
+name: Channel Export
+photo: icon:download
+categories: Personal, System

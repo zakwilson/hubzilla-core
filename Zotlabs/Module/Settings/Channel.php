@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/selectors.php');
 
 
@@ -63,7 +65,7 @@ class Channel {
 				}
 				$hide_presence    = 1 - (intval($role_permissions['online']));
 				if($role_permissions['default_collection']) {
-					$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+					$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 						intval(local_channel()),
 						dbesc( t('Friends') )
 					);
@@ -71,7 +73,7 @@ class Channel {
 						require_once('include/group.php');
 						group_add(local_channel(), t('Friends'));
 						group_add_member(local_channel(),t('Friends'),$channel['channel_hash']);
-						$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+						$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 							intval(local_channel()),
 							dbesc( t('Friends') )
 						);
@@ -133,8 +135,6 @@ class Channel {
 		$photo_path       = ((x($_POST,'photo_path')) ? escape_tags(trim($_POST['photo_path'])) : '');
 		$attach_path      = ((x($_POST,'attach_path')) ? escape_tags(trim($_POST['attach_path'])) : '');
 	
-		$channel_menu     = ((x($_POST['channel_menu'])) ? htmlspecialchars_decode(trim($_POST['channel_menu']),ENT_QUOTES) : '');
-	
 		$expire_items     = ((x($_POST,'expire_items')) ? intval($_POST['expire_items'])	 : 0);
 		$expire_starred   = ((x($_POST,'expire_starred')) ? intval($_POST['expire_starred']) : 0);
 		$expire_photos    = ((x($_POST,'expire_photos'))? intval($_POST['expire_photos'])	 : 0);
@@ -154,10 +154,7 @@ class Channel {
 		$adult            = (($_POST['adult'] == 1) ? 1 : 0);
 		$defpermcat       = ((x($_POST,'defpermcat')) ? notags(trim($_POST['defpermcat'])) : 'default');
 	
-		$cal_first_day   = (((x($_POST,'first_day')) && (intval($_POST['first_day']) == 1)) ? 1: 0);
 		$mailhost        = ((array_key_exists('mailhost',$_POST)) ? notags(trim($_POST['mailhost'])) : '');
-		$profile_assign  = ((x($_POST,'profile_assign')) ? notags(trim($_POST['profile_assign'])) : '');
-
 	
 		$pageflags = $channel['channel_pageflags'];
 		$existing_adult = (($pageflags & PAGE_ADULT) ? 1 : 0);
@@ -245,16 +242,13 @@ class Channel {
 		set_pconfig(local_channel(),'system','post_joingroup', $post_joingroup);
 		set_pconfig(local_channel(),'system','post_profilechange', $post_profilechange);
 		set_pconfig(local_channel(),'system','blocktags',$blocktags);
-		set_pconfig(local_channel(),'system','channel_menu',$channel_menu);
 		set_pconfig(local_channel(),'system','vnotify',$vnotify);
 		set_pconfig(local_channel(),'system','always_show_in_notices',$always_show_in_notices);
 		set_pconfig(local_channel(),'system','evdays',$evdays);
 		set_pconfig(local_channel(),'system','photo_path',$photo_path);
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
-		set_pconfig(local_channel(),'system','cal_first_day',$cal_first_day);
 		set_pconfig(local_channel(),'system','default_permcat',$defpermcat);
 		set_pconfig(local_channel(),'system','email_notify_host',$mailhost);
-		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);
 		set_pconfig(local_channel(),'system','autoperms',$autoperms);
 	
 		$r = q("update channel set channel_name = '%s', channel_pageflags = %d, channel_timezone = '%s', channel_location = '%s', channel_notifyflags = %d, channel_max_anon_mail = %d, channel_max_friend_req = %d, channel_expire_days = %d $set_perms where channel_id = %d",
@@ -434,7 +428,7 @@ class Channel {
 			'$nickname' => (($intl_nickname === $webbie) ? $webbie : $intl_nickname . '&nbsp;(' . $webbie . ')'),
 			'$subdir' => $subdir,
 			'$davdesc' => t('Your files/photos are accessible via WebDAV at'),
-			'$davpath' => ((get_account_techlevel() > 3) ? z_root() . '/dav/' . $nickname : ''),
+			'$davpath' => z_root() . '/dav/' . $nickname,
 			'$basepath' => \App::get_hostname()
 		));
 
@@ -460,18 +454,6 @@ class Channel {
 		require_once('include/group.php');
 		$group_select = mini_group_select(local_channel(),$channel['channel_default_group']);
 	
-		require_once('include/menu.php');
-		$m1 = menu_list(local_channel());
-		$menu = false;
-		if($m1) {
-			$menu = array();
-			$current = get_pconfig(local_channel(),'system','channel_menu');
-			$menu[] = array('name' => '', 'selected' => ((! $current) ? true : false));
-			foreach($m1 as $m) {
-				$menu[] = array('name' => htmlspecialchars($m['menu_name'],ENT_COMPAT,'UTF-8'), 'selected' => (($m['menu_name'] === $current) ? ' selected="selected" ' : false));
-			}
-		}
-	
 		$evdays = get_pconfig(local_channel(),'system','evdays');
 		if(! $evdays)
 			$evdays = 3;
@@ -492,18 +474,13 @@ class Channel {
 		$permissions_set = (($permissions_role != 'custom') ? true : false);
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-		if((get_account_techlevel() < 4) && $permissions_role !== 'custom')
-			unset($perm_roles[t('Other')]);
-
-
-		
 
 		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
 		if($vnotify === false)
 			$vnotify = (-1);
 
-		$plugin = [ 'basic' => '', 'security' => '', 'notify' => '', 'misc' => '' ];
+		$plugin = [ 'basic' => '', 'security' => '', 'notify' => '' ];
 		call_hooks('channel_settings',$plugin);
 
 		$disable_discover_tab = intval(get_config('system','disable_discover_tab',1)) == 1;
@@ -548,8 +525,6 @@ class Channel {
 			'$permissions' => t('Default Privacy Group'),
 			'$permdesc' => t("\x28click to open/close\x29"),
 			'$aclselect' => populate_acl($perm_defaults, false, \Zotlabs\Lib\PermissionDescription::fromDescription(t('Use my default audience setting for the type of object published'))),
-			'$profseltxt' => t('Profile to assign new connections'),
-			'$profselect' => ((feature_enabled(local_channel(),'multi_profiles')) ? contact_profile_assign(get_pconfig(local_channel(),'system','profile_assign','')) : ''),
 
 			'$allow_cid' => acl2json($perm_defaults['allow_cid']),
 			'$allow_gid' => acl2json($perm_defaults['allow_gid']),
@@ -558,8 +533,8 @@ class Channel {
 			'$suggestme' => $suggestme,
 			'$group_select' => $group_select,
 			'$role' => array('permissions_role' , t('Channel role and privacy'), $permissions_role, '', $perm_roles),
-			'$defpermcat' => [ 'defpermcat', t('Default Permissions Group'), $default_permcat, '', $permcats ],	
-			'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
+			'$defpermcat' => [ 'defpermcat', t('Default permissions category'), $default_permcat, '', $permcats ],
+			'$permcat_enable' => Apps::system_app_installed(local_channel(), 'Permission Categories'),
 			'$profile_in_dir' => $profile_in_dir,
 			'$hide_friends' => $hide_friends,
 			'$hide_wall' => $hide_wall,
@@ -587,7 +562,7 @@ class Channel {
 	
 			'$lbl_vnot' 	=> t('Show visual notifications including:'),
 	
-			'$vnotify1'	=> array('vnotify1', t('Unseen grid activity'), ($vnotify & VNOTIFY_NETWORK), VNOTIFY_NETWORK, '', $yes_no),
+			'$vnotify1'	=> array('vnotify1', t('Unseen stream activity'), ($vnotify & VNOTIFY_NETWORK), VNOTIFY_NETWORK, '', $yes_no),
 			'$vnotify2'	=> array('vnotify2', t('Unseen channel activity'), ($vnotify & VNOTIFY_CHANNEL), VNOTIFY_CHANNEL, '', $yes_no),
 			'$vnotify3'	=> array('vnotify3', t('Unseen private messages'), ($vnotify & VNOTIFY_MAIL), VNOTIFY_MAIL, t('Recommended'), $yes_no),
 			'$vnotify4'	=> array('vnotify4', t('Upcoming events'), ($vnotify & VNOTIFY_EVENT), VNOTIFY_EVENT, '', $yes_no),
@@ -599,7 +574,7 @@ class Channel {
 			'$vnotify10'  => array('vnotify10', t('New connections'), ($vnotify & VNOTIFY_INTRO), VNOTIFY_INTRO, t('Recommended'), $yes_no),
 			'$vnotify11'  => ((is_site_admin()) ? array('vnotify11', t('System Registrations'), ($vnotify & VNOTIFY_REGISTER), VNOTIFY_REGISTER, '', $yes_no) : array()),
 			'$vnotify12'  => array('vnotify12', t('Unseen shared files'), ($vnotify & VNOTIFY_FILES), VNOTIFY_FILES, '', $yes_no),
-			'$vnotify13'  => (($disable_discover_tab && !$site_firehose) ? array() : array('vnotify13', t('Unseen public activity'), ($vnotify & VNOTIFY_PUBS), VNOTIFY_PUBS, '', $yes_no)),
+			'$vnotify13'  => ((($disable_discover_tab && !$site_firehose) || !Apps::system_app_installed(local_channel(), 'Public Stream')) ? array() : array('vnotify13', t('Unseen public stream activity'), ($vnotify & VNOTIFY_PUBS), VNOTIFY_PUBS, '', $yes_no)),
 			'$vnotify14'	=> array('vnotify14', t('Unseen likes and dislikes'), ($vnotify & VNOTIFY_LIKE), VNOTIFY_LIKE, '', $yes_no),
 			'$vnotify15'	=> array('vnotify15', t('Unseen forum posts'), ($vnotify & VNOTIFY_FORUMS), VNOTIFY_FORUMS, '', $yes_no),
 			'$mailhost' => [ 'mailhost', t('Email notification hub (hostname)'), get_pconfig(local_channel(),'system','email_notify_host',\App::get_hostname()), sprintf( t('If your channel is mirrored to multiple hubs, set this to your preferred location. This will prevent duplicate email notifications. Example: %s'),\App::get_hostname()) ],
@@ -609,7 +584,6 @@ class Channel {
 			'$basic_addon' => $plugin['basic'],
 			'$sec_addon'  => $plugin['security'],
 			'$notify_addon' => $plugin['notify'],
-			'$misc_addon' => $plugin['misc'],
 	
 			'$h_advn' => t('Advanced Account/Page Type Settings'),
 			'$h_descadvn' => t('Change the behaviour of this account for special situations'),
@@ -617,12 +591,8 @@ class Channel {
 			'$lbl_misc' => t('Miscellaneous Settings'),
 			'$photo_path' => array('photo_path', t('Default photo upload folder'), get_pconfig(local_channel(),'system','photo_path'), t('%Y - current year, %m -  current month')),
 			'$attach_path' => array('attach_path', t('Default file upload folder'), get_pconfig(local_channel(),'system','attach_path'), t('%Y - current year, %m -  current month')),
-			'$menus' => $menu,			
-			'$menu_desc' => t('Personal menu to display in your channel pages'),
 			'$removeme' => t('Remove Channel'),
 			'$removechannel' => t('Remove this channel.'),
-			'$firefoxshare' => t('Firefox Share $Projectname provider'),
-			'$cal_first_day' => array('first_day', t('Start calendar week on Monday'), ((get_pconfig(local_channel(),'system','cal_first_day')) ? 1 : ''), '', $yes_no),
 		));
 	
 		call_hooks('settings_form',$o);

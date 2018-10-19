@@ -14,17 +14,17 @@
  * @param bool $uninstall uninstall plugin
  */
 function handleerrors_plugin($plugin,$notice,$log,$uninstall=false){
-        logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_ERROR);
-        if ($notice != '') {
-                notice("[" . $plugin . "] Error: ".$notice, LOGGER_ERROR);
-        }
+	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_ERROR);
+	if ($notice != '') {
+			notice("[" . $plugin . "] Error: ".$notice, LOGGER_ERROR);
+	}
 
-        if ($uninstall) {
-                $idx = array_search($plugin, \App::$plugins);
-                unset(\App::$plugins[$idx]);
-                uninstall_plugin($plugin);
-                set_config("system","addon", implode(", ",\App::$plugins));
-        }
+	if ($uninstall) {
+		$idx = array_search($plugin, \App::$plugins);
+		unset(\App::$plugins[$idx]);
+		uninstall_plugin($plugin);
+		set_config("system","addon", implode(", ",\App::$plugins));
+	}
 }
 
 /**
@@ -109,11 +109,16 @@ function install_plugin($plugin) {
 
 	$plugin_admin = (function_exists($plugin . '_plugin_admin') ? 1 : 0);
 
-	q("INSERT INTO addon (aname, installed, tstamp, plugin_admin) VALUES ( '%s', 1, %d , %d ) ",
-		dbesc($plugin),
-		intval($t),
-		$plugin_admin
+	$d = q("select * from addon where aname = '%s' limit 1",
+		dbesc($plugin)
 	);
+	if(! $d) {
+		q("INSERT INTO addon (aname, installed, tstamp, plugin_admin) VALUES ( '%s', 1, %d , %d ) ",
+			dbesc($plugin),
+			intval($t),
+			$plugin_admin
+		);
+	}
 
 	load_plugin($plugin);
 }
@@ -206,19 +211,19 @@ function reload_plugins() {
 							if(function_exists($pl . '_unload')) {
 								$func = $pl . '_unload';
 								try {
-        								$func();
+										$func();
 								} catch (Exception $e) {
 									handleerrors_plugin($plugin,"","UNLOAD FAILED (uninstalling) : ".$e->getMessage(),true);
-                                                                        continue;
+																		continue;
 								}
 							}
 							if(function_exists($pl . '_load')) {
 								$func = $pl . '_load';
 								try {
-        								$func();
+										$func();
 								} catch (Exception $e) {
 									handleerrors_plugin($plugin,"","LOAD FAILED (uninstalling): ".$e->getMessage(),true);
-                                                                        continue;
+																		continue;
 								}
 							}
 							q("UPDATE addon SET tstamp = %d WHERE id = %d",
@@ -366,28 +371,47 @@ function unregister_hook($hook, $file, $function) {
 	return $r;
 }
 
-
-//
-// It might not be obvious but themes can manually add hooks to the App::$hooks
-// array in their theme_init() and use this to customise the app behaviour.
-// UPDATE: use insert_hook($hookname,$function_name) to do this
-//
+/**
+ * @brief loads all active hooks into memory
+ * alters: App::$hooks
+ * Called during initialisation
+ * Duplicated hooks are removed and the duplicates ignored
+ *
+ * It might not be obvious but themes can manually add hooks to the App::$hooks
+ * array in their theme_init() and use this to customise the app behaviour.
+ * use insert_hook($hookname,$function_name) to do this.
+ */
 
 
 function load_hooks() {
 
-	App::$hooks = array();
+	App::$hooks = [];
 
 	$r = q("SELECT * FROM hook WHERE true ORDER BY priority DESC");
 	if($r) {
-		foreach($r as $rr) {
-			if(! array_key_exists($rr['hook'],App::$hooks))
-				App::$hooks[$rr['hook']] = array();
 
-			App::$hooks[$rr['hook']][] = array($rr['file'],$rr['fn'],$rr['priority'],$rr['hook_version']);
+		foreach($r as $rv) {
+			$duplicated = false;
+			if(! array_key_exists($rv['hook'],App::$hooks)) {
+				App::$hooks[$rv['hook']] = [];
+			}
+			else {
+				foreach(App::$hooks[$rv['hook']] as $h) {
+					if($h[0] === $rv['file'] && $h[1] === $rv['fn']) {
+						$duplicated = true;
+						q("delete from hook where id = %d",
+							intval($rv['id'])
+						);
+						logger('duplicate hook ' . $h[1] . ' removed');
+					}
+				}
+			}
+			if(! $duplicated) {
+				App::$hooks[$rv['hook']][] = [ $rv['file'], $rv['fn'], $rv['priority'], $rv['hook_version']];
+			}
 		}
 	}
-	//logger('hooks: ' . print_r(App::$hooks,true));
+	//	logger('hooks: ' . print_r(App::$hooks,true));
 }
 
 /**
@@ -431,8 +455,28 @@ function insert_hook($hook, $fn, $version = 0, $priority = 0) {
  */
 function call_hooks($name, &$data = null) {
 	$a = 0;
-	if((is_array(App::$hooks)) && (array_key_exists($name, App::$hooks))) {
+
+	if (isset(App::$hooks[$name])) { 
 		foreach(App::$hooks[$name] as $hook) {
+
+			if ($name != 'permit_hook') { // avoid looping
+				$checkhook = [
+ 					'name'=>$name,
+ 					'hook'=>$hook,
+                                        'data'=>$data,
+						// Note: Since PHP uses COPY-ON-WRITE
+                                                // for variables, there is no cost to
+						// passing the $data structure (unless
+						// the permit_hook processors change the
+						// information it contains.
+ 					'permit'=>true
+ 					];
+ 				call_hooks('permit_hook',$checkhook);
+ 				if (!$checkhook['permit']) {
+ 					continue;
+ 				}
+				$data = $checkhook['data'];
+			}
 			$origfn = $hook[1];
 			if($hook[0])
 				@include_once($hook[0]);
@@ -958,9 +1002,8 @@ function format_js_if_exists($source) {
 function theme_include($file, $root = '') {
 
 	// Make sure $root ends with a slash / if it's not blank
-	if($root !== '' && $root[strlen($root)-1] !== '/')
+	if($root !== '' && substr($root,-1) !== '/')
 		$root = $root . '/';
-
 	$theme_info = App::$theme_info;
 
 	if(array_key_exists('extends',$theme_info))
@@ -991,21 +1034,54 @@ function theme_include($file, $root = '') {
 	return '';
 }
 
-
 function get_intltext_template($s, $root = '') {
+        $testroot = ($root=='') ? $testroot = "ROOT" : $root;
+        $t = App::template_engine();
 
-	$t = App::template_engine();
-
-	$template = $t->get_intltext_template($s, $root);
-	return $template;
+        if (isset(\App::$override_intltext_templates[$testroot][$s]["content"])) {
+                return \App::$override_intltext_templates[$testroot][$s]["content"];
+        } else {
+                if (isset(\App::$override_intltext_templates[$testroot][$s]["root"]) && 
+                   isset(\App::$override_intltext_templates[$testroot][$s]["file"])) {
+                        $s = \App::$override_intltext_templates[$testroot][$s]["file"];
+                        $root = \App::$override_intltext_templates[$testroot][$s]["root"];
+                } elseif (\App::$override_templateroot) {
+                   $newroot = \App::$override_templateroot.$root;
+                   if ($newroot != '' && substr($newroot,-1) != '/' ) {
+                           $newroot .= '/';
+                   }
+                   $template = $t->get_intltext_template($s, $newroot);
+                }
+                $template = $t->get_intltext_template($s, $root);
+                return $template;
+        }
 }
 
-
 function get_markup_template($s, $root = '') {
+        $testroot = ($root=='') ? $testroot = "ROOT" : $root;
 
-	$t = App::template_engine();
-	$template = $t->get_markup_template($s, $root);
-	return $template;
+        $t = App::template_engine();
+
+        if (isset(\App::$override_markup_templates[$testroot][$s]["content"])) {
+                return \App::$override_markup_templates[$testroot][$s]["content"];
+        } else {
+                if (isset(\App::$override_markup_templates[$testroot][$s]["root"]) && 
+                   isset(\App::$override_markup_templates[$testroot][$s]["file"])) {
+                        $root = \App::$override_markup_templates[$testroot][$s]["root"];
+                        $s = \App::$override_markup_templates[$testroot][$s]["file"];
+                	$template = $t->get_markup_template($s, $root);
+                } elseif (\App::$override_templateroot) {
+                   $newroot = \App::$override_templateroot;
+                   if ($newroot != '' && substr($newroot,-1) != '/' ) {
+                           $newroot .= '/';
+                   }
+		   $newroot .= $root;
+                   $template = $t->get_markup_template($s, $newroot);
+                } else {
+                	$template = $t->get_markup_template($s, $root);
+		}
+                return $template;
+        }
 }
 
 /**

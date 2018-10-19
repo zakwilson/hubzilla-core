@@ -1,5 +1,5 @@
-version: 1
-url: $baseurl/events
+version: 2
+url: $baseurl/events, $baseurl/settings/events
 requires: local_channel
 name: Events
 photo: icon:calendar

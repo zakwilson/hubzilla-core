@@ -7,6 +7,7 @@ namespace Zotlabs\Module;
  *
  */
 
+use Zotlabs\Lib\Apps;
 
 require_once('include/socgraph.php');
 require_once('include/selectors.php');
@@ -774,7 +775,7 @@ class Connedit extends \Zotlabs\Web\Controller {
 	
 			$global_perms = \Zotlabs\Access\Permissions::Perms();
 
-			$existing = get_all_perms(local_channel(),$contact['abook_xchan']);
+			$existing = get_all_perms(local_channel(),$contact['abook_xchan'],false);
 	
 			$unapproved = array('pending', t('Approve this connection'), '', t('Accept connection to allow communication'), array(t('No'),('Yes')));
 	
@@ -851,7 +852,7 @@ class Connedit extends \Zotlabs\Web\Controller {
 				'$autoperms'      => array('autoperms',t('Apply these permissions automatically'), ((get_pconfig(local_channel(),'system','autoperms')) ? 1 : 0), t('Connection requests will be approved without your interaction'), $yes_no),
 				'$permcat'        => [ 'permcat', t('Permission role'), '', '<span class="loading invisible">' . t('Loading') . '<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span></span>',$permcats ],
 				'$permcat_new'    => t('Add permission role'),
-				'$permcat_enable' => feature_enabled(local_channel(),'permcats'),
+				'$permcat_enable' => Apps::system_app_installed(local_channel(), 'Permission Categories'),
 				'$addr'           => unpunify($contact['xchan_addr']),
 				'$primeurl'       => unpunify($contact['xchan_url']),
 				'$section'        => $section,

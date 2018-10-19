@@ -93,7 +93,8 @@ function import_channel($channel, $account_id, $seize, $newname = '') {
 		'channel_w_comment',  'channel_w_mail',      'channel_w_like',    'channel_w_tagwall',
 		'channel_w_chat',     'channel_w_storage',   'channel_w_pages',   'channel_a_republish',
 		'channel_a_delegate', 'perm_limits',         'channel_password',  'channel_salt',
-		'channel_moved'
+		'channel_moved',      'channel_primary',     'channel_removed',   'channel_deleted',
+		'channel_system'
 	];
 
 	$clean = array();
@@ -234,7 +235,7 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 
 			if(($x = zot_gethub($arr,false)) === false) {
 				unset($hubloc['hubloc_id']);
-				create_table_from_array('hubloc', $hubloc);
+				hubloc_store_lowlevel($hubloc);
 			}
 			else {
 				q("UPDATE hubloc set hubloc_primary = %d, hubloc_deleted = %d where hubloc_id = %d",

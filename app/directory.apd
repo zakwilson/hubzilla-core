@@ -1,5 +1,5 @@
-version: 1
-url: $baseurl/directory
+version: 2
+url: $baseurl/directory, $baseurl/settings/directory
 name: Directory
 photo: icon:sitemap
 categories: nav_featured_app, Networking

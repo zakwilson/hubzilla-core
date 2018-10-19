@@ -41,26 +41,31 @@ $.ajaxSetup({cache: false});
 $(document).ready(function() {
 
 	$(document).on('click focus', '.comment-edit-form', handle_comment_form);
+	$(document).on('click', '.conversation-settings-link', getConversationSettings);
+	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
-	jQuery.timeago.settings.strings = {
-		prefixAgo     : aStr['t01'],
-		prefixFromNow : aStr['t02'],
-		suffixAgo     : aStr['t03'],
-		suffixFromNow : aStr['t04'],
-		seconds       : aStr['t05'],
-		minute        : aStr['t06'],
-		minutes       : aStr['t07'],
-		hour          : aStr['t08'],
-		hours         : aStr['t09'],
-		day           : aStr['t10'],
-		days          : aStr['t11'],
-		month         : aStr['t12'],
-		months        : aStr['t13'],
-		year          : aStr['t14'],
-		years         : aStr['t15'],
-		wordSeparator : aStr['t16'],
-		numbers       : aStr['t17'],
-	};
+    var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
+
+    jQuery.timeago.settings.strings = {
+        prefixAgo     : aStr['t01'],
+        prefixFromNow : aStr['t02'],
+        suffixAgo     : aStr['t03'],
+        suffixFromNow : aStr['t04'],
+        seconds       : aStr['t05'],
+        minute        : aStr['t06'],
+        minutes       : function(value){return tf(value, aStr['t07']);},
+        hour          : aStr['t08'],
+        hours         : function(value){return tf(value, aStr['t09']);},
+        day           : aStr['t10'],
+        days          : function(value){return tf(value, aStr['t11']);},
+        month         : aStr['t12'],
+        months        : function(value){return tf(value, aStr['t13']);},
+        year          : aStr['t14'],
+        years         : function(value){return tf(value, aStr['t15']);},
+        wordSeparator : aStr['t16'],
+        numbers       : aStr['t17'],
+    };
+
 
 	//mod_mail only
 	$(".mail-conv-detail .autotime").timeago();
@@ -121,6 +126,33 @@ $(document).ready(function() {
 	initialLoad = false;
 
 });
+
+function getConversationSettings() {
+	$.get('settings/conversation/?f=&aj=1',function(data) {
+		$('#conversation_settings_body').html(data);
+	});
+
+
+
+}
+
+function postConversationSettings() {
+	$.post(
+		'settings/conversation',
+		$('#settings_module_ajax_form').serialize() + "&auto_update=" + next_page
+	);
+
+	if(next_page === 1) {
+		page_load = true;
+	}
+
+	$('#conversation_settings').modal('hide');
+
+	if(timer) clearTimeout(timer);
+	timer = setTimeout(updateInit,100);
+
+	return false;
+}
 
 function datasrc2src(selector) {
 	$(selector).each(function(i, el) {

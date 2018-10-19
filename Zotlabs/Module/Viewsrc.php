@@ -47,7 +47,7 @@ class Viewsrc extends \Zotlabs\Web\Controller {
 
 
 				$content = escape_tags($r[0]['body']);
-				$o = (($json) ? json_encode($content) : str_replace("\n",'<br />',$content));
+				$o = (($json) ? json_encode($content) : $content);
 			}
 		}
 	

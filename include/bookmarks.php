@@ -59,9 +59,10 @@ function bookmark_add($channel,$sender,$taxonomy,$private,$opts = null) {
 	);
 	if($r)
 		logger('add_bookmark: duplicate menu entry', LOGGER_DEBUG);
-	if(! $r)
+	if(! $r) {
 		$r = menu_add_item($menu_id,$channel_id,$iarr);
-
+		menu_sync_packet($channel_id,get_observer_hash(),$menu_id); 
+	}
 	return $r;
 }
 

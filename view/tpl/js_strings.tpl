@@ -34,7 +34,7 @@
 		'name_ok1'    : "{{$name_ok1}}",
 		'name_ok2'    : "{{$name_ok2}}",
 
-
+        'plural_func' : "{{$plural_func}}",
 
 		't01' : "{{$t01}}",
 		't02' : "{{$t02}}",

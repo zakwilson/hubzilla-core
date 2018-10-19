@@ -1,4 +1,3 @@
-
 CREATE TABLE IF NOT EXISTS `abconfig` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `chan` int(10) unsigned NOT NULL DEFAULT 0 ,
@@ -127,6 +126,7 @@ CREATE TABLE IF NOT EXISTS `app` (
   `app_deleted` int(11) NOT NULL DEFAULT 0 ,
   `app_system` int(11) NOT NULL DEFAULT 0 ,
   `app_plugin` char(191) NOT NULL DEFAULT '',
+  `app_options` int(11) NOT NULL DEFAULT 0 ,
   `app_created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `app_edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY (`id`),
@@ -461,7 +461,7 @@ CREATE TABLE IF NOT EXISTS `event` (
   KEY `event_priority` (`event_priority`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `groups` (
+CREATE TABLE IF NOT EXISTS `pgrp` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `hash` char(191) NOT NULL DEFAULT '',
   `uid` int(10) unsigned NOT NULL DEFAULT 0 ,
@@ -476,7 +476,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
   KEY `gname` (`gname`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `group_member` (
+CREATE TABLE IF NOT EXISTS `pgrp_member` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `uid` int(10) unsigned NOT NULL DEFAULT 0 ,
   `gid` int(10) unsigned NOT NULL DEFAULT 0 ,
@@ -500,10 +500,12 @@ CREATE TABLE IF NOT EXISTS `hook` (
   KEY `hook_version` (`hook_version`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 CREATE TABLE IF NOT EXISTS `hubloc` (
   `hubloc_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `hubloc_guid` char(191) NOT NULL DEFAULT '',
   `hubloc_guid_sig` text NOT NULL,
+  `hubloc_id_url` char(191) NOT NULL DEFAULT '',
   `hubloc_hash` char(191) NOT NULL DEFAULT '',
   `hubloc_addr` char(191) NOT NULL DEFAULT '',
   `hubloc_network` char(32) NOT NULL DEFAULT '',
@@ -511,6 +513,7 @@ CREATE TABLE IF NOT EXISTS `hubloc` (
   `hubloc_status` int(10) unsigned NOT NULL DEFAULT 0 ,
   `hubloc_url` char(191) NOT NULL DEFAULT '',
   `hubloc_url_sig` text NOT NULL,
+  `hubloc_site_id` char(191) NOT NULL DEFAULT '',
   `hubloc_host` char(191) NOT NULL DEFAULT '',
   `hubloc_callback` char(191) NOT NULL DEFAULT '',
   `hubloc_connect` char(191) NOT NULL DEFAULT '',
@@ -523,7 +526,9 @@ CREATE TABLE IF NOT EXISTS `hubloc` (
   `hubloc_deleted` tinyint(1) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`hubloc_id`),
   KEY `hubloc_url` (`hubloc_url`),
+  KEY `hubloc_site_id` (`hubloc_site_id`),
   KEY `hubloc_guid` (`hubloc_guid`),
+  KEY `hubloc_id_url` (`hubloc_id_url`),
   KEY `hubloc_hash` (`hubloc_hash`),
   KEY `hubloc_flags` (`hubloc_flags`),
   KEY `hubloc_connect` (`hubloc_connect`),
@@ -538,7 +543,6 @@ CREATE TABLE IF NOT EXISTS `hubloc` (
   KEY `hubloc_deleted` (`hubloc_deleted`),
   KEY `hubloc_error` (`hubloc_error`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
-
 
 CREATE TABLE IF NOT EXISTS `iconfig` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -729,6 +733,17 @@ CREATE TABLE IF NOT EXISTS `likes` (
   KEY `target_type` (`target_type`),
   KEY `channel_id` (`channel_id`),
   KEY `target_id` (`target_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS listeners (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  target_id varchar(191) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+  portable_id varchar(191) CHARACTER SET utf8mb4 NOT NULL DEFAULT '',
+  ltype int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (id),
+  KEY target_id (target_id),
+  KEY portable_id (portable_id),
+  KEY ltype (ltype)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `mail` (

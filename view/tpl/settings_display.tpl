@@ -58,21 +58,13 @@
 					<div class="section-content-wrapper">
 						{{include file="field_input.tpl" field=$ajaxint}}
 						{{include file="field_input.tpl" field=$itemspage}}
-						{{include file="field_input.tpl" field=$channel_divmore_height}}
-						{{include file="field_input.tpl" field=$network_divmore_height}}
 						{{include file="field_checkbox.tpl" field=$nosmile}}
 						{{include file="field_checkbox.tpl" field=$channel_menu}}
 						{{include file="field_checkbox.tpl" field=$title_tosource}}
-						{{include file="field_checkbox.tpl" field=$channel_list_mode}}
-						{{include file="field_checkbox.tpl" field=$network_list_mode}}
 						{{include file="field_checkbox.tpl" field=$user_scalable}}
 						{{include file="field_checkbox.tpl" field=$preload_images}}
 						{{include file="field_checkbox.tpl" field=$manual_update}}
-						{{if $expert}}
-						<div class="form-group">
-							<a class="btn btn-outline-secondary "href="pdledit">{{$layout_editor}}</a>
-						</div>
-						{{/if}}
+						{{include file="field_checkbox.tpl" field=$start_menu}}
 						<div class="settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 						</div>

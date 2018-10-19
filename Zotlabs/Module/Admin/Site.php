@@ -72,7 +72,6 @@ class Site {
 		$maxloadavg        = ((x($_POST,'maxloadavg'))       ? intval(trim($_POST['maxloadavg'])) : 50);
 		$feed_contacts     = ((x($_POST,'feed_contacts'))    ? intval($_POST['feed_contacts'])    : 0);
 		$verify_email      = ((x($_POST,'verify_email'))     ? 1 : 0);
-		$techlevel_lock    = ((x($_POST,'techlock'))         ? intval($_POST['techlock'])   : 0);
 		$imagick_path      = ((x($_POST,'imagick_path'))     ? trim($_POST['imagick_path'])   : '');
 		$thumbnail_security  = ((x($_POST,'thumbnail_security'))     ? intval($_POST['thumbnail_security'])   : 0);
 		$force_queue       = ((intval($_POST['force_queue']) > 0) ? intval($_POST['force_queue'])   : 3000);
@@ -80,10 +79,6 @@ class Site {
 		$pub_excl = escape_tags(trim($_POST['pub_excl']));
 
 		$permissions_role = escape_tags(trim($_POST['permissions_role']));
-
-		$techlevel         = null;
-		if(array_key_exists('techlevel', $_POST))
-			$techlevel = intval($_POST['techlevel']);
 
 		set_config('system', 'feed_contacts', $feed_contacts);
 		set_config('system', 'delivery_interval', $delivery_interval);
@@ -110,12 +105,6 @@ class Site {
 		set_config('system', 'pubstream_incl',$pub_incl);
 		set_config('system', 'pubstream_excl',$pub_excl);
 
-		set_config('system', 'techlevel_lock', $techlevel_lock);
-
-
-
-		if(! is_null($techlevel))
-			set_config('system', 'techlevel', $techlevel);
 
 		if($directory_server)
 			set_config('system','directory_server',$directory_server);
@@ -284,15 +273,6 @@ class Site {
 		// now invert the logic for the setting.
 		$discover_tab = (1 - $discover_tab);
 
-		$techlevels = [
-			'0' => t('Beginner/Basic'),
-			'1' => t('Novice - not skilled but willing to learn'),
-			'2' => t('Intermediate - somewhat comfortable'),
-			'3' => t('Advanced - very comfortable'),
-			'4' => t('Expert - I can write computer code'),
-			'5' => t('Wizard - I probably know more than you do')
-		];
-
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
 		$default_role = get_config('system','default_permissions_role','social');
 
@@ -316,10 +296,6 @@ class Site {
 			// name, label, value, help string, extra data...
 			'$sitename' 		=> array('sitename', t("Site name"), htmlspecialchars(get_config('system','sitename'), ENT_QUOTES, 'UTF-8'),''),
 
-			'$techlevel' => [ 'techlevel', t('Site default technical skill level'), get_config('system','techlevel'), t('Used to provide a member experience matched to technical comfort level'), $techlevels ],
-
-			'$techlock' => [ 'techlock', t('Lock the technical skill level setting'), get_config('system','techlevel_lock'), t('Members can set their own technical comfort level by default') ],
-
 			'$banner'			=> array('banner', t("Banner/Logo"), $banner, t('Unfiltered HTML/CSS/JS is allowed')),
 			'$admininfo'		=> array('admininfo', t("Administrator Information"), $admininfo, t("Contact information for site administrators.  Displayed on siteinfo page.  BBCode can be used here")),
 			'$siteinfo'		=> array('siteinfo', t('Site Information'), get_config('system','siteinfo'), t("Publicly visible description of this site.  Displayed on siteinfo page.  BBCode can be used here")),
@@ -335,7 +311,7 @@ class Site {
 			'$access_policy'	=> array('access_policy', t("Which best describes the types of account offered by this hub?"), get_config('system','access_policy'), t("This is displayed on the public server site list."), $access_choices),
 			'$register_text'	=> array('register_text', t("Register text"), htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'), t("Will be displayed prominently on the registration page.")),
 			'$role'         => $role,
-			'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), get_config('system','frontpage'), t("example: 'public' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
+			'$frontpage'	=> array('frontpage', t("Site homepage to show visitors (default: login box)"), get_config('system','frontpage'), t("example: 'pubstream' to show public stream, 'page/sys/home' to show a system webpage called 'home' or 'include:home.html' to include a file.")),
 			'$mirror_frontpage'	=> array('mirror_frontpage', t("Preserve site homepage URL"), get_config('system','mirror_frontpage'), t('Present the site homepage in a frame at the original location instead of redirecting')),
 			'$abandon_days'     => array('abandon_days', t('Accounts abandoned after x days'), get_config('system','account_abandon_days'), t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')),
 			'$allowed_sites'	=> array('allowed_sites', t("Allowed friend domains"), get_config('system','allowed_sites'), t("Comma separated list of domains which are allowed to establish friendships with this site. Wildcards are accepted. Empty to allow any domains")),

@@ -4,6 +4,13 @@
  * @brief Channel related functions.
  */
 
+use Zotlabs\Access\PermissionRoles;
+use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\Permissions;
+use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\System;
+use Zotlabs\Render\Comanche;
+
 require_once('include/zot.php');
 require_once('include/crypto.php');
 require_once('include/menu.php');
@@ -236,7 +243,7 @@ function create_identity($arr) {
 	$role_permissions = null;
 
 	if(array_key_exists('permissions_role',$arr) && $arr['permissions_role']) {
-		$role_permissions = \Zotlabs\Access\PermissionRoles::role_perms($arr['permissions_role']);
+		$role_permissions = PermissionRoles::role_perms($arr['permissions_role']);
 	}
 
 	if($role_permissions && array_key_exists('directory_publish',$role_permissions))
@@ -307,7 +314,7 @@ function create_identity($arr) {
 		$perm_limits = site_default_perms();
 
 	foreach($perm_limits as $p => $v)
-		\Zotlabs\Access\PermissionLimits::Set($r[0]['channel_id'],$p,$v);
+		PermissionLimits::Set($r[0]['channel_id'],$p,$v);
 
 	if($role_permissions && array_key_exists('perms_auto',$role_permissions))
 		set_pconfig($r[0]['channel_id'],'system','autoperms',intval($role_permissions['perms_auto']));
@@ -383,7 +390,7 @@ function create_identity($arr) {
 		$myperms = ((array_key_exists('perms_connect',$role_permissions)) ? $role_permissions['perms_connect'] : array());
 	}
 	else {
-		$x = \Zotlabs\Access\PermissionRoles::role_perms('social');
+		$x = PermissionRoles::role_perms('social');
 		$myperms = $x['perms_connect'];
 	}
 
@@ -399,7 +406,7 @@ function create_identity($arr) {
 		]
 	);
 
-	$x = \Zotlabs\Access\Permissions::FilledPerms($myperms);
+	$x = Permissions::FilledPerms($myperms);
 	foreach($x as $k => $v) {
 		set_abconfig($newuid,$hash,'my_perms',$k,$v);
 	}
@@ -416,7 +423,7 @@ function create_identity($arr) {
 				$autoperms = intval($role_permissions['perms_auto']);
 				set_pconfig($newuid,'system','autoperms',$autoperms);
 				if($autoperms) {
-					$x = \Zotlabs\Access\Permissions::FilledPerms($role_permissions['perms_connect']);
+					$x = Permissions::FilledPerms($role_permissions['perms_connect']);
 					foreach($x as $k => $v) {
 						set_pconfig($newuid,'autoperms',$k,$v);
 					}
@@ -440,7 +447,7 @@ function create_identity($arr) {
 		// if our role_permissions indicate that we're using a default collection ACL, add it.
 
 		if(is_array($role_permissions) && $role_permissions['default_collection']) {
-			$r = q("select hash from groups where uid = %d and gname = '%s' limit 1",
+			$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
 				intval($newuid),
 				dbesc( t('Friends') )
 			);
@@ -482,7 +489,7 @@ function create_identity($arr) {
 		 */
 		call_hooks('create_identity', $newuid);
 
-		Zotlabs\Daemon\Master::Summon(array('Directory', $ret['channel']['channel_id']));
+		Master::Summon(array('Directory', $ret['channel']['channel_id']));
 	}
 
 	$ret['success'] = true;
@@ -583,7 +590,7 @@ function change_channel_keys($channel) {
 
 	xchan_change_key($oldxchan,$newxchan,$stored);
 
-	Zotlabs\Daemon\Master::Summon(array('Notifier', 'keychange', $channel['channel_id']));
+	Master::Summon([ 'Notifier', 'keychange', $channel['channel_id'] ]);
 
 	$ret['success'] = true;
 	return $ret;
@@ -666,7 +673,7 @@ function channel_change_address($channel,$new_address) {
 		}
 	}
 
-	Zotlabs\Daemon\Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
+	Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
 
 	$ret['success'] = true;
 	return $ret;
@@ -759,7 +766,7 @@ function identity_basic_export($channel_id, $sections = null) {
 		'project' => PLATFORM_NAME,
 		'version' => STD_VERSION,
 		'database' => DB_UPDATE_VERSION,
-		'server_role' => Zotlabs\Lib\System::get_server_role()
+		'server_role' => System::get_server_role()
 	];
 
 	/*
@@ -830,14 +837,14 @@ function identity_basic_export($channel_id, $sections = null) {
 				$ret['hubloc'] = $r;
 		}
 
-		$r = q("select * from groups where uid = %d ",
+		$r = q("select * from pgrp where uid = %d ",
 			intval($channel_id)
 		);
 
 		if($r)
 			$ret['group'] = $r;
 
-		$r = q("select * from group_member where uid = %d ",
+		$r = q("select * from pgrp_member where uid = %d ",
 			intval($channel_id)
 		);
 		if($r)
@@ -1425,7 +1432,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 	}
 	$menublock = get_pconfig($profile['uid'],'system','channel_menublock');
 	if ($menublock && (! $block)) {
-		$comanche = new Zotlabs\Render\Comanche();
+		$comanche = new Comanche();
 		$channel_menu .= $comanche->block($menublock);
 	}
 
@@ -1701,7 +1708,7 @@ function zid_init() {
 				dbesc($tmp_str)
 			);
 			if(! $r) {
-				Zotlabs\Daemon\Master::Summon(array('Gprobe',bin2hex($tmp_str)));
+				Master::Summon(array('Gprobe',bin2hex($tmp_str)));
 			}
 			if($r && remote_channel() && remote_channel() === $r[0]['hubloc_hash'])
 				return;
@@ -1907,7 +1914,7 @@ function is_public_profile() {
 
 	$channel = App::get_channel();
 	if($channel) {
-		$perm = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile');
+		$perm = PermissionLimits::Get($channel['channel_id'],'view_profile');
 		if($perm == PERMS_PUBLIC)
 			return true;
 	}
@@ -2526,6 +2533,12 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 	if(! $local) {
 
+		if(intval($r[0]['channel_removed'])) {
+			// already removed. do not propagate deletion of a channel which
+			// may have been removed locally at some previous time.
+			return;
+		}
+
 		$r = q("update channel set channel_deleted = '%s', channel_removed = 1 where channel_id = %d",
 			dbesc(datetime_convert()),
 			intval($channel_id)
@@ -2545,11 +2558,11 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 			dbesc($channel['channel_hash'])
 		);
 
-		Zotlabs\Daemon\Master::Summon(array('Notifier','purge_all',$channel_id));
+		Master::Summon(array('Notifier','purge_all',$channel_id));
 	}
 
 
-	$r = q("select * from iconfig left join item on item.id = iconfig.iid
+	$r = q("select iid from iconfig left join item on item.id = iconfig.iid
 		where item.uid = %d",
 		intval($channel_id)
 	);
@@ -2566,8 +2579,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	q("DELETE FROM chatroom WHERE cr_uid = %d", intval($channel_id));
 	q("DELETE FROM conv WHERE uid = %d", intval($channel_id));
 
-	q("DELETE FROM groups WHERE uid = %d", intval($channel_id));
-	q("DELETE FROM group_member WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM pgrp WHERE uid = %d", intval($channel_id));
+	q("DELETE FROM pgrp_member WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM event WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM mail WHERE channel_id = %d", intval($channel_id));
 	q("DELETE FROM menu WHERE menu_channel_id = %d", intval($channel_id));
@@ -2589,15 +2602,12 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		}
 	}
 	
-
-
 	$r = q("select id from item where uid = %d", intval($channel_id));
 	if($r) {
 		foreach($r as $rv) {
 			drop_item($rv['id'],false);
 		}
 	}
-
 
 	q("delete from abook where abook_xchan = '%s' and abook_self = 1 ",
 		dbesc($channel['channel_hash'])
@@ -2658,7 +2668,7 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		@rrmdir($f);
 	}
 
-	Zotlabs\Daemon\Master::Summon(array('Directory',$channel_id));
+	Master::Summon([ 'Directory', $channel_id ]);
 
 	if($channel_id == local_channel() && $unset_session) {
 		App::$session->nuke();
@@ -2797,3 +2807,6 @@ function pchan_to_chan($pchan) {
 	return $chan;
 }
 
+function channel_url($channel) {
+	return (($channel) ? z_root() . '/channel/' . $channel['channel_address'] : z_root());
+}

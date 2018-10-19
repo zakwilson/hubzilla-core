@@ -1,0 +1,6 @@
+version: 2
+url: $baseurl/tokens
+requires: local_channel
+name: Guest Access
+photo: icon:user-secret
+categories: Access Control

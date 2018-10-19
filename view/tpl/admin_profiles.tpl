@@ -15,7 +15,7 @@
 {{include file="field_textarea.tpl" field=$basic}}
 {{include file="field_textarea.tpl" field=$advanced}}
 
-<input type="submit" name="submit" value="{{$submit}}" />
+<input type="submit" name="submit" class="btn btn-primary" value="{{$submit}}" />
 
 </form>
 

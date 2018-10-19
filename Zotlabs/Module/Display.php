@@ -12,8 +12,9 @@ class Display extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
 
-		$module_format = 'html';
+		$noscript_content = (get_config('system', 'noscript_content', '1') && (! $update));
 
+		$module_format = 'html';
 
 		if(argc() > 1) {
 			$module_format = substr(argv(1),strrpos(argv(1),'.') + 1);
@@ -21,8 +22,6 @@ class Display extends \Zotlabs\Web\Controller {
 				$module_format = 'html';			
 		}
 
-		$checkjs = new \Zotlabs\Web\CheckJS(1);
-	
 		if($load)
 			$_SESSION['loadtime'] = datetime_convert();
 	
@@ -82,7 +81,7 @@ class Display extends \Zotlabs\Web\Controller {
 			);
 	
 			$o = '<div id="jot-popup">';
-			$o .= status_editor($a,$x);
+			$o .= status_editor($a,$x,false,'Display');
 			$o .= '</div>';
 		}
 	
@@ -253,53 +252,44 @@ class Display extends \Zotlabs\Web\Controller {
 
 		$sql_extra = public_permissions_sql($observer_hash);
 
-		if(($update && $load) || ($checkjs->disabled()) || ($module_format !== 'html')) {
+		if($noscript_content || $load) {
 
-			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']),intval(\App::$pager['start']));
+			$r = null;
 
-			if($load || ($checkjs->disabled()) || ($module_format !== 'html')) {
+			require_once('include/channel.php');
+			$sys = get_sys_channel();
+			$sysid = $sys['channel_id'];
 
-				$r = null;
-
-				require_once('include/channel.php');
-				$sys = get_sys_channel();
-				$sysid = $sys['channel_id'];
-
-				if(local_channel()) {
-					$r = q("SELECT item.id as item_id from item
-						WHERE uid = %d
-						and mid = '%s'
-						$item_normal
-						limit 1",
-						intval(local_channel()),
-						dbesc($target_item['parent_mid'])
-					);
-					if($r) {
-						$updateable = true;
-					}
+			if(local_channel()) {
+				$r = q("SELECT item.id as item_id from item WHERE uid = %d and mid = '%s' $item_normal limit 1",
+					intval(local_channel()),
+					dbesc($target_item['parent_mid'])
+				);
+				if($r) {
+					$updateable = true;
 				}
+			}
 
-				if(! $r) {
+			if(! $r) {
 
-					// in case somebody turned off public access to sys channel content using permissions
-					// make that content unsearchable by ensuring the owner uid can't match
+				// in case somebody turned off public access to sys channel content using permissions
+				// make that content unsearchable by ensuring the owner uid can't match
 
-					if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))
-						$sysid = 0;
+				if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))
+					$sysid = 0;
 
-					$r = q("SELECT item.id as item_id from item
-						WHERE mid = '%s'
-						AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
-						AND item.deny_gid  = '' AND item_private = 0 ) 
-						and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
-						OR uid = %d )
-						$sql_extra )
-						$item_normal
-						limit 1",
-						dbesc($target_item['parent_mid']),
-						intval($sysid)
-					);
-				}
+				$r = q("SELECT item.id as item_id from item
+					WHERE mid = '%s'
+					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
+					AND item.deny_gid  = '' AND item_private = 0 ) 
+					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
+					OR uid = %d )
+					$sql_extra )
+					$item_normal
+					limit 1",
+					dbesc($target_item['parent_mid']),
+					intval($sysid)
+				);
 			}
 		}
 	
@@ -309,7 +299,6 @@ class Display extends \Zotlabs\Web\Controller {
 			require_once('include/channel.php');
 			$sys = get_sys_channel();
 			$sysid = $sys['channel_id'];
-
 			if(local_channel()) {
 				$r = q("SELECT item.parent AS item_id from item
 					WHERE uid = %d
@@ -350,7 +339,7 @@ class Display extends \Zotlabs\Web\Controller {
 		else {
 			$r = array();
 		}
-	
+
 		if($r) {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
@@ -373,14 +362,24 @@ class Display extends \Zotlabs\Web\Controller {
 			
 		case 'html':
 
-			if ($checkjs->disabled()) {
-				$o .= conversation($items, 'display', $update, 'traditional');
-				if ($items[0]['title'])
-					\App::$page['title'] = $items[0]['title'] . " - " . \App::$page['title'];
-			} 
-			else {
+			if ($update) {
 				$o .= conversation($items, 'display', $update, 'client');
 			}
+			else {
+				$o .= '<noscript>';
+				if($noscript_content) {
+					$o .= conversation($items, 'display', $update, 'traditional');
+				}
+				else {
+					$o .= '<div class="section-content-warning-wrapper">' . t('You must enable javascript for your browser to be able to view this content.') . '</div>';
+				}
+				$o .= '</noscript>';
+
+				if ($items[0]['title'])
+					\App::$page['title'] = $items[0]['title'] . " - " . \App::$page['title'];
+
+				$o .= conversation($items, 'display', $update, 'client');
+			} 
 
 			break;
 
@@ -435,7 +434,7 @@ class Display extends \Zotlabs\Web\Controller {
 
 		$o .= '<div id="content-complete"></div>';
 
-		if((($update && $load) || $checkjs->disabled()) && (! $items))  {
+		if((($update && $load) || $noscript_content) && (! $items)) {
 			
 			$r = q("SELECT id, item_deleted FROM item WHERE mid = '%s' LIMIT 1",
 				dbesc($item_hash)

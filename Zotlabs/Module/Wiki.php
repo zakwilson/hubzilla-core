@@ -2,15 +2,20 @@
 
 namespace Zotlabs\Module;
 
-use \Zotlabs\Lib as Zlib;
-use \Michelf\MarkdownExtra;
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\PermissionDescription;
+use Zotlabs\Lib\NativeWiki;
+use Zotlabs\Lib\NativeWikiPage;
+use Zotlabs\Lib\MarkdownSoap;
+use Michelf\MarkdownExtra;
 
 require_once('include/acl_selectors.php');
 require_once('include/conversation.php');
 require_once('include/bbcode.php');
 
-
-class Wiki extends \Zotlabs\Web\Controller {
+class Wiki extends Controller {
 
 	private $wiki = null;
 
@@ -40,10 +45,14 @@ class Wiki extends \Zotlabs\Web\Controller {
 			return login();
 		}
 
-		if(! feature_enabled(\App::$profile_uid,'wiki')) {
-			notice( t('Not found') . EOL);
-			return;
- 		}
+		if(! Apps::system_app_installed(App::$profile_uid, 'Wiki')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+
+			$o = '<b>' . t('Wiki App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= t('Provide a wiki for your channel');
+			return $o;
+		}
 
 
 		if(! perm_is_allowed(\App::$profile_uid,get_observer_hash(),'view_wiki')) {
@@ -95,7 +104,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 						$owner['channel_deny_gid'])
 						? 'lock' : 'unlock'
 					),
-					'acl' => populate_acl($owner_acl, false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_wiki')),
+					'acl' => populate_acl($owner_acl, false, PermissionDescription::fromGlobalPermission('view_wiki')),
 					'allow_cid' => acl2json($owner_acl['allow_cid']),
 					'allow_gid' => acl2json($owner_acl['allow_gid']),
 					'deny_cid'  => acl2json($owner_acl['deny_cid']),
@@ -109,7 +118,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 		}
 
 		$is_owner = ((local_channel()) && (local_channel() == \App::$profile['profile_uid']) ? true : false);
-		//$o = profile_tabs($a, $is_owner, \App::$profile['channel_address']);
+
 		$o = '';
 
 		// Download a wiki
@@ -117,9 +126,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 		if((argc() > 3) && (argv(2) === 'download') && (argv(3) === 'wiki')) {
 
 			$resource_id = argv(4);
-			$w = Zlib\NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
+			$w = NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
 
-//			$w = Zlib\NativeWiki::get_wiki($owner,$observer_hash,$resource_id);
+//			$w = NativeWiki::get_wiki($owner,$observer_hash,$resource_id);
 			if(! $w['htmlName']) {
 				notice(t('Error retrieving wiki') . EOL);
 			}
@@ -157,9 +166,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 							$content = html_entity_decode($iv['body'],ENT_COMPAT,'UTF-8');
 						}
 						elseif($iv['mimetype'] === 'text/markdown') {
-							$content = html_entity_decode(Zlib\MarkdownSoap::unescape($iv['body']),ENT_COMPAT,'UTF-8');
+							$content = html_entity_decode(MarkdownSoap::unescape($iv['body']),ENT_COMPAT,'UTF-8');
 						}
-						$fname = get_iconfig($iv['id'],'nwikipage','pagetitle') . Zlib\NativeWikiPage::get_file_ext($iv);
+						$fname = get_iconfig($iv['id'],'nwikipage','pagetitle') . NativeWikiPage::get_file_ext($iv);
 						$zip->addFromString($fname,$content);
 						$pages[] = $iv['mid'];
 					}
@@ -190,7 +199,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 		switch(argc()) {
 			case 2:
-				$wikis = Zlib\NativeWiki::listwikis($owner, get_observer_hash());
+				$wikis = NativeWiki::listwikis($owner, get_observer_hash());
 
 				if($wikis) {
 					$o .= replace_macros(get_markup_template('wikilist.tpl'), array(
@@ -228,7 +237,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 				// /wiki/channel/wiki -> No page was specified, so redirect to Home.md
 
-				$wikiUrlName = urlencode(argv(2));
+				//$wikiUrlName = urlencode(argv(2));
+				$wikiUrlName = NativeWiki::name_encode(argv(2));
 				goaway(z_root() . '/' . argv(0) . '/' . argv(1) . '/' . $wikiUrlName . '/Home');
 
 			case 4:
@@ -237,7 +247,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 				// GET /wiki/channel/wiki/page
 				// Fetch the wiki info and determine observer permissions
 
-				$wikiUrlName = urldecode(argv(2));
+				//$wikiUrlName = urldecode(argv(2));
+				$wikiUrlName = NativeWiki::name_decode(argv(2));
 
 				$page_name = '';
 				$ignore_language = false;
@@ -253,10 +264,11 @@ class Wiki extends \Zotlabs\Web\Controller {
 					$page_name .= argv($x);
 				}
 
-				$pageUrlName = urldecode($page_name);
-				$langPageUrlName = urldecode(\App::$language . '/' . $page_name);
+				//$pageUrlName = urldecode($page_name);
+				$pageUrlName = NativeWiki::name_decode($page_name);
+				$langPageUrlName = \App::$language . '/' . $pageUrlName;
 
-				$w = Zlib\NativeWiki::exists_by_name($owner['channel_id'], $wikiUrlName);
+				$w = NativeWiki::exists_by_name($owner['channel_id'], $wikiUrlName);
 
 				if(! $w['resource_id']) {
 					notice(t('Wiki not found') . EOL);
@@ -268,7 +280,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 				if(! $wiki_owner) {
 					// Check for observer permissions
 					$observer_hash = get_observer_hash();
-					$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+					$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 					if(! $perms['read']) {
 						notice(t('Permission denied.') . EOL);
 						goaway(z_root() . '/' . argv(0) . '/' . argv(1));
@@ -280,8 +292,10 @@ class Wiki extends \Zotlabs\Web\Controller {
 					$wiki_editor = true;
 				}
 
-				$wikiheaderName = urldecode($wikiUrlName);
-				$wikiheaderPage = urldecode($pageUrlName);
+				//$wikiheaderName = urldecode($wikiUrlName);
+				$wikiheaderName = NativeWiki::name_decode($wikiUrlName);
+				//$wikiheaderPage = urldecode($pageUrlName);
+				$wikiheaderPage = NativeWiki::name_decode($pageUrlName);
 
 				$renamePage = (($wikiheaderPage === 'Home') ? '' : t('Rename page'));
 				$sharePage  = t('Share');
@@ -289,10 +303,10 @@ class Wiki extends \Zotlabs\Web\Controller {
 				$p = [];
 
 				if(! $ignore_language) {
-					$p = Zlib\NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $langPageUrlName));
+					$p = NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $langPageUrlName));
 				}
 				if(! ($p && $p['success'])) {
-					$p = Zlib\NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+					$p = NativeWikiPage::get_page_content(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
 				}
 				if(! ($p && $p['success'])) {
 			                $x = new \Zotlabs\Widget\Wiki_pages();
@@ -306,7 +320,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			                //json_return_and_die(array('pages' => $page_list_html, 'message' => '', 'success' => true));					
 					notice( t('Error retrieving page content') . EOL);
 					//goaway(z_root() . '/' . argv(0) . '/' . argv(1) );
-				        $renderedContent = Zlib\NativeWikiPage::convert_links($html, argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
+				        $renderedContent = NativeWikiPage::convert_links($html, argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName));
 				        $showPageControls = $wiki_editor;
 				}
                                 else {
@@ -317,24 +331,31 @@ class Wiki extends \Zotlabs\Web\Controller {
 				        $sampleContent = t('New page');
 
 				    $content = (($p['content'] == '') ? $sampleContent : $p['content']);
+
+				    $hookinfo = ['content' => $content, 'mimetype' => $mimeType];
+				    call_hooks('wiki_preprocess',$hookinfo);
+				    $content = $hookinfo['content'];
     
 				    // Render the Markdown-formatted page content in HTML
 				    if($mimeType == 'text/bbcode') {
-				        $renderedContent = Zlib\NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))), argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
+					$renderedContent = zidify_links(smilies(bbcode($content)));
+					$renderedContent = NativeWikiPage::convert_links($renderedContent,argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName));
 				    }
 			 	    elseif($mimeType === 'text/plain') {
 				        $renderedContent = str_replace(["\n",' ',"\t"],[EOL,'&nbsp;','&nbsp;&nbsp;&nbsp;&nbsp;'],htmlentities($content,ENT_COMPAT,'UTF-8',false));
 				    }
 				    elseif($mimeType === 'text/markdown') {
-				     $content = Zlib\MarkdownSoap::unescape($content);
-				     $html = Zlib\NativeWikiPage::generate_toc(zidify_text(MarkdownExtra::defaultTransform(Zlib\NativeWikiPage::bbcode($content))));
-				     $renderedContent = Zlib\NativeWikiPage::convert_links($html, argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
+				     $content = MarkdownSoap::unescape($content);
+				     //$html = NativeWikiPage::generate_toc(zidify_text(MarkdownExtra::defaultTransform(NativeWikiPage::bbcode($content))));
+				     //$renderedContent = NativeWikiPage::convert_links($html, argv(0) . '/' . argv(1) . '/' . $wikiUrlName);
+				     $html = NativeWikiPage::convert_links($content, argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName));
+				     $renderedContent = NativeWikiPage::generate_toc(zidify_text(MarkdownExtra::defaultTransform(NativeWikiPage::bbcode($html))));
 				    }
 				    $showPageControls = $wiki_editor;
                                 }
 				break;
 //			default:	// Strip the extraneous URL components
-//				goaway('/' . argv(0) . '/' . argv(1) . '/' . $wikiUrlName . '/' . $pageUrlName);
+//				goaway('/' . argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName) . '/' . $pageUrlName);
 		}
 		
 
@@ -351,13 +372,14 @@ class Wiki extends \Zotlabs\Web\Controller {
 		$currenttype = $types[$mimeType];
 
 		$placeholder = t('Short description of your changes (optional)');
-				
+
+		$zrl = urlencode( z_root() . '/wiki/' . argv(1) . '/' . NativeWiki::name_encode($wikiUrlName) . '/' . NativeWiki::name_encode($pageUrlName) );
 		$o .= replace_macros(get_markup_template('wiki.tpl'),array(
 			'$wikiheaderName' => $wikiheaderName,
 			'$wikiheaderPage' => $wikiheaderPage,
 			'$renamePage' => $renamePage,
 			'$sharePage' => $sharePage,
-			'$shareLink' => urlencode('#^[zrl=' . z_root() . '/wiki/' . argv(1) . '/' . $wikiUrlName . '/' . $pageUrlName . ']' . '[ ' . $owner['channel_name'] . ' ] ' . $wikiheaderName . ' - ' . $wikiheaderPage . '[/zrl]'),
+			'$shareLink' => '#^[zrl=' . $zrl . ']' . '[ ' . $owner['channel_name'] . ' ] ' . $wikiheaderName . ' - ' . $wikiheaderPage . '[/zrl]',
 			'$showPageControls' => $showPageControls,
 			'$editOrSourceLabel' => (($showPageControls) ? t('Edit') : t('Source')),
 			'$tools_label' => 'Page Tools',
@@ -384,6 +406,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 			'$modalerrorlist' => t('Error getting album list'),
 			'$modalerrorlink' => t('Error getting photo link'),
 			'$modalerroralbum' => t('Error getting album'),
+			'$view_lbl' => t('View'),
+			'$history_lbl' => t('History')
 		));
 
 		if($p['pageMimeType'] === 'text/markdown')
@@ -411,23 +435,24 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$content = $_POST['content'];
 			$resource_id = $_POST['resource_id'];
 
-			$w = Zlib\NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
+			$w = NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
 
 			$wikiURL = argv(0) . '/' . argv(1) . '/' . $w['urlName'];
 
 			$mimeType = $_POST['mimetype'];
 
 			if($mimeType === 'text/bbcode') {
-				$html = Zlib\NativeWikiPage::convert_links(zidify_links(smilies(bbcode($content))),$wikiURL);
+				$linkconverted = NativeWikiPage::convert_links($content,$wikiURL);
+				$html = zidify_links(smilies(bbcode($linkconverted)));
 			}
 			elseif($mimeType === 'text/markdown') {
-				$bb = Zlib\NativeWikiPage::bbcode($content);
-				$x = new ZLib\MarkdownSoap($bb);
+				$linkconverted = NativeWikiPage::convert_links($content,$wikiURL);
+				$bb = NativeWikiPage::bbcode($linkconverted);
+				$x = new MarkdownSoap($bb);
 				$md = $x->clean();
-				$md = ZLib\MarkdownSoap::unescape($md);
+				$md = MarkdownSoap::unescape($md);
 				$html = MarkdownExtra::defaultTransform($md);
-				$html = Zlib\NativeWikiPage::generate_toc(zidify_text($html));
-				$html = Zlib\NativeWikiPage::convert_links($html,$wikiURL);
+				$html = NativeWikiPage::generate_toc(zidify_text($html));
 			}
 			elseif($mimeType === 'text/plain') {
 				$html = str_replace(["\n",' ',"\t"],[EOL,'&nbsp;','&nbsp;&nbsp;&nbsp;&nbsp;'],htmlentities($content,ENT_COMPAT,'UTF-8',false));
@@ -454,7 +479,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$wiki['postVisible'] = ((intval($_POST['postVisible'])) ? 1 : 0);
 			$wiki['rawName']     = $name;
 			$wiki['htmlName']    = escape_tags($name);
-			$wiki['urlName']     = urlencode(urlencode($name)); 
+			//$wiki['urlName']     = urlencode(urlencode($name)); 
+			$wiki['urlName']     = NativeWiki::name_encode($name);
 			$wiki['mimeType']    = $_POST['mimeType'];
 			$wiki['typelock']    = $_POST['typelock'];
 
@@ -464,7 +490,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 				return; //not reached
 			}
 
-			$exists = Zlib\NativeWiki::exists_by_name($owner['channel_id'], $wiki['urlName']);
+			$exists = NativeWiki::exists_by_name($owner['channel_id'], $wiki['urlName']);
 			if($exists['id']) {
 				notice( t('A wiki with this name already exists.') . EOL);
 				goaway('/wiki');
@@ -474,16 +500,16 @@ class Wiki extends \Zotlabs\Web\Controller {
 			// Get ACL for permissions
 			$acl = new \Zotlabs\Access\AccessList($owner);
 			$acl->set_from_array($_POST);
-			$r = Zlib\NativeWiki::create_wiki($owner, $observer_hash, $wiki, $acl);
+			$r = NativeWiki::create_wiki($owner, $observer_hash, $wiki, $acl);
 			if($r['success']) {
-				Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
-				$homePage = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash,'Home', $r['item']['resource_id'], $wiki['mimeType']);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
+				$homePage = NativeWikiPage::create_page($owner['channel_id'],$observer_hash,'Home', $r['item']['resource_id'], $wiki['mimeType']);
 				if(! $homePage['success']) {
 					notice( t('Wiki created, but error creating Home page.'));
-					goaway(z_root() . '/wiki/' . $nick . '/' . $wiki['urlName']);
+					goaway(z_root() . '/wiki/' . $nick . '/' . NativeWiki::name_encode($wiki['urlName']));
 				}
-				Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$homePage['item_id'],$r['item']['resource_id']);
-				goaway(z_root() . '/wiki/' . $nick . '/' . $wiki['urlName'] . '/' . $homePage['page']['urlName']);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'],$homePage['item_id'],$r['item']['resource_id']);
+				goaway(z_root() . '/wiki/' . $nick . '/' . NativeWiki::name_encode($wiki['urlName']) . '/' . NativeWiki::name_encode($homePage['page']['urlName']));
 			}
 			else {
 				notice( t('Error creating wiki'));
@@ -503,7 +529,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 
 			$arr = [];
 
-			$arr['urlName'] = urlencode(urlencode($_POST['origRawName']));
+			//$arr['urlName'] = urlencode(urlencode($_POST['origRawName']));
+			$arr['urlName'] = NativeWiki::name_encode($_POST['origRawName']);
 
 			if($_POST['updateRawName'])
 				$arr['updateRawName'] = $_POST['updateRawName'];
@@ -514,7 +541,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 				return; //not reached
 			}
 
-			$wiki = Zlib\NativeWiki::exists_by_name($owner['channel_id'], urldecode($arr['urlName']));
+			$wiki = NativeWiki::exists_by_name($owner['channel_id'], $arr['urlName']);
 
 			if($wiki['resource_id']) {
 
@@ -523,9 +550,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 				$acl = new \Zotlabs\Access\AccessList($owner);
 				$acl->set_from_array($_POST);
 
-				$r = Zlib\NativeWiki::update_wiki($owner['channel_id'], $observer_hash, $arr, $acl);
+				$r = NativeWiki::update_wiki($owner['channel_id'], $observer_hash, $arr, $acl);
 				if($r['success']) {
-					Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
 					goaway(z_root() . '/wiki/' . $nick);
 				}
 				else {
@@ -547,9 +574,9 @@ class Wiki extends \Zotlabs\Web\Controller {
 				json_return_and_die(array('message' => t('Wiki delete permission denied.'), 'success' => false));
 			} 
 			$resource_id = $_POST['resource_id']; 
-			$deleted = Zlib\NativeWiki::delete_wiki($owner['channel_id'],$observer_hash,$resource_id);
+			$deleted = NativeWiki::delete_wiki($owner['channel_id'],$observer_hash,$resource_id);
 			if ($deleted['success']) {
-				Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$deleted['item_id'],$resource_id);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'],$deleted['item_id'],$resource_id);
 				json_return_and_die(array('message' => '', 'success' => true));
 			} 
 			else {
@@ -568,25 +595,25 @@ class Wiki extends \Zotlabs\Web\Controller {
 			// Determine if observer has permission to create a page
 			
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash, $mimetype);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash, $mimetype);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$name = $_POST['pageName']; //Get new page name
+			$name = isset($_POST['pageName']) ? $_POST['pageName'] : $_POST['missingPageName']; //Get new page name
 
 			// backslashes won't work well in the javascript functions
 			$name = str_replace('\\','',$name);
 
-			if(urlencode(escape_tags($name)) === '') {
+			if(NativeWiki::name_encode(escape_tags($name)) === '') {
 				json_return_and_die(array('message' => 'Error creating page. Invalid name (' . print_r($_POST,true) . ').', 'success' => false));
 			}
 
-			$page = Zlib\NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id, $mimetype);
+			$page = NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id, $mimetype);
 
 			if($page['item_id']) {
-				$commit = Zlib\NativeWikiPage::commit(array(
+				$commit = NativeWikiPage::commit(array(
 					'commit_msg'    => t('New page created'), 
 					'resource_id'   => $resource_id, 
 					'channel_id'    => $owner['channel_id'],
@@ -595,11 +622,12 @@ class Wiki extends \Zotlabs\Web\Controller {
 				));
 
 				if($commit['success']) {
-					Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
-					json_return_and_die(array('url' => '/' . argv(0) . '/' . argv(1) . '/' . urlencode($page['wiki']['urlName']) . '/' . urlencode($page['page']['urlName']), 'success' => true));
+					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					//json_return_and_die(array('url' => '/' . argv(0) . '/' . argv(1) . '/' . urlencode($page['wiki']['urlName']) . '/' . urlencode($page['page']['urlName']), 'success' => true));
+					json_return_and_die(array('url' => '/' . argv(0) . '/' . argv(1) . '/' . $page['wiki']['urlName'] . '/' . $page['page']['urlName'], 'success' => true));
 				} 
 				else {
-					json_return_and_die(array('message' => 'Error making git commit','url' => '/' . argv(0) . '/' . argv(1) . '/' . urlencode($page['wiki']['urlName']) . '/' . urlencode($page['page']['urlName']),'success' => false));
+					json_return_and_die(array('message' => 'Error making git commit','url' => '/' . argv(0) . '/' . argv(1) . '/' . NativeWiki::name_encode($page['wiki']['urlName']) . '/' . NativeWiki::name_encode($page['page']['urlName']),'success' => false));
 				}				
 
 
@@ -614,7 +642,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 		if((argc() === 5) && (argv(2) === 'get') && (argv(3) === 'page') && (argv(4) === 'list')) {
 			$resource_id = $_POST['resource_id']; // resource_id for wiki in db
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(!$perms['read']) {
 				logger('Wiki read permission denied.' . EOL);
 				json_return_and_die(array('pages' => null, 'message' => 'Permission denied.', 'success' => false));					
@@ -646,16 +674,16 @@ class Wiki extends \Zotlabs\Web\Controller {
 			}
 
 			// Determine if observer has permission to save content
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$saved = Zlib\NativeWikiPage::save_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'content' => $content));
+			$saved = NativeWikiPage::save_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'content' => $content));
 
 			if($saved['success']) {
-				$commit = Zlib\NativeWikiPage::commit(array(
+				$commit = NativeWikiPage::commit(array(
 					'commit_msg' => $commitMsg, 
 					'pageUrlName' => $pageUrlName,
 					'resource_id' => $resource_id, 
@@ -665,8 +693,8 @@ class Wiki extends \Zotlabs\Web\Controller {
 				));
 		
 				if($commit['success']) {
-					Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
-					json_return_and_die(array('message' => 'Wiki git repo commit made', 'success' => true));
+					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					json_return_and_die(array('message' => 'Wiki git repo commit made', 'success' => true , 'content' => $content));
 				}
 				else {
 					json_return_and_die(array('message' => 'Error making git commit','success' => false));					
@@ -686,7 +714,7 @@ class Wiki extends \Zotlabs\Web\Controller {
 			
 			// Determine if observer has permission to read content
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['read']) {
 				logger('Wiki read permission denied.' . EOL);
 				json_return_and_die(array('historyHTML' => '', 'message' => 'Permission denied.', 'success' => false));
@@ -718,15 +746,15 @@ class Wiki extends \Zotlabs\Web\Controller {
 				json_return_and_die(array('success' => false));					
 			}
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$deleted = Zlib\NativeWikiPage::delete_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+			$deleted = NativeWikiPage::delete_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
 			if($deleted['success']) {
-				Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
 				json_return_and_die(array('message' => 'Wiki git repo commit made', 'success' => true));
 			}
 			else {
@@ -742,13 +770,13 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$commitHash = $_POST['commitHash'];
 			// Determine if observer has permission to revert pages
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied.' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$reverted = Zlib\NativeWikiPage::revert_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'commitHash' => $commitHash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+			$reverted = NativeWikiPage::revert_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'commitHash' => $commitHash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
 			if($reverted['success']) {
 				json_return_and_die(array('content' => $reverted['content'], 'message' => '', 'success' => true));					
 			} else {
@@ -764,13 +792,13 @@ class Wiki extends \Zotlabs\Web\Controller {
 			$currentCommit = $_POST['currentCommit'];
 			// Determine if observer has permission to revert pages
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(!$perms['read']) {
 				logger('Wiki read permission denied.' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$compare = Zlib\NativeWikiPage::compare_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'currentCommit' => $currentCommit, 'compareCommit' => $compareCommit, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+			$compare = NativeWikiPage::compare_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'currentCommit' => $currentCommit, 'compareCommit' => $compareCommit, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
 			if($compare['success']) {
 				$diffHTML = '<table class="text-center" width="100%"><tr><td class="lead" width="50%">' . t('Current Revision') . '</td><td class="lead" width="50%">' . t('Selected Revision') . '</td></tr></table>' . $compare['diff'];
 				json_return_and_die(array('diff' => $diffHTML, 'message' => '', 'success' => true));					
@@ -787,29 +815,29 @@ class Wiki extends \Zotlabs\Web\Controller {
 			if ($pageUrlName === 'Home') {
 				json_return_and_die(array('message' => 'Cannot rename Home','success' => false));
 			}
-			if(urlencode(escape_tags($pageNewName)) === '') {				
+			if(NativeWiki::name_encode(escape_tags($pageNewName)) === '') {
 				json_return_and_die(array('message' => 'Error renaming page. Invalid name.', 'success' => false));
 			}
 			// Determine if observer has permission to rename pages
 
-			$perms = Zlib\NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
+			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$renamed = Zlib\NativeWikiPage::rename_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'pageNewName' => $pageNewName));
+			$renamed = NativeWikiPage::rename_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'pageNewName' => $pageNewName));
 
 			if($renamed['success']) {
-				$commit = Zlib\NativeWikiPage::commit(array(
+				$commit = NativeWikiPage::commit(array(
 					'channel_id' => $owner['channel_id'],
-					'commit_msg' => 'Renamed ' . urldecode($pageUrlName) . ' to ' . $renamed['page']['htmlName'], 
+					'commit_msg' => 'Renamed ' . NativeWiki::name_decode($pageUrlName) . ' to ' . $renamed['page']['htmlName'], 
 					'resource_id' => $resource_id, 
 					'observer_hash' => $observer_hash,
 					'pageUrlName' => $pageNewName
 				));
 				if($commit['success']) {
-					Zlib\NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
 					json_return_and_die(array('name' => $renamed['page'], 'message' => 'Wiki git repo commit made', 'success' => true));
 				}
 				else {

@@ -1,10 +1,10 @@
 <?php /** @file */
 
-use \Zotlabs\Lib as Zlib;
+use \Zotlabs\Lib\Apps;
+use \Zotlabs\Lib\Chatroom;
 
 require_once('include/security.php');
 require_once('include/menu.php');
-
 
 function nav($template = 'default') {
 
@@ -60,8 +60,6 @@ function nav($template = 'default') {
 		//we could additionally use this to display important system notifications e.g. for updates
 	));
 
-	$techlevel = get_account_techlevel();
-
 	// nav links: array of array('href', 'text', 'extra css classes', 'title')
 	$nav = [];
 
@@ -93,7 +91,7 @@ function nav($template = 'default') {
  		if(! $_SESSION['delegate']) {
 			$nav['manage'] = array('manage', t('Channel Manager'), "", t('Manage your channels'),'manage_nav_btn');
  		}
-		if(feature_enabled(local_channel(),'groups'))
+		if(Apps::system_app_installed(local_channel(), 'Privacy Groups'))
 			$nav['group'] = array('group', t('Privacy Groups'),"", t('Manage your privacy groups'),'group_nav_btn');
 
  		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
@@ -199,40 +197,60 @@ function nav($template = 'default') {
 	// turned off until somebody discovers this and figures out a good location for it. 
 	$powered_by = '';
 
+	$url = '';
+	$settings_url = '';
+
 	if(App::$profile_uid && App::$nav_sel['raw_name']) {
 		$active_app = q("SELECT app_url FROM app WHERE app_channel = %d AND app_name = '%s' LIMIT 1",
 			intval(App::$profile_uid),
 			dbesc(App::$nav_sel['raw_name'])
 		);
-	
+
 		if($active_app) {
-			$url = $active_app[0]['app_url'];
+			if(strpos($active_app[0]['app_url'], ',')) {
+				$urls = explode(',', $active_app[0]['app_url']);
+				$url = trim($urls[0]);
+				if($is_owner)
+					$settings_url = trim($urls[1]);
+			}
+			else {
+				$url = $active_app[0]['app_url'];
+			}
 		}
 	}
+
+	if(! $settings_url && isset(App::$nav_sel['settings_url']))
+		$settings_url = App::$nav_sel['settings_url'];
 
 	//app bin
 	if($is_owner) {
+		//daily system apps import
 		if(get_pconfig(local_channel(), 'system','import_system_apps') !== datetime_convert('UTC','UTC','now','Y-m-d')) {
-			Zlib\Apps::import_system_apps();
+			Apps::import_system_apps();
 			set_pconfig(local_channel(), 'system','import_system_apps', datetime_convert('UTC','UTC','now','Y-m-d'));
 		}
 
+		if(get_pconfig(local_channel(), 'system','force_import_system_apps') !== STD_VERSION) {
+			Apps::import_system_apps();
+			set_pconfig(local_channel(), 'system','force_import_system_apps', STD_VERSION);
+		}
+
 		$syslist = array();
-		$list = Zlib\Apps::app_list(local_channel(), false, ['nav_featured_app', 'nav_pinned_app']);
+		$list = Apps::app_list(local_channel(), false, ['nav_featured_app', 'nav_pinned_app']);
 		if($list) {
 			foreach($list as $li) {
-				$syslist[] = Zlib\Apps::app_encode($li);
+				$syslist[] = Apps::app_encode($li);
 			}
 		}
-		Zlib\Apps::translate_system_apps($syslist);
+		Apps::translate_system_apps($syslist);
 	}
 	else {
-		$syslist = Zlib\Apps::get_system_apps(true);
+		$syslist = Apps::get_system_apps(true);
 	}
 
 	usort($syslist,'Zotlabs\\Lib\\Apps::app_name_compare');
 
-	$syslist = Zlib\Apps::app_order(local_channel(),$syslist);
+	$syslist = Apps::app_order(local_channel(),$syslist);
 
 	foreach($syslist as $app) {
 		if(\App::$nav_sel['name'] == $app['name'])
@@ -240,18 +258,18 @@ function nav($template = 'default') {
 
 		if($is_owner) {
 			if(strpos($app['categories'],'nav_pinned_app') !== false) {
-				$navbar_apps[] = Zlib\Apps::app_render($app,'navbar');
+				$navbar_apps[] = Apps::app_render($app,'navbar');
 			}
 			else {
-				$nav_apps[] = Zlib\Apps::app_render($app,'nav');
+				$nav_apps[] = Apps::app_render($app,'nav');
 			}
 		}
 		elseif(! $is_owner && strpos($app['requires'], 'local_channel') === false) {
 			if(strpos($app['categories'],'nav_pinned_app') !== false) {
-				$navbar_apps[] = Zlib\Apps::app_render($app,'navbar');
+				$navbar_apps[] = Apps::app_render($app,'navbar');
 			}
 			else {
-				$nav_apps[] = Zlib\Apps::app_render($app,'nav');
+				$nav_apps[] = Apps::app_render($app,'nav');
 			}
 		}
 	}
@@ -289,7 +307,8 @@ function nav($template = 'default') {
 		'$addapps' => t('Add Apps'),
 		'$orderapps' => t('Arrange Apps'),
 		'$sysapps_toggle' => t('Toggle System Apps'),
-		'$url' => (($url) ? $url : App::$cmd)
+		'$url' => (($url) ? $url : z_root() . '/' . App::$cmd),
+		'$settings_url' => $settings_url
 	));
 
 	if(x($_SESSION, 'reload_avatar') && $observer) {
@@ -311,14 +330,17 @@ function nav($template = 'default') {
  * Set a menu item in navbar as selected
  * 
  */
-function nav_set_selected($item){
-	App::$nav_sel['raw_name'] = $item;
-	$item = ['name' => $item];
-	Zlib\Apps::translate_system_apps($item);
+function nav_set_selected($raw_name, $settings_url = ''){
+	App::$nav_sel['raw_name'] = $raw_name;
+
+	$item = ['name' => $raw_name];
+	Apps::translate_system_apps($item);
+
 	App::$nav_sel['name'] = $item['name'];
+
+	if($settings_url)
+		App::$nav_sel['settings_url'] = z_root() . '/' . $settings_url;
 }
-
-
 
 function channel_apps($is_owner = false, $nickname = null) {
 
@@ -419,8 +441,8 @@ function channel_apps($is_owner = false, $nickname = null) {
 	}
 
 
-	if ($p['chat'] && feature_enabled($uid,'ajaxchat')) {
-		$has_chats = ZLib\Chatroom::list_count($uid);
+	if ($p['chat'] && Apps::system_app_installed($uid,'Chatrooms')) {
+		$has_chats = Chatroom::list_count($uid);
 		if ($has_chats) {
 			$tabs[] = [
 				'label' => t('Chatrooms'),
@@ -445,7 +467,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 		];
 	}
 
-	if($p['view_pages'] && feature_enabled($uid,'cards')) {
+	if($p['view_pages'] && Apps::system_app_installed($uid, 'Cards')) {
 		$tabs[] = [
 			'label' => t('Cards'),
 			'url'   => z_root() . '/cards/' . $nickname ,
@@ -456,7 +478,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 		];
 	}
 
-	if($p['view_pages'] && feature_enabled($uid,'articles')) {
+	if($p['view_pages'] && Apps::system_app_installed($uid, 'Articles')) {
 		$tabs[] = [
 			'label' => t('Articles'),
 			'url'   => z_root() . '/articles/' . $nickname ,
@@ -468,7 +490,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 	}
 
 
-	if($has_webpages && feature_enabled($uid,'webpages')) {
+	if($has_webpages && Apps::system_app_installed($uid, 'Webpages')) {
 		$tabs[] = [
 			'label' => t('Webpages'),
 			'url'   => z_root() . '/page/' . $nickname . '/home',
@@ -480,21 +502,19 @@ function channel_apps($is_owner = false, $nickname = null) {
 	}
  
 
-	if ($p['view_wiki']) {
-		if(feature_enabled($uid,'wiki') && (get_account_techlevel($account_id) > 3)) {
-			$tabs[] = [
-				'label' => t('Wikis'),
-				'url'   => z_root() . '/wiki/' . $nickname,
-				'sel'   => ((argv(0) == 'wiki') ? 'active' : ''),
-				'title' => t('Wiki'),
-				'id'    => 'wiki-tab',
-				'icon'  => 'pencil-square-o'
-			];
-		}
+	if ($p['view_wiki'] && Apps::system_app_installed($uid, 'Wiki')) {
+		$tabs[] = [
+			'label' => t('Wikis'),
+			'url'   => z_root() . '/wiki/' . $nickname,
+			'sel'   => ((argv(0) == 'wiki') ? 'active' : ''),
+			'title' => t('Wiki'),
+			'id'    => 'wiki-tab',
+			'icon'  => 'pencil-square-o'
+		];
 	}
 
 	$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
-	call_hooks('profile_tabs', $arr);
+
 	call_hooks('channel_apps', $arr);	
 
 	return replace_macros(get_markup_template('profile_tabs.tpl'), 

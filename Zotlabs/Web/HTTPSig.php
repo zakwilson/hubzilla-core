@@ -52,6 +52,7 @@ class HTTPSig {
 			$h = new \Zotlabs\Web\HTTPHeaders($data['header']);
 			$headers = $h->fetcharr();
 			$body = $data['body'];
+			$headers['(request-target)'] = $data['request_target'];
 		}
 
 		else {
@@ -60,6 +61,7 @@ class HTTPSig {
 				strtolower($_SERVER['REQUEST_METHOD']) . ' ' .
 				$_SERVER['REQUEST_URI'];
 			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 
 			foreach($_SERVER as $k => $v) {
 				if(strpos($k,'HTTP_') === 0) {
@@ -103,6 +105,17 @@ class HTTPSig {
 			}
 			if(strpos($h,'.')) {
 				$spoofable = true;
+			}
+			if($h === 'date') {
+				$d = new \DateTime($headers[$h]);
+				$d->setTimeZone(new \DateTimeZone('UTC'));
+				$dplus = datetime_convert('UTC','UTC','now + 1 day');
+				$dminus = datetime_convert('UTC','UTC','now - 1 day');
+				$c = $d->format('Y-m-d H:i:s');
+				if($c > $dplus || $c < $dminus) {
+					logger('bad time: ' . $c);
+					return $result;
+				}
 			}
 		}
 		$signed_data = rtrim($signed_data,"\n");

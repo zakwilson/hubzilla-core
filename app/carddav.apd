@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/cdav/addressbook
 requires: local_channel
 name: CardDAV

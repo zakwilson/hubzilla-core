@@ -32,7 +32,8 @@ aside #region_1 {
 	border-right: 1px solid transparent;
 }
 
-aside #left_aside_wrapper {
+aside #left_aside_wrapper,
+aside #right_aside_wrapper {
 	margin-bottom: 10px;
 }
 
@@ -1513,9 +1514,13 @@ blockquote {
 		left: 0px;
 	}
 
-	#nav-app-link-wrapper {
+	#nav-app-link-wrapper.has_location {
 		min-width: 0;
 		flex-basis: 25%;
+	}
+
+	#nav-app-link-wrapper {
+		margin-right: 0.5rem;
 	}
 
 	#navbar-collapse-2 .navbar-app i {
@@ -1672,11 +1677,9 @@ dl.bb-dl > dd > li {
 
 
 .form-group.checkbox > div > input:disabled + label .onoffswitch-switch {
-    background-color: red;
-	border-radius: 3px;
+	background-color: red;
 	opacity: 0.3;
 	filter:alpha(opacity=30);
-
 }
 
 

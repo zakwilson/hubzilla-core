@@ -55,7 +55,7 @@ class Finger {
 
 		$r = q("select xchan.*, hubloc.* from xchan
 			left join hubloc on xchan_hash = hubloc_hash
-			where xchan_addr = '%s' and hubloc_primary = 1 limit 1",
+			where xchan_addr = '%s' and hubloc_primary = 1 and hubloc_deleted = 0 limit 1",
 			dbesc($xchan_addr)
 		);
 
@@ -69,6 +69,11 @@ class Finger {
 			}
 		} else {
 			$url = 'https://' . $host;
+		}
+
+		$m = parse_url($url);
+		if($m) {
+			$parsed_host = strtolower($m['host']);
 		}
 
 		$rhs = '/.well-known/zot-info';
@@ -88,6 +93,8 @@ class Finger {
 			$headers = [];
 			$headers['X-Zot-Channel'] = $channel['channel_address'] . '@' . \App::get_hostname();
 			$headers['X-Zot-Nonce']   = random_string();
+			$headers['Host']          = $parsed_host;
+
 			$xhead = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],
 				'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false);
 

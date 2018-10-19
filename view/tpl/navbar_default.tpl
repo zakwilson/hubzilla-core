@@ -63,14 +63,22 @@
 	{{/if}}
 </div>
 {{if $sel.name}}
-<div id="nav-app-link-wrapper" class="navbar-nav mr-auto">
+<div id="nav-app-link-wrapper" class="navbar-nav{{if $sitelocation || ! $settings_url}} has_location mr-auto{{/if}}">
 	<a id="nav-app-link" href="{{$url}}" class="nav-link text-truncate">
 		{{$sel.name}}
 		{{if $sitelocation}}
 		<br><small>{{$sitelocation}}</small>
 		{{/if}}
 	</a>
+
 </div>
+{{if $settings_url}}
+<div id="nav-app-settings-link-wrapper" class="navbar-nav mr-auto">
+	<a id="nav-app-settings-link" href="{{$settings_url}}/?f=&rpath={{$url}}" class="nav-link">
+		<i class="fa fa-fw fa-cog"></i>
+	</a>
+</div>
+{{/if}}
 {{/if}}
 {{/if}}
 <div class="navbar-toggler-right">

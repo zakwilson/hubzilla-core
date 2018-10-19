@@ -50,11 +50,11 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.6.1' );
+define ( 'STD_VERSION',             '3.8' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 
-define ( 'DB_UPDATE_VERSION',       1216 );
+define ( 'DB_UPDATE_VERSION',       1224 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -424,6 +424,7 @@ define ( 'TERM_BOOKMARK',     8 );
 define ( 'TERM_HIERARCHY',    9 );
 define ( 'TERM_COMMUNITYTAG', 10 );
 define ( 'TERM_FORUM',        11 );
+define ( 'TERM_EMOJI',        12 );
 
 define ( 'TERM_OBJ_POST',    1 );
 define ( 'TERM_OBJ_PHOTO',   2 );
@@ -728,6 +729,11 @@ class App {
 	private static $perms      = null;            // observer permissions
 	private static $widgets    = array();         // widgets for this page
 	public  static $config     = array();         // config cache
+        public  static $override_intltext_templates = array();
+        public  static $override_markup_templates = array();
+        public  static $override_templateroot = null;
+        public  static $override_helproot = null;
+        public  static $override_helpfiles = array();
 
 	public static  $session    = null;
 	public static  $groups;
@@ -1050,7 +1056,6 @@ class App {
 		self::$observer = $xchan;
 	}
 
-
 	public static function get_observer() {
 		return self::$observer;
 	}
@@ -1113,8 +1118,12 @@ class App {
 		if(! x(self::$page,'title'))
 			self::$page['title'] = self::$config['system']['sitename'];
 
-		if(! self::$meta->get_field('og:title'))
-			self::$meta->set('og:title',self::$page['title']);
+		$pagemeta = [ 'og:title' => self::$page['title'] ];
+
+		call_hooks('page_meta',$pagemeta);
+		foreach ($pagemeta as $metaproperty => $metavalue) {
+			self::$meta->set($metaproperty,$metavalue);
+		}
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 
@@ -1785,6 +1794,10 @@ function info($s) {
 		return;
 	if(! x($_SESSION, 'sysmsg_info'))
 		$_SESSION['sysmsg_info'] = array();
+
+	if(in_array($s, $_SESSION['sysmsg_info']))
+		return;
+
 	if(App::$interactive)
 		$_SESSION['sysmsg_info'][] = $s;
 }
@@ -2072,8 +2085,8 @@ function load_pdl() {
 	if (! count(App::$layout)) {
 
 		$arr = [
-				'module' => App::$module,
-				'layout' => ''
+			'module' => App::$module,
+			'layout' => ''
 		];
 		/**
 		 * @hooks load_pdl
@@ -2093,6 +2106,16 @@ function load_pdl() {
 
 		if((! $s) && (($p = theme_include($n)) != ''))
 			$s = @file_get_contents($p);
+		elseif(file_exists('addon/'. App::$module . '/' . $n))
+			$s = @file_get_contents('addon/'. App::$module . '/' . $n);
+
+		$arr = [
+			'module' => App::$module,
+			'layout' => $s
+		];
+		call_hooks('alter_pdl',$arr);
+		$s = $arr['layout'];
+
 		if($s) {
 			App::$comanche->parse($s);
 			App::$pdl = $s;

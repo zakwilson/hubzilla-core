@@ -37,7 +37,13 @@ function replace_macros($s, $r) {
 	call_hooks('replace_macros', $arr);
 
 	$t = App::template_engine();
-	$output = $t->replace_macros($arr['template'], $arr['params']);
+
+        try {
+	        $output = $t->replace_macros($arr['template'], $arr['params']);
+        } catch (Exception $e) {
+                logger("Unable to render template: ".$e->getMessage());
+                $output = "<h3>ERROR: there was an error creating the output.</h3>";
+        }
 
 	return $output;
 }
@@ -2047,6 +2053,7 @@ function undo_post_tagging($s) {
 	$cnt = preg_match_all('/([@#])(\!*)\[zrl=(.*?)\](.*?)\[\/zrl\]/ism',$s,$matches,PREG_SET_ORDER);
 	if($cnt) {
 		foreach($matches as $mtch) {
+			$x = false;
 			if($mtch[1] === '@') {
 				$x = q("select xchan_addr, xchan_url from xchan where xchan_url = '%s' limit 1",
 					dbesc($mtch[3])
@@ -2730,7 +2737,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 				$grp = group_byname($profile_uid,$name);
 
 				if($grp) {
-					$g = q("select hash from groups where id = %d and visible = 1 limit 1",
+					$g = q("select hash from pgrp where id = %d and visible = 1 limit 1",
 						intval($grp)
 					);
 					if($g && $exclusive) {
@@ -2958,7 +2965,9 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
 
-	if(string_replace($old,$new,$item['body'])) {
+    $x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
+    if($x) {
+        $item['body'] = $x;
 		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
 		$item['item_verified']  = 1;
 	}
@@ -3251,16 +3260,16 @@ function cleanup_bbcode($body) {
 	 * First protect any url inside certain bbcode tags so we don't double link it.
 	 */
 
-
 	$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 
-
 	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\nakedoembed', $body);
+
 	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\red_zrl_callback', $body);
+
 
 	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
@@ -3410,5 +3419,43 @@ function get_forum_channels($uid) {
 	}
 
 	return $r;
+
+}
+
+function print_array($arr, $level = 0) {
+
+	$o = EMPTY_STR;
+	$tabs = EMPTY_STR;
+
+	if(is_array($arr)) {
+		for($x = 0; $x <= $level; $x ++) {
+			$tabs .= "\t";
+		}
+		$o .= '[' . "\n";
+		if(count($arr)) {
+			foreach($arr as $k => $v) {
+				if(is_array($v)) {
+					$o .= $tabs . '[' . $k . '] => ' . print_array($v, $level + 1) . "\n";
+				}
+				else {
+					$o .= $tabs . '[' . $k . '] => ' . print_val($v) . ",\n";  
+				}
+			}
+		}
+		$o .= substr($tabs,0,-1) . ']' . (($level) ? ',' : ';' ). "\n";
+		return $o;
+	}
+	
+}
+
+function print_val($v) {
+	if(is_bool($v)) {
+		if($v) return 'true';
+		return 'false';
+	}
+	if(is_string($v)) {
+		return "'" . $v . "'";
+	}
+	return $v;
 
 }

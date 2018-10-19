@@ -44,417 +44,98 @@ function feature_level($feature,$def) {
 	return $def;
 }
 
+function process_module_features_get($uid, $features) {
+	unset($features[0]);
+	foreach($features as $f) {
+		$arr[] = [
+			'feature_' . $f[0],
+			$f[1],
+			((intval(feature_enabled($uid, $f[0]))) ? "1" : ''),
+			$f[2],
+			[t('Off'),t('On')],
+			(($f[4] === false) ? '' : 'disabled'),
+			$f[5]
+		];
+	}
+	return $arr;
+}
+
+function process_module_features_post($uid, $features, $post_arr) {
+	unset($features[0]);
+	foreach($features as $f) {
+		$k = $f[0];
+		if(array_key_exists("feature_$k",$post_arr))
+			set_pconfig($uid,'feature',$k, (string) $post_arr["feature_$k"]);
+		else
+			set_pconfig($uid,'feature', $k, '');
+	}
+}
+
 function get_features($filtered = true, $level = (-1)) {
 
 	$account = \App::get_account();
 
 	$arr = [
 
-		// General
-		'general' => [
+		'calendar' => [
 
-			t('General Features'),
-
-			[
-				'start_menu',   
-				t('New Member Links'),      
-				t('Display new member quick links menu'),
-				(($account['account_created'] > datetime_convert('','','now - 60 days')) ? true : false),
-				get_config('feature_lock','start_menu'),
-				feature_level('start_menu',1),
-			],
+			t('CalDAV'),
 
 			[
-				'advanced_profiles',   
-				t('Advanced Profiles'),      
-				t('Additional profile sections and selections'),
+				'cal_first_day',
+				t('Start calendar week on Monday'),
+				t('Default is Sunday'),
 				false,
-				get_config('feature_lock','advanced_profiles'),
-				feature_level('advanced_profiles',1),
-			],
-
-			[
-				'profile_export',      
-				t('Profile Import/Export'),  
-				t('Save and load profile details across sites/channels'),
-				false,
-				get_config('feature_lock','profile_export'),
-				feature_level('profile_export',3),
-			],
-
-			[
-				'webpages',            
-				t('Web Pages'),              
-				t('Provide managed web pages on your channel'),
-				false,
-				get_config('feature_lock','webpages'),
-				feature_level('webpages',3),
-			],
-
-			[
-				'wiki',            
-				t('Wiki'),              
-				t('Provide a wiki for your channel'),
-				false,
-				get_config('feature_lock','wiki'),
-				feature_level('wiki',2),
-			],
-/*
-			[
-				'hide_rating',       
-				t('Hide Rating'),          
-				t('Hide the rating buttons on your channel and profile pages. Note: People can still rate you somewhere else.'),
-				false,
-				get_config('feature_lock','hide_rating'),
-				feature_level('hide_rating',3),
-			],
-*/			
-			[
-				'private_notes',       
-				t('Private Notes'),          
-				t('Enables a tool to store notes and reminders (note: not encrypted)'),
-				false,
-				get_config('feature_lock','private_notes'),
-				feature_level('private_notes',1),
-			],
-
-			[
-				'cards',       
-				t('Cards'),          
-				t('Create personal planning cards'),
-				false,
-				get_config('feature_lock','cards'),
-				feature_level('cards',1),
-			],
-
-
-			[
-				'articles',       
-				t('Articles'),          
-				t('Create interactive articles'),
-				false,
-				get_config('feature_lock','articles'),
-				feature_level('articles',1),
-			],
-
-			[
-				'nav_channel_select',  
-				t('Navigation Channel Select'), 
-				t('Change channels directly from within the navigation dropdown menu'),
-				false,
-				get_config('feature_lock','nav_channel_select'),
-				feature_level('nav_channel_select',3),
-			],
-
-			[
-				'photo_location',       
-				t('Photo Location'),          
-				t('If location data is available on uploaded photos, link this to a map.'),
-				false,
-				get_config('feature_lock','photo_location'),
-				feature_level('photo_location',2),
-			],
-
-			[
-				'ajaxchat',       
-				t('Access Controlled Chatrooms'),          
-				t('Provide chatrooms and chat services with access control.'),
-				true,
-				get_config('feature_lock','ajaxchat'),
-				feature_level('ajaxchat',1),
-			],
-
-
-			[
-				'smart_birthdays',       
-				t('Smart Birthdays'),          
-				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
-				true,
-				get_config('feature_lock','smart_birthdays'),
-				feature_level('smart_birthdays',2),
-			],
-
-			[
-				'event_tz_select',       
-				t('Event Timezone Selection'),          
-				t('Allow event creation in timezones other than your own.'),
-				false,
-				get_config('feature_lock','event_tz_select'),
-				feature_level('event_tz_select',2),
-			],
-
-
-			[
-				'premium_channel', 
-				t('Premium Channel'), 
-				t('Allows you to set restrictions and terms on those that connect with your channel'),
-				false,
-				get_config('feature_lock','premium_channel'),
-				feature_level('premium_channel',4),
-			],
-
-			[ 
-				'advanced_dirsearch', 
-				t('Advanced Directory Search'),
-				t('Allows creation of complex directory search queries'),
-				false, 
-				get_config('feature_lock','advanced_dirsearch'),
-				feature_level('advanced_dirsearch',4),
-			],
-
-			[ 
-				'advanced_theming', 
-				t('Advanced Theme and Layout Settings'),
-				t('Allows fine tuning of themes and page layouts'),
-				false, 
-				get_config('feature_lock','advanced_theming'),
-				feature_level('advanced_theming',4),
-			],
-		],
-
-
-		'access_control' => [
-			t('Access Control and Permissions'),
-
-			[
-				'groups',    		
-				t('Privacy Groups'),		
-				t('Enable management and selection of privacy groups'),
-				true,
-				get_config('feature_lock','groups'),
-				feature_level('groups',0),
-			],
-
-			[
-				'multi_profiles',      
-				t('Multiple Profiles'),      
-				t('Ability to create multiple profiles'), 
-				false, 
-				get_config('feature_lock','multi_profiles'),
-				feature_level('multi_profiles',3),
-			],
-
-
-			[
-				'permcats',       
-				t('Permission Categories'),
-				t('Create custom connection permission limits'),
-				false,
-				get_config('feature_lock','permcats'),
-				feature_level('permcats',2),
-			],
-
-			[
-				'oauth_clients',       
-				t('OAuth1 Clients'),          
-				t('Manage OAuth1 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth_clients'),
-				feature_level('oauth_clients',1),
-			],
-
-			[
-				'oauth2_clients',       
-				t('OAuth2 Clients'),          
-				t('Manage OAuth2 authenticatication tokens for mobile and remote apps.'),
-				false,
-				get_config('feature_lock','oauth2_clients'),
-				feature_level('oauth2_clients',1),
-			],
-
-			[
-				'access_tokens',       
-				t('Access Tokens'),          
-				t('Create access tokens so that non-members can access private content.'),
-				false,
-				get_config('feature_lock','access_tokens'),
-				feature_level('access_tokens',2),
-			],
+				get_config('feature_lock','cal_first_day')
+			]
 
 		],
 
-		// Post composition
-		'composition' => [
+		'channel_home' => [
 
-			t('Post Composition Features'),
-
-			[
-				'large_photos',   
-				t('Large Photos'),              
-				t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),
-				false,
-				get_config('feature_lock','large_photos'),
-				feature_level('large_photos',1),
-			],
+			t('Channel Home'),
 
 			[
-				'channel_sources', 
-				t('Channel Sources'),          
-				t('Automatically import channel content from other channels or feeds'),
-				false,
-				get_config('feature_lock','channel_sources'),
-				feature_level('channel_sources',3),
-			],
-			
-			[
-				'content_encrypt', 
-				t('Even More Encryption'),          
-				t('Allow optional encryption of content end-to-end with a shared secret key'),
-				false,
-				get_config('feature_lock','content_encrypt'),
-				feature_level('content_encrypt',3),
-			],
-			
-			[
-				'consensus_tools', 
-				t('Enable Voting Tools'),      
-				t('Provide a class of post which others can vote on'),
-				false,
-				get_config('feature_lock','consensus_tools'),
-				feature_level('consensus_tools',3),
-			],
-
-			[
-				'disable_comments', 
-				t('Disable Comments'),      
-				t('Provide the option to disable comments for a post'),
-				false,
-				get_config('feature_lock','disable_comments'),
-				feature_level('disable_comments',2),
-			],
-
-			[
-				'delayed_posting', 
-				t('Delayed Posting'),      
-				t('Allow posts to be published at a later date'),
-				false,
-				get_config('feature_lock','delayed_posting'),
-				feature_level('delayed_posting',2),
-			],
-
-			[ 	
-				'content_expire',
-				t('Content Expiration'),
-				t('Remove posts/comments and/or private messages at a future time'), 
-				false, 
-				get_config('feature_lock','content_expire'),
-				feature_level('content_expire',1),
-			],
-
-			[
-				'suppress_duplicates', 
-				t('Suppress Duplicate Posts/Comments'),  
-				t('Prevent posts with identical content to be published with less than two minutes in between submissions.'),
-				true,
-				get_config('feature_lock','suppress_duplicates'),
-				feature_level('suppress_duplicates',1),
-			],
-
-			[
-				'auto_save_draft', 
-				t('Auto-save drafts of posts and comments'),  
-				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
-				true,
-				get_config('feature_lock','auto_save_draft'),
-				feature_level('auto_save_draft',1),
-			],
-
-		],
-
-		// Network Tools
-		'net_module' => [
-
-			t('Network and Stream Filtering'),
-
-			[
-				'archives',       
-				t('Search by Date'),			
+				'archives',
+				t('Search by Date'),
 				t('Ability to select posts by date ranges'),
 				false,
-				get_config('feature_lock','archives'),
-				feature_level('archives',1),
-			],
-
-
-			[
-				'savedsearch',    
-				t('Saved Searches'),			
-				t('Save search terms for re-use'),
-				false,
-				get_config('feature_lock','savedsearch'),
-				feature_level('savedsearch',2),
+				get_config('feature_lock','archives')
 			],
 
 			[
-				'order_tab',
-				t('Alternate Stream Order'),
-				t('Ability to order the stream by last post date, last comment date or unthreaded activities'),
+				'tagadelic',
+				t('Tag Cloud'),
+				t('Provide a personal tag cloud on your channel page'),
 				false,
-				get_config('feature_lock','order_tab'),
-				feature_level('order_tab',2),
+				get_config('feature_lock','tagadelic'),
 			],
 
 			[
-				'name_tab',
-				t('Contact Filter'),
-				t('Ability to display only posts of a selected contact'),
+				'channel_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
 				false,
-				get_config('feature_lock','name_tab'),
-				feature_level('name_tab',1),
-			],
+				get_config('feature_lock','channel_list_mode'),
+			]
+		],
 
-			[
-				'forums_tab',         
-				t('Forum Filter'),				
-				t('Ability to display only posts of a specific forum'),
-				false,
-				get_config('feature_lock','forums_tab'),
-				feature_level('forums_tab',1),
-			],
+		'connections' => [
 
-			[
-				'personal_tab',
-				t('Personal Posts Filter'),
-				t('Ability to display only posts that you\'ve interacted on'),
-				false,
-				get_config('feature_lock','personal_tab'),
-				feature_level('personal_tab',1),
-			],
-
-			[
-				'affinity',       
-				t('Affinity Tool'),			    
-				t('Filter stream activity by depth of relationships'),
-				false,
-				get_config('feature_lock','affinity'),
-				feature_level('affinity',1),
-			],
-
-			[
-				'suggest',    	
-				t('Suggest Channels'),			
-				t('Show friend and connection suggestions'),
-				false,
-				get_config('feature_lock','suggest'),
-				feature_level('suggest',1),
-			],
+			t('Connections'),
 
 			[
 				'connfilter',
 				t('Connection Filtering'),
 				t('Filter incoming posts from connections based on keywords/content'),
 				false,
-				get_config('feature_lock','connfilter'),
-				feature_level('connfilter',3),
-			],
-
-
+				get_config('feature_lock','connfilter')
+			]
 		],
 
-		// Item tools
-		'tools' => [
+		'conversation' => [
 
-			t('Post/Comment Tools'),
+			t('Conversation'),
 
 			[
 				'commtag',        
@@ -462,16 +143,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to tag existing posts'),
 				false,
 				get_config('feature_lock','commtag'),
-				feature_level('commtag',1),
-			],
-
-			[
-				'categories',     
-				t('Post Categories'),			
-				t('Add categories to your posts'),
-				false,
-				get_config('feature_lock','categories'),
-				feature_level('categories',1),
 			],
 
 			[
@@ -480,16 +151,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Add emoji reaction ability to posts'),
 				true,
 				get_config('feature_lock','emojis'),
-				feature_level('emojis',1),
-			],
-
-			[
-				'filing',         
-				t('Saved Folders'),				
-				t('Ability to file posts under folders'),
-				false,
-				get_config('feature_lock','filing'),
-				feature_level('filing',2),
 			],
 
 			[
@@ -498,7 +159,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to dislike posts/comments'),
 				false,
 				get_config('feature_lock','dislike'),
-				feature_level('dislike',1),
 			],
 
 			[
@@ -507,26 +167,276 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to mark special posts with a star indicator'),
 				false,
 				get_config('feature_lock','star_posts'),
-				feature_level('star_posts',1),
+			]
+
+		],
+
+		'directory' => [
+
+			t('Directory'),
+
+			[
+				'advanced_dirsearch',
+				t('Advanced Directory Search'),
+				t('Allows creation of complex directory search queries'),
+				false,
+				get_config('feature_lock','advanced_dirsearch'),
+			]
+
+		],
+
+		'editor' => [
+
+			t('Editor'),
+
+			[
+				'categories',
+				t('Post Categories'),
+				t('Add categories to your posts'),
+				false,
+				get_config('feature_lock','categories'),
+				feature_level('categories',1),
 			],
 
 			[
-				'tagadelic',      
-				t('Tag Cloud'),				    
-				t('Provide a personal tag cloud on your channel page'),
+				'large_photos',   
+				t('Large Photos'),              
+				t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),
 				false,
-				get_config('feature_lock','tagadelic'),
-				feature_level('tagadelic',2),
+				get_config('feature_lock','large_photos'),
 			],
+
+			[
+				'content_encrypt', 
+				t('Even More Encryption'),          
+				t('Allow optional encryption of content end-to-end with a shared secret key'),
+				false,
+				get_config('feature_lock','content_encrypt'),
+			],
+			
+			[
+				'consensus_tools', 
+				t('Enable Voting Tools'),      
+				t('Provide a class of post which others can vote on'),
+				false,
+				get_config('feature_lock','consensus_tools'),
+			],
+
+			[
+				'disable_comments', 
+				t('Disable Comments'),      
+				t('Provide the option to disable comments for a post'),
+				false,
+				get_config('feature_lock','disable_comments'),
+			],
+
+			[
+				'delayed_posting', 
+				t('Delayed Posting'),      
+				t('Allow posts to be published at a later date'),
+				false,
+				get_config('feature_lock','delayed_posting'),
+			],
+
+			[ 	
+				'content_expire',
+				t('Content Expiration'),
+				t('Remove posts/comments and/or private messages at a future time'), 
+				false, 
+				get_config('feature_lock','content_expire'),
+			],
+
+			[
+				'suppress_duplicates', 
+				t('Suppress Duplicate Posts/Comments'),  
+				t('Prevent posts with identical content to be published with less than two minutes in between submissions.'),
+				true,
+				get_config('feature_lock','suppress_duplicates'),
+			],
+
+			[
+				'auto_save_draft', 
+				t('Auto-save drafts of posts and comments'),  
+				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
+				true,
+				get_config('feature_lock','auto_save_draft'),
+			]
+
 		],
+
+		'events' => [
+
+			t('Events'),
+
+			[
+				'events_cal_first_day',
+				t('Start calendar week on Monday'),
+				t('Default is Sunday'),
+				false,
+				get_config('feature_lock','events_cal_first_day')
+			],
+
+			[
+				'smart_birthdays',
+				t('Smart Birthdays'),
+				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
+				true,
+				get_config('feature_lock','smart_birthdays'),
+			],
+
+			[
+				'event_tz_select',
+				t('Event Timezone Selection'),
+				t('Allow event creation in timezones other than your own.'),
+				false,
+				get_config('feature_lock','event_tz_select'),
+			]
+
+		],
+
+		'manage' => [
+
+			t('Manage'),
+
+			[
+				'nav_channel_select',  
+				t('Navigation Channel Select'), 
+				t('Change channels directly from within the navigation dropdown menu'),
+				false,
+				get_config('feature_lock','nav_channel_select'),
+			]
+
+		],
+
+		'network' => [
+
+			t('Network'),
+
+			[
+				'savedsearch',    
+				t('Saved Searches'),			
+				t('Save search terms for re-use'),
+				false,
+				get_config('feature_lock','savedsearch')
+			],
+
+			[
+				'filing',
+				t('Saved Folders'),
+				t('Ability to file posts under folders'),
+				false,
+				get_config('feature_lock','filing'),
+			],
+
+			[
+				'order_tab',
+				t('Alternate Stream Order'),
+				t('Ability to order the stream by last post date, last comment date or unthreaded activities'),
+				false,
+				get_config('feature_lock','order_tab')
+			],
+
+			[
+				'name_tab',
+				t('Contact Filter'),
+				t('Ability to display only posts of a selected contact'),
+				false,
+				get_config('feature_lock','name_tab')
+			],
+
+			[
+				'forums_tab',         
+				t('Forum Filter'),				
+				t('Ability to display only posts of a specific forum'),
+				false,
+				get_config('feature_lock','forums_tab')
+			],
+
+			[
+				'personal_tab',
+				t('Personal Posts Filter'),
+				t('Ability to display only posts that you\'ve interacted on'),
+				false,
+				get_config('feature_lock','personal_tab')
+			],
+
+			[
+				'affinity',       
+				t('Affinity Tool'),			    
+				t('Filter stream activity by depth of relationships'),
+				false,
+				get_config('feature_lock','affinity')
+			],
+
+			[
+				'suggest',    	
+				t('Suggest Channels'),			
+				t('Show friend and connection suggestions'),
+				false,
+				get_config('feature_lock','suggest')
+			],
+
+			[
+				'network_list_mode',
+				t('Use blog/list mode'),
+				t('Comments will be displayed separately'),
+				false,
+				get_config('feature_lock','network_list_mode'),
+			]
+
+		],
+
+		'photos' => [
+
+			t('Photos'),
+
+			[
+				'photo_location',
+				t('Photo Location'),
+				t('If location data is available on uploaded photos, link this to a map.'),
+				false,
+				get_config('feature_lock','photo_location'),
+			]
+
+		],
+
+		'profiles' => [
+
+			t('Profiles'),
+
+			[
+				'advanced_profiles',
+				t('Advanced Profiles'),
+				t('Additional profile sections and selections'),
+				false,
+				get_config('feature_lock','advanced_profiles')
+			],
+
+			[
+				'profile_export',
+				t('Profile Import/Export'),
+				t('Save and load profile details across sites/channels'),
+				false,
+				get_config('feature_lock','profile_export')
+			],
+
+			[
+				'multi_profiles',
+				t('Multiple Profiles'),
+				t('Ability to create multiple profiles'), 
+				false, 
+				get_config('feature_lock','multi_profiles')
+			]
+
+		]
+
+
 	];
 
 	$x = [ 'features' => $arr, ];
 	call_hooks('get_features',$x);
 
 	$arr = $x['features'];
-
-	$techlevel = (($level >= 0) ? $level : get_account_techlevel());
 
 	// removed any locked features and remove the entire category if this makes it empty
 
@@ -538,9 +448,6 @@ function get_features($filtered = true, $level = (-1)) {
 			for($y = 0; $y < count($arr[$k]); $y ++) {
 				$disabled = false;
 				if(is_array($arr[$k][$y])) {
-					if($arr[$k][$y][5] > $techlevel) {
-						$disabled = true;
-					}
 					if($arr[$k][$y][4] !== false) { 
 						$disabled = true;
 					}
@@ -560,4 +467,9 @@ function get_features($filtered = true, $level = (-1)) {
 	}
 
 	return $narr;
+}
+ 
+function get_module_features($module) {
+	$features = get_features(false);
+	return $features[$module];
 }

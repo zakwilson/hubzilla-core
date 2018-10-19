@@ -44,7 +44,8 @@ class NativeWikiPage {
 					$pages[] = [
 						'resource_id' => $resource_id,
 						'title'       => escape_tags($title),
-						'url'         => str_replace('%2F','/',urlencode(str_replace('%2F','/',urlencode($title)))),
+						//'url'         => str_replace('%2F','/',urlencode(str_replace('%2F','/',urlencode($title)))),
+						'url'		=> Zlib\NativeWiki::name_encode($title),
 						'link_id'     => 'id_' . substr($resource_id, 0, 10) . '_' . $page_item['id']
 					];
 				}
@@ -98,7 +99,8 @@ class NativeWikiPage {
 			$page = [ 
 				'rawName'  => $name,
 				'htmlName' => escape_tags($name),
-				'urlName'  => urlencode($name), 
+				//'urlName'  => urlencode($name), 
+				'urlName' => Zlib\NativeWiki::name_encode($name)
 
 			];
 
@@ -154,7 +156,8 @@ class NativeWikiPage {
 			$page = [ 
 				'rawName'  => $pageNewName, 
 				'htmlName' => escape_tags($pageNewName), 
-				'urlName'  => urlencode(escape_tags($pageNewName))
+				//'urlName'  => urlencode(escape_tags($pageNewName))
+				'urlName' => Zlib\NativeWiki::name_encode($pageNewName)
 			];
 
 			return [ 'success' => true, 'page' => $page ];
@@ -365,7 +368,6 @@ class NativeWikiPage {
 
 		unset($item['id']);
 		unset($item['author']);
-
 		$item['parent']       = 0;
 		$item['body']         = $content;
 		$item['author_xchan'] = $observer_hash;
@@ -527,7 +529,8 @@ class NativeWikiPage {
 			$pages = $pageURLs = array();
 			foreach ($match[1] as $m) {
 				// TODO: Why do we need to double urlencode for this to work?
-				$pageURLs[] = urlencode(urlencode(escape_tags($m)));
+				//$pageURLs[] = urlencode(urlencode(escape_tags($m)));
+				$pageURLs[] = Zlib\NativeWiki::name_encode(escape_tags($m));
 				$pages[] = $m;
 			}
 			$idx = 0;
@@ -556,7 +559,10 @@ class NativeWikiPage {
 			'$pageHistory' => $pageHistory['history'],
 			'$permsWrite'  => $arr['permsWrite'],
 			'$name_lbl'    => t('Name'),
-			'$msg_label'   => t('Message','wiki_history')
+			'$msg_label'   => t('Message','wiki_history'),
+			'$date_lbl'    => t('Date'),
+			'$revert_btn'  => t('Revert'),
+			'$compare_btn' => t('Compare')
 		));
 
 	}
@@ -613,7 +619,7 @@ class NativeWikiPage {
 			$s = str_replace('[observer.webname]', '', $s);
 			$s = str_replace('[observer.photo]', '', $s);
 		}
-	
+
 		return $s;
 	}
 	

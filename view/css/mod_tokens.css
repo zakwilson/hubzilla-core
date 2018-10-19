@@ -1,0 +1,16 @@
+.zat-example {
+	color: red;
+}
+
+#atoken-index {
+	width: 100%;
+}
+
+#atoken-index td:nth-child(1){
+	padding: 7px 3px 7px 10px;
+	white-space: nowrap;
+}
+
+.atoken-index-tool {
+	padding: 7px 10px;
+}

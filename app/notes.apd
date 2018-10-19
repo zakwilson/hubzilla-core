@@ -1,0 +1,6 @@
+version: 2
+url: $baseurl/notes
+requires: local_channel
+name: Notes
+photo: icon:sticky-note-o
+categories: Personal, Productivity

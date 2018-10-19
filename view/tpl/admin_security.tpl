@@ -26,8 +26,8 @@
 	{{include file="field_textarea.tpl" field=$embed_deny}}
 
 
-	<div class="admin-submit-wrapper" >
-		<input type="submit" name="submit" class="admin-submit" value="{{$submit}}" />
+	<div class="admin-submit-wrapper">
+		<input type="submit" name="submit" class="btn btn-primary" value="{{$submit}}" />
 	</div>
 
 	</form>

@@ -1,4 +1,4 @@
-version: 2.2
+version: 2
 url: $baseurl/pubstream
 requires: public_stream
 name: Public Stream

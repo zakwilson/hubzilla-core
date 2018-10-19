@@ -1,4 +1,4 @@
-Hubzilla 3.8 (????-??-??)
+Hubzilla 3.8 (2018-10-19)
 	- Re-implement basic build test via gitlab-ci
 	- Rework wiki encoding/decoding
 	- Implement improved worker (experimental - off by default)
@@ -62,6 +62,7 @@ Hubzilla 3.8 (????-??-??)
 	- Fix app update and ownership issues
 
 	Addons
+	- Upgrade Info: new addon to inform channel owners about system upgrades
 	- Superblock: fix issue with not removeable channels
 	- Cart: fix subscription table not created on install
 	- Hsse: new addon - a WYSIWYG editor for certain modules

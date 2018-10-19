@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/sources
 requires: local_channel
 name: Channel Sources

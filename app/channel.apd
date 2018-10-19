@@ -1,4 +1,4 @@
-version: 1.1
+version: 2
 url: $baseurl/channel/$nick, $baseurl/settings/channel_home
 requires: local_channel
 name: Channel Home

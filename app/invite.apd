@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/invite
 requires: local_channel
 name: Invite

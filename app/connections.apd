@@ -1,4 +1,4 @@
-version: 1.1
+version: 2
 url: $baseurl/connections, $baseurl/settings/connections
 requires: local_channel
 name: Connections

@@ -1,4 +1,4 @@
-version: 1.1
+version: 2
 url: $baseurl/chat/$nick
 requires: local_channel
 name: Chatrooms

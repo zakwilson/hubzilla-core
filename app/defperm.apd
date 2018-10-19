@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/defperms
 requires: local_channel, custom_role
 name: Default Permissions

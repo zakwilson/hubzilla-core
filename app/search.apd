@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/search
 name: Search
 photo: icon:search

@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/network, $baseurl/settings/network
 requires: local_channel
 name: Network

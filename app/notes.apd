@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/notes
 requires: local_channel
 name: Notes

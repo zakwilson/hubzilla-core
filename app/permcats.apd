@@ -1,4 +1,4 @@
-version: 1
+version: 2
 url: $baseurl/permcats
 requires: local_channel
 name: Permission Categories

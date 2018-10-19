@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-15 21:15+0200\n"
-"PO-Revision-Date: 2018-10-15 21:17+0200\n"
+"POT-Creation-Date: 2018-10-18 11:03+0200\n"
+"PO-Revision-Date: 2018-10-18 11:06+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -36,7 +36,7 @@ msgid "Focus (Hubzilla default)"
 msgstr "Фокус (по умолчанию Hubzilla)"
 
 #: ../../view/theme/redbasic/php/config.php:94 ../../include/js_strings.php:22
-#: ../../Zotlabs/Module/Mail.php:431 ../../Zotlabs/Module/Pconfig.php:107
+#: ../../Zotlabs/Module/Mail.php:431 ../../Zotlabs/Module/Pconfig.php:111
 #: ../../Zotlabs/Module/Defperms.php:265 ../../Zotlabs/Module/Permcats.php:128
 #: ../../Zotlabs/Module/Xchan.php:15
 #: ../../Zotlabs/Module/Email_validation.php:40
@@ -4265,15 +4265,15 @@ msgstr "Отправить ответ"
 msgid "Your message for %s (%s):"
 msgstr "Ваше сообщение для %s (%s):"
 
-#: ../../Zotlabs/Module/Pconfig.php:26 ../../Zotlabs/Module/Pconfig.php:59
+#: ../../Zotlabs/Module/Pconfig.php:27 ../../Zotlabs/Module/Pconfig.php:63
 msgid "This setting requires special processing and editing has been blocked."
 msgstr "Этот параметр требует специальной обработки и редактирования и был заблокирован."
 
-#: ../../Zotlabs/Module/Pconfig.php:48
+#: ../../Zotlabs/Module/Pconfig.php:52
 msgid "Configuration Editor"
 msgstr "Редактор конфигурации"
 
-#: ../../Zotlabs/Module/Pconfig.php:49
+#: ../../Zotlabs/Module/Pconfig.php:53
 msgid ""
 "Warning: Changing some settings could render your channel inoperable. Please "
 "leave this page unless you are comfortable with and knowledgeable about how "
@@ -10428,7 +10428,7 @@ msgstr "Предоставьте Wiki для вашего канала"
 #: ../../Zotlabs/Module/Wiki.php:77
 #: ../../extend/addon/hzaddons/cart/submodules/paypalbutton.php:456
 #: ../../extend/addon/hzaddons/cart/myshop.php:37
-#: ../../extend/addon/hzaddons/cart/manual_payments.php:63
+#: ../../extend/addon/hzaddons/cart/manual_payments.php:93
 #: ../../extend/addon/hzaddons/cart/cart.php:1440
 msgid "Invalid channel"
 msgstr "Недействительный канал"
@@ -14159,7 +14159,7 @@ msgid ""
 msgstr "Кнопка Paypal для платежей настроена неправильно. Пожалуйста, используйте другой вариант оплаты."
 
 #: ../../extend/addon/hzaddons/cart/submodules/paypalbutton.php:392
-#: ../../extend/addon/hzaddons/cart/manual_payments.php:38
+#: ../../extend/addon/hzaddons/cart/manual_payments.php:68
 #: ../../extend/addon/hzaddons/cart/cart.php:1462
 msgid "Order not found."
 msgstr "Заказ не найден."
@@ -14188,11 +14188,11 @@ msgstr "Недействительный элемент"
 msgid "Error: order mismatch. Please try again."
 msgstr "Ошибка: несоответствие заказа. Пожалуйста, попробуйте ещё раз"
 
-#: ../../extend/addon/hzaddons/cart/manual_payments.php:31
+#: ../../extend/addon/hzaddons/cart/manual_payments.php:61
 msgid "Manual payments are not enabled."
 msgstr "Ручные платежи не подключены."
 
-#: ../../extend/addon/hzaddons/cart/manual_payments.php:47
+#: ../../extend/addon/hzaddons/cart/manual_payments.php:77
 msgid "Finished"
 msgstr "Завершено"
 
@@ -14265,6 +14265,36 @@ msgstr "Разрешить федерацию публикаций по умол
 #: ../../extend/addon/hzaddons/nofed/nofed.php:80
 msgid "NoFed Settings"
 msgstr "Настройки NoFed"
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:43
+msgid "Your channel has been upgraded to the latest $Projectname version."
+msgstr "Ваш канал был обновлён на последнюю версию $Projectname."
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:44
+msgid ""
+"To improve usability, we have converted some features into installable stand-"
+"alone apps."
+msgstr "Чтобы улучшить удобство использования, некоторые функции теперь доступны в виде устанавливаемых автономных приложений."
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:45
+msgid "Please visit the $Projectname"
+msgstr "Пожалуйста, посетите $Projectname"
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:46
+msgid "app store"
+msgstr "раздел \"Приложения\""
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:47
+msgid "and install possibly missing apps."
+msgstr "и установите необходимые вам."
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:52
+msgid "Upgrade Info"
+msgstr "Сведения об обновлении"
+
+#: ../../extend/addon/hzaddons/upgrade_info/upgrade_info.php:56
+msgid "Do not show this again"
+msgstr "Больше не показывать"
 
 #: ../../extend/addon/hzaddons/gravatar/gravatar.php:123
 msgid "generic profile image"

@@ -213,7 +213,7 @@ class Menu extends \Zotlabs\Web\Controller {
 					'$header' => t('Edit Menu'),
 					'$sys' => \App::$is_sys,
 					'$menu_id' => intval(argv(2)),
-					'$menu_edit_link' => 'mitem/' . $which . '/' . intval(argv(1)) . ((\App::$is_sys) ? '?f=&sys=1' : ''),
+					'$menu_edit_link' => 'mitem/' . $which . '/' . intval(argv(2)) . ((\App::$is_sys) ? '?f=&sys=1' : ''),
 					'$hintedit' => t('Add or remove entries to this menu'),
 					'$editcontents' => t('Edit menu contents'),
 					'$menu_name' => array('menu_name', t('Menu name'), $m['menu_name'], t('Must be unique, only seen by you'), '*'),

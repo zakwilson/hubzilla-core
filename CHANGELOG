@@ -1,3 +1,9 @@
+Hubzilla 3.8.1 (2018-10-21)
+	- Fix issue with too long navbar banners
+	- Fix menu item edit link
+	- Fix issue with jquery file upload
+
+
 Hubzilla 3.8 (2018-10-19)
 	- Re-implement basic build test via gitlab-ci
 	- Rework wiki encoding/decoding

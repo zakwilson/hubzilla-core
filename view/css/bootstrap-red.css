@@ -43,6 +43,11 @@ nav .dropdown-menu {
 	white-space: nowrap;
 }
 
+/* this fixes ellipsis for too long nav banner */
+#navbar-collapse-1 {
+	min-width: 0;
+}
+
 #navbar-collapse-1 i {
 	font-size: 1.0rem;
 }

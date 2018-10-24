@@ -128,11 +128,12 @@ class Network extends \Zotlabs\Web\Controller {
 		$xchan    = ((x($_GET,'xchan')) ? $_GET['xchan']         : '');
 		$net      = ((x($_GET,'net'))   ? $_GET['net']           : '');
 		$pf       = ((x($_GET,'pf'))    ? $_GET['pf']            : '');
+		$unseen   = ((x($_GET,'unseen'))    ? $_GET['unseen']            : '');
 		
 		$deftag = '';
 	
 
-		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category)
+		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
 			$nouveau = true;
 
 		if($cid) {
@@ -220,6 +221,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$sql_extra = '';
 	
 		if($group) {
+
 			$contact_str = '';
 			$contacts = group_get_members($group);
 			if($contacts) {
@@ -232,7 +234,6 @@ class Network extends \Zotlabs\Web\Controller {
 				}
 			}
 			$item_thread_top = '';
-
 			$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND (( author_xchan IN ( $contact_str ) OR owner_xchan in ( $contact_str )) or allow_gid like '" . protect_sprintf('%<' . dbesc($group_hash) . '>%') . "' ) and id = parent $item_normal ) ";
 	
 			$x = group_rec_byhash(local_channel(), $group_hash);
@@ -252,9 +253,20 @@ class Network extends \Zotlabs\Web\Controller {
 
 			if($load || $update) {
 				if(!$pf && $nouveau) {
+					// This is for nouveau view cid queries (not a public forum)
 					$sql_extra = " AND author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ";
 				}
+				elseif($pf && $unseen && $nouveau) {
+
+					$ttype = TERM_FORUM;
+					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
+					$p = q("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
+
+					$p = ids_to_querystr($p, 'parent');
+					$sql_extra = " AND ( owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR item.parent IN ( $p ) ) AND item_unseen = 1 ";
+				}
 				else {
+					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
 					$ttype = (($pf) ? TERM_FORUM : TERM_MENTION);
 
 					$p1 = q("SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal ");
@@ -345,7 +357,8 @@ class Network extends \Zotlabs\Web\Controller {
 				'$verb'    => $verb,
 				'$net'     => $net,
 				'$dbegin'  => $datequery2,
-				'$pf'     => (($pf) ? $pf : '0'),
+				'$pf'      => (($pf) ? $pf : '0'),
+				'$unseen'  => $unseen
 			));
 		}
 	
@@ -386,15 +399,7 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		if($conv) {
 			$item_thread_top = '';
-
-			if($nouveau) {
-				$sql_extra .= " AND author_xchan = '" . dbesc($channel['channel_hash']) . "' ";
-			}
-			else {
-				$sql_extra .= sprintf(" AND parent IN (SELECT distinct(parent) from item where ( author_xchan = '%s' or item_mentionsme = 1 )) ",
-					dbesc(protect_sprintf($channel['channel_hash']))
-				);
-			}
+			$sql_extra .= " AND ( author_xchan = '" . dbesc($channel['channel_hash']) . "' OR item_mentionsme = 1 ) ";
 		}
 	
 		if($update && ! $load) {
@@ -441,9 +446,11 @@ class Network extends \Zotlabs\Web\Controller {
 			$page_mode = 'list';
 		else
 			$page_mode = 'client';
-	
-		$simple_update = (($update) ? " and item_unseen = 1 " : '');
 
+		$parents_str = '';
+		$update_unseen = '';
+
+		$simple_update = (($update) ? " and item_unseen = 1 " : '');
 
 		// This fixes a very subtle bug so I'd better explain it. You wake up in the morning or return after a day
 		// or three and look at your matrix page - after opening up your browser. The first page loads just as it
@@ -459,15 +466,15 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
-		if($load)
-			$simple_update = '';
+
+               if($load)
+                       $simple_update = '';
 
 		if($static && $simple_update)
 			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";	
 	
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
-	
 			$items = q("SELECT item.*, item.id AS item_id, created FROM item 
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 				$net_query
@@ -478,7 +485,12 @@ class Network extends \Zotlabs\Web\Controller {
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
 			);
-	
+
+			$parents_str = ids_to_querystr($items,'item_id');
+			if($parents_str) {
+				$update_unseen = " AND id IN ( " . dbesc($parents_str) . " )";
+			}
+
 			require_once('include/items.php');
 	
 			xchan_query($items);
@@ -521,8 +533,6 @@ class Network extends \Zotlabs\Web\Controller {
 			}
 
 			// Then fetch all the children of the parents that are on this page
-			$parents_str = '';
-			$update_unseen = '';
 	
 			if($r) {
 	

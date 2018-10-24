@@ -243,7 +243,7 @@ class Acl extends \Zotlabs\Web\Controller {
 	
 					$r2 = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, abook_flags, abook_self 
 						FROM abook left join xchan on abook_xchan = xchan_hash 
-						WHERE abook_channel IN ($extra_channels_sql) $known_hashes_sql AND abook_blocked = 0 and abook_pending = 0 and abook_hidden = 0 and xchan_deleted = 0 $sql_extra2_xchan order by $order_extra2 xchan_name asc");
+						WHERE abook_channel IN ($extra_channels_sql) $known_hashes_sql AND abook_blocked = 0 and abook_pending = 0 and abook_hidden = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc");
 					if($r2)
 						$r = array_merge($r,$r2);
 	

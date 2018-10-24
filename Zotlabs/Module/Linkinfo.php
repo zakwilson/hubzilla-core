@@ -228,8 +228,8 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 	
 		$header = $result['header'];
 		$body   = $result['body'];
-	
-		$body   = mb_convert_encoding($body, 'UTF-8', 'UTF-8');
+
+		$body   = mb_convert_encoding($body, 'UTF-8', (preg_match('/meta.+content=["|\']text\/html;\s+charset=([^"|\']+)/i', $body, $o) ? $o[1] : 'UTF-8'));
 		$body   = mb_convert_encoding($body, 'HTML-ENTITIES', "UTF-8");
 	
 		$doc    = new \DOMDocument();

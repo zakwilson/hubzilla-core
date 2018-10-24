@@ -83,7 +83,8 @@ class Acl extends \Zotlabs\Web\Controller {
 		if($search) {
 			$sql_extra = " AND pgrp.gname LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ";
 			$sql_extra2 = "AND ( xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'%" . dbesc(punify($search)) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
-	
+			$sql_extra2_xchan = "AND ( xchan_name LIKE " . protect_sprintf( "'" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'" . dbesc(punify($search)) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
+
 			// This horrible mess is needed because position also returns 0 if nothing is found. 
 			// Would be MUCH easier if it instead returned a very large value
 			// Otherwise we could just 
@@ -226,7 +227,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			else { // Visitors
 				$r = q("SELECT xchan_hash as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self
 					FROM xchan left join xlink on xlink_link = xchan_hash
-					WHERE xlink_xchan  = '%s' AND xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc" ,
+					WHERE xlink_xchan  = '%s' AND xchan_deleted = 0 $sql_extra2_xchan order by $order_extra2 xchan_name asc" ,
 					dbesc(get_observer_hash())
 				);
 	
@@ -242,7 +243,7 @@ class Acl extends \Zotlabs\Web\Controller {
 	
 					$r2 = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, abook_flags, abook_self 
 						FROM abook left join xchan on abook_xchan = xchan_hash 
-						WHERE abook_channel IN ($extra_channels_sql) $known_hashes_sql AND abook_blocked = 0 and abook_pending = 0 and abook_hidden = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc");
+						WHERE abook_channel IN ($extra_channels_sql) $known_hashes_sql AND abook_blocked = 0 and abook_pending = 0 and abook_hidden = 0 and xchan_deleted = 0 $sql_extra2_xchan order by $order_extra2 xchan_name asc");
 					if($r2)
 						$r = array_merge($r,$r2);
 	
@@ -270,7 +271,7 @@ class Acl extends \Zotlabs\Web\Controller {
 			if((count($r) < 100) && $type == 'c') {
 				$r2 = q("SELECT substr(xchan_hash,1,18) as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self 
 					FROM xchan 
-					WHERE xchan_deleted = 0 and not xchan_network  in ('rss','anon','unknown') $sql_extra2 order by $order_extra2 xchan_name asc" 
+					WHERE xchan_deleted = 0 and not xchan_network  in ('rss','anon','unknown') $sql_extra2_xchan order by $order_extra2 xchan_name asc"
 				);
 				if($r2) {
 					$r = array_merge($r,$r2);

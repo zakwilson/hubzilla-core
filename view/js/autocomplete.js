@@ -163,7 +163,7 @@ function string2bb(element) {
 
 		// Autocomplete contacts
 		contacts = {
-			match: /(^|\s)(@\!*)([^ \n]{2,})$/,
+			match: /(^|\s)(@\!*)([^ \n]{3,})$/,
 			index: 3,
 			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'c', extra_channels, spinelement=false); },

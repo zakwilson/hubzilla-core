@@ -54,8 +54,8 @@ class Activity_order {
 			}
 		}
 
-		// override order for search, filer and cid results
-		if(x($_GET,'search') || x($_GET,'file') || (! x($_GET,'pf') && x($_GET,'cid')) || x($_GET,'verb') || x($_GET,'tag') || x($_GET,'cat')) {
+		// override order for some filter results
+		if(x($_GET,'search') || x($_GET,'file') || (! x($_GET,'pf') && x($_GET,'cid')) || x($_GET,'verb') || x($_GET,'tag') || x($_GET,'cat')  || x($_GET,'conv') || x($_GET,'unseen')) {
 			$unthreaded_active = 'active';
 			$commentord_active = $postord_active = 'disabled';
 		}

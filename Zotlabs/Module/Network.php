@@ -258,12 +258,18 @@ class Network extends \Zotlabs\Web\Controller {
 				}
 				elseif($pf && $unseen && $nouveau) {
 
-					$ttype = TERM_FORUM;
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
-					$p = q("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
+					$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
+						intval(local_channel()),
+						intval(TERM_FORUM),
+						dbesc($cid_r[0]['xchan_name'])
+					);
 
-					$p = ids_to_querystr($p, 'parent');
-					$sql_extra = " AND ( owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR item.parent IN ( $p ) ) AND item_unseen = 1 ";
+					$p_str = ids_to_querystr($p, 'parent');
+					if($p_str)
+						$p_sql = " OR item.parent IN ( $p_str ) ";
+
+					$sql_extra = " AND ( owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' OR owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' $p_sql ) AND item_unseen = 1 ";
 				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
@@ -273,6 +279,9 @@ class Network extends \Zotlabs\Web\Controller {
 					$p2 = q("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
 
 					$p_str = ids_to_querystr(array_merge($p1,$p2),'parent');
+					if(! $p_str)
+						killme();
+
 					$sql_extra = " AND item.parent IN ( $p_str ) ";
 				}
 			}

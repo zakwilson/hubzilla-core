@@ -157,12 +157,12 @@ class PConfig {
 			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
 
 			if ($new) {
-				$ret = q("UPDATE pconfig SET v = '%s' WHERE uid = %d and cat = '%s' AND k = '%s' AND updated = '%s'",
+				$ret = q("UPDATE pconfig SET v = '%s', updated = '%s' WHERE uid = %d and cat = '%s' AND k = '%s' ",
 					dbesc($dbvalue),
+					dbesc($updated),
 					intval($uid),
 					dbesc($family),
-					dbesc($key),
-					dbesc($updated)
+					dbesc($key)
 				);
 			} else {
 				logger('Refusing to update pconfig with outdated info.', LOGGER_NORMAL, LOG_ERR);

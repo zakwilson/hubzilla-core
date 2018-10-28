@@ -57,6 +57,7 @@ class PConfig {
 					\App::$config[$uid][$c]['config_loaded'] = true;
 				}
 				\App::$config[$uid][$c][$k] = $rr['v'];
+				\App::$config[$uid][$c]['pcfgud:'.$k] = $rr['updated'];
 			}
 		}
 	}
@@ -113,7 +114,7 @@ class PConfig {
 	 *  The value to store
 	 * @return mixed Stored $value or false
 	 */
-	static public function Set($uid, $family, $key, $value) {
+	static public function Set($uid, $family, $key, $value, $updated=NULL) {
 
 		// this catches subtle errors where this function has been called
 		// with local_channel() when not logged in (which returns false)
@@ -130,27 +131,43 @@ class PConfig {
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
+		if (! $updated) {
+			$updated = datetime_convert();
+		}
+
+
 		if(self::Get($uid, $family, $key) === false) {
 			if(! array_key_exists($uid, \App::$config))
 				\App::$config[$uid] = array();
 			if(! array_key_exists($family, \App::$config[$uid]))
 				\App::$config[$uid][$family] = array();
 
-			$ret = q("INSERT INTO pconfig ( uid, cat, k, v ) VALUES ( %d, '%s', '%s', '%s' ) ",
+			$ret = q("INSERT INTO pconfig ( uid, cat, k, v, updated ) VALUES ( %d, '%s', '%s', '%s', '%s' ) ",
 				intval($uid),
 				dbesc($family),
 				dbesc($key),
-				dbesc($dbvalue)
+				dbesc($dbvalue),
+				dbesc($updated)
 			);
+
+			\App::$config[$uid][$family]['pcfgud:'.$key] = $updated;
+
 		}
 		else {
+			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
 
-			$ret = q("UPDATE pconfig SET v = '%s' WHERE uid = %d and cat = '%s' AND k = '%s'",
-				dbesc($dbvalue),
-				intval($uid),
-				dbesc($family),
-				dbesc($key)
-			);
+			if ($new) {
+				$ret = q("UPDATE pconfig SET v = '%s' WHERE uid = %d and cat = '%s' AND k = '%s' AND updated = '%s'",
+					dbesc($dbvalue),
+					intval($uid),
+					dbesc($family),
+					dbesc($key),
+					dbesc($updated)
+				);
+			} else {
+				logger('Refusing to update pconfig with outdated info.', LOGGER_NORMAL, LOG_ERR);
+				return self::Get($uid, $family, $key);
+			}
 		}
 
 		// keep a separate copy for all variables which were
@@ -163,7 +180,11 @@ class PConfig {
 			\App::$config[$uid]['transient'][$family] = array();
 
 		\App::$config[$uid][$family][$key] = $value;
-		\App::$config[$uid]['transient'][$family][$key] = $value;
+
+		if ($new) {
+			\App::$config[$uid]['transient'][$family][$key] = $value;
+			\App::$config[$uid]['transient'][$family]['pcfgud:'.$key] = $updated;
+		}
 
 		if($ret)
 			return $value;
@@ -186,10 +207,19 @@ class PConfig {
 	 *  The configuration key to delete
 	 * @return mixed
 	 */
-	static public function Delete($uid, $family, $key) {
+	static public function Delete($uid, $family, $key, $updated = NULL) {
 
 		if(is_null($uid) || $uid === false)
 			return false;
+
+		$updated = ($updated) ? $updated : datetime_convert();
+
+		$newer = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
+
+		if (! $newer) {
+			logger('Refusing to delete pconfig with outdated delete request.', LOGGER_NORMAL, LOG_ERR);
+			return false;
+		}
 
 		$ret = false;
 
@@ -204,6 +234,17 @@ class PConfig {
 			dbesc($family),
 			dbesc($key)
 		);
+
+		// Synchronize delete with clones.
+
+		if(! array_key_exists('transient', \App::$config[$uid]))
+			\App::$config[$uid]['transient'] = array();
+		if(! array_key_exists($family, \App::$config[$uid]['transient']))
+			\App::$config[$uid]['transient'][$family] = array();
+
+		if ($new) {
+			\App::$config[$uid]['transient'][$family]['pcfgdel:'.$key] = $updated;
+		}
 
 		return $ret;
 	}

@@ -3507,8 +3507,41 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('config',$arr) && is_array($arr['config']) && count($arr['config'])) {
 			foreach($arr['config'] as $cat => $k) {
-				foreach($arr['config'][$cat] as $k => $v)
-					set_pconfig($channel['channel_id'],$cat,$k,$v);
+
+				$pconfig_updated = [];
+				$pconfig_del = [];
+
+				foreach($arr['config'][$cat] as $k => $v) {
+
+					if (strpos($k,'pcfgud:')==0) {
+
+						$realk = substr($k,7);
+						$pconfig_updated[$realk] = $v;
+						unset($arr['config'][$cat][$k]);
+
+					}
+
+					if (strpos($k,'pcfgdel:')==0) {
+						$realk = substr($k,8);
+						$pconfig_del[$realk] = $v;
+						unset($arr['config'][$cat][$k]);
+					}
+				}
+
+				foreach($arr['config'][$cat] as $k => $v) {
+
+					if (!isset($pconfig_updated[$k])) {
+						$pconfig_updated[$k] = NULL;
+					}
+
+					set_pconfig($channel['channel_id'],$cat,$k,$v,$pconfig_updated[$k]);
+
+				}
+
+				foreach($pconfig_del as $k => $updated) {
+					del_pconfig($channel['channel_id'],$cat,$k,$updated);
+				}
+
 			}
 		}
 

@@ -224,7 +224,6 @@ function nav($template = 'default') {
 
 	//app bin
 	if($is_owner) {
-		//daily system apps import
 		if(get_pconfig(local_channel(), 'system','import_system_apps') !== datetime_convert('UTC','UTC','now','Y-m-d')) {
 			Apps::import_system_apps();
 			set_pconfig(local_channel(), 'system','import_system_apps', datetime_convert('UTC','UTC','now','Y-m-d'));

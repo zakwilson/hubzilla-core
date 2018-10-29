@@ -5656,8 +5656,8 @@ msgstr "Permessi predefiniti dei nuovi contatti"
 
 #: ../../Zotlabs/Module/Connedit.php:850 ../../include/items.php:4214
 #, php-format
-msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s ha taggato %3$s di %2$s con %4$s"
+msgid "Connection: %s"
+msgstr "Contatto: %s"
 
 #: ../../Zotlabs/Module/Connedit.php:851 ../../Zotlabs/Module/Defperms.php:239
 msgid "Apply these permissions automatically"
@@ -5690,9 +5690,9 @@ msgstr "Indirizzi disponibili"
 
 #: ../../Zotlabs/Module/Connedit.php:866 ../../Zotlabs/Module/Defperms.php:245
 msgid ""
-"Some individual permissions may have been preset or locked based on your "
-"channel type and privacy settings."
-msgstr ""
+"The permissions indicated on this page will be applied to all new "
+"connections."
+msgstr "I permessi indicati su questa pagina saranno applicati a tutti i nuovi contatti da ora in poi."
 
 #: ../../Zotlabs/Module/Connedit.php:867
 msgid "Connection Tools"
@@ -5839,42 +5839,41 @@ msgstr "Foto"
 msgid "Files"
 msgstr "Archivio file"
 
-#: ../../Zotlabs/Module/Profiles.php:594
-msgid "Profile updated."
-msgstr "Profilo aggiornato."
+#: ../../Zotlabs/Module/Menu.php:49
+msgid "Unable to update menu."
+msgstr "Impossibile aggiornare il menù."
 
-#: ../../Zotlabs/Module/Profiles.php:678
-msgid "Hide your connections list from viewers of this profile"
-msgstr "Nascondi la tua lista di contatti ai visitatori di questo profilo"
+#: ../../Zotlabs/Module/Menu.php:60
+msgid "Unable to create menu."
+msgstr "Impossibile creare il menù."
 
-#: ../../Zotlabs/Module/Profiles.php:725
-msgid "Edit Profile Details"
-msgstr "Modifica i dettagli del profilo"
+#: ../../Zotlabs/Module/Menu.php:98 ../../Zotlabs/Module/Menu.php:110
+msgid "Menu Name"
+msgstr "Nome del menu"
 
-#: ../../Zotlabs/Module/Profiles.php:727
-msgid "View this profile"
-msgstr "Guarda questo profilo"
+#: ../../Zotlabs/Module/Menu.php:98
+msgid "Unique name (not visible on webpage) - required"
+msgstr "Nome unico (non visibile sulla pagina) - obbligatorio"
 
-#: ../../Zotlabs/Module/Profiles.php:728 ../../Zotlabs/Module/Profiles.php:827
-#: ../../include/channel.php:1320
-msgid "Edit visibility"
-msgstr "Cambia la visibilità"
+#: ../../Zotlabs/Module/Menu.php:99 ../../Zotlabs/Module/Menu.php:111
+msgid "Menu Title"
+msgstr "Titolo del menu"
 
-#: ../../Zotlabs/Module/Profiles.php:729
-msgid "Profile Tools"
-msgstr "Gestione del profilo"
+#: ../../Zotlabs/Module/Menu.php:99
+msgid "Visible on webpage - leave empty for no title"
+msgstr "Visibile sulla pagina - lascia vuoto per non avere un titolo"
 
-#: ../../Zotlabs/Module/Profiles.php:730
-msgid "Change cover photo"
-msgstr "Cambia la copertina del canale"
+#: ../../Zotlabs/Module/Menu.php:100
+msgid "Allow Bookmarks"
+msgstr "Permetti i segnalibri"
 
-#: ../../Zotlabs/Module/Profiles.php:731 ../../include/channel.php:1290
-msgid "Change profile photo"
-msgstr "Cambia la foto del profilo"
+#: ../../Zotlabs/Module/Menu.php:100 ../../Zotlabs/Module/Menu.php:157
+msgid "Menu may be used to store saved bookmarks"
+msgstr "Puoi salvare i segnalibri nei menù"
 
-#: ../../Zotlabs/Module/Profiles.php:732
-msgid "Create a new profile using these settings"
-msgstr "Crea un nuovo profilo usando queste impostazioni"
+#: ../../Zotlabs/Module/Menu.php:101 ../../Zotlabs/Module/Menu.php:159
+msgid "Submit and proceed"
+msgstr "Salva e procedi"
 
 #: ../../Zotlabs/Module/Menu.php:107 ../../include/text.php:2423
 msgid "Menus"
@@ -5884,14 +5883,13 @@ msgstr "Menù"
 msgid "Bookmarks allowed"
 msgstr "Permetti segnalibri"
 
-#: ../../Zotlabs/Module/Profiles.php:739 ../../Zotlabs/Widget/Newmember.php:53
-#: ../../include/datetime.php:58
-msgid "Miscellaneous"
-msgstr "Altro"
+#: ../../Zotlabs/Module/Menu.php:119
+msgid "Delete this menu"
+msgstr "Elimina questo menù"
 
-#: ../../Zotlabs/Module/Profiles.php:741
-msgid "Import profile from file"
-msgstr "Importa il profilo da un file"
+#: ../../Zotlabs/Module/Menu.php:120 ../../Zotlabs/Module/Menu.php:154
+msgid "Edit menu contents"
+msgstr "Modifica i contenuti del menù"
 
 #: ../../Zotlabs/Module/Menu.php:121
 msgid "Edit this menu"
@@ -6545,7 +6543,7 @@ msgstr "Homepage del progetto"
 
 #: ../../Zotlabs/Module/Siteinfo.php:32
 msgid "Developer homepage"
-msgstr "Homepage dello sviluppatore"
+msgstr "Homepege dello sviluppatore"
 
 #: ../../Zotlabs/Module/Ratings.php:70
 msgid "No ratings"

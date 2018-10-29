@@ -163,7 +163,7 @@ function string2bb(element) {
 
 		// Autocomplete contacts
 		contacts = {
-			match: /(^|\s)(@\!*)([^ \n]{2,})$/,
+			match: /(^|\s)(@\!*)([^ \n]{3,})$/,
 			index: 3,
 			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'c', extra_channels, spinelement=false); },
@@ -195,12 +195,12 @@ function string2bb(element) {
 
 
 		smilies = {
-			match: /(^|\s)(:[a-z_:]{2,})$/,
+			match: /(^|\s)(:[a-z0-9_:]{2,})$/,
 			index: 2,
 			cache: true,
-			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
-			//template: function(item) { return item.icon + item.text; },
+			search: function(term, callback) { $.getJSON('/smilies/json').done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term.substr(1)) !== -1 ? entry : null; })); }); },
 			replace: function(item) { return "$1" + item.text + ' '; },
+			context: function(text) { return text.toLowerCase(); },
 			template: smiley_format
 		};
 		this.attr('autocomplete','off');
@@ -209,8 +209,12 @@ function string2bb(element) {
 
 		$(this).each(function() {
 			var editor = new Textarea(this);
-			var textcomplete = new Textcomplete(editor);
-			textcomplete.register([contacts,forums,smilies,tags], {className:'acpopup', zIndex:1020});
+			var textcomplete = new Textcomplete(editor, {
+				dropdown: {
+					maxCount: 100
+				}
+			});
+			textcomplete.register([contacts,forums,smilies,tags]);
 		});
 
 
@@ -264,8 +268,12 @@ function string2bb(element) {
 
 		$(this).each(function() {
 			var editor = new Textarea(this);
-			textcomplete = new Textcomplete(editor);
-			textcomplete.register([contacts,forums,tags], {className:'acpopup', maxCount:100, zIndex: 1020, appendTo:'nav'});
+			textcomplete = new Textcomplete(editor, {
+				dropdown: {
+					maxCount: 100
+				}
+			});
+			textcomplete.register([contacts,forums,tags]);
 		});
 
 		textcomplete.on('selected', function() { this.editor.el.form.submit(); });
@@ -299,8 +307,12 @@ function string2bb(element) {
 
 		$(this).each(function() {
 			var editor = new Textarea(this);
-			textcomplete = new Textcomplete(editor);
-			textcomplete.register([contacts], {className:'acpopup', zIndex:1020});
+			textcomplete = new Textcomplete(editor, {
+				dropdown: {
+					maxCount: 100
+				}
+			});
+			textcomplete.register([contacts]);
 		});
 
 		if(autosubmit)
@@ -338,8 +350,12 @@ function string2bb(element) {
 
 		$(this).each(function() {
 			var editor = new Textarea(this);
-			textcomplete = new Textcomplete(editor);
-			textcomplete.register([names], {className:'acpopup', zIndex:1020});
+			textcomplete = new Textcomplete(editor, {
+				dropdown: {
+					maxCount: 100
+				}
+			});
+			textcomplete.register([names]);
 		});
 
 		if(autosubmit)
@@ -358,8 +374,8 @@ function string2bb(element) {
 			return;
 
 		if(type=='bbcode') {
-			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'map', 'nobb', 'list', 'checklist', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer', 'observer.language','embed', 'highlight', 'url', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-			var open_elements = ['observer.baseurl', 'observer.address', 'observer.photo', 'observer.name', 'observer.webname', 'observer.url', '*', 'hr',  ];
+			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'summary', 'map', 'nobb', 'list', 'checklist', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer', 'observer.language','embed', 'highlight', 'url', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+			var open_elements = ['observer.baseurl', 'observer.address', 'observer.photo', 'observer.name', 'observer.webname', 'observer.url', '*', 'hr' ];
 
 			var elements = open_close_elements.concat(open_elements);
 		}
@@ -420,7 +436,7 @@ function string2bb(element) {
 		$(this).each(function() {
 			var editor = new Textarea(this);
 			var textcomplete = new Textcomplete(editor);
-			textcomplete.register([bbco], {className:'acpopup', zIndex:1020});
+			textcomplete.register([bbco]);
 		});
 
 		this.keypress(function(e){

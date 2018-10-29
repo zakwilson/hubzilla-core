@@ -143,7 +143,7 @@
 	<div id="nav-notifications-forums-template" rel="template">
 		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{3}" data-b64mid="{6}" data-notify_id="{7}" data-thread_top="{8}" data-contact_name="{2}">
 			<span class="float-right badge badge-{{$notification.severity}}">{9}</span>
-			<img class="menu-img-1" src="{1}">
+			<img class="menu-img-1" data-src="{1}">
 			<span class="">{2}</span>
 			<i class="fa fa-{10} text-muted"></i> 
 		</a>

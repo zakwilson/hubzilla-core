@@ -1474,6 +1474,12 @@ blockquote {
 	background-color: $item_colour;
 }
 
+.textcomplete-dropdown {
+	max-height: 300px;
+	max-width: 250px;
+	overflow: auto;
+}
+
 .dropdown-item.active {
 	color: #fff;
 	background-color: #007bff;

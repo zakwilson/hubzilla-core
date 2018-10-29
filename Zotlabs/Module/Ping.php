@@ -634,23 +634,30 @@ class Ping extends \Zotlabs\Web\Controller {
 		if($vnotify & VNOTIFY_FORUMS) {
 			$forums = get_forum_channels(local_channel());
 
-			if(! $forums) {
-				$result['forums'] = 0;
-			}
-			else {
-
-				$perms_sql = item_permissions_sql(local_channel()) . item_normal();
+			if($forums) {
+				$perms_sql = item_permissions_sql(local_channel());
+				$item_normal = item_normal();
 				$fcount = count($forums);
 				$forums['total'] = 0;
 
 				for($x = 0; $x < $fcount; $x ++) {
-					$r = q("select sum(item_unseen) as unseen from item 
-						where uid = %d and owner_xchan = '%s' and item_unseen = 1 $perms_sql ",
+					$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
 						intval(local_channel()),
+						intval(TERM_FORUM),
+						dbesc($forums[$x]['xchan_hash'])
+					);
+
+					$p_str = ids_to_querystr($p, 'parent');
+					$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
+
+					$r = q("select sum(item_unseen) as unseen from item 
+						where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $perms_sql $item_normal",
+						intval(local_channel()),
+						dbesc($forums[$x]['xchan_hash']),
 						dbesc($forums[$x]['xchan_hash'])
 					);
 					if($r[0]['unseen']) {
-						$forums[$x]['notify_link'] = (($forums[$x]['private_forum']) ? $forums[$x]['xchan_url'] : z_root() . '/network/?f=&pf=1&cid=' . $forums[$x]['abook_id']);
+						$forums[$x]['notify_link'] = (($forums[$x]['private_forum']) ? $forums[$x]['xchan_url'] : z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id']);
 						$forums[$x]['name'] = $forums[$x]['xchan_name'];
 						$forums[$x]['url'] = $forums[$x]['xchan_url'];
 						$forums[$x]['photo'] = $forums[$x]['xchan_photo_s'];

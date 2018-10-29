@@ -60,7 +60,8 @@ class Master {
 					$k = explode('_',$worker['k']);
 					q("delete from config where cat='queueworkers' and k='%s'",
 						'workerstarted_'.$k[1]);
-					q("update config set k='workitem' where cat='queuework' and k='%s'",
+					q("update config set k='%s' where cat='queuework' and k='%s'",
+						dbesc(uniqid('workitem:',true)),
 						'workitem_'.$k[1]);
 					unset($workers[$idx]);
 				}
@@ -69,7 +70,7 @@ class Master {
 				return false;
 			}
 		}
-		return uniqid();
+		return uniqid('',true);
 
 	}
 

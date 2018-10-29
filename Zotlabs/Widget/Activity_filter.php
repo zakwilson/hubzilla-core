@@ -16,35 +16,6 @@ class Activity_filter {
 
 		$tabs = [];
 
-		if(feature_enabled(local_channel(),'personal_tab')) {
-			if(x($_GET,'conv')) {
-				$conv_active = (($_GET['conv'] == 1) ? 'active' : '');
-				$filter_active = 'personal';
-			}
-
-			$tabs[] = [
-				'label' => t('Personal Posts'),
-				'icon' => 'user-circle',
-				'url' => z_root() . '/' . $cmd . '/?f=&conv=1',
-				'sel' => $conv_active,
-				'title' => t('Show posts that mention or involve me')
-			];
-		}
-
-		if(feature_enabled(local_channel(),'star_posts')) {
-			if(x($_GET,'star')) {
-				$starred_active = (($_GET['star'] == 1) ? 'active' : '');
-				$filter_active = 'star';
-			}
-
-			$tabs[] = [
-				'label' => t('Starred Posts'),
-				'icon' => 'star',
-				'url'=>z_root() . '/' . $cmd . '/?f=&star=1',
-				'sel'=>$starred_active,
-				'title' => t('Show posts that I have starred')
-			];
-		}
 
 		if(Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
 			$groups = q("SELECT * FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
@@ -108,6 +79,36 @@ class Activity_filter {
 
 				];
 			}
+		}
+
+		if(feature_enabled(local_channel(),'star_posts')) {
+			if(x($_GET,'star')) {
+				$starred_active = (($_GET['star'] == 1) ? 'active' : '');
+				$filter_active = 'star';
+			}
+
+			$tabs[] = [
+				'label' => t('Starred Posts'),
+				'icon' => 'star',
+				'url'=>z_root() . '/' . $cmd . '/?f=&star=1',
+				'sel'=>$starred_active,
+				'title' => t('Show posts that I have starred')
+			];
+		}
+
+		if(feature_enabled(local_channel(),'personal_tab')) {
+			if(x($_GET,'conv')) {
+				$conv_active = (($_GET['conv'] == 1) ? 'active' : '');
+				$filter_active = 'personal';
+			}
+
+			$tabs[] = [
+				'label' => t('Personal Posts'),
+				'icon' => 'user-circle',
+				'url' => z_root() . '/' . $cmd . '/?f=&conv=1',
+				'sel' => $conv_active,
+				'title' => t('Show posts that mention or involve me')
+			];
 		}
 
 		if(feature_enabled(local_channel(),'filing')) {

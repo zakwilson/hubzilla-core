@@ -31,6 +31,7 @@
 	var bParam_verb = "{{$verb}}";
 	var bParam_net = "{{$net}}";
 	var bParam_pf = "{{$pf}}";
+	var bParam_unseen = "{{$unseen}}";
 
 	function buildCmd() {
 		var udargs = ((page_load) ? "/load" : "");
@@ -62,6 +63,7 @@
 		if(bParam_net != "") bCmd = bCmd + "&net=" + bParam_net;
 		if(bParam_page != 1) bCmd = bCmd + "&page=" + bParam_page;
 		if(bParam_pf != 0) bCmd = bCmd + "&pf=" + bParam_pf;
+		if(bParam_unseen != 0) bCmd = bCmd + "&unseen=" + bParam_unseen;
 		return(bCmd);
 	}
 

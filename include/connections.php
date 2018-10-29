@@ -379,8 +379,6 @@ function contact_remove($channel_id, $abook_id) {
 		intval($channel_id)
 	);
 	if($r) {
-		$r = fetch_post_tags($r,true);
-
 		foreach($r as $rr) {
 			$x = q("select uid from term where otype = %d and oid = %d and ttype = %d limit 1",
 				intval(TERM_OBJ_POST),

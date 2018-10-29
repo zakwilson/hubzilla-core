@@ -168,7 +168,6 @@ function import_profiles($channel, $profiles) {
 			unset($profile['id']);
 			$profile['aid'] = get_account_id();
 			$profile['uid'] = $channel['channel_id'];
-			unset($profile['profile_vcard']);
 
 			convert_oldfields($profile,'name','fullname');
 			convert_oldfields($profile,'with','partner');

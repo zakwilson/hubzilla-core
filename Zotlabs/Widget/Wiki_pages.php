@@ -61,8 +61,6 @@ class Wiki_pages {
 
 		$wikiname = '';
 
-		$wikiname = '';
-
 		$pages = array();
 
 		$p = \Zotlabs\Lib\NativeWikiPage::page_list($arr['channel_id'],get_observer_hash(),$arr['resource_id']);

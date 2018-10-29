@@ -4360,12 +4360,12 @@ msgstr "Notifications du système"
 msgid "Connection added."
 msgstr "Connexion ajoutée."
 
-#: ../../Zotlabs/Module/Import.php:143
+#: ../../Zotlabs/Module/Import.php:144
 #, php-format
 msgid "Your service plan only allows %d channels."
 msgstr "Votre forfait n'autorise que %d canaux."
 
-#: ../../Zotlabs/Module/Import.php:157
+#: ../../Zotlabs/Module/Import.php:158
 msgid "No channel. Import failed."
 msgstr "Pas de canal. Echec de l'import."
 
@@ -8907,54 +8907,6 @@ msgid "View public stream"
 msgstr "Voir le flux public"
 
 #: ../../Zotlabs/Widget/Newmember.php:62 ../../include/features.php:60
-msgid "New Member Links"
-msgstr "Liens pour les nouveaux membres"
-
-#: ../../Zotlabs/Widget/Newmember.php:33
-msgid "Profile Creation"
-msgstr "Création de profil"
-
-#: ../../Zotlabs/Widget/Newmember.php:35
-msgid "Upload profile photo"
-msgstr "Téléverser la photo du profil"
-
-#: ../../Zotlabs/Widget/Newmember.php:36
-msgid "Upload cover photo"
-msgstr "Téléverser la photo de couverture"
-
-#: ../../Zotlabs/Widget/Newmember.php:37 ../../include/nav.php:119
-msgid "Edit your profile"
-msgstr "Modifier votre profil"
-
-#: ../../Zotlabs/Widget/Newmember.php:40
-msgid "Find and Connect with others"
-msgstr "Trouver et connecter avec des autres personnes"
-
-#: ../../Zotlabs/Widget/Newmember.php:44
-msgid "Manage your connections"
-msgstr "Gérez vos connexions"
-
-#: ../../Zotlabs/Widget/Newmember.php:47
-msgid "Communicate"
-msgstr "Communiquer"
-
-#: ../../Zotlabs/Widget/Newmember.php:49
-msgid "View your channel homepage"
-msgstr "Voir la page d'accueil de votre canal"
-
-#: ../../Zotlabs/Widget/Newmember.php:50
-msgid "View your network stream"
-msgstr "Visualisez votre flux réseau"
-
-#: ../../Zotlabs/Widget/Newmember.php:56
-msgid "Documentation"
-msgstr "Documentation"
-
-#: ../../Zotlabs/Widget/Newmember.php:67
-msgid "View public stream. Warning: not moderated"
-msgstr "Voir le flux public. Avertissement : non modéré"
-
-#: ../../Zotlabs/Widget/Newmember.php:71
 msgid "New Member Links"
 msgstr "Liens pour les nouveaux membres"
 

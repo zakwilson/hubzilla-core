@@ -151,18 +151,6 @@ class Photo extends \Zotlabs\Web\Controller {
 					$allowed = attach_can_view($r[0]['uid'],$observer_xchan,$photo);
 				}
 
-				if(intval($r[0]['photo_usage'])) {
-					$allowed = 1;
-					if(intval($r[0]['photo_usage']) === PHOTO_COVER) 
-						if($resolution < PHOTO_RES_COVER_1200)
-							$allowed = (-1);
-					if(intval($r[0]['photo_usage']) === PHOTO_PROFILE)
-						if(! in_array($resolution,[4,5,6]))
-							$allowed = (-1);
-				}
-				if($allowed === (-1))
-					$allowed = attach_can_view($r[0]['uid'],$observer_xchan,$photo);
-				
 				$channel = channelx_by_n($r[0]['uid']);
 
 				// Now we'll see if we can access the photo

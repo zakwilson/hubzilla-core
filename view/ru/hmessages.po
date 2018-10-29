@@ -1,7 +1,7 @@
-# hubzilla
-# Copyright (C) 2012-2016 hubzilla
-# This file is distributed under the same license as the hubzilla package.
-# Mike Macgirvin, 2012
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 # Translators:
 # Alex <info@pixelbits.de>, 2016-2017
@@ -21,9 +21,9 @@ msgstr ""
 "Language: ru\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))\n"
 
-#: ../../Zotlabs/Access/Permissions.php:56
-msgid "Can view my channel stream and posts"
-msgstr "Может просматривать мою ленту и сообщения"
+#: ../../util/nconfig.php:34
+msgid "Source channel not found."
+msgstr "Канал-источник не найден."
 
 #: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3087
 #: ../../Zotlabs/Module/Admin/Site.php:187
@@ -3699,21 +3699,21 @@ msgstr "В процессе"
 msgid "Cancelled"
 msgstr "Отменено"
 
-#: ../../Zotlabs/Module/Settings/Channel.php:543
-msgid "Default Privacy Group"
-msgstr "Группа конфиденциальности по умолчанию"
+#: ../../include/auth.php:192
+msgid "Delegation session ended."
+msgstr "Делегированная сессия завершена."
 
-#: ../../Zotlabs/Module/Settings/Channel.php:545
-msgid "Use my default audience setting for the type of object published"
-msgstr "Использовать настройки аудитории по умолчанию для типа опубликованного объекта"
+#: ../../include/auth.php:196
+msgid "Logged out."
+msgstr "Вышел из системы."
 
-#: ../../Zotlabs/Module/Settings/Channel.php:546
-msgid "Profile to assign new connections"
-msgstr "Назначить профиль для новых контактов"
+#: ../../include/auth.php:291
+msgid "Email validation is incomplete. Please check your email."
+msgstr "Проверка email не завершена. Пожалуйста, проверьте вашу почту."
 
-#: ../../Zotlabs/Module/Settings/Channel.php:556
-msgid "Default permissions category"
-msgstr "Категория разрешений по умолчанию"
+#: ../../include/auth.php:307
+msgid "Failed authentication"
+msgstr "Ошибка аутентификации"
 
 #: ../../include/auth.php:317
 #: ../../extend/addon/hzaddons/openid/Mod_Openid.php:188

@@ -10851,66 +10851,6 @@ msgstr ""
 msgid "Until modified date yyyy-mm-dd"
 msgstr ""
 
-#: ../../addon/gravatar/gravatar.php:123
-msgid "generic profile image"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:124
-msgid "random geometric pattern"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:125
-msgid "monster face"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:126
-msgid "computer generated face"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:127
-msgid "retro arcade style face"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:128
-msgid "Hub default profile photo"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:143
-msgid "Information"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:143
-msgid ""
-"Libravatar addon is installed, too. Please disable Libravatar addon or this "
-"Gravatar addon.<br>The Libravatar addon will fall back to Gravatar if "
-"nothing was found at Libravatar."
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:150 ../../addon/msgfooter/msgfooter.php:46
-#: ../../addon/xmpp/xmpp.php:91
-msgid "Save Settings"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:151
-msgid "Default avatar image"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:151
-msgid "Select default avatar image if none was found at Gravatar. See README"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:152
-msgid "Rating of images"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:152
-msgid "Select the appropriate avatar rating for your site. See README"
-msgstr ""
-
-#: ../../addon/gravatar/gravatar.php:165
-msgid "Gravatar settings updated."
-msgstr ""
-
 #: ../../addon/visage/visage.php:93
 msgid "Recent Channel/Profile Viewers"
 msgstr ""
@@ -11866,13 +11806,17 @@ msgstr ""
 
 #: ../../addon/twitter/twitter.php:187
 msgid ""
-"<strong><em>Or</em></strong> become a project sponsor (Hubzilla Project only)"
+"No consumer key pair for Twitter found. Please contact your site "
+"administrator."
 msgstr ""
 
 #: ../../addon/twitter/twitter.php:209
 msgid ""
-"Please indicate if you would like your first name or full name (or nothing) "
-"to appear in our sponsor listing"
+"At this Hubzilla instance the Twitter plugin was enabled but you have not "
+"yet connected your account to your Twitter account. To do so click the "
+"button below to get a PIN from Twitter which you have to copy into the input "
+"box below and submit the form. Only your <strong>public</strong> posts will "
+"be posted to Twitter."
 msgstr ""
 
 #: ../../addon/twitter/twitter.php:211
@@ -11885,11 +11829,10 @@ msgstr ""
 
 #: ../../addon/twitter/twitter.php:241
 msgid ""
-"This is a fairly comprehensive and complete guitar chord dictionary which "
-"will list most of the available ways to play a certain chord, starting from "
-"the base of the fingerboard up to a few frets beyond the twelfth fret "
-"(beyond which everything repeats). A couple of non-standard tunings are "
-"provided for the benefit of slide players, etc."
+"<strong>Note:</strong> Due your privacy settings (<em>Hide your profile "
+"details from unknown viewers?</em>) the link potentially included in public "
+"postings relayed to Twitter will lead the visitor to a blank page informing "
+"the visitor that the access to your profile has been restricted."
 msgstr ""
 
 #: ../../addon/twitter/twitter.php:246
@@ -14352,11 +14295,9 @@ msgstr ""
 
 #: ../../include/bbcode.php:259
 #, php-format
-msgid "You have reached your limit of %1$.0f Mbytes attachment storage."
-msgstr ""
-
-#: ../../include/bbcode.php:331
-msgid "card"
+msgid ""
+"This post contains an installable %s element, however you lack permissions "
+"to install it on this site."
 msgstr ""
 
 #: ../../include/bbcode.php:350

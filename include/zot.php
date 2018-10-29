@@ -4327,7 +4327,7 @@ function zotinfo($arr) {
 	if($role === 'forum' || $role === 'repository') {
 		$public_forum = true;
 	}
-	elseif($ztarget_hash) {
+	else {
 		// check if it has characteristics of a public forum based on custom permissions.
 		$m = \Zotlabs\Access\Permissions::FilledAutoperms($e['channel_id']);
 		if($m) {

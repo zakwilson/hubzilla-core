@@ -3564,15 +3564,13 @@ msgstr "Un sitio por línea. El contenido incorporado se filtra de forma predete
 msgid "Block embedded HTML from these domains"
 msgstr "Bloquear contenido con HTML incorporado desde estos dominios"
 
-#: ../../Zotlabs/Module/Events.php:475
-msgid "Edit Location"
-msgstr "Modificar la dirección"
+#: ../../Zotlabs/Module/Lockview.php:75
+msgid "Remote privacy information not available."
+msgstr "La información privada remota no está disponible."
 
-#: ../../Zotlabs/Module/Events.php:478 ../../Zotlabs/Module/Photos.php:1094
-#: ../../Zotlabs/Module/Webpages.php:251 ../../Zotlabs/Lib/ThreadItem.php:740
-#: ../../include/page_widgets.php:43 ../../include/conversation.php:1347
-msgid "Preview"
-msgstr "Previsualizar"
+#: ../../Zotlabs/Module/Lockview.php:96
+msgid "Visible to:"
+msgstr "Visible para:"
 
 #: ../../Zotlabs/Module/Lockview.php:117 ../../Zotlabs/Module/Lockview.php:153
 #: ../../Zotlabs/Module/Acl.php:120 ../../include/acl_selectors.php:88
@@ -5576,21 +5574,13 @@ msgstr "Por favor ajuste el recorte de la imagen para una visión óptima."
 msgid "Done Editing"
 msgstr "Edición completada"
 
-#: ../../Zotlabs/Module/Profile.php:91
-msgid "vcard"
-msgstr "vcard"
+#: ../../Zotlabs/Module/Chatsvc.php:131
+msgid "Away"
+msgstr "Ausente"
 
-#: ../../Zotlabs/Module/Oexchange.php:27
-msgid "Unable to find your hub."
-msgstr "No se puede encontrar su servidor."
-
-#: ../../Zotlabs/Module/Oexchange.php:41
-msgid "Post successful."
-msgstr "Enviado con éxito."
-
-#: ../../Zotlabs/Module/Viewsrc.php:46
-msgid "Source of Item"
-msgstr "Origen del elemento"
+#: ../../Zotlabs/Module/Chatsvc.php:136
+msgid "Online"
+msgstr "Conectado/a"
 
 #: ../../Zotlabs/Module/Item.php:194
 msgid "Unable to locate original post."
@@ -13905,25 +13895,28 @@ msgstr "[sin asunto]"
 msgid "Stored post could not be verified."
 msgstr "No se han podido verificar las publicaciones guardadas."
 
-#: ../../include/text.php:1106
-msgid "slap"
-msgstr "una bofetada "
+#: ../../include/activities.php:41
+msgid " and "
+msgstr "  y "
 
-#: ../../include/text.php:1106
-msgid "slapped"
-msgstr "ha abofeteado a "
+#: ../../include/activities.php:49
+msgid "public profile"
+msgstr "el perfil público"
 
-#: ../../include/text.php:1107
-msgid "finger"
-msgstr "un \"finger\" "
+#: ../../include/activities.php:58
+#, php-format
+msgid "%1$s changed %2$s to &ldquo;%3$s&rdquo;"
+msgstr "%1$s ha cambiado %2$s a &ldquo;%3$s&rdquo;"
 
-#: ../../include/text.php:1107
-msgid "fingered"
-msgstr "envió un \"finger\" a"
+#: ../../include/activities.php:59
+#, php-format
+msgid "Visit %1$s's %2$s"
+msgstr "Visitar %2$s de %1$s"
 
-#: ../../include/text.php:1108
-msgid "rebuff"
-msgstr "un reproche"
+#: ../../include/activities.php:62
+#, php-format
+msgid "%1$s has an updated %2$s, changing %3$s."
+msgstr "%1$s ha actualizado %2$s, cambiando %3$s."
 
 #: ../../include/attach.php:265 ../../include/attach.php:374
 msgid "Item was not found."

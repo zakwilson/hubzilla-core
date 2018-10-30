@@ -283,9 +283,10 @@ function bb_to_markdown($Text, $options = []) {
  * If the HTML text can not get parsed it will return an empty string.
  *
  * @param string $html The HTML code to convert
+ * @param array $options an array of options to pass to the environment
  * @return string Markdown representation of the given HTML text, empty on error
  */
-function html2markdown($html,$options = []) {
+function html2markdown($html, $options = []) {
 	$markdown = '';
 
 	if(! $options) {

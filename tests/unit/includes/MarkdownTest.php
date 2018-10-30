@@ -116,7 +116,7 @@ class MarkdownTest extends UnitTestCase {
 				],
 				'pre' => [
 						'<pre>  one line with spaces  </pre>',
-						'```\n  one line with spaces  \n```'
+						"```\n  one line with spaces  \n```"
 				],
 				'div p' => [
 						'<div>div</div><div><p>p</p></div>',

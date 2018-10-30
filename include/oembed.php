@@ -272,6 +272,7 @@ function oembed_fetch_url($embedurl){
 	}
 
 	$j['embedurl'] = $embedurl;
+	$j['zrl'] = $is_matrix;
 
 	// logger('fetch return: ' . print_r($j,true));
 
@@ -335,7 +336,7 @@ function oembed_format_object($j){
 
 		case "rich": {
 			// not so safe.. 
-			$ret.= $jhtml;
+			(($j['zrl']) ? $ret = $j['html'] : $ret.= $jhtml);
 		}; break;
 	}
 

@@ -288,10 +288,20 @@ function bb_to_markdown($Text, $options = []) {
 function html2markdown($html,$options = []) {
 	$markdown = '';
 
-	$internal_errors = libxml_use_internal_errors(true);
+	if(! $options) {
+		$options = [
+			'header_style' => 'setext', // Set to 'atx' to output H1 and H2 headers as # Header1 and ## Header2
+			'suppress_errors' => true, // Set to false to show warnings when loading malformed HTML
+			'strip_tags' => false, // Set to true to strip tags that don't have markdown equivalents. N.B. Strips tags, not their content. Useful to clean MS Word HTML output.
+			'bold_style' => '**', // DEPRECATED: Set to '__' if you prefer the underlined style
+			'italic_style' => '*', // DEPRECATED: Set to '_' if you prefer the underlined style
+			'remove_nodes' => '', // space-separated list of dom nodes that should be removed. example: 'meta style script'
+			'hard_break' => false, // Set to true to turn <br> into `\n` instead of `  \n`
+			'list_item_style' => '-', // Set the default character for each <li> in a <ul>. Can be '-', '*', or '+'
+		];
+	}
 
-	$environment = new Environment($options);
-	$environment->createDefaultEnvironment();
+	$environment = Environment::createDefaultEnvironment($options);
 	$environment->addConverter(new TableConverter());
 	$converter = new HtmlConverter($environment);
 
@@ -300,8 +310,6 @@ function html2markdown($html,$options = []) {
 	} catch (InvalidArgumentException $e) {
 		logger("Invalid HTML. HTMLToMarkdown library threw an exception.");
 	}
-
-	libxml_use_internal_errors($internal_errors);
 
 	return $markdown;
 }

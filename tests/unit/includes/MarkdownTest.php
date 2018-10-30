@@ -52,12 +52,12 @@ class MarkdownTest extends UnitTestCase {
 						' &nbsp;',
 						''
 				],
-/* it is not clear why this test fails
+
 				'strong, b, em, i, bib' => [
 						'<strong>strong</strong> <b>bold</b> <em>em</em> <i>italic</i>  <b>bo<i>italic</i>ld</b>',
 						'**strong** **bold** _em_ _italic_ **bo_italic_ld**'
 				],
-*/
+
 				'empty tags' => [
 						'text1 <b></b> text2 <i></i>',
 						'text1  text2'
@@ -118,12 +118,12 @@ class MarkdownTest extends UnitTestCase {
 						'<code>&lt;p&gt;HTML text&lt;/p&gt;</code>',
 						'`<p>HTML text</p>`'
 				],
-/* it is not clear why this test fails
+
 				'pre' => [
 						'<pre>   line with  spaces   </pre>',
 						'`   line with  spaces   `'
 				],
-*/
+
 				'div p' => [
 						'<div>div</div><div><p>p</p></div>',
 						"<div>div</div><div>p\n\n</div>"

@@ -336,7 +336,11 @@ function oembed_format_object($j){
 
 		case "rich": {
 			// not so safe.. 
-			(($j['zrl']) ? $ret = $j['html'] : $ret.= $jhtml);
+			if($j['zrl']) {
+			    $ret = ((preg_match('/^<div[^>]+>(.*?)<\/div>$/is',$j['html'],$o)) ? $o[1] : $j['html']);
+			} else {
+			    $ret.= $jhtml;
+			};
 		}; break;
 	}
 

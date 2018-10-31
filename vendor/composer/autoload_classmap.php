@@ -805,6 +805,7 @@ return array(
     'Text_LanguageDetect_Exception' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
     'Text_LanguageDetect_ISO639' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
     'Text_LanguageDetect_Parser' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
+    'UploadHandler' => $vendorDir . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
     'Zotlabs\\Access\\AccessList' => $baseDir . '/Zotlabs/Access/AccessList.php',
     'Zotlabs\\Access\\PermissionLimits' => $baseDir . '/Zotlabs/Access/PermissionLimits.php',
     'Zotlabs\\Access\\PermissionRoles' => $baseDir . '/Zotlabs/Access/PermissionRoles.php',

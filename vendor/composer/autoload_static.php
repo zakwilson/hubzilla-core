@@ -973,6 +973,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Text_LanguageDetect_Exception' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
         'Text_LanguageDetect_ISO639' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
         'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
+        'UploadHandler' => __DIR__ . '/..' . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
         'Zotlabs\\Access\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Access/AccessList.php',
         'Zotlabs\\Access\\PermissionLimits' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionLimits.php',
         'Zotlabs\\Access\\PermissionRoles' => __DIR__ . '/../..' . '/Zotlabs/Access/PermissionRoles.php',

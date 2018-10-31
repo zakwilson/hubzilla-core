@@ -4,8 +4,63 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b7862124a9afe837c7eef8ee66f02ff4",
+    "content-hash": "63d0e52cc07f8113059ec30d3637b850",
     "packages": [
+        {
+            "name": "blueimp/jquery-file-upload",
+            "version": "v9.25.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
+                "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+                "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "server/php/UploadHandler.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sebastian Tschan",
+                    "homepage": "https://blueimp.net"
+                }
+            ],
+            "description": "File Upload widget for jQuery.",
+            "homepage": "https://github.com/blueimp/jQuery-File-Upload",
+            "keywords": [
+                "bootstrap",
+                "chunk",
+                "cross-domain",
+                "cross-site",
+                "drag",
+                "drop",
+                "file",
+                "gae",
+                "go",
+                "jquery",
+                "multiple",
+                "php",
+                "preview",
+                "progress",
+                "python",
+                "resume",
+                "selection",
+                "upload",
+                "widget"
+            ],
+            "time": "2018-10-26T07:21:48+00:00"
+        },
         {
             "name": "bshaffer/oauth2-server-php",
             "version": "v1.10.0",

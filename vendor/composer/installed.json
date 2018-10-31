@@ -1,5 +1,62 @@
 [
     {
+        "name": "blueimp/jquery-file-upload",
+        "version": "v9.25.1",
+        "version_normalized": "9.25.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
+            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+            "shasum": ""
+        },
+        "time": "2018-10-26T07:21:48+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "server/php/UploadHandler.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Sebastian Tschan",
+                "homepage": "https://blueimp.net"
+            }
+        ],
+        "description": "File Upload widget for jQuery.",
+        "homepage": "https://github.com/blueimp/jQuery-File-Upload",
+        "keywords": [
+            "bootstrap",
+            "chunk",
+            "cross-domain",
+            "cross-site",
+            "drag",
+            "drop",
+            "file",
+            "gae",
+            "go",
+            "jquery",
+            "multiple",
+            "php",
+            "preview",
+            "progress",
+            "python",
+            "resume",
+            "selection",
+            "upload",
+            "widget"
+        ]
+    },
+    {
         "name": "bshaffer/oauth2-server-php",
         "version": "v1.10.0",
         "version_normalized": "1.10.0.0",

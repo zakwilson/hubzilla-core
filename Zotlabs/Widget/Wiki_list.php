@@ -6,10 +6,6 @@ class Wiki_list {
 
 	function widget($arr) {
 
-		if(argc() < 3) {
-			return;
-		}
-
 		$channel = channelx_by_n(\App::$profile_uid);
 
 		$wikis = \Zotlabs\Lib\NativeWiki::listwikis($channel,get_observer_hash());

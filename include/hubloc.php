@@ -187,7 +187,7 @@ function hubloc_change_primary($hubloc) {
 		return false;
 	}
 
-	logger('setting primary: ' . $hubloc['hubloc_url'] . ((intval($hubloc['hubloc_primary'])) '  true' : 'false'));
+	logger('setting primary: ' . $hubloc['hubloc_url'] . ((intval($hubloc['hubloc_primary'])) ? '  true' : ' false'));
 
 	// See if this is a local hubloc and if so update the primary for the corresponding channel record. 
 

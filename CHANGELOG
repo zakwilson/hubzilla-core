@@ -1,3 +1,25 @@
+Hubzilla 3.8.2 (2018-10-29)
+	- Merge unmerged changes from dev into master
+	- Fix issues with forum handling in mod network and ping
+	- Fix delivery chain linkage messed up if original post was edited
+	- Fix issues with the experimental queue worker
+	- Fix call to image source {1} from html template
+	- Group stream filters by threaded and unthreaded default view
+	- Show only unseen forum messages when clicking on forum notification
+	- Improve editor contact autocomplete performance
+	- Convert non UTF-8 content on link embeding
+	- Make textcomplete return up to 100 items
+	- Look for for matches in the entire string when suggesting emojis
+	- Add [summary] bbcode to autocomplete list
+	- Update blueimp_upload to version 9.23
+	- Update spanish strings 
+
+	Addons
+	- Cart: don't allow items to be added unless user is logged into the Grid.
+	- Pubcrawl: simplify asencode_activity() addressing to reflect upcoming changes in mastodon 2.6
+	- Rendezvous: Update rendezvous_group.tpl to fix broken Bootstrap library reference
+
+
 Hubzilla 3.8.1 (2018-10-21)
 	- Fix issue with too long navbar banners
 	- Fix menu item edit link

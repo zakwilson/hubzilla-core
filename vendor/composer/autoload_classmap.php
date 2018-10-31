@@ -300,6 +300,7 @@ return array(
     'League\\HTMLToMarkdown\\ElementInterface' => $vendorDir . '/league/html-to-markdown/src/ElementInterface.php',
     'League\\HTMLToMarkdown\\Environment' => $vendorDir . '/league/html-to-markdown/src/Environment.php',
     'League\\HTMLToMarkdown\\HtmlConverter' => $vendorDir . '/league/html-to-markdown/src/HtmlConverter.php',
+    'League\\HTMLToMarkdown\\HtmlConverterInterface' => $vendorDir . '/league/html-to-markdown/src/HtmlConverterInterface.php',
     'Michelf\\Markdown' => $vendorDir . '/michelf/php-markdown/Michelf/Markdown.php',
     'Michelf\\MarkdownExtra' => $vendorDir . '/michelf/php-markdown/Michelf/MarkdownExtra.php',
     'Michelf\\MarkdownInterface' => $vendorDir . '/michelf/php-markdown/Michelf/MarkdownInterface.php',

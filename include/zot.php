@@ -3513,7 +3513,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 				foreach($arr['config'][$cat] as $k => $v) {
 
-					if (strpos($k,'pcfgud:')==0) {
+					if (strpos($k,'pcfgud:')===0) {
 
 						$realk = substr($k,7);
 						$pconfig_updated[$realk] = $v;
@@ -3521,9 +3521,9 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 					}
 
-					if (strpos($k,'pcfgdel:')==0) {
+					if (strpos($k,'pcfgdel:')===0) {
 						$realk = substr($k,8);
-						$pconfig_del[$realk] = $v;
+						$pconfig_del[$realk] = datetime_convert();
 						unset($arr['config'][$cat][$k]);
 					}
 				}

@@ -230,9 +230,9 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		$body   = $result['body'];
 		
 		// Check codepage in page or in HTTP headers if not exist
-		$cp = (preg_match('/meta.+content=["|\']text\/html;\s+charset=([^"|\']+)/i', $body, $o) ? $o[1] : '');
+		$cp = (preg_match('/meta.+content=["|\']text\/html; charset=([^"|\']+)/i', $body, $o) ? $o[1] : '');
 		if(empty($cp) || strtoupper($cp) == 'ISO-8859-5')
-		    $cp = (preg_match('/Content-Type: text\/html;\s+charset=(.+)/im', $header, $o) ? $o[1] : 'AUTO');
+		    $cp = (preg_match('/Content-Type: text\/html; charset=(.+)/im', $header, $o) ? $o[1] : 'AUTO');
 
 		$body   = mb_convert_encoding($body, 'UTF-8', $cp);
 		$body   = mb_convert_encoding($body, 'HTML-ENTITIES', "UTF-8");

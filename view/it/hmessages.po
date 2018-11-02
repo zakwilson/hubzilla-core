@@ -5849,7 +5849,7 @@ msgstr "Impossibile creare il menù."
 
 #: ../../Zotlabs/Module/Menu.php:98 ../../Zotlabs/Module/Menu.php:110
 msgid "Menu Name"
-msgstr "Nome del menu"
+msgstr "Nome del menù"
 
 #: ../../Zotlabs/Module/Menu.php:98
 msgid "Unique name (not visible on webpage) - required"
@@ -6543,7 +6543,7 @@ msgstr "Homepage del progetto"
 
 #: ../../Zotlabs/Module/Siteinfo.php:32
 msgid "Developer homepage"
-msgstr "Homepege dello sviluppatore"
+msgstr "Homepage dello sviluppatore"
 
 #: ../../Zotlabs/Module/Ratings.php:70
 msgid "No ratings"
@@ -6623,7 +6623,7 @@ msgstr "Importazione completata."
 msgid ""
 "Channel name changes are not allowed within 48 hours of changing the account"
 " password."
-msgstr "Non è possibile cambiare il nome del canale entro le 48 dal cambio della password dell'account."
+msgstr "Non è possibile cambiare il nome del canale entro le 48 ore dal cambio della password dell'account."
 
 #: ../../Zotlabs/Module/Changeaddr.php:46 ../../include/channel.php:214
 #: ../../include/channel.php:599

@@ -265,20 +265,43 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 			$attr["content"] = html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8");
 	
 			switch (strtolower($attr["name"])) {
-				case 'generator':
-					$siteinfo['generator'] = $attr['content'];
-					break;
 				case "fulltitle":
-					$siteinfo["title"] = $attr["content"];
+					$siteinfo["title"] = trim($attr["content"]);
 					break;
 				case "description":
-					$siteinfo["text"] = $attr["content"];
+					$siteinfo["text"] = trim($attr["content"]);
+					break;
+				case "thumbnail":
+					$siteinfo["image"] = $attr["content"];
+					break;
+				case "twitter:image":
+					$siteinfo["image"] = $attr["content"];
+					break;
+				case "twitter:image:src":
+					$siteinfo["image"] = $attr["content"];
+					break;
+				case "twitter:card":
+					if (($siteinfo["type"] == "") || ($attr["content"] == "photo")) {
+						$siteinfo["type"] = $attr["content"];
+					}
+					break;
+				case "twitter:description":
+					$siteinfo["text"] = trim($attr["content"]);
+					break;
+				case "twitter:title":
+					$siteinfo["title"] = trim($attr["content"]);
 					break;
 				case "dc.title":
-					$siteinfo["title"] = $attr["content"];
+					$siteinfo["title"] = trim($attr["content"]);
 					break;
 				case "dc.description":
-					$siteinfo["text"] = $attr["content"];
+					$siteinfo["text"] = trim($attr["content"]);
+					break;
+				case "keywords":
+					$keywords = explode(",", $attr["content"]);
+					break;
+				case "news_keywords":
+					$keywords = explode(",", $attr["content"]);
 					break;
 			}
 		}

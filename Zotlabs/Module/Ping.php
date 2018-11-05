@@ -650,7 +650,7 @@ class Ping extends \Zotlabs\Web\Controller {
 					$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
 
 					$r = q("select count(id) as unseen from item 
-						where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $item_normal",
+						where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $item_normal $sql_extra",
 						intval(local_channel()),
 						dbesc($forums[$x]['xchan_hash']),
 						dbesc($forums[$x]['xchan_hash'])

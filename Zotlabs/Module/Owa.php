@@ -31,15 +31,17 @@ class Owa extends \Zotlabs\Web\Controller {
 
 					if($keyId) {
 						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-							where hubloc_addr = '%s' ",
-							dbesc(str_replace('acct:','',$keyId))
+							where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) ",
+							dbesc(str_replace('acct:','',$keyId)),
+							dbesc($keyId)
 						);
 						if(! $r) {
 							$found = discover_by_webbie(str_replace('acct:','',$keyId));
 							if($found) {
 								$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-									where hubloc_addr = '%s' ",
-									dbesc(str_replace('acct:','',$keyId))
+									where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) ",
+									dbesc(str_replace('acct:','',$keyId)),
+									dbesc($keyId)
 								);
 							}
 						}

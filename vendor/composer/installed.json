@@ -1,5 +1,62 @@
 [
     {
+        "name": "blueimp/jquery-file-upload",
+        "version": "v9.25.1",
+        "version_normalized": "9.25.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
+            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+            "shasum": ""
+        },
+        "time": "2018-10-26T07:21:48+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "server/php/UploadHandler.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Sebastian Tschan",
+                "homepage": "https://blueimp.net"
+            }
+        ],
+        "description": "File Upload widget for jQuery.",
+        "homepage": "https://github.com/blueimp/jQuery-File-Upload",
+        "keywords": [
+            "bootstrap",
+            "chunk",
+            "cross-domain",
+            "cross-site",
+            "drag",
+            "drop",
+            "file",
+            "gae",
+            "go",
+            "jquery",
+            "multiple",
+            "php",
+            "preview",
+            "progress",
+            "python",
+            "resume",
+            "selection",
+            "upload",
+            "widget"
+        ]
+    },
+    {
         "name": "bshaffer/oauth2-server-php",
         "version": "v1.10.0",
         "version_normalized": "1.10.0.0",
@@ -156,17 +213,17 @@
     },
     {
         "name": "league/html-to-markdown",
-        "version": "4.7.0",
-        "version_normalized": "4.7.0.0",
+        "version": "4.8.0",
+        "version_normalized": "4.8.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/html-to-markdown.git",
-            "reference": "76c076483cef89860d32a3fd25312f5a42848a8c"
+            "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/76c076483cef89860d32a3fd25312f5a42848a8c",
-            "reference": "76c076483cef89860d32a3fd25312f5a42848a8c",
+            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/f9a879a068c68ff47b722de63f58bec79e448f9d",
+            "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d",
             "shasum": ""
         },
         "require": {
@@ -179,14 +236,14 @@
             "phpunit/phpunit": "4.*",
             "scrutinizer/ocular": "~1.1"
         },
-        "time": "2018-05-19T23:47:12+00:00",
+        "time": "2018-09-18T12:18:08+00:00",
         "bin": [
             "bin/html-to-markdown"
         ],
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "4.8-dev"
+                "dev-master": "4.9-dev"
             }
         },
         "installation-source": "dist",
@@ -201,16 +258,16 @@
         ],
         "authors": [
             {
-                "name": "Colin O'Dell",
-                "email": "colinodell@gmail.com",
-                "homepage": "http://www.colinodell.com",
-                "role": "Lead Developer"
-            },
-            {
                 "name": "Nick Cernis",
                 "email": "nick@cern.is",
                 "homepage": "http://modernnerd.net",
                 "role": "Original Author"
+            },
+            {
+                "name": "Colin O'Dell",
+                "email": "colinodell@gmail.com",
+                "homepage": "https://www.colinodell.com",
+                "role": "Lead Developer"
             }
         ],
         "description": "An HTML-to-markdown conversion helper for PHP",
@@ -533,17 +590,17 @@
     },
     {
         "name": "sabre/dav",
-        "version": "3.2.2",
-        "version_normalized": "3.2.2.0",
+        "version": "3.2.3",
+        "version_normalized": "3.2.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/dav.git",
-            "reference": "e987775e619728f12205606c9cc3ee565ffb1516"
+            "reference": "a9780ce4f35560ecbd0af524ad32d9d2c8954b80"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/dav/zipball/e987775e619728f12205606c9cc3ee565ffb1516",
-            "reference": "e987775e619728f12205606c9cc3ee565ffb1516",
+            "url": "https://api.github.com/repos/sabre-io/dav/zipball/a9780ce4f35560ecbd0af524ad32d9d2c8954b80",
+            "reference": "a9780ce4f35560ecbd0af524ad32d9d2c8954b80",
             "shasum": ""
         },
         "require": {
@@ -574,7 +631,7 @@
             "ext-curl": "*",
             "ext-pdo": "*"
         },
-        "time": "2017-02-15T03:06:08+00:00",
+        "time": "2018-10-19T09:58:27+00:00",
         "bin": [
             "bin/sabredav",
             "bin/naturalselection"
@@ -1029,23 +1086,23 @@
     },
     {
         "name": "smarty/smarty",
-        "version": "v3.1.32",
-        "version_normalized": "3.1.32.0",
+        "version": "v3.1.33",
+        "version_normalized": "3.1.33.0",
         "source": {
             "type": "git",
             "url": "https://github.com/smarty-php/smarty.git",
-            "reference": "ac9d4b587e5bf53381e21881820a9830765cb459"
+            "reference": "dd55b23121e55a3b4f1af90a707a6c4e5969530f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/ac9d4b587e5bf53381e21881820a9830765cb459",
-            "reference": "ac9d4b587e5bf53381e21881820a9830765cb459",
+            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/dd55b23121e55a3b4f1af90a707a6c4e5969530f",
+            "reference": "dd55b23121e55a3b4f1af90a707a6c4e5969530f",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2"
         },
-        "time": "2018-04-24T14:53:33+00:00",
+        "time": "2018-09-12T20:54:16+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {

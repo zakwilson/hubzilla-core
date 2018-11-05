@@ -258,6 +258,10 @@ class Network extends \Zotlabs\Web\Controller {
 				}
 				elseif($pf && $unseen && $nouveau) {
 
+					$vnotify = get_pconfig(local_channel(), 'system', 'vnotify');
+					if(! ($vnotify & VNOTIFY_LIKE))
+						$likes_sql = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
 					$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
 						intval(local_channel()),
@@ -269,7 +273,7 @@ class Network extends \Zotlabs\Web\Controller {
 					if($p_str)
 						$p_sql = " OR item.parent IN ( $p_str ) ";
 
-					$sql_extra = " AND ( owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' OR owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' $p_sql ) AND item_unseen = 1 ";
+					$sql_extra = " AND ( owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' OR owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' $p_sql ) AND item_unseen = 1 $likes_sql ";
 				}
 				else {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)

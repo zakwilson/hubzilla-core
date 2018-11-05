@@ -248,19 +248,11 @@ function bb_to_markdown($Text, $options = []) {
 	// Convert it to HTML - don't try oembed
 	$Text = bbcode($Text, [ 'tryoembed' => false ]);
 
-	// Markdownify does not preserve previously escaped html entities such as <> and &.
-	//$Text = str_replace(array('&lt;','&gt;','&amp;'),array('&_lt_;','&_gt_;','&_amp_;'),$Text);
-
 	// Now convert HTML to Markdown
-
 	$Text = html2markdown($Text);
 
 	//html2markdown adds backslashes infront of hashes after a new line. remove them
 	$Text = str_replace("\n\#", "\n#", $Text);
-
-	// It also adds backslashes to our attempt at getting around the html entity preservation for some weird reason.
-
-	//$Text = str_replace(array('&\\_lt\\_;','&\\_gt\\_;','&\\_amp\\_;'),array('&lt;','&gt;','&amp;'),$Text);
 
 	// If the text going into bbcode() has a plain URL in it, i.e.
 	// with no [url] tags around it, it will come out of parseString()
@@ -291,12 +283,24 @@ function bb_to_markdown($Text, $options = []) {
  * If the HTML text can not get parsed it will return an empty string.
  *
  * @param string $html The HTML code to convert
+ * @param array $options an array of options to pass to the environment
  * @return string Markdown representation of the given HTML text, empty on error
  */
-function html2markdown($html,$options = []) {
+function html2markdown($html, $options = []) {
 	$markdown = '';
 
-	$internal_errors = libxml_use_internal_errors(true);
+	if(! $options) {
+		$options = [
+			'header_style' => 'setext', // Set to 'atx' to output H1 and H2 headers as # Header1 and ## Header2
+			'suppress_errors' => true, // Set to false to show warnings when loading malformed HTML
+			'strip_tags' => false, // Set to true to strip tags that don't have markdown equivalents. N.B. Strips tags, not their content. Useful to clean MS Word HTML output.
+			'bold_style' => '**', // DEPRECATED: Set to '__' if you prefer the underlined style
+			'italic_style' => '*', // DEPRECATED: Set to '_' if you prefer the underlined style
+			'remove_nodes' => '', // space-separated list of dom nodes that should be removed. example: 'meta style script'
+			'hard_break' => false, // Set to true to turn <br> into `\n` instead of `  \n`
+			'list_item_style' => '-', // Set the default character for each <li> in a <ul>. Can be '-', '*', or '+'
+		];
+	}
 
 	$environment = Environment::createDefaultEnvironment($options);
 	$environment->addConverter(new TableConverter());
@@ -307,8 +311,6 @@ function html2markdown($html,$options = []) {
 	} catch (InvalidArgumentException $e) {
 		logger("Invalid HTML. HTMLToMarkdown library threw an exception.");
 	}
-
-	libxml_use_internal_errors($internal_errors);
 
 	return $markdown;
 }

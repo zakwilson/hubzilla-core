@@ -1,5 +1,7 @@
 <?php
 
+use Zotlabs\Zot6\HTTPSig;
+
 
 function xchan_store_lowlevel($arr) {
 
@@ -39,6 +41,13 @@ function xchan_store_lowlevel($arr) {
 
 function xchan_store($arr) {
 
+	$update_photo = false;
+	$update_name = false;
+
+	if(! ($arr['guid'] || $arr['hash'])) {
+		$arr = json_decode(file_get_contents('php://input'),true);
+	}
+
 	logger('xchan_store: ' . print_r($arr,true));
 
 	if(! $arr['hash'])
@@ -49,57 +58,90 @@ function xchan_store($arr) {
 	$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 		dbesc($arr['hash'])
 	);
-	if($r)
-		return true;
+	if(! $r) {
 
-	if(! $arr['network'])
-		$arr['network'] = 'unknown';
-	if(! $arr['name'])
-		$arr['name'] = 'unknown';
-	if(! $arr['url'])
-		$arr['url'] = z_root();
-	if(! $arr['photo'])
-		$arr['photo'] = z_root() . '/' . get_default_profile_photo();
+		$update_photo = true;
 
+		if(! $arr['network'])
+			$arr['network'] = 'unknown';
+		if(! $arr['name'])
+			$arr['name'] = 'unknown';
+		if(! $arr['url'])
+			$arr['url'] = z_root();
+		if(! $arr['photo'])
+			$arr['photo'] = z_root() . '/' . get_default_profile_photo();
 
-	if($arr['network'] === 'zot') {
-		if((! $arr['key']) || (! rsa_verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key']))) {
-			logger('Unable to verify signature for ' . $arr['hash']);
-			return false;
+		if($arr['network'] === 'zot6') {
+			if((! $arr['key']) || (! Libzot::verify($arr['id'],$arr['id_sig'],$arr['key']))) {
+				logger('Unable to verify signature for ' . $arr['hash']);
+				return false;
+			}
 		}
-	}
 
-	$x = [];
-	foreach($arr as $k => $v) {
-		if($k === 'key') {
-			$x['xchan_pubkey'] = $v;
-			continue;
+		if($arr['network'] === 'zot') {
+			if((! $arr['key']) || (! rsa_verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key']))) {	
+				logger('Unable to verify signature for ' . $arr['hash']);
+				return false;
+			}
 		}
-		if($k === 'photo') {
-			continue;
-		}
+
+		$columns = db_columns('xchan');
+
+		$x = [];
+		foreach($arr as $k => $v) {
+			if($k === 'key') {
+				$x['xchan_pubkey'] = HTTPSig::convertKey(escape_tags($v));;
+				continue;
+			}
+			if($k === 'photo') {
+				continue;
+			}
 		
-		$x['xchan_' . $k] = $v;
+			if(in_array($columns,'xchan_' . $k))
+				$x['xchan_' . $k] = escape_tags($v);
+		}
+
+		$x['xchan_name_date'] = datetime_convert();
+		$x['xchan_photo_date'] = datetime_convert();
+		$x['xchan_system']     = false;
+
+		$result = xchan_store_lowlevel($x);
+	
+		if(! $result)
+			return $result;
+	}
+	else {
+		if($r[0]['network'] === 'zot6') {
+			return true;
+		}
+		if($r[0]['xchan_photo_date'] < datetime_convert('UTC','UTC',$arr['photo_date'])) {
+			$update_photo = true;
+		}
+		if($r[0]['xchan_name_date'] < datetime_convert('UTC','UTC',$arr['name_date'])) {
+			$update_name = true;
+		}
+    }
+
+	if($update_photo && $arr['photo']) {
+		$photos = import_xchan_photo($arr['photo'],$arr['hash']);
+		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
+			dbesc(datetime_convert()),
+			dbesc($photos[0]),
+			dbesc($photos[1]),
+			dbesc($photos[2]),
+			dbesc($photos[3]),
+			dbesc($arr['hash'])
+		);
+	}
+	if($update_name && $arr['name']) {
+		$x = q("update xchan set xchan_name = '%s', xchan_name_date = '%s' where xchan_hash = '%s'",
+			dbesc(escape_tags($arr['name'])),
+			dbesc(datetime_convert()),
+			dbesc($arr['hash'])
+		);
 	}
 
-	$x['xchan_name_date'] = datetime_convert();
-
-	$r = xchan_store_lowlevel($x);
-
-	if(! $r)
-		return $r;
-
-	$photos = import_xchan_photo($arr['photo'],$arr['hash']);
-	$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-		dbesc(datetime_convert()),
-		dbesc($photos[0]),
-		dbesc($photos[1]),
-		dbesc($photos[2]),
-		dbesc($photos[3]),
-		dbesc($arr['hash'])
-	);
-	return $r;
-
+	return true;
 }
 
 

@@ -242,6 +242,7 @@ CREATE TABLE "channel" (
   "channel_guid" text NOT NULL DEFAULT '',
   "channel_guid_sig" text NOT NULL,
   "channel_hash" text NOT NULL DEFAULT '',
+  "channel_portable_id" text NOT NULL DEFAULT '',
   "channel_timezone" varchar(128) NOT NULL DEFAULT 'UTC',
   "channel_location" text NOT NULL DEFAULT '',
   "channel_theme" text NOT NULL DEFAULT '',
@@ -284,6 +285,7 @@ create index "channel_max_friend_req" on channel ("channel_max_friend_req");
 create index "channel_default_gid" on channel ("channel_default_group");
 create index "channel_guid" on channel ("channel_guid");
 create index "channel_hash" on channel ("channel_hash");
+create index "channel_portable_id" on channel ("channel_portable_id");
 create index "channel_expire_days" on channel ("channel_expire_days");
 create index "channel_deleted" on channel ("channel_deleted");
 create index "channel_active" on channel ("channel_active");
@@ -1267,6 +1269,7 @@ create index "vote_poll" on vote ("vote_poll");
 create index "vote_element" on vote ("vote_element");
 CREATE TABLE "xchan" (
   "xchan_hash" text NOT NULL,
+  "xchan_portable_id" text NOT NULL,
   "xchan_guid" text NOT NULL DEFAULT '',
   "xchan_guid_sig" text NOT NULL DEFAULT '',
   "xchan_pubkey" text NOT NULL DEFAULT '',
@@ -1294,6 +1297,7 @@ CREATE TABLE "xchan" (
   "xchan_deleted" smallint NOT NULL DEFAULT '0',
   PRIMARY KEY ("xchan_hash")
 );
+create index "xchan_portable_id" on xchan ("xchan_portable_id");
 create index "xchan_guid" on xchan ("xchan_guid");
 create index "xchan_addr" on xchan ("xchan_addr");
 create index "xchan_name" on xchan ("xchan_name");

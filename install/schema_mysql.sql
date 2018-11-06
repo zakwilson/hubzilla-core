@@ -247,6 +247,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `channel_guid` char(191) NOT NULL DEFAULT '',
   `channel_guid_sig` text NOT NULL,
   `channel_hash` char(191) NOT NULL DEFAULT '',
+  `channel_portable_id` char(191) NOT NULL DEFAULT '',
   `channel_timezone` char(128) NOT NULL DEFAULT 'UTC',
   `channel_location` char(191) NOT NULL DEFAULT '',
   `channel_theme` char(191) NOT NULL DEFAULT '',
@@ -306,6 +307,7 @@ CREATE TABLE IF NOT EXISTS `channel` (
   KEY `channel_default_gid` (`channel_default_group`),
   KEY `channel_guid` (`channel_guid`),
   KEY `channel_hash` (`channel_hash`),
+  KEY `channel_portable_id` (`channel_portable_id`),
   KEY `channel_expire_days` (`channel_expire_days`),
   KEY `channel_deleted` (`channel_deleted`),
   KEY `channel_active` (`channel_active`),
@@ -1296,6 +1298,7 @@ CREATE TABLE IF NOT EXISTS `vote` (
 
 CREATE TABLE IF NOT EXISTS `xchan` (
   `xchan_hash` char(191) NOT NULL,
+  `xchan_portable_id` char(191) NOT NULL DEFAULT '',,
   `xchan_guid` char(191) NOT NULL DEFAULT '',
   `xchan_guid_sig` text NOT NULL,
   `xchan_pubkey` text NOT NULL,
@@ -1322,6 +1325,7 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   `xchan_pubforum` tinyint(1) NOT NULL DEFAULT 0 ,
   `xchan_deleted` tinyint(1) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`xchan_hash`),
+  KEY `xchan_portable_id` (`xchan_portable_id`),
   KEY `xchan_guid` (`xchan_guid`),
   KEY `xchan_addr` (`xchan_addr`),
   KEY `xchan_name` (`xchan_name`),

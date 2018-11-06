@@ -324,11 +324,12 @@ class Libzot {
 		logger('zot-info: ' . print_r($record,true), LOGGER_DATA, LOG_DEBUG);
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
-
+logger('1');
 		if(! $x['success'])
 			return false;
-
+logger('2');
 		if($channel && $record['data']['permissions']) {
+logger('3');
 			$old_read_stream_perm = their_perms_contains($channel['channel_id'],$x['hash'],'view_stream');
 			set_abconfig($channel['channel_id'],$x['hash'],'system','their_perms',$record['data']['permissions']);
 
@@ -350,7 +351,7 @@ class Libzot {
 			);
 
 			if($r) {
-
+logger('4');
 				// connection exists
 
 				// if the dob is the same as what we have stored (disregarding the year), keep the one
@@ -2749,7 +2750,7 @@ class Libzot {
 		];
 
 		$ret['channel_role'] = get_pconfig($e['channel_id'],'system','permissions_role','custom');
-		$ret['protocols']    = [ 'zot6' ];
+		$ret['protocols']    = [ 'zot', 'zot6' ];
 		$ret['searchable']     = $searchable;
 		$ret['adult_content']  = $adult_channel;
 		$ret['public_forum']   = $public_forum;

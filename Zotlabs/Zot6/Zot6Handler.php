@@ -70,9 +70,10 @@ class Zot6Handler implements IHandler {
 			// This would be a permissions update, typically for one connection
 
 			foreach ($recipients as $recip) {
+
 				$r = q("select channel.*,xchan.* from channel
 					left join xchan on channel_hash = xchan_hash
-					where channel_hash ='%s' limit 1",
+					where xchan_hash ='%s' limit 1",
 					dbesc($recip)
 				);
 

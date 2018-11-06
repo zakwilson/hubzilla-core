@@ -215,14 +215,19 @@ class HTTPSig {
 	 */
 
 	function get_activitystreams_key($id) {
-
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
+		if(! $x) {
+			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+				dbesc(str_replace('acct:','',$id)),
+				dbesc($id)
+			);
+		}
 
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$r = ActivityStreams::fetch_property($id);
@@ -235,19 +240,25 @@ class HTTPSig {
 			}
 		}
 
-		return false;
+		return false; 
 	}
 
 
 	function get_webfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
+		if(! $x) {
+			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+				dbesc(str_replace('acct:','',$id)),
+				dbesc($id)
+			);
+		}
 
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -269,18 +280,26 @@ class HTTPSig {
 			}
 		}
 
-		return (($key['public_key']) ? $key : false);
+		return (($key['public_key']) ? $key : false); 
 	}
 
 
 	function get_zotfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
+		if(! $x) {
+			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+				dbesc(str_replace('acct:','',$id)),
+				dbesc($id)
+			);
+		}
+
+
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -302,9 +321,14 @@ class HTTPSig {
 							if($i['success']) {
 								$key['portable_id'] = $i['hash'];
 
-								$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
+								$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_id_url = '%s' limit 1",
 									dbesc($l['href'])
 								);
+								if(! $x) {
+									$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
+										dbesc($l['href'])
+									);
+								}
 								if($x) {
 									$key['hubloc'] = $x[0];
 								}

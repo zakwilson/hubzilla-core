@@ -83,9 +83,8 @@ class Photo extends \Zotlabs\Web\Controller {
 					$data = dbunescbin($r[0]['content']);
 					$mimetype = $r[0]['mimetype'];
 				}
-				if(intval($r[0]['os_storage'])) {
+				if(intval($r[0]['os_storage']))
 					$data = file_get_contents($data);
-				}
 			}
 			if(! $data) {
 				$data = fetch_image_from_url($default,$mimetype);
@@ -168,9 +167,8 @@ class Photo extends \Zotlabs\Web\Controller {
 					$data = dbunescbin($e[0]['content']);
 					$mimetype = $e[0]['mimetype'];
 					$modified = strtotime($e[0]['edited']);
-					if(intval($e[0]['os_storage'])) {
+					if(intval($e[0]['os_storage']))
 						$streaming = $data;
-					}
 				}
 				else {
 					if(! $allowed) {

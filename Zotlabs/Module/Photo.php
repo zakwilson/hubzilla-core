@@ -33,8 +33,6 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 		$observer_xchan = get_observer_hash();
 
-		$default = z_root() . '/' . get_default_profile_photo();
-	
 		if(isset($type)) {
 	
 			/**
@@ -44,22 +42,24 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 			if($type === 'profile') {
 				switch($res) {
-	
 					case 'm':
 						$resolution = 5;
-						$default = z_root() . '/' . get_default_profile_photo(80);
+						$default = get_default_profile_photo(80);
 						break;
 					case 's':
 						$resolution = 6;
-						$default = z_root() . '/' . get_default_profile_photo(48);
+						$default = get_default_profile_photo(48);
 						break;
 					case 'l':
 					default:
 						$resolution = 4;
+						$default = get_default_profile_photo();
 						break;
 				}
 			}
 	
+			$modified = filemtime($default);
+			$default = z_root() . '/' . $default;
 			$uid = $person;
 
 			$d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
@@ -78,11 +78,13 @@ class Photo extends \Zotlabs\Web\Controller {
 					intval(PHOTO_PROFILE)
 				);
 				if($r) {
+					$modified = strtotime($r[0]['edited']);
 					$data = dbunescbin($r[0]['content']);
 					$mimetype = $r[0]['mimetype'];
 				}
-				if(intval($r[0]['os_storage']))
+				if(intval($r[0]['os_storage'])) {
 					$data = file_get_contents($data);
+				}
 			}
 			if(! $data) {
 				$data = fetch_image_from_url($default,$mimetype);
@@ -164,6 +166,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				if($exists && $allowed) {
 					$data = dbunescbin($e[0]['content']);
 					$mimetype = $e[0]['mimetype'];
+					$modified = strtotime($e[0]['edited']);
 					if(intval($e[0]['os_storage'])) {
 						$streaming = $data;
 					}
@@ -183,7 +186,6 @@ class Photo extends \Zotlabs\Web\Controller {
 		if(! isset($data)) {
 			if(isset($resolution)) {
 				switch($resolution) {
-	
 					case 4:
 						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(),$mimetype);
 						break;
@@ -210,10 +212,14 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 		}
 	
+		// @FIXME Seems never invoked
 		// Writing in cachefile
-		if (isset($cachefile) && $cachefile != '')
+		if (isset($cachefile) && $cachefile != '') {
 			file_put_contents($cachefile, $data);
-	
+			$modified = filemtime($cachefile);
+		}
+
+
 		if(function_exists('header_remove')) {
 			header_remove('Pragma');
 			header_remove('pragma');
@@ -247,6 +253,7 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 		}
 
+
 		// If it's a file resource, stream it. 
 
 		if($streaming && $channel) {
@@ -262,6 +269,8 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 		}
 		else {
+		    header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
+		    header("Content-Length: " . strlen($data));
 			echo $data;
 		}
 

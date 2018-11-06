@@ -39,7 +39,9 @@ class Photo extends \Zotlabs\Web\Controller {
 			 * Profile photos - Access controls on default profile photos are not honoured since they need to be exchanged with remote sites.
 			 * 
 			 */
-	
+			 
+			$default = get_default_profile_photo();
+			 
 			if($type === 'profile') {
 				switch($res) {
 					case 'm':
@@ -53,7 +55,6 @@ class Photo extends \Zotlabs\Web\Controller {
 					case 'l':
 					default:
 						$resolution = 4;
-						$default = get_default_profile_photo();
 						break;
 				}
 			}

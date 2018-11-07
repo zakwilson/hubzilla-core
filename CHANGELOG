@@ -1,3 +1,17 @@
+Hubzilla 3.8.3 (2018-11-05)
+	- Do not count likes in forum notifications if likes notifications are disabled
+	- Fix typo in spanish translation which broke javascript
+	- Improve linkinfo charset handling and image detection
+	- Fix wrong image resize for some external images
+	- Move blueimp upload lib to composer and update to version 9.25
+	- Remove primary/clone counts from admin summary until we have a mechanism to update the fixed counts
+	- Fix html2markdown() and re-enable previously failing tests
+	- Improve look of oembed content for Hubzilla links
+	- Fix forum notifications count not correct
+	- Fix gallery addon which broke mod apps in some situations
+	- Fix wiki_list widget not working on every page respectively level
+	
+
 Hubzilla 3.8.2 (2018-10-29)
 	- Merge unmerged changes from dev into master
 	- Fix issues with forum handling in mod network and ping

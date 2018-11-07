@@ -233,7 +233,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		return $ret;
 
 	if(! array_key_exists('request_target',$opts)) {
-		$opts['request_target'] = 'get ' . get_request_string($url);
+		$opts['request_target'] = 'post ' . get_request_string($url);
 	}
 
 	@curl_setopt($ch, CURLOPT_HEADER, true);

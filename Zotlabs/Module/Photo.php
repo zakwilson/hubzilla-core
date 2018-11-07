@@ -128,9 +128,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				$photo = substr($photo,0,-2);
 				// If viewing on a high-res screen, attempt to serve a higher resolution image:
 				if ($resolution == 2 && ($cookie_value > 1))
-				  {
 				    $resolution = 1;
-				  }
 			}
 			
 			$r = q("SELECT uid, photo_usage FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
@@ -171,6 +169,8 @@ class Photo extends \Zotlabs\Web\Controller {
 					$modified = strtotime($e[0]['edited']);
 					if(intval($e[0]['os_storage']))
 						$streaming = $data;
+					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
+						$prvcachecontrol = true;
 				}
 				else {
 					if(! $allowed) {
@@ -188,13 +188,13 @@ class Photo extends \Zotlabs\Web\Controller {
 
 		header_remove('Pragma');
 
-                if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+        if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
-                        http_status_exit(304,'not modified');
-                }
-	
+            http_status_exit(304,'not modified');
+        }
+
 		if(! isset($data)) {
 			if(isset($resolution)) {
 				switch($resolution) {

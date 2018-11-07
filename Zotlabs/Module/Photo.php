@@ -10,7 +10,7 @@ require_once('include/photos.php');
 class Photo extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
+
 		$prvcachecontrol = false;
 		$streaming = null;
 		$channel = null;
@@ -32,6 +32,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 	
 		$observer_xchan = get_observer_hash();
+		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 
 		if(isset($type)) {
 	
@@ -86,6 +87,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				if(intval($r[0]['os_storage']))
 					$data = file_get_contents($data);
 			}
+
 			if(! $data) {
 				$data = fetch_image_from_url($default,$mimetype);
 			}
@@ -179,8 +181,19 @@ class Photo extends \Zotlabs\Web\Controller {
 					}
 
 				}
+			} else {
+				http_status_exit(404,'not found');
 			}
 		}
+
+		header_remove('Pragma');
+
+                if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+			header_remove('Expires');
+			header_remove('Cache-Control');
+			header_remove('Set-Cookie');
+                        http_status_exit(304,'not modified');
+                }
 	
 		if(! isset($data)) {
 			if(isset($resolution)) {
@@ -219,11 +232,6 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 
-		if(function_exists('header_remove')) {
-			header_remove('Pragma');
-			header_remove('pragma');
-		}
-	
 		header("Content-type: " . $mimetype);
 	
 		if($prvcachecontrol) {

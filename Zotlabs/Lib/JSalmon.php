@@ -2,15 +2,13 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Zot6\HTTPSig;
 
 class JSalmon {
 
-	static function sign($data,$key_id,$key) {
+	static function sign($data,$key_id,$key,$data_type = 'application/x-zot+json') {
 
-		$arr       = $data;
-		$data      = json_encode($data,JSON_UNESCAPED_SLASHES);
-		$data      = base64url_encode($data, false); // do not strip padding
-		$data_type = 'application/x-zot+json';
+		$data      = base64url_encode(json_encode($data,true),true); // strip padding
 		$encoding  = 'base64url';
 		$algorithm = 'RSA-SHA256';
 
@@ -18,9 +16,9 @@ class JSalmon {
 
 		// precomputed base64url encoding of data_type, encoding, algorithm concatenated with periods
 
-		$precomputed = '.' . base64url_encode($data_type,false) . '.YmFzZTY0dXJs.UlNBLVNIQTI1Ng==';
+		$precomputed = '.' . base64url_encode($data_type,true) . '.YmFzZTY0dXJs.UlNBLVNIQTI1Ng';
 
-		$signature  = base64url_encode(rsa_sign($data . $precomputed, $key), false);
+		$signature  = base64url_encode(rsa_sign($data . $precomputed, $key), true);
 
 		return ([
 			'signed'    => true,
@@ -30,9 +28,45 @@ class JSalmon {
 			'alg'       => $algorithm,
 			'sigs'      => [
 				'value'  => $signature,
-				'key_id' => base64url_encode($key_id)
+				'key_id' => base64url_encode($key_id, true)
 			]
 		]);
 
 	}
+
+	static function verify($x) {
+
+		logger('verify');
+		$ret = [ 'results' => [] ];
+
+		if(! is_array($x)) {
+			return $false;
+		}
+		if(! ( array_key_exists('signed',$x) && $x['signed'])) {
+			return $false;
+		}
+
+		$signed_data = preg_replace('/\s+/','',$x['data']) . '.' 
+			. base64url_encode($x['data_type'],true) . '.' 
+			. base64url_encode($x['encoding'],true) . '.' 
+			. base64url_encode($x['alg'],true);
+
+		$key = HTTPSig::get_key(EMPTY_STR,base64url_decode($x['sigs']['key_id']));
+		 logger('key: ' . print_r($key,true));
+		if($key['portable_id'] && $key['public_key']) {
+			if(rsa_verify($signed_data,base64url_decode($x['sigs']['value']),$key['public_key'])) {
+				logger('verified');
+				$ret = [ 'success' => true, 'signer' => $key['portable_id'], 'hubloc' => $key['hubloc'] ];
+			}
+		}
+
+		return $ret;
+
+	}
+
+	static function unpack($data) {
+		return json_decode(base64url_decode($data),true);
+	}
+
+
 }

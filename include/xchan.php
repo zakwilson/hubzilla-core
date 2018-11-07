@@ -12,7 +12,6 @@ function xchan_store_lowlevel($arr) {
 
 	$store = [
 		'xchan_hash' => ((array_key_exists('xchan_hash',$arr)) ? $arr['xchan_hash'] : ''),
-		'xchan_portable_id' => ((array_key_exists('xchan_portable_id',$arr)) ? $arr['xchan_portable_id'] : ''),
 		'xchan_guid' => ((array_key_exists('xchan_guid',$arr)) ? $arr['xchan_guid'] : ''),
 		'xchan_guid_sig' => ((array_key_exists('xchan_guid_sig',$arr)) ? $arr['xchan_guid_sig'] : ''),
 		'xchan_pubkey' => ((array_key_exists('xchan_pubkey',$arr)) ? $arr['xchan_pubkey'] : ''),

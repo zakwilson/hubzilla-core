@@ -10,7 +10,7 @@ use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
-use Zotlabs\Lib\Zotlib;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/zot.php');
 require_once('include/crypto.php');
@@ -233,7 +233,7 @@ function create_identity($arr) {
 
 	$sig = base64url_encode(rsa_sign($guid,$key['prvkey']));
 	$hash = make_xchan_hash($guid,$sig);
-	$zhash = Zotlib::make_xchan_hash($guid,$key['pubkey']);
+	$zhash = Libzot::make_xchan_hash($guid,$key['pubkey']);
 
 	// Force a few things on the short term until we can provide a theme or app with choice
 
@@ -353,10 +353,12 @@ function create_identity($arr) {
 			'hubloc_guid'     => $guid,
 			'hubloc_guid_sig' => 'sha256.' . $sig,
 			'hubloc_hash'     => $zhash,
+			'hubloc_id_url'   => channel_url($ret['channel']),  
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
 			'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey')),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/zot',
 			'hubloc_sitekey'  => get_config('system','pubkey'),
@@ -373,7 +375,6 @@ function create_identity($arr) {
 	$r = xchan_store_lowlevel(
 		[
 			'xchan_hash'        => $hash,
-			'xchan_portable_id' => $zhash,
 			'xchan_guid'        => $guid,
 			'xchan_guid_sig'    => $sig,
 			'xchan_pubkey'      => $key['pubkey'],
@@ -392,6 +393,30 @@ function create_identity($arr) {
 			'xchan_system'      => $system
 		]
 	);
+
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'        => $zhash,
+			'xchan_guid'        => $guid,
+			'xchan_guid_sig'    => 'sha256.' . $sig,
+			'xchan_pubkey'      => $key['pubkey'],
+			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
+			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
+			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
+			'xchan_photo_s'     => z_root() . "/photo/profile/s/{$newuid}",
+			'xchan_addr'        => channel_reddress($ret['channel']),
+			'xchan_url'         => z_root() . '/channel/' . $ret['channel']['channel_address'],
+			'xchan_follow'      => z_root() . '/follow?f=&url=%s',
+			'xchan_connurl'     => z_root() . '/poco/' . $ret['channel']['channel_address'],
+			'xchan_name'        => $ret['channel']['channel_name'],
+			'xchan_network'     => 'zot6',
+			'xchan_photo_date'  => datetime_convert(),
+			'xchan_name_date'   => datetime_convert(),
+			'xchan_system'      => $system
+		]
+	);
+
+
 
 	// Not checking return value.
 	// It's ok for this to fail if it's an imported channel, and therefore the hash is a duplicate

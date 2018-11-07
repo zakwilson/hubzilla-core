@@ -72,8 +72,8 @@ class Zot6Handler implements IHandler {
 			foreach ($recipients as $recip) {
 
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_portable_id = xchan_portable_id
-					where xchan_portable_id ='%s' limit 1",
+					left join xchan on channel_portable_id = xchan_hash
+					where xchan_hash ='%s' limit 1",
 					dbesc($recip)
 				);
 
@@ -141,7 +141,7 @@ class Zot6Handler implements IHandler {
 
 		$arr = $data['recipients'][0];
 
-		$c = q("select * from channel left join xchan on channel_portable_id = xchan_portable_id where channel_portable_id = '%s' limit 1",
+		$c = q("select * from channel left join xchan on channel_portable_id = xchan_hash where channel_portable_id = '%s' limit 1",
 			dbesc($arr['portable_id'])
 		);
 		if (! $c) {
@@ -197,7 +197,7 @@ class Zot6Handler implements IHandler {
 			return $ret;
 		}
 
-		$r = q("select * from xchan where xchan_hash = '%s' or xchan_portable_id = '%s' limit 1",
+		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($sender)
 		);
 
@@ -231,15 +231,14 @@ class Zot6Handler implements IHandler {
 			// basically this means "unfriend"
 			foreach ($recipients as $recip) {
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_portable_id = xchan_portable_id
+					left join xchan on channel_portable_id = xchan_hash
 					where channel_portable_id = '%s' limit 1",
 					dbesc($recip)
 				);
 				if ($r) {
-					$r = q("select abook_id from abook where uid = %d and (abook_xchan = '%s' or abook_xchan = '%s') limit 1",
+					$r = q("select abook_id from abook where uid = %d and abook_xchan = '%s' limit 1",
 						intval($r[0]['channel_id']),
-						dbesc($sender),
-						dbesc($r[0]['xchan_portable_id'])
+						dbesc($sender)
 					);
 					if ($r) {
 						contact_remove($r[0]['channel_id'],$r[0]['abook_id']);

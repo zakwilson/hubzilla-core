@@ -109,7 +109,7 @@ class Libzot {
 		$data = [
 			'type'     => $type,
 			'encoding' => $encoding,
-			'sender'   => $channel['channel_hash'],
+			'sender'   => $channel['channel_portable_id'],
 			'site_id'  => self::make_xchan_hash(z_root(), get_config('system','pubkey')),
 			'version'  => System::get_zot_revision(),
 		];
@@ -324,14 +324,19 @@ class Libzot {
 		logger('zot-info: ' . print_r($record,true), LOGGER_DATA, LOG_DEBUG);
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
-logger('1');
+
 		if(! $x['success'])
 			return false;
-logger('2');
+
 		if($channel && $record['data']['permissions']) {
-logger('3');
-			$old_read_stream_perm = their_perms_contains($channel['channel_id'],$x['hash'],'view_stream');
-			set_abconfig($channel['channel_id'],$x['hash'],'system','their_perms',$record['data']['permissions']);
+			$permissions = explode(',',$record['data']['permissions']);
+			if($permissions && is_array($permissions)) {
+				$old_read_stream_perm = get_abconfig($channel['channel_id'],$x['hash'],'their_perms','view_stream');
+
+				foreach($permissions as $k => $v) {
+					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$k,$v);
+				}
+			}
 
 			if(array_key_exists('profile',$record['data']) && array_key_exists('next_birthday',$record['data']['profile'])) {
 				$next_birthday = datetime_convert('UTC','UTC',$record['data']['profile']['next_birthday']);
@@ -380,14 +385,16 @@ logger('4');
 			else {
 
 				$p = Permissions::connect_perms($channel['channel_id']);
-				$my_perms = Permissions::serialise($p['perms']);
+				$my_perms = $p['perms'];
 
 				$automatic = $p['automatic'];
 
 				// new connection
 
 				if($my_perms) {
-					set_abconfig($channel['channel_id'],$x['hash'],'system','my_perms',$my_perms);
+					foreach($my_perms as $k => $v) {
+						set_abconfig($channel['channel_id'],$x['hash'],'my_perms',$k,$v);
+					}
 				}
 
 				$closeness = get_pconfig($channel['channel_id'],'system','new_abook_closeness');
@@ -410,7 +417,7 @@ logger('4');
 
 				if($y) {
 					logger("New introduction received for {$channel['channel_name']}");
-					$new_perms = get_all_perms($channel['channel_id'],$x['hash']);
+					$new_perms = get_all_perms($channel['channel_id'],$x['hash'],false);
 	
 					// Send a clone sync packet and a permissions update if permissions have changed
 
@@ -426,7 +433,7 @@ logger('4');
 							[
 							'type'       => NOTIFY_INTRO,
 							'from_xchan' => $x['hash'],
-							'to_xchan'   => $channel['channel_hash'],
+							'to_xchan'   => $channel['channel_portable_id'],
 							'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id']
 							]
 						);
@@ -777,7 +784,7 @@ logger('4');
 
 			// see if this is a channel clone that's hosted locally - which we treat different from other xchans/connections
 
-			$local = q("select channel_account_id, channel_id from channel where channel_hash = '%s' limit 1",
+			$local = q("select channel_account_id, channel_id from channel where channel_portable_id = '%s' limit 1",
 				dbesc($xchan_hash)
 			);
 			if($local) {
@@ -1130,7 +1137,7 @@ logger('4');
 			if($recip_arr) {
 				stringify_array_elms($recip_arr,true);
 				$recips = implode(',',$recip_arr);
-				$r = q("select channel_hash as hash from channel where channel_hash in ( " . $recips . " ) and channel_removed = 0 ");
+				$r = q("select channel_portable_id as hash from channel where channel_portable_id in ( " . $recips . " ) and channel_removed = 0 ");
 			}
 
 			if(! $r) {
@@ -1304,12 +1311,12 @@ logger('4');
 
 		$r = [];
 
-		$c = q("select channel_id, channel_hash from channel where channel_removed = 0");
+		$c = q("select channel_id, channel_portable_id from channel where channel_removed = 0");
 
 		if($c) {
 			foreach($c as $cc) {
 				if(perm_is_allowed($cc['channel_id'],$msg['sender'],$perm)) {
-					$r[] = $cc['channel_hash'];
+					$r[] = $cc['channel_portable_id'];
 				}
 			}
 		}
@@ -1317,7 +1324,7 @@ logger('4');
 		if($include_sys) {
 			$sys = get_sys_channel();
 			if($sys)
-				$r[] = $sys['channel_hash'];
+				$r[] = $sys['channel_portable_id'];
 		}
 
 
@@ -1333,7 +1340,7 @@ logger('4');
 						if($tag['type'] === 'Mention' && (strpos($tag['href'],z_root()) !== false)) {
 							$address = basename($tag['href']);
 							if($address) {
-								$z = q("select channel_hash as hash from channel where channel_address = '%s'
+								$z = q("select channel_portable_id as hash from channel where channel_address = '%s'
 									and channel_removed = 0 limit 1",
 									dbesc($address)
 								);
@@ -1354,7 +1361,7 @@ logger('4');
 			$thread_parent = self::find_parent($msg,$act);
 
 			if($thread_parent) {
-				$z = q("select channel_hash as hash from channel left join item on channel.channel_id = item.uid where ( item.thr_parent = '%s' OR item.parent_mid = '%s' ) ",
+				$z = q("select channel_portable_id as hash from channel left join item on channel.channel_id = item.uid where ( item.thr_parent = '%s' OR item.parent_mid = '%s' ) ",
 					dbesc($thread_parent),
 					dbesc($thread_parent)
 				);
@@ -1428,7 +1435,7 @@ logger('4');
 			 * access checks. 
 			 */
 
-			if($sender === $channel['channel_hash'] && $arr['author_xchan'] === $channel['channel_hash'] && $arr['mid'] === $arr['parent_mid']) {
+			if($sender === $channel['channel_portable_id'] && $arr['author_xchan'] === $channel['channel_portable_id'] && $arr['mid'] === $arr['parent_mid']) {
 				$DR->update('self delivery ignored');
 				$result[] = $DR->get();
 				continue;
@@ -1710,7 +1717,7 @@ logger('4');
 
 			$stored = (($item_result && $item_result['item']) ? $item_result['item'] : false);
 			if((is_array($stored)) && ($stored['id'] != $stored['parent'])
-				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
+				&& ($stored['author_xchan'] === $channel['channel_hash'] || $stored['author_xchan'] === $channel['channel_portable_id'])) {
 				retain_item($stored['item']['parent']);
 			}
 
@@ -1810,9 +1817,9 @@ logger('4');
 			}
 
 			logger('FOF Activity received: ' . print_r($arr,true), LOGGER_DATA, LOG_DEBUG);
-			logger('FOF Activity recipient: ' . $channel['channel_hash'], LOGGER_DATA, LOG_DEBUG);
+			logger('FOF Activity recipient: ' . $channel['channel_portable_id'], LOGGER_DATA, LOG_DEBUG);
 
-			$result = self::process_delivery($arr['owner_xchan'],$arr, [ $channel['channel_hash'] ],false,false,true);
+			$result = self::process_delivery($arr['owner_xchan'],$arr, [ $channel['channel_portable_id'] ],false,false,true);
 			if ($result) {
 				$ret = array_merge($ret, $result);
 			}		
@@ -2048,7 +2055,7 @@ logger('4');
 	
 			$DR = new DReport(z_root(),$sender,$d,$arr['mid']);
 
-			$r = q("select * from channel where channel_hash = '%s' limit 1",
+			$r = q("select * from channel where channel_portable_id = '%s' limit 1",
 				dbesc($d['hash'])
 			);
 
@@ -2203,7 +2210,7 @@ logger('4');
 
 		$loc = $locations[0];
 
-		$r = q("select * from channel where channel_hash = '%s' limit 1",
+		$r = q("select * from channel where channel_portable_id = '%s' limit 1",
 			dbesc($sender_hash)
 		);
 
@@ -2211,7 +2218,7 @@ logger('4');
 			return;
 
 		if($loc['url'] !== z_root()) {
-			$x = q("update channel set channel_moved = '%s' where channel_hash = '%s' limit 1",
+			$x = q("update channel set channel_moved = '%s' where channel_portable_id = '%s' limit 1",
 				dbesc($loc['url']),
 				dbesc($sender_hash)
 			);
@@ -2247,7 +2254,7 @@ logger('4');
 	static function encode_locations($channel) {
 		$ret = [];
 
-		$x = self::get_hublocs($channel['channel_hash']);
+		$x = self::get_hublocs($channel['channel_portable_id']);
 
 		if($x && count($x)) {
 			foreach($x as $hub) {
@@ -2558,6 +2565,9 @@ logger('4');
 
 	static function zotinfo($arr) {
 
+		logger('arr: ' . print_r($arr,true));
+
+
 		$ret = [];
 
 		$zhash     = ((x($arr,'guid_hash'))  ? $arr['guid_hash']   : '');
@@ -2594,13 +2604,13 @@ logger('4');
 		$r = null;
 
 		if(strlen($zhash)) {
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
-				where channel_hash = '%s' limit 1",
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+				where channel_portable_id = '%s' limit 1",
 				dbesc($zhash)
 			);
 		}
 		elseif(strlen($zguid) && strlen($zguid_sig)) {
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 				where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
 				dbesc($zguid),
 				dbesc($zguid_sig)
@@ -2608,7 +2618,7 @@ logger('4');
 		}
 		elseif(strlen($zaddr)) {
 			if(strpos($zaddr,'[system]') === false) {       /* normal address lookup */
-				$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+				$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 					where ( channel_address = '%s' or xchan_addr = '%s' ) limit 1",
 					dbesc($zaddr),
 					dbesc($zaddr)
@@ -2628,10 +2638,10 @@ logger('4');
 				 *
 				 */
 
-				$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+				$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 					where channel_system = 1 order by channel_id limit 1");
 				if(! $r) {
-					$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+					$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 						where channel_removed = 0 order by channel_id limit 1");
 				}
 			}
@@ -2775,7 +2785,7 @@ logger('4');
 		if(! $ret['follow_url'])
 			$ret['follow_url'] = z_root() . '/follow?f=&url=%s';
 
-		$permissions = get_all_perms($e['channel_id'],$ztarget_hash,false);
+		$permissions = get_all_perms($e['channel_id'],$ztarget_hash,false,false);
 
 		if($ztarget_hash) {
 			$permissions['connected'] = false;

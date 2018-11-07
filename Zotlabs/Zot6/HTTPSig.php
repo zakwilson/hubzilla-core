@@ -48,12 +48,14 @@ class HTTPSig {
 			$h = new HTTPHeaders($data['header']);
 			$headers = $h->fetcharr();
 			$body = $data['body'];
+			$headers['(request-target)'] = $data['request_target'];
 		}
 
 		else {
 			$headers = [];
 			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
 			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
+			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 
 			foreach($_SERVER as $k => $v) {
 				if(strpos($k,'HTTP_') === 0) {
@@ -121,6 +123,17 @@ class HTTPSig {
 			if(array_key_exists($h,$headers)) {
 				$signed_data .= $h . ': ' . $headers[$h] . "\n";
 			}
+			if($h === 'date') {
+				$d = new \DateTime($headers[$h]);
+				$d->setTimeZone(new \DateTimeZone('UTC'));
+				$dplus = datetime_convert('UTC','UTC','now + 1 day');
+				$dminus = datetime_convert('UTC','UTC','now - 1 day');
+				$c = $d->format('Y-m-d H:i:s');
+				if($c > $dplus || $c < $dminus) {
+					logger('bad time: ' . $c);
+					return $result;
+				}
+			}
 		}
 		$signed_data = rtrim($signed_data,"\n");
 
@@ -147,8 +160,15 @@ class HTTPSig {
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
-		if(! $x)
+		if(! $x) {
+			logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($key['public_key']) ? '' : ' no key'));
+			$sig_block['signature'] = base64url_encode($sig_block['signature']);
+			logger('affected sigblock: ' . print_r($sig_block,true));
+			logger('signed_data: ' . print_r($signed_data,true));
+			logger('headers: ' . print_r($headers,true));
+			logger('server: ' . print_r($_SERVER,true));
 			return $result;
+		}
 
 		$result['portable_id'] = $key['portable_id'];
 		$result['header_valid'] = true;
@@ -180,7 +200,9 @@ class HTTPSig {
 			return [ 'public_key' => $key ];
 		}
 
-		$key = self::get_webfinger_key($id);
+		if(strpos($id,'#') === false) {
+			$key = self::get_webfinger_key($id);
+		}
 
 		if(! $key) {
 			$key = self::get_activitystreams_key($id);
@@ -215,50 +237,43 @@ class HTTPSig {
 	 */
 
 	function get_activitystreams_key($id) {
-		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
-			dbesc(str_replace('acct:','',$id)),
-			dbesc($id)
+
+		// remove fragment
+
+		$url = ((strpos($id,'#')) ? substr($id,0,strpos($id,'#')) : $id);
+
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+			dbesc(str_replace('acct:','',$url)),
+			dbesc($url)
 		);
-		if(! $x) {
-			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
-				dbesc(str_replace('acct:','',$id)),
-				dbesc($id)
-			);
-		}
 
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
-		$r = ActivityStreams::fetch_property($id);
+		$r = ActivityStreams::fetch($id);
 
 		if($r) {
-			if(array_key_exists('publicKey',$j) && array_key_exists('publicKeyPem',$j['publicKey']) && array_key_exists('id',$j['publicKey'])) {
-				if($j['publicKey']['id'] === $id || $j['id'] === $id) {
-					return [ 'public_key' => self::convertKey($j['publicKey']['publicKeyPem']), 'portable_id' => '', 'hubloc' => [] ];
+			if(array_key_exists('publicKey',$r) && array_key_exists('publicKeyPem',$r['publicKey']) && array_key_exists('id',$r['publicKey'])) {
+				if($r['publicKey']['id'] === $id || $r['id'] === $id) {
+					$portable_id = ((array_key_exists('owner',$r['publicKey'])) ? $r['publicKey']['owner'] : EMPTY_STR);
+					return [ 'public_key' => self::convertKey($r['publicKey']['publicKeyPem']), 'portable_id' => $portable_id, 'hubloc' => [] ];
 				}
 			}
 		}
-
-		return false; 
+		return false;
 	}
 
 
 	function get_webfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
-		if(! $x) {
-			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
-				dbesc(str_replace('acct:','',$id)),
-				dbesc($id)
-			);
-		}
 
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -280,26 +295,18 @@ class HTTPSig {
 			}
 		}
 
-		return (($key['public_key']) ? $key : false); 
+		return (($key['public_key']) ? $key : false);
 	}
 
 
 	function get_zotfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
-		if(! $x) {
-			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
-				dbesc(str_replace('acct:','',$id)),
-				dbesc($id)
-			);
-		}
-
-
 		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['hubloc_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -321,14 +328,9 @@ class HTTPSig {
 							if($i['success']) {
 								$key['portable_id'] = $i['hash'];
 
-								$x = q("select * from xchan left join hubloc on xchan_portable_id = hubloc_hash where hubloc_id_url = '%s' limit 1",
+								$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
 									dbesc($l['href'])
 								);
-								if(! $x) {
-									$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
-										dbesc($l['href'])
-									);
-								}
 								if($x) {
 									$key['hubloc'] = $x[0];
 								}
@@ -432,6 +434,8 @@ class HTTPSig {
 
 		$headers = '';
 		$fields  = '';
+
+		logger('signing: ' . print_r($head,true), LOGGER_DATA);
 
 		if($head) {
 			foreach($head as $k => $v) {

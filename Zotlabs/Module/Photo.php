@@ -246,7 +246,8 @@ class Photo extends \Zotlabs\Web\Controller {
 			// leave it alone. 
 	
 			$cache = get_config('system','photo_cache_time', 86400);    // 1 day by default
-			
+
+		 	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $cache) . " GMT");
 			header("Cache-Control: max-age=" . $cache);
 	
 		}

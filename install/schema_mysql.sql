@@ -1301,7 +1301,6 @@ CREATE TABLE IF NOT EXISTS `vote` (
 
 CREATE TABLE IF NOT EXISTS `xchan` (
   `xchan_hash` char(191) NOT NULL,
-  `xchan_portable_id` char(191) NOT NULL DEFAULT '',,
   `xchan_guid` char(191) NOT NULL DEFAULT '',
   `xchan_guid_sig` text NOT NULL,
   `xchan_pubkey` text NOT NULL,
@@ -1328,7 +1327,6 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   `xchan_pubforum` tinyint(1) NOT NULL DEFAULT 0 ,
   `xchan_deleted` tinyint(1) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`xchan_hash`),
-  KEY `xchan_portable_id` (`xchan_portable_id`),
   KEY `xchan_guid` (`xchan_guid`),
   KEY `xchan_addr` (`xchan_addr`),
   KEY `xchan_name` (`xchan_name`),

@@ -1272,7 +1272,6 @@ create index "vote_poll" on vote ("vote_poll");
 create index "vote_element" on vote ("vote_element");
 CREATE TABLE "xchan" (
   "xchan_hash" text NOT NULL,
-  "xchan_portable_id" text NOT NULL,
   "xchan_guid" text NOT NULL DEFAULT '',
   "xchan_guid_sig" text NOT NULL DEFAULT '',
   "xchan_pubkey" text NOT NULL DEFAULT '',
@@ -1300,7 +1299,6 @@ CREATE TABLE "xchan" (
   "xchan_deleted" smallint NOT NULL DEFAULT '0',
   PRIMARY KEY ("xchan_hash")
 );
-create index "xchan_portable_id" on xchan ("xchan_portable_id");
 create index "xchan_guid" on xchan ("xchan_guid");
 create index "xchan_addr" on xchan ("xchan_addr");
 create index "xchan_name" on xchan ("xchan_name");

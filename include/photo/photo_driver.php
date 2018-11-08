@@ -485,11 +485,11 @@ function guess_image_type($filename, $headers = '') {
 		$h = explode("\n",$headers);
 		foreach ($h as $l) {
 			list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-			$hdrs[$k] = $v;
+			$hdrs[strtolower($k)] = $v;
 		}
 		logger('Curl headers: '.var_export($hdrs, true), LOGGER_DEBUG);
-		if (array_key_exists('Content-Type', $hdrs))
-			$type = $hdrs['Content-Type'];
+		if (array_key_exists('content-type', $hdrs))
+			$type = $hdrs['content-type'];
 	}
 	if (is_null($type)){
 
@@ -637,16 +637,8 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                         $type = guess_image_type($photo, $result['header']);
                         $modified = gmdate('Y-m-d H:i:s', (preg_match('/last-modified: (.+) \S+/i', $result['header'], $o) ? strtotime($o[1] . 'Z') : time()));
 
-                        $h = explode("\n",$result['header']);
-                        if($h) {
-                                foreach($h as $hl) {
-                                        if(stristr($hl,'content-type:')) {
-                                                if(! stristr($hl,'image/')) {
-                                                        $photo_failure = true;
-                                                }
-                                        }
-                                }
-                        }
+                        if(is_null($type))
+                                $photo_failure = true;
                 }
                 elseif($result['return_code'] = 304) {
                         $photo = z_root() . '/photo/' . $hash . '-4';
@@ -744,16 +736,8 @@ function import_channel_photo_from_url($photo,$aid,$uid) {
 			$img_str = $result['body'];
 			$type = guess_image_type($photo, $result['header']);
 
-			$h = explode("\n",$result['header']);
-			if($h) {
-				foreach($h as $hl) {
-					if(stristr($hl,'content-type:')) {
-						if(! stristr($hl,'image/')) {
-							$photo_failure = true;
-						}
-					}
-				}
-			}
+            if(is_null($type))
+                    $photo_failure = true;
 		}
 	}
 	else {

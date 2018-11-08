@@ -165,6 +165,7 @@ class Photo extends \Zotlabs\Web\Controller {
 
 				if($exists && $allowed) {
 					$data = dbunescbin($e[0]['content']);
+					$filesize = $e[0]['filesize'];
 					$mimetype = $e[0]['mimetype'];
 					$modified = strtotime($e[0]['edited']);
 					if(intval($e[0]['os_storage']))
@@ -261,7 +262,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
-		header("Content-Length: " . strlen($data));
+		header("Content-Length: " . $filesize);
 
 		// If it's a file resource, stream it. 
 

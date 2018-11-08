@@ -550,6 +550,7 @@ create index "issue_component" on issue ("issue_component");
 
 CREATE TABLE "item" (
   "id" serial  NOT NULL,
+  "uuid" text  NOT NULL DEFAULT '',
   "mid" text  NOT NULL DEFAULT '',
   "aid" bigint  NOT NULL DEFAULT '0',
   "uid" bigint  NOT NULL DEFAULT '0',
@@ -568,6 +569,7 @@ CREATE TABLE "item" (
   "source_xchan" text NOT NULL DEFAULT '',
   "mimetype" text NOT NULL DEFAULT '',
   "title" text NOT NULL,
+  "summary" text NOT NULL,
   "body" text NOT NULL,
   "html" text NOT NULL,
   "app" text NOT NULL DEFAULT '',
@@ -625,6 +627,7 @@ CREATE TABLE "item" (
   PRIMARY KEY ("id")
 );
 create index "item_uid" on item ("uid");
+create index "item_uuid" on item ("uuid");
 create index "item_parent" on item ("parent");
 create index "item_created" on item ("created");
 create index "item_edited" on item ("edited");

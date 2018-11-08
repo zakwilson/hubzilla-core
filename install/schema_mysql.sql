@@ -579,6 +579,7 @@ CREATE TABLE IF NOT EXISTS `issue` (
 
 CREATE TABLE IF NOT EXISTS `item` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `uuid` char(191) NOT NULL DEFAULT '',
   `mid` char(191) NOT NULL DEFAULT '',
   `aid` int(10) unsigned NOT NULL DEFAULT 0 ,
   `uid` int(10) unsigned NOT NULL DEFAULT 0 ,
@@ -597,6 +598,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   `source_xchan` char(191) NOT NULL DEFAULT '',
   `mimetype` char(191) NOT NULL DEFAULT '',
   `title` text NOT NULL,
+  `summary` mediumtext NOT NULL,
   `body` mediumtext NOT NULL,
   `html` mediumtext NOT NULL,
   `app` char(191) NOT NULL DEFAULT '',
@@ -651,6 +653,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   `item_pending_remove` tinyint(1) NOT NULL DEFAULT 0 ,
   `item_blocked` tinyint(1) NOT NULL DEFAULT 0 ,
   PRIMARY KEY (`id`),
+  KEY `uuid` (`uuid`),
   KEY `parent` (`parent`),
   KEY `created` (`created`),
   KEY `edited` (`edited`),

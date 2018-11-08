@@ -634,6 +634,19 @@ function attribute_contains($attr, $s) {
 }
 
 /**
+ * @brief Log to syslog
+ *
+ * @param string $msg Message to log
+ * @param int $priority - compatible with syslog
+ */
+function hz_syslog($msg, $priority = LOG_INFO) {
+	openlog("hz-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+	syslog($priority, $msg);
+	closelog();
+}
+
+
+/**
  * @brief Logging function for Hubzilla.
  *
  * Logging output is configured through Hubzilla's system config. The log file

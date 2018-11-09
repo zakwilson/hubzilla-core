@@ -1963,6 +1963,7 @@ function scrape_vcard($url) {
 		}
 	}
 
+    $ret['photo'] = (filter_var($ret['photo'], FILTER_VALIDATE_URL) ? $ret['photo'] : substr($ret['url'], 0, -1) . $ret['photo']);
 	return $ret;
 }
 

@@ -672,6 +672,7 @@ class Notifier {
 						'account_id' => $target_item['aid'],
 						'channel_id' => $target_item['uid'],
 						'posturl'    => $hub['hubloc_callback'],
+						'driver'     => $hub['hubloc_network'],
 						'notify'     => $packet,
 						'msg'        => json_encode($encoded_item)
 					]

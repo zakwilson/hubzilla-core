@@ -80,7 +80,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					intval(PHOTO_PROFILE)
 				);
 				if($r) {
-					$modified = strtotime($r[0]['edited']);
+					$modified = strtotime($r[0]['edited'] . "Z");
 					$data = dbunescbin($r[0]['content']);
 					$mimetype = $r[0]['mimetype'];
 				}
@@ -167,7 +167,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					$data = dbunescbin($e[0]['content']);
 					$filesize = $e[0]['filesize'];
 					$mimetype = $e[0]['mimetype'];
-					$modified = strtotime($e[0]['edited']);
+					$modified = strtotime($e[0]['edited'] . 'Z');
 					if(intval($e[0]['os_storage']))
 						$streaming = $data;
 					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
@@ -193,7 +193,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
-            http_status_exit(304,'not modified');
+			http_status_exit(304,'not modified');
         }
 
 		if(! isset($data)) {
@@ -261,7 +261,7 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 		}
 
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified . "Z") . " GMT");
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

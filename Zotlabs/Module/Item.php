@@ -392,6 +392,7 @@ class Item extends \Zotlabs\Web\Controller {
 			$verb              = $orig_post['verb'];
 			$app               = $orig_post['app'];
 			$title             = escape_tags(trim($_REQUEST['title']));
+			$summary           = trim($_REQUEST['summary']);
 			$body              = trim($_REQUEST['body']);
 			$item_flags        = $orig_post['item_flags'];
 	
@@ -454,6 +455,7 @@ class Item extends \Zotlabs\Web\Controller {
 			$coord             = notags(trim($_REQUEST['coord']));
 			$verb              = notags(trim($_REQUEST['verb']));
 			$title             = escape_tags(trim($_REQUEST['title']));
+			$summary           = trim($_REQUEST['summary']);
 			$body              = trim($_REQUEST['body']);
 			$body              .= trim($_REQUEST['attachment']);
 			$postopts          = '';
@@ -505,12 +507,14 @@ class Item extends \Zotlabs\Web\Controller {
 			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
 
 		if($preview) {
+			$summary = z_input_filter($summary,$mimetype,$execflag);
 			$body = z_input_filter($body,$mimetype,$execflag);
 		}
 	
 
-		$arr = [ 'profile_uid' => $profile_uid, 'content' => $body, 'mimetype' => $mimetype ];
+		$arr = [ 'profile_uid' => $profile_uid, 'summary' => $summary, 'content' => $body, 'mimetype' => $mimetype ];
 		call_hooks('post_content',$arr);
+		$summary = $arr['summary'];
 		$body = $arr['content'];
 		$mimetype = $arr['mimetype'];
 
@@ -531,9 +535,23 @@ class Item extends \Zotlabs\Web\Controller {
 			// we may need virtual or template classes to implement the possible alternatives
 			
 
+			if(strpos($body,'[/summary]') !== false) {
+                $match = '';
+                $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
+                if($cnt) {
+                    $summary .= $match[1];
+                }
+                $body_content = preg_replace("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", '',$body);
+                $body = trim($body_content);
+            }
+
+            $summary = cleanup_bbcode($summary);
+
 			$body = cleanup_bbcode($body);
 	
 			// Look for tags and linkify them
+
+			$results = linkify_tags($a, $summary, ($uid) ? $uid : $profile_uid);
 			$results = linkify_tags($a, $body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {
@@ -579,6 +597,9 @@ class Item extends \Zotlabs\Web\Controller {
 			if(! $preview) {
 				fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
 	
+                fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($summary,'[/crypt]')) ? $_POST['media_str'] : $summary),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
+
+
 				fix_attached_file_permissions($channel,$observer['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
 	
 			}
@@ -778,6 +799,7 @@ class Item extends \Zotlabs\Web\Controller {
 		$datarray['parent_mid']          = $parent_mid;
 		$datarray['mimetype']            = $mimetype;
 		$datarray['title']               = $title;
+		$datarray['summary']             = $summary;
 		$datarray['body']                = $body;
 		$datarray['app']                 = $app;
 		$datarray['location']            = $location;

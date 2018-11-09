@@ -597,6 +597,7 @@ function get_item_elements($x,$allow_code = false) {
 	$arr = array();
 
 	$arr['body'] = $x['body'];
+	$arr['summary'] = $x['summary'];
 
 	$maxlen = get_max_import_size();
 
@@ -604,6 +605,11 @@ function get_item_elements($x,$allow_code = false) {
 		$arr['body'] = mb_substr($arr['body'],0,$maxlen,'UTF-8');
 		logger('get_item_elements: message length exceeds max_import_size: truncated');
 	}
+
+   if($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+	$arr['summary'] = mb_substr($arr['summary'],0,$maxlen,'UTF-8');
+        logger('get_item_elements: message summary length exceeds max_import_size: truncated');
+    }
 
 	$arr['created']      = datetime_convert('UTC','UTC',$x['created']);
 	$arr['edited']       = datetime_convert('UTC','UTC',$x['edited']);
@@ -749,9 +755,10 @@ function get_item_elements($x,$allow_code = false) {
 	// Do this after signature checking as the original signature
 	// was generated on the escaped content.
 
-	if($arr['mimetype'] === 'text/markdown')
+	if($arr['mimetype'] === 'text/markdown') {
+		$arr['summary'] = MarkdownSoap::unescape($arr['summary']);
 		$arr['body'] = MarkdownSoap::unescape($arr['body']);
-
+	}
 	if(array_key_exists('revision',$x)) {
 
 		// extended export encoding
@@ -1073,6 +1080,7 @@ function encode_item($item,$mirror = false) {
 	$x['commented']       = $item['commented'];
 	$x['mimetype']        = $item['mimetype'];
 	$x['title']           = $item['title'];
+	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
 	$x['verb']            = $item['verb'];
@@ -1631,6 +1639,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	}
 
 	$arr['title'] = ((array_key_exists('title',$arr) && strlen($arr['title']))  ? trim($arr['title']) : '');
+	$arr['summary'] = ((array_key_exists('summary',$arr) && strlen($arr['summary']))  ? trim($arr['summary']) : '');
 	$arr['body']  = ((array_key_exists('body',$arr) && strlen($arr['body']))    ? trim($arr['body'])  : '');
 
 	$arr['allow_cid']     = ((x($arr,'allow_cid'))     ? trim($arr['allow_cid'])             : '');
@@ -1651,6 +1660,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);
@@ -2096,6 +2106,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);

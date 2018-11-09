@@ -3,8 +3,11 @@
  * @file include/text.php
  */
 
-use \Zotlabs\Lib as Zlib;
-use \Michelf\MarkdownExtra;
+use Zotlabs\Lib as Zlib;
+
+use Michelf\MarkdownExtra;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 require_once("include/bbcode.php");
 
@@ -3466,4 +3469,20 @@ function print_val($v) {
 	}
 	return $v;
 
+}
+
+/**
+ * @brief Generate a unique ID.
+ *
+ * @return string
+ */
+function new_uuid() {
+
+    try {
+        $hash = Uuid::uuid4()->toString();
+    } catch (UnsatisfiedDependencyException $e) {
+        $hash = random_string(48);
+    }
+
+    return $hash;
 }

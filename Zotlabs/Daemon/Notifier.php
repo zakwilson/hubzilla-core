@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once('include/conversation.php');
@@ -561,7 +563,7 @@ class Notifier {
 
 			logger('notifier_hub: ' . $hub['hubloc_url'],LOGGER_DEBUG);
 
-			if($hub['hubloc_network'] !== 'zot') {
+			if(! in_array($hub['hubloc_network'], [ 'zot','zot6' ])) {
 				$narr = [
 					'channel'        => $channel,
 					'upstream'       => $upstream,
@@ -610,14 +612,21 @@ class Notifier {
 				continue;
 			}
 
-			// default: zot protocol
+			if(! in_array($hub['hubloc_network'], [ 'zot','zot6' ])) {
+				continue;
+			}
 
 			$hash   = random_string();
 			$packet = null;
 			$pmsg   = '';
 
 			if($packet_type === 'refresh' || $packet_type === 'purge') {
-				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				if($hub['hubloc_network'] === 'zot6') {
+					$packet = Libzot::build_packet($channel, $packet_type, ids_to_array($packet_recips,'hash'));
+				}
+				else {
+					$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				}
 			}
 			if($packet_type === 'keychange') {
 				$pmsg = get_pconfig($channel['channel_id'],'system','keychange');

@@ -879,25 +879,24 @@ div.jGrowl div.jGrowl-notification {
 .shared_header img {
 	border-radius: $radius;
 	margin-right: 10px;
+	width: auto;
 }
 
 .tag1 {
     font-size : 0.9em !important;
   }
+
 .tag2 {
     font-size : 1.0em !important;
   }
-
 
 .tag3 {
     font-size : 1.1em !important;
   }
 
-
 .tag4 {
     font-size : 1.2em !important;
   }
-
 
 .tag5 {
     font-size : 1.3em !important;
@@ -918,11 +917,9 @@ div.jGrowl div.jGrowl-notification {
     font-size : 1.6em !important;
   }
 
-
 .tag9 {
     font-size : 1.7em !important;
   }
-
 
 .tag10 {
     font-size : 1.8em !important;

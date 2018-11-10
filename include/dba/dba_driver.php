@@ -173,14 +173,14 @@ abstract class dba_driver {
 			return false;
 		}
 
-		if(strlen($server) && ($server !== 'localhost') && ($server !== '127.0.0.1') && (! strpbrk($server,':;'))) {
-			if(! z_dns_check($server)) {
-				$this->error = sprintf( t('Cannot locate DNS info for database server \'%s\''), $server);
-				$this->connected = false;
-				$this->db = null;
-				return false;
-			}
-		}
+		// if(strlen($server) && ($server !== 'localhost') && ($server !== '127.0.0.1') && (! strpbrk($server,':;'))) {
+		// 	if(! z_dns_check($server)) {
+		// 		$this->error = sprintf( t('Cannot locate DNS info for database server \'%s\''), $server);
+		// 		$this->connected = false;
+		// 		$this->db = null;
+		// 		return false;
+		// 	}
+		// }
 
 		return true;
 	}
@@ -468,7 +468,7 @@ function db_columns($table) {
 		if(ACTIVE_DBTYPE === DBTYPE_POSTGRES) {
 			$r = q("SELECT column_name as field FROM information_schema.columns WHERE table_schema = 'public' AND table_name = '%s'",
 				dbesc($table)
-			); 
+			);
 			if($r) {
 				return ids_to_array($r,'field');
 			}

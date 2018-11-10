@@ -637,7 +637,7 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                         if(is_null($type))
                                 $photo_failure = true;
                 }
-                elseif($result['return_code'] = 304) {
+                elseif($result['return_code'] === 304) {
                         $photo = z_root() . '/photo/' . $hash . '-4';
                         $thumb = z_root() . '/photo/' . $hash . '-5';
                         $micro = z_root() . '/photo/' . $hash . '-6';

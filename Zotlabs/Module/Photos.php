@@ -263,7 +263,8 @@ class Photos extends \Zotlabs\Web\Controller {
 							$fsize = strlen($data);
 						}
 	
-						$x = q("update photo set content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 0",
+						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 0",
+						    dbesc(datetime_convert()),
 							dbescbin($data),
 							intval($fsize),
 							intval($height),
@@ -278,7 +279,8 @@ class Photos extends \Zotlabs\Web\Controller {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 	
-						$x = q("update photo set content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 1",
+						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 1",
+						    dbesc(datetime_convert()),
 							dbescbin($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -293,7 +295,8 @@ class Photos extends \Zotlabs\Web\Controller {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 	
-						$x = q("update photo set content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 2",
+						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 2",
+						    dbesc(datetime_convert()),
 							dbescbin($ph->imageString()),
 							intval($height),
 							intval($width),
@@ -308,7 +311,8 @@ class Photos extends \Zotlabs\Web\Controller {
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
 	
-						$x = q("update photo set content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 3",
+						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 3",
+						    dbesc(datetime_convert()),
 							dbescbin($ph->imageString()),
 							intval($height),
 							intval($width),

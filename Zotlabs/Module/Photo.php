@@ -261,7 +261,7 @@ class Photo extends \Zotlabs\Web\Controller {
 	
 		}
 
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified . "Z") . " GMT");
+		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

@@ -350,8 +350,7 @@ abstract class photo_driver {
 		$p['allow_gid'] = (($arr['allow_gid']) ? $arr['allow_gid'] : '');
 		$p['deny_cid'] = (($arr['deny_cid']) ? $arr['deny_cid'] : '');
 		$p['deny_gid'] = (($arr['deny_gid']) ? $arr['deny_gid'] : '');
-		$p['created'] = (($arr['created']) ? $arr['created'] : datetime_convert());
-		$p['edited'] = (($arr['edited']) ? $arr['edited'] : $p['created']);
+		$p['edited'] = (($arr['edited']) ? $arr['edited'] : datetime_convert()); 
 		$p['title'] = (($arr['title']) ? $arr['title'] : '');
 		$p['description'] = (($arr['description']) ? $arr['description'] : '');
 		$p['photo_usage'] = intval($arr['photo_usage']);
@@ -365,13 +364,15 @@ abstract class photo_driver {
 		if(! intval($p['imgscale']))
 			logger('save: ' . print_r($arr,true), LOGGER_DATA);
 
-		$x = q("select id from photo where resource_id = '%s' and uid = %d and xchan = '%s' and imgscale = %d limit 1",
+		$x = q("select id, created from photo where resource_id = '%s' and uid = %d and xchan = '%s' and imgscale = %d limit 1",
 				dbesc($p['resource_id']),
 				intval($p['uid']),
 				dbesc($p['xchan']),
 				intval($p['imgscale'])
 		);
+		
 		if($x) {
+			$p['created'] = (($x['created']) ? $x['created'] : $p['edited']);
 			$r = q("UPDATE photo set
 				aid = %d,
 				uid = %d,
@@ -427,6 +428,7 @@ abstract class photo_driver {
 			);
 		}
 		else {
+			$p['created'] = (($arr['created']) ? $arr['created'] : $p['edited']);
 			$r = q("INSERT INTO photo
 				( aid, uid, xchan, resource_id, created, edited, filename, mimetype, album, height, width, content, os_storage, filesize, imgscale, photo_usage, title, description, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid )
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
@@ -461,11 +463,6 @@ abstract class photo_driver {
 	}
 
 }
-
-
-
-
-
 
 
 
@@ -640,7 +637,7 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                         if(is_null($type))
                                 $photo_failure = true;
                 }
-                elseif($result['return_code'] = 304) {
+                elseif($result['return_code'] === 304) {
                         $photo = z_root() . '/photo/' . $hash . '-4';
                         $thumb = z_root() . '/photo/' . $hash . '-5';
                         $micro = z_root() . '/photo/' . $hash . '-6';
@@ -650,9 +647,8 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                 }
 
         }
-        else {
+        else
                 $photo_failure = true;
-        }
 
         if(! $photo_failure && $result['return_code'] != 304) {
                 $img = photo_factory($img_str, $type);
@@ -680,7 +676,15 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                         else
                                 $photo_failure = true;
 
-                        $p = array('xchan' => $xchan,'resource_id' => $hash, 'filename' => basename($photo), 'album' => $album, 'photo_usage' => $flags, 'imgscale' => 4);
+                        $p = array(
+							'xchan' => $xchan,
+							'resource_id' => $hash,
+							'filename' => basename($photo),
+							'album' => $album,
+							'photo_usage' => $flags,
+							'imgscale' => 4,
+							'edited' => $modified
+						);
 
                         $r = $img->save($p);
 
@@ -721,6 +725,7 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                 $modified = gmdate('Y-m-d H:i:s', filemtime($default));
         }
 
+		logger('HTTP code: ' . $result['return_code'] . '; modified: ' . $modified . '; failure: ' . ($photo_failure ? 'yes' : 'no') . '; URL: ' . $photo, LOGGER_DEBUG);
         return(array($photo,$thumb,$micro,$type,$photo_failure,$modified));
 
 }

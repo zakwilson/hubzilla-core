@@ -8,6 +8,7 @@ namespace Zotlabs\Module;
  */
 
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/socgraph.php');
 require_once('include/selectors.php');
@@ -473,6 +474,10 @@ class Connedit extends \Zotlabs\Web\Controller {
 			if($cmd === 'refresh') {
 				if($orig_record[0]['xchan_network'] === 'zot') {
 					if(! zot_refresh($orig_record[0],\App::get_channel()))
+						notice( t('Refresh failed - channel is currently unavailable.') );
+				}
+				elseif($orig_record[0]['xchan_network'] === 'zot6') {
+					if(! Libzot::refresh($orig_record[0],\App::get_channel()))
 						notice( t('Refresh failed - channel is currently unavailable.') );
 				}
 				else {

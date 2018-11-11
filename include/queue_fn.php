@@ -237,7 +237,7 @@ function queue_deliver($outq, $immediate = false) {
             $zot = new Receiver(new Zot6Handler(),$outq['outq_notify']);
             $result = $zot->run(true);
             logger('returned_json: ' . json_encode($result,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES), LOGGER_DATA);
-            logger('deliver: local zot delivery succeeded to ' . $outq['outq_posturl']);
+            logger('deliver: local zot6 delivery succeeded to ' . $outq['outq_posturl']);
             Libzot::process_response($outq['outq_posturl'],[ 'success' => true, 'body' => json_encode($result) ], $outq);
         }
         else {
@@ -250,8 +250,7 @@ function queue_deliver($outq, $immediate = false) {
 
             $host_crypto = null;
            if($channel && $base) {
-                $h = q("select hubloc_sitekey, site_crypto from hubloc left join site on hubloc_url = site_url where site_url = '%s' and\
- hubloc_network = 'zot6' order by hubloc_id desc limit 1",
+                $h = q("select hubloc_sitekey, site_crypto from hubloc left join site on hubloc_url = site_url where site_url = '%s' and hubloc_network = 'zot6' order by hubloc_id desc limit 1",
                     dbesc($base)
                 );
                 if($h) {
@@ -264,12 +263,12 @@ function queue_deliver($outq, $immediate = false) {
             $result = Libzot::zot($outq['outq_posturl'],$msg,$channel,$host_crypto);
 
             if($result['success']) {
-                logger('deliver: remote zot delivery succeeded to ' . $outq['outq_posturl']);
+                logger('deliver: remote zot6 delivery succeeded to ' . $outq['outq_posturl']);
                 Libzot::process_response($outq['outq_posturl'],$result, $outq);
             }
             else {
-                logger('deliver: remote zot delivery failed to ' . $outq['outq_posturl']);
-                logger('deliver: remote zot delivery fail data: ' . print_r($result,true), LOGGER_DATA);
+                logger('deliver: remote zot6 delivery failed to ' . $outq['outq_posturl']);
+                logger('deliver: remote zot6 delivery fail data: ' . print_r($result,true), LOGGER_DATA);
                 update_queue_item($outq['outq_hash'],10);
             }
 

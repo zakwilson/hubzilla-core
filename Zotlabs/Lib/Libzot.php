@@ -333,8 +333,8 @@ class Libzot {
 			if($permissions && is_array($permissions)) {
 				$old_read_stream_perm = get_abconfig($channel['channel_id'],$x['hash'],'their_perms','view_stream');
 
-				foreach($permissions as $k => $v) {
-					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$k,$v);
+				foreach($permissions as $p) {
+					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$p,'1');
 				}
 			}
 
@@ -974,6 +974,7 @@ logger('4');
 		}
 
 		$x = crypto_unencapsulate($x, get_config('system','prvkey'));
+
 		if(! is_array($x)) {
 			$x = json_decode($x,true);
 		}

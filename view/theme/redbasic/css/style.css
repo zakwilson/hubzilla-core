@@ -872,14 +872,9 @@ div.jGrowl div.jGrowl-notification {
 	margin-left: 20px;
 }
 
-.reshared-content img {
-	width: 100%;
-}
-
 .shared_header img {
 	border-radius: $radius;
 	margin-right: 10px;
-	width: auto;
 }
 
 .tag1 {

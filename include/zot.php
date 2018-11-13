@@ -8,6 +8,8 @@
  *
  */
 
+use Zotlabs\Lib\DReport;
+
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/queue_fn.php');
@@ -1120,7 +1122,7 @@ function zot_process_response($hub, $arr, $outq) {
 
 		foreach($x['delivery_report'] as $xx) {
                         call_hooks('dreport_process',$xx);
-			if(is_array($xx) && array_key_exists('message_id',$xx) && delivery_report_is_storable($xx)) {
+			if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
 				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
 					dbesc($xx['message_id']),
 					dbesc($xx['location']),
@@ -1748,7 +1750,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2297,7 +2299,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -3987,7 +3989,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
-			$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 		}
 		else
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');

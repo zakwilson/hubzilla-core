@@ -90,8 +90,8 @@ class Photo extends \Zotlabs\Web\Controller {
 
 			if(! $data) {
 			    $x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
-				$data = ($x['success'] ? $x['body'] : EMPTY_STR);
-				$mimetype = 'image/png';
+			    $data = ($x['success'] ? $x['body'] : EMPTY_STR);
+			    $mimetype = 'image/png';
 			}
 		}
 		else {

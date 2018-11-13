@@ -732,7 +732,8 @@ class Item extends \Zotlabs\Web\Controller {
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 	
 		if(! $mid) {
-			$mid = (($message_id) ? $message_id : item_message_id());
+			$uuid = (($message_id) ? $message_id : item_message_id());
+			$mid = z_root() . '/item/' . $uuid; 
 		}
 
 
@@ -787,6 +788,7 @@ class Item extends \Zotlabs\Web\Controller {
 		
 		$datarray['aid']                 = $channel['channel_account_id'];
 		$datarray['uid']                 = $profile_uid;
+		$datarray['uuid']                = $uuid;
 		$datarray['owner_xchan']         = (($owner_hash) ? $owner_hash : $owner_xchan['xchan_hash']);
 		$datarray['author_xchan']        = $observer['xchan_hash'];
 		$datarray['created']             = $created;

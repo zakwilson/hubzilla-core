@@ -89,11 +89,11 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 
 			if(! $data) {
-				$x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
-				$data = $x['body'];
+				$data = fetch_image_from_url($default,$mimetype);
+			}
+			if(! $mimetype) {
 				$mimetype = 'image/png';
 			}
-
 		}
 		else {
 	
@@ -200,22 +200,19 @@ class Photo extends \Zotlabs\Web\Controller {
 			if(isset($resolution)) {
 				switch($resolution) {
 					case 4:
-						$default = z_root() . '/' . get_default_profile_photo();
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(),$mimetype);
 						break;
 					case 5:
-						$default = z_root() . '/' . get_default_profile_photo(80);
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(80),$mimetype);
 						break;
 					case 6:
-						$default = z_root() . '/' . get_default_profile_photo(48);
+						$data = fetch_image_from_url(z_root() . '/' . get_default_profile_photo(48),$mimetype);
 						break;
 					default:
 						killme();
 						// NOTREACHED
 						break;
 				}
-				$x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
-				$data = $x['body'];
-				$mimetype = 'image/png';
 			}
 		}
 	

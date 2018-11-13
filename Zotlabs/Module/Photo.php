@@ -198,20 +198,20 @@ class Photo extends \Zotlabs\Web\Controller {
 			if(isset($resolution)) {
 				switch($resolution) {
 					case 4:
-						$default = z_root() . '/' . get_default_profile_photo();
+						$default = get_default_profile_photo();
 						break;
 					case 5:
-						$default = z_root() . '/' . get_default_profile_photo(80);
+						$default = get_default_profile_photo(80);
 						break;
 					case 6:
-						$default = z_root() . '/' . get_default_profile_photo(48);
+						$default = get_default_profile_photo(48);
 						break;
 					default:
 						killme();
 						// NOTREACHED
 						break;
 				}
-				$x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
+				$x = z_fetch_url(z_root() . '/' . $default,true,0,[ 'novalidate' => true ]);
 				$data = ($x['success'] ? $x['body'] : EMPTY_STR);
 				$mimetype = 'image/png';
 			}

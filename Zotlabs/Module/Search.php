@@ -227,9 +227,9 @@ class Search extends \Zotlabs\Web\Controller {
 		}
 	
 		if($tag) 
-			$o .= '<h2>' . sprintf( t('Items tagged with: %s'),htmlspecialchars($search, ENT_COMPAT,'UTF-8')) . '</h2>';
+			$o .= '<h2>' . sprintf( t('Items tagged with: %s'),$search) . '</h2>';
 		else
-			$o .= '<h2>' . sprintf( t('Search results for: %s'),htmlspecialchars($search, ENT_COMPAT,'UTF-8')) . '</h2>';
+			$o .= '<h2>' . sprintf( t('Search results for: %s'),$search) . '</h2>';
 	
 		$o .= conversation($items,'search',$update,'client');
 	

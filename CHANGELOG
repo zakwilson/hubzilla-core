@@ -14,6 +14,8 @@ Hubzilla 3.8.4 (2018-11-14)
 	- Fix taxonomy in activitypub direct messages
 	- Fix syntax error in diaspora addon
 	- New e-learning addon flashcards
+	- Remove DNS check for database connection during installation
+	- Implement timestamps for pconfig
 
 
 Hubzilla 3.8.3 (2018-11-05)

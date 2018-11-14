@@ -153,7 +153,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	// Pull out multiple headers, e.g. proxy and continuation headers
 	// allow for HTTP/2.x without fixing code
 
-	while(preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/',$base)) {
+	while(preg_match('/^HTTP\/[1-3].+? [1-5][0-9][0-9]/',$base)) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));
@@ -319,7 +319,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	// Pull out multiple headers, e.g. proxy and continuation headers
 	// allow for HTTP/2.x without fixing code
 
-	while(preg_match('/^HTTP\/[1-2].+? [1-5][0-9][0-9]/',$base)) {
+	while(preg_match('/^HTTP\/[1-3].+? [1-5][0-9][0-9]/',$base)) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));

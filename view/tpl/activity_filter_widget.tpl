@@ -17,7 +17,7 @@
 		</form>
 	</div>
 	<script>
-		$("#cid-filter").name_autocomplete(baseurl + '/acl', 'a', true, function(data) {
+		$("#cid-filter").contact_autocomplete(baseurl + '/acl', 'a', true, function(data) {
 			$("#cid").val(data.id);
 		});
 	</script>

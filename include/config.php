@@ -59,8 +59,8 @@ function set_pconfig($uid, $family, $key, $value) {
 	return Zlib\PConfig::Set($uid,$family,$key,$value);
 }
 
-function del_pconfig($uid, $family, $key) {
-	return Zlib\PConfig::Delete($uid,$family,$key);
+function del_pconfig($uid, $family, $key, $updated = NULL) {
+	return Zlib\PConfig::Delete($uid,$family,$key,$updated);
 }
 
 function load_xconfig($xchan) {

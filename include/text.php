@@ -634,6 +634,19 @@ function attribute_contains($attr, $s) {
 }
 
 /**
+ * @brief Log to syslog
+ *
+ * @param string $msg Message to log
+ * @param int $priority - compatible with syslog
+ */
+function hz_syslog($msg, $priority = LOG_INFO) {
+	openlog("hz-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+	syslog($priority, $msg);
+	closelog();
+}
+
+
+/**
  * @brief Logging function for Hubzilla.
  *
  * Logging output is configured through Hubzilla's system config. The log file
@@ -3219,8 +3232,16 @@ function create_table_from_array($table, $arr, $binary_fields = []) {
 	if(! ($arr && $table))
 		return false;
 
+	$columns = db_columns($table);
+
 	$clean = [];
 	foreach($arr as $k => $v) {
+
+		if(! in_array($k,$columns)) {
+			continue;
+		}
+
+
 		$matches = false;
 		if(preg_match('/([^a-zA-Z0-9\-\_\.])/',$k,$matches)) {
 			return false;

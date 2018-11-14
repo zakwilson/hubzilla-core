@@ -1075,7 +1075,7 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 function search($s,$id='search-box',$url='/search',$save = false) {
 
 	return replace_macros(get_markup_template('searchbox.tpl'),array(
-		'$s' => htmlspecialchars($s),
+		'$s' => $s,
 		'$id' => $id,
 		'$action_url' => z_root() . $url,
 		'$search_label' => t('Search'),

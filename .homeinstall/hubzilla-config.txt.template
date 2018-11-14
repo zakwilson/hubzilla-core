@@ -18,6 +18,8 @@ db_pass=
 #     Example: my.cooldomain.org
 #     Example: cooldomain.org
 #
+#     Example: localhost (test installation without certificates for httpS)
+#
 # Email is optional
 #
 #

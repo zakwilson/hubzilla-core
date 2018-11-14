@@ -816,15 +816,35 @@ install_run_selfhost
 ping_domain
 configure_cron_freedns
 configure_cron_selfhost
-install_letsencrypt
-configure_apache_for_https
-check_https
+
+if [ "$le_domain" != "localhost" ]
+then
+	install_letsencrypt
+	configure_apache_for_https
+	check_https
+else
+	print_info "is localhost - skipped installation of letsencrypt and configuration of apache for https"
+fi     
+
 install_hubzilla
-rewrite_to_https
-install_rsnapshot
+
+if [ "$le_domain" != "localhost" ]
+then
+	rewrite_to_https
+	install_rsnapshot
+else
+	print_info "is localhost - skipped rewrite to https and installation of rsnapshot"
+fi     
+
 configure_cron_daily
-install_cryptosetup
-write_uninstall_script
+
+if [ "$le_domain" != "localhost" ]
+then
+	install_cryptosetup
+	write_uninstall_script
+else
+	print_info "is localhost - skipped installation of cryptosetup"
+fi     
 
 #set +x    # stop debugging from here
 

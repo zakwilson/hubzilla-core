@@ -10,7 +10,7 @@ require_once('include/photos.php');
 class Photo extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
+
 		$prvcachecontrol = false;
 		$streaming = null;
 		$channel = null;
@@ -32,6 +32,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 	
 		$observer_xchan = get_observer_hash();
+		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 
 		if(isset($type)) {
 	
@@ -79,13 +80,14 @@ class Photo extends \Zotlabs\Web\Controller {
 					intval(PHOTO_PROFILE)
 				);
 				if($r) {
-					$modified = strtotime($r[0]['edited']);
+					$modified = strtotime($r[0]['edited'] . "Z");
 					$data = dbunescbin($r[0]['content']);
 					$mimetype = $r[0]['mimetype'];
 				}
 				if(intval($r[0]['os_storage']))
 					$data = file_get_contents($data);
 			}
+
 			if(! $data) {
 				$data = fetch_image_from_url($default,$mimetype);
 			}
@@ -126,9 +128,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				$photo = substr($photo,0,-2);
 				// If viewing on a high-res screen, attempt to serve a higher resolution image:
 				if ($resolution == 2 && ($cookie_value > 1))
-				  {
 				    $resolution = 1;
-				  }
 			}
 			
 			$r = q("SELECT uid, photo_usage FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
@@ -165,10 +165,13 @@ class Photo extends \Zotlabs\Web\Controller {
 
 				if($exists && $allowed) {
 					$data = dbunescbin($e[0]['content']);
+					$filesize = $e[0]['filesize'];
 					$mimetype = $e[0]['mimetype'];
-					$modified = strtotime($e[0]['edited']);
+					$modified = strtotime($e[0]['edited'] . 'Z');
 					if(intval($e[0]['os_storage']))
 						$streaming = $data;
+					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
+						$prvcachecontrol = true;
 				}
 				else {
 					if(! $allowed) {
@@ -179,9 +182,20 @@ class Photo extends \Zotlabs\Web\Controller {
 					}
 
 				}
+			} else {
+				http_status_exit(404,'not found');
 			}
 		}
-	
+
+		header_remove('Pragma');
+
+        if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+			header_remove('Expires');
+			header_remove('Cache-Control');
+			header_remove('Set-Cookie');
+			http_status_exit(304,'not modified');
+        }
+
 		if(! isset($data)) {
 			if(isset($resolution)) {
 				switch($resolution) {
@@ -219,11 +233,6 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 
-		if(function_exists('header_remove')) {
-			header_remove('Pragma');
-			header_remove('pragma');
-		}
-	
 		header("Content-type: " . $mimetype);
 	
 		if($prvcachecontrol) {
@@ -253,7 +262,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
-		header("Content-Length: " . strlen($data));
+		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 
 

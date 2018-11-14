@@ -620,6 +620,19 @@ function attribute_contains($attr, $s) {
 }
 
 /**
+ * @brief Log to syslog
+ *
+ * @param string $msg Message to log
+ * @param int $priority - compatible with syslog
+ */
+function hz_syslog($msg, $priority = LOG_INFO) {
+	openlog("hz-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+	syslog($priority, $msg);
+	closelog();
+}
+
+
+/**
  * @brief Logging function for Hubzilla.
  *
  * Logging output is configured through Hubzilla's system config. The log file
@@ -1048,7 +1061,7 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 function search($s,$id='search-box',$url='/search',$save = false) {
 
 	return replace_macros(get_markup_template('searchbox.tpl'),array(
-		'$s' => $s,
+		'$s' => htmlspecialchars($s),
 		'$id' => $id,
 		'$action_url' => z_root() . $url,
 		'$search_label' => t('Search'),

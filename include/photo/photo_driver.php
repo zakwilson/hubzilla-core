@@ -350,8 +350,7 @@ abstract class photo_driver {
 		$p['allow_gid'] = (($arr['allow_gid']) ? $arr['allow_gid'] : '');
 		$p['deny_cid'] = (($arr['deny_cid']) ? $arr['deny_cid'] : '');
 		$p['deny_gid'] = (($arr['deny_gid']) ? $arr['deny_gid'] : '');
-		$p['created'] = (($arr['created']) ? $arr['created'] : datetime_convert());
-		$p['edited'] = (($arr['edited']) ? $arr['edited'] : $p['created']);
+		$p['edited'] = (($arr['edited']) ? $arr['edited'] : datetime_convert()); 
 		$p['title'] = (($arr['title']) ? $arr['title'] : '');
 		$p['description'] = (($arr['description']) ? $arr['description'] : '');
 		$p['photo_usage'] = intval($arr['photo_usage']);
@@ -365,13 +364,15 @@ abstract class photo_driver {
 		if(! intval($p['imgscale']))
 			logger('save: ' . print_r($arr,true), LOGGER_DATA);
 
-		$x = q("select id from photo where resource_id = '%s' and uid = %d and xchan = '%s' and imgscale = %d limit 1",
+		$x = q("select id, created from photo where resource_id = '%s' and uid = %d and xchan = '%s' and imgscale = %d limit 1",
 				dbesc($p['resource_id']),
 				intval($p['uid']),
 				dbesc($p['xchan']),
 				intval($p['imgscale'])
 		);
+		
 		if($x) {
+			$p['created'] = (($x['created']) ? $x['created'] : $p['edited']);
 			$r = q("UPDATE photo set
 				aid = %d,
 				uid = %d,
@@ -427,6 +428,7 @@ abstract class photo_driver {
 			);
 		}
 		else {
+			$p['created'] = (($arr['created']) ? $arr['created'] : $p['edited']);
 			$r = q("INSERT INTO photo
 				( aid, uid, xchan, resource_id, created, edited, filename, mimetype, album, height, width, content, os_storage, filesize, imgscale, photo_usage, title, description, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid )
 				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
@@ -464,11 +466,6 @@ abstract class photo_driver {
 
 
 
-
-
-
-
-
 /**
  * Guess image mimetype from filename or from Content-Type header
  *
@@ -485,11 +482,11 @@ function guess_image_type($filename, $headers = '') {
 		$h = explode("\n",$headers);
 		foreach ($h as $l) {
 			list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-			$hdrs[$k] = $v;
+			$hdrs[strtolower($k)] = $v;
 		}
 		logger('Curl headers: '.var_export($hdrs, true), LOGGER_DEBUG);
-		if (array_key_exists('Content-Type', $hdrs))
-			$type = $hdrs['Content-Type'];
+		if (array_key_exists('content-type', $hdrs))
+			$type = $hdrs['content-type'];
 	}
 	if (is_null($type)){
 
@@ -570,122 +567,166 @@ function delete_thing_photo($url,$ob_hash) {
 
 
 
-function import_xchan_photo($photo,$xchan,$thing = false) {
+/**
+ * @brief fetches an photo from external site and prepares its miniatures.
+ *
+ * @param string $photo
+ *    external URL to fetch base image
+ * @param string $xchan
+ *    channel unique hash
+ * @param boolean $thing
+ *    TRUE if this is a thing URL
+ * @param boolean $force
+ *    TRUE if ignore image modification date check (force fetch)
+ *
+ * @return array of results
+ * * \e string \b 0 => local URL to full image
+ * * \e string \b 1 => local URL to standard thumbnail
+ * * \e string \b 2 => local URL to micro thumbnail
+ * * \e string \b 3 => image type
+ * * \e boolean \b 4 => TRUE if fetch failure
+ * * \e string \b 5 => modification date
+ */
 
-	$flags = (($thing) ? PHOTO_THING : PHOTO_XCHAN);
-	$album = (($thing) ? 'Things' : 'Contact Photos');
+function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
 
-	logger('import_xchan_photo: updating channel photo from ' . $photo . ' for ' . $xchan, LOGGER_DEBUG);
+        $modified = '';
 
-	if($thing)
-		$hash = photo_new_resource();
-	else {
-		$r = q("select resource_id from photo where xchan = '%s' and photo_usage = %d and imgscale = 4 limit 1",
-			dbesc($xchan),
-			intval(PHOTO_XCHAN)
-		);
-		if($r) {
-			$hash = $r[0]['resource_id'];
-		}
-		else {
-			$hash = photo_new_resource();
-		}
-	}
+        $flags = (($thing) ? PHOTO_THING : PHOTO_XCHAN);
+        $album = (($thing) ? 'Things' : 'Contact Photos');
 
-	$photo_failure = false;
-	$img_str = '';
+        logger('import_xchan_photo: updating channel photo from ' . $photo . ' for ' . $xchan, LOGGER_DEBUG);
 
-	if($photo) {
-		$filename = basename($photo);
+        if($thing) {
+                $hash = photo_new_resource();
+        }
+        else {
+                $r = q("select resource_id, edited, mimetype from photo where xchan = '%s' and photo_usage = %d and imgscale = 4 limit 1",
+                        dbesc($xchan),
+                        intval(PHOTO_XCHAN)
+                );
+                if($r) {
+                        $hash = $r[0]['resource_id'];
+                        $modified = $r[0]['edited'];
+                        $type = $r[0]['mimetype'];
+                }
+                else {
+                        $hash = photo_new_resource();
+                }
+        }
 
-		$result = z_fetch_url($photo,true);
+        $photo_failure = false;
+        $img_str = '';
 
-		if($result['success']) {
-			$img_str = $result['body'];
-			$type = guess_image_type($photo, $result['header']);
+        if($photo) {
+                $filename = basename($photo);
 
-			$h = explode("\n",$result['header']);
-			if($h) {
-				foreach($h as $hl) {
-					if(stristr($hl,'content-type:')) {
-						if(! stristr($hl,'image/')) {
-							$photo_failure = true;
-						}
-					}
-				}
-			}
-		}
-	}
-	else {
-		$photo_failure = true;
-	}
+                if($force || $modified == '') {
+                        $result = z_fetch_url($photo,true);
+                }
+                else {
+                        $h = array('headers' => array("If-Modified-Since: " . gmdate("D, d M Y H:i:s", strtotime($modified . "Z")) . " GMT"));
+                        $result = z_fetch_url($photo,true,0,$h);
+                }
 
-	if(! $photo_failure) {
-		$img = photo_factory($img_str, $type);
-		if($img->is_valid()) {
-			$width = $img->getWidth();
-			$height = $img->getHeight();
-	
-			if($width && $height) {
-				if(($width / $height) > 1.2) {
-					// crop out the sides
-					$margin = $width - $height;
-					$img->cropImage(300,($margin / 2),0,$height,$height);
-				}
-				elseif(($height / $width) > 1.2) {
-					// crop out the bottom
-					$margin = $height - $width;
-					$img->cropImage(300,0,0,$width,$width);
+                if($result['success']) {
+                        $img_str = $result['body'];
+                        $type = guess_image_type($photo, $result['header']);
+                        $modified = gmdate('Y-m-d H:i:s', (preg_match('/last-modified: (.+) \S+/i', $result['header'], $o) ? strtotime($o[1] . 'Z') : time()));
 
-				}
-				else {
-					$img->scaleImageSquare(300);
-				}
+                        if(is_null($type))
+                                $photo_failure = true;
+                }
+                elseif($result['return_code'] == 304) {
+                        $photo = z_root() . '/photo/' . $hash . '-4';
+                        $thumb = z_root() . '/photo/' . $hash . '-5';
+                        $micro = z_root() . '/photo/' . $hash . '-6';
+                }
+                else {
+                        $photo_failure = true;
+                }
 
-			}
-			else 
-				$photo_failure = true;
+        }
+        else
+                $photo_failure = true;
 
-			$p = array('xchan' => $xchan,'resource_id' => $hash, 'filename' => basename($photo), 'album' => $album, 'photo_usage' => $flags, 'imgscale' => 4);
+        if(! $photo_failure && $result['return_code'] != 304) {
+                $img = photo_factory($img_str, $type);
+                if($img->is_valid()) {
+                        $width = $img->getWidth();
+                        $height = $img->getHeight();
 
-			$r = $img->save($p);
+                        if($width && $height) {
+                                if(($width / $height) > 1.2) {
+                                        // crop out the sides
+                                        $margin = $width - $height;
+                                        $img->cropImage(300,($margin / 2),0,$height,$height);
+                                }
+                                elseif(($height / $width) > 1.2) {
+                                        // crop out the bottom
+                                        $margin = $height - $width;
+                                        $img->cropImage(300,0,0,$width,$width);
 
-			if($r === false)
-				$photo_failure = true;
+                                }
+                                else {
+                                        $img->scaleImageSquare(300);
+                                }
 
-			$img->scaleImage(80);
-			$p['imgscale'] = 5;
-	
-			$r = $img->save($p);
+                        }
+                        else
+                                $photo_failure = true;
 
-			if($r === false)
-				$photo_failure = true;
-	
-			$img->scaleImage(48);
-			$p['imgscale'] = 6;
-	
-			$r = $img->save($p);
+                        $p = array(
+							'xchan' => $xchan,
+							'resource_id' => $hash,
+							'filename' => basename($photo),
+							'album' => $album,
+							'photo_usage' => $flags,
+							'imgscale' => 4,
+							'edited' => $modified
+						);
 
-			if($r === false)
-				$photo_failure = true;
+                        $r = $img->save($p);
 
-			$photo = z_root() . '/photo/' . $hash . '-4';
-			$thumb = z_root() . '/photo/' . $hash . '-5';
-			$micro = z_root() . '/photo/' . $hash . '-6';
-		}
-		else {
-			logger('import_xchan_photo: invalid image from ' . $photo);	
-			$photo_failure = true;
-		}
-	}
-	if($photo_failure) {
-		$photo = z_root() . '/' . get_default_profile_photo();
-		$thumb = z_root() . '/' . get_default_profile_photo(80);
-		$micro = z_root() . '/' . get_default_profile_photo(48);
-		$type = 'image/png';
-	}
+                        if($r === false)
+                                $photo_failure = true;
 
-	return(array($photo,$thumb,$micro,$type,$photo_failure));
+                        $img->scaleImage(80);
+                        $p['imgscale'] = 5;
+
+                        $r = $img->save($p);
+
+                        if($r === false)
+                                $photo_failure = true;
+
+                        $img->scaleImage(48);
+                        $p['imgscale'] = 6;
+
+                        $r = $img->save($p);
+
+                        if($r === false)
+                                $photo_failure = true;
+
+                        $photo = z_root() . '/photo/' . $hash . '-4';
+                        $thumb = z_root() . '/photo/' . $hash . '-5';
+                        $micro = z_root() . '/photo/' . $hash . '-6';
+                }
+                else {
+                        logger('import_xchan_photo: invalid image from ' . $photo);
+                        $photo_failure = true;
+                }
+        }
+        if($photo_failure) {
+                $default = get_default_profile_photo();
+                $photo = z_root() . '/' . $default;
+                $thumb = z_root() . '/' . get_default_profile_photo(80);
+                $micro = z_root() . '/' . get_default_profile_photo(48);
+                $type = 'image/png';
+                $modified = gmdate('Y-m-d H:i:s', filemtime($default));
+        }
+
+		logger('HTTP code: ' . $result['return_code'] . '; modified: ' . $modified . '; failure: ' . ($photo_failure ? 'yes' : 'no') . '; URL: ' . $photo, LOGGER_DEBUG);
+        return(array($photo,$thumb,$micro,$type,$photo_failure,$modified));
 
 }
 
@@ -700,16 +741,8 @@ function import_channel_photo_from_url($photo,$aid,$uid) {
 			$img_str = $result['body'];
 			$type = guess_image_type($photo, $result['header']);
 
-			$h = explode("\n",$result['header']);
-			if($h) {
-				foreach($h as $hl) {
-					if(stristr($hl,'content-type:')) {
-						if(! stristr($hl,'image/')) {
-							$photo_failure = true;
-						}
-					}
-				}
-			}
+            if(is_null($type))
+                    $photo_failure = true;
 		}
 	}
 	else {

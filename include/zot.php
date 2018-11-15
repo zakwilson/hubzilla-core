@@ -5197,6 +5197,7 @@ function zot6_check_sig() {
 					foreach($r as $hubloc) {
 						$verified = \Zotlabs\Web\HTTPSig::verify('',$hubloc['xchan_pubkey']);
 						if($verified && $verified['header_signed'] && $verified['header_valid'] && $verified['content_signed'] && $verified['content_valid']) {
+							logger('zot6 verified');
 							$ret['hubloc'] = $hubloc;
 							$ret['success'] = true;
 							return $ret;

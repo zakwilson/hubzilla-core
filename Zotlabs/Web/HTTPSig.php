@@ -342,6 +342,10 @@ class HTTPSig {
 	 */
 	static function parse_sigheader($header) {
 
+		if(is_array($header)) {
+			btlogger('is_array: ' . print_r($header,true));
+		}
+
 		$ret = [];
 		$matches = [];
 

@@ -508,6 +508,7 @@ logger('4');
 			$r = q("select hubloc.*, site.site_crypto from hubloc left join site on hubloc_url = site_url
 					where hubloc_guid = '%s' and hubloc_guid_sig = '%s'
 					and hubloc_url = '%s' and hubloc_url_sig = '%s'
+					and hubloc_network = 'zot6'
 					and hubloc_site_id = '%s' $limit",
 				dbesc($arr['id']),
 				dbesc($arr['id_sig']),

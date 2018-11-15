@@ -83,7 +83,7 @@ function zot_get_hublocs($hash) {
 
 	/* Only search for active hublocs - e.g. those that haven't been marked deleted */
 
-	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 order by hubloc_url ",
+	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 and hubloc_network = 'zot' order by hubloc_url ",
 		dbesc($hash)
 	);
 
@@ -656,7 +656,7 @@ function zot_gethub($arr, $multiple = false) {
 
 		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on hubloc_url = site_url
 				where hubloc_guid = '%s' and hubloc_guid_sig = '%s'
-				and hubloc_url = '%s' and hubloc_url_sig = '%s'
+				and hubloc_url = '%s' and hubloc_url_sig = '%s' and hubloc_network = 'zot'
 				$sitekey $limit",
 			dbesc($arr['guid']),
 			dbesc($arr['guid_sig']),

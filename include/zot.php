@@ -1187,13 +1187,13 @@ function zot_fetch($arr) {
 
 	$zret = zot6_check_sig();
 
-	if($zret['success'] && $zret['hubloc'] && $zret['hubloc']['hubloc_guid'] === $data['sender']['guid'] && $data['msg']) {
+	if($zret['success'] && $zret['hubloc'] && $zret['hubloc']['hubloc_guid'] === $arr['sender']['guid'] && $arr['msg']) {
 		logger('zot6_delivery',LOGGER_DEBUG);
-		logger('zot6_data: ' . print_r($data,true),LOGGER_DATA);
+		logger('zot6_data: ' . print_r($arr,true),LOGGER_DATA);
 
 		$ret['collected'] = true;
 
-		$import = [ 'success' => true, 'body' => json_encode( [ 'success' => true, 'pickup' => [ [ 'notify' => $data, 'message' => json_decode($data['msg'],true) ] ] ] ) ];
+		$import = [ 'success' => true, 'body' => json_encode( [ 'success' => true, 'pickup' => [ [ 'notify' => $arr, 'message' => json_decode($arr['msg'],true) ] ] ] ) ];
 		$hubs = [ $zret['hubloc'] ] ;
 	}
 

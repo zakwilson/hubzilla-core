@@ -1,3 +1,23 @@
+Hubzilla 3.8.4 (2018-11-14)
+	- Fix xss issue (thanks to Eduardo)
+	- Implement hook in enotify to be used by superblock
+	- Various css fixes
+	- Improve photo cache handling
+	- Provide a function hz_syslog() to log to syslog
+	- Fix request_target in z_post_url()
+	- Fix plural handling for various languages
+	- Some preparatory work for zot6
+	- Fix warning in gallery addon
+	- Fix date issue on xchan photo update in diaspora and pubcrawl addons
+	- Fix typos in startpage addon
+	- Improve activitypub addressing
+	- Fix taxonomy in activitypub direct messages
+	- Fix syntax error in diaspora addon
+	- New e-learning addon flashcards
+	- Remove DNS check for database connection during installation
+	- Implement timestamps for pconfig
+
+
 Hubzilla 3.8.3 (2018-11-05)
 	- Do not count likes in forum notifications if likes notifications are disabled
 	- Fix typo in spanish translation which broke javascript

@@ -25,7 +25,6 @@ class _1228 {
 
 		if($r) {
 			q("COMMIT");
-			self::upgrade();
 			return UPDATE_SUCCESS;
 		}
 

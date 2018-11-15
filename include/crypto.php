@@ -225,7 +225,7 @@ function crypto_unencapsulate($data,$prvkey) {
 	if(! $data)
 		return;
 
-	$alg = ((is_array($data) && array_key_exists('encrypted',$data)) ? $data['alg'] : '');
+	$alg = ((is_array($data) && (array_key_exists('encrypted',$data) || array_key_exists('iv',$data))) ? $data['alg'] : '');
     if(! $alg) {
 		return $data;
     }

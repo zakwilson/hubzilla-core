@@ -1189,6 +1189,8 @@ function zot_fetch($arr) {
 
 	$zret = zot6_check_sig();
 
+	logger('zret: ' . print_r($zret,true));
+
 	if($zret['success'] && $zret['hubloc'] && $zret['hubloc']['hubloc_guid'] === $data['sender']['guid'] && $data['msg']) {
 		logger('zot6_delivery',LOGGER_DEBUG);
 		logger('zot6_data: ' . print_r($data,true),LOGGER_DATA);

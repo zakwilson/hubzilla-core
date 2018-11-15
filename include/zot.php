@@ -5187,7 +5187,7 @@ function zot6_check_sig() {
 		$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER['HTTP_SIGNATURE']);
 		if($sigblock) {
 			$keyId = $sigblock['keyId'];
-
+			logger('keyID: ' . $keyId);
 			if($keyId) {
 				$r = q("select hubloc.*, site_crypto from hubloc left join site on hubloc_url = site_url
 					where hubloc_addr = '%s' ",

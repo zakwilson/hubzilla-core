@@ -91,6 +91,7 @@ class PermissionDescriptionTest extends UnitTestCase {
 	function testDecrypt_sigheader() {
 		$header = 'Header: iv="value_iv" key="value_key" alg="value_alg" data="value_data"';
 		$result = [
+				'encrypted' => true,
 				'iv' => 'value_iv',
 				'key' => 'value_key',
 				'alg' => 'value_alg',
@@ -109,6 +110,7 @@ class PermissionDescriptionTest extends UnitTestCase {
 
 		$header = 'Header: iv="value_iv" key="value_key" alg="value_alg" data="value_data"';
 		$result = [
+				'encrypted' => true, 
 				'iv' => 'value_iv',
 				'key' => 'value_key',
 				'alg' => 'value_alg',

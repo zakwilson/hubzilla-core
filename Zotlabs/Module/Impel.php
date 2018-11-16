@@ -133,9 +133,11 @@ class Impel extends \Zotlabs\Web\Controller {
 			$arr['author_xchan'] = (($j['author_xchan']) ? $j['author_xchan'] : get_observer_hash());
 			$arr['mimetype'] = (($j['mimetype']) ? $j['mimetype'] : 'text/bbcode');
 	
-			if(! $j['mid'])
-				$j['mid'] = item_message_id();
-	
+			if(! $j['mid']) {
+				$j['uuid'] = item_message_id();
+				$j['mid'] = z_root() . '/item/' . $j['uuid'];
+			}
+			$arr['uuid'] = $j['uuid'];
 			$arr['mid'] = $arr['parent_mid'] = $j['mid'];
 	
 	

@@ -2,6 +2,16 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\Enotify;
+use Zotlabs\Web\Controller;
+use Zotlabs\Daemon\Master;
+
+require_once('include/crypto.php');
+require_once('include/items.php');
+require_once('include/security.php');
+
+
 /**
  *
  * This is the POST destination for most all locally posted
@@ -17,16 +27,8 @@ namespace Zotlabs\Module;
  *
  */  
 
-require_once('include/crypto.php');
-require_once('include/items.php');
-require_once('include/attach.php');
-require_once('include/bbcode.php');
-require_once('include/security.php');
 
-
-use \Zotlabs\Lib as Zlib;
-
-class Item extends \Zotlabs\Web\Controller {
+class Item extends Controller {
 
 	function post() {
 
@@ -911,12 +913,12 @@ class Item extends \Zotlabs\Web\Controller {
 			$datarray['title'] = mb_substr($datarray['title'],0,191);
 	
 		if($webpage) {
-			Zlib\IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
-				(($pagetitle) ? $pagetitle : substr($datarray['mid'],0,16)),true);
+			IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
+				(($pagetitle) ? $pagetitle : basename($datarray['mid'])), true);
 		}
 		elseif($namespace) {
-			Zlib\IConfig::Set($datarray,'system', $namespace,
-				(($remote_id) ? $remote_id : substr($datarray['mid'],0,16)),true);
+			IConfig::Set($datarray,'system', $namespace,
+				(($remote_id) ? $remote_id : basename($datarray['mid'])), true);
 		}
 
 
@@ -948,7 +950,7 @@ class Item extends \Zotlabs\Web\Controller {
 				}
 			}
 			if(! $nopush)
-				\Zotlabs\Daemon\Master::Summon(array('Notifier', 'edit_post', $post_id));
+				Master::Summon([ 'Notifier', 'edit_post', $post_id ]);
 	
 
 			if($api_source)
@@ -983,7 +985,7 @@ class Item extends \Zotlabs\Web\Controller {
 				// otherwise it will happen during delivery
 	
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && (intval($parent_item['item_wall']))) {
-					Zlib\Enotify::submit(array(
+					Enotify::submit(array(
 						'type'         => NOTIFY_COMMENT,
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
@@ -1001,7 +1003,7 @@ class Item extends \Zotlabs\Web\Controller {
 				$parent = $post_id;
 	
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && ($datarray['item_type'] == ITEM_TYPE_POST)) {
-					Zlib\Enotify::submit(array(
+					Enotify::submit(array(
 						'type'         => NOTIFY_WALL,
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
@@ -1063,7 +1065,7 @@ class Item extends \Zotlabs\Web\Controller {
 		call_hooks('post_local_end', $datarray);
 	
 		if(! $nopush)
-			\Zotlabs\Daemon\Master::Summon(array('Notifier', $notify_type, $post_id));
+			Master::Summon([ 'Notifier', $notify_type, $post_id ]);
 	
 		logger('post_complete');
 

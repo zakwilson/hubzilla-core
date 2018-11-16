@@ -1006,7 +1006,7 @@ logger('4');
 							dbesc($xx['recipient']),
 							dbesc($xx['name']),
 							dbesc($xx['status']),
-							dbesc(datetime_convert($xx['date'])),
+							dbesc(datetime_convert('UTC','UTC',$xx['date'])),
 							dbesc($xx['sender'])
 						);
 					}

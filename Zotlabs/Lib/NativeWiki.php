@@ -40,26 +40,17 @@ class NativeWiki {
 
 	function create_wiki($channel, $observer_hash, $wiki, $acl) {
 
-		// Generate unique resource_id using the same method as item_message_id()
-		do {
-			$dups = false;
-			$resource_id = random_string();
-			$r = q("SELECT mid FROM item WHERE resource_id = '%s' AND resource_type = '%s' AND uid = %d LIMIT 1", 
-				dbesc($resource_id), 
-				dbesc(NWIKI_ITEM_RESOURCE_TYPE),
-				intval($channel['channel_id'])
-			);
-			if($r)
-				$dups = true;
-		} while($dups == true);
+		$resource_id = new_uuid();
+		$uuid = new_uuid();
 
 		$ac = $acl->get();
-		$mid = item_message_id();
+		$mid = z_root() . '/item/' . $uuid;
 
 		$arr = array();	// Initialize the array of parameters for the post
 		$item_hidden = ((intval($wiki['postVisible']) === 0) ? 1 : 0); 
 		$wiki_url = z_root() . '/wiki/' . $channel['channel_address'] . '/' . $wiki['urlName'];
 		$arr['aid'] = $channel['channel_account_id'];
+		$arr['uuid'] = $uuid;
 		$arr['uid'] = $channel['channel_id'];
 		$arr['mid'] = $mid;
 		$arr['parent_mid'] = $mid;

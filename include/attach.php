@@ -1759,16 +1759,18 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 		$arr_allow_cid = check_list_permissions($channel_id, $arr_allow_cid, 'view_storage');
 	}
 
-	$mid = item_message_id();
+	$uuid = item_message_id();
+	$mid = z_root() . '/item/' . $uuid;
 
 	$objtype = ACTIVITY_OBJ_FILE;
 
 	$arr = array();
 	$arr['aid']           = get_account_id();
 	$arr['uid']           = $channel_id;
-	$arr['item_wall'] = 1;
-	$arr['item_origin'] = 1;
-	$arr['item_unseen'] = 1;
+	$arr['uuid']          = $uuid;
+	$arr['item_wall']     = 1;
+	$arr['item_origin']   = 1;
+	$arr['item_unseen']   = 1;
 	$arr['author_xchan']  = $poster['xchan_hash'];
 	$arr['owner_xchan']   = $poster['xchan_hash'];
 	$arr['title']         = '';
@@ -1813,8 +1815,10 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 		$private = (($u_arr_allow_cid[0] || $u_arr_allow_gid[0] || $u_arr_deny_cid[0] || $u_arr_deny_gid[0]) ? 1 : 0);
 
-		$u_mid = item_message_id();
+		$uuid = item_message_id();
+		$u_mid = z_root() . '/item/' . $uuid;
 
+		$arr['uuid']          = $uuid;
 		$arr['mid']           = $u_mid;
 		$arr['parent_mid']    = $u_mid;
 		$arr['allow_cid']     = perms2str($u_arr_allow_cid);

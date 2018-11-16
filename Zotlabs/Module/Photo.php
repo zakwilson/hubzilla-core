@@ -167,6 +167,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					$modified = strtotime($e[0]['edited'] . 'Z');
 					if(intval($e[0]['os_storage'])) {
 						$streaming = $data;
+						$filesize = filesize($data);
 					}
 					else
 					    $filesize = $e[0]['filesize'];

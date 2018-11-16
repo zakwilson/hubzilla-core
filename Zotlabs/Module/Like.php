@@ -371,10 +371,13 @@ class Like extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		$mid = item_message_id();
+		$uuid = item_message_id();
 	
 		$arr = array();
 	
+		$arr['uuid']  = $uuid;
+		$arr['mid'] = z_root() . '/item/' . $uuid;
+
 		if($extended_like) {
 			$arr['item_thread_top'] = 1;
 			$arr['item_origin'] = 1;
@@ -476,7 +479,6 @@ class Like extends \Zotlabs\Web\Controller {
 		}
 		
 	
-		$arr['mid']          = $mid;
 		$arr['aid']          = (($extended_like) ? $ch[0]['channel_account_id'] : $owner_aid);
 		$arr['uid']          = $owner_uid;
 

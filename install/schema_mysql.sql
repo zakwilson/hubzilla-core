@@ -910,7 +910,6 @@ CREATE TABLE IF NOT EXISTS `outq` (
   KEY `outq_priority` (`outq_priority`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 CREATE TABLE IF NOT EXISTS pchan (
   `pchan_id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `pchan_guid` char(191) NOT NULL DEFAULT '',
@@ -922,15 +921,16 @@ CREATE TABLE IF NOT EXISTS pchan (
   KEY `pchan_hash` (`pchan_hash`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
 CREATE TABLE IF NOT EXISTS `pconfig` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `uid` int(11) NOT NULL DEFAULT 0 ,
   `cat` char(191) NOT NULL DEFAULT '',
   `k` char(191) NOT NULL DEFAULT '',
   `v` mediumtext NOT NULL,
+  `updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `access` (`uid`,`cat`,`k`)
+  UNIQUE KEY `access` (`uid`,`cat`,`k`),
+  KEY `pconfig_updated` (`updated`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `photo` (

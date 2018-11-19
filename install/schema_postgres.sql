@@ -891,7 +891,6 @@ create index "outq_async" on outq ("outq_async");
 create index "outq_delivered" on outq ("outq_delivered");
 create index "outq_priority" on outq ("outq_priority");
 
-
 CREATE TABLE "pchan" (
   "pchan_id" serial NOT NULL,
   "pchan_guid" text NOT NULL,
@@ -900,7 +899,6 @@ CREATE TABLE "pchan" (
   "pchan_prvkey" text NOT NULL,
   PRIMARY KEY ("pchan_id")
 );
-
 create index "pchan_guid" on pchan ("pchan_guid");
 create index "pchan_hash" on pchan ("pchan_hash");
 
@@ -910,9 +908,11 @@ CREATE TABLE "pconfig" (
   "cat" text  NOT NULL,
   "k" text  NOT NULL,
   "v" text NOT NULL,
+  "updated" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY ("id"),
   UNIQUE ("uid","cat","k")
 );
+create index "pconfig_updated_idx" on pconfig ("updated");
 
 CREATE TABLE "photo" (
   "id" serial  NOT NULL,

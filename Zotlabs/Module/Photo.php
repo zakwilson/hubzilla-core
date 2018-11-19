@@ -163,13 +163,11 @@ class Photo extends \Zotlabs\Web\Controller {
 
 				if($exists && $allowed) {
 					$data = dbunescbin($e[0]['content']);
+					$filesize = $e[0]['filesize'];
 					$mimetype = $e[0]['mimetype'];
 					$modified = strtotime($e[0]['edited'] . 'Z');
-					if(intval($e[0]['os_storage'])) {
+					if(intval($e[0]['os_storage']))
 						$streaming = $data;
-					}
-					else
-					    $filesize = $e[0]['filesize'];
 					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
 						$prvcachecontrol = true;
 				}

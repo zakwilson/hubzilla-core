@@ -39,8 +39,7 @@ class ThreadItem {
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 
-		$conv = $this->get_conversation();
-		$observer = $conv->get_observer();
+		$observer = \App::get_observer();
 
 		// Prepare the children
 		if($data['children']) {

@@ -1,3 +1,12 @@
+Hubzilla 3.8.5 (2018-11-19)
+	- Fix pconfig for new installs
+	- Fix delayed publication of posts in combination with channel clones
+	- Fix issue where photo filesize was not updated in the DB when a photo was edited
+	- Fix issue where the original photo size was not set correct in the DB
+	- Fix delivery issue in zot_fetch()
+	- Fix typo in channel reputation addon
+
+
 Hubzilla 3.8.4 (2018-11-14)
 	- Fix xss issue (thanks to Eduardo)
 	- Implement hook in enotify to be used by superblock

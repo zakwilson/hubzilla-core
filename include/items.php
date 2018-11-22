@@ -2643,7 +2643,7 @@ function tag_deliver($uid, $item_id) {
 			if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_MENTION) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_MENTION) {
 						if($matched_forums <= $max_forums) {
 							$plustagged = true;
 							$found = true;
@@ -2657,7 +2657,7 @@ function tag_deliver($uid, $item_id) {
 			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_FORUM) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$plustagged = true;
 							$found = true;
@@ -2893,7 +2893,7 @@ function tgroup_check($uid, $item) {
 			if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_MENTION) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_MENTION) {
 						if($matched_forums <= $max_forums) {
 							$found = true;
 							break;
@@ -2906,7 +2906,7 @@ function tgroup_check($uid, $item) {
 			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_FORUM) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$found = true;
 							break;

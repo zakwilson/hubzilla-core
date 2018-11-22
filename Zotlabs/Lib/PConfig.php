@@ -138,7 +138,7 @@ class PConfig {
 		$hash = hash('sha256',$family.':'.$key);
 
 		if (self::Get($uid, 'hz_delpconfig', $hash) !== false) {
-			if (Get($uid, 'hz_delpconfig', $hash) > $updated) {
+			if (self::Get($uid, 'hz_delpconfig', $hash) > $updated) {
 				logger('Refusing to update pconfig with outdated info (Item deleted more recently).', LOGGER_NORMAL, LOG_ERR);
 				return self::Get($uid,$family,$key);
 			} else {

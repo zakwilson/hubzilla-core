@@ -11,8 +11,8 @@ class _1228 {
 
 		if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
 			$r1 = q("ALTER TABLE item ADD uuid text NOT NULL DEFAULT '' ");
- 			$r2 = q("create index \"uuid_idx\" on channel (\"uuid\")");
-			$r3 = q("ALTER TABLE item add summary TEXT NOT NULL");
+			$r2 = q("create index \"uuid_idx\" on item (\"uuid\")");
+			$r3 = q("ALTER TABLE item add summary TEXT NOT NULL DEFAULT ''");
 
 			$r = ($r1 && $r2 && $r3);
 		}

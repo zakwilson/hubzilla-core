@@ -39,6 +39,8 @@ class ThreadItem {
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 
+		$observer = \App::get_observer();
+
 		// Prepare the children
 		if($data['children']) {
 			foreach($data['children'] as $item) {
@@ -50,6 +52,7 @@ class ThreadItem {
 				if((! visible_activity($item)) || array_key_exists('blocked',$item)) {
 					continue;
 				}
+
 
 				$child = new ThreadItem($item);
 				$this->add_child($child);

@@ -43,7 +43,7 @@ class Pconfig extends \Zotlabs\Web\Controller {
 	}
 	
 	
-		function get() {
+	function get() {
 	
 		if(! local_channel()) {
 			return login();

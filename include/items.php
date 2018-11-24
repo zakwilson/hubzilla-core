@@ -393,7 +393,11 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	if(! array_key_exists('mimetype',$arr))
 		$arr['mimetype'] = 'text/bbcode';
 
-	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : item_message_id());
+
+	if(! $arr['mid']) {
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id()); 
+	}
+	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
 	$arr['thr_parent']   = ((x($arr,'thr_parent')) ? $arr['thr_parent'] : $arr['mid']);
 
@@ -597,6 +601,7 @@ function get_item_elements($x,$allow_code = false) {
 	$arr = array();
 
 	$arr['body'] = $x['body'];
+	$arr['summary'] = $x['summary'];
 
 	$maxlen = get_max_import_size();
 
@@ -604,6 +609,11 @@ function get_item_elements($x,$allow_code = false) {
 		$arr['body'] = mb_substr($arr['body'],0,$maxlen,'UTF-8');
 		logger('get_item_elements: message length exceeds max_import_size: truncated');
 	}
+
+   if($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+	$arr['summary'] = mb_substr($arr['summary'],0,$maxlen,'UTF-8');
+        logger('get_item_elements: message summary length exceeds max_import_size: truncated');
+    }
 
 	$arr['created']      = datetime_convert('UTC','UTC',$x['created']);
 	$arr['edited']       = datetime_convert('UTC','UTC',$x['edited']);
@@ -627,6 +637,7 @@ function get_item_elements($x,$allow_code = false) {
 	if(mb_strlen($arr['title']) > 255)
 		$arr['title'] = mb_substr($arr['title'],0,255);
 
+	$arr['uuid']         = (($x['uuid'])           ? htmlspecialchars($x['uuid'],           ENT_COMPAT,'UTF-8',false) : '');
 	$arr['app']          = (($x['app'])            ? htmlspecialchars($x['app'],            ENT_COMPAT,'UTF-8',false) : '');
 	$arr['route']        = (($x['route'])          ? htmlspecialchars($x['route'],          ENT_COMPAT,'UTF-8',false) : '');
 	$arr['mid']          = (($x['message_id'])     ? htmlspecialchars($x['message_id'],     ENT_COMPAT,'UTF-8',false) : '');
@@ -747,9 +758,10 @@ function get_item_elements($x,$allow_code = false) {
 	// Do this after signature checking as the original signature
 	// was generated on the escaped content.
 
-	if($arr['mimetype'] === 'text/markdown')
+	if($arr['mimetype'] === 'text/markdown') {
+		$arr['summary'] = MarkdownSoap::unescape($arr['summary']);
 		$arr['body'] = MarkdownSoap::unescape($arr['body']);
-
+	}
 	if(array_key_exists('revision',$x)) {
 
 		// extended export encoding
@@ -1061,6 +1073,7 @@ function encode_item($item,$mirror = false) {
 		$x['item_blocked'] = $item['item_blocked'];
 	}
 
+	$x['uuid']            = $item['uuid'];
 	$x['message_id']      = $item['mid'];
 	$x['message_top']     = $item['parent_mid'];
 	$x['message_parent']  = $item['thr_parent'];
@@ -1071,6 +1084,7 @@ function encode_item($item,$mirror = false) {
 	$x['commented']       = $item['commented'];
 	$x['mimetype']        = $item['mimetype'];
 	$x['title']           = $item['title'];
+	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
 	$x['verb']            = $item['verb'];
@@ -1629,6 +1643,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	}
 
 	$arr['title'] = ((array_key_exists('title',$arr) && strlen($arr['title']))  ? trim($arr['title']) : '');
+	$arr['summary'] = ((array_key_exists('summary',$arr) && strlen($arr['summary']))  ? trim($arr['summary']) : '');
 	$arr['body']  = ((array_key_exists('body',$arr) && strlen($arr['body']))    ? trim($arr['body'])  : '');
 
 	$arr['allow_cid']     = ((x($arr,'allow_cid'))     ? trim($arr['allow_cid'])             : '');
@@ -1637,6 +1652,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['deny_gid']      = ((x($arr,'deny_gid'))      ? trim($arr['deny_gid'])              : '');
 	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
 	$arr['route']         = ((x($arr,'route'))         ? trim($arr['route'])                 : '');
+	$arr['uuid']          = ((x($arr,'uuid'))          ? trim($arr['uuid'])                  : '');
 	$arr['item_private']  = ((x($arr,'item_private'))  ? intval($arr['item_private'])        : 0 );
 	$arr['item_wall']     = ((x($arr,'item_wall'))     ? intval($arr['item_wall'])           : 0 );
 	$arr['item_type']     = ((x($arr,'item_type'))     ? intval($arr['item_type'])           : 0 );
@@ -1649,6 +1665,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);
@@ -2094,6 +2111,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);
@@ -2170,6 +2188,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	$arr['route']         = ((array_key_exists('route',$arr)) ? trim($arr['route'])          : $orig[0]['route']);
 
 	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : $orig[0]['location']);
+	$arr['uuid']          = ((x($arr,'uuid'))          ? notags(trim($arr['uuid']))          : $orig[0]['uuid']);
 	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : $orig[0]['coord']);
 	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : $orig[0]['verb']);
 	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : $orig[0]['obj_type']);
@@ -2625,28 +2644,30 @@ function tag_deliver($uid, $item_id) {
 			$plustagged = false;
 			$matches = array();
 
-			$pattern = '/[\!@]\!?\[zrl\=' . preg_quote($term['url'],'/') . '\]' . preg_quote($term['term'],'/') . '\[\/zrl\]/';
+			$pattern = '/[\!@]\!?\[[uz]rl\=' . preg_quote($term['url'],'/') . '\](.*?)\[\/[uz]rl\]/';
 			if(preg_match($pattern,$body,$matches))
 				$tagged = true;
 
-			// original red forum tagging sequence @forumname+
+			$pattern = '/\[url\=' . preg_quote($term['url'],'/') . '\]\@(.*?)\[\/url\]/';
+			if(preg_match($pattern,$body,$matches))
+				$tagged = true;
+
+
 			// standard forum tagging sequence !forumname
 
-			$pluspattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
+			$forumpattern = '/\!\!?\[[uz]rl\=([^\]]*?)\]((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
 
-			$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
+			$forumpattern2 = '/\[[uz]rl\=([^\]]*?)\]\!((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
 
-			$found = false;
 
 			$matches = array();
 
-			if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
+			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_MENTION) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$plustagged = true;
-							$found = true;
 							break;
 						}
 						logger('forum ' . $term['term'] . ' exceeded max_tagged_forums - ignoring');
@@ -2654,13 +2675,12 @@ function tag_deliver($uid, $item_id) {
 				}
 			}
 
-			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
+			if(preg_match_all($forumpattern2,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_FORUM) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$plustagged = true;
-							$found = true;
 							break;
 						}
 						logger('forum ' . $term['term'] . ' exceeded max_tagged_forums - ignoring');
@@ -2882,18 +2902,19 @@ function tgroup_check($uid, $item) {
 			$body = preg_replace('/\[share(.*?)\[\/share\]/','',$item['body']);
 
 
-			$pluspattern = '/@\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\+\[\/zrl\]/';
-
 			$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
+
+			$forumpattern2 = '/\[zrl\=([^\]]*?)\]\!((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
+
 
 			$found = false;
 
 			$matches = array();
 
-			if(preg_match_all($pluspattern,$body,$matches,PREG_SET_ORDER)) {
+			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_MENTION) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$found = true;
 							break;
@@ -2903,10 +2924,10 @@ function tgroup_check($uid, $item) {
 				}
 			}
 
-			if(preg_match_all($forumpattern,$body,$matches,PREG_SET_ORDER)) {
+			if(preg_match_all($forumpattern2,$body,$matches,PREG_SET_ORDER)) {
 				foreach($matches as $match) {
 					$matched_forums ++;
-					if($term['url'] === $match[1] && $term['term'] === $match[2] && intval($term['ttype']) === TERM_FORUM) {
+					if($term['url'] === $match[1] && intval($term['ttype']) === TERM_FORUM) {
 						if($matched_forums <= $max_forums) {
 							$found = true;
 							break;
@@ -4744,7 +4765,8 @@ function item_create_edit_activity($post) {
 
 	$new_item['id'] = 0;
 	$new_item['parent'] = 0;
-	$new_item['mid'] = item_message_id();
+	$new_item['uuid'] = item_message_id();
+	$new_item['mid'] = z_root() . '/item/' . $new_item['uuid'];
 
 	$new_item['body'] = sprintf( t('[Edited %s]'), (($update_item['item_thread_top']) ? t('Post','edit_activity') : t('Comment','edit_activity')));
 

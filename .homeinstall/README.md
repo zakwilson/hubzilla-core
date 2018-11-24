@@ -5,8 +5,8 @@ Run hubzilla-setup.sh for an unattended installation of hubzilla.
 The script is known to work without adjustments with
 
 + Hardware
-  - Mini-PC with Debian-9.2-amd64, or
-  - Rapberry 3 with Raspbian, Debian-9.3
+  - Mini-PC with Debian-9.5-amd64, or
+  - Rapberry 3 with Raspbian, Debian-9.5
 + DynDNS
   - selfHOST.de
   - freedns.afraid.org
@@ -38,7 +38,7 @@ Software
   - apt-get install git
   - mkdir -p /var/www
   - cd /var/www
-  - git clone https://github.com/redmatrix/hubzilla.git html
+  - git clone https://framagit.org/hubzilla/core.git html
   - cd html/.homeinstall
   - cp hubzilla-config.txt.template hubzilla-config.txt
   - nano hubzilla-config.txt
@@ -100,7 +100,7 @@ Create bootable USB drive with Debian on it.You could use
 Example for command dd...
 
     su -
-    dd if=2017-11-29-raspbian-stretch.img of=/dev/mmcblk0
+    dd if=2018-10-09-raspbian-stretch.img of=/dev/mmcblk0
 
 Do not forget to unmount the SD card before and check if unmounted like in this example...
 
@@ -164,7 +164,7 @@ Make the directory for apache and change diretory to it
 
 Clone hubzilla from git ("git pull" will update it later)
 
-    git clone https://framagit.org/hubzilla/core html
+    git clone https://framagit.org/hubzilla/core.git  html
 
 Change to the install script
 
@@ -217,14 +217,20 @@ After the daily script was executed at 05:30 (am)
 - optionally view the daily log under yourdomain.org/admin/logs/
   - set the logfile to var/www/html/hubzilla-daily.log
 
+
+## Install Hubzilla in a Virtual Machine for Test Purposes
+
+Modify the file "hubzilla-config.txt".
+
+    nano hubzilla-config.txt
+
+There use 
+
+    le_domain=localhost
+
 ## Note for the Rasperry 
 
-The script was tested with an Raspberry 3 under Raspian (Debian 9.3, 2017-11-29-raspbian-stretch.img).
-
-It is recommended to deinstall these programms to avoid endless updates. Use...
-
-    sudo apt-get purge wolfram-engine sonic-pi
-    sudo apt-get autoremove
+The script was tested with an Raspberry 3 under Raspian (Debian 9.5, 2018-10-09-raspbian-stretch.img).
 
 It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
@@ -234,7 +240,7 @@ to boot the Rapsi to the client console.
 
 DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
-On a Raspian Stretch (Debian 9) the validation of the mail address fails for the very first user.
+If the validation of the mail address fails for the very first registered user...  
 This used to happen on some *bsd distros but there was some work to fix that a year ago (2017).
 
 So if your system isn't registered in DNS or DNS isn't active do

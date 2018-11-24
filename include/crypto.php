@@ -225,9 +225,14 @@ function crypto_unencapsulate($data,$prvkey) {
 	if(! $data)
 		return;
 
-	$alg = ((array_key_exists('alg',$data)) ? $data['alg'] : 'aes256cbc');
-	if($alg === 'aes256cbc')
+	$alg = ((is_array($data) && (array_key_exists('encrypted',$data) || array_key_exists('iv',$data))) ? $data['alg'] : '');
+    if(! $alg) {
+		return $data;
+    }
+
+	if($alg === 'aes256cbc') {
 		return aes_unencapsulate($data,$prvkey);
+	}
 
 	return other_unencapsulate($data,$prvkey,$alg);
 

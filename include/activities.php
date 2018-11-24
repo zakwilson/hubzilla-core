@@ -16,7 +16,8 @@ function profile_activity($changed, $value) {
 		return;
 
 	$arr = array();
-	$arr['mid']         = $arr['parent_mid'] = item_message_id();
+	$arr['uuid']        = item_message_id();
+	$arr['mid']         = $arr['parent_mid'] = z_root() . '/item/' . $arr['uuid'];
 	$arr['uid']         = local_channel();
 	$arr['aid']         = $self['channel_account_id'];
 	$arr['owner_xchan'] = $arr['author_xchan'] = $self['xchan_hash'];

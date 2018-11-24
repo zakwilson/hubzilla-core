@@ -3,8 +3,11 @@
  * @file include/text.php
  */
 
-use \Zotlabs\Lib as Zlib;
-use \Michelf\MarkdownExtra;
+use Zotlabs\Lib as Zlib;
+
+use Michelf\MarkdownExtra;
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
 require_once("include/bbcode.php");
 
@@ -571,18 +574,9 @@ function alt_pager($i, $more = '', $less = '') {
  * @return string a unique id
  */
 function item_message_id() {
-	do {
-		$dups = false;
-		$hash = random_string();
-		$mid = $hash . '@' . App::get_hostname();
 
-		$r = q("SELECT id FROM item WHERE mid = '%s' LIMIT 1",
-			dbesc($mid));
-		if($r)
-			$dups = true;
-	} while($dups == true);
+	return new_uuid();
 
-	return $mid;
 }
 
 /**
@@ -593,17 +587,9 @@ function item_message_id() {
  * @return string a uniqe hash
  */
 function photo_new_resource() {
-	do {
-		$found = false;
-		$resource = hash('md5', uniqid(mt_rand(), true));
 
-		$r = q("SELECT id FROM photo WHERE resource_id = '%s' LIMIT 1",
-			dbesc($resource));
-		if($r)
-			$found = true;
-	} while($found === true);
+	return new_uuid();
 
-	return $resource;
 }
 
 /**
@@ -3479,4 +3465,20 @@ function print_val($v) {
 	}
 	return $v;
 
+}
+
+/**
+ * @brief Generate a unique ID.
+ *
+ * @return string
+ */
+function new_uuid() {
+
+    try {
+        $hash = Uuid::uuid4()->toString();
+    } catch (UnsatisfiedDependencyException $e) {
+        $hash = random_string(48);
+    }
+
+    return $hash;
 }

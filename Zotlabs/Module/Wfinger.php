@@ -205,6 +205,12 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					],
 
 					[
+						'rel'  => 'http://purl.org/zot/protocol/6.0',
+						'type' => 'application/x-zot+json',
+						'href' => channel_url($r[0])
+					],
+
+					[
 						'rel'  => 'http://purl.org/openwebauth/v1',
 						'type' => 'application/x-zot+json',
 						'href' => z_root() . '/owa',

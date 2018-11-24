@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\DReport;
+
 require_once('include/zot.php');
 require_once('include/queue_fn.php');
 
@@ -58,11 +60,12 @@ class Deliver {
 
 							foreach($dresult as $xx) {
 								if(is_array($xx) && array_key_exists('message_id',$xx)) {
-									if(delivery_report_is_storable($xx)) {
-										q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
+									if(DReport::is_storable($xx)) {
+										q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
 											dbesc($xx['message_id']),
 											dbesc($xx['location']),
 											dbesc($xx['recipient']),
+											dbesc(($xx['name']) ? $xx['name'] : EMPTY_STR),
 											dbesc($xx['status']),
 											dbesc(datetime_convert($xx['date'])),
 											dbesc($xx['sender'])

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
 require_once('include/conversation.php');
@@ -344,7 +346,16 @@ class Notifier {
 				return;
 
 			$encoded_item = encode_item($target_item);
-		
+
+			// activitystreams version
+			$m = get_iconfig($target_item,'activitystreams','signed_data');
+			if($m) {
+				$activity = json_decode($m,true);
+			}
+			else {
+				$activity = \Zotlabs\Lib\Activity::encode_activity($target_item);
+			}		
+
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.
 			// To clarify, a site accepting a new comment is responsible for sending it to the owner for relay.
@@ -561,7 +572,7 @@ class Notifier {
 
 			logger('notifier_hub: ' . $hub['hubloc_url'],LOGGER_DEBUG);
 
-			if($hub['hubloc_network'] !== 'zot') {
+			if(! in_array($hub['hubloc_network'], [ 'zot','zot6' ])) {
 				$narr = [
 					'channel'        => $channel,
 					'upstream'       => $upstream,
@@ -610,20 +621,27 @@ class Notifier {
 				continue;
 			}
 
-			// default: zot protocol
+			if(! in_array($hub['hubloc_network'], [ 'zot','zot6' ])) {
+				continue;
+			}
 
-			$hash   = random_string();
+			$hash   = new_uuid();
 			$packet = null;
 			$pmsg   = '';
 
 			if($packet_type === 'refresh' || $packet_type === 'purge') {
-				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				if($hub['hubloc_network'] === 'zot6') {
+					$packet = Libzot::build_packet($channel, $packet_type, ids_to_array($packet_recips,'hash'));
+				}
+				else {
+					$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				}
 			}
-			if($packet_type === 'keychange') {
+			if($packet_type === 'keychange' && $hub['hubloc_network'] === 'zot') {
 				$pmsg = get_pconfig($channel['channel_id'],'system','keychange');
 				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
 			}
-			elseif($packet_type === 'request') {
+			elseif($packet_type === 'request' && $hub['hubloc_network'] === 'zot') {
 				$env = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
 				$packet = zot_build_packet($channel,$packet_type,$env,$hub['hubloc_sitekey'],$hub['site_crypto'],
 					$hash, array('message_id' => $request_message_id)
@@ -636,6 +654,7 @@ class Notifier {
 					'account_id' => $channel['channel_account_id'],
 					'channel_id' => $channel['channel_id'],
 					'posturl'    => $hub['hubloc_callback'],
+					'driver'     => $hub['hubloc_network'],
 					'notify'     => $packet,
 					'msg'        => (($pmsg) ? json_encode($pmsg) : '')
 				));
@@ -643,18 +662,32 @@ class Notifier {
 			else {
 				$env = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
 
-				// currently zot6 delivery is only performed on normal items and not sync items or mail or anything else
-				// Eventually we will do this for all deliveries, but for now ensure this is precisely what we are dealing 
-				// with before switching to zot6 as the primary zot6 handler checks for the existence of a message delivery report
-				// to trigger dequeue'ing
 
-				$z6 = (($encoded_item && $encoded_item['type'] === 'activity' && (! array_key_exists('allow_cid',$encoded_item))) ? true : false);
-				if($z6) {
-					$packet = zot6_build_packet($channel,'notify',$env, json_encode($encoded_item), (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);
+				if($hub['hubloc_network'] === 'zot6') {
+					$zenv = [];
+					if($env) {
+						foreach($env as $e) {
+							$zenv[] = $e['hash'];
+						}
+					}
+
+					$packet_type = (($upstream || $uplink) ? 'response' : 'activity'); 
+					$packet = Libzot::build_packet($channel,$packet_type,$zenv,$activity,'activitystreams',(($private) ? $hub['hubloc_sitekey'] : null),$hub['site_crypto']);
 				}
 				else {
-					$packet = zot_build_packet($channel,'notify',$env, (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);
+					// currently zot6 delivery is only performed on normal items and not sync items or mail or anything else
+					// Eventually we will do this for all deliveries, but for now ensure this is precisely what we are dealing 
+					// with before switching to zot6 as the primary zot6 handler checks for the existence of a message delivery report
+					// to trigger dequeue'ing
 
+					$z6 = (($encoded_item && $encoded_item['type'] === 'activity' && (! array_key_exists('allow_cid',$encoded_item))) ? true : false);
+					if($z6) {
+						$packet = zot6_build_packet($channel,'notify',$env, json_encode($encoded_item), (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);
+					}
+					else {
+						$packet = zot_build_packet($channel,'notify',$env, (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);
+
+					}
 				}	
 
 				queue_insert(
@@ -663,6 +696,7 @@ class Notifier {
 						'account_id' => $target_item['aid'],
 						'channel_id' => $target_item['uid'],
 						'posturl'    => $hub['hubloc_callback'],
+						'driver'     => $hub['hubloc_network'],
 						'notify'     => $packet,
 						'msg'        => json_encode($encoded_item)
 					]

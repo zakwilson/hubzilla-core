@@ -1125,11 +1125,14 @@ function event_store_item($arr, $event) {
 			}
 		}
 
-		if(! $arr['mid'])
-			$arr['mid'] = item_message_id();
+		if(! $arr['mid']) {
+			$arr['uuid'] = item_message_id();
+			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
+		}
 
 		$item_arr['aid']             = $z[0]['channel_account_id'];
 		$item_arr['uid']             = $arr['uid'];
+		$item_arr['uuid']            = $arr['uuid'];
 		$item_arr['author_xchan']    = $arr['event_xchan'];
 		$item_arr['mid']             = $arr['mid'];
 		$item_arr['parent_mid']      = $arr['mid'];

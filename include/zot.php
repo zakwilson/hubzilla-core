@@ -8,6 +8,8 @@
  *
  */
 
+use Zotlabs\Lib\DReport;
+
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/queue_fn.php');
@@ -81,7 +83,7 @@ function zot_get_hublocs($hash) {
 
 	/* Only search for active hublocs - e.g. those that haven't been marked deleted */
 
-	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 order by hubloc_url ",
+	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 and hubloc_network = 'zot' order by hubloc_url ",
 		dbesc($hash)
 	);
 
@@ -654,7 +656,7 @@ function zot_gethub($arr, $multiple = false) {
 
 		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on hubloc_url = site_url
 				where hubloc_guid = '%s' and hubloc_guid_sig = '%s'
-				and hubloc_url = '%s' and hubloc_url_sig = '%s'
+				and hubloc_url = '%s' and hubloc_url_sig = '%s' and hubloc_network = 'zot'
 				$sitekey $limit",
 			dbesc($arr['guid']),
 			dbesc($arr['guid_sig']),
@@ -1119,14 +1121,15 @@ function zot_process_response($hub, $arr, $outq) {
 		}
 
 		foreach($x['delivery_report'] as $xx) {
-                        call_hooks('dreport_process',$xx);
-			if(is_array($xx) && array_key_exists('message_id',$xx) && delivery_report_is_storable($xx)) {
-				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
+			call_hooks('dreport_process',$xx);
+			if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
+				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s','%s' ) ",
 					dbesc($xx['message_id']),
 					dbesc($xx['location']),
 					dbesc($xx['recipient']),
+					dbesc($xx['name']),
 					dbesc($xx['status']),
-					dbesc(datetime_convert($xx['date'])),
+					dbesc(datetime_convert('UTC','UTC',$xx['date'])),
 					dbesc($xx['sender'])
 				);
 			}
@@ -1188,6 +1191,7 @@ function zot_fetch($arr) {
 	$zret = zot6_check_sig();
 
 	if($zret['success'] && $zret['hubloc'] && $zret['hubloc']['hubloc_guid'] === $arr['sender']['guid'] && $arr['msg']) {
+
 		logger('zot6_delivery',LOGGER_DEBUG);
 		logger('zot6_data: ' . print_r($arr,true),LOGGER_DATA);
 
@@ -1748,7 +1752,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2297,7 +2301,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -3987,7 +3991,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
-			$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 		}
 		else
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
@@ -5185,7 +5189,7 @@ function zot6_check_sig() {
 		$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER['HTTP_SIGNATURE']);
 		if($sigblock) {
 			$keyId = $sigblock['keyId'];
-
+			logger('keyID: ' . $keyId);
 			if($keyId) {
 				$r = q("select hubloc.*, site_crypto from hubloc left join site on hubloc_url = site_url
 					where hubloc_addr = '%s' ",
@@ -5195,6 +5199,7 @@ function zot6_check_sig() {
 					foreach($r as $hubloc) {
 						$verified = \Zotlabs\Web\HTTPSig::verify('',$hubloc['xchan_pubkey']);
 						if($verified && $verified['header_signed'] && $verified['header_valid'] && $verified['content_signed'] && $verified['content_valid']) {
+							logger('zot6 verified');
 							$ret['hubloc'] = $hubloc;
 							$ret['success'] = true;
 							return $ret;

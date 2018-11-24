@@ -342,6 +342,10 @@ class HTTPSig {
 	 */
 	static function parse_sigheader($header) {
 
+		if(is_array($header)) {
+			btlogger('is_array: ' . print_r($header,true));
+		}
+
 		$ret = [];
 		$matches = [];
 
@@ -397,7 +401,7 @@ class HTTPSig {
 			$data = $matches[1];
 
 		if($iv && $key && $alg && $data) {
-			return crypto_unencapsulate([ 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
+			return crypto_unencapsulate([ 'encrypted' => true, 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
 		}
 
 		return '';

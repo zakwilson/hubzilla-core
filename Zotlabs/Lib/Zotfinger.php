@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Lib;
 
-use Zotlabs\Web\HTTPSig;
+use Zotlabs\Zot6\HTTPSig;
 
 class Zotfinger {
 
@@ -12,10 +12,19 @@ class Zotfinger {
 			return false;
 		}
 
-		if($channel) {
+		$m = parse_url($resource);
+
+		$data = json_encode([ 'zot_token' => random_string() ]);
+
+		if($channel && $m) {
+
 			$headers = [ 
-				'Accept'      => 'application/x-zot+json', 
-				'X-Zot-Token' => random_string(),
+				'Accept'           => 'application/x-zot+json', 
+				'Content-Type'     => 'application/x-zot+json',
+				'X-Zot-Token'      => random_string(),
+				'Digest'           => HTTPSig::generate_digest_header($data),
+				'Host'             => $m['host'],
+				'(request-target)' => 'post ' . get_request_string($resource)
 			];
 			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
 		}
@@ -27,7 +36,9 @@ class Zotfinger {
 
 
 		$redirects = 0;
-		$x = z_fetch_url($resource,false,$redirects, [ 'headers' => $h  ] );
+		$x = z_post_url($resource,$data,$redirects, [ 'headers' => $h  ] );
+
+		logger('fetch: ' . print_r($x,true));
 
 		if($x['success']) {
 			
@@ -38,6 +49,8 @@ class Zotfinger {
 			if($result['data'] && is_array($result['data']) && array_key_exists('encrypted',$result['data']) && $result['data']['encrypted']) {
 				$result['data'] = json_decode(crypto_unencapsulate($result['data'],get_config('system','prvkey')),true);
 			}
+
+			logger('decrypted: ' . print_r($result,true));
 
 			return $result;
 		}

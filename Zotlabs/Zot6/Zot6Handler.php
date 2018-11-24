@@ -70,9 +70,10 @@ class Zot6Handler implements IHandler {
 			// This would be a permissions update, typically for one connection
 
 			foreach ($recipients as $recip) {
+
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_hash = xchan_hash
-					where channel_hash ='%s' limit 1",
+					left join xchan on channel_portable_id = xchan_hash
+					where xchan_hash ='%s' limit 1",
 					dbesc($recip)
 				);
 
@@ -140,7 +141,7 @@ class Zot6Handler implements IHandler {
 
 		$arr = $data['recipients'][0];
 
-		$c = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_hash = '%s' limit 1",
+		$c = q("select * from channel left join xchan on channel_portable_id = xchan_hash where channel_portable_id = '%s' limit 1",
 			dbesc($arr['portable_id'])
 		);
 		if (! $c) {
@@ -230,8 +231,8 @@ class Zot6Handler implements IHandler {
 			// basically this means "unfriend"
 			foreach ($recipients as $recip) {
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_hash = xchan_hash
-					where channel_hash = '%s' and channel_guid_sig = '%s' limit 1",
+					left join xchan on channel_portable_id = xchan_hash
+					where channel_portable_id = '%s' limit 1",
 					dbesc($recip)
 				);
 				if ($r) {

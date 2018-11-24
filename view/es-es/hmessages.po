@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2018-10-19 11:04+0200\n"
-"PO-Revision-Date: 2018-10-24 11:35+0000\n"
+"PO-Revision-Date: 2018-11-21 11:04+0000\n"
 "Last-Translator: Manuel Jiménez Friaza <mjfriaza@disroot.org>\n"
 "Language-Team: Spanish (Spain) (http://www.transifex.com/Friendica/hubzilla/language/es_ES/)\n"
 "MIME-Version: 1.0\n"
@@ -1729,7 +1729,7 @@ msgstr "Importar elementos"
 #: ../../Zotlabs/Module/Import_items.php:126
 msgid ""
 "Use this form to import existing posts and content from an export file."
-msgstr "Utilice este formulario para importar entradas existentes y contenido desde un archivo de exportación."
+msgstr "Utilice este formulario para importar entradas y contenido desde un archivo de exportación."
 
 #: ../../Zotlabs/Module/Import_items.php:127
 #: ../../Zotlabs/Module/Import.php:548
@@ -1807,7 +1807,7 @@ msgstr "Un canal es una identidad única en la red. Puede representar a una pers
 #: ../../Zotlabs/Module/New_channel.php:183
 msgid ""
 "or <a href=\"import\">import an existing channel</a> from another location."
-msgstr "O <a href=\"import\">importar un canal existente</a> desde otro lugar."
+msgstr "O <a href=\"import\">importar un canal </a> desde otro lugar."
 
 #: ../../Zotlabs/Module/New_channel.php:188
 msgid "Validate"
@@ -4496,7 +4496,7 @@ msgid ""
 "Leave blank to keep your existing channel nickname. You will be randomly "
 "assigned a similar nickname if either name is already allocated on this "
 "site."
-msgstr "Dejar en blanco para mantener su alias de canal existente. Se le asignará aleatoriamente uno similar si cualquiera de los dos nombres ya está asignado en este sitio."
+msgstr "Dejar en blanco para mantener su alias de canal . Se le asignará aleatoriamente uno similar si cualquiera de los dos nombres ya está asignado en este sitio."
 
 #: ../../Zotlabs/Module/Import.php:562
 msgid ""
@@ -4942,7 +4942,7 @@ msgstr "Introducir un nombre de álbum"
 
 #: ../../Zotlabs/Module/Photos.php:698
 msgid "or select an existing album (doubleclick)"
-msgstr "o seleccionar uno existente (doble click)"
+msgstr "o seleccionar un álbum (con un doble click)"
 
 #: ../../Zotlabs/Module/Photos.php:699
 msgid "Create a status post for this upload"
@@ -5010,7 +5010,7 @@ msgstr "Introducir un nuevo nombre de álbum"
 
 #: ../../Zotlabs/Module/Photos.php:1067
 msgid "or select an existing one (doubleclick)"
-msgstr "o seleccionar uno (doble click) existente"
+msgstr "o seleccionar un álbum (con un doble click)"
 
 #: ../../Zotlabs/Module/Photos.php:1072
 msgid "Add a Tag"
@@ -5557,7 +5557,7 @@ msgstr "Usar una foto de sus álbumes"
 #: ../../Zotlabs/Module/Profile_photo.php:474
 #: ../../Zotlabs/Module/Cover_photo.php:409
 msgid "Select existing photo"
-msgstr "Seleccionar una foto existente"
+msgstr "Seleccionar una foto"
 
 #: ../../Zotlabs/Module/Profile_photo.php:493
 #: ../../Zotlabs/Module/Cover_photo.php:426
@@ -8443,7 +8443,7 @@ msgid ""
 "A deleted group with this name was revived. Existing item permissions "
 "<strong>may</strong> apply to this group and any future members. If this is "
 "not what you intended, please create another group with a different name."
-msgstr "Un grupo suprimido con este nombre ha sido restablecido. <strong>Es posible</strong> que los permisos existentes  sean aplicados a este grupo y sus futuros miembros. Si no quiere esto, por favor cree otro grupo con un nombre diferente."
+msgstr "Un grupo suprimido con este nombre ha sido restablecido. <strong>Es posible</strong> que los permisos que ya existen  sean aplicados a este grupo y sus futuros miembros. Si no quiere esto, por favor cree otro grupo con un nombre diferente."
 
 #: ../../Zotlabs/Lib/Group.php:270 ../../include/group.php:264
 msgid "Add new connections to this privacy group"
@@ -11149,11 +11149,11 @@ msgstr "Por favor visite el sitio web de $Projectname"
 
 #: ../../addon/upgrade_info/upgrade_info.php:46
 msgid "app store"
-msgstr "depósito de apps"
+msgstr "aplicaciones disponibles"
 
 #: ../../addon/upgrade_info/upgrade_info.php:47
 msgid "and install possibly missing apps."
-msgstr "e instalar aplicaciones que posiblemente falten."
+msgstr "e instale las aplicaciones que posiblemente falten."
 
 #: ../../addon/upgrade_info/upgrade_info.php:52
 msgid "Upgrade Info"
@@ -11364,7 +11364,7 @@ msgstr "Eliminar los datos de localización geográfica del navegador"
 
 #: ../../addon/hsse/hsse.php:99 ../../include/conversation.php:1302
 msgid "Embed (existing) photo from your photo albums"
-msgstr "Insertar (existente) foto de sus álbumes de fotos"
+msgstr "Insertar una foto de sus álbumes"
 
 #: ../../addon/hsse/hsse.php:135 ../../include/conversation.php:1338
 msgid "Tag term:"
@@ -12247,7 +12247,7 @@ msgstr "Crear nuevos eventos aquí."
 msgid ""
 "You can accept new connections and change permissions for existing ones "
 "here. You can also e.g. create groups of contacts."
-msgstr "Puede aceptar nuevas conexiones y cambiar permisos para las existentes aquí. También puede, por ejemplo, crear grupos de contactos."
+msgstr "Puede aceptar nuevas conexiones y cambiar permisos para las que ya existen aquí. También puede, por ejemplo, crear grupos de contactos."
 
 #: ../../addon/tour/tour.php:82
 msgid "System notifications will arrive here"
@@ -14455,7 +14455,7 @@ msgstr "Etiquetas de la comunidad"
 
 #: ../../include/features.php:143
 msgid "Ability to tag existing posts"
-msgstr "Capacidad de etiquetar entradas existentes"
+msgstr "Capacidad de etiquetar entradas"
 
 #: ../../include/features.php:150
 msgid "Emoji Reactions"

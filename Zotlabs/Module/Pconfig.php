@@ -22,6 +22,11 @@ class Pconfig extends \Zotlabs\Web\Controller {
 		$k = trim(escape_tags($_POST['k']));
 		$v = trim($_POST['v']);
 		$aj = intval($_POST['aj']);
+
+		// Do not store "serialized" data received in the $_POST
+		if (preg_match('|^a:[0-9]+:{.*}$|s',$v) || preg_match('O:8:"stdClass":[0-9]+:{.*}$|s',$v)) {
+			return;
+		}
 	
 		if(in_array(argv(2),$this->disallowed_pconfig())) {
 			notice( t('This setting requires special processing and editing has been blocked.') . EOL);

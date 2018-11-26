@@ -29,7 +29,7 @@ $Projectname es, básicamente, una aplicación de servidor web relativamente est
 
 [*= Identidad nómada] La capacidad de autenticar y migrar fácilmente una identidad a través de hubs y dominios web independientes. La identidad nómada proporciona una verdadera propiedad de una identidad en línea, porque las identidades de los canales controlados por una cuenta en un hub no están vinculadas al propio hub. Un hub es más como un "host" para canales. Con Hubzilla, no tienes una "cuenta" en un servidor como lo haces en sitios web típicos; tienes una identidad que puedes llevarte a través de la rejilla usando clones.
 
-[*= Zot] El novedoso protocolo basado en JSON para la implementación de comunicaciones y servicios descentralizados seguros. Se diferencia de muchos otros protocolos de comunicación en que construye las comunicaciones sobre un marco de identidad y autenticación descentralizado. El componente de autenticación es similar a OpenID conceptualmente pero está aislado de las identidades basadas en DNS. Cuando es posible, la autenticación remota es silenciosa e invisible. Esto proporciona un mecanismo para el control de acceso distribuido a escala de Internet que es discreto.
+[*= Zot] El novedoso protocolo basado en JSON para la implementación de comunicaciones y servicios descentralizados seguros. Se diferencia de muchos otros protocolos de comunicación en que construye las comunicaciones sobre un marco de identidad y autenticación descentralizado. El componente de autenticación es similar a OpenID conceptualmente pero está aislado de las identidades basadas en DNS. Cuando es posible, la autenticación remota es silenciosa e invisible. Esto proporciona un mecanismo discreto para el control de acceso distribuido a escala de Internet.
 [/dl]
 
 
@@ -41,7 +41,7 @@ Esta página enumera algunas de las características principales de $Projectname
 [h4]Control deslizante de afinidad[/h4]
 
 Cuando se añaden conexiones en $Projectname, los miembros tienen la opción de asignar niveles de "afinidad" (cuán cerca está su amigo).
-Por otro lado, al añadir el canal de un amigo, se puede situar bajo el nivel de afinidad de "Amigos".
+Por otro lado, al añadir el canal de un amigo, se puede situar bajo el nivel de afinidad, justamente, de "Amigos".
 
 En este punto, la herramienta $Projectname [i]Control deslizante de afinidad[/i], que normalmente aparece en la parte superior de la página, ajusta su contenido para incluir aquellos contactos que están dentro del rango de afinidad deseado. Los canales fuera de ese rango no se mostrarán, a menos que ajuste el control deslizante para incluirlos.
 
@@ -62,7 +62,7 @@ Las listas de control de acceso se pueden aplicar a contenido y mensajes, fotos,
 
 [h4]Inicio de sesión único[/h4]
 
-Las listas de control de acceso funcionan para todos los canales de la red gracias a nuestra exclusiva tecnología de inicio de sesión único. La mayoría de los enlaces internos proporcionan un token de identidad que puede ser verificado en otros sitios de $Projectname y utilizado para controlar el acceso a recursos privados. Inicie sesión una vez en el hub de su casa. Después de eso, la autenticación de todos los recursos de $Projectname es "mágica".
+Las listas de control de acceso funcionan para todos los canales de la red gracias a nuestra exclusiva tecnología de inicio de sesión único. La mayoría de los enlaces internos proporcionan un token de identidad que puede ser verificado en otros sitios de $Projectname y utilizado para controlar el acceso a recursos privados. Inicie sesión una vez en la página principal del hub. Después de eso, la autenticación de todos los recursos de $Projectname es "mágica".
 
 
 [h4]Almacenamiento de Archivos habilitado para WebDAV[/h4]
@@ -93,7 +93,7 @@ Las aplicaciones pueden ser construidas y distribuidas por los miembros. Éstas 
 
 [h4]Diseño[/h4]
 
-El diseño de la página se basa en un lenguaje de descripción llamado comanche. La propia $Projectname está escrito en diseños comanches que se pueden cambiar. Esto permite un nivel de personalización que no se encuentra normalmente en los llamados "entornos multiusuario".
+El diseño de la página se basa en un lenguaje de descripción llamado comanche. La propia $Projectname está escrito en plantillas en comanche que se pueden cambiar. Esto permite un nivel de personalización que no se encuentra normalmente en los llamados "entornos multiusuario".
 
 
 [h4]Marcadores[/h4]
@@ -111,14 +111,14 @@ Además, los mensajes pueden crearse utilizando "encriptación de extremo a extr
 
 Por lo general, los mensajes públicos no se cifran durante el transporte ni durante el almacenamiento.  
 
-Los mensajes privados pueden ser revocados (no enviados) aunque no hay garantía de que el destinatario no lo haya leído todavía.
+Los mensajes privados pueden ser revocados (no enviados) aunque no hay garantía de que el destinatario no lo haya leído antes.
 
 Los mensajes se pueden crear con una fecha de caducidad, en la que se borrarán/quitarán en el sitio del destinatario.  
 
 
 [h4]Federación de Servicios[/h4]
 
-Además de añadir "conectores de publicación cruzada" a una variedad de redes alternativas, hay soporte nativo para la importación de contenido desde RSS/Atom feeds y puede utilizarlo para crear canales especiales. Los plugins también están disponibles para comunicarse con otros usando los protocolos Diáspora, GNU-Social (OStatus) o Mastodon (ActivityPub). Estas redes no soportan la identidad nómada ni el control de acceso entre dominios; sin embargo, las comunicaciones básicas son soportadas desde/hacia la diáspora, Friendica, GNU-Social, Mastodon y otros proveedores que utilizan estos protocolos.   
+Además de añadir "conectores de publicación cruzada" a una variedad de redes alternativas, hay soporte nativo para la importación de contenido desde RSS/Atom feeds y puede utilizarlo para crear canales especiales. Los plugins también están disponibles para comunicarse con otros usando los protocolos Diáspora, GNU-Social (OStatus) o Mastodon (ActivityPub). Estas redes no soportan la identidad nómada ni el control de acceso entre dominios; sin embargo, las comunicaciones básicas son soportadas desde o hacia Diaspora, Friendica, GNU-Social, Mastodon, Pleroma y otros proveedores que utilizan estos protocolos.   
 
 También existe soporte experimental para la autenticación OpenID que puede utilizarse en las listas de control de acceso. Este es un trabajo en progreso. Su hub $Projectname puede ser utilizado como un proveedor de OpenID para autenticarle en servicios externos que utilizan esta tecnología. 
 
@@ -126,7 +126,7 @@ Los canales pueden tener permisos para convertirse en "canales derivados" cuando
 
 [h4]Grupos de Privacidad[/h4]
 
-Nuestra implementación de grupos de privacidad es similar a la de Google "Círculos" y "Aspectos" de la Diáspora. Esto le permite filtrar su flujo entrante por grupos seleccionados y establecer automáticamente la Lista de control de acceso saliente sólo para aquellos que se encuentren en ese grupo de privacidad cuando publique. Usted puede anular esto en cualquier momento (antes de enviar el correo).  
+Nuestra implementación de grupos de privacidad es similar a la de Google "Círculos" y "Aspectos" de Diaspora. Esto le permite filtrar su flujo entrante por grupos seleccionados y establecer automáticamente la Lista de control de acceso saliente sólo para aquellos que se encuentren en ese grupo de privacidad cuando publique. Usted puede anular esto en cualquier momento (antes de enviar el correo).  
 
 
 [h4]Servicios de directorio[/h4]
@@ -158,19 +158,25 @@ Las opciones son:
 
 [h4]Foros Públicos y Privados[/h4]
 
-Los foros son típicamente canales que pueden estar abiertos a la participación de múltiples autores. Actualmente existen dos mecanismos para enviar mensajes a los foros: 1) mensajes de "muro a muro" y 2) a través de las etiquetas @mención del foro. Los foros pueden ser creados por cualquier persona y utilizados para cualquier propósito. El directorio contiene una opción para buscar foros públicos. Los foros privados sólo pueden ser publicados y, a menudo, sólo pueden ser vistos por los miembros.
+Los foros son típicamente canales que pueden estar abiertos a la participación de múltiples autores. Actualmente existen dos mecanismos para enviar mensajes a los foros: 
+
+1) mensajes de "muro a muro" y 
+
+2) a través de las etiquetas @mención del foro. 
+
+Los foros pueden ser creados por cualquier persona y utilizados para cualquier propósito. El directorio contiene una opción para buscar foros públicos. Los foros privados sólo pueden ser publicados y, a menudo, sólo pueden ser vistos por los miembros.
 
 [h4]Clonación de cuentas[/h4]
 
-Las cuentas en $Projectname se denominan [i]identidades nómadas[/i], porque la identidad de un miembro no está vinculada al hub donde se creó la identidad originalmente.  Por ejemplo, cuando creas una cuenta de Facebook o Gmail, está vinculada a esos servicios.  No pueden funcionar sin Facebook.com o Gmail.com.  
+Las cuentas en $Projectname se denominan [i]identidades nómadas[/i], porque la identidad de un miembro no está vinculada al hub donde se creó la identidad originalmente.  Por ejemplo, cuando cree una cuenta de Facebook o Gmail, está vinculada a esos servicios.  No pueden funcionar sin Facebook.com o Gmail.com.  
 
-Por el contrario, digamos que ha creado una identidad $Projectname llamada[b]tina@$Projectnamehub.com[/b].  Puede clonarlo a otro hub $Projectname eligiendo el mismo o un nombre diferente:[b]vivoParasiempre@algún$ProjectnameHub.info[/b]
+Por el contrario, digamos que ha creado una identidad $Projectname llamada [b]tina@$Projectnamehub.com[/b].  Puede clonarlo a otro hub $Projectname eligiendo el mismo o un nombre diferente:[b]vivoParasiempre@algún$ProjectnameHub.info[/b]
 
-Ahora ambos canales están sincronizados, lo que significa que todos sus contactos y preferencias se duplicarán en su clon.  No importa si envías un mensaje desde su hub original o desde el nuevo hub.  Los mensajes se reflejarán en ambas cuentas.
+Ahora ambos canales están sincronizados, lo que significa que todos sus contactos y preferencias se duplicarán en su clon.  No importa si envía un mensaje desde su hub original o desde el nuevo hub.  Los mensajes se reflejarán en ambas cuentas.
 
 Esta es una característica bastante revolucionaria, si consideramos algunos escenarios:
 
- ¿Qué ocurre si el hub en el que se basa una identidad se desconecta de repente?  Sin clonación, un miembro no podrá comunicarse hasta que el hub vuelva a estar en línea (sin duda muchos de ustedes han visto y maldecido el Twitter "Fail Whale").  Con la clonación, sólo tienesque iniciar sesión en su cuenta clonada y la vida continúa feliz para siempre. 
+ ¿Qué ocurre si el hub en el que se basa una identidad se desconecta de repente?  Sin clonación, un miembro no podrá comunicarse hasta que el hub vuelva a estar en línea (sin duda muchos de ustedes han visto y maldecido el Twitter "Fail Whale").  Con la clonación, sólo tiene que iniciar sesión en su cuenta clonada y la vida continúa feliz para siempre. 
 
  El administrador de su hub ya no puede permitirse el lujo de pagar por su hub gratuito y público $Projectname. Anuncia que el centro cerrará en dos semanas.  Esto le da tiempo suficiente para clonar su(s) identidad(es) y preservar las relaciones, amigos y contenido de su $Projectname.
 
@@ -193,9 +199,10 @@ $Projectname ofrece una sencilla copia de seguridad de la cuenta con un solo cli
 
 [h4]Borrado de cuenta[/h4]
 
-Las cuentas se pueden eliminar inmediatamente haciendo clic en un enlace. Eso es todo.  Todo el contenido asociado se elimina de la rejilla (esto incluye los mensajes y cualquier otro contenido producido por el perfil eliminado). Dependiendo del número de conexiones que tenga, el proceso de eliminación de contenido remoto podría llevar algún tiempo, pero está previsto que ocurra tan rápido como sea posible.
+Las cuentas se pueden eliminar inmediatamente haciendo clic en un enlace. Eso es todo.  Todo el contenido asociado se elimina de la red (esto incluye los mensajes y cualquier otro contenido producido por el perfil eliminado). Dependiendo del número de conexiones que tenga, el proceso de eliminación de contenido remoto podría llevar algún tiempo, pero está previsto que ocurra tan rápido como sea posible.
 
 [h4]Supresión de contenido[/h4]
+
 Cualquier contenido creado en $Projectname permanece bajo el control del miembro (o canal) que lo creó originalmente.  En cualquier momento, un miembro puede borrar un mensaje o un rango de mensajes.  El proceso de eliminación garantiza que el contenido se elimine, independientemente de si se publicó en el hub principal de un canal o en otro hub, donde el canal se autenticó de forma remota a través de Zot (protocolo de autenticación y comunicación de $Projectname).
 
 
@@ -221,4 +228,4 @@ $Projectname se puede ampliar de varias maneras, a través de la personalizació
 
 [h4]API[/h4]
 
-Una API está disponible para su uso por parte de servicios de terceros. Un plugin también proporciona una implementación básica de Twitter (para los que existen cientos de herramientas de terceros). El acceso puede ser proporcionado por login/contraseña o OAuth, y el registro del cliente de las aplicaciones de OAuth es proporcionado.
+Una API está disponible para su uso por parte de servicios de terceros. Un plugin también proporciona una implementación básica de Twitter (para los que existen cientos de herramientas de terceros). El acceso puede ser proporcionado por login/contraseña o OAuth, y el registro del cliente de las aplicaciones de OAuth está disponible.

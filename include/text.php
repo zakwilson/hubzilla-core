@@ -1108,18 +1108,17 @@ function linkify($s, $me = false) {
  * @param int $uid
  * @returns string
  */
-function sslify($s, $uid) {
+function sslify($s) {
 	
 	// Local photo cache
 	if(get_config('system','photo_cache_enable', 0) && local_channel()) {
 		$matches = null;
-		$cnt = preg_match_all("/\<img(.*?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
+		$cnt = preg_match_all("/\<img(.+?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $match) {
 				logger('uid: ' . $uid . '; url: ' . $match[2], LOGGER_DEBUG);
 				$cache = array(
-					'url' => $match[2],
-					'uid' => $uid
+					'url' => $match[2]
 				);
 				call_hooks('cache_url_hook', $cache);
 				logger('cache status: ' . intval($cache['status']) .'; cached as: ' . ($cache['cached'] ? $cache['hash'] : '-'), LOGGER_DEBUG);
@@ -1702,7 +1701,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	if(local_channel() == $item['uid'])
 		$filer = format_filer($item);
 
-	$s = sslify($s, $item['uid']);
+	$s = sslify($s);
 
 	$prep_arr = array(
 		'item' => $item,

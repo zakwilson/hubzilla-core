@@ -1111,7 +1111,7 @@ function linkify($s, $me = false) {
 function sslify($s, $uid) {
 	
 	// Local photo cache
-	if(get_config('system','photo_cache_enable', 0)) {
+	if(get_config('system','photo_cache_enable', 0) && local_channel()) {
 		$matches = null;
 		$cnt = preg_match_all("/\<img(.*?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
 		if ($cnt) {

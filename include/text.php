@@ -1111,10 +1111,9 @@ function linkify($s, $me = false) {
 function sslify($s) {
 	
 	// Local photo cache
-	$cacheon = get_config('system','photo_cache_enable', 0);
-	if($cache && local_channel()) {
+	if(get_config('system','photo_cache_enable', 0) && local_channel()) {
 		$matches = null;
-		$cnt = preg_match_all("/\<img(.+?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
+		$cnt = preg_match_all("/\<img(.+?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/", $s, $matches, PREG_SET_ORDER);
 		if ($cnt) {
 			foreach ($matches as $match) {
 				logger('uid: ' . $uid . '; url: ' . $match[2], LOGGER_DEBUG);
@@ -1142,7 +1141,7 @@ function sslify($s) {
 	$pattern = (($allow) ? "/\<(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" : "/\<img(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" );
 
 	$matches = null;
-	$cnt = preg_match_all($pattern,$s,$matches,PREG_SET_ORDER);
+	$cnt = preg_match_all($pattern, $s, $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $match) {
 			$filename = basename( parse_url($match[2], PHP_URL_PATH) );

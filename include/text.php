@@ -1118,7 +1118,8 @@ function sslify($s) {
 			foreach ($matches as $match) {
 				logger('uid: ' . $uid . '; url: ' . $match[2], LOGGER_DEBUG);
 				$cache = array(
-					'url' => $match[2]
+					'url' => $match[2],
+					'uid' => local_channel()
 				);
 				call_hooks('cache_url_hook', $cache);
 				logger('cache status: ' . intval($cache['status']) .'; cached as: ' . ($cache['cached'] ? $cache['hash'] : '-'), LOGGER_DEBUG);

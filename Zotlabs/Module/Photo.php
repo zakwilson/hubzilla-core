@@ -32,10 +32,10 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 		$cache_mode = array(
-			'on' => false,		// Cache off
-			'age' => 86400,		// max-age
-			'exp' => true,		// Use own max-age
-			'leak' => false		// Do not allow non members use our cache
+			'on' => get_config('system','photo_cache_enable', 0),
+			'age' => 86400,
+			'exp' => true,
+			'leak' => false
 		);
 		call_hooks('cache_mode_hook', $cache_mode);
 		

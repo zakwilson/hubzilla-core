@@ -3280,7 +3280,7 @@ function share_unshield($m) {
 }
 
 
-function cleanup_bbcode($body, $uid = 0) {
+function cleanup_bbcode($body) {
 
 	/**
 	 * fix naked links by passing through a callback to see if this is a hubzilla site
@@ -3316,7 +3316,7 @@ function cleanup_bbcode($body, $uid = 0) {
 
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
-	$body = scale_external_images($body, false, false, $uid);
+	$body = scale_external_images($body, false);
 
 	return $body;
 }

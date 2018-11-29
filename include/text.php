@@ -1105,12 +1105,33 @@ function linkify($s, $me = false) {
  * to a local redirector which uses https and which redirects to the selected content
  *
  * @param string $s
+ * @param int $uid
  * @returns string
  */
-function sslify($s) {
+function sslify($s, $uid) {
+	
+	// Local photo cache
+	if(get_config('system','photo_cache_enable', 0)) {
+		$matches = null;
+		$cnt = preg_match_all("/\<img(.*?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
+		if ($cnt) {
+			foreach ($matches as $match) {
+				logger('uid: ' . $uid . '; url: ' . $match[2], LOGGER_DEBUG);
+				$cache = array(
+					'url' => $match[2],
+					'uid' => $uid
+				);
+				call_hooks('cache_url_hook', $cache);
+				logger('cache status: ' . intval($cache['status']) .'; cached as: ' . ($cache['cached'] ? $cache['hash'] : '-'), LOGGER_DEBUG);
+				if($cache['cached'])
+					$s = str_replace($match[2], z_root() . '/photo/' . $cache['hash'] . '-' . $cache['res'], $s);
+			}
+		}
+	}
+	
 	if (strpos(z_root(),'https:') === false)
 		return $s;
-
+	
 	// By default we'll only sslify img tags because media files will probably choke.
 	// You can set sslify_everything if you want - but it will likely white-screen if it hits your php memory limit.
 	// The downside is that http: media files will likely be blocked by your browser
@@ -1118,7 +1139,7 @@ function sslify($s) {
 
 	$allow = get_config('system','sslify_everything');
 
-	$pattern = (($allow) ? "/\<(.*?)src=\"(http\:.*?)\"(.*?)\>/" : "/\<img(.*?)src=\"(http\:.*?)\"(.*?)\>/" );
+	$pattern = (($allow) ? "/\<(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" : "/\<img(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" );
 
 	$matches = null;
 	$cnt = preg_match_all($pattern,$s,$matches,PREG_SET_ORDER);
@@ -1681,7 +1702,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	if(local_channel() == $item['uid'])
 		$filer = format_filer($item);
 
-	$s = sslify($s);
+	$s = sslify($s, $item['uid']);
 
 	$prep_arr = array(
 		'item' => $item,
@@ -3259,7 +3280,7 @@ function share_unshield($m) {
 }
 
 
-function cleanup_bbcode($body) {
+function cleanup_bbcode($body, $uid = 0) {
 
 	/**
 	 * fix naked links by passing through a callback to see if this is a hubzilla site
@@ -3295,7 +3316,7 @@ function cleanup_bbcode($body) {
 
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
-	$body = scale_external_images($body,false);
+	$body = scale_external_images($body, false, false, $uid);
 
 	return $body;
 }

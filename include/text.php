@@ -1111,7 +1111,8 @@ function linkify($s, $me = false) {
 function sslify($s) {
 	
 	// Local photo cache
-	if(get_config('system','photo_cache_enable', 0) && local_channel()) {
+	$cacheon = get_config('system','photo_cache_enable', 0);
+	if($cache && local_channel()) {
 		$matches = null;
 		$cnt = preg_match_all("/\<img(.+?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/",$s,$matches,PREG_SET_ORDER);
 		if ($cnt) {
@@ -1138,6 +1139,10 @@ function sslify($s) {
 	// Complain to your browser maker
 
 	$allow = get_config('system','sslify_everything');
+	
+	//We can skip next part if this only images and cache is on
+	if((! $allow) && $cacheon)
+		return $s;
 
 	$pattern = (($allow) ? "/\<(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" : "/\<img(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" );
 

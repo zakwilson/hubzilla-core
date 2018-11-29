@@ -5,6 +5,7 @@ namespace Zotlabs\Module;
 
 require_once('include/security.php');
 require_once('include/attach.php');
+require_once('include/photo/photo_driver.php');
 
 class Photo extends \Zotlabs\Web\Controller {
 
@@ -155,16 +156,15 @@ class Photo extends \Zotlabs\Web\Controller {
 						if(! in_array($resolution,[4,5,6]))
 							$allowed = (-1);
 					if($u === PHOTO_CACHE) {
-						$origurl = $r[0]['display_path'];
 						// Cached image leak protection
 						if(! (local_channel() || $cache_mode['leak'])) {
-							header("Location: " . $origurl);
+							header("Location: " . $r[0]['display_path']);
 							killme();
 						}
 						// Revalidate cache
 						if($cache_mode['on'] && strtotime($r[0]['expires']) - 60 < time()) {
 							$cache = array(
-								'url' => $origurl,
+								'url' => $r[0]['display_path'],
 								'uid' => $r[0]['uid']
 							);
 							call_hooks('cache_url_hook', $cache);

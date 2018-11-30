@@ -1111,23 +1111,13 @@ function linkify($s, $me = false) {
 function sslify($s) {
 	
 	// Local photo cache
-	if(get_config('system','photo_cache_enable', 0) && local_channel()) {
-		$matches = null;
-		$cnt = preg_match_all("/\<img(.+?)src=[\"|'](https?\:.*?)[\"|'](.*?)\>/", $s, $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $match) {
-				logger('uid: ' . $uid . '; url: ' . $match[2], LOGGER_DEBUG);
-				$cache = array(
-					'url' => $match[2],
-					'uid' => local_channel()
-				);
-				call_hooks('cache_url_hook', $cache);
-				logger('cache status: ' . intval($cache['status']) .'; cached as: ' . ($cache['cached'] ? $cache['hash'] : '-'), LOGGER_DEBUG);
-				if($cache['cached'])
-					$s = str_replace($match[2], z_root() . '/photo/' . $cache['hash'] . '-' . $cache['res'], $s);
-			}
-		}
-	}
+	$str = array(
+		'body' => $s,
+		'uid' => local_channel()
+	);
+	call_hooks('cache_body_hook', $str);
+	
+	$s = $str['body'];
 	
 	if (strpos(z_root(),'https:') === false)
 		return $s;

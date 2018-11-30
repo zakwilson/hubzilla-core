@@ -4631,10 +4631,10 @@ function fix_attached_photo_permissions($uid,$xchan_hash,$body,
 				if(! stristr($image,z_root() . '/photo/'))
 					continue;
 				$image_uri = substr($image,strrpos($image,'/') + 1);
-				if(strpos($image_uri,'-') !== false)
-					$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if(strpos($image_uri,'.') !== false)
-					$image_uri = substr($image_uri,0, strpos($image_uri,'.'));
+				if(strrpos($image_uri,'-') !== false)
+					$image_uri = substr($image_uri,0, strrpos($image_uri,'-'));
+				if(strrpos($image_uri,'.') !== false)
+					$image_uri = substr($image_uri,0, strrpos($image_uri,'.'));
 				if(! strlen($image_uri))
 					continue;
 				$srch = '<' . $xchan_hash . '>';

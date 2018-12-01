@@ -3467,6 +3467,28 @@ function print_val($v) {
 
 }
 
+function array_path_exists($str,$arr) {
+
+	$ptr = $arr;
+	$search = explode('/', $str);
+
+	if($search) {
+		foreach($search as $s) {
+			if(array_key_exists($s,$ptr)) {
+				$ptr = $ptr[$s];
+			}
+			else {
+				return false;
+			}			
+		}
+		return true;
+	}
+
+	return false;
+
+}
+
+
 /**
  * @brief Generate a unique ID.
  *
@@ -3482,3 +3504,4 @@ function new_uuid() {
 
     return $hash;
 }
+

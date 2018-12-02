@@ -558,7 +558,8 @@ function handleNotificationsItems(notifyType, data) {
 		if(filter) {
 			$('#nav-' + notifyType + '-menu .notification').each(function(i, el){
 				var cn = $(el).data('contact_name').toString().toLowerCase();
-				if(cn.indexOf(filter) === -1)
+				var ca = $(el).data('contact_addr').toString().toLowerCase();
+				if(cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1)
 					$(el).addClass('d-none');
 				else
 					$(el).removeClass('d-none');

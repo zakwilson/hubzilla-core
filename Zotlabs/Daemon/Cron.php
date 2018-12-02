@@ -94,6 +94,29 @@ class Cron {
 					@time_sleep_until(microtime(true) + (float) $interval);
 			}
 		}
+		
+		// Clean expired photos from cache
+		
+		$age = get_config('system','active_expire_days', '30');
+		$r = q("SELECT DISTINCT xchan, content FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
+			intval(PHOTO_CACHE),
+			db_utcnow(), 
+			db_quoteinterval($age . ' DAY')
+		);
+		if($r) {
+			foreach($r as $rr) {
+				$file = dbunescbin($rr['content']);
+				if(is_file($file)) {
+					@unlink($file);
+					logger('info: deleted cached photo file ' . $file, LOGGER_DEBUG);
+				}
+			}
+		}
+		q("DELETE FROM photo WHERE photo_usage = %d AND expires < %s - INTERVAL %s",
+			intval(PHOTO_CACHE),
+			db_utcnow(), 
+			db_quoteinterval($age . ' DAY')
+		);		
 
 		// publish any applicable items that were set to be published in the future
 		// (time travel posts). Restrict to items that have come of age in the last

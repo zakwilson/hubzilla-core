@@ -1105,23 +1105,33 @@ function linkify($s, $me = false) {
  * to a local redirector which uses https and which redirects to the selected content
  *
  * @param string $s
+ * @param int $uid
  * @returns string
  */
 function sslify($s) {
+	
+	// Local photo cache
+	$str = array(
+		'body' => $s,
+		'uid' => local_channel()
+	);
+	call_hooks('cache_body_hook', $str);
+	
+	$s = $str['body'];
+
 	if (strpos(z_root(),'https:') === false)
 		return $s;
-
+	
 	// By default we'll only sslify img tags because media files will probably choke.
 	// You can set sslify_everything if you want - but it will likely white-screen if it hits your php memory limit.
 	// The downside is that http: media files will likely be blocked by your browser
 	// Complain to your browser maker
 
 	$allow = get_config('system','sslify_everything');
-
-	$pattern = (($allow) ? "/\<(.*?)src=\"(http\:.*?)\"(.*?)\>/" : "/\<img(.*?)src=\"(http\:.*?)\"(.*?)\>/" );
+	$pattern = (($allow) ? "/\<(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" : "/\<img(.*?)src=[\"|'](http\:.*?)[\"|'](.*?)\>/" );
 
 	$matches = null;
-	$cnt = preg_match_all($pattern,$s,$matches,PREG_SET_ORDER);
+	$cnt = preg_match_all($pattern, $s, $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $match) {
 			$filename = basename( parse_url($match[2], PHP_URL_PATH) );
@@ -3295,7 +3305,7 @@ function cleanup_bbcode($body) {
 
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
-	$body = scale_external_images($body,false);
+	$body = scale_external_images($body, false);
 
 	return $body;
 }

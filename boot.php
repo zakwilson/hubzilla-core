@@ -53,7 +53,7 @@ define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'STD_VERSION',             '3.9.5' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1228 );
+define ( 'DB_UPDATE_VERSION',       1229 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -217,6 +217,7 @@ define ( 'PHOTO_PROFILE',          0x0001 );
 define ( 'PHOTO_XCHAN',            0x0002 );
 define ( 'PHOTO_THING',            0x0004 );
 define ( 'PHOTO_COVER',            0x0010 );
+define ( 'PHOTO_CACHE',            0x0020 );
 
 define ( 'PHOTO_ADULT',            0x0008 );
 define ( 'PHOTO_FLAG_OS',          0x4000 );

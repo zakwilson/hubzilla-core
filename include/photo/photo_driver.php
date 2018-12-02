@@ -330,9 +330,9 @@ abstract class photo_driver {
 	}
 
 
-	public function save($arr) {
+	public function save($arr, $skipcheck = false) {
 
-		if(! $this->is_valid()) {
+		if(! ($skipcheck || $this->is_valid())) {
 			logger('attempt to store invalid photo.');
 			return false;
 		}

@@ -1111,16 +1111,14 @@ function linkify($s, $me = false) {
 function sslify($s) {
 	
 	// Local photo cache
-	if(local_channel()) {
-		$str = array(
-			'body' => $s,
-			'uid' => local_channel()
-		);
-		call_hooks('cache_body_hook', $str);
+	$str = array(
+		'body' => $s,
+		'uid' => local_channel()
+	);
+	call_hooks('cache_body_hook', $str);
 	
-		$s = $str['body'];
-	}
-	
+	$s = $str['body'];
+
 	if (strpos(z_root(),'https:') === false)
 		return $s;
 	

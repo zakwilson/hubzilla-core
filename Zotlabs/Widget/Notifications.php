@@ -24,7 +24,7 @@ class Notifications {
 				],
 				'filter' => [
 					'posts_label' => t('Show new posts only'),
-					'name_label' => t('Filter by name')
+					'name_label' => t('Filter by name or address')
 				]
 			];
 
@@ -43,7 +43,7 @@ class Notifications {
 				],
 				'filter' => [
 					'posts_label' => t('Show new posts only'),
-					'name_label' => t('Filter by name')
+					'name_label' => t('Filter by name or address')
 				]
 			];
 
@@ -119,7 +119,7 @@ class Notifications {
 				'label' => t('Forums'),
 				'title' => t('Forums'),
 				'filter' => [
-					'name_label' => t('Filter by name')
+					'name_label' => t('Filter by name or address')
 				]
 			];
 		}
@@ -150,7 +150,7 @@ class Notifications {
 				],
 				'filter' => [
 					'posts_label' => t('Show new posts only'),
-					'name_label' => t('Filter by name')
+					'name_label' => t('Filter by name or address')
 				]
 			];
 		}

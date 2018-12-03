@@ -160,7 +160,7 @@ class Photo extends \Zotlabs\Web\Controller {
 						$cache = array(
 							'resid' => $photo,
 							'uid' => $r[0]['uid'],
-							'status' => true
+							'status' => false
 						);
 						if($cache_mode['on'])
 							call_hooks('cache_url_hook', $cache);

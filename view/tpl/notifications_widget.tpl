@@ -142,7 +142,7 @@
 		</a>
 	</div>
 	<div id="nav-notifications-forums-template" rel="template">
-		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}">
+		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}">
 			<span class="float-right badge badge-{{$notification.severity}}">{10}</span>
 			<img class="menu-img-1" data-src="{1}">
 			<span class="">{2}</span>

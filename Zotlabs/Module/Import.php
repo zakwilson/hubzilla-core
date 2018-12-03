@@ -127,6 +127,15 @@ class Import extends \Zotlabs\Web\Controller {
 //
 //		}
 
+
+		// prevent incompatible osada or zap data from horking your database
+
+		if(array_path_exists('compatibility/codebase',$data)) {
+			notice('Data export format is not compatible with this software');
+			return;
+		}
+
+
 		if($moving)
 			$seize = 1;
 

@@ -164,7 +164,7 @@ class Photo extends \Zotlabs\Web\Controller {
 						);
 						if($cache_mode['on'])
 							call_hooks('cache_url_hook', $cache);
-						if((! (local_channel() || $cache_mode['leak'])) || (! $cache['status'])) {
+						if(! $cache['status'] && $cache_mode['leak']) {
 							header("Location: " . htmlspecialchars_decode($r[0]['display_path']));
 							killme();
 						}

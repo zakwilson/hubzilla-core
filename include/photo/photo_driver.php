@@ -112,7 +112,7 @@ abstract class photo_driver {
 	public function saveImage($path) {
 		if(!$this->is_valid())
 			return FALSE;
-		file_put_contents($path, $this->imageString());
+		return (file_put_contents($path, $this->imageString()) ? true : false);
 	}
 
 
@@ -330,9 +330,9 @@ abstract class photo_driver {
 	}
 
 
-	public function save($arr) {
+	public function save($arr, $skipcheck = false) {
 
-		if(! $this->is_valid()) {
+		if(! ($skipcheck || $this->is_valid())) {
 			logger('attempt to store invalid photo.');
 			return false;
 		}
@@ -344,6 +344,7 @@ abstract class photo_driver {
 		$p['xchan'] = (($arr['xchan']) ? $arr['xchan'] : '');
 		$p['resource_id'] = (($arr['resource_id']) ? $arr['resource_id'] : '');
 		$p['filename'] = (($arr['filename']) ? $arr['filename'] : '');
+		$p['mimetype'] = (($arr['mimetype']) ? $arr['mimetype'] : $this->getType());
 		$p['album'] = (($arr['album']) ? $arr['album'] : '');
 		$p['imgscale'] = ((intval($arr['imgscale'])) ? intval($arr['imgscale']) : 0);
 		$p['allow_cid'] = (($arr['allow_cid']) ? $arr['allow_cid'] : '');
@@ -360,6 +361,7 @@ abstract class photo_driver {
 		$p['display_path'] = (($arr['display_path']) ? $arr['display_path'] : '');
 		$p['width'] = (($arr['width']) ? $arr['width'] : $this->getWidth());
 		$p['height'] = (($arr['height']) ? $arr['height'] : $this->getHeight());
+		$p['expires'] = (($arr['expires']) ? $arr['expires'] : gmdate('Y-m-d H:i:s', time() + get_config('system','photo_cache_time', 86400)));
 
 		if(! intval($p['imgscale']))
 			logger('save: ' . print_r($arr,true), LOGGER_DATA);
@@ -397,23 +399,24 @@ abstract class photo_driver {
 				allow_cid = '%s',
 				allow_gid = '%s',
 				deny_cid = '%s',
-				deny_gid = '%s'
+				deny_gid = '%s',
+				expires = '%s'
 				where id = %d",
 
 				intval($p['aid']),
 				intval($p['uid']),
 				dbesc($p['xchan']),
 				dbesc($p['resource_id']),
-				dbesc($p['created']),
-				dbesc($p['edited']),
+				dbescdate($p['created']),
+				dbescdate($p['edited']),
 				dbesc(basename($p['filename'])),
-				dbesc($this->getType()),
+				dbesc($p['mimetype']),
 				dbesc($p['album']),
 				intval($p['height']),
 				intval($p['width']),
 				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
 				intval($p['os_storage']),
-				intval(strlen($this->imageString())),
+				(intval($p['os_storage']) ? @filesize($p['os_syspath']) : strlen($this->imageString())),
 				intval($p['imgscale']),
 				intval($p['photo_usage']),
 				dbesc($p['title']),
@@ -424,28 +427,29 @@ abstract class photo_driver {
 				dbesc($p['allow_gid']),
 				dbesc($p['deny_cid']),
 				dbesc($p['deny_gid']),
+				dbescdate($p['expires']),
 				intval($x[0]['id'])
 			);
 		}
 		else {
 			$p['created'] = (($arr['created']) ? $arr['created'] : $p['edited']);
 			$r = q("INSERT INTO photo
-				( aid, uid, xchan, resource_id, created, edited, filename, mimetype, album, height, width, content, os_storage, filesize, imgscale, photo_usage, title, description, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid )
-				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
+				( aid, uid, xchan, resource_id, created, edited, filename, mimetype, album, height, width, content, os_storage, filesize, imgscale, photo_usage, title, description, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid, expires )
+				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
 				intval($p['aid']),
 				intval($p['uid']),
 				dbesc($p['xchan']),
 				dbesc($p['resource_id']),
-				dbesc($p['created']),
-				dbesc($p['edited']),
+				dbescdate($p['created']),
+				dbescdate($p['edited']),
 				dbesc(basename($p['filename'])),
-				dbesc($this->getType()),
+				dbesc($p['mimetype']),
 				dbesc($p['album']),
 				intval($p['height']),
 				intval($p['width']),
 				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
 				intval($p['os_storage']),
-				intval(strlen($this->imageString())),
+				(intval($p['os_storage']) ? @filesize($p['os_syspath']) : strlen($this->imageString())),
 				intval($p['imgscale']),
 				intval($p['photo_usage']),
 				dbesc($p['title']),
@@ -455,7 +459,8 @@ abstract class photo_driver {
 				dbesc($p['allow_cid']),
 				dbesc($p['allow_gid']),
 				dbesc($p['deny_cid']),
-				dbesc($p['deny_gid'])
+				dbesc($p['deny_gid']),
+				dbescdate($p['expires'])
 			);
 		}
 		logger('photo save ' . $p['imgscale'] . ' returned ' . intval($r));

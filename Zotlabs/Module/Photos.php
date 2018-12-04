@@ -264,7 +264,7 @@ class Photos extends \Zotlabs\Web\Controller {
 						}
 	
 						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 0",
-						    dbesc(datetime_convert()),
+							dbesc(datetime_convert()),
 							dbescbin($data),
 							intval($fsize),
 							intval($height),
@@ -278,10 +278,13 @@ class Photos extends \Zotlabs\Web\Controller {
 	
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
+						$data = $ph->imageString();
+						$fsize = strlen($data);
 	
-						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 1",
-						    dbesc(datetime_convert()),
-							dbescbin($ph->imageString()),
+						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 1",
+							dbesc(datetime_convert()),
+							dbescbin($data),
+							intval($fsize),
 							intval($height),
 							intval($width),
 							dbesc($resource_id),
@@ -294,10 +297,13 @@ class Photos extends \Zotlabs\Web\Controller {
 	
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
+						$data = $ph->imageString();
+						$fsize = strlen($data);
 	
-						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 2",
-						    dbesc(datetime_convert()),
-							dbescbin($ph->imageString()),
+						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 2",
+							dbesc(datetime_convert()),
+							dbescbin($data),
+							intval($fsize),
 							intval($height),
 							intval($width),
 							dbesc($resource_id),
@@ -310,10 +316,13 @@ class Photos extends \Zotlabs\Web\Controller {
 	
 						$width  = $ph->getWidth();
 						$height = $ph->getHeight();
+						$data = $ph->imageString();
+						$fsize = strlen($data);
 	
-						$x = q("update photo set edited = '%s', content = '%s', height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 3",
-						    dbesc(datetime_convert()),
-							dbescbin($ph->imageString()),
+						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 3",
+							dbesc(datetime_convert()),
+							dbescbin($data),
+							intval($fsize),
 							intval($height),
 							intval($width),
 							dbesc($resource_id),

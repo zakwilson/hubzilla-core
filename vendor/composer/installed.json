@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v9.25.1",
-        "version_normalized": "9.25.1.0",
+        "version": "v9.28.0",
+        "version_normalized": "9.28.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b"
+            "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
-            "reference": "28891f9b2bc339bcc1ca8d548e5401e8563bf04b",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/ff5accfe2e5c4a522777faa980a90cf86a636d1d",
+            "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d",
             "shasum": ""
         },
-        "time": "2018-10-26T07:21:48+00:00",
+        "time": "2018-11-13T05:41:39+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -161,6 +161,47 @@
             }
         ],
         "description": "Internationalization library powered by CLDR data."
+    },
+    {
+        "name": "desandro/imagesloaded",
+        "version": "v4.1.4",
+        "version_normalized": "4.1.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/desandro/imagesloaded.git",
+            "reference": "67c4e57453120935180c45c6820e7d3fbd2ea1f9"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/desandro/imagesloaded/zipball/67c4e57453120935180c45c6820e7d3fbd2ea1f9",
+            "reference": "67c4e57453120935180c45c6820e7d3fbd2ea1f9",
+            "shasum": ""
+        },
+        "time": "2018-01-02T16:53:35+00:00",
+        "type": "component",
+        "installation-source": "dist",
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "David DeSandro",
+                "homepage": "http://desandro.com/",
+                "role": "developer"
+            }
+        ],
+        "description": "JavaScript is all like _You images done yet or what?_",
+        "homepage": "http://imagesloaded.desandro.com",
+        "keywords": [
+            "dom",
+            "images",
+            "javascript",
+            "jquery-plugin",
+            "library",
+            "loaded",
+            "ui"
+        ]
     },
     {
         "name": "ezyang/htmlpurifier",
@@ -457,23 +498,23 @@
     },
     {
         "name": "psr/log",
-        "version": "1.0.2",
-        "version_normalized": "1.0.2.0",
+        "version": "1.1.0",
+        "version_normalized": "1.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-fig/log.git",
-            "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d"
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/log/zipball/4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
-            "reference": "4ebe3a8bf773a19edfe0a84b6585ba3d401b724d",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
+            "reference": "6c001f1daafa3a3ac1d8ff69ee4db8e799a654dd",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2016-10-10T12:19:37+00:00",
+        "time": "2018-11-20T15:27:04+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1141,8 +1182,8 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.9.0",
-        "version_normalized": "1.9.0.0",
+        "version": "v1.10.0",
+        "version_normalized": "1.10.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",

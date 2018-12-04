@@ -11,9 +11,15 @@ class Activity {
 
 	static function encode_object($x) {
 
+
 		if(($x) && (! is_array($x)) && (substr(trim($x),0,1)) === '{' ) {
 			$x = json_decode($x,true);
 		}
+
+		if(is_array($x) && array_key_exists('asld',$x)) {
+			$x = $x['asld'];
+		}
+
 		if($x['type'] === ACTIVITY_OBJ_PERSON) {
 			return self::fetch_person($x); 
 		}

@@ -43,6 +43,9 @@ class Wfinger extends \Zotlabs\Web\Controller {
 	
 			if(strpos($resource,'acct:') === 0) {
 				$channel = str_replace('acct:','',$resource);
+				if(substr($channel,0,1) === '@' && strpos(substr($channel,1),'@')) {
+					$channel = substr($channel,1);
+				}
 				if(strpos($channel,'@') !== false) {
 					$host = substr($channel,strpos($channel,'@')+1);
 

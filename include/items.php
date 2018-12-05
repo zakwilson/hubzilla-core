@@ -420,7 +420,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
-		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']),0,190);
+		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/' . (filter_var($arr['mid'], FILTER_VALIDATE_URL) === false ? '?f=&mid=' : '') . urlencode($arr['mid']),0,190);
 	}
 
 
@@ -4629,10 +4629,10 @@ function fix_attached_photo_permissions($uid,$xchan_hash,$body,
 				if(! stristr($image,z_root() . '/photo/'))
 					continue;
 				$image_uri = substr($image,strrpos($image,'/') + 1);
-				if(strpos($image_uri,'-') !== false)
-					$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if(strpos($image_uri,'.') !== false)
-					$image_uri = substr($image_uri,0, strpos($image_uri,'.'));
+				if(strrpos($image_uri,'-') !== false)
+					$image_uri = substr($image_uri,0, strrpos($image_uri,'-'));
+				if(strrpos($image_uri,'.') !== false)
+					$image_uri = substr($image_uri,0, strrpos($image_uri,'.'));
 				if(! strlen($image_uri))
 					continue;
 				$srch = '<' . $xchan_hash . '>';

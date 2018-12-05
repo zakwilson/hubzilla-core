@@ -11,9 +11,15 @@ class Activity {
 
 	static function encode_object($x) {
 
+
 		if(($x) && (! is_array($x)) && (substr(trim($x),0,1)) === '{' ) {
 			$x = json_decode($x,true);
 		}
+
+		if(is_array($x) && array_key_exists('asld',$x)) {
+			$x = $x['asld'];
+		}
+
 		if($x['type'] === ACTIVITY_OBJ_PERSON) {
 			return self::fetch_person($x); 
 		}
@@ -1149,7 +1155,7 @@ class Activity {
 		}
 
 		if($act->obj['type'] === 'Note' && $s['attach']) {
-			$s['body'] .= self::bb_attach($s['attach']);
+			$s['body'] .= self::bb_attach($s['attach'],$s['body']);
 		}
 
 		// we will need a hook here to extract magnet links e.g. peertube
@@ -1233,18 +1239,19 @@ class Activity {
 
 	static function decode_note($act) {
 
+		$response_activity = false;
+
 		$s = [];
 
-
-
-		$content = self::get_content($act->obj);
-
+		if(is_array($act->obj)) {
+			$content = self::get_content($act->obj);
+		}
+			
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
-		$s['mid']        = $act->id;
+		$s['mid']        = $act->obj['id'];
 		$s['parent_mid'] = $act->parent_id;
-
 
 		if($act->data['published']) {
 			$s['created'] = datetime_convert('UTC','UTC',$act->data['published']);
@@ -1259,42 +1266,59 @@ class Activity {
 			$s['edited'] = datetime_convert('UTC','UTC',$act->obj['updated']);
 		}
 
+
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept' ])) {
+
+			$response_activity = true;
+
+			$s['mid'] = $act->id;
+			$s['parent_mid'] = $act->obj['id'];
+
+			// over-ride the object timestamp with the activity
+
+			if($act->data['published']) {
+				$s['created'] = datetime_convert('UTC','UTC',$act->data['published']);
+			}
+
+			if($act->data['updated']) {
+				$s['edited'] = datetime_convert('UTC','UTC',$act->data['updated']);
+			}
+
+			$obj_actor = ((isset($act->obj['actor'])) ? $act->obj['actor'] : $act->get_actor('attributedTo', $act->obj));
+			// ensure we store the original actor
+			self::actor_store($obj_actor['id'],$obj_actor);
+
+			$mention = self::get_actor_bbmention($obj_actor['id']);
+
+			if($act->type === 'Like') {
+				$content['content'] = sprintf( t('Likes %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+			}
+			if($act->type === 'Dislike') {
+				$content['content'] = sprintf( t('Doesn\'t like %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+			}
+			if($act->type === 'Accept' && $act->obj['type'] === 'Event' ) {
+				$content['content'] = sprintf( t('Will attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+			}
+			if($act->type === 'Reject' && $act->obj['type'] === 'Event' ) {
+				$content['content'] = sprintf( t('Will not attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+			}
+			if($act->type === 'TentativeAccept' && $act->obj['type'] === 'Event' ) {
+				$content['content'] = sprintf( t('May attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+			}
+			if($act->type === 'Announce') {
+				$content['content'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
+			}
+		}
+
 		if(! $s['created'])
 			$s['created'] = datetime_convert();
 
 		if(! $s['edited'])
 			$s['edited'] = $s['created'];
 
-		if(in_array($act->type,['Announce'])) {
-			$root_content = self::get_content($act->raw);
-
-			$s['title']    = self::bb_content($root_content,'name');
-			$s['summary']  = self::bb_content($root_content,'summary');
-			$s['body']     = (self::bb_content($root_content,'bbcode') ? : self::bb_content($root_content,'content'));
-
-			if(strpos($s['body'],'[share') === false) {
-
-				// @fixme - error check and set defaults
-
-				$name = urlencode($act->obj['actor']['name']);
-				$profile = $act->obj['actor']['id'];
-				$photo = $act->obj['icon']['url'];
-
-				$s['body'] .= "\r\n[share author='" . $name .
-					"' profile='" . $profile .
-					"' avatar='" . $photo . 
-					"' link='" . $act->obj['id'] .
-					"' auth='" . ((is_matrix_url($act->obj['id'])) ? 'true' : 'false' ) . 
-					"' posted='" . $act->obj['published'] . 
-					"' message_id='" . $act->obj['id'] . 
-				"']";
-			}
-		}
-		else {
-			$s['title']    = self::bb_content($content,'name');
-			$s['summary']  = self::bb_content($content,'summary');
-			$s['body']     = (self::bb_content($content,'bbcode') ? : self::bb_content($content,'content'));
-		}
+		$s['title']    = self::bb_content($content,'name');
+		$s['summary']  = self::bb_content($content,'summary');
+		$s['body']     = ((self::bb_content($content,'bbcode') && (! $response_activity)) ? self::bb_content($content,'bbcode') : self::bb_content($content,'content'));
 
 		$s['verb']     = self::activity_mapper($act->type);
 
@@ -1306,56 +1330,227 @@ class Activity {
 		$s['obj']      = $act->obj;
 
 		$instrument = $act->get_property_obj('instrument');
-		if(! $instrument)
+		if((! $instrument) && (! $response_activity)) {
 			$instrument = $act->get_property_obj('instrument',$act->obj);
+		}
 
 		if($instrument && array_key_exists('type',$instrument) 
 			&& $instrument['type'] === 'Service' && array_key_exists('name',$instrument)) {
 			$s['app'] = escape_tags($instrument['name']);
 		}
 
-		$a = self::decode_taxonomy($act->obj);
-		if($a) {
-			$s['term'] = $a;
+
+		if(! $response_activity) {
+			$a = self::decode_taxonomy($act->obj);
+			if($a) {
+				$s['term'] = $a;
+				foreach($a as $b) {
+					if($b['ttype'] === TERM_EMOJI) {
+						$s['title'] = str_replace($b['term'],'[img=16x16]' . $b['url'] . '[/img]',$s['title']);
+						$s['summary'] = str_replace($b['term'],'[img=16x16]' . $b['url'] . '[/img]',$s['summary']);
+						$s['body'] = str_replace($b['term'],'[img=16x16]' . $b['url'] . '[/img]',$s['body']);
+					}
+				}
+			}
+
+			$a = self::decode_attachment($act->obj);
+			if($a) {
+				$s['attach'] = $a;
+			}
 		}
 
-		$a = self::decode_attachment($act->obj);
-		if($a) {
-			$s['attach'] = $a;
+		if($act->obj['type'] === 'Note' && $s['attach']) {
+			$s['body'] .= self::bb_attach($s['attach'],$s['body']);
 		}
+
 
 		// we will need a hook here to extract magnet links e.g. peertube
 		// right now just link to the largest mp4 we find that will fit in our
 		// standard content region
 
-		if($act->obj['type'] === 'Video') {
+		if(! $response_activity) {
+			if($act->obj['type'] === 'Video') {
 
-			$vtypes = [
-				'video/mp4',
-				'video/ogg',
-				'video/webm'
-			];
+				$vtypes = [
+					'video/mp4',
+					'video/ogg',
+					'video/webm'
+				];
 
-			$mps = [];
-			if(array_key_exists('url',$act->obj) && is_array($act->obj['url'])) {
-				foreach($act->obj['url'] as $vurl) {
-					if(in_array($vurl['mimeType'], $vtypes)) {
-						if(! array_key_exists('width',$vurl)) {
-							$vurl['width'] = 0;
+				$mps = [];
+				$ptr = null;
+
+				if(array_key_exists('url',$act->obj)) {
+					if(is_array($act->obj['url'])) {
+						if(array_key_exists(0,$act->obj['url'])) {				
+							$ptr = $act->obj['url'];
 						}
-						$mps[] = $vurl;
+						else {
+							$ptr = [ $act->obj['url'] ];
+						}
+						foreach($ptr as $vurl) {
+							// peertube uses the non-standard element name 'mimeType' here
+							if(array_key_exists('mimeType',$vurl)) {
+								if(in_array($vurl['mimeType'], $vtypes)) {
+									if(! array_key_exists('width',$vurl)) {
+										$vurl['width'] = 0;
+									}
+									$mps[] = $vurl;
+								}
+							}
+							elseif(array_key_exists('mediaType',$vurl)) {
+								if(in_array($vurl['mediaType'], $vtypes)) {
+									if(! array_key_exists('width',$vurl)) {
+										$vurl['width'] = 0;
+									}
+									$mps[] = $vurl;
+								}
+							}
+						}
+					}
+					if($mps) {
+						usort($mps,[ __CLASS__, 'vid_sort' ]);
+						foreach($mps as $m) {
+							if(intval($m['width']) < 500 && self::media_not_in_body($m['href'],$s['body'])) {
+								$s['body'] .= "\n\n" . '[video]' . $m['href'] . '[/video]';
+								break;
+							}
+						}
+					}
+					elseif(is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'],$s['body'])) {
+						$s['body'] .= "\n\n" . '[video]' . $act->obj['url'] . '[/video]';
 					}
 				}
 			}
-			if($mps) {
-				usort($mps,'as_vid_sort');
-				foreach($mps as $m) {
-					if(intval($m['width']) < 500) {
-						$s['body'] .= "\n\n" . '[video]' . $m['href'] . '[/video]';
-						break;
+
+			if($act->obj['type'] === 'Audio') {
+
+				$atypes = [
+					'audio/mpeg',
+					'audio/ogg',
+					'audio/wav'
+				];
+
+				$ptr = null;
+
+				if(array_key_exists('url',$act->obj)) {
+					if(is_array($act->obj['url'])) {
+						if(array_key_exists(0,$act->obj['url'])) {				
+							$ptr = $act->obj['url'];
+						}
+						else {
+							$ptr = [ $act->obj['url'] ];
+						}
+						foreach($ptr as $vurl) {
+							if(in_array($vurl['mediaType'], $atypes) && self::media_not_in_body($vurl['href'],$s['body'])) {
+								$s['body'] .= "\n\n" . '[audio]' . $vurl['href'] . '[/audio]';
+								break;
+							}
+						}
+					}
+					elseif(is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'],$s['body'])) {
+						$s['body'] .= "\n\n" . '[audio]' . $act->obj['url'] . '[/audio]';
+					}
+				}
+
+			}
+
+			if($act->obj['type'] === 'Image') {
+
+				$ptr = null;
+
+				if(array_key_exists('url',$act->obj)) {
+					if(is_array($act->obj['url'])) {
+						if(array_key_exists(0,$act->obj['url'])) {				
+							$ptr = $act->obj['url'];
+						}
+						else {
+							$ptr = [ $act->obj['url'] ];
+						}
+						foreach($ptr as $vurl) {
+							if(strpos($s['body'],$vurl['href']) === false) {
+								$s['body'] .= "\n\n" . '[zmg]' . $vurl['href'] . '[/zmg]';
+								break;
+							}
+						}
+					}
+					elseif(is_string($act->obj['url'])) {
+						if(strpos($s['body'],$act->obj['url']) === false) {
+							$s['body'] .= "\n\n" . '[zmg]' . $act->obj['url'] . '[/zmg]';
+						}
 					}
 				}
 			}
+
+
+			if($act->obj['type'] === 'Page' && ! $s['body'])  {
+
+				$ptr  = null;
+				$purl = EMPTY_STR;
+
+				if(array_key_exists('url',$act->obj)) {
+					if(is_array($act->obj['url'])) {
+						if(array_key_exists(0,$act->obj['url'])) {				
+							$ptr = $act->obj['url'];
+						}
+						else {
+							$ptr = [ $act->obj['url'] ];
+						}
+						foreach($ptr as $vurl) {
+							if(array_key_exists('mediaType',$vurl) && $vurl['mediaType'] === 'text/html') {
+								$purl = $vurl['href'];
+								break;
+							}
+							elseif(array_key_exists('mimeType',$vurl) && $vurl['mimeType'] === 'text/html') {
+								$purl = $vurl['href'];
+								break;
+							}
+						}
+					}
+					elseif(is_string($act->obj['url'])) {
+						$purl = $act->obj['url'];
+					}
+					if($purl) {
+						$li = z_fetch_url(z_root() . '/linkinfo?binurl=' . bin2hex($purl));
+						if($li['success'] && $li['body']) {
+							$s['body'] .= "\n" . $li['body'];
+						}
+						else {
+							$s['body'] .= "\n\n" . $purl;
+						}
+					}
+				}
+			}
+		}
+
+
+
+		if(in_array($act->obj['type'],[ 'Note','Article','Page' ])) {
+			$ptr = null;
+
+			if(array_key_exists('url',$act->obj)) {
+				if(is_array($act->obj['url'])) {
+					if(array_key_exists(0,$act->obj['url'])) {				
+						$ptr = $act->obj['url'];
+					}
+					else {
+						$ptr = [ $act->obj['url'] ];
+					}
+					foreach($ptr as $vurl) {
+						if(array_key_exists('mediaType',$vurl) && $vurl['mediaType'] === 'text/html') {
+							$s['plink'] = $vurl['href'];
+							break;
+						}
+					}
+				}
+				elseif(is_string($act->obj['url'])) {
+					$s['plink'] = $act->obj['url'];
+				}
+			}
+		}
+
+		if(! $s['plink']) {
+			$s['plink'] = $s['mid'];
 		}
 
 		if($act->recips && (! in_array(ACTIVITY_PUBLIC_INBOX,$act->recips)))
@@ -1370,8 +1565,6 @@ class Activity {
 		return $s;
 
 	}
-
-
 
 	static function announce_note($channel,$observer_hash,$act) {
 
@@ -1464,7 +1657,7 @@ class Activity {
 		$body .= self::bb_content($content,'content');
 
 		if($act->obj['type'] === 'Note' && $s['attach']) {
-			$body .= self::bb_attach($s['attach']);
+			$body .= self::bb_attach($s['attach'],$body);
 		}
 
 		$body .= "[/share]";
@@ -1642,19 +1835,26 @@ class Activity {
 	}
 
 
-	static function bb_attach($attach) {
+
+	static function bb_attach($attach,$body) {
 
 		$ret = false;
 
 		foreach($attach as $a) {
 			if(strpos($a['type'],'image') !== false) {
-				$ret .= "\n\n" . '[img]' . $a['href'] . '[/img]';
+				if(self::media_not_in_body($a['href'],$body)) {
+					$ret .= "\n\n" . '[img]' . $a['href'] . '[/img]';
+				}
 			}
 			if(array_key_exists('type',$a) && strpos($a['type'], 'video') === 0) {
-				$ret .= "\n\n" . '[video]' . $a['href'] . '[/video]';
+				if(self::media_not_in_body($a['href'],$body)) {
+					$ret .= "\n\n" . '[video]' . $a['href'] . '[/video]';
+				}
 			}
 			if(array_key_exists('type',$a) && strpos($a['type'], 'audio') === 0) {
-				$ret .= "\n\n" . '[audio]' . $a['href'] . '[/audio]';
+				if(self::media_not_in_body($a['href'],$body)) {
+					$ret .= "\n\n" . '[audio]' . $a['href'] . '[/audio]';
+				}
 			}
 		}
 
@@ -1662,16 +1862,31 @@ class Activity {
 	}
 
 
+	// check for the existence of existing media link in body
+
+	static function media_not_in_body($s,$body) {
+		
+		if((strpos($body,']' . $s . '[/img]') === false) && 
+			(strpos($body,']' . $s . '[/zmg]') === false) && 
+			(strpos($body,']' . $s . '[/video]') === false) && 
+			(strpos($body,']' . $s . '[/audio]') === false)) {
+			return true;
+		}
+		return false;
+	}
+
 
 	static function bb_content($content,$field) {
 
 		require_once('include/html2bbcode.php');
-
+		require_once('include/event.php');
 		$ret = false;
 
 		if(is_array($content[$field])) {
 			foreach($content[$field] as $k => $v) {
-				$ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
+				$ret .= html2bbcode($v);
+				// save this for auto-translate or dynamic filtering
+				// $ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
 			}
 		}
 		else {
@@ -1682,6 +1897,9 @@ class Activity {
 				$ret = html2bbcode($content[$field]);
 			}
 		}
+		if($field === 'content' && $content['event'] && (! strpos($ret,'[event'))) {
+			$ret .= format_event_bbcode($content['event']);
+		}
 
 		return $ret;
 	}
@@ -1690,20 +1908,51 @@ class Activity {
 	static function get_content($act) {
 
 		$content = [];
-		if (! $act) {
+		$event = null;
+
+		if ((! $act) || (! is_array($act))) {
 			return $content;
 		}
+
+		if($act['type'] === 'Event') {
+			$adjust = false;                                                                                                                              
+			$event = [];                                                                                                                                  
+			$event['event_hash'] = $act['id'];                                                                                                            
+			if(array_key_exists('startTime',$act) && strpos($act['startTime'],-1,1) === 'Z') {                                                            
+				$adjust = true;                                                                                                                           
+				$event['adjust'] = 1;                                                                                                                     
+				$event['dtstart'] = datetime_convert('UTC','UTC',$event['startTime'] . (($adjust) ? '' : 'Z'));                                           
+			}                                                                                                                                             
+			if(array_key_exists('endTime',$act)) {                                                                                                        
+				$event['dtend'] = datetime_convert('UTC','UTC',$event['endTime'] . (($adjust) ? '' : 'Z'));                                               
+			}                                                                                                                                             
+			else {                                                                                                                                        
+				$event['nofinish'] = true;                                                                                                                
+			}                                                                                                                                             
+		}                         
 
 		foreach ([ 'name', 'summary', 'content' ] as $a) {
 			if (($x = self::get_textfield($act,$a)) !== false) {
 				$content[$a] = $x;
 			}
 		}
+
+		if($event) {
+			$event['summary'] = html2bbcode($content['summary']);
+			$event['description'] = html2bbcode($content['content']);
+			if($event['summary'] && $event['dtstart']) {
+				$content['event'] = $event;
+			}
+		}
+
 		if (array_key_exists('source',$act) && array_key_exists('mediaType',$act['source'])) {
 			if ($act['source']['mediaType'] === 'text/bbcode') {
 				$content['bbcode'] = purify_html($act['source']['content']);
 			}
 		}
+
+
+
 
 		return $content;
 	}
@@ -1722,4 +1971,6 @@ class Activity {
 		}
 		return $content;
 	}
+
+
 }

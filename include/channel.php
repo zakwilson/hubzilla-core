@@ -2333,6 +2333,21 @@ function channelx_by_hash($hash) {
 	return(($r) ? $r[0] : false);
 }
 
+
+/**
+ * @brief Get a channel array by a channel_hash.
+ *
+ * @param string $hash
+ * @return array|boolean false if channel ID not found, otherwise the channel array
+ */
+function channelx_by_portid($hash) {
+	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
+		dbesc($hash)
+	);
+
+	return(($r) ? $r[0] : false);
+}
+
 /**
  * @brief Get a channel array by a channel ID.
  *

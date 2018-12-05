@@ -1418,7 +1418,7 @@ logger('4');
 
 			$DR = new DReport(z_root(),$sender,$d,$arr['mid']);
 
-			$channel = channelx_by_hash($d);
+			$channel = channelx_by_portid($d);
 
 			if (! $channel) {
 				$DR->update('recipient not found');
@@ -1505,8 +1505,10 @@ logger('4');
 				}
 			}
 
-			if($arr['mid'] != $arr['parent_mid']) {
+logger('item: ' . print_r($arr,true), LOGGER_DATA);
 
+			if($arr['mid'] !== $arr['parent_mid']) {
+logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
 				// check source route.
 				// We are only going to accept comments from this sender if the comment has the same route as the top-level-post,
 				// this is so that permissions mismatches between senders apply to the entire conversation
@@ -1591,7 +1593,7 @@ logger('4');
 					$arr['route'] = $last_prior_route;
 				}
 			}
-
+logger('hey');
 			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
 				intval($channel['channel_id']),
 				dbesc($arr['owner_xchan'])

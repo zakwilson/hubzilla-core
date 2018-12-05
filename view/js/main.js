@@ -544,7 +544,7 @@ function handleNotificationsItems(notifyType, data) {
 	notify_menu.html('');
 
 	$(data).each(function() {
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
 		notify_menu.append(html);
 	});
 
@@ -558,7 +558,8 @@ function handleNotificationsItems(notifyType, data) {
 		if(filter) {
 			$('#nav-' + notifyType + '-menu .notification').each(function(i, el){
 				var cn = $(el).data('contact_name').toString().toLowerCase();
-				if(cn.indexOf(filter) === -1)
+				var ca = $(el).data('contact_addr').toString().toLowerCase();
+				if(cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1)
 					$(el).addClass('d-none');
 				else
 					$(el).removeClass('d-none');

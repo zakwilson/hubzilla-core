@@ -1,3 +1,21 @@
+Hubzilla 3.8.6 (2018-12-03)
+	- Prevent incompatible export files (osada/zap) from being imported
+	- Catch exception if readImageBlob() receives bogus data
+	- Streamline PDF previews
+	- Allow notification filtering by name or address
+	- Fix too restrictive attached photo permissions
+	- Update ES translation
+	- Use flex for the default template
+	- Do not store serialized pconfig value received via to Module/Pconfig.php
+	- Update jquery-file-upload lib and move to composer
+	- Update imagesloaded lib and move to composer
+	- Fix activitypub tag notifications
+	- Fix call to undefined function in PConfig
+	- Fix typo which prevented propagation of comments to zot6 (dev)
+	- Activitypub: add support for pterotype (wordpress plugin)
+	- Openstreetmap: check validity of lat+lon before rendering a map
+
+
 Hubzilla 3.8.5 (2018-11-19)
 	- Fix pconfig for new installs
 	- Fix delayed publication of posts in combination with channel clones

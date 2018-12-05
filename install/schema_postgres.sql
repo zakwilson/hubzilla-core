@@ -928,6 +928,7 @@ CREATE TABLE "photo" (
   "resource_id" text NOT NULL,
   "created" timestamp NOT NULL,
   "edited" timestamp NOT NULL,
+  "expires" timestamp NOT NULL,
   "title" text NOT NULL,
   "description" text NOT NULL,
   "album" text NOT NULL,
@@ -961,6 +962,7 @@ create index "photo_aid" on photo ("aid");
 create index "photo_xchan" on photo ("xchan");
 create index "photo_filesize" on photo ("filesize");
 create index "photo_resource_id" on photo ("resource_id");
+create index "photo_expires_idx" on photo ("expires");
 create index "photo_usage" on photo ("photo_usage");
 create index "photo_is_nsfw" on photo ("is_nsfw");
 create index "photo_os_storage" on photo ("os_storage");

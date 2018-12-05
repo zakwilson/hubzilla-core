@@ -947,6 +947,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
   `resource_id` char(191) NOT NULL DEFAULT '',
   `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `title` char(191) NOT NULL DEFAULT '',
   `description` text NOT NULL,
   `album` char(191) NOT NULL DEFAULT '',
@@ -979,6 +980,7 @@ CREATE TABLE IF NOT EXISTS `photo` (
   KEY `xchan` (`xchan`),
   KEY `filesize` (`filesize`),
   KEY `resource_id` (`resource_id`),
+  KEY `expires` (`expires`),
   KEY `is_nsfw` (`is_nsfw`),
   KEY `os_storage` (`os_storage`),
   KEY `photo_usage` (`photo_usage`)

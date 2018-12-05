@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Activity;
+
 require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
@@ -400,6 +402,7 @@ class Like extends \Zotlabs\Web\Controller {
 			$object = json_encode(array(
 				'type'    => $objtype,
 				'id'      => $item['mid'],
+				'asld'    => Activity::fetch_item( [ 'id' => $item['mid'] ] ),
 				'parent'  => (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']),
 				'link'    => $links,
 				'title'   => $item['title'],

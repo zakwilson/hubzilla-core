@@ -760,7 +760,7 @@ class Item extends Controller {
 		// fix permalinks for cards
 	
 		if($webpage == ITEM_TYPE_CARD) {
-			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : $uuid);
 		}
 		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_CARD)) {
 			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'CARD' and iconfig.iid = %d limit 1",
@@ -772,7 +772,7 @@ class Item extends Controller {
 		}
 
 		if($webpage == ITEM_TYPE_ARTICLE) {
-			$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+			$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : $uuid);
 		}
 		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_ARTICLE)) {
 			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'ARTICLE' and iconfig.iid = %d limit 1",
@@ -784,7 +784,7 @@ class Item extends Controller {
 		}
 
 		if ((! $plink) && ($item_thread_top)) {
-			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $mid;
+			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
 			$plink = substr($plink,0,190);
 		}
 		

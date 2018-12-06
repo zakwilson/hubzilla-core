@@ -375,8 +375,7 @@ class Display extends \Zotlabs\Web\Controller {
 				}
 				$o .= '</noscript>';
 
-				if ($items[0]['title'])
-					\App::$page['title'] = $items[0]['title'] . " - " . \App::$page['title'];
+				\App::$page['title'] = (($items[0]['title']) ? $items[0]['title'] . " - " . \App::$page['title'] : \App::$page['title']);
 
 				$o .= conversation($items, 'display', $update, 'client');
 			} 

@@ -145,7 +145,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			$canadd = true;
 			if($r && ($limit !== false)) {
 				$channel_usage_message = sprintf( t("You have created %1$.0f of %2$.0f allowed channels."), $r[0]['total'], $limit);
-				if ($r[0]['total'] >= $limit) {
+				if ($r[0]['total'] > $limit) {
 					$canadd = false;
 				}
 			}

@@ -99,7 +99,7 @@
 		<div id="photo-edit-end" class="clear"></div>
 	</div>
 	<div id="photo-view-wrapper">
-		<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title}}" onclick="$.colorbox({href: '{{$photo.href}}'}); return false;"><img style="width: 100%;" src="{{$photo.src}}"></a></div>
+		<div id="photo-photo"><a href="{{$photo.href}}" title="{{$photo.title}}" onclick="{{$onclick}}"><img style="width: 100%;" src="{{$photo.src}}"></a></div>
 		<div id="photo-photo-end" class="clear"></div>
 		{{if $tags}}
 		<div class="photo-item-tools-left" id="in-this-photo">

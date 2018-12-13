@@ -1122,6 +1122,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				$comments = '';
 				if(! $r) {
 					if($observer && ($can_post || $can_comment)) {
+						$feature_auto_save_draft = ((feature_enabled($owner_uid, 'auto_save_draft')) ? "true" : "false");
 						$commentbox = replace_macros($cmnt_tpl,array(
 							'$return_path' => '', 
 							'$mode' => 'photos',
@@ -1137,7 +1138,8 @@ class Photos extends \Zotlabs\Web\Controller {
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
 							'$ww' => '',
-							'$feature_encrypt' => false
+							'$feature_encrypt' => false,
+							'$auto_save_draft' => $feature_auto_save_draft
 						));
 					}
 				}
@@ -1270,8 +1272,14 @@ class Photos extends \Zotlabs\Web\Controller {
 			if(feature_enabled($owner_uid,'dislike'))
 				$response_verbs[] = 'dislike';
 	
-	
 			$responses = get_responses($conv_responses,$response_verbs,'',$link_item);
+
+			$hookdata = [
+				'onclick' => '$.colorbox({href: \'' . $photo['href'] . '\'}); return false;',
+				'raw_photo' => $ph[0],
+				'nickname' => \App::$data['channel']['channel_address']
+			];
+			call_hooks('photo_view_filter', $hookdata);
 	
 			$photo_tpl = get_markup_template('photo_view.tpl');
 			$o .= replace_macros($photo_tpl, array(
@@ -1309,6 +1317,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				'$comments' => $comments,
 				'$commentbox' => $commentbox,
 				'$paginate' => $paginate,
+				'$onclick' => $hookdata['onclick']
 			));
 	
 			\App::$data['photo_html'] = $o;

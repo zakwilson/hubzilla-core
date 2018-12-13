@@ -14,6 +14,15 @@ class Rmagic extends \Zotlabs\Web\Controller {
 			$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
 				dbesc($me)
 			);		
+			if(! $r) {
+				$w = discover_by_webbie($me);
+				if($w) {
+					$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+						dbesc($me)
+					);		
+				}
+			}
+
 			if($r) {	
 				if($r[0]['hubloc_url'] === z_root())
 					goaway(z_root() . '/login');
@@ -49,7 +58,16 @@ class Rmagic extends \Zotlabs\Web\Controller {
 				$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
 					dbesc($address)
 				);		
+				if(! $r) {
+					$w = discover_by_webbie($address);
+					if($w) {
+						$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+							dbesc($address)
+						);		
+					}
+				}
 			}
+
 			if($r) {
 				$url = $r[0]['hubloc_url'];
 			}

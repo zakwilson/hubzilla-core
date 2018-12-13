@@ -36,6 +36,7 @@ class photo_imagick extends photo_driver {
 		}
 		catch (Exception $e) {
 			logger('imagick readImageBlob() exception:' . print_r($e,true));
+			return;
 		}
 
 		/**

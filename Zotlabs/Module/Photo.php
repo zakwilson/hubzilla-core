@@ -139,7 +139,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				    $resolution = 1;
 			}
 			
-			$r = q("SELECT uid, photo_usage, expires, display_path FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
+			$r = q("SELECT uid, photo_usage, display_path FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				dbesc($photo),
 				intval($resolution)
 			);
@@ -156,20 +156,17 @@ class Photo extends \Zotlabs\Web\Controller {
 						if(! in_array($resolution,[4,5,6]))
 							$allowed = (-1);
 					if($u === PHOTO_CACHE) {
-						// Cached image leak protection
-						if(! (local_channel() || $cache_mode['leak'])) {
-							header("Location: " . $r[0]['display_path']);
-							killme();
-						}
-						// Revalidate cache
-						if($cache_mode['on'] && strtotime($r[0]['expires']) - 60 < time()) {
-							$cache = array(
-								'url' => $r[0]['display_path'],
-								'uid' => $r[0]['uid']
-							);
+						// Validate cache
+						$cache = array(
+							'resid' => $photo,
+							'uid' => $r[0]['uid'],
+							'status' => false
+						);
+						if($cache_mode['on'])
 							call_hooks('cache_url_hook', $cache);
-							if(! $cache['status'])
-								http_status_exit(404,'not found');
+						if(! $cache['status']) {
+							header("Location: " . htmlspecialchars_decode($r[0]['display_path']));
+							killme();
 						}
 					}
 				}
@@ -184,7 +181,7 @@ class Photo extends \Zotlabs\Web\Controller {
 					dbesc($photo),
 					intval($resolution)
 				);
-
+				
 				$exists = (($e) ? true : false);
 			
 				if($exists && $allowed) {

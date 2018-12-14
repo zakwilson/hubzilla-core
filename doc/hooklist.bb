@@ -502,6 +502,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/photo_upload_form]photo_upload_form[/zrl]
 	Called when generating a photo upload form
 
+[zrl=[baseurl]/help/hook/photo_view_filter]photo_view_filter[/zrl]
+	Called before the data is handed over to the photo_view template
+
 [zrl=[baseurl]/help/hook/poke_verbs]poke_verbs[/zrl]
 	Called when generating the list of actions for "poke" module
 

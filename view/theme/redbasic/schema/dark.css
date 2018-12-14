@@ -326,6 +326,17 @@ a.text-dark:focus, a.text-dark:hover {
 	color: #ddd !important;
 }
 
+.badge-warning {
+    background-color: #ffc927;
+}
+.badge-warning a.text-dark {
+    color: #333 !important;
+}
+.badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
+    color: red !important;
+    text-decoration: none;
+}
+
 .group-selected, .fileas-selected, .categories-selected, .search-selected, a.active {
 	color: #fff !important;
 	text-decoration: underline !important;
@@ -479,4 +490,12 @@ pre {
 
 .widget-nav-pills-checkbox:hover + a {
 	background-color: #222;
+}
+
+/* change color of [hl] tag: */
+div.wall-item-body span /*strong:only-of-type */{
+    color: #1212b6;
+    padding: 2px 3px;
+/*     font-weight: 500; */
+    white-space: nowrap;
 }

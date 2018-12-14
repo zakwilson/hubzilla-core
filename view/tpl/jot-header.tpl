@@ -219,7 +219,7 @@ var activeCommentText = '';
 	}
 
 	function linkdropper(event) {
-		var linkFound = event.dataTransfer.types.contains("text/uri-list");
+		var linkFound = ((event.dataTransfer.types.indexOf("text/uri-list") > -1) ? true : false);
 		if(linkFound) {
 			event.preventDefault();
 			var editwin = '#' + event.target.id;
@@ -256,7 +256,7 @@ var activeCommentText = '';
 				commentwin = ((editwin.indexOf('comment') >= 0) ? true : false);
 				if(commentwin) {
 					var commentid = editwin.substring(editwin.lastIndexOf('-') + 1);
-					commentOpen(document.getElementById(event.target.id),commentid);
+					$("#comment-edit-text-" + commentid).addClass("expanded");
 
 				}
 			}

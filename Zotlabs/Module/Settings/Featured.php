@@ -17,8 +17,12 @@ class Featured {
 			$cmin = intval($_POST['affinity_cmin']);
 			if($cmin < 0 || $cmin > 99)
 				$cmin = 0;
+
+			$lock = ($_POST['affinity_lock']) ? intval($_POST['affinity_lock']) : 1;
+
 			set_pconfig(local_channel(),'affinity','cmin',$cmin);
 			set_pconfig(local_channel(),'affinity','cmax',$cmax);
+			set_pconfig(local_channel(),'affinity','lock',$lock);
 
 			info( t('Affinity Slider settings updated.') . EOL);
 
@@ -48,6 +52,10 @@ class Featured {
 			$cmin = (($cmin) ? $cmin : 0);
 			$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
 				'$field'    => array('affinity_cmin', t('Default minimum affinity level'), $cmin, t('0-99 - default 0'))
+			));
+			$lock = intval(get_pconfig(local_channel(),'affinity','lock',1));
+			$setting_fields .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
+				'$field'    => array('affinity_lock', t('Always reset on new page visit.'), $lock, t('default: yes'), Array('No','Yes'))
 			));
 
 			$settings_addons .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(

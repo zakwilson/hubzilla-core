@@ -343,8 +343,17 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/item_store]item_store[/zrl]
 	Called when item_store() stores a record of type item
 
+[zrl=[baseurl]/help/hook/item_stored]item_stored[/zrl]
+	Called after item_store() has stored a record of type item in the database.
+
+[zrl=[baseurl]/help/hook/item_custom]item_custom[/zrl]
+	Called before item_store() stores a record of type item (allowing addons to process ITEM_TYPE_CUSTOM items).
+
 [zrl=[baseurl]/help/hook/item_store_update]item_store_update[/zrl]
 	Called when item_store_update() is called to update a stored item.
+
+[zrl=[baseurl]/help/hook/item_stored_update]item_stored_update[/zrl]
+	Called after item_store_update() has updated a stored item.
 
 [zrl=[baseurl]/help/hook/item_translate]item_translate[/zrl]
 	Called from item_store and item_store_update after the post language has been autodetected

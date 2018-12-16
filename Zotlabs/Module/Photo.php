@@ -32,7 +32,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 		$cache_mode = array(
-			'on' => get_config('system','photo_cache_enable', 0),
+			'on' => false,
 			'age' => 86400,
 			'exp' => true,
 			'leak' => false

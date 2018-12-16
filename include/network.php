@@ -116,6 +116,14 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERPWD, $opts['http_auth']);
 	}
 
+	if(array_key_exists('http_version',$opts)) {
+		@curl_setopt($ch,CURLOPT_HTTP_VERSION,$opts['http_version']);
+	}
+	else {
+		@curl_setopt($ch,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_1);
+	}
+
+
 	if(x($opts,'cookiejar'))
 		@curl_setopt($ch, CURLOPT_COOKIEJAR, $opts['cookiejar']);
 	if(x($opts,'cookiefile'))
@@ -284,6 +292,13 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	if(x($opts,'http_auth')) {
 		// "username" . ':' . "password"
 		@curl_setopt($ch, CURLOPT_USERPWD, $opts['http_auth']);
+	}
+
+	if(array_key_exists('http_version',$opts)) {
+		@curl_setopt($ch,CURLOPT_HTTP_VERSION,$opts['http_version']);
+	}
+	else {
+		@curl_setopt($ch,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_1);
 	}
 
 	if(x($opts,'cookiejar'))

@@ -453,7 +453,6 @@ class Setup extends \Zotlabs\Web\Controller {
 				$result['max_file_uploads']
 				);
         $help .= $mem_warning;
-		
 		$help .= '<br><br>' . t('You can adjust these settings in the server php.ini file.');
 
 		$this->check_add($checks, t('PHP upload limits'), true, false, $help);

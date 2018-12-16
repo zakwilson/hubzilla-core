@@ -441,13 +441,19 @@ class Setup extends \Zotlabs\Web\Controller {
 		require_once 'include/environment.php';
 
 		$help = '';
+		$mem_warning = '';
 
 		$result = getPhpiniUploadLimits();
+		if($result['post_max_size'] < 4194304 || $result['max_upload_filesize'] < 4194304) {
+            $mem_warning = '<strong>' .t('This is not sufficient to upload larger images or files. You should be able to upload at least 4 MB at once.') . '</strong>';
+        }
 		$help = sprintf(t('Your max allowed total upload size is set to %s. Maximum size of one file to upload is set to %s. You are allowed to upload up to %d files at once.'),
 				userReadableSize($result['post_max_size']),
 				userReadableSize($result['max_upload_filesize']),
 				$result['max_file_uploads']
 				);
+        $help .= $mem_warning;
+		
 		$help .= '<br><br>' . t('You can adjust these settings in the server php.ini file.');
 
 		$this->check_add($checks, t('PHP upload limits'), true, false, $help);

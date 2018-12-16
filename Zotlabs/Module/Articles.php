@@ -23,7 +23,9 @@ class Articles extends Controller {
                                 $channel = App::get_channel();
                                 if($channel && $channel['channel_address'])
                                 $which = $channel['channel_address'];
-                        }
+                        } else {
+				return;
+			}
                 }
 	
 		profile_load($which);

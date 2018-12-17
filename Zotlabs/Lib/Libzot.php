@@ -397,9 +397,7 @@ logger('4');
 					}
 				}
 
-				$closeness = get_pconfig($channel['channel_id'],'system','new_abook_closeness');
-				if($closeness === false)
-					$closeness = 80;
+				$closeness = get_pconfig($channel['channel_id'],'system','new_abook_closeness',80);
 
 				$y = abook_store_lowlevel(
 					[

@@ -323,23 +323,6 @@ a, a:visited, a:link, .fakelink, .fakelink:visited, .fakelink:link {
 	color: #aaa !important;
 }
 
-/* phani: fix 1 */
-/*a.text-dark:focus, a.text-dark:hover {
-	color: #ddd !important;
-}
-
-.badge-warning {
-    background-color: #ffc927;
-}
-.badge-warning a.text-dark {
-    color: #333 !important;
-}
-.badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
-    color: red !important;
-    text-decoration: none;
-}*/
-
-
 .group-selected, .fileas-selected, .categories-selected, .search-selected, a.active {
 	color: #fff !important;
 	text-decoration: underline !important;
@@ -495,10 +478,19 @@ pre {
 	background-color: #222;
 }
 
-/* phani: fix 2 */
-/* change color of [hl] tag: */
-/*div.wall-item-body span {
-    color: #1212b6;
-    padding: 2px 3px;
-    white-space: nowrap;
-}*/
+
+/* category badge fix: */
+a.text-dark:focus, a.text-dark:hover {
+	color: #ddd !important;
+}
+
+.badge-warning {
+/*     background-color: #ffc927; */
+}
+.badge-warning a.text-dark {
+    color: #333 !important;
+}
+.badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
+    color: red !important;
+    text-decoration: none;
+}

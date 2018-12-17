@@ -322,7 +322,9 @@ a, a:visited, a:link, .fakelink, .fakelink:visited, .fakelink:link {
 .text-dark {
 	color: #aaa !important;
 }
-a.text-dark:focus, a.text-dark:hover {
+
+/* phani: fix 1 */
+/*a.text-dark:focus, a.text-dark:hover {
 	color: #ddd !important;
 }
 
@@ -335,7 +337,8 @@ a.text-dark:focus, a.text-dark:hover {
 .badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
     color: red !important;
     text-decoration: none;
-}
+}*/
+
 
 .group-selected, .fileas-selected, .categories-selected, .search-selected, a.active {
 	color: #fff !important;
@@ -492,10 +495,10 @@ pre {
 	background-color: #222;
 }
 
+/* phani: fix 2 */
 /* change color of [hl] tag: */
-div.wall-item-body span /*strong:only-of-type */{
+/*div.wall-item-body span {
     color: #1212b6;
     padding: 2px 3px;
-/*     font-weight: 500; */
     white-space: nowrap;
-}
+}*/

@@ -159,13 +159,14 @@ class Photo extends \Zotlabs\Web\Controller {
 						// Validate cache
 						$cache = array(
 							'resid' => $photo,
-							'uid' => $r[0]['uid'],
-							'status' => false
+							'url' => htmlspecialchars_decode($r[0]['display_path'])
 						);
 						if($cache_mode['on'])
 							call_hooks('cache_url_hook', $cache);
-						if(! $cache['status']) {
-							header("Location: " . htmlspecialchars_decode($r[0]['display_path']));
+						if($cache['url'] != '') {
+							if(strpos(z_root(),'https:') !== false && strpos($cache['url'],'https:') === false)
+								$cache['url'] = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($cache['url']);
+							header("Location: " . $cache['url']);
 							killme();
 						}
 					}

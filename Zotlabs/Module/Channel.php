@@ -124,6 +124,11 @@ class Channel extends Controller {
 
 		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
 
+		if(strpos($mid,'b64.') === 0)
+			$decoded = @base64url_decode(substr($mid,4));
+		if($decoded)
+			$mid = $decoded;
+
 		$datequery = ((x($_GET,'dend') && is_a_date_arg($_GET['dend'])) ? notags($_GET['dend']) : '');
 		$datequery2 = ((x($_GET,'dbegin') && is_a_date_arg($_GET['dbegin'])) ? notags($_GET['dbegin']) : '');
 
@@ -374,6 +379,9 @@ class Channel extends Controller {
 		}
 
 		if((! $update) && (! $load)) {
+
+			if($decoded)
+				$mid = 'b64.' . base64url_encode($mid);
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.

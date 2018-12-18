@@ -494,3 +494,9 @@ a.text-dark:focus, a.text-dark:hover {
     color: red !important;
     text-decoration: none;
 }
+
+/* fix color for highlithed text */
+span.default-highlight {
+	color: #333;
+	border-radius: 4px;
+}

@@ -3305,8 +3305,6 @@ function cleanup_bbcode($body) {
 
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism',"\n",$body);
 
-	$body = scale_external_images($body, false);
-
 	return $body;
 }
 

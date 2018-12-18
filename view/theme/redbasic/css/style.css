@@ -1808,8 +1808,4 @@ dl.bb-dl > dd > li {
 span.default-highlight {
     background-color: yellow;
     color: #111;
-    margin: 0 2px;
-    padding: 2px 4px 2px 5px;
-    border-radius: 4px;
-    white-space: nowrap;
 }

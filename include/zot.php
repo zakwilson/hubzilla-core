@@ -1232,6 +1232,7 @@ function zot_fetch($arr) {
 			$datatosend = json_encode(crypto_encapsulate(json_encode($data),$hub['hubloc_sitekey'], $algorithm));
 
 			$import = zot_zot($url,$datatosend);
+
 		}
 		else {
 			$algorithm = zot_best_algorithm($hub['site_crypto']);
@@ -4913,6 +4914,7 @@ function zot_reply_pickup($data) {
 		dbesc($data['secret']),
 		dbesc($data['callback'])
 	);
+
 	if(! $r) {
 		$ret['message'] = 'nothing to pick up';
 		logger('mod_zot: pickup: ' . $ret['message']);

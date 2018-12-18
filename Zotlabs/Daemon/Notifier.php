@@ -625,7 +625,12 @@ class Notifier {
 				continue;
 			}
 
-			$hash   = new_uuid();
+			// Do not change this to a uuid as long as we have traditional zot servers
+			// in the loop. The signature verification step can't handle dashes in the 
+			// hashes. 
+
+			$hash   = random_string(48);
+
 			$packet = null;
 			$pmsg   = '';
 

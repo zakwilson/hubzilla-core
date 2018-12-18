@@ -1591,6 +1591,14 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 			'item' => $arr,
 			'allow_exec' => $allow_exec
 	];
+
+	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
+		/* Custom items are not stored by default
+		   because they require an addon to process. */
+		$d['item']['cancel']=true;
+
+		call_hooks('item_custom',$d);
+	}
 	/**
 	 * @hooks item_store
 	 *   Called when item_store() stores a record of type item.
@@ -2016,6 +2024,13 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('post_remote_end', $arr);
 
+	/**
+	 * @hooks item_stored
+	 *   Called after new item is stored in the database.
+	 *	  (By this time we have an item_id and other frequently needed info.)
+	 */
+	call_hooks('item_stored',$arr);
+
 	item_update_parent_commented($arr);
 
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
@@ -2049,6 +2064,15 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 			'item' => $arr,
 			'allow_exec' => $allow_exec
 	];
+
+	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
+		/* Custom items are not stored by default
+		   because they require an addon to process. */
+		$d['item']['cancel']=true;
+
+		call_hooks('item_custom_update',$d);
+	}
+
 	/**
 	 * @hooks item_store_update
 	 *   Called when item_store_update() is called to update a stored item. It
@@ -2338,6 +2362,12 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	 *   Called after processing a remote post that involved an edit or update.
 	 */
 	call_hooks('post_remote_update_end', $arr);
+
+	/**
+	 * @hooks item_stored_update
+	 *   Called after updated item is stored in the database.
+	 */
+	call_hooks('item_stored_update',$arr);
 
 	if($deliver) {
 		send_status_notifications($orig_post_id,$arr);

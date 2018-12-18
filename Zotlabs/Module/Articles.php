@@ -17,8 +17,16 @@ class Articles extends Controller {
 	
 		if(argc() > 1)
 			$which = argv(1);
-		else
-			return;
+
+                if(! $which) {
+                        if(local_channel()) {
+                                $channel = App::get_channel();
+                                if($channel && $channel['channel_address'])
+                                $which = $channel['channel_address'];
+                        } else {
+				return;
+			}
+                }
 	
 		profile_load($which);
 	

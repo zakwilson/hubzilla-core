@@ -442,8 +442,8 @@ class Wiki extends Controller {
 			$mimeType = $_POST['mimetype'];
 
 			if($mimeType === 'text/bbcode') {
-				$linkconverted = NativeWikiPage::convert_links($content,$wikiURL);
-				$html = zidify_links(smilies(bbcode($linkconverted)));
+				$html = zidify_links(smilies(bbcode($content)));
+				$html = NativeWikiPage::convert_links($html,$wikiURL);
 			}
 			elseif($mimeType === 'text/markdown') {
 				$linkconverted = NativeWikiPage::convert_links($content,$wikiURL);

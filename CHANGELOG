@@ -1,3 +1,15 @@
+Hubzilla 3.8.7 (2018-12-14)
+	- Fix issue with linkdropper in comment area
+	- Fix regression wit app ordering
+	- Fix return if readImnageBlob() throws an exception
+	- Introduce photo_view_filter hook
+	- Fix home notifications not expanding in certain situations
+	- Fix for dark schema
+	- Fix total identities restriction
+	- Fix article page title not updating if article has no title
+	- Gallery: the gallery app will now act as the full-size photo viewer in /photos if installed
+
+
 Hubzilla 3.8.6 (2018-12-03)
 	- Prevent incompatible export files (osada/zap) from being imported
 	- Catch exception if readImageBlob() receives bogus data

@@ -1803,3 +1803,9 @@ dl.bb-dl > dd > li {
 .hover-fx-show:hover .hover-fx-hide {
 	opacity: 1;
 }
+
+/* default highlighted text if not specified by schema: */
+span.default-highlight {
+    background-color: yellow;
+	padding: 2px 4px;
+}

@@ -10,6 +10,7 @@ echo <<< EOT
 		util/addons list all         # list all addons (*)= installed, (!)= disabled due to version compatibility
 		util/addons install foo      # install addon named 'foo'
 		util/addons uninstall foo    # uninstall addon named 'foo'
+		util/addons reinstall        # reinstall all plugins
 
 EOT;
 }
@@ -66,6 +67,20 @@ if($argc == 2 && $argv[1] === 'list') {
 		}
 	} 
 	killme();
+}
+
+if($argc == 2 && $argv[1] === 'reinstall') {
+        require_once("include/plugin.php");
+        if($plugins) {
+                foreach($plugins as $p) {
+                        if($p[1]) {
+                                echo "Reinstall: ". $p[0] . "\n";
+                                uninstall_plugin($p[0]);
+                                install_plugin($p[0]);
+                        }
+                }
+        }
+        killme();
 }
 
 if($argc == 3 && $argv[1] === 'list' && $argv[2] === 'all') {

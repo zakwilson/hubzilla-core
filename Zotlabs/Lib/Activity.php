@@ -546,6 +546,12 @@ class Activity {
 	}
 
 
+
+
+
+
+
+
 	static function activity_mapper($verb) {
 
 		if(strpos($verb,'/') === false) {
@@ -586,6 +592,67 @@ class Activity {
 		return 'Create';
 	//	return false;
 }
+
+
+
+	static function activity_decode_mapper($verb) {
+
+		$acts = [
+			'http://activitystrea.ms/schema/1.0/post'      => 'Create',
+			'http://activitystrea.ms/schema/1.0/share'     => 'Announce',
+			'http://activitystrea.ms/schema/1.0/update'    => 'Update',
+			'http://activitystrea.ms/schema/1.0/like'      => 'Like',
+			'http://activitystrea.ms/schema/1.0/favorite'  => 'Like',
+			'http://purl.org/zot/activity/dislike'         => 'Dislike',
+			'http://activitystrea.ms/schema/1.0/tag'       => 'Add',
+			'http://activitystrea.ms/schema/1.0/follow'    => 'Follow',
+			'http://activitystrea.ms/schema/1.0/unfollow'  => 'Unfollow',
+		];
+
+
+		foreach($acts as $k => $v) {
+			if($verb === $v) {
+				return $k;
+			}
+		}
+
+		logger('Unmapped activity: ' . $verb);
+		return 'Create';
+
+	}
+
+	static function activity_obj_decode_mapper($obj) {
+
+		$objs = [
+			'http://activitystrea.ms/schema/1.0/note'           => 'Note',
+			'http://activitystrea.ms/schema/1.0/note'           => 'Article',
+			'http://activitystrea.ms/schema/1.0/comment'        => 'Note',
+			'http://activitystrea.ms/schema/1.0/person'         => 'Person',
+			'http://purl.org/zot/activity/profile'              => 'Profile',
+			'http://activitystrea.ms/schema/1.0/photo'          => 'Image',
+			'http://activitystrea.ms/schema/1.0/profile-photo'  => 'Icon',
+			'http://activitystrea.ms/schema/1.0/event'          => 'Event',
+			'http://activitystrea.ms/schema/1.0/wiki'           => 'Document',
+			'http://purl.org/zot/activity/location'             => 'Place',
+			'http://purl.org/zot/activity/chessgame'            => 'Game',
+			'http://purl.org/zot/activity/tagterm'              => 'zot:Tag',
+			'http://purl.org/zot/activity/thing'                => 'Object',
+			'http://purl.org/zot/activity/file'                 => 'zot:File',
+			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
+		
+		];
+
+		foreach($objs as $k => $v) {
+			if($obj === $v) {
+				return $k;
+			}
+		}
+
+		logger('Unmapped activity object: ' . $obj);
+		return 'Note';
+	}
+
+
 
 
 	static function activity_obj_mapper($obj) {
@@ -1236,6 +1303,20 @@ class Activity {
 
 	}
 
+	static function get_actor_bbmention($id) {
+
+		$x = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' or hubloc_id_url = '%s' limit 1",
+			dbesc($id),
+			dbesc($id)
+		);
+
+		if($x) {
+			return sprintf('@[zrl=%s]%s[/zrl]',$x[0]['xchan_url'],$x[0]['xchan_name']);		
+		}
+		return '@{' . $id . '}';
+
+	}
+
 
 	static function decode_note($act) {
 
@@ -1320,13 +1401,17 @@ class Activity {
 		$s['summary']  = self::bb_content($content,'summary');
 		$s['body']     = ((self::bb_content($content,'bbcode') && (! $response_activity)) ? self::bb_content($content,'bbcode') : self::bb_content($content,'content'));
 
-		$s['verb']     = self::activity_mapper($act->type);
+		$s['verb']     = self::activity_decode_mapper($act->type);
 
 		if($act->type === 'Tombstone') {
 			$s['item_deleted'] = 1;
 		}
 
-		$s['obj_type'] = self::activity_obj_mapper($act->obj['type']);
+		$s['obj_type'] = self::activity_obj_decode_mapper($act->obj['type']);
+		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
+			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
+		}
+
 		$s['obj']      = $act->obj;
 
 		$instrument = $act->get_property_obj('instrument');

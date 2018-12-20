@@ -52,7 +52,7 @@ class Like extends \Zotlabs\Web\Controller {
 
 		$observer = \App::get_observer();
 		$interactive = $_REQUEST['interactive'];
-		if($interactive) {
+		if((! $observer) || ($interactive)) {
 			$o .= '<h1>' . t('Like/Dislike') . '</h1>';
 			$o .= EOL . EOL;
 	

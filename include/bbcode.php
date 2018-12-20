@@ -1021,7 +1021,7 @@ function bbcode($Text, $options = []) {
 	}
 	// Check for colored text
 	if (strpos($Text,'[/hl]') !== false) {
-		$Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span style=\"background-color: yellow;\">$1</span>", $Text);
+        $Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span class=\"default-highlight\">$1</span>", $Text);
 		$Text = preg_replace("(\[hl=(.*?)\](.*?)\[\/hl\])ism", "<span style=\"background-color: $1;\">$2</span>", $Text);
 	}
 

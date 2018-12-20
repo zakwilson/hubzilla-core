@@ -249,6 +249,9 @@ class Like extends \Zotlabs\Web\Controller {
 			}
 		}
 		else {
+
+			if(! $observer)
+				killme();
 	
 			// this is used to like an item or comment
 	

@@ -988,7 +988,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			$photo = array(
 				'href' => z_root() . '/photo/' . $hires['resource_id'] . '-' . $hires['imgscale'] . '.' . $phototypes[$hires['mimetype']],
 				'title'=> t('View Full Size'),
-				'src'  => z_root() . '/photo/' . $lores['resource_id'] . '-' . $lores['imgscale'] . '.' . $phototypes[$lores['mimetype']] . '?f=&_u=' . datetime_convert('','','','ymdhis')
+				'src'  => z_root() . '/photo/' . $lores['resource_id'] . '-' . $lores['imgscale'] . '.' . $phototypes[$lores['mimetype']]
 			);
 	
 			if($nextlink)

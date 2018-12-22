@@ -1806,6 +1806,5 @@ dl.bb-dl > dd > li {
 
 /* default highlighted text if not specified by schema: */
 span.default-highlight {
-    background-color: yellow;
-	padding: 2px 4px;
+	background-color: yellow;
 }

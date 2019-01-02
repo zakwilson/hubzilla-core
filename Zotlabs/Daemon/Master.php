@@ -89,7 +89,7 @@ class Master {
 		$workersleep = ($workersleep) ? $workersleep : 5;
 		cli_startup();
 
-		$work = q("update config set k='%s' where id in (select id from config where cat='queuework' and k like '%s' limit 1)",
+		$work = q("update config set k='%s' where cat='queuework' and k like '%s' limit 1",
 			'workitem_'.self::$queueworker,
 			dbesc('workitem:%'));
 		$jobs = 0;
@@ -122,9 +122,9 @@ class Master {
 				break;
 			}
 			sleep ($workersleep);
-			$work = q("update config set k='%s' where id in (select id from config where cat='queuework' and k like '%s' limit 1)",
-			'workitem_'.self::$queueworker,
-			dbesc('workitem:%'));
+			$work = q("update config set k='%s' where cat='queuework' and k like '%s' limit 1",
+				'workitem_'.self::$queueworker,
+				dbesc('workitem:%'));
 
 		}
 		logger('Master: Worker Thread: queue items processed:' . $jobs);

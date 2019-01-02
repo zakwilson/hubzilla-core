@@ -70,9 +70,9 @@ function zid($s, $address = '') {
 		$zurl .= '#' . $fragment;
 
 	$arr = [
-			'url' => $s,
-			'zid' => urlencode($myaddr),
-			'result' => $zurl
+		'url' => $s,
+		'zid' => urlencode($myaddr),
+		'result' => $zurl
 	];
 	/**
 	 * @hooks zid

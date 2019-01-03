@@ -888,7 +888,12 @@ function liveUpdate(notify_id) {
 
 	if((src === null) || (stopped) || (! profile_uid)) { $('.like-rotator').hide(); return; }
 
-	if(in_progress || mediaPlaying) {
+	// if auto updates are enabled and a comment box is open, 
+	// prevent live updates until the comment is submitted
+
+	var lockUpdates = (($('.comment-edit-text.expanded').length && (! bParam_static)) ? true : false);
+
+	if(lockUpdates || in_progress || mediaPlaying) {
 		if(livetime) {
 			clearTimeout(livetime);
 		}

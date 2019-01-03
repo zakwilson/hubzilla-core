@@ -493,7 +493,7 @@ function guess_image_type($filename, $headers = '') {
 			$ph = photo_factory('');
 			$types = $ph->supportedTypes();
 
-			if(array_key_exists($hdrs['content-type'], $types)
+			if(array_key_exists($hdrs['content-type'], $types))
 				$type = $hdrs['content-type'];
 		}
 	}

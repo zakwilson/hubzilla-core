@@ -24,7 +24,7 @@ class Pconfig extends \Zotlabs\Web\Controller {
 		$aj = intval($_POST['aj']);
 
 		// Do not store "serialized" data received in the $_POST
-		if (preg_match('|^a:[0-9]+:{.*}$|s',$v) || preg_match('O:8:"stdClass":[0-9]+:{.*}$|s',$v)) {
+		if (preg_match('|^a:[0-9]+:{.*}$|s',$v) || preg_match('|O:8:"stdClass":[0-9]+:{.*}$|s',$v)) {
 			return;
 		}
 	

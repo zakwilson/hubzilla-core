@@ -482,7 +482,6 @@ function guess_image_type($filename, $headers = '') {
 //	logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
 	$type = null;
 	if ($headers) {
-
 		$hdrs=array();
 		$h = explode("\n",$headers);
 		foreach ($h as $l) {
@@ -490,11 +489,16 @@ function guess_image_type($filename, $headers = '') {
 			$hdrs[strtolower($k)] = $v;
 		}
 		logger('Curl headers: '.var_export($hdrs, true), LOGGER_DEBUG);
-		if (array_key_exists('content-type', $hdrs))
-			$type = $hdrs['content-type'];
-	}
-	if (is_null($type)){
+		if (array_key_exists('content-type', $hdrs)) {
+			$ph = photo_factory('');
+			$types = $ph->supportedTypes();
 
+			if(array_key_exists($hdrs['content-type'], $types)
+				$type = $hdrs['content-type'];
+		}
+	}
+
+	if (is_null($type)){
 		$ignore_imagick = get_config('system', 'ignore_imagick');
 		// Guessing from extension? Isn't that... dangerous?
 		if(class_exists('Imagick') && file_exists($filename) && is_readable($filename) && !$ignore_imagick) {
@@ -638,7 +642,6 @@ function import_xchan_photo($photo,$xchan,$thing = false,$force = false) {
                         $img_str = $result['body'];
                         $type = guess_image_type($photo, $result['header']);
                         $modified = gmdate('Y-m-d H:i:s', (preg_match('/last-modified: (.+) \S+/i', $result['header'], $o) ? strtotime($o[1] . 'Z') : time()));
-
                         if(is_null($type))
                                 $photo_failure = true;
                 }

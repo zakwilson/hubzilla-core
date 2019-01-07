@@ -239,7 +239,11 @@ function handle_comment_form(e) {
 		},10000);
 	});
 
-	function commentSaveChanges(convId,isFinal = false) {
+	function commentSaveChanges(convId, isFinal) {
+
+		if(typeof isFinal === 'undefined')
+			isFinal = false;
+
 		if(auto_save_draft) {
 			tmp = $('#' + emptyCommentElm).val();
 			if(tmp) {

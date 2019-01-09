@@ -57,7 +57,7 @@ class Apps {
 	}
 
 	static public function get_base_apps() {
-		return get_config('system','base_apps',[ 
+		$x = get_config('system','base_apps',[ 
 			'Connections',
 			'Network',
 			'Settings',
@@ -72,6 +72,8 @@ class Apps {
 			'Mail',
 			'Profile Photo'
 		]);
+		call_hooks('get_base_apps',$x);
+		return $x;
 	}
 
 	static public function import_system_apps() {

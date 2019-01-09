@@ -131,14 +131,19 @@ class PConfig {
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
+		$now = datetime_convert();
 		if (! $updated) {
-			$updated = datetime_convert();
+			//Sometimes things happen fast... very fast.
+			//To make sure legitimate updates aren't rejected
+			//because not enough time has passed.  We say our updates
+			//happened just a short time in the past rather than right now.
+			$updated = datetime_convert('UTC','UTC','-2 seconds');
 		}
 
 		$hash = hash('sha256',$family.':'.$key);
 
 		if (self::Get($uid, 'hz_delpconfig', $hash) !== false) {
-			if (self::Get($uid, 'hz_delpconfig', $hash) > $updated) {
+			if (self::Get($uid, 'hz_delpconfig', $hash) > $now) {
 				logger('Refusing to update pconfig with outdated info (Item deleted more recently).', LOGGER_NORMAL, LOG_ERR);
 				return self::Get($uid,$family,$key);
 			} else {
@@ -173,7 +178,7 @@ class PConfig {
 
 		}
 		else {
-			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
+			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $now);
 
 			if ($new) {
 
@@ -241,9 +246,9 @@ class PConfig {
 		if(is_null($uid) || $uid === false)
 			return false;
 
-		$updated = ($updated) ? $updated : datetime_convert();
-
-		$newer = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
+		$updated = ($updated) ? $updated : datetime_convert('UTC','UTC','-2 seconds');
+		$now = datetime_convert();
+		$newer = (\App::$config[$uid][$family]['pcfgud:'.$key] < $now);
 
 		if (! $newer) {
 			logger('Refusing to delete pconfig with outdated delete request.', LOGGER_NORMAL, LOG_ERR);

@@ -1691,7 +1691,14 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	if(local_channel() == $item['uid'])
 		$filer = format_filer($item);
 
-	$s = sslify($s);
+	if($s)
+		$s = sslify($s);
+
+	if($photo)
+		$photo = sslify($photo);
+
+	if($event)
+		$event = sslify($event);
 
 	$prep_arr = array(
 		'item' => $item,

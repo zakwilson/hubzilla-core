@@ -134,7 +134,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 		$default_role = '';
 		$aid = get_account_id();
 		if($aid) {
-			$r = q("select count(channel_id) as total from channel where channel_account_id = %d",
+			$r = q("select count(channel_id) as total from channel where channel_account_id = %d and channel_removed = 0",
 				intval($aid)
 			);
 			if($r && (! intval($r[0]['total']))) {

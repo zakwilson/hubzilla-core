@@ -12,16 +12,6 @@ class Queue {
 		require_once('include/items.php');
 		require_once('include/bbcode.php');
 
-                switch (DBTYPE_ACTIVE) {
-                        case DBTYPE_MYSQL:
-				$sqlrandfunc = "RAND()";
-                                break;
-
-                        case DBTYPE_POSTGRESQL:
-				$sqlrandfunc = "RANDOM()";
-                                break;
-                }
-
 		if($argc > 1)
 			$queue_id = $argv[1];
 		else
@@ -70,6 +60,8 @@ class Queue {
 			// or just prior to this query based on recent and long-term delivery history. If we have good reason to believe
 			// the site is permanently down, there's no reason to attempt delivery at all, or at most not more than once 
 			// or twice a day. 
+
+			$sqlrandfunc = db_getfunc('rand');
 
 			$r = q("SELECT *,$sqlrandfunc as rn FROM outq WHERE outq_delivered = 0 and outq_scheduled < %s order by rn limit 1",
 				db_utcnow()

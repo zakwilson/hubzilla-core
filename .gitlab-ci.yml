@@ -1,6 +1,10 @@
 # Select image from https://hub.docker.com/_/php/
 image: php:7.1
 
+stages:
+  - test
+  - deploy
+
 # Select what we should cache
 cache:
   paths:
@@ -31,6 +35,7 @@ before_script:
 
 # We test PHP7 with MySQL
 test:php:mysql:
+  stage: test
   services:
   - mysql:5.7
   script:
@@ -41,6 +46,7 @@ test:php:mysql:
 
 # test PHP7 with PostgreSQL  
 test:php:postgres:
+  stage: test
   services:
   - postgres:latest
   variables:
@@ -67,3 +73,23 @@ test:php:postgres:
     name: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
     paths:
       - tests/results/
+
+
+# Generate Doxygen API Documentation and deploy it at GitLab pages
+pages:
+  stage: deploy
+  cache: {}
+  image: php:7-cli-alpine
+  before_script:
+    - apk update
+    - apk add doxygen ttf-freefont graphviz
+  script:
+    - doxygen util/Doxyfile
+    - mv doc/html/ public/
+    - echo "API documentation should be accessible at https://hubzilla.frama.io/core/ soon"
+  artifacts:
+    paths:
+      - public
+  only:
+    # Only generate it on main repo's master branch
+    - master@hubzilla/core

@@ -4959,7 +4959,7 @@ function zot_reply_pickup($data) {
 	// It's possible that we have more than 100 messages waiting to be sent.
 
 	// See if there are any more messages in the queue.
-        $x = q("select * from outq order by outq_scheduled where outq_posturl = '%s' limit 1",
+        $x = q("select * from outq order by outq_created where outq_posturl = '%s' limit 1",
 		dbesc($data['callback'])
         );
 

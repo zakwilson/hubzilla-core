@@ -136,6 +136,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/check_siteallowed]check_siteallowed[/zrl]
 	Used to over-ride or bypass the site black/white block lists
 
+[zrl=[baseurl]/help/hook/collect_public_recipients]collect_public_recipients[/zrl]
+	Used to establish a list of recipients to send a public message to.
+
 [zrl=[baseurl]/help/hook/comment_buttons]comment_buttons[/zrl]
 	Called when rendering the edit buttons for comments
 

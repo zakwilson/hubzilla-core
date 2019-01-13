@@ -127,6 +127,10 @@ class Group extends Controller {
 				$i++;
 			}
 
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(1) ];
+			call_hooks ('privacygroup_extras',$hookinfo);
+			$pgrp_extras = $hookinfo['pgrp_extras'];
+
 			$tpl = get_markup_template('privacy_groups.tpl');
 			$o = replace_macros($tpl, [
 				'$title' => t('Privacy Groups'),
@@ -136,6 +140,7 @@ class Group extends Controller {
 				// new group form
 				'$gname' => array('groupname',t('Privacy group name')),
 				'$public' => array('public',t('Members are visible to other channels'), false),
+				'$pgrp_extras' => $pgrp_extras,
 				'$form_security_token' => get_form_security_token("group_edit"),
 				'$submit' => t('Submit'),
 

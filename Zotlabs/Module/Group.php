@@ -75,6 +75,10 @@ class Group extends Controller {
 				);
 				if($r)
 					info( t('Privacy group updated.') . EOL );
+
+				$hookinfo = [ 'pgrp_extras' => '', 'group'=>$group['id'] ];
+                        	call_hooks ('privacygroup_extras_post',$hookinfo);
+
 				build_sync_packet(local_channel(),null,true);
 			}
 	
@@ -171,8 +175,11 @@ class Group extends Controller {
 				);
 				if($r) 
 					$result = group_rmv(local_channel(),$r[0]['gname']);
-				if($result)
+				if($result) {
+					$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(2) ];
+					call_hooks ('privacygroup_extras_drop',$hookinfo);
 					info( t('Privacy group removed.') . EOL);
+				}
 				else
 					notice( t('Unable to remove privacy group.') . EOL);
 			}

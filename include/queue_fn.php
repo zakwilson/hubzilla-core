@@ -13,7 +13,7 @@ function update_queue_item($id, $add_priority = 0) {
 		return;
 
 
-	$y = q("select min(outq_created) as earliest from outq where outq_posturl = '%s'",
+	$y = q("select outq_created as earliest from outq where outq_posturl = '%s' order by earliest limit 1",
 		dbesc($x[0]['outq_posturl'])
 	);
 

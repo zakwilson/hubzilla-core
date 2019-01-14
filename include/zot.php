@@ -4924,12 +4924,13 @@ function zot_reply_pickup($data) {
 
 	/*
 	 * Everything is good if we made it here, so find all messages that are going to this location
-	 * and send them all.
+	 * and send them all - or a reasonable number if there are a lot so we don't overflow memory.
 	 */
 
-	$r = q("select * from outq where outq_posturl = '%s'",
+	$r = q("select * from outq where outq_posturl = '%s' limit 100",
 		dbesc($data['callback'])
 	);
+
 	if($r) {
 		logger('mod_zot: successful pickup message received from ' . $data['callback'] . ' ' . count($r) . ' message(s) picked up', LOGGER_DEBUG);
 
@@ -4955,6 +4956,19 @@ function zot_reply_pickup($data) {
 		}
 	}
 
+	// It's possible that we have more than 100 messages waiting to be sent.
+
+	// See if there are any more messages in the queue.
+        $x = q("select * from outq where outq_posturl = '%s' order by outq_created limit 1",
+		dbesc($data['callback'])
+        );
+
+	// If so, kick off a new delivery notification for the next batch
+	if ($x) {
+		logger("Send additional pickup request.", LOGGER_DEBUG);
+		queue_deliver($x[0],true);
+	}
+
 	// this is a bit of a hack because we don't have the hubloc_url here, only the callback url.
 	// worst case is we'll end up using aes256cbc if they've got a different post endpoint
 
@@ -4966,6 +4980,8 @@ function zot_reply_pickup($data) {
 	$encrypted = crypto_encapsulate(json_encode($ret),$sitekey,$algorithm);
 
 	json_return_and_die($encrypted);
+	// @FIXME:  There is a possibility that the transmission will get interrupted
+	//          and fail - in which case this packet of messages will be lost.
 	/* pickup: end */
 }
 

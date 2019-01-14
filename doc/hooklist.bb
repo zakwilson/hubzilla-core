@@ -559,6 +559,15 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/prepare_body_init]prepare_body_init[/zrl]
 	Called before generating the HTML for a displayed conversation item
 
+[zrl=[baseurl]/help/hook/privacygroup_extras]privacygroup_extras[/zrl]
+	Called before generating the HTML for the Privacy Group edit options
+
+[zrl=[baseurl]/help/hook/privacygroup_extras_delete]privacygroup_extras_delete[/zrl]
+	Called after privacy group is dropped.
+
+[zrl=[baseurl]/help/hook/privacygroup_extras_post]privacygroup_extras_post[/zrl]
+	Called when privacy group edit form is submitted.
+
 [zrl=[baseurl]/help/hook/proc_run]proc_run[/zrl]
 	Called when invoking PHP sub processes
 

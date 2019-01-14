@@ -75,6 +75,10 @@ class Group extends Controller {
 				);
 				if($r)
 					info( t('Privacy group updated.') . EOL );
+
+				$hookinfo = [ 'pgrp_extras' => '', 'group'=>$group['id'] ];
+                        	call_hooks ('privacygroup_extras_post',$hookinfo);
+
 				build_sync_packet(local_channel(),null,true);
 			}
 	
@@ -127,6 +131,10 @@ class Group extends Controller {
 				$i++;
 			}
 
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>argv(1) ];
+			call_hooks ('privacygroup_extras',$hookinfo);
+			$pgrp_extras = $hookinfo['pgrp_extras'];
+
 			$tpl = get_markup_template('privacy_groups.tpl');
 			$o = replace_macros($tpl, [
 				'$title' => t('Privacy Groups'),
@@ -136,6 +144,7 @@ class Group extends Controller {
 				// new group form
 				'$gname' => array('groupname',t('Privacy group name')),
 				'$public' => array('public',t('Members are visible to other channels'), false),
+				'$pgrp_extras' => $pgrp_extras,
 				'$form_security_token' => get_form_security_token("group_edit"),
 				'$submit' => t('Submit'),
 
@@ -166,8 +175,11 @@ class Group extends Controller {
 				);
 				if($r) 
 					$result = group_rmv(local_channel(),$r[0]['gname']);
-				if($result)
+				if($result) {
+					$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(2) ];
+					call_hooks ('privacygroup_extras_drop',$hookinfo);
 					info( t('Privacy group removed.') . EOL);
+				}
 				else
 					notice( t('Unable to remove privacy group.') . EOL);
 			}

@@ -131,7 +131,7 @@ class Group extends Controller {
 				$i++;
 			}
 
-			$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(1) ];
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>argv(1) ];
 			call_hooks ('privacygroup_extras',$hookinfo);
 			$pgrp_extras = $hookinfo['pgrp_extras'];
 

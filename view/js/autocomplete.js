@@ -216,8 +216,6 @@ function string2bb(element) {
 			});
 			textcomplete.register([contacts,forums,smilies,tags]);
 		});
-
-
 	};
 })( jQuery );
 

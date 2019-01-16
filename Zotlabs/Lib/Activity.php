@@ -568,6 +568,9 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'       => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'    => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow'  => 'Unfollow',
+			'http://purl.org/zot/activity/attendyes'       => 'Accept',
+			'http://purl.org/zot/activity/attendno'        => 'Reject',
+			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
 
@@ -607,6 +610,9 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'       => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'    => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow'  => 'Unfollow',
+			'http://purl.org/zot/activity/attendyes'       => 'Accept',
+			'http://purl.org/zot/activity/attendno'        => 'Reject',
+			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
 

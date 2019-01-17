@@ -1456,7 +1456,7 @@ class Activity {
 		}
 
 
-		if($s['obj_type'] === 'Event') {
+		if($act->obj['type'] === 'Event') {
 			$s['obj'] = [];
 			$s['obj']['asld'] = $act->obj;
 			$s['obj']['type'] = ACTIVITY_OBJ_EVENT;

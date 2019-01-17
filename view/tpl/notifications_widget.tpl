@@ -24,7 +24,7 @@
 		});
 
 		window.onpopstate = function(e) {
-			if(e.state !== null)
+			if(e.state !== null && e.state.b64mid !== bParam_mid)
 				getData(e.state.b64mid, '');
 		};
 	});

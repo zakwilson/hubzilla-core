@@ -326,22 +326,11 @@ function bb_ShareAttributes($match) {
 		$auth = is_matrix_url($profile);
 	}
 
-	// message_id is never used, do we still need it?
-	$message_id = "";
-	preg_match("/message_id='(.*?)'/ism", $attributes, $matches);
-	if ($matches[1] != "")
-		$message_id = $matches[1];
-
-	if(! $message_id) {
-		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
-		if ($matches[1] != "")
-			$message_id = $matches[1];
-	}
-
+	$rnd = mt_rand();
 
 	$reldate = '<span class="autotime" title="' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'c') . '" >' . datetime_convert('UTC', date_default_timezone_get(), $posted, 'r') . '</span>';
 
-	$headline = '<div class="shared_container"> <div class="shared_header">';
+	$headline = '<div id="shared_container_' . $rnd . '" class="shared_container"> <div id="shared_header_' . $rnd . '" class="shared_header">';
 
 	if ($avatar != "")
 		$headline .= '<a href="' . (($auth) ? zid($profile) : $profile) . '" ><img src="' . $avatar . '" alt="' . $author . '" height="32" width="32" /></a>';
@@ -363,7 +352,7 @@ function bb_ShareAttributes($match) {
 
 	$headline .= '<span>' . $fmt . '</span></div>';
 
-	$text = $headline . '<div class="reshared-content">' . trim($match[2]) . '</div></div>';
+	$text = $headline . '<div id="reshared-content-' . $rnd . '" class="reshared-content">' . trim($match[2]) . '</div></div>';
 
 	return $text;
 }
@@ -1021,7 +1010,7 @@ function bbcode($Text, $options = []) {
 	}
 	// Check for colored text
 	if (strpos($Text,'[/hl]') !== false) {
-		$Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span style=\"background-color: yellow;\">$1</span>", $Text);
+        $Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span class=\"default-highlight\">$1</span>", $Text);
 		$Text = preg_replace("(\[hl=(.*?)\](.*?)\[\/hl\])ism", "<span style=\"background-color: $1;\">$2</span>", $Text);
 	}
 

@@ -84,7 +84,8 @@ define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://hubzilla.zottel.net',
-	'https://zotadel.net'
+	'https://zotadel.net',
+	'https://zotsite.net'
 );
 
 

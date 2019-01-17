@@ -120,13 +120,8 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERPWD, $opts['http_auth']);
 	}
 
-	if(array_key_exists('http_version',$opts)) {
+	if(array_key_exists('http_version',$opts))
 		@curl_setopt($ch,CURLOPT_HTTP_VERSION,$opts['http_version']);
-	}
-	else {
-		@curl_setopt($ch,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_1);
-	}
-
 
 	if(x($opts,'cookiejar'))
 		@curl_setopt($ch, CURLOPT_COOKIEJAR, $opts['cookiejar']);
@@ -165,7 +160,7 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	// Pull out multiple headers, e.g. proxy and continuation headers
 	// allow for HTTP/2.x without fixing code
 
-	while(preg_match('/^HTTP\/[1-3].+? [1-5][0-9][0-9]/',$base)) {
+	while(preg_match('/^HTTP\/[1-3](\.\d)? [1-5][0-9][0-9]/',$base)) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));
@@ -298,12 +293,8 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_USERPWD, $opts['http_auth']);
 	}
 
-	if(array_key_exists('http_version',$opts)) {
+	if(array_key_exists('http_version',$opts))
 		@curl_setopt($ch,CURLOPT_HTTP_VERSION,$opts['http_version']);
-	}
-	else {
-		@curl_setopt($ch,CURLOPT_HTTP_VERSION,CURL_HTTP_VERSION_1_1);
-	}
 
 	if(x($opts,'cookiejar'))
 		@curl_setopt($ch, CURLOPT_COOKIEJAR, $opts['cookiejar']);
@@ -338,7 +329,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	// Pull out multiple headers, e.g. proxy and continuation headers
 	// allow for HTTP/2.x without fixing code
 
-	while(preg_match('/^HTTP\/[1-3].+? [1-5][0-9][0-9]/',$base)) {
+	while(preg_match('/^HTTP\/[1-3](\.\d)? [1-5][0-9][0-9]/',$base)) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
 		$base = substr($base,strlen($chunk));
@@ -708,99 +699,6 @@ function sxml2array ( $xmlObject, $out = array () )
     return $out;
 }
 
-
-/**
- * @brief Scales an external image.
- *
- * @param string $s
- * @param string $include_link default true
- * @param string $scale_replace default false
- * @return string
- */
-function scale_external_images($s, $include_link = true, $scale_replace = false) {
-
-	// Picture addresses can contain special characters
-	$s = htmlspecialchars_decode($s, ENT_COMPAT);
-
-	$matches = null;
-	$c = preg_match_all('/\[([zi])mg(.*?)\](.*?)\[\/[zi]mg\]/ism', $s, $matches, PREG_SET_ORDER);
-	if($c) {
-		require_once('include/photo/photo_driver.php');
-
-		foreach($matches as $mtch) {
-			logger('data: ' . $mtch[2] . ' ' . $mtch[3]);
-
-			if(substr($mtch[2],0,1) == '=') {
-				$owidth = intval(substr($mtch[2],1));
-				if($owidth > 0 && $owidth < 1024)
-					continue;
-			}
-
-			$hostname = str_replace('www.','',substr(z_root(),strpos(z_root(),'://')+3));
-			if(stristr($mtch[3],$hostname))
-				continue;
-
-			// $scale_replace, if passed, is an array of two elements. The
-			// first is the name of the full-size image. The second is the
-			// name of a remote, scaled-down version of the full size image.
-			// This allows Friendica to display the smaller remote image if
-			// one exists, while still linking to the full-size image
-			if($scale_replace)
-				$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[3]);
-			else
-				$scaled = $mtch[3];
-
-			if(! strpbrk(substr($scaled, 0, 1), 'zhfmt'))
-				continue;
-
-			$i = z_fetch_url($scaled, true);
-
-			$cache = get_config('system', 'itemcache');
-			if (($cache != '') and is_dir($cache)) {
-				$cachefile = $cache . '/' . hash('md5', $scaled);
-				file_put_contents($cachefile, $i['body']);
-			}
-
-			// guess mimetype from headers or filename
-
-			$type = guess_image_type($mtch[3], $i['header']);
-			if(strpos($type, 'image') === false)
-				continue;
-
-			if($i['success']) {
-				$ph = photo_factory($i['body'], $type);
-
-				if(! is_object($ph))
-					continue;
-
-				if($ph->is_valid()) {
-					$orig_width = $ph->getWidth();
-					$orig_height = $ph->getHeight();
-
-					if($orig_width > 1024 || $orig_height > 1024) {
-						$tag = (($match[1] == 'z') ? 'zmg' : 'img');
-						$linktag = (($match[1] == 'z') ? 'zrl' : 'url');
-						$ph->scaleImage(1024);
-						$new_width = $ph->getWidth();
-						$new_height = $ph->getHeight();
-						logger('data: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
-						$s = str_replace($mtch[0],'[' . $tag . '=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/' . $tag . ']'
-							. "\n" . (($include_link)
-								? '[' . $linktag . '=' . $mtch[3] . ']' . t('view full size') . '[/' . $linktag . ']' . "\n"
-								: ''),$s);
-						logger('new string: ' . $s, LOGGER_DEBUG);
-					}
-				}
-			}
-		}
-	}
-
-	// replace the special char encoding
-
-	$s = htmlspecialchars($s, ENT_COMPAT, 'UTF-8');
-
-	return $s;
-}
 
 /**
  * @brief xml2array() will convert the given XML text to an array in the XML structure.

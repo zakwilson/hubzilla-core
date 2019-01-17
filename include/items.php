@@ -95,9 +95,24 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		//$sys = get_sys_channel();
 
 		if(array_key_exists('public_policy',$item) && $item['public_policy'] !== 'self') {
-			$r = q("select abook_xchan, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d and abook_self = 0 and abook_pending = 0 and abook_archived = 0 ",
+
+			$hookinfo = [
+				'recipients' => [], 
+				'item' => $item, 
+				'private_envelope' => $private_envelope, 
+				'include_groups' => $include_groups
+			];
+
+			call_hooks('collect_public_recipients',$hookinfo);
+
+			if ($hookinfo['recipients']) {
+				$r = $hookinfo['recipients'];
+			} else {
+				$r = q("select abook_xchan, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d and abook_self = 0 and abook_pending = 0 and abook_archived = 0 ",
 				intval($item['uid'])
-			);
+				);
+			}
+
 			if($r) {
 
 				// filter out restrictive public_policy settings from remote networks

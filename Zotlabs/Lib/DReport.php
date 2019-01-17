@@ -87,7 +87,7 @@ class DReport {
 
 		// Is the sender one of our channels?
 
-		$c = q("select channel_id from channel where channel_hash = '%s' or channel_portable_id = '%s'limit 1",
+		$c = q("select channel_id from channel where channel_hash = '%s' or channel_portable_id = '%s' limit 1",
 			dbesc($dr['sender']),
 			dbesc($dr['sender'])
 		);

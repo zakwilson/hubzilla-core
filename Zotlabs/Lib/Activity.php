@@ -32,6 +32,9 @@ class Activity {
 		if($x['type'] === ACTIVITY_OBJ_THING) {
 			return self::fetch_thing($x); 
 		}
+		if($x['type'] === ACTIVITY_OBJ_EVENT) {
+			return self::fetch_event($x); 
+		}
 
 		return $x;
 
@@ -98,6 +101,40 @@ class Activity {
 			return self::encode_item($r[0]);
 		}
 	}
+
+	static function fetch_event($x) {
+
+		// convert old Zot event objects to ActivityStreams Event objects
+
+		if (array_key_exists('content',$x) && array_key_exists('dtstart',$x)) {
+			$ev = bbtoevent($x['content']);
+			if($ev) {
+
+				$actor = null;
+				if(array_key_exists('author',$x) && array_key_exists('link',$x['author'])) {
+					$actor = $x['author']['link'][0]['href'];
+				}
+				$y = [ 
+					'type'      => 'Event',
+					'id'        => z_root() . '/event/' . $ev['event_hash'],
+					'summary'   => bbcode($ev['summary']),
+					// RFC3339 Section 4.3
+					'startTime' => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
+					'content'   => bbcode($ev['description']),
+					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location']) ],
+					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
+					'actor'     => $actor,
+				];
+				if($actor) {
+					return $y;
+				}
+			}
+		}
+
+		return $x;
+
+	}
+
 
 	static function encode_item_collection($items,$id,$type,$extra = null) {
 

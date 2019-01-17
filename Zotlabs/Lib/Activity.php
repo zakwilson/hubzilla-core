@@ -1455,7 +1455,33 @@ class Activity {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		$s['obj']      = $act->obj;
+
+		if($s['obj_type'] === 'Event') {
+			$s['obj'] = [];
+			$s['obj']['asld'] = $act->obj;
+			$s['obj']['type'] = ACTIVITY_OBJ_EVENT;
+			$s['obj']['id'] = $act->obj['id'];
+			$s['obj']['title'] = $act->obj['summary'];
+
+			if(strpos($act->obj['startTime'],'Z'))
+				$s['obj']['adjust'] = true;
+			else
+				$s['obj']['adjust'] = false;
+
+			$s['obj']['dtstart'] = datetime_convert('UTC','UTC',$act->obj['startTime']);
+			if($act->obj['endTime']) 
+				$s['obj']['dtend'] = datetime_convert('UTC','UTC',$act->obj['endTime']);
+			else
+				$s['obj']['nofinish'] = true;
+			$s['obj']['description'] = $act->obj['content'];
+
+			if(array_path_exists('location/content',$act->obj))
+				$s['obj']['location'] = $act->obj['location']['content'];
+
+		}
+		else {
+			$s['obj']      = $act->obj;
+		}
 
 		$instrument = $act->get_property_obj('instrument');
 		if((! $instrument) && (! $response_activity)) {

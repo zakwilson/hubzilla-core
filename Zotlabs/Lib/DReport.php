@@ -87,9 +87,11 @@ class DReport {
 
 		// Is the sender one of our channels?
 
-		$c = q("select channel_id from channel where channel_hash = '%s' limit 1",
+		$c = q("select channel_id from channel where channel_hash = '%s' or channel_portable_id = '%s'limit 1",
+			dbesc($dr['sender']),
 			dbesc($dr['sender'])
 		);
+
 		if(! $c)
 			return false;
 
@@ -103,6 +105,8 @@ class DReport {
 		else {
 			$rxchan = $dr['recipient'];
 		}
+
+
 
 		// is the recipient one of our connections, or do we want to store every report?
 

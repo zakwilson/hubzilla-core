@@ -271,7 +271,7 @@ class Libzot {
 			// correct hubloc. If this doesn't work we may have to re-write this section to try them all.
 
 			if(array_key_exists('xchan_addr',$them) && $them['xchan_addr']) {
-				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_addr = '%s' order by hubloc_id desc",
+				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_addr = '%s' and hubloc_network = 'zot6' order by hubloc_id desc",
 					dbesc($them['xchan_addr'])
 				);
 			}
@@ -356,7 +356,7 @@ class Libzot {
 			);
 
 			if($r) {
-logger('4');
+
 				// connection exists
 
 				// if the dob is the same as what we have stored (disregarding the year), keep the one
@@ -1193,7 +1193,7 @@ logger('4');
 
 				//logger($AS->debug());
 
-				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($AS->actor['id'])
 				); 
 
@@ -1202,7 +1202,7 @@ logger('4');
 				}
 
 
-				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($env['sender'])
 				); 
 
@@ -1512,10 +1512,12 @@ logger('4');
 				}
 			}
 
-logger('item: ' . print_r($arr,true), LOGGER_DATA);
+			logger('item: ' . print_r($arr,true), LOGGER_DATA);
 
 			if($arr['mid'] !== $arr['parent_mid']) {
-logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+
+				logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+
 				// check source route.
 				// We are only going to accept comments from this sender if the comment has the same route as the top-level-post,
 				// this is so that permissions mismatches between senders apply to the entire conversation
@@ -1600,7 +1602,7 @@ logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"')
 					$arr['route'] = $last_prior_route;
 				}
 			}
-logger('hey');
+
 			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
 				intval($channel['channel_id']),
 				dbesc($arr['owner_xchan'])
@@ -1778,14 +1780,14 @@ logger('hey');
 			logger($AS->debug());
 
 
-			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($AS->actor['id'])
 			); 
 
 			if(! $r) {
 				$y = import_author_xchan([ 'url' => $AS->actor['id'] ]);
 				if($y) {
-					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 						dbesc($AS->actor['id'])
 					);
 				} 
@@ -1808,7 +1810,7 @@ logger('hey');
 				$arr['author_xchan'] = $r[0]['hubloc_hash'];
 			}
 
-			$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($a['signature']['signer'])
 			); 
 
@@ -2593,7 +2595,7 @@ logger('hey');
 		$feed      = ((x($arr,'feed'))       ? intval($arr['feed']) : 0);
 
 		if($ztarget) {
-			$t = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
+			$t = q("select * from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($ztarget)
 			);
 			if($t) {

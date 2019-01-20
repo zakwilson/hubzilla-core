@@ -1100,6 +1100,8 @@ function zot_process_response($hub, $arr, $outq) {
 		return;
 	}
 
+	$dreport = true;
+
 	$x = json_decode($arr['body'], true);
 
 	if(! $x) {
@@ -1116,31 +1118,44 @@ function zot_process_response($hub, $arr, $outq) {
 			}
 			if(! (is_array($x['delivery_report']) && count($x['delivery_report']))) {
 				logger('encrypted delivery report could not be decrypted');
-				return;
+				$dreport = false;
 			}
 		}
 
-		foreach($x['delivery_report'] as $xx) {
-			call_hooks('dreport_process',$xx);
-			if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
-				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s','%s' ) ",
-					dbesc($xx['message_id']),
-					dbesc($xx['location']),
-					dbesc($xx['recipient']),
-					dbesc($xx['name']),
-					dbesc($xx['status']),
-					dbesc(datetime_convert('UTC','UTC',$xx['date'])),
-					dbesc($xx['sender'])
-				);
+		if($dreport) {
+			foreach($x['delivery_report'] as $xx) {
+				call_hooks('dreport_process',$xx);
+				if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
+
+					// legacy zot recipients add a space and their name to the xchan. split those if true.
+					$legacy_recipient = strpos($xx['recipient'], ' ');
+					if($legacy_recipient !== false) {
+						$legacy_recipient_parts = explode(' ', $xx['recipient'], 2);
+						$xx['recipient'] = $legacy_recipient_parts[0];
+						$xx['name'] = $legacy_recipient_parts[1];
+					}
+
+					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s','%s' ) ",
+						dbesc($xx['message_id']),
+						dbesc($xx['location']),
+						dbesc($xx['recipient']),
+						dbesc($xx['name']),
+						dbesc($xx['status']),
+						dbesc(datetime_convert('UTC','UTC',$xx['date'])),
+						dbesc($xx['sender'])
+					);
+				}
 			}
 		}
 	}
 
-	// we have a more descriptive delivery report, so discard the per hub 'queued' report.
 
-	q("delete from dreport where dreport_queue = '%s' ",
-		dbesc($outq['outq_hash'])
-	);
+	if($dreport) {
+		// we have a more descriptive delivery report, so discard the per hub 'queued' report.
+		q("delete from dreport where dreport_queue = '%s' ",
+			dbesc($outq['outq_hash'])
+		);
+	}
 
 	// update the timestamp for this site
 
@@ -1232,6 +1247,7 @@ function zot_fetch($arr) {
 			$datatosend = json_encode(crypto_encapsulate(json_encode($data),$hub['hubloc_sitekey'], $algorithm));
 
 			$import = zot_zot($url,$datatosend);
+
 		}
 		else {
 			$algorithm = zot_best_algorithm($hub['site_crypto']);
@@ -4913,6 +4929,7 @@ function zot_reply_pickup($data) {
 		dbesc($data['secret']),
 		dbesc($data['callback'])
 	);
+
 	if(! $r) {
 		$ret['message'] = 'nothing to pick up';
 		logger('mod_zot: pickup: ' . $ret['message']);
@@ -4922,12 +4939,13 @@ function zot_reply_pickup($data) {
 
 	/*
 	 * Everything is good if we made it here, so find all messages that are going to this location
-	 * and send them all.
+	 * and send them all - or a reasonable number if there are a lot so we don't overflow memory.
 	 */
 
-	$r = q("select * from outq where outq_posturl = '%s'",
+	$r = q("select * from outq where outq_posturl = '%s' limit 100",
 		dbesc($data['callback'])
 	);
+
 	if($r) {
 		logger('mod_zot: successful pickup message received from ' . $data['callback'] . ' ' . count($r) . ' message(s) picked up', LOGGER_DEBUG);
 
@@ -4953,6 +4971,19 @@ function zot_reply_pickup($data) {
 		}
 	}
 
+	// It's possible that we have more than 100 messages waiting to be sent.
+
+	// See if there are any more messages in the queue.
+        $x = q("select * from outq where outq_posturl = '%s' order by outq_created limit 1",
+		dbesc($data['callback'])
+        );
+
+	// If so, kick off a new delivery notification for the next batch
+	if ($x) {
+		logger("Send additional pickup request.", LOGGER_DEBUG);
+		queue_deliver($x[0],true);
+	}
+
 	// this is a bit of a hack because we don't have the hubloc_url here, only the callback url.
 	// worst case is we'll end up using aes256cbc if they've got a different post endpoint
 
@@ -4964,6 +4995,8 @@ function zot_reply_pickup($data) {
 	$encrypted = crypto_encapsulate(json_encode($ret),$sitekey,$algorithm);
 
 	json_return_and_die($encrypted);
+	// @FIXME:  There is a possibility that the transmission will get interrupted
+	//          and fail - in which case this packet of messages will be lost.
 	/* pickup: end */
 }
 

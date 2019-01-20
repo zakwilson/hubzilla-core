@@ -136,6 +136,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/check_siteallowed]check_siteallowed[/zrl]
 	Used to over-ride or bypass the site black/white block lists
 
+[zrl=[baseurl]/help/hook/collect_public_recipients]collect_public_recipients[/zrl]
+	Used to establish a list of recipients to send a public message to.
+
 [zrl=[baseurl]/help/hook/comment_buttons]comment_buttons[/zrl]
 	Called when rendering the edit buttons for comments
 
@@ -189,6 +192,9 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/daemon_addon]daemon_addon[/zrl]
 	Called when invoking the extensible background daemon
+
+[zrl=[baseurl]/help/hook/daemon_master_release]daemon_master_release[/zrl]
+	Called at the start of processing \Zotlabs\Daemon\Master::Release()
 
 [zrl=[baseurl]/help/hook/directory_item]directory_item[/zrl]
 	Called when generating a directory listing for display
@@ -343,8 +349,17 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/item_store]item_store[/zrl]
 	Called when item_store() stores a record of type item
 
+[zrl=[baseurl]/help/hook/item_stored]item_stored[/zrl]
+	Called after item_store() has stored a record of type item in the database.
+
+[zrl=[baseurl]/help/hook/item_custom]item_custom[/zrl]
+	Called before item_store() stores a record of type item (allowing addons to process ITEM_TYPE_CUSTOM items).
+
 [zrl=[baseurl]/help/hook/item_store_update]item_store_update[/zrl]
 	Called when item_store_update() is called to update a stored item.
+
+[zrl=[baseurl]/help/hook/item_stored_update]item_stored_update[/zrl]
+	Called after item_store_update() has updated a stored item.
 
 [zrl=[baseurl]/help/hook/item_translate]item_translate[/zrl]
 	Called from item_store and item_store_update after the post language has been autodetected
@@ -543,6 +558,15 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 
 [zrl=[baseurl]/help/hook/prepare_body_init]prepare_body_init[/zrl]
 	Called before generating the HTML for a displayed conversation item
+
+[zrl=[baseurl]/help/hook/privacygroup_extras]privacygroup_extras[/zrl]
+	Called before generating the HTML for the Privacy Group edit options
+
+[zrl=[baseurl]/help/hook/privacygroup_extras_delete]privacygroup_extras_delete[/zrl]
+	Called after privacy group is dropped.
+
+[zrl=[baseurl]/help/hook/privacygroup_extras_post]privacygroup_extras_post[/zrl]
+	Called when privacy group edit form is submitted.
 
 [zrl=[baseurl]/help/hook/proc_run]proc_run[/zrl]
 	Called when invoking PHP sub processes

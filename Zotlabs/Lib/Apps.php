@@ -57,7 +57,7 @@ class Apps {
 	}
 
 	static public function get_base_apps() {
-		return get_config('system','base_apps',[ 
+		$x = get_config('system','base_apps',[ 
 			'Connections',
 			'Network',
 			'Settings',
@@ -72,6 +72,8 @@ class Apps {
 			'Mail',
 			'Profile Photo'
 		]);
+		call_hooks('get_base_apps',$x);
+		return $x;
 	}
 
 	static public function import_system_apps() {
@@ -808,12 +810,14 @@ class Apps {
 		return($r);
 	}
 
-	static public function app_order($uid,$apps) {
+	static public function app_order($uid,$apps,$menu) {
 
 		if(! $apps)
 			return $apps;
 
-		$x = (($uid) ? get_pconfig($uid,'system','app_order') : get_config('system','app_order'));
+		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
+
+		$x = (($uid) ? get_pconfig($uid,'system',$conf) : get_config('system',$conf));
 		if(($x) && (! is_array($x))) {
 			$y = explode(',',$x);
 			$y = array_map('trim',$y);
@@ -850,19 +854,25 @@ class Apps {
 		return false;
 	}
 
-	static function moveup($uid,$guid) {
+	static function moveup($uid,$guid,$menu) {
 		$syslist = array();
-		$list = self::app_list($uid, false, ['nav_featured_app', 'nav_pinned_app']);
+
+		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
+
+		$list = self::app_list($uid, false, [ $menu ]);
 		if($list) {
 			foreach($list as $li) {
-				$syslist[] = self::app_encode($li);
+				$papp = self::app_encode($li);
+				if($menu !== 'nav_pinned_app' && strpos($papp['categories'],'nav_pinned_app') !== false)
+					continue;
+				$syslist[] = $papp;
 			}
 		}
 		self::translate_system_apps($syslist);
 
 		usort($syslist,'self::app_name_compare');
 
-		$syslist = self::app_order($uid,$syslist);
+		$syslist = self::app_order($uid,$syslist,$menu);
 
 		if(! $syslist)
 			return;
@@ -887,23 +897,29 @@ class Apps {
 			$narr[] = $x['name'];
 		}
 
-		set_pconfig($uid,'system','app_order',implode(',',$narr));
+		set_pconfig($uid,'system',$conf,implode(',',$narr));
 
 	}
 
-	static function movedown($uid,$guid) {
+	static function movedown($uid,$guid,$menu) {
 		$syslist = array();
-		$list = self::app_list($uid, false, ['nav_featured_app', 'nav_pinned_app']);
+
+		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
+
+		$list = self::app_list($uid, false, [ $menu ]);
 		if($list) {
 			foreach($list as $li) {
-				$syslist[] = self::app_encode($li);
+				$papp = self::app_encode($li);
+				if($menu !== 'nav_pinned_app' && strpos($papp['categories'],'nav_pinned_app') !== false)
+					continue;
+				$syslist[] = $papp;
 			}
 		}
 		self::translate_system_apps($syslist);
 
 		usort($syslist,'self::app_name_compare');
 
-		$syslist = self::app_order($uid,$syslist);
+		$syslist = self::app_order($uid,$syslist,$menu);
 
 		if(! $syslist)
 			return;
@@ -928,7 +944,7 @@ class Apps {
 			$narr[] = $x['name'];
 		}
 
-		set_pconfig($uid,'system','app_order',implode(',',$narr));
+		set_pconfig($uid,'system',$conf,implode(',',$narr));
 
 	}
 

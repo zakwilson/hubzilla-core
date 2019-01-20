@@ -322,20 +322,6 @@ a, a:visited, a:link, .fakelink, .fakelink:visited, .fakelink:link {
 .text-dark {
 	color: #aaa !important;
 }
-a.text-dark:focus, a.text-dark:hover {
-	color: #ddd !important;
-}
-
-.badge-warning {
-    background-color: #ffc927;
-}
-.badge-warning a.text-dark {
-    color: #333 !important;
-}
-.badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
-    color: red !important;
-    text-decoration: none;
-}
 
 .group-selected, .fileas-selected, .categories-selected, .search-selected, a.active {
 	color: #fff !important;
@@ -492,10 +478,25 @@ pre {
 	background-color: #222;
 }
 
-/* change color of [hl] tag: */
-div.wall-item-body span /*strong:only-of-type */{
-    color: #1212b6;
-    padding: 2px 3px;
-/*     font-weight: 500; */
-    white-space: nowrap;
+
+/* category badge fix: */
+a.text-dark:focus, a.text-dark:hover {
+	color: #ddd !important;
+}
+
+.badge-warning {
+/*     background-color: #ffc927; */
+}
+.badge-warning a.text-dark {
+    color: #333 !important;
+}
+.badge-warning a.text-dark:focus, .badge-warning a.text-dark:hover {
+    color: red !important;
+    text-decoration: none;
+}
+
+/* fix color for highlithed text */
+span.default-highlight {
+	color: #333;
+	border-radius: 4px;
 }

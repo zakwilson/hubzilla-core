@@ -1,3 +1,33 @@
+Hubzilla 3.8.8 (2018-12-22)
+	- Fix issue with linkinfo
+	- Fix cURL with HTTP/2
+	- Remove scale_external_images()
+	- Style highlight bbcode via css
+	- Make mod channel deal with b64 encoded mid's
+	- Fix email retrieval in OAuth2Storage
+	- Add reinstall option to util/addons
+	- Remove deprecated caching protection from mod photo
+	- Add missing check for observer in mod like
+	- Articles: default to logged in channel if channel name is not passed
+	- Wiki: fix preview issue with hyperlinks
+	- Cart: backport fixes from osada
+	- Gallery: provide file extensions for better compatibility
+	- Hsse: fix issue when linkinfo data was inserted
+	- Diaspora: remove deprecated scale_external_images()
+
+
+Hubzilla 3.8.7 (2018-12-14)
+	- Fix issue with linkdropper in comment area
+	- Fix regression wit app ordering
+	- Fix return if readImnageBlob() throws an exception
+	- Introduce photo_view_filter hook
+	- Fix home notifications not expanding in certain situations
+	- Fix for dark schema
+	- Fix total identities restriction
+	- Fix article page title not updating if article has no title
+	- Gallery: the gallery app will now act as the full-size photo viewer in /photos if installed
+
+
 Hubzilla 3.8.6 (2018-12-03)
 	- Prevent incompatible export files (osada/zap) from being imported
 	- Catch exception if readImageBlob() receives bogus data

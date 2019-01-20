@@ -44,6 +44,17 @@ $(document).ready(function() {
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
+	$(document).on('click focus', '.comment-edit-form  textarea', function(e) {
+		if(! this.autocomplete_handled) {
+			/* autocomplete @nicknames */
+			$(this).editor_autocomplete(baseurl+"/acl?f=&n=1");
+			/* autocomplete bbcode */
+			$(this).bbco_autocomplete('bbcode');
+
+			this.autocomplete_handled = true;
+		}
+	});
+
     var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
 
     jQuery.timeago.settings.strings = {
@@ -239,7 +250,11 @@ function handle_comment_form(e) {
 		},10000);
 	});
 
-	function commentSaveChanges(convId,isFinal = false) {
+	function commentSaveChanges(convId, isFinal) {
+
+		if(typeof isFinal === 'undefined')
+			isFinal = false;
+
 		if(auto_save_draft) {
 			tmp = $('#' + emptyCommentElm).val();
 			if(tmp) {
@@ -453,6 +468,9 @@ function notificationsUpdate(cached_data) {
 		$.get(pingCmd,function(data) {
 
 			// Put the object into storage
+			if(! data)
+				return;
+
 			sessionStorage.setItem('notifications_cache', JSON.stringify(data));
 
 			var fnotifs = [];
@@ -751,11 +769,6 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");
-	/* autocomplete bbcode */
-	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
-
 	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
 
@@ -888,7 +901,12 @@ function liveUpdate(notify_id) {
 
 	if((src === null) || (stopped) || (! profile_uid)) { $('.like-rotator').hide(); return; }
 
-	if(($('.comment-edit-text.expanded').length) || (in_progress) || (mediaPlaying)) {
+	// if auto updates are enabled and a comment box is open, 
+	// prevent live updates until the comment is submitted
+
+	var lockUpdates = (($('.comment-edit-text.expanded').length && (! bParam_static)) ? true : false);
+
+	if(lockUpdates || in_progress || mediaPlaying) {
 		if(livetime) {
 			clearTimeout(livetime);
 		}

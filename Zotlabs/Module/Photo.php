@@ -32,7 +32,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		}
 
 		$cache_mode = array(
-			'on' => get_config('system','photo_cache_enable', 0),
+			'on' => false,
 			'age' => 86400,
 			'exp' => true,
 			'leak' => false
@@ -159,13 +159,15 @@ class Photo extends \Zotlabs\Web\Controller {
 						// Validate cache
 						$cache = array(
 							'resid' => $photo,
-							'uid' => $r[0]['uid'],
 							'status' => false
 						);
 						if($cache_mode['on'])
 							call_hooks('cache_url_hook', $cache);
 						if(! $cache['status']) {
-							header("Location: " . htmlspecialchars_decode($r[0]['display_path']));
+							$url = htmlspecialchars_decode($r[0]['display_path']);
+							if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
+								$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
+							header("Location: " . $url);
 							killme();
 						}
 					}

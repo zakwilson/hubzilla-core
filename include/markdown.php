@@ -91,8 +91,6 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	// remove duplicate adjacent code tags
 	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);
 
-	// Don't show link to full picture (until it is fixed)
-	$s = scale_external_images($s, false);
 
 	/**
 	 * @hooks markdown_to_bb

@@ -213,8 +213,8 @@ function reload_plugins() {
 								try {
 										$func();
 								} catch (Exception $e) {
-									handleerrors_plugin($plugin,"","UNLOAD FAILED (uninstalling) : ".$e->getMessage(),true);
-																		continue;
+									handleerrors_plugin($pl, '', 'UNLOAD FAILED (uninstalling) : ' . $e->getMessage(),true);
+									continue;
 								}
 							}
 							if(function_exists($pl . '_load')) {
@@ -222,8 +222,8 @@ function reload_plugins() {
 								try {
 										$func();
 								} catch (Exception $e) {
-									handleerrors_plugin($plugin,"","LOAD FAILED (uninstalling): ".$e->getMessage(),true);
-																		continue;
+									handleerrors_plugin($pl, '', 'LOAD FAILED (uninstalling): ' . $e->getMessage(),true);
+									continue;
 								}
 							}
 							q("UPDATE addon SET tstamp = %d WHERE id = %d",
@@ -305,7 +305,7 @@ function plugins_sync() {
  * @return array
  */
 function visible_plugin_list() {
-	
+
 	$r = q("select * from addon where hidden = 0 order by aname asc");
 	$x = (($r) ? ids_to_array($r,'aname') : array());
 	$y = [];
@@ -315,7 +315,7 @@ function visible_plugin_list() {
 				$y[] = $xv;
 			}
 		}
-	}			
+	}
 	return $y;
 }
 
@@ -456,21 +456,21 @@ function insert_hook($hook, $fn, $version = 0, $priority = 0) {
 function call_hooks($name, &$data = null) {
 	$a = 0;
 
-	if (isset(App::$hooks[$name])) { 
+	if (isset(App::$hooks[$name])) {
 		foreach(App::$hooks[$name] as $hook) {
 
 			if ($name != 'permit_hook') { // avoid looping
 				$checkhook = [
- 					'name'=>$name,
- 					'hook'=>$hook,
-                                        'data'=>$data,
+ 						'name'=>$name,
+	 					'hook'=>$hook,
+						'data'=>$data,
 						// Note: Since PHP uses COPY-ON-WRITE
-                                                // for variables, there is no cost to
+						// for variables, there is no cost to
 						// passing the $data structure (unless
 						// the permit_hook processors change the
 						// information it contains.
- 					'permit'=>true
- 					];
+ 						'permit'=>true
+ 				];
  				call_hooks('permit_hook',$checkhook);
  				if (!$checkhook['permit']) {
  					continue;
@@ -618,7 +618,7 @@ function get_widget_info($widget){
 		}
 	}
 
-	if(! ($widget_found && $f))		
+	if(! ($widget_found && $f))
 		return $info;
 
 	$f = escape_tags($f);
@@ -736,8 +736,8 @@ function get_theme_info($theme){
 		'description' => '',
 		'author' => array(),
 		'version' => '',
-		'minversion' => '',
-		'maxversion' => '',
+		'minversion' => STD_VERSION,
+		'maxversion' => STD_VERSION,
 		'compat' => '',
 		'credits' => '',
 		'maintainer' => array(),
@@ -1041,7 +1041,7 @@ function get_intltext_template($s, $root = '') {
         if (isset(\App::$override_intltext_templates[$testroot][$s]["content"])) {
                 return \App::$override_intltext_templates[$testroot][$s]["content"];
         } else {
-                if (isset(\App::$override_intltext_templates[$testroot][$s]["root"]) && 
+                if (isset(\App::$override_intltext_templates[$testroot][$s]["root"]) &&
                    isset(\App::$override_intltext_templates[$testroot][$s]["file"])) {
                         $s = \App::$override_intltext_templates[$testroot][$s]["file"];
                         $root = \App::$override_intltext_templates[$testroot][$s]["root"];
@@ -1058,30 +1058,30 @@ function get_intltext_template($s, $root = '') {
 }
 
 function get_markup_template($s, $root = '') {
-        $testroot = ($root=='') ? $testroot = "ROOT" : $root;
+	$testroot = ($root=='') ? $testroot = "ROOT" : $root;
 
-        $t = App::template_engine();
+	$t = App::template_engine();
 
-        if (isset(\App::$override_markup_templates[$testroot][$s]["content"])) {
-                return \App::$override_markup_templates[$testroot][$s]["content"];
-        } else {
-                if (isset(\App::$override_markup_templates[$testroot][$s]["root"]) && 
-                   isset(\App::$override_markup_templates[$testroot][$s]["file"])) {
-                        $root = \App::$override_markup_templates[$testroot][$s]["root"];
-                        $s = \App::$override_markup_templates[$testroot][$s]["file"];
-                	$template = $t->get_markup_template($s, $root);
-                } elseif (\App::$override_templateroot) {
-                   $newroot = \App::$override_templateroot;
-                   if ($newroot != '' && substr($newroot,-1) != '/' ) {
-                           $newroot .= '/';
-                   }
-		   $newroot .= $root;
-                   $template = $t->get_markup_template($s, $newroot);
-                } else {
-                	$template = $t->get_markup_template($s, $root);
+	if (isset(\App::$override_markup_templates[$testroot][$s]["content"])) {
+		return \App::$override_markup_templates[$testroot][$s]["content"];
+	} else {
+		if (isset(\App::$override_markup_templates[$testroot][$s]["root"]) &&
+				isset(\App::$override_markup_templates[$testroot][$s]["file"])) {
+					$root = \App::$override_markup_templates[$testroot][$s]["root"];
+					$s = \App::$override_markup_templates[$testroot][$s]["file"];
+					$template = $t->get_markup_template($s, $root);
+		} elseif (\App::$override_templateroot) {
+			$newroot = \App::$override_templateroot;
+			if ($newroot != '' && substr($newroot,-1) != '/' ) {
+				$newroot .= '/';
+			}
+			$newroot .= $root;
+			$template = $t->get_markup_template($s, $newroot);
+		} else {
+			$template = $t->get_markup_template($s, $root);
 		}
-                return $template;
-        }
+		return $template;
+	}
 }
 
 /**

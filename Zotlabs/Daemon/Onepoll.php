@@ -69,7 +69,7 @@ class Onepoll {
 			return;
 		}
 	
-		if($contact['xchan_network'] !== 'zot')
+		if(! in_array($contact['xchan_network'],['zot','zot6']))
 			return;
 
 		// update permissions

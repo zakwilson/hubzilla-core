@@ -53,7 +53,7 @@ define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'STD_VERSION',             '3.9.5' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1229 );
+define ( 'DB_UPDATE_VERSION',       1230 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -84,7 +84,8 @@ define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://hubzilla.zottel.net',
-	'https://zotadel.net'
+	'https://zotadel.net',
+	'https://zotsite.net'
 );
 
 
@@ -576,6 +577,8 @@ define ( 'ITEM_TYPE_BUG',        4 );
 define ( 'ITEM_TYPE_DOC',        5 );
 define ( 'ITEM_TYPE_CARD',       6 );
 define ( 'ITEM_TYPE_ARTICLE',    7 );
+//OSADA ITEM_TYPE_MAIL = 8
+define ( 'ITEM_TYPE_CUSTOM',	 9 );
 
 define ( 'ITEM_IS_STICKY',       1000 );
 

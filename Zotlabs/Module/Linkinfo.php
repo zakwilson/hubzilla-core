@@ -138,8 +138,8 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		}
 	
 		$image = "";
-	
-		if(sizeof($siteinfo["images"]) > 0){
+
+		if(is_array($siteinfo["images"]) && count($siteinfo["images"])){
 			/* Execute below code only if image is present in siteinfo */
 	
 			$total_images = 0;
@@ -161,7 +161,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 				$total_images ++;
 				if($max_images && $max_images >= $total_images)
 					break;
-	        }
+			}
 		}
 	
 		if(strlen($text)) {

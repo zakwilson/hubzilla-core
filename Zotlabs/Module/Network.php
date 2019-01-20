@@ -132,6 +132,13 @@ class Network extends \Zotlabs\Web\Controller {
 		
 		$deftag = '';
 	
+                if (feature_enabled(local_channel(),'affinity')) {
+			$affinity_locked = intval(get_pconfig(local_channel(),'affinity','lock',1));
+			if ($affinity_locked) {
+                        	set_pconfig(local_channel(),'affinity','cmin',$cmin);
+                        	set_pconfig(local_channel(),'affinity','cmax',$cmax);
+			}
+                }
 
 		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
 			$nouveau = true;

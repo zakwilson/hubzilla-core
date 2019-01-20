@@ -397,9 +397,7 @@ logger('4');
 					}
 				}
 
-				$closeness = get_pconfig($channel['channel_id'],'system','new_abook_closeness');
-				if($closeness === false)
-					$closeness = 80;
+				$closeness = get_pconfig($channel['channel_id'],'system','new_abook_closeness',80);
 
 				$y = abook_store_lowlevel(
 					[
@@ -997,9 +995,19 @@ logger('4');
 			}
 
 			if(is_array($x) && array_key_exists('delivery_report',$x) && is_array($x['delivery_report'])) { 
+
 				foreach($x['delivery_report'] as $xx) {
 					call_hooks('dreport_process',$xx);
 					if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
+
+						// legacy recipients add a space and their name to the xchan. split those if true.
+						$legacy_recipient = strpos($xx['recipient'], ' ');
+						if($legacy_recipient !== false) {
+							$legacy_recipient_parts = explode(' ', $xx['recipient'], 2);
+							$xx['recipient'] = $legacy_recipient_parts[0];
+							$xx['name'] = $legacy_recipient_parts[1];
+						}
+
 						q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s', '%s','%s','%s','%s','%s' ) ",
 							dbesc($xx['message_id']),
 							dbesc($xx['location']),

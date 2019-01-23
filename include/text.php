@@ -986,7 +986,7 @@ function contact_block() {
 
 				// There is no setting to discover if you are bi-directionally connected
 				// Use the ability to post comments as an indication that this relationship is more
-				// than wishful thinking; even though soapbox channels and feeds will disable it. 
+				// than wishful thinking; even though soapbox channels and feeds will disable it.
 
 				if(! intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
 					$rr['oneway'] = true;
@@ -1112,19 +1112,19 @@ function linkify($s, $me = false) {
  * @returns string
  */
 function sslify($s) {
-	
+
 	// Local photo cache
 	$str = array(
 		'body' => $s,
 		'uid' => local_channel()
 	);
 	call_hooks('cache_body_hook', $str);
-	
+
 	$s = $str['body'];
 
 	if (strpos(z_root(),'https:') === false)
 		return $s;
-	
+
 	// By default we'll only sslify img tags because media files will probably choke.
 	// You can set sslify_everything if you want - but it will likely white-screen if it hits your php memory limit.
 	// The downside is that http: media files will likely be blocked by your browser
@@ -1455,7 +1455,7 @@ function theme_attachments(&$item) {
 		foreach($arr as $r) {
 
 			$icon = getIconFromType($r['type']);
-			
+
 			if($r['title'])
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 
@@ -1732,16 +1732,23 @@ function prepare_binary($item) {
 
 
 /**
- * @brief Given a text string, convert from bbcode to html and add smilie icons.
+ * @brief Given a text string, convert from content_type to HTML.
+ *
+ * Take a text in plain text, html, markdown, bbcode, PDL or PHP and prepare
+ * it to return HTML.
+ *
+ * In bbcode this function will add smilie icons.
  *
  * @param string $text
- * @param string $content_type (optional) default text/bbcode
- * @param boolean $cache (optional) default false
- *
+ * @param string $content_type (optional)
+ *  default 'text/bbcode', other values are 'text/plain', 'text/html',
+ *  'text/markdown', 'application/x-pdl', 'application/x-php'
+ * @param boolean|array $opts (optional)
+ *  default false, otherwise configuration array for bbcode()
  * @return string
+ *  The parsed $text as prepared HTML.
  */
 function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
-
 
 	switch($content_type) {
 		case 'text/plain':
@@ -1782,8 +1789,8 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 		default:
 			require_once('include/bbcode.php');
 
-			if(stristr($text,'[nosmile]'))
-				$s = bbcode($text, [ 'cache' => $cache ]);
+			if(stristr($text, '[nosmile]'))
+				$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
 			else
 				$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
 
@@ -2143,7 +2150,7 @@ function legal_webbie($s) {
 		return '';
 
 	// WARNING: This regex may not work in a federated environment.
-	// You will probably want something like 
+	// You will probably want something like
 	// preg_replace('/([^a-z0-9\_])/','',strtolower($s));
 
 	$r = preg_replace('/([^a-z0-9\-\_])/','',strtolower($s));
@@ -2243,7 +2250,7 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
 
 /**
  * @brief array_elm_to_str($arr,$elm,$delim = ',') extract unique individual elements from an array of arrays and return them as a string separated by a delimiter
- * similar to ids_to_querystr, but allows a different delimiter instead of a db-quote option 
+ * similar to ids_to_querystr, but allows a different delimiter instead of a db-quote option
  * empty elements (evaluated after trim()) are ignored.
  * @param $arr array
  * @param $elm array key to extract from sub-array
@@ -2669,7 +2676,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 		// get the channel name
 		// First extract the name or name fragment we are going to replace
 
-		$name = substr($tag,(($exclusive) ? 2 : 1)); 
+		$name = substr($tag,(($exclusive) ? 2 : 1));
 		$newname = $name; // make a copy that we can mess with
 		$tagcid = 0;
 
@@ -2712,7 +2719,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash 
+				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash
 					WHERE hubloc_addr = '%s' LIMIT 1",
 						dbesc($newname)
 				);
@@ -2733,7 +2740,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 		// $r is set if we found something
 
 		$channel = App::get_channel();
- 
+
 		if($r) {
 			$profile = $r[0]['xchan_url'];
 			$newname = $r[0]['xchan_name'];
@@ -2878,7 +2885,7 @@ function getIconFromType($type) {
 		'video/x-matroska' => 'fa-file-video-o'
 	);
 
-	$catMap = [ 
+	$catMap = [
 		'application' => 'fa-file-code-o',
 		'multipart'   => 'fa-folder',
 		'audio'       => 'fa-file-audio-o',
@@ -2886,7 +2893,7 @@ function getIconFromType($type) {
 		'text'        => 'fa-file-text-o',
 		'image'       => 'fa=file-picture-o',
 		'message'     => 'fa-file-text-o'
-	]; 
+	];
 
 
 	$iconFromType = '';
@@ -2896,7 +2903,7 @@ function getIconFromType($type) {
 	}
 	else {
 		$parts = explode('/',$type);
-		if($parts[0] && $catMap[$parts[0]]) { 
+		if($parts[0] && $catMap[$parts[0]]) {
 			$iconFromType = $catMap[$parts[0]];
 		}
 	}
@@ -3152,7 +3159,7 @@ function flatten_array_recursive($arr) {
  * @param string $lang Which language should be highlighted
  * @return string
  *     Important: The returned text has the text pattern 'http' translated to '%eY9-!' which should be converted back
- * after further processing. This was done to prevent oembed links from occurring inside code blocks. 
+ * after further processing. This was done to prevent oembed links from occurring inside code blocks.
  * See include/bbcode.php
  */
 function text_highlight($s, $lang) {
@@ -3386,7 +3393,7 @@ function unique_multidim_array($array, $key) {
     $temp_array = array();
     $i = 0;
     $key_array = array();
-   
+
     foreach($array as $val) {
         if (!in_array($val[$key], $key_array)) {
             $key_array[$i] = $val[$key];
@@ -3414,7 +3421,7 @@ function get_forum_channels($uid) {
 			intval($uid)
 		);
 
-		if($x2) { 
+		if($x2) {
 			$xf = ids_to_querystr($x2,'xchan',true);
 
 			// private forums
@@ -3427,7 +3434,7 @@ function get_forum_channels($uid) {
 		}
 	}
 
-	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 "); 
+	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name",
 		intval($uid)
@@ -3463,14 +3470,14 @@ function print_array($arr, $level = 0) {
 					$o .= $tabs . '[' . $k . '] => ' . print_array($v, $level + 1) . "\n";
 				}
 				else {
-					$o .= $tabs . '[' . $k . '] => ' . print_val($v) . ",\n";  
+					$o .= $tabs . '[' . $k . '] => ' . print_val($v) . ",\n";
 				}
 			}
 		}
 		$o .= substr($tabs,0,-1) . ']' . (($level) ? ',' : ';' ). "\n";
 		return $o;
 	}
-	
+
 }
 
 function print_val($v) {
@@ -3497,7 +3504,7 @@ function array_path_exists($str,$arr) {
 			}
 			else {
 				return false;
-			}			
+			}
 		}
 		return true;
 	}

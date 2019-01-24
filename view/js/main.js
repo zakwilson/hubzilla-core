@@ -769,7 +769,7 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
+	var bimgs = ((preloadImages) ? false : $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -999,7 +999,7 @@ function liveUpdate(notify_id) {
 				$("#profile-jot-text-loading").hide();
 
 				// adjust scroll position if new content was added above viewport
-				if(update_mode === 'update') {
+				if(update_mode === 'update' && !justifiedGalleryActive) {
 					$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
 				}
 

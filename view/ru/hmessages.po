@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-18 11:03+0200\n"
-"PO-Revision-Date: 2018-12-04 12:19+0200\n"
+"POT-Creation-Date: 2019-01-25 21:03+0200\n"
+"PO-Revision-Date: 2019-01-25 21:07+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Source channel not found."
 msgstr "Канал-источник не найден."
 
-#: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3096
+#: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3162
 #: ../../Zotlabs/Module/Admin/Site.php:187
 msgid "Default"
 msgstr "По умолчанию"
@@ -42,7 +42,7 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../Zotlabs/Module/Email_validation.php:40
 #: ../../Zotlabs/Module/Poke.php:217 ../../Zotlabs/Module/Appman.php:155
 #: ../../Zotlabs/Module/Profiles.php:723 ../../Zotlabs/Module/Photos.php:1097
-#: ../../Zotlabs/Module/Photos.php:1137 ../../Zotlabs/Module/Photos.php:1255
+#: ../../Zotlabs/Module/Photos.php:1138 ../../Zotlabs/Module/Photos.php:1257
 #: ../../Zotlabs/Module/Oauth.php:111 ../../Zotlabs/Module/Events.php:495
 #: ../../Zotlabs/Module/Rate.php:166 ../../Zotlabs/Module/Locs.php:121
 #: ../../Zotlabs/Module/Sources.php:125 ../../Zotlabs/Module/Sources.php:162
@@ -61,7 +61,7 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../Zotlabs/Module/Settings/Directory.php:41
 #: ../../Zotlabs/Module/Settings/Photos.php:41
 #: ../../Zotlabs/Module/Settings/Profiles.php:50
-#: ../../Zotlabs/Module/Settings/Featured.php:54
+#: ../../Zotlabs/Module/Settings/Featured.php:62
 #: ../../Zotlabs/Module/Settings/Connections.php:41
 #: ../../Zotlabs/Module/Settings/Channel.php:493
 #: ../../Zotlabs/Module/Filestorage.php:183 ../../Zotlabs/Module/Cal.php:344
@@ -79,8 +79,8 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../Zotlabs/Module/Admin/Account_edit.php:73
 #: ../../Zotlabs/Module/Tokens.php:188 ../../Zotlabs/Module/Thing.php:326
 #: ../../Zotlabs/Module/Thing.php:379 ../../Zotlabs/Module/Editpost.php:85
-#: ../../Zotlabs/Module/Connedit.php:893 ../../Zotlabs/Module/Group.php:140
-#: ../../Zotlabs/Module/Group.php:156 ../../Zotlabs/Module/Mood.php:158
+#: ../../Zotlabs/Module/Connedit.php:904 ../../Zotlabs/Module/Group.php:150
+#: ../../Zotlabs/Module/Group.php:166 ../../Zotlabs/Module/Mood.php:158
 #: ../../Zotlabs/Module/Invite.php:168 ../../Zotlabs/Module/Connect.php:124
 #: ../../Zotlabs/Module/Pdledit.php:107 ../../Zotlabs/Module/Wiki.php:215
 #: ../../Zotlabs/Module/Import.php:574
@@ -118,7 +118,7 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../extend/addon/hzaddons/cart/submodules/subscriptions.php:410
 #: ../../extend/addon/hzaddons/cart/submodules/hzservices.php:640
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:248
-#: ../../extend/addon/hzaddons/cart/cart.php:1263
+#: ../../extend/addon/hzaddons/cart/cart.php:1264
 #: ../../extend/addon/hzaddons/nofed/nofed.php:80
 #: ../../extend/addon/hzaddons/planets/planets.php:153
 #: ../../extend/addon/hzaddons/pageheader/pageheader.php:48
@@ -151,7 +151,7 @@ msgstr "Узкая панель навигации"
 #: ../../view/theme/redbasic/php/config.php:99
 #: ../../view/theme/redbasic/php/config.php:116 ../../include/dir_fns.php:143
 #: ../../include/dir_fns.php:144 ../../include/dir_fns.php:145
-#: ../../boot.php:1630 ../../Zotlabs/Storage/Browser.php:405
+#: ../../boot.php:1634 ../../Zotlabs/Storage/Browser.php:405
 #: ../../Zotlabs/Module/Defperms.php:197 ../../Zotlabs/Module/Profiles.php:681
 #: ../../Zotlabs/Module/Photos.php:712 ../../Zotlabs/Module/Api.php:99
 #: ../../Zotlabs/Module/Events.php:472 ../../Zotlabs/Module/Events.php:473
@@ -164,7 +164,7 @@ msgstr "Узкая панель навигации"
 #: ../../Zotlabs/Module/Menu.php:221 ../../Zotlabs/Module/Mitem.php:176
 #: ../../Zotlabs/Module/Mitem.php:177 ../../Zotlabs/Module/Mitem.php:256
 #: ../../Zotlabs/Module/Mitem.php:257 ../../Zotlabs/Module/Admin/Site.php:255
-#: ../../Zotlabs/Module/Connedit.php:398 ../../Zotlabs/Module/Connedit.php:785
+#: ../../Zotlabs/Module/Connedit.php:406 ../../Zotlabs/Module/Connedit.php:796
 #: ../../Zotlabs/Module/Wiki.php:227 ../../Zotlabs/Module/Wiki.php:228
 #: ../../Zotlabs/Module/Import.php:563 ../../Zotlabs/Module/Import.php:567
 #: ../../Zotlabs/Module/Import.php:568 ../../Zotlabs/Lib/Libzotdir.php:162
@@ -206,7 +206,7 @@ msgstr "Узкая панель навигации"
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:63
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:254
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:258
-#: ../../extend/addon/hzaddons/cart/cart.php:1257
+#: ../../extend/addon/hzaddons/cart/cart.php:1258
 #: ../../extend/addon/hzaddons/nofed/nofed.php:72
 #: ../../extend/addon/hzaddons/nofed/nofed.php:76
 #: ../../extend/addon/hzaddons/planets/planets.php:149
@@ -226,7 +226,7 @@ msgstr "Нет"
 #: ../../view/theme/redbasic/php/config.php:99
 #: ../../view/theme/redbasic/php/config.php:116 ../../include/dir_fns.php:143
 #: ../../include/dir_fns.php:144 ../../include/dir_fns.php:145
-#: ../../boot.php:1630 ../../Zotlabs/Storage/Browser.php:405
+#: ../../boot.php:1634 ../../Zotlabs/Storage/Browser.php:405
 #: ../../Zotlabs/Module/Defperms.php:197 ../../Zotlabs/Module/Profiles.php:681
 #: ../../Zotlabs/Module/Photos.php:712 ../../Zotlabs/Module/Api.php:98
 #: ../../Zotlabs/Module/Events.php:472 ../../Zotlabs/Module/Events.php:473
@@ -239,7 +239,7 @@ msgstr "Нет"
 #: ../../Zotlabs/Module/Menu.php:221 ../../Zotlabs/Module/Mitem.php:176
 #: ../../Zotlabs/Module/Mitem.php:177 ../../Zotlabs/Module/Mitem.php:256
 #: ../../Zotlabs/Module/Mitem.php:257 ../../Zotlabs/Module/Admin/Site.php:257
-#: ../../Zotlabs/Module/Connedit.php:398 ../../Zotlabs/Module/Wiki.php:227
+#: ../../Zotlabs/Module/Connedit.php:406 ../../Zotlabs/Module/Wiki.php:227
 #: ../../Zotlabs/Module/Wiki.php:228 ../../Zotlabs/Module/Import.php:563
 #: ../../Zotlabs/Module/Import.php:567 ../../Zotlabs/Module/Import.php:568
 #: ../../Zotlabs/Lib/Libzotdir.php:162 ../../Zotlabs/Lib/Libzotdir.php:163
@@ -281,7 +281,7 @@ msgstr "Нет"
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:63
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:254
 #: ../../extend/addon/hzaddons/cart/submodules/manualcat.php:258
-#: ../../extend/addon/hzaddons/cart/cart.php:1257
+#: ../../extend/addon/hzaddons/cart/cart.php:1258
 #: ../../extend/addon/hzaddons/nofed/nofed.php:72
 #: ../../extend/addon/hzaddons/nofed/nofed.php:76
 #: ../../extend/addon/hzaddons/planets/planets.php:149
@@ -461,9 +461,9 @@ msgstr "Неспецифический"
 #: ../../include/selectors.php:60 ../../include/selectors.php:77
 #: ../../include/selectors.php:115 ../../include/selectors.php:151
 #: ../../include/connections.php:703 ../../include/connections.php:710
-#: ../../include/event.php:1318 ../../include/event.php:1325
+#: ../../include/event.php:1327 ../../include/event.php:1334
 #: ../../Zotlabs/Module/Cdav.php:1227 ../../Zotlabs/Module/Profiles.php:795
-#: ../../Zotlabs/Module/Connedit.php:924
+#: ../../Zotlabs/Module/Connedit.php:935
 #: ../../Zotlabs/Access/PermissionRoles.php:306
 msgid "Other"
 msgstr "Другой"
@@ -567,7 +567,7 @@ msgstr "Эротоман"
 #: ../../Zotlabs/Module/Settings/Channel.php:75
 #: ../../Zotlabs/Module/Settings/Channel.php:78
 #: ../../Zotlabs/Module/Settings/Channel.php:89
-#: ../../Zotlabs/Module/Connedit.php:717 ../../Zotlabs/Widget/Affinity.php:24
+#: ../../Zotlabs/Module/Connedit.php:725 ../../Zotlabs/Widget/Affinity.php:29
 msgid "Friends"
 msgstr "Друзья"
 
@@ -655,18 +655,18 @@ msgstr "Всё равно"
 msgid "Ask me"
 msgstr "Спроси меня"
 
-#: ../../include/photos.php:27 ../../include/items.php:3703
-#: ../../include/attach.php:150 ../../include/attach.php:197
-#: ../../include/attach.php:270 ../../include/attach.php:379
-#: ../../include/attach.php:393 ../../include/attach.php:400
-#: ../../include/attach.php:482 ../../include/attach.php:1042
-#: ../../include/attach.php:1116 ../../include/attach.php:1281
+#: ../../include/photos.php:27 ../../include/items.php:3750
+#: ../../include/attach.php:150 ../../include/attach.php:199
+#: ../../include/attach.php:272 ../../include/attach.php:381
+#: ../../include/attach.php:395 ../../include/attach.php:402
+#: ../../include/attach.php:484 ../../include/attach.php:1044
+#: ../../include/attach.php:1118 ../../include/attach.php:1283
 #: ../../Zotlabs/Module/Mail.php:146 ../../Zotlabs/Module/Defperms.php:181
 #: ../../Zotlabs/Module/Network.php:17 ../../Zotlabs/Module/Common.php:38
 #: ../../Zotlabs/Module/Item.php:231 ../../Zotlabs/Module/Item.php:250
 #: ../../Zotlabs/Module/Item.php:260 ../../Zotlabs/Module/Item.php:1136
 #: ../../Zotlabs/Module/Achievements.php:34
-#: ../../Zotlabs/Module/Display.php:448 ../../Zotlabs/Module/Poke.php:157
+#: ../../Zotlabs/Module/Display.php:447 ../../Zotlabs/Module/Poke.php:157
 #: ../../Zotlabs/Module/Profile.php:85 ../../Zotlabs/Module/Profile.php:101
 #: ../../Zotlabs/Module/Appman.php:87 ../../Zotlabs/Module/Profiles.php:198
 #: ../../Zotlabs/Module/Profiles.php:635 ../../Zotlabs/Module/Photos.php:69
@@ -691,9 +691,9 @@ msgstr "Спроси меня"
 #: ../../Zotlabs/Module/Filestorage.php:140
 #: ../../Zotlabs/Module/Editblock.php:67
 #: ../../Zotlabs/Module/Service_limits.php:11
-#: ../../Zotlabs/Module/Message.php:18 ../../Zotlabs/Module/Channel.php:163
-#: ../../Zotlabs/Module/Channel.php:330 ../../Zotlabs/Module/Channel.php:369
-#: ../../Zotlabs/Module/Like.php:185 ../../Zotlabs/Module/Bookmarks.php:70
+#: ../../Zotlabs/Module/Message.php:18 ../../Zotlabs/Module/Channel.php:168
+#: ../../Zotlabs/Module/Channel.php:335 ../../Zotlabs/Module/Channel.php:374
+#: ../../Zotlabs/Module/Like.php:187 ../../Zotlabs/Module/Bookmarks.php:70
 #: ../../Zotlabs/Module/Viewsrc.php:19 ../../Zotlabs/Module/Menu.php:129
 #: ../../Zotlabs/Module/Menu.php:140 ../../Zotlabs/Module/Setup.php:209
 #: ../../Zotlabs/Module/Mitem.php:129 ../../Zotlabs/Module/Notifications.php:11
@@ -706,17 +706,17 @@ msgstr "Спроси меня"
 #: ../../Zotlabs/Module/Moderate.php:13 ../../Zotlabs/Module/Webpages.php:133
 #: ../../Zotlabs/Module/Profile_photo.php:302
 #: ../../Zotlabs/Module/Profile_photo.php:315
-#: ../../Zotlabs/Module/Editpost.php:17 ../../Zotlabs/Module/Connedit.php:391
+#: ../../Zotlabs/Module/Editpost.php:17 ../../Zotlabs/Module/Connedit.php:399
 #: ../../Zotlabs/Module/Group.php:14 ../../Zotlabs/Module/Group.php:30
 #: ../../Zotlabs/Module/Connections.php:32 ../../Zotlabs/Module/Mood.php:126
 #: ../../Zotlabs/Module/Card_edit.php:51
 #: ../../Zotlabs/Module/Article_edit.php:51 ../../Zotlabs/Module/Blocks.php:73
 #: ../../Zotlabs/Module/Blocks.php:80 ../../Zotlabs/Module/Invite.php:21
-#: ../../Zotlabs/Module/Invite.php:102 ../../Zotlabs/Module/Articles.php:80
+#: ../../Zotlabs/Module/Invite.php:102 ../../Zotlabs/Module/Articles.php:88
 #: ../../Zotlabs/Module/Cloud.php:40 ../../Zotlabs/Module/Pdledit.php:34
 #: ../../Zotlabs/Module/Wiki.php:59 ../../Zotlabs/Module/Wiki.php:285
 #: ../../Zotlabs/Module/Wiki.php:428 ../../Zotlabs/Module/Manage.php:10
-#: ../../Zotlabs/Module/Suggest.php:32 ../../Zotlabs/Module/Cards.php:81
+#: ../../Zotlabs/Module/Suggest.php:32 ../../Zotlabs/Module/Cards.php:86
 #: ../../Zotlabs/Module/Layouts.php:71 ../../Zotlabs/Module/Layouts.php:78
 #: ../../Zotlabs/Module/Layouts.php:89 ../../Zotlabs/Web/WebServer.php:123
 #: ../../Zotlabs/Lib/Chatroom.php:133
@@ -755,12 +755,12 @@ msgctxt "photo_upload"
 msgid "%1$s posted %2$s to %3$s"
 msgstr "%1$s опубликовал %2$s в %3$s"
 
-#: ../../include/photos.php:669 ../../include/nav.php:417
+#: ../../include/photos.php:669 ../../include/nav.php:447
 msgid "Photo Albums"
 msgstr "Фотоальбомы"
 
-#: ../../include/photos.php:670 ../../Zotlabs/Module/Photos.php:1380
-#: ../../Zotlabs/Module/Photos.php:1393 ../../Zotlabs/Module/Photos.php:1394
+#: ../../include/photos.php:670 ../../Zotlabs/Module/Photos.php:1389
+#: ../../Zotlabs/Module/Photos.php:1402 ../../Zotlabs/Module/Photos.php:1403
 msgid "Recent Photos"
 msgstr "Последние фотографии"
 
@@ -880,7 +880,7 @@ msgstr "Просмотреть все %d общих контактов"
 #: ../../Zotlabs/Module/Editblock.php:114 ../../Zotlabs/Module/Menu.php:175
 #: ../../Zotlabs/Module/Admin/Profs.php:175
 #: ../../Zotlabs/Module/Editwebpage.php:142 ../../Zotlabs/Module/Thing.php:266
-#: ../../Zotlabs/Module/Webpages.php:255 ../../Zotlabs/Module/Group.php:235
+#: ../../Zotlabs/Module/Webpages.php:255 ../../Zotlabs/Module/Group.php:252
 #: ../../Zotlabs/Module/Connections.php:284
 #: ../../Zotlabs/Module/Connections.php:322
 #: ../../Zotlabs/Module/Connections.php:342
@@ -888,7 +888,7 @@ msgstr "Просмотреть все %d общих контактов"
 #: ../../Zotlabs/Module/Article_edit.php:99 ../../Zotlabs/Module/Blocks.php:160
 #: ../../Zotlabs/Module/Wiki.php:211 ../../Zotlabs/Module/Wiki.php:384
 #: ../../Zotlabs/Module/Layouts.php:193 ../../Zotlabs/Widget/Cdav.php:126
-#: ../../Zotlabs/Widget/Cdav.php:162 ../../Zotlabs/Lib/Apps.php:534
+#: ../../Zotlabs/Widget/Cdav.php:162 ../../Zotlabs/Lib/Apps.php:536
 #: ../../Zotlabs/Lib/ThreadItem.php:133
 msgid "Edit"
 msgstr "Изменить"
@@ -947,9 +947,9 @@ msgstr "Запрошенный канал не доступен."
 #: ../../Zotlabs/Module/Editblock.php:31 ../../Zotlabs/Module/Menu.php:91
 #: ../../Zotlabs/Module/Hcard.php:12 ../../Zotlabs/Module/Editwebpage.php:32
 #: ../../Zotlabs/Module/Webpages.php:39 ../../Zotlabs/Module/Blocks.php:33
-#: ../../Zotlabs/Module/Articles.php:34 ../../Zotlabs/Module/Connect.php:17
-#: ../../Zotlabs/Module/Cards.php:37 ../../Zotlabs/Module/Layouts.php:31
-#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:47
+#: ../../Zotlabs/Module/Articles.php:42 ../../Zotlabs/Module/Connect.php:17
+#: ../../Zotlabs/Module/Cards.php:42 ../../Zotlabs/Module/Layouts.php:31
+#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:49
 msgid "Requested profile is not available."
 msgstr "Запрашиваемый профиль не доступен."
 
@@ -991,8 +991,8 @@ msgstr "Редактировать видимость"
 msgid "Connect"
 msgstr "Подключить"
 
-#: ../../include/channel.php:1447 ../../include/event.php:54
-#: ../../include/event.php:86 ../../Zotlabs/Module/Directory.php:328
+#: ../../include/channel.php:1447 ../../include/event.php:58
+#: ../../include/event.php:90 ../../Zotlabs/Module/Directory.php:328
 msgid "Location:"
 msgstr "Местоположение:"
 
@@ -1030,7 +1030,7 @@ msgid "Like this channel"
 msgstr "нравится этот канал"
 
 #: ../../include/channel.php:1595 ../../include/conversation.php:1693
-#: ../../include/taxonomy.php:661 ../../Zotlabs/Module/Photos.php:1175
+#: ../../include/taxonomy.php:661 ../../Zotlabs/Module/Photos.php:1177
 #: ../../Zotlabs/Lib/ThreadItem.php:221
 msgctxt "noun"
 msgid "Like"
@@ -1133,7 +1133,7 @@ msgid "School/education:"
 msgstr "Школа / образование:"
 
 #: ../../include/channel.php:1700 ../../Zotlabs/Module/Profperm.php:113
-#: ../../Zotlabs/Lib/Apps.php:337
+#: ../../Zotlabs/Lib/Apps.php:339
 msgid "Profile"
 msgstr "Профиль"
 
@@ -1150,25 +1150,25 @@ msgstr "Экспорт"
 msgid "cover photo"
 msgstr "фотография обложки"
 
-#: ../../include/channel.php:2390 ../../boot.php:1626
-#: ../../Zotlabs/Module/Rmagic.php:75
+#: ../../include/channel.php:2405 ../../boot.php:1630
+#: ../../Zotlabs/Module/Rmagic.php:93
 msgid "Remote Authentication"
 msgstr "Удаленная аутентификация"
 
-#: ../../include/channel.php:2391 ../../Zotlabs/Module/Rmagic.php:76
+#: ../../include/channel.php:2406 ../../Zotlabs/Module/Rmagic.php:94
 msgid "Enter your channel address (e.g. channel@example.com)"
 msgstr "Введите адрес вашего канала (например: channel@example.com)"
 
-#: ../../include/channel.php:2392 ../../Zotlabs/Module/Rmagic.php:77
+#: ../../include/channel.php:2407 ../../Zotlabs/Module/Rmagic.php:95
 msgid "Authenticate"
 msgstr "Проверка подлинности"
 
-#: ../../include/channel.php:2547 ../../Zotlabs/Module/Admin/Accounts.php:91
+#: ../../include/channel.php:2562 ../../Zotlabs/Module/Admin/Accounts.php:91
 #, php-format
 msgid "Account '%s' deleted"
 msgstr "Аккаунт '%s' удален"
 
-#: ../../include/message.php:13 ../../include/text.php:1718
+#: ../../include/message.php:13 ../../include/text.php:1765
 msgid "Download binary/encrypted content"
 msgstr "Загрузить двоичное / зашифрованное содержимое"
 
@@ -1188,20 +1188,20 @@ msgstr "[без темы]"
 msgid "Stored post could not be verified."
 msgstr "Сохранённая публикация не может быть проверена."
 
-#: ../../include/markdown.php:200 ../../include/bbcode.php:358
+#: ../../include/markdown.php:198 ../../include/bbcode.php:347
 #, php-format
 msgid "%1$s wrote the following %2$s %3$s"
 msgstr "%1$s была создана %2$s %3$s"
 
-#: ../../include/markdown.php:202 ../../include/bbcode.php:354
+#: ../../include/markdown.php:200 ../../include/bbcode.php:343
 #: ../../Zotlabs/Module/Tagger.php:77
 msgid "post"
 msgstr "публикация"
 
-#: ../../include/items.php:384 ../../Zotlabs/Module/Dreport.php:10
+#: ../../include/items.php:399 ../../Zotlabs/Module/Dreport.php:10
 #: ../../Zotlabs/Module/Dreport.php:79 ../../Zotlabs/Module/Profperm.php:28
-#: ../../Zotlabs/Module/Like.php:296 ../../Zotlabs/Module/Subthread.php:86
-#: ../../Zotlabs/Module/Group.php:93 ../../Zotlabs/Module/Cloud.php:126
+#: ../../Zotlabs/Module/Like.php:301 ../../Zotlabs/Module/Subthread.php:86
+#: ../../Zotlabs/Module/Group.php:98 ../../Zotlabs/Module/Cloud.php:126
 #: ../../Zotlabs/Module/Import_items.php:120
 #: ../../Zotlabs/Web/WebServer.php:122
 #: ../../extend/addon/hzaddons/redphotos/redphotos.php:119
@@ -1211,112 +1211,112 @@ msgstr "публикация"
 msgid "Permission denied"
 msgstr "Доступ запрещен"
 
-#: ../../include/items.php:921 ../../include/items.php:981
+#: ../../include/items.php:936 ../../include/items.php:996
 msgid "(Unknown)"
 msgstr "(Неизвестный)"
 
-#: ../../include/items.php:1169
+#: ../../include/items.php:1184
 msgid "Visible to anybody on the internet."
 msgstr "Виден всем в интернете."
 
-#: ../../include/items.php:1171
+#: ../../include/items.php:1186
 msgid "Visible to you only."
 msgstr "Видно только вам."
 
-#: ../../include/items.php:1173
+#: ../../include/items.php:1188
 msgid "Visible to anybody in this network."
 msgstr "Видно всем в этой сети."
 
-#: ../../include/items.php:1175
+#: ../../include/items.php:1190
 msgid "Visible to anybody authenticated."
 msgstr "Видно всем аутентифицированным."
 
-#: ../../include/items.php:1177
+#: ../../include/items.php:1192
 #, php-format
 msgid "Visible to anybody on %s."
 msgstr "Видно всем в %s."
 
-#: ../../include/items.php:1179
+#: ../../include/items.php:1194
 msgid "Visible to all connections."
 msgstr "Видно всем контактам."
 
-#: ../../include/items.php:1181
+#: ../../include/items.php:1196
 msgid "Visible to approved connections."
 msgstr "Видно только одобренным контактам."
 
-#: ../../include/items.php:1183
+#: ../../include/items.php:1198
 msgid "Visible to specific connections."
 msgstr "Видно указанным контактам."
 
-#: ../../include/items.php:3615 ../../Zotlabs/Module/Display.php:45
-#: ../../Zotlabs/Module/Display.php:452 ../../Zotlabs/Module/Admin.php:62
+#: ../../include/items.php:3662 ../../Zotlabs/Module/Display.php:45
+#: ../../Zotlabs/Module/Display.php:451 ../../Zotlabs/Module/Admin.php:62
 #: ../../Zotlabs/Module/Filestorage.php:24 ../../Zotlabs/Module/Viewsrc.php:25
 #: ../../Zotlabs/Module/Admin/Addons.php:259
 #: ../../Zotlabs/Module/Admin/Themes.php:72 ../../Zotlabs/Module/Thing.php:94
 msgid "Item not found."
 msgstr "Элемент не найден."
 
-#: ../../include/items.php:4195 ../../Zotlabs/Module/Group.php:61
-#: ../../Zotlabs/Module/Group.php:200
+#: ../../include/items.php:4242 ../../Zotlabs/Module/Group.php:61
+#: ../../Zotlabs/Module/Group.php:213
 msgid "Privacy group not found."
 msgstr "Группа безопасности не найдена."
 
-#: ../../include/items.php:4211
+#: ../../include/items.php:4258
 msgid "Privacy group is empty."
 msgstr "Группа безопасности пуста"
 
-#: ../../include/items.php:4218
+#: ../../include/items.php:4265
 #, php-format
 msgid "Privacy group: %s"
 msgstr "Группа безопасности: %s"
 
-#: ../../include/items.php:4228 ../../Zotlabs/Module/Connedit.php:856
+#: ../../include/items.php:4275 ../../Zotlabs/Module/Connedit.php:867
 #, php-format
 msgid "Connection: %s"
 msgstr "Контакт: %s"
 
-#: ../../include/items.php:4230
+#: ../../include/items.php:4277
 msgid "Connection not found."
 msgstr "Контакт не найден."
 
-#: ../../include/items.php:4572 ../../Zotlabs/Module/Cover_photo.php:269
+#: ../../include/items.php:4619 ../../Zotlabs/Module/Cover_photo.php:269
 msgid "female"
 msgstr "женщина"
 
-#: ../../include/items.php:4573 ../../Zotlabs/Module/Cover_photo.php:270
+#: ../../include/items.php:4620 ../../Zotlabs/Module/Cover_photo.php:270
 #, php-format
 msgid "%1$s updated her %2$s"
 msgstr "%1$s обновила её %2$s"
 
-#: ../../include/items.php:4574 ../../Zotlabs/Module/Cover_photo.php:271
+#: ../../include/items.php:4621 ../../Zotlabs/Module/Cover_photo.php:271
 msgid "male"
 msgstr "мужчина"
 
-#: ../../include/items.php:4575 ../../Zotlabs/Module/Cover_photo.php:272
+#: ../../include/items.php:4622 ../../Zotlabs/Module/Cover_photo.php:272
 #, php-format
 msgid "%1$s updated his %2$s"
 msgstr "%1$s обновил его %2$s"
 
-#: ../../include/items.php:4577 ../../Zotlabs/Module/Cover_photo.php:274
+#: ../../include/items.php:4624 ../../Zotlabs/Module/Cover_photo.php:274
 #, php-format
 msgid "%1$s updated their %2$s"
 msgstr "%1$s обновили их %2$s"
 
-#: ../../include/items.php:4579
+#: ../../include/items.php:4626
 msgid "profile photo"
 msgstr "Фотография профиля"
 
-#: ../../include/items.php:4771
+#: ../../include/items.php:4818
 #, php-format
 msgid "[Edited %s]"
 msgstr "[Отредактировано %s]"
 
-#: ../../include/items.php:4771
+#: ../../include/items.php:4818
 msgctxt "edit_activity"
 msgid "Post"
 msgstr "Публикация"
 
-#: ../../include/items.php:4771
+#: ../../include/items.php:4818
 msgctxt "edit_activity"
 msgid "Comment"
 msgstr "Комментарий"
@@ -1356,7 +1356,7 @@ msgstr "Выкл."
 msgid "On"
 msgstr "Вкл."
 
-#: ../../include/features.php:82 ../../Zotlabs/Lib/Apps.php:342
+#: ../../include/features.php:82 ../../Zotlabs/Lib/Apps.php:344
 msgid "CalDAV"
 msgstr ""
 
@@ -1368,7 +1368,7 @@ msgstr "Начинать календарную неделю с понедель
 msgid "Default is Sunday"
 msgstr "По умолчанию - воскресенье"
 
-#: ../../include/features.php:96 ../../Zotlabs/Lib/Apps.php:318
+#: ../../include/features.php:96 ../../Zotlabs/Lib/Apps.php:320
 msgid "Channel Home"
 msgstr "Главная канала"
 
@@ -1396,8 +1396,8 @@ msgstr "Использовать режим блога / списка"
 msgid "Comments will be displayed separately"
 msgstr "Комментарии будут отображаться отдельно"
 
-#: ../../include/features.php:125 ../../include/text.php:980
-#: ../../Zotlabs/Module/Connections.php:334 ../../Zotlabs/Lib/Apps.php:308
+#: ../../include/features.php:125 ../../include/text.php:991
+#: ../../Zotlabs/Module/Connections.php:334 ../../Zotlabs/Lib/Apps.php:310
 msgid "Connections"
 msgstr "Контакты"
 
@@ -1445,7 +1445,7 @@ msgstr "Помечать сообщения"
 msgid "Ability to mark special posts with a star indicator"
 msgstr "Возможность отметить специальные сообщения индикатором-звёздочкой"
 
-#: ../../include/features.php:176 ../../Zotlabs/Lib/Apps.php:322
+#: ../../include/features.php:176 ../../Zotlabs/Lib/Apps.php:324
 msgid "Directory"
 msgstr "Каталог"
 
@@ -1540,7 +1540,7 @@ msgid ""
 "prevent accidental loss of compositions"
 msgstr "Автоматически сохраняет черновики публикаций и комментариев в локальном хранилище браузера для предотвращения их случайной утраты"
 
-#: ../../include/features.php:269 ../../Zotlabs/Lib/Apps.php:321
+#: ../../include/features.php:269 ../../Zotlabs/Lib/Apps.php:323
 msgid "Events"
 msgstr "События"
 
@@ -1632,7 +1632,7 @@ msgstr "Инструмент сходства / соответствия"
 msgid "Filter stream activity by depth of relationships"
 msgstr "Фильтровать потоки активности по глубине отношений"
 
-#: ../../include/features.php:373 ../../Zotlabs/Lib/Apps.php:310
+#: ../../include/features.php:373 ../../Zotlabs/Lib/Apps.php:312
 msgid "Suggest Channels"
 msgstr "Предлагаемые каналы"
 
@@ -1640,8 +1640,8 @@ msgstr "Предлагаемые каналы"
 msgid "Show friend and connection suggestions"
 msgstr "Показать предложения в друзья"
 
-#: ../../include/features.php:391 ../../include/nav.php:414
-#: ../../Zotlabs/Module/Fbrowser.php:29 ../../Zotlabs/Lib/Apps.php:320
+#: ../../include/features.php:391 ../../include/nav.php:444
+#: ../../Zotlabs/Module/Fbrowser.php:29 ../../Zotlabs/Lib/Apps.php:322
 msgid "Photos"
 msgstr "Фотографии"
 
@@ -1653,7 +1653,7 @@ msgstr "Местоположение фотографии"
 msgid "If location data is available on uploaded photos, link this to a map."
 msgstr "Если данные о местоположении доступны на загруженных фотографий, связать их с картой."
 
-#: ../../include/features.php:405 ../../Zotlabs/Lib/Apps.php:338
+#: ../../include/features.php:405 ../../Zotlabs/Lib/Apps.php:340
 msgid "Profiles"
 msgstr "Редактировать профиль"
 
@@ -1697,465 +1697,466 @@ msgstr "последний"
 msgid "next"
 msgstr "следующий"
 
-#: ../../include/text.php:546
+#: ../../include/text.php:553
 msgid "older"
 msgstr "старше"
 
-#: ../../include/text.php:548
+#: ../../include/text.php:555
 msgid "newer"
 msgstr "новее"
 
-#: ../../include/text.php:968
+#: ../../include/text.php:979
 msgid "No connections"
 msgstr "Нет контактов"
 
-#: ../../include/text.php:1000
+#: ../../include/text.php:1011
 #, php-format
 msgid "View all %s connections"
 msgstr "Просмотреть все %s контактов"
 
-#: ../../include/text.php:1056
+#: ../../include/text.php:1073
 #, php-format
 msgid "Network: %s"
 msgstr "Сеть: %s"
 
-#: ../../include/text.php:1067 ../../include/text.php:1079
+#: ../../include/text.php:1084 ../../include/text.php:1096
 #: ../../include/acl_selectors.php:118 ../../include/nav.php:183
 #: ../../Zotlabs/Module/Search.php:44 ../../Zotlabs/Module/Connections.php:338
 #: ../../Zotlabs/Widget/Sitesearch.php:31
-#: ../../Zotlabs/Widget/Activity_filter.php:151 ../../Zotlabs/Lib/Apps.php:328
+#: ../../Zotlabs/Widget/Activity_filter.php:151 ../../Zotlabs/Lib/Apps.php:330
 msgid "Search"
 msgstr "Поиск"
 
-#: ../../include/text.php:1068 ../../include/text.php:1080
+#: ../../include/text.php:1085 ../../include/text.php:1097
 #: ../../Zotlabs/Module/Admin/Profs.php:94
 #: ../../Zotlabs/Module/Admin/Profs.php:114 ../../Zotlabs/Module/Rbmark.php:32
 #: ../../Zotlabs/Module/Rbmark.php:104 ../../Zotlabs/Module/Filer.php:53
 #: ../../Zotlabs/Widget/Notes.php:23
+#: ../../extend/addon/hzaddons/queueworker/Mod_Queueworker.php:102
 msgid "Save"
 msgstr "Запомнить"
 
-#: ../../include/text.php:1155 ../../include/text.php:1159
+#: ../../include/text.php:1176 ../../include/text.php:1180
 msgid "poke"
 msgstr "Ткнуть"
 
-#: ../../include/text.php:1155 ../../include/text.php:1159
+#: ../../include/text.php:1176 ../../include/text.php:1180
 #: ../../include/conversation.php:251
 msgid "poked"
 msgstr "ткнут"
 
-#: ../../include/text.php:1160
+#: ../../include/text.php:1181
 msgid "ping"
 msgstr "Пингануть"
 
-#: ../../include/text.php:1160
+#: ../../include/text.php:1181
 msgid "pinged"
 msgstr "Отпингован"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1182
 msgid "prod"
 msgstr "Подтолкнуть"
 
-#: ../../include/text.php:1161
+#: ../../include/text.php:1182
 msgid "prodded"
 msgstr "Подтолкнут"
 
-#: ../../include/text.php:1162
+#: ../../include/text.php:1183
 msgid "slap"
 msgstr "Шлёпнуть"
 
-#: ../../include/text.php:1162
+#: ../../include/text.php:1183
 msgid "slapped"
 msgstr "Шлёпнут"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1184
 msgid "finger"
 msgstr "Указать"
 
-#: ../../include/text.php:1163
+#: ../../include/text.php:1184
 msgid "fingered"
 msgstr "Указан"
 
-#: ../../include/text.php:1164
+#: ../../include/text.php:1185
 msgid "rebuff"
 msgstr "Дать отпор"
 
-#: ../../include/text.php:1164
+#: ../../include/text.php:1185
 msgid "rebuffed"
 msgstr "Дан отпор"
 
-#: ../../include/text.php:1187
+#: ../../include/text.php:1208
 msgid "happy"
 msgstr "счастливый"
 
-#: ../../include/text.php:1188
+#: ../../include/text.php:1209
 msgid "sad"
 msgstr "грустный"
 
-#: ../../include/text.php:1189
+#: ../../include/text.php:1210
 msgid "mellow"
 msgstr "спокойный"
 
-#: ../../include/text.php:1190
+#: ../../include/text.php:1211
 msgid "tired"
 msgstr "усталый"
 
-#: ../../include/text.php:1191
+#: ../../include/text.php:1212
 msgid "perky"
 msgstr "весёлый"
 
-#: ../../include/text.php:1192
+#: ../../include/text.php:1213
 msgid "angry"
 msgstr "сердитый"
 
-#: ../../include/text.php:1193
+#: ../../include/text.php:1214
 msgid "stupefied"
 msgstr "отупевший"
 
-#: ../../include/text.php:1194
+#: ../../include/text.php:1215
 msgid "puzzled"
 msgstr "недоумевающий"
 
-#: ../../include/text.php:1195
+#: ../../include/text.php:1216
 msgid "interested"
 msgstr "заинтересованный"
 
-#: ../../include/text.php:1196
+#: ../../include/text.php:1217
 msgid "bitter"
 msgstr "едкий"
 
-#: ../../include/text.php:1197
+#: ../../include/text.php:1218
 msgid "cheerful"
 msgstr "бодрый"
 
-#: ../../include/text.php:1198
+#: ../../include/text.php:1219
 msgid "alive"
 msgstr "энергичный"
 
-#: ../../include/text.php:1199
+#: ../../include/text.php:1220
 msgid "annoyed"
 msgstr "раздражённый"
 
-#: ../../include/text.php:1200
+#: ../../include/text.php:1221
 msgid "anxious"
 msgstr "обеспокоенный"
 
-#: ../../include/text.php:1201
+#: ../../include/text.php:1222
 msgid "cranky"
 msgstr "капризный"
 
-#: ../../include/text.php:1202
+#: ../../include/text.php:1223
 msgid "disturbed"
 msgstr "встревоженный"
 
-#: ../../include/text.php:1203
+#: ../../include/text.php:1224
 msgid "frustrated"
 msgstr "разочарованный"
 
-#: ../../include/text.php:1204
+#: ../../include/text.php:1225
 msgid "depressed"
 msgstr "подавленный"
 
-#: ../../include/text.php:1205
+#: ../../include/text.php:1226
 msgid "motivated"
 msgstr "мотивированный"
 
-#: ../../include/text.php:1206
+#: ../../include/text.php:1227
 msgid "relaxed"
 msgstr "расслабленный"
 
-#: ../../include/text.php:1207
+#: ../../include/text.php:1228
 msgid "surprised"
 msgstr "удивленный"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:95
+#: ../../include/text.php:1416 ../../include/js_strings.php:95
 msgid "Monday"
 msgstr "Понедельник"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:96
+#: ../../include/text.php:1416 ../../include/js_strings.php:96
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:97
+#: ../../include/text.php:1416 ../../include/js_strings.php:97
 msgid "Wednesday"
 msgstr "Среда"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:98
+#: ../../include/text.php:1416 ../../include/js_strings.php:98
 msgid "Thursday"
 msgstr "Четверг"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:99
+#: ../../include/text.php:1416 ../../include/js_strings.php:99
 msgid "Friday"
 msgstr "Пятница"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:100
+#: ../../include/text.php:1416 ../../include/js_strings.php:100
 msgid "Saturday"
 msgstr "Суббота"
 
-#: ../../include/text.php:1386 ../../include/js_strings.php:94
+#: ../../include/text.php:1416 ../../include/js_strings.php:94
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:70
+#: ../../include/text.php:1420 ../../include/js_strings.php:70
 msgid "January"
 msgstr "Январь"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:71
+#: ../../include/text.php:1420 ../../include/js_strings.php:71
 msgid "February"
 msgstr "Февраль"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:72
+#: ../../include/text.php:1420 ../../include/js_strings.php:72
 msgid "March"
 msgstr "Март"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:73
+#: ../../include/text.php:1420 ../../include/js_strings.php:73
 msgid "April"
 msgstr "Апрель"
 
-#: ../../include/text.php:1390
+#: ../../include/text.php:1420
 msgid "May"
 msgstr "Май"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:75
+#: ../../include/text.php:1420 ../../include/js_strings.php:75
 msgid "June"
 msgstr "Июнь"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:76
+#: ../../include/text.php:1420 ../../include/js_strings.php:76
 msgid "July"
 msgstr "Июль"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:77
+#: ../../include/text.php:1420 ../../include/js_strings.php:77
 msgid "August"
 msgstr "Август"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:78
+#: ../../include/text.php:1420 ../../include/js_strings.php:78
 msgid "September"
 msgstr "Сентябрь"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:79
+#: ../../include/text.php:1420 ../../include/js_strings.php:79
 msgid "October"
 msgstr "Октябрь"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:80
+#: ../../include/text.php:1420 ../../include/js_strings.php:80
 msgid "November"
 msgstr "Ноябрь"
 
-#: ../../include/text.php:1390 ../../include/js_strings.php:81
+#: ../../include/text.php:1420 ../../include/js_strings.php:81
 msgid "December"
 msgstr "Декабрь"
 
-#: ../../include/text.php:1464
+#: ../../include/text.php:1494
 msgid "Unknown Attachment"
 msgstr "Неизвестное вложение"
 
-#: ../../include/text.php:1466 ../../Zotlabs/Storage/Browser.php:287
+#: ../../include/text.php:1496 ../../Zotlabs/Storage/Browser.php:287
 #: ../../Zotlabs/Module/Sharedwithme.php:106
 msgid "Size"
 msgstr "Размер"
 
-#: ../../include/text.php:1466 ../../include/feedutils.php:860
+#: ../../include/text.php:1496 ../../include/feedutils.php:858
 msgid "unknown"
 msgstr "неизвестный"
 
-#: ../../include/text.php:1502
+#: ../../include/text.php:1532
 msgid "remove category"
 msgstr "удалить категорию"
 
-#: ../../include/text.php:1576
+#: ../../include/text.php:1606
 msgid "remove from file"
 msgstr "удалить из файла"
 
-#: ../../include/text.php:1859 ../../Zotlabs/Module/Events.php:663
+#: ../../include/text.php:1913 ../../Zotlabs/Module/Events.php:663
 #: ../../Zotlabs/Module/Cal.php:314
 msgid "Link to Source"
 msgstr "Ссылка на источник"
 
-#: ../../include/text.php:1881 ../../include/language.php:423
+#: ../../include/text.php:1935 ../../include/language.php:423
 msgid "default"
 msgstr "по умолчанию"
 
-#: ../../include/text.php:1889
+#: ../../include/text.php:1943
 msgid "Page layout"
 msgstr "Шаблон страницы"
 
-#: ../../include/text.php:1889
+#: ../../include/text.php:1943
 msgid "You can create your own with the layouts tool"
 msgstr "Вы можете создать свой собственный с помощью инструмента шаблонов"
 
-#: ../../include/text.php:1899 ../../Zotlabs/Module/Wiki.php:217
+#: ../../include/text.php:1953 ../../Zotlabs/Module/Wiki.php:217
 #: ../../Zotlabs/Module/Wiki.php:371 ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95
 msgid "BBcode"
 msgstr ""
 
-#: ../../include/text.php:1900
+#: ../../include/text.php:1954
 msgid "HTML"
 msgstr ""
 
-#: ../../include/text.php:1901 ../../Zotlabs/Module/Wiki.php:217
+#: ../../include/text.php:1955 ../../Zotlabs/Module/Wiki.php:217
 #: ../../Zotlabs/Module/Wiki.php:371 ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95
 #: ../../extend/addon/hzaddons/mdpost/mdpost.php:41
 msgid "Markdown"
 msgstr "Разметка Markdown"
 
-#: ../../include/text.php:1902 ../../Zotlabs/Module/Wiki.php:217
+#: ../../include/text.php:1956 ../../Zotlabs/Module/Wiki.php:217
 #: ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95
 msgid "Text"
 msgstr "Текст"
 
-#: ../../include/text.php:1903
+#: ../../include/text.php:1957
 msgid "Comanche Layout"
 msgstr "Шаблон Comanche"
 
-#: ../../include/text.php:1908
+#: ../../include/text.php:1962
 msgid "PHP"
 msgstr ""
 
-#: ../../include/text.php:1917
+#: ../../include/text.php:1971
 msgid "Page content type"
 msgstr "Тип содержимого страницы"
 
-#: ../../include/text.php:2037 ../../include/conversation.php:116
-#: ../../Zotlabs/Module/Tagger.php:69 ../../Zotlabs/Module/Like.php:387
-#: ../../Zotlabs/Module/Subthread.php:112 ../../Zotlabs/Lib/Activity.php:1570
+#: ../../include/text.php:2091 ../../include/conversation.php:116
+#: ../../Zotlabs/Module/Tagger.php:69 ../../Zotlabs/Module/Like.php:392
+#: ../../Zotlabs/Module/Subthread.php:112 ../../Zotlabs/Lib/Activity.php:1951
 #: ../../extend/addon/hzaddons/redphotos/redphotohelper.php:71
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1494
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1541
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1545
 msgid "photo"
 msgstr "фото"
 
-#: ../../include/text.php:2040 ../../include/conversation.php:119
-#: ../../include/event.php:1156 ../../Zotlabs/Module/Tagger.php:73
-#: ../../Zotlabs/Module/Events.php:260 ../../Zotlabs/Module/Like.php:389
+#: ../../include/text.php:2094 ../../include/conversation.php:119
+#: ../../include/event.php:1165 ../../Zotlabs/Module/Tagger.php:73
+#: ../../Zotlabs/Module/Events.php:260 ../../Zotlabs/Module/Like.php:394
 msgid "event"
 msgstr "событие"
 
-#: ../../include/text.php:2043 ../../include/conversation.php:144
-#: ../../Zotlabs/Module/Like.php:387 ../../Zotlabs/Module/Subthread.php:112
-#: ../../Zotlabs/Lib/Activity.php:1570
+#: ../../include/text.php:2097 ../../include/conversation.php:144
+#: ../../Zotlabs/Module/Like.php:392 ../../Zotlabs/Module/Subthread.php:112
+#: ../../Zotlabs/Lib/Activity.php:1951
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1494
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1541
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1545
 msgid "status"
 msgstr "статус"
 
-#: ../../include/text.php:2045 ../../include/conversation.php:146
+#: ../../include/text.php:2099 ../../include/conversation.php:146
 #: ../../Zotlabs/Module/Tagger.php:79
 msgid "comment"
 msgstr "комментарий"
 
-#: ../../include/text.php:2050
+#: ../../include/text.php:2104
 msgid "activity"
 msgstr "активность"
 
-#: ../../include/text.php:2151
+#: ../../include/text.php:2205
 msgid "a-z, 0-9, -, and _ only"
 msgstr "Только a-z, 0-9, -, и _"
 
-#: ../../include/text.php:2471
+#: ../../include/text.php:2531
 msgid "Design Tools"
 msgstr "Инструменты дизайна"
 
-#: ../../include/text.php:2474 ../../Zotlabs/Module/Blocks.php:154
+#: ../../include/text.php:2534 ../../Zotlabs/Module/Blocks.php:154
 msgid "Blocks"
 msgstr "Блокировки"
 
-#: ../../include/text.php:2475 ../../Zotlabs/Module/Menu.php:170
+#: ../../include/text.php:2535 ../../Zotlabs/Module/Menu.php:170
 msgid "Menus"
 msgstr "Меню"
 
-#: ../../include/text.php:2476 ../../Zotlabs/Module/Layouts.php:184
+#: ../../include/text.php:2536 ../../Zotlabs/Module/Layouts.php:184
 msgid "Layouts"
 msgstr "Шаблоны"
 
-#: ../../include/text.php:2477
+#: ../../include/text.php:2537
 msgid "Pages"
 msgstr "Страницы"
 
-#: ../../include/text.php:2498 ../../Zotlabs/Module/Cal.php:343
+#: ../../include/text.php:2558 ../../Zotlabs/Module/Cal.php:343
 msgid "Import"
 msgstr "Импортировать"
 
-#: ../../include/text.php:2499
+#: ../../include/text.php:2559
 msgid "Import website..."
 msgstr "Импорт веб-сайта..."
 
-#: ../../include/text.php:2500
+#: ../../include/text.php:2560
 msgid "Select folder to import"
 msgstr "Выбрать каталог для импорта"
 
-#: ../../include/text.php:2501
+#: ../../include/text.php:2561
 msgid "Import from a zipped folder:"
 msgstr "Импортировать из каталога в zip-архиве:"
 
-#: ../../include/text.php:2502
+#: ../../include/text.php:2562
 msgid "Import from cloud files:"
 msgstr "Импортировать из сетевых файлов:"
 
-#: ../../include/text.php:2503
+#: ../../include/text.php:2563
 msgid "/cloud/channel/path/to/folder"
 msgstr ""
 
-#: ../../include/text.php:2504
+#: ../../include/text.php:2564
 msgid "Enter path to website files"
 msgstr "Введите путь к файлам веб-сайта"
 
-#: ../../include/text.php:2505
+#: ../../include/text.php:2565
 msgid "Select folder"
 msgstr "Выбрать каталог"
 
-#: ../../include/text.php:2506
+#: ../../include/text.php:2566
 msgid "Export website..."
 msgstr "Экспорт веб-сайта..."
 
-#: ../../include/text.php:2507
+#: ../../include/text.php:2567
 msgid "Export to a zip file"
 msgstr "Экспортировать в ZIP файл."
 
-#: ../../include/text.php:2508
+#: ../../include/text.php:2568
 msgid "website.zip"
 msgstr ""
 
-#: ../../include/text.php:2509
+#: ../../include/text.php:2569
 msgid "Enter a name for the zip file."
 msgstr "Введите имя для ZIP файла."
 
-#: ../../include/text.php:2510
+#: ../../include/text.php:2570
 msgid "Export to cloud files"
 msgstr "Эскпортировать в сетевые файлы:"
 
-#: ../../include/text.php:2511
+#: ../../include/text.php:2571
 msgid "/path/to/export/folder"
 msgstr ""
 
-#: ../../include/text.php:2512
+#: ../../include/text.php:2572
 msgid "Enter a path to a cloud files destination."
 msgstr "Введите путь к расположению сетевых файлов."
 
-#: ../../include/text.php:2513
+#: ../../include/text.php:2573
 msgid "Specify folder"
 msgstr "Указать каталог"
 
-#: ../../include/text.php:2833 ../../Zotlabs/Storage/Browser.php:131
+#: ../../include/text.php:2893 ../../Zotlabs/Storage/Browser.php:131
 msgid "Collection"
 msgstr "Коллекция"
 
-#: ../../include/import.php:25
+#: ../../include/import.php:26
 msgid "Unable to import a removed channel."
 msgstr "Невозможно импортировать удалённый канал."
 
-#: ../../include/import.php:51
+#: ../../include/import.php:52
 msgid ""
 "Cannot create a duplicate channel identifier on this system. Import failed."
 msgstr "Не удалось создать дублирующийся идентификатор канала. Импорт невозможен."
 
-#: ../../include/import.php:72
+#: ../../include/import.php:73
 #: ../../extend/addon/hzaddons/diaspora/import_diaspora.php:43
 msgid "Unable to create a unique channel address. Import failed."
 msgstr "Не удалось создать уникальный адрес канала. Импорт не завершен."
 
-#: ../../include/import.php:116
+#: ../../include/import.php:117
 msgid "Cloned channel not found. Import failed."
 msgstr "Клон канала не найден. Импорт невозможен."
 
@@ -2175,9 +2176,9 @@ msgid "edit"
 msgstr "редактировать"
 
 #: ../../include/group.php:320 ../../include/nav.php:95
-#: ../../Zotlabs/Module/Group.php:132 ../../Zotlabs/Module/Group.php:143
+#: ../../Zotlabs/Module/Group.php:141 ../../Zotlabs/Module/Group.php:153
 #: ../../Zotlabs/Widget/Activity_filter.php:41 ../../Zotlabs/Lib/Group.php:324
-#: ../../Zotlabs/Lib/Apps.php:339
+#: ../../Zotlabs/Lib/Apps.php:341
 msgid "Privacy Groups"
 msgstr "Группы безопасности"
 
@@ -2270,16 +2271,16 @@ msgstr "Это действие невозможно из-за ограниче�
 msgid "Invalid data packet"
 msgstr "Неверный пакет данных"
 
-#: ../../include/zot.php:802 ../../Zotlabs/Lib/Libzot.php:667
+#: ../../include/zot.php:802 ../../Zotlabs/Lib/Libzot.php:653
 msgid "Unable to verify channel signature"
 msgstr "Невозможно проверить подпись канала"
 
-#: ../../include/zot.php:2575 ../../Zotlabs/Lib/Libsync.php:733
+#: ../../include/zot.php:2591 ../../Zotlabs/Lib/Libsync.php:733
 #, php-format
 msgid "Unable to verify site signature for %s"
 msgstr "Невозможно проверить подпись сайта %s"
 
-#: ../../include/zot.php:4272
+#: ../../include/zot.php:4288
 msgid "invalid target signature"
 msgstr "недопустимая целевая подпись"
 
@@ -2324,8 +2325,8 @@ msgid "Help:"
 msgstr "Помощь:"
 
 #: ../../include/help.php:117 ../../include/help.php:125
-#: ../../include/nav.php:168 ../../include/nav.php:289
-#: ../../Zotlabs/Module/Layouts.php:186 ../../Zotlabs/Lib/Apps.php:323
+#: ../../include/nav.php:168 ../../include/nav.php:319
+#: ../../Zotlabs/Module/Layouts.php:186 ../../Zotlabs/Lib/Apps.php:325
 msgid "Help"
 msgstr "Помощь"
 
@@ -2340,17 +2341,17 @@ msgstr "Не найдено"
 msgid "Page not found."
 msgstr "Страница не найдена."
 
-#: ../../include/bbcode.php:200 ../../include/bbcode.php:1201
-#: ../../include/bbcode.php:1204 ../../include/bbcode.php:1209
-#: ../../include/bbcode.php:1212 ../../include/bbcode.php:1215
-#: ../../include/bbcode.php:1218 ../../include/bbcode.php:1223
-#: ../../include/bbcode.php:1226 ../../include/bbcode.php:1231
-#: ../../include/bbcode.php:1234 ../../include/bbcode.php:1237
-#: ../../include/bbcode.php:1240
+#: ../../include/bbcode.php:200 ../../include/bbcode.php:1190
+#: ../../include/bbcode.php:1193 ../../include/bbcode.php:1198
+#: ../../include/bbcode.php:1201 ../../include/bbcode.php:1204
+#: ../../include/bbcode.php:1207 ../../include/bbcode.php:1212
+#: ../../include/bbcode.php:1215 ../../include/bbcode.php:1220
+#: ../../include/bbcode.php:1223 ../../include/bbcode.php:1226
+#: ../../include/bbcode.php:1229
 msgid "Image/photo"
 msgstr "Изображение / фотография"
 
-#: ../../include/bbcode.php:239 ../../include/bbcode.php:1251
+#: ../../include/bbcode.php:239 ../../include/bbcode.php:1240
 msgid "Encrypted content"
 msgstr "Зашифрованное содержание"
 
@@ -2382,54 +2383,54 @@ msgstr "заблокировать"
 msgid "menu"
 msgstr "меню"
 
-#: ../../include/bbcode.php:350
+#: ../../include/bbcode.php:339
 msgid "card"
 msgstr "карточка"
 
-#: ../../include/bbcode.php:352
+#: ../../include/bbcode.php:341
 msgid "article"
 msgstr "статья"
 
-#: ../../include/bbcode.php:435 ../../include/bbcode.php:443
+#: ../../include/bbcode.php:424 ../../include/bbcode.php:432
 msgid "Click to open/close"
 msgstr "Нажмите, чтобы открыть/закрыть"
 
-#: ../../include/bbcode.php:443
+#: ../../include/bbcode.php:432
 msgid "spoiler"
 msgstr "спойлер"
 
-#: ../../include/bbcode.php:456
+#: ../../include/bbcode.php:445
 msgid "View article"
 msgstr "Просмотр статьи"
 
-#: ../../include/bbcode.php:456
+#: ../../include/bbcode.php:445
 msgid "View summary"
 msgstr "Просмотр резюме"
 
-#: ../../include/bbcode.php:746 ../../include/bbcode.php:916
+#: ../../include/bbcode.php:735 ../../include/bbcode.php:905
 #: ../../Zotlabs/Lib/NativeWikiPage.php:603
 msgid "Different viewers will see this text differently"
 msgstr "Различные зрители увидят этот текст по-разному"
 
-#: ../../include/bbcode.php:1189
+#: ../../include/bbcode.php:1178
 msgid "$1 wrote:"
 msgstr "$1 писал:"
 
-#: ../../include/conversation.php:122 ../../Zotlabs/Module/Like.php:121
+#: ../../include/conversation.php:122 ../../Zotlabs/Module/Like.php:123
 msgid "channel"
 msgstr "канал"
 
-#: ../../include/conversation.php:160 ../../Zotlabs/Module/Like.php:441
-#: ../../Zotlabs/Lib/Activity.php:1605
-#: ../../extend/addon/hzaddons/pubcrawl/as.php:1529
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1570
+#: ../../include/conversation.php:160 ../../Zotlabs/Module/Like.php:447
+#: ../../Zotlabs/Lib/Activity.php:1986
+#: ../../extend/addon/hzaddons/pubcrawl/as.php:1530
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:1575
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
 msgstr "%1$s нравится %3$s %2$s"
 
-#: ../../include/conversation.php:163 ../../Zotlabs/Module/Like.php:443
-#: ../../Zotlabs/Lib/Activity.php:1607
-#: ../../extend/addon/hzaddons/pubcrawl/as.php:1531
+#: ../../include/conversation.php:163 ../../Zotlabs/Module/Like.php:449
+#: ../../Zotlabs/Lib/Activity.php:1988
+#: ../../extend/addon/hzaddons/pubcrawl/as.php:1532
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
 msgstr "%1$s не нравится %2$s %3$s"
@@ -2464,42 +2465,42 @@ msgstr "%1$s в %2$s"
 msgid "This is an unsaved preview"
 msgstr "Это несохранённый просмотр"
 
-#: ../../include/conversation.php:619 ../../Zotlabs/Module/Photos.php:1152
+#: ../../include/conversation.php:619 ../../Zotlabs/Module/Photos.php:1154
 msgctxt "title"
 msgid "Likes"
 msgstr "Нравится"
 
-#: ../../include/conversation.php:619 ../../Zotlabs/Module/Photos.php:1152
+#: ../../include/conversation.php:619 ../../Zotlabs/Module/Photos.php:1154
 msgctxt "title"
 msgid "Dislikes"
 msgstr "Не нравится"
 
-#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1153
+#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1155
 msgctxt "title"
 msgid "Agree"
 msgstr "Согласен"
 
-#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1153
+#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1155
 msgctxt "title"
 msgid "Disagree"
 msgstr "Не согласен"
 
-#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1153
+#: ../../include/conversation.php:620 ../../Zotlabs/Module/Photos.php:1155
 msgctxt "title"
 msgid "Abstain"
 msgstr "Воздержался"
 
-#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1154
+#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1156
 msgctxt "title"
 msgid "Attending"
 msgstr "Посещаю"
 
-#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1154
+#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1156
 msgctxt "title"
 msgid "Not attending"
 msgstr "Не посещаю"
 
-#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1154
+#: ../../include/conversation.php:621 ../../Zotlabs/Module/Photos.php:1156
 msgctxt "title"
 msgid "Might attend"
 msgstr "Возможно посещу"
@@ -2511,19 +2512,19 @@ msgstr "Выбрать"
 #: ../../include/conversation.php:691 ../../include/conversation.php:736
 #: ../../Zotlabs/Storage/Browser.php:291 ../../Zotlabs/Module/Cdav.php:942
 #: ../../Zotlabs/Module/Cdav.php:1232 ../../Zotlabs/Module/Profiles.php:800
-#: ../../Zotlabs/Module/Photos.php:1218 ../../Zotlabs/Module/Oauth.php:174
+#: ../../Zotlabs/Module/Photos.php:1220 ../../Zotlabs/Module/Oauth.php:174
 #: ../../Zotlabs/Module/Oauth2.php:195 ../../Zotlabs/Module/Editlayout.php:138
 #: ../../Zotlabs/Module/Editblock.php:139
 #: ../../Zotlabs/Module/Admin/Channels.php:149
 #: ../../Zotlabs/Module/Admin/Profs.php:176
 #: ../../Zotlabs/Module/Admin/Accounts.php:175
 #: ../../Zotlabs/Module/Editwebpage.php:167 ../../Zotlabs/Module/Thing.php:267
-#: ../../Zotlabs/Module/Webpages.php:257 ../../Zotlabs/Module/Connedit.php:660
-#: ../../Zotlabs/Module/Connedit.php:929
+#: ../../Zotlabs/Module/Webpages.php:257 ../../Zotlabs/Module/Connedit.php:668
+#: ../../Zotlabs/Module/Connedit.php:940
 #: ../../Zotlabs/Module/Connections.php:292
 #: ../../Zotlabs/Module/Card_edit.php:129
 #: ../../Zotlabs/Module/Article_edit.php:129
-#: ../../Zotlabs/Module/Blocks.php:162 ../../Zotlabs/Lib/Apps.php:535
+#: ../../Zotlabs/Module/Blocks.php:162 ../../Zotlabs/Lib/Apps.php:537
 #: ../../Zotlabs/Lib/ThreadItem.php:153
 msgid "Delete"
 msgstr "Удалить"
@@ -2616,12 +2617,12 @@ msgid "Unfollow Thread"
 msgstr "Прекратить отслеживать тему"
 
 #: ../../include/conversation.php:1038 ../../include/nav.php:106
-#: ../../Zotlabs/Module/Connedit.php:600 ../../Zotlabs/Lib/Apps.php:319
+#: ../../Zotlabs/Module/Connedit.php:608 ../../Zotlabs/Lib/Apps.php:321
 #: ../../extend/addon/hzaddons/openclipatar/openclipatar.php:57
 msgid "View Profile"
 msgstr "Просмотреть профиль"
 
-#: ../../include/conversation.php:1048 ../../Zotlabs/Module/Connedit.php:621
+#: ../../include/conversation.php:1048 ../../Zotlabs/Module/Connedit.php:629
 msgid "Recent Activity"
 msgstr "Последние действия"
 
@@ -2639,18 +2640,18 @@ msgid "Ratings"
 msgstr "Оценки"
 
 #: ../../include/conversation.php:1098 ../../Zotlabs/Module/Poke.php:199
-#: ../../Zotlabs/Lib/Apps.php:326
+#: ../../Zotlabs/Lib/Apps.php:328
 msgid "Poke"
 msgstr "Ткнуть"
 
 #: ../../include/conversation.php:1166 ../../Zotlabs/Storage/Browser.php:164
 #: ../../Zotlabs/Module/Cdav.php:811 ../../Zotlabs/Module/Cdav.php:812
 #: ../../Zotlabs/Module/Cdav.php:819 ../../Zotlabs/Module/Photos.php:832
-#: ../../Zotlabs/Module/Photos.php:1288
-#: ../../Zotlabs/Module/Embedphotos.php:146
+#: ../../Zotlabs/Module/Photos.php:1296
+#: ../../Zotlabs/Module/Embedphotos.php:154
 #: ../../Zotlabs/Widget/Portfolio.php:95 ../../Zotlabs/Widget/Album.php:84
-#: ../../Zotlabs/Lib/Apps.php:994 ../../Zotlabs/Lib/Apps.php:1078
-#: ../../Zotlabs/Lib/Activity.php:858
+#: ../../Zotlabs/Lib/Apps.php:1010 ../../Zotlabs/Lib/Apps.php:1094
+#: ../../Zotlabs/Lib/Activity.php:1006
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:949
 msgid "Unknown"
 msgstr "Неизвестный"
@@ -2789,7 +2790,7 @@ msgstr "Комментарии включены"
 msgid "Comments disabled"
 msgstr "Комментарии отключены"
 
-#: ../../include/conversation.php:1356 ../../Zotlabs/Module/Photos.php:1138
+#: ../../include/conversation.php:1356 ../../Zotlabs/Module/Photos.php:1139
 #: ../../Zotlabs/Module/Events.php:480 ../../Zotlabs/Module/Webpages.php:262
 #: ../../Zotlabs/Lib/ThreadItem.php:783
 #: ../../extend/addon/hzaddons/hsse/hsse.php:153
@@ -2861,7 +2862,7 @@ msgstr "Встроить изображение из ваших альбомов
 #: ../../Zotlabs/Module/Admin/Addons.php:423
 #: ../../Zotlabs/Module/Editwebpage.php:169
 #: ../../Zotlabs/Module/Profile_photo.php:465
-#: ../../Zotlabs/Module/Editpost.php:109 ../../Zotlabs/Module/Connedit.php:930
+#: ../../Zotlabs/Module/Editpost.php:109 ../../Zotlabs/Module/Connedit.php:941
 #: ../../Zotlabs/Module/Card_edit.php:131
 #: ../../Zotlabs/Module/Article_edit.php:131 ../../Zotlabs/Module/Wiki.php:368
 #: ../../Zotlabs/Module/Wiki.php:401 ../../Zotlabs/Module/Filer.php:55
@@ -2934,7 +2935,7 @@ msgstr "Установить дату публикации"
 msgid "Encrypt text"
 msgstr "Зашифровать текст"
 
-#: ../../include/conversation.php:1696 ../../Zotlabs/Module/Photos.php:1180
+#: ../../include/conversation.php:1696 ../../Zotlabs/Module/Photos.php:1182
 #: ../../Zotlabs/Lib/ThreadItem.php:226
 msgctxt "noun"
 msgid "Dislike"
@@ -3042,8 +3043,8 @@ msgstr "Выбор дополнительного языка"
 msgid "Delete this item?"
 msgstr "Удалить этот элемент?"
 
-#: ../../include/js_strings.php:6 ../../Zotlabs/Module/Photos.php:1136
-#: ../../Zotlabs/Module/Photos.php:1254 ../../Zotlabs/Lib/ThreadItem.php:772
+#: ../../include/js_strings.php:6 ../../Zotlabs/Module/Photos.php:1137
+#: ../../Zotlabs/Module/Photos.php:1256 ../../Zotlabs/Lib/ThreadItem.php:772
 msgid "Comment"
 msgstr "Комментарий"
 
@@ -3104,7 +3105,7 @@ msgid "Rate This Channel (this is public)"
 msgstr "Оценкa этoго канала (общедоступно)"
 
 #: ../../include/js_strings.php:20 ../../Zotlabs/Module/Rate.php:155
-#: ../../Zotlabs/Module/Connedit.php:876
+#: ../../Zotlabs/Module/Connedit.php:887
 msgid "Rating"
 msgstr "Оценка"
 
@@ -3380,39 +3381,35 @@ msgstr "Только публичные форумы"
 msgid "This Website Only"
 msgstr "Только этот веб-сайт"
 
-#: ../../include/network.php:771
-msgid "view full size"
-msgstr "посмотреть в полный размер"
-
-#: ../../include/network.php:1774 ../../include/network.php:1775
+#: ../../include/network.php:1715 ../../include/network.php:1716
 msgid "Friendica"
 msgstr ""
 
-#: ../../include/network.php:1776
+#: ../../include/network.php:1717
 msgid "OStatus"
 msgstr ""
 
-#: ../../include/network.php:1777
+#: ../../include/network.php:1718
 msgid "GNU-Social"
 msgstr ""
 
-#: ../../include/network.php:1778
+#: ../../include/network.php:1719
 msgid "RSS/Atom"
 msgstr ""
 
-#: ../../include/network.php:1779 ../../Zotlabs/Lib/Activity.php:1417
-#: ../../Zotlabs/Lib/Activity.php:1614
+#: ../../include/network.php:1720 ../../Zotlabs/Lib/Activity.php:1798
+#: ../../Zotlabs/Lib/Activity.php:1995
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1204
 #: ../../extend/addon/hzaddons/pubcrawl/as.php:1359
-#: ../../extend/addon/hzaddons/pubcrawl/as.php:1538
+#: ../../extend/addon/hzaddons/pubcrawl/as.php:1539
 msgid "ActivityPub"
 msgstr ""
 
-#: ../../include/network.php:1780 ../../Zotlabs/Module/Cdav.php:1219
+#: ../../include/network.php:1721 ../../Zotlabs/Module/Cdav.php:1219
 #: ../../Zotlabs/Module/Profiles.php:787
 #: ../../Zotlabs/Module/Admin/Accounts.php:171
 #: ../../Zotlabs/Module/Admin/Accounts.php:183
-#: ../../Zotlabs/Module/Connedit.php:916
+#: ../../Zotlabs/Module/Connedit.php:927
 #: ../../extend/addon/hzaddons/rtof/Mod_Rtof.php:57
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:56
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:57
@@ -3420,27 +3417,27 @@ msgstr ""
 msgid "Email"
 msgstr "Электронная почта"
 
-#: ../../include/network.php:1781
+#: ../../include/network.php:1722
 msgid "Diaspora"
 msgstr ""
 
-#: ../../include/network.php:1782
+#: ../../include/network.php:1723
 msgid "Facebook"
 msgstr ""
 
-#: ../../include/network.php:1783
+#: ../../include/network.php:1724
 msgid "Zot"
 msgstr ""
 
-#: ../../include/network.php:1784
+#: ../../include/network.php:1725
 msgid "LinkedIn"
 msgstr ""
 
-#: ../../include/network.php:1785
+#: ../../include/network.php:1726
 msgid "XMPP/IM"
 msgstr ""
 
-#: ../../include/network.php:1786
+#: ../../include/network.php:1727
 msgid "MySpace"
 msgstr ""
 
@@ -3468,7 +3465,7 @@ msgstr "YYYY-MM-DD или MM-DD"
 msgid "Required"
 msgstr "Требуется"
 
-#: ../../include/datetime.php:238 ../../boot.php:2558
+#: ../../include/datetime.php:238 ../../boot.php:2562
 msgid "never"
 msgstr "никогда"
 
@@ -3589,11 +3586,11 @@ msgstr "Не показывать"
 #: ../../include/acl_selectors.php:123 ../../Zotlabs/Module/Photos.php:717
 #: ../../Zotlabs/Module/Photos.php:1086 ../../Zotlabs/Module/Chat.php:243
 #: ../../Zotlabs/Module/Filestorage.php:170 ../../Zotlabs/Module/Thing.php:319
-#: ../../Zotlabs/Module/Thing.php:372 ../../Zotlabs/Module/Connedit.php:682
+#: ../../Zotlabs/Module/Thing.php:372 ../../Zotlabs/Module/Connedit.php:690
 msgid "Permissions"
 msgstr "Разрешения"
 
-#: ../../include/acl_selectors.php:125 ../../Zotlabs/Module/Photos.php:1308
+#: ../../include/acl_selectors.php:125 ../../Zotlabs/Module/Photos.php:1316
 #: ../../Zotlabs/Lib/ThreadItem.php:441
 msgid "Close"
 msgstr "Закрыть"
@@ -3618,73 +3615,73 @@ msgstr "Новое окно"
 msgid "Open the selected location in a different window or browser tab"
 msgstr "Открыть выбранное местоположение в другом окне или вкладке браузера"
 
-#: ../../include/connections.php:696 ../../include/event.php:1311
+#: ../../include/connections.php:696 ../../include/event.php:1320
 #: ../../Zotlabs/Module/Cdav.php:1224 ../../Zotlabs/Module/Profiles.php:792
-#: ../../Zotlabs/Module/Connedit.php:921
+#: ../../Zotlabs/Module/Connedit.php:932
 msgid "Mobile"
 msgstr "Мобильный"
 
-#: ../../include/connections.php:697 ../../include/event.php:1312
+#: ../../include/connections.php:697 ../../include/event.php:1321
 #: ../../Zotlabs/Module/Cdav.php:1225 ../../Zotlabs/Module/Profiles.php:793
-#: ../../Zotlabs/Module/Connedit.php:922
+#: ../../Zotlabs/Module/Connedit.php:933
 msgid "Home"
 msgstr "Домашний"
 
-#: ../../include/connections.php:698 ../../include/event.php:1313
+#: ../../include/connections.php:698 ../../include/event.php:1322
 msgid "Home, Voice"
 msgstr "Дом, голос"
 
-#: ../../include/connections.php:699 ../../include/event.php:1314
+#: ../../include/connections.php:699 ../../include/event.php:1323
 msgid "Home, Fax"
 msgstr "Дом, факс"
 
-#: ../../include/connections.php:700 ../../include/event.php:1315
+#: ../../include/connections.php:700 ../../include/event.php:1324
 #: ../../Zotlabs/Module/Cdav.php:1226 ../../Zotlabs/Module/Profiles.php:794
-#: ../../Zotlabs/Module/Connedit.php:923
+#: ../../Zotlabs/Module/Connedit.php:934
 msgid "Work"
 msgstr "Рабочий"
 
-#: ../../include/connections.php:701 ../../include/event.php:1316
+#: ../../include/connections.php:701 ../../include/event.php:1325
 msgid "Work, Voice"
 msgstr "Работа, голос"
 
-#: ../../include/connections.php:702 ../../include/event.php:1317
+#: ../../include/connections.php:702 ../../include/event.php:1326
 msgid "Work, Fax"
 msgstr "Работа, факс"
 
-#: ../../include/event.php:24 ../../include/event.php:71
+#: ../../include/event.php:28 ../../include/event.php:75
 msgid "l F d, Y \\@ g:i A"
 msgstr ""
 
-#: ../../include/event.php:32 ../../include/event.php:75
+#: ../../include/event.php:36 ../../include/event.php:79
 msgid "Starts:"
 msgstr "Начало:"
 
-#: ../../include/event.php:42 ../../include/event.php:79
+#: ../../include/event.php:46 ../../include/event.php:83
 msgid "Finishes:"
 msgstr "Окончание:"
 
-#: ../../include/event.php:1011
+#: ../../include/event.php:1020
 msgid "This event has been added to your calendar."
 msgstr "Это событие было добавлено в ваш календарь."
 
-#: ../../include/event.php:1230
+#: ../../include/event.php:1239
 msgid "Not specified"
 msgstr "Не указано"
 
-#: ../../include/event.php:1231
+#: ../../include/event.php:1240
 msgid "Needs Action"
 msgstr "Требует действия"
 
-#: ../../include/event.php:1232
+#: ../../include/event.php:1241
 msgid "Completed"
 msgstr "Завершено"
 
-#: ../../include/event.php:1233
+#: ../../include/event.php:1242
 msgid "In Process"
 msgstr "В процессе"
 
-#: ../../include/event.php:1234
+#: ../../include/event.php:1243
 msgid "Cancelled"
 msgstr "Отменено"
 
@@ -3718,7 +3715,7 @@ msgid "Click to authenticate to your home hub"
 msgstr "Нажмите, чтобы аутентифицировать себя на домашнем узле"
 
 #: ../../include/nav.php:92 ../../Zotlabs/Module/Manage.php:170
-#: ../../Zotlabs/Lib/Apps.php:312
+#: ../../Zotlabs/Lib/Apps.php:314
 msgid "Channel Manager"
 msgstr "Менеджер каналов"
 
@@ -3733,7 +3730,7 @@ msgstr "Управление вашим группами безопасност�
 #: ../../include/nav.php:97 ../../Zotlabs/Module/Admin/Addons.php:344
 #: ../../Zotlabs/Module/Admin/Themes.php:125
 #: ../../Zotlabs/Widget/Newmember.php:53
-#: ../../Zotlabs/Widget/Settings_menu.php:68 ../../Zotlabs/Lib/Apps.php:314
+#: ../../Zotlabs/Widget/Settings_menu.php:68 ../../Zotlabs/Lib/Apps.php:316
 msgid "Settings"
 msgstr "Настройки"
 
@@ -3742,7 +3739,7 @@ msgid "Account/Channel Settings"
 msgstr "Настройки аккаунта / канала"
 
 #: ../../include/nav.php:103 ../../include/nav.php:132
-#: ../../include/nav.php:151 ../../boot.php:1624
+#: ../../include/nav.php:151 ../../boot.php:1628
 msgid "Logout"
 msgstr "Выход"
 
@@ -3762,8 +3759,8 @@ msgstr "Управление / редактирование профилей"
 msgid "Edit your profile"
 msgstr "Редактировать профиль"
 
-#: ../../include/nav.php:118 ../../include/nav.php:122 ../../boot.php:1625
-#: ../../Zotlabs/Lib/Apps.php:311
+#: ../../include/nav.php:118 ../../include/nav.php:122 ../../boot.php:1629
+#: ../../Zotlabs/Lib/Apps.php:313
 msgid "Login"
 msgstr "Войти"
 
@@ -3779,7 +3776,7 @@ msgstr "Домой"
 msgid "Log me out of this site"
 msgstr "Выйти с этого сайта"
 
-#: ../../include/nav.php:156 ../../boot.php:1605
+#: ../../include/nav.php:156 ../../boot.php:1609
 #: ../../Zotlabs/Module/Register.php:289
 msgid "Register"
 msgstr "Регистрация"
@@ -3804,110 +3801,110 @@ msgstr "Администрирование"
 msgid "Site Setup and Configuration"
 msgstr "Установка и конфигурация сайта"
 
-#: ../../include/nav.php:293 ../../Zotlabs/Module/Defperms.php:256
+#: ../../include/nav.php:323 ../../Zotlabs/Module/Defperms.php:256
 #: ../../Zotlabs/Module/New_channel.php:157
 #: ../../Zotlabs/Module/New_channel.php:164
-#: ../../Zotlabs/Module/Connedit.php:858
+#: ../../Zotlabs/Module/Connedit.php:869
 #: ../../Zotlabs/Widget/Notifications.php:162
 msgid "Loading"
 msgstr "Загрузка"
 
-#: ../../include/nav.php:299
+#: ../../include/nav.php:329
 msgid "@name, !forum, #tag, ?doc, content"
 msgstr "@имя, !форум, #тег, ?документ, содержимое"
 
-#: ../../include/nav.php:300
+#: ../../include/nav.php:330
 msgid "Please wait..."
 msgstr "Подождите пожалуйста ..."
 
-#: ../../include/nav.php:306
+#: ../../include/nav.php:336
 msgid "Add Apps"
 msgstr "Добавить приложения"
 
-#: ../../include/nav.php:307
+#: ../../include/nav.php:337
 msgid "Arrange Apps"
 msgstr "Упорядочить приложения"
 
-#: ../../include/nav.php:308
+#: ../../include/nav.php:338
 msgid "Toggle System Apps"
 msgstr "Показать системные приложения"
 
-#: ../../include/nav.php:391 ../../Zotlabs/Module/Admin/Channels.php:154
+#: ../../include/nav.php:421 ../../Zotlabs/Module/Admin/Channels.php:154
 msgid "Channel"
 msgstr "Канал"
 
-#: ../../include/nav.php:394
+#: ../../include/nav.php:424
 msgid "Status Messages and Posts"
 msgstr "Статусы и публикации"
 
-#: ../../include/nav.php:404 ../../Zotlabs/Module/Help.php:80
+#: ../../include/nav.php:434 ../../Zotlabs/Module/Help.php:80
 msgid "About"
 msgstr "О себе"
 
-#: ../../include/nav.php:407
+#: ../../include/nav.php:437
 msgid "Profile Details"
 msgstr "Информация о профиле"
 
-#: ../../include/nav.php:422 ../../Zotlabs/Storage/Browser.php:272
-#: ../../Zotlabs/Module/Fbrowser.php:85 ../../Zotlabs/Lib/Apps.php:315
+#: ../../include/nav.php:452 ../../Zotlabs/Storage/Browser.php:272
+#: ../../Zotlabs/Module/Fbrowser.php:85 ../../Zotlabs/Lib/Apps.php:317
 msgid "Files"
 msgstr "Файлы"
 
-#: ../../include/nav.php:425
+#: ../../include/nav.php:455
 msgid "Files and Storage"
 msgstr "Файлы и хранилище"
 
-#: ../../include/nav.php:433 ../../include/nav.php:436
+#: ../../include/nav.php:463 ../../include/nav.php:466
 #: ../../Zotlabs/Storage/Browser.php:140
 msgid "Calendar"
 msgstr "Календарь"
 
-#: ../../include/nav.php:447 ../../include/nav.php:450
-#: ../../Zotlabs/Widget/Chatroom_list.php:16 ../../Zotlabs/Lib/Apps.php:307
+#: ../../include/nav.php:477 ../../include/nav.php:480
+#: ../../Zotlabs/Widget/Chatroom_list.php:16 ../../Zotlabs/Lib/Apps.php:309
 msgid "Chatrooms"
 msgstr "Чаты"
 
-#: ../../include/nav.php:460 ../../Zotlabs/Lib/Apps.php:306
+#: ../../include/nav.php:490 ../../Zotlabs/Lib/Apps.php:308
 msgid "Bookmarks"
 msgstr "Закладки"
 
-#: ../../include/nav.php:463
+#: ../../include/nav.php:493
 msgid "Saved Bookmarks"
 msgstr "Сохранённые закладки"
 
-#: ../../include/nav.php:471 ../../Zotlabs/Module/Cards.php:203
-#: ../../Zotlabs/Lib/Apps.php:303
+#: ../../include/nav.php:501 ../../Zotlabs/Module/Cards.php:207
+#: ../../Zotlabs/Lib/Apps.php:305
 msgid "Cards"
 msgstr "Карточки"
 
-#: ../../include/nav.php:474
+#: ../../include/nav.php:504
 msgid "View Cards"
 msgstr "Просмотреть карточки"
 
-#: ../../include/nav.php:482 ../../Zotlabs/Module/Articles.php:214
-#: ../../Zotlabs/Lib/Apps.php:302
+#: ../../include/nav.php:512 ../../Zotlabs/Module/Articles.php:222
+#: ../../Zotlabs/Lib/Apps.php:304
 msgid "Articles"
 msgstr "Статьи"
 
-#: ../../include/nav.php:485
+#: ../../include/nav.php:515
 msgid "View Articles"
 msgstr "Просмотр статей"
 
-#: ../../include/nav.php:494 ../../Zotlabs/Module/Webpages.php:252
-#: ../../Zotlabs/Lib/Apps.php:316
+#: ../../include/nav.php:524 ../../Zotlabs/Module/Webpages.php:252
+#: ../../Zotlabs/Lib/Apps.php:318
 msgid "Webpages"
 msgstr "Веб-страницы"
 
-#: ../../include/nav.php:497
+#: ../../include/nav.php:527
 msgid "View Webpages"
 msgstr "Просмотр веб-страниц"
 
-#: ../../include/nav.php:506 ../../Zotlabs/Module/Wiki.php:206
+#: ../../include/nav.php:536 ../../Zotlabs/Module/Wiki.php:206
 #: ../../Zotlabs/Widget/Wiki_list.php:15
 msgid "Wikis"
 msgstr ""
 
-#: ../../include/nav.php:509 ../../Zotlabs/Lib/Apps.php:317
+#: ../../include/nav.php:539 ../../Zotlabs/Lib/Apps.php:319
 msgid "Wiki"
 msgstr ""
 
@@ -3916,117 +3913,117 @@ msgstr ""
 msgid "%1$s's bookmarks"
 msgstr "Закладки пользователя %1$s"
 
-#: ../../include/attach.php:265 ../../include/attach.php:374
+#: ../../include/attach.php:267 ../../include/attach.php:376
 msgid "Item was not found."
 msgstr "Элемент не найден."
 
-#: ../../include/attach.php:282
+#: ../../include/attach.php:284
 msgid "Unknown error."
 msgstr "Неизвестная ошибка."
 
-#: ../../include/attach.php:567
+#: ../../include/attach.php:569
 msgid "No source file."
 msgstr "Нет исходного файла."
 
-#: ../../include/attach.php:589
+#: ../../include/attach.php:591
 msgid "Cannot locate file to replace"
 msgstr "Не удается найти файл для замены"
 
-#: ../../include/attach.php:608
+#: ../../include/attach.php:610
 msgid "Cannot locate file to revise/update"
 msgstr "Не удается найти файл для пересмотра / обновления"
 
-#: ../../include/attach.php:750
+#: ../../include/attach.php:752
 #, php-format
 msgid "File exceeds size limit of %d"
 msgstr "Файл превышает предельный размер %d"
 
-#: ../../include/attach.php:771
+#: ../../include/attach.php:773
 #, php-format
 msgid "You have reached your limit of %1$.0f Mbytes attachment storage."
 msgstr "Вы достигли предела %1$.0f Мбайт для хранения вложений."
 
-#: ../../include/attach.php:953
+#: ../../include/attach.php:955
 msgid "File upload failed. Possible system limit or action terminated."
 msgstr "Загрузка файла не удалась. Возможно система перегружена или попытка прекращена."
 
-#: ../../include/attach.php:982
+#: ../../include/attach.php:984
 msgid "Stored file could not be verified. Upload failed."
 msgstr "Файл для сохранения не может быть проверен. Загрузка не удалась."
 
-#: ../../include/attach.php:1056 ../../include/attach.php:1072
+#: ../../include/attach.php:1058 ../../include/attach.php:1074
 msgid "Path not available."
 msgstr "Путь недоступен."
 
-#: ../../include/attach.php:1121 ../../include/attach.php:1286
+#: ../../include/attach.php:1123 ../../include/attach.php:1288
 msgid "Empty pathname"
 msgstr "Пустое имя пути"
 
-#: ../../include/attach.php:1147
+#: ../../include/attach.php:1149
 msgid "duplicate filename or path"
 msgstr "дублирующееся имя файла или пути"
 
-#: ../../include/attach.php:1172
+#: ../../include/attach.php:1174
 msgid "Path not found."
 msgstr "Путь не найден."
 
-#: ../../include/attach.php:1240
+#: ../../include/attach.php:1242
 msgid "mkdir failed."
 msgstr "mkdir не удался"
 
-#: ../../include/attach.php:1244
+#: ../../include/attach.php:1246
 msgid "database storage failed."
 msgstr "ошибка при записи базы данных."
 
-#: ../../include/attach.php:1292
+#: ../../include/attach.php:1294
 msgid "Empty path"
 msgstr "Пустое имя пути"
 
-#: ../../include/photo/photo_driver.php:779
+#: ../../include/photo/photo_driver.php:782
 #: ../../Zotlabs/Module/Profile_photo.php:120
 #: ../../Zotlabs/Module/Profile_photo.php:248
 msgid "Profile Photos"
 msgstr "Фотографии профиля"
 
-#: ../../boot.php:1604
+#: ../../boot.php:1608
 msgid "Create an account to access services and applications"
 msgstr "Создайте аккаунт для доступа к службам и приложениям"
 
-#: ../../boot.php:1628
+#: ../../boot.php:1632
 msgid "Login/Email"
 msgstr "Пользователь / email"
 
-#: ../../boot.php:1629
+#: ../../boot.php:1633
 msgid "Password"
 msgstr "Пароль"
 
-#: ../../boot.php:1630
+#: ../../boot.php:1634
 msgid "Remember me"
 msgstr "Запомнить меня"
 
-#: ../../boot.php:1633
+#: ../../boot.php:1637
 msgid "Forgot your password?"
 msgstr "Забыли пароль или логин?"
 
-#: ../../boot.php:1634 ../../Zotlabs/Module/Lostpass.php:91
+#: ../../boot.php:1638 ../../Zotlabs/Module/Lostpass.php:91
 msgid "Password Reset"
 msgstr "Сбросить пароль"
 
-#: ../../boot.php:2431
+#: ../../boot.php:2435
 #, php-format
 msgid "[$Projectname] Website SSL error for %s"
 msgstr "[$Projectname] Ошибка SSL/TLS веб-сайта для %s"
 
-#: ../../boot.php:2436
+#: ../../boot.php:2440
 msgid "Website SSL certificate is not valid. Please correct."
 msgstr "SSL/TLS сертификат веб-сайт недействителен. Исправьте это."
 
-#: ../../boot.php:2552
+#: ../../boot.php:2556
 #, php-format
 msgid "[$Projectname] Cron tasks not running on %s"
 msgstr "[$Projectname] Задания Cron не запущены на %s"
 
-#: ../../boot.php:2557
+#: ../../boot.php:2561
 msgid "Cron/Scheduled tasks not running."
 msgstr "Задания Cron / планировщика не запущены."
 
@@ -4061,9 +4058,9 @@ msgstr "Общие"
 #: ../../Zotlabs/Storage/Browser.php:276 ../../Zotlabs/Storage/Browser.php:390
 #: ../../Zotlabs/Module/Cdav.php:1230 ../../Zotlabs/Module/Profiles.php:798
 #: ../../Zotlabs/Module/New_channel.php:189 ../../Zotlabs/Module/Menu.php:181
-#: ../../Zotlabs/Module/Webpages.php:254 ../../Zotlabs/Module/Connedit.php:927
-#: ../../Zotlabs/Module/Blocks.php:159 ../../Zotlabs/Module/Articles.php:108
-#: ../../Zotlabs/Module/Cards.php:109 ../../Zotlabs/Module/Layouts.php:185
+#: ../../Zotlabs/Module/Webpages.php:254 ../../Zotlabs/Module/Connedit.php:938
+#: ../../Zotlabs/Module/Blocks.php:159 ../../Zotlabs/Module/Articles.php:116
+#: ../../Zotlabs/Module/Cards.php:113 ../../Zotlabs/Module/Layouts.php:185
 #: ../../Zotlabs/Widget/Cdav.php:128 ../../Zotlabs/Widget/Cdav.php:165
 msgid "Create"
 msgstr "Создать"
@@ -4081,7 +4078,7 @@ msgstr "Удалено администратором"
 #: ../../Zotlabs/Module/Sharedwithme.php:104 ../../Zotlabs/Module/Chat.php:259
 #: ../../Zotlabs/Module/Oauth2.php:118 ../../Zotlabs/Module/Oauth2.php:146
 #: ../../Zotlabs/Module/Admin/Channels.php:159
-#: ../../Zotlabs/Module/Connedit.php:912 ../../Zotlabs/Module/Group.php:144
+#: ../../Zotlabs/Module/Connedit.php:923 ../../Zotlabs/Module/Group.php:154
 #: ../../Zotlabs/Module/Wiki.php:218
 #: ../../Zotlabs/Widget/Wiki_page_history.php:22
 #: ../../Zotlabs/Lib/NativeWikiPage.php:561
@@ -4122,7 +4119,7 @@ msgstr "Загрузить файл"
 
 #: ../../Zotlabs/Storage/Browser.php:392 ../../Zotlabs/Module/Photos.php:727
 #: ../../Zotlabs/Module/Cover_photo.php:395
-#: ../../Zotlabs/Module/Embedphotos.php:158
+#: ../../Zotlabs/Module/Embedphotos.php:166
 #: ../../Zotlabs/Module/Profile_photo.php:459
 #: ../../Zotlabs/Widget/Portfolio.php:110 ../../Zotlabs/Widget/Cdav.php:133
 #: ../../Zotlabs/Widget/Cdav.php:169 ../../Zotlabs/Widget/Album.php:97
@@ -4297,12 +4294,12 @@ msgstr "Приложение \"Разрешения по умолчанию\""
 #: ../../Zotlabs/Module/Uexport.php:61 ../../Zotlabs/Module/Bookmarks.php:78
 #: ../../Zotlabs/Module/Probe.php:18 ../../Zotlabs/Module/Tokens.php:99
 #: ../../Zotlabs/Module/Notes.php:55 ../../Zotlabs/Module/Webpages.php:48
-#: ../../Zotlabs/Module/Group.php:101 ../../Zotlabs/Module/Mood.php:134
+#: ../../Zotlabs/Module/Group.php:106 ../../Zotlabs/Module/Mood.php:134
 #: ../../Zotlabs/Module/Lang.php:17 ../../Zotlabs/Module/Randprof.php:29
-#: ../../Zotlabs/Module/Invite.php:110 ../../Zotlabs/Module/Articles.php:43
+#: ../../Zotlabs/Module/Invite.php:110 ../../Zotlabs/Module/Articles.php:51
 #: ../../Zotlabs/Module/Connect.php:104 ../../Zotlabs/Module/Pdledit.php:42
 #: ../../Zotlabs/Module/Wiki.php:52 ../../Zotlabs/Module/Suggest.php:40
-#: ../../Zotlabs/Module/Cards.php:46
+#: ../../Zotlabs/Module/Cards.php:51
 msgid "Not Installed"
 msgstr "не установлено"
 
@@ -4310,11 +4307,11 @@ msgstr "не установлено"
 msgid "Set custom default permissions for new connections"
 msgstr "Настройка пользовательских разрешений по умолчанию для новых подключений "
 
-#: ../../Zotlabs/Module/Defperms.php:254 ../../Zotlabs/Module/Connedit.php:856
+#: ../../Zotlabs/Module/Defperms.php:254 ../../Zotlabs/Module/Connedit.php:867
 msgid "Connection Default Permissions"
 msgstr "Разрешения по умолчанию для контакта"
 
-#: ../../Zotlabs/Module/Defperms.php:255 ../../Zotlabs/Module/Connedit.php:857
+#: ../../Zotlabs/Module/Defperms.php:255 ../../Zotlabs/Module/Connedit.php:868
 msgid "Apply these permissions automatically"
 msgstr "Применить эти разрешения автоматически"
 
@@ -4324,15 +4321,15 @@ msgid ""
 "If enabled, connection requests will be approved without your interaction"
 msgstr "Если включено, запросы контактов будут одобрены без вашего участия"
 
-#: ../../Zotlabs/Module/Defperms.php:256 ../../Zotlabs/Module/Connedit.php:858
+#: ../../Zotlabs/Module/Defperms.php:256 ../../Zotlabs/Module/Connedit.php:869
 msgid "Permission role"
 msgstr "Роль разрешения"
 
-#: ../../Zotlabs/Module/Defperms.php:257 ../../Zotlabs/Module/Connedit.php:859
+#: ../../Zotlabs/Module/Defperms.php:257 ../../Zotlabs/Module/Connedit.php:870
 msgid "Add permission role"
 msgstr "Добавить роль разрешения"
 
-#: ../../Zotlabs/Module/Defperms.php:261 ../../Zotlabs/Module/Connedit.php:872
+#: ../../Zotlabs/Module/Defperms.php:261 ../../Zotlabs/Module/Connedit.php:883
 msgid ""
 "The permissions indicated on this page will be applied to all new "
 "connections."
@@ -4343,17 +4340,17 @@ msgid "Automatic approval settings"
 msgstr "Настройки автоматического одобрения"
 
 #: ../../Zotlabs/Module/Defperms.php:264 ../../Zotlabs/Module/Permcats.php:123
-#: ../../Zotlabs/Module/Tokens.php:183 ../../Zotlabs/Module/Connedit.php:892
+#: ../../Zotlabs/Module/Tokens.php:183 ../../Zotlabs/Module/Connedit.php:903
 msgid "inherited"
 msgstr "наследуется"
 
 #: ../../Zotlabs/Module/Defperms.php:266 ../../Zotlabs/Module/Permcats.php:121
-#: ../../Zotlabs/Module/Tokens.php:181 ../../Zotlabs/Module/Connedit.php:897
+#: ../../Zotlabs/Module/Tokens.php:181 ../../Zotlabs/Module/Connedit.php:908
 msgid "My Settings"
 msgstr "Мои настройки"
 
 #: ../../Zotlabs/Module/Defperms.php:269 ../../Zotlabs/Module/Permcats.php:126
-#: ../../Zotlabs/Module/Tokens.php:186 ../../Zotlabs/Module/Connedit.php:899
+#: ../../Zotlabs/Module/Tokens.php:186 ../../Zotlabs/Module/Connedit.php:910
 msgid "Individual Permissions"
 msgstr "Индивидуальные разрешения"
 
@@ -4385,7 +4382,7 @@ msgid ""
 "connections."
 msgstr "Используйте эту форму для создания правил разрешений для различных групп людей и контактов."
 
-#: ../../Zotlabs/Module/Permcats.php:112 ../../Zotlabs/Lib/Apps.php:350
+#: ../../Zotlabs/Module/Permcats.php:112 ../../Zotlabs/Lib/Apps.php:352
 msgid "Permission Categories"
 msgstr "Категории разрешений"
 
@@ -4394,7 +4391,7 @@ msgid "Permission category name"
 msgstr "Наименование категории разрешений"
 
 #: ../../Zotlabs/Module/Permcats.php:127 ../../Zotlabs/Module/Tokens.php:187
-#: ../../Zotlabs/Module/Connedit.php:900
+#: ../../Zotlabs/Module/Connedit.php:911
 msgid ""
 "Some permissions may be inherited from your channel's <a href=\"settings"
 "\"><strong>privacy settings</strong></a>, which have higher priority than "
@@ -4418,65 +4415,65 @@ msgstr "Не найдено."
 msgid "Invalid message"
 msgstr "Неверное сообщение"
 
-#: ../../Zotlabs/Module/Dreport.php:89
+#: ../../Zotlabs/Module/Dreport.php:90
 msgid "no results"
 msgstr "Ничего не найдено."
 
-#: ../../Zotlabs/Module/Dreport.php:103
+#: ../../Zotlabs/Module/Dreport.php:104
 msgid "channel sync processed"
 msgstr "синхронизация канала завершена"
 
-#: ../../Zotlabs/Module/Dreport.php:107
+#: ../../Zotlabs/Module/Dreport.php:108
 msgid "queued"
 msgstr "в очереди"
 
-#: ../../Zotlabs/Module/Dreport.php:111
+#: ../../Zotlabs/Module/Dreport.php:112
 msgid "posted"
 msgstr "опубликовано"
 
-#: ../../Zotlabs/Module/Dreport.php:115
+#: ../../Zotlabs/Module/Dreport.php:116
 msgid "accepted for delivery"
 msgstr "принято к доставке"
 
-#: ../../Zotlabs/Module/Dreport.php:119
+#: ../../Zotlabs/Module/Dreport.php:120
 msgid "updated"
 msgstr "обновлено"
 
-#: ../../Zotlabs/Module/Dreport.php:122
+#: ../../Zotlabs/Module/Dreport.php:123
 msgid "update ignored"
 msgstr "обновление игнорируется"
 
-#: ../../Zotlabs/Module/Dreport.php:125
+#: ../../Zotlabs/Module/Dreport.php:126
 msgid "permission denied"
 msgstr "доступ запрещен"
 
-#: ../../Zotlabs/Module/Dreport.php:129
+#: ../../Zotlabs/Module/Dreport.php:130
 msgid "recipient not found"
 msgstr "получатель не найден"
 
-#: ../../Zotlabs/Module/Dreport.php:132
+#: ../../Zotlabs/Module/Dreport.php:133
 msgid "mail recalled"
 msgstr "почта отозвана"
 
-#: ../../Zotlabs/Module/Dreport.php:135
+#: ../../Zotlabs/Module/Dreport.php:136
 msgid "duplicate mail received"
 msgstr "получено дублирующее сообщение"
 
-#: ../../Zotlabs/Module/Dreport.php:138
+#: ../../Zotlabs/Module/Dreport.php:139
 msgid "mail delivered"
 msgstr "почта доставлен"
 
-#: ../../Zotlabs/Module/Dreport.php:158
+#: ../../Zotlabs/Module/Dreport.php:159
 #, php-format
 msgid "Delivery report for %1$s"
 msgstr "Отчёт о доставке для %1$s"
 
-#: ../../Zotlabs/Module/Dreport.php:161 ../../Zotlabs/Widget/Wiki_pages.php:41
+#: ../../Zotlabs/Module/Dreport.php:162 ../../Zotlabs/Widget/Wiki_pages.php:41
 #: ../../Zotlabs/Widget/Wiki_pages.php:98
 msgid "Options"
 msgstr "Параметры"
 
-#: ../../Zotlabs/Module/Dreport.php:162
+#: ../../Zotlabs/Module/Dreport.php:163
 msgid "Redeliver"
 msgstr "Доставить повторно"
 
@@ -4484,29 +4481,29 @@ msgstr "Доставить повторно"
 msgid "No such group"
 msgstr "Нет такой группы"
 
-#: ../../Zotlabs/Module/Network.php:149
+#: ../../Zotlabs/Module/Network.php:156
 msgid "No such channel"
 msgstr "Нет такого канала"
 
-#: ../../Zotlabs/Module/Network.php:164 ../../Zotlabs/Module/Channel.php:177
+#: ../../Zotlabs/Module/Network.php:171 ../../Zotlabs/Module/Channel.php:182
 msgid "Search Results For:"
 msgstr "Результаты поиска для:"
 
-#: ../../Zotlabs/Module/Network.php:194 ../../Zotlabs/Module/Display.php:80
-#: ../../Zotlabs/Module/Pubstream.php:94 ../../Zotlabs/Module/Channel.php:212
+#: ../../Zotlabs/Module/Network.php:201 ../../Zotlabs/Module/Display.php:80
+#: ../../Zotlabs/Module/Pubstream.php:94 ../../Zotlabs/Module/Channel.php:217
 #: ../../Zotlabs/Module/Hq.php:134
 msgid "Reset form"
 msgstr "Очистить форму"
 
-#: ../../Zotlabs/Module/Network.php:233
+#: ../../Zotlabs/Module/Network.php:240
 msgid "Privacy group is empty"
 msgstr "Группа безопасности пуста"
 
-#: ../../Zotlabs/Module/Network.php:243
+#: ../../Zotlabs/Module/Network.php:250
 msgid "Privacy group: "
 msgstr "Группа безопасности: "
 
-#: ../../Zotlabs/Module/Network.php:316
+#: ../../Zotlabs/Module/Network.php:323
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:29
 msgid "Invalid channel."
 msgstr "Недействительный канал."
@@ -4597,16 +4594,16 @@ msgstr "Некоторые предложения о том, что делать
 msgid "Public access denied."
 msgstr "Публичный доступ запрещен."
 
-#: ../../Zotlabs/Module/Display.php:374 ../../Zotlabs/Module/Channel.php:468
+#: ../../Zotlabs/Module/Display.php:374 ../../Zotlabs/Module/Channel.php:476
 msgid ""
 "You must enable javascript for your browser to be able to view this content."
 msgstr "Для просмотра этого содержимого в вашем браузере должен быть включён JavaScript"
 
-#: ../../Zotlabs/Module/Display.php:393
+#: ../../Zotlabs/Module/Display.php:392
 msgid "Article"
 msgstr "Статья"
 
-#: ../../Zotlabs/Module/Display.php:445
+#: ../../Zotlabs/Module/Display.php:444
 msgid "Item has been removed."
 msgstr "Элемент был удалён."
 
@@ -4614,35 +4611,35 @@ msgstr "Элемент был удалён."
 msgid "sent you a private message"
 msgstr "отправил вам личное сообщение"
 
-#: ../../Zotlabs/Module/Ping.php:392
+#: ../../Zotlabs/Module/Ping.php:394
 msgid "added your channel"
 msgstr "добавил ваш канал"
 
-#: ../../Zotlabs/Module/Ping.php:417
+#: ../../Zotlabs/Module/Ping.php:419
 msgid "requires approval"
 msgstr "Требуется подтверждение"
 
-#: ../../Zotlabs/Module/Ping.php:427
+#: ../../Zotlabs/Module/Ping.php:429
 msgid "g A l F d"
 msgstr "g A l F d"
 
-#: ../../Zotlabs/Module/Ping.php:445
+#: ../../Zotlabs/Module/Ping.php:447
 msgid "[today]"
 msgstr "[сегодня]"
 
-#: ../../Zotlabs/Module/Ping.php:455
+#: ../../Zotlabs/Module/Ping.php:457
 msgid "posted an event"
 msgstr "событие опубликовано"
 
-#: ../../Zotlabs/Module/Ping.php:489
+#: ../../Zotlabs/Module/Ping.php:491
 msgid "shared a file with you"
 msgstr "с вами поделились файлом"
 
-#: ../../Zotlabs/Module/Ping.php:671
+#: ../../Zotlabs/Module/Ping.php:673
 msgid "Private forum"
 msgstr "Частный форум"
 
-#: ../../Zotlabs/Module/Ping.php:671
+#: ../../Zotlabs/Module/Ping.php:673
 msgid "Public forum"
 msgstr "Публичный форум"
 
@@ -4909,49 +4906,49 @@ msgstr "Удалить всё"
 msgid "Sorry! Editing of recurrent events is not yet implemented."
 msgstr "Простите, но редактирование повторяющихся событий пока не реализовано."
 
-#: ../../Zotlabs/Module/Cdav.php:1216 ../../Zotlabs/Module/Connedit.php:913
+#: ../../Zotlabs/Module/Cdav.php:1216 ../../Zotlabs/Module/Connedit.php:924
 msgid "Organisation"
 msgstr "Организация"
 
-#: ../../Zotlabs/Module/Cdav.php:1217 ../../Zotlabs/Module/Connedit.php:914
+#: ../../Zotlabs/Module/Cdav.php:1217 ../../Zotlabs/Module/Connedit.php:925
 msgid "Title"
 msgstr "Наименование"
 
 #: ../../Zotlabs/Module/Cdav.php:1218 ../../Zotlabs/Module/Profiles.php:786
-#: ../../Zotlabs/Module/Connedit.php:915
+#: ../../Zotlabs/Module/Connedit.php:926
 msgid "Phone"
 msgstr "Телефон"
 
 #: ../../Zotlabs/Module/Cdav.php:1220 ../../Zotlabs/Module/Profiles.php:788
-#: ../../Zotlabs/Module/Connedit.php:917
+#: ../../Zotlabs/Module/Connedit.php:928
 msgid "Instant messenger"
 msgstr "Мессенджер"
 
 #: ../../Zotlabs/Module/Cdav.php:1221 ../../Zotlabs/Module/Profiles.php:789
-#: ../../Zotlabs/Module/Connedit.php:918
+#: ../../Zotlabs/Module/Connedit.php:929
 msgid "Website"
 msgstr "Веб-сайт"
 
 #: ../../Zotlabs/Module/Cdav.php:1222 ../../Zotlabs/Module/Profiles.php:502
 #: ../../Zotlabs/Module/Profiles.php:790 ../../Zotlabs/Module/Locs.php:118
 #: ../../Zotlabs/Module/Admin/Channels.php:160
-#: ../../Zotlabs/Module/Connedit.php:919
+#: ../../Zotlabs/Module/Connedit.php:930
 msgid "Address"
 msgstr "Адрес"
 
 #: ../../Zotlabs/Module/Cdav.php:1223 ../../Zotlabs/Module/Profiles.php:791
-#: ../../Zotlabs/Module/Connedit.php:920
+#: ../../Zotlabs/Module/Connedit.php:931
 msgid "Note"
 msgstr "Заметка"
 
 #: ../../Zotlabs/Module/Cdav.php:1228 ../../Zotlabs/Module/Profiles.php:796
-#: ../../Zotlabs/Module/Connedit.php:925
+#: ../../Zotlabs/Module/Connedit.php:936
 #: ../../extend/addon/hzaddons/jappixmini/jappixmini.php:368
 msgid "Add Contact"
 msgstr "Добавить контакт"
 
 #: ../../Zotlabs/Module/Cdav.php:1229 ../../Zotlabs/Module/Profiles.php:797
-#: ../../Zotlabs/Module/Connedit.php:926
+#: ../../Zotlabs/Module/Connedit.php:937
 msgid "Add Field"
 msgstr "Добавить поле"
 
@@ -4959,36 +4956,36 @@ msgstr "Добавить поле"
 #: ../../Zotlabs/Module/Oauth.php:53 ../../Zotlabs/Module/Oauth.php:137
 #: ../../Zotlabs/Module/Oauth2.php:58 ../../Zotlabs/Module/Oauth2.php:144
 #: ../../Zotlabs/Module/Admin/Addons.php:453
-#: ../../Zotlabs/Module/Connedit.php:928 ../../Zotlabs/Lib/Apps.php:513
+#: ../../Zotlabs/Module/Connedit.php:939 ../../Zotlabs/Lib/Apps.php:515
 msgid "Update"
 msgstr "Обновить"
 
-#: ../../Zotlabs/Module/Cdav.php:1234 ../../Zotlabs/Module/Connedit.php:931
+#: ../../Zotlabs/Module/Cdav.php:1234 ../../Zotlabs/Module/Connedit.php:942
 msgid "P.O. Box"
 msgstr "абонентский ящик"
 
-#: ../../Zotlabs/Module/Cdav.php:1235 ../../Zotlabs/Module/Connedit.php:932
+#: ../../Zotlabs/Module/Cdav.php:1235 ../../Zotlabs/Module/Connedit.php:943
 msgid "Additional"
 msgstr "Дополнительно"
 
-#: ../../Zotlabs/Module/Cdav.php:1236 ../../Zotlabs/Module/Connedit.php:933
+#: ../../Zotlabs/Module/Cdav.php:1236 ../../Zotlabs/Module/Connedit.php:944
 msgid "Street"
 msgstr "Улица"
 
-#: ../../Zotlabs/Module/Cdav.php:1237 ../../Zotlabs/Module/Connedit.php:934
+#: ../../Zotlabs/Module/Cdav.php:1237 ../../Zotlabs/Module/Connedit.php:945
 msgid "Locality"
 msgstr "Населённый пункт"
 
-#: ../../Zotlabs/Module/Cdav.php:1238 ../../Zotlabs/Module/Connedit.php:935
+#: ../../Zotlabs/Module/Cdav.php:1238 ../../Zotlabs/Module/Connedit.php:946
 msgid "Region"
 msgstr "Регион"
 
-#: ../../Zotlabs/Module/Cdav.php:1239 ../../Zotlabs/Module/Connedit.php:936
+#: ../../Zotlabs/Module/Cdav.php:1239 ../../Zotlabs/Module/Connedit.php:947
 msgid "ZIP Code"
 msgstr "Индекс"
 
 #: ../../Zotlabs/Module/Cdav.php:1240 ../../Zotlabs/Module/Profiles.php:757
-#: ../../Zotlabs/Module/Connedit.php:937
+#: ../../Zotlabs/Module/Connedit.php:948
 msgid "Country"
 msgstr "Страна"
 
@@ -5542,18 +5539,18 @@ msgstr "Показать новые первыми"
 msgid "Show Oldest First"
 msgstr "Показать старые первыми"
 
-#: ../../Zotlabs/Module/Photos.php:826 ../../Zotlabs/Module/Photos.php:1365
-#: ../../Zotlabs/Module/Embedphotos.php:140
+#: ../../Zotlabs/Module/Photos.php:826 ../../Zotlabs/Module/Photos.php:1374
+#: ../../Zotlabs/Module/Embedphotos.php:148
 #: ../../Zotlabs/Widget/Portfolio.php:87 ../../Zotlabs/Widget/Album.php:78
 msgid "View Photo"
 msgstr "Посмотреть фотографию"
 
-#: ../../Zotlabs/Module/Photos.php:857 ../../Zotlabs/Module/Embedphotos.php:156
+#: ../../Zotlabs/Module/Photos.php:857 ../../Zotlabs/Module/Embedphotos.php:164
 #: ../../Zotlabs/Widget/Portfolio.php:108 ../../Zotlabs/Widget/Album.php:95
 msgid "Edit Album"
 msgstr "Редактировать Фотоальбом"
 
-#: ../../Zotlabs/Module/Photos.php:859 ../../Zotlabs/Module/Photos.php:1396
+#: ../../Zotlabs/Module/Photos.php:859 ../../Zotlabs/Module/Photos.php:1405
 msgid "Add Photos"
 msgstr "Добавить фотографии"
 
@@ -5631,34 +5628,34 @@ msgstr "мне это нравится (переключение)"
 msgid "I don't like this (toggle)"
 msgstr "мне это не нравится (переключение)"
 
-#: ../../Zotlabs/Module/Photos.php:1134 ../../Zotlabs/Module/Photos.php:1252
+#: ../../Zotlabs/Module/Photos.php:1135 ../../Zotlabs/Module/Photos.php:1254
 #: ../../Zotlabs/Lib/ThreadItem.php:770
 msgid "This is you"
 msgstr "Это вы"
 
-#: ../../Zotlabs/Module/Photos.php:1171 ../../Zotlabs/Module/Photos.php:1183
+#: ../../Zotlabs/Module/Photos.php:1173 ../../Zotlabs/Module/Photos.php:1185
 #: ../../Zotlabs/Lib/ThreadItem.php:217 ../../Zotlabs/Lib/ThreadItem.php:229
 msgid "View all"
 msgstr "Просмотреть все"
 
-#: ../../Zotlabs/Module/Photos.php:1280
+#: ../../Zotlabs/Module/Photos.php:1288
 msgid "Photo Tools"
 msgstr "Фото-Инструменты"
 
-#: ../../Zotlabs/Module/Photos.php:1289
+#: ../../Zotlabs/Module/Photos.php:1297
 msgid "In This Photo:"
 msgstr "На этой фотографии:"
 
-#: ../../Zotlabs/Module/Photos.php:1294
+#: ../../Zotlabs/Module/Photos.php:1302
 msgid "Map"
 msgstr "Карта"
 
-#: ../../Zotlabs/Module/Photos.php:1302 ../../Zotlabs/Lib/ThreadItem.php:435
+#: ../../Zotlabs/Module/Photos.php:1310 ../../Zotlabs/Lib/ThreadItem.php:435
 msgctxt "noun"
 msgid "Likes"
 msgstr "Нравится"
 
-#: ../../Zotlabs/Module/Photos.php:1303 ../../Zotlabs/Lib/ThreadItem.php:436
+#: ../../Zotlabs/Module/Photos.php:1311 ../../Zotlabs/Lib/ThreadItem.php:436
 msgctxt "noun"
 msgid "Dislikes"
 msgstr "Не нравится"
@@ -6025,7 +6022,7 @@ msgid "The unmoderated public stream of this hub"
 msgstr "Немодерируемый публичный поток с этого хаба"
 
 #: ../../Zotlabs/Module/Pubstream.php:109
-#: ../../Zotlabs/Widget/Notifications.php:142 ../../Zotlabs/Lib/Apps.php:352
+#: ../../Zotlabs/Widget/Notifications.php:142 ../../Zotlabs/Lib/Apps.php:354
 msgid "Public Stream"
 msgstr "Публичный поток"
 
@@ -6319,21 +6316,21 @@ msgid ""
 "check your email for further instructions."
 msgstr "Этот сайт требует проверку адреса электронной почты. После заполнения этой формы, пожалуйста, проверьте ваш почтовый ящик для дальнейших инструкций."
 
-#: ../../Zotlabs/Module/Apporder.php:44
+#: ../../Zotlabs/Module/Apporder.php:47
 msgid "Change Order of Pinned Navbar Apps"
 msgstr "Изменить порядок приложений на панели навигации"
 
-#: ../../Zotlabs/Module/Apporder.php:44
+#: ../../Zotlabs/Module/Apporder.php:47
 msgid "Change Order of App Tray Apps"
 msgstr "Изменить порядок приложений в лотке"
 
-#: ../../Zotlabs/Module/Apporder.php:45
+#: ../../Zotlabs/Module/Apporder.php:48
 msgid ""
 "Use arrows to move the corresponding app left (top) or right (bottom) in the "
 "navbar"
 msgstr "Используйте стрелки для перемещения приложения влево (вверх) или вправо (вниз) в панели навигации"
 
-#: ../../Zotlabs/Module/Apporder.php:45
+#: ../../Zotlabs/Module/Apporder.php:48
 msgid "Use arrows to move the corresponding app up or down in the app tray"
 msgstr "Используйте стрелки для перемещения приложения вверх или вниз в лотке"
 
@@ -6341,7 +6338,7 @@ msgstr "Используйте стрелки для перемещения пр
 msgid "Documentation Search"
 msgstr "Поиск документации"
 
-#: ../../Zotlabs/Module/Help.php:81 ../../Zotlabs/Module/Group.php:145
+#: ../../Zotlabs/Module/Help.php:81 ../../Zotlabs/Module/Group.php:155
 msgid "Members"
 msgstr "Участники"
 
@@ -6475,7 +6472,7 @@ msgstr "Автоматический импорт контента из друг
 msgid "*"
 msgstr ""
 
-#: ../../Zotlabs/Module/Sources.php:107 ../../Zotlabs/Lib/Apps.php:344
+#: ../../Zotlabs/Module/Sources.php:107 ../../Zotlabs/Lib/Apps.php:346
 msgid "Channel Sources"
 msgstr "Источники канала"
 
@@ -6870,39 +6867,47 @@ msgstr "Настройки фотографий"
 msgid "Profiles Settings"
 msgstr "Настройки профилей"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:23
+#: ../../Zotlabs/Module/Settings/Featured.php:27
 msgid "Affinity Slider settings updated."
 msgstr "Обновлены настройки слайдера cходства."
 
-#: ../../Zotlabs/Module/Settings/Featured.php:38
+#: ../../Zotlabs/Module/Settings/Featured.php:42
 msgid "No feature settings configured"
 msgstr "Параметры функций не настроены"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:45
+#: ../../Zotlabs/Module/Settings/Featured.php:49
 msgid "Default maximum affinity level"
 msgstr "Максимальный уровень сходства по умолчанию."
 
-#: ../../Zotlabs/Module/Settings/Featured.php:45
+#: ../../Zotlabs/Module/Settings/Featured.php:49
 msgid "0-99 default 99"
 msgstr "0-99 (по умолчанию 99)"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:50
+#: ../../Zotlabs/Module/Settings/Featured.php:54
 msgid "Default minimum affinity level"
 msgstr "Минимальный уровень сходства по умолчанию."
 
-#: ../../Zotlabs/Module/Settings/Featured.php:50
+#: ../../Zotlabs/Module/Settings/Featured.php:54
 msgid "0-99 - default 0"
 msgstr "0-99 (по умолчанию 0)"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:54
+#: ../../Zotlabs/Module/Settings/Featured.php:58
+msgid "Always reset on new page visit."
+msgstr "Всегда сбрасывать при посещении новой страницы."
+
+#: ../../Zotlabs/Module/Settings/Featured.php:58
+msgid "default: yes"
+msgstr "по-умолчанию: да"
+
+#: ../../Zotlabs/Module/Settings/Featured.php:62
 msgid "Affinity Slider Settings"
 msgstr "Настройки слайдера сходства"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:67
+#: ../../Zotlabs/Module/Settings/Featured.php:75
 msgid "Addon Settings"
 msgstr "Настройки расширений"
 
-#: ../../Zotlabs/Module/Settings/Featured.php:68
+#: ../../Zotlabs/Module/Settings/Featured.php:76
 msgid "Please save/submit changes to any panel before opening another."
 msgstr "Пожалуйста сохраните / отправьте изменения на панели прежде чем открывать другую."
 
@@ -7395,7 +7400,7 @@ msgstr "Редактировать блок"
 msgid "No service class restrictions found."
 msgstr "Ограничений класса обслуживание не найдено."
 
-#: ../../Zotlabs/Module/Channel.php:160
+#: ../../Zotlabs/Module/Channel.php:165
 msgid "Insufficient permissions.  Request redirected to profile page."
 msgstr "Недостаточно прав. Запрос перенаправлен на страницу профиля."
 
@@ -7473,75 +7478,75 @@ msgstr "Нет на месте"
 msgid "Online"
 msgstr "В сети"
 
-#: ../../Zotlabs/Module/Like.php:54
+#: ../../Zotlabs/Module/Like.php:56
 msgid "Like/Dislike"
 msgstr "Нравится / не нравится"
 
-#: ../../Zotlabs/Module/Like.php:59
+#: ../../Zotlabs/Module/Like.php:61
 msgid "This action is restricted to members."
 msgstr "Это действие доступно только участникам."
 
-#: ../../Zotlabs/Module/Like.php:60
+#: ../../Zotlabs/Module/Like.php:62
 msgid ""
 "Please <a href=\"rmagic\">login with your $Projectname ID</a> or <a href="
 "\"register\">register as a new $Projectname member</a> to continue."
 msgstr "Пожалуйста, для продолжения <a href=\"rmagic\"> войдите с вашим $Projectname ID</a> или <a href=\"register\">зарегистрируйтесь как новый участник $Projectname</a>."
 
-#: ../../Zotlabs/Module/Like.php:109 ../../Zotlabs/Module/Like.php:135
-#: ../../Zotlabs/Module/Like.php:173
+#: ../../Zotlabs/Module/Like.php:111 ../../Zotlabs/Module/Like.php:137
+#: ../../Zotlabs/Module/Like.php:175
 msgid "Invalid request."
 msgstr "Неверный запрос."
 
-#: ../../Zotlabs/Module/Like.php:150
+#: ../../Zotlabs/Module/Like.php:152
 msgid "thing"
 msgstr "предмет"
 
-#: ../../Zotlabs/Module/Like.php:196
+#: ../../Zotlabs/Module/Like.php:198
 msgid "Channel unavailable."
 msgstr "Канал недоступен."
 
-#: ../../Zotlabs/Module/Like.php:244
+#: ../../Zotlabs/Module/Like.php:246
 msgid "Previous action reversed."
 msgstr "Предыдущее действие отменено."
 
-#: ../../Zotlabs/Module/Like.php:445
+#: ../../Zotlabs/Module/Like.php:451
 #, php-format
 msgid "%1$s agrees with %2$s's %3$s"
 msgstr "%1$s согласен с %2$s %3$s"
 
-#: ../../Zotlabs/Module/Like.php:447
+#: ../../Zotlabs/Module/Like.php:453
 #, php-format
 msgid "%1$s doesn't agree with %2$s's %3$s"
 msgstr "%1$s не согласен с %2$s %3$s"
 
-#: ../../Zotlabs/Module/Like.php:449
+#: ../../Zotlabs/Module/Like.php:455
 #, php-format
 msgid "%1$s abstains from a decision on %2$s's %3$s"
 msgstr "%1$s воздерживается от решения по %2$s%3$s"
 
-#: ../../Zotlabs/Module/Like.php:451
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2120
+#: ../../Zotlabs/Module/Like.php:457
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2133
 #, php-format
 msgid "%1$s is attending %2$s's %3$s"
 msgstr "%1$s посещает %2$s%3$s"
 
-#: ../../Zotlabs/Module/Like.php:453
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2122
+#: ../../Zotlabs/Module/Like.php:459
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2135
 #, php-format
 msgid "%1$s is not attending %2$s's %3$s"
 msgstr "%1$s не посещает %2$s%3$s"
 
-#: ../../Zotlabs/Module/Like.php:455
-#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2124
+#: ../../Zotlabs/Module/Like.php:461
+#: ../../extend/addon/hzaddons/diaspora/Receiver.php:2137
 #, php-format
 msgid "%1$s may attend %2$s's %3$s"
 msgstr "%1$s может посетить %2$s%3$s"
 
-#: ../../Zotlabs/Module/Like.php:566
+#: ../../Zotlabs/Module/Like.php:572
 msgid "Action completed."
 msgstr "Действие завершено."
 
-#: ../../Zotlabs/Module/Like.php:567
+#: ../../Zotlabs/Module/Like.php:573
 msgid "Thank you."
 msgstr "Спасибо."
 
@@ -7800,7 +7805,7 @@ msgid ""
 msgstr "Вам может понадобится импортировать файл \"install/schema_xxx.sql\" вручную используя клиент базы данных."
 
 #: ../../Zotlabs/Module/Setup.php:198 ../../Zotlabs/Module/Setup.php:262
-#: ../../Zotlabs/Module/Setup.php:756
+#: ../../Zotlabs/Module/Setup.php:761
 msgid "Please see the file \"install/INSTALL.txt\"."
 msgstr "Пожалуйста, обратитесь к файлу \"install/INSTALL.txt\"."
 
@@ -7944,229 +7949,235 @@ msgstr "Это необходимо для функционирования до
 msgid "PHP register_argc_argv"
 msgstr ""
 
-#: ../../Zotlabs/Module/Setup.php:446
+#: ../../Zotlabs/Module/Setup.php:448
+msgid ""
+"This is not sufficient to upload larger images or files. You should be able "
+"to upload at least 4 MB at once."
+msgstr "Этого недостаточно для загрузки больших изображений или файлов. Вы должны иметь возможность загрузить как минимум 4 Мб за раз."
+
+#: ../../Zotlabs/Module/Setup.php:450
 #, php-format
 msgid ""
 "Your max allowed total upload size is set to %s. Maximum size of one file to "
 "upload is set to %s. You are allowed to upload up to %d files at once."
 msgstr "Максимально разрешённый общий размер загрузок установлен в %s. Максимальный размер одной загрузки установлен в %s. Вам разрешено загружать до %d файлов за один приём."
 
-#: ../../Zotlabs/Module/Setup.php:451
+#: ../../Zotlabs/Module/Setup.php:456
 msgid "You can adjust these settings in the server php.ini file."
 msgstr "Вы можете изменить эти настройки в файле php.ini на сервере."
 
-#: ../../Zotlabs/Module/Setup.php:453
+#: ../../Zotlabs/Module/Setup.php:458
 msgid "PHP upload limits"
 msgstr "Максимальный размер загрузки в PHP"
 
-#: ../../Zotlabs/Module/Setup.php:476
+#: ../../Zotlabs/Module/Setup.php:481
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
 msgstr "Ошибка: функция \"openssl_pkey_new\" не может сгенерировать ключи шифрования"
 
-#: ../../Zotlabs/Module/Setup.php:477
+#: ../../Zotlabs/Module/Setup.php:482
 msgid ""
 "If running under Windows, please see \"http://www.php.net/manual/en/openssl."
 "installation.php\"."
 msgstr "Если работаете под Windows, см. \"http://www.php.net/manual/en/openssl.installation.php\"."
 
-#: ../../Zotlabs/Module/Setup.php:480
+#: ../../Zotlabs/Module/Setup.php:485
 msgid "Generate encryption keys"
 msgstr "Генерация ключей шифрования"
 
-#: ../../Zotlabs/Module/Setup.php:497
+#: ../../Zotlabs/Module/Setup.php:502
 msgid "libCurl PHP module"
 msgstr "модуль PHP libcURL"
 
-#: ../../Zotlabs/Module/Setup.php:498
+#: ../../Zotlabs/Module/Setup.php:503
 msgid "GD graphics PHP module"
 msgstr "модуль графики PHP GD"
 
-#: ../../Zotlabs/Module/Setup.php:499
+#: ../../Zotlabs/Module/Setup.php:504
 msgid "OpenSSL PHP module"
 msgstr "модуль PHP OpenSSL"
 
-#: ../../Zotlabs/Module/Setup.php:500
+#: ../../Zotlabs/Module/Setup.php:505
 msgid "PDO database PHP module"
 msgstr "модуль баз данных PHP PDO"
 
-#: ../../Zotlabs/Module/Setup.php:501
+#: ../../Zotlabs/Module/Setup.php:506
 msgid "mb_string PHP module"
 msgstr "модуль PHP mb_string"
 
-#: ../../Zotlabs/Module/Setup.php:502
+#: ../../Zotlabs/Module/Setup.php:507
 msgid "xml PHP module"
 msgstr "модуль PHP xml"
 
-#: ../../Zotlabs/Module/Setup.php:503
+#: ../../Zotlabs/Module/Setup.php:508
 msgid "zip PHP module"
 msgstr "модуль PHP zip"
 
-#: ../../Zotlabs/Module/Setup.php:507 ../../Zotlabs/Module/Setup.php:509
+#: ../../Zotlabs/Module/Setup.php:512 ../../Zotlabs/Module/Setup.php:514
 msgid "Apache mod_rewrite module"
 msgstr "модуль Apache mod_rewrite"
 
-#: ../../Zotlabs/Module/Setup.php:507
+#: ../../Zotlabs/Module/Setup.php:512
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
 msgstr "Ошибка: требуемый модуль mod_rewrite веб-сервера Apache не установлен."
 
-#: ../../Zotlabs/Module/Setup.php:513 ../../Zotlabs/Module/Setup.php:516
+#: ../../Zotlabs/Module/Setup.php:518 ../../Zotlabs/Module/Setup.php:521
 msgid "exec"
 msgstr ""
 
-#: ../../Zotlabs/Module/Setup.php:513
+#: ../../Zotlabs/Module/Setup.php:518
 msgid ""
 "Error: exec is required but is either not installed or has been disabled in "
 "php.ini"
 msgstr "Ошибка: exec требуется, однако не установлен или был отключён в php.ini"
 
-#: ../../Zotlabs/Module/Setup.php:519 ../../Zotlabs/Module/Setup.php:522
+#: ../../Zotlabs/Module/Setup.php:524 ../../Zotlabs/Module/Setup.php:527
 msgid "shell_exec"
 msgstr ""
 
-#: ../../Zotlabs/Module/Setup.php:519
+#: ../../Zotlabs/Module/Setup.php:524
 msgid ""
 "Error: shell_exec is required but is either not installed or has been "
 "disabled in php.ini"
 msgstr "Ошибка: shell_exec требуется, однако не установлен или был отключён в php.ini"
 
-#: ../../Zotlabs/Module/Setup.php:527
+#: ../../Zotlabs/Module/Setup.php:532
 msgid "Error: libCURL PHP module required but not installed."
 msgstr "Ошибка: модуль PHP libсURL требуется, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:531
+#: ../../Zotlabs/Module/Setup.php:536
 msgid ""
 "Error: GD PHP module with JPEG support or ImageMagick graphics library "
 "required but not installed."
 msgstr "Ошибка: модуль PHP GD с поддержкой JPEG или графическая библиотека ImageMagick требуется, однако не установлена"
 
-#: ../../Zotlabs/Module/Setup.php:535
+#: ../../Zotlabs/Module/Setup.php:540
 msgid "Error: openssl PHP module required but not installed."
 msgstr "Ошибка: модуль PHP OpenSSL требуется, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:541
+#: ../../Zotlabs/Module/Setup.php:546
 msgid ""
 "Error: PDO database PHP module missing a driver for either mysql or pgsql."
 msgstr "Ошибка: отсутствует драйвер MySQL или PgSQL в модуле баз данных PHP PDO"
 
-#: ../../Zotlabs/Module/Setup.php:546
+#: ../../Zotlabs/Module/Setup.php:551
 msgid "Error: PDO database PHP module required but not installed."
 msgstr "Ошибка: модуль баз данных PHP PDO требуется, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:550
+#: ../../Zotlabs/Module/Setup.php:555
 msgid "Error: mb_string PHP module required but not installed."
 msgstr "Ошибка: модуль PHP mb_string требуется, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:554
+#: ../../Zotlabs/Module/Setup.php:559
 msgid "Error: xml PHP module required for DAV but not installed."
 msgstr "Ошибка: модуль PHP xml требуется для DAV, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:558
+#: ../../Zotlabs/Module/Setup.php:563
 msgid "Error: zip PHP module required but not installed."
 msgstr "Ошибка: модуль PHP zip требуется, однако не установлен"
 
-#: ../../Zotlabs/Module/Setup.php:577 ../../Zotlabs/Module/Setup.php:586
+#: ../../Zotlabs/Module/Setup.php:582 ../../Zotlabs/Module/Setup.php:591
 msgid ".htconfig.php is writable"
 msgstr ".htconfig.php доступен для записи"
 
-#: ../../Zotlabs/Module/Setup.php:582
+#: ../../Zotlabs/Module/Setup.php:587
 msgid ""
 "The web installer needs to be able to create a file called \".htconfig.php\" "
 "in the top folder of your web server and it is unable to do so."
 msgstr "Инсталлятор требует возможности создать файл с именем \".htconfig.php\" в корневом каталоге вашего веб-сервера но не может этого сделать."
 
-#: ../../Zotlabs/Module/Setup.php:583
+#: ../../Zotlabs/Module/Setup.php:588
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
 msgstr "В большинстве случаев это проблема прав доступа. Веб-сервер может не иметь возможности записывать файлы в этот каталог даже если вы можете это делать."
 
-#: ../../Zotlabs/Module/Setup.php:584
+#: ../../Zotlabs/Module/Setup.php:589
 msgid "Please see install/INSTALL.txt for additional information."
 msgstr "Пожалуйста, ознакомьтесь с install/INSTALL.txt для дополнительных сведений."
 
-#: ../../Zotlabs/Module/Setup.php:600
+#: ../../Zotlabs/Module/Setup.php:605
 msgid ""
 "This software uses the Smarty3 template engine to render its web views. "
 "Smarty3 compiles templates to PHP to speed up rendering."
 msgstr "Это программное обеспечение использует шаблонизатор Smarty3 для отображения своих веб-страниц. Smarty3 компилирует шаблоны для PHP для ускорения рендеринга."
 
-#: ../../Zotlabs/Module/Setup.php:601
+#: ../../Zotlabs/Module/Setup.php:606
 #, php-format
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory %s under the top level web folder."
 msgstr "Для хранения этих скомпилированных шаблонов веб-сервер должен иметь доступ на запись к каталогу %s в каталоге верхнего уровня."
 
-#: ../../Zotlabs/Module/Setup.php:602 ../../Zotlabs/Module/Setup.php:623
+#: ../../Zotlabs/Module/Setup.php:607 ../../Zotlabs/Module/Setup.php:628
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has "
 "write access to this folder."
 msgstr "Убедитесь, что пользователь от имени которого работает ваш веб-сервер (например, www-data), имеет доступ на запись в этот каталог."
 
-#: ../../Zotlabs/Module/Setup.php:603
+#: ../../Zotlabs/Module/Setup.php:608
 #, php-format
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "%s only--not the template files (.tpl) that it contains."
 msgstr "Примечание. В качестве меры безопасности вы должны предоставить доступ веб-серверу для записи только к %s но не к содержащимися в нём файлами шаблонов (.tpl)."
 
-#: ../../Zotlabs/Module/Setup.php:606
+#: ../../Zotlabs/Module/Setup.php:611
 #, php-format
 msgid "%s is writable"
 msgstr "%s доступен для записи"
 
-#: ../../Zotlabs/Module/Setup.php:622
+#: ../../Zotlabs/Module/Setup.php:627
 msgid ""
 "This software uses the store directory to save uploaded files. The web "
 "server needs to have write access to the store directory under the top level "
 "web folder"
 msgstr "Эта программа использует каталог хранения для загруженных файлов. Для веб-сервера требуется доступ на запись начиная с верхнего уровня каталога хранения."
 
-#: ../../Zotlabs/Module/Setup.php:626
+#: ../../Zotlabs/Module/Setup.php:631
 msgid "store is writable"
 msgstr "хранилище доступно для записи"
 
-#: ../../Zotlabs/Module/Setup.php:658
+#: ../../Zotlabs/Module/Setup.php:663
 msgid ""
 "SSL certificate cannot be validated. Fix certificate or disable https access "
 "to this site."
 msgstr "SSL certificate cannot be validated. Замените его или отключите https доступ к этому сайту."
 
-#: ../../Zotlabs/Module/Setup.php:659
+#: ../../Zotlabs/Module/Setup.php:664
 msgid ""
 "If you have https access to your website or allow connections to TCP port "
 "443 (the https: port), you MUST use a browser-valid certificate. You MUST "
 "NOT use self-signed certificates!"
 msgstr "Если у вас есть https-доступ к вашему сайту или разрешено подключение к TCP-порту 443 (порт https), вы ДОЛЖНЫ использовать сертификат, действительный для браузера. Вы НЕ ДОЛЖНЫ использовать самоподписанные сертификаты!"
 
-#: ../../Zotlabs/Module/Setup.php:660
+#: ../../Zotlabs/Module/Setup.php:665
 msgid ""
 "This restriction is incorporated because public posts from you may for "
 "example contain references to images on your own hub."
 msgstr "Эти ограничения приняты поскольку ваши общедоступные публикации могут, например, содержать ссылки на изображения на вашем собственном хабе."
 
-#: ../../Zotlabs/Module/Setup.php:661
+#: ../../Zotlabs/Module/Setup.php:666
 msgid ""
 "If your certificate is not recognized, members of other sites (who may "
 "themselves have valid certificates) will get a warning message on their own "
 "site complaining about security issues."
 msgstr "Если ваш сертификат не признан, пользователи других сайтов (которые могут сами иметь действительные сертификаты) получат предупреждающее сообщение о проблемах с безопасностью."
 
-#: ../../Zotlabs/Module/Setup.php:662
+#: ../../Zotlabs/Module/Setup.php:667
 msgid ""
 "This can cause usability issues elsewhere (not just on your own site) so we "
 "must insist on this requirement."
 msgstr "Это может привести к проблемам удобства использования из других мест (не только на вашем собственном сайте), поэтому мы настаиваем на этом требовании."
 
-#: ../../Zotlabs/Module/Setup.php:663
+#: ../../Zotlabs/Module/Setup.php:668
 msgid ""
 "Providers are available that issue free certificates which are browser-valid."
 msgstr "Доступны поставщики, которые выдают действительные для браузера бесплатные сертификаты."
 
-#: ../../Zotlabs/Module/Setup.php:665
+#: ../../Zotlabs/Module/Setup.php:670
 msgid ""
 "If you are confident that the certificate is valid and signed by a trusted "
 "authority, check to see if you have failed to install an intermediate cert. "
@@ -8174,37 +8185,37 @@ msgid ""
 "server communications."
 msgstr "Если вы уверены, что сертификат действителен и подписан доверенным органом, проверьте, установлен ли промежуточные сертификаты. Обычно они не требуются браузерами, но бывают необходимы для связи между серверами."
 
-#: ../../Zotlabs/Module/Setup.php:667
+#: ../../Zotlabs/Module/Setup.php:672
 msgid "SSL certificate validation"
 msgstr "Проверка SSL сертификата"
 
-#: ../../Zotlabs/Module/Setup.php:673
+#: ../../Zotlabs/Module/Setup.php:678
 msgid ""
 "Url rewrite in .htaccess is not working. Check your server configuration."
 "Test: "
 msgstr "Перезапись URL в .htaccess не работает. Проверьте настройки вашего сервера."
 
-#: ../../Zotlabs/Module/Setup.php:676
+#: ../../Zotlabs/Module/Setup.php:681
 msgid "Url rewrite is working"
 msgstr "Перезапись URL работает"
 
-#: ../../Zotlabs/Module/Setup.php:690
+#: ../../Zotlabs/Module/Setup.php:695
 msgid ""
 "The database configuration file \".htconfig.php\" could not be written. "
 "Please use the enclosed text to create a configuration file in your web "
 "server root."
 msgstr "Файл конфигурации базы данных \".htconfig.php\" не может быть записан. Используйте прилагаемый текст для создания файла конфигурации в корневом каталоге веб-сервера."
 
-#: ../../Zotlabs/Module/Setup.php:714
+#: ../../Zotlabs/Module/Setup.php:719
 #: ../../extend/addon/hzaddons/rendezvous/rendezvous.php:401
 msgid "Errors encountered creating database tables."
 msgstr "При создании базы данных возникли ошибки."
 
-#: ../../Zotlabs/Module/Setup.php:754
+#: ../../Zotlabs/Module/Setup.php:759
 msgid "<h1>What next?</h1>"
 msgstr "<h1>Что дальше? </h1>"
 
-#: ../../Zotlabs/Module/Setup.php:755
+#: ../../Zotlabs/Module/Setup.php:760
 msgid ""
 "IMPORTANT: You will need to [manually] setup a scheduled task for the poller."
 msgstr "Вам понадобится [вручную] настроить запланированную задачу для опрашивателя."
@@ -8664,7 +8675,7 @@ msgstr "Загрузить репозиторий расширений"
 msgid "Install new repo"
 msgstr "Установить новый репозиторий"
 
-#: ../../Zotlabs/Module/Admin/Addons.php:422 ../../Zotlabs/Lib/Apps.php:513
+#: ../../Zotlabs/Module/Admin/Addons.php:422 ../../Zotlabs/Lib/Apps.php:515
 msgid "Install"
 msgstr "Установить"
 
@@ -8938,7 +8949,7 @@ msgstr "Импортировать только публичные потоки 
 
 #: ../../Zotlabs/Module/Admin/Site.php:323
 #: ../../Zotlabs/Module/Admin/Site.php:324
-#: ../../Zotlabs/Module/Connedit.php:881 ../../Zotlabs/Module/Connedit.php:882
+#: ../../Zotlabs/Module/Connedit.php:892 ../../Zotlabs/Module/Connedit.php:893
 msgid ""
 "words one per line or #tags or /patterns/ or lang=xx, leave blank to import "
 "all posts"
@@ -9283,12 +9294,12 @@ msgid "No registrations."
 msgstr "Нет новых регистраций."
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:176
-#: ../../Zotlabs/Module/Connedit.php:628
+#: ../../Zotlabs/Module/Connedit.php:636
 msgid "Block"
 msgstr "Блокировать"
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:177
-#: ../../Zotlabs/Module/Connedit.php:628
+#: ../../Zotlabs/Module/Connedit.php:636
 msgid "Unblock"
 msgstr "Разблокировать"
 
@@ -9452,7 +9463,7 @@ msgstr "Пароль"
 msgid "Expires (yyyy-mm-dd)"
 msgstr "Срок действия (yyyy-mm-dd)"
 
-#: ../../Zotlabs/Module/Tokens.php:180 ../../Zotlabs/Module/Connedit.php:896
+#: ../../Zotlabs/Module/Tokens.php:180 ../../Zotlabs/Module/Connedit.php:907
 msgid "Their Settings"
 msgstr "Их настройки"
 
@@ -9696,268 +9707,268 @@ msgstr "Контакт добавлен."
 msgid "Item is not editable"
 msgstr "Элемент нельзя редактировать"
 
-#: ../../Zotlabs/Module/Connedit.php:111
+#: ../../Zotlabs/Module/Connedit.php:112
 msgid "Could not locate selected profile."
 msgstr "Не удалось обнаружить выбранный профиль."
 
-#: ../../Zotlabs/Module/Connedit.php:248
+#: ../../Zotlabs/Module/Connedit.php:256
 msgid "Connection updated."
 msgstr "Контакты обновлены."
 
-#: ../../Zotlabs/Module/Connedit.php:250
+#: ../../Zotlabs/Module/Connedit.php:258
 msgid "Failed to update connection record."
 msgstr "Не удалось обновить запись контакта."
 
-#: ../../Zotlabs/Module/Connedit.php:304
+#: ../../Zotlabs/Module/Connedit.php:312
 msgid "is now connected to"
 msgstr "теперь подключён к"
 
-#: ../../Zotlabs/Module/Connedit.php:429
+#: ../../Zotlabs/Module/Connedit.php:437
 msgid "Could not access address book record."
 msgstr "Не удалось получить доступ к записи адресной книги."
 
-#: ../../Zotlabs/Module/Connedit.php:477 ../../Zotlabs/Module/Connedit.php:481
+#: ../../Zotlabs/Module/Connedit.php:485 ../../Zotlabs/Module/Connedit.php:489
 msgid "Refresh failed - channel is currently unavailable."
 msgstr "Обновление невозможно - в настоящее время канал недоступен."
 
-#: ../../Zotlabs/Module/Connedit.php:496 ../../Zotlabs/Module/Connedit.php:505
-#: ../../Zotlabs/Module/Connedit.php:514 ../../Zotlabs/Module/Connedit.php:523
-#: ../../Zotlabs/Module/Connedit.php:536
+#: ../../Zotlabs/Module/Connedit.php:504 ../../Zotlabs/Module/Connedit.php:513
+#: ../../Zotlabs/Module/Connedit.php:522 ../../Zotlabs/Module/Connedit.php:531
+#: ../../Zotlabs/Module/Connedit.php:544
 msgid "Unable to set address book parameters."
 msgstr "Не удалось получить доступ к параметрам адресной книги."
 
-#: ../../Zotlabs/Module/Connedit.php:560
+#: ../../Zotlabs/Module/Connedit.php:568
 msgid "Connection has been removed."
 msgstr "Контакт был удалён."
 
-#: ../../Zotlabs/Module/Connedit.php:603
+#: ../../Zotlabs/Module/Connedit.php:611
 #, php-format
 msgid "View %s's profile"
 msgstr "Просмотр %s профиля"
 
-#: ../../Zotlabs/Module/Connedit.php:607
+#: ../../Zotlabs/Module/Connedit.php:615
 msgid "Refresh Permissions"
 msgstr "Обновить разрешения"
 
-#: ../../Zotlabs/Module/Connedit.php:610
+#: ../../Zotlabs/Module/Connedit.php:618
 msgid "Fetch updated permissions"
 msgstr "Получить обновлённые разрешения"
 
-#: ../../Zotlabs/Module/Connedit.php:614
+#: ../../Zotlabs/Module/Connedit.php:622
 msgid "Refresh Photo"
 msgstr "Обновить фотографию"
 
-#: ../../Zotlabs/Module/Connedit.php:617
+#: ../../Zotlabs/Module/Connedit.php:625
 msgid "Fetch updated photo"
 msgstr "Получить обновлённую фотографию"
 
-#: ../../Zotlabs/Module/Connedit.php:624
+#: ../../Zotlabs/Module/Connedit.php:632
 msgid "View recent posts and comments"
 msgstr "Просмотреть последние публикации и комментарии"
 
-#: ../../Zotlabs/Module/Connedit.php:631
+#: ../../Zotlabs/Module/Connedit.php:639
 msgid "Block (or Unblock) all communications with this connection"
 msgstr "Блокировать (или разблокировать) связи с этим контактом"
 
-#: ../../Zotlabs/Module/Connedit.php:632
+#: ../../Zotlabs/Module/Connedit.php:640
 msgid "This connection is blocked!"
 msgstr "Этот контакт заблокирован!"
 
-#: ../../Zotlabs/Module/Connedit.php:636
+#: ../../Zotlabs/Module/Connedit.php:644
 msgid "Unignore"
 msgstr "Не игнорировать"
 
-#: ../../Zotlabs/Module/Connedit.php:636
+#: ../../Zotlabs/Module/Connedit.php:644
 #: ../../Zotlabs/Module/Connections.php:308
 msgid "Ignore"
 msgstr "Игнорировать"
 
-#: ../../Zotlabs/Module/Connedit.php:639
+#: ../../Zotlabs/Module/Connedit.php:647
 msgid "Ignore (or Unignore) all inbound communications from this connection"
 msgstr "Игнорировать (или не игнорировать) все связи для этого контакта"
 
-#: ../../Zotlabs/Module/Connedit.php:640
+#: ../../Zotlabs/Module/Connedit.php:648
 msgid "This connection is ignored!"
 msgstr "Этот контакт игнорируется!"
 
-#: ../../Zotlabs/Module/Connedit.php:644
+#: ../../Zotlabs/Module/Connedit.php:652
 msgid "Unarchive"
 msgstr "Разархивировать"
 
-#: ../../Zotlabs/Module/Connedit.php:644
+#: ../../Zotlabs/Module/Connedit.php:652
 msgid "Archive"
 msgstr "Заархивировать"
 
-#: ../../Zotlabs/Module/Connedit.php:647
+#: ../../Zotlabs/Module/Connedit.php:655
 msgid ""
 "Archive (or Unarchive) this connection - mark channel dead but keep content"
 msgstr "Заархивировать (или разархивировать) этот контакт - пометить канал отключённым но сохранить содержимое"
 
-#: ../../Zotlabs/Module/Connedit.php:648
+#: ../../Zotlabs/Module/Connedit.php:656
 msgid "This connection is archived!"
 msgstr "Этот контакт заархивирован!"
 
-#: ../../Zotlabs/Module/Connedit.php:652
+#: ../../Zotlabs/Module/Connedit.php:660
 msgid "Unhide"
 msgstr "Показать"
 
-#: ../../Zotlabs/Module/Connedit.php:652
+#: ../../Zotlabs/Module/Connedit.php:660
 msgid "Hide"
 msgstr "Скрыть"
 
-#: ../../Zotlabs/Module/Connedit.php:655
+#: ../../Zotlabs/Module/Connedit.php:663
 msgid "Hide or Unhide this connection from your other connections"
 msgstr "Скрыть или показать этот контакт от / для остальных"
 
-#: ../../Zotlabs/Module/Connedit.php:656
+#: ../../Zotlabs/Module/Connedit.php:664
 msgid "This connection is hidden!"
 msgstr "Этот контакт скрыт!"
 
-#: ../../Zotlabs/Module/Connedit.php:663
+#: ../../Zotlabs/Module/Connedit.php:671
 msgid "Delete this connection"
 msgstr "Удалить этот контакт"
 
-#: ../../Zotlabs/Module/Connedit.php:671
+#: ../../Zotlabs/Module/Connedit.php:679
 msgid "Fetch Vcard"
 msgstr "Получить vCard"
 
-#: ../../Zotlabs/Module/Connedit.php:674
+#: ../../Zotlabs/Module/Connedit.php:682
 msgid "Fetch electronic calling card for this connection"
 msgstr "Получить электронную телефонную карточку для этого контакта"
 
-#: ../../Zotlabs/Module/Connedit.php:685
+#: ../../Zotlabs/Module/Connedit.php:693
 msgid "Open Individual Permissions section by default"
 msgstr "Открывать раздел \"Индивидуальные разрешения\" по умолчанию"
 
-#: ../../Zotlabs/Module/Connedit.php:708
+#: ../../Zotlabs/Module/Connedit.php:716
 msgid "Affinity"
 msgstr "Сходство"
 
-#: ../../Zotlabs/Module/Connedit.php:711
+#: ../../Zotlabs/Module/Connedit.php:719
 msgid "Open Set Affinity section by default"
 msgstr "Открыть секцию установления сходства по умолчанию"
 
-#: ../../Zotlabs/Module/Connedit.php:715 ../../Zotlabs/Widget/Affinity.php:22
+#: ../../Zotlabs/Module/Connedit.php:723 ../../Zotlabs/Widget/Affinity.php:27
 msgid "Me"
 msgstr "Я"
 
-#: ../../Zotlabs/Module/Connedit.php:716 ../../Zotlabs/Widget/Affinity.php:23
+#: ../../Zotlabs/Module/Connedit.php:724 ../../Zotlabs/Widget/Affinity.php:28
 msgid "Family"
 msgstr "Семья"
 
-#: ../../Zotlabs/Module/Connedit.php:718 ../../Zotlabs/Widget/Affinity.php:25
+#: ../../Zotlabs/Module/Connedit.php:726 ../../Zotlabs/Widget/Affinity.php:30
 msgid "Acquaintances"
 msgstr "Знакомые"
 
-#: ../../Zotlabs/Module/Connedit.php:719
+#: ../../Zotlabs/Module/Connedit.php:727
 #: ../../Zotlabs/Module/Connections.php:97
 #: ../../Zotlabs/Module/Connections.php:111
-#: ../../Zotlabs/Widget/Affinity.php:26
+#: ../../Zotlabs/Widget/Affinity.php:31
 msgid "All"
 msgstr "Все"
 
-#: ../../Zotlabs/Module/Connedit.php:745
+#: ../../Zotlabs/Module/Connedit.php:756
 msgid "Filter"
 msgstr "Фильтр"
 
-#: ../../Zotlabs/Module/Connedit.php:748
+#: ../../Zotlabs/Module/Connedit.php:759
 msgid "Open Custom Filter section by default"
 msgstr "Открывать секцию \"Настраиваемый фильтр\" по умолчанию"
 
-#: ../../Zotlabs/Module/Connedit.php:785
+#: ../../Zotlabs/Module/Connedit.php:796
 msgid "Approve this connection"
 msgstr "Утвердить этот контакт"
 
-#: ../../Zotlabs/Module/Connedit.php:785
+#: ../../Zotlabs/Module/Connedit.php:796
 msgid "Accept connection to allow communication"
 msgstr "Принять контакт чтобы разрешить связь"
 
-#: ../../Zotlabs/Module/Connedit.php:790
+#: ../../Zotlabs/Module/Connedit.php:801
 msgid "Set Affinity"
 msgstr "Установить сходство"
 
-#: ../../Zotlabs/Module/Connedit.php:793
+#: ../../Zotlabs/Module/Connedit.php:804
 msgid "Set Profile"
 msgstr "Установить профиль"
 
-#: ../../Zotlabs/Module/Connedit.php:796
+#: ../../Zotlabs/Module/Connedit.php:807
 msgid "Set Affinity & Profile"
 msgstr "Установить сходство и профиль"
 
-#: ../../Zotlabs/Module/Connedit.php:844
+#: ../../Zotlabs/Module/Connedit.php:855
 msgid "This connection is unreachable from this location."
 msgstr "Этот контакт недоступен для данного местоположения"
 
-#: ../../Zotlabs/Module/Connedit.php:845
+#: ../../Zotlabs/Module/Connedit.php:856
 msgid "This connection may be unreachable from other channel locations."
 msgstr "Этот контакт может быть недоступен из других мест размещения канала"
 
-#: ../../Zotlabs/Module/Connedit.php:847
+#: ../../Zotlabs/Module/Connedit.php:858
 msgid "Location independence is not supported by their network."
 msgstr "Независимое местоположение не поддерживается их сетью."
 
-#: ../../Zotlabs/Module/Connedit.php:853
+#: ../../Zotlabs/Module/Connedit.php:864
 msgid ""
 "This connection is unreachable from this location. Location independence is "
 "not supported by their network."
 msgstr "Этот контакт недоступен из данного местоположения. Независимое местоположение не поддерживается их сетью."
 
-#: ../../Zotlabs/Module/Connedit.php:857
+#: ../../Zotlabs/Module/Connedit.php:868
 msgid "Connection requests will be approved without your interaction"
 msgstr "Запросы контактов будут одобрены без вашего участия"
 
-#: ../../Zotlabs/Module/Connedit.php:866
+#: ../../Zotlabs/Module/Connedit.php:877
 msgid "This connection's primary address is"
 msgstr "Главный адрес это контакта"
 
-#: ../../Zotlabs/Module/Connedit.php:867
+#: ../../Zotlabs/Module/Connedit.php:878
 msgid "Available locations:"
 msgstr "Доступные расположения:"
 
-#: ../../Zotlabs/Module/Connedit.php:873
+#: ../../Zotlabs/Module/Connedit.php:884
 msgid "Connection Tools"
 msgstr "Инструменты контактов"
 
-#: ../../Zotlabs/Module/Connedit.php:875
+#: ../../Zotlabs/Module/Connedit.php:886
 msgid "Slide to adjust your degree of friendship"
 msgstr "Прокрутить для настройки степени дружбы"
 
-#: ../../Zotlabs/Module/Connedit.php:877
+#: ../../Zotlabs/Module/Connedit.php:888
 msgid "Slide to adjust your rating"
 msgstr "Прокрутить для настройки оценки"
 
-#: ../../Zotlabs/Module/Connedit.php:878 ../../Zotlabs/Module/Connedit.php:883
+#: ../../Zotlabs/Module/Connedit.php:889 ../../Zotlabs/Module/Connedit.php:894
 msgid "Optionally explain your rating"
 msgstr "Объясните свою оценку (не обязательно)"
 
-#: ../../Zotlabs/Module/Connedit.php:880
+#: ../../Zotlabs/Module/Connedit.php:891
 msgid "Custom Filter"
 msgstr "Настраиваемый фильтр"
 
-#: ../../Zotlabs/Module/Connedit.php:881
+#: ../../Zotlabs/Module/Connedit.php:892
 msgid "Only import posts with this text"
 msgstr "Импортировать публикации только с этим текстом"
 
-#: ../../Zotlabs/Module/Connedit.php:882
+#: ../../Zotlabs/Module/Connedit.php:893
 msgid "Do not import posts with this text"
 msgstr "Не импортировать публикации с этим текстом"
 
-#: ../../Zotlabs/Module/Connedit.php:884
+#: ../../Zotlabs/Module/Connedit.php:895
 msgid "This information is public!"
 msgstr "Эта информация общедоступна!"
 
-#: ../../Zotlabs/Module/Connedit.php:889
+#: ../../Zotlabs/Module/Connedit.php:900
 msgid "Connection Pending Approval"
 msgstr "Ожидающие подтверждения контактов"
 
-#: ../../Zotlabs/Module/Connedit.php:894
+#: ../../Zotlabs/Module/Connedit.php:905
 #, php-format
 msgid ""
 "Please choose the profile you would like to display to %s when viewing your "
 "profile securely."
 msgstr "Пожалуйста, выберите профиль который вы хотит показывать в %s при безопасном просмотре."
 
-#: ../../Zotlabs/Module/Connedit.php:901
+#: ../../Zotlabs/Module/Connedit.php:912
 msgid ""
 "Some permissions may be inherited from your channel's <a href=\"settings"
 "\"><strong>privacy settings</strong></a>, which have higher priority than "
@@ -9965,11 +9976,11 @@ msgid ""
 "any impact unless the inherited setting changes."
 msgstr "Некоторые разрешения могут быть унаследованы из <a href=\"settings\"><strong>настроек приватности</strong></a> вашего канала, которые могут иметь более высокий приоритет чем индивидуальные. Вы можете изменить эти настройки, однако они не будут применены до изменения переданных по наследству настроек."
 
-#: ../../Zotlabs/Module/Connedit.php:902
+#: ../../Zotlabs/Module/Connedit.php:913
 msgid "Last update:"
 msgstr "Последнее обновление:"
 
-#: ../../Zotlabs/Module/Connedit.php:910
+#: ../../Zotlabs/Module/Connedit.php:921
 msgid "Details"
 msgstr "Сведения"
 
@@ -9981,60 +9992,60 @@ msgstr "Группа безопасности создана."
 msgid "Could not create privacy group."
 msgstr "Не удалось создать группу безопасности."
 
-#: ../../Zotlabs/Module/Group.php:77
+#: ../../Zotlabs/Module/Group.php:80
 msgid "Privacy group updated."
 msgstr "Группа безопасности обновлена."
 
-#: ../../Zotlabs/Module/Group.php:101
+#: ../../Zotlabs/Module/Group.php:106
 msgid "Privacy Groups App"
 msgstr "Приложение \"Группы безопасности\""
 
-#: ../../Zotlabs/Module/Group.php:102
+#: ../../Zotlabs/Module/Group.php:107
 msgid "Management of privacy groups"
 msgstr "Управление группами безопасности."
 
-#: ../../Zotlabs/Module/Group.php:133
+#: ../../Zotlabs/Module/Group.php:142
 msgid "Add Group"
 msgstr "Добавить группу"
 
-#: ../../Zotlabs/Module/Group.php:137
+#: ../../Zotlabs/Module/Group.php:146
 msgid "Privacy group name"
 msgstr "Имя группы безопасности"
 
-#: ../../Zotlabs/Module/Group.php:138 ../../Zotlabs/Module/Group.php:239
+#: ../../Zotlabs/Module/Group.php:147 ../../Zotlabs/Module/Group.php:256
 msgid "Members are visible to other channels"
 msgstr "Участники канала видимые для остальных"
 
-#: ../../Zotlabs/Module/Group.php:170
+#: ../../Zotlabs/Module/Group.php:182
 msgid "Privacy group removed."
 msgstr "Группа безопасности удалена."
 
-#: ../../Zotlabs/Module/Group.php:172
+#: ../../Zotlabs/Module/Group.php:185
 msgid "Unable to remove privacy group."
 msgstr "Ну удалось удалить группу безопасности."
 
-#: ../../Zotlabs/Module/Group.php:234
+#: ../../Zotlabs/Module/Group.php:251
 #, php-format
 msgid "Privacy Group: %s"
 msgstr "Группа безопасности: %s"
 
-#: ../../Zotlabs/Module/Group.php:236
+#: ../../Zotlabs/Module/Group.php:253
 msgid "Privacy group name: "
 msgstr "Название группы безопасности: "
 
-#: ../../Zotlabs/Module/Group.php:241
+#: ../../Zotlabs/Module/Group.php:258
 msgid "Delete Group"
 msgstr "Удалить группу"
 
-#: ../../Zotlabs/Module/Group.php:251
+#: ../../Zotlabs/Module/Group.php:269
 msgid "Group members"
 msgstr "Члены группы"
 
-#: ../../Zotlabs/Module/Group.php:253
+#: ../../Zotlabs/Module/Group.php:271
 msgid "Not in this group"
 msgstr "Не в этой группе"
 
-#: ../../Zotlabs/Module/Group.php:285
+#: ../../Zotlabs/Module/Group.php:303
 msgid "Click a channel to toggle membership"
 msgstr "Нажмите на канал для просмотра членства"
 
@@ -10173,7 +10184,7 @@ msgstr "Приложение \"Настроение\""
 msgid "Set your current mood and tell your friends"
 msgstr "Установить текущее настроение и рассказать друзьям"
 
-#: ../../Zotlabs/Module/Mood.php:154 ../../Zotlabs/Lib/Apps.php:325
+#: ../../Zotlabs/Module/Mood.php:154 ../../Zotlabs/Lib/Apps.php:327
 msgid "Mood"
 msgstr "Настроение"
 
@@ -10280,15 +10291,15 @@ msgstr "или посетите"
 msgid "3. Click [Connect]"
 msgstr "Нажать [Подключиться]"
 
-#: ../../Zotlabs/Module/Articles.php:43
+#: ../../Zotlabs/Module/Articles.php:51
 msgid "Articles App"
 msgstr "Приложение \"Статьи\""
 
-#: ../../Zotlabs/Module/Articles.php:44
+#: ../../Zotlabs/Module/Articles.php:52
 msgid "Create interactive articles"
 msgstr "Создать интерактивные статьи"
 
-#: ../../Zotlabs/Module/Articles.php:107
+#: ../../Zotlabs/Module/Articles.php:115
 msgid "Add Article"
 msgstr "Добавить статью"
 
@@ -10399,7 +10410,7 @@ msgstr "Системный шаблон"
 
 #: ../../Zotlabs/Module/Wiki.php:35
 #: ../../extend/addon/hzaddons/flashcards/Mod_Flashcards.php:34
-#: ../../extend/addon/hzaddons/cart/cart.php:1297
+#: ../../extend/addon/hzaddons/cart/cart.php:1298
 msgid "Profile Unavailable."
 msgstr "Профиль недоступен."
 
@@ -10415,7 +10426,7 @@ msgstr "Предоставьте Wiki для вашего канала"
 #: ../../extend/addon/hzaddons/cart/submodules/paypalbutton.php:456
 #: ../../extend/addon/hzaddons/cart/myshop.php:37
 #: ../../extend/addon/hzaddons/cart/manual_payments.php:93
-#: ../../extend/addon/hzaddons/cart/cart.php:1443
+#: ../../extend/addon/hzaddons/cart/cart.php:1444
 msgid "Invalid channel"
 msgstr "Недействительный канал"
 
@@ -10793,15 +10804,15 @@ msgstr "Домашняя страница проекта"
 msgid "Developer homepage"
 msgstr "Домашняя страница разработчика"
 
-#: ../../Zotlabs/Module/Cards.php:46
+#: ../../Zotlabs/Module/Cards.php:51
 msgid "Cards App"
 msgstr "Приложение \"Карточки\""
 
-#: ../../Zotlabs/Module/Cards.php:47
+#: ../../Zotlabs/Module/Cards.php:52
 msgid "Create personal planning cards"
 msgstr "Создать личные карточки планирования"
 
-#: ../../Zotlabs/Module/Cards.php:108
+#: ../../Zotlabs/Module/Cards.php:112
 msgid "Add Card"
 msgstr "Добавить карточку"
 
@@ -10841,7 +10852,7 @@ msgstr "Невозможно найти ваш сервер"
 msgid "Post successful."
 msgstr "Успешно опубликовано."
 
-#: ../../Zotlabs/Module/Rmagic.php:35
+#: ../../Zotlabs/Module/Rmagic.php:44
 msgid "Authentication failed."
 msgstr "Ошибка аутентификации."
 
@@ -10927,7 +10938,7 @@ msgstr "Просмотр публичного потока. Предупрежд
 msgid "Forums"
 msgstr "Форумы"
 
-#: ../../Zotlabs/Widget/Notes.php:21 ../../Zotlabs/Lib/Apps.php:346
+#: ../../Zotlabs/Widget/Notes.php:21 ../../Zotlabs/Lib/Apps.php:348
 msgid "Notes"
 msgstr "Заметки"
 
@@ -11329,7 +11340,7 @@ msgstr "Управление местоположением"
 msgid "Member registrations waiting for confirmation"
 msgstr "Регистрации участников, ожидающие подверждения"
 
-#: ../../Zotlabs/Widget/Admin.php:26 ../../Zotlabs/Lib/Apps.php:333
+#: ../../Zotlabs/Widget/Admin.php:26 ../../Zotlabs/Lib/Apps.php:335
 msgid "Features"
 msgstr "Функции"
 
@@ -11423,7 +11434,7 @@ msgstr "Участники чата"
 msgid "Click to show more"
 msgstr "Нажмите чтобы показать больше"
 
-#: ../../Zotlabs/Widget/Affinity.php:45
+#: ../../Zotlabs/Widget/Affinity.php:50
 msgid "Refresh"
 msgstr "Обновить"
 
@@ -11988,138 +11999,138 @@ msgctxt "permcat"
 msgid "publisher"
 msgstr "издатель"
 
-#: ../../Zotlabs/Lib/Apps.php:301
+#: ../../Zotlabs/Lib/Apps.php:303
 msgid "Apps"
 msgstr "Приложения"
 
-#: ../../Zotlabs/Lib/Apps.php:304
+#: ../../Zotlabs/Lib/Apps.php:306
 msgid "Site Admin"
 msgstr "Администратор сайта"
 
-#: ../../Zotlabs/Lib/Apps.php:305
+#: ../../Zotlabs/Lib/Apps.php:307
 #: ../../extend/addon/hzaddons/buglink/buglink.php:16
 msgid "Report Bug"
 msgstr "Сообщить об ошибке"
 
-#: ../../Zotlabs/Lib/Apps.php:309
+#: ../../Zotlabs/Lib/Apps.php:311
 msgid "Remote Diagnostics"
 msgstr "Удалённая диагностика"
 
-#: ../../Zotlabs/Lib/Apps.php:313
+#: ../../Zotlabs/Lib/Apps.php:315
 msgid "Stream"
 msgstr "Поток"
 
-#: ../../Zotlabs/Lib/Apps.php:324
+#: ../../Zotlabs/Lib/Apps.php:326
 msgid "Mail"
 msgstr "Переписка"
 
-#: ../../Zotlabs/Lib/Apps.php:327
+#: ../../Zotlabs/Lib/Apps.php:329
 msgid "Chat"
 msgstr "Чат"
 
-#: ../../Zotlabs/Lib/Apps.php:329
+#: ../../Zotlabs/Lib/Apps.php:331
 msgid "Probe"
 msgstr "Проба"
 
-#: ../../Zotlabs/Lib/Apps.php:330
+#: ../../Zotlabs/Lib/Apps.php:332
 msgid "Suggest"
 msgstr "Предложить"
 
-#: ../../Zotlabs/Lib/Apps.php:331
+#: ../../Zotlabs/Lib/Apps.php:333
 msgid "Random Channel"
 msgstr "Случайный канал"
 
-#: ../../Zotlabs/Lib/Apps.php:332
+#: ../../Zotlabs/Lib/Apps.php:334
 msgid "Invite"
 msgstr "Пригласить"
 
-#: ../../Zotlabs/Lib/Apps.php:334
+#: ../../Zotlabs/Lib/Apps.php:336
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:69
 msgid "Language"
 msgstr "Язык"
 
-#: ../../Zotlabs/Lib/Apps.php:335
+#: ../../Zotlabs/Lib/Apps.php:337
 msgid "Post"
 msgstr "Публикация"
 
-#: ../../Zotlabs/Lib/Apps.php:336
+#: ../../Zotlabs/Lib/Apps.php:338
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:58
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:59
 #: ../../extend/addon/hzaddons/openid/MysqlProvider.php:60
 msgid "Profile Photo"
 msgstr "Фотография профиля"
 
-#: ../../Zotlabs/Lib/Apps.php:340
+#: ../../Zotlabs/Lib/Apps.php:342
 msgid "Notifications"
 msgstr "Оповещения"
 
-#: ../../Zotlabs/Lib/Apps.php:341
+#: ../../Zotlabs/Lib/Apps.php:343
 msgid "Order Apps"
 msgstr "Порядок приложений"
 
-#: ../../Zotlabs/Lib/Apps.php:343
+#: ../../Zotlabs/Lib/Apps.php:345
 msgid "CardDAV"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Apps.php:345
+#: ../../Zotlabs/Lib/Apps.php:347
 msgid "Guest Access"
 msgstr "Гостевой доступ"
 
-#: ../../Zotlabs/Lib/Apps.php:347
+#: ../../Zotlabs/Lib/Apps.php:349
 msgid "OAuth Apps Manager"
 msgstr "Менеджер OAuth"
 
-#: ../../Zotlabs/Lib/Apps.php:348
+#: ../../Zotlabs/Lib/Apps.php:350
 msgid "OAuth2 Apps Manager"
 msgstr "Менеджер OAuth2"
 
-#: ../../Zotlabs/Lib/Apps.php:349
+#: ../../Zotlabs/Lib/Apps.php:351
 msgid "PDL Editor"
 msgstr "Редактор PDL"
 
-#: ../../Zotlabs/Lib/Apps.php:351
+#: ../../Zotlabs/Lib/Apps.php:353
 msgid "Premium Channel"
 msgstr "Премиальный канал"
 
-#: ../../Zotlabs/Lib/Apps.php:353
+#: ../../Zotlabs/Lib/Apps.php:355
 msgid "My Chatrooms"
 msgstr "Мои чаты"
 
-#: ../../Zotlabs/Lib/Apps.php:354
+#: ../../Zotlabs/Lib/Apps.php:356
 msgid "Channel Export"
 msgstr "Экспорт канала"
 
-#: ../../Zotlabs/Lib/Apps.php:531
+#: ../../Zotlabs/Lib/Apps.php:533
 msgid "Purchase"
 msgstr "Купить"
 
-#: ../../Zotlabs/Lib/Apps.php:536
+#: ../../Zotlabs/Lib/Apps.php:538
 msgid "Undelete"
 msgstr "Восстановить"
 
-#: ../../Zotlabs/Lib/Apps.php:545
+#: ../../Zotlabs/Lib/Apps.php:547
 msgid "Add to app-tray"
 msgstr "Добавить в app-tray"
 
-#: ../../Zotlabs/Lib/Apps.php:546
+#: ../../Zotlabs/Lib/Apps.php:548
 msgid "Remove from app-tray"
 msgstr "Удалить из app-tray"
 
-#: ../../Zotlabs/Lib/Apps.php:547
+#: ../../Zotlabs/Lib/Apps.php:549
 msgid "Pin to navbar"
 msgstr "Добавить на панель навигации"
 
-#: ../../Zotlabs/Lib/Apps.php:548
+#: ../../Zotlabs/Lib/Apps.php:550
 msgid "Unpin from navbar"
 msgstr "Удалить с панели навигации"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:188
 msgid "I will attend"
-msgstr "Я буду присутствовать"
+msgstr "Я буду участвовать"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:188
 msgid "I will not attend"
-msgstr "Я не буду присутствовать"
+msgstr "Я не буду участвовать"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:188
 msgid "I might attend"
@@ -12303,6 +12314,36 @@ msgstr "Это настройка по умолчанию для тех, кто 
 #: ../../Zotlabs/Lib/PermissionDescription.php:154
 msgid "This is your default setting for the audience of your webpages"
 msgstr "Это настройка по умолчанию для аудитории ваших веб-страниц"
+
+#: ../../Zotlabs/Lib/Activity.php:1450
+#, php-format
+msgid "Likes %1$s's %2$s"
+msgstr "Нравится %1$s %2$s"
+
+#: ../../Zotlabs/Lib/Activity.php:1453
+#, php-format
+msgid "Doesn't like %1$s's %2$s"
+msgstr "Не нравится %1$s %2$s"
+
+#: ../../Zotlabs/Lib/Activity.php:1456
+#, php-format
+msgid "Will attend %1$s's %2$s"
+msgstr "Примет участие %1$s %2$s"
+
+#: ../../Zotlabs/Lib/Activity.php:1459
+#, php-format
+msgid "Will not attend %1$s's %2$s"
+msgstr "Не примет участие %1$s %2$s"
+
+#: ../../Zotlabs/Lib/Activity.php:1462
+#, php-format
+msgid "May attend %1$s's %2$s"
+msgstr "Возможно примет участие %1$s %2$s"
+
+#: ../../Zotlabs/Lib/Activity.php:1465
+#, php-format
+msgid "&#x1f501; Repeated %1$s's %2$s"
+msgstr "&#x1f501; Повторил %1$s %2$s"
 
 #: ../../Zotlabs/Lib/Techlevels.php:10
 msgid "0. Beginner/Basic"
@@ -12515,16 +12556,16 @@ msgstr "Максимальное количество для импорта"
 msgid "0 or blank to import all available"
 msgstr "0 или пусто для импорта всех доступных"
 
-#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:57
+#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:59
 msgid "A simple gallery for your photo albums"
 msgstr "Простая галлерея для ваших фотоальбомов"
 
-#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:115
-#: ../../extend/addon/hzaddons/gallery/gallery.php:28
+#: ../../extend/addon/hzaddons/gallery/Mod_Gallery.php:135
+#: ../../extend/addon/hzaddons/gallery/gallery.php:38
 msgid "Gallery"
 msgstr "Галерея"
 
-#: ../../extend/addon/hzaddons/gallery/gallery.php:31
+#: ../../extend/addon/hzaddons/gallery/gallery.php:41
 msgid "Photo Gallery"
 msgstr "Фотогалерея"
 
@@ -13742,7 +13783,7 @@ msgstr "Если включено, ваши общедоступные публ�
 
 #: ../../extend/addon/hzaddons/statusnet/Mod_Statusnet.php:303
 msgid "GNU-Social Crosspost Connector"
-msgstr ""
+msgstr "Подключение пересылки публикаций GNU Social"
 
 #: ../../extend/addon/hzaddons/statusnet/statusnet.php:145
 msgid "Post to GNU social"
@@ -14006,7 +14047,7 @@ msgid "Base Merchant Currency"
 msgstr "Основная торговая валюта"
 
 #: ../../extend/addon/hzaddons/cart/Settings/Cart.php:111
-#: ../../extend/addon/hzaddons/cart/cart.php:1262
+#: ../../extend/addon/hzaddons/cart/cart.php:1263
 msgid "Cart Settings"
 msgstr "Настройки карточек"
 
@@ -14160,7 +14201,7 @@ msgstr "Кнопка Paypal для платежей настроена непр�
 
 #: ../../extend/addon/hzaddons/cart/submodules/paypalbutton.php:392
 #: ../../extend/addon/hzaddons/cart/manual_payments.php:68
-#: ../../extend/addon/hzaddons/cart/cart.php:1465
+#: ../../extend/addon/hzaddons/cart/cart.php:1466
 msgid "Order not found."
 msgstr "Заказ не найден."
 
@@ -14173,7 +14214,7 @@ msgid "Access Denied."
 msgstr "Доступ запрещён."
 
 #: ../../extend/addon/hzaddons/cart/myshop.php:111
-#: ../../extend/addon/hzaddons/cart/cart.php:1333
+#: ../../extend/addon/hzaddons/cart/cart.php:1334
 msgid "Order Not Found"
 msgstr "Заказ не найден"
 
@@ -14200,49 +14241,49 @@ msgstr "Завершено"
 msgid "DB Cleanup Failure"
 msgstr "Сбой очистки базы данных"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:564
+#: ../../extend/addon/hzaddons/cart/cart.php:565
 msgid "[cart] Item Added"
 msgstr "[cart] Элемент добавлен"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:952
+#: ../../extend/addon/hzaddons/cart/cart.php:953
 msgid "Order already checked out."
 msgstr "Заказ уже проверен."
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1255
+#: ../../extend/addon/hzaddons/cart/cart.php:1256
 msgid "Drop database tables when uninstalling."
 msgstr "Сбросить таблицы базы данных при деинсталляции"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1274
-#: ../../extend/addon/hzaddons/cart/cart.php:1277
+#: ../../extend/addon/hzaddons/cart/cart.php:1275
+#: ../../extend/addon/hzaddons/cart/cart.php:1278
 msgid "Shop"
 msgstr "Магазин"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1394
+#: ../../extend/addon/hzaddons/cart/cart.php:1395
 msgid "Cart utilities for orders and payments"
 msgstr "Утилиты карточек для заказов и платежей"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1432
+#: ../../extend/addon/hzaddons/cart/cart.php:1433
 msgid "You must be logged into the Grid to shop."
 msgstr "Вы должны быть в сети для доступа к магазину"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1473
+#: ../../extend/addon/hzaddons/cart/cart.php:1474
 msgid "Access denied."
 msgstr "Доступ запрещён."
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1525
-#: ../../extend/addon/hzaddons/cart/cart.php:1668
+#: ../../extend/addon/hzaddons/cart/cart.php:1526
+#: ../../extend/addon/hzaddons/cart/cart.php:1669
 msgid "No Order Found"
 msgstr "Нет найденных заказов"
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1534
+#: ../../extend/addon/hzaddons/cart/cart.php:1535
 msgid "An unknown error has occurred Please start again."
 msgstr "Произошла неизвестная ошибка. Пожалуйста, начните снова."
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1701
+#: ../../extend/addon/hzaddons/cart/cart.php:1702
 msgid "Invalid Payment Type.  Please start again."
 msgstr "Недействительный тип платежа. Пожалуйста, начните снова."
 
-#: ../../extend/addon/hzaddons/cart/cart.php:1708
+#: ../../extend/addon/hzaddons/cart/cart.php:1709
 msgid "Order not found"
 msgstr "Заказ не найден"
 
@@ -14438,6 +14479,89 @@ msgstr "Протокол GNU-Social не поддерживает независ
 #: ../../extend/addon/hzaddons/gnusoc/Mod_Gnusoc.php:34
 msgid "GNU-Social Protocol"
 msgstr "Протокол GNU-Social"
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:23
+msgid "TOTP Two-Step Verification"
+msgstr "Двухэтапная верификация TOTP"
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:24
+msgid "Enter the 2-step verification generated by your authenticator app:"
+msgstr "Введите код проверки, созданный вашим приложением для аутентификации"
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:25
+msgid "Success!"
+msgstr "Успех!"
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:26
+msgid "Invalid code, please try again."
+msgstr "Неверный код. Пожалуйста, попробуйте ещё раз."
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:27
+msgid "Too many invalid codes..."
+msgstr "Слишком много неверных кодов..."
+
+#: ../../extend/addon/hzaddons/totp/Mod_Totp.php:28
+msgid "Verify"
+msgstr "Проверить"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:90
+msgid ""
+"You haven't set a TOTP secret yet.\n"
+"Please click the button below to generate one and register this site\n"
+"with your preferred authenticator app."
+msgstr "Вы еще не установили секретный код TOTP. Пожалуйста, нажмите на кнопку ниже, чтобы сгенерировать его и зарегистрировать этот сайт в предпочитаемом вами приложении для аутентификации."
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:93
+msgid "Your TOTP secret is"
+msgstr "Ваш секретный код TOTP"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:94
+msgid ""
+"Be sure to save it somewhere in case you lose or replace your mobile "
+"device.\n"
+"Use your mobile device to scan the QR code below to register this site\n"
+"with your preferred authenticator app."
+msgstr "Обязательно сохраните его где-нибудь на случай потери или замены мобильного устройства. С помощью мобильного устройства отсканируйте приведенный ниже QR-код, чтобы зарегистрировать этот сайт в предпочитаемом вами приложении для аутентификации."
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:99
+msgid "Test"
+msgstr "Тест"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:100
+msgid "Generate New Secret"
+msgstr "Сгенерировать новый секретный код"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:101
+msgid "Go"
+msgstr "Вперёд"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:102
+msgid "Enter your password"
+msgstr "Введите ваш пароль"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:103
+msgid "enter TOTP code from your device"
+msgstr "введите код TOTP из вашего устройства"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:104
+msgid "Pass!"
+msgstr "Принято!"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:105
+msgid "Fail"
+msgstr "Отказано"
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:106
+msgid "Incorrect password, try again."
+msgstr "Неверный пароль, попробуйте снова."
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:107
+msgid "Record your new TOTP secret and rescan the QR code above."
+msgstr "Запишите ваш секретный код TOTP и повторно отсканируйте приведенный ниже QR-код."
+
+#: ../../extend/addon/hzaddons/totp/Settings/Totp.php:115
+msgid "TOTP Settings"
+msgstr "Настройки TOTP"
 
 #: ../../extend/addon/hzaddons/pageheader/pageheader.php:43
 msgid "Message to display on every page on this server"
@@ -14695,6 +14819,18 @@ msgstr "Отправить ZID"
 msgid "Who likes me?"
 msgstr "Кому я нравлюсь?"
 
+#: ../../extend/addon/hzaddons/queueworker/Mod_Queueworker.php:73
+msgid "Max queueworker threads"
+msgstr "Макс. количество обработчиков очереди"
+
+#: ../../extend/addon/hzaddons/queueworker/Mod_Queueworker.php:87
+msgid "Assume workers dead after ___ seconds"
+msgstr "Считать обработчики неактивными через секунд"
+
+#: ../../extend/addon/hzaddons/queueworker/Mod_Queueworker.php:99
+msgid "Queueworker Settings"
+msgstr "Настройки обработчика очереди"
+
 #: ../../extend/addon/hzaddons/moremoods/moremoods.php:19
 msgid "lonely"
 msgstr "одинокий"
@@ -14918,7 +15054,7 @@ msgstr "Необходим канал."
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:38
 msgid "Hubzilla Crosspost Connector Settings saved."
-msgstr ""
+msgstr "Настройки пересылки публикаций Hubzilla сохранены."
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:51
 msgid "Relay public postings to another Hubzilla channel"
@@ -14942,11 +15078,11 @@ msgstr "Название канала Hubzilla"
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:87
 msgid "Hubzilla Crosspost Connector"
-msgstr ""
+msgstr "Пересылка публикаций Hubzilla"
 
 #: ../../extend/addon/hzaddons/redred/redred.php:50
 msgid "Post to Hubzilla"
-msgstr ""
+msgstr "Опубликовать в Hubzilla"
 
 #: ../../extend/addon/hzaddons/pubcrawl/Mod_Pubcrawl.php:25
 msgid "ActivityPub Protocol Settings updated."
@@ -15129,7 +15265,3 @@ msgstr ""
 #: ../../extend/addon/hzaddons/opensearch/opensearch.php:43
 msgid "Search $Projectname"
 msgstr "Поиск $Projectname"
-
-#: ../../store/[data]/smarty3/compiled/3fbe720b52221cc66640ba6ea030406a047aa52a_0.file.cover_photo.tpl.php:127
-msgid "Cover Photo"
-msgstr ""

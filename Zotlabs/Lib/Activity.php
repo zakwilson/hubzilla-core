@@ -35,6 +35,9 @@ class Activity {
 		if($x['type'] === ACTIVITY_OBJ_EVENT) {
 			return self::fetch_event($x); 
 		}
+		if($x['type'] === ACTIVITY_OBJ_PHOTO) {
+			return self::fetch_image($x); 
+		}
 
 		return $x;
 
@@ -100,6 +103,29 @@ class Activity {
 			$r = fetch_post_tags($r,true);
 			return self::encode_item($r[0]);
 		}
+	}
+
+
+	static function fetch_image($x) {
+
+
+		$ret = [
+			'type' => 'Image',
+			'id' => $x['id'],
+			'name' => $x['title'],
+			'content' => bbcode($x['body']),
+			'source' => [ 'mediaType' => 'text/bbcode', 'content' => $x['body'] ],
+			'published' => datetime_convert('UTC','UTC',$x['created'],ATOM_TIME), 
+			'updated' => datetime_convert('UTC','UTC', $x['edited'],ATOM_TIME),
+			'url' => [
+					'type'      => 'Link',
+					'mediaType' => $x['link'][0]['type'], 
+					'href'      => $x['link'][0]['href'],
+					'width'     => $x['link'][0]['width'],
+		  			'height'    => $x['link'][0]['height']
+			]
+		];
+		return $ret;
 	}
 
 	static function fetch_event($x) {
@@ -389,6 +415,8 @@ class Activity {
 		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);
+
+
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 
 		if($i['title'])
@@ -460,6 +488,10 @@ class Activity {
 			if(! is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'],true);
 			}
+			if($i['obj']['type'] === ACTIVITY_OBJ_PHOTO) {
+				$i['obj']['id'] = $i['id'];
+			}
+
 			$obj = self::encode_object($i['obj']);
 			if($obj)
 				$ret['object'] = $obj;
@@ -1609,7 +1641,9 @@ class Activity {
 
 			}
 
-			if($act->obj['type'] === 'Image') {
+			// avoid double images from hubzilla to zap/osada
+
+			if($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
 
 				$ptr = null;
 

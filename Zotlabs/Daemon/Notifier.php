@@ -434,6 +434,8 @@ class Notifier {
 		$x['body'] = 'private';
 		logger('notifier: encoded item: ' . print_r($x,true), LOGGER_DATA, LOG_DEBUG);
 
+		//logger('notifier: encoded activity: ' . print_r($activity,true), LOGGER_DATA, LOG_DEBUG);
+
 		stringify_array_elms($recipients);
 		if(! $recipients) {
 			logger('no recipients');

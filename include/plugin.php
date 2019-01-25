@@ -7,13 +7,15 @@
 
 
 /**
- * @brief Handle errors in plugin calls
+ * @brief Handle errors in plugin calls.
  *
  * @param string $plugin name of the addon
- * @param string $error_text text of error
- * @param bool $uninstall uninstall plugin
+ * @param string $notice UI visible text of error
+ * @param string $log technical error message for logging
+ * @param bool $uninstall (optional) default false
+ *   uninstall plugin on error
  */
-function handleerrors_plugin($plugin,$notice,$log,$uninstall=false){
+function handleerrors_plugin($plugin, $notice, $log, $uninstall = false){
 	logger("Addons: [" . $plugin . "] Error: ".$log, LOGGER_ERROR);
 	if ($notice != '') {
 			notice("[" . $plugin . "] Error: ".$notice, LOGGER_ERROR);
@@ -23,7 +25,7 @@ function handleerrors_plugin($plugin,$notice,$log,$uninstall=false){
 		$idx = array_search($plugin, \App::$plugins);
 		unset(\App::$plugins[$idx]);
 		uninstall_plugin($plugin);
-		set_config("system","addon", implode(", ",\App::$plugins));
+		set_config("system", "addon", implode(", ", \App::$plugins));
 	}
 }
 
@@ -381,8 +383,6 @@ function unregister_hook($hook, $file, $function) {
  * array in their theme_init() and use this to customise the app behaviour.
  * use insert_hook($hookname,$function_name) to do this.
  */
-
-
 function load_hooks() {
 
 	App::$hooks = [];
@@ -1085,10 +1085,11 @@ function get_markup_template($s, $root = '') {
 }
 
 /**
- * @brief
+ * @brief Test if a folder exists.
  *
  * @param string $folder
  * @return boolean|string
+ *   False if folder does not exist, or canonicalized absolute pathname
  */
 function folder_exists($folder) {
 	// Get canonicalized absolute pathname

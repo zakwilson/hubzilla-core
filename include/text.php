@@ -41,12 +41,12 @@ function replace_macros($s, $r) {
 
 	$t = App::template_engine();
 
-        try {
-	        $output = $t->replace_macros($arr['template'], $arr['params']);
-        } catch (Exception $e) {
-                logger("Unable to render template: ".$e->getMessage());
-                $output = "<h3>ERROR: there was an error creating the output.</h3>";
-        }
+	try {
+		$output = $t->replace_macros($arr['template'], $arr['params']);
+	} catch (Exception $e) {
+		logger('Unable to render template: ' . $e->getMessage());
+		$output = '<h3>ERROR: there was an error creating the output.</h3>';
+	}
 
 	return $output;
 }
@@ -539,7 +539,14 @@ function paginate(&$a) {
 	return $o;
 }
 
-
+/**
+ * @brief
+ *
+ * @param int $i
+ * @param string $more
+ * @param string $less
+ * @return string Parsed HTML from template 'alt_pager.tpl'
+ */
 function alt_pager($i, $more = '', $less = '') {
 
 	if(! $more)
@@ -810,7 +817,7 @@ function activity_match($haystack,$needle) {
  * and strip the period from any tags which end with one.
  *
  * @param string $s
- * @return Returns array of tags found, or empty array.
+ * @return array Returns an array of tags found, or empty array.
  */
 function get_tags($s) {
 	$ret = array();
@@ -825,7 +832,7 @@ function get_tags($s) {
 
 	// ignore anything in [color= ], because it may contain color codes which are mistaken for tags
 	$s = preg_replace('/\[color=(.*?)\]/sm','',$s);
-	
+
 	// skip anchors in URL
 	$s = preg_replace('/\[url=(.*?)\]/sm','',$s);
 
@@ -900,6 +907,7 @@ function tag_sort_length($a,$b) {
 function total_sort($a,$b) {
 	if($a['total'] == $b['total'])
 		return 0;
+
 	return(($b['total'] > $a['total']) ? 1 : (-1));
 }
 
@@ -1004,9 +1012,15 @@ function contact_block() {
 		'$micropro' => $micropro,
 	));
 
-	$arr = array('contacts' => $r, 'output' => $o);
-
+	$arr = ['contacts' => $r, 'output' => $o];
+	/**
+	 * @hooks contact_block_end
+	 *   Called at the end of contact_block(), but can not manipulate the output.
+	 *   * \e array \b contacts - Result array from database
+	 *   * \e string \b output - the generated output
+	 */
 	call_hooks('contact_block_end', $arr);
+
 	return $o;
 }
 
@@ -1108,16 +1122,20 @@ function linkify($s, $me = false) {
  * to a local redirector which uses https and which redirects to the selected content
  *
  * @param string $s
- * @param int $uid
  * @returns string
  */
 function sslify($s) {
 
 	// Local photo cache
-	$str = array(
+	$str = [
 		'body' => $s,
 		'uid' => local_channel()
-	);
+	];
+	/**
+	 * @hooks cache_body_hook
+	 *   * \e string \b body The content to parse and also the return value
+	 *   * \e int|bool \b uid
+	 */
 	call_hooks('cache_body_hook', $str);
 
 	$s = $str['body'];
@@ -1222,7 +1240,11 @@ function get_mood_verbs() {
 /**
  * @brief Function to list all smilies, both internal and from addons.
  *
- * @return Returns array with keys 'texts' and 'icons'
+ * @param boolean $default_only (optional) default false
+ *   true will prevent that plugins can add smilies
+ * @return array Returns an associative array with:
+ *   * \e array \b texts
+ *   * \e array \b icons
  */
 function list_smilies($default_only = false) {
 
@@ -1300,6 +1322,11 @@ function list_smilies($default_only = false) {
 	if($default_only)
 		return $params;
 
+	/**
+	 * @hooks smile
+	 *   * \e array \b texts - default values and also return value
+	 *   * \e array \b icons - default values and also return value
+	 */
 	call_hooks('smilie', $params);
 
 	return $params;
@@ -1625,6 +1652,10 @@ function generate_named_map($location) {
 
 function prepare_body(&$item,$attach = false,$opts = false) {
 
+	/**
+	 * @hooks prepare_body_init
+	 *   * \e array \b item
+	 */
 	call_hooks('prepare_body_init', $item);
 
 	$s = '';
@@ -1656,13 +1687,19 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
 
-	$prep_arr = array(
+	$prep_arr = [
 		'item' => $item,
 		'html' => $event ? $event['content'] : $s,
 		'event' => $event['header'],
 		'photo' => $photo
-	);
-
+	];
+	/**
+	 * @hooks prepare_body
+	 *   * \e array \b item
+	 *   * \e string \b html - the parsed HTML to return
+	 *   * \e string \b event - the event header to return
+	 *   * \e string \b photo - the photo to return
+	 */
 	call_hooks('prepare_body', $prep_arr);
 
 	$s = $prep_arr['html'];
@@ -2249,19 +2286,24 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
 }
 
 /**
- * @brief array_elm_to_str($arr,$elm,$delim = ',') extract unique individual elements from an array of arrays and return them as a string separated by a delimiter
- * similar to ids_to_querystr, but allows a different delimiter instead of a db-quote option
- * empty elements (evaluated after trim()) are ignored.
- * @param $arr array
- * @param $elm array key to extract from sub-array
- * @param $delim string default ','
- * @param $each filter function to apply to each element before evaluation, default is 'trim'.
+ * @brief Extract unique individual elements from an array of arrays and return
+ * them as a string separated by a delimiter.
+ *
+ * Similar to ids_to_querystr, but allows a different delimiter instead of a
+ * db-quote option empty elements (evaluated after trim()) are ignored.
+ *
+ * @see ids_to_querystr()
+ *
+ * @param array $arr
+ * @param string $elm key to extract from sub-array
+ * @param string $delim (optional) default ','
+ * @param string $each (optional) default is 'trim'
+ *   Filter function to apply to each element before evaluation.
  * @returns string
  */
-
-function array_elm_to_str($arr,$elm,$delim = ',',$each = 'trim') {
-
+function array_elm_to_str($arr, $elm, $delim = ',', $each = 'trim') {
 	$tmp = [];
+
 	if($arr && is_array($arr)) {
 		foreach($arr as $x) {
 			if(is_array($x) && array_key_exists($elm,$x)) {
@@ -2272,7 +2314,8 @@ function array_elm_to_str($arr,$elm,$delim = ',',$each = 'trim') {
 			}
 		}
 	}
-	return implode($delim,$tmp);
+
+	return implode($delim, $tmp);
 }
 
 function trim_and_unpunify($s) {
@@ -2496,9 +2539,9 @@ function design_tools() {
 }
 
 /**
- * @brief Creates website portation tools menu
+ * @brief Creates website portation tools menu.
  *
- * @return string
+ * @return string Parsed HTML code from template 'website_portation_tools.tpl'
  */
 function website_portation_tools() {
 
@@ -2511,7 +2554,7 @@ function website_portation_tools() {
 		$sys = true;
 	}
 
-	return replace_macros(get_markup_template('website_portation_tools.tpl'), array(
+	return replace_macros(get_markup_template('website_portation_tools.tpl'), [
 		'$title'               => t('Import'),
 		'$import_label'        => t('Import website...'),
 		'$import_placeholder'  => t('Select folder to import'),
@@ -2528,7 +2571,7 @@ function website_portation_tools() {
 		'$cloud_export_desc'   => t('/path/to/export/folder'),
 		'$cloud_export_hint'   => t('Enter a path to a cloud files destination.'),
 		'$cloud_export_select' => t('Specify folder'),
-	));
+	]);
 }
 
 /**
@@ -2991,9 +3034,9 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
 
-    $x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
-    if($x) {
-        $item['body'] = $x;
+	$x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
+	if($x) {
+		$item['body'] = $x;
 		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
 		$item['item_verified']  = 1;
 	}
@@ -3103,7 +3146,13 @@ function pdl_selector($uid, $current='') {
 		intval($uid)
 	);
 
-	$arr = array('channel_id' => $uid, 'current' => $current, 'entries' => $r);
+	$arr = ['channel_id' => $uid, 'current' => $current, 'entries' => $r];
+	/**
+	 * @hooks pdl_selector
+	 *   * \e int \b channel_id
+	 *   * \e string \b current
+	 *   * \e array \b entries - Result from database query
+	 */
 	call_hooks('pdl_selector', $arr);
 
 	$entries = $arr['entries'];
@@ -3178,7 +3227,6 @@ function text_highlight($s, $lang) {
 			'language' => $lang,
 			'success' => false
 	];
-
 	/**
 	 * @hooks text_highlight
 	 *   * \e string \b text
@@ -3379,13 +3427,17 @@ function punify($s) {
 
 }
 
-// Be aware that unpunify will only convert domain names and not pathnames
-
+/**
+ * Be aware that unpunify() will only convert domain names and not pathnames.
+ *
+ * @param string $s
+ * @return string
+ */
 function unpunify($s) {
 	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
 	$x = new idna_convert(['encoding' => 'utf8']);
-	return $x->decode($s);
 
+	return $x->decode($s);
 }
 
 
@@ -3521,12 +3573,11 @@ function array_path_exists($str,$arr) {
  */
 function new_uuid() {
 
-    try {
-        $hash = Uuid::uuid4()->toString();
-    } catch (UnsatisfiedDependencyException $e) {
-        $hash = random_string(48);
-    }
+	try {
+		$hash = Uuid::uuid4()->toString();
+	} catch (UnsatisfiedDependencyException $e) {
+		$hash = random_string(48);
+	}
 
-    return $hash;
+	return $hash;
 }
-

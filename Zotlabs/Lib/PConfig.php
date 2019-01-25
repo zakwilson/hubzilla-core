@@ -112,9 +112,11 @@ class PConfig {
 	 *  The configuration key to set
 	 * @param string $value
 	 *  The value to store
+	 * @param string $updated (optional)
+	 *  The datetime to store
 	 * @return mixed Stored $value or false
 	 */
-	static public function Set($uid, $family, $key, $value, $updated=NULL) {
+	static public function Set($uid, $family, $key, $value, $updated = NULL) {
 
 		// this catches subtle errors where this function has been called
 		// with local_channel() when not logged in (which returns false)
@@ -239,7 +241,9 @@ class PConfig {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to delete
-	 * @return mixed
+	 * @param string $updated (optional)
+	 *  The datetime to store
+	 * @return boolean
 	 */
 	static public function Delete($uid, $family, $key, $updated = NULL) {
 
@@ -283,6 +287,7 @@ class PConfig {
 		if(! array_key_exists($family, \App::$config[$uid]['transient']))
 			\App::$config[$uid]['transient'][$family] = array();
 
+		/// @FIXME $new is undefined, so dead code
 		if ($new) {
 			\App::$config[$uid]['transient'][$family]['pcfgdel:'.$key] = $updated;
 		}

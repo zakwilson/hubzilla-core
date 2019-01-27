@@ -275,21 +275,11 @@ class PConfig {
 			dbesc($key)
 		);
 
+		// Synchronize delete with clones.
+
 		if ($family != 'hz_delpconfig') {
 			$hash = hash('sha256',$family.':'.$key);
 			set_pconfig($uid,'hz_delpconfig',$hash,$updated);
-		}
-
-		// Synchronize delete with clones.
-
-		if(! array_key_exists('transient', \App::$config[$uid]))
-			\App::$config[$uid]['transient'] = array();
-		if(! array_key_exists($family, \App::$config[$uid]['transient']))
-			\App::$config[$uid]['transient'][$family] = array();
-
-		/// @FIXME $new is undefined, so dead code
-		if ($new) {
-			\App::$config[$uid]['transient'][$family]['pcfgdel:'.$key] = $updated;
 		}
 
 		return $ret;

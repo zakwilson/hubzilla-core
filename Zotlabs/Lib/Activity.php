@@ -411,6 +411,11 @@ class Activity {
 			$ret['type'] = 'Tombstone';
 			$ret['formerType'] = self::activity_obj_mapper($i['obj_type']);
 			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+			$actor = self::encode_person($i['author'],false);
+			if($actor)
+				$ret['actor'] = $actor;
+			else
+				return []; 
 			return $ret;
 		}
 

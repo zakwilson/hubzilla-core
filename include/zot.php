@@ -174,7 +174,7 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
  *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
  * @param array $recipients
  *   envelope information, array ( 'guid' => string, 'guid_sig' => string ); empty for public posts
- * @param string msg
+ * @param string $msg
  *   optional message
  * @param string $remote_key
  *   optional public site key of target hub used to encrypt entire packet
@@ -1829,7 +1829,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		else {
 			$arr['item_wall'] = 0;
 		}
-		
+
 
                 if ((! $tag_delivery) && (! $local_public)) {
                         $allowed = (perm_is_allowed($channel['channel_id'],$sender['hash'],$perm));
@@ -1843,7 +1843,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
                                         $allowed = can_comment_on_post($d['hash'],$parent[0]);
                                 }
                         }
-        
+
                         if (! $allowed) {
 			        logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 			        $DR->update('permission denied');
@@ -2330,7 +2330,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 
 		if(! perm_is_allowed($channel['channel_id'],$sender['hash'],'post_mail')) {
 
-			/* 
+			/*
 			 * Always allow somebody to reply if you initiated the conversation. It's anti-social
 			 * and a bit rude to send a private message to somebody and block their ability to respond.
 			 * If you are being harrassed and want to put an end to it, delete the conversation.
@@ -2358,7 +2358,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		);
 		if($r) {
 			if(intval($arr['mail_recalled'])) {
-                msg_drop($r[0]['id'], $channel['channel_id'], $r[0]['conv_guid']);
+				msg_drop($r[0]['id'], $channel['channel_id'], $r[0]['conv_guid']);
 				$DR->update('mail recalled');
 				$result[] = $DR->get();
 				logger('mail_recalled');
@@ -3247,7 +3247,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 	$channel = $r[0];
 
-	// don't provide these in the export 
+	// don't provide these in the export
 
 	unset($channel['channel_active']);
 	unset($channel['channel_password']);
@@ -3616,7 +3616,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 			if(array_key_exists('channel_pageflags',$arr['channel']) && intval($arr['channel']['channel_pageflags'])) {
 				// Several pageflags are site-specific and cannot be sync'd.
-				// Only allow those bits which are shareable from the remote and then 
+				// Only allow those bits which are shareable from the remote and then
 				// logically OR with the local flags
 
 				$arr['channel']['channel_pageflags'] = $arr['channel']['channel_pageflags'] & (PAGE_HIDDEN|PAGE_AUTOCONNECT|PAGE_APPLICATION|PAGE_PREMIUM|PAGE_ADULT);
@@ -4974,9 +4974,9 @@ function zot_reply_pickup($data) {
 	// It's possible that we have more than 100 messages waiting to be sent.
 
 	// See if there are any more messages in the queue.
-        $x = q("select * from outq where outq_posturl = '%s' order by outq_created limit 1",
-		dbesc($data['callback'])
-        );
+	$x = q("select * from outq where outq_posturl = '%s' order by outq_created limit 1",
+			dbesc($data['callback'])
+	);
 
 	// If so, kick off a new delivery notification for the next batch
 	if ($x) {
@@ -5057,7 +5057,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 	}
 
 	// There should be exactly one recipient, the original auth requestor
-
+	/// @FIXME $recipients is undefined here.
 	$ret['message'] .= 'recipients ' . print_r($recipients,true) . EOL;
 
 	if ($data['recipients']) {

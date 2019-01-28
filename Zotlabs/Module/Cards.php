@@ -10,9 +10,13 @@ require_once('include/channel.php');
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
 
+/**
+ * @brief Provides the Cards module.
+ *
+ */
 class Cards extends Controller {
 
-	function init() {
+	public function init() {
 
 		if(argc() > 1)
 			$which = argv(1);
@@ -20,14 +24,15 @@ class Cards extends Controller {
 			return;
 
 		profile_load($which);
-
 	}
 
 	/**
 	 * {@inheritDoc}
-	 * @see \Zotlabs\Web\Controller::get()
+	 * @see \\Zotlabs\\Web\\Controller::get()
+	 *
+	 * @return string Parsed HTML from template 'cards.tpl'
 	 */
-	function get($update = 0, $load = false) {
+	public function get($update = 0, $load = false) {
 
 		if(observer_prohibited(true)) {
 			return login();
@@ -99,7 +104,6 @@ class Cards extends Controller {
 		}
 
 
-
 		if(perm_is_allowed($owner, $ob_hash, 'write_pages')) {
 
 			$x = [
@@ -110,7 +114,7 @@ class Cards extends Controller {
 				'nickname'          => $channel['channel_address'],
 				'lockstate'         => (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 					|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-				'acl'               => (($is_owner) ? populate_acl($channel_acl, false, 
+				'acl'               => (($is_owner) ? populate_acl($channel_acl, false,
 					PermissionDescription::fromGlobalPermission('view_pages')) : ''),
 				'permissions'       => $channel_acl,
 				'showacl'           => (($is_owner) ? true : false),

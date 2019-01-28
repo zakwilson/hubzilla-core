@@ -261,13 +261,13 @@ function construct_activity_target($item) {
  * @param SimplePie $item
  * @return array $author
  */
-
 function get_atom_author($feed, $item) {
 
 	$author = [];
 
 	$found_author = $item->get_author();
 	if($found_author) {
+		/// @FIXME $rawauthor is undefined here
 		if($rawauthor) {
 			if($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data'])
 				$author['full_name'] = unxmlify($rawauthor[0]['child'][NAMESPACE_POCO]['displayName'][0]['data']);
@@ -398,10 +398,10 @@ function get_atom_author($feed, $item) {
 			'author' => $author
 	];
 	/**
-	 * @hooks parse_atom
+	 * @hooks parse_atom_author
 	 *    * \e SimplePie \b feed - The original SimplePie feed
 	 *    * \e SimplePie \b item
-	 *    * \e array \b result - the result array that will also get returned
+	 *    * \e array \b author - the result array that will also get returned
 	 */
 	call_hooks('parse_atom_author', $arr);
 
@@ -416,10 +416,8 @@ function get_atom_author($feed, $item) {
  *
  * @param SimplePie $feed
  * @param SimplePie $item
- * @param[out] array $author
  * @return array Associative array with the parsed item data
  */
-
 function get_atom_elements($feed, $item) {
 
 	require_once('include/html2bbcode.php');
@@ -669,10 +667,10 @@ function get_atom_elements($feed, $item) {
 			$termterm = notags(trim(unxmlify($term)));
 
 			// Mastodon auto generates an nsfw category tag for any 'content-warning' message.
-			// Most people use CW and use both summary/content as a spoiler and we honour that 
-			// construct so the post will already be collapsed. The generated tag is almost 
+			// Most people use CW and use both summary/content as a spoiler and we honour that
+			// construct so the post will already be collapsed. The generated tag is almost
 			// always wrong and even if it isn't we would already be doing the right thing.
-	
+
 			if($mastodon && $termterm === 'nsfw' && $summary && $res['body'])
 				continue;
 
@@ -1336,7 +1334,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 						if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
 							continue;
 						}
-					}	
+					}
 
 					if(! post_is_importable($datarray, $contact))
 						continue;
@@ -1492,7 +1490,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					if( ! \Zotlabs\Lib\MessageFilter::evaluate($datarray,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
 						continue;
 					}
-				}	
+				}
 
 				if(! post_is_importable($datarray, $contact))
 					continue;
@@ -1900,7 +1898,7 @@ function atom_entry($item, $type, $author, $owner, $comment = false, $cid = 0, $
 
 	$body = $item['body'];
 
-	if($summary) 
+	if($summary)
 		$body = preg_replace('|^(.*?)\[summary\](.*?)\[/summary\](.*?)$|ism','$1$3',$item['body']);
 
 	if($compat)

@@ -137,7 +137,7 @@ function z_mime_content_type($filename) {
  * @param string $hash (optional)
  * @param string $filename (optional)
  * @param string $filetype (optional)
- * @return associative array with:
+ * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e int|boolean \b results amount of found results, or false
  *  * \e string \b message with error messages if any
@@ -176,15 +176,17 @@ function attach_count_files($channel_id, $observer, $hash = '', $filename = '', 
 /**
  * @brief Returns a list of files/attachments.
  *
- * @param $channel_id
- * @param $observer
- * @param $hash (optional)
- * @param $filename (optional)
- * @param $filetype (optional)
- * @param $orderby
- * @param $start
- * @param $entries
- * @return associative array with:
+ * @param int $channel_id
+ * @param string $observer
+ * @param string $hash (optional)
+ * @param string $filename (optional)
+ * @param string $filetype (optional)
+ * @param string $orderby (optional)
+ * @param int $start (optional)
+ * @param int $entries (optional)
+ * @param string $since (optional)
+ * @param string $until (optional)
+ * @return array an associative array with:
  *  * \e boolean \b success
  *  * \e array|boolean \b results array with results, or false
  *  * \e string \b message with error messages if any
@@ -1428,8 +1430,17 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 	if(! $r) {
 		attach_drop_photo($channel_id,$resource);
-                $arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo'=>$is_photo];
-                call_hooks("attach_delete",$arr);
+		$arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo' => $is_photo];
+
+		/**
+		 * @hooks attach_delete
+		 *   Called when deleting an attachment from channel.
+		 *   * \e int \b channel_id - the channel_id
+		 *   * \e string \b resource
+		 *   * \e int \b is_photo
+		 */
+		call_hooks('attach_delete', $arr);
+
 		return;
 	}
 
@@ -1488,8 +1499,15 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		intval($channel_id)
 	);
 
-        $arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo'=>$is_photo];
-        call_hooks("attach_delete",$arr);
+	$arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo' => $is_photo];
+	/**
+	 * @hooks attach_delete
+	 *   Called when deleting an attachment from channel.
+	 *   * \e int \b channel_id - the channel_id
+	 *   * \e string \b resource
+	 *   * \e int \b is_photo
+	 */
+	call_hooks('attach_delete', $arr);
 
 	file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
 
@@ -1868,7 +1886,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
  * @param int $channel_id
  * @param string $hash
  * @param string $url
- * @return array An associative array for the specified file.
+ * @return array Associative array for the specified file.
  */
 function get_file_activity_object($channel_id, $hash, $url) {
 
@@ -2110,7 +2128,7 @@ function attach_export_data($channel, $resource_id, $deleted = false) {
 
 	if($attach_ptr['is_photo']) {
 
-		// This query could potentially result in a few megabytes of data use.  
+		// This query could potentially result in a few megabytes of data use.
 
 		$r = q("select * from photo where resource_id = '%s' and uid = %d order by imgscale asc",
 			dbesc($resource_id),
@@ -2352,7 +2370,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 	$filename = $r[0]['filename'];
 
-	// don't do duplicate check unless our parent folder has changed. 
+	// don't do duplicate check unless our parent folder has changed.
 
 	if($r[0]['folder'] !== $new_folder_hash) {
 
@@ -2468,7 +2486,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 
 /**
- * Used to generate a select input box of all your folders 
+ * Used to generate a select input box of all your folders
  */
 
 
@@ -2551,10 +2569,10 @@ function attach_syspaths($channel_id,$attach_hash) {
 
 /**
  * in earlier releases we did not fill in os_path and display_path in the attach DB structure.
- * (It was not needed or used). Going forward we intend to make use of these fields. 
+ * (It was not needed or used). Going forward we intend to make use of these fields.
  * A cron task checks for empty values (as older attachments may have arrived at our site
- * in a clone operation) and executes attach_syspaths() to generate these field values and correct 
- * the attach table entry. The operation is limited to 100 DB entries at a time so as not to 
+ * in a clone operation) and executes attach_syspaths() to generate these field values and correct
+ * the attach table entry. The operation is limited to 100 DB entries at a time so as not to
  * overload the system in any cron run. Eventually it will catch up with old attach structures
  * and switch into maintenance mode to correct any that might arrive in clone packets from older
  * sites.

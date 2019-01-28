@@ -468,6 +468,9 @@ function notificationsUpdate(cached_data) {
 		$.get(pingCmd,function(data) {
 
 			// Put the object into storage
+			if(! data)
+				return;
+
 			sessionStorage.setItem('notifications_cache', JSON.stringify(data));
 
 			var fnotifs = [];
@@ -766,7 +769,7 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
+	var bimgs = ((preloadImages) ? false : $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -842,10 +845,10 @@ function collapseHeight() {
 	});
 
 	var collapsedContentHeight = Math.ceil($("#region_2").height());
-	contentHeightDiff = origContentHeight - collapsedContentHeight;
+	contentHeightDiff = liking ? 0 : origContentHeight - collapsedContentHeight;
 	console.log('collapseHeight() - contentHeightDiff: ' + contentHeightDiff + 'px');
 
-	if(i){
+	if(i && !liking){
 		var sval = position - cDiff + ($(".divgrow-showmore").outerHeight() * i);
 		console.log('collapsed above viewport count: ' + i);
 		$(window).scrollTop(sval);
@@ -996,7 +999,7 @@ function liveUpdate(notify_id) {
 				$("#profile-jot-text-loading").hide();
 
 				// adjust scroll position if new content was added above viewport
-				if(update_mode === 'update') {
+				if(update_mode === 'update' && !justifiedGalleryActive) {
 					$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
 				}
 

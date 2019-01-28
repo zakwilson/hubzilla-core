@@ -25,7 +25,7 @@ require_once('include/permissions.php');
  *
  * @param array $item
  * @param[out] boolean $private_envelope
- * @param boolean $include_groups 
+ * @param boolean $include_groups
  * @return array containing the recipients
  */
 function collect_recipients($item, &$private_envelope,$include_groups = true) {
@@ -97,9 +97,9 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		if(array_key_exists('public_policy',$item) && $item['public_policy'] !== 'self') {
 
 			$hookinfo = [
-				'recipients' => [], 
-				'item' => $item, 
-				'private_envelope' => $private_envelope, 
+				'recipients' => [],
+				'item' => $item,
+				'private_envelope' => $private_envelope,
 				'include_groups' => $include_groups
 			];
 
@@ -410,7 +410,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
 
 	if(! $arr['mid']) {
-		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id()); 
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id());
 	}
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
@@ -2400,15 +2400,15 @@ function item_update_parent_commented($item) {
 
 	$update_parent = true;
 
-	// update the commented timestamp on the parent 
+	// update the commented timestamp on the parent
 	// - unless this is a moderated comment or a potential clone of an older item
-	// which we don't wish to bring to the surface. As the queue only holds deliveries 
-	// for 3 days, it's suspected of being an older cloned item if the creation time 
+	// which we don't wish to bring to the surface. As the queue only holds deliveries
+	// for 3 days, it's suspected of being an older cloned item if the creation time
 	//is older than that.
 
 	if(intval($item['item_blocked']) === ITEM_MODERATED)
 		$update_parent = false;
- 
+
 	if($item['created'] < datetime_convert('','','now - 4 days'))
 		$update_parent = false;
 
@@ -3004,7 +3004,9 @@ function tgroup_check($uid, $item) {
  * @param array $channel
  * @param array $item
  * @param int $item_id
- * @param boolean $parent
+ * @param array $parent
+ * @param boolean $edit (optional) default false
+ * @return void
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false) {
 
@@ -3039,7 +3041,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 		}
 
 		// This will change the author to the post owner. Useful for RSS feeds which are to be syndicated
-		// to federated platforms which can't verify the identity of the author. 
+		// to federated platforms which can't verify the identity of the author.
 		// This MAY cause you to run afoul of copyright law.
 
 		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
@@ -3552,7 +3554,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 	if(! $comment_days)
 		$comment_days = 7;
-	
+
 	// $expire_network_only = save your own wall posts
 	// and just expire conversations started by others
 	// do not enable this until we can pass bulk delete messages through zot
@@ -4892,7 +4894,7 @@ function copy_of_pubitem($channel,$mid) {
 		dbesc($mid),
 		intval($syschan['channel_id'])
 	);
-		
+
 	if($r) {
 		$items = fetch_post_tags($r,true);
 		foreach($items as $rv) {
@@ -4918,5 +4920,5 @@ function copy_of_pubitem($channel,$mid) {
 
 		}
 	}
-	return $result;		
+	return $result;
 }

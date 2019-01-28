@@ -679,6 +679,17 @@ class Notifier {
 					}
 
 					$packet_type = (($upstream || $uplink) ? 'response' : 'activity'); 
+
+					// block zot private reshares from zot6, as this could cause a number of privacy issues
+					// due to parenting differences between the reshare implementations. In zot a reshare is
+					// a standalone parent activity and in zot6 it is a followup/child of the original activity.
+					// For public reshares, some comments to the reshare on the zot fork will not make it to zot6
+					// due to these different message models. This cannot be prevented at this time. 
+
+					if($packet_type === 'activity' && $activity['type'] === 'Announce' && intval($target_item['item_private'])) {
+						continue;
+					}
+
 					$packet = Libzot::build_packet($channel,$packet_type,$zenv,$activity,'activitystreams',(($private) ? $hub['hubloc_sitekey'] : null),$hub['site_crypto']);
 				}
 				else {

@@ -30,23 +30,24 @@ class Session {
 		 * Set our session storage functions.
 		 */
 		
-		if ($this->custom_handler) {
-		   /* Custom handler (files, memached, redis..) */
+		if($this->custom_handler) {
+			/* Custom handler (files, memached, redis..) */
 
-		   $session_save_handler = strval(get_config('system', 'session_save_handler', Null));
-		   $session_save_path = strval(get_config('system', 'session_save_path', Null));
-		   $session_gc_probability = intval(get_config('system', 'session_gc_probability', 1));
-		   $session_gc_divisor = intval(get_config('system', 'session_gc_divisor', 100));
-		   if (!$session_save_handler || !$session_save_path) {
-		   	logger('Session save handler or path not set.',LOGGER_NORMAL,LOG_ERR);
-		   } else {
-		   	ini_set('session.save_handler', $session_save_handler);
-                	ini_set('session.save_path', $session_save_path);
-			ini_set('session.gc_probability', $session_gc_probability);
-			ini_set('session.gc_divisor', $session_gc_divisor);
-
-		   }
-		} else {
+			$session_save_handler = strval(get_config('system', 'session_save_handler', Null));
+			$session_save_path = strval(get_config('system', 'session_save_path', Null));
+			$session_gc_probability = intval(get_config('system', 'session_gc_probability', 1));
+			$session_gc_divisor = intval(get_config('system', 'session_gc_divisor', 100));
+			if(!$session_save_handler || !$session_save_path) {
+				logger('Session save handler or path not set.',LOGGER_NORMAL,LOG_ERR);
+			}
+			else {
+				ini_set('session.save_handler', $session_save_handler);
+				ini_set('session.save_path', $session_save_path);
+				ini_set('session.gc_probability', $session_gc_probability);
+				ini_set('session.gc_divisor', $session_gc_divisor);
+			}
+		}
+		else {
 			$handler = new \Zotlabs\Web\SessionHandler();
 
 			$this->handler = $handler;
@@ -54,7 +55,8 @@ class Session {
 		   	$x = session_set_save_handler($handler,false);
 		   	if(! $x)
 		   		logger('Session save handler initialisation failed.',LOGGER_NORMAL,LOG_ERR);
-		};
+		}
+
 		// Force cookies to be secure (https only) if this site is SSL enabled. 
 		// Must be done before session_start().
 

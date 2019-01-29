@@ -15,7 +15,6 @@ class Session {
 
 	private $handler = null;
 	private $session_started = false;
-	private $custom_handler = false;
 
 	public function init() {
 
@@ -29,20 +28,13 @@ class Session {
 		 * Set our session storage functions.
 		 */
 
-		$custom_handler = $this->custom_handler;
-		call_hook('custom_session_handler',$custom_handler);
-		$this->custom_handler = $custom_handler;
+		$handler = new \Zotlabs\Web\SessionHandler();
 
+		$this->handler = $handler;
 
-		if (!$this->custom_handler) {
-			$handler = new \Zotlabs\Web\SessionHandler();
-
-			$this->handler = $handler;
-
-			$x = session_set_save_handler($handler,false);
-			if(! $x)
-				logger('Session save handler initialisation failed.',LOGGER_NORMAL,LOG_ERR);
-		}	
+		$x = session_set_save_handler($handler,false);
+		if(! $x)
+			logger('Session save handler initialisation failed.',LOGGER_NORMAL,LOG_ERR);
 
 		// Force cookies to be secure (https only) if this site is SSL enabled. 
 		// Must be done before session_start().
@@ -94,17 +86,14 @@ class Session {
 
 		$arr = session_get_cookie_params();
 
-		if(($this->handler || $this->custom_handler) && $this->session_started) {
+		if($this->handler && $this->session_started) {
 
 			session_regenerate_id(true);
 
-			if (!$this->custom_handler) {
-				// force SessionHandler record creation with the new session_id
-				// which occurs as a side effect of read() since not all implementations
-				// of session_regenerate_id() call read().
+			// force SessionHandler record creation with the new session_id
+			// which occurs as a side effect of read()
 
-				$this->handler->read(session_id());
-			}
+			$this->handler->read(session_id());
 		}
 		else 
 			logger('no session handler');

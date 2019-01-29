@@ -733,11 +733,11 @@ class App {
 	private static $perms      = null;            // observer permissions
 	private static $widgets    = array();         // widgets for this page
 	public  static $config     = array();         // config cache
-        public  static $override_intltext_templates = array();
-        public  static $override_markup_templates = array();
-        public  static $override_templateroot = null;
-        public  static $override_helproot = null;
-        public  static $override_helpfiles = array();
+	public  static $override_intltext_templates = array();
+	public  static $override_markup_templates = array();
+	public  static $override_templateroot = null;
+	public  static $override_helproot = null;
+	public  static $override_helpfiles = array();
 
 	public static  $session    = null;
 	public static  $groups;
@@ -888,7 +888,7 @@ class App {
 			// removing trailing / - maybe a nginx problem
 			if (substr(self::$query_string, 0, 1) == "/")
 				self::$query_string = substr(self::$query_string, 1);
-			// change the first & to ? 
+			// change the first & to ?
 			self::$query_string = preg_replace('/&/','?',self::$query_string,1);
 		}
 
@@ -1579,7 +1579,7 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 
 	// Here's the current description of how the register link works (2018-05-15)
 
-	// Register links are enabled on the site home page and login page and navbar. 
+	// Register links are enabled on the site home page and login page and navbar.
 	// They are not shown by default on other pages which may require login.
 
 	// If the register link is enabled and registration is closed, the request is directed
@@ -1591,10 +1591,10 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 
 	// system.register_link may or may not be the same destination as system.sellpage
 
-	// system.sellpage is the destination linked from the /pubsites page on other sites. If 
+	// system.sellpage is the destination linked from the /pubsites page on other sites. If
 	// system.sellpage is not set, the 'register' link in /pubsites will go to 'register' on your
-	// site. 
-	
+	// site.
+
 	// If system.register_link is set to the word 'none', no registration link will be shown on
 	// your site.
 
@@ -1832,8 +1832,6 @@ function get_max_import_size() {
 function proc_run(){
 
 	$args = func_get_args();
-
-	$newargs = array();
 
 	if(! count($args))
 		return;
@@ -2282,7 +2280,7 @@ function construct_page() {
 		$cspheader = "Content-Security-Policy:";
 		foreach ($cspsettings as $cspdirective => $csp) {
 			if (!in_array($cspdirective,$validcspdirectives)) {
-                                logger("INVALID CSP DIRECTIVE: ".$cspdirective,LOGGER_DEBUG);
+				logger("INVALID CSP DIRECTIVE: ".$cspdirective,LOGGER_DEBUG);
 				continue;
 			}
 			$cspsettingsarray=array_unique($cspsettings[$cspdirective]);
@@ -2401,7 +2399,7 @@ function z_get_temp_dir() {
 	if(! $temp_dir)
 		$temp_dir = sys_get_temp_dir();
 
-	return $upload_dir;
+	return $temp_dir;
 }
 
 

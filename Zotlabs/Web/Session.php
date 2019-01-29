@@ -30,7 +30,7 @@ class Session {
 		 */
 
 		$custom_handler = $this->custom_handler;
-		call_hooks('custom_session_handler', $custom_handler);
+		call_hook('custom_session_handler',$custom_handler);
 		$this->custom_handler = $custom_handler;
 
 

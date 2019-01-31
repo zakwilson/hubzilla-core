@@ -2230,7 +2230,7 @@ msgstr "Не удалось сохранить информацию аккаун
 #: ../../include/account.php:314
 #, php-format
 msgid "Registration confirmation for %s"
-msgstr "Подтверждение регистрации для %s"
+msgstr "Подтверждение регистрации на %s"
 
 #: ../../include/account.php:385
 #, php-format
@@ -4523,7 +4523,7 @@ msgid ""
 "A verification token was sent to your email address [%s]. Enter that token "
 "here to complete the account verification step. Please allow a few minutes "
 "for delivery, and check your spam folder if you do not see the message."
-msgstr "Проверочный токен был выслн на ваш адрес электронной почты [%s]. Введите этот токен здесь для завершения этапа проверки учётной записи. Пожалуйста, подождите несколько минут для завершения доставки и проверьте вашу папку \"Спам\" если вы не видите письма."
+msgstr "Проверочный токен был отправлен на ваш адрес электронной почты [%s]. Введите этот токен здесь для завершения этапа проверки учётной записи. Пожалуйста, подождите несколько минут для завершения доставки и проверьте вашу папку \"Спам\" если вы не видите письма."
 
 #: ../../Zotlabs/Module/Email_validation.php:38
 msgid "Resend Email"

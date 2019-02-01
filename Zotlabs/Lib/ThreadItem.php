@@ -101,6 +101,7 @@ class ThreadItem {
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
+
 		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && ($item['item_private'] != 1)) ? true : false);
 
 		// allow an exemption for sharing stuff from your private feeds
@@ -113,6 +114,16 @@ class ThreadItem {
 
 			if(! in_array($observer['xchan_url'], $recips['to']))
 				$privacy_warning = true;
+		}
+
+		if ($lock) {
+ 			if (count(get_terms_oftype($item['term'],TERM_FORUM))) {
+ 				$privacy_warning = true;
+ 			}
+		}
+
+		if ($lock && $privacy_warning) {
+			$lock = t('Privacy conflict. Discretion advised.');
 		}
 
 		$mode = $conv->get_mode();

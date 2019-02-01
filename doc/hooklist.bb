@@ -370,6 +370,12 @@ Hooks allow plugins/addons to "hook into" the code at many points and alter the 
 [zrl=[baseurl]/help/hook/jot_tool]jot_tool[/zrl]
 	Deprecated and possibly obsolete. Allows one to add action buttons to the post editor.
 
+[zrl=[baseurl]/help/hook/jot_tpl_filter]jot_tpl_filter[/zrl]
+	Called to filter template vars before replacement in jot.tpl.
+
+[zrl=[baseurl]/help/hook/jot_header_tpl_filter]jot_header_tpl_filter[/zrl]
+	Called to filter template vars before replacement in jot_header.tpl.
+
 [zrl=[baseurl]/help/hook/legal_webbie]legal_webbie[/zrl]
 	Called to validate a channel address
 

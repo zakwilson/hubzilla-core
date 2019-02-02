@@ -137,8 +137,11 @@
 						<i id="profile-nocomment" class="fa fa-comments jot-icons"></i>
 					</button>
 				{{/if}}
+				{{if $custommoretoolsbuttons}}
+					{{$custommoretoolsbuttons}}
+				{{/if}}
 				</div>
-				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $feature_voting}}
+				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $feature_voting || $custommoretoolsdropdown}}
 				<div class="btn-group d-lg-none">
 					<button type="button" id="more-tools" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 						<i id="more-tools-icon" class="fa fa-cog jot-icons"></i>
@@ -176,6 +179,8 @@
 						{{if $feature_nocomment}}
 						<a class="dropdown-item" href="#" onclick="toggleNoComment(); return false;"><i id="profile-nocomment-sub" class="fa fa-comments"></i>&nbsp;{{$nocommenttitlesub}}</a>
 						{{/if}}
+						<hr />
+						{{$custommoretoolsdropdown}}
 					</div>
 				</div>
 				{{/if}}
@@ -186,6 +191,11 @@
 				</div>
 			</div>
 			<div id="profile-jot-submit-right" class="btn-group float-right">
+				{{foreach $customsubmitright as $csr}}
+				<button class="btn btn-outline-secondary btn-sm" {{$csr.buttonparams}} title="{{$csr.preview}}">
+					{{$csr.buttoncontent}}
+				</button>
+				{{/foreach}}
 				{{if $preview}}
 				<button class="btn btn-outline-secondary btn-sm" onclick="preview_post();return false;" title="{{$preview}}">
 					<i class="fa fa-eye jot-icons" ></i>

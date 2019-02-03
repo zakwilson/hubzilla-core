@@ -181,7 +181,7 @@ class Oep extends \Zotlabs\Web\Controller {
 			dbesc($res)
 		);
 		if($r) {
-			$sql_extra = "and item.id = " . intval($r[0]['iid']) . " ";
+			$sql_extra .= " and item.id = " . intval($r[0]['iid']) . " ";
 		}
 		else {
 			return $ret;
@@ -255,6 +255,8 @@ class Oep extends \Zotlabs\Web\Controller {
 		if(! $channel)
 			return $ret;
 
+hz_syslog($nick);
+
 
 		if(! perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_pages'))
 			return $ret;
@@ -265,7 +267,7 @@ class Oep extends \Zotlabs\Web\Controller {
 			dbesc($res)
 		);
 		if($r) {
-			$sql_extra = "and item.id = " . intval($r[0]['iid']) . " ";
+			$sql_extra .= " and item.id = " . intval($r[0]['iid']) . " ";
 		}
 		else {
 			return $ret;

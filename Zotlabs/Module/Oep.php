@@ -194,6 +194,9 @@ class Oep extends \Zotlabs\Web\Controller {
 			intval(ITEM_TYPE_CARD)
 		);
 
+		if(! $r)
+			return;
+
 		$item_normal = " and item.item_hidden = 0 and item.item_type in (0,6) and item.item_deleted = 0
 			and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
 			and item.item_blocked = 0 ";
@@ -255,9 +258,6 @@ class Oep extends \Zotlabs\Web\Controller {
 		if(! $channel)
 			return $ret;
 
-hz_syslog($nick);
-
-
 		if(! perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_pages'))
 			return $ret;
 
@@ -279,6 +279,9 @@ hz_syslog($nick);
 			intval($channel['channel_id']),
 			intval(ITEM_TYPE_ARTICLE)
 		);
+
+		if(! $r)
+			return;
 
 		$item_normal = " and item.item_hidden = 0 and item.item_type in (0,7) and item.item_deleted = 0
 			and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0

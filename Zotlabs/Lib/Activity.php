@@ -1411,6 +1411,9 @@ class Activity {
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
+		// ensure we store the original actor
+		self::actor_store($act->actor['id'],$act->actor);
+
 		$s['mid']        = $act->obj['id'];
 		$s['parent_mid'] = $act->parent_id;
 
@@ -1483,7 +1486,8 @@ class Activity {
 
 		$s['verb']     = self::activity_decode_mapper($act->type);
 
-		if($act->type === 'Tombstone') {
+
+		if($act->type === 'Tombstone' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
 		}
 
@@ -1491,7 +1495,6 @@ class Activity {
 		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
-
 
 		if($act->obj['type'] === 'Event') {
 			$s['obj'] = [];

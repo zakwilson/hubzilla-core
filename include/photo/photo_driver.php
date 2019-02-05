@@ -1,15 +1,19 @@
 <?php
 
+use Zotlabs\Photo\PhotoDriver;
+use Zotlabs\Photo\PhotoGd;
+use Zotlabs\Photo\PhotoImagick;
+
 /**
- * @brief Return a photo_driver object.
+ * @brief Return a PhotoDriver object.
  *
  * Use this factory when manipulating images.
  *
  * Return a photo driver object implementing ImageMagick or GD.
  *
  * @param string $data Image data
- * @param string $type
- * @return null|photo_driver
+ * @param string $type Mimetype
+ * @return null|PhotoDriver
  *   NULL if unsupported image type or failure, otherwise photo driver object
  */
 function photo_factory($data, $type = null) {
@@ -34,8 +38,7 @@ function photo_factory($data, $type = null) {
 		$v = Imagick::getVersion();
 		preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m);
 		if(version_compare($m[1], '6.6.7') >= 0) {
-			require_once('include/photo/photo_imagick.php');
-			$ph = new photo_imagick($data, $type);
+			$ph = new PhotoImagick($data, $type);
 		} else {
 			// earlier imagick versions have issues with scaling png's
 			// don't log this because it will just fill the logfile.
@@ -45,461 +48,12 @@ function photo_factory($data, $type = null) {
 	}
 
 	if(! $ph) {
-		require_once('include/photo/photo_gd.php');
-		$ph = new photo_gd($data, $type);
+		$ph = new PhotoGd($data, $type);
 	}
 
 	return $ph;
 }
 
-
-/**
- * @brief Abstract photo driver class.
- *
- */
-abstract class photo_driver {
-
-	protected $image;
-	protected $width;
-	protected $height;
-	protected $valid;
-	protected $type;
-	protected $types;
-
-	abstract function supportedTypes();
-
-	abstract function load($data,$type);
-
-	abstract function destroy();
-
-	abstract function setDimensions();
-
-	abstract function getImage();
-
-	abstract function doScaleImage($new_width,$new_height);
-
-	abstract function rotate($degrees);
-
-	abstract function flip($horiz = true, $vert = false);
-
-	abstract function cropImage($max,$x,$y,$w,$h);
-
-	abstract function cropImageRect($maxx,$maxy,$x,$y,$w,$h);
-
-	abstract function imageString();
-
-	abstract function clearexif();
-
-	public function __construct($data, $type='') {
-		$this->types = $this->supportedTypes();
-		if (! array_key_exists($type, $this->types)){
-			$type = 'image/jpeg';
-		}
-		$this->type = $type;
-		$this->valid = false;
-		$this->load($data, $type);
-	}
-
-	public function __destruct() {
-		if($this->is_valid())
-			$this->destroy();
-	}
-
-	public function is_valid() {
-		return $this->valid;
-	}
-
-	public function getWidth() {
-		if(!$this->is_valid())
-			return FALSE;
-
-		return $this->width;
-	}
-
-	public function getHeight() {
-		if(!$this->is_valid())
-			return FALSE;
-
-		return $this->height;
-	}
-
-
-	public function saveImage($path) {
-		if(!$this->is_valid())
-			return FALSE;
-
-		return (file_put_contents($path, $this->imageString()) ? true : false);
-	}
-
-
-	public function getType() {
-		if(!$this->is_valid())
-			return FALSE;
-
-		return $this->type;
-	}
-
-	public function getExt() {
-		if(!$this->is_valid())
-			return FALSE;
-
-		return $this->types[$this->getType()];
-	}
-
-	/**
-	 * @brief Scale image to max pixel size in either dimension.
-	 *
-	 * @param int $max maximum pixel size in either dimension
-	 * @param boolean $float_height (optional)
-	 *   if true allow height to float to any length on tall images, constraining
-	 *   only the width
-	 *  @return boolean|void false on failure, otherwise void
-	 */
-	public function scaleImage($max, $float_height = true) {
-		if(!$this->is_valid())
-			return FALSE;
-
-		$width = $this->width;
-		$height = $this->height;
-
-		$dest_width = $dest_height = 0;
-
-		if((! $width)|| (! $height))
-			return FALSE;
-
-		if($width > $max && $height > $max) {
-
-			// very tall image (greater than 16:9)
-			// constrain the width - let the height float.
-
-			if(((($height * 9) / 16) > $width) && ($float_height)) {
-				$dest_width = $max;
-	 			$dest_height = intval(( $height * $max ) / $width);
-			}
-
-			// else constrain both dimensions
-
-			elseif($width > $height) {
-				$dest_width = $max;
-				$dest_height = intval(( $height * $max ) / $width);
-			}
-			else {
-				$dest_width = intval(( $width * $max ) / $height);
-				$dest_height = $max;
-			}
-		}
-		else {
-			if( $width > $max ) {
-				$dest_width = $max;
-				$dest_height = intval(( $height * $max ) / $width);
-			}
-			else {
-				if( $height > $max ) {
-
-					// very tall image (greater than 16:9)
-					// but width is OK - don't do anything
-
-					if(((($height * 9) / 16) > $width) && ($float_height)) {
-						$dest_width = $width;
-	 					$dest_height = $height;
-					}
-					else {
-						$dest_width = intval(( $width * $max ) / $height);
-						$dest_height = $max;
-					}
-				}
-				else {
-					$dest_width = $width;
-					$dest_height = $height;
-				}
-			}
-		}
-		$this->doScaleImage($dest_width,$dest_height);
-	}
-
-	public function scaleImageUp($min) {
-		if(!$this->is_valid())
-			return FALSE;
-
-		$width = $this->width;
-		$height = $this->height;
-
-		$dest_width = $dest_height = 0;
-
-		if((! $width)|| (! $height))
-			return FALSE;
-
-		if($width < $min && $height < $min) {
-			if($width > $height) {
-				$dest_width = $min;
-				$dest_height = intval(( $height * $min ) / $width);
-			}
-			else {
-				$dest_width = intval(( $width * $min ) / $height);
-				$dest_height = $min;
-			}
-		}
-		else {
-			if( $width < $min ) {
-				$dest_width = $min;
-				$dest_height = intval(( $height * $min ) / $width);
-			}
-			else {
-				if( $height < $min ) {
-					$dest_width = intval(( $width * $min ) / $height);
-					$dest_height = $min;
-				}
-				else {
-					$dest_width = $width;
-					$dest_height = $height;
-				}
-			}
-		}
-		$this->doScaleImage($dest_width,$dest_height);
-	}
-
-	/**
-	 * @brief Scales image to a square.
-	 *
-	 * @param int $dim Pixel of squre image
-	 * @return boolean|void false on failure, otherwise void
-	 */
-	public function scaleImageSquare($dim) {
-		if(!$this->is_valid())
-			return FALSE;
-
-		$this->doScaleImage($dim, $dim);
-	}
-
-	/**
-	 * @brief reads exif data from filename.
-	 *
-	 * @param string $filename
-	 * @return boolean|array
-	 */
-	public function exif($filename) {
-
-		if((! function_exists('exif_read_data'))
-			|| (! in_array($this->getType(), [ 'image/jpeg' , 'image/tiff'] ))) {
-			return false;
-		}
-
-		/*
-		 * PHP 7.2 allows you to use a stream resource, which should reduce/avoid
-		 * memory exhaustion on large images.
-		 */
-
-		if(version_compare(PHP_VERSION, '7.2.0') >= 0) {
-			$f = @fopen($filename, 'rb');
-		}
-		else {
-			$f = $filename;
-		}
-
-		if($f) {
-			return @exif_read_data($f,null,true);
-		}
-
-		return false;
-	}
-
-	/**
-	 * @brief Orients current image based on exif orientation information.
-	 *
-	 * @param array $exif
-	 * @return boolean true if oriented, otherwise false
-	 */
-	public function orient($exif) {
-
-		if(! ($this->is_valid() && $exif)) {
-			return false;
-		}
-
-		$ort = ((array_key_exists('IFD0', $exif)) ? $exif['IFD0']['Orientation'] : $exif['Orientation']);
-
-		if(! $ort) {
-			return false;
-		}
-
-		switch($ort) {
-			case 1: // nothing
-				break;
-			case 2: // horizontal flip
-				$this->flip();
-				break;
-			case 3: // 180 rotate left
-				$this->rotate(180);
-				break;
-			case 4: // vertical flip
-				$this->flip(false, true);
-				break;
-			case 5: // vertical flip + 90 rotate right
-				$this->flip(false, true);
-				$this->rotate(-90);
-				break;
-			case 6: // 90 rotate right
-				$this->rotate(-90);
-				break;
-			case 7: // horizontal flip + 90 rotate right
-				$this->flip();
-				$this->rotate(-90);
-				break;
-			case 8: // 90 rotate left
-				$this->rotate(90);
-				break;
-			default:
-				break;
-		}
-
-		return true;
-	}
-
-	/**
-	 * @brief Save photo to database.
-	 *
-	 * @param array $arr
-	 * @param boolean $skipcheck (optional) default false
-	 * @return boolean|array
-	 */
-	public function save($arr, $skipcheck = false) {
-
-		if(! ($skipcheck || $this->is_valid())) {
-			logger('Attempt to store invalid photo.');
-			return false;
-		}
-
-		$p = [];
-
-		$p['aid'] = ((intval($arr['aid'])) ? intval($arr['aid']) : 0);
-		$p['uid'] = ((intval($arr['uid'])) ? intval($arr['uid']) : 0);
-		$p['xchan'] = (($arr['xchan']) ? $arr['xchan'] : '');
-		$p['resource_id'] = (($arr['resource_id']) ? $arr['resource_id'] : '');
-		$p['filename'] = (($arr['filename']) ? $arr['filename'] : '');
-		$p['mimetype'] = (($arr['mimetype']) ? $arr['mimetype'] : $this->getType());
-		$p['album'] = (($arr['album']) ? $arr['album'] : '');
-		$p['imgscale'] = ((intval($arr['imgscale'])) ? intval($arr['imgscale']) : 0);
-		$p['allow_cid'] = (($arr['allow_cid']) ? $arr['allow_cid'] : '');
-		$p['allow_gid'] = (($arr['allow_gid']) ? $arr['allow_gid'] : '');
-		$p['deny_cid'] = (($arr['deny_cid']) ? $arr['deny_cid'] : '');
-		$p['deny_gid'] = (($arr['deny_gid']) ? $arr['deny_gid'] : '');
-		$p['edited'] = (($arr['edited']) ? $arr['edited'] : datetime_convert());
-		$p['title'] = (($arr['title']) ? $arr['title'] : '');
-		$p['description'] = (($arr['description']) ? $arr['description'] : '');
-		$p['photo_usage'] = intval($arr['photo_usage']);
-		$p['os_storage'] = intval($arr['os_storage']);
-		$p['os_path'] = $arr['os_path'];
-		$p['os_syspath'] = ((array_key_exists('os_syspath',$arr)) ? $arr['os_syspath'] : '');
-		$p['display_path'] = (($arr['display_path']) ? $arr['display_path'] : '');
-		$p['width'] = (($arr['width']) ? $arr['width'] : $this->getWidth());
-		$p['height'] = (($arr['height']) ? $arr['height'] : $this->getHeight());
-		$p['expires'] = (($arr['expires']) ? $arr['expires'] : gmdate('Y-m-d H:i:s', time() + get_config('system','photo_cache_time', 86400)));
-
-		if(! intval($p['imgscale']))
-			logger('save: ' . print_r($arr, true), LOGGER_DATA);
-
-		$x = q("select id, created from photo where resource_id = '%s' and uid = %d and xchan = '%s' and imgscale = %d limit 1",
-				dbesc($p['resource_id']),
-				intval($p['uid']),
-				dbesc($p['xchan']),
-				intval($p['imgscale'])
-		);
-
-		if($x) {
-			$p['created'] = (($x['created']) ? $x['created'] : $p['edited']);
-			$r = q("UPDATE photo set
-				aid = %d,
-				uid = %d,
-				xchan = '%s',
-				resource_id = '%s',
-				created = '%s',
-				edited = '%s',
-				filename = '%s',
-				mimetype = '%s',
-				album = '%s',
-				height = %d,
-				width = %d,
-				content = '%s',
-				os_storage = %d,
-				filesize = %d,
-				imgscale = %d,
-				photo_usage = %d,
-				title = '%s',
-				description = '%s',
-				os_path = '%s',
-				display_path = '%s',
-				allow_cid = '%s',
-				allow_gid = '%s',
-				deny_cid = '%s',
-				deny_gid = '%s',
-				expires = '%s'
-				where id = %d",
-
-				intval($p['aid']),
-				intval($p['uid']),
-				dbesc($p['xchan']),
-				dbesc($p['resource_id']),
-				dbescdate($p['created']),
-				dbescdate($p['edited']),
-				dbesc(basename($p['filename'])),
-				dbesc($p['mimetype']),
-				dbesc($p['album']),
-				intval($p['height']),
-				intval($p['width']),
-				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
-				intval($p['os_storage']),
-				(intval($p['os_storage']) ? @filesize($p['os_syspath']) : strlen($this->imageString())),
-				intval($p['imgscale']),
-				intval($p['photo_usage']),
-				dbesc($p['title']),
-				dbesc($p['description']),
-				dbesc($p['os_path']),
-				dbesc($p['display_path']),
-				dbesc($p['allow_cid']),
-				dbesc($p['allow_gid']),
-				dbesc($p['deny_cid']),
-				dbesc($p['deny_gid']),
-				dbescdate($p['expires']),
-				intval($x[0]['id'])
-			);
-		}
-		else {
-			$p['created'] = (($arr['created']) ? $arr['created'] : $p['edited']);
-			$r = q("INSERT INTO photo
-				( aid, uid, xchan, resource_id, created, edited, filename, mimetype, album, height, width, content, os_storage, filesize, imgscale, photo_usage, title, description, os_path, display_path, allow_cid, allow_gid, deny_cid, deny_gid, expires )
-				VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' )",
-				intval($p['aid']),
-				intval($p['uid']),
-				dbesc($p['xchan']),
-				dbesc($p['resource_id']),
-				dbescdate($p['created']),
-				dbescdate($p['edited']),
-				dbesc(basename($p['filename'])),
-				dbesc($p['mimetype']),
-				dbesc($p['album']),
-				intval($p['height']),
-				intval($p['width']),
-				(intval($p['os_storage']) ? dbescbin($p['os_syspath']) : dbescbin($this->imageString())),
-				intval($p['os_storage']),
-				(intval($p['os_storage']) ? @filesize($p['os_syspath']) : strlen($this->imageString())),
-				intval($p['imgscale']),
-				intval($p['photo_usage']),
-				dbesc($p['title']),
-				dbesc($p['description']),
-				dbesc($p['os_path']),
-				dbesc($p['display_path']),
-				dbesc($p['allow_cid']),
-				dbesc($p['allow_gid']),
-				dbesc($p['deny_cid']),
-				dbesc($p['deny_gid']),
-				dbescdate($p['expires'])
-			);
-		}
-		logger('Photo save ' . $p['imgscale'] . ' returned ' . intval($r));
-
-		return $r;
-	}
-
-}
 
 /**
  * @brief Guess image mimetype from filename or from Content-Type header.
@@ -519,7 +73,7 @@ function guess_image_type($filename, $headers = '') {
 		$hdrs = [];
 		$h = explode("\n", $headers);
 		foreach ($h as $l) {
-			list($k,$v) = array_map('trim', explode(':', trim($l), 2));
+			list($k, $v) = array_map('trim', explode(':', trim($l), 2));
 			$hdrs[strtolower($k)] = $v;
 		}
 		logger('Curl headers: ' .var_export($hdrs, true), LOGGER_DEBUG);
@@ -566,7 +120,7 @@ function guess_image_type($filename, $headers = '') {
 			}
 		}
 
-		if(is_null($type) && (strpos($filename,'http') === false)) {
+		if(is_null($type) && (strpos($filename, 'http') === false)) {
 			$size = getimagesize($filename);
 			$ph = photo_factory('');
 			$types = $ph->supportedTypes();
@@ -756,7 +310,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 	logger('HTTP code: ' . $result['return_code'] . '; modified: ' . $modified
 			. '; failure: ' . ($photo_failure ? 'yes' : 'no') . '; URL: ' . $photo, LOGGER_DEBUG);
 
-	return(array($photo,$thumb,$micro,$type,$photo_failure,$modified));
+	return([$photo, $thumb, $micro, $type, $photo_failure, $modified]);
 }
 
 /**

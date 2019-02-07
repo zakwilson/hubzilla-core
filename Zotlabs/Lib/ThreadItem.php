@@ -293,8 +293,10 @@ class ThreadItem {
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
 		}
 
-		if ($shareable)
-			$share = array( t('Share This'), t('share'));
+		if ($shareable) {
+			$share = array( t('Repeat This'), t('repeat'));
+			$embed = array( t('Share This'), t('share'));
+		}
 
 		$dreport = '';
 
@@ -408,6 +410,7 @@ class ThreadItem {
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
 			'share'     => $share,
+			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
 			'plink'     => get_plink($item),
 			'edpost'    => $edpost, // ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),

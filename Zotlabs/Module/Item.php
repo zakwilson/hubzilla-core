@@ -639,9 +639,9 @@ class Item extends Controller {
 
 
 			if(preg_match_all('/(\[share=(.*?)\](.*?)\[\/share\])/',$body,$match)) {
+
 				// process share by id				
 
-				$verb = ACTIVITY_SHARE;
 				$i = 0;
 				foreach($match[2] as $mtch) {
 					$reshare = new \Zotlabs\Lib\Share($mtch);

@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Activity;
 
 
 require_once('include/security.php');
@@ -98,7 +99,7 @@ class Share extends \Zotlabs\Web\Controller {
 		$arr['parent_mid'] = $item['mid'];
 
 		$mention = '@[zrl=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/zrl]';
-		$arr['body'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $item['obj_type']);
+		$arr['body'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, Activity::activity_obj_mapper($item['obj_type']));
 
 		$arr['author_xchan'] = $channel['channel_hash'];
 		$arr['owner_xchan']  = $item['author_xchan'];

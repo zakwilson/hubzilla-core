@@ -236,7 +236,7 @@ class Activity {
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
 
 		if($i['title'])
-			$ret['title'] = bbcode($i['title']);
+			$ret['name'] = $i['title'];
 
 		$ret['published'] = datetime_convert('UTC','UTC',$i['created'],ATOM_TIME);
 		if($i['created'] !== $i['edited'])

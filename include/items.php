@@ -7,6 +7,7 @@
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
+use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\AccessList;
@@ -140,6 +141,22 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 //			if($policy === 'pub')
 //				$recipients[] = $sys['xchan_hash'];
 		}
+
+
+		// Forward to thread listeners, *unless* there is even a remote hint that the item
+		// might have some privacy attached. This could be (for instance) an ActivityPub DM
+		// in the middle of a public thread. Unless we can guarantee beyond all doubt that
+		// this is public, don't allow it to go to thread listeners.
+
+		if(! intval($item['item_private'])) {
+			$r = ThreadListener::fetch_by_target($item['parent_mid']);
+			if($r) {
+				foreach($r as $rv) {
+					$recipients[] = $rv['portable_id'];
+				}
+			}
+		}
+
 
 		// Add the authors of any posts in this thread, if they are known to us.
 		// This is specifically designed to forward wall-to-wall posts to the original author,
@@ -3866,6 +3883,8 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 		intval($item['id']),
 		intval(TERM_OBJ_POST)
 	);
+
+	ThreadListener::delete_by_target($item['mid']);
 
 	/** @FIXME remove notifications for this item */
 

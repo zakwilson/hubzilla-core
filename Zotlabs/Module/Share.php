@@ -27,12 +27,14 @@ class Share extends \Zotlabs\Web\Controller {
 
 		$channel = App::get_channel();
 
-
 		$r = q("SELECT * from item left join xchan on author_xchan = xchan_hash WHERE id = %d  LIMIT 1",
 			intval($post_id)
 		);
 		if(! $r)
 			killme();
+
+		
+
 
 		if(($r[0]['item_private']) && ($r[0]['xchan_network'] !== 'rss'))
 			killme();
@@ -49,8 +51,12 @@ class Share extends \Zotlabs\Web\Controller {
 	
 		if($r[0]['mimetype'] !== 'text/bbcode')
 			killme();
-	
-	
+
+		if(strpos($r[0]['mid'],'http') === false) {
+			notice( t('Source message cannot be repeated. Sharing instead.') . EOL);
+			goaway(z_root() . '/embed/' . argv(1));
+		}
+		
 		xchan_query($r);
 	
 		$arr = [];

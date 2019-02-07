@@ -94,8 +94,8 @@ class Share extends \Zotlabs\Web\Controller {
 
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = $item['item_wall'];
-		$arr['mid'] = item_message_id();
-		$arr['mid'] = str_replace('/item/','/activity/',$arr['mid']);
+		$arr['uuid'] = item_message_id();
+		$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
 		$arr['parent_mid'] = $item['mid'];
 
 		$mention = '@[zrl=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/zrl]';

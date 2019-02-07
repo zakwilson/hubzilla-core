@@ -51,11 +51,6 @@ class Share extends \Zotlabs\Web\Controller {
 	
 		if($r[0]['mimetype'] !== 'text/bbcode')
 			killme();
-
-		if(strpos($r[0]['mid'],'http') === false) {
-			notice( t('Source message cannot be repeated. Sharing instead.') . EOL);
-			goaway(z_root() . '/embed/' . argv(1));
-		}
 		
 		xchan_query($r);
 	

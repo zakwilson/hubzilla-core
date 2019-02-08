@@ -12,6 +12,7 @@ use Zotlabs\Lib\LDSignatures;
 use Zotlabs\Zot6\HTTPSig;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\ThreadListener;
+use App;
 
 require_once('include/crypto.php');
 require_once('include/items.php');

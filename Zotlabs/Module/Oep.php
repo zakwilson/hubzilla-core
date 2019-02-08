@@ -181,7 +181,7 @@ class Oep extends \Zotlabs\Web\Controller {
 			dbesc($res)
 		);
 		if($r) {
-			$sql_extra = "and item.id = " . intval($r[0]['iid']) . " ";
+			$sql_extra .= " and item.id = " . intval($r[0]['iid']) . " ";
 		}
 		else {
 			return $ret;
@@ -193,6 +193,9 @@ class Oep extends \Zotlabs\Web\Controller {
 			intval($channel['channel_id']),
 			intval(ITEM_TYPE_CARD)
 		);
+
+		if(! $r)
+			return;
 
 		$item_normal = " and item.item_hidden = 0 and item.item_type in (0,6) and item.item_deleted = 0
 			and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
@@ -255,7 +258,6 @@ class Oep extends \Zotlabs\Web\Controller {
 		if(! $channel)
 			return $ret;
 
-
 		if(! perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_pages'))
 			return $ret;
 
@@ -265,7 +267,7 @@ class Oep extends \Zotlabs\Web\Controller {
 			dbesc($res)
 		);
 		if($r) {
-			$sql_extra = "and item.id = " . intval($r[0]['iid']) . " ";
+			$sql_extra .= " and item.id = " . intval($r[0]['iid']) . " ";
 		}
 		else {
 			return $ret;
@@ -277,6 +279,9 @@ class Oep extends \Zotlabs\Web\Controller {
 			intval($channel['channel_id']),
 			intval(ITEM_TYPE_ARTICLE)
 		);
+
+		if(! $r)
+			return;
 
 		$item_normal = " and item.item_hidden = 0 and item.item_type in (0,7) and item.item_deleted = 0
 			and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0

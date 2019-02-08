@@ -1504,7 +1504,7 @@ class Libzot {
 					// doesn't exist.
 
 					if ($perm === 'send_stream') {
-						if (get_pconfig($channel['channel_id'],'system','hyperdrive',false) || $arr['verb'] === 'Announce') {
+						if (get_pconfig($channel['channel_id'],'system','hyperdrive',false) || $arr['verb'] === ACTIVITY_SHARE) {
 							$allowed = true;
 						}
 					}

@@ -119,24 +119,6 @@ class PhotoGd extends PhotoDriver {
 		$this->setDimensions(); // Shouldn't really be necessary
 	}
 
-	public function cropImage($max, $x, $y, $w, $h) {
-		if(!$this->is_valid())
-			return false;
-
-		$dest = imagecreatetruecolor($max, $max);
-		imagealphablending($dest, false);
-		imagesavealpha($dest, true);
-		if($this->type == 'image/png')
-			imagefill($dest, 0, 0, imagecolorallocatealpha($dest, 0, 0, 0, 127)); // fill with alpha
-
-		imagecopyresampled($dest, $this->image, 0, 0, $x, $y, $max, $max, $w, $h);
-		if($this->image)
-			imagedestroy($this->image);
-
-		$this->image = $dest;
-		$this->setDimensions();
-	}
-
 	public function cropImageRect($maxx, $maxy, $x, $y, $w, $h) {
 		if(! $this->is_valid())
 			return false;

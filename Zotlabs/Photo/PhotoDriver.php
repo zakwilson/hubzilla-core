@@ -80,8 +80,18 @@ abstract class PhotoDriver {
 
 	abstract public function flip($horiz = true, $vert = false);
 
-	abstract public function cropImage($max, $x, $y, $w, $h);
-
+	/**
+	 * @brief Crops the image.
+	 *
+	 * @param int $maxx width of the new image
+	 * @param int $maxy height of the new image
+	 * @param int $x x-offset for region
+	 * @param int $y y-offset for region
+	 * @param int $w width of region
+	 * @param int $h height of region
+	 *
+	 * @return boolean|void false on failure
+	 */
 	abstract public function cropImageRect($maxx, $maxy, $x, $y, $w, $h);
 
 	/**
@@ -297,6 +307,26 @@ abstract class PhotoDriver {
 			return false;
 
 		$this->doScaleImage($dim, $dim);
+	}
+
+	/**
+	 * @brief Crops a square image.
+	 *
+	 * @see cropImageRect()
+	 *
+	 * @param int $max size of the new image
+	 * @param int $x x-offset for region
+	 * @param int $y y-offset for region
+	 * @param int $w width of region
+	 * @param int $h height of region
+	 *
+	 * @return boolean|void false on failure
+	 */
+	public function cropImage($max, $x, $y, $w, $h) {
+		if(! $this->is_valid())
+			return false;
+
+		$this->cropImageRect($max, $max, $x, $y, $w, $h);
 	}
 
 	/**

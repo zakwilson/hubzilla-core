@@ -119,14 +119,11 @@ class ThreadItem {
 		if ($lock) {
  			if (($item['mid'] == $item['parent_mid']) && count(get_terms_oftype($item['term'],TERM_FORUM))) {
  				$privacy_warning = true;
+				$conv_flags['parent_privacy_warning'] = true;
  			}
 		}
 
-		if ($privacy_warning) {
-			$conv_flags['privacy_warning'] = $privacy_warning;
-		} else {
-			$privacy_warning = (isset($conv_flags['privacy_warning'])) ? $conv_flags['privacy_warning'] : false;
-		}
+		$privacy_warning = (isset($conv_flags['parent_privacy_warning'])) ? $conv_flags['parent_privacy_warning'] : $privacy_warning;
 
 		if ($lock && $privacy_warning) {
 			$lock = t('Privacy conflict. Discretion advised.');

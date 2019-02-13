@@ -76,7 +76,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $thread_level=1) {
+	public function get_template_data($conv_responses, $thread_level=1, $conv_flags = []) {
 	
 		$result = array();
 
@@ -117,10 +117,13 @@ class ThreadItem {
 		}
 
 		if ($lock) {
- 			if (count(get_terms_oftype($item['term'],TERM_FORUM))) {
+ 			if (($item['mid'] == $item['parent_mid']) && count(get_terms_oftype($item['term'],TERM_FORUM))) {
  				$privacy_warning = true;
+				$conv_flags['parent_privacy_warning'] = true;
  			}
 		}
+
+		$privacy_warning = (isset($conv_flags['parent_privacy_warning'])) ? $conv_flags['parent_privacy_warning'] : $privacy_warning;
 
 		if ($lock && $privacy_warning) {
 			$lock = t('Privacy conflict. Discretion advised.');
@@ -488,7 +491,7 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1);
+				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1,$conv_flags);
 			}
 			// Collapse
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {

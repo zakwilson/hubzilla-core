@@ -311,7 +311,8 @@ class ThreadItem {
 			// This actually turns out not to be possible in some protocol stacks without opening up hundreds of new issues.
 			// Will allow it only for uri resolvable sources.
 			if(strpos($item['mid'],'http') === 0) {
-				$share = array( t('Repeat This'), t('repeat'));
+				$share = []; //Not yet ready for primetime
+				//$share = array( t('Repeat This'), t('repeat'));
 			}
 			$embed = array( t('Share This'), t('share'));
 		}

@@ -320,6 +320,7 @@ class Apps {
 	static public function translate_system_apps(&$arr) {
 		$apps = array(
 			'Apps' => t('Apps'),
+			'Affinity Tool' => t('Affinity Tool'),
 			'Articles' => t('Articles'),
 			'Cards' => t('Cards'),
 			'Admin' => t('Site Admin'),

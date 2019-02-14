@@ -9,24 +9,30 @@ class Affinity extends \Zotlabs\Web\Controller {
 
 	function post() {
 
-		if(! ( local_channel() && Apps::system_app_installed(local_channel(),'Affinity Tool'))) {
-            return;
-        }
+		if(! local_channel())
+			return;
 
-		if($_POST['affinity-submit']) {
-			$cmax = intval($_POST['affinity_cmax']);
-			if($cmax < 0 || $cmax > 99)
-				$cmax = 99;
-			$cmin = intval($_POST['affinity_cmin']);
-			if($cmin < 0 || $cmin > 99)
-				$cmin = 0;
-			set_pconfig(local_channel(),'affinity','cmin',$cmin);
-			set_pconfig(local_channel(),'affinity','cmax',$cmax);
+		if(! Apps::system_app_installed(local_channel(),'Affinity Tool'))
+			return;
 
-			info( t('Affinity Tool settings updated.') . EOL);
+		check_form_security_token_redirectOnErr('affinity', 'affinity');
 
-		}
-		
+		$cmax = intval($_POST['affinity_cmax']);
+		if($cmax < 0 || $cmax > 99)
+			$cmax = 99;
+
+		$cmin = intval($_POST['affinity_cmin']);
+		if($cmin < 0 || $cmin > 99)
+			$cmin = 0;
+
+		$lock = intval($_POST['affinity_lock']);
+
+		set_pconfig(local_channel(),'affinity','cmin',$cmin);
+		set_pconfig(local_channel(),'affinity','cmax',$cmax);
+		set_pconfig(local_channel(),'affinity','lock',$lock);
+
+		info( t('Affinity Tool settings updated.') . EOL);
+
 		Libsync::build_sync_packet();
 
 	}
@@ -34,35 +40,53 @@ class Affinity extends \Zotlabs\Web\Controller {
 
 	function get() {
 
-        $desc = t('This app (when installed) presents a slider control in your connection editor and also on your network page. The slider represents your degree of friendship or <em>affinity</em> with each connection. It allows you to zoom in or out and display conversations from only your closest friends or everybody in your stream.');
+		if(! local_channel())
+			return;
 
-        $text = '<div class="section-content-info-wrapper">' . $desc . '</div>';
+		$desc = t('This app presents a slider control in your connection editor and also on your network page. The slider represents your degree of friendship (affinity) with each connection. It allows you to zoom in or out and display conversations from only your closest friends or everybody in your stream.');
+		if(! Apps::system_app_installed(local_channel(),'Affinity Tool')) {
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
 
-        if(! ( local_channel() && Apps::system_app_installed(local_channel(),'Affinity Tool'))) {
-            return $text;
-        }
+			$o = '<b>' . t('Affinity Tool App') . ' (' . t('Not Installed') . '):</b><br>';
+			$o .= $desc;
+			return $o;
+		}
 
-		$text .= EOL . t('The numbers below represent the minimum and maximum slider default positions for your network/stream page as a percentage.') . EOL . EOL; 			
+		$text = t('The numbers below represent the minimum and maximum slider default positions for your network/stream page as a percentage.'); 			
 
-		$setting_fields = $text;
+		$content = '<div class="section-content-info-wrapper">' . $text . '</div>';
 
 		$cmax = intval(get_pconfig(local_channel(),'affinity','cmax'));
 		$cmax = (($cmax) ? $cmax : 99);
-		$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
+		$content .= replace_macros(get_markup_template('field_input.tpl'), array(
 			'$field'    => array('affinity_cmax', t('Default maximum affinity level'), $cmax, t('0-99 default 99'))
 		));
+
 		$cmin = intval(get_pconfig(local_channel(),'affinity','cmin'));
 		$cmin = (($cmin) ? $cmin : 0);
-		$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
+		$content .= replace_macros(get_markup_template('field_input.tpl'), array(
 			'$field'    => array('affinity_cmin', t('Default minimum affinity level'), $cmin, t('0-99 - default 0'))
 		));
 
-		$s .= replace_macros(get_markup_template('generic_app_settings.tpl'), array(
-			'$addon'    => array('affinity', '' . t('Affinity Tool Settings'), '', t('Submit')),
-			'$content'  => $setting_fields
+		$lock = intval(get_pconfig(local_channel(),'affinity','lock',1));
+
+		$content .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
+			'$field'    => array('affinity_lock', t('Persistent affinity levels'), $lock, t('If disabled the max and min levels will be reset to default after page reload'), ['No','Yes'])
 		));
 
-		return $s;
+		$tpl = get_markup_template("settings_addon.tpl");
+
+		$o = replace_macros($tpl, array(
+			'$action_url' => 'affinity',
+			'$form_security_token' => get_form_security_token("affinity"),
+			'$title' => t('Affinity Tool Settings'),
+			'$content'  => $content,
+			'$baseurl'   => z_root(),
+			'$submit'    => t('Submit'),
+		));
+
+		return $o;
 	}
 
 

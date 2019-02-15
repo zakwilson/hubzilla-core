@@ -375,6 +375,9 @@ class Addons {
 		if($files) {
 			foreach($files as $file) {
 				if (is_dir($file)){
+					if($file == 'addon/addon_common/')
+						continue;
+
 					list($tmp, $id) = array_map('trim', explode('/', $file));
 					$info = get_plugin_info($id);
 					$enabled = in_array($id,\App::$plugins);

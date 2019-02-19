@@ -2,11 +2,6 @@
 
 namespace Zotlabs\Lib;
 
-/**
- * @brief lowlevel implementation of Zot6 protocol.
- *
- */
-
 use Zotlabs\Zot6\HTTPSig;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Access\PermissionLimits;
@@ -14,14 +9,17 @@ use Zotlabs\Daemon\Master;
 
 require_once('include/crypto.php');
 
-
+/**
+ * @brief Lowlevel implementation of Zot6 protocol.
+ *
+ */
 class Libzot {
 
 	/**
 	 * @brief Generates a unique string for use as a zot guid.
 	 *
-	 * Generates a unique string for use as a zot guid using our DNS-based url, the
-	 * channel nickname and some entropy.
+	 * Generates a unique string for use as a zot guid using our DNS-based url,
+	 * the channel nickname and some entropy.
 	 * The entropy ensures uniqueness against re-installs where the same URL and
 	 * nickname are chosen.
 	 *
@@ -32,9 +30,8 @@ class Libzot {
 	 * immediate universe.
 	 *
 	 * @param string $channel_nick a unique nickname of controlling entity
-	 * @returns string
+	 * @return string
 	 */
-
 	static function new_uid($channel_nick) {
 		$rawstr = z_root() . '/' . $channel_nick . '.' . mt_rand();
 		return(base64url_encode(hash('whirlpool', $rawstr, true), true));
@@ -52,8 +49,8 @@ class Libzot {
 	 *
 	 * @param string $guid
 	 * @param string $pubkey
+	 * @return string
 	 */
-
 	static function make_xchan_hash($guid, $pubkey) {
 		return base64url_encode(hash('whirlpool', $guid . $pubkey, true));
 	}
@@ -65,10 +62,8 @@ class Libzot {
 	 * should only be used by channels which are defined on this hub.
 	 *
 	 * @param string $hash - xchan_hash
-	 * @returns array of hubloc (hub location structures)
-	 *
+	 * @return array of hubloc (hub location structures)
 	 */
-
 	static function get_hublocs($hash) {
 
 		/* Only search for active hublocs - e.g. those that haven't been marked deleted */
@@ -92,16 +87,17 @@ class Libzot {
 	 *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
 	 * @param array $recipients
 	 *   envelope recipients, array of portable_id's; empty for public posts
-	 * @param string msg
+	 * @param string $msg
 	 *   optional message
+	 * @param string $encoding
+	 *   optional encoding, default 'activitystreams'
 	 * @param string $remote_key
 	 *   optional public site key of target hub used to encrypt entire packet
 	 *   NOTE: remote_key and encrypted packets are required for 'auth_check' packets, optional for all others
 	 * @param string $methods
-	 *   optional comma separated list of encryption methods @ref self::best_algorithm()
+	 *   optional comma separated list of encryption methods @ref best_algorithm()
 	 * @returns string json encoded zot packet
 	 */
-
 	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = '', $encoding = 'activitystreams', $remote_key = null, $methods = '') {
 
 		$sig_method = get_config('system','signature_algorithm','sha256');
@@ -146,11 +142,10 @@ class Libzot {
 	 * @brief Choose best encryption function from those available on both sites.
 	 *
 	 * @param string $methods
-	 *   comma separated list of encryption methods
+	 *   Comma separated list of encryption methods
 	 * @return string first match from our site method preferences crypto_methods() array
-	 * of a method which is common to both sites; or 'aes256cbc' if no matches are found.
+	 *   of a method which is common to both sites; or 'aes256cbc' if no matches are found.
 	 */
-
 	static function best_algorithm($methods) {
 
 		$x = [
@@ -164,7 +159,6 @@ class Libzot {
 		 *   * \e string \b methods - comma separated list of encryption methods
 		 *   * \e string \b result - the algorithm to return
 		 */
-	
 		call_hooks('zot_best_algorithm', $x);
 
 		if($x['result'])
@@ -190,7 +184,7 @@ class Libzot {
 
 
 	/**
-	 * @brief send a zot message
+	 * @brief Send a zot message.
 	 *
 	 * @see z_post_url()
 	 *
@@ -200,18 +194,17 @@ class Libzot {
 	 * @param array $crypto (required if encrypted httpsig, requires hubloc_sitekey and site_crypto elements)
 	 * @return array see z_post_url() for returned data format
 	 */
-
 	static function zot($url, $data, $channel = null,$crypto = null) {
 
 		if($channel) {
-			$headers = [ 
-				'X-Zot-Token'      => random_string(), 
-				'Digest'           => HTTPSig::generate_digest_header($data), 
+			$headers = [
+				'X-Zot-Token'      => random_string(),
+				'Digest'           => HTTPSig::generate_digest_header($data),
 				'Content-type'     => 'application/x-zot+json',
 				'(request-target)' => 'post ' . get_request_string($url)
 			];
 
-			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false,'sha512', 
+			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false,'sha512',
 				(($crypto) ? [ 'key' => $crypto['hubloc_sitekey'], 'algorithm' => self::best_algorithm($crypto['site_crypto']) ] : false));
 		}
 		else {
@@ -226,7 +219,6 @@ class Libzot {
 
 	/**
 	 * @brief Refreshes after permission changed or friending, etc.
-	 *
 	 *
 	 * refresh is typically invoked when somebody has changed permissions of a channel and they are notified
 	 * to fetch new permissions via a finger/discovery operation. This may result in a new connection
@@ -251,7 +243,6 @@ class Libzot {
 	 *   * \b true if successful
 	 *   * otherwise \b false
 	 */
-
 	static function refresh($them, $channel = null, $force = false) {
 
 		logger('them: ' . print_r($them,true), LOGGER_DATA, LOG_DEBUG);
@@ -265,13 +256,13 @@ class Libzot {
 		}
 		else {
 			$r = null;
-	
+
 			// if they re-installed the server we could end up with the wrong record - pointing to the old install.
 			// We'll order by reverse id to try and pick off the newest one first and hopefully end up with the
 			// correct hubloc. If this doesn't work we may have to re-write this section to try them all.
 
 			if(array_key_exists('xchan_addr',$them) && $them['xchan_addr']) {
-				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_addr = '%s' order by hubloc_id desc",
+				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_addr = '%s' and hubloc_network = 'zot6' order by hubloc_id desc",
 					dbesc($them['xchan_addr'])
 				);
 			}
@@ -317,7 +308,7 @@ class Libzot {
 
 		if(! $hsig_valid) {
 			logger('http signature not valid: ' . print_r($hsig,true));
-			return $result;
+			return false;
 		}
 
 
@@ -356,7 +347,7 @@ class Libzot {
 			);
 
 			if($r) {
-logger('4');
+
 				// connection exists
 
 				// if the dob is the same as what we have stored (disregarding the year), keep the one
@@ -416,7 +407,7 @@ logger('4');
 				if($y) {
 					logger("New introduction received for {$channel['channel_name']}");
 					$new_perms = get_all_perms($channel['channel_id'],$x['hash'],false);
-	
+
 					// Send a clone sync packet and a permissions update if permissions have changed
 
 					$new_connection = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_xchan = '%s' and abook_channel = %d and abook_self = 0 order by abook_created desc limit 1",
@@ -524,10 +515,14 @@ logger('4');
 		return false;
 	}
 
-
-
-
-	static function valid_hub($sender,$site_id) {
+	/**
+	 * @brief
+	 *
+	 * @param string $sender
+	 * @param string $site_id
+	 * @return null|array
+	 */
+	static function valid_hub($sender, $site_id) {
 
 		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on hubloc_url = site_url where hubloc_hash = '%s' and hubloc_site_id = '%s' limit 1",
 			dbesc($sender),
@@ -548,7 +543,6 @@ logger('4');
 		}
 
 		return $r[0];
-
 	}
 
 	/**
@@ -559,21 +553,14 @@ logger('4');
 	 * origination address. This will fetch the discovery packet of the sender,
 	 * which contains the public key we need to verify our guid and url signatures.
 	 *
-	 * @param array $arr an associative array which must contain:
-	 *  * \e string \b guid => guid of conversant
-	 *  * \e string \b guid_sig => guid signed with conversant's private key
-	 *  * \e string \b url => URL of the origination hub of this communication
-	 *  * \e string \b url_sig => URL signed with conversant's private key
+	 * @param string $id
 	 *
 	 * @return array An associative array with
-	 *  * \b success boolean true or false
-	 *  * \b message (optional) error string only if success is false
+	 *  * \e boolean \b success
+	 *  * \e string \b message (optional, unused) error string only if success is false
 	 */
-
 	static function register_hub($id) {
 
-		$id_hash = false;
-		$valid   = false;
 		$hsig_valid = false;
 
 		$result  = [ 'success' => false ];
@@ -807,7 +794,7 @@ logger('4');
 
 						// If setting for the default profile, unset the profile photo flag from any other photos I own
 						if($is_default_profile) {
-							q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND resource_id != '%s' AND aid = %d AND uid = %d",	
+							q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND resource_id != '%s' AND aid = %d AND uid = %d",
 								intval(PHOTO_NORMAL),
 								intval(PHOTO_PROFILE),
 								dbesc($hash),
@@ -954,8 +941,8 @@ logger('4');
 	 * @param string $hub - url of site we just contacted
 	 * @param array $arr - output of z_post_url()
 	 * @param array $outq - The queue structure attached to this request
+	 * @return void
 	 */
-
 	static function process_response($hub, $arr, $outq) {
 
 		logger('remote: ' . print_r($arr,true),LOGGER_DATA);
@@ -986,7 +973,7 @@ logger('4');
 			if(! $x['success']) {
 
 				// handle remote validation issues
-	
+
 				$b = q("update dreport set dreport_result = '%s', dreport_time = '%s' where dreport_queue = '%s'",
 					dbesc(($x['message']) ? $x['message'] : 'unknown delivery error'),
 					dbesc(datetime_convert()),
@@ -994,7 +981,7 @@ logger('4');
 				);
 			}
 
-			if(is_array($x) && array_key_exists('delivery_report',$x) && is_array($x['delivery_report'])) { 
+			if(is_array($x) && array_key_exists('delivery_report',$x) && is_array($x['delivery_report'])) {
 
 				foreach($x['delivery_report'] as $xx) {
 					call_hooks('dreport_process',$xx);
@@ -1083,11 +1070,6 @@ logger('4');
 	 *
 	 * @param array $arr
 	 *  'pickup' structure returned from remote site
-	 * @param string $sender_url
-	 *  the url specified by the sender in the initial communication.
-	 *  We will verify the sender and url in each returned message structure and
-	 *  also verify that all the messages returned match the site url that we are
-	 *  currently processing.
 	 *
 	 * @returns array
 	 *   Suitable for logging remotely, enumerating the processing results of each message/recipient combination
@@ -1095,7 +1077,6 @@ logger('4');
 	 *   * [1] => \e string $delivery_status
 	 *   * [2] => \e string $address
 	 */
-
 	static function import($arr) {
 
 		$env = $arr;
@@ -1117,7 +1098,7 @@ logger('4');
 		$has_data = array_key_exists('data',$env) && $env['data'];
 		$data = (($has_data) ? $env['data'] : false);
 
-		$AS = null;		
+		$AS = null;
 
 		if($env['encoding'] === 'activitystreams') {
 
@@ -1175,7 +1156,6 @@ logger('4');
 
 			$deliveries = self::public_recips($env,$AS);
 
-
 		}
 
 		$deliveries = array_unique($deliveries);
@@ -1194,31 +1174,31 @@ logger('4');
 
 				//logger($AS->debug());
 
-				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($AS->actor['id'])
-				); 
+				);
 
 				if($r) {
 					$arr['author_xchan'] = $r[0]['hubloc_hash'];
 				}
 
 
-				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($env['sender'])
-				); 
+				);
 
 				// in individual delivery, change owner if needed
 				if($s) {
 					$arr['owner_xchan'] = $s[0]['hubloc_hash'];
 				}
 				else {
-					$arr['owner_xchan'] = $env['sender'];						
+					$arr['owner_xchan'] = $env['sender'];
 				}
 
 				if($private) {
 					$arr['item_private'] = true;
 				}
-				// @fixme - spoofable
+				/// @FIXME - spoofable
 				if($AS->data['hubloc']) {
 					$arr['item_verified'] = true;
 				}
@@ -1247,12 +1227,19 @@ logger('4');
 		}
 		if ($result) {
 			$return = array_merge($return, $result);
-		}		
+		}
 		return $return;
 	}
 
 
-	static function is_top_level($env,$act) {
+	/**
+	 * @brief
+	 *
+	 * @param array $env
+	 * @param object $act
+	 * @return boolean
+	 */
+	static function is_top_level($env, $act) {
 		if($env['encoding'] === 'zot' && array_key_exists('flags',$env) && in_array('thread_parent', $env['flags'])) {
 			return true;
 		}
@@ -1295,9 +1282,9 @@ logger('4');
 	 * Some of these will be rejected, but this gives us a place to start.
 	 *
 	 * @param array $msg
-	 * @return NULL|array
+	 * @param object $act
+	 * @return array
 	 */
-
 	static function public_recips($msg, $act) {
 
 		require_once('include/channel.php');
@@ -1442,7 +1429,7 @@ logger('4');
 			 * will normally arrive first via sync delivery, but this isn't guaranteed.
 			 * There's a chance the current delivery could take place before the cloned copy arrives
 			 * hence the item could have the wrong ACL and *could* be used in subsequent deliveries or
-			 * access checks. 
+			 * access checks.
 			 */
 
 			if($sender === $channel['channel_portable_id'] && $arr['author_xchan'] === $channel['channel_portable_id'] && $arr['mid'] === $arr['parent_mid']) {
@@ -1497,14 +1484,37 @@ logger('4');
 						intval($channel['channel_id'])
 					);
 					if ($parent) {
-						$allowed = can_comment_on_post($d,$parent[0]);
+						$allowed = can_comment_on_post($sender,$parent[0]);
 					}
 				}
-				if($request) {
-					$allowed = true;
+
+				if ($request) {
+
+					// Conversation fetches (e.g. $request == true) take place for
+					//   a) new comments on expired posts
+					//   b) hyperdrive (friend-of-friend) conversations
+					//   c) Repeats of posts by others
+
+
+					// over-ride normal connection permissions for hyperdrive (friend-of-friend) conversations
+					// (if hyperdrive is enabled) and repeated posts by a friend.
+					// If $allowed is already true, this is probably the conversation of a direct friend or a
+					// conversation fetch for a new comment on an expired post
+					// Comments of all these activities are allowed and will only be rejected (later) if the parent
+					// doesn't exist.
+
+					if ($perm === 'send_stream') {
+						if (get_pconfig($channel['channel_id'],'system','hyperdrive',false) || $arr['verb'] === ACTIVITY_SHARE) {
+							$allowed = true;
+						}
+					}
+					else {
+						$allowed = true;
+					}
+
 					$friendofriend = true;
 				}
-        
+
 				if (! $allowed) {
 					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 					$DR->update('permission denied');
@@ -1513,16 +1523,18 @@ logger('4');
 				}
 			}
 
-logger('item: ' . print_r($arr,true), LOGGER_DATA);
+			//	logger('item: ' . print_r($arr,true), LOGGER_DATA);
 
 			if($arr['mid'] !== $arr['parent_mid']) {
-logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+
+				logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"');
+
 				// check source route.
 				// We are only going to accept comments from this sender if the comment has the same route as the top-level-post,
 				// this is so that permissions mismatches between senders apply to the entire conversation
 				// As a side effect we will also do a preliminary check that we have the top-level-post, otherwise
 				// processing it is pointless.
-	
+
 				$r = q("select route, id, owner_xchan, item_private from item where mid = '%s' and uid = %d limit 1",
 					dbesc($arr['parent_mid']),
 					intval($channel['channel_id'])
@@ -1537,10 +1549,7 @@ logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"')
 					// have the copy and we don't want the request to loop.
 					// Also don't do this if this comment came from a conversation request packet.
 					// It's possible that comments are allowed but posting isn't and that could
-					// cause a conversation fetch loop. We can detect these packets since they are
-					// delivered via a 'notify' packet type that has a message_id element in the
-					// initial zot packet (just like the corresponding 'request' packet type which
-					// makes the request).
+					// cause a conversation fetch loop. 
 					// We'll also check the send_stream permission - because if it isn't allowed,
 					// the top level post is unlikely to be imported and
 					// this is just an exercise in futility.
@@ -1551,14 +1560,14 @@ logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"')
 					}
 					continue;
 				}
-				
+
 				if($relay || $friendofriend || (intval($r[0]['item_private']) === 0 && intval($arr['item_private']) === 0)) {
 					// reset the route in case it travelled a great distance upstream
 					// use our parent's route so when we go back downstream we'll match
 					// with whatever route our parent has.
 					// Also friend-of-friend conversations may have been imported without a route,
 					// but we are now getting comments via listener delivery
-					// and if there is no privacy on this or the parent, we don't care about the route, 
+					// and if there is no privacy on this or the parent, we don't care about the route,
 					// so just set the owner and route accordingly.
 					$arr['route'] = $r[0]['route'];
 					$arr['owner_xchan'] = $r[0]['owner_xchan'];
@@ -1601,7 +1610,7 @@ logger('checking source: "' . $arr['mid'] . '" != "' . $arr['parent_mid'] . '"')
 					$arr['route'] = $last_prior_route;
 				}
 			}
-logger('hey');
+
 			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
 				intval($channel['channel_id']),
 				dbesc($arr['owner_xchan'])
@@ -1612,13 +1621,13 @@ logger('hey');
 
 				// remove_community_tag is a no-op if this isn't a community tag activity
 				self::remove_community_tag($sender,$arr,$channel['channel_id']);
-	
+
 				// set these just in case we need to store a fresh copy of the deleted post.
 				// This could happen if the delete got here before the original post did.
 
 				$arr['aid'] = $channel['channel_account_id'];
 				$arr['uid'] = $channel['channel_id'];
-	
+
 				$item_id = self::delete_imported_item($sender,$arr,$channel['channel_id'],$relay);
 				$DR->update(($item_id) ? 'deleted' : 'delete_failed');
 				$result[] = $DR->get();
@@ -1714,7 +1723,7 @@ logger('hey');
 						 *   * \e array \b item
 						 *   * \e array \b sender
 						 *   * \e array \b channel
-						 */	
+						 */
 						call_hooks('activity_received', $parr);
 						// don't add a source route if it's a relay or later recipients will get a route mismatch
 						if(! $relay)
@@ -1779,17 +1788,17 @@ logger('hey');
 			logger($AS->debug());
 
 
-			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($AS->actor['id'])
-			); 
+			);
 
 			if(! $r) {
 				$y = import_author_xchan([ 'url' => $AS->actor['id'] ]);
 				if($y) {
-					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 						dbesc($AS->actor['id'])
 					);
-				} 
+				}
 				if(! $r) {
 					logger('FOF Activity: no actor');
 					continue;
@@ -1809,9 +1818,9 @@ logger('hey');
 				$arr['author_xchan'] = $r[0]['hubloc_hash'];
 			}
 
-			$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($a['signature']['signer'])
-			); 
+			);
 
 			if($s) {
 				$arr['owner_xchan'] = $s[0]['hubloc_hash'];
@@ -1820,7 +1829,8 @@ logger('hey');
 				$arr['owner_xchan'] = $a['signature']['signer'];
 			}
 
-			// @fixme - spoofable
+
+			/// @FIXME - spoofable
 			if($AS->data['hubloc']) {
 				$arr['item_verified'] = true;
 			}
@@ -1834,7 +1844,7 @@ logger('hey');
 			$result = self::process_delivery($arr['owner_xchan'],$arr, [ $channel['channel_portable_id'] ],false,false,true);
 			if ($result) {
 				$ret = array_merge($ret, $result);
-			}		
+			}
 		}
 
 		return $ret;
@@ -1851,8 +1861,8 @@ logger('hey');
 	 *   * \e int \b obj_type
 	 *   * \e int \b mid
 	 * @param int $uid
+	 * @return void
 	 */
-
 	static function remove_community_tag($sender, $arr, $uid) {
 
 		if(! (activity_match($arr['verb'], ACTIVITY_TAG) && ($arr['obj_type'] == ACTIVITY_OBJ_TAGTERM)))
@@ -1880,7 +1890,7 @@ logger('hey');
 		}
 
 		$i = $r[0];
-	
+
 		if($i['target'])
 			$i['target'] = json_decode($i['target'],true);
 		if($i['object'])
@@ -1923,8 +1933,8 @@ logger('hey');
 	 * @param array $orig
 	 * @param int $uid
 	 * @param boolean $tag_delivery
+	 * @return void|array
 	 */
-	
 	static function update_imported_item($sender, $item, $orig, $uid, $tag_delivery) {
 
 		// If this is a comment being updated, remove any privacy information
@@ -2064,7 +2074,7 @@ logger('hey');
 		}
 
 		foreach($deliveries as $d) {
-	
+
 			$DR = new DReport(z_root(),$sender,$d,$arr['mid']);
 
 			$r = q("select * from channel where channel_portable_id = '%s' limit 1",
@@ -2083,7 +2093,7 @@ logger('hey');
 
 			if(! perm_is_allowed($channel['channel_id'],$sender,'post_mail')) {
 
-				/* 
+				/*
 				 * Always allow somebody to reply if you initiated the conversation. It's anti-social
 				 * and a bit rude to send a private message to somebody and block their ability to respond.
 				 * If you are being harrassed and want to put an end to it, delete the conversation.
@@ -2143,12 +2153,13 @@ logger('hey');
 	 * @brief Processes delivery of profile.
 	 *
 	 * @see import_directory_profile()
+	 *
 	 * @param array $sender an associative array
 	 *   * \e string \b hash a xchan_hash
 	 * @param array $arr
 	 * @param array $deliveries (unused)
+	 * @return void
 	 */
-
 	static function process_profile_delivery($sender, $arr, $deliveries) {
 
 		logger('process_profile_delivery', LOGGER_DEBUG);
@@ -2169,6 +2180,7 @@ logger('hey');
 	 *   * \e string \b hash a xchan_hash
 	 * @param array $arr
 	 * @param array $deliveries (unused) deliveries is irrelevant
+	 * @return void
 	 */
 	static function process_location_delivery($sender, $arr, $deliveries) {
 
@@ -2186,7 +2198,7 @@ logger('hey');
 			$x = Libsync::sync_locations($xchan,$arr,true);
 			logger('results: ' . print_r($x,true), LOGGER_DEBUG);
 			if($x['changed']) {
-				$guid = random_string() . '@' . App::get_hostname();
+				//$guid = random_string() . '@' . App::get_hostname();
 				Libzotdir::update_modtime($sender,$r[0]['xchan_guid'],$arr['locations'][0]['address'],UPDATE_FLAGS_UPDATED);
 			}
 		}
@@ -2210,8 +2222,8 @@ logger('hey');
 	 *
 	 * @param string $sender_hash A channel hash
 	 * @param array $locations
+	 * @return void
 	 */
-
 	static function check_location_move($sender_hash, $locations) {
 
 		if(! $locations)
@@ -2253,7 +2265,6 @@ logger('hey');
 	}
 
 
-
 	/**
 	 * @brief Returns an array with all known distinct hubs for this channel.
 	 *
@@ -2262,7 +2273,6 @@ logger('hey');
 	 *  * \e string \b channel_hash the hash of the channel
 	 * @return array an array with associative arrays
 	 */
-
 	static function encode_locations($channel) {
 		$ret = [];
 
@@ -2303,7 +2313,7 @@ logger('hey');
 				if(! $z['site_id']) {
 					$z['site_id'] = Libzot::make_xchan_hash($z['url'],$z['sitekey']);
 				}
-					 
+
 				$ret[] = $z;
 			}
 		}
@@ -2316,10 +2326,8 @@ logger('hey');
 	 * @brief
 	 *
 	 * @param array $arr
-	 * @param string $pubkey
 	 * @return boolean true if updated or inserted
 	 */
-	
 	static function import_site($arr) {
 
 		if( (! is_array($arr)) || (! $arr['url']) || (! $arr['site_sig']))
@@ -2594,20 +2602,20 @@ logger('hey');
 		$feed      = ((x($arr,'feed'))       ? intval($arr['feed']) : 0);
 
 		if($ztarget) {
-			$t = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
+			$t = q("select * from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 				dbesc($ztarget)
 			);
 			if($t) {
-	
+
 				$ztarget_hash = $t[0]['hubloc_hash'];
 
 			}
 			else {
-			
+
 				// should probably perform discovery of the requestor (target) but if they actually had
-				// permissions we would know about them and we only want to know who they are to 
+				// permissions we would know about them and we only want to know who they are to
 				// enumerate their specific permissions
-		
+
 				$ztarget_hash = EMPTY_STR;
 			}
 		}
@@ -2754,7 +2762,7 @@ logger('hey');
 		$ret['id']             = $e['xchan_guid'];
 		$ret['id_sig']         = self::sign($e['xchan_guid'], $e['channel_prvkey']);
 
-		$ret['primary_location'] = [ 
+		$ret['primary_location'] = [
 			'address'            =>  $e['xchan_addr'],
 			'url'                =>  $e['xchan_url'],
 			'connections_url'    =>  $e['xchan_connurl'],
@@ -2776,7 +2784,7 @@ logger('hey');
 		$ret['searchable']     = $searchable;
 		$ret['adult_content']  = $adult_channel;
 		$ret['public_forum']   = $public_forum;
-		
+
 		$ret['comments']       = map_scope(PermissionLimits::Get($e['channel_id'],'post_comments'));
 		$ret['mail']           = map_scope(PermissionLimits::Get($e['channel_id'],'post_mail'));
 
@@ -2834,14 +2842,20 @@ logger('hey');
 			$ret['locations'] = $x;
 
 		$ret['site'] = self::site_info();
+		/**
+		 * @hooks zotinfo
+		 *   Hook to manipulate the zotinfo array before it is returned.
+		 */
+		call_hooks('zotinfo', $ret);
 
-		call_hooks('zotinfo',$ret);
-
-		return($ret);
-
+		return $ret;
 	}
 
-
+	/**
+	 * @brief Get siteinfo.
+	 *
+	 * @return array
+	 */
 	static function site_info() {
 
 		$signing_key = get_config('system','prvkey');
@@ -2878,7 +2892,7 @@ logger('hey');
 		if($dirmode != DIRECTORY_MODE_STANDALONE) {
 
 			$register_policy = intval(get_config('system','register_policy'));
-	
+
 			if($register_policy == REGISTER_CLOSED)
 				$ret['site']['register_policy'] = 'closed';
 			if($register_policy == REGISTER_APPROVE)
@@ -2925,18 +2939,16 @@ logger('hey');
 		}
 
 		return $ret['site'];
-
 	}
 
 	/**
 	 * @brief
 	 *
 	 * @param array $hub
-	 * @param string $sitekey (optional, default empty)
+	 * @param string $site_id (optional, default empty)
 	 *
 	 * @return string hubloc_url
 	 */
-
 	static function update_hub_connected($hub, $site_id = '') {
 
 		if ($site_id) {
@@ -2995,12 +3007,21 @@ logger('hey');
 		return $hub['hubloc_url'];
 	}
 
-
+	/**
+	 * @brief
+	 *
+	 * @param string $data
+	 * @param string $key
+	 * @param string $alg (optional) default 'sha256'
+	 * @return string
+	 */
 	static function sign($data,$key,$alg = 'sha256') {
 		if(! $key)
 			return 'no key';
+
 		$sig = '';
 		openssl_sign($data,$sig,$key,$alg);
+
 		return $alg . '.' . base64url_encode($sig);
 	}
 
@@ -3013,24 +3034,27 @@ logger('hey');
 		if ($key && count($x) === 2) {
 			$alg = $x[0];
 			$signature = base64url_decode($x[1]);
-	
+
 			$verify = @openssl_verify($data,$signature,$key,$alg);
 
 			if ($verify === (-1)) {
 				while ($msg = openssl_error_string()) {
 					logger('openssl_verify: ' . $msg,LOGGER_NORMAL,LOG_ERR);
 				}
-				btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR); 
+				btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR);
 			}
 		}
 		return(($verify > 0) ? true : false);
 	}
 
-
-
+	/**
+	 * @brief
+	 *
+	 * @return boolean
+	 */
 	static function is_zot_request() {
-
 		$x = getBestSupportedMimeType([ 'application/x-zot+json' ]);
+
 		return(($x) ? true : false);
 	}
 

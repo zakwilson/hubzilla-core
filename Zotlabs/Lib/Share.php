@@ -54,6 +54,7 @@ class Share {
 		if(! $this->item)
 			return $obj;
 
+		$obj['asld']         = $this->item['mid'];
 		$obj['type']         = $this->item['obj_type'];
 		$obj['id']           = $this->item['mid'];
 		$obj['content']      = $this->item['body'];

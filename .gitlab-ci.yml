@@ -1,36 +1,49 @@
 # Select image from https://hub.docker.com/_/php/
-image: php:7.1
+#image: php:7.2
+# Use a prepared Hubzilla image to optimise pipeline run
+image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.2
+
+
+stages:
+  - test
+  - deploy
+
 
 # Select what we should cache
 cache:
   paths:
   - vendor/
+  - .cache/
 
+
+# global variables for all jobs, if no job specific variables
 variables:
-  # Configure mysql service (https://hub.docker.com/_/mysql/)
+  # Tell composer to use the project workspace .cache folder
+  COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.cache/composer"
+  # Ignore a Composer warning
+  COMPOSER_ALLOW_SUPERUSER: 1
+  # Configure MySQL/MariaDB service (https://hub.docker.com/_/mysql/, https://hub.docker.com/_/mariadb/)
   MYSQL_DATABASE: hello_world_test
   MYSQL_ROOT_PASSWORD: mysql
+  # Configure PostgreSQL service (https://hub.docker.com/_/postgres/)
+  POSTGRES_DB: ci-db
+  POSTGRES_USER: ci-user
+  POSTGRES_PASSWORD: ci-pass
+
 
 before_script:
-# prevent error installing buggy postgresql-client package
-- mkdir -p /usr/share/man/man1 /usr/share/man/man7
-- apt-get update -yqq
-- apt-get install -yqq --no-install-recommends git mysql-client postgresql-client libmcrypt-dev libpq-dev libcurl4-gnutls-dev libicu-dev libvpx-dev libjpeg-dev libpng-dev libxpm-dev zlib1g-dev libfreetype6-dev libxml2-dev libexpat1-dev libbz2-dev libgmp3-dev libldap2-dev unixodbc-dev libaspell-dev libpcre3-dev libtidy-dev
-# Install PHP extensions
-- docker-php-ext-install mbstring mcrypt pdo_mysql pdo_pgsql curl json intl gd xml zip bz2 opcache
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
 - docker-php-ext-enable xdebug
-# Install and run Composer
+# Install composer
 - curl -sS https://getcomposer.org/installer | php
 # Install dev libraries from composer
 - php composer.phar install --no-progress
-# Configure PHP values, needed for phpunit code coverage HTML generation
-- echo "memory_limit = 256M" > /usr/local/etc/php/conf.d/hubzilla.ini
 
 
-# We test PHP7 with MySQL
-test:php:mysql:
+# test PHP7 with MySQL 5.7
+php7.2_mysql 1/2:
+  stage: test
   services:
   - mysql:5.7
   script:
@@ -39,14 +52,38 @@ test:php:mysql:
   - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
 
-# test PHP7 with PostgreSQL  
-test:php:postgres:
+
+# test PHP7 with MySQL latest (8)
+php7.2_mysql 2/2:
+  stage: test
+  services:
+  - name: mysql:latest
+    command: ["--default-authentication-plugin=mysql_native_password"]
+  script:
+  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
+
+
+# test PHP7 with MariaDB latest (10.3)
+php7.2_mariadb:
+  stage: test
+  services:
+  - name: mariadb:latest
+    alias: mysql
+  script:
+  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
+
+
+# test PHP7 with PostgreSQL latest
+php7.2_postgres:
+  stage: test
   services:
   - postgres:latest
-  variables:
-    POSTGRES_DB: ci-db
-    POSTGRES_USER: ci-user
-    POSTGRES_PASSWORD: ci-pass
   script:
   - export PGPASSWORD=$POSTGRES_PASSWORD
   - psql --version
@@ -67,3 +104,23 @@ test:php:postgres:
     name: "$CI_COMMIT_REF_SLUG-$CI_JOB_NAME"
     paths:
       - tests/results/
+
+
+# Generate Doxygen API Documentation and deploy it at GitLab pages
+pages:
+  stage: deploy
+  cache: {}
+  image: php:7-cli-alpine
+  before_script:
+    - apk update
+    - apk add doxygen ttf-freefont graphviz
+  script:
+    - doxygen util/Doxyfile
+    - mv doc/html/ public/
+    - echo "API documentation should be accessible at https://hubzilla.frama.io/core/ soon"
+  artifacts:
+    paths:
+      - public
+  only:
+    # Only generate it on main repo's master branch
+    - master@hubzilla/core

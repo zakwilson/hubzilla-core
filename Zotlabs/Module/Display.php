@@ -178,8 +178,7 @@ class Display extends \Zotlabs\Web\Controller {
 		
 		
 		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
-	
-	
+
 		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
 			
 		if($update && $_SESSION['loadtime'])
@@ -314,7 +313,7 @@ class Display extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			if(! $r) {
+			if($r === null) {
 				// in case somebody turned off public access to sys channel content using permissions
 				// make that content unsearchable by ensuring the owner_xchan can't match
 				if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))

@@ -1,3 +1,13 @@
+Hubzilla 3.8.9 (2018-02-03)
+	- Fix typos in mod oep
+	- Fix page jumping when liking collapsed/expanded post
+	- Fix failure to import mail in mod import
+	- Fix wrong channel count in mod new_channel
+	- Fix diaspora addon regression
+	- Remove deprecated diaspora addon endpoint
+	- Fix wrong function call in gallery addon
+
+
 Hubzilla 3.8.8 (2018-12-22)
 	- Fix issue with linkinfo
 	- Fix cURL with HTTP/2

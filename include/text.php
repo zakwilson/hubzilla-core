@@ -41,12 +41,12 @@ function replace_macros($s, $r) {
 
 	$t = App::template_engine();
 
-        try {
-	        $output = $t->replace_macros($arr['template'], $arr['params']);
-        } catch (Exception $e) {
-                logger("Unable to render template: ".$e->getMessage());
-                $output = "<h3>ERROR: there was an error creating the output.</h3>";
-        }
+	try {
+		$output = $t->replace_macros($arr['template'], $arr['params']);
+	} catch (Exception $e) {
+		logger('Unable to render template: ' . $e->getMessage());
+		$output = '<h3>ERROR: there was an error creating the output.</h3>';
+	}
 
 	return $output;
 }
@@ -539,7 +539,14 @@ function paginate(&$a) {
 	return $o;
 }
 
-
+/**
+ * @brief
+ *
+ * @param int $i
+ * @param string $more
+ * @param string $less
+ * @return string Parsed HTML from template 'alt_pager.tpl'
+ */
 function alt_pager($i, $more = '', $less = '') {
 
 	if(! $more)
@@ -810,7 +817,7 @@ function activity_match($haystack,$needle) {
  * and strip the period from any tags which end with one.
  *
  * @param string $s
- * @return Returns array of tags found, or empty array.
+ * @return array Returns an array of tags found, or empty array.
  */
 function get_tags($s) {
 	$ret = array();
@@ -825,6 +832,9 @@ function get_tags($s) {
 
 	// ignore anything in [color= ], because it may contain color codes which are mistaken for tags
 	$s = preg_replace('/\[color=(.*?)\]/sm','',$s);
+
+	// skip anchors in URL
+	$s = preg_replace('/\[url=(.*?)\]/sm','',$s);
 
 	// match any double quoted tags
 
@@ -897,6 +907,7 @@ function tag_sort_length($a,$b) {
 function total_sort($a,$b) {
 	if($a['total'] == $b['total'])
 		return 0;
+
 	return(($b['total'] > $a['total']) ? 1 : (-1));
 }
 
@@ -983,7 +994,7 @@ function contact_block() {
 
 				// There is no setting to discover if you are bi-directionally connected
 				// Use the ability to post comments as an indication that this relationship is more
-				// than wishful thinking; even though soapbox channels and feeds will disable it. 
+				// than wishful thinking; even though soapbox channels and feeds will disable it.
 
 				if(! intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
 					$rr['oneway'] = true;
@@ -1001,9 +1012,15 @@ function contact_block() {
 		'$micropro' => $micropro,
 	));
 
-	$arr = array('contacts' => $r, 'output' => $o);
-
+	$arr = ['contacts' => $r, 'output' => $o];
+	/**
+	 * @hooks contact_block_end
+	 *   Called at the end of contact_block(), but can not manipulate the output.
+	 *   * \e array \b contacts - Result array from database
+	 *   * \e string \b output - the generated output
+	 */
 	call_hooks('contact_block_end', $arr);
+
 	return $o;
 }
 
@@ -1090,7 +1107,7 @@ function searchbox($s,$id='search-box',$url='/search',$save = false) {
  * @return string
  */
 function linkify($s, $me = false) {
-	$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\@\~\#\'\%\$\!\+\,\@]*)/u", (($me) ? ' <a href="$1" rel="me" >$1</a>' : ' <a href="$1" >$1</a>'), $s);
+	$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\@\~\#\'\%\$\!\+\,\@]*)/u", (($me) ? ' <a href="$1" rel="me nofollow" >$1</a>' : ' <a href="$1" >$1</a>'), $s);
 	$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism",'<$1$2=$3&$4>',$s);
 
 	return($s);
@@ -1105,23 +1122,27 @@ function linkify($s, $me = false) {
  * to a local redirector which uses https and which redirects to the selected content
  *
  * @param string $s
- * @param int $uid
  * @returns string
  */
 function sslify($s) {
-	
+
 	// Local photo cache
-	$str = array(
+	$str = [
 		'body' => $s,
 		'uid' => local_channel()
-	);
+	];
+	/**
+	 * @hooks cache_body_hook
+	 *   * \e string \b body The content to parse and also the return value
+	 *   * \e int|bool \b uid
+	 */
 	call_hooks('cache_body_hook', $str);
-	
+
 	$s = $str['body'];
 
 	if (strpos(z_root(),'https:') === false)
 		return $s;
-	
+
 	// By default we'll only sslify img tags because media files will probably choke.
 	// You can set sslify_everything if you want - but it will likely white-screen if it hits your php memory limit.
 	// The downside is that http: media files will likely be blocked by your browser
@@ -1219,7 +1240,11 @@ function get_mood_verbs() {
 /**
  * @brief Function to list all smilies, both internal and from addons.
  *
- * @return Returns array with keys 'texts' and 'icons'
+ * @param boolean $default_only (optional) default false
+ *   true will prevent that plugins can add smilies
+ * @return array Returns an associative array with:
+ *   * \e array \b texts
+ *   * \e array \b icons
  */
 function list_smilies($default_only = false) {
 
@@ -1297,6 +1322,11 @@ function list_smilies($default_only = false) {
 	if($default_only)
 		return $params;
 
+	/**
+	 * @hooks smile
+	 *   * \e array \b texts - default values and also return value
+	 *   * \e array \b icons - default values and also return value
+	 */
 	call_hooks('smilie', $params);
 
 	return $params;
@@ -1452,7 +1482,7 @@ function theme_attachments(&$item) {
 		foreach($arr as $r) {
 
 			$icon = getIconFromType($r['type']);
-			
+
 			if($r['title'])
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 
@@ -1622,6 +1652,10 @@ function generate_named_map($location) {
 
 function prepare_body(&$item,$attach = false,$opts = false) {
 
+	/**
+	 * @hooks prepare_body_init
+	 *   * \e array \b item
+	 */
 	call_hooks('prepare_body_init', $item);
 
 	$s = '';
@@ -1653,13 +1687,19 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
 
-	$prep_arr = array(
+	$prep_arr = [
 		'item' => $item,
 		'html' => $event ? $event['content'] : $s,
 		'event' => $event['header'],
 		'photo' => $photo
-	);
-
+	];
+	/**
+	 * @hooks prepare_body
+	 *   * \e array \b item
+	 *   * \e string \b html - the parsed HTML to return
+	 *   * \e string \b event - the event header to return
+	 *   * \e string \b photo - the photo to return
+	 */
 	call_hooks('prepare_body', $prep_arr);
 
 	$s = $prep_arr['html'];
@@ -1729,16 +1769,23 @@ function prepare_binary($item) {
 
 
 /**
- * @brief Given a text string, convert from bbcode to html and add smilie icons.
+ * @brief Given a text string, convert from content_type to HTML.
+ *
+ * Take a text in plain text, html, markdown, bbcode, PDL or PHP and prepare
+ * it to return HTML.
+ *
+ * In bbcode this function will add smilie icons.
  *
  * @param string $text
- * @param string $content_type (optional) default text/bbcode
- * @param boolean $cache (optional) default false
- *
+ * @param string $content_type (optional)
+ *  default 'text/bbcode', other values are 'text/plain', 'text/html',
+ *  'text/markdown', 'application/x-pdl', 'application/x-php'
+ * @param boolean|array $opts (optional)
+ *  default false, otherwise configuration array for bbcode()
  * @return string
+ *  The parsed $text as prepared HTML.
  */
 function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
-
 
 	switch($content_type) {
 		case 'text/plain':
@@ -1779,8 +1826,8 @@ function prepare_text($text, $content_type = 'text/bbcode', $opts = false) {
 		default:
 			require_once('include/bbcode.php');
 
-			if(stristr($text,'[nosmile]'))
-				$s = bbcode($text, [ 'cache' => $cache ]);
+			if(stristr($text, '[nosmile]'))
+				$s = bbcode($text, ((is_array($opts)) ? $opts : [] ));
 			else
 				$s = smilies(bbcode($text, ((is_array($opts)) ? $opts : [] )));
 
@@ -2140,7 +2187,7 @@ function legal_webbie($s) {
 		return '';
 
 	// WARNING: This regex may not work in a federated environment.
-	// You will probably want something like 
+	// You will probably want something like
 	// preg_replace('/([^a-z0-9\_])/','',strtolower($s));
 
 	$r = preg_replace('/([^a-z0-9\-\_])/','',strtolower($s));
@@ -2239,19 +2286,24 @@ function ids_to_querystr($arr,$idx = 'id',$quote = false) {
 }
 
 /**
- * @brief array_elm_to_str($arr,$elm,$delim = ',') extract unique individual elements from an array of arrays and return them as a string separated by a delimiter
- * similar to ids_to_querystr, but allows a different delimiter instead of a db-quote option 
- * empty elements (evaluated after trim()) are ignored.
- * @param $arr array
- * @param $elm array key to extract from sub-array
- * @param $delim string default ','
- * @param $each filter function to apply to each element before evaluation, default is 'trim'.
+ * @brief Extract unique individual elements from an array of arrays and return
+ * them as a string separated by a delimiter.
+ *
+ * Similar to ids_to_querystr, but allows a different delimiter instead of a
+ * db-quote option empty elements (evaluated after trim()) are ignored.
+ *
+ * @see ids_to_querystr()
+ *
+ * @param array $arr
+ * @param string $elm key to extract from sub-array
+ * @param string $delim (optional) default ','
+ * @param string $each (optional) default is 'trim'
+ *   Filter function to apply to each element before evaluation.
  * @returns string
  */
-
-function array_elm_to_str($arr,$elm,$delim = ',',$each = 'trim') {
-
+function array_elm_to_str($arr, $elm, $delim = ',', $each = 'trim') {
 	$tmp = [];
+
 	if($arr && is_array($arr)) {
 		foreach($arr as $x) {
 			if(is_array($x) && array_key_exists($elm,$x)) {
@@ -2262,7 +2314,8 @@ function array_elm_to_str($arr,$elm,$delim = ',',$each = 'trim') {
 			}
 		}
 	}
-	return implode($delim,$tmp);
+
+	return implode($delim, $tmp);
 }
 
 function trim_and_unpunify($s) {
@@ -2486,9 +2539,9 @@ function design_tools() {
 }
 
 /**
- * @brief Creates website portation tools menu
+ * @brief Creates website portation tools menu.
  *
- * @return string
+ * @return string Parsed HTML code from template 'website_portation_tools.tpl'
  */
 function website_portation_tools() {
 
@@ -2501,7 +2554,7 @@ function website_portation_tools() {
 		$sys = true;
 	}
 
-	return replace_macros(get_markup_template('website_portation_tools.tpl'), array(
+	return replace_macros(get_markup_template('website_portation_tools.tpl'), [
 		'$title'               => t('Import'),
 		'$import_label'        => t('Import website...'),
 		'$import_placeholder'  => t('Select folder to import'),
@@ -2518,7 +2571,7 @@ function website_portation_tools() {
 		'$cloud_export_desc'   => t('/path/to/export/folder'),
 		'$cloud_export_hint'   => t('Enter a path to a cloud files destination.'),
 		'$cloud_export_select' => t('Specify folder'),
-	));
+	]);
 }
 
 /**
@@ -2578,8 +2631,9 @@ function extra_query_args() {
  * @param boolean $in_network default true
  * @return boolean true if replaced, false if not replaced
  */
-function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $in_network = true) {
+function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) {
 
+	$channel = App::get_channel();
 	$replaced = false;
 	$r = null;
 	$match = array();
@@ -2635,20 +2689,19 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 
 			$str_tags .= $newtag;
 		}
-		return [
-			'replaced' => $replaced,
-			'termtype' => $termtype,
-			'term'     => $basetag,
-			'url'      => $url,
-			'contact'  => []
-		];
-
+		return [ [
+			'replaced'   => $replaced,
+			'termtype'   => $termtype,
+			'term'       => $basetag,
+			'url'        => $url,
+			'contact'    => [],
+			'access_tag' => '',
+		]];
 	}
 
 	// END hashtags
 
 	// BEGIN mentions
-
 
 	if ( in_array($termtype, [ TERM_MENTION, TERM_FORUM ] )) {
 
@@ -2660,13 +2713,13 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 		$exclusive = (((strpos(substr($tag,1), '!') === 0) && $in_network) ? true : false);
 
 		//is it already replaced?
-		if(strpos($tag,'[zrl=') || strpos($tag,'[url='))
+		if(strpos($tag,"[zrl=") || strpos($tag,"[url="))
 			return $replaced;
 
 		// get the channel name
 		// First extract the name or name fragment we are going to replace
 
-		$name = substr($tag,(($exclusive) ? 2 : 1)); 
+		$name = substr($tag,(($exclusive) ? 2 : 1));
 		$newname = $name; // make a copy that we can mess with
 		$tagcid = 0;
 
@@ -2678,7 +2731,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s' limit 1",
+			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s'",
 				dbesc($newname),
 				dbesc($newname)
 			);
@@ -2701,7 +2754,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 			// select someone from this user's contacts by name
 
 			$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE xchan_name = '%s' AND abook_channel = %d LIMIT 1",
+				WHERE xchan_name = '%s' AND abook_channel = %d ",
 					dbesc($newname),
 					intval($profile_uid)
 			);
@@ -2709,8 +2762,8 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash 
-					WHERE hubloc_addr = '%s' LIMIT 1",
+				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash
+					WHERE hubloc_addr = '%s' ",
 						dbesc($newname)
 				);
 			}
@@ -2719,7 +2772,7 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 
 			if(! $r) {
 				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE xchan_addr like ('%s') AND abook_channel = %d LIMIT 1",
+					WHERE xchan_addr like ('%s') AND abook_channel = %d ",
 						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
 						intval($profile_uid)
 				);
@@ -2727,17 +2780,62 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 
 		}
 
+
+
+
+
+		$fn_results = [];
+		$access_tag = EMPTY_STR;
+
+
 		// $r is set if we found something
 
-		$channel = App::get_channel();
- 
 		if($r) {
-			$profile = $r[0]['xchan_url'];
-			$newname = $r[0]['xchan_name'];
-			// add the channel's xchan_hash to $access_tag if exclusive
-			if($exclusive) {
-				$access_tag .= 'cid:' . $r[0]['xchan_hash'];
+			foreach($r as $xc) {
+				$profile = $xc['xchan_url'];
+				$newname = $xc['xchan_name'];
+				// add the channel's xchan_hash to $access_tag if exclusive
+				if($exclusive) {
+					$access_tag = 'cid:' . $xc['xchan_hash'];
+				}
+
+				// if there is a url for this channel
+
+				if(isset($profile)) {
+					$replaced = true;
+					//create profile link
+					$profile = str_replace(',','%2c',$profile);
+					$url = $profile;
+					if($termtype === TERM_FORUM) {
+						$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+						$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+					}
+					else {
+						// ( $termtype === TERM_MENTION )
+						$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+						$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+					}
+
+					// append tag to str_tags
+					if(! stristr($str_tags,$newtag)) {
+						if(strlen($str_tags))
+							$str_tags .= ',';
+						$str_tags .= $newtag;
+					}
+				}
+			
+
+				$fn_results[] =  [
+					'replaced'   => $replaced,
+					'termtype'   => $termtype,
+					'term'       => $newname,
+					'url'        => $url,
+					'access_tag' => $access_tag,
+					'contact'    => (($r) ? $xc : []),
+				];
+
 			}
+
 		}
 		else {
 
@@ -2749,7 +2847,6 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 			// weird - as all the other tags are linked to something.
 
 			if(local_channel() && local_channel() == $profile_uid) {
-				require_once('include/group.php');
 				$grp = group_byname($profile_uid,$name);
 
 				if($grp) {
@@ -2766,58 +2863,62 @@ function handle_tag($a, &$body, &$access_tag, &$str_tags, $profile_uid, $tag, $i
 					}
 				}
 			}
-		}
 
-		// if there is a url for this channel
 
-		if(isset($profile)) {
-			$replaced = true;
-			//create profile link
-			$profile = str_replace(',','%2c',$profile);
-			$url = $profile;
-			if($termtype === TERM_FORUM) {
-				$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-				$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-			}
-			else {
-				// ( $termtype === TERM_MENTION )
-				$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-				$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+			// if there is a url for this channel
+
+			if(isset($profile)) {
+				$replaced = true;
+				//create profile link
+				$profile = str_replace(',','%2c',$profile);
+				$url = $profile;
+				if($termtype === TERM_FORUM) {
+					$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+					$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+				}
+				else {
+					// ( $termtype === TERM_MENTION )
+					$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+					$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
+				}
+
+				// append tag to str_tags
+				if(! stristr($str_tags,$newtag)) {
+					if(strlen($str_tags))
+						$str_tags .= ',';
+					$str_tags .= $newtag;
+				}
 			}
 
-			// append tag to str_tags
-			if(! stristr($str_tags,$newtag)) {
-				if(strlen($str_tags))
-					$str_tags .= ',';
-				$str_tags .= $newtag;
-			}
+			$fn_results[] = [
+				'replaced'   => $replaced,
+				'termtype'   => $termtype,
+				'term'       => $newname,
+				'url'        => $url,
+				'access_tag' => $access_tag,
+				'contact'    => [],
+			];
 		}
 	}
+	
+	return $fn_results;
 
-	return [
-		'replaced' => $replaced,
-		'termtype' => $termtype,
-		'term'     => $newname,
-		'url'      => $url,
-		'contact'  => (($r) ? $r[0] : [])
-	];
 }
 
-function linkify_tags($a, &$body, $uid, $in_network = true) {
+function linkify_tags(&$body, $uid, $in_network = true) {
 	$str_tags = EMPTY_STR;
-	$tagged = [];
 	$results = [];
 
 	$tags = get_tags($body);
 
 	if(count($tags)) {
 		foreach($tags as $tag) {
-			$access_tag = '';
 
-			$success = handle_tag($a, $body, $access_tag, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $in_network);
+			$success = handle_tag($body, $str_tags, ($uid) ? $uid : App::$profile_uid , $tag, $in_network);
 
-			$results[] = array('success' => $success, 'access_tag' => $access_tag);
-			if($success['replaced']) $tagged[] = $tag;
+			foreach($success as $handled_tag) {
+				$results[] = [ 'success' => $handled_tag ];
+			}
 		}
 	}
 
@@ -2875,7 +2976,7 @@ function getIconFromType($type) {
 		'video/x-matroska' => 'fa-file-video-o'
 	);
 
-	$catMap = [ 
+	$catMap = [
 		'application' => 'fa-file-code-o',
 		'multipart'   => 'fa-folder',
 		'audio'       => 'fa-file-audio-o',
@@ -2883,7 +2984,7 @@ function getIconFromType($type) {
 		'text'        => 'fa-file-text-o',
 		'image'       => 'fa=file-picture-o',
 		'message'     => 'fa-file-text-o'
-	]; 
+	];
 
 
 	$iconFromType = '';
@@ -2893,7 +2994,7 @@ function getIconFromType($type) {
 	}
 	else {
 		$parts = explode('/',$type);
-		if($parts[0] && $catMap[$parts[0]]) { 
+		if($parts[0] && $catMap[$parts[0]]) {
 			$iconFromType = $catMap[$parts[0]];
 		}
 	}
@@ -2981,9 +3082,9 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
 
-    $x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
-    if($x) {
-        $item['body'] = $x;
+	$x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
+	if($x) {
+		$item['body'] = $x;
 		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
 		$item['item_verified']  = 1;
 	}
@@ -3093,7 +3194,13 @@ function pdl_selector($uid, $current='') {
 		intval($uid)
 	);
 
-	$arr = array('channel_id' => $uid, 'current' => $current, 'entries' => $r);
+	$arr = ['channel_id' => $uid, 'current' => $current, 'entries' => $r];
+	/**
+	 * @hooks pdl_selector
+	 *   * \e int \b channel_id
+	 *   * \e string \b current
+	 *   * \e array \b entries - Result from database query
+	 */
 	call_hooks('pdl_selector', $arr);
 
 	$entries = $arr['entries'];
@@ -3149,7 +3256,7 @@ function flatten_array_recursive($arr) {
  * @param string $lang Which language should be highlighted
  * @return string
  *     Important: The returned text has the text pattern 'http' translated to '%eY9-!' which should be converted back
- * after further processing. This was done to prevent oembed links from occurring inside code blocks. 
+ * after further processing. This was done to prevent oembed links from occurring inside code blocks.
  * See include/bbcode.php
  */
 function text_highlight($s, $lang) {
@@ -3168,7 +3275,6 @@ function text_highlight($s, $lang) {
 			'language' => $lang,
 			'success' => false
 	];
-
 	/**
 	 * @hooks text_highlight
 	 *   * \e string \b text
@@ -3369,13 +3475,17 @@ function punify($s) {
 
 }
 
-// Be aware that unpunify will only convert domain names and not pathnames
-
+/**
+ * Be aware that unpunify() will only convert domain names and not pathnames.
+ *
+ * @param string $s
+ * @return string
+ */
 function unpunify($s) {
 	require_once('vendor/simplepie/simplepie/idn/idna_convert.class.php');
 	$x = new idna_convert(['encoding' => 'utf8']);
-	return $x->decode($s);
 
+	return $x->decode($s);
 }
 
 
@@ -3383,7 +3493,7 @@ function unique_multidim_array($array, $key) {
     $temp_array = array();
     $i = 0;
     $key_array = array();
-   
+
     foreach($array as $val) {
         if (!in_array($val[$key], $key_array)) {
             $key_array[$i] = $val[$key];
@@ -3411,7 +3521,7 @@ function get_forum_channels($uid) {
 			intval($uid)
 		);
 
-		if($x2) { 
+		if($x2) {
 			$xf = ids_to_querystr($x2,'xchan',true);
 
 			// private forums
@@ -3424,7 +3534,7 @@ function get_forum_channels($uid) {
 		}
 	}
 
-	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 "); 
+	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name",
 		intval($uid)
@@ -3460,14 +3570,14 @@ function print_array($arr, $level = 0) {
 					$o .= $tabs . '[' . $k . '] => ' . print_array($v, $level + 1) . "\n";
 				}
 				else {
-					$o .= $tabs . '[' . $k . '] => ' . print_val($v) . ",\n";  
+					$o .= $tabs . '[' . $k . '] => ' . print_val($v) . ",\n";
 				}
 			}
 		}
 		$o .= substr($tabs,0,-1) . ']' . (($level) ? ',' : ';' ). "\n";
 		return $o;
 	}
-	
+
 }
 
 function print_val($v) {
@@ -3494,7 +3604,7 @@ function array_path_exists($str,$arr) {
 			}
 			else {
 				return false;
-			}			
+			}
 		}
 		return true;
 	}
@@ -3511,12 +3621,11 @@ function array_path_exists($str,$arr) {
  */
 function new_uuid() {
 
-    try {
-        $hash = Uuid::uuid4()->toString();
-    } catch (UnsatisfiedDependencyException $e) {
-        $hash = random_string(48);
-    }
+	try {
+		$hash = Uuid::uuid4()->toString();
+	} catch (UnsatisfiedDependencyException $e) {
+		$hash = random_string(48);
+	}
 
-    return $hash;
+	return $hash;
 }
-

@@ -10,24 +10,6 @@ class Featured {
 	
 		call_hooks('feature_settings_post', $_POST);
 	
-		if($_POST['affinity_slider-submit']) {
-			$cmax = intval($_POST['affinity_cmax']);
-			if($cmax < 0 || $cmax > 99)
-				$cmax = 99;
-			$cmin = intval($_POST['affinity_cmin']);
-			if($cmin < 0 || $cmin > 99)
-				$cmin = 0;
-
-			$lock = ($_POST['affinity_lock']) ? intval($_POST['affinity_lock']) : 1;
-
-			set_pconfig(local_channel(),'affinity','cmin',$cmin);
-			set_pconfig(local_channel(),'affinity','cmax',$cmax);
-			set_pconfig(local_channel(),'affinity','lock',$lock);
-
-			info( t('Affinity Slider settings updated.') . EOL);
-
-		}
-		
 		build_sync_packet();
 		return;
 	}
@@ -41,34 +23,10 @@ class Featured {
 		if(! $r)
 			$settings_addons = t('No feature settings configured');
 	
-		if(feature_enabled(local_channel(),'affinity')) {
-			
-			$cmax = intval(get_pconfig(local_channel(),'affinity','cmax'));
-			$cmax = (($cmax) ? $cmax : 99);
-			$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
-				'$field'    => array('affinity_cmax', t('Default maximum affinity level'), $cmax, t('0-99 default 99'))
-			));
-			$cmin = intval(get_pconfig(local_channel(),'affinity','cmin'));
-			$cmin = (($cmin) ? $cmin : 0);
-			$setting_fields .= replace_macros(get_markup_template('field_input.tpl'), array(
-				'$field'    => array('affinity_cmin', t('Default minimum affinity level'), $cmin, t('0-99 - default 0'))
-			));
-			$lock = intval(get_pconfig(local_channel(),'affinity','lock',1));
-			$setting_fields .= replace_macros(get_markup_template('field_checkbox.tpl'), array(
-				'$field'    => array('affinity_lock', t('Always reset on new page visit.'), $lock, t('default: yes'), Array('No','Yes'))
-			));
-
-			$settings_addons .= replace_macros(get_markup_template('generic_addon_settings.tpl'), array(
-				'$addon'    => array('affinity_slider', '' . t('Affinity Slider Settings'), '', t('Submit')),
-				'$content'  => $setting_fields
-			));
-		}
-
 		call_hooks('feature_settings', $settings_addons);
 		
 		$this->sortpanels($settings_addons);
 
-			
 		$tpl = get_markup_template("settings_addons.tpl");
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("settings_featured"),

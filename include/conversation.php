@@ -1328,7 +1328,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	
 	$tpl = get_markup_template('jot-header.tpl');
 
-	App::$page['htmlhead'] .= replace_macros($tpl, array(
+	$tplmacros = [
 		'$baseurl' => z_root(),
 		'$editselect' => (($plaintext) ? 'none' : '/(profile-jot-text|prvmail-text)/'),
 		'$pretext' => ((x($x,'pretext')) ? $x['pretext'] : ''),
@@ -1349,7 +1349,10 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$nocomment_disabled' => t('Comments disabled'),
 		'$auto_save_draft' => $feature_auto_save_draft,
 		'$reset' => $reset
-	));
+	];
+
+	call_hooks('jot_header_tpl_filter',$tplmacros);	
+	App::$page['htmlhead'] .= replace_macros($tpl, $tplmacros);
 
 	$tpl = get_markup_template('jot.tpl');
 
@@ -1389,7 +1392,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	$sharebutton = (x($x,'button') ? $x['button'] : t('Share'));
 	$placeholdtext = (x($x,'content_label') ? $x['content_label'] : $sharebutton);
 
-	$o .= replace_macros($tpl, array(
+	$tplmacros = [
 		'$return_path' => ((x($x, 'return_path')) ? $x['return_path'] : App::$query_string),
 		'$action' =>  z_root() . '/item',
 		'$share' => $sharebutton,
@@ -1463,9 +1466,15 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$bbcode' => ((x($x, 'bbcode')) ? $x['bbcode'] : false),
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
 		'$reset' => $reset,
-		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false)
-	));
+		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false),
+		'$custommoretoolsdropdown' => '',
+		'$custommoretoolsbuttons' => '',
+		'$customsubmitright' => []
+	];
 
+	call_hooks('jot_tpl_filter',$tplmacros);
+
+	$o .= replace_macros($tpl, $tplmacros);
 	if ($popup === true) {
 		$o = '<div id="jot-popup" style="display:none">' . $o . '</div>';
 	}

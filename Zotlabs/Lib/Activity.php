@@ -35,6 +35,9 @@ class Activity {
 		if($x['type'] === ACTIVITY_OBJ_EVENT) {
 			return self::fetch_event($x); 
 		}
+		if($x['type'] === ACTIVITY_OBJ_PHOTO) {
+			return self::fetch_image($x); 
+		}
 
 		return $x;
 
@@ -100,6 +103,29 @@ class Activity {
 			$r = fetch_post_tags($r,true);
 			return self::encode_item($r[0]);
 		}
+	}
+
+
+	static function fetch_image($x) {
+
+
+		$ret = [
+			'type' => 'Image',
+			'id' => $x['id'],
+			'name' => $x['title'],
+			'content' => bbcode($x['body']),
+			'source' => [ 'mediaType' => 'text/bbcode', 'content' => $x['body'] ],
+			'published' => datetime_convert('UTC','UTC',$x['created'],ATOM_TIME), 
+			'updated' => datetime_convert('UTC','UTC', $x['edited'],ATOM_TIME),
+			'url' => [
+					'type'      => 'Link',
+					'mediaType' => $x['link'][0]['type'], 
+					'href'      => $x['link'][0]['href'],
+					'width'     => $x['link'][0]['width'],
+		  			'height'    => $x['link'][0]['height']
+			]
+		];
+		return $ret;
 	}
 
 	static function fetch_event($x) {
@@ -210,7 +236,7 @@ class Activity {
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
 
 		if($i['title'])
-			$ret['title'] = bbcode($i['title']);
+			$ret['name'] = $i['title'];
 
 		$ret['published'] = datetime_convert('UTC','UTC',$i['created'],ATOM_TIME);
 		if($i['created'] !== $i['edited'])
@@ -385,10 +411,17 @@ class Activity {
 			$ret['type'] = 'Tombstone';
 			$ret['formerType'] = self::activity_obj_mapper($i['obj_type']);
 			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+			$actor = self::encode_person($i['author'],false);
+			if($actor)
+				$ret['actor'] = $actor;
+			else
+				return []; 
 			return $ret;
 		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);
+
+
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 
 		if($i['title'])
@@ -460,6 +493,10 @@ class Activity {
 			if(! is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'],true);
 			}
+			if($i['obj']['type'] === ACTIVITY_OBJ_PHOTO) {
+				$i['obj']['id'] = $i['id'];
+			}
+
 			$obj = self::encode_object($i['obj']);
 			if($obj)
 				$ret['object'] = $obj;
@@ -1374,6 +1411,9 @@ class Activity {
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
+		// ensure we store the original actor
+		self::actor_store($act->actor['id'],$act->actor);
+
 		$s['mid']        = $act->obj['id'];
 		$s['parent_mid'] = $act->parent_id;
 
@@ -1446,7 +1486,8 @@ class Activity {
 
 		$s['verb']     = self::activity_decode_mapper($act->type);
 
-		if($act->type === 'Tombstone') {
+
+		if($act->type === 'Tombstone' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
 		}
 
@@ -1454,7 +1495,6 @@ class Activity {
 		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
-
 
 		if($act->obj['type'] === 'Event') {
 			$s['obj'] = [];
@@ -1609,7 +1649,9 @@ class Activity {
 
 			}
 
-			if($act->obj['type'] === 'Image') {
+			// avoid double images from hubzilla to zap/osada
+
+			if($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
 
 				$ptr = null;
 

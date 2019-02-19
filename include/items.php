@@ -7,6 +7,7 @@
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
+use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\AccessList;
@@ -25,7 +26,7 @@ require_once('include/permissions.php');
  *
  * @param array $item
  * @param[out] boolean $private_envelope
- * @param boolean $include_groups 
+ * @param boolean $include_groups
  * @return array containing the recipients
  */
 function collect_recipients($item, &$private_envelope,$include_groups = true) {
@@ -97,9 +98,9 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		if(array_key_exists('public_policy',$item) && $item['public_policy'] !== 'self') {
 
 			$hookinfo = [
-				'recipients' => [], 
-				'item' => $item, 
-				'private_envelope' => $private_envelope, 
+				'recipients' => [],
+				'item' => $item,
+				'private_envelope' => $private_envelope,
 				'include_groups' => $include_groups
 			];
 
@@ -140,6 +141,22 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 //			if($policy === 'pub')
 //				$recipients[] = $sys['xchan_hash'];
 		}
+
+
+		// Forward to thread listeners, *unless* there is even a remote hint that the item
+		// might have some privacy attached. This could be (for instance) an ActivityPub DM
+		// in the middle of a public thread. Unless we can guarantee beyond all doubt that
+		// this is public, don't allow it to go to thread listeners.
+
+		if(! intval($item['item_private'])) {
+			$r = ThreadListener::fetch_by_target($item['parent_mid']);
+			if($r) {
+				foreach($r as $rv) {
+					$recipients[] = $rv['portable_id'];
+				}
+			}
+		}
+
 
 		// Add the authors of any posts in this thread, if they are known to us.
 		// This is specifically designed to forward wall-to-wall posts to the original author,
@@ -410,7 +427,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 
 
 	if(! $arr['mid']) {
-		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id()); 
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id());
 	}
 	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
@@ -469,6 +486,8 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		 */
 		call_hooks('post_local_end', $ret['activity']);
 	}
+	else
+		return $ret;
 
 	if($post_id && $deliver) {
 		Master::Summon([ 'Notifier','activity',$post_id ]);
@@ -2048,6 +2067,11 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	item_update_parent_commented($arr);
 
+
+	if(strpos($arr['body'],'[embed]') !== false) {
+		Master::Summon([ 'Cache_embeds', $current_post ]);
+	}
+
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
 	// We need to store the item details just in case the delete came in before the original post,
 	// so that we have an item in the DB that's marked deleted and won't store a fresh post
@@ -2384,6 +2408,13 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('item_stored_update',$arr);
 
+	if(strpos($arr['body'],'[embed]') !== false) {
+		Master::Summon([ 'Cache_embeds', $orig_post_id ]);
+	}
+
+
+
+
 	if($deliver) {
 		send_status_notifications($orig_post_id,$arr);
 		tag_deliver($uid,$orig_post_id);
@@ -2400,15 +2431,15 @@ function item_update_parent_commented($item) {
 
 	$update_parent = true;
 
-	// update the commented timestamp on the parent 
+	// update the commented timestamp on the parent
 	// - unless this is a moderated comment or a potential clone of an older item
-	// which we don't wish to bring to the surface. As the queue only holds deliveries 
-	// for 3 days, it's suspected of being an older cloned item if the creation time 
+	// which we don't wish to bring to the surface. As the queue only holds deliveries
+	// for 3 days, it's suspected of being an older cloned item if the creation time
 	//is older than that.
 
 	if(intval($item['item_blocked']) === ITEM_MODERATED)
 		$update_parent = false;
- 
+
 	if($item['created'] < datetime_convert('','','now - 4 days'))
 		$update_parent = false;
 
@@ -3004,7 +3035,9 @@ function tgroup_check($uid, $item) {
  * @param array $channel
  * @param array $item
  * @param int $item_id
- * @param boolean $parent
+ * @param array $parent
+ * @param boolean $edit (optional) default false
+ * @return void
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false) {
 
@@ -3039,7 +3072,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 		}
 
 		// This will change the author to the post owner. Useful for RSS feeds which are to be syndicated
-		// to federated platforms which can't verify the identity of the author. 
+		// to federated platforms which can't verify the identity of the author.
 		// This MAY cause you to run afoul of copyright law.
 
 		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
@@ -3552,7 +3585,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 	if(! $comment_days)
 		$comment_days = 7;
-	
+
 	// $expire_network_only = save your own wall posts
 	// and just expire conversations started by others
 	// do not enable this until we can pass bulk delete messages through zot
@@ -3852,6 +3885,8 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 		intval($item['id']),
 		intval(TERM_OBJ_POST)
 	);
+
+	ThreadListener::delete_by_target($item['mid']);
 
 	/** @FIXME remove notifications for this item */
 
@@ -4547,7 +4582,7 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 	$first_access_tag = true;
 
 	foreach($linkified as $x) {
-		$access_tag = $x['access_tag'];
+		$access_tag = $x['success']['access_tag'];
 		if(($access_tag) && (! $parent_item)) {
 			logger('access_tag: ' . $tag . ' ' . print_r($access_tag,true), LOGGER_DATA);
 			if ($first_access_tag && (! get_pconfig($profile_uid,'system','no_private_mention_acl_override'))) {
@@ -4892,7 +4927,7 @@ function copy_of_pubitem($channel,$mid) {
 		dbesc($mid),
 		intval($syschan['channel_id'])
 	);
-		
+
 	if($r) {
 		$items = fetch_post_tags($r,true);
 		foreach($items as $rv) {
@@ -4918,5 +4953,5 @@ function copy_of_pubitem($channel,$mid) {
 
 		}
 	}
-	return $result;		
+	return $result;
 }

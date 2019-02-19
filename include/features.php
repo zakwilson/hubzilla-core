@@ -361,14 +361,6 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'affinity',       
-				t('Affinity Tool'),			    
-				t('Filter stream activity by depth of relationships'),
-				false,
-				get_config('feature_lock','affinity')
-			],
-
-			[
 				'suggest',    	
 				t('Suggest Channels'),			
 				t('Show friend and connection suggestions'),

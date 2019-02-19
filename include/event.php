@@ -6,6 +6,10 @@
 
 use Sabre\VObject;
 
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+
+
 require_once('include/bbcode.php');
 
 /**
@@ -463,8 +467,13 @@ function event_store_event($arr) {
 			$hash = $arr['external_id'];
 		elseif(array_key_exists('event_hash',$arr))
 			$hash = $arr['event_hash'];
-		else
-			$hash = random_string() . '@' . App::get_hostname();
+		else {
+			try {
+				$hash = Uuid::uuid4()->toString();
+			} catch (UnsatisfiedDependencyException $e) {
+				$hash = random_string(48);
+			}
+		}
 
 		$r = q("INSERT INTO event ( uid,aid,event_xchan,event_hash,created,edited,dtstart,dtend,summary,description,location,etype,
 			adjust,nofinish, event_status, event_status_date, event_percent, event_repeat, event_sequence, event_priority, event_vdata, allow_cid,allow_gid,deny_cid,deny_gid)
@@ -1126,8 +1135,8 @@ function event_store_item($arr, $event) {
 		}
 
 		if(! $arr['mid']) {
-			$arr['uuid'] = item_message_id();
-			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
+			$arr['uuid'] = $event['event_hash'];
+			$arr['mid'] = z_root() . '/event/' . $event['event_hash'];
 		}
 
 		$item_arr['aid']             = $z[0]['channel_account_id'];

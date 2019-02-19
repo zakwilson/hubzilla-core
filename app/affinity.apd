@@ -1,0 +1,7 @@
+version: 1
+url: $baseurl/affinity
+requires: local_channel
+name: Affinity Tool
+photo: icon:arrows-h
+categories: Networking
+desc: This app presents a slider control in your connection editor and also on your network page. The slider represents your degree of friendship (affinity) with each connection. It allows you to zoom in or out and display conversations from only your closest friends or everybody in your stream.

@@ -400,12 +400,12 @@ function viewsrc(id) {
 function showHideComments(id) {
 	if( $('#collapsed-comments-' + id).is(':visible')) {
 		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
-		$('#collapsed-comments-' + id).slideUp();
+		$('#collapsed-comments-' + id).hide();
 		$('#hide-comments-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
 	} else {
 		$('#collapsed-comments-' + id + ' .autotime').timeago();
-		$('#collapsed-comments-' + id).slideDown();
+		$('#collapsed-comments-' + id).show();
 		$('#hide-comments-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
 	}
@@ -734,6 +734,7 @@ function updateConvItems(mode,data) {
 				title.replace(/\s+$/, '');
 				if (title) {
 					savedTitle = title + " " + savedTitle;
+					document.title = title;
 				}
 			}
 		}
@@ -769,7 +770,7 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = ((preloadImages) ? false : $(".wall-item-body img").not(function() { return this.complete; }));
+	var bimgs = ((preloadImages) ? false : $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; }));
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -845,10 +846,10 @@ function collapseHeight() {
 	});
 
 	var collapsedContentHeight = Math.ceil($("#region_2").height());
-	contentHeightDiff = origContentHeight - collapsedContentHeight;
+	contentHeightDiff = liking ? 0 : origContentHeight - collapsedContentHeight;
 	console.log('collapseHeight() - contentHeightDiff: ' + contentHeightDiff + 'px');
 
-	if(i){
+	if(i && !liking){
 		var sval = position - cDiff + ($(".divgrow-showmore").outerHeight() * i);
 		console.log('collapsed above viewport count: ' + i);
 		$(window).scrollTop(sval);
@@ -999,7 +1000,7 @@ function liveUpdate(notify_id) {
 				$("#profile-jot-text-loading").hide();
 
 				// adjust scroll position if new content was added above viewport
-				if(update_mode === 'update') {
+				if(update_mode === 'update' && !justifiedGalleryActive) {
 					$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
 				}
 

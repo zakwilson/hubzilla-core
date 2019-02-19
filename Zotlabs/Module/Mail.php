@@ -34,7 +34,7 @@ class Mail extends \Zotlabs\Web\Controller {
 			}
 			else {
 				$body = cleanup_bbcode($body);
-				$results = linkify_tags($a, $body, local_channel());
+				$results = linkify_tags($body, local_channel());
 
 				if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
 					$attachments = array();
@@ -111,7 +111,7 @@ class Mail extends \Zotlabs\Web\Controller {
 		}
 	
 		require_once('include/text.php');
-		linkify_tags($a, $body, local_channel());
+		linkify_tags($body, local_channel());
 	
 
 		if(! $recipient) {

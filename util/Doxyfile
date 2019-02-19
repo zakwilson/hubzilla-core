@@ -1,7 +1,8 @@
 INPUT = README.md index.php boot.php include/ install/ util/ view/ Zotlabs/
 RECURSIVE = YES
 PROJECT_NAME = "The Hubzilla"
-PROJECT_LOGO = images/rm-64.png
+PROJECT_LOGO = images/hz-64.png
+IMAGE_PATH = images/
 EXCLUDE = .htconfig.php library/ doc/ store/ vendor/ .git/ util/zotsh/easywebdav/ util/generate-hooks-index/
 EXCLUDE_PATTERNS = *smarty3* *strings.php *.out *test*
 OUTPUT_DIRECTORY = doc
@@ -33,5 +34,6 @@ INTERACTIVE_SVG = YES
 CLASS_GRAPH = YES
 COLLABORATION_GRAPH = NO
 # fix @var (https://bugzilla.gnome.org/show_bug.cgi?id=626105)
+# Should be obsolete with doxygen >= 1.8.15
 #INPUT_FILTER = "sed -e 's/@var\s/@see /'"
 INPUT_FILTER = "php util/Doxygen_phpvarfilter.php"

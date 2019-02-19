@@ -400,12 +400,12 @@ function viewsrc(id) {
 function showHideComments(id) {
 	if( $('#collapsed-comments-' + id).is(':visible')) {
 		$('#collapsed-comments-' + id + ' .autotime').timeago('dispose');
-		$('#collapsed-comments-' + id).slideUp();
+		$('#collapsed-comments-' + id).hide();
 		$('#hide-comments-' + id).html(aStr.showmore);
 		$('#hide-comments-total-' + id).show();
 	} else {
 		$('#collapsed-comments-' + id + ' .autotime').timeago();
-		$('#collapsed-comments-' + id).slideDown();
+		$('#collapsed-comments-' + id).show();
 		$('#hide-comments-' + id).html(aStr.showfewer);
 		$('#hide-comments-total-' + id).hide();
 	}

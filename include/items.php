@@ -486,6 +486,8 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		 */
 		call_hooks('post_local_end', $ret['activity']);
 	}
+	else
+		return $ret;
 
 	if($post_id && $deliver) {
 		Master::Summon([ 'Notifier','activity',$post_id ]);

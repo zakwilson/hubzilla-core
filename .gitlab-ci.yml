@@ -1,6 +1,6 @@
 # Select image from https://hub.docker.com/_/php/
 #image: php:7.2
-# Use a prepared Hubzilla image to optimise pipeline run
+# Use a prepared Hubzilla image to optimise pipeline duration
 image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.2
 
 
@@ -32,55 +32,28 @@ variables:
 
 
 before_script:
+# pecl and composer do not work with PHP production restrictions (from Hubzilla Docker image)
+- if [ -f /usr/local/etc/php/conf.d/z_prod.ini ]; then mv /usr/local/etc/php/conf.d/z_prod.ini /usr/local/etc/php/conf.d/z_prod.ini.off; fi
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
 - docker-php-ext-enable xdebug
 # Install composer
 - curl -sS https://getcomposer.org/installer | php
 # Install dev libraries from composer
-- php composer.phar install --no-progress
+- php ./composer.phar install --no-progress
 
 
-# test PHP7 with MySQL 5.7
-php7.2_mysql 1/2:
+# hidden job definition with template for MySQL/MariaDB
+.job_template_mysql: &job_definition_mysql
   stage: test
-  services:
-  - mysql:5.7
   script:
   - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
 
-
-# test PHP7 with MySQL latest (8)
-php7.2_mysql 2/2:
-  stage: test
-  services:
-  - name: mysql:latest
-    command: ["--default-authentication-plugin=mysql_native_password"]
-  script:
-  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
-
-
-# test PHP7 with MariaDB latest (10.3)
-php7.2_mariadb:
-  stage: test
-  services:
-  - name: mariadb:latest
-    alias: mysql
-  script:
-  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
-
-
-# test PHP7 with PostgreSQL latest
-php7.2_postgres:
+# hidden job definition with template for PostgreSQL
+.job_template_postgres: &job_definition_postgres
   stage: test
   services:
   - postgres:latest
@@ -95,7 +68,10 @@ php7.2_postgres:
   #- psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\dt;"
   # Run the actual tests
   - vendor/bin/phpunit --configuration tests/phpunit-pgsql.xml --testdox
-  artifacts:
+
+# hidden job definition with artifacts config template
+.artifacts_template:
+  artifacts: &artifacts_template
     expire_in: 1 week
     # Gitlab should show the results, but has problems parsing PHPUnit's junit file.
     reports:
@@ -106,7 +82,52 @@ php7.2_postgres:
       - tests/results/
 
 
-# Generate Doxygen API Documentation and deploy it at GitLab pages
+# PHP7.2 with MySQL 5.7
+php7.2_mysql5.7:
+  <<: *job_definition_mysql
+  services:
+  - mysql:5.7
+
+
+# PHP7.2 with MySQL 8 (latest)
+php7.2_mysql8:
+  <<: *job_definition_mysql
+  services:
+  - name: mysql:8
+    command: ["--default-authentication-plugin=mysql_native_password"]
+
+
+# PHP7.2 with MariaDB 10.2
+php7.2_mariadb10.2:
+  <<: *job_definition_mysql
+  services:
+  - name: mariadb:10.2
+    alias: mysql
+
+
+# PHP7.3 with MariaDB 10.3 (latest)
+php7.3_mariadb10.3:
+  <<: *job_definition_mysql
+  image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+  services:
+  - name: mariadb:10.3
+    alias: mysql
+
+
+# PHP7.2 with PostgreSQL latest (11)
+php7.2_postgres11:
+  <<: *job_definition_postgres
+  artifacts: *artifacts_template
+
+
+# PHP7.3 with PostgreSQL latest (11)
+php7.3_postgres11:
+  <<: *job_definition_postgres
+  image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+  artifacts: *artifacts_template
+
+
+# Generate Doxygen API Documentation and deploy it as GitLab pages
 pages:
   stage: deploy
   cache: {}

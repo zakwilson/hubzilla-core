@@ -2,10 +2,7 @@
 
 namespace Zotlabs\Lib;
 
-use Zotlabs\Lib\Libzot;
-use Zotlabs\Lib\Libsync;
-use Zotlabs\Lib\ActivityStreams;
-use Zotlabs\Lib\Group;
+use Zotlabs\Zot6\HTTPSig;
 
 class Activity {
 
@@ -42,6 +39,46 @@ class Activity {
 		return $x;
 
 	}
+
+	static function fetch($url,$channel = null) {
+		$redirects = 0;
+		if(! check_siteallowed($url)) {
+			logger('blacklisted: ' . $url);
+			return null;
+		}
+		if(! $channel) {
+			$channel = get_sys_channel();
+		}
+
+		logger('fetch: ' . $url, LOGGER_DEBUG);
+
+		if(strpos($url,'x-zot:') === 0) {
+			$x = ZotURL::fetch($url,$channel);
+		}
+		else {
+			$m = parse_url($url);
+			$headers = [
+				'Accept'           => 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				'Host'             => $m['host'],
+				'(request-target)' => 'get ' . get_request_string($url),
+				'Date'             => datetime_convert('UTC','UTC','now','D, d M Y H:i:s') . ' UTC'
+			];
+			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
+			$x = z_fetch_url($url, true, $redirects, [ 'headers' => $h ] );
+		}
+
+		if($x['success']) {
+			$y = json_decode($x['body'],true);
+			logger('returned: ' . json_encode($y,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+			return json_decode($x['body'], true);
+		}
+		else {
+			logger('fetch failed: ' . $url);
+		}
+		return null;
+	}
+
+
 
 
 	static function fetch_person($x) {

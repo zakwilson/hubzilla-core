@@ -5,7 +5,7 @@ function string_plural_select_es_es($n){
 	return ($n != 1 ? 1 : 0);
 }}
 App::$rtl = 0;
-App::$strings["plural_function_code"] = "(n != 1 ? 1 : 0);";
+App::$strings["plural_function_code"] = "(n != 1 ? 1 : 0)";
 App::$strings["Can view my channel stream and posts"] = "Pueden verse la actividad y publicaciones de mi canal";
 App::$strings["Can send me their channel stream and posts"] = "Se me pueden enviar entradas y contenido de un canal";
 App::$strings["Can view my default channel profile"] = "Puede verse mi perfil de canal predeterminado.";

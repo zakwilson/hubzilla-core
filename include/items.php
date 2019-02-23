@@ -4688,7 +4688,7 @@ function sync_an_item($channel_id,$item_id) {
 	if($r) {
 		xchan_query($r);
 		$sync_item = fetch_post_tags($r);
-		build_sync_packet($channel_d,array('item' => array(encode_item($sync_item[0],true))));
+		build_sync_packet($channel_id,array('item' => array(encode_item($sync_item[0],true))));
 	}
 }
 

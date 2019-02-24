@@ -4682,12 +4682,12 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 
 function sync_an_item($channel_id,$item_id) {
 
-	$r = q("select * from item where id = %d limit 1",
+	$r = q("select * from item where id = %d",
 		intval($item_id)
 	);
 	if($r) {
-		xchan_query($r[0]);
-		$sync_item = fetch_post_tags($r[0]);
+		xchan_query($r);
+		$sync_item = fetch_post_tags($r);
 		build_sync_packet($r[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
 	}
 }

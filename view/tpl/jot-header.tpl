@@ -427,7 +427,9 @@ var activeCommentText = '';
                             var imageparent = document.getElementById($(image).parent()[0].id);
                             $(imageparent).toggleClass('embed-photo-selected-photo');
                             var href = $(imageparent).attr('href');
-                            $.post("embedphotos/photolink", {href: href},
+                            $.post(
+				"embedphotos/photolink",
+				{href: href},
                                 function(ddata) {
                                     if (ddata['status']) {
                                         addeditortext(ddata['photolink']);
@@ -437,10 +439,8 @@ var activeCommentText = '';
                                     }
                                     return false;
                                 },
-         	                   'json');
-	                        $('#embedPhotoModalBodyAlbumDialog').html('');
-    	                    $('#embedPhotoModalBodyAlbumDialog').off('click');
-        	                $('#embedPhotoModal').modal('hide');
+				'json'
+			    );
                         }
                     });
                     $('#embedPhotoModalBodyAlbumListDialog').addClass('d-none');

@@ -95,9 +95,9 @@
 		if(! $_REQUEST['since'])
 			$start = NULL_DATE;
 		else {
-			$start = datetime_convert('UTC','UTC', $_REQUEST['since']);
+			$start = datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['since']);
 		}
-		$finish = datetime_convert('UTC','UTC', (($_REQUEST['until']) ? $_REQUEST['until'] : 'now'));
+		$finish = datetime_convert(date_default_timezone_get(),'UTC', (($_REQUEST['until']) ? $_REQUEST['until'] : 'now'));
 
 		json_return_and_die(channel_export_items_page(api_user(),$start,$finish,$page,$records));
 	}

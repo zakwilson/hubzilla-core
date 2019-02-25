@@ -3241,7 +3241,7 @@ function flatten_array_recursive($arr) {
 				$ret = array_merge($ret, $tmp);
 			}
 		}
-		elseif($a) {
+		elseif(isset($a)) {
 			$ret[] = $a;
 		}
 	}

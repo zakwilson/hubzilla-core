@@ -784,16 +784,26 @@ function updateConvItems(mode,data) {
 		collapseHeight();
 	}
 
+	if(bParam_mid && mode === 'replace')
+		scrollToItem();
+
+	$(document.body).trigger("sticky_kit:recalc");
+}
+
+function scrollToItem() {
 	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
 	// use the same method to generate the submid as we use in ThreadItem, 
 	// base64_encode + replace(['+','='],['','']);
+
+	if(justifiedGalleryActive)
+		return;
 
 	var submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
 	var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
 	var submid_encoded = ((encoded) ? submid.substr(4) : window.btoa(submid));
 
 	submid_encoded = submid_encoded.replace(/[\+\=]/g,'');
-	if($('.item_' + submid_encoded).length && !$('.item_' + submid_encoded).hasClass('toplevel_item') && mode == 'replace') {
+	if($('.item_' + submid_encoded).length && !$('.item_' + submid_encoded).hasClass('toplevel_item')) {
 		if($('.collapsed-comments').length) {
 			var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 			$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
@@ -801,11 +811,9 @@ function updateConvItems(mode,data) {
 			$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
 			$('#hide-comments-total-' + scrolltoid).hide();
 		}
-		$('html, body').animate({ scrollTop: $('.item_' + submid_encoded).offset().top - $('nav').outerHeight() }, 'slow');
+		$('html, body').animate({ scrollTop: $('.item_' + submid_encoded).offset().top - $('nav').outerHeight(true) }, 'slow');
 		$('.item_' + submid_encoded).addClass('item-highlight');
 	}
-
-	$(document.body).trigger("sticky_kit:recalc");
 }
 
 function collapseHeight() {

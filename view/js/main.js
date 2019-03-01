@@ -770,7 +770,7 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = ((preloadImages) ? false : $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; }));
+	var bimgs = $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; });
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -778,16 +778,22 @@ function updateConvItems(mode,data) {
 			bimgcount--;
 			if (! bimgcount) {
 				collapseHeight();
+
+				if(bParam_mid && mode === 'replace')
+					scrollToItem();
+
+				$(document.body).trigger("sticky_kit:recalc");
 			}
 		});
 	} else {
 		collapseHeight();
+
+		if(bParam_mid && mode === 'replace')
+			scrollToItem();
+
+		$(document.body).trigger("sticky_kit:recalc");
 	}
 
-	if(bParam_mid && mode === 'replace')
-		scrollToItem();
-
-	$(document.body).trigger("sticky_kit:recalc");
 }
 
 function scrollToItem() {

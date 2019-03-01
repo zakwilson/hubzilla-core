@@ -1840,7 +1840,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
                                         intval($channel['channel_id'])
                                 );
                                 if ($parent) {
-                                        $allowed = can_comment_on_post($d['hash'],$parent[0]);
+                                        $allowed = can_comment_on_post($sender['hash'],$parent[0]);
                                 }
                         }
 

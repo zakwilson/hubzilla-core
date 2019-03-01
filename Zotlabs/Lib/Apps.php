@@ -327,6 +327,7 @@ class Apps {
 			'Report Bug' => t('Report Bug'),
 			'Bookmarks' => t('Bookmarks'),
 			'Chatrooms' => t('Chatrooms'),
+			'Content Filter' => t('Content Filter'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),
 			'Suggest Channels' => t('Suggest Channels'),

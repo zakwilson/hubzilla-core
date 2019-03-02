@@ -95,7 +95,7 @@ PHP might differ from the _webserver_ version
   php.ini file * and with no hosting provider restrictions on the use of 
   exec() and proc_open().
 
-* curl, gd (with at least jpeg and png support), mysqli, mbstring, mcrypt, 
+* curl, gd (with at least jpeg and png support), mysqli, mbstring, mcrypt, zip, 
   and openssl extensions. The imagick extension is not required but desirable.
 
 * xml extension is required if you want webdav to work.

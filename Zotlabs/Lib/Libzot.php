@@ -1403,7 +1403,7 @@ class Libzot {
 	/**
 	 * @brief
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 * @param array $arr
 	 * @param array $deliveries
 	 * @param boolean $relay

@@ -685,8 +685,14 @@ class Libzot {
 				$adult_changed = 1;
 			if(intval($r[0]['xchan_deleted']) != intval($arr['deleted']))
 				$deleted_changed = 1;
+			// old style
 			if(intval($r[0]['xchan_pubforum']) != intval($arr['public_forum']))
 				$pubforum_changed = 1;
+			// new style 6-MAR-2019
+			if(array_key_exists('channel_type',$arr) && intval($arr['channel_type']) < 2 && intval($r[0]['xchan_pubforum']) !== intval($arr['channel_type'])) {
+				$pubforum_changed = 1;
+				$arr['public_forum'] = $arr['channel_type'];
+			}
 
 			if($arr['protocols']) {
 				$protocols = implode(',',$arr['protocols']);

@@ -44,6 +44,7 @@ Hubzilla 4.0 (2019-??-??)
 	- Disable image caching if personal or group permissions enabled
 
 	Bugfixes
+	- Fix guest access token xchan record not created on URL login
 	- Fix regression where mod oep was still using hex2bin/bin2hex instead of album hash
 	- Fix regression when selecting multiple images in embed images
 	- Fix broken sync_an_item()

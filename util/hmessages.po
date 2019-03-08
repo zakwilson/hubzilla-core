@@ -13375,7 +13375,7 @@ msgid ""
 "Cannot create a duplicate channel identifier on this system. Import failed."
 msgstr ""
 
-#: ../../include/import.php:116
+#: ../../include/import.php:117
 msgid "Cloned channel not found. Import failed."
 msgstr ""
 

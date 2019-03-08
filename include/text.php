@@ -3331,28 +3331,6 @@ function array2XML($obj, $array) {
 	}
 }
 
-function array_path_exists($str,$arr) {
-
-	$ptr = $arr;
-	$search = explode('/', $str);
-
-	if($search) {
-		foreach($search as $s) {
-			if(array_key_exists($s,$ptr)) {
-				$ptr = $ptr[$s];
-			}
-			else {
-				return false;
-			}			
-		}
-		return true;
-	}
-
-	return false;
-
-}
-
-
 /**
  * @brief Inserts an array into $table.
  *

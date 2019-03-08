@@ -1897,8 +1897,7 @@ class Libzot {
 	/**
 	 * @brief Remove community tag.
 	 *
-	 * @param array $sender an associative array with
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender
 	 * @param array $arr an associative array
 	 *   * \e int \b verb
 	 *   * \e int \b obj_type
@@ -1971,7 +1970,7 @@ class Libzot {
 	 *
 	 * @see item_store_update()
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 * @param array $item
 	 * @param array $orig
 	 * @param int $uid
@@ -2022,7 +2021,7 @@ class Libzot {
 	/**
 	 * @brief Deletes an imported item.
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 *   * \e string \b hash a xchan_hash
 	 * @param array $item
 	 * @param int $uid
@@ -2040,9 +2039,9 @@ class Libzot {
 
 		$r = q("select id, author_xchan, owner_xchan, source_xchan, item_deleted from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
 			and mid = '%s' and uid = %d limit 1",
-			dbesc($sender['hash']),
-			dbesc($sender['hash']),
-			dbesc($sender['hash']),
+			dbesc($sender),
+			dbesc($sender),
+			dbesc($sender),
 			dbesc($item['mid']),
 			intval($uid)
 		);
@@ -2197,8 +2196,7 @@ class Libzot {
 	 *
 	 * @see import_directory_profile()
 	 *
-	 * @param array $sender an associative array
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender 
 	 * @param array $arr
 	 * @param array $deliveries (unused)
 	 * @return void
@@ -2208,7 +2206,7 @@ class Libzot {
 		logger('process_profile_delivery', LOGGER_DEBUG);
 
 		$r = q("select xchan_addr from xchan where xchan_hash = '%s' limit 1",
-				dbesc($sender['hash'])
+			dbesc($sender)
 		);
 		if($r) {
 			Libzotdir::import_directory_profile($sender, $arr, $r[0]['xchan_addr'], UPDATE_FLAGS_UPDATED, 0);
@@ -2219,8 +2217,7 @@ class Libzot {
 	/**
 	 * @brief
 	 *
-	 * @param array $sender an associative array
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender 
 	 * @param array $arr
 	 * @param array $deliveries (unused) deliveries is irrelevant
 	 * @return void

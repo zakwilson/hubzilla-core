@@ -1,4 +1,4 @@
-Hubzilla 4.0 (2019-??-??)
+Hubzilla 4.0 (2019-03-08)
 	- Add CURLOPT_CONNECTTIMEOUT option
 	- Allow parameters as final path argument in API router
 	- Remove clones from delivery recipients for top-level posts in favor of clone sync

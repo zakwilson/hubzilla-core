@@ -1,3 +1,108 @@
+Hubzilla 4.0 (2019-??-??)
+	- Add CURLOPT_CONNECTTIMEOUT option
+	- Allow parameters as final path argument in API router
+	- Remove clones from delivery recipients for top-level posts in favor of clone sync
+	- Mention php-zip module dependency in administrator guide
+	- Iron out some kinks with scrollToItem() in combination with collapsed content and images
+	- Zot API changes to support combined content (items+files) import addon
+	- Update PHP Version check during setup - min version is now 7.1
+	- Urlencode links in category widget
+	- Implement ability for channel visitors to be able to delete their own content
+	- Support zot location independent urls
+	- MySQL 8 admin summary compatibility
+	- Improved gitlab-ci environment
+	- Deprecate and remove addon settings in favour of per app settings
+	- Refactor PhotoDriver class and add tests
+	- Convert affinity tool to app
+	- Refactor linkify_tags() so it works with xchans across multiple protocols
+	- Add the actual mid to viewsrc for debuging reasons
+	- Add filter hooks and the ability to add buttons to the default status editor
+	- Prevent Hubzilla usage for SEO backlinks
+	- Implement privacy warning for forum posts via !-tag
+	- Set document title when title changes on a page update
+	- Cache embeds in the background on initial storage rather than on first access
+	- Custom sessionhandler support
+	- Update nginx and lighttpd sample server configs to explicit disallow access to util
+	- Introduce command line tool for managing site admins
+	- Various doxygen improvements
+	- Add privacygroup_extras_post/drop hooks
+	- Add collect_public_recipients hook
+	- Prevent memory exhaustion on zot message pickup with large message queue
+	- Remove experimental worker queue from core
+	- Add get_base_apps hook
+	- Improve handling of notification updates while commenting
+	- Add warning if upload_filesize < 4MB
+	- Add ITEM_TYPE_CUSTOM and hooks for processing custom item types
+	- Set min/maxversion for plugins to STD_VERSION unless otherwise specified
+	- Add option to make affinity slider 'sticky' across page loads
+	- Add photo_view_filter hook
+	- Reset page title if article has no title
+	- Implement the zot6 protocol
+	- Add PHOTO_CACHE photo type
+	- Basic support for HTTP3
+	- Add native summary support
+	- Disable image caching if personal or group permissions enabled
+
+	Bugfixes
+	- Fix guest access token xchan record not created on URL login
+	- Fix regression where mod oep was still using hex2bin/bin2hex instead of album hash
+	- Fix regression when selecting multiple images in embed images
+	- Fix broken sync_an_item()
+	- Fix page jumping on like if comments are expanded (show all x comments)
+	- Fix regression in mod display where an page update could display items from multiple channels
+	- Fix starring and filing allowed for other unsupported item types
+	- Fix wrong variable in z_get_temp_dir()
+	- Fix page jumping when liking a collapsed/expanded post
+	- Fix tags detection in URL
+	- Fix warnings in mod embedphotos
+	- Fix wrong variable in can_comment_on_post()
+	- Fix mod new_channel counting removed channels
+	- Fix regression where not all content variables were sslified
+	- Fix default values for affinity tool and other information which could be lost when approving a connection
+	- Fix regression in linkdropper()
+	- Fix issue with unset auto_save_draft variable which resultet in a javascript error
+	- Fix home notifications won't expand if there are more than 300 unseen network notifications ahead of them
+	- Fix total_identities count
+	- Fix delayed items propagate before publication on cloned channels
+
+	Addons
+	- twitter_api: fedilab needs profile_image_url_https
+	- New addon: content_import - imports items and files to cloned channels (this obsoletes hzfiles)
+	- Diaspora: prevent processing of incomplete messages in various places
+	- hzfiles: fix add missing load/unload functions
+	- chess: do not look for games if we have no game_id - improves initial pageload performance
+	- chess: convert to app
+	- channelreputation: convert to app
+	- irc: convert to per app
+	- Provide the addon_common directory for common addon libraries
+	- fuzzloc: convert to app
+	- flattrwidget: convert to app
+	- jappixmini: convert to app
+	- xmpp: convert to app
+	- visage: convert to app
+	- diaspora: reflect linkify_tags() rewrite
+	- twitter: convert to app
+	- smileybutton: convert to app
+	- skeleton: convert to app
+	- planets: convert to app
+	- pumpio: convert to app
+	- pageheader: convert to app
+	- nsabait: convert to app
+	- dwpost: convert to app
+	- diaspora: set the preserve_lf option in various places
+	- diaspora: fix comments from unknown persons are not accpted
+	- nofed: convert to app
+	- ljpost: convert to app
+	- diaspora: call update_queue_item() if delivery failed
+	- pubcrawl: call update_queue_item() if delivery failed
+	- libertree: convert to app
+	- New addon: queueworker advanced - queue handling (experimental)
+	- gallery: extended functionality: implements stream image viewer, converts images at the beginning of a post to a gallery
+	- authchoose: correction to query, add affinity setting
+	- New addon: photocache - local caching for public photos
+	- New addon: totp - two factor authentication using time-based one-time passwords
+
+
 Hubzilla 3.8.9 (2018-02-03)
 	- Fix typos in mod oep
 	- Fix page jumping when liking collapsed/expanded post

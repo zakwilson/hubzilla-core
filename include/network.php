@@ -114,6 +114,13 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
+	if(x($opts,'connecttimeout') && intval($opts['connecttimeout'])) {
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, intval($opts['connecttimeout']));
+	}
+	else {
+		$curl_contime = intval(@get_config('system','curl_connecttimeout'));
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== false) ? $curl_contime : 30));
+	}
 
 	if(x($opts,'http_auth')) {
 		// "username" . ':' . "password"

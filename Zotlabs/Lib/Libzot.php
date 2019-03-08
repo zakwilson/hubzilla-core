@@ -1197,12 +1197,14 @@ class Libzot {
 
 				//logger($AS->debug());
 
-				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",
 					dbesc($AS->actor['id'])
 				);
 
 				if($r) {
-					$arr['author_xchan'] = $r[0]['hubloc_hash'];
+					// selects a zot6 hash if available, otherwise use whatever we have
+					$r = self::zot_record_preferred($r);
+					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
 
@@ -3097,6 +3099,24 @@ class Libzot {
 		$x = getBestSupportedMimeType([ 'application/x-zot+json' ]);
 
 		return(($x) ? true : false);
+	}
+
+
+	static public function zot_record_preferred($arr, $check = 'hubloc_network') {
+
+		if(! $arr) {
+			return $arr;
+		}
+
+		foreach($arr as $v) {
+			if($v[$check] === 'zot6') {
+
+				return $v;
+			}
+		}
+
+		return $arr[0];
+
 	}
 
 }

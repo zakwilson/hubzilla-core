@@ -50,10 +50,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '3.8.9' );
+define ( 'STD_VERSION',             '4.0' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1225 );
+define ( 'DB_UPDATE_VERSION',       1230 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -83,8 +83,8 @@ define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
 define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
-	'https://hubzilla.zottel.net',
-	'https://zotadel.net'
+	'https://zotadel.net',
+	'https://zotsite.net'
 );
 
 
@@ -217,6 +217,7 @@ define ( 'PHOTO_PROFILE',          0x0001 );
 define ( 'PHOTO_XCHAN',            0x0002 );
 define ( 'PHOTO_THING',            0x0004 );
 define ( 'PHOTO_COVER',            0x0010 );
+define ( 'PHOTO_CACHE',            0x0020 );
 
 define ( 'PHOTO_ADULT',            0x0008 );
 define ( 'PHOTO_FLAG_OS',          0x4000 );
@@ -438,6 +439,7 @@ define ( 'TERM_OBJ_APP',     7 );
  * various namespaces we may need to parse
  */
 define ( 'PROTOCOL_ZOT',              'http://purl.org/zot/protocol' );
+define ( 'PROTOCOL_ZOT6',             'http://purl.org/zot/protocol/6.0' );
 define ( 'NAMESPACE_ZOT',             'http://purl.org/zot' );
 define ( 'NAMESPACE_DFRN' ,           'http://purl.org/macgirvin/dfrn/1.0' );
 define ( 'NAMESPACE_THREAD' ,         'http://purl.org/syndication/thread/1.0' );
@@ -465,7 +467,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.2' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.3' );
 /**
  * activity stream defines
  */
@@ -510,6 +512,7 @@ define ( 'ACTIVITY_MOOD',        NAMESPACE_ZOT . '/activity/mood' );
 define ( 'ACTIVITY_OBJ_COMMENT', NAMESPACE_ACTIVITY_SCHEMA . 'comment' );
 define ( 'ACTIVITY_OBJ_ACTIVITY',NAMESPACE_ACTIVITY_SCHEMA . 'activity' );
 define ( 'ACTIVITY_OBJ_NOTE',    NAMESPACE_ACTIVITY_SCHEMA . 'note' );
+define ( 'ACTIVITY_OBJ_ARTICLE', NAMESPACE_ACTIVITY_SCHEMA . 'article' );
 define ( 'ACTIVITY_OBJ_PERSON',  NAMESPACE_ACTIVITY_SCHEMA . 'person' );
 define ( 'ACTIVITY_OBJ_PHOTO',   NAMESPACE_ACTIVITY_SCHEMA . 'photo' );
 define ( 'ACTIVITY_OBJ_P_PHOTO', NAMESPACE_ACTIVITY_SCHEMA . 'profile-photo' );
@@ -574,6 +577,8 @@ define ( 'ITEM_TYPE_BUG',        4 );
 define ( 'ITEM_TYPE_DOC',        5 );
 define ( 'ITEM_TYPE_CARD',       6 );
 define ( 'ITEM_TYPE_ARTICLE',    7 );
+//OSADA ITEM_TYPE_MAIL = 8
+define ( 'ITEM_TYPE_CUSTOM',	 9 );
 
 define ( 'ITEM_IS_STICKY',       1000 );
 
@@ -728,11 +733,11 @@ class App {
 	private static $perms      = null;            // observer permissions
 	private static $widgets    = array();         // widgets for this page
 	public  static $config     = array();         // config cache
-        public  static $override_intltext_templates = array();
-        public  static $override_markup_templates = array();
-        public  static $override_templateroot = null;
-        public  static $override_helproot = null;
-        public  static $override_helpfiles = array();
+	public  static $override_intltext_templates = array();
+	public  static $override_markup_templates = array();
+	public  static $override_templateroot = null;
+	public  static $override_helproot = null;
+	public  static $override_helpfiles = array();
 
 	public static  $session    = null;
 	public static  $groups;
@@ -883,7 +888,7 @@ class App {
 			// removing trailing / - maybe a nginx problem
 			if (substr(self::$query_string, 0, 1) == "/")
 				self::$query_string = substr(self::$query_string, 1);
-			// change the first & to ? 
+			// change the first & to ?
 			self::$query_string = preg_replace('/&/','?',self::$query_string,1);
 		}
 
@@ -1574,7 +1579,7 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 
 	// Here's the current description of how the register link works (2018-05-15)
 
-	// Register links are enabled on the site home page and login page and navbar. 
+	// Register links are enabled on the site home page and login page and navbar.
 	// They are not shown by default on other pages which may require login.
 
 	// If the register link is enabled and registration is closed, the request is directed
@@ -1586,10 +1591,10 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 
 	// system.register_link may or may not be the same destination as system.sellpage
 
-	// system.sellpage is the destination linked from the /pubsites page on other sites. If 
+	// system.sellpage is the destination linked from the /pubsites page on other sites. If
 	// system.sellpage is not set, the 'register' link in /pubsites will go to 'register' on your
-	// site. 
-	
+	// site.
+
 	// If system.register_link is set to the word 'none', no registration link will be shown on
 	// your site.
 
@@ -1827,8 +1832,6 @@ function get_max_import_size() {
 function proc_run(){
 
 	$args = func_get_args();
-
-	$newargs = array();
 
 	if(! count($args))
 		return;
@@ -2277,7 +2280,7 @@ function construct_page() {
 		$cspheader = "Content-Security-Policy:";
 		foreach ($cspsettings as $cspdirective => $csp) {
 			if (!in_array($cspdirective,$validcspdirectives)) {
-                                logger("INVALID CSP DIRECTIVE: ".$cspdirective,LOGGER_DEBUG);
+				logger("INVALID CSP DIRECTIVE: ".$cspdirective,LOGGER_DEBUG);
 				continue;
 			}
 			$cspsettingsarray=array_unique($cspsettings[$cspdirective]);
@@ -2396,7 +2399,7 @@ function z_get_temp_dir() {
 	if(! $temp_dir)
 		$temp_dir = sys_get_temp_dir();
 
-	return $upload_dir;
+	return $temp_dir;
 }
 
 

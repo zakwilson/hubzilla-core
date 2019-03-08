@@ -12,6 +12,7 @@ require_once('include/perm_upgrade.php');
  * @param array $channel
  * @param int $account_id
  * @param int $seize
+ * @param string $newname (optional)
  * @return boolean|array
  */
 function import_channel($channel, $account_id, $seize, $newname = '') {
@@ -650,7 +651,7 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 			// preserve conversations you've been involved in from being expired
 
 			$stored = $item_result['item'];
-			if((is_array($stored)) && ($stored['id'] != $stored['parent']) 
+			if((is_array($stored)) && ($stored['id'] != $stored['parent'])
 				&& ($stored['author_xchan'] === $channel['channel_hash'])) {
 				retain_item($stored['item']['parent']);
 			}
@@ -672,7 +673,7 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 /**
  * @brief Sync items to channel.
  *
- * @see import_items
+ * @see import_items()
  *
  * @param array $channel where to import to
  * @param array $items
@@ -1049,7 +1050,7 @@ function import_mail($channel, $mails, $sync = false) {
 /**
  * @brief Synchronise mails.
  *
- * @see import_mail
+ * @see import_mail()
  * @param array $channel
  * @param array $mails
  */
@@ -1337,7 +1338,7 @@ function sync_files($channel, $files) {
 
 							if($str)
 								$str .= ",";
-							
+
 							$str .= " " . TQUOT . $k . TQUOT . " = '" . (($k === 'content') ? dbescbin($v) : dbesc($v)) . "' ";
 						}
 						$r = dbq("update photo set " . $str . " where id = " . intval($exists[0]['id']) );
@@ -1521,7 +1522,8 @@ function import_webpage_element($element, $channel, $type) {
 	}
 	else { // otherwise, generate the creation times and unique id
 		$arr['created'] = datetime_convert('UTC', 'UTC');
-		$arr['mid'] = $arr['parent_mid'] = item_message_id();
+		$arr['uuid'] = item_message_id();
+		$arr['mid'] = $arr['parent_mid'] = z_root() . '/item/' . $arr['uuid'];
 	}
 	// Update the edited time whether or not the element already exists
 	$arr['edited'] = datetime_convert('UTC', 'UTC');

@@ -242,6 +242,7 @@ CREATE TABLE "channel" (
   "channel_guid" text NOT NULL DEFAULT '',
   "channel_guid_sig" text NOT NULL,
   "channel_hash" text NOT NULL DEFAULT '',
+  "channel_portable_id" text NOT NULL DEFAULT '',
   "channel_timezone" varchar(128) NOT NULL DEFAULT 'UTC',
   "channel_location" text NOT NULL DEFAULT '',
   "channel_theme" text NOT NULL DEFAULT '',
@@ -284,6 +285,7 @@ create index "channel_max_friend_req" on channel ("channel_max_friend_req");
 create index "channel_default_gid" on channel ("channel_default_group");
 create index "channel_guid" on channel ("channel_guid");
 create index "channel_hash" on channel ("channel_hash");
+create index "channel_portable_id" on channel ("channel_portable_id");
 create index "channel_expire_days" on channel ("channel_expire_days");
 create index "channel_deleted" on channel ("channel_deleted");
 create index "channel_active" on channel ("channel_active");
@@ -375,6 +377,7 @@ CREATE TABLE IF NOT EXISTS "dreport" (
   "dreport_site" varchar(255) NOT NULL DEFAULT '',
   "dreport_recip" varchar(255) NOT NULL DEFAULT '',
   "dreport_result" varchar(255) NOT NULL DEFAULT '',
+  "dreport_name" varchar(255) NOT NULL DEFAULT '',
   "dreport_time" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   "dreport_xchan" varchar(255) NOT NULL DEFAULT '',
   "dreport_queue" varchar(255) NOT NULL DEFAULT '',
@@ -548,6 +551,7 @@ create index "issue_component" on issue ("issue_component");
 
 CREATE TABLE "item" (
   "id" serial  NOT NULL,
+  "uuid" text  NOT NULL DEFAULT '',
   "mid" text  NOT NULL DEFAULT '',
   "aid" bigint  NOT NULL DEFAULT '0',
   "uid" bigint  NOT NULL DEFAULT '0',
@@ -566,6 +570,7 @@ CREATE TABLE "item" (
   "source_xchan" text NOT NULL DEFAULT '',
   "mimetype" text NOT NULL DEFAULT '',
   "title" text NOT NULL,
+  "summary" text NOT NULL,
   "body" text NOT NULL,
   "html" text NOT NULL,
   "app" text NOT NULL DEFAULT '',
@@ -623,6 +628,7 @@ CREATE TABLE "item" (
   PRIMARY KEY ("id")
 );
 create index "item_uid" on item ("uid");
+create index "item_uuid" on item ("uuid");
 create index "item_parent" on item ("parent");
 create index "item_created" on item ("created");
 create index "item_edited" on item ("edited");
@@ -922,6 +928,7 @@ CREATE TABLE "photo" (
   "resource_id" text NOT NULL,
   "created" timestamp NOT NULL,
   "edited" timestamp NOT NULL,
+  "expires" timestamp NOT NULL,
   "title" text NOT NULL,
   "description" text NOT NULL,
   "album" text NOT NULL,
@@ -955,6 +962,7 @@ create index "photo_aid" on photo ("aid");
 create index "photo_xchan" on photo ("xchan");
 create index "photo_filesize" on photo ("filesize");
 create index "photo_resource_id" on photo ("resource_id");
+create index "photo_expires_idx" on photo ("expires");
 create index "photo_usage" on photo ("photo_usage");
 create index "photo_is_nsfw" on photo ("is_nsfw");
 create index "photo_os_storage" on photo ("os_storage");

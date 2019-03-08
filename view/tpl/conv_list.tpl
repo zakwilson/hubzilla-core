@@ -9,12 +9,12 @@
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 			<div class="clearfix wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
 				{{if $item.photo}}
-				<div class="wall-photo-item" id="wall-photo-item-{{$item.id}}">
+				<div class="wall-photo-item{{if $item.is_new && !$item.title}} wall-item-head-new rounded-top{{/if}}" id="wall-photo-item-{{$item.id}}">
 					{{$item.photo}}
 				</div>
 				{{/if}}
 				{{if $item.event}}
-				<div class="wall-event-item" id="wall-event-item-{{$item.id}}">
+				<div class="wall-event-item{{if $item.is_new && !$item.title}} wall-item-head-new rounded-top{{/if}}" id="wall-event-item-{{$item.id}}">
 					{{$item.event}}
 				</div>
 				{{/if}}
@@ -26,7 +26,7 @@
 				<hr class="m-0">
 				{{/if}}
 				{{/if}}
-				<div class="p-2 clearfix wall-item-head{{if $item.is_new && !$item.title && !$item.event && !$item.is_comment}} wall-item-head-new rounded-top{{/if}}">
+				<div class="p-2 clearfix wall-item-head{{if $item.is_new && !$item.title && !$item.event && !$item.is_comment && !$item.photo}} wall-item-head-new rounded-top{{/if}}">
 					<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$item.id}}">
 							<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" data-toggle="dropdown" /></a>
@@ -138,6 +138,9 @@
 								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
 									{{if $item.share}}
 									<a class="dropdown-item" href="#" onclick="jotShare({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$item.share.0}}"></i>{{$item.share.0}}</a>
+									{{/if}}
+									{{if $item.embed}}
+									<a class="dropdown-item" href="#" onclick="jotEmbed({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-share" title="{{$item.embed.0}}"></i>{{$item.embed.0}}</a>
 									{{/if}}
 									{{if $item.plink}}
 									<a class="dropdown-item" href="{{$item.plink.href}}" title="{{$item.plink.title}}" class="u-url"><i class="generic-icons-nav fa fa-fw fa-external-link"></i>{{$item.plink.title}}</a>

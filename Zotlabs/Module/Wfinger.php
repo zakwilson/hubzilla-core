@@ -43,6 +43,9 @@ class Wfinger extends \Zotlabs\Web\Controller {
 	
 			if(strpos($resource,'acct:') === 0) {
 				$channel = str_replace('acct:','',$resource);
+				if(substr($channel,0,1) === '@' && strpos(substr($channel,1),'@')) {
+					$channel = substr($channel,1);
+				}
 				if(strpos($channel,'@') !== false) {
 					$host = substr($channel,strpos($channel,'@')+1);
 
@@ -202,6 +205,12 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					[
 						'rel'  => 'http://purl.org/zot/protocol',
 						'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r[0]['xchan_addr'],
+					],
+
+					[
+						'rel'  => 'http://purl.org/zot/protocol/6.0',
+						'type' => 'application/x-zot+json',
+						'href' => channel_url($r[0])
 					],
 
 					[

@@ -1,32 +1,34 @@
-<?php /** @file */
+<?php
 
 namespace Zotlabs\Lib;
-
-/**
- * Apps
- *
- */
 
 require_once('include/plugin.php');
 require_once('include/channel.php');
 
-
+/**
+ * @brief Apps class.
+ *
+ */
 class Apps {
 
 	static public $available_apps = null;
 	static public $installed_apps = null;
-
 	static public $base_apps = null;
 
-
-
+	/**
+	 * @brief
+	 *
+	 * @param boolean $translate (optional) default true
+	 * @return array
+	 */
 	static public function get_system_apps($translate = true) {
+		$ret = [];
 
-		$ret = array();
 		if(is_dir('apps'))
 			$files = glob('apps/*.apd');
 		else
 			$files = glob('app/*.apd');
+
 		if($files) {
 			foreach($files as $f) {
 				$x = self::parse_app_description($f,$translate);
@@ -50,14 +52,17 @@ class Apps {
 			}
 		}
 
-		call_hooks('get_system_apps',$ret);
+		/**
+		 * @hooks get_system_apps
+		 *   Hook to manipulate the system apps array.
+		 */
+		call_hooks('get_system_apps', $ret);
 
 		return $ret;
-
 	}
 
 	static public function get_base_apps() {
-		return get_config('system','base_apps',[ 
+		$x = get_config('system','base_apps',[
 			'Connections',
 			'Network',
 			'Settings',
@@ -72,6 +77,14 @@ class Apps {
 			'Mail',
 			'Profile Photo'
 		]);
+
+		/**
+		 * @hooks get_base_apps
+		 *   Hook to manipulate the base apps array.
+		 */
+		call_hooks('get_base_apps', $x);
+
+		return $x;
 	}
 
 	static public function import_system_apps() {
@@ -79,7 +92,7 @@ class Apps {
 			return;
 
 		self::$base_apps = self::get_base_apps();
- 
+
 		$apps = self::get_system_apps(false);
 
 		self::$available_apps = q("select * from app where app_channel = 0");
@@ -104,6 +117,7 @@ class Apps {
 				// $id will be boolean true or false to install an app, or an integer id to update an existing app
 				if($id === false)
 					continue;
+
 				if($id !== true) {
 					// if we already installed this app, but it changed, preserve any categories we created
 					$s = EMPTY_STR;
@@ -124,16 +138,17 @@ class Apps {
 				$app['guid'] = hash('whirlpool',$app['name']);
 				$app['system'] = 1;
 				self::app_install(local_channel(),$app);
-
 			}
-		}					
+		}
 	}
 
 	/**
-	 * Install the system app if no system apps have been installed, or if a new system app 
+	 * Install the system app if no system apps have been installed, or if a new system app
 	 * is discovered, or if the version of a system app changes.
+	 *
+	 * @param array $app
+	 * @return boolean|int
 	 */
-
 	static public function check_install_system_app($app) {
 		if((! is_array(self::$available_apps)) || (! count(self::$available_apps))) {
 			return true;
@@ -157,17 +172,16 @@ class Apps {
 		return $notfound;
 	}
 
-
 	/**
-	 * Install the system app if no system apps have been installed, or if a new system app 
-	 * is discovered, or if the version of a system app changes.
+	 * Install the personal app if no personal apps have been installed, or if a new personal app
+	 * is discovered, or if the version of a personal app changes.
+	 *
+	 * @param array $app
+	 * @return boolean|int
 	 */
-
-
-
 	static public function check_install_personal_app($app) {
 		$installed = false;
-		foreach(self::$installed_apps as $iapp) {			
+		foreach(self::$installed_apps as $iapp) {
 			if($iapp['app_id'] == hash('whirlpool',$app['name'])) {
 				$installed = true;
 				if(($iapp['app_version'] != $app['version'])
@@ -187,19 +201,24 @@ class Apps {
 		return strcasecmp($a['name'],$b['name']);
 	}
 
-
-	static public function parse_app_description($f,$translate = true) {
-
-		$ret = array();
+	/**
+	 * @brief Parse app description.
+	 *
+	 * @param string $f filename
+	 * @param boolean $translate (optional) default true
+	 * @return boolean|array
+	 */
+	static public function parse_app_description($f, $translate = true) {
+		$ret = [];
+		$matches = [];
 
 		$baseurl = z_root();
-		$channel = \App::get_channel();
-		$address = (($channel) ? $channel['channel_address'] : '');
-		
+		//$channel = \App::get_channel();
+		//$address = (($channel) ? $channel['channel_address'] : '');
+
 		//future expansion
 
 		$observer = \App::get_observer();
-	
 
 		$lines = @file($f);
 		if($lines) {
@@ -208,7 +227,7 @@ class Apps {
 					$ret[$matches[1]] = trim($matches[2]);
 				}
 			}
-		}	
+		}
 
 		if(! $ret['photo'])
 			$ret['photo'] = $baseurl . '/' . get_default_profile_photo(80);
@@ -290,36 +309,40 @@ class Apps {
 		if($ret) {
 			if($translate)
 				self::translate_system_apps($ret);
+
 			return $ret;
 		}
+
 		return false;
-	}	
+	}
 
 
 	static public function translate_system_apps(&$arr) {
 		$apps = array(
 			'Apps' => t('Apps'),
+			'Affinity Tool' => t('Affinity Tool'),
 			'Articles' => t('Articles'),
 			'Cards' => t('Cards'),
 			'Admin' => t('Site Admin'),
 			'Report Bug' => t('Report Bug'),
 			'Bookmarks' => t('Bookmarks'),
 			'Chatrooms' => t('Chatrooms'),
+			'Content Filter' => t('Content Filter'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),
 			'Suggest Channels' => t('Suggest Channels'),
 			'Login' => t('Login'),
-			'Channel Manager' => t('Channel Manager'), 
+			'Channel Manager' => t('Channel Manager'),
 			'Network' => t('Stream'),
 			'Settings' => t('Settings'),
 			'Files' => t('Files'),
 			'Webpages' => t('Webpages'),
 			'Wiki' => t('Wiki'),
-			'Channel Home' => t('Channel Home'), 
+			'Channel Home' => t('Channel Home'),
 			'View Profile' => t('View Profile'),
-			'Photos' => t('Photos'), 
-			'Events' => t('Events'), 
-			'Directory' => t('Directory'), 
+			'Photos' => t('Photos'),
+			'Events' => t('Events'),
+			'Directory' => t('Directory'),
 			'Help' => t('Help'),
 			'Mail' => t('Mail'),
 			'Mood' => t('Mood'),
@@ -364,30 +387,31 @@ class Apps {
 				if(array_key_exists($arr[$x]['name'],$apps)) {
 					$arr[$x]['name'] = $apps[$arr[$x]['name']];
 				} else {
-				    // Try to guess by app name if not in list
-				    $arr[$x]['name'] = t(trim($arr[$x]['name']));
+					// Try to guess by app name if not in list
+					$arr[$x]['name'] = t(trim($arr[$x]['name']));
 				}
 			}
 		}
-				
 	}
 
-
-	// papp is a portable app
-
-	static public function app_render($papp,$mode = 'view') {
-
-		/**
-		 * modes:
-		 *    view: normal mode for viewing an app via bbcode from a conversation or page
-		 *       provides install/update button if you're logged in locally
-		 *    install: like view but does not display app-bin options if they are present
-		 *    list: normal mode for viewing an app on the app page
-		 *       no buttons are shown
-		 *    edit: viewing the app page in editing mode provides a delete button
-		 *    nav: render apps for app-bin
-		 */
-
+	/**
+	 * @brief
+	 *
+	 * @param array $papp
+	 *  papp is a portable app
+	 * @param string $mode (optional) default 'view'
+	 *   Render modes:
+	 *   * \b view: normal mode for viewing an app via bbcode from a conversation or page
+	 *       provides install/update button if you're logged in locally
+	 *   * \b install: like view but does not display app-bin options if they are present
+	 *   * \b list: normal mode for viewing an app on the app page
+	 *       no buttons are shown
+	 *   * \b edit: viewing the app page in editing mode provides a delete button
+	 *   * \b nav: render apps for app-bin
+	 *
+	 * @return void|string Parsed HTML
+	 */
+	static public function app_render($papp, $mode = 'view') {
 		$installed = false;
 
 		if(! $papp)
@@ -412,7 +436,7 @@ class Apps {
 				$sys = get_sys_channel();
 				$view_channel = $sys['channel_id'];
 			}
-			self::app_macros($view_channel,$papp); 
+			self::app_macros($view_channel,$papp);
 		}
 
 		if(strpos($papp['url'], ',')) {
@@ -423,7 +447,6 @@ class Apps {
 
 		if(! strpos($papp['url'],'://'))
 			$papp['url'] = z_root() . ((strpos($papp['url'],'/') === 0) ? '' : '/') . $papp['url'];
-
 
 
 		foreach($papp as $k => $v) {
@@ -507,7 +530,7 @@ class Apps {
 				if($x) {
 					$hosturl = $x['scheme'] . '://' . $x['host'] . '/';
 				}
-			} 
+			}
 		}
 
 		$install_action = (($installed) ? t('Update') : t('Install'));
@@ -590,8 +613,14 @@ class Apps {
 		return false;
 	}
 
-
-	static public function can_delete($uid,$app) {
+	/**
+	 * @brief
+	 *
+	 * @param mixed $uid If not set return false, otherwise no influence
+	 * @param array $app
+	 * @return boolean
+	 */
+	static public function can_delete($uid, $app) {
 		if(! $uid) {
 			return false;
 		}
@@ -599,7 +628,7 @@ class Apps {
 		$base_apps = self::get_base_apps();
 		if($base_apps) {
 			foreach($base_apps as $b) {
-				if($app['guid'] === hash('whirlpool',$b)) {
+				if($app['guid'] === hash('whirlpool', $b)) {
 					return false;
 				}
 			}
@@ -611,7 +640,6 @@ class Apps {
 	static public function app_destroy($uid,$app) {
 
 		if($uid && $app['guid']) {
-
 			$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
 				dbesc($app['guid']),
 				intval($uid)
@@ -620,7 +648,7 @@ class Apps {
 				if(! intval($x[0]['app_deleted'])) {
 					$x[0]['app_deleted'] = 1;
 					if(self::can_delete($uid,$app)) {
-						$r = q("delete from app where app_id = '%s' and app_channel = %d",
+						q("delete from app where app_id = '%s' and app_channel = %d",
 							dbesc($app['guid']),
 							intval($uid)
 						);
@@ -628,10 +656,15 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($x[0]['id'])
 						);
+						/**
+						 * @hooks app_destroy
+						 *  Called after app entry got removed from database
+						 *  and provide app array from database.
+						 */
 						call_hooks('app_destroy', $x[0]);
 					}
 					else {
-						$r = q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
+						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
 							dbesc($app['guid']),
 							intval($uid)
 						);
@@ -645,22 +678,23 @@ class Apps {
 				}
 			}
 		}
-
 	}
 
-	static public function app_undestroy($uid,$app) {
-
-		// undelete a system app
-		
+	/**
+	 * @brief Undelete a system app.
+	 *
+	 * @param int $uid
+	 * @param array $app
+	 */
+	static public function app_undestroy($uid, $app) {
 		if($uid && $app['guid']) {
-
 			$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
 				dbesc($app['guid']),
 				intval($uid)
 			);
 			if($x) {
 				if($x[0]['app_system']) {
-					$r = q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
+					q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
 						dbesc($app['guid']),
 						intval($uid)
 					);
@@ -669,7 +703,15 @@ class Apps {
 		}
 	}
 
-	static public function app_feature($uid,$app,$term) {
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param array $app
+	 * @param string $term
+	 * @return void
+	 */
+	static public function app_feature($uid, $app, $term) {
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 			dbesc($app['guid']),
 			intval($uid)
@@ -693,23 +735,37 @@ class Apps {
 		}
 	}
 
-	static public function app_installed($uid,$app,$bypass_filter=false) {
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param array $app
+	 * @param boolean $bypass_filter (optional) default false
+	 * @return boolean
+	 */
+	static public function app_installed($uid, $app, $bypass_filter = false) {
 
 		$r = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
-			dbesc((array_key_exists('guid',$app)) ? $app['guid'] : ''), 
+			dbesc((array_key_exists('guid', $app)) ? $app['guid'] : ''),
 			intval($uid)
 		);
-		if (!$bypass_filter) {
+		if(!$bypass_filter) {
 			$filter_arr = [
-				'uid'=>$uid,
-				'app'=>$app,
-				'installed'=>$r
+				'uid' => $uid,
+				'app' => $app,
+				'installed' => $r
 			];
-			call_hooks('app_installed_filter',$filter_arr);
+			/**
+			 * @hooks app_installed_filter
+			 *  * \e int \b uid
+			 *  * \e array \b app
+			 *  * \e mixed \b installed - return value
+			 */
+			call_hooks('app_installed_filter', $filter_arr);
 			$r = $filter_arr['installed'];
 		}
-		return(($r) ? true : false);
 
+		return(($r) ? true : false);
 	}
 
 
@@ -725,11 +781,17 @@ class Apps {
 				'app'=>$app,
 				'installed'=>$r
 			];
-			call_hooks('addon_app_installed_filter',$filter_arr);
+			/**
+			 * @hooks addon_app_installed_filter
+			 *  * \e int \b uid
+			 *  * \e array \b app
+			 *  * \e mixed \b installed - return value
+			 */
+			call_hooks('addon_app_installed_filter', $filter_arr);
 			$r = $filter_arr['installed'];
 		}
-		return(($r) ? true : false);
 
+		return(($r) ? true : false);
 	}
 
 	static public function system_app_installed($uid,$app,$bypass_filter=false) {
@@ -744,28 +806,39 @@ class Apps {
 				'app'=>$app,
 				'installed'=>$r
 			];
-			call_hooks('system_app_installed_filter',$filter_arr);
+			/**
+			 * @hooks system_app_installed_filter
+			 *  * \e int \b uid
+			 *  * \e array \b app
+			 *  * \e mixed \b installed - return value
+			 */
+			call_hooks('system_app_installed_filter', $filter_arr);
 			$r = $filter_arr['installed'];
 		}
-		return(($r) ? true : false);
 
+		return(($r) ? true : false);
 	}
 
-
-
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param boolean $deleted
+	 * @param array $cats
+	 * @return boolean|array
+	 */
 	static public function app_list($uid, $deleted = false, $cats = []) {
-		if($deleted) 
-			$sql_extra = "";
+		if($deleted)
+			$sql_extra = '';
 		else
-			$sql_extra = " and app_deleted = 0 ";
+			$sql_extra = ' and app_deleted = 0 ';
 
 		if($cats) {
-
-			$cat_sql_extra = " and ( ";
+			$cat_sql_extra = ' and ( ';
 
 			foreach($cats as $cat) {
 				if(strpos($cat_sql_extra, 'term'))
-					$cat_sql_extra .= "or ";
+					$cat_sql_extra .= 'or ';
 
 				$cat_sql_extra .= "term = '" . dbesc($cat) . "' ";
 			}
@@ -777,11 +850,13 @@ class Apps {
 			);
 			if(! $r)
 				return $r;
-			$sql_extra .= " and app.id in ( ";
+
+			$sql_extra .= ' and app.id in ( ';
 			$s = '';
 			foreach($r as $rr) {
 				if($s)
 					$s .= ',';
+
 				$s .= intval($rr['oid']);
 			}
 			$sql_extra .= $s . ') ';
@@ -792,12 +867,26 @@ class Apps {
 		);
 
 		if($r) {
-                        $hookinfo = Array('uid'=>$uid,'deleted'=>$deleted,'cats'=>$cats,'apps'=>$r);
-			call_hooks('app_list',$hookinfo);
+			$hookinfo = [
+					'uid' => $uid,
+					'deleted' => $deleted,
+					'cats' => $cats,
+					'apps' => $r,
+			];
+			/**
+			 * @hooks app_list
+			 *  * \e int \b uid
+			 *  * \e boolean \b deleted
+			 *  * \e array \b cats
+			 *  * \e array \b apps - return value
+			 */
+			call_hooks('app_list', $hookinfo);
 			$r = $hookinfo['apps'];
-			for($x = 0; $x < count($r); $x ++) {
+
+			for($x = 0; $x < count($r); $x++) {
 				if(! $r[$x]['app_system'])
 					$r[$x]['type'] = 'personal';
+
 				$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",
 					intval(TERM_OBJ_APP),
 					intval($r[$x]['id'])
@@ -805,7 +894,7 @@ class Apps {
 			}
 		}
 
-		return($r);
+		return $r;
 	}
 
 	static public function app_order($uid,$apps,$menu) {
@@ -837,13 +926,14 @@ class Apps {
 				$ret[] = $ap;
 			}
 		}
-		return $ret;
 
+		return $ret;
 	}
 
 	static function find_app_in_array($name,$arr) {
 		if(! $arr)
 			return false;
+
 		foreach($arr as $x) {
 			if($x['name'] === $name) {
 					return $x;
@@ -852,8 +942,16 @@ class Apps {
 		return false;
 	}
 
-	static function moveup($uid,$guid,$menu) {
-		$syslist = array();
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param int $guid
+	 * @param string $menu
+	 * @return void
+	 */
+	static function moveup($uid, $guid, $menu) {
+		$syslist = [];
 
 		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
 
@@ -863,6 +961,7 @@ class Apps {
 				$papp = self::app_encode($li);
 				if($menu !== 'nav_pinned_app' && strpos($papp['categories'],'nav_pinned_app') !== false)
 					continue;
+
 				$syslist[] = $papp;
 			}
 		}
@@ -875,8 +974,6 @@ class Apps {
 		if(! $syslist)
 			return;
 
-		$newlist = [];
-
 		foreach($syslist as $k => $li) {
 			if($li['guid'] === $guid) {
 				$position = $k;
@@ -885,6 +982,7 @@ class Apps {
 		}
 		if(! $position)
 			return;
+
 		$dest_position = $position - 1;
 		$saved = $syslist[$dest_position];
 		$syslist[$dest_position] = $syslist[$position];
@@ -896,11 +994,18 @@ class Apps {
 		}
 
 		set_pconfig($uid,'system',$conf,implode(',',$narr));
-
 	}
 
-	static function movedown($uid,$guid,$menu) {
-		$syslist = array();
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param int $guid
+	 * @param string $menu
+	 * @return void
+	 */
+	static function movedown($uid, $guid, $menu) {
+		$syslist = [];
 
 		$conf = (($menu === 'nav_featured_app') ? 'app_order' : 'app_pin_order');
 
@@ -910,6 +1015,7 @@ class Apps {
 				$papp = self::app_encode($li);
 				if($menu !== 'nav_pinned_app' && strpos($papp['categories'],'nav_pinned_app') !== false)
 					continue;
+
 				$syslist[] = $papp;
 			}
 		}
@@ -922,8 +1028,6 @@ class Apps {
 		if(! $syslist)
 			return;
 
-		$newlist = [];
-
 		foreach($syslist as $k => $li) {
 			if($li['guid'] === $guid) {
 				$position = $k;
@@ -932,6 +1036,7 @@ class Apps {
 		}
 		if($position >= count($syslist) - 1)
 			return;
+
 		$dest_position = $position + 1;
 		$saved = $syslist[$dest_position];
 		$syslist[$dest_position] = $syslist[$position];
@@ -943,7 +1048,6 @@ class Apps {
 		}
 
 		set_pconfig($uid,'system',$conf,implode(',',$narr));
-
 	}
 
 	static public function app_decode($s) {
@@ -951,8 +1055,14 @@ class Apps {
 		return json_decode($x,true);
 	}
 
-
-	static public function app_macros($uid,&$arr) {
+	/**
+	 * @brief
+	 *
+	 * @param int $uid
+	 * @param[in,out] array $arr
+	 * @return void
+	 */
+	static public function app_macros($uid, &$arr) {
 
 		if(! intval($uid))
 			return;
@@ -960,18 +1070,14 @@ class Apps {
 		$baseurl = z_root();
 		$channel = channelx_by_n($uid);
 		$address = (($channel) ? $channel['channel_address'] : '');
-		
+
 		//future expansion
 
-		$observer = \App::get_observer();
-	
+		//$observer = \App::get_observer();
+
 		$arr['url'] = str_replace(array('$baseurl','$nick'),array($baseurl,$address),$arr['url']);
 		$arr['photo'] = str_replace(array('$baseurl','$nick'),array($baseurl,$address),$arr['photo']);
-
 	}
-
-
-
 
 
 
@@ -1158,16 +1264,20 @@ class Apps {
 		}
 
 		return $ret;
-
 	}
 
-
-	static public function app_encode($app,$embed = false) {
-
-		$ret = array();
+	/**
+	 * @brief
+	 *
+	 * @param array $app
+	 * @param boolean $embed (optional) default false
+	 * @return array|string
+	 */
+	static public function app_encode($app, $embed = false) {
+		$ret = [];
 
 		$ret['type'] = 'personal';
-	
+
 		if($app['app_id'])
 			$ret['guid'] = $app['app_id'];
 
@@ -1200,7 +1310,7 @@ class Apps {
 
 		if($app['app_price'])
 			$ret['price'] = $app['app_price'];
-	
+
 		if($app['app_page'])
 			$ret['page'] = $app['app_page'];
 
@@ -1224,11 +1334,11 @@ class Apps {
 			foreach($app['term'] as $t) {
 				if($s)
 					$s .= ',';
+
 				$s .= $t['term'];
 			}
 			$ret['categories'] = $s;
 		}
-
 
 		if(! $embed)
 			return $ret;
@@ -1237,18 +1347,15 @@ class Apps {
 
 		if(array_key_exists('categories',$ret))
 			unset($ret['categories']);
-	
-		$j = json_encode($ret);
-		return '[app]' . chunk_split(base64_encode($j),72,"\n") . '[/app]';
 
+		$j = json_encode($ret);
+
+		return '[app]' . chunk_split(base64_encode($j),72,"\n") . '[/app]';
 	}
 
 
 	static public function papp_encode($papp) {
 		return chunk_split(base64_encode(json_encode($papp)),72,"\n");
-
 	}
 
 }
-
-

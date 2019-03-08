@@ -58,17 +58,17 @@
     },
     {
         "name": "bshaffer/oauth2-server-php",
-        "version": "v1.10.0",
-        "version_normalized": "1.10.0.0",
+        "version": "v1.11.1",
+        "version_normalized": "1.11.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/bshaffer/oauth2-server-php.git",
-            "reference": "d158878425392fe5a0cc34f15dbaf46315ae0ed9"
+            "reference": "5a0c8000d4763b276919e2106f54eddda6bc50fa"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/d158878425392fe5a0cc34f15dbaf46315ae0ed9",
-            "reference": "d158878425392fe5a0cc34f15dbaf46315ae0ed9",
+            "url": "https://api.github.com/repos/bshaffer/oauth2-server-php/zipball/5a0c8000d4763b276919e2106f54eddda6bc50fa",
+            "reference": "5a0c8000d4763b276919e2106f54eddda6bc50fa",
             "shasum": ""
         },
         "require": {
@@ -89,7 +89,7 @@
             "predis/predis": "Required to use Redis storage",
             "thobbs/phpcassa": "Required to use Cassandra storage"
         },
-        "time": "2017-11-15T01:41:02+00:00",
+        "time": "2018-12-04T00:29:32+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -254,17 +254,17 @@
     },
     {
         "name": "league/html-to-markdown",
-        "version": "4.8.0",
-        "version_normalized": "4.8.0.0",
+        "version": "4.8.1",
+        "version_normalized": "4.8.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/html-to-markdown.git",
-            "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d"
+            "reference": "250d1bf45f80d15594fb6b316df777d6d4c97ad1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/f9a879a068c68ff47b722de63f58bec79e448f9d",
-            "reference": "f9a879a068c68ff47b722de63f58bec79e448f9d",
+            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/250d1bf45f80d15594fb6b316df777d6d4c97ad1",
+            "reference": "250d1bf45f80d15594fb6b316df777d6d4c97ad1",
             "shasum": ""
         },
         "require": {
@@ -277,7 +277,7 @@
             "phpunit/phpunit": "4.*",
             "scrutinizer/ocular": "~1.1"
         },
-        "time": "2018-09-18T12:18:08+00:00",
+        "time": "2018-12-24T17:21:44+00:00",
         "bin": [
             "bin/html-to-markdown"
         ],

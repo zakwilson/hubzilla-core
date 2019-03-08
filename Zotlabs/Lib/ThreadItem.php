@@ -39,6 +39,8 @@ class ThreadItem {
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 
+		$observer = \App::get_observer();
+
 		// Prepare the children
 		if($data['children']) {
 			foreach($data['children'] as $item) {
@@ -50,6 +52,7 @@ class ThreadItem {
 				if((! visible_activity($item)) || array_key_exists('blocked',$item)) {
 					continue;
 				}
+
 
 				$child = new ThreadItem($item);
 				$this->add_child($child);
@@ -73,7 +76,7 @@ class ThreadItem {
 	 *      _ false on failure
 	 */
 
-	public function get_template_data($conv_responses, $thread_level=1) {
+	public function get_template_data($conv_responses, $thread_level=1, $conv_flags = []) {
 	
 		$result = array();
 
@@ -98,6 +101,7 @@ class ThreadItem {
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
+
 		$shareable = ((($conv->get_profile_owner() == local_channel() && local_channel()) && ($item['item_private'] != 1)) ? true : false);
 
 		// allow an exemption for sharing stuff from your private feeds
@@ -110,6 +114,19 @@ class ThreadItem {
 
 			if(! in_array($observer['xchan_url'], $recips['to']))
 				$privacy_warning = true;
+		}
+
+		if ($lock) {
+ 			if (($item['mid'] == $item['parent_mid']) && count(get_terms_oftype($item['term'],TERM_FORUM))) {
+ 				$privacy_warning = true;
+				$conv_flags['parent_privacy_warning'] = true;
+ 			}
+		}
+
+		$privacy_warning = (isset($conv_flags['parent_privacy_warning'])) ? $conv_flags['parent_privacy_warning'] : $privacy_warning;
+
+		if ($lock && $privacy_warning) {
+			$lock = t('Privacy conflict. Discretion advised.');
 		}
 
 		$mode = $conv->get_mode();
@@ -290,8 +307,15 @@ class ThreadItem {
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
 		}
 
-		if ($shareable)
-			$share = array( t('Share This'), t('share'));
+		if ($shareable) {
+			// This actually turns out not to be possible in some protocol stacks without opening up hundreds of new issues.
+			// Will allow it only for uri resolvable sources.
+			if(strpos($item['mid'],'http') === 0) {
+				$share = []; //Not yet ready for primetime
+				//$share = array( t('Repeat This'), t('repeat'));
+			}
+			$embed = array( t('Share This'), t('share'));
+		}
 
 		$dreport = '';
 
@@ -299,8 +323,10 @@ class ThreadItem {
 		if($keep_reports === 0)
 			$keep_reports = 10;
 
-		if((! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0)
+		if((! get_config('system','disable_dreport')) && strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC',"now - $keep_reports days")) > 0) {
 			$dreport = t('Delivery Report');
+			$dreport_link = gen_link_id($item['mid']);
+		}
 
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$is_new = true;
@@ -316,7 +342,7 @@ class ThreadItem {
 		$owner_address = substr($item['owner']['xchan_addr'],0,strpos($item['owner']['xchan_addr'],'@'));
 		$viewthread = $item['llink'];
 		if($conv->get_mode() === 'channel')
-			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode($item['mid']);
+			$viewthread = z_root() . '/channel/' . $owner_address . '?f=&mid=' . urlencode(gen_link_id($item['mid']));
 
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
@@ -364,6 +390,7 @@ class ThreadItem {
 			'thread_action_menu' => thread_action_menu($item,$conv->get_mode()),
 			'thread_author_menu' => thread_author_menu($item,$conv->get_mode()),
 			'dreport' => $dreport,
+			'dreport_link' => $dreport_link,
 			'name' => $profile_name,
 			'thumb' => $profile_avatar,
 			'osparkle' => $osparkle,
@@ -402,12 +429,13 @@ class ThreadItem {
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
 			'share'     => $share,
+			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
 			'plink'     => get_plink($item),
 			'edpost'    => $edpost, // ((feature_enabled($conv->get_profile_owner(),'edit_posts')) ? $edpost : ''),
-			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts')) ? $star : ''),
+			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
 			'tagger'    => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? $tagger : ''),
-			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing')) ? $filer : ''),
+			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing') && ($item['item_type'] == ITEM_TYPE_POST)) ? $filer : ''),
 			'bookmark'  => (($conv->get_profile_owner() == local_channel() && local_channel() && $has_bookmarks) ? t('Save Bookmarks') : ''),
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
@@ -464,7 +492,7 @@ class ThreadItem {
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
 			foreach($children as $child) {
-				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1);
+				$result['children'][] = $child->get_template_data($conv_responses, $thread_level + 1,$conv_flags);
 			}
 			// Collapse
 			if(($nb_children > $visible_comments) || ($thread_level > 1)) {

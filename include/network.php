@@ -1,4 +1,8 @@
 <?php
+
+use Zotlabs\Lib\Zotfinger;
+use Zotlabs\Lib\Libzot;
+
 /**
  * @file include/network.php
  * @brief Network related functions.
@@ -110,6 +114,13 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 		@curl_setopt($ch, CURLOPT_TIMEOUT, (($curl_time !== false) ? $curl_time : 60));
 	}
 
+	if(x($opts,'connecttimeout') && intval($opts['connecttimeout'])) {
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, intval($opts['connecttimeout']));
+	}
+	else {
+		$curl_contime = intval(@get_config('system','curl_connecttimeout'));
+		@curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, (($curl_contime !== false) ? $curl_contime : 30));
+	}
 
 	if(x($opts,'http_auth')) {
 		// "username" . ':' . "password"
@@ -324,6 +335,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 
 	// Pull out multiple headers, e.g. proxy and continuation headers
 	// allow for HTTP/2.x without fixing code
+
 	while(preg_match('/^HTTP\/[1-3](\.\d)? [1-5][0-9][0-9]/',$base)) {
 		$chunk = substr($base,0,strpos($base,"\r\n\r\n")+4);
 		$header .= $chunk;
@@ -1104,6 +1116,31 @@ function discover_by_webbie($webbie, $protocol = '') {
 							$i = import_xchan($j);
 							return true;
 						}
+					}
+				}
+			}
+		}
+
+		foreach($x['links'] as $link) {
+			if(array_key_exists('rel',$link)) {
+				if($link['rel'] === PROTOCOL_ZOT6 && ((! $protocol) || (strtolower($protocol) === 'zot6'))) {
+					logger('zot6 found for ' . $webbie, LOGGER_DEBUG);
+					$record = Zotfinger::exec($link['href']);
+
+					// Check the HTTP signature
+
+					$hsig = $record['signature'];
+					if($hsig && ($hsig['signer'] === $url || $hsig['signer'] === $link['href']) && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
+					$hsig_valid = true;
+
+					if(! $hsig_valid) {
+						logger('http signature not valid: ' . print_r($hsig,true));
+						continue;
+					}
+
+					$x = Libzot::import_xchan($record['data']);
+					if($x['success']) {
+						return $x['hash'];
 					}
 				}
 			}

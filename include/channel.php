@@ -10,6 +10,7 @@ use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/zot.php');
 require_once('include/crypto.php');
@@ -232,6 +233,7 @@ function create_identity($arr) {
 
 	$sig = base64url_encode(rsa_sign($guid,$key['prvkey']));
 	$hash = make_xchan_hash($guid,$sig);
+	$zhash = Libzot::make_xchan_hash($guid,$key['pubkey']);
 
 	// Force a few things on the short term until we can provide a theme or app with choice
 
@@ -265,6 +267,7 @@ function create_identity($arr) {
 			'channel_guid'        => $guid,
 			'channel_guid_sig'    => $sig,
 			'channel_hash'        => $hash,
+			'channel_portable_id' => $zhash,
 			'channel_prvkey'      => $key['prvkey'],
 			'channel_pubkey'      => $key['pubkey'],
 			'channel_pageflags'   => intval($pageflags),
@@ -345,29 +348,75 @@ function create_identity($arr) {
 	if(! $r)
 		logger('Unable to store hub location');
 
+	$r = hubloc_store_lowlevel(
+		[
+			'hubloc_guid'     => $guid,
+			'hubloc_guid_sig' => 'sha256.' . $sig,
+			'hubloc_hash'     => $zhash,
+			'hubloc_id_url'   => channel_url($ret['channel']),  
+			'hubloc_addr'     => channel_reddress($ret['channel']),
+			'hubloc_primary'  => intval($primary),
+			'hubloc_url'      => z_root(),
+			'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey')),
+			'hubloc_host'     => App::get_hostname(),
+			'hubloc_callback' => z_root() . '/zot',
+			'hubloc_sitekey'  => get_config('system','pubkey'),
+			'hubloc_network'  => 'zot6',
+			'hubloc_updated'  => datetime_convert()
+		]
+	);
+	if(! $r)
+		logger('Unable to store hub location');
+
+
 	$newuid = $ret['channel']['channel_id'];
 
 	$r = xchan_store_lowlevel(
 		[
-			'xchan_hash'       => $hash,
-			'xchan_guid'       => $guid,
-			'xchan_guid_sig'   => $sig,
-			'xchan_pubkey'     => $key['pubkey'],
+			'xchan_hash'        => $hash,
+			'xchan_guid'        => $guid,
+			'xchan_guid_sig'    => $sig,
+			'xchan_pubkey'      => $key['pubkey'],
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
-			'xchan_photo_l'    => z_root() . "/photo/profile/l/{$newuid}",
-			'xchan_photo_m'    => z_root() . "/photo/profile/m/{$newuid}",
-			'xchan_photo_s'    => z_root() . "/photo/profile/s/{$newuid}",
-			'xchan_addr'       => channel_reddress($ret['channel']),
-			'xchan_url'        => z_root() . '/channel/' . $ret['channel']['channel_address'],
-			'xchan_follow'     => z_root() . '/follow?f=&url=%s',
-			'xchan_connurl'    => z_root() . '/poco/' . $ret['channel']['channel_address'],
-			'xchan_name'       => $ret['channel']['channel_name'],
-			'xchan_network'    => 'zot',
-			'xchan_photo_date' => datetime_convert(),
-			'xchan_name_date'  => datetime_convert(),
-			'xchan_system'     => $system
+			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
+			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
+			'xchan_photo_s'     => z_root() . "/photo/profile/s/{$newuid}",
+			'xchan_addr'        => channel_reddress($ret['channel']),
+			'xchan_url'         => z_root() . '/channel/' . $ret['channel']['channel_address'],
+			'xchan_follow'      => z_root() . '/follow?f=&url=%s',
+			'xchan_connurl'     => z_root() . '/poco/' . $ret['channel']['channel_address'],
+			'xchan_name'        => $ret['channel']['channel_name'],
+			'xchan_network'     => 'zot',
+			'xchan_photo_date'  => datetime_convert(),
+			'xchan_name_date'   => datetime_convert(),
+			'xchan_system'      => $system
 		]
 	);
+
+	$r = xchan_store_lowlevel(
+		[
+			'xchan_hash'        => $zhash,
+			'xchan_guid'        => $guid,
+			'xchan_guid_sig'    => 'sha256.' . $sig,
+			'xchan_pubkey'      => $key['pubkey'],
+			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
+			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
+			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
+			'xchan_photo_s'     => z_root() . "/photo/profile/s/{$newuid}",
+			'xchan_addr'        => channel_reddress($ret['channel']),
+			'xchan_url'         => z_root() . '/channel/' . $ret['channel']['channel_address'],
+			'xchan_follow'      => z_root() . '/follow?f=&url=%s',
+			'xchan_connurl'     => z_root() . '/poco/' . $ret['channel']['channel_address'],
+			'xchan_name'        => $ret['channel']['channel_name'],
+			'xchan_network'     => 'zot6',
+			'xchan_photo_date'  => datetime_convert(),
+			'xchan_name_date'   => datetime_convert(),
+			'xchan_system'      => $system
+		]
+	);
+
+
 
 	// Not checking return value.
 	// It's ok for this to fail if it's an imported channel, and therefore the hash is a duplicate
@@ -1031,6 +1080,7 @@ function identity_basic_export($channel_id, $sections = null) {
 	return $ret;
 }
 
+
 /**
  * @brief Export items for a year, or a month of a year.
  *
@@ -1053,34 +1103,14 @@ function identity_export_year($channel_id, $year, $month = 0) {
 	else
 		$target_month = '01';
 
-	$ret = array();
-
-	$ch = channelx_by_n($channel_id);
-	if($ch) {
-		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
-	}
 	$mindate = datetime_convert('UTC', 'UTC', $year . '-' . $target_month . '-01 00:00:00');
 	if($month && $month < 12)
 		$maxdate = datetime_convert('UTC', 'UTC', $year . '-' . $target_month_plus . '-01 00:00:00');
 	else
 		$maxdate = datetime_convert('UTC', 'UTC', $year+1 . '-01-01 00:00:00');
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created < '%s' and resource_type = '' order by created",
-		intval(ITEM_TYPE_POST),
-		intval($channel_id),
-		dbesc($mindate),
-		dbesc($maxdate)
-	);
+	return channel_export_items_date($channel_id,$mindate,$maxdate);
 
-	if($r) {
-		$ret['item'] = array();
-		xchan_query($r);
-		$r = fetch_post_tags($r, true);
-		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true);
-	}
-
-	return $ret;
 }
 
 /**
@@ -1093,7 +1123,8 @@ function identity_export_year($channel_id, $year, $month = 0) {
  * @param string $finish
  * @return array
  */
-function channel_export_items($channel_id, $start, $finish) {
+
+function channel_export_items_date($channel_id, $start, $finish) {
 
 	if(! $start)
 		return array();
@@ -1128,6 +1159,71 @@ function channel_export_items($channel_id, $start, $finish) {
 
 	return $ret;
 }
+
+
+
+/**
+ * @brief Export items with pagination
+ *
+ *
+ * @param int $channel_id The channel ID
+ * @param int $page
+ * @param int $limit (default 50)
+ * @return array
+ */
+
+function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 50) {
+
+	if(intval($page) < 1) {
+		$page = 0;
+	}
+
+	if(intval($limit) < 1) {
+		$limit = 1;
+	}
+
+	if(intval($limit) > 5000) {
+		$limit = 5000;
+	}
+
+	if(! $start)
+		$start = NULL_DATE;
+	else
+		$start = datetime_convert('UTC', 'UTC', $start);
+
+	$finish = datetime_convert('UTC', 'UTC', (($finish) ? $finish : 'now'));
+	if($finish < $start)
+		return [];
+
+	$offset = intval($limit) * intval($page);
+
+	$ret = [];
+
+	$ch = channelx_by_n($channel_id);
+	if($ch) {
+		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
+	}
+
+	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type = '' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
+		intval(ITEM_TYPE_POST),
+		intval($channel_id),
+		dbesc($start),
+		dbesc($finish),
+		intval($limit),
+		intval($offset)
+	);
+
+	if($r) {
+		$ret['item'] = array();
+		xchan_query($r);
+		$r = fetch_post_tags($r, true);
+		foreach($r as $rr)
+			$ret['item'][] = encode_item($rr, true);
+	}
+
+	return $ret;
+}
+
 
 
 /**
@@ -1740,6 +1836,7 @@ function zat_init() {
 	);
 	if($r) {
 		$xchan = atoken_xchan($r[0]);
+		atoken_create_xchan($xchan);
 		atoken_login($xchan);
 	}
 }
@@ -2284,6 +2381,21 @@ function channelx_by_hash($hash) {
 	return(($r) ? $r[0] : false);
 }
 
+
+/**
+ * @brief Get a channel array by a channel_hash.
+ *
+ * @param string $hash
+ * @return array|boolean false if channel ID not found, otherwise the channel array
+ */
+function channelx_by_portid($hash) {
+	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
+		dbesc($hash)
+	);
+
+	return(($r) ? $r[0] : false);
+}
+
 /**
  * @brief Get a channel array by a channel ID.
  *
@@ -2355,6 +2467,7 @@ function channel_store_lowlevel($arr) {
 		'channel_guid'            => ((array_key_exists('channel_guid',$arr))            ? $arr['channel_guid']            : ''),
 		'channel_guid_sig'        => ((array_key_exists('channel_guid_sig',$arr))        ? $arr['channel_guid_sig']        : ''),
 		'channel_hash'            => ((array_key_exists('channel_hash',$arr))            ? $arr['channel_hash']            : ''),
+		'channel_portable_id'     => ((array_key_exists('channel_portable_id',$arr))     ? $arr['channel_portable_id']     : ''),
 		'channel_timezone'        => ((array_key_exists('channel_timezone',$arr))        ? $arr['channel_timezone']        : 'UTC'),
 		'channel_location'        => ((array_key_exists('channel_location',$arr))        ? $arr['channel_location']        : ''),
 		'channel_theme'           => ((array_key_exists('channel_theme',$arr))           ? $arr['channel_theme']           : ''),

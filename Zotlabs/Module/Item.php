@@ -2,6 +2,23 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\Enotify;
+use Zotlabs\Web\Controller;
+use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\LDSignatures;
+use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\ThreadListener;
+use App;
+
+require_once('include/crypto.php');
+require_once('include/items.php');
+require_once('include/security.php');
+
+
 /**
  *
  * This is the POST destination for most all locally posted
@@ -17,16 +34,146 @@ namespace Zotlabs\Module;
  *
  */  
 
-require_once('include/crypto.php');
-require_once('include/items.php');
-require_once('include/attach.php');
-require_once('include/bbcode.php');
-require_once('include/security.php');
+
+class Item extends Controller {
 
 
-use \Zotlabs\Lib as Zlib;
+	function init() {
 
-class Item extends \Zotlabs\Web\Controller {
+		if(Libzot::is_zot_request()) {
+
+			$conversation = false;
+
+			$item_id = argv(1);
+
+			if(! $item_id)
+				http_status_exit(404, 'Not found');
+
+
+			$portable_id = EMPTY_STR;
+
+			$sigdata = HTTPSig::verify(EMPTY_STR);
+			if($sigdata['portable_id'] && $sigdata['header_valid']) {
+				$portable_id = $sigdata['portable_id'];
+			}
+
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";
+
+			$sql_extra = item_permissions_sql(0);
+
+			$r = q("select * from item where mid = '%s' $item_normal $sql_extra limit 1",
+				dbesc(z_root() . '/item/' . $item_id)
+			);
+			if(! $r) {
+
+
+				$r = q("select * from item where mid = '%s' $item_normal limit 1",
+					dbesc(z_root() . '/item/' . $item_id)
+				);
+				if($r) {
+					http_status_exit(403, 'Forbidden');
+				}
+				http_status_exit(404, 'Not found');
+			}
+
+
+			$items = q("select parent as item_id from item where mid = '%s' and uid = %d $item_normal $sql_extra ",
+				dbesc($r[0]['parent_mid']),
+				intval($r[0]['uid'])
+			);
+			if(! $items) {
+				http_status_exit(404, 'Not found');
+			}
+
+			$r = $items;
+
+			$parents_str = ids_to_querystr($r,'item_id');
+	
+			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal $sql_extra ",
+				dbesc($parents_str)
+			);
+
+			if(! $items) {
+				http_status_exit(404, 'Not found');
+			}
+
+			$r = $items;
+			xchan_query($r,true);
+			$items = fetch_post_tags($r,true);
+
+			$observer = App::get_observer();
+			$parent = $items[0];
+			$recips = (($parent['owner']['xchan_network'] === 'activitypub') ? get_iconfig($parent['id'],'activitypub','recips', []) : []);
+			$to = (($recips && array_key_exists('to',$recips) && is_array($recips['to'])) ? $recips['to'] : null);
+			$nitems = [];
+			foreach($items as $i) {
+
+				$mids = [];
+
+				if(intval($i['item_private'])) {
+					if(! $observer) {
+						continue;
+					}
+					// ignore private reshare, possibly from hubzilla
+					if($i['verb'] === 'Announce') {
+						if(! in_array($i['thr_parent'],$mids)) {
+							$mids[] = $i['thr_parent'];
+						}
+						continue;
+					}
+					// also ignore any children of the private reshares
+					if(in_array($i['thr_parent'],$mids)) {
+						continue;
+					}
+
+					if((! $to) || (! in_array($observer['xchan_url'],$to))) {
+						continue;
+					}
+
+				}
+				$nitems[] = $i;
+			}
+
+			if(! $nitems)
+				http_status_exit(404, 'Not found');
+
+			$chan = channelx_by_n($nitems[0]['uid']);
+
+			if(! $chan)
+				http_status_exit(404, 'Not found');
+
+			if(! perm_is_allowed($chan['channel_id'],get_observer_hash(),'view_stream'))
+				http_status_exit(403, 'Forbidden');
+
+			$i = Activity::encode_item_collection($nitems,'conversation/' . $item_id,'OrderedCollection',( defined('NOMADIC') ? false : true));
+			if($portable_id) {
+				ThreadListener::store(z_root() . '/item/' . $item_id,$portable_id);
+			}
+
+			if(! $i)
+				http_status_exit(404, 'Not found');
+
+			$x = array_merge(['@context' => [
+				ACTIVITYSTREAMS_JSONLD_REV,
+				'https://w3id.org/security/v1',
+				z_root() . ZOT_APSCHEMA_REV
+				]], $i);
+
+			$headers = [];
+			$headers['Content-Type'] = 'application/x-zot+json' ;
+			$x['signature'] = LDSignatures::sign($x,$chan);
+			$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
+			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
+			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
+			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'],channel_url($chan));
+			HTTPSig::set_headers($h);
+			echo $ret;
+			killme();
+
+		}
+	}
+
+
 
 	function post() {
 
@@ -392,6 +539,7 @@ class Item extends \Zotlabs\Web\Controller {
 			$verb              = $orig_post['verb'];
 			$app               = $orig_post['app'];
 			$title             = escape_tags(trim($_REQUEST['title']));
+			$summary           = trim($_REQUEST['summary']);
 			$body              = trim($_REQUEST['body']);
 			$item_flags        = $orig_post['item_flags'];
 	
@@ -454,6 +602,7 @@ class Item extends \Zotlabs\Web\Controller {
 			$coord             = notags(trim($_REQUEST['coord']));
 			$verb              = notags(trim($_REQUEST['verb']));
 			$title             = escape_tags(trim($_REQUEST['title']));
+			$summary           = trim($_REQUEST['summary']);
 			$body              = trim($_REQUEST['body']);
 			$body              .= trim($_REQUEST['attachment']);
 			$postopts          = '';
@@ -505,12 +654,14 @@ class Item extends \Zotlabs\Web\Controller {
 			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
 
 		if($preview) {
+			$summary = z_input_filter($summary,$mimetype,$execflag);
 			$body = z_input_filter($body,$mimetype,$execflag);
 		}
 	
 
-		$arr = [ 'profile_uid' => $profile_uid, 'content' => $body, 'mimetype' => $mimetype ];
+		$arr = [ 'profile_uid' => $profile_uid, 'summary' => $summary, 'content' => $body, 'mimetype' => $mimetype ];
 		call_hooks('post_content',$arr);
+		$summary = $arr['summary'];
 		$body = $arr['content'];
 		$mimetype = $arr['mimetype'];
 
@@ -531,10 +682,24 @@ class Item extends \Zotlabs\Web\Controller {
 			// we may need virtual or template classes to implement the possible alternatives
 			
 
+			if(strpos($body,'[/summary]') !== false) {
+                $match = '';
+                $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
+                if($cnt) {
+                    $summary .= $match[1];
+                }
+                $body_content = preg_replace("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", '',$body);
+                $body = trim($body_content);
+            }
+
+            $summary = cleanup_bbcode($summary);
+
 			$body = cleanup_bbcode($body);
 	
 			// Look for tags and linkify them
-			$results = linkify_tags($a, $body, ($uid) ? $uid : $profile_uid);
+
+			$results = linkify_tags($summary, ($uid) ? $uid : $profile_uid);
+			$results = linkify_tags($body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {
 	
@@ -579,6 +744,9 @@ class Item extends \Zotlabs\Web\Controller {
 			if(! $preview) {
 				fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
 	
+                fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($summary,'[/crypt]')) ? $_POST['media_str'] : $summary),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
+
+
 				fix_attached_file_permissions($channel,$observer['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
 	
 			}
@@ -616,9 +784,9 @@ class Item extends \Zotlabs\Web\Controller {
 
 
 			if(preg_match_all('/(\[share=(.*?)\](.*?)\[\/share\])/',$body,$match)) {
+
 				// process share by id				
 
-				$verb = ACTIVITY_SHARE;
 				$i = 0;
 				foreach($match[2] as $mtch) {
 					$reshare = new \Zotlabs\Lib\Share($mtch);
@@ -711,7 +879,8 @@ class Item extends \Zotlabs\Web\Controller {
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
 	
 		if(! $mid) {
-			$mid = (($message_id) ? $message_id : item_message_id());
+			$uuid = (($message_id) ? $message_id : item_message_id());
+			$mid = z_root() . '/item/' . $uuid; 
 		}
 
 
@@ -736,7 +905,7 @@ class Item extends \Zotlabs\Web\Controller {
 		// fix permalinks for cards
 	
 		if($webpage == ITEM_TYPE_CARD) {
-			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : $uuid);
 		}
 		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_CARD)) {
 			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'CARD' and iconfig.iid = %d limit 1",
@@ -748,7 +917,7 @@ class Item extends \Zotlabs\Web\Controller {
 		}
 
 		if($webpage == ITEM_TYPE_ARTICLE) {
-			$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : substr($mid,0,16));
+			$plink = z_root() . '/articles/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : $uuid);
 		}
 		if(($parent_item) && ($parent_item['item_type'] == ITEM_TYPE_ARTICLE)) {
 			$r = q("select v from iconfig where iconfig.cat = 'system' and iconfig.k = 'ARTICLE' and iconfig.iid = %d limit 1",
@@ -760,12 +929,13 @@ class Item extends \Zotlabs\Web\Controller {
 		}
 
 		if ((! $plink) && ($item_thread_top)) {
-			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . $mid;
+			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
 			$plink = substr($plink,0,190);
 		}
 		
 		$datarray['aid']                 = $channel['channel_account_id'];
 		$datarray['uid']                 = $profile_uid;
+		$datarray['uuid']                = $uuid;
 		$datarray['owner_xchan']         = (($owner_hash) ? $owner_hash : $owner_xchan['xchan_hash']);
 		$datarray['author_xchan']        = $observer['xchan_hash'];
 		$datarray['created']             = $created;
@@ -778,6 +948,7 @@ class Item extends \Zotlabs\Web\Controller {
 		$datarray['parent_mid']          = $parent_mid;
 		$datarray['mimetype']            = $mimetype;
 		$datarray['title']               = $title;
+		$datarray['summary']             = $summary;
 		$datarray['body']                = $body;
 		$datarray['app']                 = $app;
 		$datarray['location']            = $location;
@@ -887,12 +1058,12 @@ class Item extends \Zotlabs\Web\Controller {
 			$datarray['title'] = mb_substr($datarray['title'],0,191);
 	
 		if($webpage) {
-			Zlib\IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
-				(($pagetitle) ? $pagetitle : substr($datarray['mid'],0,16)),true);
+			IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
+				(($pagetitle) ? $pagetitle : basename($datarray['mid'])), true);
 		}
 		elseif($namespace) {
-			Zlib\IConfig::Set($datarray,'system', $namespace,
-				(($remote_id) ? $remote_id : substr($datarray['mid'],0,16)),true);
+			IConfig::Set($datarray,'system', $namespace,
+				(($remote_id) ? $remote_id : basename($datarray['mid'])), true);
 		}
 
 
@@ -924,7 +1095,7 @@ class Item extends \Zotlabs\Web\Controller {
 				}
 			}
 			if(! $nopush)
-				\Zotlabs\Daemon\Master::Summon(array('Notifier', 'edit_post', $post_id));
+				Master::Summon([ 'Notifier', 'edit_post', $post_id ]);
 	
 
 			if($api_source)
@@ -959,7 +1130,7 @@ class Item extends \Zotlabs\Web\Controller {
 				// otherwise it will happen during delivery
 	
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && (intval($parent_item['item_wall']))) {
-					Zlib\Enotify::submit(array(
+					Enotify::submit(array(
 						'type'         => NOTIFY_COMMENT,
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
@@ -977,7 +1148,7 @@ class Item extends \Zotlabs\Web\Controller {
 				$parent = $post_id;
 	
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && ($datarray['item_type'] == ITEM_TYPE_POST)) {
-					Zlib\Enotify::submit(array(
+					Enotify::submit(array(
 						'type'         => NOTIFY_WALL,
 						'from_xchan'   => $datarray['author_xchan'],
 						'to_xchan'     => $datarray['owner_xchan'],
@@ -1039,7 +1210,7 @@ class Item extends \Zotlabs\Web\Controller {
 		call_hooks('post_local_end', $datarray);
 	
 		if(! $nopush)
-			\Zotlabs\Daemon\Master::Summon(array('Notifier', $notify_type, $post_id));
+			Master::Summon([ 'Notifier', $notify_type, $post_id ]);
 	
 		logger('post_complete');
 

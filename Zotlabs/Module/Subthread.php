@@ -106,8 +106,9 @@ class Subthread extends \Zotlabs\Web\Controller {
 	
 	
 	
-		$mid = item_message_id();
-	
+		$uuid = item_message_id();
+		$mid = z_root() . '/item/' . $uuid;
+
 		$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
 	
 		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $item['plink']));
@@ -145,6 +146,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 	
 		$arr = array();
 	
+		$arr['uuid']          = $uuid;
 		$arr['mid']           = $mid;
 		$arr['aid']           = $owner_aid;
 		$arr['uid']           = $owner_uid;

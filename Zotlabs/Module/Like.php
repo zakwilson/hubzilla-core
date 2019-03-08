@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Activity;
+
 require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
@@ -374,10 +376,13 @@ class Like extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		$mid = item_message_id();
+		$uuid = item_message_id();
 	
 		$arr = array();
 	
+		$arr['uuid']  = $uuid;
+		$arr['mid'] = z_root() . '/item/' . $uuid;
+
 		if($extended_like) {
 			$arr['item_thread_top'] = 1;
 			$arr['item_origin'] = 1;
@@ -400,6 +405,7 @@ class Like extends \Zotlabs\Web\Controller {
 			$object = json_encode(array(
 				'type'    => $objtype,
 				'id'      => $item['mid'],
+				'asld'    => Activity::fetch_item( [ 'id' => $item['mid'] ] ),
 				'parent'  => (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']),
 				'link'    => $links,
 				'title'   => $item['title'],
@@ -479,7 +485,6 @@ class Like extends \Zotlabs\Web\Controller {
 		}
 		
 	
-		$arr['mid']          = $mid;
 		$arr['aid']          = (($extended_like) ? $ch[0]['channel_account_id'] : $owner_aid);
 		$arr['uid']          = $owner_uid;
 

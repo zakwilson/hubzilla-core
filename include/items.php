@@ -7,6 +7,7 @@
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
+use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\AccessList;
@@ -25,7 +26,7 @@ require_once('include/permissions.php');
  *
  * @param array $item
  * @param[out] boolean $private_envelope
- * @param boolean $include_groups 
+ * @param boolean $include_groups
  * @return array containing the recipients
  */
 function collect_recipients($item, &$private_envelope,$include_groups = true) {
@@ -95,9 +96,24 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		//$sys = get_sys_channel();
 
 		if(array_key_exists('public_policy',$item) && $item['public_policy'] !== 'self') {
-			$r = q("select abook_xchan, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d and abook_self = 0 and abook_pending = 0 and abook_archived = 0 ",
+
+			$hookinfo = [
+				'recipients' => [],
+				'item' => $item,
+				'private_envelope' => $private_envelope,
+				'include_groups' => $include_groups
+			];
+
+			call_hooks('collect_public_recipients',$hookinfo);
+
+			if ($hookinfo['recipients']) {
+				$r = $hookinfo['recipients'];
+			} else {
+				$r = q("select abook_xchan, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d and abook_self = 0 and abook_pending = 0 and abook_archived = 0 ",
 				intval($item['uid'])
-			);
+				);
+			}
+
 			if($r) {
 
 				// filter out restrictive public_policy settings from remote networks
@@ -125,6 +141,22 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 //			if($policy === 'pub')
 //				$recipients[] = $sys['xchan_hash'];
 		}
+
+
+		// Forward to thread listeners, *unless* there is even a remote hint that the item
+		// might have some privacy attached. This could be (for instance) an ActivityPub DM
+		// in the middle of a public thread. Unless we can guarantee beyond all doubt that
+		// this is public, don't allow it to go to thread listeners.
+
+		if(! intval($item['item_private'])) {
+			$r = ThreadListener::fetch_by_target($item['parent_mid']);
+			if($r) {
+				foreach($r as $rv) {
+					$recipients[] = $rv['portable_id'];
+				}
+			}
+		}
+
 
 		// Add the authors of any posts in this thread, if they are known to us.
 		// This is specifically designed to forward wall-to-wall posts to the original author,
@@ -393,7 +425,11 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	if(! array_key_exists('mimetype',$arr))
 		$arr['mimetype'] = 'text/bbcode';
 
-	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : item_message_id());
+
+	if(! $arr['mid']) {
+		$arr['uuid']         = ((x($arr,'uuid')) ? $arr['uuid'] : item_message_id());
+	}
+	$arr['mid']          = ((x($arr,'mid')) ? $arr['mid'] : z_root() . '/item/' . $arr['uuid']);
 	$arr['parent_mid']   = ((x($arr,'parent_mid')) ? $arr['parent_mid'] : $arr['mid']);
 	$arr['thr_parent']   = ((x($arr,'thr_parent')) ? $arr['thr_parent'] : $arr['mid']);
 
@@ -416,7 +452,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
-		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']),0,190);
+		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/' . (filter_var($arr['mid'], FILTER_VALIDATE_URL) === false ? '?f=&mid=' : '') . urlencode($arr['mid']),0,190);
 	}
 
 
@@ -450,6 +486,8 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 		 */
 		call_hooks('post_local_end', $ret['activity']);
 	}
+	else
+		return $ret;
 
 	if($post_id && $deliver) {
 		Master::Summon([ 'Notifier','activity',$post_id ]);
@@ -597,6 +635,7 @@ function get_item_elements($x,$allow_code = false) {
 	$arr = array();
 
 	$arr['body'] = $x['body'];
+	$arr['summary'] = $x['summary'];
 
 	$maxlen = get_max_import_size();
 
@@ -604,6 +643,11 @@ function get_item_elements($x,$allow_code = false) {
 		$arr['body'] = mb_substr($arr['body'],0,$maxlen,'UTF-8');
 		logger('get_item_elements: message length exceeds max_import_size: truncated');
 	}
+
+   if($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+	$arr['summary'] = mb_substr($arr['summary'],0,$maxlen,'UTF-8');
+        logger('get_item_elements: message summary length exceeds max_import_size: truncated');
+    }
 
 	$arr['created']      = datetime_convert('UTC','UTC',$x['created']);
 	$arr['edited']       = datetime_convert('UTC','UTC',$x['edited']);
@@ -627,6 +671,7 @@ function get_item_elements($x,$allow_code = false) {
 	if(mb_strlen($arr['title']) > 255)
 		$arr['title'] = mb_substr($arr['title'],0,255);
 
+	$arr['uuid']         = (($x['uuid'])           ? htmlspecialchars($x['uuid'],           ENT_COMPAT,'UTF-8',false) : '');
 	$arr['app']          = (($x['app'])            ? htmlspecialchars($x['app'],            ENT_COMPAT,'UTF-8',false) : '');
 	$arr['route']        = (($x['route'])          ? htmlspecialchars($x['route'],          ENT_COMPAT,'UTF-8',false) : '');
 	$arr['mid']          = (($x['message_id'])     ? htmlspecialchars($x['message_id'],     ENT_COMPAT,'UTF-8',false) : '');
@@ -747,9 +792,10 @@ function get_item_elements($x,$allow_code = false) {
 	// Do this after signature checking as the original signature
 	// was generated on the escaped content.
 
-	if($arr['mimetype'] === 'text/markdown')
+	if($arr['mimetype'] === 'text/markdown') {
+		$arr['summary'] = MarkdownSoap::unescape($arr['summary']);
 		$arr['body'] = MarkdownSoap::unescape($arr['body']);
-
+	}
 	if(array_key_exists('revision',$x)) {
 
 		// extended export encoding
@@ -1061,6 +1107,7 @@ function encode_item($item,$mirror = false) {
 		$x['item_blocked'] = $item['item_blocked'];
 	}
 
+	$x['uuid']            = $item['uuid'];
 	$x['message_id']      = $item['mid'];
 	$x['message_top']     = $item['parent_mid'];
 	$x['message_parent']  = $item['thr_parent'];
@@ -1071,6 +1118,7 @@ function encode_item($item,$mirror = false) {
 	$x['commented']       = $item['commented'];
 	$x['mimetype']        = $item['mimetype'];
 	$x['title']           = $item['title'];
+	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
 	$x['verb']            = $item['verb'];
@@ -1577,6 +1625,14 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 			'item' => $arr,
 			'allow_exec' => $allow_exec
 	];
+
+	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
+		/* Custom items are not stored by default
+		   because they require an addon to process. */
+		$d['item']['cancel']=true;
+
+		call_hooks('item_custom',$d);
+	}
 	/**
 	 * @hooks item_store
 	 *   Called when item_store() stores a record of type item.
@@ -1629,6 +1685,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	}
 
 	$arr['title'] = ((array_key_exists('title',$arr) && strlen($arr['title']))  ? trim($arr['title']) : '');
+	$arr['summary'] = ((array_key_exists('summary',$arr) && strlen($arr['summary']))  ? trim($arr['summary']) : '');
 	$arr['body']  = ((array_key_exists('body',$arr) && strlen($arr['body']))    ? trim($arr['body'])  : '');
 
 	$arr['allow_cid']     = ((x($arr,'allow_cid'))     ? trim($arr['allow_cid'])             : '');
@@ -1637,6 +1694,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	$arr['deny_gid']      = ((x($arr,'deny_gid'))      ? trim($arr['deny_gid'])              : '');
 	$arr['postopts']      = ((x($arr,'postopts'))      ? trim($arr['postopts'])              : '');
 	$arr['route']         = ((x($arr,'route'))         ? trim($arr['route'])                 : '');
+	$arr['uuid']          = ((x($arr,'uuid'))          ? trim($arr['uuid'])                  : '');
 	$arr['item_private']  = ((x($arr,'item_private'))  ? intval($arr['item_private'])        : 0 );
 	$arr['item_wall']     = ((x($arr,'item_wall'))     ? intval($arr['item_wall'])           : 0 );
 	$arr['item_type']     = ((x($arr,'item_type'))     ? intval($arr['item_type'])           : 0 );
@@ -1649,6 +1707,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);
@@ -1999,7 +2058,19 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('post_remote_end', $arr);
 
+	/**
+	 * @hooks item_stored
+	 *   Called after new item is stored in the database.
+	 *	  (By this time we have an item_id and other frequently needed info.)
+	 */
+	call_hooks('item_stored',$arr);
+
 	item_update_parent_commented($arr);
+
+
+	if(strpos($arr['body'],'[embed]') !== false) {
+		Master::Summon([ 'Cache_embeds', $current_post ]);
+	}
 
 	// If _creating_ a deleted item, don't propagate it further or send out notifications.
 	// We need to store the item details just in case the delete came in before the original post,
@@ -2032,6 +2103,15 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 			'item' => $arr,
 			'allow_exec' => $allow_exec
 	];
+
+	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
+		/* Custom items are not stored by default
+		   because they require an addon to process. */
+		$d['item']['cancel']=true;
+
+		call_hooks('item_custom_update',$d);
+	}
+
 	/**
 	 * @hooks item_store_update
 	 *   Called when item_store_update() is called to update a stored item. It
@@ -2094,6 +2174,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	// apply the input filter here
 
+	$arr['summary'] = trim(z_input_filter($arr['summary'],$arr['mimetype'],$allow_exec));
 	$arr['body'] = trim(z_input_filter($arr['body'],$arr['mimetype'],$allow_exec));
 
 	item_sign($arr);
@@ -2170,6 +2251,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	$arr['route']         = ((array_key_exists('route',$arr)) ? trim($arr['route'])          : $orig[0]['route']);
 
 	$arr['location']      = ((x($arr,'location'))      ? notags(trim($arr['location']))      : $orig[0]['location']);
+	$arr['uuid']          = ((x($arr,'uuid'))          ? notags(trim($arr['uuid']))          : $orig[0]['uuid']);
 	$arr['coord']         = ((x($arr,'coord'))         ? notags(trim($arr['coord']))         : $orig[0]['coord']);
 	$arr['verb']          = ((x($arr,'verb'))          ? notags(trim($arr['verb']))          : $orig[0]['verb']);
 	$arr['obj_type']      = ((x($arr,'obj_type'))      ? notags(trim($arr['obj_type']))      : $orig[0]['obj_type']);
@@ -2320,6 +2402,19 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('post_remote_update_end', $arr);
 
+	/**
+	 * @hooks item_stored_update
+	 *   Called after updated item is stored in the database.
+	 */
+	call_hooks('item_stored_update',$arr);
+
+	if(strpos($arr['body'],'[embed]') !== false) {
+		Master::Summon([ 'Cache_embeds', $orig_post_id ]);
+	}
+
+
+
+
 	if($deliver) {
 		send_status_notifications($orig_post_id,$arr);
 		tag_deliver($uid,$orig_post_id);
@@ -2336,15 +2431,15 @@ function item_update_parent_commented($item) {
 
 	$update_parent = true;
 
-	// update the commented timestamp on the parent 
+	// update the commented timestamp on the parent
 	// - unless this is a moderated comment or a potential clone of an older item
-	// which we don't wish to bring to the surface. As the queue only holds deliveries 
-	// for 3 days, it's suspected of being an older cloned item if the creation time 
+	// which we don't wish to bring to the surface. As the queue only holds deliveries
+	// for 3 days, it's suspected of being an older cloned item if the creation time
 	//is older than that.
 
 	if(intval($item['item_blocked']) === ITEM_MODERATED)
 		$update_parent = false;
- 
+
 	if($item['created'] < datetime_convert('','','now - 4 days'))
 		$update_parent = false;
 
@@ -2940,7 +3035,9 @@ function tgroup_check($uid, $item) {
  * @param array $channel
  * @param array $item
  * @param int $item_id
- * @param boolean $parent
+ * @param array $parent
+ * @param boolean $edit (optional) default false
+ * @return void
  */
 function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false) {
 
@@ -2975,7 +3072,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 		}
 
 		// This will change the author to the post owner. Useful for RSS feeds which are to be syndicated
-		// to federated platforms which can't verify the identity of the author. 
+		// to federated platforms which can't verify the identity of the author.
 		// This MAY cause you to run afoul of copyright law.
 
 		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
@@ -3488,7 +3585,7 @@ function item_expire($uid,$days,$comment_days = 7) {
 
 	if(! $comment_days)
 		$comment_days = 7;
-	
+
 	// $expire_network_only = save your own wall posts
 	// and just expire conversations started by others
 	// do not enable this until we can pass bulk delete messages through zot
@@ -3788,6 +3885,8 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 		intval($item['id']),
 		intval(TERM_OBJ_POST)
 	);
+
+	ThreadListener::delete_by_target($item['mid']);
 
 	/** @FIXME remove notifications for this item */
 
@@ -4483,7 +4582,7 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 	$first_access_tag = true;
 
 	foreach($linkified as $x) {
-		$access_tag = $x['access_tag'];
+		$access_tag = $x['success']['access_tag'];
 		if(($access_tag) && (! $parent_item)) {
 			logger('access_tag: ' . $tag . ' ' . print_r($access_tag,true), LOGGER_DATA);
 			if ($first_access_tag && (! get_pconfig($profile_uid,'system','no_private_mention_acl_override'))) {
@@ -4589,7 +4688,7 @@ function sync_an_item($channel_id,$item_id) {
 	if($r) {
 		xchan_query($r);
 		$sync_item = fetch_post_tags($r);
-		build_sync_packet($channel_d,array('item' => array(encode_item($sync_item[0],true))));
+		build_sync_packet($channel_id, array('item' => array(encode_item($sync_item[0],true))));
 	}
 }
 
@@ -4746,7 +4845,8 @@ function item_create_edit_activity($post) {
 
 	$new_item['id'] = 0;
 	$new_item['parent'] = 0;
-	$new_item['mid'] = item_message_id();
+	$new_item['uuid'] = item_message_id();
+	$new_item['mid'] = z_root() . '/item/' . $new_item['uuid'];
 
 	$new_item['body'] = sprintf( t('[Edited %s]'), (($update_item['item_thread_top']) ? t('Post','edit_activity') : t('Comment','edit_activity')));
 
@@ -4827,7 +4927,7 @@ function copy_of_pubitem($channel,$mid) {
 		dbesc($mid),
 		intval($syschan['channel_id'])
 	);
-		
+
 	if($r) {
 		$items = fetch_post_tags($r,true);
 		foreach($items as $rv) {
@@ -4853,5 +4953,5 @@ function copy_of_pubitem($channel,$mid) {
 
 		}
 	}
-	return $result;		
+	return $result;
 }

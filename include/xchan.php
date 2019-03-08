@@ -5,6 +5,11 @@ use Zotlabs\Zot6\HTTPSig;
 
 function xchan_store_lowlevel($arr) {
 
+	if(! $arr['xchan_hash']) {
+		logger('No xchan_hash');
+		return false;
+	}
+
 	$store = [
 		'xchan_hash' => ((array_key_exists('xchan_hash',$arr)) ? $arr['xchan_hash'] : ''),
 		'xchan_guid' => ((array_key_exists('xchan_guid',$arr)) ? $arr['xchan_guid'] : ''),

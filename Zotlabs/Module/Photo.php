@@ -1,19 +1,20 @@
 <?php
+
+
 namespace Zotlabs\Module;
 
 require_once('include/security.php');
 require_once('include/attach.php');
 require_once('include/photo/photo_driver.php');
 
-
 class Photo extends \Zotlabs\Web\Controller {
 
 	function init() {
 
-		$prvcachecontrol = false;
 		$streaming = null;
 		$channel = null;
 		$person = 0;
+		$renew = false;
 
 		switch(argc()) {
 			case 4:
@@ -29,7 +30,15 @@ class Photo extends \Zotlabs\Web\Controller {
 				killme();
 				// NOTREACHED
 		}
-	
+
+		$cache_mode = array(
+			'on' => false,
+			'age' => 86400,
+			'exp' => true,
+			'leak' => false
+		);
+		call_hooks('cache_mode_hook', $cache_mode);
+		
 		$observer_xchan = get_observer_hash();
 		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 
@@ -106,13 +115,14 @@ class Photo extends \Zotlabs\Web\Controller {
 			   License link: http://creativecommons.org/licenses/by/3.0/
 			*/
 
+			// @FIXME It seems this part doesn't work because we are not setting such cookie
 			$cookie_value = false;
 			if (isset($_COOKIE['devicePixelRatio'])) {
 			  $cookie_value = intval($_COOKIE['devicePixelRatio']);
 			}
 			else {
 			  // Force revalidation of cache on next request
-			  $cache_directive = 'no-cache';
+			  // $prvcachecontrol = 'no-cache';
 			  $status = 'no cookie';
 			}
 	
@@ -129,27 +139,42 @@ class Photo extends \Zotlabs\Web\Controller {
 				    $resolution = 1;
 			}
 			
-			$r = q("SELECT uid, photo_usage FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
+			$r = q("SELECT uid, photo_usage, display_path FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				dbesc($photo),
 				intval($resolution)
 			);
 			if($r) {
-
 				$allowed = (-1);
 
-				if(intval($r[0]['photo_usage'])) {
+				$u = intval($r[0]['photo_usage']);
+				if($u) {
 					$allowed = 1;
-					if(intval($r[0]['photo_usage']) === PHOTO_COVER) 
+					if($u === PHOTO_COVER) 
 						if($resolution < PHOTO_RES_COVER_1200)
 							$allowed = (-1);
-					if(intval($r[0]['photo_usage']) === PHOTO_PROFILE)
+					if($u === PHOTO_PROFILE)
 						if(! in_array($resolution,[4,5,6]))
 							$allowed = (-1);
+					if($u === PHOTO_CACHE) {
+						// Validate cache
+						$cache = array(
+							'resid' => $photo,
+							'status' => false
+						);
+						if($cache_mode['on'])
+							call_hooks('cache_url_hook', $cache);
+						if(! $cache['status']) {
+							$url = htmlspecialchars_decode($r[0]['display_path']);
+							if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
+								$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
+							header("Location: " . $url);
+							killme();
+						}
+					}
 				}
 
-				if($allowed === (-1)) {
+				if($allowed === (-1))
 					$allowed = attach_can_view($r[0]['uid'],$observer_xchan,$photo);
-				}
 
 				$channel = channelx_by_n($r[0]['uid']);
 
@@ -158,18 +183,21 @@ class Photo extends \Zotlabs\Web\Controller {
 					dbesc($photo),
 					intval($resolution)
 				);
-
+				
 				$exists = (($e) ? true : false);
-
+			
 				if($exists && $allowed) {
+					$expires = strtotime($e[0]['expires'] . 'Z');
 					$data = dbunescbin($e[0]['content']);
 					$filesize = $e[0]['filesize'];
 					$mimetype = $e[0]['mimetype'];
 					$modified = strtotime($e[0]['edited'] . 'Z');
-					if(intval($e[0]['os_storage']))
+
+					if(intval($e[0]['os_storage'])) {
 						$streaming = $data;
+					}
 					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
-						$prvcachecontrol = true;
+						$prvcachecontrol = 'no-store, no-cache, must-revalidate';
 				}
 				else {
 					if(! $allowed) {
@@ -180,9 +208,9 @@ class Photo extends \Zotlabs\Web\Controller {
 					}
 
 				}
-			} else {
+			} 
+			else
 				http_status_exit(404,'not found');
-			}
 		}
 
 		header_remove('Pragma');
@@ -225,24 +253,14 @@ class Photo extends \Zotlabs\Web\Controller {
 				$mimetype = $ph->getType();
 			}
 		}
-	
-		// @FIXME Seems never invoked
-		// Writing in cachefile
-		if (isset($cachefile) && $cachefile != '') {
-			file_put_contents($cachefile, $data);
-			$modified = filemtime($cachefile);
-		}
 
-
-		header("Content-type: " . $mimetype);
-	
-		if($prvcachecontrol) {
+		if(isset($prvcachecontrol)) {
 	
 			// it is a private photo that they have no permission to view.
 			// tell the browser not to cache it, in case they authenticate
 			// and subsequently have permission to see it
 	
-			header("Cache-Control: no-store, no-cache, must-revalidate");
+			header("Cache-Control: " . $prvcachecontrol);
 	
 		}
 		else {
@@ -255,18 +273,23 @@ class Photo extends \Zotlabs\Web\Controller {
 			// This has performance considerations but we highly recommend you 
 			// leave it alone. 
 	
-			$cache = get_config('system','photo_cache_time', 86400);    // 1 day by default
+			$maxage = $cache_mode['age'];
 
-		 	header("Expires: " . gmdate("D, d M Y H:i:s", time() + $cache) . " GMT");
-			header("Cache-Control: max-age=" . $cache);
+			if($cache_mode['exp'] || (! isset($expires)) || (isset($expires) && $expires - 60 < time()))
+				$expires = time() + $maxage;
+			else
+				$maxage = $expires - time();
+			
+		 	header("Expires: " . gmdate("D, d M Y H:i:s", $expires) . " GMT");
+			header("Cache-Control: max-age=" . $maxage);
 	
 		}
 
+		header("Content-type: " . $mimetype);
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 
-
 		if($streaming && $channel) {
 			if(strpos($streaming,'store') !== false)
 				$istream = fopen($streaming,'rb');

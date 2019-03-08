@@ -137,7 +137,7 @@ function z_mime_content_type($filename) {
  * @param string $hash (optional)
  * @param string $filename (optional)
  * @param string $filetype (optional)
- * @return associative array with:
+ * @return array Associative array with:
  *  * \e boolean \b success
  *  * \e int|boolean \b results amount of found results, or false
  *  * \e string \b message with error messages if any
@@ -176,15 +176,17 @@ function attach_count_files($channel_id, $observer, $hash = '', $filename = '', 
 /**
  * @brief Returns a list of files/attachments.
  *
- * @param $channel_id
- * @param $observer
- * @param $hash (optional)
- * @param $filename (optional)
- * @param $filetype (optional)
- * @param $orderby
- * @param $start
- * @param $entries
- * @return associative array with:
+ * @param int $channel_id
+ * @param string $observer
+ * @param string $hash (optional)
+ * @param string $filename (optional)
+ * @param string $filetype (optional)
+ * @param string $orderby (optional)
+ * @param int $start (optional)
+ * @param int $entries (optional)
+ * @param string $since (optional)
+ * @param string $until (optional)
+ * @return array an associative array with:
  *  * \e boolean \b success
  *  * \e array|boolean \b results array with results, or false
  *  * \e string \b message with error messages if any
@@ -739,7 +741,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	}
 
 	if(! $hash)
-		$hash = random_string();
+		$hash = new_uuid();
 
 	// Check storage limits
 	if($options !== 'update') {
@@ -1122,7 +1124,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 		return $ret;
 	}
 
-	$arr['hash'] = (($arr['hash']) ? $arr['hash'] : random_string());
+	$arr['hash'] = (($arr['hash']) ? $arr['hash'] : new_uuid());
 
 	// Check for duplicate name.
 	// Check both the filename and the hash as we will be making use of both.
@@ -1428,8 +1430,17 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 	if(! $r) {
 		attach_drop_photo($channel_id,$resource);
-                $arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo'=>$is_photo];
-                call_hooks("attach_delete",$arr);
+		$arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo' => $is_photo];
+
+		/**
+		 * @hooks attach_delete
+		 *   Called when deleting an attachment from channel.
+		 *   * \e int \b channel_id - the channel_id
+		 *   * \e string \b resource
+		 *   * \e int \b is_photo
+		 */
+		call_hooks('attach_delete', $arr);
+
 		return;
 	}
 
@@ -1488,8 +1499,15 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		intval($channel_id)
 	);
 
-        $arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo'=>$is_photo];
-        call_hooks("attach_delete",$arr);
+	$arr = ['channel_id' => $channel_id, 'resource' => $resource, 'is_photo' => $is_photo];
+	/**
+	 * @hooks attach_delete
+	 *   Called when deleting an attachment from channel.
+	 *   * \e int \b channel_id - the channel_id
+	 *   * \e string \b resource
+	 *   * \e int \b is_photo
+	 */
+	call_hooks('attach_delete', $arr);
 
 	file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
 
@@ -1759,16 +1777,18 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 		$arr_allow_cid = check_list_permissions($channel_id, $arr_allow_cid, 'view_storage');
 	}
 
-	$mid = item_message_id();
+	$uuid = item_message_id();
+	$mid = z_root() . '/item/' . $uuid;
 
 	$objtype = ACTIVITY_OBJ_FILE;
 
 	$arr = array();
 	$arr['aid']           = get_account_id();
 	$arr['uid']           = $channel_id;
-	$arr['item_wall'] = 1;
-	$arr['item_origin'] = 1;
-	$arr['item_unseen'] = 1;
+	$arr['uuid']          = $uuid;
+	$arr['item_wall']     = 1;
+	$arr['item_origin']   = 1;
+	$arr['item_unseen']   = 1;
 	$arr['author_xchan']  = $poster['xchan_hash'];
 	$arr['owner_xchan']   = $poster['xchan_hash'];
 	$arr['title']         = '';
@@ -1813,8 +1833,10 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 		$private = (($u_arr_allow_cid[0] || $u_arr_allow_gid[0] || $u_arr_deny_cid[0] || $u_arr_deny_gid[0]) ? 1 : 0);
 
-		$u_mid = item_message_id();
+		$uuid = item_message_id();
+		$u_mid = z_root() . '/item/' . $uuid;
 
+		$arr['uuid']          = $uuid;
 		$arr['mid']           = $u_mid;
 		$arr['parent_mid']    = $u_mid;
 		$arr['allow_cid']     = perms2str($u_arr_allow_cid);
@@ -1864,7 +1886,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
  * @param int $channel_id
  * @param string $hash
  * @param string $url
- * @return array An associative array for the specified file.
+ * @return array Associative array for the specified file.
  */
 function get_file_activity_object($channel_id, $hash, $url) {
 
@@ -2106,7 +2128,7 @@ function attach_export_data($channel, $resource_id, $deleted = false) {
 
 	if($attach_ptr['is_photo']) {
 
-		// This query could potentially result in a few megabytes of data use.  
+		// This query could potentially result in a few megabytes of data use.
 
 		$r = q("select * from photo where resource_id = '%s' and uid = %d order by imgscale asc",
 			dbesc($resource_id),
@@ -2348,7 +2370,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 	$filename = $r[0]['filename'];
 
-	// don't do duplicate check unless our parent folder has changed. 
+	// don't do duplicate check unless our parent folder has changed.
 
 	if($r[0]['folder'] !== $new_folder_hash) {
 
@@ -2464,7 +2486,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 
 /**
- * Used to generate a select input box of all your folders 
+ * Used to generate a select input box of all your folders
  */
 
 
@@ -2547,10 +2569,10 @@ function attach_syspaths($channel_id,$attach_hash) {
 
 /**
  * in earlier releases we did not fill in os_path and display_path in the attach DB structure.
- * (It was not needed or used). Going forward we intend to make use of these fields. 
+ * (It was not needed or used). Going forward we intend to make use of these fields.
  * A cron task checks for empty values (as older attachments may have arrived at our site
- * in a clone operation) and executes attach_syspaths() to generate these field values and correct 
- * the attach table entry. The operation is limited to 100 DB entries at a time so as not to 
+ * in a clone operation) and executes attach_syspaths() to generate these field values and correct
+ * the attach table entry. The operation is limited to 100 DB entries at a time so as not to
  * overload the system in any cron run. Eventually it will catch up with old attach structures
  * and switch into maintenance mode to correct any that might arrive in clone packets from older
  * sites.

@@ -356,7 +356,7 @@ function photo_upload($channel, $observer, $args) {
 
 	$large_photos = feature_enabled($channel['channel_id'], 'large_photos');
 
-	linkify_tags($a, $args['body'], $channel_id);
+	linkify_tags($args['body'], $channel_id);
 
 	if($large_photos) {
 		$scale = 1;
@@ -441,11 +441,13 @@ function photo_upload($channel, $observer, $args) {
 		}
 	}
 	else {
-		$mid = item_message_id();
+		$uuid = item_message_id();
+		$mid = z_root() . '/item/' . $uuid;
 
 		$arr = [
 			'aid'             => $account_id,
 			'uid'             => $channel_id,
+			'uuid'            => $uuid,
 			'mid'             => $mid,
 			'parent_mid'      => $mid,
 			'item_hidden'     => $item_hidden,
@@ -827,12 +829,14 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 
 	$item_hidden = (($visible) ? 0 : 1 );
 
-	$mid = item_message_id();
+	$uuid = item_message_id();
+	$mid = z_root() . '/item/' . $uuid;
 
 	$arr = array();
 
 	$arr['aid']             = $channel['channel_account_id'];
 	$arr['uid']             = $channel['channel_id'];
+	$arr['uuid']            = $uuid;
 	$arr['mid']             = $mid;
 	$arr['parent_mid']      = $mid;
 	$arr['item_wall']       = 1;

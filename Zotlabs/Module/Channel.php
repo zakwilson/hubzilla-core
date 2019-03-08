@@ -6,6 +6,8 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\PermissionDescription;
+use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/items.php');
 require_once('include/security.php');
@@ -42,6 +44,48 @@ class Channel extends Controller {
 
 		$profile = 0;
 		$channel = App::get_channel();
+
+		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
+            $which = $channel['channel_address'];
+            $profile = argv(1);
+        }
+
+		$channel = channelx_by_nick($which);
+        if(! $channel) {
+            http_status_exit(404, 'Not found');
+        }
+
+		// handle zot6 channel discovery 
+
+		if(Libzot::is_zot_request()) {
+	
+			$sigdata = HTTPSig::verify(file_get_contents('php://input'));
+
+			if($sigdata && $sigdata['signer'] && $sigdata['header_valid']) {
+				$data = json_encode(Libzot::zotinfo([ 'address' => $channel['channel_address'], 'target_url' => $sigdata['signer'] ]));
+				$s = q("select site_crypto, hubloc_sitekey from site left join hubloc on hubloc_url = site_url where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+					dbesc($sigdata['signer'])
+				);
+
+				if($s) {
+					$data = json_encode(crypto_encapsulate($data,$s[0]['hubloc_sitekey'],Libzot::best_algorithm($s[0]['site_crypto'])));
+				}
+			}
+			else {
+				$data = json_encode(Libzot::zotinfo([ 'address' => $channel['channel_address'] ]));
+			}
+
+			$headers = [ 
+				'Content-Type'     => 'application/x-zot+json', 
+				'Digest'           => HTTPSig::generate_digest_header($data),
+				'(request-target)' => strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI']
+			 ];
+			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel));
+			HTTPSig::set_headers($h);
+			echo $data;
+			killme();
+		}
+
 
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 			$which = $channel['channel_address'];

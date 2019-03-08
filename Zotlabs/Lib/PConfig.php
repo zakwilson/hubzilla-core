@@ -112,9 +112,11 @@ class PConfig {
 	 *  The configuration key to set
 	 * @param string $value
 	 *  The value to store
+	 * @param string $updated (optional)
+	 *  The datetime to store
 	 * @return mixed Stored $value or false
 	 */
-	static public function Set($uid, $family, $key, $value, $updated=NULL) {
+	static public function Set($uid, $family, $key, $value, $updated = NULL) {
 
 		// this catches subtle errors where this function has been called
 		// with local_channel() when not logged in (which returns false)
@@ -131,14 +133,19 @@ class PConfig {
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
 
+		$now = datetime_convert();
 		if (! $updated) {
-			$updated = datetime_convert();
+			//Sometimes things happen fast... very fast.
+			//To make sure legitimate updates aren't rejected
+			//because not enough time has passed.  We say our updates
+			//happened just a short time in the past rather than right now.
+			$updated = datetime_convert('UTC','UTC','-2 seconds');
 		}
 
 		$hash = hash('sha256',$family.':'.$key);
 
 		if (self::Get($uid, 'hz_delpconfig', $hash) !== false) {
-			if (self::Get($uid, 'hz_delpconfig', $hash) > $updated) {
+			if (self::Get($uid, 'hz_delpconfig', $hash) > $now) {
 				logger('Refusing to update pconfig with outdated info (Item deleted more recently).', LOGGER_NORMAL, LOG_ERR);
 				return self::Get($uid,$family,$key);
 			} else {
@@ -173,7 +180,7 @@ class PConfig {
 
 		}
 		else {
-			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
+			$new = (\App::$config[$uid][$family]['pcfgud:'.$key] < $now);
 
 			if ($new) {
 
@@ -234,16 +241,18 @@ class PConfig {
 	 *  The category of the configuration value
 	 * @param string $key
 	 *  The configuration key to delete
-	 * @return mixed
+	 * @param string $updated (optional)
+	 *  The datetime to store
+	 * @return boolean
 	 */
 	static public function Delete($uid, $family, $key, $updated = NULL) {
 
 		if(is_null($uid) || $uid === false)
 			return false;
 
-		$updated = ($updated) ? $updated : datetime_convert();
-
-		$newer = (\App::$config[$uid][$family]['pcfgud:'.$key] < $updated);
+		$updated = ($updated) ? $updated : datetime_convert('UTC','UTC','-2 seconds');
+		$now = datetime_convert();
+		$newer = (\App::$config[$uid][$family]['pcfgud:'.$key] < $now);
 
 		if (! $newer) {
 			logger('Refusing to delete pconfig with outdated delete request.', LOGGER_NORMAL, LOG_ERR);
@@ -266,20 +275,11 @@ class PConfig {
 			dbesc($key)
 		);
 
+		// Synchronize delete with clones.
+
 		if ($family != 'hz_delpconfig') {
 			$hash = hash('sha256',$family.':'.$key);
 			set_pconfig($uid,'hz_delpconfig',$hash,$updated);
-		}
-
-		// Synchronize delete with clones.
-
-		if(! array_key_exists('transient', \App::$config[$uid]))
-			\App::$config[$uid]['transient'] = array();
-		if(! array_key_exists($family, \App::$config[$uid]['transient']))
-			\App::$config[$uid]['transient'][$family] = array();
-
-		if ($new) {
-			\App::$config[$uid]['transient'][$family]['pcfgdel:'.$key] = $updated;
 		}
 
 		return $ret;

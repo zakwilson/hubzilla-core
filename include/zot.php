@@ -8,6 +8,8 @@
  *
  */
 
+use Zotlabs\Lib\DReport;
+
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/queue_fn.php');
@@ -81,7 +83,7 @@ function zot_get_hublocs($hash) {
 
 	/* Only search for active hublocs - e.g. those that haven't been marked deleted */
 
-	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 order by hubloc_url ",
+	$ret = q("select * from hubloc where hubloc_hash = '%s' and hubloc_deleted = 0 and hubloc_network = 'zot' order by hubloc_url ",
 		dbesc($hash)
 	);
 
@@ -172,7 +174,7 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
  *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
  * @param array $recipients
  *   envelope information, array ( 'guid' => string, 'guid_sig' => string ); empty for public posts
- * @param string msg
+ * @param string $msg
  *   optional message
  * @param string $remote_key
  *   optional public site key of target hub used to encrypt entire packet
@@ -654,7 +656,7 @@ function zot_gethub($arr, $multiple = false) {
 
 		$r = q("select hubloc.*, site.site_crypto from hubloc left join site on hubloc_url = site_url
 				where hubloc_guid = '%s' and hubloc_guid_sig = '%s'
-				and hubloc_url = '%s' and hubloc_url_sig = '%s'
+				and hubloc_url = '%s' and hubloc_url_sig = '%s' and hubloc_network = 'zot'
 				$sitekey $limit",
 			dbesc($arr['guid']),
 			dbesc($arr['guid_sig']),
@@ -1098,6 +1100,8 @@ function zot_process_response($hub, $arr, $outq) {
 		return;
 	}
 
+	$dreport = true;
+
 	$x = json_decode($arr['body'], true);
 
 	if(! $x) {
@@ -1114,30 +1118,44 @@ function zot_process_response($hub, $arr, $outq) {
 			}
 			if(! (is_array($x['delivery_report']) && count($x['delivery_report']))) {
 				logger('encrypted delivery report could not be decrypted');
-				return;
+				$dreport = false;
 			}
 		}
 
-		foreach($x['delivery_report'] as $xx) {
-                        call_hooks('dreport_process',$xx);
-			if(is_array($xx) && array_key_exists('message_id',$xx) && delivery_report_is_storable($xx)) {
-				q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s' ) ",
-					dbesc($xx['message_id']),
-					dbesc($xx['location']),
-					dbesc($xx['recipient']),
-					dbesc($xx['status']),
-					dbesc(datetime_convert($xx['date'])),
-					dbesc($xx['sender'])
-				);
+		if($dreport) {
+			foreach($x['delivery_report'] as $xx) {
+				call_hooks('dreport_process',$xx);
+				if(is_array($xx) && array_key_exists('message_id',$xx) && DReport::is_storable($xx)) {
+
+					// legacy zot recipients add a space and their name to the xchan. split those if true.
+					$legacy_recipient = strpos($xx['recipient'], ' ');
+					if($legacy_recipient !== false) {
+						$legacy_recipient_parts = explode(' ', $xx['recipient'], 2);
+						$xx['recipient'] = $legacy_recipient_parts[0];
+						$xx['name'] = $legacy_recipient_parts[1];
+					}
+
+					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan ) values ( '%s', '%s','%s','%s','%s','%s','%s' ) ",
+						dbesc($xx['message_id']),
+						dbesc($xx['location']),
+						dbesc($xx['recipient']),
+						dbesc($xx['name']),
+						dbesc($xx['status']),
+						dbesc(datetime_convert('UTC','UTC',$xx['date'])),
+						dbesc($xx['sender'])
+					);
+				}
 			}
 		}
 	}
 
-	// we have a more descriptive delivery report, so discard the per hub 'queued' report.
 
-	q("delete from dreport where dreport_queue = '%s' ",
-		dbesc($outq['outq_hash'])
-	);
+	if($dreport) {
+		// we have a more descriptive delivery report, so discard the per hub 'queued' report.
+		q("delete from dreport where dreport_queue = '%s' ",
+			dbesc($outq['outq_hash'])
+		);
+	}
 
 	// update the timestamp for this site
 
@@ -1188,6 +1206,7 @@ function zot_fetch($arr) {
 	$zret = zot6_check_sig();
 
 	if($zret['success'] && $zret['hubloc'] && $zret['hubloc']['hubloc_guid'] === $arr['sender']['guid'] && $arr['msg']) {
+
 		logger('zot6_delivery',LOGGER_DEBUG);
 		logger('zot6_data: ' . print_r($arr,true),LOGGER_DATA);
 
@@ -1228,6 +1247,7 @@ function zot_fetch($arr) {
 			$datatosend = json_encode(crypto_encapsulate(json_encode($data),$hub['hubloc_sitekey'], $algorithm));
 
 			$import = zot_zot($url,$datatosend);
+
 		}
 		else {
 			$algorithm = zot_best_algorithm($hub['site_crypto']);
@@ -1748,7 +1768,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -1809,7 +1829,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 		else {
 			$arr['item_wall'] = 0;
 		}
-		
+
 
                 if ((! $tag_delivery) && (! $local_public)) {
                         $allowed = (perm_is_allowed($channel['channel_id'],$sender['hash'],$perm));
@@ -1820,10 +1840,10 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
                                         intval($channel['channel_id'])
                                 );
                                 if ($parent) {
-                                        $allowed = can_comment_on_post($d['hash'],$parent[0]);
+                                        $allowed = can_comment_on_post($sender['hash'],$parent[0]);
                                 }
                         }
-        
+
                         if (! $allowed) {
 			        logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 			        $DR->update('permission denied');
@@ -2297,7 +2317,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		}
 
 		$channel = $r[0];
-		$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+		$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 		/* blacklisted channels get a permission denied, no special message to tip them off */
 
@@ -2310,7 +2330,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 
 		if(! perm_is_allowed($channel['channel_id'],$sender['hash'],'post_mail')) {
 
-			/* 
+			/*
 			 * Always allow somebody to reply if you initiated the conversation. It's anti-social
 			 * and a bit rude to send a private message to somebody and block their ability to respond.
 			 * If you are being harrassed and want to put an end to it, delete the conversation.
@@ -2338,7 +2358,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 		);
 		if($r) {
 			if(intval($arr['mail_recalled'])) {
-                msg_drop($r[0]['id'], $channel['channel_id'], $r[0]['conv_guid']);
+				msg_drop($r[0]['id'], $channel['channel_id'], $r[0]['conv_guid']);
 				$DR->update('mail recalled');
 				$result[] = $DR->get();
 				logger('mail_recalled');
@@ -3227,7 +3247,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 	$channel = $r[0];
 
-	// don't provide these in the export 
+	// don't provide these in the export
 
 	unset($channel['channel_active']);
 	unset($channel['channel_password']);
@@ -3596,7 +3616,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 			if(array_key_exists('channel_pageflags',$arr['channel']) && intval($arr['channel']['channel_pageflags'])) {
 				// Several pageflags are site-specific and cannot be sync'd.
-				// Only allow those bits which are shareable from the remote and then 
+				// Only allow those bits which are shareable from the remote and then
 				// logically OR with the local flags
 
 				$arr['channel']['channel_pageflags'] = $arr['channel']['channel_pageflags'] & (PAGE_HIDDEN|PAGE_AUTOCONNECT|PAGE_APPLICATION|PAGE_PREMIUM|PAGE_ADULT);
@@ -3987,7 +4007,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if(array_key_exists('item',$arr) && is_array($arr['item'][0])) {
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],$arr['item'][0]['message_id'],'channel sync processed');
-			$DR->addto_recipient($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 		}
 		else
 			$DR = new Zotlabs\Lib\DReport(z_root(),$d['hash'],$d['hash'],'sync packet','channel sync delivered');
@@ -4909,6 +4929,7 @@ function zot_reply_pickup($data) {
 		dbesc($data['secret']),
 		dbesc($data['callback'])
 	);
+
 	if(! $r) {
 		$ret['message'] = 'nothing to pick up';
 		logger('mod_zot: pickup: ' . $ret['message']);
@@ -4918,12 +4939,13 @@ function zot_reply_pickup($data) {
 
 	/*
 	 * Everything is good if we made it here, so find all messages that are going to this location
-	 * and send them all.
+	 * and send them all - or a reasonable number if there are a lot so we don't overflow memory.
 	 */
 
-	$r = q("select * from outq where outq_posturl = '%s'",
+	$r = q("select * from outq where outq_posturl = '%s' limit 100",
 		dbesc($data['callback'])
 	);
+
 	if($r) {
 		logger('mod_zot: successful pickup message received from ' . $data['callback'] . ' ' . count($r) . ' message(s) picked up', LOGGER_DEBUG);
 
@@ -4949,6 +4971,19 @@ function zot_reply_pickup($data) {
 		}
 	}
 
+	// It's possible that we have more than 100 messages waiting to be sent.
+
+	// See if there are any more messages in the queue.
+	$x = q("select * from outq where outq_posturl = '%s' order by outq_created limit 1",
+			dbesc($data['callback'])
+	);
+
+	// If so, kick off a new delivery notification for the next batch
+	if ($x) {
+		logger("Send additional pickup request.", LOGGER_DEBUG);
+		queue_deliver($x[0],true);
+	}
+
 	// this is a bit of a hack because we don't have the hubloc_url here, only the callback url.
 	// worst case is we'll end up using aes256cbc if they've got a different post endpoint
 
@@ -4960,6 +4995,8 @@ function zot_reply_pickup($data) {
 	$encrypted = crypto_encapsulate(json_encode($ret),$sitekey,$algorithm);
 
 	json_return_and_die($encrypted);
+	// @FIXME:  There is a possibility that the transmission will get interrupted
+	//          and fail - in which case this packet of messages will be lost.
 	/* pickup: end */
 }
 
@@ -5020,7 +5057,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 	}
 
 	// There should be exactly one recipient, the original auth requestor
-
+	/// @FIXME $recipients is undefined here.
 	$ret['message'] .= 'recipients ' . print_r($recipients,true) . EOL;
 
 	if ($data['recipients']) {
@@ -5185,7 +5222,7 @@ function zot6_check_sig() {
 		$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER['HTTP_SIGNATURE']);
 		if($sigblock) {
 			$keyId = $sigblock['keyId'];
-
+			logger('keyID: ' . $keyId);
 			if($keyId) {
 				$r = q("select hubloc.*, site_crypto from hubloc left join site on hubloc_url = site_url
 					where hubloc_addr = '%s' ",
@@ -5195,6 +5232,7 @@ function zot6_check_sig() {
 					foreach($r as $hubloc) {
 						$verified = \Zotlabs\Web\HTTPSig::verify('',$hubloc['xchan_pubkey']);
 						if($verified && $verified['header_signed'] && $verified['header_valid'] && $verified['content_signed'] && $verified['content_valid']) {
+							logger('zot6 verified');
 							$ret['hubloc'] = $hubloc;
 							$ret['success'] = true;
 							return $ret;

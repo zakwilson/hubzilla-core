@@ -7,17 +7,18 @@ use \Michelf\MarkdownExtra;
  * @brief
  *
  * @param string $path
- * @return string|unknown
+ * @param string  $suffix (optional) default null
+ * @return string
  */
-function get_help_fullpath($path,$suffix=null) {
+function get_help_fullpath($path, $suffix = null) {
 
         $docroot = (\App::$override_helproot) ? \App::$override_helproot : 'doc/';
-        $docroot = (substr($docroot,-1)!='/') ? $docroot .= '/' : $docroot; 
+        $docroot = (substr($docroot,-1)!='/') ? $docroot .= '/' : $docroot;
 
         // Determine the language and modify the path accordingly
         $x = determine_help_language();
         $lang = $x['language'];
-        $url_idx = ($x['from_url'] ? 1 : 0);
+
         // The English translation is at the root of /doc/. Other languages are in
         // subfolders named by the language code such as "de", "es", etc.
         if($lang !== 'en') {
@@ -49,19 +50,18 @@ function get_help_fullpath($path,$suffix=null) {
 /**
  * @brief
  *
- * @param string $tocpath
- * @return string|unknown
+ * @param string $tocpath (optional) default false
+ * @return string
  */
 function get_help_content($tocpath = false) {
-	global $lang;
 
 	$doctype = 'markdown';
 
 	$text = '';
 
 	$path = (($tocpath !== false) ? $tocpath : '');
-        $docroot = (\App::$override_helproot) ? \App::$override_helproot : 'doc/';
-        $docroot = (substr($docroot,-1)!='/') ? $docroot .= '/' : $docroot; 
+	$docroot = (\App::$override_helproot) ? \App::$override_helproot : 'doc/';
+	$docroot = (substr($docroot,-1)!='/') ? $docroot .= '/' : $docroot;
 
 	if($tocpath === false && argc() > 1) {
 		$path = '';
@@ -74,7 +74,7 @@ function get_help_content($tocpath = false) {
 
 
 	if($path) {
-                $fullpath = get_help_fullpath($path);
+		$fullpath = get_help_fullpath($path);
 		$title = basename($path);
 		if(! $tocpath)
 			\App::$page['title'] = t('Help:') . ' ' . ucwords(str_replace('-',' ',notags($title)));
@@ -88,10 +88,10 @@ function get_help_content($tocpath = false) {
 			load_doc_file($fullpath . '.md') === '' &&
 			load_doc_file($fullpath . '.bb') === '' &&
 			load_doc_file($fullpath . '.html') === ''
-		  ) {
+		) {
 			$path = $title;
 		}
-                $fullpath = get_help_fullpath($path);
+		$fullpath = get_help_fullpath($path);
 		$text = load_doc_file($fullpath . '.md');
 
 		if(! $text) {
@@ -111,15 +111,15 @@ function get_help_content($tocpath = false) {
 
 	if($tocpath === false) {
 		if(! $text) {
-                        $path = 'Site';
-                        $fullpath = get_help_fullpath($path,'.md');
+			$path = 'Site';
+			$fullpath = get_help_fullpath($path,'.md');
 			$text = load_doc_file($fullpath . '.md');
 			\App::$page['title'] = t('Help');
 		}
 		if(! $text) {
 			$doctype = 'bbcode';
-                        $path = 'main';
-                        $fullpath = get_help_fullpath($path,'.md');
+			$path = 'main';
+			$fullpath = get_help_fullpath($path,'.md');
 			$text = load_doc_file($fullpath . '.bb');
 			goaway('/help/about/about');
 			\App::$page['title'] = t('Help');
@@ -172,16 +172,20 @@ function preg_callback_help_include($matches) {
 }
 
 /**
- * @brief
+ * @brief Determines help language.
  *
- * @return boolean|array
+ * If the language was specified in the URL, override the language preference
+ * of the browser. Default to English if both of these are absent.
+ *
+ * @return array Associative array with:
+ *  * \e string \b language -  2-letter ISO 639-1 code ("en")
+ *  * \e boolean \b from_url - true if language from URL overrides browser default
  */
 function determine_help_language() {
 	$lang_detect = new Text_LanguageDetect();
 	// Set this mode to recognize language by the short code like "en", "ru", etc.
 	$lang_detect->setNameMode(2);
-	// If the language was specified in the URL, override the language preference
-	// of the browser. Default to English if both of these are absent.
+
 	if($lang_detect->languageExists(argv(1))) {
 		$lang = argv(1);
 		$from_url = true;
@@ -212,13 +216,12 @@ function find_doc_file($s) {
 }
 
 /**
- * @brief
+ * @brief Search in doc files.
  *
- * @param string $s
- * @return number|mixed|unknown|boolean
+ * @param string $s The search string to search for
+ * @return array
  */
 function search_doc_files($s) {
-
 
 	\App::set_pager_itemspage(60);
 	$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));
@@ -277,7 +280,6 @@ function doc_rank_sort($s1, $s2) {
  *
  * @return string
  */
-
 function load_context_help() {
 
 	$path = App::$cmd;
@@ -307,7 +309,7 @@ function load_context_help() {
  * @brief
  *
  * @param string $s
- * @return void|boolean[]|number[]|string[]|unknown[]
+ * @return void|array
  */
 function store_doc_file($s) {
 
@@ -351,7 +353,8 @@ function store_doc_file($s) {
 		$x = item_store_update($item);
 	}
 	else {
-		$item['mid'] = $item['parent_mid'] = item_message_id();
+		$item['uuid'] = item_message_id();
+		$item['mid'] = $item['parent_mid'] = z_root() . '/item/' . $item['uuid'];
 		$x = item_store($item);
 	}
 

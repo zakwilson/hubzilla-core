@@ -7,14 +7,14 @@ function findpeople_widget() {
 	if(get_config('system','invitation_only')) {
 		$x = get_pconfig(local_channel(),'system','invites_remaining');
 		if($x || is_site_admin()) {
-			App::$page['aside'] .= '<div class="side-link" id="side-invite-remain">' 
-			. sprintf( tt('%d invitation available','%d invitations available',$x), $x) 
-			. '</div>' . $inv;
+			App::$page['aside'] .= '<div class="side-link" id="side-invite-remain">'
+			. sprintf( tt('%d invitation available','%d invitations available',$x), $x)
+			. '</div>';
 		}
 	}
 
 	$advanced_search = ((local_channel() && feature_enabled(local_channel(),'advanced_dirsearch')) ? t('Advanced') : false);
- 
+
 	return replace_macros(get_markup_template('peoplefind.tpl'),array(
 		'$findpeople' => t('Find Channels'),
 		'$desc' => t('Enter name or interest'),
@@ -22,7 +22,7 @@ function findpeople_widget() {
 		'$hint' => t('Examples: Robert Morgenstein, Fishing'),
 		'$findthem' => t('Find'),
 		'$suggest' => t('Channel Suggestions'),
-		'$similar' => '', // FIXME and uncomment when mod/match working // t('Similar Interests'),
+		'$similar' => '', /// @FIXME fixme and uncomment when mod/match working // t('Similar Interests'),
 		'$random' => t('Random Profile'),
 		'$inv' => t('Invite Friends'),
 		'$advanced_search' => $advanced_search,
@@ -56,12 +56,11 @@ function fileas_widget($baseurl,$selected = '') {
 		'$all' => t('Everything'),
 		'$terms' => $terms,
 		'$base' => $baseurl,
-
 	));
 }
 
 function categories_widget($baseurl,$selected = '') {
-	
+
 	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
 		return '';
 
@@ -100,14 +99,13 @@ function categories_widget($baseurl,$selected = '') {
 			'$all' => t('Everything'),
 			'$terms' => $terms,
 			'$base' => $baseurl,
-
 		));
 	}
 	return '';
 }
 
 function cardcategories_widget($baseurl,$selected = '') {
-	
+
 	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
 		return '';
 
@@ -128,7 +126,7 @@ function cardcategories_widget($baseurl,$selected = '') {
 				$item_normal
 				$sql_extra
 				order by term.term asc",
-		intval(App::$profile['profile_uid']),
+			intval(App::$profile['profile_uid']),
 			intval(TERM_CATEGORY),
 			intval(TERM_OBJ_POST),
 			dbesc(App::$profile['channel_hash'])
@@ -144,15 +142,15 @@ function cardcategories_widget($baseurl,$selected = '') {
 			'$all' => t('Everything'),
 			'$terms' => $terms,
 			'$base' => $baseurl,
-
 		));
 	}
+
 	return '';
 }
 
 
 function articlecategories_widget($baseurl,$selected = '') {
-	
+
 	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
 		return '';
 
@@ -173,7 +171,7 @@ function articlecategories_widget($baseurl,$selected = '') {
 				$item_normal
 				$sql_extra
 				order by term.term asc",
-		intval(App::$profile['profile_uid']),
+			intval(App::$profile['profile_uid']),
 			intval(TERM_CATEGORY),
 			intval(TERM_OBJ_POST),
 			dbesc(App::$profile['channel_hash'])
@@ -189,14 +187,11 @@ function articlecategories_widget($baseurl,$selected = '') {
 			'$all' => t('Everything'),
 			'$terms' => $terms,
 			'$base' => $baseurl,
-
 		));
 	}
+
 	return '';
 }
-
-
-
 
 
 
@@ -218,17 +213,14 @@ function common_friends_visitor_widget($profile_uid,$cnt = 25) {
 		return;
 
 	$r = common_friends($profile_uid,$observer_hash,0,$cnt,true);
-	
-	return replace_macros(get_markup_template('remote_friends_common.tpl'), array(
+
+	return replace_macros(get_markup_template('remote_friends_common.tpl'), [
 		'$desc'     => t('Common Connections'),
 		'$base'     => z_root(),
 		'$uid'      => $profile_uid,
-		'$cid'      => $observer,
 		'$linkmore' => (($t > $cnt) ? 'true' : ''),
 		'$more'     => sprintf( t('View all %d common connections'), $t),
-		'$items'    => $r
-	)); 
+		'$items'    => $r,
+	]);
 
 };
-
-

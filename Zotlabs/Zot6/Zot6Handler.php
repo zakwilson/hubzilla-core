@@ -29,7 +29,7 @@ class Zot6Handler implements IHandler {
 
 
 	// Implementation of specific methods follows;
-	// These generally do a small amout of validation and call Libzot 
+	// These generally do a small amout of validation and call Libzot
 	// to do any heavy lifting
 
 	static function reply_notify($data,$hub) {
@@ -40,7 +40,7 @@ class Zot6Handler implements IHandler {
 
 		$x = Libzot::fetch($data);
 		$ret['delivery_report'] = $x;
-	
+
 
 		$ret['success'] = true;
 		return $ret;
@@ -58,11 +58,11 @@ class Zot6Handler implements IHandler {
 	 *
 	 * @param array $sender
 	 * @param array $recipients
+	 * @param array $hub
 	 *
-	 * @return json_return_and_die()
+	 * @return array
 	 */
-
-	static function reply_refresh($sender, $recipients,$hub) {
+	static function reply_refresh($sender, $recipients, $hub) {
 		$ret = array('success' => false);
 
 		if($recipients) {
@@ -71,17 +71,17 @@ class Zot6Handler implements IHandler {
 
 			foreach ($recipients as $recip) {
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_hash = xchan_hash
-					where channel_hash ='%s' limit 1",
+					left join xchan on channel_portable_id = xchan_hash
+					where xchan_hash ='%s' limit 1",
 					dbesc($recip)
 				);
-
+				/// @FIXME $msgtype is undefined
 				$x = Libzot::refresh( [ 'hubloc_id_url' => $hub['hubloc_id_url'] ], $r[0], (($msgtype === 'force_refresh') ? true : false));
 			}
 		}
 		else {
 			// system wide refresh
-
+			/// @FIXME $msgtype is undefined
 			$x = Libzot::refresh( [ 'hubloc_id_url' => $hub['hubloc_id_url'] ], null, (($msgtype === 'force_refresh') ? true : false));
 		}
 
@@ -99,17 +99,16 @@ class Zot6Handler implements IHandler {
 	 * for that packet. We will create a message_list array of the entire conversation starting with
 	 * the missing parent and invoke delivery to the sender of the packet.
 	 *
-	 * Zotlabs/Daemon/Deliver.php (for local delivery) and 
+	 * Zotlabs/Daemon/Deliver.php (for local delivery) and
 	 * mod/post.php???? @fixme (for web delivery) detect the existence of
 	 * this 'message_list' at the destination and split it into individual messages which are
 	 * processed/delivered in order.
 	 *
-	 *
 	 * @param array $data
+	 * @param array $hub
 	 * @return array
 	 */
-	
-	static function reply_message_request($data,$hub) {
+	static function reply_message_request($data, $hub) {
 		$ret = [ 'success' => false ];
 
 		$message_id = EMPTY_STR;
@@ -140,7 +139,7 @@ class Zot6Handler implements IHandler {
 
 		$arr = $data['recipients'][0];
 
-		$c = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_hash = '%s' limit 1",
+		$c = q("select * from channel left join xchan on channel_portable_id = xchan_hash where channel_portable_id = '%s' limit 1",
 			dbesc($arr['portable_id'])
 		);
 		if (! $c) {
@@ -152,11 +151,10 @@ class Zot6Handler implements IHandler {
 		/*
 		 * fetch the requested conversation
 		 */
-
+		/// @FIXME $sender_hash is undefined
 		$messages = zot_feed($c[0]['channel_id'],$sender_hash, [ 'message_id' => $data['message_id'], 'encoding' => 'activitystreams' ]);
 
 		return (($messages) ? : [] );
-
 	}
 
 	static function rekey_request($sender,$data,$hub) {
@@ -182,7 +180,7 @@ class Zot6Handler implements IHandler {
 				dbesc($oldhash)
 			);
 		}
-		else 
+		else
 			return $ret;
 
 
@@ -218,10 +216,10 @@ class Zot6Handler implements IHandler {
 	 *
 	 * @param array $sender
 	 * @param array $recipients
+	 * @param array $hub
 	 *
-	 * return json_return_and_die()
+	 * @return array
 	 */
-
 	static function reply_purge($sender, $recipients, $hub) {
 
 		$ret = array('success' => false);
@@ -230,8 +228,8 @@ class Zot6Handler implements IHandler {
 			// basically this means "unfriend"
 			foreach ($recipients as $recip) {
 				$r = q("select channel.*,xchan.* from channel
-					left join xchan on channel_hash = xchan_hash
-					where channel_hash = '%s' and channel_guid_sig = '%s' limit 1",
+					left join xchan on channel_portable_id = xchan_hash
+					where channel_portable_id = '%s' limit 1",
 					dbesc($recip)
 				);
 				if ($r) {
@@ -257,10 +255,5 @@ class Zot6Handler implements IHandler {
 
 		return $ret;
 	}
-
-
-
-
-
 
 }

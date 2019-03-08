@@ -190,7 +190,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		return $result;
 	}
 
-	$allowed = (($is_zot || $r[0]['xchan_network'] === 'rss') ? 1 : 0);
+	$allowed = (($is_zot || in_array($r[0]['xchan_network'],['rss','zot6'])) ? 1 : 0);
 
 	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => $allowed, 'singleton' => 0);
 
@@ -266,9 +266,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		}
 	}
 	else {
-		$closeness = get_pconfig($uid,'system','new_abook_closeness');
-		if($closeness === false)
-			$closeness = 80;
+		$closeness = get_pconfig($uid,'system','new_abook_closeness',80);
 
 		$r = abook_store_lowlevel(
 			[

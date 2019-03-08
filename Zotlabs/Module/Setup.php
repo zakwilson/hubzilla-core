@@ -39,12 +39,12 @@ class Setup extends \Zotlabs\Web\Controller {
 		ini_set('display_errors', '1');
 
 		// $baseurl/setup/testrewrite to test if rewrite in .htaccess is working
-		if (argc() == 2 && argv(1) == "testrewrite") {
+		if(argc() == 2 && argv(1) == 'testrewrite') {
 			echo 'ok';
 			killme();
 		}
 
-		if (x($_POST, 'pass')) {
+		if(x($_POST, 'pass')) {
 			$this->install_wizard_pass = intval($_POST['pass']);
 		} else {
 			$this->install_wizard_pass = 1;
@@ -63,7 +63,6 @@ class Setup extends \Zotlabs\Web\Controller {
 				return;
 				// implied break;
 			case 3:
-				$urlpath = \App::get_path();
 				$dbhost = trim($_POST['dbhost']);
 				$dbport = intval(trim($_POST['dbport']));
 				$dbuser = trim($_POST['dbuser']);
@@ -89,7 +88,6 @@ class Setup extends \Zotlabs\Web\Controller {
 				return;
 				// implied break;
 			case 4:
-				$urlpath = \App::get_path();
 				$dbhost = trim($_POST['dbhost']);
 				$dbport = intval(trim($_POST['dbport']));
 				$dbuser = trim($_POST['dbuser']);
@@ -162,7 +160,6 @@ class Setup extends \Zotlabs\Web\Controller {
 	 *
 	 * @return string parsed HTML output
 	 */
-
 	function get() {
 
 		$o = '';
@@ -213,10 +210,10 @@ class Setup extends \Zotlabs\Web\Controller {
 		}
 
 		if(x(\App::$data, 'txt') && strlen(\App::$data['txt'])) {
-			$db_return_text .= $this->manual_config($a);
+			$db_return_text .= $this->manual_config();
 		}
 
-		if ($db_return_text != "") {
+		if($db_return_text != '') {
 			$tpl = get_markup_template('install.tpl');
 			return replace_macros($tpl, array(
 				'$title' => $install_title,
@@ -242,7 +239,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 				$this->check_keys($checks);
 
-				if (x($_POST, 'phpath'))
+				if(x($_POST, 'phpath'))
 					$phpath = notags(trim($_POST['phpath']));
 
 				$this->check_php($phpath, $checks);
@@ -278,7 +275,6 @@ class Setup extends \Zotlabs\Web\Controller {
 				$dbtype = intval(trim($_POST['dbtype']));
 				$phpath = trim($_POST['phpath']);
 				$adminmail = trim($_POST['adminmail']);
-				$siteurl = trim($_POST['siteurl']);
 
 				$tpl = get_markup_template('install_db.tpl');
 				$o .= replace_macros($tpl, array(
@@ -320,7 +316,6 @@ class Setup extends \Zotlabs\Web\Controller {
 				$phpath = trim($_POST['phpath']);
 
 				$adminmail = trim($_POST['adminmail']);
-				$siteurl = trim($_POST['siteurl']);
 				$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
 
 
@@ -363,12 +358,12 @@ class Setup extends \Zotlabs\Web\Controller {
 	 * @param string $help optional help string
 	 */
 	function check_add(&$checks, $title, $status, $required, $help = '') {
-		$checks[] = array(
+		$checks[] = [
 			'title'    => $title,
 			'status'   => $status,
 			'required' => $required,
 			'help'     => $help
-		);
+		];
 	}
 
 	/**
@@ -380,12 +375,12 @@ class Setup extends \Zotlabs\Web\Controller {
 	function check_php(&$phpath, &$checks) {
 		$help = '';
 
-		if(version_compare(PHP_VERSION, '5.5') < 0) {
-			$help .= t('PHP version 5.5 or greater is required.');
+		if(version_compare(PHP_VERSION, '7.1') < 0) {
+			$help .= t('PHP version 7.1 or greater is required.');
 			$this->check_add($checks, t('PHP version'), false, false, $help);
 		}
 
-		if (strlen($phpath)) {
+		if(strlen($phpath)) {
 			$passed = file_exists($phpath);
 		}
 		elseif(function_exists('shell_exec')) {
@@ -419,6 +414,7 @@ class Setup extends \Zotlabs\Web\Controller {
 				$result = trim(shell_exec($cmd));
 			else
 				$help .= t('Unable to check command line PHP, as shell_exec() is disabled. This is required.') . EOL;
+
 			$passed2 = (($result == $str) ? true : false);
 			if(!$passed2) {
 				$help .= t('The command line version of PHP on your system does not have "register_argc_argv" enabled.'). EOL;
@@ -441,13 +437,18 @@ class Setup extends \Zotlabs\Web\Controller {
 		require_once 'include/environment.php';
 
 		$help = '';
+		$mem_warning = '';
 
 		$result = getPhpiniUploadLimits();
+		if($result['post_max_size'] < 4194304 || $result['max_upload_filesize'] < 4194304) {
+			$mem_warning = '<strong>' .t('This is not sufficient to upload larger images or files. You should be able to upload at least 4 MB at once.') . '</strong>';
+		}
 		$help = sprintf(t('Your max allowed total upload size is set to %s. Maximum size of one file to upload is set to %s. You are allowed to upload up to %d files at once.'),
 				userReadableSize($result['post_max_size']),
 				userReadableSize($result['max_upload_filesize']),
 				$result['max_file_uploads']
 				);
+		$help .= $mem_warning;
 		$help .= '<br><br>' . t('You can adjust these settings in the server php.ini file.');
 
 		$this->check_add($checks, t('PHP upload limits'), true, false, $help);
@@ -462,7 +463,7 @@ class Setup extends \Zotlabs\Web\Controller {
 		$help = '';
 		$res = false;
 
-		if (function_exists('openssl_pkey_new')) {
+		if(function_exists('openssl_pkey_new')) {
 			$res = openssl_pkey_new(array(
 					'digest_alg' => 'sha1',
 					'private_key_bits' => 4096,
@@ -472,7 +473,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 		// Get private key
 
-		if (! $res) {
+		if(! $res) {
 			$help .= t('Error: the "openssl_pkey_new" function on this system is not able to generate encryption keys'). EOL;
 			$help .= t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
 		}
@@ -503,7 +504,7 @@ class Setup extends \Zotlabs\Web\Controller {
 		$this->check_add($ck_funcs, t('zip PHP module'), true, true);
 
 		if(function_exists('apache_get_modules')){
-			if (! in_array('mod_rewrite', apache_get_modules())) {
+			if(! in_array('mod_rewrite', apache_get_modules())) {
 				$this->check_add($ck_funcs, t('Apache mod_rewrite module'), false, true, t('Error: Apache webserver mod-rewrite module is required but not installed.'));
 			} else {
 				$this->check_add($ck_funcs, t('Apache mod_rewrite module'), true, true);
@@ -572,7 +573,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 		$fname = '.htconfig.php';
 
-		if((file_exists($fname) && is_writable($fname)) || 
+		if((file_exists($fname) && is_writable($fname)) ||
 			(! (file_exists($fname) && is_writable('.')))) {
 			$this->check_add($checks, t('.htconfig.php is writable'), $status, true, $help);
 			return;
@@ -638,7 +639,7 @@ class Setup extends \Zotlabs\Web\Controller {
 
 		$url = z_root() . '/setup/testrewrite';
 
-		if (function_exists('curl_init')){
+		if(function_exists('curl_init')){
 			$test = z_fetch_url($url);
 			if(! $test['success']) {
 				if(strstr($url,'https://')) {
@@ -661,14 +662,13 @@ class Setup extends \Zotlabs\Web\Controller {
 					$help .= t('If your certificate is not recognized, members of other sites (who may themselves have valid certificates) will get a warning message on their own site complaining about security issues.') . EOL;
 					$help .= t('This can cause usability issues elsewhere (not just on your own site) so we must insist on this requirement.') .EOL;
 					$help .= t('Providers are available that issue free certificates which are browser-valid.'). EOL;
-
 					$help .= t('If you are confident that the certificate is valid and signed by a trusted authority, check to see if you have failed to install an intermediate cert. These are not normally required by browsers, but are required for server-to-server communications.') . EOL;
 
 					$this->check_add($checks, t('SSL certificate validation'), false, true, $help);
 				}
 			}
 
-			if ((! $test['success']) || ($test['body'] != "ok")) {
+			if((! $test['success']) || ($test['body'] != "ok")) {
 				$status = false;
 				$help = t('Url rewrite in .htaccess is not working. Check your server configuration.'.'Test: '.var_export($test,true));
 			}
@@ -682,10 +682,9 @@ class Setup extends \Zotlabs\Web\Controller {
 	/**
 	 * @brief
 	 *
-	 * @param App &$a
 	 * @return string with paresed HTML
 	 */
-	function manual_config(&$a) {
+	function manual_config() {
 		$data = htmlspecialchars(\App::$data['txt'], ENT_COMPAT, 'UTF-8');
 		$o = t('The database configuration file ".htconfig.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.');
 		$o .= "<textarea rows=\"24\" cols=\"80\" >$data</textarea>";
@@ -695,14 +694,19 @@ class Setup extends \Zotlabs\Web\Controller {
 
 	function load_database_rem($v, $i){
 		$l = trim($i);
-		if (strlen($l)>1 && ($l[0]=="-" || ($l[0]=="/" && $l[1]=="*"))){
+		if(strlen($l)>1 && ($l[0]=="-" || ($l[0]=="/" && $l[1]=="*"))){
 			return $v;
 		} else  {
 			return $v."\n".$i;
 		}
 	}
 
-
+	/**
+	 * @brief Executes the SQL install script and create database tables.
+	 *
+	 * @param dba_driver $db (unused)
+	 * @return boolean|string false on success or error message as string
+	 */
 	function load_database($db) {
 		$str = file_get_contents(\DBA::$dba->get_install_script());
 		$arr = explode(';', $str);
@@ -762,12 +766,12 @@ class Setup extends \Zotlabs\Web\Controller {
 	/**
 	 * @brief
 	 *
-	 * @param unknown $v
+	 * @param array $v
 	 * @param array $c
 	 * @return array
 	 */
 	static private function check_passed($v, $c) {
-		if ($c['required'])
+		if($c['required'])
 			$v = $v && $c['status'];
 
 		return $v;

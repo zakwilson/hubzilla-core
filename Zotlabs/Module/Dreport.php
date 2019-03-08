@@ -17,9 +17,17 @@ class Dreport extends \Zotlabs\Web\Controller {
 		
 		$mid = ((argc() > 1) ? argv(1) : '');
 
+		if(strpos($mid,'b64.') === 0)
+			$mid = @base64url_decode(substr($mid,4));
+
+
 		if($mid === 'push') {
 			$table = 'push';
 			$mid = ((argc() > 2) ? argv(2) : '');
+
+			if(strpos($mid,'b64.') === 0)
+				$mid = @base64url_decode(substr($mid,4));
+
 			if($mid) {	
 				$i = q("select id from item where mid = '%s' and uid = %d and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
 					dbesc($mid),
@@ -38,6 +46,9 @@ class Dreport extends \Zotlabs\Web\Controller {
 		if($mid === 'mail') {
 			$table = 'mail';
 			$mid = ((argc() > 2) ? argv(2) : '');
+			if(strpos($mid,'b64.') === 0)
+				$mid = @base64url_decode(substr($mid,4));
+
 		}
 	
 	
@@ -69,8 +80,9 @@ class Dreport extends \Zotlabs\Web\Controller {
 			return;
 		}
 		
-		$r = q("select * from dreport where dreport_xchan = '%s' and dreport_mid = '%s'",
+		$r = q("select * from dreport where (dreport_xchan = '%s' or dreport_xchan = '%s') and dreport_mid = '%s'",
 			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id']),
 			dbesc($mid)
 		);
 	
@@ -80,7 +92,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 		}
 		
 		for($x = 0; $x < count($r); $x++ ) {
-			$r[$x]['name'] = escape_tags(substr($r[$x]['dreport_recip'],strpos($r[$x]['dreport_recip'],' ')));
 	
 			// This has two purposes: 1. make the delivery report strings translateable, and
 			// 2. assign an ordering to item delivery results so we can group them and provide
@@ -138,14 +149,14 @@ class Dreport extends \Zotlabs\Web\Controller {
 		$entries = array();
 		foreach($r as $rr) {
 			$entries[] = [ 
-				'name' => $rr['name'],					
+				'name' => escape_tags($rr['dreport_name'] ?: $rr['dreport_recip']),					
 				'result' => escape_tags($rr['dreport_result']),
 				'time' => escape_tags(datetime_convert('UTC',date_default_timezone_get(),$rr['dreport_time']))
 			];
 		}
 
 		$o = replace_macros(get_markup_template('dreport.tpl'), array(
-			'$title' => sprintf( t('Delivery report for %1$s'),substr($mid,0,32)) . '...',
+			'$title' => sprintf( t('Delivery report for %1$s'),basename($mid)) . '...',
 			'$table' => $table,
 			'$mid' => urlencode($mid),
 			'$options' => t('Options'),
@@ -162,9 +173,9 @@ class Dreport extends \Zotlabs\Web\Controller {
 	
 	private static function dreport_gravity_sort($a,$b) {
 		if($a['gravity'] == $b['gravity']) {
-			if($a['name'] === $b['name'])
+			if($a['dreport_name'] === $b['dreport_name'])
 				return strcmp($a['dreport_time'],$b['dreport_time']);
-			return strcmp($a['name'],$b['name']);
+			return strcmp($a['dreport_name'],$b['dreport_name']);
 		}
 		return (($a['gravity'] > $b['gravity']) ? 1 : (-1));
 	}

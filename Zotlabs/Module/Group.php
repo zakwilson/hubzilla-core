@@ -66,6 +66,9 @@ class Group extends Controller {
 			$groupname = notags(trim($_POST['groupname']));
 			$public = intval($_POST['public']);
 	
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>$group['id'] ];
+                       	call_hooks ('privacygroup_extras_post',$hookinfo);
+
 			if((strlen($groupname))  && (($groupname != $group['gname']) || ($public != $group['visible']))) {
 				$r = q("UPDATE pgrp SET gname = '%s', visible = %d  WHERE uid = %d AND id = %d",
 					dbesc($groupname),
@@ -75,6 +78,8 @@ class Group extends Controller {
 				);
 				if($r)
 					info( t('Privacy group updated.') . EOL );
+
+
 				build_sync_packet(local_channel(),null,true);
 			}
 	
@@ -127,6 +132,10 @@ class Group extends Controller {
 				$i++;
 			}
 
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>argv(1) ];
+			call_hooks ('privacygroup_extras',$hookinfo);
+			$pgrp_extras = $hookinfo['pgrp_extras'];
+
 			$tpl = get_markup_template('privacy_groups.tpl');
 			$o = replace_macros($tpl, [
 				'$title' => t('Privacy Groups'),
@@ -136,6 +145,7 @@ class Group extends Controller {
 				// new group form
 				'$gname' => array('groupname',t('Privacy group name')),
 				'$public' => array('public',t('Members are visible to other channels'), false),
+				'$pgrp_extras' => $pgrp_extras,
 				'$form_security_token' => get_form_security_token("group_edit"),
 				'$submit' => t('Submit'),
 
@@ -166,8 +176,11 @@ class Group extends Controller {
 				);
 				if($r) 
 					$result = group_rmv(local_channel(),$r[0]['gname']);
-				if($result)
+				if($result) {
+					$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(2) ];
+					call_hooks ('privacygroup_extras_drop',$hookinfo);
 					info( t('Privacy group removed.') . EOL);
+				}
 				else
 					notice( t('Unable to remove privacy group.') . EOL);
 			}
@@ -230,6 +243,10 @@ class Group extends Controller {
 				}
 			}
 
+			$hookinfo = [ 'pgrp_extras' => '', 'group'=>$group['id'] ];
+			call_hooks ('privacygroup_extras',$hookinfo);
+			$pgrp_extras = $hookinfo['pgrp_extras'];
+
 			$context = $context + array(
 				'$title' => sprintf(t('Privacy Group: %s'), $group['gname']),
 				'$details_label' => t('Edit'),
@@ -240,6 +257,7 @@ class Group extends Controller {
 				'$form_security_token_edit' => get_form_security_token('group_edit'),
 				'$delete' => t('Delete Group'),
 				'$form_security_token_drop' => get_form_security_token("group_drop"),
+				'$pgrp_extras' => $pgrp_extras,
 			);
 	
 		}
@@ -283,6 +301,7 @@ class Group extends Controller {
 	
 		$context['$groupeditor'] = $groupeditor;
 		$context['$desc'] = t('Click a channel to toggle membership');
+		$context['$pgrp_extras'] = $pgrp_extras;
 	
 		if($change) {
 			$tpl = get_markup_template('groupeditor.tpl');

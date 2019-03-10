@@ -575,11 +575,29 @@ function init_groups_visitor($contact_id) {
 		}
 	}
 
-	// physical groups this channel is a member of
-
-	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan = '%s' ",
+	$x = q("select * from xchan where xchan_hash = '%s'",
 		dbesc($contact_id)
 	);
+
+	if (! $x) {
+		return $groups;
+	}
+
+	// include xchans for all zot-like networks
+
+	$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
+		dbesc($contact_id),
+		dbesc($x[0]['xchan_guid']),
+		dbesc($x[0]['xchan_pubkey'])
+	);
+
+	if($xchans) {
+		$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+	}
+		
+	// physical groups this identity is a member of
+
+	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan in ( " . protect_sprintf($hashes) . " ) " );
 	if($r) {
 		foreach($r as $rr)
 			$groups[] = $rr['hash'];

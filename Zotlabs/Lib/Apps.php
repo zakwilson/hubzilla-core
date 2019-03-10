@@ -328,6 +328,7 @@ class Apps {
 			'Bookmarks' => t('Bookmarks'),
 			'Chatrooms' => t('Chatrooms'),
 			'Content Filter' => t('Content Filter'),
+			'Content Import' => t('Content Import'),
 			'Connections' => t('Connections'),
 			'Remote Diagnostics' => t('Remote Diagnostics'),
 			'Suggest Channels' => t('Suggest Channels'),

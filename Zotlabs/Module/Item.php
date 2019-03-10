@@ -55,6 +55,7 @@ class Item extends Controller {
 			$sigdata = HTTPSig::verify(EMPTY_STR);
 			if($sigdata['portable_id'] && $sigdata['header_valid']) {
 				$portable_id = $sigdata['portable_id'];
+				observer_auth($portable_id);
 			}
 
 			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";

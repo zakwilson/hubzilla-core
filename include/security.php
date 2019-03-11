@@ -564,22 +564,38 @@ function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'f
 function init_groups_visitor($contact_id) {
 	$groups = [];
 
-	// private profiles are treated as a virtual group
-
-	$r = q("SELECT abook_profile from abook where abook_xchan = '%s' and abook_profile != '' ",
+	$x = q("select * from xchan where xchan_hash = '%s'",
 		dbesc($contact_id)
 	);
+
+	if (! $x) {
+		return $groups;
+	}
+
+	// include xchans for all zot-like networks
+
+	$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
+		dbesc($contact_id),
+		dbesc($x[0]['xchan_guid']),
+		dbesc($x[0]['xchan_pubkey'])
+	);
+
+	if($xchans) {
+		$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+	}
+
+	// private profiles are treated as a virtual group
+
+	$r = q("SELECT abook_profile from abook where abook_xchan in ( " . protect_sprintf($hashes) . " ) and abook_profile != '' ");
 	if($r) {
 		foreach($r as $rv) {
 			$groups[] = 'vp.' . $rv['abook_profile'];
 		}
 	}
 
-	// physical groups this channel is a member of
+	// physical groups this identity is a member of
 
-	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan = '%s' ",
-		dbesc($contact_id)
-	);
+	$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan in ( " . protect_sprintf($hashes) . " ) ");
 	if($r) {
 		foreach($r as $rr)
 			$groups[] = $rr['hash'];

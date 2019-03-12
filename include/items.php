@@ -914,6 +914,15 @@ function import_author_xchan($x) {
 	if(array_key_exists('network',$x) && $x['network'] === 'zot')
 		return $y;
 
+	// perform zot6 discovery
+
+	if($x['url']) {
+		$y = discover_by_webbie($x['url'],'zot6');
+ 		if($y) {
+			return $y;
+		}
+	}
+
 	if($x['network'] === 'rss') {
 		$y = import_author_rss($x);
 	}

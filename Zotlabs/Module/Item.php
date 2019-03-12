@@ -40,92 +40,78 @@ class Item extends Controller {
 
 	function init() {
 
-		if(Libzot::is_zot_request()) {
+		if (Libzot::is_zot_request()) {
 
 			$conversation = false;
 
 			$item_id = argv(1);
 
-			if(! $item_id)
+			if (! $item_id)
 				http_status_exit(404, 'Not found');
 
-
 			$portable_id = EMPTY_STR;
+
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";
+
+			$i = null;
+
+			// do we have the item (at all)?
+
+			$r = q("select * from item where mid = '%s' $item_normal limit 1",
+				dbesc(z_root() . '/item/' . $item_id)
+			);
+
+			if (! $r) {
+				http_status_exit(404,'Not found');
+			}
+
+			// process an authenticated fetch
 
 			$sigdata = HTTPSig::verify(EMPTY_STR);
 			if($sigdata['portable_id'] && $sigdata['header_valid']) {
 				$portable_id = $sigdata['portable_id'];
 				observer_auth($portable_id);
+
+				// first see if we have a copy of this item's parent owned by the current signer
+				// include xchans for all zot-like networks - these will have the same guid and public key
+
+				$x = q("select * from xchan where xchan_hash = '%s'",
+					dbesc($sigdata['portable_id'])
+				);
+
+				if ($x) {
+					$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
+						dbesc($sigdata['portable_id']),
+						dbesc($x[0]['xchan_guid']),
+						dbesc($x[0]['xchan_pubkey'])
+					);
+
+					if ($xchans) {
+						$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+						$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) ",
+							dbesc($r[0]['parent_mid'])
+						);
+					}
+				}
 			}
 
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";
+			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
 
 			$sql_extra = item_permissions_sql(0);
 
-			$r = null;
-
-
-			// first see if we have this item owned by the current signer
-
-			$x = q("select * from xchan where xchan_hash = '%s'",
-				dbesc($sigdata['portable_id'])
-			);
-
-			if ($x) {
-
-				// include xchans for all zot-like networks - these will have the same guid and public key
-
-				$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
-					dbesc($sigdata['portable_id']),
-					dbesc($x[0]['xchan_guid']),
-					dbesc($x[0]['xchan_pubkey'])
-				);
-
-				if ($xchans) {
-					$hashes = ids_to_querystr($xchans,'xchan_hash',true);
-					$r = q("select * from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) ",
-						dbesc(z_root() . '/item/' . $item_id)
-					);
-				}
-			}
-			
-			// then see if we can access it as a visitor
-
-			if (! $r) {
-
-				$r = q("select * from item where mid = '%s' $item_normal $sql_extra limit 1",
-					dbesc(z_root() . '/item/' . $item_id)
+			if (! $i) {
+				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra limit 1",
+					dbesc($r[0]['parent_mid'])
 				);
 			}
 
-			// fetch once more with no extra conditions to see what error condition applies
-
-			if(! $r) {
-
-
-				$r = q("select * from item where mid = '%s' $item_normal limit 1",
-					dbesc(z_root() . '/item/' . $item_id)
-				);
-				if($r) {
-					http_status_exit(403, 'Forbidden');
-				}
-				http_status_exit(404, 'Not found');
+			if(! $i) {
+				http_status_exit(403,'Forbidden');
 			}
 
-
-			$items = q("select parent as item_id from item where mid = '%s' and uid = %d $item_normal $sql_extra ",
-				dbesc($r[0]['parent_mid']),
-				intval($r[0]['uid'])
-			);
-			if(! $items) {
-				http_status_exit(404, 'Not found');
-			}
-
-			$r = $items;
-
-			$parents_str = ids_to_querystr($r,'item_id');
+			$parents_str = ids_to_querystr($i,'item_id');
 	
-			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal $sql_extra ",
+			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal ",
 				dbesc($parents_str)
 			);
 
@@ -133,9 +119,8 @@ class Item extends Controller {
 				http_status_exit(404, 'Not found');
 			}
 
-			$r = $items;
-			xchan_query($r,true);
-			$items = fetch_post_tags($r,true);
+			xchan_query($items,true);
+			$items = fetch_post_tags($items,true);
 
 			$observer = App::get_observer();
 			$parent = $items[0];

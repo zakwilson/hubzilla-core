@@ -918,6 +918,7 @@ function import_author_xchan($x) {
 
 	if($x['url']) {
 		$y = discover_by_webbie($x['url'],'zot6');
+
  		if($y) {
 			return $y;
 		}

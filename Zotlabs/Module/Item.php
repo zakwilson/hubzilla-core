@@ -62,9 +62,44 @@ class Item extends Controller {
 
 			$sql_extra = item_permissions_sql(0);
 
-			$r = q("select * from item where mid = '%s' $item_normal $sql_extra limit 1",
-				dbesc(z_root() . '/item/' . $item_id)
+			$r = null;
+
+
+			// first see if we have this item owned by the current signer
+
+			$x = q("select * from xchan where xchan_hash = '%s'",
+				dbesc($sigdata['portable_id'])
 			);
+
+			if ($x) {
+
+				// include xchans for all zot-like networks - these will have the same guid and public key
+
+				$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
+					dbesc($sigdata['portable_id']),
+					dbesc($x[0]['xchan_guid']),
+					dbesc($x[0]['xchan_pubkey'])
+				);
+
+				if ($xchans) {
+					$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+					$r = q("select * from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) ",
+						dbesc(z_root() . '/item/' . $item_id)
+					);
+				}
+			}
+			
+			// then see if we can access it as a visitor
+
+			if (! $r) {
+
+				$r = q("select * from item where mid = '%s' $item_normal $sql_extra limit 1",
+					dbesc(z_root() . '/item/' . $item_id)
+				);
+			}
+
+			// fetch once more with no extra conditions to see what error condition applies
+
 			if(! $r) {
 
 

@@ -88,7 +88,7 @@ class Item extends Controller {
 
 					if ($xchans) {
 						$hashes = ids_to_querystr($xchans,'xchan_hash',true);
-						$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) ",
+						$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) limit 1",
 							dbesc($r[0]['parent_mid'])
 						);
 					}

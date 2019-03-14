@@ -199,6 +199,7 @@ class Poller {
 		set_config('system','lastpoll',datetime_convert());
 
 		//All done - clear the lockfile	
+
 		@unlink($lockfile);
 
 		return;

@@ -305,3 +305,39 @@ function ping_site($url) {
 
 		return $ret;
 }
+
+
+function z6_discover() {
+
+	// find unregistered zot6 clone hublocs
+
+	$c = q("select channel_hash, portable_id from channel where channel_deleted = 0");
+	if ($c) {
+		foreach ($c as $entry) {
+			$q1 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url != '%s'",
+				dbesc($entry['channel_hash']),
+				dbesc(z_root())
+			);
+			if (! $q1) {
+				// channel has no zot clones
+				continue;
+			}
+			// does this particular server have a zot6 clone registered on our site for this channel?
+			foreach ($q1 as $q) {
+				$q2 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url = '%s'",
+					dbesc($entry['portable_id']),
+					dbesc($q['hubloc_url'])
+				);
+				if ($q2) {
+					continue;
+				}
+				// zot6 hubloc not found. 
+				if(strpos($entry['site_project'],'hubzilla') !== false && version_compare($entry['site_version'],'4.0') >= 0) {
+					// probe and store results - only for zot6 (over-ride the zot default)
+					discover_by_webbie($entry['hubloc_addr'],'zot6');
+				}
+			}
+		}
+	}
+
+}

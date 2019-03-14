@@ -763,11 +763,11 @@ function get_item_elements($x,$allow_code = false) {
 		// check the supplied signature against the supplied content.
 		// Note that we will purify the content which could change it.
 
-		$r = q("select xchan_pubkey from xchan where xchan_hash = '%s' limit 1",
+		$r = q("select xchan_pubkey, xchan_network from xchan where xchan_hash = '%s' limit 1",
 			dbesc($arr['author_xchan'])
 		);
 		if($r) {
-			if($r[0]['xchan_pubkey']) {
+			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot') {
 				if(rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey'])) {
 					$arr['item_verified'] = 1;
 				}

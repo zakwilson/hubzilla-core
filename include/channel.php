@@ -1439,7 +1439,7 @@ function profile_edit_menu($uid) {
  * @param boolean $show_connect (optional) default true
  * @param mixed $zcard (optional) default false
  *
- * @return HTML string suitable for sidebar inclusion
+ * @return string (HTML) suitable for sidebar inclusion
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  */
 function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = false) {

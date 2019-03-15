@@ -142,12 +142,10 @@ function create_account($arr) {
 	$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))  : '');
 	$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
 	$password    = ((x($arr,'password'))      ? trim($arr['password'])             : '');
-	$password2   = ((x($arr,'password2'))     ? trim($arr['password2'])            : '');
 	$parent      = ((x($arr,'parent'))        ? intval($arr['parent'])             : 0 );
 	$flags       = ((x($arr,'account_flags')) ? intval($arr['account_flags'])      : ACCOUNT_OK);
 	$roles       = ((x($arr,'account_roles')) ? intval($arr['account_roles'])      : 0 );
 	$expires     = ((x($arr,'expires'))       ? intval($arr['expires'])            : NULL_DATE);
-	$techlevel   = ((array_key_exists('techlevel',$arr)) ? intval($arr['techlevel']) : intval(get_config('system','techlevel')));
 
 	$default_service_class = get_config('system','default_service_class');
 
@@ -264,9 +262,8 @@ function create_account($arr) {
 function verify_email_address($arr) {
 
 	if(array_key_exists('resend',$arr)) {
-		$email = $arr['email'];
 		$a = q("select * from account where account_email = '%s' limit 1",
-			dbesc($arr['email'])
+		    dbesc($arr['email'])
 		);
 		if(! ($a && ($a[0]['account_flags'] & ACCOUNT_UNVERIFIED))) {
 			return false;
@@ -285,7 +282,7 @@ function verify_email_address($arr) {
 	else {
 		$hash = random_string(24);
 
-		$r = q("INSERT INTO register ( hash, created, uid, password, lang ) VALUES ( '%s', '%s', %d, '%s', '%s' ) ",
+		q("INSERT INTO register ( hash, created, uid, password, lang ) VALUES ( '%s', '%s', %d, '%s', '%s' ) ",
 			dbesc($hash),
 			dbesc(datetime_convert()),
 			intval($arr['account']['account_id']),
@@ -304,7 +301,7 @@ function verify_email_address($arr) {
 			'$email'    => $arr['email'],
 			'$uid'      => $account['account_id'],
 			'$hash'     => $hash,
-			'$details'  => $details
+			'$details'  => ''
 	 	]
 	);
 
@@ -318,9 +315,7 @@ function verify_email_address($arr) {
 
 	pop_lang();
 
-	if($res)
-		$delivered ++;
-	else
+	if(! $res)
 		logger('send_reg_approval_email: failed to account_id: ' . $arr['account']['account_id']);
 
 	return $res;
@@ -442,16 +437,17 @@ function account_allow($hash) {
 	if(! $account)
 		return $ret;
 
-	$r = q("DELETE FROM register WHERE hash = '%s'",
+	q("DELETE FROM register WHERE hash = '%s'",
 		dbesc($register[0]['hash'])
 	);
 
-	$r = q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_BLOCKED),
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['uid'])
 	);
-	$r = q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
+	
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
 		intval($register[0]['uid'])
@@ -516,11 +512,11 @@ function account_deny($hash) {
 	if(! $account)
 		return false;
 
-	$r = q("DELETE FROM account WHERE account_id = %d",
+	q("DELETE FROM account WHERE account_id = %d",
 		intval($register[0]['uid'])
 	);
 
-	$r = q("DELETE FROM register WHERE id = %d",
+	q("DELETE FROM register WHERE id = %d",
 		dbesc($register[0]['id'])
 	);
 	notice( sprintf(t('Registration revoked for %s'), $account[0]['account_email']) . EOL);
@@ -551,21 +547,23 @@ function account_approve($hash) {
 	if(! $account)
 		return $ret;
 
-	$r = q("DELETE FROM register WHERE hash = '%s' and password = 'verify'",
+	q("DELETE FROM register WHERE hash = '%s' and password = 'verify'",
 		dbesc($register[0]['hash'])
 	);
 
-	$r = q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_BLOCKED),
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['uid'])
 	);
-	$r = q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
+	
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
 		intval($register[0]['uid'])
 	);
-	$r = q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
+	
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_UNVERIFIED),
 		intval(ACCOUNT_UNVERIFIED),
 		intval($register[0]['uid'])
@@ -620,7 +618,7 @@ function downgrade_accounts() {
 
 	foreach($r as $rr) {
 		if(($basic) && ($rr['account_service_class']) && ($rr['account_service_class'] != $basic)) {
-			$x = q("UPDATE account set account_service_class = '%s', account_expires = '%s'
+			q("UPDATE account set account_service_class = '%s', account_expires = '%s'
 				where account_id = %d",
 				dbesc($basic),
 				dbesc(NULL_DATE),
@@ -631,7 +629,7 @@ function downgrade_accounts() {
 			logger('downgrade_accounts: Account id ' . $rr['account_id'] . ' downgraded.');
 		}
 		else {
-			$x = q("UPDATE account SET account_flags = (account_flags | %d) where account_id = %d",
+			q("UPDATE account SET account_flags = (account_flags | %d) where account_id = %d",
 				intval(ACCOUNT_EXPIRED),
 				intval($rr['account_id'])
 			);

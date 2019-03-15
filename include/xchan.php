@@ -1,6 +1,7 @@
 <?php
 
 use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 
 function xchan_store_lowlevel($arr) {

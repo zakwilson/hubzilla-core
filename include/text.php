@@ -20,7 +20,7 @@ define('RANDOM_STRING_TEXT', 0x01 );
 /**
  * @brief This is our template processor.
  *
- * @param string|SmartyEngine $s the string requiring macro substitution,
+ * @param string SmartyEngine $s the string requiring macro substitution,
  *   or an instance of SmartyEngine
  * @param array $r key value pairs (search => replace)
  *
@@ -2550,15 +2550,6 @@ function design_tools() {
  */
 function website_portation_tools() {
 
-	$channel  = App::get_channel();
-	$sys = false;
-
-	if(App::$is_sys && is_site_admin()) {
-		require_once('include/channel.php');
-		$channel = get_sys_channel();
-		$sys = true;
-	}
-
 	return replace_macros(get_markup_template('website_portation_tools.tpl'), [
 		'$title'               => t('Import'),
 		'$import_label'        => t('Import website...'),
@@ -2726,7 +2717,6 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 		$name = substr($tag,(($exclusive) ? 2 : 1));
 		$newname = $name; // make a copy that we can mess with
-		$tagcid = 0;
 
 		$r = null;
 
@@ -2785,13 +2775,8 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 		}
 
-
-
-
-
 		$fn_results = [];
 		$access_tag = EMPTY_STR;
-
 
 		// $r is set if we found something
 

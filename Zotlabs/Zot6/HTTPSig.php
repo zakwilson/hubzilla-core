@@ -5,6 +5,7 @@ namespace Zotlabs\Zot6;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\Webfinger;
 use Zotlabs\Web\HTTPHeaders;
+use Zotlabs\Lib\Libzot;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-10.
@@ -324,7 +325,7 @@ class HTTPSig {
 					if($l['rel'] === 'http://purl.org/zot/protocol/6.0' && array_key_exists('href',$l) && $l['href'] !== EMPTY_STR) {
 						$z = \Zotlabs\Lib\Zotfinger::exec($l['href']);
 						if($z) {
-							$i = Zotlabs\Lib\Libzot::import_xchan($z['data']);
+							$i = Libzot::import_xchan($z['data']);
 							if($i['success']) {
 								$key['portable_id'] = $i['hash'];
 

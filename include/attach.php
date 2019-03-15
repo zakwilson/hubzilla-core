@@ -321,7 +321,6 @@ function attach_can_view_folder($uid,$ob_hash,$folder_hash) {
 
 	$sql_extra = permissions_sql($uid,$ob_hash);
 	$hash = $folder_hash;
-	$result = false;
 
 	if(! $folder_hash) {
 		return perm_is_allowed($uid,$ob_hash,'view_storage');
@@ -352,7 +351,7 @@ function attach_can_view_folder($uid,$ob_hash,$folder_hash) {
  * @param string $hash
  * @param string $observer_hash
  * @param int $rev (optional) revision default 0
- * @return associative array with everything except data
+ * @return array (associative) with everything except data
  *  * \e boolean \b success boolean true or false
  *  * \e string \b message (optional) only when success is false
  *  * \e array \b data array of attach DB entry without data component
@@ -1224,7 +1223,7 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 			$ret['success'] = true;
 
 			// update the parent folder's lastmodified timestamp
-			$e = q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
+			q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
 				dbesc($created),
 				dbesc($arr['folder']),
 				intval($channel_id)
@@ -1269,8 +1268,6 @@ function attach_mkdirp($channel, $observer_hash, $arr = null) {
 
 	$ret = array('success' => false);
 	$channel_id = $channel['channel_id'];
-
-	$sql_options = '';
 
 	$basepath = 'store/' . $channel['channel_address'];
 
@@ -1374,7 +1371,7 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
 		}
 	}
 
-	$x = q("update attach set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where hash = '%s' and uid = %d",
+	q("update attach set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where hash = '%s' and uid = %d",
 		dbesc($allow_cid),
 		dbesc($allow_gid),
 		dbesc($deny_cid),
@@ -1383,7 +1380,7 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
 		intval($channel_id)
 	);
 	if($r[0]['is_photo']) {
-		$x = q("update photo set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where resource_id = '%s' and uid = %d",
+		q("update photo set allow_cid = '%s', allow_gid = '%s', deny_cid = '%s', deny_gid = '%s' where resource_id = '%s' and uid = %d",
 			dbesc($allow_cid),
 			dbesc($allow_gid),
 			dbesc($deny_cid),
@@ -1482,7 +1479,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	}
 
 	// delete from database
-	$z = q("DELETE FROM attach WHERE hash = '%s' AND uid = %d",
+	q("DELETE FROM attach WHERE hash = '%s' AND uid = %d",
 		dbesc($resource),
 		intval($channel_id)
 	);
@@ -1493,7 +1490,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 
 	// update the parent folder's lastmodified timestamp
-	$e = q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
+	q("UPDATE attach SET edited = '%s' WHERE hash = '%s' AND uid = %d",
 		dbesc(datetime_convert()),
 		dbesc($r[0]['folder']),
 		intval($channel_id)
@@ -1815,7 +1812,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 		$u_jsonobject = json_encode($object);
 
 		//we have got the relevant info - delete the old item before we create the new one
-		$z = q("DELETE FROM item WHERE obj_type = '%s' AND verb = '%s' AND mid = '%s'",
+		q("DELETE FROM item WHERE obj_type = '%s' AND verb = '%s' AND mid = '%s'",
 			dbesc(ACTIVITY_OBJ_FILE),
 			dbesc(ACTIVITY_POST),
 			dbesc($y[0]['mid'])
@@ -1946,7 +1943,6 @@ function attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $
 	$ret = array();
 	$parent_arr = array();
 	$count_values = array();
-	$poster = App::get_observer();
 
 	//lookup all channels in sharee group and add them to sharee $arr_allow_cid
 	if($arr_allow_gid) {
@@ -2351,7 +2347,6 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 		if(! $n)
 			return false;
 
-		$newdirname = $n[0]['filename'];
 		$newalbumname = $n[0]['display_path'];
 		$newstorepath = dbunescbin($n[0]['content']) . '/' . $resource_id;
 	}
@@ -2359,7 +2354,6 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 		// root directory
 
-		$newdirname = EMPTY_STR;
 		$newalbumname = EMPTY_STR;
 		$newstorepath = 'store/' . $c['channel_address'] . '/' . $resource_id;
 	}
@@ -2428,7 +2422,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 		}
 	}
 
-	$t = q("update attach set content = '%s', folder = '%s', filename = '%s' where id = %d",
+	q("update attach set content = '%s', folder = '%s', filename = '%s' where id = %d",
 		dbescbin($newstorepath),
 		dbesc($new_folder_hash),
 		dbesc($filename),
@@ -2438,7 +2432,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 	$x = attach_syspaths($channel_id,$resource_id);
 
-	$t1 = q("update attach set os_path = '%s', display_path = '%s' where id = %d",
+	q("update attach set os_path = '%s', display_path = '%s' where id = %d",
 		dbesc($x['os_path']),
 		dbesc($x['path']),
 		intval($r[0]['id'])
@@ -2446,7 +2440,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 
 
 	if($r[0]['is_photo']) {
-		$t = q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s'
+		q("update photo set album = '%s', filename = '%s', os_path = '%s', display_path = '%s'
 			where resource_id = '%s' and uid = %d",
 			dbesc($newalbumname),
 			dbesc($filename),
@@ -2456,7 +2450,7 @@ function attach_move($channel_id, $resource_id, $new_folder_hash) {
 			intval($channel_id)
 		);
 
-		$t = q("update photo set content = '%s' where resource_id = '%s' and uid = %d and imgscale = 0",
+		q("update photo set content = '%s' where resource_id = '%s' and uid = %d and imgscale = 0",
 			dbescbin($newstorepath),
 			dbesc($resource_id),
 			intval($channel_id)
@@ -2587,12 +2581,12 @@ function attach_upgrade() {
 		foreach($r as $rv) {
 			$x = attach_syspaths($rv['uid'],$rv['hash']);
 			if($x) {
-				$w = q("update attach set os_path = '%s', display_path = '%s' where id = %d",
+				q("update attach set os_path = '%s', display_path = '%s' where id = %d",
 					dbesc($x['os_path']),
 					dbesc($x['path']),
 					intval($rv['id'])
 				);
-				$y = q("update photo set os_path = '%s', display_path = '%s' where uid = %d and resource_id = '%s'",
+				q("update photo set os_path = '%s', display_path = '%s' where uid = %d and resource_id = '%s'",
 					dbesc($x['os_path']),
 					dbesc($x['path']),
 					intval($rv['uid']),

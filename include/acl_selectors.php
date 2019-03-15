@@ -84,7 +84,7 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	);
 	if($r) {
 		foreach($r as $rv) {
-			$selected = (($single_group && 'vp.' . $rr['hash'] === $allow_gid[0]) ? ' selected = "selected" ' : '');
+			$selected = (($single_group && 'vp.' . $rv['profile_guid'] === $allow_gid[0]) ? ' selected = "selected" ' : '');
 			$groups .= '<option id="' . 'vp' . $rv['id'] . '" value="' . 'vp.' . $rv['profile_guid'] . '"' . $selected . '>' . t('Profile','acl') . ' ' . $rv['profile_name'] . '</option>' . "\r\n";
 		}
 	}

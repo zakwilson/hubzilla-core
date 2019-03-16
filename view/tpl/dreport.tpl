@@ -6,7 +6,7 @@
 				<i class="fa fa-sort-desc"></i>
 			</button>
 			<ul class="dropdown-menu">
-				<li><a href="dreport/push/{{$mid}}">{{$push}}</a></li>
+				<li><a href="dreport/push/{{$safe_mid}}">{{$push}}</a></li>
 			</ul>
 		</div>
 		{{/if}}

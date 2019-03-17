@@ -151,8 +151,7 @@ class Zot6Handler implements IHandler {
 		/*
 		 * fetch the requested conversation
 		 */
-		/// @FIXME $sender_hash is undefined
-		$messages = zot_feed($c[0]['channel_id'],$sender_hash, [ 'message_id' => $data['message_id'], 'encoding' => 'activitystreams' ]);
+		$messages = zot_feed($c[0]['channel_id'], $sender, [ 'message_id' => $data['message_id'], 'encoding' => 'activitystreams' ]);
 
 		return (($messages) ? : [] );
 	}

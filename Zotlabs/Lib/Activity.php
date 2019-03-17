@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Daemon\Master;
 use Zotlabs\Zot6\HTTPSig;
 
 class Activity {
@@ -868,7 +869,7 @@ class Activity {
 					// Send an Accept back to them
 
 					set_abconfig($channel['channel_id'],$person_obj['id'],'pubcrawl','their_follow_id', $their_follow_id);
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_accept', $contact['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_accept', $contact['abook_id'] ]);
 					return;
 
 				case 'Accept':
@@ -969,9 +970,9 @@ class Activity {
 
 				if($my_perms && $automatic) {
 					// send an Accept for this Follow activity
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_accept', $new_connection[0]['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_accept', $new_connection[0]['abook_id'] ]);
 					// Send back a Follow notification to them
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
 				}
 
 				$clone = array();
@@ -1162,7 +1163,7 @@ class Activity {
 
 		$photos = import_xchan_photo($icon,$url);
 		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-			dbescdate(datetime_convert('UTC','UTC',$arr['photo_updated'])),
+			dbescdate(datetime_convert('UTC','UTC',$photos[5])),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),
@@ -1406,7 +1407,7 @@ class Activity {
 			if($parent) {
 				if($s['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$x['item_id']));
+					Master::Summon(array('Notifier','comment-import',$x['item_id']));
 				}
 				$r = q("select * from item where id = %d limit 1",
 					intval($x['item_id'])
@@ -1790,7 +1791,7 @@ class Activity {
 			$s['item_private'] = 1;
 
 		set_iconfig($s,'activitypub','recips',$act->raw_recips);
-
+		// @FIXME: $parent is not defined
 		if($parent) {
 			set_iconfig($s,'activitypub','rawmsg',$act->raw,1);
 		}
@@ -1921,10 +1922,11 @@ class Activity {
 
 
 		if(is_array($x) && $x['item_id']) {
+			// @FIXME: $parent is not defined
 			if($parent) {
 				if($s['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$x['item_id']));
+					Master::Summon(array('Notifier','comment-import',$x['item_id']));
 				}
 				$r = q("select * from item where id = %d limit 1",
 					intval($x['item_id'])
@@ -2060,7 +2062,7 @@ class Activity {
 		if($result['success']) {
 			// if the message isn't already being relayed, notify others
 			if(intval($parent_item['item_origin']))
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$result['item_id']));
+					Master::Summon(array('Notifier','comment-import',$result['item_id']));
 				sync_an_item($channel['channel_id'],$result['item_id']);
 		}
 

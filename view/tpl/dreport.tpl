@@ -3,11 +3,11 @@
 		{{if $table == 'item'}}
 		<div class="dropdown pull-right">
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$options}}">
-				<i class="fa fa-sort-desc"></i>
+				<i class="fa fa-cog"></i>
 			</button>
-			<ul class="dropdown-menu">
-				<li><a href="dreport/push/{{$mid}}">{{$push}}</a></li>
-			</ul>
+			<div class="dropdown-menu">
+				<a href="dreport/push/{{$mid}}" class="dropdown-item" >{{$push}}</a>
+			</div>
 		</div>
 		{{/if}}
 		<h2>{{$title}}</h2>

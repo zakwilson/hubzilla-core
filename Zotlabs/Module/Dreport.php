@@ -161,7 +161,8 @@ class Dreport extends \Zotlabs\Web\Controller {
 		$o = replace_macros(get_markup_template('dreport.tpl'), array(
 			'$title' => sprintf( t('Delivery report for %1$s'),basename($mid)) . '...',
 			'$table' => $table,
-			'$mid' => (($encoded_mid) ? $encoded_mid : $mid),
+			'$mid' => urlencode($mid),
+			'$safe_mid' => urlencode(gen_link_id($mid)),
 			'$options' => t('Options'),
 			'$push' => t('Redeliver'),
 			'$entries' => $entries

@@ -368,19 +368,19 @@ class Network extends \Zotlabs\Web\Controller {
 				'$static'  => $static, 
 				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$page'    => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
-				'$search'  => (($search) ? $search : ''),
-				'$xchan'   => $xchan,
+				'$search'  => (($search) ? urlencode($search) : ''),
+				'$xchan'   => (($xchan) ? urlencode($xchan) : ''),
 				'$order'   => $order,
-				'$file'    => $file,
-				'$cats'    => urlencode($category),
-				'$tags'    => urlencode($hashtags),
+				'$file'    => (($file) ? urlencode($file) : ''),
+				'$cats'    => (($category) ? urlencode($category) : ''),
+				'$tags'    => (($hashtags) ? urlencode($hashtags) : ''),
 				'$dend'    => $datequery,
 				'$mid'     => '',
-				'$verb'    => $verb,
-				'$net'     => $net,
+				'$verb'    => (($verb) ? urlencode($verb) : ''),
+				'$net'     => (($net) ? urlencode($net) : ''),
 				'$dbegin'  => $datequery2,
-				'$pf'      => (($pf) ? $pf : '0'),
-				'$unseen'  => $unseen
+				'$pf'      => (($pf) ? intval($pf) : 0),
+				'$unseen'  => (($unseen) ? urlencode($unseen) : '')
 			));
 		}
 	

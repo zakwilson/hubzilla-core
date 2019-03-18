@@ -6,7 +6,7 @@
 				<i class="fa fa-cog"></i>
 			</button>
 			<div class="dropdown-menu">
-				<a href="dreport/push/{{$mid}}" class="dropdown-item" >{{$push}}</a>
+				<a href="dreport/push/{{$safe_mid}}" class="dropdown-item">{{$push}}</a>
 			</div>
 		</div>
 		{{/if}}

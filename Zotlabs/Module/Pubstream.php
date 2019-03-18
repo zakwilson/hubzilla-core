@@ -149,11 +149,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				'$order'   => 'comment',
 				'$file'    => '',
 				'$cats'    => '',
-				'$tags'    => $hashtags,
+				'$tags'    => (($hashtags) ? urlencode($hashtags) : ''),
 				'$dend'    => '',
-				'$mid'     => $mid,
+				'$mid'     => (($mid) ? urlencode($mid) : ''),
 				'$verb'    => '',
-				'$net'     => $net,
+				'$net'     => (($net) ? urlencode($net) : ''),
 				'$dbegin'  => ''
 			));
 		}

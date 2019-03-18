@@ -848,7 +848,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				killme();
 			}
 			else {
-				$o .= '<script>var page_query = "' . escape_tags($_GET['q']) . '"; var extra_args = "' . extra_query_args() . '";</script>';
+				$o .= "<script> var page_query = '" . escape_tags(urlencode($_GET['q'])) . "'; var extra_args = '" . extra_query_args() . "' ; </script>";
 				$tpl = get_markup_template('photo_album.tpl');
 				$o .= replace_macros($tpl, array(
 					'$photos' => $photos,
@@ -1396,7 +1396,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			killme();
 		}
 		else {
-			$o .= '<script>var page_query = "' . escape_tags($_GET['q']) . '"; var extra_args = "' . extra_query_args() . '";</script>';
+			$o .= "<script> var page_query = '" . escape_tags(urlencode($_GET['q'])) . "'; var extra_args = '" . extra_query_args() . "' ; </script>";
 			$tpl = get_markup_template('photos_recent.tpl'); 
 			$o .= replace_macros($tpl, array(
 				'$title' => t('Recent Photos'),

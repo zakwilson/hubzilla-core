@@ -329,7 +329,7 @@ class Connections extends \Zotlabs\Web\Controller {
 			killme();
 		}
 		else {
-			$o .= '<script>var page_query = "' . escape_tags($_GET['q']) . '"; var extra_args = "' . extra_query_args() . '";</script>';
+			$o .= "<script> var page_query = '" . escape_tags(urlencode($_GET['q'])) . "'; var extra_args = '" . extra_query_args() . "' ; </script>";
 			$o .= replace_macros(get_markup_template('connections.tpl'),array(
 				'$header' => t('Connections') . (($head) ? ': ' . $head : ''),
 				'$tabs' => $tabs,

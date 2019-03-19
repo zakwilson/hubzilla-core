@@ -527,6 +527,10 @@ class Activity {
 		else
 			return []; 
 
+		if(strpos($i['body'],'[/share]') !== false) {
+			$i['obj'] = null;
+		}
+
 		if($i['obj']) {
 			if(! is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'],true);

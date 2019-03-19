@@ -49,7 +49,9 @@
 		"behat/mink-extension": "@stable",
 		"behat/mink-goutte-driver": "@stable",
 		"php-mock/php-mock-phpunit": "@stable",
-		"phpunit/dbunit": "@stable"
+		"phpunit/dbunit": "@stable",
+		"phpmd/phpmd": "^2.6",
+		"squizlabs/php_codesniffer": "*"
 	},
 	"autoload" : {
 		"psr-4" : {

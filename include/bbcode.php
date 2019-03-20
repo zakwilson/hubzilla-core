@@ -1382,4 +1382,3 @@ function bbcode($Text, $options = []) {
 
 	return $Text;
 }
-

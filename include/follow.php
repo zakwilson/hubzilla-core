@@ -119,6 +119,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		if( array_key_exists('permissions',$j) && array_key_exists('data',$j['permissions'])) {
 			$permissions = crypto_unencapsulate(array(
 				'data' => $j['permissions']['data'],
+				'alg'  => $j['permissions']['alg'],
 				'key'  => $j['permissions']['key'],
 				'iv'   => $j['permissions']['iv']),
 				$channel['channel_prvkey']);

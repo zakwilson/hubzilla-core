@@ -1,3 +1,33 @@
+Hubzilla 4.0.1 (2019-03-21)
+	- Fix permissions not getting decrypted on follow
+	- Add option to add a poster to the video bbcode
+	- Fix SQL performance issue with queries including thr_parent
+	- Fix share encoding issue between hz and zap
+	- Fix edge case in unsupported advisory privacy
+	- Messagefilter enhancements
+	- Fix XSS issues
+	- Clone systems apps to the extent possible
+	- Auto-configure imagick thumbnail binary during setup if possible
+	- Fix array not unserialized in util/service_class
+	- Add phpmd and phpcs to composer require-dev for code linting
+	- Fix issue with email encoding
+	- Fix signature issue for zot6 content imported from zotfeeds to hubzilla
+	- Find unregistered z6 clones on hubzilla sites
+	- Add zot6 to clonable networks
+	- Add owner permission checks to AS item fetch
+	- Perform zot6 discovery in import_author_xchan
+	- Fix authenticated fetches
+	- Port zot_record_preferred() from zap
+	
+	Addons:
+	- Pubcrawl: deliver comments to abook contacts and thread participants
+	- Pubcrawl: fix can_comment_on_post()
+	- Deliverynotice: do not save empty postopts
+	- Gravatar: fix URL and use z_fetch_url()
+	- Pubcrawl: improve SQL queries in pubcrawl_item_mod_init()
+	- Pubcrawl: fix authenticated item fetch
+
+
 Hubzilla 4.0 (2019-03-08)
 	- Add CURLOPT_CONNECTTIMEOUT option
 	- Allow parameters as final path argument in API router

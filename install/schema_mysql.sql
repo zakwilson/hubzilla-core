@@ -691,19 +691,16 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `changed` (`changed`),
   KEY `item_origin` (`item_origin`),
   KEY `item_wall` (`item_wall`),
-  KEY `item_unseen` (`item_unseen`),
   KEY `item_uplink` (`item_uplink`),
-  KEY `item_notshown` (`item_notshown`),
   KEY `item_nsfw` (`item_nsfw`),
-  KEY `item_relay` (`item_relay`),
   KEY `item_mentionsme` (`item_mentionsme`),
   KEY `item_nocomment` (`item_nocomment`),
   KEY `item_obscured` (`item_obscured`),
-  KEY `item_verified` (`item_verified`),
   KEY `item_rss` (`item_rss`),
   KEY `item_consensus` (`item_consensus`),
   KEY `item_deleted_pending_remove_changed` (`item_deleted`, `item_pending_remove`, `changed`),
-  KEY `item_pending_remove_changed` (`item_pending_remove`, `changed`)
+  KEY `item_pending_remove_changed` (`item_pending_remove`, `changed`),
+  KEY `thr_parent` (`thr_parent`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `item_id` (

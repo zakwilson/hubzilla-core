@@ -16,17 +16,20 @@ class Dreport extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 		
 		$mid = ((argc() > 1) ? argv(1) : '');
+		$encoded_mid = '';
 
-		if(strpos($mid,'b64.') === 0)
+		if(strpos($mid,'b64.') === 0) {
+			$encoded_mid = $mid;
 			$mid = @base64url_decode(substr($mid,4));
-
-
+		}
 		if($mid === 'push') {
 			$table = 'push';
 			$mid = ((argc() > 2) ? argv(2) : '');
 
-			if(strpos($mid,'b64.') === 0)
+			if(strpos($mid,'b64.') === 0) {
+				$encoded_mid = $mid;
 				$mid = @base64url_decode(substr($mid,4));
+			}
 
 			if($mid) {	
 				$i = q("select id from item where mid = '%s' and uid = %d and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
@@ -40,7 +43,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 				}
 			}
 			sleep(3);
-			goaway(z_root() . '/dreport/' . urlencode($mid));
+			goaway(z_root() . '/dreport/' . (($encoded_mid) ? $encoded_mid : $mid));
 		}
 
 		if($mid === 'mail') {
@@ -159,6 +162,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 			'$title' => sprintf( t('Delivery report for %1$s'),basename($mid)) . '...',
 			'$table' => $table,
 			'$mid' => urlencode($mid),
+			'$safe_mid' => urlencode(gen_link_id($mid)),
 			'$options' => t('Options'),
 			'$push' => t('Redeliver'),
 			'$entries' => $entries

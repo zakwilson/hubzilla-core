@@ -948,6 +948,18 @@ function identity_basic_export($channel_id, $sections = null) {
 			}
 			$ret['app'] = $r;
 		}
+		$r = q("select * from app where app_channel = %d and app_system = 1",
+			intval($channel_id)
+		);
+		if($r) {
+			for($x = 0; $x < count($r); $x ++) {
+				$r[$x]['term'] = q("select * from term where otype = %d and oid = %d",
+					intval(TERM_OBJ_APP),
+					intval($r[$x]['id'])
+				);
+			}
+			$ret['sysapp'] = $r;
+		}
 	}
 
 	if(in_array('chatrooms',$sections)) {
@@ -1439,7 +1451,7 @@ function profile_edit_menu($uid) {
  * @param boolean $show_connect (optional) default true
  * @param mixed $zcard (optional) default false
  *
- * @return HTML string suitable for sidebar inclusion
+ * @return string (HTML) suitable for sidebar inclusion
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  */
 function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = false) {

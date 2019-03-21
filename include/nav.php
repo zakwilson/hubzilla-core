@@ -42,6 +42,10 @@ function nav($template = 'default') {
 
 	require_once('include/conversation.php');
 
+	$nav_apps = [];
+	$navbar_apps = [];
+	$channel_apps = [];
+	
 	$channel_apps[] = channel_apps($is_owner, App::$profile['channel_address']);
 
 
@@ -178,7 +182,6 @@ function nav($template = 'default') {
 		default:
 			$search_form_action = 'search';
 	}
-
 
 	$nav['search'] = ['search', t('Search'), "", t('Search site @name, !forum, #tag, ?docs, content'), $search_form_action];
 
@@ -378,16 +381,15 @@ function channel_apps($is_owner = false, $nickname = null) {
 	if(App::$is_sys)
 		return '';
 
-	if(! get_pconfig($uid, 'system', 'channelapps','1'))
-		return '';
-
 	$channel = App::get_channel();
 
 	if($channel && is_null($nickname))
 		$nickname = $channel['channel_address'];
 
 	$uid = ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : local_channel());
-	$account_id = ((App::$profile['profile_uid']) ? App::$profile['channel_account_id'] : App::$channel['channel_account_id']);
+
+	if(! get_pconfig($uid, 'system', 'channelapps','1'))
+	    return;
 
 	if($uid == local_channel()) {
 		return;

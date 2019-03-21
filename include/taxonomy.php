@@ -543,8 +543,6 @@ function article_catblock($uid,$count = 0,$authors = '',$owner = '', $flags = 0,
 function dir_tagblock($link,$r) {
 	$o = '';
 
-	$observer = get_observer_hash();
-
 	if(! $r)
 		$r = App::$data['directory_keywords'];
 

@@ -1712,13 +1712,17 @@ function allowed_public_recips($msg) {
 			$condensed_recips[] = $rr['hash'];
 
 		$results = array();
-		$r = q("select channel_hash as hash from channel left join abook on abook_channel = channel_id where abook_xchan = '%s' and channel_removed = 0 ",
+		$r = q("select channel_hash as hash, channel_id from channel left join abook on abook_channel = channel_id where abook_xchan = '%s' and channel_removed = 0 ",
 			dbesc($hash)
 		);
 		if($r) {
-			foreach($r as $rr)
+			foreach($r as $rr) {
+				$cfg = get_abconfig($rr['channel_id'],$rr['hash'],'their_perms','view_stream');
+				if((! $cfg) && $scope !== 'any connections')
+					continue;
 				if(in_array($rr['hash'],$condensed_recips))
 					$results[] = array('hash' => $rr['hash']);
+			}
 		}
 		return $results;
 	}

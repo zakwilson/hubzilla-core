@@ -183,7 +183,6 @@ function nav($template = 'default') {
 			$search_form_action = 'search';
 	}
 
-
 	$nav['search'] = ['search', t('Search'), "", t('Search site @name, !forum, #tag, ?docs, content'), $search_form_action];
 
 	/**

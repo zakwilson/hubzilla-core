@@ -33,7 +33,7 @@ class Subthread extends \Zotlabs\Web\Controller {
 
 		if(! $i) {
 			$i = q("select * from item where id = %d and uid = %d",
-				intval($postid),
+				intval($item_id),
 				intval($sys['channel_id'])
 			);
 

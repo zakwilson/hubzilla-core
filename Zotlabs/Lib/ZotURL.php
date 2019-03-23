@@ -66,7 +66,7 @@ class ZotURL {
 
 	}
 
-	static public function is_zoturl($s) {
+	static public function is_zoturl($url) {
 
 		if(strpos($url,'x-zot:') === 0) {
 			return true;

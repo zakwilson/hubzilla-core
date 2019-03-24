@@ -311,7 +311,7 @@ function z6_discover() {
 
 	// find unregistered zot6 clone hublocs
 
-	$c = q("select channel_hash, portable_id from channel where channel_deleted = 0");
+	$c = q("select channel_hash, channel_portable_id from channel where channel_deleted = 0");
 	if ($c) {
 		foreach ($c as $entry) {
 			$q1 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url != '%s'",

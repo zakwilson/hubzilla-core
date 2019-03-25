@@ -175,6 +175,11 @@ class Display extends \Zotlabs\Web\Controller {
 			 	return '';
 			}
 		}
+		if ($target_item['item_type'] == ITEM_TYPE_CUSTOM) {
+			call_hooks('item_custom_display',$target_item);
+			notice( t('Page not found.') . EOL);
+			return '';
+		}
 		
 		
 		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);

@@ -127,6 +127,20 @@ class Connections extends \Zotlabs\Web\Controller {
 			$unblocked = true;
 		}
 	
+		switch($_REQUEST['order']) {
+			case 'name_desc':
+				$sql_order = 'xchan_name DESC';
+				break;
+			case 'connected':
+				$sql_order = 'abook_created';
+				break;
+			case 'connected_desc':
+				$sql_order = 'abook_created DESC';
+				break;
+			default:
+				$sql_order = 'xchan_name';
+		}
+
 		$search = ((x($_REQUEST,'search')) ? notags(trim($_REQUEST['search'])) : '');
 	
 		$tabs = array(
@@ -233,7 +247,7 @@ class Connections extends \Zotlabs\Web\Controller {
 		}
 	
 		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash
-			WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ORDER BY xchan_name LIMIT %d OFFSET %d ",
+			WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ORDER BY $sql_order LIMIT %d OFFSET %d ",
 			intval(local_channel()),
 			intval(App::$pager['itemspage']),
 			intval(App::$pager['start'])
@@ -307,7 +321,7 @@ class Connections extends \Zotlabs\Web\Controller {
 						'ignore_hover' => t('Ignore connection'),
 						'ignore' => ((! $rr['abook_ignored']) ? t('Ignore') : false),
 						'recent_label' => t('Recent activity'),
-						'recentlink' => z_root() . '/network/?f=&cid=' . intval($rr['abook_id']),
+						'recentlink' => z_root() . '/network/?f=&cid=' . intval($rr['abook_id']) . '&name=' . $rr['xchan_name'],
 						'oneway' => $oneway
 					);
 				}

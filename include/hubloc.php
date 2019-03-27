@@ -311,7 +311,9 @@ function z6_discover() {
 
 	// find unregistered zot6 clone hublocs
 
-	$c = q("select channel_hash, channel_portable_id from channel where channel_deleted = 0");
+	$c = q("select channel_hash, channel_portable_id from channel where channel_deleted = '%s'",
+		dbesc(NULL_DATE)
+	);
 	if ($c) {
 		foreach ($c as $entry) {
 			$q1 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url != '%s'",
@@ -332,9 +334,9 @@ function z6_discover() {
 					continue;
 				}
 				// zot6 hubloc not found. 
-				if(strpos($entry['site_project'],'hubzilla') !== false && version_compare($entry['site_version'],'4.0') >= 0) {
+				if(strpos($q['site_project'],'hubzilla') !== false && version_compare($q['site_version'],'4.0') >= 0) {
 					// probe and store results - only for zot6 (over-ride the zot default)
-					discover_by_webbie($entry['hubloc_addr'],'zot6');
+					discover_by_webbie($q['hubloc_addr'],'zot6');
 				}
 			}
 		}

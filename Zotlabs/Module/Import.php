@@ -234,7 +234,7 @@ class Import extends \Zotlabs\Web\Controller {
 					dbesc(z_root())
 				);
 			}
-			
+
 			// create a new zot6 hubloc if we have got a channel_portable_id
 			if($channel['channel_portable_id']) {
 				$r = hubloc_store_lowlevel(
@@ -252,7 +252,7 @@ class Import extends \Zotlabs\Web\Controller {
 						'hubloc_sitekey'  => get_config('system','pubkey'),
 						'hubloc_updated'  => datetime_convert(),
 						'hubloc_id_url'   => channel_url($channel),
-						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'));
+						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'))
 
 					]
 				);

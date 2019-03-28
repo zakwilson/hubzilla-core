@@ -327,7 +327,7 @@ function z6_discover() {
 			// does this particular server have a zot6 clone registered on our site for this channel?
 			foreach ($q1 as $q) {
 				$q2 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url = '%s'",
-					dbesc($entry['portable_id']),
+					dbesc($entry['channel_portable_id']),
 					dbesc($q['hubloc_url'])
 				);
 				if ($q2) {

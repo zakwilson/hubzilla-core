@@ -228,13 +228,45 @@ class Import extends \Zotlabs\Web\Controller {
 			);
 
 			// reset the original primary hubloc if it is being seized
-
 			if($seize) {
 				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
 					dbesc($channel['channel_hash']),
 					dbesc(z_root())
 				);
 			}
+
+			// create a new zot6 hubloc if we have got a channel_portable_id
+			if($channel['channel_portable_id']) {
+				$r = hubloc_store_lowlevel(
+					[
+						'hubloc_guid'     => $channel['channel_guid'],
+						'hubloc_guid_sig' => 'sha256.' . $channel['channel_guid_sig'],
+						'hubloc_hash'     => $channel['channel_portable_id'],
+						'hubloc_addr'     => channel_reddress($channel),
+						'hubloc_network'  => 'zot6',
+						'hubloc_primary'  => (($seize) ? 1 : 0),
+						'hubloc_url'      => z_root(),
+						'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+						'hubloc_host'     => \App::get_hostname(),
+						'hubloc_callback' => z_root() . '/zot',
+						'hubloc_sitekey'  => get_config('system','pubkey'),
+						'hubloc_updated'  => datetime_convert(),
+						'hubloc_id_url'   => channel_url($channel),
+						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'))
+
+					]
+				);
+
+				// reset the original primary hubloc if it is being seized
+				if($seize) {
+					$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
+						dbesc($channel['channel_portable_id']),
+						dbesc(z_root())
+					);
+				}
+
+			}
+
 		}
 
 		logger('import step 5');

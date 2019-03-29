@@ -8,7 +8,7 @@ require_once('include/import.php');
 require_once('include/perm_upgrade.php');
 require_once('library/urlify/URLify.php');
 
-use Zotlabs/Lib/Libzot;
+use Zotlabs\Lib\Libzot;
 
 
 /**

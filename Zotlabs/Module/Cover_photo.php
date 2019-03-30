@@ -48,6 +48,16 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 		
 		check_form_security_token_redirectOnErr('/cover_photo', 'cover_photo');
+
+		// Remove cover photo
+		if(isset($_POST['remove'])) {
+			q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+				intval(PHOTO_NORMAL),
+				intval(PHOTO_COVER),
+				intval(local_channel())
+			);
+			goaway(z_root() . '/cover_photo');
+		}
 	        
 		if((array_key_exists('cropfinal',$_POST)) && ($_POST['cropfinal'] == 1)) {
 	

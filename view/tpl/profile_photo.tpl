@@ -124,7 +124,7 @@
 			{{/if}}
 
 			<div id="profile-photo-submit-wrapper">
-				<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
+				<button type="submit" class="btn btn-outline-primary" name="submit" id="profile-photo-submit">{{$submit}}</button>
 			</div>
 		</div>
 

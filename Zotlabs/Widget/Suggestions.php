@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Widget;
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/socgraph.php');
 
 
@@ -9,9 +11,9 @@ class Suggestions {
 
 	function widget($arr) {
 
-		if((! local_channel()) || (! feature_enabled(local_channel(),'suggest')))
-			return '';
 
+		if((! local_channel()) || (! Apps::system_app_installed(local_channel(), 'Suggest Channels')))
+			return EMPTY_STR;
 
 		$r = suggestion_query(local_channel(),get_observer_hash(),0,20);
 

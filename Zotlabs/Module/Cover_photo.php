@@ -403,6 +403,7 @@ logger('gis: ' . print_r($gis,true));
 				'$lbl_profiles'        => t('Select a profile:'),
 				'$title'               => t('Change Cover Photo'),
 				'$submit'              => t('Upload'),
+				'$remove'              => t('Remove'),
 				'$profiles'            => $profiles,
 				'$embedPhotos' => t('Use a photo from your albums'),
 				'$embedPhotosModalTitle' => t('Use a photo from your albums'),

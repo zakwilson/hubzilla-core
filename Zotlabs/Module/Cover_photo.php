@@ -208,7 +208,10 @@ logger('gis: ' . print_r($gis,true));
 	
 					$channel = \App::get_channel();
 					$this->send_cover_photo_activity($channel,$base_image,$profile);
-	
+					
+					$sync = attach_export_data($channel,$base_image['resource_id']);
+					if($sync)
+					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 	
 				}
 				else
@@ -225,7 +228,7 @@ logger('gis: ' . print_r($gis,true));
 	
 		require_once('include/attach.php');
 	
-		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash));
+		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash, 'nosync' => true));
 	
 		logger('attach_store: ' . print_r($res,true));
 	

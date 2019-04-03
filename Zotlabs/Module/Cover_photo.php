@@ -51,11 +51,23 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 
 		// Remove cover photo
 		if(isset($_POST['remove'])) {
+			
+			$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
+				intval(PHOTO_COVER),
+				intval(local_channel())
+			);
+
 			q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
 				intval(PHOTO_NORMAL),
 				intval(PHOTO_COVER),
 				intval(local_channel())
 			);
+			
+			if($r) {
+				$sync = attach_export_data($channel,$r[0]['resource_id']);
+				if($sync)
+				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			}
 			goaway(z_root() . '/cover_photo');
 		}
 	        
@@ -205,8 +217,7 @@ logger('gis: ' . print_r($gis,true));
 						);
 						return;
 					}
-	
-					$channel = \App::get_channel();
+
 					$this->send_cover_photo_activity($channel,$base_image,$profile);
 					
 					$sync = attach_export_data($channel,$base_image['resource_id']);

@@ -56,18 +56,19 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				intval(PHOTO_COVER),
 				intval(local_channel())
 			);
-
-			q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
-				intval(PHOTO_NORMAL),
-				intval(PHOTO_COVER),
-				intval(local_channel())
-			);
 			
 			if($r) {
+			    q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+			    	intval(PHOTO_NORMAL),
+				    intval(PHOTO_COVER),
+				    intval(local_channel())
+			    );
+			
 				$sync = attach_export_data($channel,$r[0]['resource_id']);
 				if($sync)
 				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 			}
+			
 			goaway(z_root() . '/cover_photo');
 		}
 	        

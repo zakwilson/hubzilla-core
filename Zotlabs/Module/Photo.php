@@ -80,12 +80,12 @@ class Photo extends \Zotlabs\Web\Controller {
 				intval(PHOTO_PROFILE)
 			);
 			if($r) {
-				$modified = strtotime($r[0]['edited'] . "Z");
-				$mimetype = $r[0]['mimetype'];
+			    $modified = strtotime($r[0]['edited'] . "Z");
+			    $mimetype = $r[0]['mimetype'];
 			    if(intval($r[0]['os_storage']))
-				    $data = file_get_contents($data);
-				else
-				    $data = dbunescbin($r[0]['content']);
+			        $data = file_get_contents($data);
+			    else
+			        $data = dbunescbin($r[0]['content']);
 			}
 				
 			if(! $data) {

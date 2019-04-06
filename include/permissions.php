@@ -157,7 +157,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 		// If we're still here, we have an observer, check the network.
 
 		if($channel_perm & PERMS_NETWORK) {
-			if($x && $x[0]['xchan_network'] === 'zot') {
+			if($x && in_array($x[0]['xchan_network'],[ 'zot','zot6'])) {
 				$ret[$perm_name] = true;
 				continue;
 			}
@@ -321,6 +321,14 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 					dbesc($observer_xchan)
 				);
 				if($y) {
+
+					// This requires an explanation and the effects are subtle.
+					// The following line creates a fake connection, and this allows
+					// access tokens to have specific permissions even though they are 
+					// not actual connections.
+					// The existence of this fake entry must be checked when dealing 
+					// with connection related permissions.
+
 					$x = array(pseudo_abook($y[0]));
 				}
 			}
@@ -349,6 +357,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return true;
 
 	// If it's an unauthenticated observer, we only need to see if PERMS_PUBLIC is set
+	// We just did that.
 
 	if(! $observer_xchan) {
 		return false;
@@ -357,7 +366,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 	// If we're still here, we have an observer, check the network.
 
 	if($channel_perm & PERMS_NETWORK) {
-		if (($x && $x[0]['xchan_network'] === 'zot') || ($y && $y[0]['xchan_network'] === 'zot'))
+		if ($x && in_array($x[0]['xchan_network'], ['zot','zot6'])) 
 			return true;
 	}
 
@@ -373,8 +382,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return false;
 	}
 
-	// From here on we require that the observer be a connection and
-	// handle whether we're allowing any, approved or specific ones
+	// From here on we require that the observer be a connection or pseudo connection 
 
 	if(! $x) {
 		return false;

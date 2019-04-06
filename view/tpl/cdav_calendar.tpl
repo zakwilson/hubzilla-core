@@ -1,17 +1,24 @@
 <script>
-
-var new_event = [];
+var calendar;
+var new_event = {};
 var new_event_id = Math.random().toString(36).substring(7);
-var views = {'month' : '{{$month}}', 'agendaWeek' : '{{$week}}', 'agendaDay' : '{{$day}}', 'listMonth' : '{{$list_month}}', 'listWeek' : '{{$list_week}}', 'listDay' : '{{$list_day}}'};
+var views = {'dayGridMonth' : '{{$month}}', 'timeGridWeek' : '{{$week}}', 'timeGridDay' : '{{$day}}', 'listMonth' : '{{$list_month}}', 'listWeek' : '{{$list_week}}', 'listDay' : '{{$list_day}}'};
 
 $(document).ready(function() {
-	$('#calendar').fullCalendar({
+	var calendarEl = document.getElementById('calendar');
+	calendar = new FullCalendar.Calendar(calendarEl, {
+		plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
 		eventSources: [ {{$sources}} ],
+		
+		timeZone: '{{$timezone}}',
 
-		header: false,
+		locale: '{{$lang}}',
+
 		eventTextColor: 'white',
-
-		lang: '{{$lang}}',
+		header: false,
+		
+		height: 'auto',
+		
 		firstDay: {{$first_day}},
 
 		monthNames: aStr['monthNames'],
@@ -20,34 +27,45 @@ $(document).ready(function() {
 		dayNamesShort: aStr['dayNamesShort'],
 		allDayText: aStr['allday'],
 
-		timeFormat: 'HH:mm',
-		timezone: 'local',
-
 		defaultTimedEventDuration: '01:00:00',
 		snapDuration: '00:15:00',
+		
+		dateClick: function(info) {
+			if(new_event.id) {
+				var event_poi = calendar.getEventById(new_event.id);
+				event_poi.remove();
+				new_event = {};
+			}
 
-		dayClick: function(date, jsEvent, view) {
-
-			if(new_event.length)
-				$('#calendar').fullCalendar( 'removeEventSource', new_event);
+			var dtend = new Date(info.date.toUTCString());
+			if(info.view.type == 'dayGridMonth') {
+				dtend.setDate(dtend.getDate() + 1);
+			}
+			else{
+				dtend.setHours(dtend.getHours() + 1);
+			}
 
 			$('#event_uri').val('');
 			$('#id_title').val('New event');
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
-			$('#id_dtstart').val(date.format());
-			$('#id_dtend').val(date.hasTime() ? date.add(1, 'hours').format() : date.add(1, 'days').format());
+			$('#id_dtstart').val(info.date.toUTCString());
+			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
 			$('#id_description').val('');
 			$('#id_location').val('');
 			$('#event_submit').val('create_event').html('Create');
 			$('#event_delete').hide();
 
-			new_event = [{ id: new_event_id, title  : 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), editable: true, color: '#bbb' }]
-			$('#calendar').fullCalendar( 'addEventSource', new_event);
+			new_event = { id: new_event_id, title  : 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), editable: true, color: '#bbb' };
+			calendar.addEvent(new_event);
 		},
+		
+		eventClick: function(info) {
 
-		eventClick: function(event, jsEvent, view) {
-
-			if(event.id == new_event_id) {
+			var event = info.event._def;
+			var dtstart = new Date(info.event._instance.range.start);
+			var dtend = new Date(info.event._instance.range.end);
+			
+			if(event.publicId == new_event_id) {
 				$(window).scrollTop(0);
 				$('.section-content-tools-wrapper, #event_form_wrapper').show();
 				$('#recurrence_warning').hide();
@@ -55,79 +73,96 @@ $(document).ready(function() {
 				return false;
 			}
 
-			if($('main').hasClass('fullscreen') && view.type !== 'month' && event.rw)
-				$('#calendar').fullCalendar('option', 'height', 'auto');
-
-			if(new_event.length && event.rw) {
-				$('#calendar').fullCalendar( 'removeEventSource', new_event);
+			if(new_event.id && event.extendedProps.rw) {
+				var event_poi = calendar.getEventById(new_event.id);
+				event_poi.remove();
+				new_event = {};
 			}
-
-			if(!event.recurrent && event.rw) {
-				var start_clone = moment(event.start);
-				var noend_allday = start_clone.add(1, 'day').format('YYYY-MM-DD');
-
+			
+			if(!event.extendedProps.recurrent) {
 				$(window).scrollTop(0);
 				$('.section-content-tools-wrapper, #event_form_wrapper').show();
 				$('#recurrence_warning').hide();
-				$('#id_title').focus();
-
-				$('#event_uri').val(event.uri);
+				$('#event_uri').val(event.extendedProps.uri);
 				$('#id_title').val(event.title);
-				$('#calendar_select').val(event.calendar_id[0] + ':' + event.calendar_id[1]).attr('disabled', true);
-				$('#id_dtstart').val(event.start.format());
-				$('#id_dtend').val(event.end ? event.end.format() : event.start.hasTime() ? '' : noend_allday);
-				$('#id_description').val(event.description);
-				$('#id_location').val(event.location);
+				$('#calendar_select').val(event.extendedProps.calendar_id[0] + ':' + event.extendedProps.calendar_id[1]).attr('disabled', true);
+				$('#id_dtstart').val(dtstart.toUTCString());
+				$('#id_dtend').val(dtend.toUTCString());
+				$('#id_description').val(event.extendedProps.description);
+				$('#id_location').val(event.extendedProps.location);
 				$('#event_submit').val('update_event').html('Update');
-				$('#event_delete').show();
+				if(event.extendedProps.rw) {
+					$('#event_delete').show();
+					$('#event_submit').show();
+					$('#id_title').focus();
+					$('#id_title').attr('disabled', false);
+					$('#id_dtstart').attr('disabled', false);
+					$('#id_dtend').attr('disabled', false);
+					$('#id_description').attr('disabled', false);
+					$('#id_location').attr('disabled', false);
+				}
+				else {
+					$('#event_submit').hide();
+					$('#event_delete').hide();
+					$('#id_title').attr('disabled', true);
+					$('#id_dtstart').attr('disabled', true);
+					$('#id_dtend').attr('disabled', true);
+					$('#id_description').attr('disabled', true);
+					$('#id_location').attr('disabled', true);
+				}
 			}
-			else if(event.recurrent && event.rw) {
+			else if(event.extendedProps.recurrent && event.extendedProps.rw) {
 				$('.section-content-tools-wrapper, #recurrence_warning').show();
 				$('#event_form_wrapper').hide();
-				$('#event_uri').val(event.uri);
-				$('#calendar_select').val(event.calendar_id[0] + ':' + event.calendar_id[1]).attr('disabled', true);
+				$('#event_uri').val(event.extendedProps.uri);
+				$('#calendar_select').val(event.extendedProps.calendar_id[0] + ':' + event.extendedProps.calendar_id[1]).attr('disabled', true);
 			}
 		},
-
-		eventResize: function(event, delta, revertFunc) {
-
+		
+		eventResize: function(info) {
+			
+			var event = info.event._def;
+			var dtstart = new Date(info.event._instance.range.start);
+			var dtend = new Date(info.event._instance.range.end);
+			
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(event.start.format());
-			$('#id_dtend').val(event.end.format());
+			$('#id_dtstart').val(dtstart.toUTCString());
+			$('#id_dtend').val(dtend.toUTCString());
 
 			$.post( 'cdav/calendar', {
 				'update': 'resize',
-				'id[]': event.calendar_id,
-				'uri': event.uri,
-				'dtstart': event.start ? event.start.format() : '',
-				'dtend': event.end ? event.end.format() : ''
+				'id[]': event.extendedProps.calendar_id,
+				'uri': event.extendedProps.uri,
+				'dtstart': dtstart ? dtstart.toUTCString() : '',
+				'dtend': dtend ? dtend.toUTCString() : ''
 			})
 			.fail(function() {
-				revertFunc();
+				info.revert();
 			});
 		},
+		
+		eventDrop: function(info) {
 
-		eventDrop: function(event, delta, revertFunc) {
-
-			var start_clone = moment(event.start);
-			var noend_allday = start_clone.add(1, 'day').format('YYYY-MM-DD');
-
+			var event = info.event._def;
+			var dtstart = new Date(info.event._instance.range.start);
+			var dtend = new Date(info.event._instance.range.end);
+			
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(event.start.format());
-			$('#id_dtend').val(event.end ? event.end.format() : event.start.hasTime() ? '' : noend_allday);
-
+			$('#id_dtstart').val(dtstart.toUTCString());
+			$('#id_dtend').val(dtend.toUTCString());
+		
 			$.post( 'cdav/calendar', {
 				'update': 'drop',
-				'id[]': event.calendar_id,
-				'uri': event.uri,
-				'dtstart': event.start ? event.start.format() : '',
-				'dtend': event.end ? event.end.format() : event.start.hasTime() ? '' : noend_allday
+				'id[]': event.extendedProps.calendar_id,
+				'uri': event.extendedProps.uri,
+				'dtstart': dtstart ? dtstart.toUTCString() : '',
+				'dtend': dtend ? dtend.toUTCString() : ''
 			})
 			.fail(function() {
-				revertFunc();
+				info.revert();
 			});
 		},
-
+		
 		loading: function(isLoading, view) {
 			$('#events-spinner').show();
 			$('#today-btn > i').hide();
@@ -136,82 +171,79 @@ $(document).ready(function() {
 				$('#today-btn > i').show();
 			}
 		}
+		
 	});
-
-	// echo the title
-	var view = $('#calendar').fullCalendar('getView');
-
-	$('#title').text(view.title);
-
-	$('#view_selector').html(views[view.name]);
-
+	
+	calendar.render();
+	
+	$('#title').text(calendar.view.title);
+	$('#view_selector').html(views[calendar.view.type]);
+	
+	$('#today-btn').on('click', function() {
+		calendar.today();
+		$('#title').text(calendar.view.title);
+	});
+	
+	$('#prev-btn').on('click', function() {
+ 		 calendar.prev();
+ 		 $('#title').text(calendar.view.title);
+	});
+	
+	$('#next-btn').on('click', function() {
+ 		 calendar.next();
+ 		 $('#title').text(calendar.view.title);
+	});
+	
 	$('.color-edit').colorpicker({ input: '.color-edit-input' });
 
-	$(document).on('click','#fullscreen-btn', on_fullscreen);
-	$(document).on('click','#inline-btn', on_inline);
-
+	$(document).on('click','#fullscreen-btn', updateSize);
+	$(document).on('click','#inline-btn', updateSize);
 	$(document).on('click','#event_submit', on_submit);
 	$(document).on('click','#event_more', on_more);
 	$(document).on('click','#event_cancel, #event_cancel_recurrent', reset_form);
 	$(document).on('click','#event_delete, #event_delete_recurrent', on_delete);
-
 });
 
+
 function changeView(action, viewName) {
-	$('#calendar').fullCalendar(action, viewName);
-	var view = $('#calendar').fullCalendar('getView');
-
-	if($('main').hasClass('fullscreen'))
-		if(view.name !== 'month')
-			$('.section-content-tools-wrapper').css('display') === 'none' ? on_fullscreen() : on_inline() ;
-		else
-			on_fullscreen();
-	else
-		on_inline();
-
-	$('#title').text(view.title);
-	$('#view_selector').html(views[view.name]);
+	calendar.changeView(viewName);
+	$('#title').text(calendar.view.title);
+	$('#view_selector').html(views[calendar.view.type]);
+	return;
 }
 
 function add_remove_json_source(source, color, editable, status) {
+	var parts = source.split('/');
+	var id = parts[4];
+	
+	var eventSource = calendar.getEventSourceById(id);
+	var selector = '#calendar-btn-' + id;
 
 	if(status === undefined)
 		status = 'fa-calendar-check-o';
 
 	if(status === 'drop') {
+		eventSource.remove();
 		reset_form();
-		$('#calendar').fullCalendar( 'removeEventSource', source );
 		return;
 	}
 
-	var parts = source.split('/');
-	var id = parts[4];
-
-	var selector = '#calendar-btn-' + id;
-
 	if($(selector).hasClass('fa-calendar-o')) {
-		$('#calendar').fullCalendar( 'addEventSource', { url: source, color: color, editable: editable });
+		calendar.addEventSource({ id: id, url: source, color: color, editable: editable });
 		$(selector).removeClass('fa-calendar-o');
 		$(selector).addClass(status);
 		$.get('/cdav/calendar/switch/' + id + '/1');
 	}
 	else {
-		$('#calendar').fullCalendar( 'removeEventSource', source );
+		eventSource.remove();
 		$(selector).removeClass(status);
 		$(selector).addClass('fa-calendar-o');
 		$.get('/cdav/calendar/switch/' + id + '/0');
 	}
 }
 
-function on_fullscreen() {
-	var view = $('#calendar').fullCalendar('getView');
-	if(($('.section-content-tools-wrapper').css('display') === 'none') || ($('.section-content-tools-wrapper').css('display') !== 'none' && view.type === 'month'))
-		$('#calendar').fullCalendar('option', 'height', $(window).height() - $('.section-title-wrapper').outerHeight(true) - 2); // -2 is for border width (.generic-content-wrapper top and bottom) of .generic-content-wrapper
-}
-
-function on_inline() {
-	var view = $('#calendar').fullCalendar('getView');
-	((view.type === 'month') ? $('#calendar').fullCalendar('option', 'height', '') : $('#calendar').fullCalendar('option', 'height', 'auto'));
+function updateSize() {
+	calendar.updateSize();
 }
 
 function on_submit() {
@@ -226,8 +258,11 @@ function on_submit() {
 		'location': $('#id_location').val()
 	})
 	.done(function() {
-		$('#calendar').fullCalendar( 'refetchEventSources', [ {{$sources}} ] );
+		var parts = $('#calendar_select').val().split(':');
+		var eventSource = calendar.getEventSourceById(parts[0]);
+		eventSource.refetch();
 		reset_form();
+
 	});
 }
 
@@ -238,7 +273,9 @@ function on_delete() {
 		'uri': $('#event_uri').val(),
 	})
 	.done(function() {
-		$('#calendar').fullCalendar( 'refetchEventSources', [ {{$sources}} ] );
+		var parts = $('#calendar_select').val().split(':');
+		var eventSource = calendar.getEventSourceById(parts[0]);
+		eventSource.refetch();
 		reset_form();
 	});
 }
@@ -253,14 +290,14 @@ function reset_form() {
 	$('#id_dtstart').val('');
 	$('#id_dtend').val('');
 
-	if(new_event.length)
-		$('#calendar').fullCalendar( 'removeEventSource', new_event);
-
+	if(new_event.id) {
+		var event_poi = calendar.getEventById(new_event.id);
+		event_poi.remove();
+		new_event = {};
+	}
+	
 	if($('#more_block').hasClass('open'))
 		on_more();
-
-	if($('main').hasClass('fullscreen'))
-		on_fullscreen();
 }
 
 function on_more() {
@@ -282,18 +319,18 @@ function on_more() {
 			<div class="dropdown">
 				<button id="view_selector" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'month'); return false;">{{$month}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'agendaWeek'); return false;">{{$week}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'agendaDay'); return false;">{{$day}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'dayGridMonth'); return false;">{{$month}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridWeek'); return false;">{{$week}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridDay'); return false;">{{$day}}</a></li>
 					<div class="dropdown-divider"></div>
 					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listMonth'); return false;">{{$list_month}}</a></li>
 					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listWeek'); return false;">{{$list_week}}</a></li>
 					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listDay'); return false;">{{$list_day}}</a></li>
 				</div>
 				<div class="btn-group">
-					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('prev', false);" title="{{$prev}}"><i class="fa fa-backward"></i></button>
-					<button id="today-btn" class="btn btn-outline-secondary btn-sm" onclick="changeView('today', false);" title="{{$today}}"><div id="events-spinner" class="spinner s"></div><i class="fa fa-bullseye" style="display: none; width: 1rem;"></i></button>
-					<button class="btn btn-outline-secondary btn-sm" onclick="changeView('next', false);" title="{{$next}}"><i class="fa fa-forward"></i></button>
+					<button id="prev-btn" class="btn btn-outline-secondary btn-sm" title="{{$prev}}"><i class="fa fa-backward"></i></button>
+					<button id="today-btn" class="btn btn-outline-secondary btn-sm" title="{{$today}}"><div id="events-spinner" class="spinner s"></div><i class="fa fa-bullseye" style="display: none; width: 1rem;"></i></button>
+					<button id="next-btn" class="btn btn-outline-secondary btn-sm" title="{{$next}}"><i class="fa fa-forward"></i></button>
 				</div>
 				<button id="fullscreen-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen();"><i class="fa fa-expand"></i></button>
 				<button id="inline-btn" type="button" class="btn btn-outline-secondary btn-sm" onclick="makeFullScreen(false);"><i class="fa fa-compress"></i></button>

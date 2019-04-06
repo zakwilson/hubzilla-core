@@ -2,13 +2,18 @@
 
 .fc th:first-child,
 .fc td:first-child {
-    border-left-width: 0px;
+	border-left-width: 0px;
 }
 
 .fc th:last-child,
 .fc td:last-child {
-    border-right-width: 0px;
-    border-bottom-width: 0px;
+	border-right-width: 0px;
+	border-bottom-width: 0px;
+}
+
+main.fullscreen .fc th:last-child,
+main.fullscreen .fc td:last-child {
+	border-bottom-width: 1px;
 }
 
 .fc-unthemed th,

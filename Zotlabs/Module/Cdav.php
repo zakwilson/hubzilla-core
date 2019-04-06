@@ -895,12 +895,14 @@ class Cdav extends Controller {
 			head_add_css('/library/fullcalendar/packages/core/main.min.css');
 			head_add_css('/library/fullcalendar/packages/daygrid/main.min.css');
 			head_add_css('/library/fullcalendar/packages/timegrid/main.min.css');
+			head_add_css('/library/fullcalendar/packages/list/main.min.css');
 			head_add_css('cdav_calendar.css');
 
 			head_add_js('/library/fullcalendar/packages/core/main.min.js');
 			head_add_js('/library/fullcalendar/packages/interaction/main.min.js');
 			head_add_js('/library/fullcalendar/packages/daygrid/main.min.js');
 			head_add_js('/library/fullcalendar/packages/timegrid/main.min.js');
+			head_add_js('/library/fullcalendar/packages/list/main.min.js');
 
 			$sources = '';
 

@@ -25,3 +25,7 @@ main.fullscreen .fc td:last-child {
 .fc-unthemed .fc-popover {
 	border-color: #ccc !important;
 }
+
+.fc-list-view {
+	border-width: 0px;
+}

@@ -7,7 +7,7 @@ var views = {'dayGridMonth' : '{{$month}}', 'timeGridWeek' : '{{$week}}', 'timeG
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
 	calendar = new FullCalendar.Calendar(calendarEl, {
-		plugins: [ 'interaction', 'dayGrid', 'timeGrid' ],
+		plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list' ],
 		eventSources: [ {{$sources}} ],
 		
 		timeZone: '{{$timezone}}',

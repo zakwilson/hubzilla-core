@@ -1,4 +1,5 @@
 Hubzilla 4.0.2 (2019-04-08)
+	- Port cdav calendar to fullcalendar version 4
 	- Fix perms_pending not evaluated correctly
 	- Fix return wrong profile photo modification date by plugin
 	- Fix suggestion widget using feature_enabled still

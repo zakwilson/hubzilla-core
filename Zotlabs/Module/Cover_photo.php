@@ -48,6 +48,29 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 		
 		check_form_security_token_redirectOnErr('/cover_photo', 'cover_photo');
+
+		// Remove cover photo
+		if(isset($_POST['remove'])) {
+			
+			$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
+				intval(PHOTO_COVER),
+				intval(local_channel())
+			);
+			
+			if($r) {
+			    q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+			    	intval(PHOTO_NORMAL),
+				    intval(PHOTO_COVER),
+				    intval(local_channel())
+			    );
+			
+				$sync = attach_export_data($channel,$r[0]['resource_id']);
+				if($sync)
+				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			}
+			
+			goaway(z_root() . '/cover_photo');
+		}
 	        
 		if((array_key_exists('cropfinal',$_POST)) && ($_POST['cropfinal'] == 1)) {
 	
@@ -195,10 +218,12 @@ logger('gis: ' . print_r($gis,true));
 						);
 						return;
 					}
-	
-					$channel = \App::get_channel();
+
 					$this->send_cover_photo_activity($channel,$base_image,$profile);
-	
+					
+					$sync = attach_export_data($channel,$base_image['resource_id']);
+					if($sync)
+					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 	
 				}
 				else
@@ -215,7 +240,7 @@ logger('gis: ' . print_r($gis,true));
 	
 		require_once('include/attach.php');
 	
-		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash));
+		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash, 'nosync' => true));
 	
 		logger('attach_store: ' . print_r($res,true));
 	
@@ -393,6 +418,7 @@ logger('gis: ' . print_r($gis,true));
 				'$lbl_profiles'        => t('Select a profile:'),
 				'$title'               => t('Change Cover Photo'),
 				'$submit'              => t('Upload'),
+				'$remove'              => t('Remove'),
 				'$profiles'            => $profiles,
 				'$embedPhotos' => t('Use a photo from your albums'),
 				'$embedPhotosModalTitle' => t('Use a photo from your albums'),

@@ -69,7 +69,7 @@ class Tagger extends \Zotlabs\Web\Controller {
 				$post_type = t('photo');
 				break;
 			case 'event':
-				$targgettype = ACTIVITY_OBJ_EVENT;
+				$targettype = ACTIVITY_OBJ_EVENT;
 				$post_type = t('event');
 				break;
 			default:

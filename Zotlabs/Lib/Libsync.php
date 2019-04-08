@@ -336,7 +336,7 @@ class Libsync {
 
 				$disallowed = array('abook_id','abook_account','abook_channel','abook_rating','abook_rating_text','abook_not_here');
 
-				$fields = db_columns($abook);
+				$fields = db_columns('abook');
 
 				foreach($arr['abook'] as $abook) {
 

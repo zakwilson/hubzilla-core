@@ -1,3 +1,27 @@
+Hubzilla 4.0.2 (2019-04-08)
+	- Port cdav calendar to fullcalendar version 4
+	- Fix perms_pending not evaluated correctly
+	- Fix return wrong profile photo modification date by plugin
+	- Fix suggestion widget using feature_enabled still
+	- Fix check service class limits when syncing files
+	- Remove xchan_instance_url from notifier query - it is not used anymore
+	- Implement remove cover photo functionality
+	- Fix z6_discover() and create a zot6 hubloc on import if applicable
+	- Add backend support for connections ordering
+	- Deduplicate items in item_store() by uuid if we got one otherwise by mid
+	- Add ITEM_TYPE_CUSTOM support to mod display
+	- Fix mod subthread on sys channel items
+	- Fix "recipient not found" dreport spaming with own xchan
+	- Fix wrong variables in dirsearch
+	- Fix 48 hours timeframe check in mod changeaddr
+	- Fix wrong variable in Libsync
+	- Pubcrawl: revert adding additional receivers to comments
+	- Diaspora: fix intro received when being banned
+	- Pubcrawl: add diaspora:guid from friendica AP posts for deduplication
+	- Diaspora: fix friendica plink
+	- Photocache: fix issue with spaces and quotes in original filenames
+
+
 Hubzilla 4.0.1 (2019-03-21)
 	- Fix permissions not getting decrypted on follow
 	- Add option to add a poster to the video bbcode

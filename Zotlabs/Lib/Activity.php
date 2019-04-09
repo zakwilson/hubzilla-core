@@ -193,7 +193,7 @@ class Activity {
 					'actor'     => $actor,
 				];
 				if(! $ev['nofinish']) {
-					$y['endTime'] => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
+					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
 				}
 				if($actor) {
 					return $y;

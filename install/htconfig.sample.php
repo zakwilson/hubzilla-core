@@ -12,7 +12,7 @@
 
 // Then set the following for your MySQL installation
 
-$db_host = 'your.mysqlhost.com'; // Use 'localhost' if you aren't using a remote server
+$db_host = 'your.mysqlhost.com'; // Use 'localhost' or ':/path/to/socket.file' if you aren't using a remote server
 $db_port = 0;                    // leave 0 for default or set your port
 $db_user = 'mysqlusername';
 $db_pass = 'mysqlpassword';

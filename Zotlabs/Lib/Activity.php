@@ -14,27 +14,30 @@ class Activity {
 			$x = json_decode($x,true);
 		}
 
-		if(is_array($x) && array_key_exists('asld',$x)) {
-			$x = $x['asld'];
-		}
+		if(is_array($x)) {
 
-		if($x['type'] === ACTIVITY_OBJ_PERSON) {
-			return self::fetch_person($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PROFILE) {
-			return self::fetch_profile($x); 
-		}
-		if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
-			return self::fetch_item($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_THING) {
-			return self::fetch_thing($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_EVENT) {
-			return self::fetch_event($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PHOTO) {
-			return self::fetch_image($x); 
+			if(array_key_exists('asld',$x)) {
+				return $x['asld'];
+			}
+
+			if($x['type'] === ACTIVITY_OBJ_PERSON) {
+				return self::fetch_person($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PROFILE) {
+				return self::fetch_profile($x); 
+			}
+			if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
+				return self::fetch_item($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_THING) {
+				return self::fetch_thing($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_EVENT) {
+				return self::fetch_event($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PHOTO) {
+				return self::fetch_image($x); 
+			}
 		}
 
 		return $x;
@@ -189,6 +192,9 @@ class Activity {
 					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
+				if(! $ev['nofinish']) {
+					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
+				}
 				if($actor) {
 					return $y;
 				}

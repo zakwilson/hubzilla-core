@@ -1521,6 +1521,17 @@ function attach_drop_photo($channel_id,$resource) {
 	if($x) {
 		drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
 	}
+	
+	$r = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1",
+		dbesc($resource),
+		intval($channel_id)
+	);
+	if($r) {
+		foreach($r as $i) {
+			@unlink(dbunescbin($i['content']));
+		}
+	}
+	
 	q("DELETE FROM photo WHERE uid = %d AND resource_id = '%s'",
 		intval($channel_id),
 		dbesc($resource)

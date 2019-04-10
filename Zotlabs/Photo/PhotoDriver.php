@@ -494,5 +494,32 @@ abstract class PhotoDriver {
 
 		return $r;
 	}
+	
+	/**
+	 * @brief Stores thumbnail to database or filesystem.
+	 *
+	 * @param array $arr
+	 * @param scale int
+	 * @return boolean|array
+	 */
+	public function storeThumbnail($arr, $scale = 0) {
+	
+		if(boolval(get_config('system','filesystem_storage_thumbnails', 0)) && $scale > 0) {
+			$channel = \App::get_channel();
+			$arr['os_storage'] = 1;
+			$arr['imgscale'] = $scale;
+			$arr['os_syspath'] = 'store/' . $channel['channel_address'] . '/' . $arr['os_path'] . '-' . $scale;
+			if(! $this->saveImage($arr['os_syspath']))
+				return false;
+		}
+		
+		if(! $this->save($arr)) {
+			if(array_key_exists('os_syspath', $arr))
+				@unlink($arr['os_syspath']);
+			return false;
+		}
+		
+		return true;
+	}
 
 }

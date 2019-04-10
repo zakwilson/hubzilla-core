@@ -35,7 +35,6 @@ class Getfile extends \Zotlabs\Web\Controller {
 		$sig      = $_POST['signature'];
 		$resource = $_POST['resource'];
 		$revision = intval($_POST['revision']);
-		$resolution = (-1);
 
 		if(! $hash)
 			killme();
@@ -81,9 +80,14 @@ class Getfile extends \Zotlabs\Web\Controller {
 			killme();
 		}
 	
-		if(substr($resource,-2,1) == '-') {
+		if(isset($_POST['resolution']))
+			$resolution = intval($_POST['resolution']);
+		elseif(substr($resource,-2,1) == '-') {
 			$resolution = intval(substr($resource,-1,1));
 			$resource = substr($resource,0,-2);
+		}
+		else {
+			$resolution = (-1);
 		}			
 
 		$slop = intval(get_pconfig($channel['channel_id'],'system','getfile_time_slop'));

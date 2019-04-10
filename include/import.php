@@ -1385,13 +1385,14 @@ function sync_files($channel, $files) {
 					else
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
 
-					if(intval($p['imgscale']) && (! $p['content'])) {
+					if(intval($p['imgscale']) && intval($p['os_storage']) && (! empty($p['content']))) {
 
 						$time = datetime_convert();
 
-						$parr = array('hash' => $channel['channel_hash'],
+						$parr = array(
+						    'hash' => $channel['channel_hash'],
 							'time' => $time,
-							'resource' => $att['hash'],
+							'resource' => $p['resource_id'],
 							'revision' => 0,
 							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])),
 							'resolution' => $p['imgscale']
@@ -1414,8 +1415,6 @@ function sync_files($channel, $files) {
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
-						$p['content'] = file_get_contents($stored_image);
-						unlink($stored_image);
 					}
 
 					if(!isset($p['display_path']))

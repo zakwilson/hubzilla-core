@@ -1417,6 +1417,8 @@ function sync_files($channel, $files) {
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
 						
+						$p['os_syspath'] = $stored_image;
+						
 						// Override remote hub thumbnails storage settings
 						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
 							$p['os_storage'] = 0;
@@ -1425,7 +1427,6 @@ function sync_files($channel, $files) {
 						}
 						else {
 							$p['os_storage'] = 1;
-							$p['os_syspath'] = $stored_image;
 							$p['content'] = $stored_image;
 						}
 					}

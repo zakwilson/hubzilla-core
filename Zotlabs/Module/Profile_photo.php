@@ -119,34 +119,45 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 						'filename'     => $base_image['filename'], 
 						'album'        => t('Profile Photos'),
 						'os_path'      => $base_image['os_path'],
-						'display_path' => $base_image['display_path']
+						'display_path' => $base_image['display_path'],
+						'photo_usage'  => PHOTO_PROFILE,
+						'edited'	   => dbescdate($base_image['edited'])
 					];
 	
-					$p['imgscale']    = PHOTO_RES_PROFILE_300;
 					$p['photo_usage'] = (($is_default_profile) ? PHOTO_PROFILE : PHOTO_NORMAL);
 	
-					$r1 = $im->save($p);
+					$r1 = $im->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 	
 					$im->scaleImage(80);
-					$p['imgscale'] = PHOTO_RES_PROFILE_80;
-	
-					$r2 = $im->save($p);
+					$r2 = $im->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 				
 					$im->scaleImage(48);
-					$p['imgscale'] = PHOTO_RES_PROFILE_48;
-	
-					$r3 = $im->save($p);
-				
+					$r3 = $im->storeThumbnail($p, PHOTO_RES_PROFILE_48);
+
 					if($r1 === false || $r2 === false || $r3 === false) {
 						// if one failed, delete them all so we can start over.
 						notice( t('Image resize failed.') . EOL );
-						$x = q("delete from photo where resource_id = '%s' and uid = %d and imgscale in ( %d, %d, %d ) ",
+						$x = q("delete from photo where resource_id = '%s' and uid = %d and imgscale in ( %d, %d, %d )",
 							dbesc($base_image['resource_id']),
 							local_channel(),
 							intval(PHOTO_RES_PROFILE_300),
 							intval(PHOTO_RES_PROFILE_80),
 							intval(PHOTO_RES_PROFILE_48)
 						);
+
+						$x = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1 AND imgscale IN ( %d, %d, %d )",
+							dbesc($base_image['resource_id']),
+							local_channel(),
+							intval(PHOTO_RES_PROFILE_300),
+							intval(PHOTO_RES_PROFILE_80),
+							intval(PHOTO_RES_PROFILE_48)
+						);
+						if($x) {
+							foreach($x as $xx) {
+								@unlink(dbunescbin($xx['content']));
+							}
+						}
+						
 						return;
 					}
 	
@@ -198,7 +209,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 					$r = q("UPDATE xchan set xchan_photo_mimetype = '%s', xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s'  
 						where xchan_hash = '%s'",
 						dbesc($im->getType()),
-						dbesc(datetime_convert()),
+						dbescdate($base_image['edited']),
 						dbesc(z_root() . '/photo/profile/l/' . $channel['channel_id']),
 						dbesc(z_root() . '/photo/profile/m/' . $channel['channel_id']),
 						dbesc(z_root() . '/photo/profile/s/' . $channel['channel_id']),
@@ -245,7 +256,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 		else {
 			require_once('include/attach.php');
 	
-			$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Profile Photos'), 'hash' => $hash));
+			$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Profile Photos'), 'hash' => $hash, 'nosync' => true));
 	
 			logger('attach_store: ' . print_r($res,true));
 		}
@@ -353,20 +364,23 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 	
 			if($havescale) {
 				// unset any existing profile photos
-				$r = q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND uid = %d",
+				$x = q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND uid = %d",
 					intval(PHOTO_NORMAL),
 					intval(PHOTO_PROFILE),
-					intval(local_channel()));
-	
-				$r = q("UPDATE photo SET photo_usage = %d WHERE uid = %d AND resource_id = '%s'",
+					intval(local_channel())
+				);
+
+				$edited = datetime_convert();
+				
+				$x = q("UPDATE photo SET photo_usage = %d, edited = '%s' WHERE uid = %d AND resource_id = '%s'",
 					intval(PHOTO_PROFILE),
+					dbescdate($edited),
 					intval(local_channel()),
 					dbesc($resource_id)
-					);
+				);
 	
-				$r = q("UPDATE xchan set xchan_photo_date = '%s' 
-					where xchan_hash = '%s'",
-					dbesc(datetime_convert()),
+				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
+					dbescdate($edited),
 					dbesc($channel['xchan_hash'])
 				);
 	

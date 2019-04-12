@@ -1345,6 +1345,7 @@ function sync_files($channel, $files) {
 				logger('attachment store failed',LOGGER_NORMAL,LOG_ERR);
 			}
 			if($f['photo']) {
+				
 				foreach($f['photo'] as $p) {
  					unset($p['id']);
 					$p['aid'] = $channel['channel_account_id'];
@@ -1366,6 +1367,7 @@ function sync_files($channel, $files) {
 							dbesc($p['resource_id']),
 							intval($channel['channel_id'])
 						);
+						$update_xchan = $p['edited'];
 					}
 
 					// same for cover photos
@@ -1385,7 +1387,7 @@ function sync_files($channel, $files) {
 					else
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
 
-					if(intval($p['imgscale']) && intval($p['os_storage']) && (! empty($p['content']))) {
+					if(intval($p['imgscale']) && (! empty($p['content']))) {
 
 						$time = datetime_convert();
 
@@ -1395,10 +1397,10 @@ function sync_files($channel, $files) {
 							'resource' => $p['resource_id'],
 							'revision' => 0,
 							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])),
-							'resolution' => $p['imgscale']
+							'resolution' => intval($p['imgscale'])
 						);
 
-						$stored_image = $newfname . '-' . intval($p['imgscale']);
+						$stored_image = $newfname . '-' . $p['imgscale'];
 
 						$fp = fopen($stored_image,'w');
 						if(! $fp) {
@@ -1407,7 +1409,6 @@ function sync_files($channel, $files) {
 						}
 						$redirects = 0;
 
-
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
@@ -1415,6 +1416,15 @@ function sync_files($channel, $files) {
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
+						
+						// Override remote hub thumbnails storage settings
+						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
+							$p['os_storage'] = 0;
+							$p['content'] = file_get_contents($stored_image);
+							@unlink($stored_image);
+						}
+						else
+							$p['os_storage'] = 1;
 					}
 
 					if(!isset($p['display_path']))
@@ -1445,6 +1455,14 @@ function sync_files($channel, $files) {
 					else {
 						create_table_from_array('photo',$p, [ 'content' ] );
 					}
+				}
+				
+				// Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
+				if(isset($update_xchan)) {
+					$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
+						dbescdate($update_xchan),
+						dbesc($channel['channel_hash'])
+					);
 				}
 			}
 

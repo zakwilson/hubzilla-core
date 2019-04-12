@@ -1423,8 +1423,10 @@ function sync_files($channel, $files) {
 							$p['content'] = file_get_contents($stored_image);
 							@unlink($stored_image);
 						}
-						else
+						else {
 							$p['os_storage'] = 1;
+							$p['os_syspath'] = $stored_image;
+						}
 					}
 
 					if(!isset($p['display_path']))

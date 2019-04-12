@@ -277,8 +277,7 @@ function photo_upload($channel, $observer, $args) {
 	if(($width > 1024 || $height > 1024) && (! $errors))
 		$ph->scaleImage(1024);
 
-	$p['imgscale'] = 1;
-	$r1 = $ph->save($p);
+	$r1 = $ph->storeThumbnail($p, PHOTO_RES_1024);
 	$link[1] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
@@ -292,8 +291,7 @@ function photo_upload($channel, $observer, $args) {
 	if(($width > 640 || $height > 640) && (! $errors))
 		$ph->scaleImage(640);
 
-	$p['imgscale'] = 2;
-	$r2 = $ph->save($p);
+	$r2 = $ph->storeThumbnail($p, PHOTO_RES_640);
 	$link[2] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',
@@ -307,8 +305,7 @@ function photo_upload($channel, $observer, $args) {
 	if(($width > 320 || $height > 320) && (! $errors))
 		$ph->scaleImage(320);
 
-	$p['imgscale'] = 3;
-	$r3 = $ph->save($p);
+	$r3 = $ph->storeThumbnail($p, PHOTO_RES_320);
 	$link[3] = array(
 		'rel'  => 'alternate',
 		'type' => 'text/html',

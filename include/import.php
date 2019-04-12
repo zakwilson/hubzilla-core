@@ -1426,6 +1426,7 @@ function sync_files($channel, $files) {
 						else {
 							$p['os_storage'] = 1;
 							$p['os_syspath'] = $stored_image;
+							$p['content'] = $stored_image;
 						}
 					}
 

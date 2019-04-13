@@ -1417,8 +1417,6 @@ function sync_files($channel, $files) {
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
 						
-						$p['os_syspath'] = $stored_image;
-						
 						// Override remote hub thumbnails storage settings
 						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
 							$p['os_storage'] = 0;
@@ -1428,6 +1426,7 @@ function sync_files($channel, $files) {
 						else {
 							$p['os_storage'] = 1;
 							$p['content'] = $stored_image;
+							$p['os_syspath'] = $stored_image;
 						}
 					}
 
@@ -1461,13 +1460,15 @@ function sync_files($channel, $files) {
 					}
 				}
 				
-				// Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
-				if(isset($update_xchan)) {
-					$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
-						dbescdate($update_xchan),
-						dbesc($channel['channel_hash'])
-					);
-				}
+			}
+			
+            // Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
+			if(isset($update_xchan)) {
+			    
+				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
+					dbescdate($update_xchan),
+					dbesc($channel['channel_hash'])
+				);
 			}
 
 			\Zotlabs\Daemon\Master::Summon([ 'Thumbnail' , $att['hash'] ]);

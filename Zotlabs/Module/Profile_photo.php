@@ -372,7 +372,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 
 				$edited = datetime_convert();
 				
-				$x = q("UPDATE photo SET photo_usage = %d, edited = '%s' WHERE uid = %d AND resource_id = '%s'",
+				$x = q("UPDATE photo SET photo_usage = %d, edited = '%s' WHERE uid = %d AND resource_id = '%s' AND imgscale > 0",
 					intval(PHOTO_PROFILE),
 					dbescdate($edited),
 					intval(local_channel()),

@@ -175,7 +175,7 @@ encounter a database configuration which cannot be expressed on the setup form
 (for instance using MySQL with an unusual socket location); you can supply
 the PDO connection string as the database hostname. For instance
 	
-	mysql:unix_socket=/my/special/socket_path
+	:/path/to/socket.file
 
 You should still fill in all other applicable form values as needed.  
 

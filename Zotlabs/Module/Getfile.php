@@ -35,7 +35,6 @@ class Getfile extends \Zotlabs\Web\Controller {
 		$sig      = $_POST['signature'];
 		$resource = $_POST['resource'];
 		$revision = intval($_POST['revision']);
-		$resolution = (-1);
 
 		if(! $hash)
 			killme();
@@ -81,9 +80,14 @@ class Getfile extends \Zotlabs\Web\Controller {
 			killme();
 		}
 	
-		if(substr($resource,-2,1) == '-') {
+		if(isset($_POST['resolution']))
+			$resolution = intval($_POST['resolution']);
+		elseif(substr($resource,-2,1) == '-') {
 			$resolution = intval(substr($resource,-1,1));
 			$resource = substr($resource,0,-2);
+		}
+		else {
+			$resolution = (-1);
 		}			
 
 		$slop = intval(get_pconfig($channel['channel_id'],'system','getfile_time_slop'));
@@ -106,9 +110,10 @@ class Getfile extends \Zotlabs\Web\Controller {
 		}
 
 		if($resolution > 0) {
-			$r = q("select * from photo where resource_id = '%s' and uid = %d limit 1",
+			$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND uid = %d AND imgscale = %d LIMIT 1",
 				dbesc($resource),
-				intval($channel['channel_id'])
+				intval($channel['channel_id']),
+				$resolution
 			);
 			if($r) {
 				header('Content-type: ' . $r[0]['mimetype']);

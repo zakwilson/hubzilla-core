@@ -19,7 +19,7 @@ class dba_pdo extends dba_driver {
 		$this->driver_dbtype = $scheme;
 
 		if(strpbrk($server,':;')) {
-			$dsn = $server;
+			$dsn = $this->driver_dbtype . ':unix_socket=' . trim($server, ':;');
 		}
 		else {
 			$dsn = $this->driver_dbtype . ':host=' . $server . (intval($port) ? ';port=' . $port : '');

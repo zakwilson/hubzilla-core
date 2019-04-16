@@ -280,9 +280,12 @@ class Cdav extends Controller {
 					return;
 
 				$title = $_REQUEST['title'];
-				$dtstart = new \DateTime($_REQUEST['dtstart']);
-				if($_REQUEST['dtend'])
-					$dtend = new \DateTime($_REQUEST['dtend']);
+				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$dtstart = new \DateTime($start);
+				if($_REQUEST['dtend']) {
+					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$dtend = new \DateTime($end);
+				}
 				$description = $_REQUEST['description'];
 				$location = $_REQUEST['location'];
 
@@ -306,12 +309,16 @@ class Cdav extends Controller {
 					'DTSTART' => $dtstart
 				    ]
 				]);
-				if($dtend)
+				if($dtend) {
 					$vcalendar->VEVENT->add('DTEND', $dtend);
+					$vcalendar->VEVENT->DTEND['TZID'] = App::$timezone;
+				}
 				if($description)
 					$vcalendar->VEVENT->add('DESCRIPTION', $description);
 				if($location)
 					$vcalendar->VEVENT->add('LOCATION', $location);
+
+				$vcalendar->VEVENT->DTSTART['TZID'] = App::$timezone;
 
 				$calendarData = $vcalendar->serialize();
 
@@ -351,8 +358,12 @@ class Cdav extends Controller {
 
 				$uri = $_REQUEST['uri'];
 				$title = $_REQUEST['title'];
-				$dtstart = new \DateTime($_REQUEST['dtstart']);
-				$dtend = $_REQUEST['dtend'] ? new \DateTime($_REQUEST['dtend']) : '';
+				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$dtstart = new \DateTime($start);
+				if($_REQUEST['dtend']) {
+					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$dtend = new \DateTime($end);
+				}
 				$description = $_REQUEST['description'];
 				$location = $_REQUEST['location'];
 
@@ -404,8 +415,12 @@ class Cdav extends Controller {
 					return;
 
 				$uri = $_REQUEST['uri'];
-				$dtstart = new \DateTime($_REQUEST['dtstart']);
-				$dtend = $_REQUEST['dtend'] ? new \DateTime($_REQUEST['dtend']) : '';
+				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$dtstart = new \DateTime($start);
+				if($_REQUEST['dtend']) {
+					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$dtend = new \DateTime($end);
+				}
 
 				$object = $caldavBackend->getCalendarObject($id, $uri);
 
@@ -877,12 +892,19 @@ class Cdav extends Controller {
 		//Display calendar(s) here
 		if(argc() == 2 && argv(1) === 'calendar') {
 
-			head_add_css('/library/fullcalendar/fullcalendar.css');
+			head_add_css('/library/fullcalendar/packages/core/main.min.css');
+			head_add_css('/library/fullcalendar/packages/daygrid/main.min.css');
+			head_add_css('/library/fullcalendar/packages/timegrid/main.min.css');
+			head_add_css('/library/fullcalendar/packages/list/main.min.css');
 			head_add_css('cdav_calendar.css');
 
-			head_add_js('/library/moment/moment.min.js', 1);
-			head_add_js('/library/fullcalendar/fullcalendar.min.js', 1);
-			head_add_js('/library/fullcalendar/locale-all.js', 1);
+			head_add_js('/library/fullcalendar/packages/core/main.min.js');
+			head_add_js('/library/fullcalendar/packages/interaction/main.min.js');
+			head_add_js('/library/fullcalendar/packages/daygrid/main.min.js');
+			head_add_js('/library/fullcalendar/packages/timegrid/main.min.js');
+			head_add_js('/library/fullcalendar/packages/list/main.min.js');
+
+			$sources = '';
 
 			foreach($calendars as $calendar) {
 				$editable = (($calendar['share-access'] == 2) ? 'false' : 'true');  // false/true must be string since we're passing it to javascript
@@ -891,6 +913,7 @@ class Cdav extends Controller {
 				$switch = get_pconfig(local_channel(), 'cdav_calendar', $calendar['id'][0]);
 				if($switch) {
 					$sources .= '{
+						id: ' . $calendar['id'][0] . ',
 						url: \'/cdav/calendar/json/' . $calendar['id'][0] . '/' . $calendar['id'][1] . '\',
 						color: \'' . $color . '\'
 					 }, ';
@@ -911,8 +934,8 @@ class Cdav extends Controller {
 			$first_day = (($first_day) ? $first_day : 0);
 
 			$title = ['title', t('Event title')];
-			$dtstart = ['dtstart', t('Start date and time'), '', t('Example: YYYY-MM-DD HH:mm')];
-			$dtend = ['dtend', t('End date and time'), '', t('Example: YYYY-MM-DD HH:mm')];
+			$dtstart = ['dtstart', t('Start date and time')];
+			$dtend = ['dtend', t('End date and time')];
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
 
@@ -920,6 +943,7 @@ class Cdav extends Controller {
 				'$sources' => $sources,
 				'$color' => $color,
 				'$lang' => App::$language,
+				'$timezone' => App::$timezone,
 				'$first_day' => $first_day,
 				'$prev'	=> t('Previous'),
 				'$next'	=> t('Next'),
@@ -952,10 +976,12 @@ class Cdav extends Controller {
 		//Provide json data for calendar
 		if(argc() == 5 && argv(1) === 'calendar' && argv(2) === 'json'  && intval(argv(3)) && intval(argv(4))) {
 
+			$events = [];
+
 			$id = [argv(3), argv(4)];
 
 			if(! cdav_perms($id[0],$calendars))
-				killme();
+				json_return_and_die($events);
 
 			if (x($_GET,'start'))
 				$start = new \DateTime($_GET['start']);
@@ -969,16 +995,19 @@ class Cdav extends Controller {
 			$filters['comp-filters'][0]['time-range']['end'] = $end;
 
 			$uris = $caldavBackend->calendarQuery($id, $filters);
+
 			if($uris) {
-
 				$objects = $caldavBackend->getMultipleCalendarObjects($id, $uris);
-
 				foreach($objects as $object) {
 
 					$vcalendar = \Sabre\VObject\Reader::read($object['calendardata']);
 
-					if(isset($vcalendar->VEVENT->RRULE))
+					if(isset($vcalendar->VEVENT->RRULE)) {
+						// expanding recurrent events seems to loose timezone info
+						// save it here so we can add it later
+						$recurrent_timezone = (string)$vcalendar->VEVENT->DTSTART['TZID'];
 						$vcalendar = $vcalendar->expand($start, $end);
+					}
 
 					foreach($vcalendar->VEVENT as $vevent) {
 						$title = (string)$vevent->SUMMARY;
@@ -986,14 +1015,15 @@ class Cdav extends Controller {
 						$dtend = (string)$vevent->DTEND;
 						$description = (string)$vevent->DESCRIPTION;
 						$location = (string)$vevent->LOCATION;
-
+						$timezone = (string)$vevent->DTSTART['TZID'];
 						$rw = ((cdav_perms($id[0],$calendars,true)) ? true : false);
+						$editable = $rw ? true : false;
 						$recurrent = ((isset($vevent->{'RECURRENCE-ID'})) ? true : false);
 
-						$editable = $rw ? true : false;
-
-						if($recurrent)
+						if($recurrent) {
 							$editable = false;
+							$timezone = $recurrent_timezone;
+						}
 
 						$allDay = false;
 
@@ -1007,8 +1037,8 @@ class Cdav extends Controller {
 							'calendar_id' => $id,
 							'uri' => $object['uri'],
 							'title' => $title,
-							'start' => $dtstart,
-							'end' => $dtend,
+							'start' => datetime_convert($timezone, $timezone, $dtstart, 'c'),
+							'end' => (($dtend) ? datetime_convert($timezone, $timezone, $dtend, 'c') : ''),
 							'description' => $description,
 							'location' => $location,
 							'allDay' => $allDay,
@@ -1018,11 +1048,8 @@ class Cdav extends Controller {
 						];
 					}
 				}
-				json_return_and_die($events);
 			}
-			else {
-				killme();
-			}
+			json_return_and_die($events);
 		}
 
 		//enable/disable calendars

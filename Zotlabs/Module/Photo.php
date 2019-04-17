@@ -68,7 +68,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				}
 			}
 	
-			$modified = filemtime($default);
+			$modified = time();
 			$default = z_root() . '/' . $default;
 			$uid = $person;
 			
@@ -209,45 +209,24 @@ class Photo extends \Zotlabs\Web\Controller {
 					if(! $exists) {
 						http_status_exit(404,'not found');
 					}
-
 				}
 			} 
 			else
 				http_status_exit(404,'not found');
 		}
-
+		
+		if(! $data)
+		    killme();
+		    
 		header_remove('Pragma');
-
-        if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+		
+		if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
 			http_status_exit(304,'not modified');
-        }
-
-		if(! isset($data)) {
-			if(isset($resolution)) {
-				switch($resolution) {
-					case 4:
-						$default = get_default_profile_photo();
-						break;
-					case 5:
-						$default = get_default_profile_photo(80);
-						break;
-					case 6:
-						$default = get_default_profile_photo(48);
-						break;
-					default:
-						killme();
-						// NOTREACHED
-						break;
-				}
-				$x = z_fetch_url(z_root() . '/' . $default,true,0,[ 'novalidate' => true ]);
-				$data = ($x['success'] ? $x['body'] : EMPTY_STR);
-				$mimetype = 'image/png';
-			}
 		}
-	
+        
 		if(isset($res) && intval($res) && $res < 500) {
 			$ph = photo_factory($data, $mimetype);
 			if($ph->is_valid()) {

@@ -83,7 +83,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $modified = strtotime($r[0]['edited'] . "Z");
 			    $mimetype = $r[0]['mimetype'];
 			    if(intval($r[0]['os_storage']))
-			        $data = file_get_contents($data);
+			        $data = file_get_contents(dbunescbin($r[0]['content']));
 			    else
 			        $data = dbunescbin($r[0]['content']);
 			}

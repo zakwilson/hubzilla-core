@@ -41,6 +41,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		
 		$observer_xchan = get_observer_hash();
 		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+		$cachecontrol = '';
 
 		if(isset($type)) {
 	
@@ -104,6 +105,8 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $data = ($x['success'] ? $x['body'] : EMPTY_STR);
 			    $mimetype = 'image/png';
 			}
+			
+			$cachecontrol = ', must-revalidate';
 		}
 		else {
 	
@@ -263,7 +266,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				$maxage = $expires - time();
 			
 		 	header("Expires: " . gmdate("D, d M Y H:i:s", $expires) . " GMT");
-			header("Cache-Control: max-age=" . $maxage);
+			header("Cache-Control: max-age=" . $maxage  . $cachecontrol);
 	
 		}
 

@@ -29,7 +29,7 @@ if($argc == 2) {
 	echo 'Current storage set to: ' . ($storage ? 'filesystem' : 'SQL database') . PHP_EOL;
 	switch($argv[1]) {
 		case 'stats':
-			$x = q("SELECT COUNT(resource_id) AS qty FROM photo WHERE photo_usage = 0 and os_storage = 1");
+			$x = q("SELECT COUNT(resource_id) AS qty FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			echo 'Local images: ' . $x[0]['qty'] . PHP_EOL;
 			$x = q("SELECT COUNT(id) AS qty FROM photo WHERE resource_id IN (SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 and os_storage = 1) AND imgscale > 0");
 			echo 'Thumbnails total: ' . $x[0]['qty'] . PHP_EOL;
@@ -45,26 +45,21 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT DISTINCT uid, resource_id FROM photo WHERE photo_usage = 0 and os_storage = 1");
+			$x = q("SELECT DISTINCT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			
 			if($x) {
 				foreach($x as $xx) {
 					
-					$r = q("SELECT channel_address FROM channel WHERE channel_id = %d",
-						intval($xx['uid'])
-					);
-					
-					$n = q("SELECT id, imgscale, content, os_path FROM photo WHERE resource_id = '%s' AND os_storage != %d AND imgscale > 0",
+					$n = q("SELECT id, imgscale, content FROM photo WHERE resource_id = '%s' AND os_storage != %d AND imgscale > 0",
 						dbesc($xx['resource_id']),
 						$storage
 					);
 					
-					echo count($n) . PHP_EOL;
 					foreach($n as $nn) {
 						
 						echo '.';
 						
-						$filename = 'store/' . $r[0]['channel_address'] . '/' . $nn['os_path'] . '-' . $nn['imgscale'];
+						$filename = dbunescbin($xx['content']) . '-' . $nn['imgscale'];
 						if(! file_put_contents($filename, dbunescbin($nn['content']))) {
 							echo 'Failed to save file ' . $filename . PHP_EOL;
 							continue;
@@ -90,7 +85,7 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 and os_storage = 1");
+			$x = q("SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			
 			if($x) {
 				foreach($x as $xx) {
@@ -134,4 +129,3 @@ if($argc == 2) {
 	
 	echo PHP_EOL;
 }
-

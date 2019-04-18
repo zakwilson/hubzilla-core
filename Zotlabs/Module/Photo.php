@@ -99,8 +99,10 @@ class Photo extends \Zotlabs\Web\Controller {
 			}
 
 			if(! $data) {
-				header("Location: " . z_root() . '/' . $default);
-				killme();
+			    $x = z_fetch_url(z_root() . '/' . $default, true, 0, [ 'novalidate' => true ]);
+			    $data = ($x['success'] ? $x['body'] : EMPTY_STR);
+			    $mimetype = 'image/png';
+			    $modified = filemtime($default);
 			}
 
 			$cachecontrol = ', must-revalidate';

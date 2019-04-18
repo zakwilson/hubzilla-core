@@ -4,7 +4,10 @@
  * @brief Event related functions.
  */
 
+
 use Sabre\VObject;
+
+use Zotlabs\Lib\Activity;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -65,7 +68,7 @@ function format_event_html($ev) {
 }
 
 function format_event_obj($jobject) {
-	$event = array();
+	$event = [];
 
 	$object = json_decode($jobject,true);
 
@@ -1046,6 +1049,7 @@ function event_store_item($arr, $event) {
 			'location'   => $arr['location'],
 			'adjust'   => $arr['adjust'],
 			'content' => format_event_bbcode($arr),
+			'attachment' => Activity::encode_attachment($r[0]),
 			'author'  => array(
 				'name'     => $r[0]['xchan_name'],
 				'address'  => $r[0]['xchan_addr'],
@@ -1200,6 +1204,7 @@ function event_store_item($arr, $event) {
 				'location'   => $arr['location'],
 				'adjust'   => $arr['adjust'],
 				'content' => format_event_bbcode($arr),
+				'attachment'  => Activity::encode_attachment($item_arr),
 				'author'  => array(
 					'name'     => $x[0]['xchan_name'],
 					'address'  => $x[0]['xchan_addr'],

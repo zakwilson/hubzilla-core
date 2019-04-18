@@ -40,7 +40,6 @@ class Photo extends \Zotlabs\Web\Controller {
 		call_hooks('cache_mode_hook', $cache_mode);
 		
 		$observer_xchan = get_observer_hash();
-		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
 		$cachecontrol = '';
 
 		if(isset($type)) {
@@ -69,8 +68,6 @@ class Photo extends \Zotlabs\Web\Controller {
 				}
 			}
 	
-			$modified = time();
-			$default = z_root() . '/' . $default;
 			$uid = $person;
 			
 			$data = '';
@@ -98,14 +95,14 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $default    = $d['default'];
 			    $data       = $d['data'];
 			    $mimetype   = $d['mimetype'];
+				$modified = time();
 			}
 
 			if(! $data) {
-			    $x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
-			    $data = ($x['success'] ? $x['body'] : EMPTY_STR);
-			    $mimetype = 'image/png';
+				header("Location: " . z_root() . '/' . $default);
+				killme();
 			}
-			
+
 			$cachecontrol = ', must-revalidate';
 		}
 		else {
@@ -212,24 +209,25 @@ class Photo extends \Zotlabs\Web\Controller {
 					if(! $exists) {
 						http_status_exit(404,'not found');
 					}
+
 				}
 			} 
 			else
 				http_status_exit(404,'not found');
 		}
-		
-		if(! $data)
-		    killme();
-		    
+
+ 		if(! $data)
+ 			killme();
+
 		header_remove('Pragma');
-		
-		if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+
+		if($_SERVER['HTTP_IF_NONE_MATCH'] == md5($data) || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
 			http_status_exit(304,'not modified');
 		}
-        
+
 		if(isset($res) && intval($res) && $res < 500) {
 			$ph = photo_factory($data, $mimetype);
 			if($ph->is_valid()) {
@@ -266,12 +264,13 @@ class Photo extends \Zotlabs\Web\Controller {
 				$maxage = $expires - time();
 			
 		 	header("Expires: " . gmdate("D, d M Y H:i:s", $expires) . " GMT");
-			header("Cache-Control: max-age=" . $maxage  . $cachecontrol);
+			header("Cache-Control: max-age=" . $maxage . $cachecontrol);
 	
 		}
 
 		header("Content-type: " . $mimetype);
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
+		header("ETag: " . md5($data));
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

@@ -90,7 +90,7 @@ $(document).ready(function() {
 				$('#id_dtend').val(dtend.toUTCString());
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
-				$('#event_submit').val('update_event').html('Update');
+				$('#event_submit').val('update_event').html('{{$update}}');
 				if(event.extendedProps.rw) {
 					$('#event_delete').show();
 					$('#event_submit').show();
@@ -368,7 +368,7 @@ function on_more() {
 				<div class="form-group">
 					<div class="pull-right">
 						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="fa fa-caret-down"></i> {{$more}}</button>
-						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm">{{$update}}</button>
+						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm"></button>
 
 					</div>
 					<div>

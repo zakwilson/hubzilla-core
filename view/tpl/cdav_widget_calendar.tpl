@@ -1,3 +1,17 @@
+<div class="widget">
+	<h3>{{$channel_calendars_label}}</h3>
+	{{foreach $channel_calendars as $channel_calendar}}
+	<div id="calendar-{{$channel_calendar.calendarid}}">
+		<div class="ml-3{{if !$channel_calendar@last}} form-group{{/if}}">
+			<i id="calendar-btn-{{$channel_calendar.calendarid}}" class="fa {{if $channel_calendar.switch}}fa-calendar-check-o{{else}}fa-calendar-o{{/if}} generic-icons fakelink" onclick="add_remove_json_source('{{$channel_calendar.json_source}}', '{{$channel_calendar.color}}', {{$channel_calendar.editable}})" style="color: {{$channel_calendar.color}};"></i>{{$channel_calendar.displayname}}
+			<div class="float-right">
+				<a href="#" onclick="exportDate(); return false;"><i id="download-icon" class="fa fa-cloud-download fakelink generic-icons-right"></i></a>
+			</div>
+		</div>
+	</div>
+	{{/foreach}}
+</div>
+
 {{if $my_calendars}}
 <div class="widget">
 	<h3>{{$my_calendars_label}}</h3>

@@ -4,6 +4,14 @@ var new_event = {};
 var new_event_id = Math.random().toString(36).substring(7);
 var views = {'dayGridMonth' : '{{$month}}', 'timeGridWeek' : '{{$week}}', 'timeGridDay' : '{{$day}}', 'listMonth' : '{{$list_month}}', 'listWeek' : '{{$list_week}}', 'listDay' : '{{$list_day}}'};
 
+var event_id;
+var event_uri;
+
+var contact_allow = [];
+var group_allow = [];
+var contact_deny = [];
+var group_deny = [];
+
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
 	calendar = new FullCalendar.Calendar(calendarEl, {
@@ -45,7 +53,7 @@ $(document).ready(function() {
 				dtend.setHours(dtend.getHours() + 1);
 			}
 
-			$('#event_uri').val('');
+			event_uri = '';
 			$('#id_title').val('New event');
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
 			$('#id_dtstart').val(info.date.toUTCString());
@@ -61,15 +69,21 @@ $(document).ready(function() {
 		
 		eventClick: function(info) {
 
+			console.log(info);
+
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			
+
 			if(event.publicId == new_event_id) {
+				$('#calendar_select').trigger('change');
+				$('#event_submit').show();
+				event_id = 0;
 				$(window).scrollTop(0);
 				$('.section-content-tools-wrapper, #event_form_wrapper').show();
 				$('#recurrence_warning').hide();
 				$('#id_title').focus().val('');
+
 				return false;
 			}
 
@@ -79,18 +93,28 @@ $(document).ready(function() {
 				new_event = {};
 			}
 			
+			var calendar_id = ((event.extendedProps.calendar_id.constructor === Array) ? event.extendedProps.calendar_id[0] + ':' + event.extendedProps.calendar_id[1] : event.extendedProps.calendar_id);
+
 			if(!event.extendedProps.recurrent) {
 				$(window).scrollTop(0);
 				$('.section-content-tools-wrapper, #event_form_wrapper').show();
 				$('#recurrence_warning').hide();
-				$('#event_uri').val(event.extendedProps.uri);
+				event_uri = event.extendedProps.uri;
 				$('#id_title').val(event.title);
-				$('#calendar_select').val(event.extendedProps.calendar_id[0] + ':' + event.extendedProps.calendar_id[1]).attr('disabled', true);
+				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
 				$('#id_dtstart').val(dtstart.toUTCString());
 				$('#id_dtend').val(dtend.toUTCString());
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
 				$('#event_submit').val('update_event').html('Update');
+				$('#dbtn-acl').addClass('d-none');
+				event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+
+				contact_allow = event.extendedProps.contact_allow || [];
+				group_allow = event.extendedProps.group_allow || [];
+				contact_deny = event.extendedProps.contact_deny || [];
+				group_deny = event.extendedProps.group_deny || [];
+
 				if(event.extendedProps.rw) {
 					$('#event_delete').show();
 					$('#event_submit').show();
@@ -100,6 +124,11 @@ $(document).ready(function() {
 					$('#id_dtend').attr('disabled', false);
 					$('#id_description').attr('disabled', false);
 					$('#id_location').attr('disabled', false);
+
+					if(calendar_id == 'channel_calendar' && !event.extendedProps.is_editable) {
+						console.log(calendar_id)
+						$('#event_submit').hide();
+					}
 				}
 				else {
 					$('#event_submit').hide();
@@ -114,8 +143,8 @@ $(document).ready(function() {
 			else if(event.extendedProps.recurrent && event.extendedProps.rw) {
 				$('.section-content-tools-wrapper, #recurrence_warning').show();
 				$('#event_form_wrapper').hide();
-				$('#event_uri').val(event.extendedProps.uri);
-				$('#calendar_select').val(event.extendedProps.calendar_id[0] + ':' + event.extendedProps.calendar_id[1]).attr('disabled', true);
+				event_uri = event.extendedProps.uri;
+				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
 			}
 		},
 		
@@ -193,6 +222,13 @@ $(document).ready(function() {
  		 calendar.next();
  		 $('#title').text(calendar.view.title);
 	});
+
+	$('#calendar_select').on('change', function() {
+		if(this.value === 'channel_calendar')
+			$('#dbtn-acl').removeClass('d-none');
+		else
+			$('#dbtn-acl').addClass('d-none');
+	});
 	
 	$('.color-edit').colorpicker({ input: '.color-edit-input' });
 
@@ -213,9 +249,16 @@ function changeView(action, viewName) {
 }
 
 function add_remove_json_source(source, color, editable, status) {
-	var parts = source.split('/');
-	var id = parts[4];
-	
+	var id, parts = [];
+
+	if(source == '/channel_calendar/json')
+		id = 'channel_calendar'
+
+	if(! id) {
+		parts = source.split('/');
+		id = parts[4];
+	}
+
 	var eventSource = calendar.getEventSourceById(id);
 	var selector = '#calendar-btn-' + id;
 
@@ -247,37 +290,102 @@ function updateSize() {
 }
 
 function on_submit() {
-	$.post( 'cdav/calendar', {
-		'submit': $('#event_submit').val(),
-		'target': $('#calendar_select').val(),
-		'uri': $('#event_uri').val(),
-		'title': $('#id_title').val(),
-		'dtstart': $('#id_dtstart').val(),
-		'dtend': $('#id_dtend').val(),
-		'description': $('#id_description').val(),
-		'location': $('#id_location').val()
-	})
-	.done(function() {
-		var parts = $('#calendar_select').val().split(':');
-		var eventSource = calendar.getEventSourceById(parts[0]);
-		eventSource.refetch();
-		reset_form();
+	if($('#calendar_select').val() == 'channel_calendar') {
+		if(new_event_id) {
+			$("input[name='contact_allow[]']").each(function() {
+			    contact_allow.push($(this).val());
+			});
+			$("input[name='group_allow[]']").each(function() {
+			    group_allow.push($(this).val());
+			});
+			$("input[name='contact_deny[]']").each(function() {
+			    contact_deny.push($(this).val());
+			});
+			$("input[name='group_deny[]']").each(function() {
+			    group_deny.push($(this).val());
+			});
+		}
 
-	});
+		$.post( 'channel_calendar', {
+			'event_id': event_id,
+			'event_hash': event_uri,
+			'xchan': '{{$channel_hash}}',
+			//'mid': mid,
+			'type': 'event',
+			'preview': 0,
+			'summary': $('#id_title').val(),
+			'dtstart': $('#id_dtstart').val(),
+			'dtend': $('#id_dtend').val(),
+			'adjust': 0,
+			'category': '',
+			'desc': $('#id_description').val(),
+			'location': $('#id_location').val(),
+			'submit': $('#event_submit').val(),
+			'contact_allow[]': contact_allow,
+			'group_allow[]': group_allow,
+			'contact_deny[]': contact_deny,
+			'group_deny[]': group_deny
+/*
+			'submit': $('#event_submit').val(),
+			'target': $('#calendar_select').val(),
+			'uri': $('#event_uri').val(),
+			'title': $('#id_title').val(),
+			'dtstart': $('#id_dtstart').val(),
+			'dtend': $('#id_dtend').val(),
+			'description': $('#id_description').val(),
+			'location': $('#id_location').val()
+*/
+		})
+		.done(function() {
+			var eventSource = calendar.getEventSourceById('channel_calendar');
+			eventSource.refetch();
+			reset_form();
+
+		});
+
+	}
+	else {
+		$.post( 'cdav/calendar', {
+			'submit': $('#event_submit').val(),
+			'target': $('#calendar_select').val(),
+			'uri': event_uri,
+			'title': $('#id_title').val(),
+			'dtstart': $('#id_dtstart').val(),
+			'dtend': $('#id_dtend').val(),
+			'description': $('#id_description').val(),
+			'location': $('#id_location').val()
+		})
+		.done(function() {
+			var parts = $('#calendar_select').val().split(':');
+			var eventSource = calendar.getEventSourceById(parts[0]);
+			eventSource.refetch();
+			reset_form();
+
+		});
+	}
 }
 
 function on_delete() {
-	$.post( 'cdav/calendar', {
-		'delete': 'delete',
-		'target': $('#calendar_select').val(),
-		'uri': $('#event_uri').val(),
-	})
-	.done(function() {
-		var parts = $('#calendar_select').val().split(':');
-		var eventSource = calendar.getEventSourceById(parts[0]);
-		eventSource.refetch();
-		reset_form();
-	});
+	if($('#calendar_select').val() == 'channel_calendar') {
+		$.get('channel_calendar/drop/' + event_uri, function() {
+			var eventSource = calendar.getEventSourceById('channel_calendar');
+			eventSource.refetch();
+			reset_form();
+		});
+	}
+	else {
+		$.post( 'cdav/calendar', {
+			'delete': 'delete',
+			'target': $('#calendar_select').val(),
+			'uri': event_uri
+		})
+		.done(function() {
+			var parts = $('#calendar_select').val().split(':');
+			var eventSource = calendar.getEventSourceById(parts[0]);
+			eventSource.refetch();
+			reset_form();
+		});
+	}
 }
 
 function reset_form() {
@@ -285,7 +393,7 @@ function reset_form() {
 
 	$('#event_submit').val('');
 	$('#calendar_select').val('');
-	$('#event_uri').val('');
+	event_uri = '';
 	$('#id_title').val('');
 	$('#id_dtstart').val('');
 	$('#id_dtend').val('');
@@ -309,6 +417,14 @@ function on_more() {
 		$('#event_more').html('<i class="fa fa-caret-up"></i> {{$less}}');
 		$('#more_block').addClass('open').show();
 	}
+}
+
+function exportDate() {
+	alert('not implemented');
+	console.log('not implemented');
+	//var moment = $('#events-calendar').fullCalendar('getDate');
+	//var sT = 'events/' + moment.year() + '/' + (moment.month() + 1) + '/export';
+	//window.location.href=sT;
 }
 
 </script>
@@ -350,14 +466,20 @@ function on_more() {
 			</div>
 		</div>
 		<div id="event_form_wrapper" style="display: none">
-			<form id="event_form" method="post" action="">
-				<input id="event_uri" type="hidden" name="uri" value="">
+			<form id="event_form" method="post" action="" class="acl-form" data-form_id="event_form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 				{{include file="field_input.tpl" field=$title}}
 				<label for="calendar_select">{{$calendar_select_label}}</label>
 				<select id="calendar_select" name="target" class="form-control form-group">
+ 					<optgroup label="Channel Calendars">
+					{{foreach $channel_calendars as $channel_calendar}}
+					<option value="channel_calendar">{{$channel_calendar.displayname}}</option>
+					{{/foreach}}
+					</optgroup>
+					<optgroup label="CalDAV Calendars">
 					{{foreach $writable_calendars as $writable_calendar}}
 					<option value="{{$writable_calendar.id.0}}:{{$writable_calendar.id.1}}">{{$writable_calendar.displayname}}{{if $writable_calendar.sharer}} ({{$writable_calendar.sharer}}){{/if}}</option>
 					{{/foreach}}
+					</optgroup>
 				</select>
 				<div id="more_block" style="display: none;">
 					{{include file="field_input.tpl" field=$dtstart}}
@@ -368,6 +490,7 @@ function on_more() {
 				<div class="form-group">
 					<div class="pull-right">
 						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="fa fa-caret-down"></i> {{$more}}</button>
+						<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm d-none" type="button" data-toggle="modal" data-target="#aclModal"><i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i></button>
 						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm"></button>
 
 					</div>
@@ -378,6 +501,7 @@ function on_more() {
 					<div class="clear"></div>
 				</div>
 			</form>
+			{{$acl}}
 		</div>
 	</div>
 	<div class="section-content-wrapper-np">

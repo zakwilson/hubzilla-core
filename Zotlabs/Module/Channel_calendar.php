@@ -39,7 +39,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 		$start_text = escape_tags($_REQUEST['dtstart']);
 		$finish_text = escape_tags($_REQUEST['dtend']);
-	
+
 		$adjust   = intval($_POST['adjust']);
 		$nofinish = intval($_POST['nofinish']);
 	
@@ -60,8 +60,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		else {
 			$start = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
 		}
-	
-	
+
 		if($finish_text) {
 			$finish = $finish_text;
 		}
@@ -74,6 +73,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		}
 
 
+
 		if($adjust) {
 			$start = datetime_convert($tz,'UTC',$start);
 			if(! $nofinish)
@@ -84,18 +84,20 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			if(! $nofinish)
 				$finish = datetime_convert('UTC','UTC',$finish);
 		}
+
+
 	
 		// Don't allow the event to finish before it begins.
 		// It won't hurt anything, but somebody will file a bug report
 		// and we'll waste a bunch of time responding to it. Time that 
 		// could've been spent doing something else. 
-	
+
 	
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));
 		$location = escape_tags(trim($_POST['location']));
 		$type     = escape_tags(trim($_POST['type']));
-	
+
 		require_once('include/text.php');
 		linkify_tags($desc, local_channel());
 		linkify_tags($location, local_channel());
@@ -558,10 +560,14 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'j' => $j,
 						'd' => $d,
 						'is_editable' => $edit ? true : false,
+
 						'is_first'=>$is_first,
 						'item'=>$rr,
 						'html'=>$html,
 						'plink' => array($rr['plink'],t('Link to Source'),'',''),
+
+						'description' => $rr['description'],
+						'location' => $rr['location'],
 
 						'allow_cid' => expand_acl($rr['allow_cid']),
 						'allow_gid' => expand_acl($rr['allow_gid']),

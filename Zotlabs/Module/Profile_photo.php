@@ -52,13 +52,38 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			return;
 		}
 		
+		$channel = \App::get_channel();
+		
 		check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
+		
+		// Remove cover photo
+		if(isset($_POST['remove'])) {
+			
+			$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
+				intval(PHOTO_PROFILE),
+				intval(local_channel())
+			);
+			
+			if($r) {
+			    q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+			    	intval(PHOTO_NORMAL),
+				    intval(PHOTO_PROFILE),
+				    intval(local_channel())
+			    );
+			
+				$sync = attach_export_data($channel,$r[0]['resource_id']);
+				if($sync)
+				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			}
+			
+			$_SESSION['reload_avatar'] = true;
+			
+			goaway(z_root() . '/profiles');
+		}
 	        
 		if((array_key_exists('cropfinal',$_POST)) && (intval($_POST['cropfinal']) == 1)) {
 	
 			// logger('crop: ' . print_r($_POST,true));
-
-
 
 			// phase 2 - we have finished cropping
 	
@@ -160,8 +185,6 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 						
 						return;
 					}
-	
-					$channel = \App::get_channel();
 	
 					// If setting for the default profile, unset the profile photo flag from any other photos I own
 	
@@ -390,8 +413,10 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 				if($sync)
 					build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
+				$_SESSION['reload_avatar'] = true;
 
 				\Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
+				
 				goaway(z_root() . '/profiles');
 			}
 	
@@ -471,6 +496,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 				'$lbl_profiles' => t('Select a profile:'),
 				'$title' => (($importing) ? t('Use Photo for Profile') : t('Change Profile Photo')),
 				'$submit' => (($importing) ? t('Use') : t('Upload')),
+				'$remove' => t('Remove'),
 				'$profiles' => $profiles,
 				'$single' => ((count($profiles) == 1) ? true : false),
 				'$profile0' => $profiles[0],

@@ -3,7 +3,10 @@
 # How to use
 # ----------
 # 
-# This file automates the installation of hubzilla under Debian Linux
+# This file automates the installation of
+# - hubzilla: https://zotlabs.org/page/hubzilla/hubzilla-project and
+# - zap: https://zotlabs.com/zap/
+# under Debian Linux
 #
 # 1) Copy the file "hubzilla-config.txt.template" to "hubzilla-config.txt"
 #       Follow the instuctions there
@@ -25,16 +28,14 @@
 #        * php,  
 #        * mysql - the database for hubzilla,  
 #        * phpmyadmin,  
-#        * git to download and update hubzilla itself
+#        * git to download and update hubzilla addon
 # - download hubzilla core and addons
 # - configure cron
-#        * "poller.php" for regular background prozesses of hubzilla
-#        * to_do "apt-get update" and "apt-get dist-upgrade" to keep linux
-#          up-to-date
-#        * to_do backup hubzillas database and files (rsnapshot)
-# - configure dynamic ip with cron
-# - to_do letsencrypt
-# - to_do redirection to https
+#        * "Master.php" for regular background prozesses of hubzilla
+#        * "apt-get update" and "apt-get dist-upgrade" and "apt-get autoremove" to keep linux up-to-date
+#        * run command to keep the IP up-to-date > DynDNS provided by selfHOST.de or freedns.afraid.org
+#        * backup hubzillas database and files (rsync)
+# - letsencrypt
 # 
 # 
 # Discussion
@@ -43,26 +44,11 @@
 # Security - password  is the same for mysql-server, phpmyadmin and hubzilla db
 # - The script runs into installation errors for phpmyadmin if it uses
 #   different passwords. For the sake of simplicity one singel password.
-# 
-# Security - suhosin for PHP
-# - The script does not install suhosin.
-# - Is the security package suhosin usefull or not usefull?
 #
 # Hubzilla - email verification
 # - The script switches off email verification off in all htconfig.tpl.
 #   Example: /var/www/html/view/en/htconfig.tpl
 # - Is this a silly idea or not?
-#
-# 
-# Remove Hubzilla (for a fresh start using the script)
-# ----------------------------------------------------
-#
-# You could use /var/www/hubzilla-remove.sh
-# that is created by hubzilla-setup.sh.
-#
-# The script will remove (almost everything) what was installed by the script.
-# After the removal you could run the script again to have a fresh install
-# of all applications including hubzilla and its database.
 # 
 # How to restore from backup
 # --------------------------
@@ -76,18 +62,10 @@
 #
 # hubzilla-daily.sh makes a (daily) backup of all relevant files
 # - /var/lib/mysql/ > hubzilla database
-# - /var/www/html/ > hubzilla from github
-# - /var/www/letsencrypt/ > certificates
+# - /var/www/ > hubzilla/zap from github
+# - /etc/letsencrypt/ > certificates
 # 
-# hubzilla-daily.sh writes the backup
-# - either to an external disk compatible to LUKS+ext4 (see hubzilla-config.txt)
-# - or to /var/cache/rsnapshot in case the external disk is not plugged in
-# 
-# Restore backup
-# - - - - - - - 
-# 
-# This was not tested yet.
-# Bacically you can copy the files from the backup to the server.
+# hubzilla-daily.sh writes the backup to an external disk compatible to LUKS+ext4 (see hubzilla-config.txt)
 # 
 # Credits
 # -------
@@ -136,11 +114,11 @@ function check_config {
     # backup is important and should be checked
 	if [ -n "$backup_device_name" ]
 	then
-            if [ ! -d "$backup_mount_point" ]
-            then
-                mkdir "$backup_mount_point"
-	    fi
-            device_mounted=0
+		if [ ! -d "$backup_mount_point" ]
+		then
+			mkdir "$backup_mount_point"
+		fi
+		device_mounted=0
 		if fdisk -l | grep -i "$backup_device_name.*linux"
 		then
 		    print_info "ok - filesystem of external device is linux"
@@ -264,7 +242,7 @@ function install_sendmail {
 function install_php {
     # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
-    nocheck_install "libapache2-mod-php php php-pear php-curl php-mcrypt php-gd"
+    nocheck_install "libapache2-mod-php php php-pear php-curl php-mcrypt php-gd php-mysqli php-mbstring php-xml"
     sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/7.0/apache2/php.ini
     sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/7.0/apache2/php.ini
 }
@@ -449,11 +427,11 @@ function configure_cron_selfhost {
     print_info "configure cron for selfhost..."
     if [ -z "$selfhost_user" ]
     then
-        print_info "freedns is not configured because freedns_key is empty in $configfile"
+        print_info "selfhost is not configured because selfhost_key is empty in $configfile"
     else
         # Use cron for dynamich ip update
         #   - at reboot
-        #   - every 30 minutes
+        #   - every 5 minutes
         if [ -z "`grep 'selfhost-updater.sh' /etc/crontab`" ]
         then
             echo "@reboot root bash /etc/selfhost/selfhost-updater.sh update > /dev/null 2>&1" >> /etc/crontab
@@ -471,89 +449,24 @@ function install_letsencrypt {
     then
         die "Failed to install let's encrypt: 'le_domain' is empty in $configfile"
     fi
-    # configure apache
-    apache_le_conf=/etc/apache2/sites-available/le-default.conf    
-    if [ -f $apache_le_conf ]
+    # check if user gave mail address
+    if [ -z "$le_email" ]
     then
-        print_info "$apache_le_conf exist already"
+        die "Failed to install let's encrypt: 'le_domain' is empty in $configfile"
+    fi
+    nocheck_install "apt-transport-https"
+    # add backports to your sources.list
+    backports_list=/etc/apt/sources.list.d/backports.list    
+    if [ -f $backports_list ]
+    then
+        print_info "$backports_list exist already"
     else
-        cat > $apache_le_conf <<END
-# letsencrypt default Apache configuration
-Alias /.well-known/acme-challenge /var/www/letsencrypt
-
-<Directory /var/www/letsencrypt>
-    Options FollowSymLinks
-	Allow from all
-</Directory>
-END
-        a2ensite le-default.conf
-        service apache2 restart
+        echo "deb https://deb.debian.org/debian stretch-backports main" > $backports_list
     fi
-    # download the shell script
-    if [ -d $le_dir ]
-    then
-        print_info "letsenrypt exists already (nothing downloaded > no certificate created and registered)"
-        return 0
-    fi
-    git clone https://github.com/lukas2511/dehydrated $le_dir
-    cd $le_dir
-    # create config file for letsencrypt.sh
-    echo "WELLKNOWN=$le_dir" > $le_dir/config.sh
-    if [ -n "$le_email" ]
-    then
-        echo "CONTACT_EMAIL=$le_email" >> $le_dir/config.sh
-    fi
-    # create domain file for letsencrypt.sh
-    # WATCH THIS:
-    #    - It did not work wit "sub.domain.org www.sub.domain.org".
-    #    - So just use "sub.domain.org" only!
-    echo "$le_domain" > $le_dir/domains.txt
-    # test apache config for letsencrpyt
-    url_http=http://$le_domain/.well-known/acme-challenge/domains.txt
-    wget_output=$(wget -nv --spider --max-redirect 0 $url_http)
-    if [ $? -ne 0 ]
-    then
-        die "Failed to load $url_http"
-    fi
-    # accept terms of service of letsencrypt
-    ./dehydrated --register --accept-terms
-    # run script dehydrated
-    # 
-    ./dehydrated --cron --config $le_dir/config.sh
-}
-
-function configure_apache_for_https {
-    print_info "configuring apache to use httpS ..."
-    # letsencrypt.sh
-    #
-    #   "${BASEDIR}/certs/${domain}/privkey.pem"
-    #   "${BASEDIR}/certs/${domain}/cert.pem"
-    #   "${BASEDIR}/certs/${domain}/fullchain.pem"
-    #
-    SSLCertificateFile=${le_dir}/certs/${le_domain}/cert.pem
-    SSLCertificateKeyFile=${le_dir}/certs/${le_domain}/privkey.pem
-    SSLCertificateChainFile=${le_dir}/certs/${le_domain}/fullchain.pem
-    if [ ! -f $SSLCertificateFile ]
-    then
-        print_warn "Failed to configure apache for httpS: Missing certificate file $SSLCertificateFile" 
-        return 0  
-    fi
-    # make sure that the ssl mode is enabled
-    print_info "...configuring apache to use httpS - a2enmod ssl ..."
-    a2enmod ssl
-    # modify apach' ssl conf file 
-    if grep -i "ServerName" $sslconf
-    then
-        print_info "seems that apache was already configered to use httpS with $sslconf"
-    else
-        sed -i "s/ServerAdmin.*$/ServerAdmin webmaster@localhost\\n        ServerName ${le_domain}/" $sslconf 
-    fi     
-    sed -i s#/etc/ssl/certs/ssl-cert-snakeoil.pem#$SSLCertificateFile# $sslconf 
-    sed -i s#/etc/ssl/private/ssl-cert-snakeoil.key#$SSLCertificateKeyFile# $sslconf 
-    sed -i s#/etc/apache2/ssl.crt/server-ca.crt#$SSLCertificateChainFile# $sslconf 
-    sed -i s/#SSLCertificateChainFile/SSLCertificateChainFile/ $sslconf 
-    # apply changes
-    a2ensite default-ssl.conf
+	apt-get -y update
+    DEBIAN_FRONTEND=noninteractive apt-get -q -y -t stretch-backports install certbot python-certbot-apache
+    print_info "run certbot ..."
+	certbot --apache -w /var/www/html -d $le_domain -m $le_email --agree-tos --non-interactive --redirect --hsts --uir
     service apache2 restart
 }
 
@@ -572,7 +485,10 @@ function check_https {
 function install_hubzilla {
     print_info "installing hubzilla addons..."
     cd /var/www/html/
-    util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons
+    # if you install Hubzilla
+    util/add_addon_repo https://framagit.org/hubzilla/addons hzaddons
+    # if you install ZAP
+    #util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons
     mkdir -p "store/[data]/smarty3"
     chmod -R 777 store
     touch .htconfig.php
@@ -582,7 +498,7 @@ function install_hubzilla {
 	chown root:www-data /var/www/html/
 	chown root:www-data /var/www/html/.htaccess
 	chmod 0644 /var/www/html/.htaccess
-    # try to switch off email registration
+    print_info "try to switch off email registration..."
     sed -i "s/verify_email.*1/verify_email'] = 0/" /var/www/html/view/*/ht*
     if [ -n "`grep -r 'verify_email.*1' /var/www/html/view/`" ]
     then
@@ -591,49 +507,9 @@ function install_hubzilla {
     print_info "installed hubzilla"
 }
 
-function rewrite_to_https {
-    print_info "configuring apache to redirect http to httpS ..."
-    htaccessfile=/var/www/html/.htaccess
-    if grep -i "https" $htaccessfile
-    then
-        print_info "...configuring apache to redirect http to httpS was already done in $htaccessfile"
-    else
-        sed -i "s#QSA]#QSA]\\n  RewriteCond %{SERVER_PORT} !^443$\\n  RewriteRule (.*) https://%{HTTP_HOST}/$1 [R=301,L]#" $htaccessfile 
-    fi     
-    service apache2 restart
-}
-
-# This will allways overwrite both config files
-#   - internal disk
-#   - external disk (LUKS + ext4)
-#  of rsnapshot for hubzilla
-function install_rsnapshot {
-    print_info "installing rsnapshot..."
-    nocheck_install "rsnapshot"
-    # internal disk
-    cp -f /etc/rsnapshot.conf $snapshotconfig
-    sed -i "s/^cmd_cp/#cmd_cp/" $snapshotconfig
-    sed -i "s/^backup/#backup/" $snapshotconfig
-	echo "backup	/var/lib/mysql/	localhost/" >> $snapshotconfig
-	echo "backup	/var/www/html/	localhost/" >> $snapshotconfig
-	echo "backup	/var/www/letsencrypt/	localhost/" >> $snapshotconfig
-	# external disk
-	if [ -n "$backup_device_name" ]
-	then
-		cp -f /etc/rsnapshot.conf $snapshotconfig_external_device   
-		sed -i "s#snapshot_root.*#snapshot_root	$backup_mount_point#" $snapshotconfig_external_device
-		sed -i "/alpha/s/6/30/" $snapshotconfig_external_device 
-		sed -i "s/^cmd_cp/#cmd_cp/" $snapshotconfig_external_device
-		sed -i "s/^backup/#backup/" $snapshotconfig_external_device
-		if [ -z "`grep 'letsencrypt' $snapshotconfig_external_device`" ]
-		then
-			echo "backup	/var/lib/mysql/	localhost/" >> $snapshotconfig_external_device
-			echo "backup	/var/www/html/	localhost/" >> $snapshotconfig_external_device
-			echo "backup	/var/www/letsencrypt/	localhost/" >> $snapshotconfig_external_device
-		fi
-    else
-        print_info "No backup configuration (rsnapshot) for external device configured. Reason: backup_device_name and/or backup_device_pass not given in $configfile"
-	fi
+function install_rsync {
+    print_info "installing rsync..."
+    nocheck_install "rsync"
 }
 
 function install_cryptosetup {
@@ -644,28 +520,28 @@ function install_cryptosetup {
 function configure_cron_daily {
     print_info "configuring cron..."
     # every 10 min for poller.php
-    if [ -z "`grep 'poller.php' /etc/crontab`" ]
+    if [ -z "`grep 'Master.php' /etc/crontab`" ]
     then
         echo "*/10 * * * * www-data cd /var/www/html; php Zotlabs/Daemon/Master.php Cron >> /dev/null 2>&1" >> /etc/crontab
     fi
     # Run external script daily at 05:30
     # - stop apache and mysql-server
-    # - backup hubzilla
+    # - renew the certificate of letsencrypt
+    # - backup db, files (/var/www/html), certificates if letsencrypt
     # - update hubzilla core and addon
     # - update and upgrade linux
-    # - reboot
+    # - reboot is done by "shutdown -h now" because "reboot" hangs sometimes depending on the system
 echo "#!/bin/sh" > /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "echo \" \"" >> /var/www/$hubzilladaily
 echo "echo \"+++ \$(date) +++\"" >> /var/www/$hubzilladaily
 echo "echo \" \"" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - renew certificate...\"" >> /var/www/$hubzilladaily
-echo "bash $le_dir/dehydrated --cron --config $le_dir/config.sh" >> /var/www/$hubzilladaily
+echo "certbot renew --noninteractive" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
-echo "# stop hubzilla" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - stoping apache and mysql...\"" >> /var/www/$hubzilladaily
+echo "echo \"\$(date) - stopping apache and mysql...\"" >> /var/www/$hubzilladaily
 echo "service apache2 stop" >> /var/www/$hubzilladaily
-echo "/etc/init.d/mysql stop # to avoid inconsistancies" >> /var/www/$hubzilladaily
+echo "/etc/init.d/mysql stop # to avoid inconsistencies" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "# backup" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - try to mount external device for backup...\"" >> /var/www/$hubzilladaily
@@ -696,11 +572,13 @@ echo "        if mount $backup_device_name $backup_mount_point" >> /var/www/$hub
 echo "        then" >> /var/www/$hubzilladaily
 echo "            device_mounted=1" >> /var/www/$hubzilladaily
 echo "            echo \"device $backup_device_name is now mounted. Starting backup...\"" >> /var/www/$hubzilladaily
-echo "			rsnapshot -c $snapshotconfig_external_device alpha" >> /var/www/$hubzilladaily
-echo "			echo \"\$(date) - disk sizes...\"" >> /var/www/$hubzilladaily
-echo "			df -h" >> /var/www/$hubzilladaily
-echo "			echo \"\$(date) - db size...\"" >> /var/www/$hubzilladaily
-echo "			du -h $backup_mount_point | grep mysql/hubzilla" >> /var/www/$hubzilladaily
+echo "            rsync -a --delete /var/lib/mysql/ /media/hubzilla_backup/mysql" >> /var/www/$hubzilladaily
+echo "            rsync -a --delete /var/www/ /media/hubzilla_backup/www" >> /var/www/$hubzilladaily
+echo "            rsync -a --delete /etc/letsencrypt/ /media/hubzilla_backup/letsencrypt" >> /var/www/$hubzilladaily
+echo "            echo \"\$(date) - disk sizes...\"" >> /var/www/$hubzilladaily
+echo "            df -h" >> /var/www/$hubzilladaily
+echo "            echo \"\$(date) - db size...\"" >> /var/www/$hubzilladaily
+echo "            du -h $backup_mount_point | grep mysql/hubzilla" >> /var/www/$hubzilladaily
 echo "            echo \"unmounting backup device...\"" >> /var/www/$hubzilladaily
 echo "            umount $backup_mount_point" >> /var/www/$hubzilladaily
 echo "        else" >> /var/www/$hubzilladaily
@@ -722,18 +600,16 @@ echo "echo \"\$(date) - db size...\"" >> /var/www/$hubzilladaily
 echo "du -h /var/lib/mysql/ | grep mysql/hubzilla" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
 echo "# update" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - updating dehydrated...\"" >> /var/www/$hubzilladaily
-echo "git -C /var/www/letsencrypt/ pull" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - updating hubhilla core...\"" >> /var/www/$hubzilladaily
+echo "echo \"\$(date) - updating core and addons...\"" >> /var/www/$hubzilladaily
 echo "(cd /var/www/html/ ; util/udall)" >> /var/www/$hubzilladaily
 echo "chown -R www-data:www-data /var/www/html/ # make all accessable for the webserver" >> /var/www/$hubzilladaily
 echo "chown root:www-data /var/www/html/.htaccess" >> /var/www/$hubzilladaily
 echo "chmod 0644 /var/www/html/.htaccess # www-data can read but not write it" >> /var/www/$hubzilladaily
 echo "echo \"\$(date) - updating linux...\"" >> /var/www/$hubzilladaily
 echo "apt-get -q -y update && apt-get -q -y dist-upgrade && apt-get -q -y autoremove # update linux and upgrade" >> /var/www/$hubzilladaily
-echo "echo \"\$(date) - Backup hubzilla and update linux finished. Rebooting...\"" >> /var/www/$hubzilladaily
+echo "echo \"\$(date) - Backup and update finished. Rebooting...\"" >> /var/www/$hubzilladaily
 echo "#" >> /var/www/$hubzilladaily
-echo "reboot" >> /var/www/$hubzilladaily
+echo "shutdown -r now" >> /var/www/$hubzilladaily
 
     if [ -z "`grep 'hubzilla-daily.sh' /etc/crontab`" ]
     then
@@ -743,38 +619,6 @@ echo "reboot" >> /var/www/$hubzilladaily
 
     # This is active after either "reboot" or "/etc/init.d/cron reload"
     print_info "configured cron for updates/upgrades"
-}
-
-function write_uninstall_script {
-    print_info "writing uninstall script..."
-
-    cat > /var/www/hubzilla-remove.sh <<END
-#!/bin/sh
-#
-# This script removes Hubzilla.
-# You might do this for a fresh start using the script.
-# The script will remove (almost everything) what was installed by the script,
-# all applications including hubzilla and its database.
-#
-# Backup the certificates of letsencrypt (you never know)
-cp -a /var/www/letsencrypt/ ~/backup_le_certificats
-#
-# Removal
-apt-get remove apache2 apache2-utils libapache2-mod-php5 php5 php-pear php5-xcache php5-curl php5-mcrypt php5-gd php5-mysql mysql-server mysql-client phpmyadmin
-apt-get purge apache2 apache2-utils libapache2-mod-php5 php5 php-pear php5-xcache php5-curl php5-mcrypt php5-gd php5-mysql mysql-server mysql-client phpmyadmin
-apt-get autoremove
-apt-get clean
-rm /etc/rsnapshot_hubzilla.conf
-rm /etc/rsnapshot_hubzilla_external_device.conf
-rm -R /etc/apache2/
-rm -R /var/lib/mysql/
-rm -R /var/www
-rm -R /etc/selfhost/
-# uncomment the next line if you want to remove the backups
-# rm -R /var/cache/rsnapshot
-nano /etc/crontab # remove entries there manually
-END
-    chmod -x /var/www/hubzilla-remove.sh
 }
 
 ########################################################################
@@ -792,11 +636,7 @@ selfhostdir=/etc/selfhost
 selfhostscript=selfhost-updater.sh
 hubzilladaily=hubzilla-daily.sh
 plugins_update=.homeinstall/plugins_update.sh
-snapshotconfig=/etc/rsnapshot_hubzilla.conf
-snapshotconfig_external_device=/etc/rsnapshot_hubzilla_external_device.conf
 backup_mount_point=/media/hubzilla_backup
-le_dir=/var/www/letsencrypt
-sslconf=/etc/apache2/sites-available/default-ssl.conf
 
 #set -x    # activate debugging from here
 
@@ -820,7 +660,6 @@ configure_cron_selfhost
 if [ "$le_domain" != "localhost" ]
 then
 	install_letsencrypt
-	configure_apache_for_https
 	check_https
 else
 	print_info "is localhost - skipped installation of letsencrypt and configuration of apache for https"
@@ -828,20 +667,12 @@ fi
 
 install_hubzilla
 
-if [ "$le_domain" != "localhost" ]
-then
-	rewrite_to_https
-	install_rsnapshot
-else
-	print_info "is localhost - skipped rewrite to https and installation of rsnapshot"
-fi     
-
 configure_cron_daily
 
 if [ "$le_domain" != "localhost" ]
 then
+	install_rsync
 	install_cryptosetup
-	write_uninstall_script
 else
 	print_info "is localhost - skipped installation of cryptosetup"
 fi     

@@ -368,7 +368,7 @@ function on_more() {
 				<div class="form-group">
 					<div class="pull-right">
 						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="fa fa-caret-down"></i> {{$more}}</button>
-						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm"></button>
+						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm">{{$update}}</button>
 
 					</div>
 					<div>

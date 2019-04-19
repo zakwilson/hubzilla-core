@@ -962,6 +962,7 @@ class Cdav extends Controller {
 				'$location' => $location,
 				'$more' => t('More'),
 				'$less' => t('Less'),
+				'$update' => t('Update'),
 				'$calendar_select_label' => t('Select calendar'),
 				'$delete' => t('Delete'),
 				'$delete_all' => t('Delete all'),

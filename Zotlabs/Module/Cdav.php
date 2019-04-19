@@ -988,6 +988,7 @@ class Cdav extends Controller {
 				'$more' => t('More'),
 				'$less' => t('Less'),
 				'$calendar_select_label' => t('Select calendar'),
+				'$calendar_optiopns_label' => [t('Channel Calendars'), t('CalDAV Calendars')],
 				'$delete' => t('Delete'),
 				'$delete_all' => t('Delete all'),
 				'$cancel' => t('Cancel'),

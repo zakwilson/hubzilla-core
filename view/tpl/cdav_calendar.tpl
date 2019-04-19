@@ -69,11 +69,19 @@ $(document).ready(function() {
 		
 		eventClick: function(info) {
 
-			console.log(info);
-
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
+
+			if(event.extendedProps.plink) {
+				if(! $('#l2s').length)
+					$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
+
+				$('#l2s').html('<a href="' + event.extendedProps.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + event.extendedProps.plink[1] + '</a>');
+			}
+			else {
+				$('#l2s').remove();
+			}
 
 			if(event.publicId == new_event_id) {
 				$('#calendar_select').trigger('change');
@@ -470,12 +478,12 @@ function exportDate() {
 				{{include file="field_input.tpl" field=$title}}
 				<label for="calendar_select">{{$calendar_select_label}}</label>
 				<select id="calendar_select" name="target" class="form-control form-group">
- 					<optgroup label="Channel Calendars">
+					<optgroup label="{{$calendar_optiopns_label.0}}">
 					{{foreach $channel_calendars as $channel_calendar}}
 					<option value="channel_calendar">{{$channel_calendar.displayname}}</option>
 					{{/foreach}}
 					</optgroup>
-					<optgroup label="CalDAV Calendars">
+					<optgroup label="{{$calendar_optiopns_label.1}}">
 					{{foreach $writable_calendars as $writable_calendar}}
 					<option value="{{$writable_calendar.id.0}}:{{$writable_calendar.id.1}}">{{$writable_calendar.displayname}}{{if $writable_calendar.sharer}} ({{$writable_calendar.sharer}}){{/if}}</option>
 					{{/foreach}}

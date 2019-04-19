@@ -272,12 +272,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-/*
-
-		\App::$profile_uid = local_channel();
-		nav_set_selected('Events');
-*/
-	
 		if((argc() > 2) && (argv(1) === 'ignore') && intval(argv(2))) {
 			$r = q("update event set dismissed = 1 where id = %d and uid = %d",
 				intval(argv(2)),
@@ -291,33 +285,14 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 		}
-	
-		$first_day = feature_enabled(local_channel(), 'events_cal_first_day');
-		$first_day = (($first_day) ? $first_day : 0);
-	
-		$htpl = get_markup_template('event_head.tpl');
-		\App::$page['htmlhead'] .= replace_macros($htpl,array(
-			'$baseurl' => z_root(),
-			'$module_url' => '/events',
-			'$modparams' => 1,
-			'$lang' => \App::$language,
-			'$first_day' => $first_day
-		));
-	
-		$o = '';
-	
+
 		$channel = \App::get_channel();
 	
 		$mode = 'view';
 		$y = 0;
 		$m = 0;
 		$ignored = ((x($_REQUEST,'ignored')) ? " and dismissed = " . intval($_REQUEST['ignored']) . " "  : '');
-	
-	
-		// logger('args: ' . print_r(\App::$argv,true));
-	
-	
-	
+
 		if(argc() > 1) {
 			if(argc() > 2 && argv(1) === 'add') {
 				$mode = 'add';
@@ -361,18 +336,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			if(!x($orig_event))
 				$orig_event = array();
 	
-			// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
-			/*
-			if(x($_REQUEST,'nofinish')) $orig_event['nofinish'] = $_REQUEST['nofinish'];
-			if(x($_REQUEST,'adjust')) $orig_event['adjust'] = $_REQUEST['adjust'];
-			if(x($_REQUEST,'summary')) $orig_event['summary'] = $_REQUEST['summary'];
-			if(x($_REQUEST,'description')) $orig_event['description'] = $_REQUEST['description'];
-			if(x($_REQUEST,'location')) $orig_event['location'] = $_REQUEST['location'];
-			if(x($_REQUEST,'start')) $orig_event['dtstart'] = $_REQUEST['start'];
-			if(x($_REQUEST,'finish')) $orig_event['dtend'] = $_REQUEST['finish'];
-			if(x($_REQUEST,'type')) $orig_event['etype'] = $_REQUEST['type'];
-			*/
-	
 			$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
 			$a_checked = ((x($orig_event) && $orig_event['adjust']) ? ' checked="checked" ' : '');
 			$t_orig = ((x($orig_event)) ? $orig_event['summary'] : '');
@@ -381,17 +344,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			$eid = ((x($orig_event)) ? $orig_event['id'] : 0);
 			$event_xchan = ((x($orig_event)) ? $orig_event['event_xchan'] : $channel['channel_hash']);
 			$mid = ((x($orig_event)) ? $orig_event['mid'] : '');
-	
-			if(! x($orig_event)) {
-				$sh_checked = '';
-				$a_checked = ' checked="checked" ';
-			}
-			else {
-				$sh_checked = ((($orig_event['allow_cid'] === '<' . $channel['channel_hash'] . '>' || (! $orig_event['allow_cid'])) && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ' );
-			}
-
-			if($orig_event['event_xchan'])
-				$sh_checked .= ' disabled="disabled" ';
 	
 			$sdt = ((x($orig_event)) ? $orig_event['dtstart'] : 'now');
 	
@@ -444,62 +396,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	            			}
 				}
 			}
-/*	
-			require_once('include/acl_selectors.php');
-	
-			$acl = new \Zotlabs\Access\AccessList($channel);
-			$perm_defaults = $acl->get();
 
-			$permissions = ((x($orig_event)) ? $orig_event : $perm_defaults);
-
-			$tpl = get_markup_template('event_form.tpl');
-	
-			$form = replace_macros($tpl,array(
-				'$post' => z_root() . '/events',
-				'$eid' => $eid,
-				'$type' => $type,
-				'$xchan' => $event_xchan,
-				'$mid' => $mid,
-				'$event_hash' => $event_id,
-				'$summary' => array('summary', (($event_id) ? t('Edit event title') : t('Event title')), $t_orig, t('Required'), '*'),
-				'$catsenabled' => $catsenabled,
-				'$placeholdercategory' => t('Categories (comma-separated list)'),
-				'$c_text' => (($event_id) ? t('Edit Category') : t('Category')),
-				'$category' => $category,
-				'$required' => '<span class="required" title="' . t('Required') . '">*</span>',
-				'$s_dsel' => datetimesel($f,new \DateTime(),\DateTime::createFromFormat('Y',$syear+5),\DateTime::createFromFormat('Y-m-d H:i',"$syear-$smonth-$sday $shour:$sminute"), (($event_id) ? t('Edit start date and time') : t('Start date and time')), 'start_text',true,true,'','',true,$first_day),
-				'$n_text' => t('Finish date and time are not known or not relevant'),
-				'$n_checked' => $n_checked,
-				'$f_dsel' => datetimesel($f,new \DateTime(),\DateTime::createFromFormat('Y',$fyear+5),\DateTime::createFromFormat('Y-m-d H:i',"$fyear-$fmonth-$fday $fhour:$fminute"), (($event_id) ? t('Edit finish date and time') : t('Finish date and time')),'finish_text',true,true,'start_text','',false,$first_day),
-				'$nofinish' => array('nofinish', t('Finish date and time are not known or not relevant'), $n_checked, '', array(t('No'),t('Yes')), 'onclick="enableDisableFinishDate();"'),
-				'$adjust' => array('adjust', t('Adjust for viewer timezone'), $a_checked, t('Important for events that happen in a particular place. Not practical for global holidays.'), array(t('No'),t('Yes'))),
-				'$a_text' => t('Adjust for viewer timezone'),
-				'$d_text' => (($event_id) ? t('Edit Description') : t('Description')),
-				'$d_orig' => $d_orig,
-				'$l_text' => (($event_id) ? t('Edit Location') : t('Location')),
-				'$l_orig' => $l_orig,
-				'$t_orig' => $t_orig,
-				'$preview' => t('Preview'),
-				'$perms_label' => t('Permission settings'),
-				// populating the acl dialog was a permission description from view_stream because Cal.php, which
-				// displays events, says "since we don't currently have an event permission - use the stream permission"
-				'$acl' => (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults), false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'))),
-
-				'$allow_cid' => acl2json($permissions['allow_cid']),
-				'$allow_gid' => acl2json($permissions['allow_gid']),
-				'$deny_cid' => acl2json($permissions['deny_cid']),
-				'$deny_gid' => acl2json($permissions['deny_gid']),
-				'$tz_choose' => feature_enabled(local_channel(),'event_tz_select'),
-				'$timezone' => array('timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()),
-
-				'$lockstate' => (($acl->is_private()) ? 'lock' : 'unlock'),
-
-				'$submit' => t('Submit'),
-				'$advanced' => t('Advanced Options')
-	
-			));
-*/
-	
 			$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 			$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
 			if(! $y)
@@ -684,40 +581,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			if (\App::$argv[1] === 'json'){
 				json_return_and_die($events);
 			}
-			
-/*
-			// links: array('href', 'text', 'extra css classes', 'title')
-			if (x($_GET,'id')){
-				$tpl =  get_markup_template("event.tpl");
-			} 
-			else {
-				$tpl = get_markup_template("events-js.tpl");
-			}
-
-	
-			$o = replace_macros($tpl, array(
-				'$baseurl'	=> z_root(),
-				'$new_event'	=> array(z_root().'/events',(($event_id) ? t('Edit Event') : t('Create Event')),'',''),
-				'$previus'	=> array(z_root()."/events/$prevyear/$prevmonth",t('Previous'),'',''),
-				'$next'		=> array(z_root()."/events/$nextyear/$nextmonth",t('Next'),'',''),
-				'$export'	=> array(z_root()."/events/$y/$m/export",t('Export'),'',''),
-				'$calendar'	=> cal($y,$m,$links, ' eventcal'),
-				'$events'	=> $events,
-				'$view_label'   => t('View'),
-				'$month'        => t('Month'),
-				'$week'         => t('Week'),
-				'$day'          => t('Day'),
-				'$prev'		=> t('Previous'),
-				'$next'		=> t('Next'),
-				'$today'	=> t('Today'),
-				'$form'		=> $form,
-				'$expandform'	=> ((x($_GET,'expandform')) ? true : false),
-			));
-			
-			if (x($_GET,'id')){ echo $o; killme(); }
-			
-			return $o;
-*/
 		}
 
 	

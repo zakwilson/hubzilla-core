@@ -114,7 +114,7 @@ $(document).ready(function() {
 				$('#id_dtend').val(dtend.toUTCString());
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
-				$('#event_submit').val('update_event').html('Update');
+				$('#event_submit').val('update_event').html('{{$update}}');
 				$('#dbtn-acl').addClass('d-none');
 				event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 

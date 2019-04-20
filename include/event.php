@@ -1284,6 +1284,10 @@ function cdav_principal($uri) {
 }
 
 function cdav_perms($needle, $haystack, $check_rw = false) {
+
+	if($needle == 'channel_calendar')
+		return true;
+
 	foreach ($haystack as $item) {
 		if($check_rw) {
 			if(is_array($item['id'])) {

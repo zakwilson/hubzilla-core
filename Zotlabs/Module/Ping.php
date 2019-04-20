@@ -447,7 +447,7 @@ class Ping extends \Zotlabs\Web\Controller {
 					$when = day_translate(datetime_convert('UTC', (($rr['adjust']) ? date_default_timezone_get() : 'UTC'), $rr['dtstart'], $bd_format)) . (($today) ?  ' ' . t('[today]') : '');
 
 					$result[] = array(
-						'notify_link' => z_root() . '/events', /// @FIXME this takes you to an edit page and it may not be yours, we really want to just view the single event  --> '/events/event/' . $rr['event_hash'],
+						'notify_link' => z_root() . '/cdav/calendar', /// @FIXME this takes you to an edit page and it may not be yours, we really want to just view the single event  --> '/events/event/' . $rr['event_hash'],
 						'name'        => $rr['xchan_name'],
 						'addr'        => $rr['xchan_addr'],
 						'url'         => $rr['xchan_url'],

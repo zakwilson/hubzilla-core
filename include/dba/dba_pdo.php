@@ -161,22 +161,16 @@ class dba_pdo extends dba_driver {
 	}
 
 	function unescapebin($str) {
-		if($this->driver_dbtype === 'pgsql' && (! is_null($str))) {
-			$x = '';
-			while(! feof($str)) {
-				$x .= fread($str,8192);
+		if($this->driver_dbtype === 'pgsql') {
+			if(gettype($str) === 'resource') {
+				$str = stream_get_contents($str);
 			}
-			if(substr($x,0,2) === '\\x') {
-				$x = hex2bin(substr($x,2));
+		if(substr($str,0,2) === '\\x') {
+				$str = hex2bin(substr($str,2));
 			}
-			return $x;
-
 		}
-		else {
-			return $str;
-		}
+		return $str;
 	}
-
 
 	function getdriver() {
 		return 'pdo';

@@ -162,18 +162,20 @@ class Photo extends \Zotlabs\Web\Controller {
 							$allowed = (-1);
 					if($u === PHOTO_CACHE) {
 						// Validate cache
-						$cache = array(
-							'resid' => $photo,
-							'status' => false
-						);
-						if($cache_mode['on'])
+						if($cache_mode['on']) {
+							$cache = array(
+								'resid' => $photo,
+								'status' => false
+							);
 							call_hooks('cache_url_hook', $cache);
-						if(! $cache['status']) {
-							$url = htmlspecialchars_decode($r[0]['display_path']);
-							if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
-								$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
-							header("Location: " . $url);
-							killme();
+							if(! $cache['status']) {
+								$url = htmlspecialchars_decode($r[0]['display_path']);
+								// SSLify if needed
+								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
+									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
+								header("Location: " . $url);
+								killme();
+							}
 						}
 					}
 				}

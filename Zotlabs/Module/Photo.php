@@ -95,7 +95,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $default    = $d['default'];
 			    $data       = $d['data'];
 			    $mimetype   = $d['mimetype'];
-				$modified = time();
+			    $modified   = 0;
 			}
 
 			if(! $data) {
@@ -162,18 +162,20 @@ class Photo extends \Zotlabs\Web\Controller {
 							$allowed = (-1);
 					if($u === PHOTO_CACHE) {
 						// Validate cache
-						$cache = array(
-							'resid' => $photo,
-							'status' => false
-						);
-						if($cache_mode['on'])
+						if($cache_mode['on']) {
+							$cache = array(
+								'resid' => $photo,
+								'status' => false
+							);
 							call_hooks('cache_url_hook', $cache);
-						if(! $cache['status']) {
-							$url = htmlspecialchars_decode($r[0]['display_path']);
-							if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
-								$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
-							header("Location: " . $url);
-							killme();
+							if(! $cache['status']) {
+								$url = htmlspecialchars_decode($r[0]['display_path']);
+								// SSLify if needed
+								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
+									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
+								header("Location: " . $url);
+								killme();
+							}
 						}
 					}
 				}
@@ -220,10 +222,15 @@ class Photo extends \Zotlabs\Web\Controller {
 
  		if(! $data)
  			killme();
+ 			
+ 		$etag = md5($data . $modified);
+ 		
+ 		if($modified == 0)
+ 		    $modified = time();
 
 		header_remove('Pragma');
 
-		if($_SERVER['HTTP_IF_NONE_MATCH'] === md5($data) || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+		if($_SERVER['HTTP_IF_NONE_MATCH'] === $etag || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
@@ -272,7 +279,7 @@ class Photo extends \Zotlabs\Web\Controller {
 
 		header("Content-type: " . $mimetype);
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
-		header("ETag: " . md5($data));
+		header("ETag: " . $etag);
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

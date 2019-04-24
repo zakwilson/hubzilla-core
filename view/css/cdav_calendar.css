@@ -29,3 +29,9 @@ main.fullscreen .fc td:last-child {
 .fc-list-view {
 	border-width: 0px;
 }
+
+.bootstrap-tagsinput {
+	width: 100%;
+	padding: 6px 12px;
+}
+

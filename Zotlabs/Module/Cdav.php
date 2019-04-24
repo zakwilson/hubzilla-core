@@ -906,6 +906,19 @@ class Cdav extends Controller {
 
 			$sources = '';
 
+			if(get_pconfig(local_channel(), 'cdav_calendar', 'channel_calendar')) {
+				$sources .= '{
+					id: \'channel_calendar\',
+					url: \'/channel_calendar/json/\',
+					color: \'#3a87ad\'
+				}, ';
+			}
+
+			$channel_calendars[] = [
+				'displayname' => $channel['channel_name'],
+				'id' => 'channel_calendar'
+			];
+
 			foreach($calendars as $calendar) {
 				$editable = (($calendar['share-access'] == 2) ? 'false' : 'true');  // false/true must be string since we're passing it to javascript
 				$color = (($calendar['{http://apple.com/ns/ical/}calendar-color']) ? $calendar['{http://apple.com/ns/ical/}calendar-color'] : '#3a87ad');
@@ -939,6 +952,19 @@ class Cdav extends Controller {
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
 
+			$catsenabled = feature_enabled(local_channel(), 'categories');
+
+			require_once('include/acl_selectors.php');
+	
+			$accesslist = new \Zotlabs\Access\AccessList($channel);
+			$perm_defaults = $accesslist->get();
+
+			//$acl = (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults), false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream')));
+			$acl = populate_acl($perm_defaults, false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'));
+
+			//$permissions = ((x($orig_event)) ? $orig_event : $perm_defaults);
+			$permissions = $perm_defaults;
+
 			$o .= replace_macros(get_markup_template('cdav_calendar.tpl'), [
 				'$sources' => $sources,
 				'$color' => $color,
@@ -955,6 +981,7 @@ class Cdav extends Controller {
 				'$list_week' => t('List week'),
 				'$list_day' => t('List day'),
 				'$title' => $title,
+				'$channel_calendars' => $channel_calendars,
 				'$writable_calendars' => $writable_calendars,
 				'$dtstart' => $dtstart,
 				'$dtend' => $dtend,
@@ -962,11 +989,23 @@ class Cdav extends Controller {
 				'$location' => $location,
 				'$more' => t('More'),
 				'$less' => t('Less'),
+				'$update' => t('Update'),
 				'$calendar_select_label' => t('Select calendar'),
+				'$calendar_optiopns_label' => [t('Channel Calendars'), t('CalDAV Calendars')],
 				'$delete' => t('Delete'),
 				'$delete_all' => t('Delete all'),
 				'$cancel' => t('Cancel'),
-				'$recurrence_warning' => t('Sorry! Editing of recurrent events is not yet implemented.')
+				'$recurrence_warning' => t('Sorry! Editing of recurrent events is not yet implemented.'),
+
+				'$channel_hash' => $channel['channel_hash'],
+				'$acl' => $acl,
+				'$lockstate' => (($accesslist->is_private()) ? 'lock' : 'unlock'),
+				'$allow_cid' => acl2json($permissions['allow_cid']),
+				'$allow_gid' => acl2json($permissions['allow_gid']),
+				'$deny_cid' => acl2json($permissions['deny_cid']),
+				'$deny_gid' => acl2json($permissions['deny_gid']),
+				'$catsenabled' => $catsenabled,
+				'$categories_label' => t('Categories')
 			]);
 
 			return $o;
@@ -1053,7 +1092,7 @@ class Cdav extends Controller {
 		}
 
 		//enable/disable calendars
-		if(argc() == 5 && argv(1) === 'calendar' && argv(2) === 'switch'  && intval(argv(3)) && (argv(4) == 1 || argv(4) == 0)) {
+		if(argc() == 5 && argv(1) === 'calendar' && argv(2) === 'switch'  && argv(3) && (argv(4) == 1 || argv(4) == 0)) {
 			$id = argv(3);
 
 			if(! cdav_perms($id,$calendars))

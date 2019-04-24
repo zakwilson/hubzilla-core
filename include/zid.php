@@ -1,6 +1,5 @@
 <?php
 
-use App;
 use Zotlabs\Lib\Verify;
 
 function is_matrix_url($url) {

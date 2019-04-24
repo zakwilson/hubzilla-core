@@ -69,10 +69,13 @@ $(document).ready(function() {
 		
 		eventClick: function(info) {
 
+			//reset categories
+			$('#id_categories').tagsinput('removeAll');
+
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-
+			console.log(event.extendedProps.categories);
 			if(event.extendedProps.plink) {
 				if(! $('#l2s').length)
 					$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
@@ -110,6 +113,7 @@ $(document).ready(function() {
 				event_uri = event.extendedProps.uri;
 				$('#id_title').val(event.title);
 				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
+				$('#id_categories').tagsinput('add', event.extendedProps.categories);
 				$('#id_dtstart').val(dtstart.toUTCString());
 				$('#id_dtend').val(dtend.toUTCString());
 				$('#id_description').val(event.extendedProps.description);
@@ -233,9 +237,9 @@ $(document).ready(function() {
 
 	$('#calendar_select').on('change', function() {
 		if(this.value === 'channel_calendar')
-			$('#dbtn-acl').removeClass('d-none');
+			$('#dbtn-acl, #id_categories_wrapper').removeClass('d-none');
 		else
-			$('#dbtn-acl').addClass('d-none');
+			$('#dbtn-acl, #id_categories_wrapper').addClass('d-none');
 	});
 	
 	$('.color-edit').colorpicker({ input: '.color-edit-input' });
@@ -325,7 +329,7 @@ function on_submit() {
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
 			'adjust': 0,
-			'category': '',
+			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
 			'submit': $('#event_submit').val(),
@@ -403,6 +407,7 @@ function reset_form() {
 	$('#calendar_select').val('');
 	event_uri = '';
 	$('#id_title').val('');
+	$('#id_categories').tagsinput('removeAll');
 	$('#id_dtstart').val('');
 	$('#id_dtend').val('');
 
@@ -490,6 +495,12 @@ function exportDate() {
 					</optgroup>
 				</select>
 				<div id="more_block" style="display: none;">
+					{{if $catsenabled}}
+					<div id="id_categories_wrapper" class="form-group">
+						<label id="label_categories" for="id_categories">{{$categories_label}}</label>
+						<input name="categories" id="id_categories" class="form-control" type="text" value="{{$categories}}" data-role="cat-tagsinput" />
+					</div>
+					{{/if}}
 					{{include file="field_input.tpl" field=$dtstart}}
 					{{include file="field_input.tpl" field=$dtend}}
 					{{include file="field_textarea.tpl" field=$description}}

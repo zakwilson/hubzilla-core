@@ -47,7 +47,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 		$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
-		$categories = escape_tags(trim($_POST['category']));
+		$categories = escape_tags(trim($_POST['categories']));
 	
 		// only allow editing your own events. 
 	
@@ -106,7 +106,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 		//fixme: this url gives a wsod if there is a linebreak detected in one of the variables ($desc or $location)
 		//$onerror_url = z_root() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish&type=$type";
-		$onerror_url = z_root() . "/events";
+		//$onerror_url = z_root() . "/events";
 	
 		if(strcmp($finish,$start) < 0 && !$nofinish) {
 			notice( t('Event can not end before it has started.') . EOL);
@@ -114,7 +114,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				echo( t('Unable to generate preview.'));
 				killme();
 			}
-			goaway($onerror_url);
+			//goaway($onerror_url);
 		}
 	
 		if((! $summary) || (! $start)) {
@@ -123,7 +123,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				echo( t('Unable to generate preview.'));
 				killme();
 			}
-			goaway($onerror_url);
+			//goaway($onerror_url);
 		}
 	
 		//		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
@@ -241,6 +241,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 		if($share)
 			\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
+
+		killme();
 	
 	}
 	
@@ -378,26 +380,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			$f = get_config('system','event_input_format');
 			if(! $f)
 				$f = 'ymd';
-	
-			$catsenabled = feature_enabled(local_channel(),'categories');
-	
-			$category = '';
-	
-			if($catsenabled && x($orig_event)){
-				$itm = q("select * from item where resource_type = 'event' and resource_id = '%s' and uid = %d limit 1",
-					dbesc($orig_event['event_hash']),
-					intval(local_channel())
-				);
-				$itm = fetch_post_tags($itm);
-				if($itm) {
-					$cats = get_terms_oftype($itm[0]['term'], TERM_CATEGORY);
-					foreach ($cats as $cat) {
-						if(strlen($category))
-							$category .= ', ';
-						$category .= $cat['term'];
-	            			}
-				}
-			}
 
 			$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
 			$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
@@ -472,7 +454,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				// Noting this for now - it will need to be fixed here and in Friendica.
 				// Ultimately the finish date shouldn't be involved in the query. 
 
-				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
+				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
 	                              from event left join item on event_hash = resource_id 
 					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
 					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
@@ -483,6 +465,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
+
+
 			}
 	
 			$links = array();
@@ -490,7 +474,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			if($r && ! $export) {
 				xchan_query($r);
 				$r = fetch_post_tags($r,true);
-	
+
 				$r = sort_by_date($r);
 			}
 	
@@ -526,8 +510,20 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						if($rr['etype'] === 'birthday')
 							$end = null;
 					}
-					
-					
+
+					$catsenabled = feature_enabled(local_channel(),'categories');
+					$categories = '';
+					if($catsenabled){
+						if($rr['term']) {
+							$cats = get_terms_oftype($rr['term'], TERM_CATEGORY);
+							foreach ($cats as $cat) {
+								if(strlen($categories))
+									$categories .= ', ';
+								$categories .= $cat['term'];
+							}
+						}
+					}
+
 					$is_first = ($d !== $last_date);
 						
 					$last_date = $d;
@@ -573,6 +569,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'allow_gid' => expand_acl($rr['allow_gid']),
 						'deny_cid' => expand_acl($rr['deny_cid']),
 						'deny_gid' => expand_acl($rr['deny_gid']),
+
+						'categories' => $categories
 					);
 				}
 			}

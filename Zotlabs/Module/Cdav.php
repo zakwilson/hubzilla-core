@@ -952,6 +952,8 @@ class Cdav extends Controller {
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
 
+			$catsenabled = feature_enabled(local_channel(), 'categories');
+
 			require_once('include/acl_selectors.php');
 	
 			$accesslist = new \Zotlabs\Access\AccessList($channel);
@@ -1001,7 +1003,9 @@ class Cdav extends Controller {
 				'$allow_cid' => acl2json($permissions['allow_cid']),
 				'$allow_gid' => acl2json($permissions['allow_gid']),
 				'$deny_cid' => acl2json($permissions['deny_cid']),
-				'$deny_gid' => acl2json($permissions['deny_gid'])
+				'$deny_gid' => acl2json($permissions['deny_gid']),
+				'$catsenabled' => $catsenabled,
+				'$categories_label' => t('Categories')
 			]);
 
 			return $o;

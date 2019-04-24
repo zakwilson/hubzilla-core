@@ -95,7 +95,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $default    = $d['default'];
 			    $data       = $d['data'];
 			    $mimetype   = $d['mimetype'];
-				$modified = time();
+			    $modified   = 0;
 			}
 
 			if(! $data) {
@@ -220,10 +220,15 @@ class Photo extends \Zotlabs\Web\Controller {
 
  		if(! $data)
  			killme();
+ 			
+ 		$etag = md5($data . $modified);
+ 		
+ 		if($modified == 0)
+ 		    $modified = time();
 
 		header_remove('Pragma');
 
-		if($_SERVER['HTTP_IF_NONE_MATCH'] === md5($data) || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+		if($_SERVER['HTTP_IF_NONE_MATCH'] === $etag || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
@@ -272,7 +277,7 @@ class Photo extends \Zotlabs\Web\Controller {
 
 		header("Content-type: " . $mimetype);
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
-		header("ETag: " . md5($data));
+		header("ETag: " . $etag);
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

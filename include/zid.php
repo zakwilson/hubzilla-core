@@ -1,5 +1,7 @@
 <?php
 
+use App;
+use Zotlabs\Lib\Verify;
 
 function is_matrix_url($url) {
 
@@ -270,34 +272,45 @@ function red_zrlify_img_callback($matches) {
  */
 function owt_init($token) {
 
-	\Zotlabs\Lib\Verify::purge('owt', '3 MINUTE');
+	Verify::purge('owt', '3 MINUTE');
 
-	$ob_hash = \Zotlabs\Lib\Verify::get_meta('owt', 0, $token);
+	$key = Verify::get_meta('owt', 0, $token);
 
-	if($ob_hash === false) {
+	if($key === false) {
+		return;
+	}
+
+	$parts = explode(',',$key,2);
+	if(count($parts) < 2) {
 		return;
 	}
 
 	$r = q("select * from hubloc left join xchan on xchan_hash = hubloc_hash
-		where hubloc_addr = '%s' order by hubloc_id desc",
-		dbesc($ob_hash)
+		where hubloc_network = '%s' and hubloc_addr = '%s' order by hubloc_id desc",
+		dbesc($parts[0]),
+		dbesc($parts[1])
 	);
 
 	if(! $r) {
+
 		// finger them if they can't be found.
-		$j = \Zotlabs\Zot\Finger::run($ob_hash, null);
+		// @todo check that this is still needed. Discovery should have been performed in the Owa module.
+		
+		$j = \Zotlabs\Zot\Finger::run($parts[1], null);
 		if ($j['success']) {
 			import_xchan($j);
 			$r = q("select * from hubloc left join xchan on xchan_hash = hubloc_hash
-				where hubloc_addr = '%s' order by hubloc_id desc",
-				dbesc($ob_hash)
+				where hubloc_network = '%s' and hubloc_addr = '%s' order by hubloc_id desc",
+				dbesc($parts[0]),
+				dbesc($parts[1])
 			);
 		}
 	}
 	if(! $r) {
-		logger('owt: unable to finger ' . $ob_hash);
+		logger('owt: unable to finger ' . $key);
 		return;
 	}
+	
 	$hubloc = $r[0];
 
 	$_SESSION['authenticated'] = 1;
@@ -324,7 +337,7 @@ function owt_init($token) {
 	if (! $delegate_success) {
 		// normal visitor (remote_channel) login session credentials
 		$_SESSION['visitor_id'] = $hubloc['xchan_hash'];
-		$_SESSION['my_url'] = $hubloc['xchan_url'];
+		$_SESSION['my_url']     = $hubloc['xchan_url'];
 		$_SESSION['my_address'] = $hubloc['hubloc_addr'];
 		$_SESSION['remote_hub'] = $hubloc['hubloc_url'];
 		$_SESSION['DNT'] = 1;
@@ -332,7 +345,7 @@ function owt_init($token) {
 
 	$arr = [
 			'xchan' => $hubloc,
-			'url' => \App::$query_string,
+			'url' => App::$query_string,
 			'session' => $_SESSION
 	];
 	/**
@@ -344,11 +357,11 @@ function owt_init($token) {
 	 */
 	call_hooks('magic_auth_success', $arr);
 
-	\App::set_observer($hubloc);
+	App::set_observer($hubloc);
 	require_once('include/security.php');
-	\App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
+	App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
 	if(! get_config('system', 'hide_owa_greeting'))
-		info(sprintf( t('OpenWebAuth: %1$s welcomes %2$s'),\App::get_hostname(), $hubloc['xchan_name']));
+		info(sprintf( t('OpenWebAuth: %1$s welcomes %2$s'),App::get_hostname(), $hubloc['xchan_name']));
 
 	logger('OpenWebAuth: auth success from ' . $hubloc['xchan_addr']);
 }
@@ -384,7 +397,9 @@ function observer_auth($ob_hash) {
 		return;
 	}
 
-	$hubloc = $r[0];
+	// Note: this has no Libzot namespace so prefers zot over zot6
+	
+	$hubloc = zot_record_preferred($r);
 
 	$_SESSION['authenticated'] = 1;
 
@@ -395,8 +410,8 @@ function observer_auth($ob_hash) {
 	$_SESSION['remote_hub'] = $hubloc['hubloc_url'];
 	$_SESSION['DNT'] = 1;
 
-	\App::set_observer($hubloc);
+	App::set_observer($hubloc);
 	require_once('include/security.php');
-	\App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
+	App::set_groups(init_groups_visitor($_SESSION['visitor_id']));
 
 }

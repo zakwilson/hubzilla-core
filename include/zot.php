@@ -5270,3 +5270,25 @@ function zot_reply_notify($data) {
 	$ret['success'] = true;
 	json_return_and_die($ret);
 }
+
+
+function zot_record_preferred($arr, $check = 'hubloc_network') {
+
+	if(! $arr) {
+		return $arr;
+	}
+
+	foreach($arr as $v) {
+		if($v[$check] === 'zot') {
+			return $v;
+		}
+	}
+	foreach($arr as $v) {
+		if($v[$check] === 'zot6') {
+			return $v;
+		}
+	}
+
+	return $arr[0];
+
+}

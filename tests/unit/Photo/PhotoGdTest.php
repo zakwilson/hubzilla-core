@@ -26,7 +26,7 @@ class PhotoGdTest extends UnitTestCase {
 	/**
 	 * Prepares the environment before running a test.
 	 */
-	protected function setUp(): void {
+	protected function setUp() {
 		parent::setUp();
 
 		$data = file_get_contents('images/hz-16.png');
@@ -37,7 +37,7 @@ class PhotoGdTest extends UnitTestCase {
 	/**
 	 * Cleans up the environment after running a test.
 	 */
-	protected function tearDown(): void {
+	protected function tearDown() {
 		$this->photoGd = null;
 
 		parent::tearDown();

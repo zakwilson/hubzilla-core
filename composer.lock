@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "blueimp/jquery-file-upload",
-            "version": "v9.28.0",
+            "version": "v9.30.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-                "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d"
+                "reference": "1fceec556879403e5c1ae32a7c448aa12b8c3558"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/ff5accfe2e5c4a522777faa980a90cf86a636d1d",
-                "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d",
+                "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/1fceec556879403e5c1ae32a7c448aa12b8c3558",
+                "reference": "1fceec556879403e5c1ae32a7c448aa12b8c3558",
                 "shasum": ""
             },
             "type": "library",
@@ -59,7 +59,7 @@
                 "upload",
                 "widget"
             ],
-            "time": "2018-11-13T05:41:39+00:00"
+            "time": "2019-04-22T09:21:57+00:00"
         },
         {
             "name": "bshaffer/oauth2-server-php",

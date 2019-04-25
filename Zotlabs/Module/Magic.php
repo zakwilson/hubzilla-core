@@ -169,8 +169,8 @@ class Magic extends \Zotlabs\Web\Controller {
 							$token = $j['token'];
 						}
 						
-						$x = strpbrk($dest,'?&');
-						$args = (($x) ? '&owt=' . $token : '?f=&owt=' . $token) . (($delegate) ? '&delegate=1' : '');
+						$strp = strpbrk($dest,'?&');
+						$args = (($strp) ? '&owt=' . $token : '?f=&owt=' . $token) . (($delegate) ? '&delegate=1' : '');
 						goaway($dest . $args);
 					}
 				}

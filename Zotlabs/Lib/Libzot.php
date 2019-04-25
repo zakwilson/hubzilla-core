@@ -3107,7 +3107,11 @@ class Libzot {
 
 		foreach($arr as $v) {
 			if($v[$check] === 'zot6') {
-
+				return $v;
+			}
+		}
+		foreach($arr as $v) {
+			if($v[$check] === 'zot') {
 				return $v;
 			}
 		}

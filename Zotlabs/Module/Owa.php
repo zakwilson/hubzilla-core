@@ -30,12 +30,29 @@ class Owa extends \Zotlabs\Web\Controller {
 					$keyId = $sigblock['keyId'];
 
 					if($keyId) {
+
+						// Hubzilla connections can have both zot and zot6 hublocs
+						// The connections will usually be zot so match those first
+						
 						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-							where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) ",
+							where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) and hubloc_network = 'zot' ",
 							dbesc(str_replace('acct:','',$keyId)),
 							dbesc($keyId)
 						);
-						if(! $r) {
+
+						// If nothing was found, try searching on any network
+						
+						if (! $r) {
+							$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
+								where ( hubloc_addr = '%s' or hubloc_id_url = '%s' )",
+								dbesc(str_replace('acct:','',$keyId)),
+								dbesc($keyId)
+							);
+						}
+
+						// If nothing was found on any network, use network discovery and create a new record
+						
+						if (! $r) {
 							$found = discover_by_webbie(str_replace('acct:','',$keyId));
 							if($found) {
 								$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
@@ -45,7 +62,8 @@ class Owa extends \Zotlabs\Web\Controller {
 								);
 							}
 						}
-						if($r) {
+						
+						if ($r) {
 							foreach($r as $hubloc) {
 								$verified = \Zotlabs\Web\HTTPSig::verify(file_get_contents('php://input'),$hubloc['xchan_pubkey']);	
 								if($verified && $verified['header_signed'] && $verified['header_valid']) {
@@ -53,7 +71,7 @@ class Owa extends \Zotlabs\Web\Controller {
 									logger('OWA success: ' . $hubloc['hubloc_addr'],LOGGER_DATA);
 									$ret['success'] = true;
 									$token = random_string(32);
-									\Zotlabs\Lib\Verify::create('owt',0,$token,$hubloc['hubloc_addr']);
+									\Zotlabs\Lib\Verify::create('owt',0,$token,$hubloc['hubloc_network'] . ',' . $hubloc['hubloc_addr']);
 									$result = '';
 									openssl_public_encrypt($token,$result,$hubloc['xchan_pubkey']);
 									$ret['encrypted_token'] = base64url_encode($result);

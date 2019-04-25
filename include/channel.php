@@ -1812,13 +1812,16 @@ function zid_init() {
 		call_hooks('zid_init', $arr);
 
 		if(! local_channel()) {
-			$r = q("select * from hubloc where hubloc_addr = '%s' order by hubloc_connected desc limit 1",
+			$r = q("select * from hubloc where hubloc_addr = '%s' order by hubloc_connected desc",
 				dbesc($tmp_str)
 			);
 			if(! $r) {
 				Master::Summon(array('Gprobe',bin2hex($tmp_str)));
 			}
-			if($r && remote_channel() && remote_channel() === $r[0]['hubloc_hash'])
+			if($r) {
+				$r = zot_record_preferred($r);
+			}
+			if($r && remote_channel() && remote_channel() === $r['hubloc_hash'])
 				return;
 
 			logger('Not authenticated. Invoking reverse magic-auth for ' . $tmp_str);
@@ -1826,8 +1829,8 @@ function zid_init() {
 			$query = App::$query_string;
 			$query = str_replace(array('?zid=','&zid='),array('?rzid=','&rzid='),$query);
 			$dest = '/' . $query;
-			if($r && ($r[0]['hubloc_url'] != z_root()) && (! strstr($dest,'/magic')) && (! strstr($dest,'/rmagic'))) {
-				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&rev=1&owa=1&bdest=' . bin2hex(z_root() . $dest));
+			if($r && ($r['hubloc_url'] != z_root()) && (! strstr($dest,'/magic')) && (! strstr($dest,'/rmagic'))) {
+				goaway($r['hubloc_url'] . '/magic' . '?f=&rev=1&owa=1&bdest=' . bin2hex(z_root() . $dest));
 			}
 			else
 				logger('No hubloc found.');

@@ -11,8 +11,13 @@ use Sabre\Xml;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \JsonSerializable, Xml\XmlSerializable
-{
+abstract class Node
+    implements \IteratorAggregate,
+               \ArrayAccess,
+               \Countable,
+               \JsonSerializable,
+               Xml\XmlSerializable {
+
     /**
      * The following constants are used by the validate() method.
      *
@@ -65,7 +70,7 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return string
      */
-    abstract public function serialize();
+    abstract function serialize();
 
     /**
      * This method returns an array, with the representation as it should be
@@ -73,26 +78,31 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return array
      */
-    abstract public function jsonSerialize();
+    abstract function jsonSerialize();
 
     /**
      * This method serializes the data into XML. This is used to create xCard or
      * xCal documents.
      *
-     * @param Xml\Writer $writer XML writer
+     * @param Xml\Writer $writer  XML writer.
+     *
+     * @return void
      */
-    abstract public function xmlSerialize(Xml\Writer $writer);
+    abstract function xmlSerialize(Xml\Writer $writer);
 
     /**
      * Call this method on a document if you're done using it.
      *
      * It's intended to remove all circular references, so PHP can easily clean
      * it up.
+     *
+     * @return void
      */
-    public function destroy()
-    {
+    function destroy() {
+
         $this->parent = null;
         $this->root = null;
+
     }
 
     /* {{{ IteratorAggregator interface */
@@ -102,13 +112,14 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return ElementList
      */
-    public function getIterator()
-    {
+    function getIterator() {
+
         if (!is_null($this->iterator)) {
             return $this->iterator;
         }
 
         return new ElementList([$this]);
+
     }
 
     /**
@@ -117,10 +128,13 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      * Note that this is not actually part of the iterator interface
      *
      * @param ElementList $iterator
+     *
+     * @return void
      */
-    public function setIterator(ElementList $iterator)
-    {
+    function setIterator(ElementList $iterator) {
+
         $this->iterator = $iterator;
+
     }
 
     /**
@@ -145,9 +159,10 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return array
      */
-    public function validate($options = 0)
-    {
+    function validate($options = 0) {
+
         return [];
+
     }
 
     /* }}} */
@@ -159,16 +174,17 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return int
      */
-    public function count()
-    {
-        $it = $this->getIterator();
+    function count() {
 
+        $it = $this->getIterator();
         return $it->count();
+
     }
 
     /* }}} */
 
     /* {{{ ArrayAccess Interface */
+
 
     /**
      * Checks if an item exists through ArrayAccess.
@@ -179,11 +195,11 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return bool
      */
-    public function offsetExists($offset)
-    {
-        $iterator = $this->getIterator();
+    function offsetExists($offset) {
 
+        $iterator = $this->getIterator();
         return $iterator->offsetExists($offset);
+
     }
 
     /**
@@ -195,11 +211,11 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * @return mixed
      */
-    public function offsetGet($offset)
-    {
-        $iterator = $this->getIterator();
+    function offsetGet($offset) {
 
+        $iterator = $this->getIterator();
         return $iterator->offsetGet($offset);
+
     }
 
     /**
@@ -207,20 +223,21 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      *
      * This method just forwards the request to the inner iterator
      *
-     * @param int   $offset
+     * @param int $offset
      * @param mixed $value
+     *
+     * @return void
      */
-    public function offsetSet($offset, $value)
-    {
+    function offsetSet($offset, $value) {
+
         $iterator = $this->getIterator();
         $iterator->offsetSet($offset, $value);
 
-        // @codeCoverageIgnoreStart
+    // @codeCoverageIgnoreStart
     //
     // This method always throws an exception, so we ignore the closing
     // brace
     }
-
     // @codeCoverageIgnoreEnd
 
     /**
@@ -229,18 +246,19 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      * This method just forwards the request to the inner iterator
      *
      * @param int $offset
+     *
+     * @return void
      */
-    public function offsetUnset($offset)
-    {
+    function offsetUnset($offset) {
+
         $iterator = $this->getIterator();
         $iterator->offsetUnset($offset);
 
-        // @codeCoverageIgnoreStart
+    // @codeCoverageIgnoreStart
     //
     // This method always throws an exception, so we ignore the closing
     // brace
     }
-
     // @codeCoverageIgnoreEnd
 
     /* }}} */

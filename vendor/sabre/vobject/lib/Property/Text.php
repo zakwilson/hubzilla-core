@@ -17,8 +17,8 @@ use Sabre\Xml;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Text extends Property
-{
+class Text extends Property {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -53,7 +53,7 @@ class Text extends Property
      * @var array
      */
     protected $minimumPropertyValues = [
-        'N' => 5,
+        'N'   => 5,
         'ADR' => 7,
     ];
 
@@ -64,14 +64,16 @@ class Text extends Property
      * parameters will automatically be created, or you can just pass a list of
      * Parameter objects.
      *
-     * @param Component         $root       The root document
-     * @param string            $name
+     * @param Component $root The root document
+     * @param string $name
      * @param string|array|null $value
-     * @param array             $parameters List of parameters
-     * @param string            $group      The vcard property group
+     * @param array $parameters List of parameters
+     * @param string $group The vcard property group
+     *
+     * @return void
      */
-    public function __construct(Component $root, $name, $value = null, array $parameters = [], $group = null)
-    {
+    function __construct(Component $root, $name, $value = null, array $parameters = [], $group = null) {
+
         // There's two types of multi-valued text properties:
         // 1. multivalue properties.
         // 2. structured value properties
@@ -82,6 +84,7 @@ class Text extends Property
         }
 
         parent::__construct($root, $name, $value, $parameters, $group);
+
     }
 
     /**
@@ -91,19 +94,24 @@ class Text extends Property
      * not yet done, but parameters are not included.
      *
      * @param string $val
+     *
+     * @return void
      */
-    public function setRawMimeDirValue($val)
-    {
+    function setRawMimeDirValue($val) {
+
         $this->setValue(MimeDir::unescapeValue($val, $this->delimiter));
+
     }
 
     /**
      * Sets the value as a quoted-printable encoded string.
      *
      * @param string $val
+     *
+     * @return void
      */
-    public function setQuotedPrintableValue($val)
-    {
+    function setQuotedPrintableValue($val) {
+
         $val = quoted_printable_decode($val);
 
         // Quoted printable only appears in vCard 2.1, and the only character
@@ -115,6 +123,7 @@ class Text extends Property
         $regex = '# (?<!\\\\) ; #x';
         $matches = preg_split($regex, $val);
         $this->setValue($matches);
+
     }
 
     /**
@@ -122,8 +131,8 @@ class Text extends Property
      *
      * @return string
      */
-    public function getRawMimeDirValue()
-    {
+    function getRawMimeDirValue() {
+
         $val = $this->getParts();
 
         if (isset($this->minimumPropertyValues[$this->name])) {
@@ -131,6 +140,7 @@ class Text extends Property
         }
 
         foreach ($val as &$item) {
+
             if (!is_array($item)) {
                 $item = [$item];
             }
@@ -140,17 +150,19 @@ class Text extends Property
                     $subItem,
                     [
                         '\\' => '\\\\',
-                        ';' => '\;',
-                        ',' => '\,',
+                        ';'  => '\;',
+                        ','  => '\,',
                         "\n" => '\n',
-                        "\r" => '',
+                        "\r" => "",
                     ]
                 );
             }
             $item = implode(',', $item);
+
         }
 
         return implode($this->delimiter, $val);
+
     }
 
     /**
@@ -160,16 +172,16 @@ class Text extends Property
      *
      * @return array
      */
-    public function getJsonValue()
-    {
+    function getJsonValue() {
+
         // Structured text values should always be returned as a single
         // array-item. Multi-value text should be returned as multiple items in
         // the top-array.
         if (in_array($this->name, $this->structuredValues)) {
             return [$this->getParts()];
         }
-
         return $this->getParts();
+
     }
 
     /**
@@ -180,9 +192,10 @@ class Text extends Property
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'TEXT';
+
     }
 
     /**
@@ -190,10 +203,10 @@ class Text extends Property
      *
      * @return string
      */
-    public function serialize()
-    {
+    function serialize() {
+
         // We need to kick in a special type of encoding, if it's a 2.1 vcard.
-        if (Document::VCARD21 !== $this->root->getDocumentType()) {
+        if ($this->root->getDocumentType() !== Document::VCARD21) {
             return parent::serialize();
         }
 
@@ -215,19 +228,22 @@ class Text extends Property
         }
 
         $str = $this->name;
-        if ($this->group) {
-            $str = $this->group.'.'.$this->name;
-        }
+        if ($this->group) $str = $this->group . '.' . $this->name;
         foreach ($this->parameters as $param) {
-            if ('QUOTED-PRINTABLE' === $param->getValue()) {
+
+            if ($param->getValue() === 'QUOTED-PRINTABLE') {
                 continue;
             }
-            $str .= ';'.$param->serialize();
+            $str .= ';' . $param->serialize();
+
         }
+
+
 
         // If the resulting value contains a \n, we must encode it as
         // quoted-printable.
-        if (false !== \strpos($val, "\n")) {
+        if (\strpos($val, "\n") !== false) {
+
             $str .= ';ENCODING=QUOTED-PRINTABLE:';
             $lastLine = $str;
             $out = null;
@@ -236,27 +252,26 @@ class Text extends Property
             // encode newlines for us. Specifically, the \r\n sequence must in
             // vcards be encoded as =0D=OA and we must insert soft-newlines
             // every 75 bytes.
-            for ($ii = 0; $ii < \strlen($val); ++$ii) {
+            for ($ii = 0;$ii < \strlen($val);$ii++) {
                 $ord = \ord($val[$ii]);
                 // These characters are encoded as themselves.
                 if ($ord >= 32 && $ord <= 126) {
                     $lastLine .= $val[$ii];
                 } else {
-                    $lastLine .= '='.\strtoupper(\bin2hex($val[$ii]));
+                    $lastLine .= '=' . \strtoupper(\bin2hex($val[$ii]));
                 }
                 if (\strlen($lastLine) >= 75) {
                     // Soft line break
-                    $out .= $lastLine."=\r\n ";
+                    $out .= $lastLine . "=\r\n ";
                     $lastLine = null;
                 }
-            }
-            if (!\is_null($lastLine)) {
-                $out .= $lastLine."\r\n";
-            }
 
+            }
+            if (!\is_null($lastLine)) $out .= $lastLine . "\r\n";
             return $out;
+
         } else {
-            $str .= ':'.$val;
+            $str .= ':' . $val;
 
             $str = \preg_replace(
                 '/(
@@ -270,20 +285,24 @@ class Text extends Property
 
             // remove single space after last CRLF
             return \substr($str, 0, -1);
+
         }
+
     }
 
     /**
      * This method serializes only the value of a property. This is used to
      * create xCard or xCal documents.
      *
-     * @param Xml\Writer $writer XML writer
+     * @param Xml\Writer $writer  XML writer.
+     *
+     * @return void
      */
-    protected function xmlSerializeValue(Xml\Writer $writer)
-    {
+    protected function xmlSerializeValue(Xml\Writer $writer) {
+
         $values = $this->getParts();
 
-        $map = function ($items) use ($values, $writer) {
+        $map = function($items) use ($values, $writer) {
             foreach ($items as $i => $item) {
                 $writer->writeElement(
                     $item,
@@ -293,6 +312,7 @@ class Text extends Property
         };
 
         switch ($this->name) {
+
             // Special-casing the REQUEST-STATUS property.
             //
             // See:
@@ -312,14 +332,14 @@ class Text extends Property
                     'given',
                     'additional',
                     'prefix',
-                    'suffix',
+                    'suffix'
                 ]);
                 break;
 
             case 'GENDER':
                 $map([
                     'sex',
-                    'text',
+                    'text'
                 ]);
                 break;
 
@@ -331,20 +351,21 @@ class Text extends Property
                     'locality',
                     'region',
                     'code',
-                    'country',
+                    'country'
                 ]);
                 break;
 
             case 'CLIENTPIDMAP':
                 $map([
                     'sourceid',
-                    'uri',
+                    'uri'
                 ]);
                 break;
 
             default:
                 parent::xmlSerializeValue($writer);
         }
+
     }
 
     /**
@@ -365,26 +386,28 @@ class Text extends Property
      *
      * @return array
      */
-    public function validate($options = 0)
-    {
+    function validate($options = 0) {
+
         $warnings = parent::validate($options);
 
         if (isset($this->minimumPropertyValues[$this->name])) {
+
             $minimum = $this->minimumPropertyValues[$this->name];
             $parts = $this->getParts();
             if (count($parts) < $minimum) {
                 $warnings[] = [
-                    'level' => $options & self::REPAIR ? 1 : 3,
-                    'message' => 'The '.$this->name.' property must have at least '.$minimum.' values. It only has '.count($parts),
-                    'node' => $this,
+                    'level'   => $options & self::REPAIR ? 1 : 3,
+                    'message' => 'The ' . $this->name . ' property must have at least ' . $minimum . ' values. It only has ' . count($parts),
+                    'node'    => $this,
                 ];
                 if ($options & self::REPAIR) {
                     $parts = array_pad($parts, $minimum, '');
                     $this->setParts($parts);
                 }
             }
-        }
 
+        }
         return $warnings;
+
     }
 }

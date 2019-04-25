@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v9.30.0",
-        "version_normalized": "9.30.0.0",
+        "version": "v9.28.0",
+        "version_normalized": "9.28.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "1fceec556879403e5c1ae32a7c448aa12b8c3558"
+            "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/1fceec556879403e5c1ae32a7c448aa12b8c3558",
-            "reference": "1fceec556879403e5c1ae32a7c448aa12b8c3558",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/ff5accfe2e5c4a522777faa980a90cf86a636d1d",
+            "reference": "ff5accfe2e5c4a522777faa980a90cf86a636d1d",
             "shasum": ""
         },
-        "time": "2019-04-22T09:21:57+00:00",
+        "time": "2018-11-13T05:41:39+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -886,17 +886,17 @@
     },
     {
         "name": "sabre/vobject",
-        "version": "4.2.0",
-        "version_normalized": "4.2.0.0",
+        "version": "4.1.6",
+        "version_normalized": "4.1.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/vobject.git",
-            "reference": "bd500019764e434ff65872d426f523e7882a0739"
+            "reference": "122cacbdea2c6133ac04db86ec05854beef75adf"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/bd500019764e434ff65872d426f523e7882a0739",
-            "reference": "bd500019764e434ff65872d426f523e7882a0739",
+            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/122cacbdea2c6133ac04db86ec05854beef75adf",
+            "reference": "122cacbdea2c6133ac04db86ec05854beef75adf",
             "shasum": ""
         },
         "require": {
@@ -905,12 +905,13 @@
             "sabre/xml": ">=1.5 <3.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "> 4.8.35, <6.0.0"
+            "phpunit/phpunit": "> 4.8.35, <6.0.0",
+            "sabre/cs": "^1.0.0"
         },
         "suggest": {
             "hoa/bench": "If you would like to run the benchmark scripts"
         },
-        "time": "2019-02-19T13:05:37+00:00",
+        "time": "2018-04-20T07:22:50+00:00",
         "bin": [
             "bin/vobject",
             "bin/generate_vcards"
@@ -984,17 +985,17 @@
     },
     {
         "name": "sabre/xml",
-        "version": "1.5.1",
-        "version_normalized": "1.5.1.0",
+        "version": "1.5.0",
+        "version_normalized": "1.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/xml.git",
-            "reference": "a367665f1df614c3b8fefc30a54de7cd295e444e"
+            "reference": "59b20e5bbace9912607481634f97d05a776ffca7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/xml/zipball/a367665f1df614c3b8fefc30a54de7cd295e444e",
-            "reference": "a367665f1df614c3b8fefc30a54de7cd295e444e",
+            "url": "https://api.github.com/repos/sabre-io/xml/zipball/59b20e5bbace9912607481634f97d05a776ffca7",
+            "reference": "59b20e5bbace9912607481634f97d05a776ffca7",
             "shasum": ""
         },
         "require": {
@@ -1006,10 +1007,10 @@
             "sabre/uri": ">=1.0,<3.0.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "~4.8|~5.7",
+            "phpunit/phpunit": "*",
             "sabre/cs": "~1.0.0"
         },
-        "time": "2019-01-09T13:51:57+00:00",
+        "time": "2016-10-09T22:57:52+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1181,17 +1182,17 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.11.0",
-        "version_normalized": "1.11.0.0",
+        "version": "v1.10.0",
+        "version_normalized": "1.10.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",
-            "reference": "82ebae02209c21113908c229e9883c419720738a"
+            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/82ebae02209c21113908c229e9883c419720738a",
-            "reference": "82ebae02209c21113908c229e9883c419720738a",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
+            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
             "shasum": ""
         },
         "require": {
@@ -1200,11 +1201,11 @@
         "suggest": {
             "ext-ctype": "For best performance"
         },
-        "time": "2019-02-06T07:57:58+00:00",
+        "time": "2018-08-06T14:22:27+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.11-dev"
+                "dev-master": "1.9-dev"
             }
         },
         "installation-source": "dist",

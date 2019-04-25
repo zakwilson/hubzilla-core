@@ -15,19 +15,23 @@ use LogicException;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class ElementList extends ArrayIterator
-{
+class ElementList extends ArrayIterator {
+
+
     /* {{{ ArrayAccess Interface */
 
     /**
      * Sets an item through ArrayAccess.
      *
-     * @param int   $offset
+     * @param int $offset
      * @param mixed $value
+     *
+     * @return void
      */
-    public function offsetSet($offset, $value)
-    {
+    function offsetSet($offset, $value) {
+
         throw new LogicException('You can not add new objects to an ElementList');
+
     }
 
     /**
@@ -36,11 +40,15 @@ class ElementList extends ArrayIterator
      * This method just forwards the request to the inner iterator
      *
      * @param int $offset
+     *
+     * @return void
      */
-    public function offsetUnset($offset)
-    {
+    function offsetUnset($offset) {
+
         throw new LogicException('You can not remove objects from an ElementList');
+
     }
 
     /* }}} */
+
 }

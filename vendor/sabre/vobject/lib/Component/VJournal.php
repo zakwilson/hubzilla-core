@@ -14,8 +14,8 @@ use Sabre\VObject;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class VJournal extends VObject\Component
-{
+class VJournal extends VObject\Component {
+
     /**
      * Returns true or false depending on if the event falls in the specified
      * time-range. This is used for filtering purposes.
@@ -28,8 +28,8 @@ class VJournal extends VObject\Component
      *
      * @return bool
      */
-    public function isInTimeRange(DateTimeInterface $start, DateTimeInterface $end)
-    {
+    function isInTimeRange(DateTimeInterface $start, DateTimeInterface $end) {
+
         $dtstart = isset($this->DTSTART) ? $this->DTSTART->getDateTime() : null;
         if ($dtstart) {
             $effectiveEnd = $dtstart;
@@ -37,10 +37,11 @@ class VJournal extends VObject\Component
                 $effectiveEnd = $effectiveEnd->modify('+1 day');
             }
 
-            return $start <= $effectiveEnd && $end > $dtstart;
-        }
+            return ($start <= $effectiveEnd && $end > $dtstart);
 
+        }
         return false;
+
     }
 
     /**
@@ -58,35 +59,36 @@ class VJournal extends VObject\Component
      *
      * @var array
      */
-    public function getValidationRules()
-    {
+    function getValidationRules() {
+
         return [
-            'UID' => 1,
+            'UID'     => 1,
             'DTSTAMP' => 1,
 
-            'CLASS' => '?',
-            'CREATED' => '?',
-            'DTSTART' => '?',
+            'CLASS'         => '?',
+            'CREATED'       => '?',
+            'DTSTART'       => '?',
             'LAST-MODIFIED' => '?',
-            'ORGANIZER' => '?',
+            'ORGANIZER'     => '?',
             'RECURRENCE-ID' => '?',
-            'SEQUENCE' => '?',
-            'STATUS' => '?',
-            'SUMMARY' => '?',
-            'URL' => '?',
+            'SEQUENCE'      => '?',
+            'STATUS'        => '?',
+            'SUMMARY'       => '?',
+            'URL'           => '?',
 
             'RRULE' => '?',
 
-            'ATTACH' => '*',
-            'ATTENDEE' => '*',
-            'CATEGORIES' => '*',
-            'COMMENT' => '*',
-            'CONTACT' => '*',
+            'ATTACH'      => '*',
+            'ATTENDEE'    => '*',
+            'CATEGORIES'  => '*',
+            'COMMENT'     => '*',
+            'CONTACT'     => '*',
             'DESCRIPTION' => '*',
-            'EXDATE' => '*',
-            'RELATED-TO' => '*',
-            'RDATE' => '*',
+            'EXDATE'      => '*',
+            'RELATED-TO'  => '*',
+            'RDATE'       => '*',
         ];
+
     }
 
     /**
@@ -94,11 +96,12 @@ class VJournal extends VObject\Component
      *
      * @return array
      */
-    protected function getDefaults()
-    {
+    protected function getDefaults() {
+
         return [
-            'UID' => 'sabre-vobject-'.VObject\UUIDUtil::getUUID(),
-            'DTSTAMP' => gmdate('Ymd\\THis\\Z'),
+            'UID'     => 'sabre-vobject-' . VObject\UUIDUtil::getUUID(),
+            'DTSTAMP' => date('Ymd\\THis\\Z'),
         ];
+
     }
 }

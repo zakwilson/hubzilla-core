@@ -14,8 +14,8 @@ use Sabre\VObject\Property;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Uri extends Text
-{
+class Uri extends Text {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -32,9 +32,10 @@ class Uri extends Text
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'URI';
+
     }
 
     /**
@@ -42,8 +43,8 @@ class Uri extends Text
      *
      * @return array
      */
-    public function parameters()
-    {
+    function parameters() {
+
         $parameters = parent::parameters();
         if (!isset($parameters['VALUE']) && in_array($this->name, ['URL', 'PHOTO'])) {
             // If we are encoding a URI value, and this URI value has no
@@ -56,8 +57,8 @@ class Uri extends Text
             // See Issue #227 and #235
             $parameters['VALUE'] = new Parameter($this->root, 'VALUE', 'URI');
         }
-
         return $parameters;
+
     }
 
     /**
@@ -67,9 +68,11 @@ class Uri extends Text
      * not yet done, but parameters are not included.
      *
      * @param string $val
+     *
+     * @return void
      */
-    public function setRawMimeDirValue($val)
-    {
+    function setRawMimeDirValue($val) {
+
         // Normally we don't need to do any type of unescaping for these
         // properties, however.. we've noticed that Google Contacts
         // specifically escapes the colon (:) with a blackslash. While I have
@@ -78,16 +81,16 @@ class Uri extends Text
         //
         // Good thing backslashes are not allowed in urls. Makes it easy to
         // assume that a backslash is always intended as an escape character.
-        if ('URL' === $this->name) {
+        if ($this->name === 'URL') {
             $regex = '#  (?: (\\\\ (?: \\\\ | : ) ) ) #x';
             $matches = preg_split($regex, $val, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
             $newVal = '';
             foreach ($matches as $match) {
                 switch ($match) {
-                    case '\:':
+                    case '\:' :
                         $newVal .= ':';
                         break;
-                    default:
+                    default :
                         $newVal .= $match;
                         break;
                 }
@@ -96,6 +99,7 @@ class Uri extends Text
         } else {
             $this->value = strtr($val, ['\,' => ',']);
         }
+
     }
 
     /**
@@ -103,8 +107,8 @@ class Uri extends Text
      *
      * @return string
      */
-    public function getRawMimeDirValue()
-    {
+    function getRawMimeDirValue() {
+
         if (is_array($this->value)) {
             $value = $this->value[0];
         } else {
@@ -112,5 +116,7 @@ class Uri extends Text
         }
 
         return strtr($value, [',' => '\,']);
+
     }
+
 }

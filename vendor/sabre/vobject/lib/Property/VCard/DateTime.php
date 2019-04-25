@@ -11,8 +11,8 @@ namespace Sabre\VObject\Property\VCard;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class DateTime extends DateAndOrTime
-{
+class DateTime extends DateAndOrTime {
+
     /**
      * Returns the type of value.
      *
@@ -21,8 +21,10 @@ class DateTime extends DateAndOrTime
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'DATE-TIME';
+
     }
+
 }

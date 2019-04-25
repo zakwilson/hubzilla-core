@@ -9,17 +9,17 @@ namespace Sabre\VObject;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class FreeBusyData
-{
+class FreeBusyData {
+
     /**
-     * Start timestamp.
+     * Start timestamp
      *
      * @var int
      */
     protected $start;
 
     /**
-     * End timestamp.
+     * End timestamp
      *
      * @var int
      */
@@ -32,31 +32,35 @@ class FreeBusyData
      */
     protected $data;
 
-    public function __construct($start, $end)
-    {
+    function __construct($start, $end) {
+
         $this->start = $start;
         $this->end = $end;
         $this->data = [];
 
         $this->data[] = [
             'start' => $this->start,
-            'end' => $this->end,
-            'type' => 'FREE',
+            'end'   => $this->end,
+            'type'  => 'FREE',
         ];
+
     }
 
     /**
      * Adds free or busytime to the data.
      *
-     * @param int    $start
-     * @param int    $end
-     * @param string $type  FREE, BUSY, BUSY-UNAVAILABLE or BUSY-TENTATIVE
+     * @param int $start
+     * @param int $end
+     * @param string $type FREE, BUSY, BUSY-UNAVAILABLE or BUSY-TENTATIVE
+     * @return void
      */
-    public function add($start, $end, $type)
-    {
+    function add($start, $end, $type) {
+
         if ($start > $this->end || $end < $this->start) {
+
             // This new data is outside our timerange.
             return;
+
         }
 
         if ($start < $this->start) {
@@ -71,7 +75,7 @@ class FreeBusyData
         // Finding out where we need to insert the new item.
         $currentIndex = 0;
         while ($start > $this->data[$currentIndex]['end']) {
-            ++$currentIndex;
+            $currentIndex++;
         }
 
         // The standard insertion point will be one _after_ the first
@@ -80,14 +84,14 @@ class FreeBusyData
 
         $newItem = [
             'start' => $start,
-            'end' => $end,
-            'type' => $type,
+            'end'   => $end,
+            'type'  => $type,
         ];
 
         $preceedingItem = $this->data[$insertStartIndex - 1];
         if ($this->data[$insertStartIndex - 1]['start'] === $start) {
             // The old item starts at the exact same point as the new item.
-            --$insertStartIndex;
+            $insertStartIndex--;
         }
 
         // Now we know where to insert the item, we need to know where it
@@ -101,32 +105,32 @@ class FreeBusyData
         }
 
         while ($end > $this->data[$currentIndex]['end']) {
-            ++$currentIndex;
+
+            $currentIndex++;
+
         }
 
         // What we are about to insert into the array
         $newItems = [
-            $newItem,
+            $newItem
         ];
 
         // This is the amount of items that are completely overwritten by the
         // new item.
         $itemsToDelete = $currentIndex - $insertStartIndex;
-        if ($this->data[$currentIndex]['end'] <= $end) {
-            ++$itemsToDelete;
-        }
+        if ($this->data[$currentIndex]['end'] <= $end) $itemsToDelete++;
 
         // If itemsToDelete was -1, it means that the newly inserted item is
         // actually sitting inside an existing one. This means we need to split
         // the item at the current position in two and insert the new item in
         // between.
-        if (-1 === $itemsToDelete) {
+        if ($itemsToDelete === -1) {
             $itemsToDelete = 0;
             if ($newItem['end'] < $preceedingItem['end']) {
                 $newItems[] = [
                     'start' => $newItem['end'] + 1,
-                    'end' => $preceedingItem['end'],
-                    'type' => $preceedingItem['type'],
+                    'end'   => $preceedingItem['end'],
+                    'type'  => $preceedingItem['type']
                 ];
             }
         }
@@ -151,8 +155,8 @@ class FreeBusyData
             // merge them into one item.
             if ($this->data[$insertStartIndex - 1]['type'] === $this->data[$insertStartIndex]['type']) {
                 $doMerge = true;
-                --$mergeOffset;
-                ++$mergeDelete;
+                $mergeOffset--;
+                $mergeDelete++;
                 $mergeItem['start'] = $this->data[$insertStartIndex - 1]['start'];
             }
         }
@@ -164,9 +168,10 @@ class FreeBusyData
             // merge them into one item.
             if ($this->data[$insertStartIndex + 1]['type'] === $this->data[$insertStartIndex]['type']) {
                 $doMerge = true;
-                ++$mergeDelete;
+                $mergeDelete++;
                 $mergeItem['end'] = $this->data[$insertStartIndex + 1]['end'];
             }
+
         }
         if ($doMerge) {
             array_splice(
@@ -176,10 +181,13 @@ class FreeBusyData
                 [$mergeItem]
             );
         }
+
     }
 
-    public function getData()
-    {
+    function getData() {
+
         return $this->data;
+
     }
+
 }

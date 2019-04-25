@@ -15,8 +15,8 @@ use Sabre\VObject;
  * @author Ivan Enderlin
  * @license http://sabre.io/license/ Modified BSD License
  */
-class VAvailability extends VObject\Component
-{
+class VAvailability extends VObject\Component {
+
     /**
      * Returns true or false depending on if the event falls in the specified
      * time-range. This is used for filtering purposes.
@@ -31,14 +31,14 @@ class VAvailability extends VObject\Component
      *
      * @return bool
      */
-    public function isInTimeRange(DateTimeInterface $start, DateTimeInterface $end)
-    {
-        list($effectiveStart, $effectiveEnd) = $this->getEffectiveStartEnd();
+    function isInTimeRange(DateTimeInterface $start, DateTimeInterface $end) {
 
-        return
+        list($effectiveStart, $effectiveEnd) = $this->getEffectiveStartEnd();
+        return (
             (is_null($effectiveStart) || $start < $effectiveEnd) &&
             (is_null($effectiveEnd) || $end > $effectiveStart)
-        ;
+        );
+
     }
 
     /**
@@ -53,8 +53,8 @@ class VAvailability extends VObject\Component
      *
      * @return array
      */
-    public function getEffectiveStartEnd()
-    {
+    function getEffectiveStartEnd() {
+
         $effectiveStart = null;
         $effectiveEnd = null;
 
@@ -68,7 +68,9 @@ class VAvailability extends VObject\Component
         }
 
         return [$effectiveStart, $effectiveEnd];
+
     }
+
 
     /**
      * A simple list of validation rules.
@@ -85,30 +87,31 @@ class VAvailability extends VObject\Component
      *
      * @var array
      */
-    public function getValidationRules()
-    {
+    function getValidationRules() {
+
         return [
-            'UID' => 1,
+            'UID'     => 1,
             'DTSTAMP' => 1,
 
-            'BUSYTYPE' => '?',
-            'CLASS' => '?',
-            'CREATED' => '?',
-            'DESCRIPTION' => '?',
-            'DTSTART' => '?',
+            'BUSYTYPE'      => '?',
+            'CLASS'         => '?',
+            'CREATED'       => '?',
+            'DESCRIPTION'   => '?',
+            'DTSTART'       => '?',
             'LAST-MODIFIED' => '?',
-            'ORGANIZER' => '?',
-            'PRIORITY' => '?',
-            'SEQUENCE' => '?',
-            'SUMMARY' => '?',
-            'URL' => '?',
-            'DTEND' => '?',
-            'DURATION' => '?',
+            'ORGANIZER'     => '?',
+            'PRIORITY'      => '?',
+            'SEQUENCE'      => '?',
+            'SUMMARY'       => '?',
+            'URL'           => '?',
+            'DTEND'         => '?',
+            'DURATION'      => '?',
 
             'CATEGORIES' => '*',
-            'COMMENT' => '*',
-            'CONTACT' => '*',
+            'COMMENT'    => '*',
+            'CONTACT'    => '*',
         ];
+
     }
 
     /**
@@ -135,18 +138,19 @@ class VAvailability extends VObject\Component
      *
      * @return array
      */
-    public function validate($options = 0)
-    {
+    function validate($options = 0) {
+
         $result = parent::validate($options);
 
         if (isset($this->DTEND) && isset($this->DURATION)) {
             $result[] = [
-                'level' => 3,
+                'level'   => 3,
                 'message' => 'DTEND and DURATION cannot both be present',
-                'node' => $this,
+                'node'    => $this
             ];
         }
 
         return $result;
+
     }
 }

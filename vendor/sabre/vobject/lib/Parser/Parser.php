@@ -11,8 +11,8 @@ namespace Sabre\VObject\Parser;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-abstract class Parser
-{
+abstract class Parser {
+
     /**
      * Turning on this option makes the parser more forgiving.
      *
@@ -41,10 +41,12 @@ abstract class Parser
      * Optionally, it's possible to parse the input stream here.
      *
      * @param mixed $input
-     * @param int   $options any parser options (OPTION constants)
+     * @param int $options Any parser options (OPTION constants).
+     *
+     * @return void
      */
-    public function __construct($input = null, $options = 0)
-    {
+    function __construct($input = null, $options = 0) {
+
         if (!is_null($input)) {
             $this->setInput($input);
         }
@@ -60,16 +62,19 @@ abstract class Parser
      * If either input or options are not supplied, the defaults will be used.
      *
      * @param mixed $input
-     * @param int   $options
+     * @param int $options
      *
      * @return array
      */
-    abstract public function parse($input = null, $options = 0);
+    abstract function parse($input = null, $options = 0);
 
     /**
      * Sets the input data.
      *
      * @param mixed $input
+     *
+     * @return void
      */
-    abstract public function setInput($input);
+    abstract function setInput($input);
+
 }

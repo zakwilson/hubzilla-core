@@ -1087,7 +1087,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Cdav' => __DIR__ . '/../..' . '/Zotlabs/Module/Cdav.php',
         'Zotlabs\\Module\\Changeaddr' => __DIR__ . '/../..' . '/Zotlabs/Module/Changeaddr.php',
         'Zotlabs\\Module\\Channel' => __DIR__ . '/../..' . '/Zotlabs/Module/Channel.php',
-        'Zotlabs\\Module\\Channel_calendar' => __DIR__ . '/../..' . '/Zotlabs/Module/Channel_calendar.php',
         'Zotlabs\\Module\\Chanview' => __DIR__ . '/../..' . '/Zotlabs/Module/Chanview.php',
         'Zotlabs\\Module\\Chat' => __DIR__ . '/../..' . '/Zotlabs/Module/Chat.php',
         'Zotlabs\\Module\\Chatsvc' => __DIR__ . '/../..' . '/Zotlabs/Module/Chatsvc.php',

@@ -13,8 +13,8 @@ use Sabre\VObject\DateTimeParser;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Time extends Text
-{
+class Time extends Text {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -31,9 +31,10 @@ class Time extends Text
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'TIME';
+
     }
 
     /**
@@ -42,9 +43,11 @@ class Time extends Text
      * The value must always be an array.
      *
      * @param array $value
+     *
+     * @return void
      */
-    public function setJsonValue(array $value)
-    {
+    function setJsonValue(array $value) {
+
         // Removing colons from value.
         $value = str_replace(
             ':',
@@ -52,11 +55,12 @@ class Time extends Text
             $value
         );
 
-        if (1 === count($value)) {
+        if (count($value) === 1) {
             $this->setValue(reset($value));
         } else {
             $this->setValue($value);
         }
+
     }
 
     /**
@@ -66,8 +70,8 @@ class Time extends Text
      *
      * @return array
      */
-    public function getJsonValue()
-    {
+    function getJsonValue() {
+
         $parts = DateTimeParser::parseVCardTime($this->getValue());
         $timeStr = '';
 
@@ -105,7 +109,7 @@ class Time extends Text
 
         // Timezone
         if (!is_null($parts['timezone'])) {
-            if ('Z' === $parts['timezone']) {
+            if ($parts['timezone'] === 'Z') {
                 $timeStr .= 'Z';
             } else {
                 $timeStr .=
@@ -114,6 +118,7 @@ class Time extends Text
         }
 
         return [$timeStr];
+
     }
 
     /**
@@ -121,15 +126,19 @@ class Time extends Text
      * object.
      *
      * @param array $value
+     *
+     * @return void
      */
-    public function setXmlValue(array $value)
-    {
+    function setXmlValue(array $value) {
+
         $value = array_map(
-            function ($value) {
+            function($value) {
                 return str_replace(':', '', $value);
             },
             $value
         );
         parent::setXmlValue($value);
+
     }
+
 }

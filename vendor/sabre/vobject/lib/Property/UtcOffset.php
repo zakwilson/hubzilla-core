@@ -11,8 +11,8 @@ namespace Sabre\VObject\Property;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class UtcOffset extends Text
-{
+class UtcOffset extends Text {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -29,9 +29,10 @@ class UtcOffset extends Text
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'UTC-OFFSET';
+
     }
 
     /**
@@ -40,16 +41,19 @@ class UtcOffset extends Text
      * The value must always be an array.
      *
      * @param array $value
+     *
+     * @return void
      */
-    public function setJsonValue(array $value)
-    {
+    function setJsonValue(array $value) {
+
         $value = array_map(
-            function ($value) {
+            function($value) {
                 return str_replace(':', '', $value);
             },
             $value
         );
         parent::setJsonValue($value);
+
     }
 
     /**
@@ -59,14 +63,15 @@ class UtcOffset extends Text
      *
      * @return array
      */
-    public function getJsonValue()
-    {
+    function getJsonValue() {
+
         return array_map(
-            function ($value) {
-                return substr($value, 0, -2).':'.
+            function($value) {
+                return substr($value, 0, -2) . ':' .
                        substr($value, -2);
             },
             parent::getJsonValue()
         );
+
     }
 }

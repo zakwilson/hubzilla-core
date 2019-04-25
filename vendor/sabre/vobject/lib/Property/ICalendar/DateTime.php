@@ -24,8 +24,8 @@ use Sabre\VObject\TimeZoneUtil;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class DateTime extends Property
-{
+class DateTime extends Property {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -40,14 +40,17 @@ class DateTime extends Property
      * You may also specify DateTime objects here.
      *
      * @param array $parts
+     *
+     * @return void
      */
-    public function setParts(array $parts)
-    {
+    function setParts(array $parts) {
+
         if (isset($parts[0]) && $parts[0] instanceof DateTimeInterface) {
             $this->setDateTimes($parts);
         } else {
             parent::setParts($parts);
         }
+
     }
 
     /**
@@ -58,9 +61,11 @@ class DateTime extends Property
      * Instead of strings, you may also use DateTime here.
      *
      * @param string|array|DateTimeInterface $value
+     *
+     * @return void
      */
-    public function setValue($value)
-    {
+    function setValue($value) {
+
         if (is_array($value) && isset($value[0]) && $value[0] instanceof DateTimeInterface) {
             $this->setDateTimes($value);
         } elseif ($value instanceof DateTimeInterface) {
@@ -68,6 +73,7 @@ class DateTime extends Property
         } else {
             parent::setValue($value);
         }
+
     }
 
     /**
@@ -77,10 +83,13 @@ class DateTime extends Property
      * not yet done, but parameters are not included.
      *
      * @param string $val
+     *
+     * @return void
      */
-    public function setRawMimeDirValue($val)
-    {
+    function setRawMimeDirValue($val) {
+
         $this->setValue(explode($this->delimiter, $val));
+
     }
 
     /**
@@ -88,9 +97,10 @@ class DateTime extends Property
      *
      * @return string
      */
-    public function getRawMimeDirValue()
-    {
+    function getRawMimeDirValue() {
+
         return implode($this->delimiter, $this->getParts());
+
     }
 
     /**
@@ -98,9 +108,10 @@ class DateTime extends Property
      *
      * @return bool
      */
-    public function hasTime()
-    {
-        return 'DATE' !== strtoupper((string) $this['VALUE']);
+    function hasTime() {
+
+        return strtoupper((string)$this['VALUE']) !== 'DATE';
+
     }
 
     /**
@@ -108,14 +119,15 @@ class DateTime extends Property
      *
      * Note that DATE is always floating.
      */
-    public function isFloating()
-    {
+    function isFloating() {
+
         return
             !$this->hasTime() ||
             (
                 !isset($this['TZID']) &&
-                false === strpos($this->getValue(), 'Z')
+                strpos($this->getValue(), 'Z') === false
             );
+
     }
 
     /**
@@ -131,16 +143,15 @@ class DateTime extends Property
      *
      * @param DateTimeZone $timeZone
      *
-     * @return \DateTimeImmutable
+     * @return DateTimeImmutable
      */
-    public function getDateTime(DateTimeZone $timeZone = null)
-    {
+    function getDateTime(DateTimeZone $timeZone = null) {
+
         $dt = $this->getDateTimes($timeZone);
-        if (!$dt) {
-            return;
-        }
+        if (!$dt) return;
 
         return $dt[0];
+
     }
 
     /**
@@ -152,35 +163,38 @@ class DateTime extends Property
      *
      * @param DateTimeZone $timeZone
      *
-     * @return \DateTimeImmutable[]
+     * @return DateTimeImmutable[]
      * @return \DateTime[]
      */
-    public function getDateTimes(DateTimeZone $timeZone = null)
-    {
+    function getDateTimes(DateTimeZone $timeZone = null) {
+
         // Does the property have a TZID?
         $tzid = $this['TZID'];
 
         if ($tzid) {
-            $timeZone = TimeZoneUtil::getTimeZone((string) $tzid, $this->root);
+            $timeZone = TimeZoneUtil::getTimeZone((string)$tzid, $this->root);
         }
 
         $dts = [];
         foreach ($this->getParts() as $part) {
             $dts[] = DateTimeParser::parse($part, $timeZone);
         }
-
         return $dts;
+
     }
 
     /**
      * Sets the property as a DateTime object.
      *
      * @param DateTimeInterface $dt
-     * @param bool isFloating If set to true, timezones will be ignored
+     * @param bool isFloating If set to true, timezones will be ignored.
+     *
+     * @return void
      */
-    public function setDateTime(DateTimeInterface $dt, $isFloating = false)
-    {
+    function setDateTime(DateTimeInterface $dt, $isFloating = false) {
+
         $this->setDateTimes([$dt], $isFloating);
+
     }
 
     /**
@@ -190,17 +204,21 @@ class DateTime extends Property
      * the otehr values will be adjusted for that timezone
      *
      * @param DateTimeInterface[] $dt
-     * @param bool isFloating If set to true, timezones will be ignored
+     * @param bool isFloating If set to true, timezones will be ignored.
+     *
+     * @return void
      */
-    public function setDateTimes(array $dt, $isFloating = false)
-    {
+    function setDateTimes(array $dt, $isFloating = false) {
+
         $values = [];
 
         if ($this->hasTime()) {
+
             $tz = null;
             $isUtc = false;
 
             foreach ($dt as $d) {
+
                 if ($isFloating) {
                     $values[] = $d->format('Ymd\\THis');
                     continue;
@@ -220,18 +238,25 @@ class DateTime extends Property
                 } else {
                     $values[] = $d->format('Ymd\\THis');
                 }
+
             }
             if ($isUtc || $isFloating) {
                 $this->offsetUnset('TZID');
             }
+
         } else {
+
             foreach ($dt as $d) {
+
                 $values[] = $d->format('Ymd');
+
             }
             $this->offsetUnset('TZID');
+
         }
 
         $this->value = $values;
+
     }
 
     /**
@@ -242,9 +267,10 @@ class DateTime extends Property
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return $this->hasTime() ? 'DATE-TIME' : 'DATE';
+
     }
 
     /**
@@ -254,8 +280,8 @@ class DateTime extends Property
      *
      * @return array
      */
-    public function getJsonValue()
-    {
+    function getJsonValue() {
+
         $dts = $this->getDateTimes();
         $hasTime = $this->hasTime();
         $isFloating = $this->isFloating();
@@ -264,15 +290,18 @@ class DateTime extends Property
         $isUtc = $isFloating ? false : in_array($tz->getName(), ['UTC', 'GMT', 'Z']);
 
         return array_map(
-            function (DateTimeInterface $dt) use ($hasTime, $isUtc) {
+            function(DateTimeInterface $dt) use ($hasTime, $isUtc) {
+
                 if ($hasTime) {
-                    return $dt->format('Y-m-d\\TH:i:s').($isUtc ? 'Z' : '');
+                    return $dt->format('Y-m-d\\TH:i:s') . ($isUtc ? 'Z' : '');
                 } else {
                     return $dt->format('Y-m-d');
                 }
+
             },
             $dts
         );
+
     }
 
     /**
@@ -281,21 +310,26 @@ class DateTime extends Property
      * The value must always be an array.
      *
      * @param array $value
+     *
+     * @return void
      */
-    public function setJsonValue(array $value)
-    {
+    function setJsonValue(array $value) {
+
         // dates and times in jCal have one difference to dates and times in
         // iCalendar. In jCal date-parts are separated by dashes, and
         // time-parts are separated by colons. It makes sense to just remove
         // those.
         $this->setValue(
             array_map(
-                function ($item) {
+                function($item) {
+
                     return strtr($item, [':' => '', '-' => '']);
+
                 },
                 $value
             )
         );
+
     }
 
     /**
@@ -303,17 +337,20 @@ class DateTime extends Property
      * VALUE from DATE-TIME to DATE or vice-versa.
      *
      * @param string $name
-     * @param mixed  $value
+     * @param mixed $value
+     *
+     * @return void
      */
-    public function offsetSet($name, $value)
-    {
+    function offsetSet($name, $value) {
+
         parent::offsetSet($name, $value);
-        if ('VALUE' !== strtoupper($name)) {
+        if (strtoupper($name) !== 'VALUE') {
             return;
         }
 
         // This will ensure that dates are correctly encoded.
         $this->setDateTimes($this->getDateTimes());
+
     }
 
     /**
@@ -338,30 +375,30 @@ class DateTime extends Property
      *
      * @return array
      */
-    public function validate($options = 0)
-    {
+    function validate($options = 0) {
+
         $messages = parent::validate($options);
         $valueType = $this->getValueType();
         $values = $this->getParts();
         try {
             foreach ($values as $value) {
                 switch ($valueType) {
-                    case 'DATE':
+                    case 'DATE' :
                         DateTimeParser::parseDate($value);
                         break;
-                    case 'DATE-TIME':
+                    case 'DATE-TIME' :
                         DateTimeParser::parseDateTime($value);
                         break;
                 }
             }
         } catch (InvalidDataException $e) {
             $messages[] = [
-                'level' => 3,
-                'message' => 'The supplied value ('.$value.') is not a correct '.$valueType,
-                'node' => $this,
+                'level'   => 3,
+                'message' => 'The supplied value (' . $value . ') is not a correct ' . $valueType,
+                'node'    => $this,
             ];
         }
-
         return $messages;
+
     }
 }

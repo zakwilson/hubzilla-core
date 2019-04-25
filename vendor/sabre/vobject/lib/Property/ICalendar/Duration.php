@@ -16,8 +16,8 @@ use Sabre\VObject\Property;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Duration extends Property
-{
+class Duration extends Property {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -33,10 +33,13 @@ class Duration extends Property
      * not yet done, but parameters are not included.
      *
      * @param string $val
+     *
+     * @return void
      */
-    public function setRawMimeDirValue($val)
-    {
+    function setRawMimeDirValue($val) {
+
         $this->setValue(explode($this->delimiter, $val));
+
     }
 
     /**
@@ -44,9 +47,10 @@ class Duration extends Property
      *
      * @return string
      */
-    public function getRawMimeDirValue()
-    {
+    function getRawMimeDirValue() {
+
         return implode($this->delimiter, $this->getParts());
+
     }
 
     /**
@@ -57,9 +61,10 @@ class Duration extends Property
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'DURATION';
+
     }
 
     /**
@@ -69,11 +74,12 @@ class Duration extends Property
      *
      * @return \DateInterval
      */
-    public function getDateInterval()
-    {
+    function getDateInterval() {
+
         $parts = $this->getParts();
         $value = $parts[0];
-
         return DateTimeParser::parseDuration($value);
+
     }
+
 }

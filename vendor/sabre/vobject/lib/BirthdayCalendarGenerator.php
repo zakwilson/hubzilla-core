@@ -11,8 +11,8 @@ use Sabre\VObject\Component\VCalendar;
  * @author Dominik Tobschall (http://tobschall.de/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class BirthdayCalendarGenerator
-{
+class BirthdayCalendarGenerator {
+
     /**
      * Input objects.
      *
@@ -41,11 +41,12 @@ class BirthdayCalendarGenerator
      *
      * @param mixed $objects
      */
-    public function __construct($objects = null)
-    {
+    function __construct($objects = null) {
+
         if ($objects) {
             $this->setObjects($objects);
         }
+
     }
 
     /**
@@ -55,38 +56,52 @@ class BirthdayCalendarGenerator
      * It's also possible to supply an array of strings or objects.
      *
      * @param mixed $objects
+     *
+     * @return void
      */
-    public function setObjects($objects)
-    {
+    function setObjects($objects) {
+
         if (!is_array($objects)) {
             $objects = [$objects];
         }
 
         $this->objects = [];
         foreach ($objects as $object) {
+
             if (is_string($object)) {
+
                 $vObj = Reader::read($object);
                 if (!$vObj instanceof Component\VCard) {
                     throw new \InvalidArgumentException('String could not be parsed as \\Sabre\\VObject\\Component\\VCard by setObjects');
                 }
 
                 $this->objects[] = $vObj;
+
             } elseif ($object instanceof Component\VCard) {
+
                 $this->objects[] = $object;
+
             } else {
+
                 throw new \InvalidArgumentException('You can only pass strings or \\Sabre\\VObject\\Component\\VCard arguments to setObjects');
+
             }
+
         }
+
     }
 
     /**
-     * Sets the output format for the SUMMARY.
+     * Sets the output format for the SUMMARY
      *
      * @param string $format
+     *
+     * @return void
      */
-    public function setFormat($format)
-    {
+    function setFormat($format) {
+
         $this->format = $format;
+
     }
 
     /**
@@ -94,11 +109,12 @@ class BirthdayCalendarGenerator
      *
      * @return Component/VCalendar
      */
-    public function getResult()
-    {
+    function getResult() {
+
         $calendar = new VCalendar();
 
         foreach ($this->objects as $object) {
+
             // Skip if there is no BDAY property.
             if (!$object->select('BDAY')) {
                 continue;
@@ -136,7 +152,7 @@ class BirthdayCalendarGenerator
             $unknownYear = false;
 
             if (!$dateParts['year']) {
-                $object->BDAY = self::DEFAULT_YEAR.'-'.$dateParts['month'].'-'.$dateParts['date'];
+                $object->BDAY = self::DEFAULT_YEAR . '-' . $dateParts['month'] . '-' . $dateParts['date'];
 
                 $unknownYear = true;
             }
@@ -145,8 +161,8 @@ class BirthdayCalendarGenerator
             $event = $calendar->add('VEVENT', [
                 'SUMMARY' => sprintf($this->format, $object->FN->getValue()),
                 'DTSTART' => new \DateTime($object->BDAY->getValue()),
-                'RRULE' => 'FREQ=YEARLY',
-                'TRANSP' => 'TRANSPARENT',
+                'RRULE'   => 'FREQ=YEARLY',
+                'TRANSP'  => 'TRANSPARENT',
             ]);
 
             // add VALUE=date
@@ -156,17 +172,20 @@ class BirthdayCalendarGenerator
             if ($unknownYear) {
                 $event->add('X-SABRE-BDAY', 'BDAY', [
                     'X-SABRE-VCARD-UID' => $object->UID->getValue(),
-                    'X-SABRE-VCARD-FN' => $object->FN->getValue(),
+                    'X-SABRE-VCARD-FN'  => $object->FN->getValue(),
                     'X-SABRE-OMIT-YEAR' => self::DEFAULT_YEAR,
                 ]);
             } else {
                 $event->add('X-SABRE-BDAY', 'BDAY', [
                     'X-SABRE-VCARD-UID' => $object->UID->getValue(),
-                    'X-SABRE-VCARD-FN' => $object->FN->getValue(),
+                    'X-SABRE-VCARD-FN'  => $object->FN->getValue(),
                 ]);
             }
+
         }
 
         return $calendar;
+
     }
+
 }

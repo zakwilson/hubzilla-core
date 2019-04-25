@@ -19,8 +19,8 @@ use Sabre\VObject\Parser\MimeDir;
  * @author Armin Hackmann
  * @license http://sabre.io/license/ Modified BSD License
  */
-class VCard implements SplitterInterface
-{
+class VCard implements SplitterInterface {
+
     /**
      * File handle.
      *
@@ -38,15 +38,16 @@ class VCard implements SplitterInterface
     /**
      * Constructor.
      *
-     * The splitter should receive an readable file stream as its input.
+     * The splitter should receive an readable file stream as it's input.
      *
      * @param resource $input
-     * @param int      $options parser options, see the OPTIONS constants
+     * @param int $options Parser options, see the OPTIONS constants.
      */
-    public function __construct($input, $options = 0)
-    {
+    function __construct($input, $options = 0) {
+
         $this->input = $input;
         $this->parser = new MimeDir($input, $options);
+
     }
 
     /**
@@ -55,20 +56,23 @@ class VCard implements SplitterInterface
      *
      * When the end is reached, null will be returned.
      *
-     * @return \Sabre\VObject\Component|null
+     * @return Sabre\VObject\Component|null
      */
-    public function getNext()
-    {
+    function getNext() {
+
         try {
             $object = $this->parser->parse();
 
             if (!$object instanceof VObject\Component\VCard) {
                 throw new VObject\ParseException('The supplied input contained non-VCARD data.');
             }
+
         } catch (VObject\EofException $e) {
             return;
         }
 
         return $object;
+
     }
+
 }

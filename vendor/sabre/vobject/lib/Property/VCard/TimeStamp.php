@@ -15,8 +15,8 @@ use Sabre\Xml;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class TimeStamp extends Text
-{
+class TimeStamp extends Text {
+
     /**
      * In case this is a multi-value property. This string will be used as a
      * delimiter.
@@ -33,9 +33,10 @@ class TimeStamp extends Text
      *
      * @return string
      */
-    public function getValueType()
-    {
+    function getValueType() {
+
         return 'TIMESTAMP';
+
     }
 
     /**
@@ -45,16 +46,16 @@ class TimeStamp extends Text
      *
      * @return array
      */
-    public function getJsonValue()
-    {
+    function getJsonValue() {
+
         $parts = DateTimeParser::parseVCardDateTime($this->getValue());
 
         $dateStr =
-            $parts['year'].'-'.
-            $parts['month'].'-'.
-            $parts['date'].'T'.
-            $parts['hour'].':'.
-            $parts['minute'].':'.
+            $parts['year'] . '-' .
+            $parts['month'] . '-' .
+            $parts['date'] . 'T' .
+            $parts['hour'] . ':' .
+            $parts['minute'] . ':' .
             $parts['second'];
 
         // Timezone
@@ -63,19 +64,23 @@ class TimeStamp extends Text
         }
 
         return [$dateStr];
+
     }
 
     /**
      * This method serializes only the value of a property. This is used to
      * create xCard or xCal documents.
      *
-     * @param Xml\Writer $writer XML writer
+     * @param Xml\Writer $writer  XML writer.
+     *
+     * @return void
      */
-    protected function xmlSerializeValue(Xml\Writer $writer)
-    {
+    protected function xmlSerializeValue(Xml\Writer $writer) {
+
         // xCard is the only XML and JSON format that has the same date and time
         // format than vCard.
         $valueType = strtolower($this->getValueType());
         $writer->writeElement($valueType, $this->getValue());
+
     }
 }

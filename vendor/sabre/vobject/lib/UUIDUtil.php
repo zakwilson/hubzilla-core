@@ -13,8 +13,8 @@ namespace Sabre\VObject;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class UUIDUtil
-{
+class UUIDUtil {
+
     /**
      * Returns a pseudo-random v4 UUID.
      *
@@ -24,9 +24,10 @@ class UUIDUtil
      *
      * @return string
      */
-    public static function getUUID()
-    {
+    static function getUUID() {
+
         return sprintf(
+
             '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
 
             // 32 bits for "time_low"
@@ -56,11 +57,13 @@ class UUIDUtil
      *
      * @return bool
      */
-    public static function validateUUID($uuid)
-    {
-        return 0 !== preg_match(
+    static function validateUUID($uuid) {
+
+        return preg_match(
             '/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i',
             $uuid
-        );
+        ) !== 0;
+
     }
+
 }

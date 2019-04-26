@@ -873,6 +873,13 @@ function identity_basic_export($channel_id, $sections = null) {
 					$ret['abook'][$x]['abconfig'] = $abconfig;
 				translate_abook_perms_outbound($ret['abook'][$x]);
 			}
+
+			// pick up the zot6 xchan and hublocs also
+			
+			if($ret['channel']['channel_portable_id']) {
+				$xchans[] = $ret['channel']['channel_portable_id'];
+			}
+			
 			stringify_array_elms($xchans);
 		}
 

@@ -280,8 +280,9 @@ class Import extends \Zotlabs\Web\Controller {
 
 			// replace any existing xchan we may have on this site if we're seizing control
 
-			$r = q("delete from xchan where xchan_hash = '%s'",
-				dbesc($channel['channel_hash'])
+			$r = q("delete from xchan where ( xchan_hash = '%s' or xchan_hash = '%s' ) ",
+				dbesc($channel['channel_hash']),
+				dbesc($channel['channel_portable_id'])
 			);
 
 			$r = xchan_store_lowlevel(
@@ -303,6 +304,30 @@ class Import extends \Zotlabs\Web\Controller {
 					'xchan_name_date'      => datetime_convert()
 				]
 			);
+
+			if($channel['channel_portable_id']) {
+				$r = xchan_store_lowlevel(
+					[
+						'xchan_hash'           => \Zotlabs\Lib\Libzot::make_xchan_hash($channel['channel_guid'],$channel['channel_pubkey']),
+						'xchan_guid'           => $channel['channel_guid'],
+						'xchan_guid_sig'       => 'sha256.' . $channel['channel_guid_sig'],
+						'xchan_pubkey'         => $channel['channel_pubkey'],
+						'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
+						'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
+						'xchan_photo_s'        => z_root() . "/photo/profile/s/" . $channel['channel_id'],
+						'xchan_addr'           => channel_reddress($channel),
+						'xchan_url'            => z_root() . '/channel/' . $channel['channel_address'],
+						'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
+						'xchan_follow'         => z_root() . '/follow?f=&url=%s',
+						'xchan_name'           => $channel['channel_name'],
+						'xchan_network'        => 'zot6',
+						'xchan_photo_date'     => datetime_convert(),
+						'xchan_name_date'      => datetime_convert()
+					]
+				);
+			}
+
+
 		}
 
 		logger('import step 6');
@@ -312,10 +337,20 @@ class Import extends \Zotlabs\Web\Controller {
 		if($xchans) {
 			foreach($xchans as $xchan) {
 
-				$hash = make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_guid_sig']);
-				if($xchan['xchan_network'] === 'zot' && $hash !== $xchan['xchan_hash']) {
-					logger('forged xchan: ' . print_r($xchan,true));
-					continue;
+				if($xchan['xchan_network'] === 'zot') {
+					$hash = make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_guid_sig']);
+					if($hash !== $xchan['xchan_hash']) {
+						logger('forged xchan: ' . print_r($xchan,true));
+						continue;
+					}
+				}
+
+				if($xchan['xchan_network'] === 'zot6') {
+					$zhash = \Zotlabs\Lib\Libzot::make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_pubkey']);
+					if($zhash !== $xchan['xchan_hash']) {
+						logger('forged xchan: ' . print_r($xchan,true));
+						continue;
+					}
 				}
 
 				if(! array_key_exists('xchan_hidden',$xchan)) {

@@ -46,14 +46,14 @@ class Channel extends Controller {
 		$channel = App::get_channel();
 
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
-            $which = $channel['channel_address'];
-            $profile = argv(1);
-        }
+			$which = $channel['channel_address'];
+			$profile = argv(1);
+		}
 
 		$channel = channelx_by_nick($which);
-        if(! $channel) {
-            http_status_exit(404, 'Not found');
-        }
+		if(! $channel) {
+			http_status_exit(404, 'Not found');
+		}
 
 		// handle zot6 channel discovery 
 
@@ -310,10 +310,6 @@ class Channel extends Controller {
 				$sql_extra2 .= protect_sprintf(sprintf(" AND item.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 			}
 
-			if($datequery || $datequery2) {
-				$sql_extra2 .= " and item.item_thread_top != 0 ";
-			}
-
 			if($order === 'post')
 				$ordering = "created";
 			else
@@ -342,7 +338,7 @@ class Channel extends Controller {
 						AND (abook.abook_blocked = 0 or abook.abook_flags is null)
 						AND item.item_wall = 1 AND item.item_thread_top = 1
 						$sql_extra $sql_extra2 
-						ORDER BY $ordering DESC $pager_sql ",
+						ORDER BY $ordering DESC, item_id $pager_sql ",
 						intval(App::$profile['profile_uid'])
 					);
 				}

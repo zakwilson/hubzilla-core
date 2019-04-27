@@ -173,8 +173,7 @@ class Photo extends \Zotlabs\Web\Controller {
 								// SSLify if needed
 								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
 									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
-								header("Location: " . $url);
-								killme();
+								goaway($url);
 							}
 						}
 					}

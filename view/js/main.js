@@ -231,6 +231,9 @@ function handle_comment_form(e) {
 			$('#' + emptyCommentElm).removeAttr('tabindex');
 			$('#' + emptySubmitElm).removeAttr('tabindex');
 			form.find(':not(.comment-edit-text)').hide();
+			form.find(':input[name=parent]').val(emptyCommentElm.replace(/\D/g,''));
+			var btn = form.find(':button[type=submit]').html();
+			form.find(':button[type=submit]').html(btn.replace(/<[^>]*>/g, '').trim());
 		}
 	});
 	
@@ -1138,6 +1141,16 @@ function dolike(ident, verb) {
 	$('#like-rotator-' + ident.toString()).show();
 	$.get('like/' + ident.toString() + '?verb=' + verb, updateInit );
 	liking = 1;
+}
+
+function doreply(parent, ident, owner) {
+	form = $('#comment-edit-form-' + parent.toString());
+	form.find('input[name=parent]').val(ident);
+	var btn = form.find('button[type=submit]').html();
+	form.find('button[type=submit]').html('<i class="fa fa-reply" ></i> ' + btn);
+	taid = '#comment-edit-text-' + parent.toString();
+	$(taid).val("@{" + owner + "}\n");
+	$(taid).focus();
 }
 
 function doprofilelike(ident, verb) {

@@ -1,3 +1,14 @@
+Hubzilla 4.0.3 (2019-04-26)
+	- Add attachments to zot6 event objects
+	- Add zot6 to federated transports 
+	- Update import/export to handle zot6 hublocs and xchans
+	- Update fix_system_urls() to handle zot6 hublocs
+	- Fix infinite loop using postgres as backend
+	- Fix magic auth in combination with zot6
+	- Fix check for required PHP version
+	- Diaspora: favour diaspora protocol identities over others with same hubloc or xchan address
+
+
 Hubzilla 4.0.2 (2019-04-08)
 	- Port cdav calendar to fullcalendar version 4
 	- Fix perms_pending not evaluated correctly

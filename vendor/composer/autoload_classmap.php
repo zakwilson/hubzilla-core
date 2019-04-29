@@ -919,6 +919,7 @@ return array(
     'Zotlabs\\Module\\Cdav' => $baseDir . '/Zotlabs/Module/Cdav.php',
     'Zotlabs\\Module\\Changeaddr' => $baseDir . '/Zotlabs/Module/Changeaddr.php',
     'Zotlabs\\Module\\Channel' => $baseDir . '/Zotlabs/Module/Channel.php',
+    'Zotlabs\\Module\\Channel_calendar' => $baseDir . '/Zotlabs/Module/Channel_calendar.php',
     'Zotlabs\\Module\\Chanview' => $baseDir . '/Zotlabs/Module/Chanview.php',
     'Zotlabs\\Module\\Chat' => $baseDir . '/Zotlabs/Module/Chat.php',
     'Zotlabs\\Module\\Chatsvc' => $baseDir . '/Zotlabs/Module/Chatsvc.php',

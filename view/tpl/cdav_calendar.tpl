@@ -308,9 +308,6 @@ $(document).ready(function() {
 	$(document).on('click','#event_delete, #event_delete_recurrent', on_delete);
 
 	if(resource !== null) {
-
-console.log('{{$categories}}');
-console.log(resource);
 		$('.section-content-tools-wrapper, #event_form_wrapper').show();
 		event_id = resource.id;
 		event_uri = resource.event_hash;

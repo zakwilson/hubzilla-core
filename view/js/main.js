@@ -1148,9 +1148,8 @@ function doreply(parent, ident, owner) {
 	form.find('input[name=parent]').val(ident);
 	var btn = form.find('button[type=submit]').html();
 	form.find('button[type=submit]').html('<i class="fa fa-reply" ></i> ' + btn);
-	taid = '#comment-edit-text-' + parent.toString();
-	$(taid).val("@{" + owner + "}\n");
-	$(taid).focus();
+	form.find('textarea').val("@{" + owner + "}\n");
+	$('#comment-edit-text-' + parent.toString()).focus();
 }
 
 function doprofilelike(ident, verb) {

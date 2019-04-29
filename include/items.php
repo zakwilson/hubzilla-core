@@ -1875,9 +1875,12 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 			// is the new message multi-level threaded?
 			// even though we don't support it now, preserve the info
 			// and re-attach to the conversation parent.
+			
+			// @FIXME when we'll start threaded comments support, 
+			// now this respected on mid / parent_mid level (MK)
 
 			if($r[0]['mid'] != $r[0]['parent_mid']) {
-				$arr['parent_mid'] = $r[0]['parent_mid'];
+				//$arr['parent_mid'] = $r[0]['parent_mid'];
 				$z = q("SELECT * FROM item WHERE mid = '%s' AND parent_mid = '%s' AND uid = %d
 					ORDER BY id ASC LIMIT 1",
 					dbesc($r[0]['parent_mid']),
@@ -4278,7 +4281,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	if($arr['mid'])
 		$sql_options .= " and parent_mid = '" . dbesc($arr['mid']) . "' ";
 
-	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE item_thread_top = 1 $sql_options $item_normal ) ";
+	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE $item_uids and item_thread_top = 1 $sql_options $item_normal ) ";
 
 	if($arr['since_id'])
 		$sql_extra .= " and item.id > " . $since_id . " ";

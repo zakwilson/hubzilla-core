@@ -195,6 +195,13 @@ class Activity {
 				if(! $ev['nofinish']) {
 					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
 				}
+				
+				// copy attachments from the passed object - these are already formatted for ActivityStreams
+
+				if($x['attachment']) {
+					$y['attachment'] = $x['attachment'];
+				}
+
 				if($actor) {
 					return $y;
 				}
@@ -404,7 +411,7 @@ class Activity {
 		$ret = [];
 
 		if($item['attach']) {
-			$atts = json_decode($item['attach'],true);
+			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'],true));
 			if($atts) {
 				foreach($atts as $att) {
 					if(strpos($att['type'],'image')) {
@@ -416,7 +423,7 @@ class Activity {
 				}
 			}
 		}
-
+		
 		return $ret;
 	}
 

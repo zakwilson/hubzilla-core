@@ -12,6 +12,10 @@ var group_allow = [];
 var contact_deny = [];
 var group_deny = [];
 
+var resource = {{$resource}};
+var default_view = resource !== null ? 'timeGridDay' : 'dayGridMonth';
+var default_date = resource !== null ? new Date(resource.dtstart) : new Date();
+
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
 	calendar = new FullCalendar.Calendar(calendarEl, {
@@ -28,6 +32,9 @@ $(document).ready(function() {
 		height: 'auto',
 		
 		firstDay: {{$first_day}},
+
+		defaultView: default_view,
+		defaultDate: default_date,
 
 		monthNames: aStr['monthNames'],
 		monthNamesShort: aStr['monthNamesShort'],
@@ -68,8 +75,6 @@ $(document).ready(function() {
 		},
 		
 		eventClick: function(info) {
-
-
 
 			//reset categories
 			$('#id_categories').tagsinput('removeAll');
@@ -254,7 +259,7 @@ $(document).ready(function() {
 				});
 			}
 		},
-		
+
 		loading: function(isLoading, view) {
 			$('#events-spinner').show();
 			$('#today-btn > i').hide();
@@ -267,7 +272,7 @@ $(document).ready(function() {
 	});
 	
 	calendar.render();
-	
+
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
 	
@@ -301,6 +306,23 @@ $(document).ready(function() {
 	$(document).on('click','#event_more', on_more);
 	$(document).on('click','#event_cancel, #event_cancel_recurrent', reset_form);
 	$(document).on('click','#event_delete, #event_delete_recurrent', on_delete);
+
+	if(resource !== null) {
+
+console.log('{{$categories}}');
+console.log(resource);
+		$('.section-content-tools-wrapper, #event_form_wrapper').show();
+		event_id = resource.id;
+		event_uri = resource.event_hash;
+		$('#calendar_select').val('channel_calendar').attr('disabled', true);
+		$('#id_title').val(resource.summary);
+		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
+		$('#id_dtend').val(new Date(resource.dtend).toUTCString());
+		$('#id_categories').tagsinput('add', '{{$categories}}'),
+		$('#id_description').val(resource.description);
+		$('#id_location').val(resource.location);
+		$('#event_submit').html('{{$update}}');
+	}
 });
 
 

@@ -890,7 +890,7 @@ class Cdav extends Controller {
 		}
 
 		//Display calendar(s) here
-		if(argc() == 2 && argv(1) === 'calendar') {
+		if(argc() <= 3 && argv(1) === 'calendar') {
 
 			head_add_css('/library/fullcalendar/packages/core/main.min.css');
 			head_add_css('/library/fullcalendar/packages/daygrid/main.min.css');
@@ -905,6 +905,43 @@ class Cdav extends Controller {
 			head_add_js('/library/fullcalendar/packages/list/main.min.js');
 
 			$sources = '';
+			$iid = '';
+			$resource = null;
+
+			if(argc() == 3 && intval(argv(2)))
+				$iid = argv(2);
+
+			if($iid) {
+				$r = q("SELECT event.*, item.author_xchan, item.owner_xchan, item.id as item_id FROM item LEFT JOIN event ON item.resource_id = event.event_hash
+					WHERE item.id = %d AND item.uid = %d LIMIT 1",
+					dbesc($iid),
+					intval(local_channel())
+				);
+
+				if($r) {
+					xchan_query($r);
+					$r = fetch_post_tags($r,true);
+
+					$r[0]['dtstart'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtstart'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtstart'],'c'));
+					$r[0]['dtend'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtend'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtend'],'c'));
+
+					$resource = $r[0];
+
+					$catsenabled = feature_enabled(local_channel(),'categories');
+					$categories = '';
+					if($catsenabled){
+						if($r[0]['term']) {
+							$cats = get_terms_oftype($r[0]['term'], TERM_CATEGORY);
+							foreach ($cats as $cat) {
+								if(strlen($categories))
+									$categories .= ', ';
+								$categories .= $cat['term'];
+							}
+						}
+					}
+
+				}
+			}
 
 			if(get_pconfig(local_channel(), 'cdav_calendar', 'channel_calendar')) {
 				$sources .= '{
@@ -1005,7 +1042,10 @@ class Cdav extends Controller {
 				'$deny_cid' => acl2json($permissions['deny_cid']),
 				'$deny_gid' => acl2json($permissions['deny_gid']),
 				'$catsenabled' => $catsenabled,
-				'$categories_label' => t('Categories')
+				'$categories_label' => t('Categories'),
+
+				'$resource' => json_encode($resource),
+				'$categories' => $categories
 			]);
 
 			return $o;

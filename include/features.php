@@ -167,6 +167,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to mark special posts with a star indicator'),
 				false,
 				get_config('feature_lock','star_posts'),
+			],
+			
+			[
+				'reply_to',     
+				t('Reply on comment'),				
+				t('Ability to reply on selected comment'),
+				false,
+				get_config('feature_lock','reply_to'),
 			]
 
 		],

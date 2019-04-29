@@ -69,13 +69,15 @@ $(document).ready(function() {
 		
 		eventClick: function(info) {
 
+
+
 			//reset categories
 			$('#id_categories').tagsinput('removeAll');
 
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			console.log(event.extendedProps.categories);
+
 			if(event.extendedProps.plink) {
 				if(! $('#l2s').length)
 					$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
@@ -137,8 +139,7 @@ $(document).ready(function() {
 					$('#id_description').attr('disabled', false);
 					$('#id_location').attr('disabled', false);
 
-					if(calendar_id == 'channel_calendar' && !event.extendedProps.is_editable) {
-						console.log(calendar_id)
+					if(calendar_id == 'channel_calendar' && !event.ui.startEditable) {
 						$('#event_submit').hide();
 					}
 				}
@@ -161,7 +162,7 @@ $(document).ready(function() {
 		},
 		
 		eventResize: function(info) {
-			
+
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
@@ -170,16 +171,41 @@ $(document).ready(function() {
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
 
-			$.post( 'cdav/calendar', {
-				'update': 'resize',
-				'id[]': event.extendedProps.calendar_id,
-				'uri': event.extendedProps.uri,
-				'dtstart': dtstart ? dtstart.toUTCString() : '',
-				'dtend': dtend ? dtend.toUTCString() : ''
-			})
-			.fail(function() {
-				info.revert();
-			});
+			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+
+			if(event.extendedProps.calendar_id === 'channel_calendar') {
+				$.post( 'channel_calendar', {
+					'event_id': event_id,
+					'event_hash': event_uri,
+					'xchan': '{{$channel_hash}}',
+					//'mid': mid,
+					'type': 'event',
+					'preview': 0,
+					'summary': event.title,
+					'dtstart': dtstart.toUTCString(),
+					'dtend': dtend.toUTCString(),
+					'adjust': event.extendedProps.item.adjust,
+					'categories': event.extendedProps.categories,
+					'desc': event.extendedProps.description,
+					'location': event.extendedProps.location,
+					//'submit': $('#event_submit').val()
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
+			else {
+				$.post( 'cdav/calendar', {
+					'update': 'resize',
+					'id[]': event.extendedProps.calendar_id,
+					'uri': event.extendedProps.uri,
+					'dtstart': dtstart ? dtstart.toUTCString() : '',
+					'dtend': dtend ? dtend.toUTCString() : ''
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
 		},
 		
 		eventDrop: function(info) {
@@ -191,17 +217,42 @@ $(document).ready(function() {
 			$('#id_title').val(event.title);
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
-		
-			$.post( 'cdav/calendar', {
-				'update': 'drop',
-				'id[]': event.extendedProps.calendar_id,
-				'uri': event.extendedProps.uri,
-				'dtstart': dtstart ? dtstart.toUTCString() : '',
-				'dtend': dtend ? dtend.toUTCString() : ''
-			})
-			.fail(function() {
-				info.revert();
-			});
+
+			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+
+			if(event.extendedProps.calendar_id === 'channel_calendar') {
+				$.post( 'channel_calendar', {
+					'event_id': event_id,
+					'event_hash': event_uri,
+					'xchan': '{{$channel_hash}}',
+					//'mid': mid,
+					'type': 'event',
+					'preview': 0,
+					'summary': event.title,
+					'dtstart': dtstart.toUTCString(),
+					'dtend': dtend.toUTCString(),
+					'adjust': event.extendedProps.item.adjust,
+					'categories': event.extendedProps.categories,
+					'desc': event.extendedProps.description,
+					'location': event.extendedProps.location,
+					//'submit': $('#event_submit').val()
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
+			else {
+				$.post( 'cdav/calendar', {
+					'update': 'drop',
+					'id[]': event.extendedProps.calendar_id,
+					'uri': event.extendedProps.uri,
+					'dtstart': dtstart ? dtstart.toUTCString() : '',
+					'dtend': dtend ? dtend.toUTCString() : ''
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
 		},
 		
 		loading: function(isLoading, view) {
@@ -332,21 +383,12 @@ function on_submit() {
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
-			'submit': $('#event_submit').val(),
+			//'submit': $('#event_submit').val(),
 			'contact_allow[]': contact_allow,
 			'group_allow[]': group_allow,
 			'contact_deny[]': contact_deny,
 			'group_deny[]': group_deny
-/*
-			'submit': $('#event_submit').val(),
-			'target': $('#calendar_select').val(),
-			'uri': $('#event_uri').val(),
-			'title': $('#id_title').val(),
-			'dtstart': $('#id_dtstart').val(),
-			'dtend': $('#id_dtend').val(),
-			'description': $('#id_description').val(),
-			'location': $('#id_location').val()
-*/
+
 		})
 		.done(function() {
 			var eventSource = calendar.getEventSourceById('channel_calendar');

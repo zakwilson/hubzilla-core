@@ -524,6 +524,14 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						}
 					}
 
+					$allDay = false;
+
+					// allDay event rules
+					if(!strpos($start, 'T') && !strpos($end, 'T'))
+						$allDay = true;
+					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
+						$allDay = true;
+
 					$is_first = ($d !== $last_date);
 						
 					$last_date = $d;
@@ -550,12 +558,13 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => false,
+						'allDay' => $allDay,
 						'title' => $title,
 						
 						'j' => $j,
 						'd' => $d,
-						'is_editable' => $edit ? true : false,
+
+						'editable' => $edit ? true : false,
 
 						'is_first'=>$is_first,
 						'item'=>$rr,

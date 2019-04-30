@@ -147,6 +147,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				}
 				return;
 			}
+
+			if($x[0]['event_xchan'] !== $channel['xchan_hash']) {
+				notice( t('Not allowed.') . EOL);
+				return;
+			}
 	
 			$acl->set($x[0]);
 	

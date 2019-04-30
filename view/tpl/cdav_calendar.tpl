@@ -322,7 +322,11 @@ $(document).ready(function() {
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
-		$('#event_submit').html('{{$update}}');
+
+		if(resource.event_xchan !== '{{$channel_hash}}')
+			$('#event_submit').hide();
+		else
+			$('#event_submit').html('{{$update}}');
 	}
 });
 

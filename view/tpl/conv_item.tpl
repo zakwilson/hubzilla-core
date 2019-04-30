@@ -1,3 +1,15 @@
+<script>
+function doreply(parent, ident, owner, name) {
+	var form = $('#comment-edit-form-' + parent.toString());
+	form.find('input[name=parent]').val(ident);
+	var i = form.find('button[type=submit]');
+	var btn = i.html().replace(/<[^>]*>/g, '').trim();
+	i.html('<i class="fa fa-reply" ></i> ' + btn);
+	i.prop('title', '{{$item.reply_to.2}} ' + name);
+	form.find('textarea').val("@{" + owner + "}\n");
+	$('#comment-edit-text-' + parent.toString()).focus();
+}
+</script>
 {{if $item.comment_firstcollapsed}}
 <div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
 	<span id="hide-comments-{{$item.id}}" class="hide-comments">{{$item.hide_text}}</span>&nbsp;<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>

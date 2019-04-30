@@ -1146,7 +1146,7 @@ function dolike(ident, verb) {
 function doreply(parent, ident, owner) {
 	form = $('#comment-edit-form-' + parent.toString());
 	form.find('input[name=parent]').val(ident);
-	var btn = form.find('button[type=submit]').html();
+	var btn = form.find('button[type=submit]').html().replace(/<[^>]*>/g, '').trim();
 	form.find('button[type=submit]').html('<i class="fa fa-reply" ></i> ' + btn);
 	form.find('textarea').val("@{" + owner + "}\n");
 	$('#comment-edit-text-' + parent.toString()).focus();

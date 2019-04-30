@@ -309,6 +309,10 @@ $(document).ready(function() {
 
 	if(resource !== null) {
 		$('.section-content-tools-wrapper, #event_form_wrapper').show();
+
+		$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
+		$('#l2s').html('<a href="' + resource.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + resource.plink[1] + '</a>');
+
 		event_id = resource.id;
 		event_uri = resource.event_hash;
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);

@@ -905,25 +905,26 @@ class Cdav extends Controller {
 			head_add_js('/library/fullcalendar/packages/list/main.min.js');
 
 			$sources = '';
-			$iid = '';
+			$resource_id = '';
 			$resource = null;
 
-			if(argc() == 3 && intval(argv(2)))
-				$iid = argv(2);
+			if(argc() == 3)
+				$resource_id = argv(2);
 
-			if($iid) {
-				$r = q("SELECT event.*, item.author_xchan, item.owner_xchan, item.id as item_id FROM item LEFT JOIN event ON item.resource_id = event.event_hash
-					WHERE item.id = %d AND item.uid = %d LIMIT 1",
-					dbesc($iid),
-					intval(local_channel())
+			if($resource_id) {
+				$r = q("SELECT event.*, item.author_xchan, item.owner_xchan, item.plink, item.id as item_id FROM event LEFT JOIN item ON event.event_hash = item.resource_id
+					WHERE event.uid = %d AND event.event_hash = '%s' LIMIT 1",
+					intval(local_channel()),
+					dbesc($resource_id)
 				);
-
 				if($r) {
 					xchan_query($r);
 					$r = fetch_post_tags($r,true);
 
 					$r[0]['dtstart'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtstart'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtstart'],'c'));
 					$r[0]['dtend'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtend'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtend'],'c'));
+
+					$r[0]['plink'] = [$r[0]['plink'], t('Link to source')];
 
 					$resource = $r[0];
 
@@ -940,6 +941,12 @@ class Cdav extends Controller {
 						}
 					}
 
+					if($r[0]['dismissed'] == 0) {
+						q("UPDATE event SET dismissed = 1 WHERE event.uid = %d AND event.event_hash = '%s'",
+							intval(local_channel()),
+							dbesc($resource_id)
+						);
+					}
 				}
 			}
 

@@ -570,7 +570,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'is_first'=>$is_first,
 						'item'=>$rr,
 						'html'=>$html,
-						'plink' => array($rr['plink'],t('Link to Source'),'',''),
+						'plink' => [$rr['plink'], t('Link to source')],
 
 						'description' => $rr['description'],
 						'location' => $rr['location'],

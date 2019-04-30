@@ -305,7 +305,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply on this comment"), t("reply"));
+			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
 		}
 
 		if ($shareable) {

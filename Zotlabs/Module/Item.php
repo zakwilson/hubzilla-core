@@ -1164,7 +1164,7 @@ class Item extends Controller {
 						'verb'         => ACTIVITY_POST,
 						'otype'        => 'item',
 						'parent'       => $parent,
-						'parent_mid'   => $parent_item['mid'];
+						'parent_mid'   => $parent_item['mid']
 					));
 				
 				}

@@ -329,13 +329,13 @@ class Item extends Controller {
 				$obj_type = ACTIVITY_OBJ_COMMENT;
 	
 			if($parent) {
-				// Get commented post data
-				$rr = q("SELECT parent, mid FROM item WHERE id = %d LIMIT 1",
+				// Get replied comment data
+				$reply = q("SELECT parent, mid FROM item WHERE id = %d LIMIT 1",
 					intval($parent)
 				);
 				// and its parent
 				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
-					intval($rr[0]['parent'])
+					intval($reply[0]['parent'])
 				);
 			}
 			elseif($parent_mid && $uid) {
@@ -379,7 +379,7 @@ class Item extends Controller {
 
 			// multi-level threading - preserve the info but re-parent to our single level threading
 	
-			$thr_parent = $parent_mid;
+			$thr_parent = $reply[0]['mid'];
 	
 			$route = $parent_item['route'];
 	
@@ -915,7 +915,7 @@ class Item extends Controller {
 		}
 	
 		if($parent_item)
-			$parent_mid = $rr[0]['mid'];
+			$parent_mid = $parent_item['mid'];
 
 
 		// Fallback so that we alway have a thr_parent
@@ -1164,7 +1164,7 @@ class Item extends Controller {
 						'verb'         => ACTIVITY_POST,
 						'otype'        => 'item',
 						'parent'       => $parent,
-						'parent_mid'   => $rr[0]['mid']
+						'parent_mid'   => $parent_item['mid'];
 					));
 				
 				}

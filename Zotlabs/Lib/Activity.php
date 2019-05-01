@@ -195,6 +195,13 @@ class Activity {
 				if(! $ev['nofinish']) {
 					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
 				}
+				
+				// copy attachments from the passed object - these are already formatted for ActivityStreams
+
+				if($x['attachment']) {
+					$y['attachment'] = $x['attachment'];
+				}
+
 				if($actor) {
 					return $y;
 				}
@@ -303,7 +310,7 @@ class Activity {
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 		}
 
 		if($i['mimetype'] === 'text/bbcode') {
@@ -404,7 +411,7 @@ class Activity {
 		$ret = [];
 
 		if($item['attach']) {
-			$atts = json_decode($item['attach'],true);
+			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'],true));
 			if($atts) {
 				foreach($atts as $att) {
 					if(strpos($att['type'],'image')) {
@@ -416,7 +423,7 @@ class Activity {
 				}
 			}
 		}
-
+		
 		return $ret;
 	}
 
@@ -502,7 +509,7 @@ class Activity {
 		}
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			$reply = true;
 
 			if($i['item_private']) {

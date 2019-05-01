@@ -125,10 +125,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 			//goaway($onerror_url);
 		}
-	
-		//		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
-
-		$share = 1;	
 
 		$channel = \App::get_channel();
 	
@@ -152,23 +148,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 			$created = $x[0]['created'];
 			$edited = datetime_convert();
-	
-			if($x[0]['allow_cid'] === '<' . $channel['channel_hash'] . '>' 
-				&& $x[0]['allow_gid'] === '' && $x[0]['deny_cid'] === '' && $x[0]['deny_gid'] === '') {
-				$share = false;
-			}
-			else {
-				$share = true;
-			}
 		}
 		else {
 			$created = $edited = datetime_convert();
-			if($share) {
-				$acl->set_from_array($_POST);
-			}
-			else {
-				$acl->set(array('allow_cid' => '<' . $channel['channel_hash'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''));
-			}
+			$acl->set_from_array($_POST);
 		}
 	
 		$post_tags = array();
@@ -239,8 +222,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		if($share)
-			\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
+		\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
 
 		killme();
 	

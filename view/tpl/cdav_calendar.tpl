@@ -6,6 +6,7 @@ var views = {'dayGridMonth' : '{{$month}}', 'timeGridWeek' : '{{$week}}', 'timeG
 
 var event_id;
 var event_uri;
+var event_xchan;
 
 var contact_allow = [];
 var group_allow = [];
@@ -128,6 +129,7 @@ $(document).ready(function() {
 				$('#event_submit').val('update_event').html('{{$update}}');
 				$('#dbtn-acl').addClass('d-none');
 				event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+				event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
 
 				contact_allow = event.extendedProps.contact_allow || [];
 				group_allow = event.extendedProps.group_allow || [];
@@ -144,7 +146,7 @@ $(document).ready(function() {
 					$('#id_description').attr('disabled', false);
 					$('#id_location').attr('disabled', false);
 
-					if(calendar_id == 'channel_calendar' && !event.ui.startEditable) {
+					if(calendar_id === 'channel_calendar' && !event.ui.startEditable) {
 						$('#event_submit').hide();
 					}
 				}
@@ -177,12 +179,13 @@ $(document).ready(function() {
 			$('#id_dtend').val(dtend.toUTCString());
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
 
 			if(event.extendedProps.calendar_id === 'channel_calendar') {
 				$.post( 'channel_calendar', {
 					'event_id': event_id,
 					'event_hash': event_uri,
-					'xchan': '{{$channel_hash}}',
+					'xchan': event_xchan,
 					//'mid': mid,
 					'type': 'event',
 					'preview': 0,
@@ -224,12 +227,13 @@ $(document).ready(function() {
 			$('#id_dtend').val(dtend.toUTCString());
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
 
 			if(event.extendedProps.calendar_id === 'channel_calendar') {
 				$.post( 'channel_calendar', {
 					'event_id': event_id,
 					'event_hash': event_uri,
-					'xchan': '{{$channel_hash}}',
+					'xchan': event_xchan,
 					//'mid': mid,
 					'type': 'event',
 					'preview': 0,
@@ -315,6 +319,8 @@ $(document).ready(function() {
 
 		event_id = resource.id;
 		event_uri = resource.event_hash;
+		event_xchan = resource.event_xchan;
+
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
 		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
@@ -323,7 +329,7 @@ $(document).ready(function() {
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
 
-		if(resource.event_xchan !== '{{$channel_hash}}')
+		if(event_xchan !== '{{$channel_hash}}')
 			$('#event_submit').hide();
 		else
 			$('#event_submit').html('{{$update}}');
@@ -380,7 +386,7 @@ function updateSize() {
 }
 
 function on_submit() {
-	if($('#calendar_select').val() == 'channel_calendar') {
+	if($('#calendar_select').val() === 'channel_calendar') {
 		if(new_event_id) {
 			$("input[name='contact_allow[]']").each(function() {
 			    contact_allow.push($(this).val());
@@ -399,7 +405,7 @@ function on_submit() {
 		$.post( 'channel_calendar', {
 			'event_id': event_id,
 			'event_hash': event_uri,
-			'xchan': '{{$channel_hash}}',
+			'xchan': event_xchan,
 			//'mid': mid,
 			'type': 'event',
 			'preview': 0,
@@ -447,7 +453,7 @@ function on_submit() {
 }
 
 function on_delete() {
-	if($('#calendar_select').val() == 'channel_calendar') {
+	if($('#calendar_select').val() === 'channel_calendar') {
 		$.get('channel_calendar/drop/' + event_uri, function() {
 			var eventSource = calendar.getEventSourceById('channel_calendar');
 			eventSource.refetch();

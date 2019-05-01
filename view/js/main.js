@@ -1148,6 +1148,16 @@ function doprofilelike(ident, verb) {
 	$.get('like/' + ident + '?verb=' + verb, function() { window.location.href=window.location.href; });
 }
 
+function doreply(parent, ident, owner, hint) {
+	var form = $('#comment-edit-form-' + parent.toString());
+	form.find('input[name=parent]').val(ident);
+	var i = form.find('button[type=submit]');
+	var btn = i.html().replace(/<[^>]*>/g, '').trim();
+	i.html('<i class="fa fa-reply" ></i> ' + btn);
+	i.prop('title', hint);
+	form.find('textarea').val("@{" + owner + "}\n");
+	$('#comment-edit-text-' + parent.toString()).focus();
+}
 
 function dropItem(url, object) {
 

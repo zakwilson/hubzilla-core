@@ -216,7 +216,7 @@ class Item extends Controller {
 	
 		$parent = ((x($_REQUEST,'parent')) ? intval($_REQUEST['parent']) : 0);
 		$parent_mid = ((x($_REQUEST,'parent_mid')) ? trim($_REQUEST['parent_mid']) : '');
-
+	
 		$remote_xchan = ((x($_REQUEST,'remote_xchan')) ? trim($_REQUEST['remote_xchan']) : false);
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($remote_xchan)
@@ -329,13 +329,8 @@ class Item extends Controller {
 				$obj_type = ACTIVITY_OBJ_COMMENT;
 	
 			if($parent) {
-				// Get replied comment data
-				$reply = q("SELECT parent, mid FROM item WHERE id = %d LIMIT 1",
-					intval($parent)
-				);
-				// and its parent
 				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
-					intval($reply[0]['parent'])
+					intval($parent)
 				);
 			}
 			elseif($parent_mid && $uid) {
@@ -379,7 +374,7 @@ class Item extends Controller {
 
 			// multi-level threading - preserve the info but re-parent to our single level threading
 	
-			$thr_parent = $reply[0]['mid'];
+			$thr_parent = $parent_mid;
 	
 			$route = $parent_item['route'];
 	
@@ -918,6 +913,7 @@ class Item extends Controller {
 			$parent_mid = $parent_item['mid'];
 
 
+
 		// Fallback so that we alway have a thr_parent
 	
 		if(!$thr_parent)
@@ -1018,7 +1014,7 @@ class Item extends Controller {
 		$datarray['term']                = $post_tags;
 		$datarray['plink']               = $plink;
 		$datarray['route']               = $route;
-
+	
 
 		// A specific ACL over-rides public_policy completely
  

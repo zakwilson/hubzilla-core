@@ -103,8 +103,14 @@ class Directory extends \Zotlabs\Web\Controller {
 		$suggest = (local_channel() && x($_REQUEST,'suggest')) ? $_REQUEST['suggest'] : '';
 	
 		if($suggest) {
-	
-			$r = suggestion_query(local_channel(),get_observer_hash());
+
+			// the directory options have no effect in suggestion mode
+			
+			$globaldir = 1;
+			$safe_mode = 1;
+			$type = 0;
+
+			$r = suggestion_query(local_channel(),get_observer_hash(),0,60);
 
 			if(! $r) {
 				notice( t('No default suggestions were found.') . EOL);

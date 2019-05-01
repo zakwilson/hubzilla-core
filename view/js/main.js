@@ -231,6 +231,10 @@ function handle_comment_form(e) {
 			$('#' + emptyCommentElm).removeAttr('tabindex');
 			$('#' + emptySubmitElm).removeAttr('tabindex');
 			form.find(':not(.comment-edit-text)').hide();
+			form.find(':input[name=parent]').val(emptyCommentElm.replace(/\D/g,''));
+			var btn = form.find(':button[type=submit]').html();
+			form.find(':button[type=submit]').html(btn.replace(/<[^>]*>/g, '').trim());
+			form.find(':button[type=submit]').prop('title', '');
 		}
 	});
 	
@@ -1144,6 +1148,16 @@ function doprofilelike(ident, verb) {
 	$.get('like/' + ident + '?verb=' + verb, function() { window.location.href=window.location.href; });
 }
 
+function doreply(parent, ident, owner, hint) {
+	var form = $('#comment-edit-form-' + parent.toString());
+	form.find('input[name=parent]').val(ident);
+	var i = form.find('button[type=submit]');
+	var btn = i.html().replace(/<[^>]*>/g, '').trim();
+	i.html('<i class="fa fa-reply" ></i> ' + btn);
+	i.prop('title', hint);
+	form.find('textarea').val("@{" + owner + "}\n");
+	$('#comment-edit-text-' + parent.toString()).focus();
+}
 
 function dropItem(url, object) {
 

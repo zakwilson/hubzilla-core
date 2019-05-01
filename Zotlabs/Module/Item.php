@@ -216,7 +216,7 @@ class Item extends Controller {
 	
 		$parent = ((x($_REQUEST,'parent')) ? intval($_REQUEST['parent']) : 0);
 		$parent_mid = ((x($_REQUEST,'parent_mid')) ? trim($_REQUEST['parent_mid']) : '');
-	
+
 		$remote_xchan = ((x($_REQUEST,'remote_xchan')) ? trim($_REQUEST['remote_xchan']) : false);
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($remote_xchan)
@@ -329,8 +329,13 @@ class Item extends Controller {
 				$obj_type = ACTIVITY_OBJ_COMMENT;
 	
 			if($parent) {
-				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
+				// Get commented post data
+				$rr = q("SELECT parent, mid FROM item WHERE id = %d LIMIT 1",
 					intval($parent)
+				);
+				// and its parent
+				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
+					intval($rr[0]['parent'])
 				);
 			}
 			elseif($parent_mid && $uid) {
@@ -910,8 +915,7 @@ class Item extends Controller {
 		}
 	
 		if($parent_item)
-			$parent_mid = $parent_item['mid'];
-
+			$parent_mid = $rr[0]['mid'];
 
 
 		// Fallback so that we alway have a thr_parent
@@ -1014,7 +1018,7 @@ class Item extends Controller {
 		$datarray['term']                = $post_tags;
 		$datarray['plink']               = $plink;
 		$datarray['route']               = $route;
-	
+
 
 		// A specific ACL over-rides public_policy completely
  
@@ -1160,7 +1164,7 @@ class Item extends Controller {
 						'verb'         => ACTIVITY_POST,
 						'otype'        => 'item',
 						'parent'       => $parent,
-						'parent_mid'   => $parent_item['mid']
+						'parent_mid'   => $rr[0]['mid']
 					));
 				
 				}

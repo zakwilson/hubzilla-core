@@ -305,6 +305,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
+			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
 		}
 
 		if ($shareable) {
@@ -348,9 +349,6 @@ class ThreadItem {
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
 		
 		
-
-		
-
 		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
@@ -373,6 +371,8 @@ class ThreadItem {
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
 			'mid' => $item['mid'],
+			'parent' => $item['parent'],
+			'author_id' => $item['author']['xchan_addr'],
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'consensus' => $consensus,
@@ -425,9 +425,10 @@ class ThreadItem {
 			'has_tags' => $has_tags,
 			'reactions' => $this->reactions,
 // Item toolbar buttons
-			'emojis'   => (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
+			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
+			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
 			'share'     => $share,
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
@@ -869,4 +870,3 @@ class ThreadItem {
 
 
 }
-

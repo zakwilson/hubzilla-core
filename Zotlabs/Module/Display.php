@@ -265,7 +265,7 @@ class Display extends \Zotlabs\Web\Controller {
 			$sysid = $sys['channel_id'];
 
 			if(local_channel()) {
-				$r = q("SELECT item.id as item_id from item WHERE uid = %d and mid = '%s' $item_normal limit 1",
+				$r = q("SELECT item.parent as item_id from item WHERE uid = %d and mid = '%s' $item_normal limit 1",
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);

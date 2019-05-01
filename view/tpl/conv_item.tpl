@@ -1,15 +1,3 @@
-<script>
-function doreply(parent, ident, owner, name) {
-	var form = $('#comment-edit-form-' + parent.toString());
-	form.find('input[name=parent]').val(ident);
-	var i = form.find('button[type=submit]');
-	var btn = i.html().replace(/<[^>]*>/g, '').trim();
-	i.html('<i class="fa fa-reply" ></i> ' + btn);
-	i.prop('title', '{{$item.reply_to.2}} ' + name);
-	form.find('textarea').val("@{" + owner + "}\n");
-	$('#comment-edit-text-' + parent.toString()).focus();
-}
-</script>
 {{if $item.comment_firstcollapsed}}
 <div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
 	<span id="hide-comments-{{$item.id}}" class="hide-comments">{{$item.hide_text}}</span>&nbsp;<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>
@@ -115,7 +103,7 @@ function doreply(parent, ident, owner, name) {
 							</button>
 							{{/if}}
 							{{if $item.reply_to}}
-							<button type="button" title="{{$item.reply_to.0}}" class="btn btn-outline-secondary btn-sm" onclick="doreply({{$item.parent}},{{$item.id}},'{{$item.author_id}}'); return false;">
+							<button type="button" title="{{$item.reply_to.0}}" class="btn btn-outline-secondary btn-sm" onclick="doreply({{$item.parent}},{{$item.id}},'{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name}}'); return false;">
 								<i class="fa fa-reply" ></i>
 							</button>
 							{{/if}}

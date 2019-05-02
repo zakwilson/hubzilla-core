@@ -22,7 +22,7 @@ class Cdav {
 
 		$o = '';
 
-		if(argc() == 2 && argv(1) === 'calendar') {
+		if(argc() <= 3 && argv(1) === 'calendar') {
 
 			$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
 
@@ -113,10 +113,22 @@ class Cdav {
 				}
 			}
 
+			$channel_calendars[] = [
+				'ownernick' => $channel['channel_address'],
+				'displayname' => $channel['channel_name'],
+				'calendarid' => 'channel_calendar',
+				'json_source' => '/channel_calendar/json',
+				'color' => '#3a87ad',
+				'editable' => true,
+				'switch' => get_pconfig(local_channel(), 'cdav_calendar', 'channel_calendar')
+			];
+
 			$o .= replace_macros(get_markup_template('cdav_widget_calendar.tpl'), [
-				'$my_calendars_label' => t('My Calendars'),
+				'$channel_calendars_label' => t('Channel Calendar'),
+				'$channel_calendars' => $channel_calendars,
+				'$my_calendars_label' => t('CalDAV Calendars'),
 				'$my_calendars' => $my_calendars,
-				'$shared_calendars_label' => t('Shared Calendars'),
+				'$shared_calendars_label' => t('Shared CalDAV Calendars'),
 				'$shared_calendars' => $shared_calendars,
 				'$sharee_options' => $sharee_options,
 				'$access_options' => $access_options,
@@ -127,7 +139,7 @@ class Cdav {
 				'$create_label' => t('Create new calendar'),
 				'$create' => t('Create'),
 				'$create_placeholder' => t('Calendar Name'),
-				'$tools_label' => t('Calendar Tools'),
+				'$tools_label' => t('CalDAV Calendar Tools'),
 				'$import_label' => t('Import calendar'),
 				'$import_placeholder' => t('Select a calendar to import to'),
 				'$upload' => t('Upload'),

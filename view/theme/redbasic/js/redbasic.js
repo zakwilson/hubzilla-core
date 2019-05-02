@@ -21,7 +21,8 @@ $(document).ready(function() {
 		$('#left_aside_wrapper, #right_aside_wrapper').stick_in_parent({
 			offset_top: parseInt($('aside').css('padding-top')),
 			parent: 'main',
-			spacer: '.aside_spacer'
+			spacer: '.aside_spacer',
+			recalc_every: 10
 		});
 	}
 

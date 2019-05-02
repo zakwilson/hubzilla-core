@@ -38,6 +38,7 @@ class ThreadItem {
 				
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
+		$this->threaded = get_config('system','thread_allow',((defined('NOMADIC')) ? false : true));
 
 		$observer = \App::get_observer();
 

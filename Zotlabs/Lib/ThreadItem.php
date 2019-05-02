@@ -38,7 +38,7 @@ class ThreadItem {
 				
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
-		$this->threaded = feature_enabled($conv->get_profile_owner(),'reply_to');
+		$this->threaded = get_config('system','thread_allow');
 
 		$observer = \App::get_observer();
 

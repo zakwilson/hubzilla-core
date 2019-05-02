@@ -373,7 +373,7 @@ class ThreadItem {
 			'id' => $this->get_id(),
 			'mid' => $item['mid'],
 			'parent' => $item['parent'],
-			'author_id' => $item['author']['xchan_addr'],
+			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'consensus' => $consensus,

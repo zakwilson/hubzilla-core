@@ -22,7 +22,7 @@ class Cdav {
 
 		$o = '';
 
-		if(argc() == 2 && argv(1) === 'calendar') {
+		if(argc() <= 3 && argv(1) === 'calendar') {
 
 			$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
 

@@ -125,10 +125,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 			//goaway($onerror_url);
 		}
-	
-		//		$share = ((intval($_POST['distr'])) ? intval($_POST['distr']) : 0);
-
-		$share = 1;	
 
 		$channel = \App::get_channel();
 	
@@ -152,23 +148,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 			$created = $x[0]['created'];
 			$edited = datetime_convert();
-	
-			if($x[0]['allow_cid'] === '<' . $channel['channel_hash'] . '>' 
-				&& $x[0]['allow_gid'] === '' && $x[0]['deny_cid'] === '' && $x[0]['deny_gid'] === '') {
-				$share = false;
-			}
-			else {
-				$share = true;
-			}
 		}
 		else {
 			$created = $edited = datetime_convert();
-			if($share) {
-				$acl->set_from_array($_POST);
-			}
-			else {
-				$acl->set(array('allow_cid' => '<' . $channel['channel_hash'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''));
-			}
+			$acl->set_from_array($_POST);
 		}
 	
 		$post_tags = array();
@@ -239,8 +222,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		if($share)
-			\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
+		\Zotlabs\Daemon\Master::Summon(array('Notifier','event',$item_id));
 
 		killme();
 	
@@ -524,6 +506,14 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						}
 					}
 
+					$allDay = false;
+
+					// allDay event rules
+					if(!strpos($start, 'T') && !strpos($end, 'T'))
+						$allDay = true;
+					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
+						$allDay = true;
+
 					$is_first = ($d !== $last_date);
 						
 					$last_date = $d;
@@ -550,17 +540,18 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => false,
+						'allDay' => $allDay,
 						'title' => $title,
 						
 						'j' => $j,
 						'd' => $d,
-						'is_editable' => $edit ? true : false,
+
+						'editable' => $edit ? true : false,
 
 						'is_first'=>$is_first,
 						'item'=>$rr,
 						'html'=>$html,
-						'plink' => array($rr['plink'],t('Link to Source'),'',''),
+						'plink' => [$rr['plink'], t('Link to source')],
 
 						'description' => $rr['description'],
 						'location' => $rr['location'],

@@ -6,11 +6,16 @@ var views = {'dayGridMonth' : '{{$month}}', 'timeGridWeek' : '{{$week}}', 'timeG
 
 var event_id;
 var event_uri;
+var event_xchan;
 
 var contact_allow = [];
 var group_allow = [];
 var contact_deny = [];
 var group_deny = [];
+
+var resource = {{$resource}};
+var default_view = resource !== null ? 'timeGridDay' : 'dayGridMonth';
+var default_date = resource !== null ? new Date(resource.dtstart) : new Date();
 
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
@@ -28,6 +33,9 @@ $(document).ready(function() {
 		height: 'auto',
 		
 		firstDay: {{$first_day}},
+
+		defaultView: default_view,
+		defaultDate: default_date,
 
 		monthNames: aStr['monthNames'],
 		monthNamesShort: aStr['monthNamesShort'],
@@ -75,7 +83,7 @@ $(document).ready(function() {
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			console.log(event.extendedProps.categories);
+
 			if(event.extendedProps.plink) {
 				if(! $('#l2s').length)
 					$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
@@ -121,6 +129,7 @@ $(document).ready(function() {
 				$('#event_submit').val('update_event').html('{{$update}}');
 				$('#dbtn-acl').addClass('d-none');
 				event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+				event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
 
 				contact_allow = event.extendedProps.contact_allow || [];
 				group_allow = event.extendedProps.group_allow || [];
@@ -137,8 +146,7 @@ $(document).ready(function() {
 					$('#id_description').attr('disabled', false);
 					$('#id_location').attr('disabled', false);
 
-					if(calendar_id == 'channel_calendar' && !event.extendedProps.is_editable) {
-						console.log(calendar_id)
+					if(calendar_id === 'channel_calendar' && !event.ui.startEditable) {
 						$('#event_submit').hide();
 					}
 				}
@@ -161,7 +169,7 @@ $(document).ready(function() {
 		},
 		
 		eventResize: function(info) {
-			
+
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
@@ -170,16 +178,42 @@ $(document).ready(function() {
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
 
-			$.post( 'cdav/calendar', {
-				'update': 'resize',
-				'id[]': event.extendedProps.calendar_id,
-				'uri': event.extendedProps.uri,
-				'dtstart': dtstart ? dtstart.toUTCString() : '',
-				'dtend': dtend ? dtend.toUTCString() : ''
-			})
-			.fail(function() {
-				info.revert();
-			});
+			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
+
+			if(event.extendedProps.calendar_id === 'channel_calendar') {
+				$.post( 'channel_calendar', {
+					'event_id': event_id,
+					'event_hash': event_uri,
+					'xchan': event_xchan,
+					//'mid': mid,
+					'type': 'event',
+					'preview': 0,
+					'summary': event.title,
+					'dtstart': dtstart.toUTCString(),
+					'dtend': dtend.toUTCString(),
+					'adjust': event.extendedProps.item.adjust,
+					'categories': event.extendedProps.categories,
+					'desc': event.extendedProps.description,
+					'location': event.extendedProps.location,
+					//'submit': $('#event_submit').val()
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
+			else {
+				$.post( 'cdav/calendar', {
+					'update': 'resize',
+					'id[]': event.extendedProps.calendar_id,
+					'uri': event.extendedProps.uri,
+					'dtstart': dtstart ? dtstart.toUTCString() : '',
+					'dtend': dtend ? dtend.toUTCString() : ''
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
 		},
 		
 		eventDrop: function(info) {
@@ -191,19 +225,45 @@ $(document).ready(function() {
 			$('#id_title').val(event.title);
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
-		
-			$.post( 'cdav/calendar', {
-				'update': 'drop',
-				'id[]': event.extendedProps.calendar_id,
-				'uri': event.extendedProps.uri,
-				'dtstart': dtstart ? dtstart.toUTCString() : '',
-				'dtend': dtend ? dtend.toUTCString() : ''
-			})
-			.fail(function() {
-				info.revert();
-			});
+
+			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
+			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
+
+			if(event.extendedProps.calendar_id === 'channel_calendar') {
+				$.post( 'channel_calendar', {
+					'event_id': event_id,
+					'event_hash': event_uri,
+					'xchan': event_xchan,
+					//'mid': mid,
+					'type': 'event',
+					'preview': 0,
+					'summary': event.title,
+					'dtstart': dtstart.toUTCString(),
+					'dtend': dtend.toUTCString(),
+					'adjust': event.extendedProps.item.adjust,
+					'categories': event.extendedProps.categories,
+					'desc': event.extendedProps.description,
+					'location': event.extendedProps.location,
+					//'submit': $('#event_submit').val()
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
+			else {
+				$.post( 'cdav/calendar', {
+					'update': 'drop',
+					'id[]': event.extendedProps.calendar_id,
+					'uri': event.extendedProps.uri,
+					'dtstart': dtstart ? dtstart.toUTCString() : '',
+					'dtend': dtend ? dtend.toUTCString() : ''
+				})
+				.fail(function() {
+					info.revert();
+				});
+			}
 		},
-		
+
 		loading: function(isLoading, view) {
 			$('#events-spinner').show();
 			$('#today-btn > i').hide();
@@ -216,7 +276,7 @@ $(document).ready(function() {
 	});
 	
 	calendar.render();
-	
+
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
 	
@@ -250,6 +310,30 @@ $(document).ready(function() {
 	$(document).on('click','#event_more', on_more);
 	$(document).on('click','#event_cancel, #event_cancel_recurrent', reset_form);
 	$(document).on('click','#event_delete, #event_delete_recurrent', on_delete);
+
+	if(resource !== null) {
+		$('.section-content-tools-wrapper, #event_form_wrapper').show();
+
+		$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
+		$('#l2s').html('<a href="' + resource.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + resource.plink[1] + '</a>');
+
+		event_id = resource.id;
+		event_uri = resource.event_hash;
+		event_xchan = resource.event_xchan;
+
+		$('#calendar_select').val('channel_calendar').attr('disabled', true);
+		$('#id_title').val(resource.summary);
+		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
+		$('#id_dtend').val(new Date(resource.dtend).toUTCString());
+		$('#id_categories').tagsinput('add', '{{$categories}}'),
+		$('#id_description').val(resource.description);
+		$('#id_location').val(resource.location);
+
+		if(event_xchan !== '{{$channel_hash}}')
+			$('#event_submit').hide();
+		else
+			$('#event_submit').html('{{$update}}');
+	}
 });
 
 
@@ -302,7 +386,7 @@ function updateSize() {
 }
 
 function on_submit() {
-	if($('#calendar_select').val() == 'channel_calendar') {
+	if($('#calendar_select').val() === 'channel_calendar') {
 		if(new_event_id) {
 			$("input[name='contact_allow[]']").each(function() {
 			    contact_allow.push($(this).val());
@@ -321,7 +405,7 @@ function on_submit() {
 		$.post( 'channel_calendar', {
 			'event_id': event_id,
 			'event_hash': event_uri,
-			'xchan': '{{$channel_hash}}',
+			'xchan': event_xchan,
 			//'mid': mid,
 			'type': 'event',
 			'preview': 0,
@@ -332,21 +416,12 @@ function on_submit() {
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
-			'submit': $('#event_submit').val(),
+			//'submit': $('#event_submit').val(),
 			'contact_allow[]': contact_allow,
 			'group_allow[]': group_allow,
 			'contact_deny[]': contact_deny,
 			'group_deny[]': group_deny
-/*
-			'submit': $('#event_submit').val(),
-			'target': $('#calendar_select').val(),
-			'uri': $('#event_uri').val(),
-			'title': $('#id_title').val(),
-			'dtstart': $('#id_dtstart').val(),
-			'dtend': $('#id_dtend').val(),
-			'description': $('#id_description').val(),
-			'location': $('#id_location').val()
-*/
+
 		})
 		.done(function() {
 			var eventSource = calendar.getEventSourceById('channel_calendar');
@@ -378,7 +453,7 @@ function on_submit() {
 }
 
 function on_delete() {
-	if($('#calendar_select').val() == 'channel_calendar') {
+	if($('#calendar_select').val() === 'channel_calendar') {
 		$.get('channel_calendar/drop/' + event_uri, function() {
 			var eventSource = calendar.getEventSourceById('channel_calendar');
 			eventSource.refetch();

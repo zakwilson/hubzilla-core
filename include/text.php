@@ -409,7 +409,8 @@ function autoname($len) {
  * @return string Escaped text.
  */
 function xmlify($str) {
-	$buffer = '';
+
+	//$buffer = '';
 
 	if(is_array($str)) {
 
@@ -418,7 +419,7 @@ function xmlify($str) {
 
 		btlogger('xmlify called with array: ' . print_r($str,true), LOGGER_NORMAL, LOG_WARNING);
 	}
-
+/*
 	$len = mb_strlen($str);
 	for($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
@@ -452,6 +453,11 @@ function xmlify($str) {
 	$buffer = trim($buffer);
 
 	return($buffer);
+*/
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
+	$buffer = trim($buffer);
+	return $buffer;
+
 }
 
 /**
@@ -464,9 +470,13 @@ function xmlify($str) {
  * @return string
  */
 function unxmlify($s) {
+/*
 	$ret = str_replace('&amp;', '&', $s);
 	$ret = str_replace(array('&lt;', '&gt;', '&quot;', '&apos;'), array('<', '>', '"', "'"), $ret);
 
+	return $ret;
+*/
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;
 }
 

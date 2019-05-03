@@ -59,6 +59,14 @@ class React extends \Zotlabs\Web\Controller {
 			$n['body'] = "\n\n[zmg=32x32]" . z_root() . '/images/emoji/' . $emoji . '.png[/zmg]' . "\n\n";
 			$n['author_xchan'] = $channel['channel_hash'];
 
+			$n['tgt_type'] = 'Image';
+			$n['target'] = [
+				'type' => 'Image',
+				'name' => $emoji,
+				'url'  => z_root() . '/images/emoji/' . $emoji . '.png'
+			];
+
+
 			$x = item_store($n); 
 
 			retain_item($postid);

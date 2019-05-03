@@ -384,7 +384,7 @@ function contact_remove($channel_id, $abook_id) {
 			
 			// if this isn't the parent, see if the conversation was retained
 			if($rr['id'] != $rr['parent']) {
-				$w = q("select id from item where parent = %d and item_retained = 0",
+				$w = q("select id from item where id = %d and item_retained = 0",
 					intval($rr['parent'])
 				);
 				if($w) {

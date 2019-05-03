@@ -1155,7 +1155,7 @@ function doreply(parent, ident, owner, hint) {
 	var btn = i.html().replace(/<[^>]*>/g, '').trim();
 	i.html('<i class="fa fa-reply" ></i> ' + btn);
 	i.prop('title', hint);
-	form.find('textarea').val("@{" + owner + "}\n");
+	form.find('textarea').val("@{" + owner + "} ");
 	$('#comment-edit-text-' + parent.toString()).focus();
 }
 

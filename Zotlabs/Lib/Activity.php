@@ -566,6 +566,7 @@ class Activity {
 				return [];
 		}
 
+
 		if($i['target']) {
 			if(! is_array($i['target'])) {
 				$i['target'] = json_decode($i['target'],true);
@@ -710,7 +711,7 @@ class Activity {
 		// Reactions will just map to normal activities
 
 		if(strpos($verb,ACTIVITY_REACT) !== false)
-			return 'Create';
+			return 'emojiReaction';
 		if(strpos($verb,ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -1486,7 +1487,7 @@ class Activity {
 		}
 
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept' ])) {
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
 
@@ -1527,6 +1528,9 @@ class Activity {
 			if($act->type === 'Announce') {
 				$content['content'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
+			if ($act->type === 'emojiReaction') {
+				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
+			}			
 		}
 
 		if(! $s['created'])

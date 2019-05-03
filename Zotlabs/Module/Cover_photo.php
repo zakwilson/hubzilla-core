@@ -68,7 +68,10 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				if($sync)
 				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 			}
-			
+
+			// Update directory in background
+			\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
+
 			goaway(z_root() . '/cover_photo');
 		}
 	        
@@ -228,7 +231,9 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
 					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
-	
+
+					// Update directory in background
+					\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
 				}
 				else
 					notice( t('Unable to process image') . EOL);

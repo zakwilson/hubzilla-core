@@ -710,7 +710,7 @@ class Activity {
 		// Reactions will just map to normal activities
 
 		if(strpos($verb,ACTIVITY_REACT) !== false)
-			return 'Create';
+			return 'emojiReaction';
 		if(strpos($verb,ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -1486,7 +1486,7 @@ class Activity {
 		}
 
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept' ])) {
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
 

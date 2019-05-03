@@ -379,12 +379,18 @@ function contact_remove($channel_id, $abook_id) {
 		intval($channel_id)
 	);
 	if($r) {
+		$already_saved = [];
 		foreach($r as $rr) {
 			$w = $x = $y = null;
 			
-			// if this isn't the parent, see if the conversation was retained
+			// optimise so we only process newly seen parent items
+			if (in_array($rr['parent'],$already_saved)) {
+				continue;
+			}
+			// if this isn't the parent, fetch the parent's item_retained  and item_starred to see if the conversation
+			// should be retained
 			if($rr['id'] != $rr['parent']) {
-				$w = q("select id from item where id = %d and item_retained = 0",
+				$w = q("select id, item_retained, item_starred from item where id = %d",
 					intval($rr['parent'])
 				);
 				if($w) {
@@ -394,6 +400,10 @@ function contact_remove($channel_id, $abook_id) {
 						intval($w[0]['id']),
 						intval(TERM_FILE)
 					);
+					if (intval($w[0]['item_retained']) || intval($w[0]['item_starred']) || $x) {
+						$already_saved[] = $rr['parent'];
+						continue;
+					}
 				}
 			}
 			// see if this item was filed
@@ -402,7 +412,7 @@ function contact_remove($channel_id, $abook_id) {
 				intval($rr['id']),
 				intval(TERM_FILE)
 			);
-			if($w || $x || $y) {
+			if ($y) {
 				continue;
 			}
 			drop_item($rr['id'],false);

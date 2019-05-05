@@ -1160,8 +1160,14 @@ function doreply(parent, ident, owner, hint) {
 }
 
 function doscroll(parent, hidden) {
-	$('.back-to-reply').remove();
-	var pos = $(window).scrollTop();
+	var back = $('.back-to-reply');
+	if(back.length == 0) {
+		var pos = Math.round($(window).scrollTop());
+	}
+	else {
+		var pos = back.attr('href').replace(/\D/g,'')
+	}
+	back.remove();
 	var x = '#hide-comments-outer-' + hidden.toString();
 	if($(x).length !== 0) {
 		x = $(x).attr("onclick").replace(/\D/g,'');

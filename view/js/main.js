@@ -1160,6 +1160,7 @@ function doreply(parent, ident, owner, hint) {
 }
 
 function doscroll(parent, hidden) {
+	$('.back-to-reply').remove();
 	var pos = $(window).scrollTop();
 	var x = '#hide-comments-outer-' + hidden.toString();
 	if($(x).length !== 0) {
@@ -1167,10 +1168,10 @@ function doscroll(parent, hidden) {
 		var c = '#collapsed-comments-' + x;
 		if($(c).length !== 0 && (! $(c).is(':visible'))) {
 			showHideComments(x);
-			pos += $('#collapsed-comments-' + x).height();
+			pos += $(c).height();
 		}
 	}
-	id = $('[data-mid="' + parent + '"]');
+	var id = $('[data-mid="' + parent + '"]');
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
 	$('<a href="javascript:doscrollback(' + pos + ');" class="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down float-right">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
 }

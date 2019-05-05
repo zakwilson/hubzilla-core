@@ -306,7 +306,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"), t("Go to previous comment"));
+			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
 		}
 
 		if ($shareable) {
@@ -428,6 +428,7 @@ class ThreadItem {
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
 			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
+			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],

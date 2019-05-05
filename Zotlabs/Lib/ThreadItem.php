@@ -306,7 +306,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
-			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
+			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"), t("Go to previous comment"));
 		}
 
 		if ($shareable) {
@@ -333,7 +333,6 @@ class ThreadItem {
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$is_new = true;
 
-
 		localize_item($item);
 
 		$body = prepare_body($item,true);
@@ -348,7 +347,6 @@ class ThreadItem {
 
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
-		
 		
 		$children = $this->get_children();
 
@@ -442,9 +440,8 @@ class ThreadItem {
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
 			'multidrop' => ((feature_enabled($conv->get_profile_owner(),'multi_delete')) ? $multidrop : ''),
-                        'dropdown_extras' => $dropdown_extras,
+			'dropdown_extras' => $dropdown_extras,
 // end toolbar buttons
-
 			'unseen_comments' => $unseen_comments,
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
@@ -471,7 +468,8 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'submid' => str_replace(['+','='], ['',''], base64_encode($item['mid'])),
 			'thread_level' => $thread_level,
-			'settings' => $settings
+			'settings' => $settings,
+			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? $item['thr_parent'] : '')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -816,7 +814,7 @@ class ThreadItem {
 			'$anonname' => [ 'anonname', t('Your full name (required)') ],
 			'$anonmail' => [ 'anonmail', t('Your email address (required)') ],
 			'$anonurl'  => [ 'anonurl',  t('Your website URL (optional)') ],
-			'$auto_save_draft' => $feature_auto_save_draft,
+			'$auto_save_draft' => $feature_auto_save_draft
 		));
 
 		return $comment_box;

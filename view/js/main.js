@@ -1160,15 +1160,12 @@ function doreply(parent, ident, owner, hint) {
 }
 
 function doscroll(parent, hidden) {
-	var back = $('.back-to-reply');
-	if(back.length == 0) {
-		var pos = Math.round($(window).scrollTop());
-	}
-	else {
-		var pos = back.attr('href').replace(/\D/g,'')
-	}
-	back.remove();
 	var x = '#hide-comments-outer-' + hidden.toString();
+	var back = $('.back-to-reply');
+	if(back.length == 0)
+		var pos = $(window).scrollTop();
+	else
+		var pos = back.attr('href').replace(/[^\d|\.]/g,'');
 	if($(x).length !== 0) {
 		x = $(x).attr("onclick").replace(/\D/g,'');
 		var c = '#collapsed-comments-' + x;
@@ -1177,6 +1174,7 @@ function doscroll(parent, hidden) {
 			pos += $(c).height();
 		}
 	}
+	back.remove();
 	var id = $('[data-mid="' + parent + '"]');
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
 	$('<a href="javascript:doscrollback(' + pos + ');" class="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down float-right">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));

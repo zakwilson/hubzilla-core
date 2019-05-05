@@ -1159,7 +1159,28 @@ function doreply(parent, ident, owner, hint) {
 	$('#comment-edit-text-' + parent.toString()).focus();
 }
 
-function dropItem(url, object) {
+function doscroll(parent, hidden) {
+	var pos = $(window).scrollTop();
+	var x = '#hide-comments-outer-' + hidden.toString();
+	if($(x).length !== 0) {
+		x = $(x).attr("onclick").replace(/\D/g,'');
+		var c = '#collapsed-comments-' + x;
+		if($(c).length !== 0 && (! $(c).is(':visible'))) {
+			showHideComments(x);
+			pos += $('#collapsed-comments-' + x).height();
+		}
+	}
+	id = $('[data-mid="' + parent + '"]');
+	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
+	$('<a href="javascript:doscrollback(' + pos + ');" class="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down float-right">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
+}
+
+function doscrollback(pos) {
+	$('.back-to-reply').remove();
+	$(window).scrollTop(pos);
+}
+
+function dropItem(url, object) { 
 
 	var confirm = confirmDelete();
 	if(confirm) {
@@ -1171,7 +1192,6 @@ function dropItem(url, object) {
 			});
 		});
 		return true;
-
 	}
 	else {
 		return false;

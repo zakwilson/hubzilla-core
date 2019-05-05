@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-03 14:33+0200\n"
-"PO-Revision-Date: 2019-05-03 14:37+0200\n"
+"POT-Creation-Date: 2019-05-04 22:53+0200\n"
+"PO-Revision-Date: 2019-05-04 23:01+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -86,7 +86,7 @@ msgstr "Фокус (по умолчанию Hubzilla)"
 #: ../../Zotlabs/Module/Import_items.php:129
 #: ../../Zotlabs/Widget/Wiki_pages.php:42
 #: ../../Zotlabs/Widget/Wiki_pages.php:99
-#: ../../Zotlabs/Widget/Eventstools.php:16 ../../Zotlabs/Lib/ThreadItem.php:797
+#: ../../Zotlabs/Widget/Eventstools.php:16 ../../Zotlabs/Lib/ThreadItem.php:804
 #: ../../extend/addon/hzaddons/jappixmini/Mod_Jappixmini.php:261
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:115
 #: ../../extend/addon/hzaddons/cart/cart.php:1264
@@ -1838,47 +1838,47 @@ msgstr "расслабленный"
 msgid "surprised"
 msgstr "удивленный"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:95
+#: ../../include/text.php:1426 ../../include/js_strings.php:96
 msgid "Monday"
 msgstr "Понедельник"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:96
+#: ../../include/text.php:1426 ../../include/js_strings.php:97
 msgid "Tuesday"
 msgstr "Вторник"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:97
+#: ../../include/text.php:1426 ../../include/js_strings.php:98
 msgid "Wednesday"
 msgstr "Среда"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:98
+#: ../../include/text.php:1426 ../../include/js_strings.php:99
 msgid "Thursday"
 msgstr "Четверг"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:99
+#: ../../include/text.php:1426 ../../include/js_strings.php:100
 msgid "Friday"
 msgstr "Пятница"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:100
+#: ../../include/text.php:1426 ../../include/js_strings.php:101
 msgid "Saturday"
 msgstr "Суббота"
 
-#: ../../include/text.php:1426 ../../include/js_strings.php:94
+#: ../../include/text.php:1426 ../../include/js_strings.php:95
 msgid "Sunday"
 msgstr "Воскресенье"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:70
+#: ../../include/text.php:1430 ../../include/js_strings.php:71
 msgid "January"
 msgstr "Январь"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:71
+#: ../../include/text.php:1430 ../../include/js_strings.php:72
 msgid "February"
 msgstr "Февраль"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:72
+#: ../../include/text.php:1430 ../../include/js_strings.php:73
 msgid "March"
 msgstr "Март"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:73
+#: ../../include/text.php:1430 ../../include/js_strings.php:74
 msgid "April"
 msgstr "Апрель"
 
@@ -1886,31 +1886,31 @@ msgstr "Апрель"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:75
+#: ../../include/text.php:1430 ../../include/js_strings.php:76
 msgid "June"
 msgstr "Июнь"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:76
+#: ../../include/text.php:1430 ../../include/js_strings.php:77
 msgid "July"
 msgstr "Июль"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:77
+#: ../../include/text.php:1430 ../../include/js_strings.php:78
 msgid "August"
 msgstr "Август"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:78
+#: ../../include/text.php:1430 ../../include/js_strings.php:79
 msgid "September"
 msgstr "Сентябрь"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:79
+#: ../../include/text.php:1430 ../../include/js_strings.php:80
 msgid "October"
 msgstr "Октябрь"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:80
+#: ../../include/text.php:1430 ../../include/js_strings.php:81
 msgid "November"
 msgstr "Ноябрь"
 
-#: ../../include/text.php:1430 ../../include/js_strings.php:81
+#: ../../include/text.php:1430 ../../include/js_strings.php:82
 msgid "December"
 msgstr "Декабрь"
 
@@ -2127,7 +2127,7 @@ msgstr "Не удалось создать дублирующийся идент
 msgid "Unable to create a unique channel address. Import failed."
 msgstr "Не удалось создать уникальный адрес канала. Импорт не завершен."
 
-#: ../../include/import.php:117
+#: ../../include/import.php:118
 msgid "Cloned channel not found. Import failed."
 msgstr "Клон канала не найден. Импорт невозможен."
 
@@ -2434,7 +2434,7 @@ msgctxt "mood"
 msgid "%1$s is %2$s"
 msgstr "%1$s %2$s"
 
-#: ../../include/conversation.php:483 ../../Zotlabs/Lib/ThreadItem.php:470
+#: ../../include/conversation.php:483 ../../Zotlabs/Lib/ThreadItem.php:476
 msgid "This is an unsaved preview"
 msgstr "Это несохранённый просмотр"
 
@@ -2537,17 +2537,17 @@ msgstr "Категории:"
 msgid "Filed under:"
 msgstr "Хранить под:"
 
-#: ../../include/conversation.php:766 ../../Zotlabs/Lib/ThreadItem.php:403
+#: ../../include/conversation.php:766 ../../Zotlabs/Lib/ThreadItem.php:410
 #, php-format
 msgid "from %s"
 msgstr "от %s"
 
-#: ../../include/conversation.php:769 ../../Zotlabs/Lib/ThreadItem.php:406
+#: ../../include/conversation.php:769 ../../Zotlabs/Lib/ThreadItem.php:413
 #, php-format
 msgid "last edited: %s"
 msgstr "последнее редактирование: %s"
 
-#: ../../include/conversation.php:770 ../../Zotlabs/Lib/ThreadItem.php:407
+#: ../../include/conversation.php:770 ../../Zotlabs/Lib/ThreadItem.php:414
 #, php-format
 msgid "Expires: %s"
 msgstr "Срок действия: %s"
@@ -2557,7 +2557,7 @@ msgid "View in context"
 msgstr "Показать в контексте"
 
 #: ../../include/conversation.php:787 ../../Zotlabs/Module/Photos.php:1118
-#: ../../Zotlabs/Lib/ThreadItem.php:471
+#: ../../Zotlabs/Lib/ThreadItem.php:477
 msgid "Please wait"
 msgstr "Подождите пожалуйста"
 
@@ -2765,7 +2765,7 @@ msgstr "Комментарии отключены"
 
 #: ../../include/conversation.php:1359 ../../Zotlabs/Module/Photos.php:1139
 #: ../../Zotlabs/Module/Events.php:480 ../../Zotlabs/Module/Webpages.php:262
-#: ../../Zotlabs/Lib/ThreadItem.php:807
+#: ../../Zotlabs/Lib/ThreadItem.php:814
 #: ../../extend/addon/hzaddons/hsse/hsse.php:153
 msgid "Preview"
 msgstr "Предварительный просмотр"
@@ -2788,32 +2788,32 @@ msgstr "Название ссылки на страницу "
 msgid "Post as"
 msgstr "Опубликовать как"
 
-#: ../../include/conversation.php:1406 ../../Zotlabs/Lib/ThreadItem.php:798
+#: ../../include/conversation.php:1406 ../../Zotlabs/Lib/ThreadItem.php:805
 #: ../../extend/addon/hzaddons/hsse/hsse.php:200
 msgid "Bold"
 msgstr "Жирный"
 
-#: ../../include/conversation.php:1407 ../../Zotlabs/Lib/ThreadItem.php:799
+#: ../../include/conversation.php:1407 ../../Zotlabs/Lib/ThreadItem.php:806
 #: ../../extend/addon/hzaddons/hsse/hsse.php:201
 msgid "Italic"
 msgstr "Курсив"
 
-#: ../../include/conversation.php:1408 ../../Zotlabs/Lib/ThreadItem.php:800
+#: ../../include/conversation.php:1408 ../../Zotlabs/Lib/ThreadItem.php:807
 #: ../../extend/addon/hzaddons/hsse/hsse.php:202
 msgid "Underline"
 msgstr "Подчеркнутый"
 
-#: ../../include/conversation.php:1409 ../../Zotlabs/Lib/ThreadItem.php:801
+#: ../../include/conversation.php:1409 ../../Zotlabs/Lib/ThreadItem.php:808
 #: ../../extend/addon/hzaddons/hsse/hsse.php:203
 msgid "Quote"
 msgstr "Цитата"
 
-#: ../../include/conversation.php:1410 ../../Zotlabs/Lib/ThreadItem.php:802
+#: ../../include/conversation.php:1410 ../../Zotlabs/Lib/ThreadItem.php:809
 #: ../../extend/addon/hzaddons/hsse/hsse.php:204
 msgid "Code"
 msgstr "Код"
 
-#: ../../include/conversation.php:1411 ../../Zotlabs/Lib/ThreadItem.php:804
+#: ../../include/conversation.php:1411 ../../Zotlabs/Lib/ThreadItem.php:811
 #: ../../extend/addon/hzaddons/hsse/hsse.php:205
 msgid "Attach/Upload file"
 msgstr "Прикрепить/загрузить файл"
@@ -2903,7 +2903,7 @@ msgstr "Установить дату публикации"
 
 #: ../../include/conversation.php:1461 ../../Zotlabs/Module/Mail.php:294
 #: ../../Zotlabs/Module/Mail.php:436 ../../Zotlabs/Module/Chat.php:221
-#: ../../Zotlabs/Lib/ThreadItem.php:811
+#: ../../Zotlabs/Lib/ThreadItem.php:818
 #: ../../extend/addon/hzaddons/hsse/hsse.php:255
 msgid "Encrypt text"
 msgstr "Зашифровать текст"
@@ -3017,11 +3017,11 @@ msgid "Delete this item?"
 msgstr "Удалить этот элемент?"
 
 #: ../../include/js_strings.php:6 ../../Zotlabs/Module/Photos.php:1137
-#: ../../Zotlabs/Module/Photos.php:1256 ../../Zotlabs/Lib/ThreadItem.php:796
+#: ../../Zotlabs/Module/Photos.php:1256 ../../Zotlabs/Lib/ThreadItem.php:803
 msgid "Comment"
 msgstr "Комментарий"
 
-#: ../../include/js_strings.php:7 ../../Zotlabs/Lib/ThreadItem.php:503
+#: ../../include/js_strings.php:7 ../../Zotlabs/Lib/ThreadItem.php:510
 #, php-format
 msgid "%s show all"
 msgstr "%s показать всё"
@@ -3143,7 +3143,11 @@ msgstr "Это "
 msgid " channel name"
 msgstr " название канала"
 
-#: ../../include/js_strings.php:41
+#: ../../include/js_strings.php:36
+msgid "Back to reply"
+msgstr "Вернуться к ответу"
+
+#: ../../include/js_strings.php:42
 #, php-format
 msgid "%d minutes"
 msgid_plural "%d minutes"
@@ -3151,7 +3155,7 @@ msgstr[0] "%d минуту"
 msgstr[1] "%d минуты"
 msgstr[2] "%d минут"
 
-#: ../../include/js_strings.php:42
+#: ../../include/js_strings.php:43
 #, php-format
 msgid "about %d hours"
 msgid_plural "about %d hours"
@@ -3159,7 +3163,7 @@ msgstr[0] "около %d часa"
 msgstr[1] "около %d часов"
 msgstr[2] "около %d часов"
 
-#: ../../include/js_strings.php:43
+#: ../../include/js_strings.php:44
 #, php-format
 msgid "%d days"
 msgid_plural "%d days"
@@ -3167,7 +3171,7 @@ msgstr[0] "%d день"
 msgstr[1] "%d дня"
 msgstr[2] "%d дней"
 
-#: ../../include/js_strings.php:44
+#: ../../include/js_strings.php:45
 #, php-format
 msgid "%d months"
 msgid_plural "%d months"
@@ -3175,7 +3179,7 @@ msgstr[0] "%d месяц"
 msgstr[1] "%d месяца"
 msgstr[2] "%d месяцев"
 
-#: ../../include/js_strings.php:45
+#: ../../include/js_strings.php:46
 #, php-format
 msgid "%d years"
 msgid_plural "%d years"
@@ -3183,157 +3187,157 @@ msgstr[0] "%d год"
 msgstr[1] "%d года"
 msgstr[2] "%d лет"
 
-#: ../../include/js_strings.php:50
+#: ../../include/js_strings.php:51
 msgid "timeago.prefixAgo"
 msgstr ""
 
-#: ../../include/js_strings.php:51
+#: ../../include/js_strings.php:52
 msgid "timeago.prefixFromNow"
 msgstr "через"
 
-#: ../../include/js_strings.php:52
+#: ../../include/js_strings.php:53
 msgid "timeago.suffixAgo"
 msgstr "назад"
 
-#: ../../include/js_strings.php:53
+#: ../../include/js_strings.php:54
 msgid "timeago.suffixFromNow"
 msgstr ""
 
-#: ../../include/js_strings.php:56
+#: ../../include/js_strings.php:57
 msgid "less than a minute"
 msgstr "менее чем одну минуту"
 
-#: ../../include/js_strings.php:57
+#: ../../include/js_strings.php:58
 msgid "about a minute"
 msgstr "около минуты"
 
-#: ../../include/js_strings.php:59
+#: ../../include/js_strings.php:60
 msgid "about an hour"
 msgstr "около часа"
 
-#: ../../include/js_strings.php:61
+#: ../../include/js_strings.php:62
 msgid "a day"
 msgstr "день"
 
-#: ../../include/js_strings.php:63
+#: ../../include/js_strings.php:64
 msgid "about a month"
 msgstr "около месяца"
 
-#: ../../include/js_strings.php:65
+#: ../../include/js_strings.php:66
 msgid "about a year"
 msgstr "около года"
 
-#: ../../include/js_strings.php:67
+#: ../../include/js_strings.php:68
 msgid " "
 msgstr " "
 
-#: ../../include/js_strings.php:68
+#: ../../include/js_strings.php:69
 msgid "timeago.numbers"
 msgstr ""
 
-#: ../../include/js_strings.php:74
+#: ../../include/js_strings.php:75
 msgctxt "long"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:82
+#: ../../include/js_strings.php:83
 msgid "Jan"
 msgstr "Янв"
 
-#: ../../include/js_strings.php:83
+#: ../../include/js_strings.php:84
 msgid "Feb"
 msgstr "Фев"
 
-#: ../../include/js_strings.php:84
+#: ../../include/js_strings.php:85
 msgid "Mar"
 msgstr "Мар"
 
-#: ../../include/js_strings.php:85
+#: ../../include/js_strings.php:86
 msgid "Apr"
 msgstr "Апр"
 
-#: ../../include/js_strings.php:86
+#: ../../include/js_strings.php:87
 msgctxt "short"
 msgid "May"
 msgstr "Май"
 
-#: ../../include/js_strings.php:87
+#: ../../include/js_strings.php:88
 msgid "Jun"
 msgstr "Июн"
 
-#: ../../include/js_strings.php:88
+#: ../../include/js_strings.php:89
 msgid "Jul"
 msgstr "Июл"
 
-#: ../../include/js_strings.php:89
+#: ../../include/js_strings.php:90
 msgid "Aug"
 msgstr "Авг"
 
-#: ../../include/js_strings.php:90
+#: ../../include/js_strings.php:91
 msgid "Sep"
 msgstr "Сен"
 
-#: ../../include/js_strings.php:91
+#: ../../include/js_strings.php:92
 msgid "Oct"
 msgstr "Окт"
 
-#: ../../include/js_strings.php:92
+#: ../../include/js_strings.php:93
 msgid "Nov"
 msgstr "Ноя"
 
-#: ../../include/js_strings.php:93
+#: ../../include/js_strings.php:94
 msgid "Dec"
 msgstr "Дек"
 
-#: ../../include/js_strings.php:101
+#: ../../include/js_strings.php:102
 msgid "Sun"
 msgstr "Вск"
 
-#: ../../include/js_strings.php:102
+#: ../../include/js_strings.php:103
 msgid "Mon"
 msgstr "Пон"
 
-#: ../../include/js_strings.php:103
+#: ../../include/js_strings.php:104
 msgid "Tue"
 msgstr "Вт"
 
-#: ../../include/js_strings.php:104
+#: ../../include/js_strings.php:105
 msgid "Wed"
 msgstr "Ср"
 
-#: ../../include/js_strings.php:105
+#: ../../include/js_strings.php:106
 msgid "Thu"
 msgstr "Чет"
 
-#: ../../include/js_strings.php:106
+#: ../../include/js_strings.php:107
 msgid "Fri"
 msgstr "Пят"
 
-#: ../../include/js_strings.php:107
+#: ../../include/js_strings.php:108
 msgid "Sat"
 msgstr "Суб"
 
-#: ../../include/js_strings.php:108
+#: ../../include/js_strings.php:109
 msgctxt "calendar"
 msgid "today"
 msgstr "сегодня"
 
-#: ../../include/js_strings.php:109
+#: ../../include/js_strings.php:110
 msgctxt "calendar"
 msgid "month"
 msgstr "месяц"
 
-#: ../../include/js_strings.php:110
+#: ../../include/js_strings.php:111
 msgctxt "calendar"
 msgid "week"
 msgstr "неделя"
 
-#: ../../include/js_strings.php:111
+#: ../../include/js_strings.php:112
 msgctxt "calendar"
 msgid "day"
 msgstr "день"
 
-#: ../../include/js_strings.php:112
+#: ../../include/js_strings.php:113
 msgctxt "calendar"
 msgid "All day"
 msgstr "Весь день"
@@ -3564,7 +3568,7 @@ msgid "Permissions"
 msgstr "Разрешения"
 
 #: ../../include/acl_selectors.php:125 ../../Zotlabs/Module/Photos.php:1316
-#: ../../Zotlabs/Lib/ThreadItem.php:465
+#: ../../Zotlabs/Lib/ThreadItem.php:471
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:230
 msgid "Close"
 msgstr "Закрыть"
@@ -5656,7 +5660,7 @@ msgid "I don't like this (toggle)"
 msgstr "мне это не нравится (переключение)"
 
 #: ../../Zotlabs/Module/Photos.php:1135 ../../Zotlabs/Module/Photos.php:1254
-#: ../../Zotlabs/Lib/ThreadItem.php:794
+#: ../../Zotlabs/Lib/ThreadItem.php:801
 msgid "This is you"
 msgstr "Это вы"
 
@@ -5677,12 +5681,12 @@ msgstr "На этой фотографии:"
 msgid "Map"
 msgstr "Карта"
 
-#: ../../Zotlabs/Module/Photos.php:1310 ../../Zotlabs/Lib/ThreadItem.php:459
+#: ../../Zotlabs/Module/Photos.php:1310 ../../Zotlabs/Lib/ThreadItem.php:465
 msgctxt "noun"
 msgid "Likes"
 msgstr "Нравится"
 
-#: ../../Zotlabs/Module/Photos.php:1311 ../../Zotlabs/Lib/ThreadItem.php:460
+#: ../../Zotlabs/Module/Photos.php:1311 ../../Zotlabs/Lib/ThreadItem.php:466
 msgctxt "noun"
 msgid "Dislikes"
 msgstr "Не нравится"
@@ -9350,42 +9354,64 @@ msgid ""
 msgstr "Этот аккаунт {0} будет удалён!\n\nВсё что им было опубликовано на этом сайте будет удалено навсегда!\n\nВы уверены?"
 
 #: ../../Zotlabs/Module/Admin/Dbsync.php:19
+#: ../../Zotlabs/Module/Admin/Dbsync.php:59
 msgid "Update has been marked successful"
 msgstr "Обновление было помечено как успешное"
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:31
+#: ../../Zotlabs/Module/Admin/Dbsync.php:32
 #, php-format
-msgid "Executing %s failed. Check system logs."
-msgstr "Выполнение %s неудачно. Проверьте системный журнал."
+msgid "Verification of update %s failed. Check system logs."
+msgstr "Проверка обновления %s не удалась. Проверьте системный журнал."
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:34
+#: ../../Zotlabs/Module/Admin/Dbsync.php:35
+#: ../../Zotlabs/Module/Admin/Dbsync.php:74
 #, php-format
 msgid "Update %s was successfully applied."
-msgstr "Обновление %sбыло успешно применено."
+msgstr "Обновление %s было успешно применено."
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:38
+#: ../../Zotlabs/Module/Admin/Dbsync.php:39
 #, php-format
-msgid "Update %s did not return a status. Unknown if it succeeded."
-msgstr "Обновление %s не вернуло статус. Неизвестно было ли оно успешным."
+msgid "Verifying update %s did not return a status. Unknown if it succeeded."
+msgstr "Проверка обновления %s не вернула его состояние. Неизвестно было ли оно успешным."
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:41
+#: ../../Zotlabs/Module/Admin/Dbsync.php:42
+#, php-format
+msgid "Update %s does not contain a verification function."
+msgstr "Обновление %s не содержит функцию проверки."
+
+#: ../../Zotlabs/Module/Admin/Dbsync.php:46
+#: ../../Zotlabs/Module/Admin/Dbsync.php:81
 #, php-format
 msgid "Update function %s could not be found."
-msgstr "Функция обновления %sне может быть найдена."
+msgstr "Функция обновления %s не может быть найдена."
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:59
+#: ../../Zotlabs/Module/Admin/Dbsync.php:71
+#, php-format
+msgid "Executing update procedure %s failed. Check system logs."
+msgstr "Не удалось выполнить процедуру обновления %s.Проверьте системный журнал."
+
+#: ../../Zotlabs/Module/Admin/Dbsync.php:78
+#, php-format
+msgid "Update %s did not return a status. It cannot be determined if it was successful."
+msgstr "Обновление %s не вернуло свой статус. Невозможно определить было ли оно успешным."
+
+#: ../../Zotlabs/Module/Admin/Dbsync.php:99
 msgid "Failed Updates"
 msgstr "Обновления с ошибками"
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:61
+#: ../../Zotlabs/Module/Admin/Dbsync.php:101
 msgid "Mark success (if update was manually applied)"
 msgstr "Пометить успешным (если обновление было применено вручную)"
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:62
-msgid "Attempt to execute this update step automatically"
-msgstr "Попытаться применить это обновление автоматически"
+#: ../../Zotlabs/Module/Admin/Dbsync.php:102
+msgid "Attempt to verify this update if a verification procedure exists"
+msgstr "Попытайтесь проверить это обновление, если существует процедура проверки"
 
-#: ../../Zotlabs/Module/Admin/Dbsync.php:67
+#: ../../Zotlabs/Module/Admin/Dbsync.php:103
+msgid "Attempt to execute this update step automatically"
+msgstr "Попытаться применить этот этап обновления автоматически"
+
+#: ../../Zotlabs/Module/Admin/Dbsync.php:108
 msgid "No failed updates."
 msgstr "Ошибок обновлений нет."
 
@@ -9478,7 +9504,7 @@ msgid "Their Settings"
 msgstr "Их настройки"
 
 #: ../../Zotlabs/Module/Notifications.php:60
-#: ../../Zotlabs/Lib/ThreadItem.php:452
+#: ../../Zotlabs/Lib/ThreadItem.php:458
 msgid "Mark all seen"
 msgstr "Отметить как просмотренное"
 
@@ -11699,12 +11725,16 @@ msgstr "Спец. назначение - Групповой репозитори
 msgid "Custom/Expert Mode"
 msgstr "Экспертный режим"
 
-#: ../../Zotlabs/Lib/DB_Upgrade.php:83
+#: ../../Zotlabs/Lib/DB_Upgrade.php:67
+msgid "Source code of failed update: "
+msgstr "Исходный код неудачного обновления: "
+
+#: ../../Zotlabs/Lib/DB_Upgrade.php:88
 #, php-format
 msgid "Update Error at %s"
 msgstr "Ошибка обновления на %s"
 
-#: ../../Zotlabs/Lib/DB_Upgrade.php:89
+#: ../../Zotlabs/Lib/DB_Upgrade.php:94
 #, php-format
 msgid "Update %s failed. See error logs."
 msgstr "Выполнение %s неудачно. Проверьте системный журнал."
@@ -12242,19 +12272,23 @@ msgstr "ответить"
 msgid "Reply to"
 msgstr "Ответить"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:319
+#: ../../Zotlabs/Lib/ThreadItem.php:309
+msgid "Go to previous comment"
+msgstr "Перейти к предыдущему комментарию"
+
+#: ../../Zotlabs/Lib/ThreadItem.php:328
 msgid "Share This"
 msgstr "Поделиться этим"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:319
+#: ../../Zotlabs/Lib/ThreadItem.php:328
 msgid "share"
 msgstr "поделиться"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:329
+#: ../../Zotlabs/Lib/ThreadItem.php:338
 msgid "Delivery Report"
 msgstr "Отчёт о доставке"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:349
+#: ../../Zotlabs/Lib/ThreadItem.php:357
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
@@ -12262,73 +12296,73 @@ msgstr[0] "%d комментарий"
 msgstr[1] "%d комментария"
 msgstr[2] "%d комментариев"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:382 ../../Zotlabs/Lib/ThreadItem.php:383
+#: ../../Zotlabs/Lib/ThreadItem.php:389 ../../Zotlabs/Lib/ThreadItem.php:390
 #, php-format
 msgid "View %s's profile - %s"
 msgstr "Просмотр профиля %s - %s"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:386
+#: ../../Zotlabs/Lib/ThreadItem.php:393
 msgid "to"
 msgstr "к"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:387
+#: ../../Zotlabs/Lib/ThreadItem.php:394
 msgid "via"
 msgstr "через"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:388
+#: ../../Zotlabs/Lib/ThreadItem.php:395
 msgid "Wall-to-Wall"
 msgstr "Стена-к-Стене"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:389
+#: ../../Zotlabs/Lib/ThreadItem.php:396
 msgid "via Wall-To-Wall:"
 msgstr "через Стена-к-Стене:"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:415
+#: ../../Zotlabs/Lib/ThreadItem.php:422
 msgid "Attend"
 msgstr "Посетить"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:416
+#: ../../Zotlabs/Lib/ThreadItem.php:423
 msgid "Attendance Options"
 msgstr "Параметры посещаемости"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:417
+#: ../../Zotlabs/Lib/ThreadItem.php:424
 msgid "Vote"
 msgstr "Голосовать"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:418
+#: ../../Zotlabs/Lib/ThreadItem.php:425
 msgid "Voting Options"
 msgstr "Параметры голосования"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:441
+#: ../../Zotlabs/Lib/ThreadItem.php:448
 #: ../../extend/addon/hzaddons/bookmarker/bookmarker.php:38
 msgid "Save Bookmarks"
 msgstr "Сохранить закладки"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:442
+#: ../../Zotlabs/Lib/ThreadItem.php:449
 msgid "Add to Calendar"
 msgstr "Добавить в календарь"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:803
+#: ../../Zotlabs/Lib/ThreadItem.php:810
 msgid "Image"
 msgstr "Изображение"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:805
+#: ../../Zotlabs/Lib/ThreadItem.php:812
 msgid "Insert Link"
 msgstr "Вставить ссылку"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:806
+#: ../../Zotlabs/Lib/ThreadItem.php:813
 msgid "Video"
 msgstr "Видео"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:816
+#: ../../Zotlabs/Lib/ThreadItem.php:823
 msgid "Your full name (required)"
 msgstr "Ваше полное имя (требуется)"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:817
+#: ../../Zotlabs/Lib/ThreadItem.php:824
 msgid "Your email address (required)"
 msgstr "Ваш адрес электронной почты (требуется)"
 
-#: ../../Zotlabs/Lib/ThreadItem.php:818
+#: ../../Zotlabs/Lib/ThreadItem.php:825
 msgid "Your website URL (optional)"
 msgstr "URL вашего вебсайта (необязательно)"
 

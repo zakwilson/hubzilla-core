@@ -51,6 +51,7 @@ Options are:
   [*= system.email_notify_icon_url ] URL of image (32x32) to display in email notifications (HTML bodies).
   [*= system.expire_delivery_reports ] Expiration in days for delivery reports - default 10
   [*= system.expire_limit ] Don't expire any more than this number of posts per channel per expiration run to keep from exhausting memory. Default 5000.
+  [*= system.filesystem_storage_thumbnails ] If '1', use filesystem instead SQL database to store thumbnails. Default is '0'. Introduced in 4.2
   [*= system.hidden_version_siteinfo ] If true, do not report the software version on siteinfo pages (system.hide_version also hides the version on these pages, this setting *only* hides the version on siteinfo pages).
   [*= system.hide_help ] Don't display help documentation link in nav bar
   [*= system.hide_in_statistics ] Tell the red statistics servers to completely hide this hub in hub lists.
@@ -79,7 +80,7 @@ Options are:
   [*= system.startpage ] Set the default page to be taken to after a login for all channels at this website.  Can be overwritten by user settings.
   [*= system.sys_expire_days ] How many days to keep discovered public content from other sites
   [*= system.taganyone ] Allow the @mention tagging of anyone whether you are connected or not.
-  [*= system.tempdir ] Place to store temporary files (currently unused), default is defined in the PHP configuration  
+  [*= system.tempdir ] Place to store temporary files (currently unused), default is defined in the PHP configuration.
   [*= system.tos_url ] Set an alternative link for the ToS location.
   [*= system.transport_security_header ] if non-zero and SSL is being used, include a strict-transport-security header on webpages
   [*= system.uploaddir ] Location to upload files (default is system.tempdir, currently used only by js_upload plugin)

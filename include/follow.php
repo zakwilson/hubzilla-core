@@ -169,18 +169,19 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 			}
 
 			if($wf || $d) {
-				$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' limit 1",
+				$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s'",
 					dbesc(($wf) ? $wf : $url),
 					dbesc($url)
 				);
 			}
 		}
 
+		$xchan = zot_record_preferred($r,'xchan_network');
+
 		// if discovery was a success we should have an xchan record in $r
 
-		if($r) {
-			$xchan = $r[0];
-			$xchan_hash = $r[0]['xchan_hash'];
+		if($xchan) {
+			$xchan_hash = $xchan['xchan_hash'];
 			$their_perms = 0;
 		}
 	}
@@ -191,7 +192,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		return $result;
 	}
 
-	$allowed = (($is_zot || in_array($r[0]['xchan_network'],['rss','zot6'])) ? 1 : 0);
+	$allowed = (($is_zot || in_array($xchan['xchan_network'],['rss','zot6'])) ? 1 : 0);
 
 	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => $allowed, 'singleton' => 0);
 

@@ -142,7 +142,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 		$sql_options = (($protocol) ? " and xchan_network = '" . dbesc($protocol) . "' " : '');
 		
 
-		$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' $sql_options limit 1",
+		$r = q("select * from xchan where xchan_hash = '%s' or xchan_url = '%s' $sql_options ",
 			dbesc($url),
 			dbesc($url)
 		);
@@ -194,7 +194,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 	$allowed = (($is_zot || in_array($xchan['xchan_network'],['rss','zot6'])) ? 1 : 0);
 
-	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $r[0], 'allowed' => $allowed, 'singleton' => 0);
+	$x = array('channel_id' => $uid, 'follow_address' => $url, 'xchan' => $xchan, 'allowed' => $allowed, 'singleton' => 0);
 
 	call_hooks('follow_allow',$x);
 

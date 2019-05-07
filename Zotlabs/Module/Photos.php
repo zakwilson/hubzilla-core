@@ -239,95 +239,53 @@ class Photos extends \Zotlabs\Web\Controller {
 					intval($page_owner_uid)
 				);
 				if(count($r)) {
-					$d = (($r[0]['os_storage']) ? @file_get_contents(dbunescbin($r[0]['content'])) : dbunescbin($r[0]['content']));
-					$ph = photo_factory($d, $r[0]['mimetype']);
+					
+					$ph = photo_factory(@file_get_contents(dbunescbin($r[0]['content'])), $r[0]['mimetype']);
 					if($ph->is_valid()) {
 						$rotate_deg = ( (intval($_POST['rotate']) == 1) ? 270 : 90 );
 						$ph->rotate($rotate_deg);
-	
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
-						
-						if(intval($r[0]['os_storage'])) {
-							@file_put_contents($r[0]['content'],$ph->imageString());
-							$data = $r[0]['content'];
-							$fsize = @filesize($r[0]['content']);
-							q("update attach set filesize = %d where hash = '%s' and uid = %d",
-								intval($fsize),
-								dbesc($resource_id),
-								intval($page_owner_uid)
-							);
-						}
-						else {
-							$data = $ph->imageString();
-							$fsize = strlen($data);
-						}
-	
-						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 0",
-							dbesc(datetime_convert()),
-							dbescbin($data),
-							intval($fsize),
-							intval($height),
-							intval($width),
+
+						$edited = datetime_convert();
+
+						q("update attach set filesize = %d, edited = '%s' where hash = '%s' and uid = %d",
+							strlen($ph->imageString()),
+							dbescdate($edited),
 							dbesc($resource_id),
 							intval($page_owner_uid)
 						);
-	
+						
+						$ph->saveImage(dbunescbin($r[0]['content']));
+						
+						$arr = [ 
+							'aid'          => get_account_id(),
+							'uid'          => intval($page_owner_uid), 
+							'resource_id'  => dbesc($resource_id),
+							'filename'     => $r[0]['filename'],
+							'imgscale'	   => 0,
+							'album'        => $r[0]['album'],
+							'os_path'      => $r[0]['os_path'],
+							'os_storage'   => 1,
+							'os_syspath'   => dbunescbin($r[0]['content']),
+							'display_path' => $r[0]['display_path'],
+							'photo_usage'  => PHOTO_NORMAL,
+							'edited'	   => dbescdate($edited)
+						];
+
+						$ph->save($arr);
+
+						unset($arr['photo_usage']);
+
 						if($width > 1024 || $height > 1024) 
 							$ph->scaleImage(1024);
-	
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
-						$data = $ph->imageString();
-						$fsize = strlen($data);
-	
-						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 1",
-							dbesc(datetime_convert()),
-							dbescbin($data),
-							intval($fsize),
-							intval($height),
-							intval($width),
-							dbesc($resource_id),
-							intval($page_owner_uid)
-						);
-	
-	
+						$ph->storeThumbnail($arr, PHOTO_RES_1024);
+
 						if($width > 640 || $height > 640) 
 							$ph->scaleImage(640);
-	
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
-						$data = $ph->imageString();
-						$fsize = strlen($data);
-	
-						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 2",
-							dbesc(datetime_convert()),
-							dbescbin($data),
-							intval($fsize),
-							intval($height),
-							intval($width),
-							dbesc($resource_id),
-							intval($page_owner_uid)
-						);
-	
-	
+						$ph->storeThumbnail($arr, PHOTO_RES_640);
+
 						if($width > 320 || $height > 320) 
 							$ph->scaleImage(320);
-	
-						$width  = $ph->getWidth();
-						$height = $ph->getHeight();
-						$data = $ph->imageString();
-						$fsize = strlen($data);
-	
-						$x = q("update photo set edited = '%s', content = '%s', filesize = %d, height = %d, width = %d where resource_id = '%s' and uid = %d and imgscale = 3",
-							dbesc(datetime_convert()),
-							dbescbin($data),
-							intval($fsize),
-							intval($height),
-							intval($width),
-							dbesc($resource_id),
-							intval($page_owner_uid)
-						);
+						$ph->storeThumbnail($arr, PHOTO_RES_320);
 					}
 				}
 			}

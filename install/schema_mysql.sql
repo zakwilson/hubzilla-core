@@ -665,7 +665,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `mimetype` (`mimetype`),
   KEY `mid` (`mid`),
   KEY `parent_mid` (`parent_mid`),
-  KEY `uid_mid` (`mid`,`uid`),
+  KEY `uid_mid` (`uid`,`mid`),
   KEY `comment_policy` (`comment_policy`),
   KEY `layout_mid` (`layout_mid`),
   KEY `public_policy` (`public_policy`),
@@ -1324,7 +1324,8 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   KEY `xchan_selfcensored` (`xchan_selfcensored`),
   KEY `xchan_system` (`xchan_system`),
   KEY `xchan_pubforum` (`xchan_pubforum`),
-  KEY `xchan_deleted` (`xchan_deleted`)
+  KEY `xchan_deleted` (`xchan_deleted`),
+  KEY `xchan_photo_m` (`xchan_photo_m`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `xchat` (

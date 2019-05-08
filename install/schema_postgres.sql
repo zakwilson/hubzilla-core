@@ -650,7 +650,7 @@ create index "item_revision" on item ("revision");
 create index "item_mimetype" on item ("mimetype");
 create index "item_mid" on item ("mid");
 create index "item_parent_mid" on item ("parent_mid");
-create index "item_uid_mid" on item ("mid","uid");
+create index "item_uid_mid" on item ("uid","mid");
 create index "item_public_policy" on item ("public_policy");
 create index "item_comment_policy" on item ("comment_policy");
 create index "item_layout_mid" on item ("layout_mid");
@@ -1312,6 +1312,7 @@ create index "xchan_selfcensored" on xchan ("xchan_selfcensored");
 create index "xchan_system" on xchan ("xchan_system");
 create index "xchan_pubforum" on xchan ("xchan_pubforum");
 create index "xchan_deleted" on xchan ("xchan_deleted");
+create index "xchan_photo_m" on xchan ("xchan_photo_m");
 
 CREATE TABLE "xchat" (
   "xchat_id" serial  NOT NULL,

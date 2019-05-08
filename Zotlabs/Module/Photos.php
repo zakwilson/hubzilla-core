@@ -273,7 +273,7 @@ class Photos extends \Zotlabs\Web\Controller {
 
 						$ph->save($arr);
 
-						unset($arr['photo_usage']);
+						unset($arr['os_syspath']);
 
 						if($width > 1024 || $height > 1024) 
 							$ph->scaleImage(1024);

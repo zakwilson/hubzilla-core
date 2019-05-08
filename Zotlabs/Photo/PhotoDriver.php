@@ -507,19 +507,7 @@ abstract class PhotoDriver {
 	public function storeThumbnail($arr, $scale = 0) {
 	
 	    $arr['imgscale'] = $scale;
-	    
-	    if(! array_key_exists('photo_usage', $arr)) {
-			$x = q("SELECT photo_usage FROM photo WHERE resource_id = '%s' AND uid = %d AND imgscale = %d LIMIT 1",
-				dbesc($arr['resource_id']),
-				intval($arr['uid']),
-				intval($arr['imgscale'])
-			);
-			if($x)
-				$arr['photo_usage'] = $r[0]['photo_usage'];
-			else
-				return false;
-		}
-	    
+
 		if(boolval(get_config('system','filesystem_storage_thumbnails', 0)) && $scale > 0) {
 			$channel = \App::get_channel();
 			$arr['os_storage'] = 1;
@@ -527,6 +515,8 @@ abstract class PhotoDriver {
 			if(! $this->saveImage($arr['os_syspath']))
 				return false;
 		}
+		else
+		    $arr['os_storage'] = 0;
 		
 		if(! $this->save($arr)) {
 			if(array_key_exists('os_syspath', $arr))

@@ -1,6 +1,0 @@
-version: 2
-url: $baseurl/events, $baseurl/settings/events
-requires: local_channel
-name: Events
-photo: icon:calendar
-categories: nav_featured_app, Productivity

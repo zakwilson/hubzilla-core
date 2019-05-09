@@ -1039,6 +1039,7 @@ class Cdav extends Controller {
 				'$delete' => t('Delete'),
 				'$delete_all' => t('Delete all'),
 				'$cancel' => t('Cancel'),
+				'$create' => t('Create'),
 				'$recurrence_warning' => t('Sorry! Editing of recurrent events is not yet implemented.'),
 
 				'$channel_hash' => $channel['channel_hash'],

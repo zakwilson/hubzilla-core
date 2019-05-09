@@ -72,8 +72,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			$finish = NULL_DATE;
 		}
 
-
-
 		if($adjust) {
 			$start = datetime_convert($tz,'UTC',$start);
 			if(! $nofinish)
@@ -86,12 +84,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		}
 
 
-	
 		// Don't allow the event to finish before it begins.
 		// It won't hurt anything, but somebody will file a bug report
 		// and we'll waste a bunch of time responding to it. Time that 
 		// could've been spent doing something else. 
-
 	
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));
@@ -102,28 +98,20 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		linkify_tags($desc, local_channel());
 		linkify_tags($location, local_channel());
 	
-		//$action = ($event_hash == '') ? 'new' : "event/" . $event_hash;
-	
-		//fixme: this url gives a wsod if there is a linebreak detected in one of the variables ($desc or $location)
-		//$onerror_url = z_root() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish&type=$type";
-		//$onerror_url = z_root() . "/events";
-	
 		if(strcmp($finish,$start) < 0 && !$nofinish) {
 			notice( t('Event can not end before it has started.') . EOL);
 			if(intval($_REQUEST['preview'])) {
 				echo( t('Unable to generate preview.'));
-				killme();
 			}
-			//goaway($onerror_url);
+			killme();
 		}
 	
 		if((! $summary) || (! $start)) {
 			notice( t('Event title and start time are required.') . EOL);
 			if(intval($_REQUEST['preview'])) {
 				echo( t('Unable to generate preview.'));
-				killme();
 			}
-			//goaway($onerror_url);
+			killme();
 		}
 
 		$channel = \App::get_channel();
@@ -275,8 +263,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 	
 		$mode = 'view';
-		$y = 0;
-		$m = 0;
+		$export = false;
+		//$y = 0;
+		//$m = 0;
 		$ignored = ((x($_REQUEST,'ignored')) ? " and dismissed = " . intval($_REQUEST['ignored']) . " "  : '');
 
 		if(argc() > 1) {
@@ -288,10 +277,13 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				$mode = 'drop';
 				$event_id = argv(2);
 			}
+			if(argc() <= 2 && argv(1) === 'export') {
+				$export = true;
+			}
 			if(argc() > 2 && intval(argv(1)) && intval(argv(2))) {
 				$mode = 'view';
-				$y = intval(argv(1));
-				$m = intval(argv(2));
+				//$y = intval(argv(1));
+				//$m = intval(argv(2));
 			}
 			if(argc() <= 2) {
 				$mode = 'view';
@@ -317,7 +309,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 	
 			$channel = \App::get_channel();
-	
+
+/*	
 			// Passed parameters overrides anything found in the DB
 			if(!x($orig_event))
 				$orig_event = array();
@@ -370,10 +363,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			if(! $m)
 				$m = intval($thismonth);
 	
-			$export = false;
-			if(argc() === 4 && argv(3) === 'export')
-				$export = true;
-	
+
 			// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
 			// An upper limit was chosen to keep search engines from exploring links millions of years in the future. 
 	
@@ -400,7 +390,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			$dim    = get_dim($y,$m);
 			$start  = sprintf('%d-%d-%d %d:%d:%d',$y,$m,1,0,0,0);
 			$finish = sprintf('%d-%d-%d %d:%d:%d',$y,$m,$dim,23,59,59);
-	
+*/	
 	
 			if (argv(1) === 'json'){
 				if (x($_GET,'start'))	$start = $_GET['start'];
@@ -414,20 +404,16 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 	
 			if (x($_GET,'id')){
-			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
-	                                from event left join item on resource_id = event_hash where resource_type = 'event' and event.uid = %d and event.id = %d limit 1",
+			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
+	                                from event left join item on item.resource_id = event.event_hash
+					where item.resource_type = 'event' and event.uid = %d and event.id = %d limit 1",
 					intval(local_channel()),
 					intval($_GET['id'])
 				);
-			} elseif($export) {
-				$r = q("SELECT * from event where uid = %d
-					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
-					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
-					intval(local_channel()),
-					dbesc($start),
-					dbesc($finish),
-					dbesc($adjust_start),
-					dbesc($adjust_finish)
+			}
+			elseif($export) {
+				$r = q("SELECT * from event where uid = %d",
+					intval(local_channel())
 				);
 			}
 			else {
@@ -437,10 +423,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				// Ultimately the finish date shouldn't be involved in the query. 
 
 				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
-	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
-					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
-					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
+					from event left join item on event.event_hash = item.resource_id 
+					where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
+					AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
+					OR  (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) ",
 					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),
@@ -448,10 +434,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					dbesc($adjust_finish)
 				);
 
-
 			}
 	
-			$links = array();
+			//$links = [];
 	
 			if($r && ! $export) {
 				xchan_query($r);
@@ -459,7 +444,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 				$r = sort_by_date($r);
 			}
-	
+
+/*	
 			if($r) {
 				foreach($r as $rr) {
 					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
@@ -467,18 +453,19 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						$links[$j] = z_root() . '/' . \App::$cmd . '#link-' . $j;
 				}
 			}
+*/
 	
-			$events=array();
+			$events = [];
 	
-			$last_date = '';
-			$fmt = t('l, F j');
+			//$last_date = '';
+			//$fmt = t('l, F j');
 	
 			if($r) {
 	
 				foreach($r as $rr) {
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
-					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
-					$d = day_translate($d);
+					//$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
+					//$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
+					//$d = day_translate($d);
 					
 					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
 					if ($rr['nofinish']){
@@ -514,23 +501,23 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
 						$allDay = true;
 
-					$is_first = ($d !== $last_date);
+					//$is_first = ($d !== $last_date);
 						
-					$last_date = $d;
+					//$last_date = $d;
 	
 					$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array(z_root().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 	
 					$drop = array(z_root().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
 	
-					$title = strip_tags(html_entity_decode(zidify_links(bbcode($rr['summary'])),ENT_QUOTES,'UTF-8'));
-					if(! $title) {
-						list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
-						$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
-					}
-					$html = format_event_html($rr);
-					$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
-					$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8',false);
-					$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
+					//$title = strip_tags(html_entity_decode(zidify_links(bbcode($rr['summary'])),ENT_QUOTES,'UTF-8'));
+					//if(! $title) {
+					//	list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
+					//	$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
+					//}
+					//$html = format_event_html($rr);
+					//$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
+					//$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8',false);
+					//$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
 					$events[] = array(
 						'calendar_id' => 'channel_calendar',
 						'rw' => true,
@@ -541,20 +528,20 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'end' => $end,
 						'drop' => $drop,
 						'allDay' => $allDay,
-						'title' => $title,
+						'title' => htmlentities($rr['summary'], ENT_COMPAT, 'UTF-8'),
 						
-						'j' => $j,
-						'd' => $d,
+						//'j' => $j,
+						//'d' => $d,
 
 						'editable' => $edit ? true : false,
 
-						'is_first'=>$is_first,
+						//'is_first'=>$is_first,
 						'item'=>$rr,
-						'html'=>$html,
+						//'html'=>$html,
 						'plink' => [$rr['plink'], t('Link to source')],
 
-						'description' => $rr['description'],
-						'location' => $rr['location'],
+						'description' => htmlentities($rr['description'], ENT_COMPAT, 'UTF-8'),
+						'location' => htmlentities($rr['location'], ENT_COMPAT, 'UTF-8'),
 
 						'allow_cid' => expand_acl($rr['allow_cid']),
 						'allow_gid' => expand_acl($rr['allow_gid']),

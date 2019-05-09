@@ -1163,7 +1163,7 @@ function event_store_item($arr, $event) {
 		$item_arr['item_thread_top'] = $item_thread_top;
 
 		$attach = array(array(
-			'href' => z_root() . '/events/ical/' .  urlencode($event['event_hash']),
+			'href' => z_root() . '/channel_calendar/ical/' .  urlencode($event['event_hash']),
 			'length' => 0,
 			'type' => 'text/calendar',
 			'title' => t('event') . '-' . $event['event_hash'],

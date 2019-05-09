@@ -63,6 +63,11 @@ $(document).ready(function() {
 
 			event_uri = '';
 			$('#id_title').val('New event');
+			$('#id_title').attr('disabled', false);
+			$('#id_dtstart').attr('disabled', false);
+			$('#id_dtend').attr('disabled', false);
+			$('#id_description').attr('disabled', false);
+			$('#id_location').attr('disabled', false);
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
 			$('#id_dtstart').val(info.date.toUTCString());
 			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
@@ -102,6 +107,11 @@ $(document).ready(function() {
 				$('.section-content-tools-wrapper, #event_form_wrapper').show();
 				$('#recurrence_warning').hide();
 				$('#id_title').focus().val('');
+				$('#id_title').attr('disabled', false);
+				$('#id_dtstart').attr('disabled', false);
+				$('#id_dtend').attr('disabled', false);
+				$('#id_description').attr('disabled', false);
+				$('#id_location').attr('disabled', false);
 
 				return false;
 			}
@@ -186,7 +196,6 @@ $(document).ready(function() {
 					'event_id': event_id,
 					'event_hash': event_uri,
 					'xchan': event_xchan,
-					//'mid': mid,
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
@@ -196,7 +205,6 @@ $(document).ready(function() {
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
-					//'submit': $('#event_submit').val()
 				})
 				.fail(function() {
 					info.revert();
@@ -234,7 +242,6 @@ $(document).ready(function() {
 					'event_id': event_id,
 					'event_hash': event_uri,
 					'xchan': event_xchan,
-					//'mid': mid,
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
@@ -244,7 +251,6 @@ $(document).ready(function() {
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
-					//'submit': $('#event_submit').val()
 				})
 				.fail(function() {
 					info.revert();
@@ -406,7 +412,6 @@ function on_submit() {
 			'event_id': event_id,
 			'event_hash': event_uri,
 			'xchan': event_xchan,
-			//'mid': mid,
 			'type': 'event',
 			'preview': 0,
 			'summary': $('#id_title').val(),
@@ -416,7 +421,6 @@ function on_submit() {
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
-			//'submit': $('#event_submit').val(),
 			'contact_allow[]': contact_allow,
 			'group_allow[]': group_allow,
 			'contact_deny[]': contact_deny,
@@ -508,11 +512,7 @@ function on_more() {
 }
 
 function exportDate() {
-	alert('not implemented');
-	console.log('not implemented');
-	//var moment = $('#events-calendar').fullCalendar('getDate');
-	//var sT = 'events/' + moment.year() + '/' + (moment.month() + 1) + '/export';
-	//window.location.href=sT;
+	window.location.href= 'channel_calendar/export';
 }
 
 </script>

@@ -965,7 +965,7 @@ class Cdav extends Controller {
 
 			foreach($calendars as $calendar) {
 				$editable = (($calendar['share-access'] == 2) ? 'false' : 'true');  // false/true must be string since we're passing it to javascript
-				$color = (($calendar['{http://apple.com/ns/ical/}calendar-color']) ? $calendar['{http://apple.com/ns/ical/}calendar-color'] : '#3a87ad');
+				$color = (($calendar['{http://apple.com/ns/ical/}calendar-color']) ? $calendar['{http://apple.com/ns/ical/}calendar-color'] : '#6cad39');
 				$sharer = (($calendar['share-access'] == 3) ? $calendar['{urn:ietf:params:xml:ns:caldav}calendar-description'] : '');
 				$switch = get_pconfig(local_channel(), 'cdav_calendar', $calendar['id'][0]);
 				if($switch) {
@@ -1398,12 +1398,13 @@ class Cdav extends Controller {
 			$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
 			$properties = [
 				'{DAV:}displayname' => t('Default Calendar'),
-				'{http://apple.com/ns/ical/}calendar-color' => '#3a87ad',
+				'{http://apple.com/ns/ical/}calendar-color' => '#6cad39',
 				'{urn:ietf:params:xml:ns:caldav}calendar-description' => $channel['channel_name']
 			];
 
 			$id = $caldavBackend->createCalendar($uri, 'default', $properties);
 			set_pconfig(local_channel(), 'cdav_calendar' , $id[0], 1);
+			set_pconfig(local_channel(), 'cdav_calendar' , 'channel_calendar', 1);
 
 			//create default addressbook
 			$carddavBackend = new \Sabre\CardDAV\Backend\PDO($pdo);

@@ -57,7 +57,7 @@ class Cdav {
 
 				$switch = get_pconfig(local_channel(), 'cdav_calendar', $sabrecal['id'][0]);
 
-				$color = (($sabrecal['{http://apple.com/ns/ical/}calendar-color']) ? $sabrecal['{http://apple.com/ns/ical/}calendar-color'] : '#3a87ad');
+				$color = (($sabrecal['{http://apple.com/ns/ical/}calendar-color']) ? $sabrecal['{http://apple.com/ns/ical/}calendar-color'] : '#6cad39');
 
 				$editable = (($sabrecal['share-access'] == 2) ? 'false' : 'true'); // false/true must be string since we're passing it to javascript
 

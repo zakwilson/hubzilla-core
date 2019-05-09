@@ -68,7 +68,7 @@ $(document).ready(function() {
 			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
 			$('#id_description').val('');
 			$('#id_location').val('');
-			$('#event_submit').val('create_event').html('Create');
+			$('#event_submit').val('create_event').html('{{$create}}');
 			$('#event_delete').hide();
 
 			new_event = { id: new_event_id, title  : 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), editable: true, color: '#bbb' };

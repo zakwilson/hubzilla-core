@@ -133,10 +133,6 @@ class Cdav extends Controller {
 
 				logger('loggedin');
 
-				if((argv(1) == 'calendars') && (!Apps::system_app_installed(local_channel(), 'CalDAV'))) {
-					killme();
-				}
-
 				if((argv(1) == 'addressbooks') && (!Apps::system_app_installed(local_channel(), 'CardDAV'))) {
 					killme();
 				}
@@ -220,10 +216,6 @@ class Cdav extends Controller {
 	function post() {
 		if(! local_channel())
 			return;
-
-		if((argv(1) === 'calendar') && (! Apps::system_app_installed(local_channel(), 'CalDAV'))) {
-			return;
-		}
 
 		if((argv(1) === 'addressbook') && (! Apps::system_app_installed(local_channel(), 'CardDAV'))) {
 			return;
@@ -847,15 +839,6 @@ class Cdav extends Controller {
 		if(!local_channel())
 			return;
 
-		if((argv(1) === 'calendar') && (! Apps::system_app_installed(local_channel(), 'CalDAV'))) {
-			//Do not display any associated widgets at this point
-			App::$pdl = '';
-
-			$o = '<b>' . t('CalDAV App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('CalDAV capable calendar');
-			return $o;
-		}
-
 		if((argv(1) === 'addressbook') && (! Apps::system_app_installed(local_channel(), 'CardDAV'))) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
@@ -884,7 +867,7 @@ class Cdav extends Controller {
 		}
 
 		if(argv(1) === 'calendar') {
-			nav_set_selected('CalDAV');
+			nav_set_selected('Calendar');
 			$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
 			$calendars = $caldavBackend->getCalendarsForUser($principalUri);
 		}

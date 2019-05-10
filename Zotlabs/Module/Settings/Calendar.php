@@ -36,7 +36,7 @@ class Calendar {
 			'$rpath' => $rpath,
 			'$action_url' => 'settings/' . $module,
 			'$form_security_token' => get_form_security_token('settings_' . $module),
-			'$title' => t('CalDAV Settings'),
+			'$title' => t('Calendar Settings'),
 			'$features'  => process_module_features_get(local_channel(), $features),
 			'$submit'    => t('Submit')
 		));

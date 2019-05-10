@@ -754,16 +754,27 @@ class Cdav extends Controller {
 		//Import calendar or addressbook
 		if(($_FILES) && array_key_exists('userfile',$_FILES) && intval($_FILES['userfile']['size']) && $_REQUEST['target']) {
 
-			$src = @file_get_contents($_FILES['userfile']['tmp_name']);
+			$src = $_FILES['userfile']['tmp_name'];
 
 			if($src) {
 
 				if($_REQUEST['c_upload']) {
+					if($_REQUEST['target'] == 'channel_calendar') {
+						$result = parse_ical_file($src,local_channel());
+						if($result)
+							info( t('Calendar entries imported.') . EOL);
+						else
+							notice( t('No calendar entries found.') . EOL);
+
+						@unlink($src);
+						return;
+					}
+
 					$id = explode(':', $_REQUEST['target']);
 					$ext = 'ics';
 					$table = 'calendarobjects';
 					$column = 'calendarid';
-					$objects = new \Sabre\VObject\Splitter\ICalendar($src);
+					$objects = new \Sabre\VObject\Splitter\ICalendar(@file_get_contents($src));
 					$profile = \Sabre\VObject\Node::PROFILE_CALDAV;
 					$backend = new \Sabre\CalDAV\Backend\PDO($pdo);
 				}
@@ -773,7 +784,7 @@ class Cdav extends Controller {
 					$ext = 'vcf';
 					$table = 'cards';
 					$column = 'addressbookid';
-					$objects = new \Sabre\VObject\Splitter\VCard($src);
+					$objects = new \Sabre\VObject\Splitter\VCard(@file_get_contents($src));
 					$profile = \Sabre\VObject\Node::PROFILE_CARDDAV;
 					$backend = new \Sabre\CardDAV\Backend\PDO($pdo);
 				}

@@ -119,6 +119,9 @@
 					<div class="form-group">
 						<select id="import" name="target" class="form-control">
 							<option value="">{{$import_placeholder}}</option>
+							<optgroup label="{{$tools_options_label.0}}">
+							<option value="{{$channel_calendar.calendarid}}">{{$channel_calendar.displayname}}</option>
+							<optgroup label="{{$tools_options_label.1}}">
 							{{foreach $writable_calendars as $writable_calendar}}
 							<option value="{{$writable_calendar.id.0}}:{{$writable_calendar.id.1}}">{{$writable_calendar.displayname}}</option>
 							{{/foreach}}

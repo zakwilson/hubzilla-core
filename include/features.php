@@ -79,7 +79,7 @@ function get_features($filtered = true, $level = (-1)) {
 
 		'calendar' => [
 
-			t('CalDAV'),
+			t('Calendar'),
 
 			[
 				'cal_first_day',

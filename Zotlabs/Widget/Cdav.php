@@ -140,7 +140,7 @@ class Cdav {
 				'$create' => t('Create'),
 				'$create_placeholder' => t('Calendar Name'),
 				'$tools_label' => t('Calendar Tools'),
-				'$tools_options_label' => [t('Channel Calendar'), t('CalDAV Calendars')],
+				'$tools_options_label' => [t('Channel Calendars'), t('CalDAV Calendars')],
 				'$import_label' => t('Import calendar'),
 				'$import_placeholder' => t('Select a calendar to import to'),
 				'$upload' => t('Upload'),

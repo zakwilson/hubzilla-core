@@ -62,7 +62,9 @@
 					<label for="edit-form-{{$calendar.calendarid}}">{{$edit_label}}</label>
 					<div id="edit-form-{{$calendar.calendarid}}" class="input-group form-group">
 						<input id="create-{{$calendar.calendarid}}" name="{DAV:}displayname" type="text" value="{{$calendar.displayname}}" class="form-control">
-						<span class="input-group-addon"><i></i></span>
+						<div class="input-group-append">
+							<div class="input-group-addon p-3"></div>
+						</div>
 					</div>
 					<div class="form-group">
 						<button type="submit" name="edit" value="edit" class="btn btn-primary btn-sm">{{$edit}}</button>
@@ -99,10 +101,12 @@
 		<div id="create-calendar" class="sub-menu-wrapper">
 			<div class="sub-menu">
 				<form method="post" action="" class="colorpicker-component color-edit">
-					<input id="color" name="color" type="hidden" value="#3a87ad" class="color-edit-input">
+					<input id="color" name="color" type="hidden" value="#ff8f00" class="color-edit-input">
 					<div id="create-form" class="input-group form-group">
 						<input id="create" name="{DAV:}displayname" type="text" placeholder="{{$create_placeholder}}" class="form-control">
-						<span class="input-group-addon"><i></i></span>
+						<div class="input-group-append">
+							<div class="input-group-addon p-3"></div>
+						</div>
 					</div>
 					<div class="form-group">
 						<button type="submit" name="create" value="create" class="btn btn-primary btn-sm">{{$create}}</button>

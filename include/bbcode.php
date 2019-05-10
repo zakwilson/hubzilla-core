@@ -987,11 +987,13 @@ function bbcode($Text, $options = []) {
 	// leave open the posibility of [map=something]
 	// this is replaced in prepare_body() which has knowledge of the item location
 
-	if (strpos($Text,'[/map]') !== false) {
-		$Text = preg_replace_callback("/\[map\](.*?)\[\/map\]/ism", 'bb_map_location', $Text);
-	}
-	if (strpos($Text,'[map=') !== false) {
-		$Text = preg_replace_callback("/\[map=(.*?)\]/ism", 'bb_map_coords', $Text);
+	if (! $cache) {
+		if (strpos($Text,'[/map]') !== false) {
+			$Text = preg_replace_callback("/\[map\](.*?)\[\/map\]/ism", 'bb_map_location', $Text);
+		}
+		if (strpos($Text,'[map=') !== false) {
+			$Text = preg_replace_callback("/\[map=(.*?)\]/ism", 'bb_map_coords', $Text);
+		}
 	}
 	if (strpos($Text,'[map]') !== false) {
 		$Text = preg_replace("/\[map\]/", '<div class="map"></div>', $Text);

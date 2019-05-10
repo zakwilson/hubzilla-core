@@ -154,7 +154,7 @@ class Activity {
 			'type' => 'Image',
 			'id' => $x['id'],
 			'name' => $x['title'],
-			'content' => bbcode($x['body']),
+			'content' => bbcode($x['body'], [ 'cache' => true ]),
 			'source' => [ 'mediaType' => 'text/bbcode', 'content' => $x['body'] ],
 			'published' => datetime_convert('UTC','UTC',$x['created'],ATOM_TIME), 
 			'updated' => datetime_convert('UTC','UTC', $x['edited'],ATOM_TIME),
@@ -184,11 +184,11 @@ class Activity {
 				$y = [ 
 					'type'      => 'Event',
 					'id'        => z_root() . '/event/' . $ev['event_hash'],
-					'summary'   => bbcode($ev['summary']),
+					'summary'   => bbcode($ev['summary'], [ 'cache' => true ]),
 					// RFC3339 Section 4.3
 					'startTime' => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
-					'content'   => bbcode($ev['description']),
-					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location']) ],
+					'content'   => bbcode($ev['description'], [ 'cache' => true ]),
+					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location'], [ 'cache' => true ]) ],
 					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
@@ -315,10 +315,10 @@ class Activity {
 
 		if($i['mimetype'] === 'text/bbcode') {
 			if($i['title'])
-				$ret['name'] = bbcode($i['title']);
+				$ret['name'] = bbcode($i['title'], [ 'cache' => true ]);
 			if($i['summary'])
-				$ret['summary'] = bbcode($i['summary']);
-			$ret['content'] = bbcode($i['body']);
+				$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
+			$ret['content'] = bbcode($i['body'], [ 'cache' => true ]);
 			$ret['source'] = [ 'content' => $i['body'], 'mediaType' => 'text/bbcode' ];
 		}
 
@@ -476,14 +476,14 @@ class Activity {
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 
 		if($i['title'])
-			$ret['name'] = html2plain(bbcode($i['title']));
+			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));
 
 		if($i['summary'])
-			$ret['summary'] = bbcode($i['summary']);
+			$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
 
 		if($ret['type'] === 'Announce') {
 			$tmp = preg_replace('/\[share(.*?)\[\/share\]/ism',EMPTY_STR, $i['body']);
-			$ret['content'] = bbcode($tmp);
+			$ret['content'] = bbcode($tmp, [ 'cache' => true ]);
 			$ret['source'] = [
 				'content' => $i['body'],
 				'mediaType' => 'text/bbcode'

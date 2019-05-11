@@ -476,6 +476,15 @@ function unxmlify($s) {
 
 	return $ret;
 */
+
+	if(is_array($s)) {
+
+		// allow to fall through so we ge a PHP error, as the log statement will
+		// probably get lost in the noise unless we're specifically looking for it.
+
+		btlogger('unxmlify called with array: ' . print_r($s,true), LOGGER_NORMAL, LOG_WARNING);
+	}
+
 	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;
 }

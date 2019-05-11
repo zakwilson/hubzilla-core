@@ -3082,7 +3082,7 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
 	
-	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/photos\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${2}', $item['body']);
+	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/(photos|gallery)\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${3}', $item['body']);
 	$item['body'] = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
 
 	$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));

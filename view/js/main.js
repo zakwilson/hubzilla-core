@@ -1161,7 +1161,7 @@ function doreply(parent, ident, owner, hint) {
 
 function doscroll(parent, hidden) {
 	var x = '#hide-comments-outer-' + hidden.toString();
-	var back = $('.back-to-reply');
+	var back = $('#back-to-reply');
 	if(back.length == 0)
 		var pos = $(window).scrollTop();
 	else
@@ -1177,11 +1177,11 @@ function doscroll(parent, hidden) {
 	back.remove();
 	var id = $('[data-mid="' + parent + '"]');
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
-	$('<a href="javascript:doscrollback(' + pos + ');" class="back-to-reply" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down float-right">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-right" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
 }
 
 function doscrollback(pos) {
-	$('.back-to-reply').remove();
+	$('#back-to-reply').remove();
 	$(window).scrollTop(pos);
 }
 

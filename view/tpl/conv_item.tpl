@@ -28,7 +28,7 @@
 				{{/if}}
 				<div class="p-2 clearfix wall-item-head{{if $item.is_new && !$item.title && !$item.event && !$item.is_comment && !$item.photo}} wall-item-head-new rounded-top{{/if}}" >
 					{{if $item.thr_parent}}
-						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" title="{{$item.top_hint}}"><i class="fa fa-angle-double-up float-right">&nbsp;&nbsp;&nbsp;</i></a>
+						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" title="{{$item.top_hint}}" class="float-right"><i class="fa fa-angle-double-up">&nbsp;&nbsp;&nbsp;</i></a>
 					{{/if}}
 					<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$item.id}}">

@@ -74,10 +74,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$location = escape_tags(trim($_POST['location']));
 		$type     = escape_tags(trim($_POST['type']));
 
-		require_once('include/text.php');
-		linkify_tags($desc, local_channel());
-		linkify_tags($location, local_channel());
-
 		// Don't allow the event to finish before it begins.
 		// It won't hurt anything, but somebody will file a bug report
 		// and we'll waste a bunch of time responding to it. Time that 
@@ -130,12 +126,40 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$post_tags = array();
 		$channel = \App::get_channel();
 		$ac = $acl->get();
-	
+
+		$str_contact_allow = $ac['allow_cid'];
+		$str_group_allow   = $ac['allow_gid'];
+		$str_contact_deny = $ac['deny_cid'];
+		$str_group_deny = $ac['deny_gid'];
+
+		$private = $acl->is_private();
+
+		require_once('include/text.php');
+		$results = linkify_tags($desc, local_channel());
+
+		if($results) {
+			// Set permissions based on tag replacements
+			set_linkified_perms($results, $str_contact_allow, $str_group_allow, local_channel(), false, $private);
+
+			foreach($results as $result) {
+				$success = $result['success'];
+				if($success['replaced']) {
+					$post_tags[] = array(
+						'uid'   => local_channel(),
+						'ttype' => $success['termtype'],
+						'otype' => TERM_OBJ_POST,
+						'term'  => $success['term'],
+						'url'   => $success['url']
+					);	
+				}
+			}
+		}
+
 		if(strlen($categories)) {
 			$cats = explode(',',$categories);
 			foreach($cats as $cat) {
 				$post_tags[] = array(
-					'uid'   => $profile_uid, 
+					'uid'   => local_channel(),
 					'ttype' => TERM_CATEGORY,
 					'otype' => TERM_OBJ_POST,
 					'term'  => trim($cat),
@@ -156,11 +180,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$datarray['uid'] = local_channel();
 		$datarray['account'] = get_account_id();
 		$datarray['event_xchan'] = $channel['channel_hash'];
-		$datarray['allow_cid'] = $ac['allow_cid'];
-		$datarray['allow_gid'] = $ac['allow_gid'];
-		$datarray['deny_cid'] = $ac['deny_cid'];
-		$datarray['deny_gid'] = $ac['deny_gid'];
-		$datarray['private'] = (($acl->is_private()) ? 1 : 0);
+		$datarray['allow_cid'] = $str_contact_allow;
+		$datarray['allow_gid'] = $str_group_allow;
+		$datarray['deny_cid'] = $str_contact_deny;
+		$datarray['deny_gid'] = $str_group_deny;
+		$datarray['private'] = intval($private);
 		$datarray['id'] = $event_id;
 		$datarray['created'] = $created;
 		$datarray['edited'] = $edited;

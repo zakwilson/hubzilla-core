@@ -68,7 +68,7 @@
 				<div class="input-group">
 					<input class="form-control" name="{{$commitMsg.0}}" id="id_{{$commitMsg.0}}" type="text" value="{{$commitMsg.2}}"{{if $commitMsg.5}} {{$commitMsg.5}}{{/if}}>
 					<div class="input-group-append">
-						<button id="save-page" type="button" class="btn btn-primary disabled">Save</button>
+						<button id="save-page" type="button" class="btn btn-sm btn-primary disabled">Save</button>
 					</div>
 				</div>
 			</div>

@@ -491,7 +491,7 @@ class Like extends \Zotlabs\Web\Controller {
 
 		$arr['item_flags']   = $item_flags;
 		$arr['item_wall']    = $item_wall;
-		$arr['parent_mid']   = (($extended_like) ? $mid : $item['mid']);
+		$arr['parent_mid']   = (($extended_like) ? $arr['mid'] : $item['mid']);
 		$arr['owner_xchan']  = (($extended_like) ? $ch[0]['xchan_hash'] : $thread_owner['xchan_hash']);
 		$arr['author_xchan'] = $observer['xchan_hash'];
 	
@@ -546,7 +546,7 @@ class Like extends \Zotlabs\Web\Controller {
 				dbesc($observer['xchan_hash']),
 				dbesc($ch[0]['channel_hash']),
 				intval($post_id),
-				dbesc($mid),
+				dbesc($arr['mid']),
 				dbesc($activity),
 				dbesc(($tgttype)? $tgttype : $objtype),
 				dbesc($obj_id),
@@ -555,7 +555,7 @@ class Like extends \Zotlabs\Web\Controller {
 			$r = q("select * from likes where liker = '%s' and likee = '%s' and i_mid = '%s' and verb = '%s' and target_type = '%s' and target_id = '%s' ",
 				dbesc($observer['xchan_hash']),
 				dbesc($ch[0]['channel_hash']),
-				dbesc($mid),
+				dbesc($arr['mid']),
 				dbesc($activity),
 				dbesc(($tgttype)? $tgttype : $objtype),
 				dbesc($obj_id)

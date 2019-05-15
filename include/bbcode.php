@@ -987,7 +987,7 @@ function bbcode($Text, $options = []) {
 	// this is replaced in prepare_body() which has knowledge of the item location
 	if ($cache) {
 		$Text = str_replace([ '[map]','[/map]' ], [ '','' ], $Text);
-		$Text = preg_replace('/[map=(.*?)\]/ism','$1',$Text);
+		$Text = preg_replace('/\[map=(.*?)\]/ism','$1',$Text);
 	}
 	else {
 		if (strpos($Text,'[/map]') !== false) {

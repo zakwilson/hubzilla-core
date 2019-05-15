@@ -335,8 +335,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				);
 			}
 			elseif($export) {
-				$r = q("SELECT * from event where uid = %d",
-					intval(local_channel())
+				$r = q("SELECT * from event where uid = %d and dtstart > '%s' and dtend > dtstart",
+					intval(local_channel()),
+					dbesc(NULL_DATE)
 				);
 			}
 			else {

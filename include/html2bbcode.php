@@ -219,8 +219,7 @@ function html2bbcode($message)
 
 	$message = $doc->saveHTML();
 
-	// I'm removing something really disturbing
-	// Don't know exactly what it is
+	// I'm removing the UTF-8 encoding of a NO-BREAK SPACE codepoint
 	$message = str_replace(chr(194).chr(160), ' ', $message);
 
 	$message = str_replace("&nbsp;", " ", $message);

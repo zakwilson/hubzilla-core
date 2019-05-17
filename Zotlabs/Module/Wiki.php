@@ -293,9 +293,9 @@ class Wiki extends Controller {
 				}
 
 				//$wikiheaderName = urldecode($wikiUrlName);
-				$wikiheaderName = NativeWiki::name_decode($wikiUrlName);
+				$wikiheaderName = escape_tags(NativeWiki::name_decode($wikiUrlName));
 				//$wikiheaderPage = urldecode($pageUrlName);
-				$wikiheaderPage = NativeWiki::name_decode($pageUrlName);
+				$wikiheaderPage = escape_tags(NativeWiki::name_decode($pageUrlName));
 
 				$renamePage = (($wikiheaderPage === 'Home') ? '' : t('Rename page'));
 				$sharePage  = t('Share');

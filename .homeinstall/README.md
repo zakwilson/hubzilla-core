@@ -1,15 +1,42 @@
 # Hubzilla at Home next to your Router
 
-Run hubzilla-setup.sh for an unattended installation of hubzilla.
+This readme will show you how to install and run Hubzilla or Zap at home.
+
+The installation is done by a script.
+
+What the script will do for you...
+
++ install everything required by Zap/Hubzilla, basically a web server (Apache), PHP, a database (MySQL), certbot,...
++ create a database
++ run certbot to have everything for a secure connection (httpS)
++ create a script for daily maintenance
+  - backup to external disk (certificates, database, /var/www/)
+  - renew certfificate (letsencrypt)
+  - update of Zap/Hubzilla
+  - update of Debian
+  - restart
++ create cron jobs for
+  - DynDNS (selfHOST.de or freedns.afraid.org) every 5 minutes
+  - Master.php for Zap/Hubzilla every 10 minutes
+  - daily maintenance script every day at 05:30
 
 The script is known to work without adjustments with
 
 + Hardware
-  - Mini-PC with Debian-9.5-amd64, or
-  - Rapberry 3 with Raspbian, Debian-9.5
+  - Mini-PC with Debian 9 (stretch), or
+  - Rapberry 3 with Raspbian, Debian 9
 + DynDNS
   - selfHOST.de
   - freedns.afraid.org
+
+The script can install both [Hubzilla](https://zotlabs.org/page/hubzilla/hubzilla-project) and [Zap](https://zotlabs.com/zap/). Make sure to use the correct GIT repositories.  
+
++ Hubzilla
+  - core: git clone https://framagit.org/hubzilla/core.git html (in this readme)
+  - addons: util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons (in hubzilla-setup.sh)
++ Zap
+  - core: git clone https://framagit.org/zot/zap.git html (in this readme)
+  - addons: util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons (in hubzilla-setup.sh)
 
 ## Disclaimers
 
@@ -29,7 +56,7 @@ Hardware
 Software
 
 + Fresh installation of Debian 9 (Stretch)
-+ Router with open ports 80 and 443 for your Hub
++ Router with open ports 80 and 443 for your web server
 
 ## The basic steps (quick overview)
 
@@ -44,10 +71,9 @@ Software
   - nano hubzilla-config.txt
     - Read the comments carefully
     - Enter your values: db pass, domain, values for dyn DNS
-  - Make sure your external drive (for backups) is mounted
+    - Prepare your external disk for backups
   - hubzilla-setup.sh as root
     - ... wait, wait, wait until the script is finised
-  - reboot
 + Open your domain with a browser and step throught the initial configuration of hubzilla.
 
 ## Troubleshooting
@@ -66,57 +92,27 @@ In Admin settings of hubzilla or via terminal
 
 # Step-by-Step in Detail
 
-## Preparations Hardware
-
-### Mini-PC
-
-### Recommended: USB Drive for Backups
-
-The installation will create a daily backup written to an external drive.
-
-The USB drive must be compatible with the filesystems
-
-- ext4 (if you do not want to encrypt the USB) 
-- LUKS + ext4 (if you want to encrypt the USB) 
-
-The backup includes 
-
-- Hubzilla DB
-- Hubzilla installation /var/www/html
-- Certificates for letsencrypt
-
 ## Preparations Software
 
-### Install Debian Linux on the Mini-PC
+## Install Debian 9
 
-Download the stable Debian at https://www.debian.org/  
-(Debian 8 is no longer supported.)
+Provided you use a Raspberry Pi 3...
 
-Create bootable USB drive with Debian on it.You could use
+Download the OS Raspbian from https://www.raspberrypi.org/downloads/raspbian/
 
-- unetbootin, https://en.wikipedia.org/wiki/UNetbootin
-- or simply the linux command "dd"
+Follow the installation instruction there.
 
-Example for command dd...
+## Configure your Router
 
-    su -
-    dd if=2018-10-09-raspbian-stretch.img of=/dev/mmcblk0
+Your web has to be visible in the internet.  
 
-Do not forget to unmount the SD card before and check if unmounted like in this example...
-
-    su -
-    umount /dev/mmcblk0*
-    df -h
-
-
-Switch off your mini pc, plug in your USB drive and start the mini pc from the
-stick. Install Debian. Follow the instructions of the installation.
-
-### Configure your Router
-
-Open the ports 80 and 443 on your router for your Debian
+Open the ports 80 and 443 on your router for your Debian. Make sure your web server is marked as "exposed host".
 
 ## Preparations Dynamic IP Address
+
+Follow the instructions in .homeinstall/hubzilla-config.txt.  
+
+In short...  
 
 Your Hubzilla must be reachable by a domain that you can type in your browser
 
@@ -132,105 +128,15 @@ There are two ways to get a domain...
 
 ...for example buy at selfHOST.de  
 
-The cost are around 10,- € once and 1,50 € per month (2017).
+The cost is 1,50 € per month (2019).
 
 ### Method 2: Register a free subdomain
 
 ...for example register at freedns.afraid.org
 
-Follow the instructions in .homeinstall/hubzilla-config.txt.  
+## Note on Rasperry 
 
-
-## Install Hubzilla on your Debian
-
-Login to your debian
-(Provided your username is "you" and the name of the mini pc is "debian". You
-could take the IP address instead of "debian")
-
-    ssh -X you@debian
-
-Change to root user
-
-    su -l
-
-Install git
-
-    apt-get install git
-
-Make the directory for apache and change diretory to it
-
-    mkdir /var/www
-    cd /var/www/
-
-Clone hubzilla from git ("git pull" will update it later)
-
-    git clone https://framagit.org/hubzilla/core.git  html
-
-Change to the install script
-
-    cd html/.homeinstall/
-    
-Copy the template file
-    
-    cp hubzilla-config.txt.template hubzilla-config.txt
-
-Modify the file "hubzilla-config.txt". Read the instructions there carefully and enter your values.
-
-    nano hubzilla-config.txt
-
-Make sure your external drive (for backups) is plugged in and can be mounted as configured in "hubzilla-config.txt". Otherwise the daily backups will not work.
-
-Run the script
-
-     ./hubzilla-setup.sh
-
-Wait... The script should not finish with an error message.
-
-In a webbrowser open your domain.
-Expected: A test page of hubzilla is shown. All checks there should be
-successfull. Go on...
-Expected: A page for the Hubzilla server configuration shows up.
-
-Leave db server name "127.0.0.1" and port "0" untouched.
-
-Enter
-
-- DB user name = hubzilla
-- DB pass word = This is the password you entered in "hubzilla-config.txt"
-- DB name = hubzilla
-
-Leave db type "MySQL" untouched.
-
-Follow the instructions in the next pages.
-
-Recommended: Set path to imagemagick
-
-- in admin settings of hubzilla or 
-- via terminal
-
-    util/config system.imagick_convert_path /usr/bin/convert
-
-After the daily script was executed at 05:30 (am)
-
-- look at /var/www/html/hubzilla-daily.log
-- check your backup on the external drive
-- optionally view the daily log under yourdomain.org/admin/logs/
-  - set the logfile to var/www/html/hubzilla-daily.log
-
-
-## Install Hubzilla in a Virtual Machine for Test Purposes
-
-Modify the file "hubzilla-config.txt".
-
-    nano hubzilla-config.txt
-
-There use 
-
-    le_domain=localhost
-
-## Note for the Rasperry 
-
-The script was tested with an Raspberry 3 under Raspian (Debian 9.5, 2018-10-09-raspbian-stretch.img).
+The script was tested with an Raspberry 3 under Raspian, Debian 9.
 
 It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
@@ -240,7 +146,7 @@ to boot the Rapsi to the client console.
 
 DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
-If the validation of the mail address fails for the very first registered user...  
+On a Raspian Stretch (Debian 9) the validation of the mail address fails for the very first user.
 This used to happen on some *bsd distros but there was some work to fix that a year ago (2017).
 
 So if your system isn't registered in DNS or DNS isn't active do

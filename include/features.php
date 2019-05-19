@@ -79,7 +79,7 @@ function get_features($filtered = true, $level = (-1)) {
 
 		'calendar' => [
 
-			t('CalDAV'),
+			t('Calendar'),
 
 			[
 				'cal_first_day',
@@ -167,6 +167,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to mark special posts with a star indicator'),
 				false,
 				get_config('feature_lock','star_posts'),
+			],
+			
+			[
+				'reply_to',     
+				t('Reply on comment'),				
+				t('Ability to reply on selected comment'),
+				false,
+				get_config('feature_lock','reply_to'),
 			]
 
 		],
@@ -358,14 +366,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Ability to display only posts that you\'ve interacted on'),
 				false,
 				get_config('feature_lock','personal_tab')
-			],
-
-			[
-				'suggest',    	
-				t('Suggest Channels'),			
-				t('Show friend and connection suggestions'),
-				false,
-				get_config('feature_lock','suggest')
 			],
 
 			[

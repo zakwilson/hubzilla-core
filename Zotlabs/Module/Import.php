@@ -8,6 +8,8 @@ require_once('include/import.php');
 require_once('include/perm_upgrade.php');
 require_once('library/urlify/URLify.php');
 
+use Zotlabs\Lib\Libzot;
+
 
 /**
  * @brief Module for channel import.
@@ -228,13 +230,45 @@ class Import extends \Zotlabs\Web\Controller {
 			);
 
 			// reset the original primary hubloc if it is being seized
-
 			if($seize) {
 				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
 					dbesc($channel['channel_hash']),
 					dbesc(z_root())
 				);
 			}
+
+			// create a new zot6 hubloc if we have got a channel_portable_id
+			if($channel['channel_portable_id']) {
+				$r = hubloc_store_lowlevel(
+					[
+						'hubloc_guid'     => $channel['channel_guid'],
+						'hubloc_guid_sig' => 'sha256.' . $channel['channel_guid_sig'],
+						'hubloc_hash'     => $channel['channel_portable_id'],
+						'hubloc_addr'     => channel_reddress($channel),
+						'hubloc_network'  => 'zot6',
+						'hubloc_primary'  => (($seize) ? 1 : 0),
+						'hubloc_url'      => z_root(),
+						'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+						'hubloc_host'     => \App::get_hostname(),
+						'hubloc_callback' => z_root() . '/zot',
+						'hubloc_sitekey'  => get_config('system','pubkey'),
+						'hubloc_updated'  => datetime_convert(),
+						'hubloc_id_url'   => channel_url($channel),
+						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'))
+
+					]
+				);
+
+				// reset the original primary hubloc if it is being seized
+				if($seize) {
+					$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
+						dbesc($channel['channel_portable_id']),
+						dbesc(z_root())
+					);
+				}
+
+			}
+
 		}
 
 		logger('import step 5');
@@ -246,8 +280,9 @@ class Import extends \Zotlabs\Web\Controller {
 
 			// replace any existing xchan we may have on this site if we're seizing control
 
-			$r = q("delete from xchan where xchan_hash = '%s'",
-				dbesc($channel['channel_hash'])
+			$r = q("delete from xchan where ( xchan_hash = '%s' or xchan_hash = '%s' ) ",
+				dbesc($channel['channel_hash']),
+				dbesc($channel['channel_portable_id'])
 			);
 
 			$r = xchan_store_lowlevel(
@@ -269,6 +304,30 @@ class Import extends \Zotlabs\Web\Controller {
 					'xchan_name_date'      => datetime_convert()
 				]
 			);
+
+			if($channel['channel_portable_id']) {
+				$r = xchan_store_lowlevel(
+					[
+						'xchan_hash'           => \Zotlabs\Lib\Libzot::make_xchan_hash($channel['channel_guid'],$channel['channel_pubkey']),
+						'xchan_guid'           => $channel['channel_guid'],
+						'xchan_guid_sig'       => 'sha256.' . $channel['channel_guid_sig'],
+						'xchan_pubkey'         => $channel['channel_pubkey'],
+						'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
+						'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
+						'xchan_photo_s'        => z_root() . "/photo/profile/s/" . $channel['channel_id'],
+						'xchan_addr'           => channel_reddress($channel),
+						'xchan_url'            => z_root() . '/channel/' . $channel['channel_address'],
+						'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
+						'xchan_follow'         => z_root() . '/follow?f=&url=%s',
+						'xchan_name'           => $channel['channel_name'],
+						'xchan_network'        => 'zot6',
+						'xchan_photo_date'     => datetime_convert(),
+						'xchan_name_date'      => datetime_convert()
+					]
+				);
+			}
+
+
 		}
 
 		logger('import step 6');
@@ -278,10 +337,20 @@ class Import extends \Zotlabs\Web\Controller {
 		if($xchans) {
 			foreach($xchans as $xchan) {
 
-				$hash = make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_guid_sig']);
-				if($xchan['xchan_network'] === 'zot' && $hash !== $xchan['xchan_hash']) {
-					logger('forged xchan: ' . print_r($xchan,true));
-					continue;
+				if($xchan['xchan_network'] === 'zot') {
+					$hash = make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_guid_sig']);
+					if($hash !== $xchan['xchan_hash']) {
+						logger('forged xchan: ' . print_r($xchan,true));
+						continue;
+					}
+				}
+
+				if($xchan['xchan_network'] === 'zot6') {
+					$zhash = \Zotlabs\Lib\Libzot::make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_pubkey']);
+					if($zhash !== $xchan['xchan_hash']) {
+						logger('forged xchan: ' . print_r($xchan,true));
+						continue;
+					}
 				}
 
 				if(! array_key_exists('xchan_hidden',$xchan)) {
@@ -471,6 +540,9 @@ class Import extends \Zotlabs\Web\Controller {
 
 		if(is_array($data['app']))
 			import_apps($channel,$data['app']);
+
+		if(is_array($data['sysapp']))
+			import_sysapps($channel,$data['sysapp']);
 
 		if(is_array($data['chatroom']))
 			import_chatrooms($channel,$data['chatroom']);

@@ -4,7 +4,7 @@
 		<div class="input-group form-group">
 			<input class="form-control" type="text" name="search" title="{{$hint}}{{if $advanced_search}}{{$advanced_hint}}{{/if}}" placeholder="{{$desc}}" />
 			<div class="input-group-append">
-				<button class="btn btn-outline-secondary" type="submit" name="submit"><i class="fa fa-fw fa-search"></i></button>
+				<button class="btn btn-sm btn-outline-secondary" type="submit" name="submit"><i class="fa fa-fw fa-search"></i></button>
 			</div>
 		</div>
 	</form>

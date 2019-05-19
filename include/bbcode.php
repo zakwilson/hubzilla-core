@@ -87,12 +87,11 @@ function nakedoembed($match) {
 
 	$strip_url = strip_escaped_zids($url);
 
-	$o = oembed_fetch_url($strip_url);
-
-	if ($o['type'] == 'error')
-		return str_replace($url,$strip_url,$match[0]);
-
-	return '[embed]' . $strip_url . '[/embed]';
+	// this function no longer performs oembed on naked links
+	// because they author may have created naked links intentionally.
+	// Now it just strips zids on naked links.
+	
+	return str_replace($url,$strip_url,$match[0]);
 }
 
 function tryzrlaudio($match) {
@@ -116,6 +115,26 @@ function tryzrlvideo($match) {
 
 	return '<video ' . $poster . ' controls="controls" preload="none" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . App::$videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
 }
+
+function videowithopts($match) {
+	$link = $match[2];
+	$zrl = is_matrix_url($link);
+	if($zrl)
+		$link = zid($link);
+
+	$attributes = $match[1];
+
+	$poster = "";
+
+	preg_match("/poster='(.*?)'/ism", $attributes, $matches);
+	if ($matches[1] != "")
+		$poster = 'poster="' . (($zrl) ? zid($matches[1]) : $matches[1]) . '"';
+
+	return '<video ' . $poster . ' controls="controls" preload="none" src="' . str_replace(' ','%20',$link) . '" style="width:100%; max-width:' . App::$videowidth . 'px"><a href="' . str_replace(' ','%20',$link) . '">' . $link . '</a></video>';
+}
+
+
+
 
 // [noparse][i]italic[/i][/noparse] turns into
 // [noparse][ i ]italic[ /i ][/noparse],
@@ -966,17 +985,22 @@ function bbcode($Text, $options = []) {
 
 	// leave open the posibility of [map=something]
 	// this is replaced in prepare_body() which has knowledge of the item location
-
-	if (strpos($Text,'[/map]') !== false) {
-		$Text = preg_replace_callback("/\[map\](.*?)\[\/map\]/ism", 'bb_map_location', $Text);
+	if ($cache) {
+		$Text = str_replace([ '[map]','[/map]' ], [ '','' ], $Text);
+		$Text = preg_replace('/\[map=(.*?)\]/ism','$1',$Text);
 	}
-	if (strpos($Text,'[map=') !== false) {
-		$Text = preg_replace_callback("/\[map=(.*?)\]/ism", 'bb_map_coords', $Text);
+	else {
+		if (strpos($Text,'[/map]') !== false) {
+			$Text = preg_replace_callback("/\[map\](.*?)\[\/map\]/ism", 'bb_map_location', $Text);
+		}
+		if (strpos($Text,'[map=') !== false) {
+			$Text = preg_replace_callback("/\[map=(.*?)\]/ism", 'bb_map_coords', $Text);
+		}
+		if (strpos($Text,'[map]') !== false) {
+			$Text = preg_replace("/\[map\]/", '<div class="map"></div>', $Text);
+		}
 	}
-	if (strpos($Text,'[map]') !== false) {
-		$Text = preg_replace("/\[map\]/", '<div class="map"></div>', $Text);
-	}
-
+	
 	// Check for bold text
 	if (strpos($Text,'[b]') !== false) {
 		$Text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $Text);
@@ -1251,12 +1275,14 @@ function bbcode($Text, $options = []) {
 
 	// html5 video and audio
 	if (strpos($Text,'[/video]') !== false) {
+		$Text = preg_replace_callback("/\[video (.*?)\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'videowithopts', $Text);
 		$Text = preg_replace_callback("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/audio]') !== false) {
 		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/audio\]/ism", 'tryzrlaudio', $Text);
 	}
 	if (strpos($Text,'[/zvideo]') !== false) {
+		$Text = preg_replace_callback("/\[zvideo (.*?)\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'videowithopts', $Text);
 		$Text = preg_replace_callback("/\[zvideo\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/zaudio]') !== false) {
@@ -1360,4 +1386,3 @@ function bbcode($Text, $options = []) {
 
 	return $Text;
 }
-

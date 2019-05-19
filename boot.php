@@ -50,10 +50,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '4.1' );
+define ( 'STD_VERSION',             '4.3' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1230 );
+define ( 'DB_UPDATE_VERSION',       1234 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -467,7 +467,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.3' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.4' );
 /**
  * activity stream defines
  */
@@ -1507,12 +1507,13 @@ function fix_system_urls($oldurl, $newurl) {
 				dbesc($rv['xchan_hash'])
 			);
 
-			$y = q("update hubloc set hubloc_addr = '%s', hubloc_url = '%s', hubloc_url_sig = '%s', hubloc_host = '%s', hubloc_callback = '%s' where hubloc_hash = '%s' and hubloc_url = '%s'",
+			$y = q("update hubloc set hubloc_addr = '%s', hubloc_url = '%s', hubloc_id_url = '%s', hubloc_url_sig = '%s', hubloc_host = '%s', hubloc_callback = '%s' where hubloc_hash = '%s' and hubloc_url = '%s'",
 				dbesc($channel_address . '@' . $rhs),
 				dbesc($newurl),
-				dbesc(base64url_encode(rsa_sign($newurl,$c[0]['channel_prvkey']))),
+				dbesc(str_replace($oldurl,$newurl,$rv['hubloc_id_url'])),
+				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(rsa_sign($newurl,$c[0]['channel_prvkey']))),
 				dbesc($newhost),
-				dbesc($newurl . '/post'),
+				dbesc(($rv['hubloc_network'] === 'zot6') ? $newurl . '/zot' : $newurl . '/post'),
 				dbesc($rv['xchan_hash']),
 				dbesc($oldurl)
 			);

@@ -412,6 +412,12 @@ class Notifier {
 				$private = false;
 				$recipients = collect_recipients($parent_item,$private);
 
+
+				if ($top_level_post) {
+					// remove clones who will receive the post via sync
+					$recipients = array_diff($recipients, [ $target_item['owner_xchan'] ]);
+				} 
+
 				// FIXME add any additional recipients such as mentions, etc.
 
 				// don't send deletions onward for other people's stuff
@@ -446,7 +452,7 @@ class Notifier {
 
 		$env_recips = (($private) ? array() : null);
 
-		$details = q("select xchan_hash, xchan_instance_url, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . protect_sprintf(implode(',',$recipients)) . ")");
+		$details = q("select xchan_hash, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . protect_sprintf(implode(',',$recipients)) . ")");
 
 
 		$recip_list = array();

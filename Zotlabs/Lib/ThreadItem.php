@@ -38,6 +38,7 @@ class ThreadItem {
 				
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
+		$this->threaded = get_config('system','thread_allow');
 
 		$observer = \App::get_observer();
 
@@ -305,6 +306,7 @@ class ThreadItem {
 		if($this->is_commentable() && $observer) {
 			$like = array( t("I like this \x28toggle\x29"), t("like"));
 			$dislike = array( t("I don't like this \x28toggle\x29"), t("dislike"));
+			$reply_to = array( t("Reply on this comment"), t("reply"), t("Reply to"));
 		}
 
 		if ($shareable) {
@@ -331,7 +333,6 @@ class ThreadItem {
 		if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
 			$is_new = true;
 
-
 		localize_item($item);
 
 		$body = prepare_body($item,true);
@@ -347,10 +348,6 @@ class ThreadItem {
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf('%d unseen',$unseen_comments) : '');
 		
-		
-
-		
-
 		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
@@ -373,13 +370,15 @@ class ThreadItem {
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
 			'mid' => $item['mid'],
+			'parent' => $item['parent'],
+			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'consensus' => $consensus,
 			'conlabels' => $conlabels,
 			'canvote' => $canvote,
-			'linktitle' => sprintf( t('View %s\'s profile - %s'), $profile_name, $item['author']['xchan_addr']),
-			'olinktitle' => sprintf( t('View %s\'s profile - %s'), $this->get_owner_name(), $item['owner']['xchan_addr']),
+			'linktitle' => sprintf( t('View %s\'s profile - %s'), $profile_name, (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url'])),
+			'olinktitle' => sprintf( t('View %s\'s profile - %s'), $this->get_owner_name(), (($item['owner']['xchan_addr']) ? $item['owner']['xchan_addr'] : $item['owner']['xchan_url'])),
 			'llink' => $item['llink'],
 			'viewthread' => $viewthread,
 			'to' => t('to'),
@@ -425,9 +424,11 @@ class ThreadItem {
 			'has_tags' => $has_tags,
 			'reactions' => $this->reactions,
 // Item toolbar buttons
-			'emojis'   => (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
+			'emojis'	=> (($this->is_toplevel() && $this->is_commentable() && $observer && feature_enabled($conv->get_profile_owner(),'emojis')) ? '1' : ''),
 			'like'      => $like,
 			'dislike'   => ((feature_enabled($conv->get_profile_owner(),'dislike')) ? $dislike : ''),
+			'reply_to'	=> (((! $this->is_toplevel()) && feature_enabled($conv->get_profile_owner(),'reply_to')) ? $reply_to : ''),
+			'top_hint'	=> t("Go to previous comment"),
 			'share'     => $share,
 			'embed'     => $embed,
 			'rawmid'	=> $item['mid'],
@@ -440,9 +441,8 @@ class ThreadItem {
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
 			'multidrop' => ((feature_enabled($conv->get_profile_owner(),'multi_delete')) ? $multidrop : ''),
-                        'dropdown_extras' => $dropdown_extras,
+			'dropdown_extras' => $dropdown_extras,
 // end toolbar buttons
-
 			'unseen_comments' => $unseen_comments,
 			'comment_count' => $total_children,
 			'comment_count_txt' => $comment_count_txt,
@@ -469,7 +469,8 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'submid' => str_replace(['+','='], ['',''], base64_encode($item['mid'])),
 			'thread_level' => $thread_level,
-			'settings' => $settings
+			'settings' => $settings,
+			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? $item['thr_parent'] : '')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -814,7 +815,7 @@ class ThreadItem {
 			'$anonname' => [ 'anonname', t('Your full name (required)') ],
 			'$anonmail' => [ 'anonmail', t('Your email address (required)') ],
 			'$anonurl'  => [ 'anonurl',  t('Your website URL (optional)') ],
-			'$auto_save_draft' => $feature_auto_save_draft,
+			'$auto_save_draft' => $feature_auto_save_draft
 		));
 
 		return $comment_box;
@@ -869,4 +870,3 @@ class ThreadItem {
 
 
 }
-

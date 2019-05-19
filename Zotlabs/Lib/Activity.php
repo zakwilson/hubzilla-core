@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Daemon\Master;
 use Zotlabs\Zot6\HTTPSig;
 
 class Activity {
@@ -13,27 +14,30 @@ class Activity {
 			$x = json_decode($x,true);
 		}
 
-		if(is_array($x) && array_key_exists('asld',$x)) {
-			$x = $x['asld'];
-		}
+		if(is_array($x)) {
 
-		if($x['type'] === ACTIVITY_OBJ_PERSON) {
-			return self::fetch_person($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PROFILE) {
-			return self::fetch_profile($x); 
-		}
-		if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
-			return self::fetch_item($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_THING) {
-			return self::fetch_thing($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_EVENT) {
-			return self::fetch_event($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PHOTO) {
-			return self::fetch_image($x); 
+			if(array_key_exists('asld',$x)) {
+				return $x['asld'];
+			}
+
+			if($x['type'] === ACTIVITY_OBJ_PERSON) {
+				return self::fetch_person($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PROFILE) {
+				return self::fetch_profile($x); 
+			}
+			if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
+				return self::fetch_item($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_THING) {
+				return self::fetch_thing($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_EVENT) {
+				return self::fetch_event($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PHOTO) {
+				return self::fetch_image($x); 
+			}
 		}
 
 		return $x;
@@ -150,7 +154,7 @@ class Activity {
 			'type' => 'Image',
 			'id' => $x['id'],
 			'name' => $x['title'],
-			'content' => bbcode($x['body']),
+			'content' => bbcode($x['body'], [ 'cache' => true ]),
 			'source' => [ 'mediaType' => 'text/bbcode', 'content' => $x['body'] ],
 			'published' => datetime_convert('UTC','UTC',$x['created'],ATOM_TIME), 
 			'updated' => datetime_convert('UTC','UTC', $x['edited'],ATOM_TIME),
@@ -180,14 +184,24 @@ class Activity {
 				$y = [ 
 					'type'      => 'Event',
 					'id'        => z_root() . '/event/' . $ev['event_hash'],
-					'summary'   => bbcode($ev['summary']),
+					'summary'   => bbcode($ev['summary'], [ 'cache' => true ]),
 					// RFC3339 Section 4.3
 					'startTime' => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
-					'content'   => bbcode($ev['description']),
-					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location']) ],
+					'content'   => bbcode($ev['description'], [ 'cache' => true ]),
+					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location'], [ 'cache' => true ]) ],
 					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
+				if(! $ev['nofinish']) {
+					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
+				}
+				
+				// copy attachments from the passed object - these are already formatted for ActivityStreams
+
+				if($x['attachment']) {
+					$y['attachment'] = $x['attachment'];
+				}
+
 				if($actor) {
 					return $y;
 				}
@@ -296,15 +310,15 @@ class Activity {
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 		}
 
 		if($i['mimetype'] === 'text/bbcode') {
 			if($i['title'])
-				$ret['name'] = bbcode($i['title']);
+				$ret['name'] = bbcode($i['title'], [ 'cache' => true ]);
 			if($i['summary'])
-				$ret['summary'] = bbcode($i['summary']);
-			$ret['content'] = bbcode($i['body']);
+				$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
+			$ret['content'] = bbcode($i['body'], [ 'cache' => true ]);
 			$ret['source'] = [ 'content' => $i['body'], 'mediaType' => 'text/bbcode' ];
 		}
 
@@ -397,7 +411,7 @@ class Activity {
 		$ret = [];
 
 		if($item['attach']) {
-			$atts = json_decode($item['attach'],true);
+			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'],true));
 			if($atts) {
 				foreach($atts as $att) {
 					if(strpos($att['type'],'image')) {
@@ -409,7 +423,7 @@ class Activity {
 				}
 			}
 		}
-
+		
 		return $ret;
 	}
 
@@ -462,14 +476,14 @@ class Activity {
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 
 		if($i['title'])
-			$ret['name'] = html2plain(bbcode($i['title']));
+			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));
 
 		if($i['summary'])
-			$ret['summary'] = bbcode($i['summary']);
+			$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
 
 		if($ret['type'] === 'Announce') {
 			$tmp = preg_replace('/\[share(.*?)\[\/share\]/ism',EMPTY_STR, $i['body']);
-			$ret['content'] = bbcode($tmp);
+			$ret['content'] = bbcode($tmp, [ 'cache' => true ]);
 			$ret['source'] = [
 				'content' => $i['body'],
 				'mediaType' => 'text/bbcode'
@@ -495,7 +509,7 @@ class Activity {
 		}
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			$reply = true;
 
 			if($i['item_private']) {
@@ -526,6 +540,10 @@ class Activity {
 		else
 			return []; 
 
+		if(strpos($i['body'],'[/share]') !== false) {
+			$i['obj'] = null;
+		}
+
 		if($i['obj']) {
 			if(! is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'],true);
@@ -547,6 +565,7 @@ class Activity {
 			else
 				return [];
 		}
+
 
 		if($i['target']) {
 			if(! is_array($i['target'])) {
@@ -692,7 +711,7 @@ class Activity {
 		// Reactions will just map to normal activities
 
 		if(strpos($verb,ACTIVITY_REACT) !== false)
-			return 'Create';
+			return 'emojiReaction';
 		if(strpos($verb,ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -868,7 +887,7 @@ class Activity {
 					// Send an Accept back to them
 
 					set_abconfig($channel['channel_id'],$person_obj['id'],'pubcrawl','their_follow_id', $their_follow_id);
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_accept', $contact['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_accept', $contact['abook_id'] ]);
 					return;
 
 				case 'Accept':
@@ -969,9 +988,9 @@ class Activity {
 
 				if($my_perms && $automatic) {
 					// send an Accept for this Follow activity
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_accept', $new_connection[0]['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_accept', $new_connection[0]['abook_id'] ]);
 					// Send back a Follow notification to them
-					\Zotlabs\Daemon\Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
+					Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
 				}
 
 				$clone = array();
@@ -1162,7 +1181,7 @@ class Activity {
 
 		$photos = import_xchan_photo($icon,$url);
 		$r = q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
-			dbescdate(datetime_convert('UTC','UTC',$arr['photo_updated'])),
+			dbescdate(datetime_convert('UTC','UTC',$photos[5])),
 			dbesc($photos[0]),
 			dbesc($photos[1]),
 			dbesc($photos[2]),
@@ -1406,7 +1425,7 @@ class Activity {
 			if($parent) {
 				if($s['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$x['item_id']));
+					Master::Summon(array('Notifier','comment-import',$x['item_id']));
 				}
 				$r = q("select * from item where id = %d limit 1",
 					intval($x['item_id'])
@@ -1468,7 +1487,7 @@ class Activity {
 		}
 
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept' ])) {
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
 
@@ -1509,6 +1528,9 @@ class Activity {
 			if($act->type === 'Announce') {
 				$content['content'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
+			if ($act->type === 'emojiReaction') {
+				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
+			}			
 		}
 
 		if(! $s['created'])
@@ -1790,7 +1812,7 @@ class Activity {
 			$s['item_private'] = 1;
 
 		set_iconfig($s,'activitypub','recips',$act->raw_recips);
-
+		// @FIXME: $parent is not defined
 		if($parent) {
 			set_iconfig($s,'activitypub','rawmsg',$act->raw,1);
 		}
@@ -1921,10 +1943,11 @@ class Activity {
 
 
 		if(is_array($x) && $x['item_id']) {
+			// @FIXME: $parent is not defined
 			if($parent) {
 				if($s['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$x['item_id']));
+					Master::Summon(array('Notifier','comment-import',$x['item_id']));
 				}
 				$r = q("select * from item where id = %d limit 1",
 					intval($x['item_id'])
@@ -2060,7 +2083,7 @@ class Activity {
 		if($result['success']) {
 			// if the message isn't already being relayed, notify others
 			if(intval($parent_item['item_origin']))
-					Zotlabs\Daemon\Master::Summon(array('Notifier','comment-import',$result['item_id']));
+					Master::Summon(array('Notifier','comment-import',$result['item_id']));
 				sync_an_item($channel['channel_id'],$result['item_id']);
 		}
 

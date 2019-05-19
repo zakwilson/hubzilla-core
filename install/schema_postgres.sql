@@ -627,7 +627,6 @@ CREATE TABLE "item" (
   "item_search_vector" tsvector,
   PRIMARY KEY ("id")
 );
-create index "item_uid" on item ("uid");
 create index "item_uuid" on item ("uuid");
 create index "item_parent" on item ("parent");
 create index "item_created" on item ("created");
@@ -638,51 +637,46 @@ create index "item_uid_created" on item ("uid","created");
 create index "item_uid_unseen" on item ("uid","item_unseen");
 create index "item_changed" on item ("changed");
 create index "item_comments_closed" on item ("comments_closed");
-create index "item_aid" on item ("aid");
 create index "item_owner_xchan" on item ("owner_xchan");
 create index "item_author_xchan" on item ("author_xchan");
 create index "item_resource_id" on item ("resource_id");
 create index "item_resource_type" on item ("resource_type");
-create index "item_restrict" on item ("item_restrict");
-create index "item_flags" on item ("item_flags");
 create index "item_commented" on item ("commented");
 create index "item_verb" on item ("verb");
 create index "item_obj_type" on item ("obj_type");
-create index "item_private" on item ("item_private");
 create index "item_llink" on item ("llink");
 create index "item_expires" on item ("expires");
 create index "item_revision" on item ("revision");
 create index "item_mimetype" on item ("mimetype");
 create index "item_mid" on item ("mid");
 create index "item_parent_mid" on item ("parent_mid");
-create index "item_uid_mid" on item ("mid","uid");
+create index "item_uid_mid" on item ("uid","mid");
 create index "item_public_policy" on item ("public_policy");
 create index "item_comment_policy" on item ("comment_policy");
 create index "item_layout_mid" on item ("layout_mid");
-create index "item_unseen" on item ("item_unseen");
 create index "item_wall" on item ("item_wall");
 
 create index "item_origin" on item ("item_origin");
-create index "item_starred" on item ("item_starred");
 create index "item_uplink" on item ("item_uplink");
 create index "item_consensus" on item ("item_consensus");
-create index "item_thread_top" on item ("item_thread_top");
-create index "item_notshown" on item ("item_notshown");
 create index "item_nsfw" on item ("item_nsfw");
-create index "item_relay" on item ("item_relay");
 create index "item_mentionsme" on item ("item_mentionsme");
 create index "item_nocomment" on item ("item_nocomment");
 create index "item_obscured" on item ("item_obscured");
-create index "item_verified" on item ("item_verified");
-create index "item_retained" on item ("item_retained");
 create index "item_rss" on item ("item_rss");
-create index "item_deleted" on item ("item_deleted");
-create index "item_type" on item ("item_type");
-create index "item_hidden" on item ("item_hidden");
-create index "item_unpublished" on item ("item_unpublished");
-create index "item_delayed" on item ("item_delayed");
-create index "item_pending_remove" on item ("item_pending_remove");
-create index "item_blocked" on item ("item_blocked");
+create index "item_thr_parent" on item ("thr_parent");
+
+create index "item_uid_item_type" on item ("uid", "item_type");
+create index "item_uid_item_thread_top" on item ("uid", "item_thread_top");
+create index "item_uid_item_blocked" on item ("uid", "item_blocked");
+create index "item_uid_item_wall" on item ("uid", "item_wall");
+create index "item_uid_item_starred" on item ("uid", "item_starred");
+create index "item_uid_item_retained" on item ("uid", "item_retained");
+create index "item_uid_item_private" on item ("uid", "item_private");
+create index "item_uid_resource_type" on item ("uid", "resource_type");
+create index "item_item_deleted_item_pending_remove_changed" on item ("item_deleted", "item_pending_remove", "changed");
+create index "item_item_pending_remove_changed" on item ("item_pending_remove", "changed");
+
 -- fulltext indexes
 create index "item_search_idx" on  item USING gist("item_search_vector");
 create index "item_allow_cid" on item ("allow_cid");
@@ -1318,6 +1312,7 @@ create index "xchan_selfcensored" on xchan ("xchan_selfcensored");
 create index "xchan_system" on xchan ("xchan_system");
 create index "xchan_pubforum" on xchan ("xchan_pubforum");
 create index "xchan_deleted" on xchan ("xchan_deleted");
+create index "xchan_photo_m" on xchan ("xchan_photo_m");
 
 CREATE TABLE "xchat" (
   "xchat_id" serial  NOT NULL,

@@ -1,3 +1,17 @@
+<div class="widget">
+	<h3>{{$channel_calendars_label}}</h3>
+	{{foreach $channel_calendars as $channel_calendar}}
+	<div id="calendar-{{$channel_calendar.calendarid}}">
+		<div class="ml-3{{if !$channel_calendar@last}} form-group{{/if}}">
+			<i id="calendar-btn-{{$channel_calendar.calendarid}}" class="fa {{if $channel_calendar.switch}}fa-calendar-check-o{{else}}fa-calendar-o{{/if}} generic-icons fakelink" onclick="add_remove_json_source('{{$channel_calendar.json_source}}', '{{$channel_calendar.color}}', {{$channel_calendar.editable}})" style="color: {{$channel_calendar.color}};"></i>{{$channel_calendar.displayname}}
+			<div class="float-right">
+				<a href="#" onclick="exportDate(); return false;"><i id="download-icon" class="fa fa-cloud-download fakelink generic-icons-right"></i></a>
+			</div>
+		</div>
+	</div>
+	{{/foreach}}
+</div>
+
 {{if $my_calendars}}
 <div class="widget">
 	<h3>{{$my_calendars_label}}</h3>
@@ -48,7 +62,9 @@
 					<label for="edit-form-{{$calendar.calendarid}}">{{$edit_label}}</label>
 					<div id="edit-form-{{$calendar.calendarid}}" class="input-group form-group">
 						<input id="create-{{$calendar.calendarid}}" name="{DAV:}displayname" type="text" value="{{$calendar.displayname}}" class="form-control">
-						<span class="input-group-addon"><i></i></span>
+						<div class="input-group-append">
+							<div class="input-group-addon p-3"></div>
+						</div>
 					</div>
 					<div class="form-group">
 						<button type="submit" name="edit" value="edit" class="btn btn-primary btn-sm">{{$edit}}</button>
@@ -85,10 +101,12 @@
 		<div id="create-calendar" class="sub-menu-wrapper">
 			<div class="sub-menu">
 				<form method="post" action="" class="colorpicker-component color-edit">
-					<input id="color" name="color" type="hidden" value="#3a87ad" class="color-edit-input">
+					<input id="color" name="color" type="hidden" value="#ff8f00" class="color-edit-input">
 					<div id="create-form" class="input-group form-group">
 						<input id="create" name="{DAV:}displayname" type="text" placeholder="{{$create_placeholder}}" class="form-control">
-						<span class="input-group-addon"><i></i></span>
+						<div class="input-group-append">
+							<div class="input-group-addon p-3"></div>
+						</div>
 					</div>
 					<div class="form-group">
 						<button type="submit" name="create" value="create" class="btn btn-primary btn-sm">{{$create}}</button>
@@ -105,6 +123,9 @@
 					<div class="form-group">
 						<select id="import" name="target" class="form-control">
 							<option value="">{{$import_placeholder}}</option>
+							<optgroup label="{{$tools_options_label.0}}">
+							<option value="{{$channel_calendar.calendarid}}">{{$channel_calendar.displayname}}</option>
+							<optgroup label="{{$tools_options_label.1}}">
 							{{foreach $writable_calendars as $writable_calendar}}
 							<option value="{{$writable_calendar.id.0}}:{{$writable_calendar.id.1}}">{{$writable_calendar.displayname}}</option>
 							{{/foreach}}

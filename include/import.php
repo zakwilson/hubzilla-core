@@ -94,7 +94,8 @@ function import_channel($channel, $account_id, $seize, $newname = '') {
 		'channel_w_comment',  'channel_w_mail',      'channel_w_like',    'channel_w_tagwall',
 		'channel_w_chat',     'channel_w_storage',   'channel_w_pages',   'channel_a_republish',
 		'channel_a_delegate', 'perm_limits',         'channel_password',  'channel_salt',
-		'channel_moved',      'channel_removed',     'channel_deleted',   'channel_system'
+		'channel_moved',      'channel_removed',     'channel_deleted',   'channel_system',
+		'channel_r_photos',   'channel_w_photos'
 	];
 
 	$clean = array();
@@ -147,7 +148,9 @@ function import_config($channel, $configs) {
 		foreach($configs as $config) {
 			unset($config['id']);
 			$config['uid'] = $channel['channel_id'];
-
+			if($config['cat'] === 'system' && $config['k'] === 'import_system_apps') {
+				continue;
+			}
 			create_table_from_array('pconfig', $config);
 		}
 
@@ -364,6 +367,9 @@ function import_apps($channel, $apps) {
 	if($channel && $apps) {
 		foreach($apps as $app) {
 
+			if(array_key_exists('app_system',$app) && intval($app['app_system']))
+				continue;
+
 			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
 
 			unset($app['id']);
@@ -412,6 +418,9 @@ function sync_apps($channel, $apps) {
 
 			$exists = false;
 			$term = ((array_key_exists('term',$app)) ? $app['term'] : null);
+
+			if(array_key_exists('app_system',$app) && intval($app['app_system']))
+				continue;
 
 			$x = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
 				dbesc($app['app_id']),
@@ -503,6 +512,84 @@ function sync_apps($channel, $apps) {
 		}
 	}
 }
+
+
+
+/**
+ * @brief Import system apps.
+ * System apps from the original server may not exist on this system 
+ *   (e.g. apps associated with addons that are not installed here).
+ *   Check the system apps that were provided in the import file to see if they
+ *   exist here and if so, install them locally. Preserve categories that
+ *   might have been added by this channel on the other server.
+ *   Do not use any paths from the original as they will point to a different server. 
+ * @param array $channel
+ * @param array $apps
+ */
+function import_sysapps($channel, $apps) {
+
+	if($channel && $apps) {
+
+		$sysapps = \Zotlabs\Lib\Apps::get_system_apps(false);
+
+		foreach($apps as $app) {
+
+			if(array_key_exists('app_system',$app) && (! intval($app['app_system'])))
+				continue;
+
+			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
+
+			foreach($sysapps as $sysapp) {
+				if($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+					// install this app on this server
+					$newapp = $sysapp;
+					$newapp['uid'] = $channel['channel_id'];
+					$newapp['guid'] = hash('whirlpool',$newapp['name']);
+
+					$installed = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
+						dbesc($newapp['guid']),
+						intval($channel['channel_id'])
+					);
+					if($installed) {
+						break;
+					}
+
+					$newapp['system'] = 1;
+					if($term) {
+						$s = EMPTY_STR;
+						foreach($term as $t) {
+							if($s) {
+								$s .= ',';
+							}
+							$s .= $t['term'];
+						}
+						$newapp['categories'] = $s;
+					}
+					\Zotlabs\Lib\Apps::app_install($channel['channel_id'],$newapp);
+				}
+			}
+		}
+	}
+}
+
+/**
+ * @brief Sync system apps.
+ *
+ * @param array $channel
+ * @param array $apps
+ */
+function sync_sysapps($channel, $apps) {
+
+	if($channel && $apps) {
+
+		// we do not currently sync system apps
+
+	}
+}
+
+
+
+
 
 /**
  * @brief Import chatrooms.
@@ -1069,6 +1156,9 @@ function sync_files($channel, $files) {
 	require_once('include/attach.php');
 
 	if($channel && $files) {
+
+		$limit = service_class_fetch($channel['channel_id'], 'attach_upload_limit');
+
 		foreach($files as $f) {
 			if(! $f)
 				continue;
@@ -1189,6 +1279,17 @@ function sync_files($channel, $files) {
 					}
 					else {
 						logger('sync_files attach does not exists: ' . print_r($att,true), LOGGER_DEBUG);
+
+				        if($limit !== false) {
+				            $r = q("select sum(filesize) as total from attach where aid = %d ",
+                				intval($channel['channel_account_id'])
+            				);
+				            if(($r) &&  (($r[0]['total'] + $att['filesize']) > $limit)) {
+								logger('service class limit exceeded');
+                				continue;
+							}
+						}
+
 						create_table_from_array('attach',$att);
 					}
 
@@ -1245,6 +1346,7 @@ function sync_files($channel, $files) {
 				logger('attachment store failed',LOGGER_NORMAL,LOG_ERR);
 			}
 			if($f['photo']) {
+				
 				foreach($f['photo'] as $p) {
  					unset($p['id']);
 					$p['aid'] = $channel['channel_account_id'];
@@ -1266,6 +1368,7 @@ function sync_files($channel, $files) {
 							dbesc($p['resource_id']),
 							intval($channel['channel_id'])
 						);
+						$update_xchan = $p['edited'];
 					}
 
 					// same for cover photos
@@ -1285,19 +1388,20 @@ function sync_files($channel, $files) {
 					else
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
 
-					if(intval($p['imgscale']) && (! $p['content'])) {
+					if(intval($p['imgscale']) && (! empty($p['content']))) {
 
 						$time = datetime_convert();
 
-						$parr = array('hash' => $channel['channel_hash'],
+						$parr = array(
+						    'hash' => $channel['channel_hash'],
 							'time' => $time,
-							'resource' => $att['hash'],
+							'resource' => $p['resource_id'],
 							'revision' => 0,
 							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])),
-							'resolution' => $p['imgscale']
+							'resolution' => intval($p['imgscale'])
 						);
 
-						$stored_image = $newfname . '-' . intval($p['imgscale']);
+						$stored_image = $newfname . '-' . $p['imgscale'];
 
 						$fp = fopen($stored_image,'w');
 						if(! $fp) {
@@ -1306,7 +1410,6 @@ function sync_files($channel, $files) {
 						}
 						$redirects = 0;
 
-
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
@@ -1314,8 +1417,17 @@ function sync_files($channel, $files) {
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
-						$p['content'] = file_get_contents($stored_image);
-						unlink($stored_image);
+						
+						// Override remote hub thumbnails storage settings
+						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
+							$p['os_storage'] = 0;
+							$p['content'] = file_get_contents($stored_image);
+							@unlink($stored_image);
+						}
+						else {
+							$p['os_storage'] = 1;
+							$p['content'] = $stored_image;
+						}
 					}
 
 					if(!isset($p['display_path']))
@@ -1347,6 +1459,16 @@ function sync_files($channel, $files) {
 						create_table_from_array('photo',$p, [ 'content' ] );
 					}
 				}
+				
+			}
+			
+            // Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
+			if(isset($update_xchan)) {
+			    
+				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
+					dbescdate($update_xchan),
+					dbesc($channel['channel_hash'])
+				);
 			}
 
 			\Zotlabs\Daemon\Master::Summon([ 'Thumbnail' , $att['hash'] ]);

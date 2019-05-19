@@ -685,8 +685,26 @@ class Libzot {
 				$adult_changed = 1;
 			if(intval($r[0]['xchan_deleted']) != intval($arr['deleted']))
 				$deleted_changed = 1;
+
+			// new style 6-MAR-2019
+
+			if(array_key_exists('channel_type',$arr)) {
+				if($arr['channel_type'] === 'collection') {
+					// do nothing at this time.
+				}
+				elseif($arr['channel_type'] === 'group') {
+					$arr['public_forum'] = 1;
+				}
+				else {
+					$arr['public_forum'] = 0;
+				}
+			}
+
+			// old style
+
 			if(intval($r[0]['xchan_pubforum']) != intval($arr['public_forum']))
 				$pubforum_changed = 1;
+
 
 			if($arr['protocols']) {
 				$protocols = implode(',',$arr['protocols']);
@@ -1107,9 +1125,14 @@ class Libzot {
 					logger('Activity rejected: ' . print_r($data,true));
 					return;
 				}
-				$arr = Activity::decode_note($AS);
+				if (is_array($AS->obj)) {
+					$arr = Activity::decode_note($AS);
+				}
+				else {
+					$arr = [];
+				}
 
-				logger($AS->debug());
+				logger($AS->debug(),LOGGER_DATA);
 		}
 
 
@@ -1174,12 +1197,14 @@ class Libzot {
 
 				//logger($AS->debug());
 
-				$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",
 					dbesc($AS->actor['id'])
 				);
 
 				if($r) {
-					$arr['author_xchan'] = $r[0]['hubloc_hash'];
+					// selects a zot6 hash if available, otherwise use whatever we have
+					$r = self::zot_record_preferred($r);
+					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
 
@@ -1212,7 +1237,7 @@ class Libzot {
 
 				$relay = (($env['type'] === 'response') ? true : false );
 
-				$result = self::process_delivery($env['sender'],$arr,$deliveries,$relay,false,$message_request);
+				$result = self::process_delivery($env['sender'],$AS,$arr,$deliveries,$relay,false,$message_request);
 			}
 			elseif($env['type'] === 'sync') {
 				// $arr = get_channelsync_elements($data);
@@ -1385,7 +1410,7 @@ class Libzot {
 	/**
 	 * @brief
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 * @param array $arr
 	 * @param array $deliveries
 	 * @param boolean $relay
@@ -1394,7 +1419,7 @@ class Libzot {
 	 * @return array
 	 */
 
-	static function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $request = false) {
+	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false) {
 
 		$result = [];
 
@@ -1422,6 +1447,24 @@ class Libzot {
 			}
 
 			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
+
+			if(($act) && ($act->obj) && (! is_array($act->obj))) {
+				// The initial object fetch failed using the sys channel credentials. 
+				// Try again using the delivery channel credentials.
+				// We will also need to re-parse the $item array, 
+				// but preserve any values that were set during anonymous parsing.
+							   
+				$o = Activity::fetch($act->obj,$channel);
+				if($o) {
+					$act->obj = $o;
+					$arr = array_merge(Activity::decode_note($act),$arr);
+				}
+				else {
+					$DR->update('Incomplete or corrupt activity');
+					$result[] = $DR->get();
+					continue;
+				}
+			}       
 
 			/**
 			 * We need to block normal top-level message delivery from our clones, as the delivered
@@ -1841,7 +1884,7 @@ class Libzot {
 			logger('FOF Activity received: ' . print_r($arr,true), LOGGER_DATA, LOG_DEBUG);
 			logger('FOF Activity recipient: ' . $channel['channel_portable_id'], LOGGER_DATA, LOG_DEBUG);
 
-			$result = self::process_delivery($arr['owner_xchan'],$arr, [ $channel['channel_portable_id'] ],false,false,true);
+			$result = self::process_delivery($arr['owner_xchan'],$AS, $arr, [ $channel['channel_portable_id'] ],false,false,true);
 			if ($result) {
 				$ret = array_merge($ret, $result);
 			}
@@ -1854,8 +1897,7 @@ class Libzot {
 	/**
 	 * @brief Remove community tag.
 	 *
-	 * @param array $sender an associative array with
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender
 	 * @param array $arr an associative array
 	 *   * \e int \b verb
 	 *   * \e int \b obj_type
@@ -1928,7 +1970,7 @@ class Libzot {
 	 *
 	 * @see item_store_update()
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 * @param array $item
 	 * @param array $orig
 	 * @param int $uid
@@ -1979,7 +2021,7 @@ class Libzot {
 	/**
 	 * @brief Deletes an imported item.
 	 *
-	 * @param array $sender
+	 * @param string $sender
 	 *   * \e string \b hash a xchan_hash
 	 * @param array $item
 	 * @param int $uid
@@ -1997,9 +2039,9 @@ class Libzot {
 
 		$r = q("select id, author_xchan, owner_xchan, source_xchan, item_deleted from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
 			and mid = '%s' and uid = %d limit 1",
-			dbesc($sender['hash']),
-			dbesc($sender['hash']),
-			dbesc($sender['hash']),
+			dbesc($sender),
+			dbesc($sender),
+			dbesc($sender),
 			dbesc($item['mid']),
 			intval($uid)
 		);
@@ -2154,8 +2196,7 @@ class Libzot {
 	 *
 	 * @see import_directory_profile()
 	 *
-	 * @param array $sender an associative array
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender 
 	 * @param array $arr
 	 * @param array $deliveries (unused)
 	 * @return void
@@ -2165,7 +2206,7 @@ class Libzot {
 		logger('process_profile_delivery', LOGGER_DEBUG);
 
 		$r = q("select xchan_addr from xchan where xchan_hash = '%s' limit 1",
-				dbesc($sender['hash'])
+			dbesc($sender)
 		);
 		if($r) {
 			Libzotdir::import_directory_profile($sender, $arr, $r[0]['xchan_addr'], UPDATE_FLAGS_UPDATED, 0);
@@ -2176,8 +2217,7 @@ class Libzot {
 	/**
 	 * @brief
 	 *
-	 * @param array $sender an associative array
-	 *   * \e string \b hash a xchan_hash
+	 * @param string $sender 
 	 * @param array $arr
 	 * @param array $deliveries (unused) deliveries is irrelevant
 	 * @return void
@@ -3056,6 +3096,28 @@ class Libzot {
 		$x = getBestSupportedMimeType([ 'application/x-zot+json' ]);
 
 		return(($x) ? true : false);
+	}
+
+
+	static public function zot_record_preferred($arr, $check = 'hubloc_network') {
+
+		if(! $arr) {
+			return $arr;
+		}
+
+		foreach($arr as $v) {
+			if($v[$check] === 'zot6') {
+				return $v;
+			}
+		}
+		foreach($arr as $v) {
+			if($v[$check] === 'zot') {
+				return $v;
+			}
+		}
+
+		return $arr[0];
+
 	}
 
 }

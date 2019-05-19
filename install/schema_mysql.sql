@@ -269,24 +269,6 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `channel_allow_gid` mediumtext NOT NULL,
   `channel_deny_cid` mediumtext NOT NULL,
   `channel_deny_gid` mediumtext NOT NULL,
-  `channel_r_stream` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_profile` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_photos` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_abook` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_stream` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_wall` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_tagwall` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_comment` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_mail` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_photos` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_chat` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_a_delegate` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_storage` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_storage` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_pages` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_pages` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_a_republish` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_like` int(10) unsigned NOT NULL DEFAULT 0 ,
   `channel_removed` tinyint(1) NOT NULL DEFAULT 0 ,
   `channel_system` tinyint(1) NOT NULL DEFAULT 0 ,
   `channel_moved` char(191) NOT NULL DEFAULT '',
@@ -683,7 +665,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `mimetype` (`mimetype`),
   KEY `mid` (`mid`),
   KEY `parent_mid` (`parent_mid`),
-  KEY `uid_mid` (`mid`,`uid`),
+  KEY `uid_mid` (`uid`,`mid`),
   KEY `comment_policy` (`comment_policy`),
   KEY `layout_mid` (`layout_mid`),
   KEY `public_policy` (`public_policy`),
@@ -691,19 +673,16 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `changed` (`changed`),
   KEY `item_origin` (`item_origin`),
   KEY `item_wall` (`item_wall`),
-  KEY `item_unseen` (`item_unseen`),
   KEY `item_uplink` (`item_uplink`),
-  KEY `item_notshown` (`item_notshown`),
   KEY `item_nsfw` (`item_nsfw`),
-  KEY `item_relay` (`item_relay`),
   KEY `item_mentionsme` (`item_mentionsme`),
   KEY `item_nocomment` (`item_nocomment`),
   KEY `item_obscured` (`item_obscured`),
-  KEY `item_verified` (`item_verified`),
   KEY `item_rss` (`item_rss`),
   KEY `item_consensus` (`item_consensus`),
   KEY `item_deleted_pending_remove_changed` (`item_deleted`, `item_pending_remove`, `changed`),
-  KEY `item_pending_remove_changed` (`item_pending_remove`, `changed`)
+  KEY `item_pending_remove_changed` (`item_pending_remove`, `changed`),
+  KEY `thr_parent` (`thr_parent`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `item_id` (
@@ -1345,7 +1324,8 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   KEY `xchan_selfcensored` (`xchan_selfcensored`),
   KEY `xchan_system` (`xchan_system`),
   KEY `xchan_pubforum` (`xchan_pubforum`),
-  KEY `xchan_deleted` (`xchan_deleted`)
+  KEY `xchan_deleted` (`xchan_deleted`),
+  KEY `xchan_photo_m` (`xchan_photo_m`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `xchat` (

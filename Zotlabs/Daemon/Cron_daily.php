@@ -85,6 +85,7 @@ class Cron_daily {
 		Master::Summon(array('Cli_suggest'));
 
 		remove_obsolete_hublocs();
+		z6_discover();
 
 		call_hooks('cron_daily',datetime_convert());
 

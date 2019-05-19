@@ -157,7 +157,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 		// If we're still here, we have an observer, check the network.
 
 		if($channel_perm & PERMS_NETWORK) {
-			if($x && $x[0]['xchan_network'] === 'zot') {
+			if($x && in_array($x[0]['xchan_network'],[ 'zot','zot6'])) {
 				$ret[$perm_name] = true;
 				continue;
 			}
@@ -192,7 +192,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 
 		// They are in your address book, but haven't been approved
 
-		if($channel_perm & PERMS_PENDING) {
+		if($channel_perm & PERMS_PENDING && (! intval($x[0]['abook_pseudo']))) {
 			$ret[$perm_name] = true;
 			continue;
 		}
@@ -316,10 +316,19 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 			if(! $x) {
 				// not in address book and no guest token, see if they've got an xchan
+
 				$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
 					dbesc($observer_xchan)
 				);
 				if($y) {
+
+					// This requires an explanation and the effects are subtle.
+					// The following line creates a fake connection, and this allows
+					// access tokens to have specific permissions even though they are 
+					// not actual connections.
+					// The existence of this fake entry must be checked when dealing 
+					// with connection related permissions.
+
 					$x = array(pseudo_abook($y[0]));
 				}
 			}
@@ -327,7 +336,6 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		}
 		$abperms = load_abconfig($uid,$observer_xchan,'my_perms');
 	}
-	
 
 	// system is blocked to anybody who is not authenticated
 
@@ -349,6 +357,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return true;
 
 	// If it's an unauthenticated observer, we only need to see if PERMS_PUBLIC is set
+	// We just did that.
 
 	if(! $observer_xchan) {
 		return false;
@@ -357,7 +366,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 	// If we're still here, we have an observer, check the network.
 
 	if($channel_perm & PERMS_NETWORK) {
-		if (($x && $x[0]['xchan_network'] === 'zot') || ($y && $y[0]['xchan_network'] === 'zot'))
+		if ($x && in_array($x[0]['xchan_network'], ['zot','zot6'])) 
 			return true;
 	}
 
@@ -373,8 +382,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return false;
 	}
 
-	// From here on we require that the observer be a connection and
-	// handle whether we're allowing any, approved or specific ones
+	// From here on we require that the observer be a connection or pseudo connection 
 
 	if(! $x) {
 		return false;
@@ -382,7 +390,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 	// They are in your address book, but haven't been approved
 
-	if($channel_perm & PERMS_PENDING) {
+	if($channel_perm & PERMS_PENDING && (! intval($x[0]['abook_pseudo']))) {
 		return true;
 	}
 

@@ -231,6 +231,10 @@ function handle_comment_form(e) {
 			$('#' + emptyCommentElm).removeAttr('tabindex');
 			$('#' + emptySubmitElm).removeAttr('tabindex');
 			form.find(':not(.comment-edit-text)').hide();
+			form.find(':input[name=parent]').val(emptyCommentElm.replace(/\D/g,''));
+			var btn = form.find(':button[type=submit]').html();
+			form.find(':button[type=submit]').html(btn.replace(/<[^>]*>/g, '').trim());
+			form.find(':button[type=submit]').prop('title', '');
 		}
 	});
 	
@@ -770,7 +774,7 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = ((preloadImages) ? false : $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; }));
+	var bimgs = $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; });
 	var bimgcount = bimgs.length;
 
 	if (bimgcount) {
@@ -778,22 +782,38 @@ function updateConvItems(mode,data) {
 			bimgcount--;
 			if (! bimgcount) {
 				collapseHeight();
+
+				if(bParam_mid && mode === 'replace')
+					scrollToItem();
+
+				$(document.body).trigger("sticky_kit:recalc");
 			}
 		});
 	} else {
 		collapseHeight();
+
+		if(bParam_mid && mode === 'replace')
+			scrollToItem();
+
+		$(document.body).trigger("sticky_kit:recalc");
 	}
 
+}
+
+function scrollToItem() {
 	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
 	// use the same method to generate the submid as we use in ThreadItem, 
 	// base64_encode + replace(['+','='],['','']);
+
+	if(justifiedGalleryActive)
+		return;
 
 	var submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
 	var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
 	var submid_encoded = ((encoded) ? submid.substr(4) : window.btoa(submid));
 
 	submid_encoded = submid_encoded.replace(/[\+\=]/g,'');
-	if($('.item_' + submid_encoded).length && !$('.item_' + submid_encoded).hasClass('toplevel_item') && mode == 'replace') {
+	if($('.item_' + submid_encoded).length && !$('.item_' + submid_encoded).hasClass('toplevel_item')) {
 		if($('.collapsed-comments').length) {
 			var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
 			$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
@@ -801,11 +821,9 @@ function updateConvItems(mode,data) {
 			$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
 			$('#hide-comments-total-' + scrolltoid).hide();
 		}
-		$('html, body').animate({ scrollTop: $('.item_' + submid_encoded).offset().top - $('nav').outerHeight() }, 'slow');
+		$('html, body').animate({ scrollTop: $('.item_' + submid_encoded).offset().top - $('nav').outerHeight(true) }, 'slow');
 		$('.item_' + submid_encoded).addClass('item-highlight');
 	}
-
-	$(document.body).trigger("sticky_kit:recalc");
 }
 
 function collapseHeight() {
@@ -1130,8 +1148,44 @@ function doprofilelike(ident, verb) {
 	$.get('like/' + ident + '?verb=' + verb, function() { window.location.href=window.location.href; });
 }
 
+function doreply(parent, ident, owner, hint) {
+	var form = $('#comment-edit-form-' + parent.toString());
+	form.find('input[name=parent]').val(ident);
+	var i = form.find('button[type=submit]');
+	var btn = i.html().replace(/<[^>]*>/g, '').trim();
+	i.html('<i class="fa fa-reply" ></i> ' + btn);
+	i.prop('title', hint);
+	form.find('textarea').val("@{" + owner + "} ");
+	$('#comment-edit-text-' + parent.toString()).focus();
+}
 
-function dropItem(url, object) {
+function doscroll(parent, hidden) {
+	var x = '#hide-comments-outer-' + hidden.toString();
+	var back = $('#back-to-reply');
+	if(back.length == 0)
+		var pos = $(window).scrollTop();
+	else
+		var pos = back.attr('href').replace(/[^\d|\.]/g,'');
+	if($(x).length !== 0) {
+		x = $(x).attr("onclick").replace(/\D/g,'');
+		var c = '#collapsed-comments-' + x;
+		if($(c).length !== 0 && (! $(c).is(':visible'))) {
+			showHideComments(x);
+			pos += $(c).height();
+		}
+	}
+	back.remove();
+	var id = $('[data-mid="' + parent + '"]');
+	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-right" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
+}
+
+function doscrollback(pos) {
+	$('#back-to-reply').remove();
+	$(window).scrollTop(pos);
+}
+
+function dropItem(url, object) { 
 
 	var confirm = confirmDelete();
 	if(confirm) {
@@ -1143,7 +1197,6 @@ function dropItem(url, object) {
 			});
 		});
 		return true;
-
 	}
 	else {
 		return false;

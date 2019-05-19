@@ -220,8 +220,8 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 		foreach($images as $image) {
 			if(! stristr($image,z_root() . '/photo/'))
 				continue;
-			$image_uri = substr($image,strrpos($image,'/') + 1);
-			$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
+			$image_uri = substr($image, strrpos($image, '/') + 1);
+			$image_uri = substr($image_uri, 0, strpos($image_uri, '.') - 2);
 			$r = q("UPDATE photo SET allow_cid = '%s' WHERE resource_id = '%s' AND uid = %d and allow_cid = '%s'",
 				dbesc('<' . $recipient . '>'),
 				dbesc($image_uri),

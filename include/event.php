@@ -4,7 +4,10 @@
  * @brief Event related functions.
  */
 
+
 use Sabre\VObject;
+
+use Zotlabs\Lib\Activity;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -65,7 +68,7 @@ function format_event_html($ev) {
 }
 
 function format_event_obj($jobject) {
-	$event = array();
+	$event = [];
 
 	$object = json_decode($jobject,true);
 
@@ -1046,6 +1049,7 @@ function event_store_item($arr, $event) {
 			'location'   => $arr['location'],
 			'adjust'   => $arr['adjust'],
 			'content' => format_event_bbcode($arr),
+			'attachment' => Activity::encode_attachment($r[0]),
 			'author'  => array(
 				'name'     => $r[0]['xchan_name'],
 				'address'  => $r[0]['xchan_addr'],
@@ -1159,7 +1163,7 @@ function event_store_item($arr, $event) {
 		$item_arr['item_thread_top'] = $item_thread_top;
 
 		$attach = array(array(
-			'href' => z_root() . '/events/ical/' .  urlencode($event['event_hash']),
+			'href' => z_root() . '/channel_calendar/ical/' .  urlencode($event['event_hash']),
 			'length' => 0,
 			'type' => 'text/calendar',
 			'title' => t('event') . '-' . $event['event_hash'],
@@ -1181,7 +1185,7 @@ function event_store_item($arr, $event) {
 		// otherwise we'll fallback to /display/$message_id
 
 		if($wall)
-			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . urlencode($item_arr['mid']);
+			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . gen_link_id($item_arr['mid']);
 		else
 			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
 
@@ -1200,6 +1204,7 @@ function event_store_item($arr, $event) {
 				'location'   => $arr['location'],
 				'adjust'   => $arr['adjust'],
 				'content' => format_event_bbcode($arr),
+				'attachment'  => Activity::encode_attachment($item_arr),
 				'author'  => array(
 					'name'     => $x[0]['xchan_name'],
 					'address'  => $x[0]['xchan_addr'],
@@ -1279,6 +1284,10 @@ function cdav_principal($uri) {
 }
 
 function cdav_perms($needle, $haystack, $check_rw = false) {
+
+	if($needle == 'channel_calendar')
+		return true;
+
 	foreach ($haystack as $item) {
 		if($check_rw) {
 			if(is_array($item['id'])) {

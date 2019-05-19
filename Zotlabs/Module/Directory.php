@@ -103,8 +103,14 @@ class Directory extends \Zotlabs\Web\Controller {
 		$suggest = (local_channel() && x($_REQUEST,'suggest')) ? $_REQUEST['suggest'] : '';
 	
 		if($suggest) {
-	
-			$r = suggestion_query(local_channel(),get_observer_hash());
+
+			// the directory options have no effect in suggestion mode
+			
+			$globaldir = 1;
+			$safe_mode = 1;
+			$type = 0;
+
+			$r = suggestion_query(local_channel(),get_observer_hash(),0,60);
 
 			if(! $r) {
 				notice( t('No default suggestions were found.') . EOL);
@@ -212,12 +218,17 @@ class Directory extends \Zotlabs\Web\Controller {
 				if($j) {
 	
 					if($j['results']) {
-	
+
+						$results = $j['results'];
+						if($suggest) {
+							$results = self::reorder_results($results,$addresses);
+						}
+
 						$entries = array();
 	
 						$photo = 'thumb';
 	
-						foreach($j['results'] as $rr) {
+						foreach($results as $rr) {
 	
 							$profile_link = chanlink_url($rr['url']);
 			
@@ -399,7 +410,7 @@ class Directory extends \Zotlabs\Web\Controller {
 	
 							$dirtitle = (($globaldir) ? t('Global Directory') : t('Local Directory'));
 	
-							$o .= "<script> var page_query = '" . escape_tags($_GET['q']) . "'; var extra_args = '" . extra_query_args() . "' ; divmore_height = " . intval($maxheight) . ";  </script>";
+							$o .= "<script> var page_query = '" . escape_tags(urlencode($_GET['q'])) . "'; var extra_args = '" . extra_query_args() . "' ; divmore_height = " . intval($maxheight) . ";  </script>";
 							$o .= replace_macros($tpl, array(
 								'$search' => $search,
 								'$desc' => t('Find'),
@@ -438,5 +449,22 @@ class Directory extends \Zotlabs\Web\Controller {
 		return $o;
 	}
 	
-	
+	static public function reorder_results($results,$suggests) {
+
+		if(! $suggests)
+			return $results;
+
+		$out = [];
+		foreach($suggests as $k => $v) {
+			foreach($results as $rv) {
+				if($k == $rv['address']) {
+					$out[intval($v)] = $rv;
+					break;
+				}
+			}
+		}
+
+		return $out;
+	}
+
 }

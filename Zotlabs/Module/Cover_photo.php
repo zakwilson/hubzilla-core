@@ -48,6 +48,32 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 		
 		check_form_security_token_redirectOnErr('/cover_photo', 'cover_photo');
+
+		// Remove cover photo
+		if(isset($_POST['remove'])) {
+			
+			$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
+				intval(PHOTO_COVER),
+				intval(local_channel())
+			);
+			
+			if($r) {
+			    q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+			    	intval(PHOTO_NORMAL),
+				    intval(PHOTO_COVER),
+				    intval(local_channel())
+			    );
+			
+				$sync = attach_export_data($channel,$r[0]['resource_id']);
+				if($sync)
+				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			}
+
+			// Update directory in background
+			\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
+
+			goaway(z_root() . '/cover_photo');
+		}
 	        
 		if((array_key_exists('cropfinal',$_POST)) && ($_POST['cropfinal'] == 1)) {
 	
@@ -106,7 +132,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 						if(file_exists($tmp_name)) {
 							$base_image = $r[0];
 							$gis = getimagesize($tmp_name);
-logger('gis: ' . print_r($gis,true));
+							logger('gis: ' . print_r($gis,true), LOGGER_DEBUG);
 							$base_image['width'] = $gis[0];
 							$base_image['height'] = $gis[1];
 							$base_image['content'] = @file_get_contents($tmp_name);
@@ -167,25 +193,18 @@ logger('gis: ' . print_r($gis,true));
 						'filename'     => $base_image['filename'], 
 						'album'        => t('Cover Photos'),
 						'os_path'      => $base_image['os_path'],
-						'display_path' => $base_image['display_path']
+						'display_path' => $base_image['display_path'],
+						'photo_usage'  => PHOTO_COVER
 					];
-	
-					$p['imgscale'] = 7;
-					$p['photo_usage'] = PHOTO_COVER;
-	
-					$r1 = $im->save($p);
+					
+					$r1 = $im->storeThumbnail($p, PHOTO_RES_COVER_1200);
 	
 					$im->doScaleImage(850,310);
-					$p['imgscale'] = 8;
-	
-					$r2 = $im->save($p);
-	
+					$r2 = $im->storeThumbnail($p, PHOTO_RES_COVER_850);
 	
 					$im->doScaleImage(425,160);
-					$p['imgscale'] = 9;
-	
-					$r3 = $im->save($p);
-				
+					$r3 = $im->storeThumbnail($p, PHOTO_RES_COVER_425);
+					
 					if($r1 === false || $r2 === false || $r3 === false) {
 						// if one failed, delete them all so we can start over.
 						notice( t('Image resize failed.') . EOL );
@@ -193,13 +212,28 @@ logger('gis: ' . print_r($gis,true));
 							dbesc($base_image['resource_id']),
 							local_channel()
 						);
+						
+						$x = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1 AND imgscale >= 7",
+							dbesc($base_image['resource_id']),
+							local_channel()
+						);
+						if($x) {
+							foreach($x as $xx) {
+								@unlink(dbunescbin($xx['content']));
+							}
+						}
+
 						return;
 					}
-	
-					$channel = \App::get_channel();
+
 					$this->send_cover_photo_activity($channel,$base_image,$profile);
-	
-	
+					
+					$sync = attach_export_data($channel,$base_image['resource_id']);
+					if($sync)
+					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+
+					// Update directory in background
+					\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
 				}
 				else
 					notice( t('Unable to process image') . EOL);
@@ -215,7 +249,7 @@ logger('gis: ' . print_r($gis,true));
 	
 		require_once('include/attach.php');
 	
-		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash));
+		$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Cover Photos'), 'hash' => $hash, 'nosync' => true));
 	
 		logger('attach_store: ' . print_r($res,true));
 	
@@ -393,6 +427,7 @@ logger('gis: ' . print_r($gis,true));
 				'$lbl_profiles'        => t('Select a profile:'),
 				'$title'               => t('Change Cover Photo'),
 				'$submit'              => t('Upload'),
+				'$remove'              => t('Remove'),
 				'$profiles'            => $profiles,
 				'$embedPhotos' => t('Use a photo from your albums'),
 				'$embedPhotosModalTitle' => t('Use a photo from your albums'),

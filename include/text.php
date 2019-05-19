@@ -20,7 +20,7 @@ define('RANDOM_STRING_TEXT', 0x01 );
 /**
  * @brief This is our template processor.
  *
- * @param string|SmartyEngine $s the string requiring macro substitution,
+ * @param string SmartyEngine $s the string requiring macro substitution,
  *   or an instance of SmartyEngine
  * @param array $r key value pairs (search => replace)
  *
@@ -409,7 +409,8 @@ function autoname($len) {
  * @return string Escaped text.
  */
 function xmlify($str) {
-	$buffer = '';
+
+	//$buffer = '';
 
 	if(is_array($str)) {
 
@@ -418,7 +419,7 @@ function xmlify($str) {
 
 		btlogger('xmlify called with array: ' . print_r($str,true), LOGGER_NORMAL, LOG_WARNING);
 	}
-
+/*
 	$len = mb_strlen($str);
 	for($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
@@ -452,6 +453,11 @@ function xmlify($str) {
 	$buffer = trim($buffer);
 
 	return($buffer);
+*/
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
+	$buffer = trim($buffer);
+	return $buffer;
+
 }
 
 /**
@@ -464,9 +470,22 @@ function xmlify($str) {
  * @return string
  */
 function unxmlify($s) {
+/*
 	$ret = str_replace('&amp;', '&', $s);
 	$ret = str_replace(array('&lt;', '&gt;', '&quot;', '&apos;'), array('<', '>', '"', "'"), $ret);
 
+	return $ret;
+*/
+
+	if(is_array($s)) {
+
+		// allow to fall through so we ge a PHP error, as the log statement will
+		// probably get lost in the noise unless we're specifically looking for it.
+
+		btlogger('unxmlify called with array: ' . print_r($s,true), LOGGER_NORMAL, LOG_WARNING);
+	}
+
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;
 }
 
@@ -1682,7 +1701,12 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		$s .= prepare_binary($item);
 	}
 	else {
-		$s .= prepare_text($item['body'],$item['mimetype'], $opts);
+		if($item['summary']) {
+			$s .= prepare_text('[summary]' . $item['summary'] . '[/summary]' . $item['body'],$item['mimetype'],$opts);
+		}
+		else {
+			$s .= prepare_text($item['body'],$item['mimetype'], $opts);
+		}
 	}
 
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
@@ -2545,15 +2569,6 @@ function design_tools() {
  */
 function website_portation_tools() {
 
-	$channel  = App::get_channel();
-	$sys = false;
-
-	if(App::$is_sys && is_site_admin()) {
-		require_once('include/channel.php');
-		$channel = get_sys_channel();
-		$sys = true;
-	}
-
 	return replace_macros(get_markup_template('website_portation_tools.tpl'), [
 		'$title'               => t('Import'),
 		'$import_label'        => t('Import website...'),
@@ -2721,7 +2736,6 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 		$name = substr($tag,(($exclusive) ? 2 : 1));
 		$newname = $name; // make a copy that we can mess with
-		$tagcid = 0;
 
 		$r = null;
 
@@ -2780,13 +2794,8 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 		}
 
-
-
-
-
 		$fn_results = [];
 		$access_tag = EMPTY_STR;
-
 
 		// $r is set if we found something
 
@@ -3081,13 +3090,12 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 		if($oldnick)
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
+	
+	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/(photos|gallery)\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${3}', $item['body']);
+	$item['body'] = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
 
-	$x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
-	if($x) {
-		$item['body'] = $x;
-		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
-		$item['item_verified']  = 1;
-	}
+	$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
+	$item['item_verified']  = 1;
 
 	$item['plink'] = str_replace($old,$new,$item['plink']);
 	if($oldnick)
@@ -3241,7 +3249,7 @@ function flatten_array_recursive($arr) {
 				$ret = array_merge($ret, $tmp);
 			}
 		}
-		elseif($a) {
+		elseif(isset($a)) {
 			$ret[] = $a;
 		}
 	}

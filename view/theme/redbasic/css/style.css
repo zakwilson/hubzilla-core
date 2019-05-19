@@ -942,17 +942,18 @@ a .generic-icons {
 	color: $font_colour;
 }
 
-.generic-icons:hover,
-a .generic-icons:hover {
-	color: $font_colour;
-}
-
 .generic-icons-right {
 	font-size: 1rem;
 	margin-left: 0.5rem;
 	color: $font_colour;
 }
 
+.generic-icons:hover,
+a .generic-icons:hover,
+.generic-icons-right:hover,
+a .generic-icons-right:hover {
+	color: $font_colour;
+}
 
 .generic-icons-nav {
 	font-size: 1rem;

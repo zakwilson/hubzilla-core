@@ -40,7 +40,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		call_hooks('cache_mode_hook', $cache_mode);
 		
 		$observer_xchan = get_observer_hash();
-		$ismodified = $_SERVER['HTTP_IF_MODIFIED_SINCE'];
+		$cachecontrol = '';
 
 		if(isset($type)) {
 	
@@ -68,39 +68,44 @@ class Photo extends \Zotlabs\Web\Controller {
 				}
 			}
 	
-			$modified = filemtime($default);
-			$default = z_root() . '/' . $default;
 			$uid = $person;
+			
+			$data = '';
 
-			$d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
-			call_hooks('get_profile_photo',$d);
-
-			$resolution = $d['imgscale'];
-			$uid        = $d['channel_id']; 	
-			$default    = $d['default'];
-			$data       = $d['data'];
-			$mimetype   = $d['mimetype'];
-
+			$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
+				intval($resolution),
+				intval($uid),
+				intval(PHOTO_PROFILE)
+			);
+			if($r) {
+			    $modified = strtotime($r[0]['edited'] . "Z");
+			    $mimetype = $r[0]['mimetype'];
+			    if(intval($r[0]['os_storage']))
+			        $data = file_get_contents(dbunescbin($r[0]['content']));
+			    else
+			        $data = dbunescbin($r[0]['content']);
+			}
+				
 			if(! $data) {
-				$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
-					intval($resolution),
-					intval($uid),
-					intval(PHOTO_PROFILE)
-				);
-				if($r) {
-					$modified = strtotime($r[0]['edited'] . "Z");
-					$data = dbunescbin($r[0]['content']);
-					$mimetype = $r[0]['mimetype'];
-				}
-				if(intval($r[0]['os_storage']))
-					$data = file_get_contents($data);
+			    $d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
+			    call_hooks('get_profile_photo',$d);
+			    
+			    $resolution = $d['imgscale'];
+			    $uid        = $d['channel_id']; 	
+			    $default    = $d['default'];
+			    $data       = $d['data'];
+			    $mimetype   = $d['mimetype'];
+			    $modified   = 0;
 			}
 
 			if(! $data) {
-			    $x = z_fetch_url($default,true,0,[ 'novalidate' => true ]);
+			    $x = z_fetch_url(z_root() . '/' . $default, true, 0, [ 'novalidate' => true ]);
 			    $data = ($x['success'] ? $x['body'] : EMPTY_STR);
 			    $mimetype = 'image/png';
+			    $modified = filemtime($default);
 			}
+
+			$cachecontrol = ', must-revalidate';
 		}
 		else {
 	
@@ -157,18 +162,19 @@ class Photo extends \Zotlabs\Web\Controller {
 							$allowed = (-1);
 					if($u === PHOTO_CACHE) {
 						// Validate cache
-						$cache = array(
-							'resid' => $photo,
-							'status' => false
-						);
-						if($cache_mode['on'])
+						if($cache_mode['on']) {
+							$cache = array(
+								'resid' => $photo,
+								'status' => false
+							);
 							call_hooks('cache_url_hook', $cache);
-						if(! $cache['status']) {
-							$url = htmlspecialchars_decode($r[0]['display_path']);
-							if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
-								$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
-							header("Location: " . $url);
-							killme();
+							if(! $cache['status']) {
+								$url = htmlspecialchars_decode($r[0]['display_path']);
+								// SSLify if needed
+								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
+									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
+								goaway($url);
+							}
 						}
 					}
 				}
@@ -213,38 +219,23 @@ class Photo extends \Zotlabs\Web\Controller {
 				http_status_exit(404,'not found');
 		}
 
+ 		if(! $data)
+ 			killme();
+ 			
+ 		$etag = md5($data . $modified);
+ 		
+ 		if($modified == 0)
+ 		    $modified = time();
+
 		header_remove('Pragma');
 
-        if($ismodified === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+		if($_SERVER['HTTP_IF_NONE_MATCH'] === $etag || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
 			http_status_exit(304,'not modified');
-        }
-
-		if(! isset($data)) {
-			if(isset($resolution)) {
-				switch($resolution) {
-					case 4:
-						$default = get_default_profile_photo();
-						break;
-					case 5:
-						$default = get_default_profile_photo(80);
-						break;
-					case 6:
-						$default = get_default_profile_photo(48);
-						break;
-					default:
-						killme();
-						// NOTREACHED
-						break;
-				}
-				$x = z_fetch_url(z_root() . '/' . $default,true,0,[ 'novalidate' => true ]);
-				$data = ($x['success'] ? $x['body'] : EMPTY_STR);
-				$mimetype = 'image/png';
-			}
 		}
-	
+
 		if(isset($res) && intval($res) && $res < 500) {
 			$ph = photo_factory($data, $mimetype);
 			if($ph->is_valid()) {
@@ -281,12 +272,13 @@ class Photo extends \Zotlabs\Web\Controller {
 				$maxage = $expires - time();
 			
 		 	header("Expires: " . gmdate("D, d M Y H:i:s", $expires) . " GMT");
-			header("Cache-Control: max-age=" . $maxage);
+			header("Cache-Control: max-age=" . $maxage . $cachecontrol);
 	
 		}
 
 		header("Content-type: " . $mimetype);
 		header("Last-Modified: " . gmdate("D, d M Y H:i:s", $modified) . " GMT");
+		header("ETag: " . $etag);
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 

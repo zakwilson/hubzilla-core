@@ -124,15 +124,16 @@
 			{{/if}}
 
 			<div id="profile-photo-submit-wrapper">
-				<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
+			    <button type="submit" class="btn btn-outline-primary" name="submit" id="profile-photo-submit">{{$submit}}</button>
+				<button type="submit" class="btn btn-outline-danger" name="remove" id="profile-photo-remove">{{$remove}}</button>
 			</div>
 		</div>
 
 		</form>
 		<br />
 		<div id="profile-photo-link-select-wrapper">
-		<button id="embed-photo-wrapper" class="btn btn-default btn-primary" title="{{$embedPhotos}}" onclick="initializeEmbedPhotoDialog();return false;">
-		<i id="embed-photo" class="fa fa-file-image-o"></i> {{$select}}
+			<button id="embed-photo-wrapper" class="btn btn-default btn-primary" title="{{$embedPhotos}}" onclick="initializeEmbedPhotoDialog();return false;">
+			<i id="embed-photo" class="fa fa-file-image-o"></i> {{$select}}
 		</button>
 		</div>
 	</div>

@@ -848,7 +848,7 @@ class Connedit extends \Zotlabs\Web\Controller {
 				$locstr = unpunify($contact['xchan_url']);
 	
 			$clone_warn = '';
-			$clonable = (in_array($contact['xchan_network'],['zot','rss']) ? true : false);
+			$clonable = (in_array($contact['xchan_network'],['zot', 'zot6', 'rss']) ? true : false);
 			if(! $clonable) {
 				$clone_warn = '<strong>';
 				$clone_warn .= ((intval($contact['abook_not_here'])) 

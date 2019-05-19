@@ -302,7 +302,7 @@
 
 {{if $embedPhotos}}
 <div class="modal" id="embedPhotoModal" tabindex="-1" role="dialog" aria-labelledby="embedPhotoLabel" aria-hidden="true">
-	<div class="modal-dialog">
+	<div class="modal-dialog modal-lg">
 		<div class="modal-content">
 			<div class="modal-header">
 				<h3 class="modal-title" id="embedPhotoModalLabel">{{$embedPhotosModalTitle}}</h3>

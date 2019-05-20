@@ -345,6 +345,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					if(! $tz)
 						$tz = 'UTC';
 
+					if($rr['etype'] === 'birthday')
+						$rr['adjust'] = intval(feature_enabled(local_channel(), 'smart_birthdays'));
+
 					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
 						$end = null;

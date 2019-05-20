@@ -81,7 +81,6 @@ $(document).ready(function() {
 		},
 		
 		eventClick: function(info) {
-
 			//reset categories
 			$('#id_categories').tagsinput('removeAll');
 
@@ -131,6 +130,8 @@ $(document).ready(function() {
 				event_uri = event.extendedProps.uri;
 				$('#id_title').val(event.title);
 				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
+				$('#id_timezone_select').val(event.extendedProps.timezone);
+				$('#id_location').val(event.extendedProps.location);
 				$('#id_categories').tagsinput('add', event.extendedProps.categories);
 				$('#id_dtstart').val(dtstart.toUTCString());
 				$('#id_dtend').val(dtend.toUTCString());
@@ -183,7 +184,7 @@ $(document).ready(function() {
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			
+
 			$('#id_title').val(event.title);
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
@@ -199,6 +200,7 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart.toUTCString(),
 					'dtend': dtend.toUTCString(),
 					'adjust': event.extendedProps.item.adjust,
@@ -215,6 +217,7 @@ $(document).ready(function() {
 					'update': 'resize',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart ? dtstart.toUTCString() : '',
 					'dtend': dtend ? dtend.toUTCString() : ''
 				})
@@ -245,6 +248,7 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart.toUTCString(),
 					'dtend': dtend.toUTCString(),
 					'adjust': event.extendedProps.item.adjust,
@@ -261,6 +265,7 @@ $(document).ready(function() {
 					'update': 'drop',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart ? dtstart.toUTCString() : '',
 					'dtend': dtend ? dtend.toUTCString() : ''
 				})
@@ -334,6 +339,7 @@ $(document).ready(function() {
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
+		$('#id_timezone_select').val(resource.timezone);
 
 		if(event_xchan !== '{{$channel_hash}}')
 			$('#event_submit').hide();
@@ -414,10 +420,11 @@ function on_submit() {
 			'xchan': event_xchan,
 			'type': 'event',
 			'preview': 0,
+			'timezone_select': $('#id_timezone_select').val(),
 			'summary': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
-			'adjust': 0,
+			'adjust': 1,
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
@@ -439,6 +446,7 @@ function on_submit() {
 		$.post( 'cdav/calendar', {
 			'submit': $('#event_submit').val(),
 			'target': $('#calendar_select').val(),
+			'timezone_select': $('#id_timezone_select').val(),
 			'uri': event_uri,
 			'title': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
@@ -569,6 +577,9 @@ function exportDate() {
 					{{/foreach}}
 					</optgroup>
 				</select>
+				{{if $timezone_select}}
+				{{include file="field_select_grouped.tpl" field=$timezone_select}}
+				{{/if}}
 				<div id="more_block" style="display: none;">
 					{{if $catsenabled}}
 					<div id="id_categories_wrapper" class="form-group">

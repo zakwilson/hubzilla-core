@@ -316,10 +316,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				// Ultimately the finish date shouldn't be involved in the query. 
 
 				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
-					from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
-					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
-					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) ",
+					from event left join item on event.event_hash = item.resource_id 
+					where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
+					AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
+					OR  (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) ",
 					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),

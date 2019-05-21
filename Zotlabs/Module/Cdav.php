@@ -1034,7 +1034,6 @@ class Cdav extends Controller {
 			$dtstart = ['dtstart', t('Start date and time')];
 			$dtend = ['dtend', t('End date and time')];
 			$timezone_select = ['timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()];
-			$allday = ['allday', t('All day event'), '', '', [t('No'), t('Yes')]];
 
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
@@ -1096,9 +1095,7 @@ class Cdav extends Controller {
 
 				'$resource' => json_encode($resource),
 				'$categories' => $categories,
-				'$timezone_select' => ((feature_enabled(local_channel(),'event_tz_select')) ? $timezone_select : ''),
-				'$allday' => $allday
-
+				'$timezone_select' => ((feature_enabled(local_channel(),'event_tz_select')) ? $timezone_select : '')
 			]);
 
 			return $o;

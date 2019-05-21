@@ -274,9 +274,12 @@ class Cdav extends Controller {
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
+				$allday = $_REQUEST['allday'];
+
 				$title = $_REQUEST['title'];
 				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
+
 				if($_REQUEST['dtend']) {
 					$end = datetime_convert($tz, 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
@@ -304,16 +307,23 @@ class Cdav extends Controller {
 					'DTSTART' => $dtstart
 				    ]
 				]);
+
 				if($dtend) {
 					$vcalendar->VEVENT->add('DTEND', $dtend);
-					$vcalendar->VEVENT->DTEND['TZID'] = $tz;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
 				}
 				if($description)
 					$vcalendar->VEVENT->add('DESCRIPTION', $description);
 				if($location)
 					$vcalendar->VEVENT->add('LOCATION', $location);
 
-				$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
+				if($allday)
+					$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+				else
+					$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
 
 				$calendarData = $vcalendar->serialize();
 
@@ -354,6 +364,8 @@ class Cdav extends Controller {
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
+				$allday = $_REQUEST['allday'];
+
 				$uri = $_REQUEST['uri'];
 				$title = $_REQUEST['title'];
 				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
@@ -371,12 +383,23 @@ class Cdav extends Controller {
 
 				if($title)
 					$vcalendar->VEVENT->SUMMARY = $title;
-				if($dtstart)
+				if($dtstart) {
 					$vcalendar->VEVENT->DTSTART = $dtstart;
-				if($dtend)
+					if($allday)
+						$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
+				}
+				if($dtend) {
 					$vcalendar->VEVENT->DTEND = $dtend;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
+				}
 				else
 					unset($vcalendar->VEVENT->DTEND);
+
 				if($description)
 					$vcalendar->VEVENT->DESCRIPTION = $description;
 				if($location)
@@ -415,6 +438,8 @@ class Cdav extends Controller {
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
+				$allday = $_REQUEST['allday'];
+
 				$uri = $_REQUEST['uri'];
 				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
@@ -429,13 +454,20 @@ class Cdav extends Controller {
 
 				if($dtstart) {
 					$vcalendar->VEVENT->DTSTART = $dtstart;
+					if($allday)
+						$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
 				}
 				if($dtend) {
 					$vcalendar->VEVENT->DTEND = $dtend;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
 				}
-				else {
+				else
 					unset($vcalendar->VEVENT->DTEND);
-				}
 
 				$calendarData = $vcalendar->serialize();
 
@@ -1001,6 +1033,9 @@ class Cdav extends Controller {
 			$title = ['title', t('Event title') ];
 			$dtstart = ['dtstart', t('Start date and time')];
 			$dtend = ['dtend', t('End date and time')];
+			$timezone_select = ['timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()];
+			$allday = ['allday', t('All day event'), '', '', [t('No'), t('Yes')]];
+
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
 
@@ -1061,7 +1096,8 @@ class Cdav extends Controller {
 
 				'$resource' => json_encode($resource),
 				'$categories' => $categories,
-				'$timezone_select' => ((feature_enabled(local_channel(),'event_tz_select')) ? ['timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()] : [])
+				'$timezone_select' => ((feature_enabled(local_channel(),'event_tz_select')) ? $timezone_select : ''),
+				'$allday' => $allday
 
 			]);
 
@@ -1091,8 +1127,8 @@ class Cdav extends Controller {
 			$filters['comp-filters'][0]['time-range']['end'] = $end;
 
 			$uris = $caldavBackend->calendarQuery($id, $filters);
-
 			if($uris) {
+
 				$objects = $caldavBackend->getMultipleCalendarObjects($id, $uris);
 				foreach($objects as $object) {
 
@@ -1121,13 +1157,7 @@ class Cdav extends Controller {
 							$timezone = $recurrent_timezone;
 						}
 
-						$allDay = false;
-
-						// allDay event rules
-						if(!strpos($dtstart, 'T') && !strpos($dtend, 'T'))
-							$allDay = true;
-						if(strpos($dtstart, 'T000000') && strpos($dtend, 'T000000'))
-							$allDay = true;
+						$allDay = (((string)$vevent->DTSTART['VALUE'] == 'DATE') ? true : false);
 
 						$events[] = [
 							'calendar_id' => $id,

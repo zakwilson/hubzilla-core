@@ -113,11 +113,11 @@ class Notifications {
 			];
 
 			$notifications[] = [
-				'type' => 'forums',
+				'type' => 'groups',
 				'icon' => 'comments-o',
 				'severity' => 'secondary',
-				'label' => t('Forums'),
-				'title' => t('Forums'),
+				'label' => t('Groups'),
+				'title' => t('Groups'),
 				'filter' => [
 					'name_label' => t('Filter by name or address')
 				]

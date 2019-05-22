@@ -345,8 +345,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					if(! $tz)
 						$tz = 'UTC';
 
-					if($rr['etype'] === 'birthday')
-						$rr['adjust'] = intval(feature_enabled(local_channel(), 'smart_birthdays'));
+					if($rr['etype'] === 'birthday') {
+						$rr['adjust'] = 1; //intval(feature_enabled(local_channel(), 'smart_birthdays'));
+					}
 
 					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
@@ -356,7 +357,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 						// give a fake end to birthdays so they get crammed into a 
 						// single day on the calendar
-
 						if($rr['etype'] === 'birthday')
 							$end = null;
 					}
@@ -374,13 +374,13 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						}
 					}
 
-					$allDay = false;
+					//$allDay = false;
 
 					// allDay event rules
-					if(!strpos($start, 'T') && !strpos($end, 'T'))
-						$allDay = true;
-					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
-						$allDay = true;
+					//if(!strpos($start, 'T') && !strpos($end, 'T'))
+					//	$allDay = true;
+					//if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
+					//	$allDay = true;
 
 					$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array(z_root().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 	
@@ -395,10 +395,10 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => $allDay,
+						'allDay' => (($rr['adjust']) ? 0 : 1),
 						'title' => htmlentities($rr['summary'], ENT_COMPAT, 'UTF-8', false),
 						'editable' => $edit ? true : false,
-						'item'=>$rr,
+						'item' => $rr,
 						'plink' => [$rr['plink'], t('Link to source')],
 						'description' => htmlentities($rr['description'], ENT_COMPAT, 'UTF-8', false),
 						'location' => htmlentities($rr['location'], ENT_COMPAT, 'UTF-8', false),

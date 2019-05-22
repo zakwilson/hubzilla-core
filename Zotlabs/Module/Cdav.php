@@ -1144,15 +1144,23 @@ class Cdav extends Controller {
 						$dtend = (string)$vevent->DTEND;
 						$description = (string)$vevent->DESCRIPTION;
 						$location = (string)$vevent->LOCATION;
-						$timezone = (string)$vevent->DTSTART['TZID'];
+						$timezone_str = (string)$vevent->DTSTART['TZID'];
 						$rw = ((cdav_perms($id[0],$calendars,true)) ? true : false);
 						$editable = $rw ? true : false;
 						$recurrent = ((isset($vevent->{'RECURRENCE-ID'})) ? true : false);
 
 						if($recurrent) {
 							$editable = false;
-							$timezone = $recurrent_timezone;
+							$timezone_str = $recurrent_timezone;
 						}
+
+						// Try to get an usable olson format timezone
+						$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($timezone_str, $vcalendar);
+						$timezone = $timezone_obj->getName();
+
+						// If we got nothing fallback to UTC
+						if(! $timezone)
+							$timezone = 'UTC';
 
 						$allDay = (((string)$vevent->DTSTART['VALUE'] == 'DATE') ? true : false);
 

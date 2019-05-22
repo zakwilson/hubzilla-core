@@ -83,11 +83,11 @@ function format_event_obj($jobject) {
 			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
 			'$dtstart_label' => t('Starts:'),
 			'$dtstart_title' => datetime_convert($tz, date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format))),
+			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
 			'$finish'	 => (($object['nofinish']) ? false : true),
 			'$dtend_label'	 => t('Finishes:'),
 			'$dtend_title'	 => datetime_convert($tz, date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )))
+			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format )))
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(

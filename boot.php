@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '4.3' );
+define ( 'STD_VERSION',             '4.2RC1' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 define ( 'DB_UPDATE_VERSION',       1234 );
@@ -84,7 +84,8 @@ define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://zotadel.net',
-	'https://zotsite.net'
+	'https://zotsite.net',
+	'https://hub.netzgemeinde.eu'
 );
 
 

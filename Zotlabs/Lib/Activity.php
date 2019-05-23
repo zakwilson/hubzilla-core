@@ -5,6 +5,8 @@ namespace Zotlabs\Lib;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Zot6\HTTPSig;
 
+require_once('include/event.php');
+
 class Activity {
 
 	static function encode_object($x) {
@@ -468,6 +470,12 @@ class Activity {
 			else
 				return []; 
 			return $ret;
+		}
+
+		if($i['verb'] === ACTIVITY_FRIEND) {
+			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
+			$ret['obj_type'] = ACTIVITY_OBJ_NOTE;
+			$ret['obj'] = [];
 		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);

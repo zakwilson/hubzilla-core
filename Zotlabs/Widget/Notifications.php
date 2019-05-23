@@ -69,7 +69,7 @@ class Notifications {
 				'label' => t('New Events'),
 				'title' => t('New Events Notifications'),
 				'viewall' => [
-					'url' => 'events',
+					'url' => 'cdav/calendar',
 					'label' => t('View events')
 				],
 				'markall' => [

@@ -87,7 +87,24 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Default is Sunday'),
 				false,
 				get_config('feature_lock','cal_first_day')
+			],
+
+			[
+				'event_tz_select',
+				t('Event Timezone Selection'),
+				t('Allow event creation in timezones other than your own.'),
+				false,
+				get_config('feature_lock','event_tz_select'),
+			],
+/*
+			[
+				'smart_birthdays',
+				t('Smart Birthdays'),
+				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
+				false,
+				get_config('feature_lock','smart_birthdays'),
 			]
+*/
 
 		],
 
@@ -282,22 +299,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Default is Sunday'),
 				false,
 				get_config('feature_lock','events_cal_first_day')
-			],
-
-			[
-				'smart_birthdays',
-				t('Smart Birthdays'),
-				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
-				true,
-				get_config('feature_lock','smart_birthdays'),
-			],
-
-			[
-				'event_tz_select',
-				t('Event Timezone Selection'),
-				t('Allow event creation in timezones other than your own.'),
-				false,
-				get_config('feature_lock','event_tz_select'),
 			]
 
 		],

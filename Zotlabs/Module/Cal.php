@@ -84,6 +84,7 @@ class Cal extends \Zotlabs\Web\Controller {
 			'$module_url' => '/cal/' . $channel['channel_address'],
 			'$modparams' => 2,
 			'$lang' => \App::$language,
+			'$timezone' => date_default_timezone_get(),
 			'$first_day' => $first_day
 		));
 	
@@ -215,8 +216,8 @@ class Cal extends \Zotlabs\Web\Controller {
 				$sql_extra .= " and etype != 'birthday' ";
 
 			if (x($_GET,'id')){
-			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
-	                                from event left join item on resource_id = event_hash where resource_type = 'event' and event.uid = %d and event.id = %d $sql_extra limit 1",
+				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
+					from event left join item on resource_id = event_hash where resource_type = 'event' and event.uid = %d and event.id = %d $sql_extra limit 1",
 					intval($channel['channel_id']),
 					intval($_GET['id'])
 				);
@@ -227,12 +228,12 @@ class Cal extends \Zotlabs\Web\Controller {
 				// Noting this for now - it will need to be fixed here and in Friendica.
 				// Ultimately the finish date shouldn't be involved in the query. 
 	
-				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
-	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
-					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
-					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) $sql_extra ",
-					intval($channel['channel_id']),
+				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
+					from event left join item on event.event_hash = item.resource_id 
+					where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
+					AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
+					OR  (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) ",
+					intval(local_channel()),
 					dbesc($start),
 					dbesc($finish),
 					dbesc($adjust_start),
@@ -266,16 +267,23 @@ class Cal extends \Zotlabs\Web\Controller {
 			if($r) {
 	
 				foreach($r as $rr) {
-					
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
-					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
+
+					$tz = get_iconfig($rr, 'event', 'timezone');
+
+					if(! $tz)
+						$tz = 'UTC';
+
+					$rr['timezone'] = $tz;
+
+					$j = (($rr['adjust']) ? datetime_convert($tz,date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
+					$d = (($rr['adjust']) ? datetime_convert($tz,date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
 					$d = day_translate($d);
 					
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
+					$start = (($rr['adjust']) ? datetime_convert($tz,date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
+						$end = (($rr['adjust']) ? datetime_convert($tz,date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
 					}
 					
 					
@@ -302,7 +310,7 @@ class Cal extends \Zotlabs\Web\Controller {
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => false,
+						'allDay' => (($rr['adjust']) ? 0 : 1),
 						'title' => $title,
 						
 						'j' => $j,

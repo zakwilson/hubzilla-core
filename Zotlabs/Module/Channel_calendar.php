@@ -345,20 +345,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					if(! $tz)
 						$tz = 'UTC';
 
-					if($rr['etype'] === 'birthday') {
-						$rr['adjust'] = 1; //intval(feature_enabled(local_channel(), 'smart_birthdays'));
-					}
-
 					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
 						$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
-
-						// give a fake end to birthdays so they get crammed into a 
-						// single day on the calendar
-						if($rr['etype'] === 'birthday')
-							$end = null;
 					}
 
 					$catsenabled = feature_enabled(local_channel(),'categories');
@@ -373,14 +364,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 							}
 						}
 					}
-
-					//$allDay = false;
-
-					// allDay event rules
-					//if(!strpos($start, 'T') && !strpos($end, 'T'))
-					//	$allDay = true;
-					//if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
-					//	$allDay = true;
 
 					$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array(z_root().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 	

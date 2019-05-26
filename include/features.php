@@ -95,16 +95,7 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Allow event creation in timezones other than your own.'),
 				false,
 				get_config('feature_lock','event_tz_select'),
-			],
-/*
-			[
-				'smart_birthdays',
-				t('Smart Birthdays'),
-				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
-				false,
-				get_config('feature_lock','smart_birthdays'),
 			]
-*/
 
 		],
 

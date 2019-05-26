@@ -516,13 +516,14 @@ function update_birthdays() {
 				'event_xchan' => $rr['xchan_hash'],
 				'dtstart'     => datetime_convert('UTC', 'UTC', $rr['abook_dob']),
 				'dtend'       => datetime_convert('UTC', 'UTC', $rr['abook_dob'] . ' + 1 day '),
-				'adjust'      => 1, //intval(feature_enabled($rr['abook_channel'],'smart_birthdays')),
+				'adjust'      => 0,
 				'summary'     => sprintf( t('%1$s\'s birthday'), $rr['xchan_name']),
 				'description' => sprintf( t('Happy Birthday %1$s'), '[zrl=' . $rr['xchan_url'] . ']' . $rr['xchan_name'] . '[/zrl]'),
 				'etype'       => 'birthday',
 			];
 
 			$z = event_store_event($ev);
+
 			if ($z) {
 				$item_id = event_store_item($ev, $z);
 				q("update abook set abook_dob = '%s' where abook_id = %d",

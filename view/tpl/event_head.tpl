@@ -52,6 +52,7 @@
 			header: false,
 			eventTextColor: 'white',
 			lang: '{{$lang}}',
+			timeZone: '{{$timezone}}',
 			firstDay: {{$first_day}},
 
 			eventLimit: 3,

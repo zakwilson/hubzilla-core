@@ -4430,7 +4430,7 @@ function zotinfo($arr) {
 
 		$profile['description']   = $p[0]['pdesc'];
 		$profile['birthday']      = $p[0]['dob'];
-		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],$e['channel_timezone'])) !== ''))
+		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],'UTC')) !== ''))
 			$profile['next_birthday'] = $bd;
 
 		if($age = age($p[0]['dob'],$e['channel_timezone'],''))

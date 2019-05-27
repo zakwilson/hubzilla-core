@@ -27,6 +27,7 @@ function format_event_html($ev) {
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
 
+	$tz = (($ev['timezone']) ? $ev['timezone'] : 'UTC');
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8:01 AM
 
@@ -39,7 +40,7 @@ function format_event_html($ev) {
 	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['dtstart'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+		. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 			$ev['dtstart'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['dtstart'] , $bd_format)))
@@ -49,7 +50,7 @@ function format_event_html($ev) {
 		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['dtend'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+			. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 				$ev['dtend'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['dtend'] , $bd_format )))
@@ -76,18 +77,34 @@ function format_event_obj($jobject) {
 	if(array_key_exists('description', $object)) {
 
 		$tz = (($object['timezone']) ? $object['timezone'] : 'UTC');
+		$allday = (($object['adjust']) ? false : true);
 
-		$bd_format = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM
+		$dtstart = new DateTime($object['dtstart']);
+		$dtend = new DateTime($object['dtend']);
+		$dtdiff = $dtstart->diff($dtend);
+
+		if($allday && ($dtdiff->days < 2))
+			$oneday = true;
+
+		if($allday && !$oneday) {
+			// Subtract one day from the end date so we can use the "first day - last day" format for display.
+			$dtend->modify('-1 day');
+			$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
+		}
+
+		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
 
 		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
 			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
-			'$dtstart_label' => t('Starts:'),
+			'$dtstart_label' => t('Start:'),
 			'$dtstart_title' => datetime_convert($tz, date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
 			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
 			'$finish'	 => (($object['nofinish']) ? false : true),
-			'$dtend_label'	 => t('Finishes:'),
+			'$dtend_label'	 => t('End:'),
 			'$dtend_title'	 => datetime_convert($tz, date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format )))
+			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
+			'$allday'	 => $allday,
+			'$oneday'	 => $oneday
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(

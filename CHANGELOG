@@ -1,3 +1,59 @@
+Hubzilla 4.2 (2019-??-??)
+	- Introduce Calendar app which deprecates Events and CalDAV apps and streamlines the featuresets
+	- Update mod cal to reflect changes in the calendar app
+	- Improve timezone detection for CalDAV calendars
+	- Add mention support to event description in channel calendar
+	- Update jgrowl library
+	- Do not try to oembed URLs without embed tags
+	- Optimise pdf oembed processing
+	- Add form security token to mod register
+	- Replace photo URL for gallery on clonned channel post sync
+	- Update justified gallery library
+	- Update bootstrap libraries
+	- Use "cache" flag for bbcode() on content destined for zot6
+	- Improve DB indexing
+	- Drop deprecated columns from channel the table
+	- Replace own image URL in clonned channel posts
+	- Improve DB update handling
+	- Improve item deletion when a contact was removed
+	- Zot6 compatibility for emoji reactions
+	- Add threaded comments support (disabled by default)
+	- Improve xmlify()/unxmlify() performance
+	- Update blueimp/jquery-file-uplad library
+	- Update sabre/vobject library
+	- Various doco updates
+	- Implement remove profile photo button (reset to default photo)
+	- Implement remove cover photo button
+	- Update the homeinstall script
+	- Add command line tool for photo thumbnails storage conversion
+	- Implement option to store photo thumbnails in filesystem instead of DB
+
+	Bugfixes
+	- Fix encoded URLs in code blocks
+	- Fix wiki headers not escaped
+	- Fix possible xchan protocol confusion in new_contact()
+	- Fix xchan_url not displayed if xchan_addr not available
+	- Fix suggestion ordering in mod directory
+	- Fix event attachment delivery to zot6
+
+	Addons
+	- pubcrawl: improve friendica compatibility by adding the nonstandard diaspora:guid field
+	- pubcrawl: initial suport for events
+	- pubcrawl: improve permalink detection
+	- flashcards: fix moving learn buttons if viewport sizes changes
+	- flashcards: Move card details to the bottom of a card
+	- upgrade_info: provide links to changelog
+	- photocache: do not save filename for cached photos
+	- pubcrawl: save local comment activitypub payload in iconfig to be used for relay
+	- flashcards: UI improvements in box settings
+	- pubcrawl: implement profile update messages
+	- pubcrawl: use URI instead of object for actor
+	- flashcards: fix jumping sync button
+	- pubcrawl: add threaded comments support
+	- pubcrawl: ignore target encoding errors
+	- pubcrawl: format photo items for activitypub
+
+
 Hubzilla 4.0.3 (2019-04-26)
 	- Add attachments to zot6 event objects
 	- Add zot6 to federated transports 

@@ -22,52 +22,20 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 		$xchan = ((x($_POST,'xchan')) ? dbesc($_POST['xchan']) : '');
 		$uid      = local_channel();
-	
-		$start_text = escape_tags($_REQUEST['dtstart']);
-		$finish_text = escape_tags($_REQUEST['dtend']);
 
-		$adjust   = intval($_POST['adjust']);
-		$nofinish = intval($_POST['nofinish']);
-	
-		$timezone = ((x($_POST,'timezone_select')) ? notags(trim($_POST['timezone_select']))     : '');
+		// only allow editing your own events. 
+		if(($xchan) && ($xchan !== get_observer_hash()))
+			return;
 
+		$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 		$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
 		$categories = escape_tags(trim($_POST['categories']));
-	
-		// only allow editing your own events. 
-	
-		if(($xchan) && ($xchan !== get_observer_hash()))
-			return;
-	
-		if($start_text) {
-			$start = $start_text;
-		}
-		else {
-			$start = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
-		}
+		
+		$adjust = intval($_POST['adjust']);
 
-		if($finish_text) {
-			$finish = $finish_text;
-		}
-		else {
-			$finish = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
-		}
-
-		if($nofinish) {
-			$finish = NULL_DATE;
-		}
-
-		if($adjust) {
-			$start = datetime_convert($tz,'UTC',$start);
-			if(! $nofinish)
-				$finish = datetime_convert($tz,'UTC',$finish);
-		}
-		else {
-			$start = datetime_convert('UTC','UTC',$start);
-			if(! $nofinish)
-				$finish = datetime_convert('UTC','UTC',$finish);
-		}
+		$start = (($adjust) ? datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtstart'])) : datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart'])));
+		$finish = (($adjust) ? datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtend'])) : datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend'])));
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));
@@ -176,7 +144,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$datarray['location'] = $location;
 		$datarray['etype'] = $type;
 		$datarray['adjust'] = $adjust;
-		$datarray['nofinish'] = $nofinish;
+		$datarray['nofinish'] = 0;
 		$datarray['uid'] = local_channel();
 		$datarray['account'] = get_account_id();
 		$datarray['event_xchan'] = $channel['channel_hash'];
@@ -188,6 +156,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$datarray['id'] = $event_id;
 		$datarray['created'] = $created;
 		$datarray['edited'] = $edited;
+		$datarray['timezone'] = $tz;
+
 	
 		if(intval($_REQUEST['preview'])) {
 			$html = format_event_html($datarray);
@@ -322,10 +292,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 			$start  = datetime_convert('UTC','UTC',$start);
 			$finish = datetime_convert('UTC','UTC',$finish);
-	
 			$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
 			$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
-	
+
 			if (x($_GET,'id')){
 			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
 	                                from event left join item on item.resource_id = event.event_hash
@@ -357,13 +326,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
-
 			}
 	
 			if($r && ! $export) {
 				xchan_query($r);
 				$r = fetch_post_tags($r,true);
-
 				$r = sort_by_date($r);
 			}
 
@@ -373,17 +340,16 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 				foreach($r as $rr) {
 
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
+					$tz = get_iconfig($rr, 'event', 'timezone');
+
+					if(! $tz)
+						$tz = 'UTC';
+
+					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
-
-						// give a fake end to birthdays so they get crammed into a 
-						// single day on the calendar
-
-						if($rr['etype'] === 'birthday')
-							$end = null;
+						$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
 					}
 
 					$catsenabled = feature_enabled(local_channel(),'categories');
@@ -399,14 +365,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						}
 					}
 
-					$allDay = false;
-
-					// allDay event rules
-					if(!strpos($start, 'T') && !strpos($end, 'T'))
-						$allDay = true;
-					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
-						$allDay = true;
-
 					$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array(z_root().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 	
 					$drop = array(z_root().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
@@ -416,13 +374,14 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'rw' => true,
 						'id'=>$rr['id'],
 						'uri' => $rr['event_hash'],
+						'timezone' => $tz,
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => $allDay,
+						'allDay' => (($rr['adjust']) ? 0 : 1),
 						'title' => htmlentities($rr['summary'], ENT_COMPAT, 'UTF-8', false),
 						'editable' => $edit ? true : false,
-						'item'=>$rr,
+						'item' => $rr,
 						'plink' => [$rr['plink'], t('Link to source')],
 						'description' => htmlentities($rr['description'], ENT_COMPAT, 'UTF-8', false),
 						'location' => htmlentities($rr['location'], ENT_COMPAT, 'UTF-8', false),

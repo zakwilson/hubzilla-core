@@ -76,6 +76,8 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 
 	$s = html2bbcode($s);
 
+	$s = bb_code_protect($s);
+
 	// Convert everything that looks like a link to a link
 	if($use_zrl) {
 		if (strpos($s,'[/img]') !== false) {
@@ -87,6 +89,8 @@ function markdown_to_bb($s, $use_zrl = false, $options = []) {
 	else {
 		$s = preg_replace("/([^\]\=\{\/]|^)(https?\:\/\/)([a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@\(\)]+)/ismu", '$1[url=$2$3]$2$3[/url]',$s);
 	}
+
+	$s = bb_code_unprotect($s);
 
 	// remove duplicate adjacent code tags
 	$s = preg_replace("/(\[code\])+(.*?)(\[\/code\])+/ism","[code]$2[/code]", $s);

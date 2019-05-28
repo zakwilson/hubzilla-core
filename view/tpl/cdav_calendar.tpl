@@ -17,6 +17,8 @@ var resource = {{$resource}};
 var default_view = resource !== null ? 'timeGridDay' : 'dayGridMonth';
 var default_date = resource !== null ? new Date(resource.dtstart) : new Date();
 
+var allday;
+
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
 	calendar = new FullCalendar.Calendar(calendarEl, {
@@ -43,7 +45,6 @@ $(document).ready(function() {
 		dayNamesShort: aStr['dayNamesShort'],
 		allDayText: aStr['allday'],
 
-		defaultTimedEventDuration: '01:00:00',
 		snapDuration: '00:15:00',
 		
 		dateClick: function(info) {
@@ -53,8 +54,10 @@ $(document).ready(function() {
 				new_event = {};
 			}
 
+			allday = info.allDay;
+
 			var dtend = new Date(info.date.toUTCString());
-			if(info.view.type == 'dayGridMonth') {
+			if(allday) {
 				dtend.setDate(dtend.getDate() + 1);
 			}
 			else{
@@ -76,12 +79,11 @@ $(document).ready(function() {
 			$('#event_submit').val('create_event').html('{{$create}}');
 			$('#event_delete').hide();
 
-			new_event = { id: new_event_id, title  : 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), editable: true, color: '#bbb' };
+			new_event = { id: new_event_id, title: 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), allDay: info.allDay, editable: true, color: '#bbb' };
 			calendar.addEvent(new_event);
 		},
-		
-		eventClick: function(info) {
 
+		eventClick: function(info) {
 			//reset categories
 			$('#id_categories').tagsinput('removeAll');
 
@@ -131,6 +133,8 @@ $(document).ready(function() {
 				event_uri = event.extendedProps.uri;
 				$('#id_title').val(event.title);
 				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
+				$('#id_timezone_select').val(event.extendedProps.timezone);
+				$('#id_location').val(event.extendedProps.location);
 				$('#id_categories').tagsinput('add', event.extendedProps.categories);
 				$('#id_dtstart').val(dtstart.toUTCString());
 				$('#id_dtend').val(dtend.toUTCString());
@@ -179,11 +183,12 @@ $(document).ready(function() {
 		},
 		
 		eventResize: function(info) {
+			console.log(info);
 
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			
+
 			$('#id_title').val(event.title);
 			$('#id_dtstart').val(dtstart.toUTCString());
 			$('#id_dtend').val(dtend.toUTCString());
@@ -199,9 +204,10 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart.toUTCString(),
 					'dtend': dtend.toUTCString(),
-					'adjust': event.extendedProps.item.adjust,
+					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
@@ -215,8 +221,10 @@ $(document).ready(function() {
 					'update': 'resize',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : ''
+					'dtend': dtend ? dtend.toUTCString() : '',
+					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
 					info.revert();
@@ -245,9 +253,10 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart.toUTCString(),
 					'dtend': dtend.toUTCString(),
-					'adjust': event.extendedProps.item.adjust,
+					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
@@ -261,8 +270,10 @@ $(document).ready(function() {
 					'update': 'drop',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
+					'timezone_select': event.extendedProps.timezone,
 					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : ''
+					'dtend': dtend ? dtend.toUTCString() : '',
+					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
 					info.revert();
@@ -334,6 +345,7 @@ $(document).ready(function() {
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
+		$('#id_timezone_select').val(resource.timezone);
 
 		if(event_xchan !== '{{$channel_hash}}')
 			$('#event_submit').hide();
@@ -414,10 +426,11 @@ function on_submit() {
 			'xchan': event_xchan,
 			'type': 'event',
 			'preview': 0,
+			'timezone_select': $('#id_timezone_select').val(),
 			'summary': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
-			'adjust': 0,
+			'adjust': allday ? 0 : 1,
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
@@ -439,12 +452,14 @@ function on_submit() {
 		$.post( 'cdav/calendar', {
 			'submit': $('#event_submit').val(),
 			'target': $('#calendar_select').val(),
+			'timezone_select': $('#id_timezone_select').val(),
 			'uri': event_uri,
 			'title': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
 			'description': $('#id_description').val(),
-			'location': $('#id_location').val()
+			'location': $('#id_location').val(),
+			'allday': allday ? 1 : 0
 		})
 		.done(function() {
 			var parts = $('#calendar_select').val().split(':');
@@ -569,6 +584,9 @@ function exportDate() {
 					{{/foreach}}
 					</optgroup>
 				</select>
+				{{if $timezone_select}}
+				{{include file="field_select_grouped.tpl" field=$timezone_select}}
+				{{/if}}
 				<div id="more_block" style="display: none;">
 					{{if $catsenabled}}
 					<div id="id_categories_wrapper" class="form-group">

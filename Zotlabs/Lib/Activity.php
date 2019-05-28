@@ -294,6 +294,10 @@ class Activity {
 		$ret['published'] = datetime_convert('UTC','UTC',$i['created'],ATOM_TIME);
 		if($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC','UTC',$i['edited'],ATOM_TIME);
+		if ($i['expires'] <= NULL_DATE) {
+			$ret['expires'] = datetime_convert('UTC','UTC',$i['expires'],ATOM_TIME);
+		}
+
 		if($i['app']) {
 			$ret['instrument'] = [ 'type' => 'Service', 'name' => $i['app'] ];
 		}
@@ -1309,6 +1313,12 @@ class Activity {
 		elseif($act->obj['updated']) {
 			$s['edited'] = datetime_convert('UTC','UTC',$act->obj['updated']);
 		}
+		if ($act->data['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->data['expires']);
+		}
+		elseif ($act->obj['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
+		}
 
 		if(! $s['created'])
 			$s['created'] = datetime_convert();
@@ -1492,6 +1502,12 @@ class Activity {
 		}
 		elseif($act->obj['updated']) {
 			$s['edited'] = datetime_convert('UTC','UTC',$act->obj['updated']);
+		}
+		if ($act->data['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->data['expires']);
+		}
+		elseif ($act->obj['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
 

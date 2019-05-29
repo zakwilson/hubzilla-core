@@ -897,9 +897,9 @@ function import_menus($channel, $menus) {
 			$m['menu_name'] = $menu['pagetitle'];
 			$m['menu_desc'] = $menu['desc'];
 			if($menu['created'])
-				$m['menu_created'] = datetime_convert($menu['created']);
+				$m['menu_created'] = datetime_convert('UTC','UTC',$menu['created']);
 			if($menu['edited'])
-				$m['menu_edited'] = datetime_convert($menu['edited']);
+				$m['menu_edited'] = datetime_convert('UTC','UTC',$menu['edited']);
 
 			$m['menu_flags'] = 0;
 			if($menu['flags']) {
@@ -955,9 +955,9 @@ function sync_menus($channel, $menus) {
 			$m['menu_name'] = $menu['pagetitle'];
 			$m['menu_desc'] = $menu['desc'];
 			if($menu['created'])
-				$m['menu_created'] = datetime_convert($menu['created']);
+				$m['menu_created'] = datetime_convert('UTC','UTC',$menu['created']);
 			if($menu['edited'])
-				$m['menu_edited'] = datetime_convert($menu['edited']);
+				$m['menu_edited'] = datetime_convert('UTC','UTC',$menu['edited']);
 
 			$m['menu_flags'] = 0;
 			if($menu['flags']) {
@@ -1643,12 +1643,12 @@ function import_webpage_element($element, $channel, $type) {
 		$arr['created'] = $iteminfo[0]['created'];
 	}
 	else { // otherwise, generate the creation times and unique id
-		$arr['created'] = datetime_convert('UTC', 'UTC');
+		$arr['created'] = datetime_convert();
 		$arr['uuid'] = item_message_id();
 		$arr['mid'] = $arr['parent_mid'] = z_root() . '/item/' . $arr['uuid'];
 	}
 	// Update the edited time whether or not the element already exists
-	$arr['edited'] = datetime_convert('UTC', 'UTC');
+	$arr['edited'] = datetime_convert();
 	// Import the actual element content
 	$arr['body'] = file_get_contents($element['path']);
 	// The element owner is the channel importing the elements

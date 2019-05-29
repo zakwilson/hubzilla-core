@@ -27,6 +27,7 @@ class Apschema extends \Zotlabs\Web\Controller {
 				'nomadicLocation'  => 'zot:nomadicLocation',
 				'nomadicHubs'      => 'zot:nomadicHubs',
 				'emojiReaction'    => 'zot:emojiReaction',
+				'expires'          => 'zot:expires',
 				
 				'magicEnv' => [
 					'@id'   => 'zot:magicEnv',

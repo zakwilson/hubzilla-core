@@ -299,7 +299,7 @@ class Activity {
 		}
 
 		if($i['app']) {
-			$ret['instrument'] = [ 'type' => 'Service', 'name' => $i['app'] ];
+			$ret['generator'] = [ 'type' => 'Application', 'name' => $i['app'] ];
 		}
 		if($i['location'] || $i['coord']) {
 			$ret['location'] = [ 'type' => 'Place' ];
@@ -506,7 +506,7 @@ class Activity {
 		if($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC','UTC',$i['edited'],ATOM_TIME);
 		if($i['app']) {
-			$ret['instrument'] = [ 'type' => 'Service', 'name' => $i['app'] ];
+			$ret['generator'] = [ 'type' => 'Application', 'name' => $i['app'] ];
 		}
 		if($i['location'] || $i['coord']) {
 			$ret['location'] = [ 'type' => 'Place' ];
@@ -1337,13 +1337,13 @@ class Activity {
 		$s['verb']     = ACTIVITY_POST;
 		$s['obj_type'] = ACTIVITY_OBJ_NOTE;
 
-		$instrument = $act->get_property_obj('instrument');
-		if(! $instrument)
-			$instrument = $act->get_property_obj('instrument',$act->obj);
+		$generator = $act->get_property_obj('generator');
+		if(! $generator)
+			$generator = $act->get_property_obj('generator',$act->obj);
 
-		if($instrument && array_key_exists('type',$instrument) 
-			&& $instrument['type'] === 'Service' && array_key_exists('name',$instrument)) {
-			$s['app'] = escape_tags($instrument['name']);
+		if($generator && array_key_exists('type',$generator) 
+			&& in_array($generator['type'], [ 'Application','Service' ] ) && array_key_exists('name',$generator)) {
+			$s['app'] = escape_tags($generator['name']);
 		}
 
 		if($channel['channel_system']) {
@@ -1606,14 +1606,14 @@ class Activity {
 			$s['obj']      = $act->obj;
 		}
 
-		$instrument = $act->get_property_obj('instrument');
-		if((! $instrument) && (! $response_activity)) {
-			$instrument = $act->get_property_obj('instrument',$act->obj);
+		$generator = $act->get_property_obj('generator');
+		if((! $generator) && (! $response_activity)) {
+			$generator = $act->get_property_obj('generator',$act->obj);
 		}
 
-		if($instrument && array_key_exists('type',$instrument) 
-			&& $instrument['type'] === 'Service' && array_key_exists('name',$instrument)) {
-			$s['app'] = escape_tags($instrument['name']);
+		if($generator && array_key_exists('type',$generator) 
+			&& in_array($generator['type'], [ 'Application', 'Service' ] ) && array_key_exists('name',$generator)) {
+			$s['app'] = escape_tags($generator['name']);
 		}
 
 

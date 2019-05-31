@@ -18,9 +18,8 @@ class Categories {
 
 		$articles = ((array_key_exists('articles',$arr) && $arr['articles']) ? true : false);
 
-		if(($articles) && (! feature_enabled(App::$profile['profile_uid'],'articles')))
+		if(($articles) && (! Apps::system_app_installed(App::$profile['profile_uid'],'Articles')))
 			return '';
-
 
 		if((! App::$profile['profile_uid']) 
 			|| (! perm_is_allowed(App::$profile['profile_uid'],get_observer_hash(),(($cards || $articles) ? 'view_pages' : 'view_stream')))) {

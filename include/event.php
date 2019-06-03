@@ -757,7 +757,6 @@ function parse_vobject($ical, $type) {
 
 
 function parse_ical_file($f,$uid) {
-	require_once('vendor/autoload.php');
 
 	$s = @file_get_contents($f);
 
@@ -816,12 +815,23 @@ function event_import_ical($ical, $uid) {
 
 //	logger('dtstart: ' . var_export($dtstart,true));
 
-	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),'UTC',
+	$ev['timezone'] = 'UTC';
+
+	// Try to get an usable olson format timezone
+	if($ev['adjust']) {
+		//TODO: we should pass the vcalendar to getTimeZone() to be more accurate
+		// we do not have it here since parse_ical_file() is passing the vevent only.
+		$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($ical->DTSTART['TZID']);
+		$timezone = $timezone_obj->getName();
+		$ev['timezone'] = $timezone;
+	}
+
+	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
 		$dtstart->format(\DateTime::W3C));
 
 	if(isset($ical->DTEND)) {
 		$dtend = $ical->DTEND->getDateTime();
-		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),'UTC',
+		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
 			$dtend->format(\DateTime::W3C));
 	}
 	else {
@@ -870,10 +880,6 @@ function event_import_ical($ical, $uid) {
 		else
 			$ev['external_id'] = $evuid;
 	}
-
-	$ev['timezone'] = 'UTC';
-	if(isset($ical->DTSTART['TZID']))
-		$ev['timezone'] = $ical->DTSTART['TZID'];
 
 	if($ev['summary'] && $ev['dtstart']) {
 		$ev['event_xchan'] = $channel['channel_hash'];

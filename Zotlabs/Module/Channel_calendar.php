@@ -304,7 +304,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				);
 			}
 			elseif($export) {
-				$r = q("SELECT * from event where uid = %d and dtstart > '%s' and dtend > dtstart",
+				$r = q("SELECT event.*, item.id as item_id
+					from event left join item on item.resource_id = event.event_hash
+					where event.uid = %d and event.dtstart > '%s' and event.dtend > event.dtstart",
 					intval(local_channel()),
 					dbesc(NULL_DATE)
 				);

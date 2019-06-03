@@ -38,8 +38,8 @@ class Search extends \Zotlabs\Web\Controller {
 		$observer_hash = (($observer) ? $observer['xchan_hash'] : '');
 	
 		$o = '<div id="live-search"></div>' . "\r\n";
-	
-	        $o = '<div class="generic-content-wrapper-styled">' . "\r\n";
+
+		$o .= '<div class="generic-content-wrapper-styled">' . "\r\n";
 	
 		$o .= '<h3>' . t('Search') . '</h3>';
 	

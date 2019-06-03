@@ -144,6 +144,12 @@ function format_event_ical($ev) {
 	if($ev['etype'] === 'task')
 		return format_todo_ical($ev);
 
+	$tz = get_iconfig($ev['item_id'], 'event', 'timezone');
+	if(! $tz)
+		$tz = 'UTC';
+
+	$tzid = ';TZID=' . $tz;
+
 	$o = '';
 
 	$o .= "\r\nBEGIN:VEVENT";
@@ -151,10 +157,19 @@ function format_event_ical($ev) {
 	$o .= "\r\nCREATED:" . datetime_convert('UTC','UTC', $ev['created'],'Ymd\\THis\\Z');
 	$o .= "\r\nLAST-MODIFIED:" . datetime_convert('UTC','UTC', $ev['edited'],'Ymd\\THis\\Z');
 	$o .= "\r\nDTSTAMP:" . datetime_convert('UTC','UTC', $ev['edited'],'Ymd\\THis\\Z');
-	if($ev['dtstart'])
-		$o .= "\r\nDTSTART:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
-	if($ev['dtend'] && ! $ev['nofinish'])
-		$o .= "\r\nDTEND:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
+
+	if($ev['adjust']) {
+		if($ev['dtstart'])
+			$o .= "\r\nDTSTART$tzid:" . datetime_convert($tz,'UTC', $ev['dtstart'],'Ymd\\THis\\Z');
+		if($ev['dtend'] && ! $ev['nofinish'])
+			$o .= "\r\nDTEND$tzid:" . datetime_convert($tz,'UTC', $ev['dtend'],'Ymd\\THis\\Z');
+	}
+	else {
+		if($ev['dtstart'])
+			$o .= "\r\nDTSTART;VALUE=DATE:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd');
+		if($ev['dtend'] && ! $ev['nofinish'])
+			$o .= "\r\nDTEND;VALUE=DATE:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd');
+	}
 	if($ev['summary']) {
 		$o .= "\r\nSUMMARY:" . format_ical_text($ev['summary']);
 		$o .= "\r\nX-ZOT-SUMMARY:" . format_ical_sourcetext($ev['summary']);
@@ -855,6 +870,10 @@ function event_import_ical($ical, $uid) {
 		else
 			$ev['external_id'] = $evuid;
 	}
+
+	$ev['timezone'] = 'UTC';
+	if(isset($ical->DTSTART['TZID']))
+		$ev['timezone'] = $ical->DTSTART['TZID'];
 
 	if($ev['summary'] && $ev['dtstart']) {
 		$ev['event_xchan'] = $channel['channel_hash'];

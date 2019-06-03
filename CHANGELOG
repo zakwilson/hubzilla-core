@@ -7,7 +7,7 @@ Hubzilla 4.2 (2019-??-??)
 	- Do not try to oembed URLs without embed tags
 	- Optimise pdf oembed processing
 	- Add form security token to mod register
-	- Replace photo URL for gallery on clonned channel post sync
+	- Replace URLs for mod gallery, mod photos and mod photo on cloned channel post sync
 	- Update justified gallery library
 	- Update bootstrap libraries
 	- Use "cache" flag for bbcode() on content destined for zot6
@@ -29,6 +29,8 @@ Hubzilla 4.2 (2019-??-??)
 	- Implement option to store photo thumbnails in filesystem instead of DB
 
 	Bugfixes
+	- Fix category widget when using articles
+	- Fix live update not triggering in mod search
 	- Fix encoded URLs in code blocks
 	- Fix wiki headers not escaped
 	- Fix possible xchan protocol confusion in new_contact()

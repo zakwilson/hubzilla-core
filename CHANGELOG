@@ -1,4 +1,4 @@
-Hubzilla 4.2 (2019-??-??)
+Hubzilla 4.2 (2019-06-04)
 	- Introduce Calendar app which deprecates Events and CalDAV apps and streamlines the featuresets
 	- Update mod cal to reflect changes in the calendar app
 	- Improve timezone detection for CalDAV calendars

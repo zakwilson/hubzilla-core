@@ -925,46 +925,62 @@ function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 		$local = q("select channel_account_id, channel_id from channel where channel_hash = '%s' limit 1",
 			dbesc($xchan_hash)
 		);
+		
 		if($local) {
+			// @FIXME This should be removed in future when profile photo update by file sync procedure will be applied 
+			// on most hubs in the network
+			// <---
 			$ph = z_fetch_url($arr['photo'], true);
+			
 			if($ph['success']) {
+				
+				// Do not fetch already received thumbnails
+				$x = q("SELECT resource_id FROM photo WHERE uid = %d AND imgscale = %d AND filesize = %d LIMIT 1",
+					intval($local[0]['channel_id']),
+					intval(PHOTO_RES_PROFILE_300),
+					strlen($ph['body'])
+				);				
 
-				$hash = import_channel_photo($ph['body'], $arr['photo_mimetype'], $local[0]['channel_account_id'], $local[0]['channel_id']);
+				if($x)
+					$hash = $x[0]['resource_id'];
+				else
+					$hash = import_channel_photo($ph['body'], $arr['photo_mimetype'], $local[0]['channel_account_id'], $local[0]['channel_id']);
+			}
+			
+			if($hash) {
+				// unless proven otherwise
+				$is_default_profile = 1;
 
-				if($hash) {
-					// unless proven otherwise
-					$is_default_profile = 1;
+				$profile = q("select is_default from profile where aid = %d and uid = %d limit 1",
+					intval($local[0]['channel_account_id']),
+					intval($local[0]['channel_id'])
+				);
+				if($profile) {
+					if(! intval($profile[0]['is_default']))
+						$is_default_profile = 0;
+				}
 
-					$profile = q("select is_default from profile where aid = %d and uid = %d limit 1",
+				// If setting for the default profile, unset the profile photo flag from any other photos I own
+				if($is_default_profile) {
+					q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND resource_id != '%s' AND aid = %d AND uid = %d",
+						intval(PHOTO_NORMAL),
+						intval(PHOTO_PROFILE),
+						dbesc($hash),
 						intval($local[0]['channel_account_id']),
 						intval($local[0]['channel_id'])
 					);
-					if($profile) {
-						if(! intval($profile[0]['is_default']))
-							$is_default_profile = 0;
-					}
-
-					// If setting for the default profile, unset the profile photo flag from any other photos I own
-					if($is_default_profile) {
-						q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND resource_id != '%s' AND aid = %d AND uid = %d",
-							intval(PHOTO_NORMAL),
-							intval(PHOTO_PROFILE),
-							dbesc($hash),
-							intval($local[0]['channel_account_id']),
-							intval($local[0]['channel_id'])
-						);
-					}
 				}
-
-				// reset the names in case they got messed up when we had a bug in this function
-				$photos = array(
-					z_root() . '/photo/profile/l/' . $local[0]['channel_id'],
-					z_root() . '/photo/profile/m/' . $local[0]['channel_id'],
-					z_root() . '/photo/profile/s/' . $local[0]['channel_id'],
-					$arr['photo_mimetype'],
-					false
-				);
 			}
+			// --->
+			
+			// reset the names in case they got messed up when we had a bug in this function
+			$photos = array(
+				z_root() . '/photo/profile/l/' . $local[0]['channel_id'],
+				z_root() . '/photo/profile/m/' . $local[0]['channel_id'],
+				z_root() . '/photo/profile/s/' . $local[0]['channel_id'],
+				$arr['photo_mimetype'],
+				false
+			);
 		}
 		else {
 			$photos = import_xchan_photo($arr['photo'], $xchan_hash);
@@ -3634,7 +3650,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 				'channel_r_storage',  'channel_r_pages',     'channel_w_stream',  'channel_w_wall',
 				'channel_w_comment',  'channel_w_mail',      'channel_w_like',    'channel_w_tagwall',
 				'channel_w_chat',     'channel_w_storage',   'channel_w_pages',   'channel_a_republish',
-				'channel_a_delegate', 'channel_moved'
+				'channel_a_delegate', 'channel_moved',       'channel_r_photos',  'channel_w_photos'
 			];
 
 			$clean = array();
@@ -4414,7 +4430,7 @@ function zotinfo($arr) {
 
 		$profile['description']   = $p[0]['pdesc'];
 		$profile['birthday']      = $p[0]['dob'];
-		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],$e['channel_timezone'])) !== ''))
+		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],'UTC')) !== ''))
 			$profile['next_birthday'] = $bd;
 
 		if($age = age($p[0]['dob'],$e['channel_timezone'],''))

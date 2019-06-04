@@ -269,24 +269,6 @@ CREATE TABLE IF NOT EXISTS `channel` (
   `channel_allow_gid` mediumtext NOT NULL,
   `channel_deny_cid` mediumtext NOT NULL,
   `channel_deny_gid` mediumtext NOT NULL,
-  `channel_r_stream` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_profile` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_photos` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_abook` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_stream` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_wall` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_tagwall` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_comment` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_mail` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_photos` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_chat` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_a_delegate` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_storage` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_storage` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_r_pages` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_pages` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_a_republish` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_w_like` int(10) unsigned NOT NULL DEFAULT 0 ,
   `channel_removed` tinyint(1) NOT NULL DEFAULT 0 ,
   `channel_system` tinyint(1) NOT NULL DEFAULT 0 ,
   `channel_moved` char(191) NOT NULL DEFAULT '',
@@ -683,7 +665,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   KEY `mimetype` (`mimetype`),
   KEY `mid` (`mid`),
   KEY `parent_mid` (`parent_mid`),
-  KEY `uid_mid` (`mid`,`uid`),
+  KEY `uid_mid` (`uid`,`mid`),
   KEY `comment_policy` (`comment_policy`),
   KEY `layout_mid` (`layout_mid`),
   KEY `public_policy` (`public_policy`),
@@ -1342,7 +1324,8 @@ CREATE TABLE IF NOT EXISTS `xchan` (
   KEY `xchan_selfcensored` (`xchan_selfcensored`),
   KEY `xchan_system` (`xchan_system`),
   KEY `xchan_pubforum` (`xchan_pubforum`),
-  KEY `xchan_deleted` (`xchan_deleted`)
+  KEY `xchan_deleted` (`xchan_deleted`),
+  KEY `xchan_photo_m` (`xchan_photo_m`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `xchat` (

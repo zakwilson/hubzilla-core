@@ -50,10 +50,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '4.0.3' );
+define ( 'STD_VERSION',             '4.2' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1231 );
+define ( 'DB_UPDATE_VERSION',       1234 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -84,7 +84,8 @@ define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
 	'https://zotadel.net',
-	'https://zotsite.net'
+	'https://zotsite.net',
+	'https://hub.netzgemeinde.eu'
 );
 
 
@@ -467,7 +468,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.3' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.5' );
 /**
  * activity stream defines
  */

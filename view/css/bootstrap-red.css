@@ -77,6 +77,10 @@ nav .dropdown-menu {
 }
 /* nav overrides end */
 
+.list-group-item:hover {
+	text-decoration: none;
+}
+
 .wall-item-tools .dropdown-menu {
 	min-width: auto;
 }

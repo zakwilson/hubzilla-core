@@ -1,13 +1,22 @@
-Hola, 
-Soy el servidor web en {{$sitename}};
+Disculpas, pero esto puede ser urgente.
+
+Este es el servidor web en {{$sitename}};
    
-Los desarrolladores de Hubzilla lanzaron una actualización {{$update}} recientemente, 
-pero cuando se intentaba instalar, alguna cosa ha ido terriblemente mal.  
+Los desarrolladores del proyecto han publicado recientemente una actualización {{$update}},  
+pero durante el intento de instalarlo automáticamente, algo salió terriblemente mal.   
 Esto requiere intervención humana tan pronto como sea posible. 
 Póngase en contacto con un desarrollador de proyectos si no sabe cómo 
-por sí mismo. Mi base se datos puede quedar inservible. 
+arréglelo por su cuenta. La configuración de la base de datos de su servidor web puede no ser válida. 
 
 El mensaje de error ha sido el siguiente: '{{$error}}'.   
+
+Puede intentar volver a aplicar esta actualización visitando 
+
+{{$baseurl}}/admin/dbsync
+
+mientras estaba conectado a la cuenta de administración. 
+
+{{$source}}
 
 Disculpe por cualquier inconveniente causado, 
 	su servidor web en {{$siteurl}}

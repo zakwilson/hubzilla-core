@@ -409,7 +409,8 @@ function autoname($len) {
  * @return string Escaped text.
  */
 function xmlify($str) {
-	$buffer = '';
+
+	//$buffer = '';
 
 	if(is_array($str)) {
 
@@ -418,7 +419,7 @@ function xmlify($str) {
 
 		btlogger('xmlify called with array: ' . print_r($str,true), LOGGER_NORMAL, LOG_WARNING);
 	}
-
+/*
 	$len = mb_strlen($str);
 	for($x = 0; $x < $len; $x ++) {
 		$char = mb_substr($str,$x,1);
@@ -452,6 +453,11 @@ function xmlify($str) {
 	$buffer = trim($buffer);
 
 	return($buffer);
+*/
+	$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
+	$buffer = trim($buffer);
+	return $buffer;
+
 }
 
 /**
@@ -464,9 +470,22 @@ function xmlify($str) {
  * @return string
  */
 function unxmlify($s) {
+/*
 	$ret = str_replace('&amp;', '&', $s);
 	$ret = str_replace(array('&lt;', '&gt;', '&quot;', '&apos;'), array('<', '>', '"', "'"), $ret);
 
+	return $ret;
+*/
+
+	if(is_array($s)) {
+
+		// allow to fall through so we ge a PHP error, as the log statement will
+		// probably get lost in the noise unless we're specifically looking for it.
+
+		btlogger('unxmlify called with array: ' . print_r($s,true), LOGGER_NORMAL, LOG_WARNING);
+	}
+
+	$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 	return $ret;
 }
 
@@ -3071,13 +3090,12 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 		if($oldnick)
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
+	
+	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/(photo|photos|gallery)\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${3}', $item['body']);
+	$item['body'] = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
 
-	$x = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
-	if($x) {
-		$item['body'] = $x;
-		$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
-		$item['item_verified']  = 1;
-	}
+	$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
+	$item['item_verified']  = 1;
 
 	$item['plink'] = str_replace($old,$new,$item['plink']);
 	if($oldnick)

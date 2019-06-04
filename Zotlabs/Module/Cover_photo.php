@@ -68,7 +68,10 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 				if($sync)
 				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 			}
-			
+
+			// Update directory in background
+			\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
+
 			goaway(z_root() . '/cover_photo');
 		}
 	        
@@ -129,7 +132,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 						if(file_exists($tmp_name)) {
 							$base_image = $r[0];
 							$gis = getimagesize($tmp_name);
-logger('gis: ' . print_r($gis,true));
+							logger('gis: ' . print_r($gis,true), LOGGER_DEBUG);
 							$base_image['width'] = $gis[0];
 							$base_image['height'] = $gis[1];
 							$base_image['content'] = @file_get_contents($tmp_name);
@@ -190,25 +193,18 @@ logger('gis: ' . print_r($gis,true));
 						'filename'     => $base_image['filename'], 
 						'album'        => t('Cover Photos'),
 						'os_path'      => $base_image['os_path'],
-						'display_path' => $base_image['display_path']
+						'display_path' => $base_image['display_path'],
+						'photo_usage'  => PHOTO_COVER
 					];
-	
-					$p['imgscale'] = 7;
-					$p['photo_usage'] = PHOTO_COVER;
-	
-					$r1 = $im->save($p);
+					
+					$r1 = $im->storeThumbnail($p, PHOTO_RES_COVER_1200);
 	
 					$im->doScaleImage(850,310);
-					$p['imgscale'] = 8;
-	
-					$r2 = $im->save($p);
-	
+					$r2 = $im->storeThumbnail($p, PHOTO_RES_COVER_850);
 	
 					$im->doScaleImage(425,160);
-					$p['imgscale'] = 9;
-	
-					$r3 = $im->save($p);
-				
+					$r3 = $im->storeThumbnail($p, PHOTO_RES_COVER_425);
+					
 					if($r1 === false || $r2 === false || $r3 === false) {
 						// if one failed, delete them all so we can start over.
 						notice( t('Image resize failed.') . EOL );
@@ -216,6 +212,17 @@ logger('gis: ' . print_r($gis,true));
 							dbesc($base_image['resource_id']),
 							local_channel()
 						);
+						
+						$x = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1 AND imgscale >= 7",
+							dbesc($base_image['resource_id']),
+							local_channel()
+						);
+						if($x) {
+							foreach($x as $xx) {
+								@unlink(dbunescbin($xx['content']));
+							}
+						}
+
 						return;
 					}
 
@@ -224,7 +231,9 @@ logger('gis: ' . print_r($gis,true));
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
 					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
-	
+
+					// Update directory in background
+					\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
 				}
 				else
 					notice( t('Unable to process image') . EOL);

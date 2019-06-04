@@ -5,6 +5,8 @@ namespace Zotlabs\Lib;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Zot6\HTTPSig;
 
+require_once('include/event.php');
+
 class Activity {
 
 	static function encode_object($x) {
@@ -14,27 +16,30 @@ class Activity {
 			$x = json_decode($x,true);
 		}
 
-		if(is_array($x) && array_key_exists('asld',$x)) {
-			$x = $x['asld'];
-		}
+		if(is_array($x)) {
 
-		if($x['type'] === ACTIVITY_OBJ_PERSON) {
-			return self::fetch_person($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PROFILE) {
-			return self::fetch_profile($x); 
-		}
-		if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
-			return self::fetch_item($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_THING) {
-			return self::fetch_thing($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_EVENT) {
-			return self::fetch_event($x); 
-		}
-		if($x['type'] === ACTIVITY_OBJ_PHOTO) {
-			return self::fetch_image($x); 
+			if(array_key_exists('asld',$x)) {
+				return $x['asld'];
+			}
+
+			if($x['type'] === ACTIVITY_OBJ_PERSON) {
+				return self::fetch_person($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PROFILE) {
+				return self::fetch_profile($x); 
+			}
+			if(in_array($x['type'], [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_ARTICLE ] )) {
+				return self::fetch_item($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_THING) {
+				return self::fetch_thing($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_EVENT) {
+				return self::fetch_event($x); 
+			}
+			if($x['type'] === ACTIVITY_OBJ_PHOTO) {
+				return self::fetch_image($x); 
+			}
 		}
 
 		return $x;
@@ -151,7 +156,7 @@ class Activity {
 			'type' => 'Image',
 			'id' => $x['id'],
 			'name' => $x['title'],
-			'content' => bbcode($x['body']),
+			'content' => bbcode($x['body'], [ 'cache' => true ]),
 			'source' => [ 'mediaType' => 'text/bbcode', 'content' => $x['body'] ],
 			'published' => datetime_convert('UTC','UTC',$x['created'],ATOM_TIME), 
 			'updated' => datetime_convert('UTC','UTC', $x['edited'],ATOM_TIME),
@@ -181,14 +186,24 @@ class Activity {
 				$y = [ 
 					'type'      => 'Event',
 					'id'        => z_root() . '/event/' . $ev['event_hash'],
-					'summary'   => bbcode($ev['summary']),
+					'summary'   => bbcode($ev['summary'], [ 'cache' => true ]),
 					// RFC3339 Section 4.3
 					'startTime' => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
-					'content'   => bbcode($ev['description']),
-					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location']) ],
+					'content'   => bbcode($ev['description'], [ 'cache' => true ]),
+					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location'], [ 'cache' => true ]) ],
 					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
+				if(! $ev['nofinish']) {
+					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
+				}
+				
+				// copy attachments from the passed object - these are already formatted for ActivityStreams
+
+				if($x['attachment']) {
+					$y['attachment'] = $x['attachment'];
+				}
+
 				if($actor) {
 					return $y;
 				}
@@ -279,8 +294,12 @@ class Activity {
 		$ret['published'] = datetime_convert('UTC','UTC',$i['created'],ATOM_TIME);
 		if($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC','UTC',$i['edited'],ATOM_TIME);
+		if ($i['expires'] <= NULL_DATE) {
+			$ret['expires'] = datetime_convert('UTC','UTC',$i['expires'],ATOM_TIME);
+		}
+
 		if($i['app']) {
-			$ret['instrument'] = [ 'type' => 'Service', 'name' => $i['app'] ];
+			$ret['generator'] = [ 'type' => 'Application', 'name' => $i['app'] ];
 		}
 		if($i['location'] || $i['coord']) {
 			$ret['location'] = [ 'type' => 'Place' ];
@@ -297,15 +316,15 @@ class Activity {
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 		}
 
 		if($i['mimetype'] === 'text/bbcode') {
 			if($i['title'])
-				$ret['name'] = bbcode($i['title']);
+				$ret['name'] = bbcode($i['title'], [ 'cache' => true ]);
 			if($i['summary'])
-				$ret['summary'] = bbcode($i['summary']);
-			$ret['content'] = bbcode($i['body']);
+				$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
+			$ret['content'] = bbcode($i['body'], [ 'cache' => true ]);
 			$ret['source'] = [ 'content' => $i['body'], 'mediaType' => 'text/bbcode' ];
 		}
 
@@ -398,7 +417,7 @@ class Activity {
 		$ret = [];
 
 		if($item['attach']) {
-			$atts = json_decode($item['attach'],true);
+			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'],true));
 			if($atts) {
 				foreach($atts as $att) {
 					if(strpos($att['type'],'image')) {
@@ -410,7 +429,7 @@ class Activity {
 				}
 			}
 		}
-
+		
 		return $ret;
 	}
 
@@ -457,20 +476,26 @@ class Activity {
 			return $ret;
 		}
 
+		if($i['verb'] === ACTIVITY_FRIEND) {
+			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
+			$ret['obj_type'] = ACTIVITY_OBJ_NOTE;
+			$ret['obj'] = [];
+		}
+
 		$ret['type'] = self::activity_mapper($i['verb']);
 
 
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 
 		if($i['title'])
-			$ret['name'] = html2plain(bbcode($i['title']));
+			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));
 
 		if($i['summary'])
-			$ret['summary'] = bbcode($i['summary']);
+			$ret['summary'] = bbcode($i['summary'], [ 'cache' => true ]);
 
 		if($ret['type'] === 'Announce') {
 			$tmp = preg_replace('/\[share(.*?)\[\/share\]/ism',EMPTY_STR, $i['body']);
-			$ret['content'] = bbcode($tmp);
+			$ret['content'] = bbcode($tmp, [ 'cache' => true ]);
 			$ret['source'] = [
 				'content' => $i['body'],
 				'mediaType' => 'text/bbcode'
@@ -481,7 +506,7 @@ class Activity {
 		if($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC','UTC',$i['edited'],ATOM_TIME);
 		if($i['app']) {
-			$ret['instrument'] = [ 'type' => 'Service', 'name' => $i['app'] ];
+			$ret['generator'] = [ 'type' => 'Application', 'name' => $i['app'] ];
 		}
 		if($i['location'] || $i['coord']) {
 			$ret['location'] = [ 'type' => 'Place' ];
@@ -496,7 +521,7 @@ class Activity {
 		}
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['parent_mid'],'http') === 0) ? $i['parent_mid'] : z_root() . '/item/' . urlencode($i['parent_mid']));
+			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			$reply = true;
 
 			if($i['item_private']) {
@@ -552,6 +577,7 @@ class Activity {
 			else
 				return [];
 		}
+
 
 		if($i['target']) {
 			if(! is_array($i['target'])) {
@@ -697,7 +723,7 @@ class Activity {
 		// Reactions will just map to normal activities
 
 		if(strpos($verb,ACTIVITY_REACT) !== false)
-			return 'Create';
+			return 'emojiReaction';
 		if(strpos($verb,ACTIVITY_MOOD) !== false)
 			return 'Create';
 
@@ -1287,6 +1313,12 @@ class Activity {
 		elseif($act->obj['updated']) {
 			$s['edited'] = datetime_convert('UTC','UTC',$act->obj['updated']);
 		}
+		if ($act->data['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->data['expires']);
+		}
+		elseif ($act->obj['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
+		}
 
 		if(! $s['created'])
 			$s['created'] = datetime_convert();
@@ -1305,13 +1337,13 @@ class Activity {
 		$s['verb']     = ACTIVITY_POST;
 		$s['obj_type'] = ACTIVITY_OBJ_NOTE;
 
-		$instrument = $act->get_property_obj('instrument');
-		if(! $instrument)
-			$instrument = $act->get_property_obj('instrument',$act->obj);
+		$generator = $act->get_property_obj('generator');
+		if(! $generator)
+			$generator = $act->get_property_obj('generator',$act->obj);
 
-		if($instrument && array_key_exists('type',$instrument) 
-			&& $instrument['type'] === 'Service' && array_key_exists('name',$instrument)) {
-			$s['app'] = escape_tags($instrument['name']);
+		if($generator && array_key_exists('type',$generator) 
+			&& in_array($generator['type'], [ 'Application','Service' ] ) && array_key_exists('name',$generator)) {
+			$s['app'] = escape_tags($generator['name']);
 		}
 
 		if($channel['channel_system']) {
@@ -1471,9 +1503,15 @@ class Activity {
 		elseif($act->obj['updated']) {
 			$s['edited'] = datetime_convert('UTC','UTC',$act->obj['updated']);
 		}
+		if ($act->data['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->data['expires']);
+		}
+		elseif ($act->obj['expires']) {
+			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
+		}
 
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept' ])) {
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
 
@@ -1514,6 +1552,9 @@ class Activity {
 			if($act->type === 'Announce') {
 				$content['content'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}
+			if ($act->type === 'emojiReaction') {
+				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
+			}			
 		}
 
 		if(! $s['created'])
@@ -1565,14 +1606,14 @@ class Activity {
 			$s['obj']      = $act->obj;
 		}
 
-		$instrument = $act->get_property_obj('instrument');
-		if((! $instrument) && (! $response_activity)) {
-			$instrument = $act->get_property_obj('instrument',$act->obj);
+		$generator = $act->get_property_obj('generator');
+		if((! $generator) && (! $response_activity)) {
+			$generator = $act->get_property_obj('generator',$act->obj);
 		}
 
-		if($instrument && array_key_exists('type',$instrument) 
-			&& $instrument['type'] === 'Service' && array_key_exists('name',$instrument)) {
-			$s['app'] = escape_tags($instrument['name']);
+		if($generator && array_key_exists('type',$generator) 
+			&& in_array($generator['type'], [ 'Application', 'Service' ] ) && array_key_exists('name',$generator)) {
+			$s['app'] = escape_tags($generator['name']);
 		}
 
 

@@ -27,6 +27,7 @@ function format_event_html($ev) {
 	if(! ((is_array($ev)) && count($ev)))
 		return '';
 
+	$tz = (($ev['timezone']) ? $ev['timezone'] : 'UTC');
 
 	$bd_format = t('l F d, Y \@ g:i A') ; // Friday January 18, 2011 @ 8:01 AM
 
@@ -39,7 +40,7 @@ function format_event_html($ev) {
 	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['dtstart'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+		. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 			$ev['dtstart'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['dtstart'] , $bd_format)))
@@ -49,7 +50,7 @@ function format_event_html($ev) {
 		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['dtend'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+			. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 				$ev['dtend'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['dtend'] , $bd_format )))
@@ -75,17 +76,35 @@ function format_event_obj($jobject) {
 	//ensure compatibility with older items - this check can be removed at a later point
 	if(array_key_exists('description', $object)) {
 
-		$bd_format = t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM
+		$tz = (($object['timezone']) ? $object['timezone'] : 'UTC');
+		$allday = (($object['adjust']) ? false : true);
+
+		$dtstart = new DateTime($object['dtstart']);
+		$dtend = new DateTime($object['dtend']);
+		$dtdiff = $dtstart->diff($dtend);
+
+		if($allday && ($dtdiff->days < 2))
+			$oneday = true;
+
+		if($allday && !$oneday) {
+			// Subtract one day from the end date so we can use the "first day - last day" format for display.
+			$dtend->modify('-1 day');
+			$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
+		}
+
+		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
 
 		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
 			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
-			'$dtstart_label' => t('Starts:'),
-			'$dtstart_title' => datetime_convert('UTC', 'UTC', $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
+			'$dtstart_label' => t('Start:'),
+			'$dtstart_title' => datetime_convert($tz, date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
 			'$finish'	 => (($object['nofinish']) ? false : true),
-			'$dtend_label'	 => t('Finishes:'),
-			'$dtend_title'	 => datetime_convert('UTC','UTC',$object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format )))
+			'$dtend_label'	 => t('End:'),
+			'$dtend_title'	 => datetime_convert($tz, date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
+			'$allday'	 => $allday,
+			'$oneday'	 => $oneday
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
@@ -125,6 +144,12 @@ function format_event_ical($ev) {
 	if($ev['etype'] === 'task')
 		return format_todo_ical($ev);
 
+	$tz = get_iconfig($ev['item_id'], 'event', 'timezone');
+	if(! $tz)
+		$tz = 'UTC';
+
+	$tzid = ';TZID=' . $tz;
+
 	$o = '';
 
 	$o .= "\r\nBEGIN:VEVENT";
@@ -132,10 +157,19 @@ function format_event_ical($ev) {
 	$o .= "\r\nCREATED:" . datetime_convert('UTC','UTC', $ev['created'],'Ymd\\THis\\Z');
 	$o .= "\r\nLAST-MODIFIED:" . datetime_convert('UTC','UTC', $ev['edited'],'Ymd\\THis\\Z');
 	$o .= "\r\nDTSTAMP:" . datetime_convert('UTC','UTC', $ev['edited'],'Ymd\\THis\\Z');
-	if($ev['dtstart'])
-		$o .= "\r\nDTSTART:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
-	if($ev['dtend'] && ! $ev['nofinish'])
-		$o .= "\r\nDTEND:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd\\THis' . (($ev['adjust']) ? '\\Z' : ''));
+
+	if($ev['adjust']) {
+		if($ev['dtstart'])
+			$o .= "\r\nDTSTART$tzid:" . datetime_convert($tz,'UTC', $ev['dtstart'],'Ymd\\THis\\Z');
+		if($ev['dtend'] && ! $ev['nofinish'])
+			$o .= "\r\nDTEND$tzid:" . datetime_convert($tz,'UTC', $ev['dtend'],'Ymd\\THis\\Z');
+	}
+	else {
+		if($ev['dtstart'])
+			$o .= "\r\nDTSTART;VALUE=DATE:" . datetime_convert('UTC','UTC', $ev['dtstart'],'Ymd');
+		if($ev['dtend'] && ! $ev['nofinish'])
+			$o .= "\r\nDTEND;VALUE=DATE:" . datetime_convert('UTC','UTC', $ev['dtend'],'Ymd');
+	}
 	if($ev['summary']) {
 		$o .= "\r\nSUMMARY:" . format_ical_text($ev['summary']);
 		$o .= "\r\nX-ZOT-SUMMARY:" . format_ical_sourcetext($ev['summary']);
@@ -723,16 +757,8 @@ function parse_vobject($ical, $type) {
 
 
 function parse_ical_file($f,$uid) {
-	require_once('vendor/autoload.php');
 
 	$s = @file_get_contents($f);
-
-	// Change the current timezone to something besides UTC.
-	// Doesn't matter what it is, as long as it isn't UTC.
-	// Save the current timezone so we can reset it when we're done processing.
-
-	$saved_timezone = date_default_timezone_get();
-	date_default_timezone_set('Australia/Sydney');
 
 	$ical = VObject\Reader::read($s);
 
@@ -748,8 +774,6 @@ function parse_ical_file($f,$uid) {
 			}
 		}
 	}
-
-	date_default_timezone_set($saved_timezone);
 
 	if($ical)
 		return true;
@@ -782,12 +806,23 @@ function event_import_ical($ical, $uid) {
 
 //	logger('dtstart: ' . var_export($dtstart,true));
 
-	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),'UTC',
+	$ev['timezone'] = 'UTC';
+
+	// Try to get an usable olson format timezone
+	if($ev['adjust']) {
+		//TODO: we should pass the vcalendar to getTimeZone() to be more accurate
+		// we do not have it here since parse_ical_file() is passing the vevent only.
+		$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($ical->DTSTART['TZID']);
+		$timezone = $timezone_obj->getName();
+		$ev['timezone'] = $timezone;
+	}
+
+	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
 		$dtstart->format(\DateTime::W3C));
 
 	if(isset($ical->DTEND)) {
 		$dtend = $ical->DTEND->getDateTime();
-		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),'UTC',
+		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
 			$dtend->format(\DateTime::W3C));
 	}
 	else {
@@ -1042,6 +1077,7 @@ function event_store_item($arr, $event) {
 			'type'    => ACTIVITY_OBJ_EVENT,
 			'id'      => z_root() . '/event/' . $r[0]['resource_id'],
 			'title'   => $arr['summary'],
+			'timezone' => $arr['timezone'],
 			'dtstart' => $arr['dtstart'],
 			'dtend'  => $arr['dtend'],
 			'nofinish'  => $arr['nofinish'],
@@ -1107,6 +1143,8 @@ function event_store_item($arr, $event) {
 		}
 
 		$item_id = $r[0]['id'];
+		set_iconfig($item_id, 'event', 'timezone', $arr['timezone'], true);
+
 		/**
 		 * @hooks event_updated
 		 *   Called when an event record is modified.
@@ -1163,7 +1201,7 @@ function event_store_item($arr, $event) {
 		$item_arr['item_thread_top'] = $item_thread_top;
 
 		$attach = array(array(
-			'href' => z_root() . '/events/ical/' .  urlencode($event['event_hash']),
+			'href' => z_root() . '/channel_calendar/ical/' .  urlencode($event['event_hash']),
 			'length' => 0,
 			'type' => 'text/calendar',
 			'title' => t('event') . '-' . $event['event_hash'],
@@ -1185,7 +1223,7 @@ function event_store_item($arr, $event) {
 		// otherwise we'll fallback to /display/$message_id
 
 		if($wall)
-			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . urlencode($item_arr['mid']);
+			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . gen_link_id($item_arr['mid']);
 		else
 			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
 
@@ -1197,6 +1235,7 @@ function event_store_item($arr, $event) {
 				'type'    => ACTIVITY_OBJ_EVENT,
 				'id'      => z_root() . '/event/' . $event['event_hash'],
 				'title'   => $arr['summary'],
+				'timezone' => $arr['timezone'],
 				'dtstart' => $arr['dtstart'],
 				'dtend'  => $arr['dtend'],
 				'nofinish'  => $arr['nofinish'],
@@ -1223,6 +1262,7 @@ function event_store_item($arr, $event) {
 		// activities refer to the item message_id as the parent. 
 
 		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
+		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 
 		$res = item_store($item_arr);
 
@@ -1284,6 +1324,10 @@ function cdav_principal($uri) {
 }
 
 function cdav_perms($needle, $haystack, $check_rw = false) {
+
+	if($needle == 'channel_calendar')
+		return true;
+
 	foreach ($haystack as $item) {
 		if($check_rw) {
 			if(is_array($item['id'])) {

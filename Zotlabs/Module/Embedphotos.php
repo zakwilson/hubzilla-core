@@ -53,7 +53,7 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 		$channel = \App::get_channel();
 		$output = EMPTY_STR;
 		if($channel) {
-			$resolution = ((feature_enabled($channel['channel_id'],'large_photos')) ? 2 : 3);
+			$resolution = ((feature_enabled($channel['channel_id'],'large_photos')) ? 1 : 2);
 			$r = q("select mimetype, height, width from photo where resource_id = '%s' and $resolution = %d and uid = %d limit 1",
 				dbesc($resource),
 				intval($resolution),

@@ -45,7 +45,7 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+			$x = q("SELECT DISTINCT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			
 			if($x) {
 				foreach($x as $xx) {
@@ -85,7 +85,7 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+			$x = q("SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			
 			if($x) {
 				foreach($x as $xx) {

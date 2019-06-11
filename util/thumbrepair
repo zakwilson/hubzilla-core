@@ -44,6 +44,7 @@ if($x) {
 					$im->storeThumbnail($nn, PHOTO_RES_320);
 					break;
 				case 4:
+				    $im->scaleImage(300);
 					$im->storeThumbnail($nn, PHOTO_RES_PROFILE_300);
 					break;
 				case 5:
@@ -55,6 +56,7 @@ if($x) {
 					$im->storeThumbnail($nn, PHOTO_RES_PROFILE_48);
 					break;
 				case 7:
+				    $im->doScaleImage(1200,435);
 					$im->storeThumbnail($nn, PHOTO_RES_COVER_1200);
 					break;
 				case 8:

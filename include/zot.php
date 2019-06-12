@@ -2278,6 +2278,25 @@ function delete_imported_item($sender, $item, $uid, $relay) {
 		return false;
 	}
 
+	if ($item['obj_type'] == ACTIVITY_OBJ_EVENT) {
+		$i = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
+			dbesc($item['uuid']),
+			intval($uid)
+		);
+		if ($i) {
+			if ($i[0]['event_xchan'] === $sender['hash']) {
+				q("delete from event where event_hash = '%s' and uid = %d",
+					dbesc($item['uuid']),
+					intval($uid)
+				);
+			}
+			else {
+				logger('delete linked event: not owner');
+				return;
+			}
+		}
+	}
+
 	require_once('include/items.php');
 
 	if($item_found) {

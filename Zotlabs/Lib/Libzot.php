@@ -2074,6 +2074,25 @@ class Libzot {
 			return false;
 		}
 
+		if ($item['obj_type'] == ACTIVITY_OBJ_EVENT) {
+			$i = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
+				dbesc($item['uuid']),
+				intval($uid)
+			);
+			if ($i) {
+				if ($i[0]['event_xchan'] === $sender) {
+					q("delete from event where event_hash = '%s' and uid = %d",
+						dbesc($item['uuid']),
+						intval($uid)
+					);
+				}
+				else {
+					logger('delete linked event: not owner');
+					return;
+				}
+			}
+		}
+
 		if($item_found) {
 			if(intval($r[0]['item_deleted'])) {
 				logger('delete_imported_item: item was already deleted');

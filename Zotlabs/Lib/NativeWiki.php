@@ -191,7 +191,7 @@ class NativeWiki {
 			return array('item' => null, 'success' => false);
 		} 
 		else {
-			$drop = drop_item($item['id'], false, DROPITEM_NORMAL, true);
+			$drop = drop_item($item['id'], false, DROPITEM_NORMAL);
 		}
 
 		info( t('Wiki files deleted successfully'));

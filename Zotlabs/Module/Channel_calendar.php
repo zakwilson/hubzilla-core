@@ -455,11 +455,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 						if($can_delete || $local_delete) {
 
-							q("update item set resource_type = '', resource_id = '' where resource_type = 'event' and resource_id = '%s' and uid = %d",
-								dbesc($event_id),
-								intval(local_channel())
-							);
-	
 							// if this is a different page type or it's just a local delete
 							// but not by the item author or owner, do a simple deletion
 

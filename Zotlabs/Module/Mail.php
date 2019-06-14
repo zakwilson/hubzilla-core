@@ -25,7 +25,7 @@ class Mail extends \Zotlabs\Web\Controller {
 		$expires   = ((x($_REQUEST,'expires'))      ? datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['expires']) : NULL_DATE);
 		$raw       = ((x($_REQUEST,'raw'))          ? intval($_REQUEST['raw'])                : 0);
 		$mimetype  = ((x($_REQUEST,'mimetype'))     ? notags(trim($_REQUEST['mimetype']))     : 'text/bbcode');
-		$sig	   = ((x($_REQUEST,'signature'))	? trim($_REQUEST['signature']) 			  : '');
+		$sig       = ((x($_REQUEST,'signature'))    ? trim($_REQUEST['signature'])            : '');
 
 		if($preview) {
 

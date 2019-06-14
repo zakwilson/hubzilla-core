@@ -3846,7 +3846,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 
 		if($x) {
 			$sync_data['event_deleted'] = 1;
-			build_sync_packet($item['uid'], ['event' => [$syncsync_data]]);
+			build_sync_packet($item['uid'], ['event' => [$sync_data]]);
 		}
 	}
 

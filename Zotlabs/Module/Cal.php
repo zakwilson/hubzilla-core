@@ -233,13 +233,12 @@ class Cal extends \Zotlabs\Web\Controller {
 					where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
 					AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
 					OR  (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) ",
-					intval(local_channel()),
+					intval($channel['channel_id']),
 					dbesc($start),
 					dbesc($finish),
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
-	
 			}
 	
 			$links = array();

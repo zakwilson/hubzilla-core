@@ -25,6 +25,7 @@ class Mail extends \Zotlabs\Web\Controller {
 		$expires   = ((x($_REQUEST,'expires'))      ? datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['expires']) : NULL_DATE);
 		$raw       = ((x($_REQUEST,'raw'))          ? intval($_REQUEST['raw'])                : 0);
 		$mimetype  = ((x($_REQUEST,'mimetype'))     ? notags(trim($_REQUEST['mimetype']))     : 'text/bbcode');
+		$sig	   = ((x($_REQUEST,'signature'))	? trim($_REQUEST['signature']) 			  : '');
 
 		if($preview) {
 
@@ -123,7 +124,7 @@ class Mail extends \Zotlabs\Web\Controller {
 	
 		// We have a local_channel, let send_message use the session channel and save a lookup
 		
-		$ret = send_message(0, $recipient, $body, $subject, $replyto, $expires, $mimetype, $raw);
+		$ret = send_message(0, $recipient, $body, $subject, $replyto, $expires, $mimetype, $raw, $sig);
 
 		if($ret['success']) {
 			xchan_mail_query($ret['mail']);
@@ -396,8 +397,9 @@ class Mail extends \Zotlabs\Web\Controller {
 				'can_recall' => ($channel['channel_hash'] == $message['from_xchan']),
 				'is_recalled' => (intval($message['mail_recalled']) ? t('Message has been recalled.') : ''),
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'], 'c'),
+				'sig' => $message['sig']
 			);
-					
+			
 			$seen = $message['seen'];
 	
 		}

@@ -1457,7 +1457,7 @@ function encode_mail($item,$extended = false) {
 	$x['to']             = encode_item_xchan($item['to']);
 	$x['raw']            = $item['mail_raw'];
 	$x['mimetype']       = $item['mail_mimetype'];
-	$x['sig']			 = $item['sig'];
+	$x['sig']            = $item['sig'];
 
 	if($item['attach'])
 		$x['attach']     = json_decode($item['attach'],true);

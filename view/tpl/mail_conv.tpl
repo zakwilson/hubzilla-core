@@ -1,4 +1,4 @@
-<div id="mail-{{$mail.id}}" class="mb-2 clearfix mail-conv-outside-wrapper">
+<div id="mail-{{$mail.id}}" class="mb-2 clearfix mail-conv-outside-wrapper"{{if $mail.sig}} data-sig="{{$mail.sig}}"{{/if}}>
 	<div class="mb-2 clearfix wall-item-head">
 		<div class="wall-item-info" >
 			<a href="{{$mail.from_url}}"><img class="wall-item-photo" src="{{$mail.from_photo}}" alt="{{$mail.from_name}}" /></a>

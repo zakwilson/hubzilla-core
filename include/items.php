@@ -1457,6 +1457,7 @@ function encode_mail($item,$extended = false) {
 	$x['to']             = encode_item_xchan($item['to']);
 	$x['raw']            = $item['mail_raw'];
 	$x['mimetype']       = $item['mail_mimetype'];
+	$x['sig']            = $item['sig'];
 
 	if($item['attach'])
 		$x['attach']     = json_decode($item['attach'],true);
@@ -1516,6 +1517,9 @@ function get_mail_elements($x) {
 		$arr['expires']      = datetime_convert('UTC','UTC',$x['expires']);
 
 	$arr['mail_flags'] = 0;
+	
+	if(array_key_exists('sig',$x))
+		$arr['sig'] = $x['sig'];
 
 	if($x['flags'] && is_array($x['flags'])) {
 		if(in_array('recalled',$x['flags'])) {

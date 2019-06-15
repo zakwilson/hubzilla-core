@@ -400,7 +400,7 @@ class Mail extends \Zotlabs\Web\Controller {
 				'can_recall' => ($channel['channel_hash'] == $message['from_xchan']),
 				'is_recalled' => (intval($message['mail_recalled']) ? t('Message has been recalled.') : ''),
 				'date' => datetime_convert('UTC',date_default_timezone_get(),$message['created'], 'c'),
-				'sig' => $message['sig']
+				'sig' => base64_encode($message['sig'])
 			);
 			
 			$seen = $message['seen'];

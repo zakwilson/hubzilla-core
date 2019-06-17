@@ -79,7 +79,7 @@ class Cal extends Controller {
 		if(! perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_contacts') || App::$profile['hide_friends'])
 			$sql_extra .= " and etype != 'birthday' ";
 	
-		$first_day = feature_enabled($channel['channel_id'], 'events_cal_first_day');
+		$first_day = feature_enabled($channel['channel_id'], 'cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
 		$start = '';

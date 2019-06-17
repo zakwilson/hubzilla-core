@@ -1177,7 +1177,7 @@ function sync_files($channel, $files) {
 					convert_oldfields($att,'data','content');
 
 					if($att['deleted']) {
-						attach_delete($channel,$att['hash']);
+						attach_delete($channel['channel_id'],$att['hash']);
 						continue;
 					}
 
@@ -1383,12 +1383,14 @@ function sync_files($channel, $files) {
 						);
 					}
 
-					if(intval($p['imgscale']) === 0 && $p['os_storage'])
-						$p['content'] = $store_path;
-					else
+					if(intval($p['os_storage'])) {
+						$p['content'] = $store_path . ((intval($p['imgscale'])) ? '-' . $p['imgscale'] : '');
+					}
+					else {
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
+					}
 
-					if(intval($p['imgscale']) && (! empty($p['content']))) {
+					if (intval($p['imgscale']) && ((intval($p['os_storage'])) || (! $p['content']))) {
 
 						$time = datetime_convert();
 

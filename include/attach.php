@@ -1514,12 +1514,15 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 function attach_drop_photo($channel_id,$resource) {
 
-	$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'photo' and uid = %d",
+	$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'photo' and uid = %d and item_deleted = 0",
 		dbesc($resource),
 		intval($channel_id)
 	);
+
 	if($x) {
-		drop_item($x[0]['id'],false,(($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1),true);
+		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
+		$interactive = (($x[0]['item_hidden']) ? false : true);
+		drop_item($x[0]['id'], $interactive, $stage);
 	}
 	
 	$r = q("SELECT content FROM photo WHERE resource_id = '%s' AND uid = %d AND os_storage = 1",

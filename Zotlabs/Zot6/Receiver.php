@@ -193,7 +193,9 @@ class Receiver {
 			case 'response': // upstream message
 			case 'sync':
 			default:
-				$this->response = $this->handler->Notify($this->data,$this->hub);
+				if ($this->sender) {
+					$this->response = $this->handler->Notify($this->data,$this->hub);
+				}
 				break;
 
 		}

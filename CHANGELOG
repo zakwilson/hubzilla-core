@@ -1,3 +1,18 @@
+Hubzilla 4.2.1 (2019-06-17)
+	- Deprecate mod events
+	- Revisit mod cal
+	- Fix issues with deletion of linked items and resources
+	- Fix zot6 delete issue
+	- Fix attach sync issue
+	- Remove sizeRangeSuffixes in justified gallery wrapper
+	- Fix storageconv issue with postgres
+	- Fix embedphotos image size
+	- pubcrawl: use URI instead of object for actor url
+	- diaspora: adjust loglevel
+	- gallery: remove workaround for margin issue which has been fixed upstream
+	- cart: warn about unsaved changes
+
+
 Hubzilla 4.2 (2019-06-04)
 	- Introduce Calendar app which deprecates Events and CalDAV apps and streamlines the featuresets
 	- Update mod cal to reflect changes in the calendar app

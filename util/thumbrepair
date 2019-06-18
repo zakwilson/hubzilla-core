@@ -7,7 +7,7 @@ require_once('include/photo/photo_driver.php');
 
 cli_startup();
 
-$x = q("SELECT resource_id, content, width, height, mimetype FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+$x = q("SELECT resource_id, content, width, height, mimetype, os_path FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 
 if($x) {
 	foreach($x as $xx) {

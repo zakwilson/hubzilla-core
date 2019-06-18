@@ -96,11 +96,12 @@ class Item extends Controller {
 			}
 
 			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
+			// with a bias towards those items owned by channels on this site (item_wall = 1)
 
 			$sql_extra = item_permissions_sql(0);
 
 			if (! $i) {
-				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra limit 1",
+				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
 					dbesc($r[0]['parent_mid'])
 				);
 			}

@@ -1570,7 +1570,7 @@ class Activity {
 		$s['verb']     = self::activity_decode_mapper($act->type);
 
 
-		if($act->type === 'Tombstone' || $act-type === 'Delete' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
+		if($act->type === 'Tombstone' || $act->type === 'Delete' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
 		}
 

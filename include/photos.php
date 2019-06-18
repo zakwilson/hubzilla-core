@@ -390,7 +390,7 @@ function photo_upload($channel, $observer, $args) {
 		'edited'  => $p['edited'],
 		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash,
 		'link'    => $link,
-		'body'    => $obj_body
+		'body'    => $summary
 	);
 
 	$target = array(

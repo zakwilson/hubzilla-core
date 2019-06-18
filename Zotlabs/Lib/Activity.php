@@ -151,7 +151,6 @@ class Activity {
 
 	static function fetch_image($x) {
 
-
 		$ret = [
 			'type' => 'Image',
 			'id' => $x['id'],

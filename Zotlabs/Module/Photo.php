@@ -169,7 +169,7 @@ class Photo extends \Zotlabs\Web\Controller {
 							);
 							call_hooks('cache_url_hook', $cache);
 							if(! $cache['status']) {
-								$url = htmlspecialchars_decode($r[0]['display_path']);
+								$url = html_entity_decode($r[0]['display_path'], ENT_QUOTES);
 								// SSLify if needed
 								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
 									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);

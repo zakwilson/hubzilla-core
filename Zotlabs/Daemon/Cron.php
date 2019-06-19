@@ -108,6 +108,7 @@ class Cron {
 				$file = dbunescbin($rr['content']);
 				if(is_file($file)) {
 					@unlink($file);
+					@rmdir(dirname($file));
 					logger('info: deleted cached photo file ' . $file, LOGGER_DEBUG);
 				}
 			}

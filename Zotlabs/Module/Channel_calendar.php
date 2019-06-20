@@ -381,7 +381,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'end' => $end,
 						'drop' => $drop,
 						'allDay' => (($rr['adjust']) ? 0 : 1),
-						'title' => htmlentities($rr['summary'], ENT_COMPAT, 'UTF-8', false),
+						'title' => html_entity_decode($rr['summary'],ENT_COMPAT,'UTF-8'), 
 						'editable' => $edit ? true : false,
 						'item' => $rr,
 						'plink' => [$rr['plink'], t('Link to source')],
@@ -402,7 +402,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				echo ical_wrapper($r);
 				killme();
 			}
-	
+
 			if (\App::$argv[1] === 'json'){
 				json_return_and_die($events);
 			}

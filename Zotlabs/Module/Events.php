@@ -668,9 +668,10 @@ class Events extends \Zotlabs\Web\Controller {
 						'html'=>$html,
 						'plink' => array($rr['plink'],t('Link to Source'),'',''),
 					);
+
 				}
 			}
-			
+
 			if($export) {
 				header('Content-type: text/calendar');
 				header('content-disposition: attachment; filename="' . t('calendar') . '-' . $channel['channel_address'] . '.ics"' );

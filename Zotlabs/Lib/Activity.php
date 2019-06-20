@@ -312,6 +312,10 @@ class Activity {
 			}
 		}
 
+		if (intval($i['item_private']) === 2) {
+			$ret['directMessage'] = true;
+		}
+
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
 		if($i['id'] != $i['parent']) {
@@ -1414,6 +1418,11 @@ class Activity {
 
 		if($act->recips && (! in_array(ACTIVITY_PUBLIC_INBOX,$act->recips)))
 			$s['item_private'] = 1;
+
+
+		if (array_key_exists('directMessage',$act->obj) && intval($act->obj['directMessage'])) {
+			$s['item_private'] = 2;
+		}
 
 		set_iconfig($s,'activitypub','recips',$act->raw_recips);
 		if($parent) {

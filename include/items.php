@@ -1984,11 +1984,12 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		unset($arr['iconfig']);
 	}
 
-
- 	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid) || strlen($public_policy))
-		$private = 1;
-	else
-		$private = $arr['item_private'];
+	$private = intval($arr['item_private']);
+	if (! $private) {
+		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+			$private = 1;
+		}
+	}
 
 	$arr['parent']          = $parent_id;
 	$arr['allow_cid']       = $allow_cid;
@@ -4620,12 +4621,12 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 			if(strpos($access_tag,'cid:') === 0) {
 				$str_contact_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 			elseif(strpos($access_tag,'gid:') === 0) {
 				$str_group_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 		}
 	}

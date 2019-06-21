@@ -371,21 +371,19 @@ function import_channel_photo($photo, $type, $aid, $uid) {
 
 		// photo size
 		$img->scaleImageSquare(300);
-		$r = $img->save($p);
+		$r = $img->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 		if($r === false)
 			$photo_failure = true;
 
 		// thumb size
 		$img->scaleImage(80);
-		$p['imgscale'] = 5;
-		$r = $img->save($p);
+		$r = $img->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 		if($r === false)
 			$photo_failure = true;
 
 		// micro size
 		$img->scaleImage(48);
-		$p['imgscale'] = 6;
-		$r = $img->save($p);
+		$r = $img->storeThumbnail($p, PHOTO_RES_PROFILE_48);
 		if($r === false)
 			$photo_failure = true;
 

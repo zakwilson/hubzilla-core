@@ -2012,7 +2012,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	// find the item we just created
 
 	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
-		$arr['mid'],           // already dbesc'd
+		dbesc($arr['mid']),
 		intval($arr['uid']),
 		intval($arr['revision'])
 	);
@@ -2033,7 +2033,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if(count($r) > 1) {
 		logger('item_store: duplicated post occurred. Removing duplicates.');
 		q("DELETE FROM item WHERE mid = '%s' AND uid = %d AND id != %d ",
-			$arr['mid'],
+			dbesc($arr['mid']),
 			intval($arr['uid']),
 			intval($current_post)
 		);

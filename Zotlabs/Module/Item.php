@@ -193,6 +193,25 @@ class Item extends Controller {
 			killme();
 
 		}
+
+		if(argc() > 1 && argv(1) !== 'drop') {
+			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' ",
+				dbesc(z_root() . '/item/' . argv(1))
+			);
+			if($x) {
+				foreach($x as $xv) {
+					if (intval($xv['item_wall'])) {
+						$c = channelx_by_n($xv['uid']);
+						if ($c) {
+							goaway($c['xchan_url'] . '?mid=' . gen_link_id($xv['mid']));
+						}
+					}
+				}
+				goaway($x[0]['llink']);
+			}
+			http_status_exit(404, 'Not found');
+		}
+
 	}
 
 

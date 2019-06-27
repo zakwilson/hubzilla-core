@@ -1392,7 +1392,7 @@ function sync_files($channel, $files) {
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
 					}
 
-					if (intval($p['imgscale']) && ((intval($p['os_storage'])) || (! $p['content']))) {
+					if(intval($p['imgscale'])) {
 
 						$time = datetime_convert();
 

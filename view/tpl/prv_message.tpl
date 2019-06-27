@@ -11,6 +11,7 @@
 				<input type="hidden" id="inp-prvmail-expires" name="expires" value="{{$defexpire}}" />
 				<input type="hidden" name="media_str" id="jot-media" value="" />
 				<input type="hidden" name="preview" id="mail-preview" value="0" />
+				<input type="hidden" name="signature" id="mail-sig" value="" />
 				{{if $new}}
 				<div class="form-group">
 					<label for="recip">{{$to}}</label>

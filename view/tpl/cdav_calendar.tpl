@@ -39,6 +39,19 @@ $(document).ready(function() {
 		defaultView: default_view,
 		defaultDate: default_date,
 
+		weekNumbers: true,
+		navLinks: true,
+
+		navLinkDayClick: function(date, jsEvent) {
+			calendar.gotoDate( date );
+			changeView('timeGridDay');
+		},
+
+		navLinkWeekClick: function(date, jsEvent) {
+			calendar.gotoDate( date );
+			changeView('timeGridWeek');
+		},
+
 		monthNames: aStr['monthNames'],
 		monthNamesShort: aStr['monthNamesShort'],
 		dayNames: aStr['dayNames'],
@@ -183,7 +196,6 @@ $(document).ready(function() {
 		},
 		
 		eventResize: function(info) {
-			console.log(info);
 
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
@@ -352,13 +364,24 @@ $(document).ready(function() {
 		else
 			$('#event_submit').html('{{$update}}');
 	}
+
+	if(default_view === 'dayGridMonth');
+		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
 });
 
 
-function changeView(action, viewName) {
+function changeView(viewName) {
 	calendar.changeView(viewName);
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
+
+	if(viewName === 'dayGridMonth') {
+		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
+	}
+	else {
+		$('#id_dtstart_wrapper, #id_dtend_wrapper').show();
+	}
+
 	return;
 }
 
@@ -538,13 +561,13 @@ function exportDate() {
 			<div class="dropdown">
 				<button id="view_selector" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'dayGridMonth'); return false;">{{$month}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridWeek'); return false;">{{$week}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridDay'); return false;">{{$day}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('dayGridMonth'); return false;">{{$month}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('timeGridWeek'); return false;">{{$week}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('timeGridDay'); return false;">{{$day}}</a></li>
 					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listMonth'); return false;">{{$list_month}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listWeek'); return false;">{{$list_week}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listDay'); return false;">{{$list_day}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listMonth'); return false;">{{$list_month}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listWeek'); return false;">{{$list_week}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listDay'); return false;">{{$list_day}}</a></li>
 				</div>
 				<div class="btn-group">
 					<button id="prev-btn" class="btn btn-outline-secondary btn-sm" title="{{$prev}}"><i class="fa fa-backward"></i></button>

@@ -11,6 +11,9 @@ require_once('include/html2plain.php');
 class Events extends \Zotlabs\Web\Controller {
 
 	function post() {
+
+		// this module is deprecated
+		return;
 	
 		logger('post: ' . print_r($_REQUEST,true), LOGGER_DATA);
 	
@@ -245,6 +248,9 @@ class Events extends \Zotlabs\Web\Controller {
 	
 	
 	function get() {
+
+		// this module is deprecated
+		return;
 	
 		if(argc() > 2 && argv(1) == 'ical') {
 			$event_id = argv(2);

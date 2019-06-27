@@ -502,13 +502,17 @@ abstract class PhotoDriver {
 	 *
 	 * @param array $arr
 	 * @param scale int
-	 * @return boolean|array
+	 * @return boolean
 	 */
 	public function storeThumbnail($arr, $scale = 0) {
-	
+	    
+	    // We only process thumbnails here
+	    if($scale == 0)
+	        return false;
+	    
 	    $arr['imgscale'] = $scale;
 
-		if(boolval(get_config('system','filesystem_storage_thumbnails', 0)) && $scale > 0) {
+		if(boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
 			$channel = channelx_by_n($arr['uid']);
 			$arr['os_storage'] = 1;
 			$arr['os_syspath'] = 'store/' . $channel['channel_address'] . '/' . $arr['os_path'] . '-' . $scale;

@@ -19,7 +19,7 @@ function mail_prepare_binary($item) {
 // send a private message
 	
 
-function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $replyto = '', $expires = NULL_DATE, $mimetype = 'text/bbcode', $raw = false) { 
+function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $replyto = '', $expires = NULL_DATE, $mimetype = 'text/bbcode', $raw = false, $sig = '') { 
 
 	$ret = array('success' => false);
 	$is_reply = false;
@@ -175,8 +175,7 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 		$subject = str_rot47(base64url_encode($subject));
 	if(($body )&& (! $raw))
 		$body  = str_rot47(base64url_encode($body));
-	
-	$sig = ''; // placeholder
+
 	$mimetype = ''; //placeholder
 
 	$r = q("INSERT INTO mail ( account_id, conv_guid, mail_obscured, channel_id, from_xchan, to_xchan, mail_mimetype, title, body, sig, attach, mid, parent_mid, created, expires, mail_isreply, mail_raw )

@@ -1161,7 +1161,7 @@ function channel_export_items_date($channel_id, $start, $finish) {
 		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
 	}
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type = '' order by created",
+	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type != 'photo' order by created",
 		intval(ITEM_TYPE_POST),
 		intval($channel_id),
 		dbesc($start),
@@ -1223,7 +1223,7 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
 	}
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type = '' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
+	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
 		intval(ITEM_TYPE_POST),
 		intval($channel_id),
 		dbesc($start),

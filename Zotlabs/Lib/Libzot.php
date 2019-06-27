@@ -2037,7 +2037,7 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
-		$r = q("select id, author_xchan, owner_xchan, source_xchan, item_deleted from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
+		$r = q("select * from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
 			and mid = '%s' and uid = %d limit 1",
 			dbesc($sender),
 			dbesc($sender),
@@ -2047,10 +2047,12 @@ class Libzot {
 		);
 
 		if($r) {
-			if($r[0]['author_xchan'] === $sender || $r[0]['owner_xchan'] === $sender || $r[0]['source_xchan'] === $sender)
+			$stored = $r[0];
+
+			if($stored['author_xchan'] === $sender || $stored['owner_xchan'] === $sender || $stored['source_xchan'] === $sender)
 				$ownership_valid = true;
 
-			$post_id = $r[0]['id'];
+			$post_id = $stored['id'];
 			$item_found = true;
 		}
 		else {
@@ -2074,8 +2076,27 @@ class Libzot {
 			return false;
 		}
 
+		if ($stored['resource_type'] === 'event') {
+			$i = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
+				dbesc($stored['resource_id']),
+				intval($uid)
+			);
+			if ($i) {
+				if ($i[0]['event_xchan'] === $sender) {
+					q("delete from event where event_hash = '%s' and uid = %d",
+						dbesc($stored['resource_id']),
+						intval($uid)
+					);
+				}
+				else {
+					logger('delete linked event: not owner');
+					return;
+				}
+			}
+		}
+
 		if($item_found) {
-			if(intval($r[0]['item_deleted'])) {
+			if(intval($stored['item_deleted'])) {
 				logger('delete_imported_item: item was already deleted');
 				if(! $relay)
 					return false;
@@ -2087,10 +2108,10 @@ class Libzot {
 				// back, and we aren't going to (or shouldn't at any rate) delete it again in the future - so losing
 				// this information from the metadata should have no other discernible impact.
 
-				if (($r[0]['id'] != $r[0]['parent']) && intval($r[0]['item_origin'])) {
+				if (($stored['id'] != $stored['parent']) && intval($stored['item_origin'])) {
 					q("update item set item_origin = 0 where id = %d and uid = %d",
-						intval($r[0]['id']),
-						intval($r[0]['uid'])
+						intval($stored['id']),
+						intval($stored['uid'])
 					);
 				}
 			}

@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
+use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 
@@ -41,7 +42,7 @@ class Cdav extends Controller {
 						continue;
 					}
 
-					$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER[$head]);
+					$sigblock = HTTPSig::parse_sigheader($_SERVER[$head]);
 					if($sigblock) {
 						$keyId = str_replace('acct:','',$sigblock['keyId']);
 						if($keyId) {
@@ -64,7 +65,7 @@ class Cdav extends Controller {
 								continue;
 
 							if($record) {
-								$verified = \Zotlabs\Web\HTTPSig::verify('',$record['channel']['channel_pubkey']);
+								$verified = HTTPSig::verify('',$record['channel']['channel_pubkey']);
 								if(! ($verified && $verified['header_signed'] && $verified['header_valid'])) {
 									$record = null;
 								}

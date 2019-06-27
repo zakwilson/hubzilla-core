@@ -303,9 +303,8 @@ function zot_zot($url, $data, $channel = null,$crypto = null) {
 
 	if($channel) {
 		$headers['X-Zot-Token'] = random_string();
-		$hash = \Zotlabs\Web\HTTPSig::generate_digest($data,false);
-		$headers['X-Zot-Digest'] = 'SHA-256=' . $hash;
-		$h = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
+		$headers['X-Zot-Digest'] = \Zotlabs\Web\HTTPSig::generate_digest_header($data);
+		$h = \Zotlabs\Web\HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
 	}
 
 	$redirects = 0;

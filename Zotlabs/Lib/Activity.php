@@ -3,7 +3,7 @@
 namespace Zotlabs\Lib;
 
 use Zotlabs\Daemon\Master;
-use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 

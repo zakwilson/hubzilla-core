@@ -2019,7 +2019,7 @@ class Activity {
 			}
 
 			$replies = null;
-			if(isset($a->obj['replies']['first']['items']))) {
+			if(isset($a->obj['replies']['first']['items'])) {
 				$replies = $a->obj['replies']['first']['items'];
 				// we already have this one
 				array_diff($replies, [$current_item['mid']]);

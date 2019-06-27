@@ -1863,8 +1863,9 @@ class Activity {
 		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
 
 		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
+		$is_parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
 
-		if(! perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && ! ($is_sys_channel && $pubstream)) {
+		if($is_parent && (! perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && ! ($is_sys_channel && $pubstream))) {
 			logger('no permission');
 			return;
 		}
@@ -1920,9 +1921,7 @@ class Activity {
 
 		set_iconfig($item,'activitypub','recips',$act->raw_recips);
 
-		$parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
-
-		if(! $parent) {
+		if(! $is_parent) {
 			$p = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
 				dbesc($item['parent_mid']),
 				intval($item['uid'])
@@ -1980,7 +1979,7 @@ class Activity {
 		}
 
 		if(is_array($x) && $x['item_id']) {
-			if($parent) {
+			if($is_parent) {
 				if($item['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
 					Master::Summon(array('Notifier','comment-import',$x['item_id']));
@@ -2020,8 +2019,8 @@ class Activity {
 			}
 
 			$replies = null;
-			if(isset($n['replies']['first']['items'])) {
-				$replies = $n['replies']['first']['items'];
+			if(isset($a->obj['replies']['first']['items']))) {
+				$replies = $a->obj['replies']['first']['items'];
 				// we already have this one
 				array_diff($replies, [$current_item['mid']]);
 			}

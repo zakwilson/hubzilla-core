@@ -2,11 +2,17 @@
 
 namespace Zotlabs\Web;
 
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Webfinger;
+use Zotlabs\Web\HTTPHeaders;
+use Zotlabs\Lib\Libzot;
+
 /**
- * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
+ * @brief Implements HTTP Signatures per draft-cavage-http-signatures-10.
  *
- * @see https://tools.ietf.org/html/draft-cavage-http-signatures-07
+ * @see https://tools.ietf.org/html/draft-cavage-http-signatures-10
  */
+
 class HTTPSig {
 
 	/**
@@ -15,41 +21,32 @@ class HTTPSig {
 	 * @see https://tools.ietf.org/html/rfc5843
 	 *
 	 * @param string $body The value to create the digest for
-	 * @param boolean $set (optional, default true)
-	 *   If set send a Digest HTTP header
-	 * @return string The generated digest of $body
+	 * @param string $alg hash algorithm (one of 'sha256','sha512')
+	 * @return string The generated digest header string for $body
 	 */
-	static function generate_digest($body, $set = true) {
-		$digest = base64_encode(hash('sha256', $body, true));
 
-		if($set) {
-			header('Digest: SHA-256=' . $digest);
+	static function generate_digest_header($body,$alg = 'sha256') {
+
+		$digest = base64_encode(hash($alg, $body, true));
+		switch($alg) {
+			case 'sha512':
+				return 'SHA-512=' . $digest;
+			case 'sha256':
+			default:
+				return 'SHA-256=' . $digest;
+				break;
 		}
-		return $digest;
 	}
 
-	// See draft-cavage-http-signatures-08
-
-	static function verify($data,$key = '') {
-
-		$body      = $data;
-		$headers   = null;
-		$spoofable = false;
-
-		$result = [
-			'signer'         => '',
-			'header_signed'  => false,
-			'header_valid'   => false,
-			'content_signed' => false,
-			'content_valid'  => false
-		];
+	static function find_headers($data,&$body) {
 
 		// decide if $data arrived via controller submission or curl
+
 		if(is_array($data) && $data['header']) {
 			if(! $data['success'])
-				return $result;
+				return [];
 
-			$h = new \Zotlabs\Web\HTTPHeaders($data['header']);
+			$h = new HTTPHeaders($data['header']);
 			$headers = $h->fetcharr();
 			$body = $data['body'];
 			$headers['(request-target)'] = $data['request_target'];
@@ -57,9 +54,7 @@ class HTTPSig {
 
 		else {
 			$headers = [];
-			$headers['(request-target)'] =
-				strtolower($_SERVER['REQUEST_METHOD']) . ' ' .
-				$_SERVER['REQUEST_URI'];
+			$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
 			$headers['content-type'] = $_SERVER['CONTENT_TYPE'];
 			$headers['content-length'] = $_SERVER['CONTENT_LENGTH'];
 
@@ -71,9 +66,35 @@ class HTTPSig {
 			}
 		}
 
-		// logger('SERVER: ' . print_r($_SERVER,true), LOGGER_ALL);
+		//logger('SERVER: ' . print_r($_SERVER,true), LOGGER_ALL);
 
-		// logger('headers: ' . print_r($headers,true), LOGGER_ALL);
+		//logger('headers: ' . print_r($headers,true), LOGGER_ALL);
+
+		return $headers;
+	}
+
+
+	// See draft-cavage-http-signatures-10
+
+	static function verify($data,$key = '') {
+
+		$body      = $data;
+		$headers   = null;
+
+		$result = [
+			'signer'         => '',
+			'portable_id'    => '',
+			'header_signed'  => false,
+			'header_valid'   => false,
+			'content_signed' => false,
+			'content_valid'  => false
+		];
+
+
+		$headers = self::find_headers($data,$body);
+
+		if(! $headers)
+			return $result;
 
 		$sig_block = null;
 
@@ -85,7 +106,7 @@ class HTTPSig {
 		}
 
 		if(! $sig_block) {
-			logger('no signature provided.');
+			logger('no signature provided.', LOGGER_DEBUG);
 			return $result;
 		}
 
@@ -102,9 +123,6 @@ class HTTPSig {
 		foreach($signed_headers as $h) {
 			if(array_key_exists($h,$headers)) {
 				$signed_data .= $h . ': ' . $headers[$h] . "\n";
-			}
-			if(strpos($h,'.')) {
-				$spoofable = true;
 			}
 			if($h === 'date') {
 				$d = new \DateTime($headers[$h]);
@@ -128,62 +146,88 @@ class HTTPSig {
 			$algorithm = 'sha512';
 		}
 
-		if($key && function_exists($key)) {
-			$result['signer'] = $sig_block['keyId'];
-			$key = $key($sig_block['keyId']);
-		}
-
-		if(! $key) {
-			$result['signer'] = $sig_block['keyId'];
-			$key = self::get_activitypub_key($sig_block['keyId']);
-		}
-
-		if(! $key)
+		if(! array_key_exists('keyId',$sig_block))
 			return $result;
 
-		$x = rsa_verify($signed_data,$sig_block['signature'],$key,$algorithm);
+		$result['signer'] = $sig_block['keyId'];
+
+		$key = self::get_key($key,$result['signer']);
+
+		if(! ($key && $key['public_key'])) {
+			return $result;
+		}
+
+		$x = rsa_verify($signed_data,$sig_block['signature'],$key['public_key'],$algorithm);
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
-		if(! $x)
+		if(! $x) {
+			logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($key['public_key']) ? '' : ' no key'));
+			$sig_block['signature'] = base64_encode($sig_block['signature']);
+			logger('affected sigblock: ' . print_r($sig_block,true));
+			logger('signed_data: ' . print_r($signed_data,true));
+			logger('headers: ' . print_r($headers,true));
+			logger('server: ' . print_r($_SERVER,true));
 			return $result;
+		}
 
-		if(! $spoofable)
-			$result['header_valid'] = true;
+		$result['portable_id'] = $key['portable_id'];
+		$result['header_valid'] = true;
 
 		if(in_array('digest',$signed_headers)) {
 			$result['content_signed'] = true;
-			$digest = explode('=', $headers['digest']);
+			$digest = explode('=', $headers['digest'], 2);
 			if($digest[0] === 'SHA-256')
 				$hashalg = 'sha256';
 			if($digest[0] === 'SHA-512')
 				$hashalg = 'sha512';
 
-			// The explode operation will have stripped the '=' padding, so compare against unpadded base64
-			if(rtrim(base64_encode(hash($hashalg,$body,true)),'=') === $digest[1]) {
+			if(base64_encode(hash($hashalg,$body,true)) === $digest[1]) {
 				$result['content_valid'] = true;
 			}
+
+			logger('Content_Valid: ' . (($result['content_valid']) ? 'true' : 'false'));
 		}
-
-
-		if(in_array('x-zot-digest',$signed_headers)) {
-			$result['content_signed'] = true;
-			$digest = explode('=', $headers['x-zot-digest']);
-			if($digest[0] === 'SHA-256')
-				$hashalg = 'sha256';
-			if($digest[0] === 'SHA-512')
-				$hashalg = 'sha512';
-
-			// The explode operation will have stripped the '=' padding, so compare against unpadded base64
-			if(rtrim(base64_encode(hash($hashalg,$_POST['data'],true)),'=') === $digest[1]) {
-				$result['content_valid'] = true;
-			}
-		}
-
-		logger('Content_Valid: ' . (($result['content_valid']) ? 'true' : 'false'));
 
 		return $result;
 	}
+
+	static function get_key($key,$id) {
+
+		if($key) {
+			if(function_exists($key)) {
+				return $key($id);
+			}
+			return [ 'public_key' => $key ];
+		}
+
+		if(strpos($id,'#') === false) {
+			$key = self::get_webfinger_key($id);
+		}
+
+		if(! $key) {
+			$key = self::get_activitystreams_key($id);
+		}
+
+		return $key;
+
+	}
+
+
+	function convertKey($key) {
+
+		if(strstr($key,'RSA ')) { 
+			return rsatopem($key);
+		}
+		elseif(substr($key,0,5) === 'data:') {
+			return convert_salmon_key($key);
+		}
+		else {
+			return $key;
+		}
+
+	}
+
 
 	/**
 	 * @brief
@@ -192,57 +236,131 @@ class HTTPSig {
 	 * @return boolean|string
 	 *   false if no pub key found, otherwise return the pub key
 	 */
-	function get_activitypub_key($id) {
 
-		if(strpos($id,'acct:') === 0) {
-			$x = q("select xchan_pubkey from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' limit 1",
-				dbesc(str_replace('acct:','',$id))
-			);
-		}
-		else {
-			$x = q("select xchan_pubkey from xchan where xchan_hash = '%s' and xchan_network = 'activitypub' ",
-				dbesc($id)
-			);
-		}
+	function get_activitystreams_key($id) {
+
+		// remove fragment
+
+		$url = ((strpos($id,'#')) ? substr($id,0,strpos($id,'#')) : $id);
+
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+			dbesc(str_replace('acct:','',$url)),
+			dbesc($url)
+		);
 
 		if($x && $x[0]['xchan_pubkey']) {
-			return ($x[0]['xchan_pubkey']);
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
-		if(function_exists('as_fetch'))
-			$r = as_fetch($id);
+		$r = ActivityStreams::fetch($id);
 
 		if($r) {
-			$j = json_decode($r,true);
+			if(array_key_exists('publicKey',$r) && array_key_exists('publicKeyPem',$r['publicKey']) && array_key_exists('id',$r['publicKey'])) {
+				if($r['publicKey']['id'] === $id || $r['id'] === $id) {
+					$portable_id = ((array_key_exists('owner',$r['publicKey'])) ? $r['publicKey']['owner'] : EMPTY_STR);
+					return [ 'public_key' => self::convertKey($r['publicKey']['publicKeyPem']), 'portable_id' => $portable_id, 'hubloc' => [] ];
+				}
+			}
+		}
+		return false;
+	}
 
-			if(array_key_exists('publicKey',$j) && array_key_exists('publicKeyPem',$j['publicKey'])) {
-				if((array_key_exists('id',$j['publicKey']) && $j['publicKey']['id'] !== $id) && $j['id'] !== $id)
-					return false;
 
-				return($j['publicKey']['publicKeyPem']);
+	function get_webfinger_key($id) {
+
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+			dbesc(str_replace('acct:','',$id)),
+			dbesc($id)
+		);
+
+		if($x && $x[0]['xchan_pubkey']) {
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+		}
+
+		$wf = Webfinger::exec($id);
+		$key = [ 'portable_id' => '', 'public_key' => '', 'hubloc' => [] ];
+
+		if($wf) {
+		 	if(array_key_exists('properties',$wf) && array_key_exists('https://w3id.org/security/v1#publicKeyPem',$wf['properties'])) {
+				$key['public_key'] = self::convertKey($wf['properties']['https://w3id.org/security/v1#publicKeyPem']);
+			}
+			if(array_key_exists('links', $wf) && is_array($wf['links'])) {
+				foreach($wf['links'] as $l) {
+					if(! (is_array($l) && array_key_exists('rel',$l))) {
+						continue;
+					}
+					if($l['rel'] === 'magic-public-key' && array_key_exists('href',$l) && $key['public_key'] === EMPTY_STR) {
+						$key['public_key'] = self::convertKey($l['href']);
+					}
+				}
 			}
 		}
 
-		return false;
+		return (($key['public_key']) ? $key : false);
 	}
+
+
+	function get_zotfinger_key($id) {
+
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+			dbesc(str_replace('acct:','',$id)),
+			dbesc($id)
+		);
+		if($x && $x[0]['xchan_pubkey']) {
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+		}
+
+		$wf = Webfinger::exec($id);
+		$key = [ 'portable_id' => '', 'public_key' => '', 'hubloc' => [] ];
+
+		if($wf) {
+		 	if(array_key_exists('properties',$wf) && array_key_exists('https://w3id.org/security/v1#publicKeyPem',$wf['properties'])) {
+				$key['public_key'] = self::convertKey($wf['properties']['https://w3id.org/security/v1#publicKeyPem']);
+			}
+			if(array_key_exists('links', $wf) && is_array($wf['links'])) {
+				foreach($wf['links'] as $l) {
+					if(! (is_array($l) && array_key_exists('rel',$l))) {
+						continue;
+					}
+					if($l['rel'] === 'http://purl.org/zot/protocol/6.0' && array_key_exists('href',$l) && $l['href'] !== EMPTY_STR) {
+						$z = \Zotlabs\Lib\Zotfinger::exec($l['href']);
+						if($z) {
+							$i = Libzot::import_xchan($z['data']);
+							if($i['success']) {
+								$key['portable_id'] = $i['hash'];
+
+								$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
+									dbesc($l['href'])
+								);
+								if($x) {
+									$key['hubloc'] = $x[0];
+								}
+							}
+						}
+					}
+					if($l['rel'] === 'magic-public-key' && array_key_exists('href',$l) && $key['public_key'] === EMPTY_STR) {
+						$key['public_key'] = self::convertKey($l['href']);
+					}
+				}
+			}
+		}
+
+		return (($key['public_key']) ? $key : false);
+	}
+
 
 	/**
 	 * @brief
 	 *
-	 * @param string $request
 	 * @param array $head
 	 * @param string $prvkey
-	 * @param string $keyid (optional, default 'Key')
-	 * @param boolean $send_headers (optional, default false)
-	 *   If set send a HTTP header
+	 * @param string $keyid (optional, default '')
 	 * @param boolean $auth (optional, default false)
 	 * @param string $alg (optional, default 'sha256')
-	 * @param string $crypt_key (optional, default null)
-	 * @param string $crypt_algo (optional, default 'aes256ctr')
+	 * @param array $encryption [ 'key', 'algorithm' ] or false
 	 * @return array
 	 */
-	static function create_sig($request, $head, $prvkey, $keyid = 'Key', $send_headers = false, $auth = false,
-			$alg = 'sha256', $crypt_key = null, $crypt_algo = 'aes256ctr') {
+	static function create_sig($head, $prvkey, $keyid = EMPTY_STR, $auth = false, $alg = 'sha256', $encryption = false ) {
 
 		$return_headers = [];
 
@@ -253,14 +371,15 @@ class HTTPSig {
 			$algorithm = 'rsa-sha512';
 		}
 
-		$x = self::sign($request,$head,$prvkey,$alg);
+		$x = self::sign($head,$prvkey,$alg);
 
-		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm
-			. '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
+		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm . '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
-		if($crypt_key) {
-			$x = crypto_encapsulate($headerval,$crypt_key,$crypt_algo);
-			$headerval = 'iv="' . $x['iv'] . '",key="' . $x['key'] . '",alg="' . $x['alg'] . '",data="' . $x['data'] . '"';
+		if($encryption) {
+			$x = crypto_encapsulate($headerval,$encryption['key'],$encryption['algorithm']);
+			if(is_array($x)) {
+				$headerval = 'iv="' . $x['iv'] . '",key="' . $x['key'] . '",alg="' . $x['alg'] . '",data="' . $x['data'] . '"';
+			}
 		}
 
 		if($auth) {
@@ -272,43 +391,52 @@ class HTTPSig {
 
 		if($head) {
 			foreach($head as $k => $v) {
-				if($send_headers) {
-					header($k . ': ' . $v);
+				// strip the request-target virtual header from the output headers
+				if($k === '(request-target)') {
+					continue;
 				}
-				else {
-					$return_headers[] = $k . ': ' . $v;
-				}
+				$return_headers[] = $k . ': ' . $v;
 			}
 		}
-		if($send_headers) {
-			header($sighead);
-		}
-		else {
-			$return_headers[] = $sighead;
-		}
+		$return_headers[] = $sighead;
 
 		return $return_headers;
 	}
 
 	/**
+	 * @brief set headers
+	 *
+	 * @param array $headers
+	 * @return void
+	 */
+
+
+	static function set_headers($headers) {
+		if($headers && is_array($headers)) {
+			foreach($headers as $h) {
+				header($h);
+			}
+		} 
+	}
+
+
+	/**
 	 * @brief
 	 *
-	 * @param string $request
 	 * @param array  $head
 	 * @param string $prvkey
 	 * @param string $alg (optional) default 'sha256'
 	 * @return array
 	 */
-	static function sign($request, $head, $prvkey, $alg = 'sha256') {
+
+	static function sign($head, $prvkey, $alg = 'sha256') {
 
 		$ret = [];
 
 		$headers = '';
 		$fields  = '';
-		if($request) {
-			$headers = '(request-target)' . ': ' . trim($request) . "\n";
-			$fields = '(request-target)';
-		}
+
+		logger('signing: ' . print_r($head,true), LOGGER_DATA);
 
 		if($head) {
 			foreach($head as $k => $v) {
@@ -340,11 +468,8 @@ class HTTPSig {
 	 *   - \e array  \b headers
 	 *   - \e string \b signature
 	 */
-	static function parse_sigheader($header) {
 
-		if(is_array($header)) {
-			btlogger('is_array: ' . print_r($header,true));
-		}
+	static function parse_sigheader($header) {
 
 		$ret = [];
 		$matches = [];
@@ -381,6 +506,7 @@ class HTTPSig {
 	 *   - \e string \b alg
 	 *   - \e string \b data
 	 */
+
 	static function decrypt_sigheader($header, $prvkey = null) {
 
 		$iv = $key = $alg = $data = null;

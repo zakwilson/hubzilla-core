@@ -2,6 +2,8 @@
 
 use Zotlabs\Lib\IConfig;
 
+use Zotlabs\Web\HTTPSig;
+
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');
 
@@ -1329,7 +1331,7 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],	'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,true,'sha512');
+						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],	'acct:' . channel_reddress($channel),true,'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
@@ -1415,7 +1417,7 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],	'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,true,'sha512');
+						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),true,'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);

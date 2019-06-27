@@ -2,7 +2,7 @@
 
 namespace Zotlabs\Lib;
 
-use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Web\HTTPSig;
 
 
 class ZotURL {

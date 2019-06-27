@@ -43,45 +43,30 @@ class PermissionDescriptionTest extends UnitTestCase {
 	function testGenerate_digest($text, $digest) {
 		$this->assertSame(
 				$digest,
-				HTTPSig::generate_digest($text, false)
+				HTTPSig::generate_digest_header($text)
 		);
 	}
 	public function generate_digestProvider() {
 		return [
 				'empty body text' => [
 						'',
-						'47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
+						'SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
 				],
 				'sample body text' => [
 						'body text',
-						'2fu8kUkvuzuo5XyhWwORNOcJgDColXgxWkw1T5EXzPI='
+						'SHA-256=2fu8kUkvuzuo5XyhWwORNOcJgDColXgxWkw1T5EXzPI='
 				],
 				'NULL body text' => [
 						null,
-						'47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
+						'SHA-256=47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='
 				],
 		];
 	}
 
 	function testGeneratedDigestsOfDifferentTextShouldNotBeEqual() {
 		$this->assertNotSame(
-				HTTPSig::generate_digest('text1', false),
-				HTTPSig::generate_digest('text2', false)
-		);
-	}
-
-	/**
-	 * Process separation needed for header() check.
-	 * @runInSeparateProcess
-	 */
-	function testGenerate_digestSendsHttpHeader() {
-		$ret = HTTPSig::generate_digest('body text', true);
-
-		$this->assertSame('2fu8kUkvuzuo5XyhWwORNOcJgDColXgxWkw1T5EXzPI=', $ret);
-		$this->assertContains(
-				'Digest: SHA-256=2fu8kUkvuzuo5XyhWwORNOcJgDColXgxWkw1T5EXzPI=',
-				xdebug_get_headers(),
-				'HTTP header Digest does not match'
+				HTTPSig::generate_digest_header('text1'),
+				HTTPSig::generate_digest_header('text2')
 		);
 	}
 

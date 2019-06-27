@@ -6,7 +6,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\PermissionDescription;
-use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 
 require_once('include/items.php');

@@ -1,6 +1,6 @@
 <?php
 
-use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 
 

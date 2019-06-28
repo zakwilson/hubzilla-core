@@ -760,7 +760,12 @@ class Item extends Controller {
 					}
 				}
 			}
-	
+
+			if(($str_contact_allow) && (! $str_group_allow)) {
+				// direct message - private between individual channels but not groups
+				$private = 2;
+			}
+
 	
 			/**
 			 *

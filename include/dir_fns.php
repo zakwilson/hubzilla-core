@@ -355,7 +355,7 @@ function update_directory_entry($ud) {
 				}
 			}
 		}
-		$x = zot_finger($ud['ud_addr'], '');
+		$x = \Zotlabs\Zot\Finger::run($ud['ud_addr'], '');
 		if ($x['success']) {
 			$j = json_decode($x['body'], true);
 			if ($j)

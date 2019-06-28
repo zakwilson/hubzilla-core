@@ -357,11 +357,8 @@ function update_directory_entry($ud) {
 		}
 		$x = \Zotlabs\Zot\Finger::run($ud['ud_addr'], '');
 		if ($x['success']) {
-			$j = json_decode($x['body'], true);
-			if ($j)
-				$success = true;
-
-			$y = import_xchan($j, 0, $ud);
+			import_xchan($x, 0, $ud);
+			$success = true;
 		}
 		if (! $success) {
 			q("update updates set ud_last = '%s' where ud_addr = '%s'",

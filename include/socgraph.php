@@ -1,5 +1,10 @@
 <?php /** @file */
 
+
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libzotdir;
+use Zotlabs\Lib\Zotfinger;
+
 require_once('include/dir_fns.php');
 require_once('include/zot.php');
 
@@ -122,7 +127,7 @@ function poco_load($xchan = '', $url = null) {
 					$profile_url = $url['value'];
 					continue;
 				}
-				if($url['type'] == 'zot') {
+				if(in_array($url['type'], ['zot','zot6'] )) {
 					$network = $url['type'];
 					$address = str_replace('acct:' , '', $url['value']);
 					continue;
@@ -151,6 +156,18 @@ function poco_load($xchan = '', $url = null) {
 
 		if(($x !== false) && (! count($x))) {
 			if($address) {
+				if($network === 'zot6') {
+					$j = Zotfinger::exec($profile_url);
+					if(is_array($j) && array_path_exists('signature/signer',$j) && $j['signature']['signer'] === $profile_url && intval($j['signature']['header_valid'])) {
+						Libzot::import_xchan($j['data']);
+					}
+					$x = q("select xchan_hash from xchan where xchan_hash = '%s' limit 1",
+						dbesc($hash)
+					);
+					if(! $x) {
+						continue;
+					}
+				}
 				if($network === 'zot') {
 					$j = Zotlabs\Zot\Finger::run($address,null);
 					if($j['success']) {
@@ -402,7 +419,7 @@ function poco($a,$extended = false) {
 			$sql_extra ",
 			intval($channel_id)
 		);
-		$rooms = q("select * from menu_item where ( mitem_flags & " . intval(MENU_ITEM_CHATROOM) . " )>0 and allow_cid = '' and allow_gid = '' and deny_cid = '' and deny_gid = '' and mitem_channel_id = %d",
+		$rooms = q("select * from menu_item where ( mitem_flags & " . intval(MENU_ITEM_CHATROOM) . " ) > 0 and allow_cid = '' and allow_gid = '' and deny_cid = '' and deny_gid = '' and mitem_channel_id = %d",
 			intval($channel_id)
 		);
 	}

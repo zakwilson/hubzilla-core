@@ -1431,7 +1431,6 @@ return array(
     'Zotlabs\\Widget\\Wiki_pages' => $baseDir . '/Zotlabs/Widget/Wiki_pages.php',
     'Zotlabs\\Widget\\Zcard' => $baseDir . '/Zotlabs/Widget/Zcard.php',
     'Zotlabs\\Zot6\\Finger' => $baseDir . '/Zotlabs/Zot6/Finger.php',
-    'Zotlabs\\Zot6\\HTTPSig' => $baseDir . '/Zotlabs/Zot6/HTTPSig.php',
     'Zotlabs\\Zot6\\IHandler' => $baseDir . '/Zotlabs/Zot6/IHandler.php',
     'Zotlabs\\Zot6\\Receiver' => $baseDir . '/Zotlabs/Zot6/Receiver.php',
     'Zotlabs\\Zot6\\Zot6Handler' => $baseDir . '/Zotlabs/Zot6/Zot6Handler.php',

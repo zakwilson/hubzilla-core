@@ -1599,7 +1599,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Widget\\Wiki_pages' => __DIR__ . '/../..' . '/Zotlabs/Widget/Wiki_pages.php',
         'Zotlabs\\Widget\\Zcard' => __DIR__ . '/../..' . '/Zotlabs/Widget/Zcard.php',
         'Zotlabs\\Zot6\\Finger' => __DIR__ . '/../..' . '/Zotlabs/Zot6/Finger.php',
-        'Zotlabs\\Zot6\\HTTPSig' => __DIR__ . '/../..' . '/Zotlabs/Zot6/HTTPSig.php',
         'Zotlabs\\Zot6\\IHandler' => __DIR__ . '/../..' . '/Zotlabs/Zot6/IHandler.php',
         'Zotlabs\\Zot6\\Receiver' => __DIR__ . '/../..' . '/Zotlabs/Zot6/Receiver.php',
         'Zotlabs\\Zot6\\Zot6Handler' => __DIR__ . '/../..' . '/Zotlabs/Zot6/Zot6Handler.php',

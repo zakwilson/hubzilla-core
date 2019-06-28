@@ -343,7 +343,7 @@ function update_directory_entry($ud) {
 		
 		$uri = \Zotlabs\Lib\Webfinger::zot_url($ud['ud_addr']);
 		if($uri) {
-			$record = \Zotlabs\Lib\Zotfinger::exec($url,$channel);
+			$record = \Zotlabs\Lib\Zotfinger::exec($uri);
 
 			// Check the HTTP signature
 

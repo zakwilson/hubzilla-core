@@ -2659,7 +2659,7 @@ App::$strings["To stop receiving these messages, please adjust your Notification
 App::$strings["To stop receiving these messages, please adjust your %s."] = "Um diese Nachrichten nicht mehr zu erhalten, passe bitte Deine %s an.";
 App::$strings["%s <!item_type!>"] = "%s <!item_type!>";
 App::$strings["[\$Projectname:Notify] New mail received at %s"] = "[\$Projectname:Benachrichtigung] Neue Mail empfangen auf %s";
-App::$strings["%1\$s sent you a new private message at %2\$s."] = "%1\$shat dir auf %2\$seine private Nachricht geschickt.";
+App::$strings["%1\$s sent you a new private message at %2\$s."] = "%1\$shat dir auf %2\$s eine private Nachricht geschickt.";
 App::$strings["%1\$s sent you %2\$s."] = "%1\$s hat Dir %2\$s geschickt.";
 App::$strings["a private message"] = "eine private Nachricht";
 App::$strings["Please visit %s to view and/or reply to your private messages."] = "Bitte besuche %s, um die private Nachricht anzusehen und/oder darauf zu antworten.";

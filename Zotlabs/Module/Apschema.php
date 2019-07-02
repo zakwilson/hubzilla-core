@@ -41,8 +41,11 @@ class Apschema extends \Zotlabs\Web\Controller {
 				],
 
 				'ostatus'      => 'http://ostatus.org#',
-				'conversation' => 'ostatus:conversation'
+				'conversation' => 'ostatus:conversation',
 
+				'diaspora'     => 'https://diasporafoundation.org/ns/',
+				'guid'         => 'diaspora:guid'
+				
 			]
 		];
 

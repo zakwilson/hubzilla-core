@@ -111,6 +111,17 @@ class Channel extends Controller {
 		// we start loading content
 
 		profile_load($which,$profile);
+
+		App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars($channel['channel_name']) . '">' . "\r\n";
+		App::$page['htmlhead'] .= '<meta property="og:image" content="' . $channel['xchan_photo_l'] . '">' . "\r\n";
+
+		if(App::$profile['about'] && perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_profile')) {
+			App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars(App::$profile['about']) . '">' . "\r\n";
+		}
+		else {
+			App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars(sprintf( t('This is the home page of %s.'), $channel['channel_name'])) . '">' . "\r\n";
+		}
+
 	}
 
 	function get($update = 0, $load = false) {

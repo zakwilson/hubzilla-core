@@ -69,6 +69,14 @@ $(document).ready(function() {
 
 			allday = info.allDay;
 
+			if(allday) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
+			}
+
+
 			var dtend = new Date(info.date.toUTCString());
 			if(allday) {
 				dtend.setDate(dtend.getDate() + 1);
@@ -112,6 +120,13 @@ $(document).ready(function() {
 			}
 			else {
 				$('#l2s').remove();
+			}
+
+			if(event.allDay) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
 			}
 
 			if(event.publicId == new_event_id) {
@@ -366,20 +381,21 @@ $(document).ready(function() {
 	}
 
 	if(default_view === 'dayGridMonth');
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 });
 
 
 function changeView(viewName) {
+
 	calendar.changeView(viewName);
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
 
 	if(viewName === 'dayGridMonth') {
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 	}
 	else {
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').show();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
 	}
 
 	return;

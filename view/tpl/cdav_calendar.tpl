@@ -77,7 +77,7 @@ $(document).ready(function() {
 			}
 
 
-			var dtend = new Date(info.date.toUTCString());
+			var dtend = new Date(info.date.toISOString());
 			if(allday) {
 				dtend.setDate(dtend.getDate() + 1);
 			}
@@ -93,8 +93,8 @@ $(document).ready(function() {
 			$('#id_description').attr('disabled', false);
 			$('#id_location').attr('disabled', false);
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
-			$('#id_dtstart').val(info.date.toUTCString());
-			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
+			$('#id_dtstart').val(info.date.toISOString());
+			$('#id_dtend').val(dtend ? dtend.toISOString() : '');
 			$('#id_description').val('');
 			$('#id_location').val('');
 			$('#event_submit').val('create_event').html('{{$create}}');
@@ -164,8 +164,8 @@ $(document).ready(function() {
 				$('#id_timezone_select').val(event.extendedProps.timezone);
 				$('#id_location').val(event.extendedProps.location);
 				$('#id_categories').tagsinput('add', event.extendedProps.categories);
-				$('#id_dtstart').val(dtstart.toUTCString());
-				$('#id_dtend').val(dtend.toUTCString());
+				$('#id_dtstart').val(dtstart.toISOString());
+				$('#id_dtend').val(dtend.toISOString());
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
 				$('#event_submit').val('update_event').html('{{$update}}');
@@ -217,8 +217,8 @@ $(document).ready(function() {
 			var dtend = new Date(info.event._instance.range.end);
 
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toISOString());
+			$('#id_dtend').val(dtend.toISOString());
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -232,8 +232,8 @@ $(document).ready(function() {
 					'preview': 0,
 					'summary': event.title,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
+					'dtstart': dtstart.toISOString(),
+					'dtend': dtend.toISOString(),
 					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
@@ -249,8 +249,8 @@ $(document).ready(function() {
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : '',
+					'dtstart': dtstart ? dtstart.toISOString() : '',
+					'dtend': dtend ? dtend.toISOString() : '',
 					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
@@ -266,8 +266,8 @@ $(document).ready(function() {
 			var dtend = new Date(info.event._instance.range.end);
 			
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toISOString());
+			$('#id_dtend').val(dtend.toISOString());
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -281,8 +281,8 @@ $(document).ready(function() {
 					'preview': 0,
 					'summary': event.title,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
+					'dtstart': dtstart.toISOString(),
+					'dtend': dtend.toISOString(),
 					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
@@ -298,8 +298,8 @@ $(document).ready(function() {
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : '',
+					'dtstart': dtstart ? dtstart.toISOString() : '',
+					'dtend': dtend ? dtend.toISOString() : '',
 					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
@@ -367,8 +367,8 @@ $(document).ready(function() {
 
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
-		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
-		$('#id_dtend').val(new Date(resource.dtend).toUTCString());
+		$('#id_dtstart').val(new Date(resource.dtstart).toISOString());
+		$('#id_dtend').val(new Date(resource.dtend).toISOString());
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);

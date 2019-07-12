@@ -487,6 +487,19 @@ class Activity {
 
 		$ret['type'] = self::activity_mapper($i['verb']);
 
+		if($ret['type'] === 'emojiReaction') {
+			// There may not be an object for these items for legacy reasons - it should be the conversation parent.
+			$p = q("select * from item where mid = '%s' and uid = %d",
+				dbesc($i['parent_mid']),
+				intval($i['uid'])
+			);
+			if($p) {
+				xchan_query($p,true);
+				$p = fetch_post_tags($p,true);
+				$i['obj'] = self::encode_item($p[0]);
+			}
+		}
+
 
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 

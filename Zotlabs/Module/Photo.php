@@ -222,7 +222,7 @@ class Photo extends \Zotlabs\Web\Controller {
  		if(! $data)
  			killme();
  			
- 		$etag = md5($data . $modified);
+ 		$etag = '"' . md5($data . $modified) . '"';
  		
  		if($modified == 0)
  		    $modified = time();

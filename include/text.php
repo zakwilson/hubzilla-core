@@ -2456,8 +2456,8 @@ function magic_link($s) {
  * @param boolean $escape (optional) default false
  */
 function stringify_array_elms(&$arr, $escape = false) {
-	for($x = 0; $x < count($arr); $x ++)
-		$arr[$x] = "'" . (($escape) ? dbesc($arr[$x]) : $arr[$x]) . "'";
+	foreach($arr as $k => $v)
+		$arr[$k] = "'" . (($escape) ? dbesc($v) : $v) . "'";
 }
 
 

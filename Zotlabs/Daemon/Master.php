@@ -17,7 +17,22 @@ if(array_search( __file__ , get_included_files()) === 0) {
 class Master {
 
 	static public function Summon($arr) {
-		proc_run('php','Zotlabs/Daemon/Master.php',$arr);
+		$hookinfo = [
+			'argv'=>$arr
+		];
+
+		call_hooks ('daemon_master_summon',$hookinfo);
+
+		$arr = $hookinfo['argv'];
+		$argc = count($arr);
+
+		if ((!is_array($arr) || (count($arr) < 1))) {
+			logger("Summon handled by hook.",LOGGER_DEBUG);
+			return;
+		}
+
+		$phpbin = get_config('system','phpbin','php');
+		proc_run($phpbin,'Zotlabs/Daemon/Master.php',$arr);
 	}
 
 	static public function Release($argc,$argv) {
@@ -33,6 +48,7 @@ class Master {
 		$argc = count($argv);
 
 		if ((!is_array($argv) || (count($argv) < 1))) {
+			logger("Release handled by hook.",LOGGER_DEBUG);
 			return;
 		}
 

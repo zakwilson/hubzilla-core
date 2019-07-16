@@ -70,7 +70,7 @@ function bb_tag_preg_replace($pattern, $replace, $name, $s) {
 
 
 function tryoembed($match) {
-	$url = ((count($match) == 2) ? $match[1] : $match[2]);
+	$url = ((count($match) == 3) ? $match[1] : $match[2]);
 
 	$o = oembed_fetch_url($url);
 

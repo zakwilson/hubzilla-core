@@ -29,7 +29,7 @@ class LDSignatures {
 		$options = [
 			'type' => 'RsaSignature2017',
 			'nonce' => random_string(64),
-			'creator' => z_root() . '/channel/' . $channel['channel_address'] . '/public_key_pem',
+			'creator' => z_root() . '/channel/' . $channel['channel_address'],
 			'created' => datetime_convert('UTC','UTC', 'now', 'Y-m-d\Th:i:s\Z')
 		];
 
@@ -124,7 +124,7 @@ class LDSignatures {
 			'meDataType'  => $data_type,
 			'meEncoding'  => $encoding,
 			'meAlgorithm' => $algorithm,
-			'meCreator'   => z_root() . '/channel/' . $channel['channel_address'] . '/public_key_pem',
+			'meCreator'   => z_root() . '/channel/' . $channel['channel_address'],
 			'meSignatureValue' => $signature
 		]);
 

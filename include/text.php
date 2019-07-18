@@ -1572,7 +1572,9 @@ function format_hashtags(&$item) {
 			$term = htmlspecialchars($t['term'], ENT_COMPAT, 'UTF-8', false) ;
 			if(! trim($term))
 				continue;
-			if($t['url'] && strpos($item['body'], $t['url']))
+			if(empty($t['url']))
+				continue;
+			if(strpos($item['body'], $t['url']))
 				continue;
 			if($s)
 				$s .= ' ';

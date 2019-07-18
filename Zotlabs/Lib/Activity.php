@@ -361,7 +361,7 @@ class Activity {
 
 				switch($t['type']) {
 					case 'Hashtag':
-						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
+						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => ((isset($t['href'])) ? $t['href'] : $t['id']), 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
 						break;
 
 					case 'Mention':

@@ -392,9 +392,9 @@ class Activity {
 			foreach($item['term'] as $t) {
 				switch($t['ttype']) {
 					case TERM_HASHTAG:
-						// An id is required so if we don't have a url in the taxonomy, ignore it and keep going.
+						// href is required so if we don't have a url in the taxonomy, ignore it and keep going.
 						if($t['url']) {
-							$ret[] = [ 'id' => $t['url'], 'name' => '#' . $t['term'] ];
+							$ret[] = [ 'type' => 'Hashtag', 'href' => $t['url'], 'name' => '#' . $t['term'] ];
 						}
 						break;
 
@@ -2025,7 +2025,7 @@ class Activity {
 			}
 			$a = new ActivityStreams($n);
 
-			logger($a->debug());
+			//logger($a->debug());
 
 			if(! $a->is_valid()) {
 				break;

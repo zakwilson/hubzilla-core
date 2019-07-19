@@ -1769,14 +1769,14 @@ class Activity {
 						}
 						foreach($ptr as $vurl) {
 							if(strpos($s['body'],$vurl['href']) === false) {
-								$s['body'] .= "\n\n" . '[zmg]' . $vurl['href'] . '[/zmg]';
+								$s['body'] .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
 					elseif(is_string($act->obj['url'])) {
 						if(strpos($s['body'],$act->obj['url']) === false) {
-							$s['body'] .= "\n\n" . '[zmg]' . $act->obj['url'] . '[/zmg]';
+							$s['body'] .= '[zmg]' . $act->obj['url'] . '[/zmg]' . "\n\n" . $s['body'];
 						}
 					}
 				}

@@ -1574,7 +1574,7 @@ function format_hashtags(&$item) {
 				continue;
 			if(empty($t['url']))
 				continue;
-			if(strpos($item['body'], $t['url']))
+			if(strpos($item['body'], $t['url']) || strpos($item['body'], '#' . $t['term']))
 				continue;
 			if($s)
 				$s .= ' ';

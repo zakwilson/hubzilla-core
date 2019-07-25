@@ -3405,10 +3405,10 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 
 	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
-+\,\(\)]+)([\,\.\:\;]\s|$)/ismu", '\nakedoembed', $body);
++\,\(\)]+)/ismu", '\nakedoembed', $body);
 
 	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
-+\,\(\)]+)([\,\.\:\;]\s|$)/ismu", '\red_zrl_callback', $body);
++\,\(\)]+)/ismu", '\red_zrl_callback', $body);
 
 
 	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);

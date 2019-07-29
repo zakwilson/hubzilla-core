@@ -177,7 +177,7 @@ class Group extends Controller {
 				if($r) 
 					$result = group_rmv(local_channel(),$r[0]['gname']);
 				if($result) {
-					$hookinfo = [ 'pgrp_extras' => '', 'group'=>$argv(2) ];
+					$hookinfo = [ 'pgrp_extras' => '', 'group' => argv(2) ];
 					call_hooks ('privacygroup_extras_drop',$hookinfo);
 					info( t('Privacy group removed.') . EOL);
 				}

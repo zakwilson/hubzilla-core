@@ -278,11 +278,11 @@ class Cdav extends Controller {
 				$allday = $_REQUEST['allday'];
 
 				$title = $_REQUEST['title'];
-				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
 
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert($tz, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 				$description = $_REQUEST['description'];
@@ -369,10 +369,10 @@ class Cdav extends Controller {
 
 				$uri = $_REQUEST['uri'];
 				$title = $_REQUEST['title'];
-				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert($tz, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 				$description = $_REQUEST['description'];
@@ -442,10 +442,10 @@ class Cdav extends Controller {
 				$allday = $_REQUEST['allday'];
 
 				$uri = $_REQUEST['uri'];
-				$start = datetime_convert($tz, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert($tz, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 

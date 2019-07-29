@@ -7257,7 +7257,7 @@ msgstr "Центр уведомлений по email (имя хоста)"
 msgid ""
 "If your channel is mirrored to multiple hubs, set this to your preferred "
 "location. This will prevent duplicate email notifications. Example: %s"
-msgstr "Если ваш канал зеркалируется в нескольких местах, это ваше предпочтительное местоположение. Это должно предотвратить дублировать уведомлений по email. Например: %s"
+msgstr "Если ваш канал зеркалируется в нескольких местах, это ваше предпочтительное местоположение. Это должно предотвратить дублирование уведомлений по email. Например: %s"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:581
 msgid "Show new wall posts, private messages and connections under Notices"

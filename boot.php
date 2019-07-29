@@ -468,7 +468,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.7' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.8' );
 /**
  * activity stream defines
  */
@@ -895,6 +895,51 @@ class App {
 
 		if(x($_GET,'q'))
 			self::$cmd = escape_tags(trim($_GET['q'],'/\\'));
+
+                // Serve raw files from the file system in certain cases.
+                $filext = pathinfo(self::$cmd, PATHINFO_EXTENSION);
+
+                $serve_rawfiles=[
+                        'jpg'=>'image/jpeg',
+                        'jpeg'=>'image/jpeg',
+                        'gif'=>'image/gif',
+                        'png'=>'image/png',
+                        'ico'=>'image/vnd.microsoft.icon',
+                        'css'=>'text/css',
+                        'js'=>'text/javascript',
+                        'htm'=>'text/html',
+                        'html'=>'text/html',
+                        'map'=>'application/octet-stream',
+                        'ttf'=>'font/ttf',
+                        'woff'=>'font/woff',
+                        'woff2'=>'font/woff2',
+                        'svg'=>'image/svg+xml'];
+
+                if (array_key_exists($filext, $serve_rawfiles) && file_exists(self::$cmd)) {
+			$staticfilecwd = getcwd();
+			$staticfilerealpath = realpath(self::$cmd);
+			if(strpos($staticfilerealpath,$staticfilecwd) !== 0) {
+				header("HTTP/1.1 404 Not Found", true, 404);
+				killme();
+			}
+
+			$staticfileetag = '"'.md5($staticfilerealpath.filemtime(self::$cmd)).'"';
+			header("ETag: ".$staticfileetag);
+                        header("Cache-control: max-age=2592000");
+			if(isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+				// If HTTP_IF_NONE_MATCH is same as the generated ETag => content is the same as browser cache
+				// So send a 304 Not Modified response header and exit
+				if($_SERVER['HTTP_IF_NONE_MATCH'] == $staticfileetag) {
+					header('HTTP/1.1 304 Not Modified', true, 304);
+					killme();
+				}
+			}
+                        header("Content-type: ".$serve_rawfiles[$filext]);
+                        $handle = fopen(self::$cmd, "rb");
+                        fpassthru($handle);
+                        fclose($handle);
+                        killme();
+                }
 
 		// unix style "homedir"
 

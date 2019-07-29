@@ -1572,7 +1572,9 @@ function format_hashtags(&$item) {
 			$term = htmlspecialchars($t['term'], ENT_COMPAT, 'UTF-8', false) ;
 			if(! trim($term))
 				continue;
-			if($t['url'] && strpos($item['body'], $t['url']))
+			if(empty($t['url']))
+				continue;
+			if(strpos($item['body'], $t['url']) || strpos($item['body'], '#' . $t['term']))
 				continue;
 			if($s)
 				$s .= ' ';
@@ -2456,8 +2458,8 @@ function magic_link($s) {
  * @param boolean $escape (optional) default false
  */
 function stringify_array_elms(&$arr, $escape = false) {
-	for($x = 0; $x < count($arr); $x ++)
-		$arr[$x] = "'" . (($escape) ? dbesc($arr[$x]) : $arr[$x]) . "'";
+	foreach($arr as $k => $v)
+		$arr[$k] = "'" . (($escape) ? dbesc($v) : $v) . "'";
 }
 
 

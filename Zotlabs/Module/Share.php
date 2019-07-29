@@ -106,7 +106,7 @@ class Share extends \Zotlabs\Web\Controller {
 		$arr['owner_xchan']  = $item['author_xchan'];
 		$arr['obj'] = Activity::encode_item($item);
 		$arr['obj_type'] = $item['obj_type'];
-		$arr['verb'] = 'Announce';
+		$arr['verb'] = ACTIVITY_SHARE;
 
 		$post = item_store($arr);	
 

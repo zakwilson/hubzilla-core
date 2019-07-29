@@ -21,7 +21,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$event_hash = ((x($_POST,'event_hash')) ? $_POST['event_hash'] : '');
 	
 		$xchan = ((x($_POST,'xchan')) ? dbesc($_POST['xchan']) : '');
-		$uid      = local_channel();
+		$uid = local_channel();
 
 		// only allow editing your own events. 
 		if(($xchan) && ($xchan !== get_observer_hash()))
@@ -34,8 +34,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		
 		$adjust = intval($_POST['adjust']);
 
-		$start = (($adjust) ? datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtstart'])) : datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart'])));
-		$finish = (($adjust) ? datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtend'])) : datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend'])));
+		$start = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart']));
+		$finish = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend']));
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));

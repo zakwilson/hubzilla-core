@@ -58,7 +58,7 @@ $(document).ready(function() {
 		dayNamesShort: aStr['dayNamesShort'],
 		allDayText: aStr['allday'],
 
-		snapDuration: '00:15:00',
+		snapDuration: '00:05:00',
 		
 		dateClick: function(info) {
 			if(new_event.id) {
@@ -68,6 +68,14 @@ $(document).ready(function() {
 			}
 
 			allday = info.allDay;
+
+			if(allday) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
+			}
+
 
 			var dtend = new Date(info.date.toUTCString());
 			if(allday) {
@@ -85,14 +93,14 @@ $(document).ready(function() {
 			$('#id_description').attr('disabled', false);
 			$('#id_location').attr('disabled', false);
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
-			$('#id_dtstart').val(info.date.toUTCString());
-			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
+			$('#id_dtstart').val(info.date.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend ? dtend.toUTCString().slice(0, -4) : '');
 			$('#id_description').val('');
 			$('#id_location').val('');
 			$('#event_submit').val('create_event').html('{{$create}}');
 			$('#event_delete').hide();
 
-			new_event = { id: new_event_id, title: 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), allDay: info.allDay, editable: true, color: '#bbb' };
+			new_event = { id: new_event_id, title: 'New event', start: info.date.toUTCString(), end: dtend ? dtend.toUTCString() : '', allDay: info.allDay, editable: true, color: '#bbb' };
 			calendar.addEvent(new_event);
 		},
 
@@ -112,6 +120,13 @@ $(document).ready(function() {
 			}
 			else {
 				$('#l2s').remove();
+			}
+
+			if(event.allDay) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
 			}
 
 			if(event.publicId == new_event_id) {
@@ -149,8 +164,8 @@ $(document).ready(function() {
 				$('#id_timezone_select').val(event.extendedProps.timezone);
 				$('#id_location').val(event.extendedProps.location);
 				$('#id_categories').tagsinput('add', event.extendedProps.categories);
-				$('#id_dtstart').val(dtstart.toUTCString());
-				$('#id_dtend').val(dtend.toUTCString());
+				$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+				$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
 				$('#event_submit').val('update_event').html('{{$update}}');
@@ -202,8 +217,8 @@ $(document).ready(function() {
 			var dtend = new Date(info.event._instance.range.end);
 
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -217,8 +232,8 @@ $(document).ready(function() {
 					'preview': 0,
 					'summary': event.title,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
+					'dtstart': dtstart.toUTCString().slice(0, -4),
+					'dtend': dtend.toUTCString().slice(0, -4),
 					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
@@ -234,8 +249,8 @@ $(document).ready(function() {
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : '',
+					'dtstart': dtstart ? dtstart.toUTCString().slice(0, -4) : '',
+					'dtend': dtend ? dtend.toUTCString().slice(0, -4) : '',
 					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
@@ -251,8 +266,8 @@ $(document).ready(function() {
 			var dtend = new Date(info.event._instance.range.end);
 			
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -266,8 +281,8 @@ $(document).ready(function() {
 					'preview': 0,
 					'summary': event.title,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
+					'dtstart': dtstart.toUTCString().slice(0, -4),
+					'dtend': dtend.toUTCString().slice(0, -4),
 					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
@@ -283,8 +298,8 @@ $(document).ready(function() {
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
 					'timezone_select': event.extendedProps.timezone,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : '',
+					'dtstart': dtstart ? dtstart.toUTCString().slice(0, -4) : '',
+					'dtend': dtend ? dtend.toUTCString().slice(0, -4) : '',
 					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
@@ -352,8 +367,8 @@ $(document).ready(function() {
 
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
-		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
-		$('#id_dtend').val(new Date(resource.dtend).toUTCString());
+		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString().slice(0, -4));
+		$('#id_dtend').val(new Date(resource.dtend).toUTCString().slice(0, -4));
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
@@ -366,20 +381,21 @@ $(document).ready(function() {
 	}
 
 	if(default_view === 'dayGridMonth');
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 });
 
 
 function changeView(viewName) {
+
 	calendar.changeView(viewName);
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
 
 	if(viewName === 'dayGridMonth') {
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').hide();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 	}
 	else {
-		$('#id_dtstart_wrapper, #id_dtend_wrapper').show();
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
 	}
 
 	return;

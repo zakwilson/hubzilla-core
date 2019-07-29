@@ -361,7 +361,7 @@ class Activity {
 
 				switch($t['type']) {
 					case 'Hashtag':
-						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
+						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => ((isset($t['href'])) ? $t['href'] : $t['id']), 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
 						break;
 
 					case 'Mention':
@@ -392,9 +392,9 @@ class Activity {
 			foreach($item['term'] as $t) {
 				switch($t['ttype']) {
 					case TERM_HASHTAG:
-						// An id is required so if we don't have a url in the taxonomy, ignore it and keep going.
+						// href is required so if we don't have a url in the taxonomy, ignore it and keep going.
 						if($t['url']) {
-							$ret[] = [ 'id' => $t['url'], 'name' => '#' . $t['term'] ];
+							$ret[] = [ 'type' => 'Hashtag', 'href' => $t['url'], 'name' => '#' . $t['term'] ];
 						}
 						break;
 
@@ -1769,14 +1769,14 @@ class Activity {
 						}
 						foreach($ptr as $vurl) {
 							if(strpos($s['body'],$vurl['href']) === false) {
-								$s['body'] .= "\n\n" . '[zmg]' . $vurl['href'] . '[/zmg]';
+								$s['body'] .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
 					elseif(is_string($act->obj['url'])) {
 						if(strpos($s['body'],$act->obj['url']) === false) {
-							$s['body'] .= "\n\n" . '[zmg]' . $act->obj['url'] . '[/zmg]';
+							$s['body'] .= '[zmg]' . $act->obj['url'] . '[/zmg]' . "\n\n" . $s['body'];
 						}
 					}
 				}
@@ -2025,7 +2025,7 @@ class Activity {
 			}
 			$a = new ActivityStreams($n);
 
-			logger($a->debug());
+			//logger($a->debug());
 
 			if(! $a->is_valid()) {
 				break;

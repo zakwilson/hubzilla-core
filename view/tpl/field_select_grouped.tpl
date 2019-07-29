@@ -1,4 +1,4 @@
-	<div class='form-group field select'>
+	<div id='id_{{$field.0}}_wrapper' class='form-group field select'>
 		<label for='id_{{$field.0}}'>{{$field.1}}</label>
 		<select class="form-control" name='{{$field.0}}' id='id_{{$field.0}}'>
 			{{foreach $field.4 as $group=>$opts}}

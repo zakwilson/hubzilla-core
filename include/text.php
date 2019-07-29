@@ -3105,6 +3105,15 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 	if($oldnick)
 		$item['llink'] = str_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['llink']);
 
+	if($item['term']) {
+		for($x = 0; $x < count($item['term']); $x ++) {
+			$item['term'][$x]['url'] =  str_replace($old,$new,$item['term'][$x]['url']);
+			if ($oldnick) {
+				$item['term'][$x]['url'] = str_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['term'][$x]['url']);
+			}
+		}
+	}
+
 }
 
 

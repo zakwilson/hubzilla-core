@@ -668,7 +668,7 @@ function downgrade_accounts() {
 function service_class_allows($uid, $property, $usage = false) {
 	$limit = service_class_fetch($uid, $property);
 
-	if($limit === false)
+	if($limit == false)
 		return true; // No service class set => everything is allowed
 
 	$limit = engr_units_to_bytes($limit);

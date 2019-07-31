@@ -761,7 +761,7 @@ function service_class_fetch($uid, $property) {
 	if(! is_array($arr) || (! count($arr)))
 		return false;
 
-	return((array_key_exists($property, $arr) && $arr[$property]) ? $arr[$property] : false);
+	return((array_key_exists($property, $arr) && $arr[$property] != 0) ? $arr[$property] : false);
 }
 
 /**

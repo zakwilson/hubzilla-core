@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-06-18 20:23+0200\n"
-"PO-Revision-Date: 2019-06-18 20:27+0200\n"
+"PO-Revision-Date: 2019-07-31 19:37+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -4697,7 +4697,7 @@ msgstr "Публикация не найдена"
 #: ../../Zotlabs/Module/Tagger.php:119
 #, php-format
 msgid "%1$s tagged %2$s's %3$s with %4$s"
-msgstr "%1$s отметил тегом %2$s %3$s с %4$s"
+msgstr "%1$s отметил тегом %4$s %3$s %2$s"
 
 #: ../../Zotlabs/Module/Directory.php:116
 msgid "No default suggestions were found."
@@ -7257,7 +7257,7 @@ msgstr "Центр уведомлений по email (имя хоста)"
 msgid ""
 "If your channel is mirrored to multiple hubs, set this to your preferred "
 "location. This will prevent duplicate email notifications. Example: %s"
-msgstr "Если ваш канал зеркалируется в нескольких местах, это ваше предпочтительное местоположение. Это должно предотвратить дублирование уведомлений по email. Например: %s"
+msgstr "Если ваш канал зеркалируется в нескольких местах, это ваше предпочтительное местоположение. Это должно предотвратить дублировать уведомлений по email. Например: %s"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:581
 msgid "Show new wall posts, private messages and connections under Notices"

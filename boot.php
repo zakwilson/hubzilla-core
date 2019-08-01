@@ -919,8 +919,7 @@ class App {
 			$staticfilecwd = getcwd();
 			$staticfilerealpath = realpath(self::$cmd);
 			if(strpos($staticfilerealpath,$staticfilecwd) !== 0) {
-				header("HTTP/1.1 404 Not Found", true, 404);
-				killme();
+				http_status_exit(404,'not found');
 			}
 
 			$staticfileetag = '"'.md5($staticfilerealpath.filemtime(self::$cmd)).'"';
@@ -930,8 +929,7 @@ class App {
 				// If HTTP_IF_NONE_MATCH is same as the generated ETag => content is the same as browser cache
 				// So send a 304 Not Modified response header and exit
 				if($_SERVER['HTTP_IF_NONE_MATCH'] == $staticfileetag) {
-					header('HTTP/1.1 304 Not Modified', true, 304);
-					killme();
+					http_status_exit(304,'not modified');
 				}
 			}
                         header("Content-type: ".$serve_rawfiles[$filext]);

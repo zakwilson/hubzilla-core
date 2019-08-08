@@ -205,7 +205,7 @@ function zidify_text($s) {
  */
 function red_zrl_callback($matches) {
 
-    // Catch and exclude trailing punctuation    
+    // Catch and exclude trailing punctuation
     if (preg_match("/[.,;:!?)]*$/i", $matches[2], $pts))
         $matches[2] = substr($matches[2], 0, strlen($matches[2])-strlen($pts[0]));
 

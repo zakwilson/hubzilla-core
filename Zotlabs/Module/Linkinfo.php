@@ -275,7 +275,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		// Check codepage in HTTP headers or HTML if not exist
 		$cp = (preg_match('/Content-Type: text\/html; charset=(.+)\r\n/i', $header, $o) ? $o[1] : '');
 		if(empty($cp))
-		    $cp = (preg_match('/meta.+content=["|\']text\/html; charset=([^"|\']+)/i', $body, $o) ? $o[1] : 'AUTO');
+		    $cp = (preg_match('/meta.+content=["\']text\/html; charset=([^"\']+)/i', $body, $o) ? $o[1] : 'AUTO');
 
 		$body   = mb_convert_encoding($body, 'UTF-8', $cp);
 		$body   = mb_convert_encoding($body, 'HTML-ENTITIES', "UTF-8");
@@ -444,8 +444,9 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 	
 				while (strpos($text, "  "))
 					$text = trim(str_replace("  ", " ", $text));
-	
-				$siteinfo["text"] = html_entity_decode(substr($text,0,350), ENT_QUOTES, "UTF-8").'...';
+					
+				$text = substr(html_entity_decode($text, ENT_QUOTES, "UTF-8"), 0, 350);
+				$siteinfo["text"] = rtrim(substr($text, 0, strrpos($text, " ")), "?.,:;!-") . '...';
 			}
 		}
 	

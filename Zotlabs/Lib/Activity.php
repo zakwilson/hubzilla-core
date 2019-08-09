@@ -75,7 +75,7 @@ class Activity {
 
 		if($x['success']) {
 			$y = json_decode($x['body'],true);
-			logger('returned: ' . json_encode($y,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+			logger('returned: ' . json_encode($y,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES), LOGGER_DEBUG);
 			return json_decode($x['body'], true);
 		}
 		else {

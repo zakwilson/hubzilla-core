@@ -205,20 +205,25 @@ function zidify_text($s) {
  */
 function red_zrl_callback($matches) {
 
-	$zrl = is_matrix_url($matches[2]);
-
-	$t = strip_zids($matches[2]);
-	if($t !== $matches[2]) {
-		$zrl = true;
-		$matches[2] = $t;
-	}
-
-	if($matches[1] === '#^')
-		$matches[1] = '';
-	if($zrl)
-		return $matches[1] . '#^[zrl=' . $matches[2] . ']' . $matches[2] . '[/zrl]';
-
-	return $matches[1] . '#^[url=' . $matches[2] . ']' . $matches[2] . '[/url]';
+    // Catch and exclude trailing punctuation
+    preg_match("/[.,;:!?)]*$/i", $matches[2], $pts);
+    $matches[2] = substr($matches[2], 0, strlen($matches[2])-strlen($pts[0]));
+        
+    $zrl = is_matrix_url($matches[2]);
+    
+    $t = strip_zids($matches[2]);
+    if($t !== $matches[2]) {
+        $zrl = true;
+        $matches[2] = $t;
+    }
+    
+    if($matches[1] === '#^')
+        $matches[1] = '';
+        
+    if($zrl)
+        return $matches[1] . '#^[zrl=' . $matches[2] . ']' . $matches[2] . '[/zrl]' . $pts[0];
+        
+    return $matches[1] . '#^[url=' . $matches[2] . ']' . $matches[2] . '[/url]' . $pts[0];
 }
 
 /**

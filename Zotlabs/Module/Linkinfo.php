@@ -2,9 +2,6 @@
 namespace Zotlabs\Module;
 
 
-
-
-
 class Linkinfo extends \Zotlabs\Web\Controller {
 
 	function get() {
@@ -48,7 +45,20 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		}
 	
 		logger('linkinfo: ' . $url);
-	
+		
+        // Replace plink URL with 'share' tag if possible
+        if (preg_match("/mid=b64\.(\w+)(&.+)?$/", $url, $mid)) {
+            
+            $r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+                dbesc(base64url_decode($mid[1])),
+                intval(local_channel())
+            );
+            if ($r) {
+                echo "[share=" . $r[0]['id'] . "][/share]";
+                killme();
+            }
+        }
+
 		$result = z_fetch_url($url,false,0,array('novalidate' => true, 'nobody' => true));
 		if($result['success']) {
 			$hdrs=array();

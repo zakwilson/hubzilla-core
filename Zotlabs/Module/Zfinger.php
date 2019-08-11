@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Web\HTTPSig;
 
 class Zfinger extends \Zotlabs\Web\Controller {
 
@@ -23,10 +24,9 @@ class Zfinger extends \Zotlabs\Web\Controller {
 		$ret = json_encode($x);
 
 		if($chan) {
-			$hash = \Zotlabs\Web\HTTPSig::generate_digest($ret,false);
-			$headers['Digest'] = 'SHA-256=' . $hash;  
-			\Zotlabs\Web\HTTPSig::create_sig('',$headers,$chan['channel_prvkey'],
-				'acct:' . $chan['channel_address'] . '@' . \App::get_hostname(),true);
+			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
+			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'],'acct:' . channel_reddress($chan));
+			HTTPSig::set_headers($h);
 		}
 		else {
 			foreach($headers as $k => $v) {

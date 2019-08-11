@@ -1,6 +1,10 @@
 <?php
 namespace Zotlabs\Module;
 
+
+use App;
+use Zotlabs\Web\Controller;
+
 require_once('include/conversation.php');
 require_once('include/bbcode.php');
 require_once('include/datetime.php');
@@ -9,14 +13,12 @@ require_once('include/items.php');
 require_once('include/html2plain.php');
 
 
-class Cal extends \Zotlabs\Web\Controller {
+class Cal extends Controller {
 
 	function init() {
 		if(observer_prohibited()) {
 			return;
 		}
-	
-		$o = '';
 	
 		if(argc() > 1) {
 			$nick = argv(1);
@@ -25,19 +27,21 @@ class Cal extends \Zotlabs\Web\Controller {
 	
 			$channelx = channelx_by_nick($nick);
 	
-			if(! $channelx)
+			if(! $channelx) {
+				notice( t('Channel not found.') . EOL);
 				return;
+			}
 	
-			\App::$data['channel'] = $channelx;
+			App::$data['channel'] = $channelx;
 	
-			$observer = \App::get_observer();
-			\App::$data['observer'] = $observer;
+			$observer = App::get_observer();
+			App::$data['observer'] = $observer;
 	
 			$observer_xchan = (($observer) ? $observer['xchan_hash'] : '');
 	
-			head_set_icon(\App::$data['channel']['xchan_photo_s']);
+			head_set_icon(App::$data['channel']['xchan_photo_s']);
 	
-			\App::$page['htmlhead'] .= "<script> var profile_uid = " . ((\App::$data['channel']) ? \App::$data['channel']['channel_id'] : 0) . "; </script>" ;
+			App::$page['htmlhead'] .= "<script> var profile_uid = " . ((App::$data['channel']) ? App::$data['channel']['channel_id'] : 0) . "; </script>" ;
 	
 		}
 	
@@ -52,18 +56,8 @@ class Cal extends \Zotlabs\Web\Controller {
 			return;
 		}
 		
-		$channel = null;
-	
-		if(argc() > 1) {
-			$channel = channelx_by_nick(argv(1));
-		}
-	
-	
-		if(! $channel) {
-			notice( t('Channel not found.') . EOL);
-			return;
-		}
-	
+		$channel = App::$data['channel'];
+
 		// since we don't currently have an event permission - use the stream permission
 	
 		if(! perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_stream')) {
@@ -72,287 +66,152 @@ class Cal extends \Zotlabs\Web\Controller {
 		}
 
 		nav_set_selected('Calendar');
+
+		head_add_css('/library/fullcalendar/packages/core/main.min.css');
+		head_add_css('/library/fullcalendar/packages/daygrid/main.min.css');
+		head_add_css('cdav_calendar.css');
+
+		head_add_js('/library/fullcalendar/packages/core/main.min.js');
+		head_add_js('/library/fullcalendar/packages/daygrid/main.min.js');
+
+		$sql_extra = permissions_sql($channel['channel_id'], get_observer_hash(), 'event');
+
+		if(! perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_contacts') || App::$profile['hide_friends'])
+			$sql_extra .= " and etype != 'birthday' ";
 	
-		$sql_extra = permissions_sql($channel['channel_id'],get_observer_hash(),'event');
-	
-		$first_day = feature_enabled($channel['channel_id'], 'events_cal_first_day');
+		$first_day = feature_enabled($channel['channel_id'], 'cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
 	
-		$htpl = get_markup_template('event_head.tpl');
-		\App::$page['htmlhead'] .= replace_macros($htpl,array(
-			'$baseurl' => z_root(),
-			'$module_url' => '/cal/' . $channel['channel_address'],
-			'$modparams' => 2,
-			'$lang' => \App::$language,
-			'$first_day' => $first_day
-		));
-	
-		$o = '';
-	
-		$mode = 'view';
-		$y = 0;
-		$m = 0;
-		$ignored = ((x($_REQUEST,'ignored')) ? " and dismissed = " . intval($_REQUEST['ignored']) . " "  : '');
-	
-		// logger('args: ' . print_r(\App::$argv,true));
-	
-		if(argc() > 3 && intval(argv(2)) && intval(argv(3))) {
-			$mode = 'view';
-			$y = intval(argv(2));
-			$m = intval(argv(3));
-		}
-		if(argc() <= 3) {
-			$mode = 'view';
-			$event_id = argv(2);
+		$start = '';
+		$finish = '';
+
+		if (argv(2) === 'json') {
+			if (x($_GET,'start'))	$start = $_GET['start'];
+			if (x($_GET,'end'))	$finish = $_GET['end'];
 		}
 	
-		if($mode == 'view') {
-	
-			/* edit/create form */
-			if($event_id) {
-				$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
-					dbesc($event_id),
-					intval($channel['channel_id'])
-				);
-				if(count($r))
-					$orig_event = $r[0];
-			}
-	
-	
-			// Passed parameters overrides anything found in the DB
-			if(!x($orig_event))
-				$orig_event = array();
-	
-	
-	
-			$tz = date_default_timezone_get();
-			if(x($orig_event))
-				$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
-	
-			$syear = datetime_convert('UTC', $tz, $sdt, 'Y');
-			$smonth = datetime_convert('UTC', $tz, $sdt, 'm');
-			$sday = datetime_convert('UTC', $tz, $sdt, 'd');
-			$shour = datetime_convert('UTC', $tz, $sdt, 'H');
-			$sminute = datetime_convert('UTC', $tz, $sdt, 'i');
-	
-			$stext = datetime_convert('UTC',$tz,$sdt);
-			$stext = substr($stext,0,14) . "00:00";
-	
-			$fyear = datetime_convert('UTC', $tz, $fdt, 'Y');
-			$fmonth = datetime_convert('UTC', $tz, $fdt, 'm');
-			$fday = datetime_convert('UTC', $tz, $fdt, 'd');
-			$fhour = datetime_convert('UTC', $tz, $fdt, 'H');
-			$fminute = datetime_convert('UTC', $tz, $fdt, 'i');
-	
-			$ftext = datetime_convert('UTC',$tz,$fdt);
-			$ftext = substr($ftext,0,14) . "00:00";
-	
-			$type = ((x($orig_event)) ? $orig_event['etype'] : 'event');
-	
-			$f = get_config('system','event_input_format');
-			if(! $f)
-				$f = 'ymd';
-	
-			$catsenabled = feature_enabled($channel['channel_id'],'categories');
-	
-	
-			$show_bd = perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_contacts');
-			if(! $show_bd) {
-				$sql_extra .= " and event.etype != 'birthday' ";
-			}
-	
-	
-			$category = '';
-	
-			$thisyear = datetime_convert('UTC',date_default_timezone_get(),'now','Y');
-			$thismonth = datetime_convert('UTC',date_default_timezone_get(),'now','m');
-			if(! $y)
-				$y = intval($thisyear);
-			if(! $m)
-				$m = intval($thismonth);
-	
-			// Put some limits on dates. The PHP date functions don't seem to do so well before 1900.
-			// An upper limit was chosen to keep search engines from exploring links millions of years in the future. 
-	
-			if($y < 1901)
-				$y = 1900;
-			if($y > 2099)
-				$y = 2100;
-	
-			$nextyear = $y;
-			$nextmonth = $m + 1;
-			if($nextmonth > 12) {
-					$nextmonth = 1;
-				$nextyear ++;
-			}
-	
-			$prevyear = $y;
-			if($m > 1)
-				$prevmonth = $m - 1;
-			else {
-				$prevmonth = 12;
-				$prevyear --;
-			}
-				
-			$dim    = get_dim($y,$m);
-			$start  = sprintf('%d-%d-%d %d:%d:%d',$y,$m,1,0,0,0);
-			$finish = sprintf('%d-%d-%d %d:%d:%d',$y,$m,$dim,23,59,59);
-	
-	
-			if (argv(2) === 'json'){
-				if (x($_GET,'start'))	$start = $_GET['start'];
-				if (x($_GET,'end'))	$finish = $_GET['end'];
-			}
-	
-			$start  = datetime_convert('UTC','UTC',$start);
-			$finish = datetime_convert('UTC','UTC',$finish);
-	
-			$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
-			$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
-	
+		$start  = datetime_convert('UTC','UTC',$start);
+		$finish = datetime_convert('UTC','UTC',$finish);
+		$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
+		$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
 
-			if(! perm_is_allowed(\App::$profile['uid'],get_observer_hash(),'view_contacts'))
-				$sql_extra .= " and etype != 'birthday' ";
+		if (x($_GET, 'id')) {
+			$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
+                                from event left join item on item.resource_id = event.event_hash
+				where item.resource_type = 'event' and event.uid = %d and event.id = %d $sql_extra limit 1",
+				intval($channel['channel_id']),
+				intval($_GET['id'])
+			);
+		}
+		else {
+			// fixed an issue with "nofinish" events not showing up in the calendar.
+			// There's still an issue if the finish date crosses the end of month.
+			// Noting this for now - it will need to be fixed here and in Friendica.
+			// Ultimately the finish date shouldn't be involved in the query.
+			$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
+				from event left join item on event.event_hash = item.resource_id 
+				where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid 
+				AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
+				OR (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) 
+				$sql_extra",
+				intval($channel['channel_id']),
+				dbesc($start),
+				dbesc($finish),
+				dbesc($adjust_start),
+				dbesc($adjust_finish)
+			);
+		}
+	
+		if($r) {
+			xchan_query($r);
+			$r = fetch_post_tags($r,true);
+			$r = sort_by_date($r);
+		}
 
-			if (x($_GET,'id')){
-			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
-	                                from event left join item on resource_id = event_hash where resource_type = 'event' and event.uid = %d and event.id = %d $sql_extra limit 1",
-					intval($channel['channel_id']),
-					intval($_GET['id'])
-				);
-			} 
-			else {
-				// fixed an issue with "nofinish" events not showing up in the calendar.
-				// There's still an issue if the finish date crosses the end of month.
-				// Noting this for now - it will need to be fixed here and in Friendica.
-				// Ultimately the finish date shouldn't be involved in the query. 
+		$events = [];
 	
-				$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan
-	                              from event left join item on event_hash = resource_id 
-					where resource_type = 'event' and event.uid = %d and event.uid = item.uid $ignored 
-					AND (( adjust = 0 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' ) 
-					OR  (  adjust = 1 AND ( dtend >= '%s' or nofinish = 1 ) AND dtstart <= '%s' )) $sql_extra ",
-					intval($channel['channel_id']),
-					dbesc($start),
-					dbesc($finish),
-					dbesc($adjust_start),
-					dbesc($adjust_finish)
-				);
-	
-			}
-	
-			$links = array();
-	
-			if($r) {
-				xchan_query($r);
-				$r = fetch_post_tags($r,true);
-	
-				$r = sort_by_date($r);
-			}
-	
-			if($r) {
-				foreach($r as $rr) {
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
-					if(! x($links,$j)) 
-						$links[$j] = z_root() . '/' . \App::$cmd . '#link-' . $j;
+		if($r) {
+
+			foreach($r as $rr) {
+
+				$tz = get_iconfig($rr, 'event', 'timezone');
+				if(! $tz)
+					$tz = 'UTC';
+
+				$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
+				if ($rr['nofinish']){
+					$end = null;
+				} else {
+					$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
 				}
-			}
-	
-			$events=array();
-	
-			$last_date = '';
-			$fmt = t('l, F j');
-	
-			if($r) {
-	
-				foreach($r as $rr) {
-					
-					$j = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'j') : datetime_convert('UTC','UTC',$rr['dtstart'],'j'));
-					$d = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], $fmt) : datetime_convert('UTC','UTC',$rr['dtstart'],$fmt));
-					$d = day_translate($d);
-					
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
-					if ($rr['nofinish']){
-						$end = null;
-					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
-					}
-					
-					
-					$is_first = ($d !== $last_date);
-						
-					$last_date = $d;
-	
-					$edit = false;
-	
-					$drop = false;
-	
-					$title = strip_tags(html_entity_decode(bbcode($rr['summary']),ENT_QUOTES,'UTF-8'));
-					if(! $title) {
-						list($title, $_trash) = explode("<br",bbcode($rr['desc']),2);
-						$title = strip_tags(html_entity_decode($title,ENT_QUOTES,'UTF-8'));
-					}
+
+				$html = '';
+				if (x($_GET,'id')) {
+					$rr['timezone'] = $tz;
 					$html = format_event_html($rr);
-					$rr['desc'] = zidify_links(smilies(bbcode($rr['desc'])));
-					$rr['description'] = htmlentities(html2plain(bbcode($rr['description'])),ENT_COMPAT,'UTF-8',false);
-					$rr['location'] = zidify_links(smilies(bbcode($rr['location'])));
-					$events[] = array(
-						'id'=>$rr['id'],
-						'hash' => $rr['event_hash'],
-						'start'=> $start,
-						'end' => $end,
-						'drop' => $drop,
-						'allDay' => false,
-						'title' => $title,
-						
-						'j' => $j,
-						'd' => $d,
-						'edit' => $edit,
-						'is_first'=>$is_first,
-						'item'=>$rr,
-						'html'=>$html,
-						'plink' => array($rr['plink'],t('Link to Source'),'',''),
-					);
-	
-	
 				}
+
+				$events[] = array(
+					'calendar_id' => 'channel_calendar',
+					'rw' => true,
+					'id'=>$rr['id'],
+					'uri' => $rr['event_hash'],
+					'timezone' => $tz,
+					'start'=> $start,
+					'end' => $end,
+					'drop' => $drop,
+					'allDay' => (($rr['adjust']) ? 0 : 1),
+					'title' => html_entity_decode($rr['summary'], ENT_COMPAT, 'UTF-8'),
+					'editable' => $edit ? true : false,
+					'item' => $rr,
+					'plink' => [$rr['plink'], t('Link to source')],
+					'description' => html_entity_decode($rr['description'], ENT_COMPAT, 'UTF-8'),
+					'location' => html_entity_decode($rr['location'], ENT_COMPAT, 'UTF-8'),
+					'allow_cid' => expand_acl($rr['allow_cid']),
+					'allow_gid' => expand_acl($rr['allow_gid']),
+					'deny_cid' => expand_acl($rr['deny_cid']),
+					'deny_gid' => expand_acl($rr['deny_gid']),
+					'html' => $html
+				);
 			}
-			
-			if (argv(2) === 'json'){
-				echo json_encode($events); killme();
-			}
-			
-			// links: array('href', 'text', 'extra css classes', 'title')
-			if (x($_GET,'id')){
-				$tpl =  get_markup_template("event_cal.tpl");
-			} 
-			else {
-				$tpl = get_markup_template("events_cal-js.tpl");
-			}
-	
-			$nick = $channel['channel_address'];
-	
-			$o = replace_macros($tpl, array(
-				'$baseurl'	=> z_root(),
-				'$new_event'	=> array(z_root().'/cal',(($event_id) ? t('Edit Event') : t('Create Event')),'',''),
-				'$previus'	=> array(z_root()."/cal/$nick/$prevyear/$prevmonth",t('Previous'),'',''),
-				'$next'		=> array(z_root()."/cal/$nick/$nextyear/$nextmonth",t('Next'),'',''),
-				'$export'	=> array(z_root()."/cal/$nick/$y/$m/export",t('Export'),'',''),
-				'$calendar'	=> cal($y,$m,$links, ' eventcal'),
-				'$events'	=> $events,
-				'$upload'	=> t('Import'),
-				'$submit'	=> t('Submit'),
-				'$prev'		=> t('Previous'),
-				'$next'		=> t('Next'),
-				'$today'	=> t('Today'),
-				'$form'		=> $form,
-				'$expandform'	=> ((x($_GET,'expandform')) ? true : false)
-			));
-			
-			if (x($_GET,'id')){ echo $o; killme(); }
-			
-			return $o;
 		}
+
+		if (argv(2) === 'json') {
+			echo json_encode($events);
+			killme();
+		}
+			
+		if (x($_GET,'id')) {
+			$o = replace_macros(get_markup_template("cal_event.tpl"), [
+				'$events' => $events
+			]);
+			echo $o;
+			killme();
+		}
+
+		$nick = $channel['channel_address'];
+
+		$sources = '{
+			id: \'channel_calendar\',
+			url: \'/cal/' . $nick . '/json/\',
+			color: \'#3a87ad\'
+		}';
+
+		$o = replace_macros(get_markup_template("cal_calendar.tpl"), [
+			'$sources' => $sources,
+			'$lang' => App::$language,
+			'$timezone' => date_default_timezone_get(),
+			'$first_day' => $first_day,
+			'$prev'	=> t('Previous'),
+			'$next'	=> t('Next'),
+			'$today' => t('Today'),
+			'$title' => $title,
+			'$dtstart' => $dtstart,
+			'$dtend' => $dtend,
+			'$nick' => $nick
+		]);
+
+		return $o;
 	
 	}
 	

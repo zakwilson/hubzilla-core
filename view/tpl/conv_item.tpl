@@ -9,12 +9,12 @@
 		<div class="wall-item-outside-wrapper{{if $item.is_comment}} comment{{/if}}{{if $item.previewing}} preview{{/if}}" data-mid="{{$item.mid}}" id="wall-item-outside-wrapper-{{$item.id}}" >
 			<div class="clearfix wall-item-content-wrapper{{if $item.is_comment}} comment{{/if}}" id="wall-item-content-wrapper-{{$item.id}}">
 				{{if $item.photo}}
-				<div class="wall-photo-item{{if $item.is_new && !$item.title}} wall-item-head-new rounded-top{{/if}}" id="wall-photo-item-{{$item.id}}">
+				<div class="wall-photo-item" id="wall-photo-item-{{$item.id}}">
 					{{$item.photo}}
 				</div>
 				{{/if}}
 				{{if $item.event}}
-				<div class="wall-event-item{{if $item.is_new && !$item.title}} wall-item-head-new rounded-top{{/if}}" id="wall-event-item-{{$item.id}}">
+				<div class="wall-event-item" id="wall-event-item-{{$item.id}}">
 					{{$item.event}}
 				</div>
 				{{/if}}
@@ -26,7 +26,7 @@
 				<hr class="m-0">
 				{{/if}}
 				{{/if}}
-				<div class="p-2 clearfix wall-item-head{{if $item.is_new && !$item.title && !$item.event && !$item.is_comment && !$item.photo}} wall-item-head-new rounded-top{{/if}}" >
+				<div class="p-2 clearfix wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}}" >
 					{{if $item.thr_parent}}
 						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" title="{{$item.top_hint}}" class="float-right"><i class="fa fa-angle-double-up">&nbsp;&nbsp;&nbsp;</i></a>
 					{{/if}}

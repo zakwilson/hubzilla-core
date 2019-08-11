@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
+use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 
@@ -41,7 +42,7 @@ class Cdav extends Controller {
 						continue;
 					}
 
-					$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER[$head]);
+					$sigblock = HTTPSig::parse_sigheader($_SERVER[$head]);
 					if($sigblock) {
 						$keyId = str_replace('acct:','',$sigblock['keyId']);
 						if($keyId) {
@@ -64,7 +65,7 @@ class Cdav extends Controller {
 								continue;
 
 							if($record) {
-								$verified = \Zotlabs\Web\HTTPSig::verify('',$record['channel']['channel_pubkey']);
+								$verified = HTTPSig::verify('',$record['channel']['channel_pubkey']);
 								if(! ($verified && $verified['header_signed'] && $verified['header_valid'])) {
 									$record = null;
 								}
@@ -271,11 +272,17 @@ class Cdav extends Controller {
 				if(!cdav_perms($id[0],$calendars,true))
 					return;
 
+				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
+				$tz = (($timezone) ? $timezone : date_default_timezone_get());
+
+				$allday = $_REQUEST['allday'];
+
 				$title = $_REQUEST['title'];
-				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
+
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 				$description = $_REQUEST['description'];
@@ -301,16 +308,23 @@ class Cdav extends Controller {
 					'DTSTART' => $dtstart
 				    ]
 				]);
+
 				if($dtend) {
 					$vcalendar->VEVENT->add('DTEND', $dtend);
-					$vcalendar->VEVENT->DTEND['TZID'] = App::$timezone;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
 				}
 				if($description)
 					$vcalendar->VEVENT->add('DESCRIPTION', $description);
 				if($location)
 					$vcalendar->VEVENT->add('LOCATION', $location);
 
-				$vcalendar->VEVENT->DTSTART['TZID'] = App::$timezone;
+				if($allday)
+					$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+				else
+					$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
 
 				$calendarData = $vcalendar->serialize();
 
@@ -348,12 +362,17 @@ class Cdav extends Controller {
 				if(!cdav_perms($id[0],$calendars,true))
 					return;
 
+				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
+				$tz = (($timezone) ? $timezone : date_default_timezone_get());
+
+				$allday = $_REQUEST['allday'];
+
 				$uri = $_REQUEST['uri'];
 				$title = $_REQUEST['title'];
-				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 				$description = $_REQUEST['description'];
@@ -365,12 +384,23 @@ class Cdav extends Controller {
 
 				if($title)
 					$vcalendar->VEVENT->SUMMARY = $title;
-				if($dtstart)
+				if($dtstart) {
 					$vcalendar->VEVENT->DTSTART = $dtstart;
-				if($dtend)
+					if($allday)
+						$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
+				}
+				if($dtend) {
 					$vcalendar->VEVENT->DTEND = $dtend;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
+				}
 				else
 					unset($vcalendar->VEVENT->DTEND);
+
 				if($description)
 					$vcalendar->VEVENT->DESCRIPTION = $description;
 				if($location)
@@ -406,11 +436,16 @@ class Cdav extends Controller {
 				if(!cdav_perms($id[0],$calendars,true))
 					return;
 
+				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
+				$tz = (($timezone) ? $timezone : date_default_timezone_get());
+
+				$allday = $_REQUEST['allday'];
+
 				$uri = $_REQUEST['uri'];
-				$start = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtstart']);
+				$start = datetime_convert('UTC', 'UTC', $_REQUEST['dtstart']);
 				$dtstart = new \DateTime($start);
 				if($_REQUEST['dtend']) {
-					$end = datetime_convert(App::$timezone, 'UTC', $_REQUEST['dtend']);
+					$end = datetime_convert('UTC', 'UTC', $_REQUEST['dtend']);
 					$dtend = new \DateTime($end);
 				}
 
@@ -420,13 +455,20 @@ class Cdav extends Controller {
 
 				if($dtstart) {
 					$vcalendar->VEVENT->DTSTART = $dtstart;
+					if($allday)
+						$vcalendar->VEVENT->DTSTART['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
 				}
 				if($dtend) {
 					$vcalendar->VEVENT->DTEND = $dtend;
+					if($allday)
+						$vcalendar->VEVENT->DTEND['VALUE'] = 'DATE';
+					else
+						$vcalendar->VEVENT->DTEND['TZID'] = $tz;
 				}
-				else {
+				else
 					unset($vcalendar->VEVENT->DTEND);
-				}
 
 				$calendarData = $vcalendar->serialize();
 
@@ -915,8 +957,13 @@ class Cdav extends Controller {
 					xchan_query($r);
 					$r = fetch_post_tags($r,true);
 
-					$r[0]['dtstart'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtstart'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtstart'],'c'));
-					$r[0]['dtend'] = (($r[0]['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$r[0]['dtend'], 'c') : datetime_convert('UTC','UTC',$r[0]['dtend'],'c'));
+					$tz = get_iconfig($r[0], 'event', 'timezone');
+					if(! $tz)
+						$tz = 'UTC';
+
+					$r[0]['timezone'] = $tz;
+					$r[0]['dtstart'] = (($r[0]['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $r[0]['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $r[0]['dtstart'], 'c'));
+					$r[0]['dtend'] = (($r[0]['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $r[0]['dtend'], 'c') : datetime_convert('UTC', 'UTC' ,$r[0]['dtend'], 'c'));
 
 					$r[0]['plink'] = [$r[0]['plink'], t('Link to source')];
 
@@ -984,9 +1031,11 @@ class Cdav extends Controller {
 			$first_day = feature_enabled(local_channel(), 'cal_first_day');
 			$first_day = (($first_day) ? $first_day : 0);
 
-			$title = ['title', t('Event title')];
+			$title = ['title', t('Event title') ];
 			$dtstart = ['dtstart', t('Start date and time')];
 			$dtend = ['dtend', t('End date and time')];
+			$timezone_select = ['timezone_select' , t('Timezone:'), date_default_timezone_get(), '', get_timezones()];
+
 			$description = ['description', t('Description')];
 			$location = ['location', t('Location')];
 
@@ -1000,14 +1049,13 @@ class Cdav extends Controller {
 			//$acl = (($orig_event['event_xchan']) ? '' : populate_acl(((x($orig_event)) ? $orig_event : $perm_defaults), false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream')));
 			$acl = populate_acl($perm_defaults, false, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'));
 
-			//$permissions = ((x($orig_event)) ? $orig_event : $perm_defaults);
-			$permissions = $perm_defaults;
+			$permissions = (($resource_id) ? $resource : $perm_defaults);
 
 			$o .= replace_macros(get_markup_template('cdav_calendar.tpl'), [
 				'$sources' => $sources,
 				'$color' => $color,
 				'$lang' => App::$language,
-				'$timezone' => App::$timezone,
+				'$timezone' => date_default_timezone_get(),
 				'$first_day' => $first_day,
 				'$prev'	=> t('Previous'),
 				'$next'	=> t('Next'),
@@ -1047,7 +1095,8 @@ class Cdav extends Controller {
 				'$categories_label' => t('Categories'),
 
 				'$resource' => json_encode($resource),
-				'$categories' => $categories
+				'$categories' => $categories,
+				'$timezone_select' => ((feature_enabled(local_channel(),'event_tz_select')) ? $timezone_select : '')
 			]);
 
 			return $o;
@@ -1076,8 +1125,8 @@ class Cdav extends Controller {
 			$filters['comp-filters'][0]['time-range']['end'] = $end;
 
 			$uris = $caldavBackend->calendarQuery($id, $filters);
-
 			if($uris) {
+
 				$objects = $caldavBackend->getMultipleCalendarObjects($id, $uris);
 				foreach($objects as $object) {
 
@@ -1096,30 +1145,33 @@ class Cdav extends Controller {
 						$dtend = (string)$vevent->DTEND;
 						$description = (string)$vevent->DESCRIPTION;
 						$location = (string)$vevent->LOCATION;
-						$timezone = (string)$vevent->DTSTART['TZID'];
+						$timezone_str = (string)$vevent->DTSTART['TZID'];
 						$rw = ((cdav_perms($id[0],$calendars,true)) ? true : false);
 						$editable = $rw ? true : false;
 						$recurrent = ((isset($vevent->{'RECURRENCE-ID'})) ? true : false);
 
 						if($recurrent) {
 							$editable = false;
-							$timezone = $recurrent_timezone;
+							$timezone_str = $recurrent_timezone;
 						}
 
-						$allDay = false;
+						// Try to get an usable olson format timezone
+						$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($timezone_str, $vcalendar);
+						$timezone = $timezone_obj->getName();
 
-						// allDay event rules
-						if(!strpos($dtstart, 'T') && !strpos($dtend, 'T'))
-							$allDay = true;
-						if(strpos($dtstart, 'T000000') && strpos($dtend, 'T000000'))
-							$allDay = true;
+						// If we got nothing fallback to UTC
+						if(! $timezone)
+							$timezone = 'UTC';
+
+						$allDay = (((string)$vevent->DTSTART['VALUE'] == 'DATE') ? true : false);
 
 						$events[] = [
 							'calendar_id' => $id,
 							'uri' => $object['uri'],
 							'title' => $title,
-							'start' => datetime_convert($timezone, $timezone, $dtstart, 'c'),
-							'end' => (($dtend) ? datetime_convert($timezone, $timezone, $dtend, 'c') : ''),
+							'timezone' => $timezone,
+							'start' => datetime_convert($timezone, date_default_timezone_get(), $dtstart, 'c'),
+							'end' => (($dtend) ? datetime_convert($timezone, date_default_timezone_get(), $dtend, 'c') : ''),
 							'description' => $description,
 							'location' => $location,
 							'allDay' => $allDay,

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Web\HTTPSig;
+
 /**
  * OpenWebAuth verifier and token generator
  * See https://macgirvin.com/wiki/mike/OpenWebAuth/Home
@@ -25,7 +27,7 @@ class Owa extends \Zotlabs\Web\Controller {
 					continue;
 				}
 
-				$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER[$head]);
+				$sigblock = HTTPSig::parse_sigheader($_SERVER[$head]);
 				if($sigblock) {
 					$keyId = $sigblock['keyId'];
 
@@ -65,7 +67,7 @@ class Owa extends \Zotlabs\Web\Controller {
 						
 						if ($r) {
 							foreach($r as $hubloc) {
-								$verified = \Zotlabs\Web\HTTPSig::verify(file_get_contents('php://input'),$hubloc['xchan_pubkey']);	
+								$verified = HTTPSig::verify(file_get_contents('php://input'),$hubloc['xchan_pubkey']);	
 								if($verified && $verified['header_signed'] && $verified['header_valid']) {
 									logger('OWA header: ' . print_r($verified,true),LOGGER_DATA);	
 									logger('OWA success: ' . $hubloc['hubloc_addr'],LOGGER_DATA);

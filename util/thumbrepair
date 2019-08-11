@@ -1,0 +1,74 @@
+#!/usr/bin/env php
+<?php
+
+// Recreate local thumbnails
+require_once('include/cli_startup.php');
+require_once('include/photo/photo_driver.php');
+
+cli_startup();
+
+$x = q("SELECT resource_id, content, width, height, mimetype, os_path FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+
+if($x) {
+	foreach($x as $xx) {
+		
+		$im = photo_factory(@file_get_contents(dbunescbin($xx['content'])), $xx['mimetype']);
+					
+		$width = $xx['width'];
+		$height = $xx['height'];
+
+		$n = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale > 0",
+			dbesc($xx['resource_id'])
+		);
+					
+		foreach($n as $nn) {
+
+			echo $nn['imgscale'];
+
+			$nn['os_path'] = $xx['os_path'];
+
+			switch ($nn['imgscale']) {
+				case 1:
+					if($width > 1024 || $height > 1024) 
+						$im->scaleImage(1024);
+					$im->storeThumbnail($nn, PHOTO_RES_1024);
+					break;
+				case 2:
+					if($width > 640 || $height > 640) 
+						$im->scaleImage(640);
+					$im->storeThumbnail($nn, PHOTO_RES_640);
+					break;
+				case 3:
+					if($width > 320 || $height > 320) 
+						$im->scaleImage(320);
+					$im->storeThumbnail($nn, PHOTO_RES_320);
+					break;
+				case 4:
+				    $im->scaleImage(300);
+					$im->storeThumbnail($nn, PHOTO_RES_PROFILE_300);
+					break;
+				case 5:
+					$im->scaleImage(80);
+					$im->storeThumbnail($nn, PHOTO_RES_PROFILE_80);
+					break;
+				case 6:
+					$im->scaleImage(48);
+					$im->storeThumbnail($nn, PHOTO_RES_PROFILE_48);
+					break;
+				case 7:
+				    $im->doScaleImage(1200,435);
+					$im->storeThumbnail($nn, PHOTO_RES_COVER_1200);
+					break;
+				case 8:
+					$im->doScaleImage(850,310);
+					$im->storeThumbnail($nn, PHOTO_RES_COVER_850);
+					break;
+				case 9:
+					$im->doScaleImage(425,160);
+					$im->storeThumbnail($nn, PHOTO_RES_COVER_425);
+					break;
+			}
+		}	
+	}
+}
+

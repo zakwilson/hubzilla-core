@@ -303,9 +303,8 @@ function zot_zot($url, $data, $channel = null,$crypto = null) {
 
 	if($channel) {
 		$headers['X-Zot-Token'] = random_string();
-		$hash = \Zotlabs\Web\HTTPSig::generate_digest($data,false);
-		$headers['X-Zot-Digest'] = 'SHA-256=' . $hash;
-		$h = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
+		$headers['X-Zot-Digest'] = \Zotlabs\Web\HTTPSig::generate_digest_header($data);
+		$h = \Zotlabs\Web\HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
 	}
 
 	$redirects = 0;
@@ -2241,7 +2240,7 @@ function delete_imported_item($sender, $item, $uid, $relay) {
 	$item_found = false;
 	$post_id = 0;
 
-	$r = q("select id, author_xchan, owner_xchan, source_xchan, item_deleted from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
+	$r = q("select * from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
 		and mid = '%s' and uid = %d limit 1",
 		dbesc($sender['hash']),
 		dbesc($sender['hash']),
@@ -2251,10 +2250,13 @@ function delete_imported_item($sender, $item, $uid, $relay) {
 	);
 
 	if($r) {
-		if($r[0]['author_xchan'] === $sender['hash'] || $r[0]['owner_xchan'] === $sender['hash'] || $r[0]['source_xchan'] === $sender['hash'])
+
+		$stored = $r[0];
+
+		if($stored['author_xchan'] === $sender['hash'] || $stored['owner_xchan'] === $sender['hash'] || $stored['source_xchan'] === $sender['hash'])
 			$ownership_valid = true;
 
-		$post_id = $r[0]['id'];
+		$post_id = $stored['id'];
 		$item_found = true;
 	}
 	else {
@@ -2278,10 +2280,29 @@ function delete_imported_item($sender, $item, $uid, $relay) {
 		return false;
 	}
 
+	if ($stored['resource_type'] === 'event') {
+		$i = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
+			dbesc($stored['resource_id']),
+			intval($uid)
+		);
+		if ($i) {
+			if ($i[0]['event_xchan'] === $sender['hash']) {
+				q("delete from event where event_hash = '%s' and uid = %d",
+					dbesc($stored['resource_id']),
+					intval($uid)
+				);
+			}
+			else {
+				logger('delete linked event: not owner');
+				return;
+			}
+		}
+	}
+
 	require_once('include/items.php');
 
 	if($item_found) {
-		if(intval($r[0]['item_deleted'])) {
+		if(intval($stored['item_deleted'])) {
 			logger('delete_imported_item: item was already deleted');
 			if(! $relay)
 				return false;
@@ -2293,10 +2314,10 @@ function delete_imported_item($sender, $item, $uid, $relay) {
 			// back, and we aren't going to (or shouldn't at any rate) delete it again in the future - so losing
 			// this information from the metadata should have no other discernible impact.
 
-			if (($r[0]['id'] != $r[0]['parent']) && intval($r[0]['item_origin'])) {
+			if (($stored['id'] != $stored['parent']) && intval($stored['item_origin'])) {
 				q("update item set item_origin = 0 where id = %d and uid = %d",
-					intval($r[0]['id']),
-					intval($r[0]['uid'])
+					intval($stored['id']),
+					intval($stored['uid'])
 				);
 			}
 		}
@@ -4430,7 +4451,7 @@ function zotinfo($arr) {
 
 		$profile['description']   = $p[0]['pdesc'];
 		$profile['birthday']      = $p[0]['dob'];
-		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],$e['channel_timezone'])) !== ''))
+		if(($profile['birthday'] != '0000-00-00') && (($bd = z_birthday($p[0]['dob'],'UTC')) !== ''))
 			$profile['next_birthday'] = $bd;
 
 		if($age = age($p[0]['dob'],$e['channel_timezone'],''))

@@ -261,7 +261,7 @@ function photo_upload($channel, $observer, $args) {
 	$r0 = $ph->save($p);
 	$link[0] = array(
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
 		'width' => $width,
 		'height' => $height
@@ -280,7 +280,7 @@ function photo_upload($channel, $observer, $args) {
 	$r1 = $ph->storeThumbnail($p, PHOTO_RES_1024);
 	$link[1] = array(
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
@@ -294,7 +294,7 @@ function photo_upload($channel, $observer, $args) {
 	$r2 = $ph->storeThumbnail($p, PHOTO_RES_640);
 	$link[2] = array(
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
@@ -308,7 +308,7 @@ function photo_upload($channel, $observer, $args) {
 	$r3 = $ph->storeThumbnail($p, PHOTO_RES_320);
 	$link[3] = array(
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
 		'width' => $ph->getWidth(),
 		'height' => $ph->getHeight()
@@ -390,7 +390,7 @@ function photo_upload($channel, $observer, $args) {
 		'edited'  => $p['edited'],
 		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash,
 		'link'    => $link,
-		'body'    => $obj_body
+		'body'    => $summary
 	);
 
 	$target = array(

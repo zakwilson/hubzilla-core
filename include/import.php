@@ -2,6 +2,8 @@
 
 use Zotlabs\Lib\IConfig;
 
+use Zotlabs\Web\HTTPSig;
+
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');
 
@@ -897,9 +899,9 @@ function import_menus($channel, $menus) {
 			$m['menu_name'] = $menu['pagetitle'];
 			$m['menu_desc'] = $menu['desc'];
 			if($menu['created'])
-				$m['menu_created'] = datetime_convert($menu['created']);
+				$m['menu_created'] = datetime_convert('UTC','UTC',$menu['created']);
 			if($menu['edited'])
-				$m['menu_edited'] = datetime_convert($menu['edited']);
+				$m['menu_edited'] = datetime_convert('UTC','UTC',$menu['edited']);
 
 			$m['menu_flags'] = 0;
 			if($menu['flags']) {
@@ -955,9 +957,9 @@ function sync_menus($channel, $menus) {
 			$m['menu_name'] = $menu['pagetitle'];
 			$m['menu_desc'] = $menu['desc'];
 			if($menu['created'])
-				$m['menu_created'] = datetime_convert($menu['created']);
+				$m['menu_created'] = datetime_convert('UTC','UTC',$menu['created']);
 			if($menu['edited'])
-				$m['menu_edited'] = datetime_convert($menu['edited']);
+				$m['menu_edited'] = datetime_convert('UTC','UTC',$menu['edited']);
 
 			$m['menu_flags'] = 0;
 			if($menu['flags']) {
@@ -1177,7 +1179,7 @@ function sync_files($channel, $files) {
 					convert_oldfields($att,'data','content');
 
 					if($att['deleted']) {
-						attach_delete($channel,$att['hash']);
+						attach_delete($channel['channel_id'],$att['hash']);
 						continue;
 					}
 
@@ -1329,7 +1331,7 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],	'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,true,'sha512');
+						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],	'acct:' . channel_reddress($channel),true,'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
@@ -1383,12 +1385,14 @@ function sync_files($channel, $files) {
 						);
 					}
 
-					if(intval($p['imgscale']) === 0 && $p['os_storage'])
-						$p['content'] = $store_path;
-					else
+					if(intval($p['os_storage'])) {
+						$p['content'] = $store_path . ((intval($p['imgscale'])) ? '-' . $p['imgscale'] : '');
+					}
+					else {
 						$p['content'] = (($p['content'])? base64_decode($p['content']) : '');
+					}
 
-					if(intval($p['imgscale']) && (! empty($p['content']))) {
+					if(intval($p['imgscale'])) {
 
 						$time = datetime_convert();
 
@@ -1413,7 +1417,7 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],	'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false,true,'sha512');
+						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),true,'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
@@ -1643,12 +1647,12 @@ function import_webpage_element($element, $channel, $type) {
 		$arr['created'] = $iteminfo[0]['created'];
 	}
 	else { // otherwise, generate the creation times and unique id
-		$arr['created'] = datetime_convert('UTC', 'UTC');
+		$arr['created'] = datetime_convert();
 		$arr['uuid'] = item_message_id();
 		$arr['mid'] = $arr['parent_mid'] = z_root() . '/item/' . $arr['uuid'];
 	}
 	// Update the edited time whether or not the element already exists
-	$arr['edited'] = datetime_convert('UTC', 'UTC');
+	$arr['edited'] = datetime_convert();
 	// Import the actual element content
 	$arr['body'] = file_get_contents($element['path']);
 	// The element owner is the channel importing the elements

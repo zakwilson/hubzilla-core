@@ -4,6 +4,7 @@ namespace Zotlabs\Zot6;
 
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Web\HTTPSig;
 
 
 class Receiver {
@@ -193,7 +194,9 @@ class Receiver {
 			case 'response': // upstream message
 			case 'sync':
 			default:
-				$this->response = $this->handler->Notify($this->data,$this->hub);
+				if ($this->sender) {
+					$this->response = $this->handler->Notify($this->data,$this->hub);
+				}
 				break;
 
 		}

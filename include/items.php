@@ -1457,6 +1457,7 @@ function encode_mail($item,$extended = false) {
 	$x['to']             = encode_item_xchan($item['to']);
 	$x['raw']            = $item['mail_raw'];
 	$x['mimetype']       = $item['mail_mimetype'];
+	$x['sig']            = $item['sig'];
 
 	if($item['attach'])
 		$x['attach']     = json_decode($item['attach'],true);
@@ -1516,6 +1517,9 @@ function get_mail_elements($x) {
 		$arr['expires']      = datetime_convert('UTC','UTC',$x['expires']);
 
 	$arr['mail_flags'] = 0;
+	
+	if(array_key_exists('sig',$x))
+		$arr['sig'] = $x['sig'];
 
 	if($x['flags'] && is_array($x['flags'])) {
 		if(in_array('recalled',$x['flags'])) {
@@ -1984,11 +1988,12 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		unset($arr['iconfig']);
 	}
 
-
- 	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid) || strlen($public_policy))
-		$private = 1;
-	else
-		$private = $arr['item_private'];
+	$private = intval($arr['item_private']);
+	if (! $private) {
+		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+			$private = 1;
+		}
+	}
 
 	$arr['parent']          = $parent_id;
 	$arr['allow_cid']       = $allow_cid;
@@ -2007,7 +2012,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	// find the item we just created
 
 	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
-		$arr['mid'],           // already dbesc'd
+		dbesc($arr['mid']),
 		intval($arr['uid']),
 		intval($arr['revision'])
 	);
@@ -2028,7 +2033,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if(count($r) > 1) {
 		logger('item_store: duplicated post occurred. Removing duplicates.');
 		q("DELETE FROM item WHERE mid = '%s' AND uid = %d AND id != %d ",
-			$arr['mid'],
+			dbesc($arr['mid']),
 			intval($arr['uid']),
 			intval($current_post)
 		);
@@ -3663,7 +3668,7 @@ function retain_item($id) {
 	);
 }
 
-function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL,$force = false) {
+function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL) {
 	$uid = 0;
 
 	if(! local_channel() && ! remote_channel())
@@ -3671,7 +3676,7 @@ function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL,$force 
 
 	if(count($items)) {
 		foreach($items as $item) {
-			$owner = drop_item($item,$interactive,$stage,$force);
+			$owner = drop_item($item,$interactive,$stage);
 			if($owner && ! $uid)
 				$uid = $owner;
 		}
@@ -3694,12 +3699,7 @@ function drop_items($items,$interactive = false,$stage = DROPITEM_NORMAL,$force 
 // $stage = 1 => set deleted flag on the item and perform intial notifications
 // $stage = 2 => perform low level delete at a later stage
 
-function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = false) {
-
-	// These resource types have linked items that should only be removed at the same time
-	// as the linked resource; if we encounter one set it to item_hidden rather than item_deleted.
-
-	$linked_resource_types = [ 'photo' ];
+function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 
 	// locate item to be deleted
 
@@ -3711,12 +3711,10 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		if(! $interactive)
 			return 0;
 		notice( t('Item not found.') . EOL);
-		goaway(z_root() . '/' . $_SESSION['return_url']);
+		//goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 
 	$item = $r[0];
-
-	$linked_item = (($item['resource_id'] && $item['resource_type'] && in_array($item['resource_type'], $linked_resource_types)) ? true : false);
 
 	$ok_to_delete = false;
 
@@ -3724,13 +3722,12 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 	if(! $interactive)
 		$ok_to_delete = true;
 
-	// owner deletion
-	if(local_channel() && local_channel() == $item['uid'])
+	// admin deletion
+	if(is_site_admin())
 		$ok_to_delete = true;
 
-	// sys owned item, requires site admin to delete
-	$sys = get_sys_channel();
-	if(is_site_admin() && $sys['channel_id'] == $item['uid'])
+	// owner deletion
+	if(local_channel() && local_channel() == $item['uid'])
 		$ok_to_delete = true;
 
 	// author deletion
@@ -3743,16 +3740,9 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		// set the deleted flag immediately on this item just in case the
 		// hook calls a remote process which loops. We'll delete it properly in a second.
 
-		if(($linked_item) && (! $force)) {
-			$r = q("UPDATE item SET item_hidden = 1 WHERE id = %d",
-				intval($item['id'])
-			);
-		}
-		else {
-			$r = q("UPDATE item SET item_deleted = 1 WHERE id = %d",
-				intval($item['id'])
-			);
-		}
+		$r = q("UPDATE item SET item_deleted = 1 WHERE id = %d",
+			intval($item['id'])
+		);
 
 		$arr = [
 				'item' => $item,
@@ -3792,14 +3782,13 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
 		if((intval($item['item_wall']) && ($stage != DROPITEM_PHASE2)) || ($stage == DROPITEM_PHASE1)) {
 			Master::Summon([ 'Notifier','drop',$notify_id ]);
 		}
-
-		goaway(z_root() . '/' . $_SESSION['return_url']);
+		//goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 	else {
 		if(! $interactive)
 			return 0;
 		notice( t('Permission denied.') . EOL);
-		goaway(z_root() . '/' . $_SESSION['return_url']);
+		//goaway(z_root() . '/' . $_SESSION['return_url']);
 	}
 }
 
@@ -3814,11 +3803,9 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL,$force = fal
  * @param boolean $force
  * @return boolean
  */
-function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
+function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 
-	$linked_item = (($item['resource_id']) ? true : false);
-
-	logger('item: ' . $item['id'] . ' stage: ' . $stage . ' force: ' . $force, LOGGER_DATA);
+	logger('item: ' . $item['id'] . ' stage: ' . $stage, LOGGER_DATA);
 
 	switch($stage) {
 		case DROPITEM_PHASE2:
@@ -3831,40 +3818,48 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL, $force = false) {
 			break;
 
 		case DROPITEM_PHASE1:
-			if($linked_item && ! $force) {
-				$r = q("UPDATE item SET item_hidden = 1,
-					changed = '%s', edited = '%s'  WHERE id = %d",
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					intval($item['id'])
-				);
-			}
-			else {
-				$r = q("UPDATE item set item_deleted = 1, changed = '%s', edited = '%s' where id = %d",
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					intval($item['id'])
-				);
-			}
-
+			$r = q("UPDATE item set item_deleted = 1, changed = '%s', edited = '%s' where id = %d",
+				dbesc(datetime_convert()),
+				dbesc(datetime_convert()),
+				intval($item['id'])
+			);
 			break;
 
 		case DROPITEM_NORMAL:
 		default:
-			if($linked_item && ! $force) {
-				$r = q("UPDATE item SET item_hidden = 1,
-					changed = '%s', edited = '%s'  WHERE id = %d",
-					dbesc(datetime_convert()),
-					dbesc(datetime_convert()),
-					intval($item['id'])
-				);
-			}
-			else {
-				$r = q("DELETE FROM item WHERE id = %d",
-					intval($item['id'])
-				);
-			}
+			$r = q("DELETE FROM item WHERE id = %d",
+				intval($item['id'])
+			);
 			break;
+	}
+
+	// immediately remove local linked resources
+
+	if($item['resource_type'] === 'event') {
+		$r = q("SELECT * FROM event WHERE event_hash = '%s' AND uid = %d LIMIT 1",
+			dbesc($item['resource_id']),
+			intval($item['uid'])
+		);
+
+		$sync_data = $r[0];
+
+		$x = q("delete from event where event_hash = '%s' and uid = %d",
+			dbesc($item['resource_id']),
+			intval($item['uid'])
+		);
+
+		if($x) {
+			$sync_data['event_deleted'] = 1;
+			build_sync_packet($item['uid'], ['event' => [$sync_data]]);
+		}
+	}
+
+	if($item['resource_type'] === 'photo') {
+		attach_delete($item['uid'], $item['resource_id'], true );
+		$channel = channelx_by_n($item['uid']);
+		$sync_data = attach_export_data($channel, $item['resource_id'], true);
+		if($sync_data)
+			build_sync_packet($item['uid'], ['file' => [$sync_data]]);
 	}
 
 	// immediately remove any undesired profile likes.
@@ -4620,12 +4615,12 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 			if(strpos($access_tag,'cid:') === 0) {
 				$str_contact_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 			elseif(strpos($access_tag,'gid:') === 0) {
 				$str_group_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 		}
 	}

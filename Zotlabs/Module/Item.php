@@ -9,7 +9,7 @@ use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\LDSignatures;
-use Zotlabs\Zot6\HTTPSig;
+use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\ThreadListener;
 use App;
@@ -96,11 +96,12 @@ class Item extends Controller {
 			}
 
 			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
+			// with a bias towards those items owned by channels on this site (item_wall = 1)
 
 			$sql_extra = item_permissions_sql(0);
 
 			if (! $i) {
-				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra limit 1",
+				$i = q("select id as item_id from item where mid = '%s' $item_normal $sql_extra order by item_wall desc limit 1",
 					dbesc($r[0]['parent_mid'])
 				);
 			}
@@ -192,6 +193,25 @@ class Item extends Controller {
 			killme();
 
 		}
+
+		if(argc() > 1 && argv(1) !== 'drop') {
+			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' ",
+				dbesc(z_root() . '/item/' . argv(1))
+			);
+			if($x) {
+				foreach($x as $xv) {
+					if (intval($xv['item_wall'])) {
+						$c = channelx_by_n($xv['uid']);
+						if ($c) {
+							goaway($c['xchan_url'] . '?mid=' . gen_link_id($xv['mid']));
+						}
+					}
+				}
+				goaway($x[0]['llink']);
+			}
+			http_status_exit(404, 'Not found');
+		}
+
 	}
 
 
@@ -550,10 +570,10 @@ class Item extends Controller {
 				$public_policy     = $orig_post['public_policy'];
 				$private           = $orig_post['item_private'];
 			}
-	
-			if($private || $public_policy || $acl->is_private())
-				$private = 1;
-	
+
+			if($public_policy || $acl->is_private()) {
+				$private = (($private) ? $private : 1);
+			}  
 	
 			$location          = $orig_post['location'];
 			$coord             = $orig_post['coord'];
@@ -630,12 +650,11 @@ class Item extends Controller {
 
 			$allow_empty       = ((array_key_exists('allow_empty',$_REQUEST)) ? intval($_REQUEST['allow_empty']) : 0);	
 
-			$private = intval($acl->is_private() || ($public_policy));
+			$private = (($private) ? $private : intval($acl->is_private() || ($public_policy)));
 	
 			// If this is a comment, set the permissions from the parent.
 	
 			if($parent_item) {
-				$private = 0;
 				$acl->set($parent_item);
 				$private = intval($acl->is_private() || $parent_item['item_private']);
 				$public_policy     = $parent_item['public_policy'];
@@ -741,7 +760,12 @@ class Item extends Controller {
 					}
 				}
 			}
-	
+
+			if(($str_contact_allow) && (! $str_group_allow)) {
+				// direct message - private between individual channels but not groups
+				$private = 2;
+			}
+
 	
 			/**
 			 *

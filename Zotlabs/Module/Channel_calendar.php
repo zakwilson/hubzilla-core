@@ -21,53 +21,21 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$event_hash = ((x($_POST,'event_hash')) ? $_POST['event_hash'] : '');
 	
 		$xchan = ((x($_POST,'xchan')) ? dbesc($_POST['xchan']) : '');
-		$uid      = local_channel();
-	
-		$start_text = escape_tags($_REQUEST['dtstart']);
-		$finish_text = escape_tags($_REQUEST['dtend']);
+		$uid = local_channel();
 
-		$adjust   = intval($_POST['adjust']);
-		$nofinish = intval($_POST['nofinish']);
-	
-		$timezone = ((x($_POST,'timezone_select')) ? notags(trim($_POST['timezone_select']))     : '');
+		// only allow editing your own events. 
+		if(($xchan) && ($xchan !== get_observer_hash()))
+			return;
 
+		$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 		$tz = (($timezone) ? $timezone : date_default_timezone_get());
 
 		$categories = escape_tags(trim($_POST['categories']));
-	
-		// only allow editing your own events. 
-	
-		if(($xchan) && ($xchan !== get_observer_hash()))
-			return;
-	
-		if($start_text) {
-			$start = $start_text;
-		}
-		else {
-			$start = sprintf('%d-%d-%d %d:%d:0',$startyear,$startmonth,$startday,$starthour,$startminute);
-		}
+		
+		$adjust = intval($_POST['adjust']);
 
-		if($finish_text) {
-			$finish = $finish_text;
-		}
-		else {
-			$finish = sprintf('%d-%d-%d %d:%d:0',$finishyear,$finishmonth,$finishday,$finishhour,$finishminute);
-		}
-
-		if($nofinish) {
-			$finish = NULL_DATE;
-		}
-
-		if($adjust) {
-			$start = datetime_convert($tz,'UTC',$start);
-			if(! $nofinish)
-				$finish = datetime_convert($tz,'UTC',$finish);
-		}
-		else {
-			$start = datetime_convert('UTC','UTC',$start);
-			if(! $nofinish)
-				$finish = datetime_convert('UTC','UTC',$finish);
-		}
+		$start = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart']));
+		$finish = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend']));
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));
@@ -176,7 +144,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$datarray['location'] = $location;
 		$datarray['etype'] = $type;
 		$datarray['adjust'] = $adjust;
-		$datarray['nofinish'] = $nofinish;
+		$datarray['nofinish'] = 0;
 		$datarray['uid'] = local_channel();
 		$datarray['account'] = get_account_id();
 		$datarray['event_xchan'] = $channel['channel_hash'];
@@ -188,6 +156,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		$datarray['id'] = $event_id;
 		$datarray['created'] = $created;
 		$datarray['edited'] = $edited;
+		$datarray['timezone'] = $tz;
+
 	
 		if(intval($_REQUEST['preview'])) {
 			$html = format_event_html($datarray);
@@ -322,10 +292,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 			$start  = datetime_convert('UTC','UTC',$start);
 			$finish = datetime_convert('UTC','UTC',$finish);
-	
 			$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
 			$adjust_finish = datetime_convert('UTC', date_default_timezone_get(), $finish);
-	
+
 			if (x($_GET,'id')){
 			  	$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
 	                                from event left join item on item.resource_id = event.event_hash
@@ -335,7 +304,9 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				);
 			}
 			elseif($export) {
-				$r = q("SELECT * from event where uid = %d and dtstart > '%s' and dtend > dtstart",
+				$r = q("SELECT event.*, item.id as item_id
+					from event left join item on item.resource_id = event.event_hash
+					where event.uid = %d and event.dtstart > '%s' and event.dtend > event.dtstart",
 					intval(local_channel()),
 					dbesc(NULL_DATE)
 				);
@@ -357,13 +328,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					dbesc($adjust_start),
 					dbesc($adjust_finish)
 				);
-
 			}
 	
 			if($r && ! $export) {
 				xchan_query($r);
 				$r = fetch_post_tags($r,true);
-
 				$r = sort_by_date($r);
 			}
 
@@ -373,17 +342,16 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 				foreach($r as $rr) {
 
-					$start = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtstart'], 'c') : datetime_convert('UTC','UTC',$rr['dtstart'],'c'));
+					$tz = get_iconfig($rr, 'event', 'timezone');
+
+					if(! $tz)
+						$tz = 'UTC';
+
+					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert('UTC',date_default_timezone_get(),$rr['dtend'], 'c') : datetime_convert('UTC','UTC',$rr['dtend'],'c'));
-
-						// give a fake end to birthdays so they get crammed into a 
-						// single day on the calendar
-
-						if($rr['etype'] === 'birthday')
-							$end = null;
+						$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
 					}
 
 					$catsenabled = feature_enabled(local_channel(),'categories');
@@ -399,14 +367,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						}
 					}
 
-					$allDay = false;
-
-					// allDay event rules
-					if(!strpos($start, 'T') && !strpos($end, 'T'))
-						$allDay = true;
-					if(strpos($start, 'T00:00:00') && strpos($end, 'T00:00:00'))
-						$allDay = true;
-
 					$edit = ((local_channel() && $rr['author_xchan'] == get_observer_hash()) ? array(z_root().'/events/'.$rr['event_hash'].'?expandform=1',t('Edit event'),'','') : false);
 	
 					$drop = array(z_root().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
@@ -416,16 +376,17 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 						'rw' => true,
 						'id'=>$rr['id'],
 						'uri' => $rr['event_hash'],
+						'timezone' => $tz,
 						'start'=> $start,
 						'end' => $end,
 						'drop' => $drop,
-						'allDay' => $allDay,
-						'title' => htmlentities($rr['summary'], ENT_COMPAT, 'UTF-8', false),
+						'allDay' => (($rr['adjust']) ? 0 : 1),
+						'title' => html_entity_decode($rr['summary'], ENT_COMPAT, 'UTF-8'),
 						'editable' => $edit ? true : false,
-						'item'=>$rr,
+						'item' => $rr,
 						'plink' => [$rr['plink'], t('Link to source')],
-						'description' => htmlentities($rr['description'], ENT_COMPAT, 'UTF-8', false),
-						'location' => htmlentities($rr['location'], ENT_COMPAT, 'UTF-8', false),
+						'description' => html_entity_decode($rr['description'], ENT_COMPAT, 'UTF-8'),
+						'location' => html_entity_decode($rr['location'], ENT_COMPAT, 'UTF-8'),
 						'allow_cid' => expand_acl($rr['allow_cid']),
 						'allow_gid' => expand_acl($rr['allow_gid']),
 						'deny_cid' => expand_acl($rr['deny_cid']),
@@ -441,7 +402,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				echo ical_wrapper($r);
 				killme();
 			}
-	
+
 			if (\App::$argv[1] === 'json'){
 				json_return_and_die($events);
 			}
@@ -461,13 +422,67 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					dbesc($event_id),
 					intval(local_channel())
 				);
+
 				if($r) {
-					$r = q("update item set resource_type = '', resource_id = '' where resource_type = 'event' and resource_id = '%s' and uid = %d",
+
+					$sync_event['event_deleted'] = 1;
+					build_sync_packet(0,array('event' => array($sync_event)));
+
+					$i = q("select * from item where resource_type = 'event' and resource_id = '%s' and uid = %d",
 						dbesc($event_id),
 						intval(local_channel())
 					);
-					$sync_event['event_deleted'] = 1;
-					build_sync_packet(0,array('event' => array($sync_event)));
+
+					if ($i) {
+
+						$can_delete = false;
+						$local_delete = true;
+
+						$ob_hash = get_observer_hash();
+						if($ob_hash && ($ob_hash === $i[0]['author_xchan'] || $ob_hash === $i[0]['owner_xchan'] || $ob_hash === $i[0]['source_xchan'])) {
+							$can_delete = true;
+						}
+
+						// The site admin can delete any post/item on the site.
+						// If the item originated on this site+channel the deletion will propagate downstream. 
+						// Otherwise just the local copy is removed.
+
+						if(is_site_admin()) {
+							$local_delete = true;
+							if(intval($i[0]['item_origin']))
+								$can_delete = true;
+						}
+
+						if($can_delete || $local_delete) {
+
+							// if this is a different page type or it's just a local delete
+							// but not by the item author or owner, do a simple deletion
+
+							$complex = false;	
+
+							if(intval($i[0]['item_type']) || ($local_delete && (! $can_delete))) {
+								drop_item($i[0]['id']);
+							}
+							else {
+								// complex deletion that needs to propagate and be performed in phases
+								drop_item($i[0]['id'],true,DROPITEM_PHASE1);
+								$complex = true;
+							}
+
+							$ii = q("select * from item where id = %d",
+								intval($i[0]['id'])
+							);
+							if($ii) {
+								xchan_query($ii);
+								$sync_item = fetch_post_tags($ii);
+								build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
+							}
+
+							if($complex) {
+								tag_deliver($i[0]['uid'],$i[0]['id']);
+							}
+						}
+					}
 					killme();
 				}
 				notice( t('Failed to remove event' ) . EOL);

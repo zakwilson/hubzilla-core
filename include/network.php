@@ -1183,12 +1183,12 @@ function discover_by_webbie($webbie, $protocol = '') {
  */
 function webfinger_rfc7033($webbie, $zot = false) {
 
-	if(strpos($webbie,'@')) {
+	if(filter_var($webbie, FILTER_VALIDATE_EMAIL)) {
 		$lhs = substr($webbie,0,strpos($webbie,'@'));
 		$rhs = substr($webbie,strpos($webbie,'@')+1);
 		$resource = urlencode('acct:' . $webbie);
 	}
-	else {
+	elseif(filter_var($webbie, FILTER_VALIDATE_URL)) {
 		$m = parse_url($webbie);
 		if($m) {
 			if($m['scheme'] !== 'https')
@@ -1197,9 +1197,10 @@ function webfinger_rfc7033($webbie, $zot = false) {
 			$rhs = $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
 			$resource = urlencode($webbie);
 		}
-		else
-			return false;
 	}
+	else
+		return false;
+
 	logger('fetching url from resource: ' . $rhs . ':' . $webbie);
 
 	$counter = 0;
@@ -1217,7 +1218,7 @@ function webfinger_rfc7033($webbie, $zot = false) {
 function old_webfinger($webbie) {
 
 	$host = '';
-	if(strstr($webbie,'@'))
+	if(filter_var($webbie, FILTER_VALIDATE_EMAIL))
 		$host = substr($webbie,strpos($webbie,'@') + 1);
 
 	if(strlen($host)) {

@@ -1077,17 +1077,9 @@ function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).show();
 	$('#' + id).justifiedGallery({
-		selector: 'a, div:not(.spinner, #page-end)',
+		selector: 'a, div:not(#page-end)',
 		margins: 3,
-		border: 0,
-		sizeRangeSuffixes: {
-			'lt100': '-3',
-			'lt240': '-3',
-			'lt320': '-3',
-			'lt500': '-2',
-			'lt640': '-2',
-			'lt1024': '-1'
-		}
+		border: 0
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 

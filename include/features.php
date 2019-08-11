@@ -87,6 +87,14 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Default is Sunday'),
 				false,
 				get_config('feature_lock','cal_first_day')
+			],
+
+			[
+				'event_tz_select',
+				t('Event Timezone Selection'),
+				t('Allow event creation in timezones other than your own.'),
+				false,
+				get_config('feature_lock','event_tz_select'),
 			]
 
 		],
@@ -268,36 +276,6 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
 				true,
 				get_config('feature_lock','auto_save_draft'),
-			]
-
-		],
-
-		'events' => [
-
-			t('Events'),
-
-			[
-				'events_cal_first_day',
-				t('Start calendar week on Monday'),
-				t('Default is Sunday'),
-				false,
-				get_config('feature_lock','events_cal_first_day')
-			],
-
-			[
-				'smart_birthdays',
-				t('Smart Birthdays'),
-				t('Make birthday events timezone aware in case your friends are scattered across the planet.'),
-				true,
-				get_config('feature_lock','smart_birthdays'),
-			],
-
-			[
-				'event_tz_select',
-				t('Event Timezone Selection'),
-				t('Allow event creation in timezones other than your own.'),
-				false,
-				get_config('feature_lock','event_tz_select'),
 			]
 
 		],

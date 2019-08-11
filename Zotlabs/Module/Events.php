@@ -11,6 +11,9 @@ require_once('include/html2plain.php');
 class Events extends \Zotlabs\Web\Controller {
 
 	function post() {
+
+		// this module is deprecated
+		return;
 	
 		logger('post: ' . print_r($_REQUEST,true), LOGGER_DATA);
 	
@@ -245,6 +248,9 @@ class Events extends \Zotlabs\Web\Controller {
 	
 	
 	function get() {
+
+		// this module is deprecated
+		return;
 	
 		if(argc() > 2 && argv(1) == 'ical') {
 			$event_id = argv(2);
@@ -662,9 +668,10 @@ class Events extends \Zotlabs\Web\Controller {
 						'html'=>$html,
 						'plink' => array($rr['plink'],t('Link to Source'),'',''),
 					);
+
 				}
 			}
-			
+
 			if($export) {
 				header('Content-type: text/calendar');
 				header('content-disposition: attachment; filename="' . t('calendar') . '-' . $channel['channel_address'] . '.ics"' );

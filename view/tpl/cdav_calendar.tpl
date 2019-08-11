@@ -17,6 +17,8 @@ var resource = {{$resource}};
 var default_view = resource !== null ? 'timeGridDay' : 'dayGridMonth';
 var default_date = resource !== null ? new Date(resource.dtstart) : new Date();
 
+var allday;
+
 $(document).ready(function() {
 	var calendarEl = document.getElementById('calendar');
 	calendar = new FullCalendar.Calendar(calendarEl, {
@@ -37,14 +39,26 @@ $(document).ready(function() {
 		defaultView: default_view,
 		defaultDate: default_date,
 
+		weekNumbers: true,
+		navLinks: true,
+
+		navLinkDayClick: function(date, jsEvent) {
+			calendar.gotoDate( date );
+			changeView('timeGridDay');
+		},
+
+		navLinkWeekClick: function(date, jsEvent) {
+			calendar.gotoDate( date );
+			changeView('timeGridWeek');
+		},
+
 		monthNames: aStr['monthNames'],
 		monthNamesShort: aStr['monthNamesShort'],
 		dayNames: aStr['dayNames'],
 		dayNamesShort: aStr['dayNamesShort'],
 		allDayText: aStr['allday'],
 
-		defaultTimedEventDuration: '01:00:00',
-		snapDuration: '00:15:00',
+		snapDuration: '00:05:00',
 		
 		dateClick: function(info) {
 			if(new_event.id) {
@@ -53,8 +67,18 @@ $(document).ready(function() {
 				new_event = {};
 			}
 
+			allday = info.allDay;
+
+			if(allday) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
+			}
+
+
 			var dtend = new Date(info.date.toUTCString());
-			if(info.view.type == 'dayGridMonth') {
+			if(allday) {
 				dtend.setDate(dtend.getDate() + 1);
 			}
 			else{
@@ -69,19 +93,18 @@ $(document).ready(function() {
 			$('#id_description').attr('disabled', false);
 			$('#id_location').attr('disabled', false);
 			$('#calendar_select').val($("#calendar_select option:first").val()).attr('disabled', false);
-			$('#id_dtstart').val(info.date.toUTCString());
-			$('#id_dtend').val(dtend ? dtend.toUTCString() : '');
+			$('#id_dtstart').val(info.date.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend ? dtend.toUTCString().slice(0, -4) : '');
 			$('#id_description').val('');
 			$('#id_location').val('');
 			$('#event_submit').val('create_event').html('{{$create}}');
 			$('#event_delete').hide();
 
-			new_event = { id: new_event_id, title  : 'New event', start: $('#id_dtstart').val(), end: $('#id_dtend').val(), editable: true, color: '#bbb' };
+			new_event = { id: new_event_id, title: 'New event', start: info.date.toUTCString(), end: dtend ? dtend.toUTCString() : '', allDay: info.allDay, editable: true, color: '#bbb' };
 			calendar.addEvent(new_event);
 		},
-		
-		eventClick: function(info) {
 
+		eventClick: function(info) {
 			//reset categories
 			$('#id_categories').tagsinput('removeAll');
 
@@ -97,6 +120,13 @@ $(document).ready(function() {
 			}
 			else {
 				$('#l2s').remove();
+			}
+
+			if(event.allDay) {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+			}
+			else {
+				$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
 			}
 
 			if(event.publicId == new_event_id) {
@@ -131,9 +161,11 @@ $(document).ready(function() {
 				event_uri = event.extendedProps.uri;
 				$('#id_title').val(event.title);
 				$('#calendar_select').val(calendar_id).attr('disabled', true).trigger('change');
+				$('#id_timezone_select').val(event.extendedProps.timezone);
+				$('#id_location').val(event.extendedProps.location);
 				$('#id_categories').tagsinput('add', event.extendedProps.categories);
-				$('#id_dtstart').val(dtstart.toUTCString());
-				$('#id_dtend').val(dtend.toUTCString());
+				$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+				$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 				$('#id_description').val(event.extendedProps.description);
 				$('#id_location').val(event.extendedProps.location);
 				$('#event_submit').val('update_event').html('{{$update}}');
@@ -183,10 +215,10 @@ $(document).ready(function() {
 			var event = info.event._def;
 			var dtstart = new Date(info.event._instance.range.start);
 			var dtend = new Date(info.event._instance.range.end);
-			
+
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -199,9 +231,10 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
-					'adjust': event.extendedProps.item.adjust,
+					'timezone_select': event.extendedProps.timezone,
+					'dtstart': dtstart.toUTCString().slice(0, -4),
+					'dtend': dtend.toUTCString().slice(0, -4),
+					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
@@ -215,8 +248,10 @@ $(document).ready(function() {
 					'update': 'resize',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : ''
+					'timezone_select': event.extendedProps.timezone,
+					'dtstart': dtstart ? dtstart.toUTCString().slice(0, -4) : '',
+					'dtend': dtend ? dtend.toUTCString().slice(0, -4) : '',
+					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
 					info.revert();
@@ -231,8 +266,8 @@ $(document).ready(function() {
 			var dtend = new Date(info.event._instance.range.end);
 			
 			$('#id_title').val(event.title);
-			$('#id_dtstart').val(dtstart.toUTCString());
-			$('#id_dtend').val(dtend.toUTCString());
+			$('#id_dtstart').val(dtstart.toUTCString().slice(0, -4));
+			$('#id_dtend').val(dtend.toUTCString().slice(0, -4));
 
 			event_id = event.extendedProps.item ? event.extendedProps.item.id : 0;
 			event_xchan = event.extendedProps.item ? event.extendedProps.item.event_xchan : '';
@@ -245,9 +280,10 @@ $(document).ready(function() {
 					'type': 'event',
 					'preview': 0,
 					'summary': event.title,
-					'dtstart': dtstart.toUTCString(),
-					'dtend': dtend.toUTCString(),
-					'adjust': event.extendedProps.item.adjust,
+					'timezone_select': event.extendedProps.timezone,
+					'dtstart': dtstart.toUTCString().slice(0, -4),
+					'dtend': dtend.toUTCString().slice(0, -4),
+					'adjust': event.allDay ? 0 : 1,
 					'categories': event.extendedProps.categories,
 					'desc': event.extendedProps.description,
 					'location': event.extendedProps.location,
@@ -261,8 +297,10 @@ $(document).ready(function() {
 					'update': 'drop',
 					'id[]': event.extendedProps.calendar_id,
 					'uri': event.extendedProps.uri,
-					'dtstart': dtstart ? dtstart.toUTCString() : '',
-					'dtend': dtend ? dtend.toUTCString() : ''
+					'timezone_select': event.extendedProps.timezone,
+					'dtstart': dtstart ? dtstart.toUTCString().slice(0, -4) : '',
+					'dtend': dtend ? dtend.toUTCString().slice(0, -4) : '',
+					'allday': event.allDay ? 1 : 0
 				})
 				.fail(function() {
 					info.revert();
@@ -329,24 +367,37 @@ $(document).ready(function() {
 
 		$('#calendar_select').val('channel_calendar').attr('disabled', true);
 		$('#id_title').val(resource.summary);
-		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString());
-		$('#id_dtend').val(new Date(resource.dtend).toUTCString());
+		$('#id_dtstart').val(new Date(resource.dtstart).toUTCString().slice(0, -4));
+		$('#id_dtend').val(new Date(resource.dtend).toUTCString().slice(0, -4));
 		$('#id_categories').tagsinput('add', '{{$categories}}'),
 		$('#id_description').val(resource.description);
 		$('#id_location').val(resource.location);
+		$('#id_timezone_select').val(resource.timezone);
 
 		if(event_xchan !== '{{$channel_hash}}')
 			$('#event_submit').hide();
 		else
 			$('#event_submit').html('{{$update}}');
 	}
+
+	if(default_view === 'dayGridMonth');
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
 });
 
 
-function changeView(action, viewName) {
+function changeView(viewName) {
+
 	calendar.changeView(viewName);
 	$('#title').text(calendar.view.title);
 	$('#view_selector').html(views[calendar.view.type]);
+
+	if(viewName === 'dayGridMonth') {
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').hide();
+	}
+	else {
+		$('#id_dtstart_wrapper, #id_dtend_wrapper, #id_timezone_select_wrapper').show();
+	}
+
 	return;
 }
 
@@ -414,10 +465,11 @@ function on_submit() {
 			'xchan': event_xchan,
 			'type': 'event',
 			'preview': 0,
+			'timezone_select': $('#id_timezone_select').val(),
 			'summary': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
-			'adjust': 0,
+			'adjust': allday ? 0 : 1,
 			'categories': $('#id_categories').val(),
 			'desc': $('#id_description').val(),
 			'location': $('#id_location').val(),
@@ -439,12 +491,14 @@ function on_submit() {
 		$.post( 'cdav/calendar', {
 			'submit': $('#event_submit').val(),
 			'target': $('#calendar_select').val(),
+			'timezone_select': $('#id_timezone_select').val(),
 			'uri': event_uri,
 			'title': $('#id_title').val(),
 			'dtstart': $('#id_dtstart').val(),
 			'dtend': $('#id_dtend').val(),
 			'description': $('#id_description').val(),
-			'location': $('#id_location').val()
+			'location': $('#id_location').val(),
+			'allday': allday ? 1 : 0
 		})
 		.done(function() {
 			var parts = $('#calendar_select').val().split(':');
@@ -523,13 +577,13 @@ function exportDate() {
 			<div class="dropdown">
 				<button id="view_selector" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
 				<div class="dropdown-menu">
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'dayGridMonth'); return false;">{{$month}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridWeek'); return false;">{{$week}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'timeGridDay'); return false;">{{$day}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('dayGridMonth'); return false;">{{$month}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('timeGridWeek'); return false;">{{$week}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('timeGridDay'); return false;">{{$day}}</a></li>
 					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listMonth'); return false;">{{$list_month}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listWeek'); return false;">{{$list_week}}</a></li>
-					<a class="dropdown-item" href="#" onclick="changeView('changeView', 'listDay'); return false;">{{$list_day}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listMonth'); return false;">{{$list_month}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listWeek'); return false;">{{$list_week}}</a></li>
+					<a class="dropdown-item" href="#" onclick="changeView('listDay'); return false;">{{$list_day}}</a></li>
 				</div>
 				<div class="btn-group">
 					<button id="prev-btn" class="btn btn-outline-secondary btn-sm" title="{{$prev}}"><i class="fa fa-backward"></i></button>
@@ -569,6 +623,9 @@ function exportDate() {
 					{{/foreach}}
 					</optgroup>
 				</select>
+				{{if $timezone_select}}
+				{{include file="field_select_grouped.tpl" field=$timezone_select}}
+				{{/if}}
 				<div id="more_block" style="display: none;">
 					{{if $catsenabled}}
 					<div id="id_categories_wrapper" class="form-group">

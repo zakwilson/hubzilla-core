@@ -45,8 +45,8 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT DISTINCT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
-			
+			$x = q("SELECT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+
 			if($x) {
 				foreach($x as $xx) {
 					
@@ -54,12 +54,15 @@ if($argc == 2) {
 						dbesc($xx['resource_id']),
 						$storage
 					);
+
+					$img_path = dbunescbin($xx['content']);
 					
 					foreach($n as $nn) {
 						
 						echo '.';
 						
-						$filename = dbunescbin($xx['content']) . '-' . $nn['imgscale'];
+						$filename = $img_path . '-' . $nn['imgscale'];
+
 						if(! file_put_contents($filename, dbunescbin($nn['content']))) {
 							echo 'Failed to save file ' . $filename . PHP_EOL;
 							continue;
@@ -85,7 +88,7 @@ if($argc == 2) {
 				break;
 			}
 
-			$x = q("SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+			$x = q("SELECT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			
 			if($x) {
 				foreach($x as $xx) {

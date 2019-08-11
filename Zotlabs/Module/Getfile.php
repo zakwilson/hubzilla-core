@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Web\HTTPSig;
+
 /**
  * module: getfile
  * 
@@ -46,7 +48,7 @@ class Getfile extends \Zotlabs\Web\Controller {
 					continue;
 				}
 
-				$sigblock = \Zotlabs\Web\HTTPSig::parse_sigheader($_SERVER[$head]);
+				$sigblock = HTTPSig::parse_sigheader($_SERVER[$head]);
 				if($sigblock) {
 					$keyId = $sigblock['keyId'];
 
@@ -57,7 +59,7 @@ class Getfile extends \Zotlabs\Web\Controller {
 						);
 						if($r) {
 							$hubloc = $r[0];
-							$verified = \Zotlabs\Web\HTTPSig::verify('',$hubloc['xchan_pubkey']);	
+							$verified = HTTPSig::verify('',$hubloc['xchan_pubkey']);	
 							if($verified && $verified['header_signed'] && $verified['header_valid'] && $hash == $hubloc['hubloc_hash']) {
 								$header_verified = true;
 							}

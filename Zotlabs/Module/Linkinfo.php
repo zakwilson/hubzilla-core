@@ -52,7 +52,7 @@ class Linkinfo extends \Zotlabs\Web\Controller {
                 if (!empty($mid) && $mid[1] == 'mid=b64.')
                         $mid[2] = base64_decode($mid[2]);
 
-                $r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d LIMIT 1",
+                $r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
                         dbesc((empty($mid) ? $url : $mid[2])),
                         intval(local_channel())
                 );

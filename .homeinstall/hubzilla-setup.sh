@@ -26,8 +26,8 @@
 # - install
 #        * apache webserer, 
 #        * php,  
-#        * mysql - the database for hubzilla,  
-#        * phpmyadmin,  
+#        * mariadb - the database for hubzilla,  
+#        * adminer,  
 #        * git to download and update hubzilla addon
 # - download hubzilla core and addons
 # - configure cron
@@ -44,11 +44,6 @@
 # Security - password  is the same for mysql-server, phpmyadmin and hubzilla db
 # - The script runs into installation errors for phpmyadmin if it uses
 #   different passwords. For the sake of simplicity one singel password.
-#
-# Hubzilla - email verification
-# - The script switches off email verification off in all htconfig.tpl.
-#   Example: /var/www/html/view/en/htconfig.tpl
-# - Is this a silly idea or not?
 # 
 # How to restore from backup
 # --------------------------
@@ -73,8 +68,6 @@
 # The script is based on Thomas Willinghams script "debian-setup.sh"
 # which he used to install the red#matrix.
 #
-# The script uses another script from https://github.com/lukas2511/letsencrypt.sh
-#
 # The documentation for bash is here
 # https://www.gnu.org/software/bash/manual/bash.html
 #
@@ -94,9 +87,9 @@ function check_sanity {
     then
         die "Debian is supported only"
     fi
-    if ! grep -q 'Linux 9' /etc/issue
+    if ! grep -q 'Linux 10' /etc/issue
     then
-        die "Linux 9 (stretch) is supported only"x
+        die "Linux 10 (buster) is supported only"x
     fi
 }
 
@@ -207,21 +200,17 @@ function print_warn {
 }
 
 function stop_hubzilla {
-    if [ -d /etc/apache2 ]
-    then
-        print_info "stopping apache webserver..."
-        service apache2 stop
-    fi
-    if [ -f /etc/init.d/mysql ]
-    then
-        print_info "stopping mysql db..."
-        /etc/init.d/mysql stop
-    fi
+    print_info "stopping apache webserver..."
+    systemctl stop apache2
+    print_info "stopping mysql db..."
+    systemctl stop mariadb
 }
 
 function install_apache {
     print_info "installing apache..."
     nocheck_install "apache2 apache2-utils"
+    a2enmod rewrite
+    systemctl restart apache2
 }
 
 function install_imagemagick {
@@ -242,78 +231,46 @@ function install_sendmail {
 function install_php {
     # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
-    nocheck_install "libapache2-mod-php php php-pear php-curl php-mcrypt php-gd php-mysqli php-mbstring php-xml"
-    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/7.0/apache2/php.ini
-    sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/7.0/apache2/php.ini
+    nocheck_install "libapache2-mod-php php php-pear php-curl php-gd php-mysqli php-mbstring php-xml php-zip"
+    sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/7.3/apache2/php.ini
+    sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/7.3/apache2/php.ini
 }
 
 function install_mysql {
-    # http://www.microhowto.info/howto/perform_an_unattended_installation_of_a_debian_package.html
-    # 
-    # To determine the required package name, key and type you can perform
-    # a trial installation then search the configuration database.
-    # 
-    #     debconf-get-selections | grep mysql-server
-    #
-    # The command debconf-get-selections is provided by the package
-    # debconf-utils, which you may need to install.
-    #
-    #    apt-get install debconf-utils
-    #
-    # If you want to supply an answer to a configuration question but do not 
-    # want to be prompted for it then this can be arranged by preseeding the
-    # DebConf database with the required information.
-    #
-    #     echo mysql-server mysql-server/root_password password xyzzy | debconf-set-selections
-    #     echo mysql-server mysql-server/root_password_again password xyzzy | debconf-set-selections
-    #
     print_info "installing mysql..."
     if [ -z "$mysqlpass" ]
     then
         die "mysqlpass not set in $configfile"
     fi
-    echo mysql-server mysql-server/root_password password $mysqlpass | debconf-set-selections
-    echo mysql-server mysql-server/root_password_again password $mysqlpass | debconf-set-selections
-    nocheck_install "php-mysql mysql-server mysql-client"
+	if type mysql ; then
+		echo "Yes, mysql is installed"
+	else
+		echo "mariadb-server"
+		nocheck_install "mariadb-server"
+        systemctl status mariadb
+        systemctl start mariadb
+        mysql --user=root <<_EOF_
+UPDATE mysql.user SET Password=PASSWORD('${db_root_password}') WHERE User='root';
+DELETE FROM mysql.user WHERE User='';
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+_EOF_
+    fi    
 }
 
-function install_phpmyadmin {
-    print_info "installing phpmyadmin..."
-    if [ -z "$phpmyadminpass" ]
+function install_adminer {
+    print_info "installing adminer..."
+    nocheck_install "adminer"
+    if [ ! -f /etc/adminer/adminer.conf ]
     then
-        die "phpmyadminpass not set in $configfile"
+        echo "Alias /adminer /usr/share/adminer/adminer" > /etc/adminer/adminer.conf
+        ln -s /etc/adminer/adminer.conf /etc/apache2/conf-available/adminer.conf
+    else
+        print_info "file /etc/adminer/adminer.conf exists already"
     fi
-    echo phpmyadmin    phpmyadmin/setup-password password $phpmyadminpass | debconf-set-selections
-    echo phpmyadmin    phpmyadmin/mysql/app-pass password $phpmyadminpass | debconf-set-selections
-    echo phpmyadmin    phpmyadmin/app-password-confirm password $phpmyadminpass | debconf-set-selections
-    echo phpmyadmin    phpmyadmin/mysql/admin-pass    password $phpmyadminpass | debconf-set-selections
-    echo phpmyadmin    phpmyadmin/password-confirm    password $phpmyadminpass | debconf-set-selections
-    echo phpmyadmin    phpmyadmin/reconfigure-webserver multiselect apache2 | debconf-set-selections
-    nocheck_install "phpmyadmin"
-
-    # It seems to be not neccessary to check rewrite.load because it comes
-    # with the installation. To be sure you could check this manually by:
-    #
-    #    nano /etc/apache2/mods-available/rewrite.load
-    #
-    # You should find the content:
-    #
-    #    LoadModule rewrite_module /usr/lib/apache2/modules/mod_rewrite.so
-
-    a2enmod rewrite
-    if [ ! -f /etc/apache2/apache2.conf ]
-    then
-        die "could not find file /etc/apache2/apache2.conf"
-    fi
-    sed -i \
-        "s/AllowOverride None/AllowOverride all/" \
-        /etc/apache2/apache2.conf
-    if [ -z "`grep 'Include /etc/phpmyadmin/apache.conf' /etc/apache2/apache2.conf`" ]
-    then
-        echo "Include /etc/phpmyadmin/apache.conf" >> /etc/apache2/apache2.conf
-    fi
-    service apache2 restart
-    /etc/init.d/mysql start
+    a2enconf adminer
+    systemctl reload apache2
 }
 
 function create_hubzilla_db {
@@ -330,6 +287,7 @@ function create_hubzilla_db {
     then
         die "hubzilla_db_pass not set in $configfile"
     fi
+    systemctl restart mariadb
     Q1="CREATE DATABASE IF NOT EXISTS $hubzilla_db_name;"
     Q2="GRANT USAGE ON *.* TO $hubzilla_db_user@localhost IDENTIFIED BY '$hubzilla_db_pass';"
     Q3="GRANT ALL PRIVILEGES ON $hubzilla_db_name.* to $hubzilla_db_user@localhost identified by '$hubzilla_db_pass';"
@@ -454,17 +412,7 @@ function install_letsencrypt {
     then
         die "Failed to install let's encrypt: 'le_domain' is empty in $configfile"
     fi
-    nocheck_install "apt-transport-https"
-    # add backports to your sources.list
-    backports_list=/etc/apt/sources.list.d/backports.list    
-    if [ -f $backports_list ]
-    then
-        print_info "$backports_list exist already"
-    else
-        echo "deb https://deb.debian.org/debian stretch-backports main" > $backports_list
-    fi
-	apt-get -y update
-    DEBIAN_FRONTEND=noninteractive apt-get -q -y -t stretch-backports install certbot python-certbot-apache
+    nocheck_install "certbot python-certbot-apache" 
     print_info "run certbot ..."
 	certbot --apache -w /var/www/html -d $le_domain -m $le_email --agree-tos --non-interactive --redirect --hsts --uir
     service apache2 restart
@@ -486,9 +434,9 @@ function install_hubzilla {
     print_info "installing hubzilla addons..."
     cd /var/www/html/
     # if you install Hubzilla
-    util/add_addon_repo https://framagit.org/hubzilla/addons hzaddons
+    # util/add_addon_repo https://framagit.org/hubzilla/addons hzaddons
     # if you install ZAP
-    #util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons
+    util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons
     mkdir -p "store/[data]/smarty3"
     chmod -R 777 store
     touch .htconfig.php
@@ -498,12 +446,6 @@ function install_hubzilla {
 	chown root:www-data /var/www/html/
 	chown root:www-data /var/www/html/.htaccess
 	chmod 0644 /var/www/html/.htaccess
-    print_info "try to switch off email registration..."
-    sed -i "s/verify_email.*1/verify_email'] = 0/" /var/www/html/view/*/ht*
-    if [ -n "`grep -r 'verify_email.*1' /var/www/html/view/`" ]
-    then
-        print_warn "Hubzillas registration prozess might have email verification switched on."
-    fi
     print_info "installed hubzilla"
 }
 
@@ -635,7 +577,6 @@ source $configfile
 selfhostdir=/etc/selfhost
 selfhostscript=selfhost-updater.sh
 hubzilladaily=hubzilla-daily.sh
-plugins_update=.homeinstall/plugins_update.sh
 backup_mount_point=/media/hubzilla_backup
 
 #set -x    # activate debugging from here
@@ -649,7 +590,7 @@ install_apache
 install_imagemagick
 install_php
 install_mysql
-install_phpmyadmin
+install_adminer
 create_hubzilla_db
 run_freedns
 install_run_selfhost

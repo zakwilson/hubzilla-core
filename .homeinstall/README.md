@@ -1,18 +1,18 @@
 # Hubzilla at Home next to your Router
 
-This readme will show you how to install and run Hubzilla or Zap at home.
+This readme will show you how to install and run Hubzilla (or Zap) at home.
 
 The installation is done by a script.
 
 What the script will do for you...
 
-+ install everything required by Zap/Hubzilla, basically a web server (Apache), PHP, a database (MySQL), certbot,...
++ install everything required by Hubzilla, basically a web server (Apache), PHP, a database (MySQL), certbot,...
 + create a database
 + run certbot to have everything for a secure connection (httpS)
 + create a script for daily maintenance
   - backup to external disk (certificates, database, /var/www/)
   - renew certfificate (letsencrypt)
-  - update of Zap/Hubzilla
+  - update of Hubzilla
   - update of Debian
   - restart
 + create cron jobs for
@@ -23,8 +23,8 @@ What the script will do for you...
 The script is known to work without adjustments with
 
 + Hardware
-  - Mini-PC with Debian 9 (stretch), or
-  - Rapberry 3 with Raspbian, Debian 9
+  - Mini-PC with Debian 10 (stretch), or
+  - Rapberry 3 with Raspbian, Debian 10
 + DynDNS
   - selfHOST.de
   - freedns.afraid.org
@@ -40,7 +40,7 @@ The script can install both [Hubzilla](https://zotlabs.org/page/hubzilla/hubzill
 
 ## Disclaimers
 
-- This script does work with Debian 9 only.
+- This script does work with Debian 10 only.
 - This script has to be used on a fresh debian install only (it does not take account for a possibly already installed and configured webserver or sql implementation).
 
 # Step-by-Step Overwiew
@@ -55,7 +55,7 @@ Hardware
 
 Software
 
-+ Fresh installation of Debian 9 (Stretch)
++ Fresh installation of Debian 10 (Stretch)
 + Router with open ports 80 and 443 for your web server
 
 ## The basic steps (quick overview)
@@ -136,7 +136,7 @@ The cost is 1,50 € per month (2019).
 
 ## Note on Rasperry 
 
-The script was tested with an Raspberry 3 under Raspian, Debian 9.
+The script was tested with an Raspberry 3 under Raspian, Debian 10.
 
 It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
@@ -146,7 +146,7 @@ to boot the Rapsi to the client console.
 
 DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
-On a Raspian Stretch (Debian 9) the validation of the mail address fails for the very first user.
+On a Raspian Stretch (Debian 10) the validation of the mail address fails for the very first user.
 This used to happen on some *bsd distros but there was some work to fix that a year ago (2017).
 
 So if your system isn't registered in DNS or DNS isn't active do

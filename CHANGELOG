@@ -1,4 +1,6 @@
-Hubzilla 4.4 (2019-08-??)
+Hubzilla 4.4 (2019-08-13)
+	- Change primary directory from zotadel.net to hub.netzgemeinde.eu (requested by zotadel admin)
+	- Add Russian context help files
 	- Replace plink URL with share tag if possible
 	- Catch and exclude trailing punctuation while URL embedding
 	- Do not limit channel if service class property value is set to zero

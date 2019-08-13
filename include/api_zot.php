@@ -6,8 +6,8 @@
 		api_register_func('api/export/basic','api_export_basic', true);
 		api_register_func('api/red/channel/export/basic','api_export_basic', true);
 		api_register_func('api/z/1.0/channel/export/basic','api_export_basic', true);
-		api_register_func('api/red/item/export/page','api_item_export_page', true);
-		api_register_func('api/z/1.0/item/export/page','api_item_export_page', true);
+		api_register_func('api/red/item/export_page','api_item_export_page', true);
+		api_register_func('api/z/1.0/item/export_page','api_item_export_page', true);
 		api_register_func('api/red/channel/list','api_channel_list', true);
 		api_register_func('api/z/1.0/channel/list','api_channel_list', true);
 		api_register_func('api/red/channel/stream','api_channel_stream', true);

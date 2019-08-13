@@ -394,7 +394,7 @@ class Dirsearch extends \Zotlabs\Web\Controller {
 						$quoted_string = false;
 					}
 					else
-						$curr['value'] .= ' ' . trim(q);
+						$curr['value'] .= ' ' . trim($q);
 				}
 			}
 		}

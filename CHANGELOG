@@ -1,3 +1,60 @@
+Hubzilla 4.4 (2019-08-13)
+	- Change primary directory from zotadel.net to hub.netzgemeinde.eu (requested by zotadel admin)
+	- Add Russian context help files
+	- Replace plink URL with share tag if possible
+	- Catch and exclude trailing punctuation while URL embedding
+	- Do not limit channel if service class property value is set to zero
+	- Streamline keyId and creator/actor
+	- Add daemon_master_summon hook
+	- Serve static files directly if not caught by web server
+	- Update cacert.pem
+	- Calendar: allow different date/time format inputs
+	- Calendar: hide timezone select for allday events
+	⁻ Add opengraph meta info to channel page
+	- Begin directory migration to zot6
+	- Support zot and zot6 in social graph operations
+	- Lowlevel support for zot6 direct messages
+	- Consolidate HTTP signatures
+	- Allow api login by address or url
+	- Provide auto redirect from zot6 /item permalinks
+	- Export all items except photos in channel_export_items_date()
+	- Calendar: clicking a day or week number will now open the day or week view
+	- Remove cached photo location directory on delete if empty
+	- Include zot6 hubs in the Grid scope
+	- Fix os_path replace for thumbnails
+	- Avoid to process original images using storeThumbnail()
+
+	Bugfixes
+	- Fix URLs on imported item taxonomy
+	- Fix admin not allowed to delete any item
+	- Fix webfiunger issue with URLs containing an @
+	- Fix missing object in emoji reactions
+	- Fix appschema to include diaspora:guid
+	- Fix zotfinger in update_directory_entry()
+	- Fix incorrect media type on links for photo objects
+	- Fix mid not dbesc'd in item_store()
+	- Fix calendar encoding issues
+
+	Addons
+	- twitter: various rendering improvements
+	- cavatar: fix wrong image mimetype
+	- gravatar: fix wrong image mimetype
+	- Add license file
+	- pubcrawl: make repeats render like wall to wall posts
+	- pubcrawl: fix pubcrawl_import_author() sometimes returning a non activitypub xchan
+	- pubcrawl: use Lib/Activity for taxonomy en/decoding
+	- pubcrawl: fix wrong uuid in like activity
+	- pubcrawl: fix issue with encoding hashtags
+	- openstreetmap: use https URLs by default
+	- queueworker: refactor and efficiency improvements
+	- pubcrawl: use unique IDs for follow and accept activities
+	- pubcrawl: implement thread completion
+	- pubcrawl: implement delete activity
+	- photocache: reduce the size of the photo cache subdirectories tree
+	- photocache: use html_entity_decode() for cached photo URL
+	- diaspora: fix possible issue with diaspora relay not initializing
+
+
 Hubzilla 4.2.1 (2019-06-17)
 	- Deprecate mod events
 	- Revisit mod cal

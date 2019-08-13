@@ -1988,11 +1988,12 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		unset($arr['iconfig']);
 	}
 
-
- 	if(strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid) || strlen($public_policy))
-		$private = 1;
-	else
-		$private = $arr['item_private'];
+	$private = intval($arr['item_private']);
+	if (! $private) {
+		if (strlen($allow_cid) || strlen($allow_gid) || strlen($deny_cid) || strlen($deny_gid)) {
+			$private = 1;
+		}
+	}
 
 	$arr['parent']          = $parent_id;
 	$arr['allow_cid']       = $allow_cid;
@@ -2011,7 +2012,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	// find the item we just created
 
 	$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d and revision = %d ORDER BY id ASC ",
-		$arr['mid'],           // already dbesc'd
+		dbesc($arr['mid']),
 		intval($arr['uid']),
 		intval($arr['revision'])
 	);
@@ -2032,7 +2033,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	if(count($r) > 1) {
 		logger('item_store: duplicated post occurred. Removing duplicates.');
 		q("DELETE FROM item WHERE mid = '%s' AND uid = %d AND id != %d ",
-			$arr['mid'],
+			dbesc($arr['mid']),
 			intval($arr['uid']),
 			intval($current_post)
 		);
@@ -3721,13 +3722,12 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 	if(! $interactive)
 		$ok_to_delete = true;
 
-	// owner deletion
-	if(local_channel() && local_channel() == $item['uid'])
+	// admin deletion
+	if(is_site_admin())
 		$ok_to_delete = true;
 
-	// sys owned item, requires site admin to delete
-	$sys = get_sys_channel();
-	if(is_site_admin() && $sys['channel_id'] == $item['uid'])
+	// owner deletion
+	if(local_channel() && local_channel() == $item['uid'])
 		$ok_to_delete = true;
 
 	// author deletion
@@ -4615,12 +4615,12 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 			if(strpos($access_tag,'cid:') === 0) {
 				$str_contact_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 			elseif(strpos($access_tag,'gid:') === 0) {
 				$str_group_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 1;
+				$private = 2;
 			}
 		}
 	}

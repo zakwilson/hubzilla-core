@@ -807,6 +807,11 @@ class Enotify {
 			$itemem_text = (($item['item_thread_top'])
 				? t('created a new post')
 				: sprintf( t('commented on %s\'s post'), $item['owner']['xchan_name']));
+
+			if($item['verb'] === ACTIVITY_SHARE) {
+				$itemem_text = sprintf( t('repeated %s\'s post'), $item['author']['xchan_name']);
+			}
+
 		}
 
 		$edit = false;
@@ -825,12 +830,14 @@ class Enotify {
 
 		// convert this logic into a json array just like the system notifications
 
+		$who = (($item['verb'] === ACTIVITY_SHARE) ? 'owner' : 'author');
+
 		$x = array(
 			'notify_link' => $item['llink'],
-			'name' => $item['author']['xchan_name'],
-			'addr' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
-			'url' => $item['author']['xchan_url'],
-			'photo' => $item['author']['xchan_photo_s'],
+			'name' => $item[$who]['xchan_name'],
+			'addr' => (($item[$who]['xchan_addr']) ? $item[$who]['xchan_addr'] : $item[$who]['xchan_url']),
+			'url' => $item[$who]['xchan_url'],
+			'photo' => $item[$who]['xchan_photo_s'],
 			'when' => relative_date(($edit)? $item['edited'] : $item['created']), 
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
 			'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
@@ -838,7 +845,7 @@ class Enotify {
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => strip_tags(bbcode($itemem_text)),
 			// these are for the superblock addon
-			'hash' => $item['author']['xchan_hash'],
+			'hash' => $item[$who]['xchan_hash'],
 			'uid' => local_channel(),
 			'display' => true
 		);

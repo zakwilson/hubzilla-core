@@ -4,6 +4,7 @@ namespace Zotlabs\Zot6;
 
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Web\HTTPSig;
 
 
 class Receiver {

@@ -33,5 +33,6 @@ main.fullscreen .fc td:last-child {
 .bootstrap-tagsinput {
 	width: 100%;
 	padding: 6px 12px;
+	margin-bottom: 0px !important;
 }
 

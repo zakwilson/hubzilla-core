@@ -98,7 +98,7 @@ class ThreadItem {
 		$conv = $this->get_conversation();
 		$observer = $conv->get_observer();
 
-		$lock = ((($item['item_private'] == 1) || (($item['uid'] == local_channel()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
+		$lock = (((intval($item['item_private'])) || (($item['uid'] == local_channel()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
@@ -110,7 +110,7 @@ class ThreadItem {
 			$shareable = true;
 
 		$privacy_warning = false;
-		if(($item['item_private'] == 1) && ($item['owner']['xchan_network'] === 'activitypub')) {
+		if(intval($item['item_private']) && ($item['owner']['xchan_network'] === 'activitypub')) {
 			$recips = get_iconfig($item['parent'], 'activitypub', 'recips');
 
 			if(! in_array($observer['xchan_url'], $recips['to']))

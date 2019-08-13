@@ -88,8 +88,7 @@ class Finger {
 			$headers = [];
 			$headers['X-Zot-Channel'] = $channel['channel_address'] . '@' . \App::get_hostname();
 			$headers['X-Zot-Nonce']   = random_string();
-			$xhead = \Zotlabs\Web\HTTPSig::create_sig('',$headers,$channel['channel_prvkey'],
-				'acct:' . $channel['channel_address'] . '@' . \App::get_hostname(),false);
+			$xhead = HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel));
 
 			$retries = 0;
 
@@ -122,7 +121,7 @@ class Finger {
 
 		$x = json_decode($result['body'], true);
 
-		$verify = \Zotlabs\Web\HTTPSig::verify($result,(($x) ? $x['key'] : ''));
+		$verify = HTTPSig::verify($result,(($x) ? $x['key'] : ''));
 
 		if($x && (! $verify['header_valid'])) {
 			$signed_token = ((is_array($x) && array_key_exists('signed_token', $x)) ? $x['signed_token'] : null);

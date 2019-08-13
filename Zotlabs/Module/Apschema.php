@@ -28,7 +28,8 @@ class Apschema extends \Zotlabs\Web\Controller {
 				'nomadicHubs'      => 'zot:nomadicHubs',
 				'emojiReaction'    => 'zot:emojiReaction',
 				'expires'          => 'zot:expires',
-				
+				'directMessage'    => 'zot:directMessage',
+				 
 				'magicEnv' => [
 					'@id'   => 'zot:magicEnv',
 					'@type' => '@id'
@@ -40,8 +41,13 @@ class Apschema extends \Zotlabs\Web\Controller {
 				],
 
 				'ostatus'      => 'http://ostatus.org#',
-				'conversation' => 'ostatus:conversation'
+				'conversation' => 'ostatus:conversation',
 
+				'diaspora'     => 'https://diasporafoundation.org/ns/',
+				'guid'         => 'diaspora:guid',
+
+				'Hashtag'      => 'as:Hashtag'
+				
 			]
 		];
 

@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: hubzilla\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-08-01 21:45+0200\n"
-"PO-Revision-Date: 2019-08-02 22:32+0200\n"
+"PO-Revision-Date: 2019-08-12 11:18+0200\n"
 "Last-Translator: Max Kostikov <max@kostikov.co>\n"
 "Language-Team: Russian (http://www.transifex.com/Friendica/hubzilla/language/ru/)\n"
 "MIME-Version: 1.0\n"
@@ -6372,35 +6372,35 @@ msgstr "Разрешить"
 
 #: ../../Zotlabs/Module/Group.php:45
 msgid "Privacy group created."
-msgstr "Группа безопасности создана."
+msgstr "Группа конфиденциальности создана."
 
 #: ../../Zotlabs/Module/Group.php:48
 msgid "Could not create privacy group."
-msgstr "Не удалось создать группу безопасности."
+msgstr "Не удалось создать группу конфиденциальности."
 
 #: ../../Zotlabs/Module/Group.php:61 ../../Zotlabs/Module/Group.php:213
 #: ../../include/items.php:4290
 msgid "Privacy group not found."
-msgstr "Группа безопасности не найдена."
+msgstr "Группа конфиденциальности не найдена."
 
 #: ../../Zotlabs/Module/Group.php:80
 msgid "Privacy group updated."
-msgstr "Группа безопасности обновлена."
+msgstr "Группа конфиденциальности обновлена."
 
 #: ../../Zotlabs/Module/Group.php:106
 msgid "Privacy Groups App"
-msgstr "Приложение \"Группы безопасности\""
+msgstr "Приложение \"Группы конфиденциальности\""
 
 #: ../../Zotlabs/Module/Group.php:107
 msgid "Management of privacy groups"
-msgstr "Управление группами безопасности."
+msgstr "Управление группами конфиденциальности."
 
 #: ../../Zotlabs/Module/Group.php:141 ../../Zotlabs/Module/Group.php:153
 #: ../../Zotlabs/Lib/Apps.php:363 ../../Zotlabs/Lib/Group.php:324
 #: ../../Zotlabs/Widget/Activity_filter.php:41 ../../include/nav.php:99
 #: ../../include/group.php:320
 msgid "Privacy Groups"
-msgstr "Группы безопасности"
+msgstr "Группы конфиденциальности"
 
 #: ../../Zotlabs/Module/Group.php:142
 msgid "Add Group"
@@ -6408,7 +6408,7 @@ msgstr "Добавить группу"
 
 #: ../../Zotlabs/Module/Group.php:146
 msgid "Privacy group name"
-msgstr "Имя группы безопасности"
+msgstr "Имя группы конфиденциальности"
 
 #: ../../Zotlabs/Module/Group.php:147 ../../Zotlabs/Module/Group.php:256
 msgid "Members are visible to other channels"
@@ -6420,20 +6420,20 @@ msgstr "Участники"
 
 #: ../../Zotlabs/Module/Group.php:182
 msgid "Privacy group removed."
-msgstr "Группа безопасности удалена."
+msgstr "Группа конфиденциальности удалена."
 
 #: ../../Zotlabs/Module/Group.php:185
 msgid "Unable to remove privacy group."
-msgstr "Ну удалось удалить группу безопасности."
+msgstr "Ну удалось удалить группу конфиденциальности."
 
 #: ../../Zotlabs/Module/Group.php:251
 #, php-format
 msgid "Privacy Group: %s"
-msgstr "Группа безопасности: %s"
+msgstr "Группа конфиденциальности: %s"
 
 #: ../../Zotlabs/Module/Group.php:253
 msgid "Privacy group name: "
-msgstr "Название группы безопасности: "
+msgstr "Название группы конфиденциальности: "
 
 #: ../../Zotlabs/Module/Group.php:258
 msgid "Delete Group"
@@ -7842,11 +7842,11 @@ msgstr "Нет такого канала"
 
 #: ../../Zotlabs/Module/Network.php:242
 msgid "Privacy group is empty"
-msgstr "Группа безопасности пуста"
+msgstr "Группа конфиденциальности пуста"
 
 #: ../../Zotlabs/Module/Network.php:252
 msgid "Privacy group: "
-msgstr "Группа безопасности: "
+msgstr "Группа конфиденциальности: "
 
 #: ../../Zotlabs/Module/Network.php:325 ../../addon/redred/Mod_Redred.php:29
 msgid "Invalid channel."
@@ -8558,7 +8558,7 @@ msgstr "Удаленная группа с этим названием была 
 
 #: ../../Zotlabs/Lib/Group.php:270 ../../include/group.php:264
 msgid "Add new connections to this privacy group"
-msgstr "Добавить новые контакты в группу безопасности"
+msgstr "Добавить новые контакты в группу конфиденциальности"
 
 #: ../../Zotlabs/Lib/Group.php:302 ../../include/group.php:298
 msgid "edit"
@@ -8570,11 +8570,11 @@ msgstr "Редактировать группу"
 
 #: ../../Zotlabs/Lib/Group.php:326 ../../include/group.php:322
 msgid "Add privacy group"
-msgstr "Добавить группу безопасности"
+msgstr "Добавить группу конфиденциальности"
 
 #: ../../Zotlabs/Lib/Group.php:327 ../../include/group.php:323
 msgid "Channels not in any privacy group"
-msgstr "Каналы не включены ни в одну группу безопасности"
+msgstr "Каналы не включены ни в одну группу конфиденциальности"
 
 #: ../../Zotlabs/Lib/Group.php:329 ../../Zotlabs/Widget/Savedsearch.php:84
 #: ../../include/group.php:325
@@ -9360,11 +9360,11 @@ msgstr "Активность"
 #: ../../Zotlabs/Widget/Activity_filter.php:36
 #, php-format
 msgid "Show posts related to the %s privacy group"
-msgstr "Показывать публикации относящиеся к группе безопасности %s"
+msgstr "Показывать публикации относящиеся к группе конфиденциальности %s"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:45
 msgid "Show my privacy groups"
-msgstr "Показывать мои группы безопасности"
+msgstr "Показывать мои группы конфиденциальности"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:66
 msgid "Show posts to this forum"
@@ -11809,13 +11809,13 @@ msgstr "Приложение \"Протокол ActivityPub\""
 
 #: ../../addon/pubcrawl/Mod_Pubcrawl.php:50
 msgid "Deliver to ActivityPub recipients in privacy groups"
-msgstr "Доставить получателям ActivityPub в группах безопасности"
+msgstr "Доставить получателям ActivityPub в группах конфиденциальности"
 
 #: ../../addon/pubcrawl/Mod_Pubcrawl.php:50
 msgid ""
 "May result in a large number of mentions and expose all the members of your "
 "privacy group"
-msgstr "Может привести к большому количеству упоминаний и раскрытию участников группы безопасности"
+msgstr "Может привести к большому количеству упоминаний и раскрытию участников группы конфиденциальности"
 
 #: ../../addon/pubcrawl/Mod_Pubcrawl.php:54
 msgid "Send multi-media HTML articles"
@@ -12483,7 +12483,7 @@ msgstr "Недействительная директива деактиваци
 
 #: ../../addon/cart/submodules/hzservices.php:561
 msgid "Add to this privacy group"
-msgstr "Добавить в эту группу безопасности"
+msgstr "Добавить в эту группу конфиденциальности"
 
 #: ../../addon/cart/submodules/hzservices.php:577
 msgid "Set user service class"
@@ -12495,7 +12495,7 @@ msgstr "Вы должны использовать локальную учётн
 
 #: ../../addon/cart/submodules/hzservices.php:659
 msgid "Add buyer to privacy group"
-msgstr "Добавить покупателя в группу безопасности"
+msgstr "Добавить покупателя в группу конфиденциальности"
 
 #: ../../addon/cart/submodules/hzservices.php:664
 msgid "Add buyer as connection"
@@ -12715,7 +12715,7 @@ msgstr "Настройте из каких каналов должны отоб�
 
 #: ../../addon/tour/tour.php:106
 msgid "Only show posts from channels in the specified privacy group."
-msgstr "Показывать только публикации из определённой группы безопасности."
+msgstr "Показывать только публикации из определённой группы конфиденциальности."
 
 #: ../../addon/tour/tour.php:110
 msgid ""
@@ -14460,12 +14460,12 @@ msgstr "Видно указанным контактам."
 
 #: ../../include/items.php:4306
 msgid "Privacy group is empty."
-msgstr "Группа безопасности пуста"
+msgstr "Группа конфиденциальности пуста"
 
 #: ../../include/items.php:4313
 #, php-format
 msgid "Privacy group: %s"
-msgstr "Группа безопасности: %s"
+msgstr "Группа конфиденциальности: %s"
 
 #: ../../include/items.php:4325
 msgid "Connection not found."
@@ -15310,7 +15310,7 @@ msgstr "Управление вашими каналами"
 
 #: ../../include/nav.php:99
 msgid "Manage your privacy groups"
-msgstr "Управление вашим группами безопасности"
+msgstr "Управление вашим группами конфиденциальности"
 
 #: ../../include/nav.php:101
 msgid "Account/Channel Settings"

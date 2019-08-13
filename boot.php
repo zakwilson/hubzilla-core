@@ -80,12 +80,12 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 // point to go out and find the rest of the world.
 
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
-define ( 'DIRECTORY_FALLBACK_MASTER',  'https://zotadel.net');
+define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.netzgemeinde.eu');
 
 $DIRECTORY_FALLBACK_SERVERS = array(
-	'https://zotadel.net',
+	'https://hub.netzgemeinde.eu',
 	'https://zotsite.net',
-	'https://hub.netzgemeinde.eu'
+	'https://hub.libranet.de'
 );
 
 

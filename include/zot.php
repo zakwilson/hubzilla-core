@@ -304,7 +304,7 @@ function zot_zot($url, $data, $channel = null,$crypto = null) {
 	if($channel) {
 		$headers['X-Zot-Token'] = random_string();
 		$headers['X-Zot-Digest'] = \Zotlabs\Web\HTTPSig::generate_digest_header($data);
-		$h = \Zotlabs\Web\HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),false,'sha512',(($crypto) ? $crypto['hubloc_sitekey'] : ''), (($crypto) ? zot_best_algorithm($crypto['site_crypto']) : ''));
+		$h = \Zotlabs\Web\HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),false,'sha512',(($crypto) ? [ 'key' => $crypto['hubloc_sitekey'], 'algorithm' => $crypto['site_crypto'] ] : false));
 	}
 
 	$redirects = 0;

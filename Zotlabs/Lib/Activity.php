@@ -668,8 +668,24 @@ class Activity {
 		}
 		$ret = [];
 
+		$c = ((array_key_exists('channel_id',$p)) ? $p : channelx_by_hash($p['xchan_hash']));
+
 		$ret['type']  = 'Person';
-		$ret['id']    = $p['xchan_url'];
+
+		if ($c) {
+			$role = get_pconfig($c['channel_id'],'system','permissions_role');
+			if (strpos($role,'forum') !== false) {
+				$ret['type'] = 'Group';
+			}
+		}
+
+		if ($c) {
+			$ret['id'] = channel_url($c);
+		}
+		else {
+			$ret['id'] = ((strpos($p['xchan_hash'],'http') === 0) ? $p['xchan_hash'] : $p['xchan_url']);
+		}
+
 		if($p['xchan_addr'] && strpos($p['xchan_addr'],'@'))
 			$ret['preferredUsername'] = substr($p['xchan_addr'],0,strpos($p['xchan_addr'],'@'));
 		$ret['name']  = $p['xchan_name'];

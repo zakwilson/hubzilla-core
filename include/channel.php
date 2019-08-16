@@ -1262,7 +1262,7 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
  */
 function profile_load($nickname, $profile = '') {
 
-//	logger('profile_load: ' . $nickname . (($profile) ? ' profile: ' . $profile : ''));
+	//logger('profile_load: ' . $nickname . (($profile) ? ' profile: ' . $profile : ''));
 
 	$user = q("select channel_id from channel where channel_address = '%s' and channel_removed = 0  limit 1",
 		dbesc($nickname)
@@ -1303,6 +1303,14 @@ function profile_load($nickname, $profile = '') {
 				dbesc($nickname),
 				dbesc($profile)
 		);
+		if (! $p) {
+			$p = q("SELECT profile.uid AS profile_uid, profile.*, channel.* FROM profile
+				LEFT JOIN channel ON profile.uid = channel.channel_id
+				WHERE channel.channel_address = '%s' AND profile.id = %d LIMIT 1",
+				dbesc($nickname),
+				intval($profile)
+			);
+		}
 	}
 
 	if(! $p) {

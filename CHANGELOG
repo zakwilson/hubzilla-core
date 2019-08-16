@@ -1,3 +1,9 @@
+Hubzilla 4.4.1 (2019-08-16)
+	- Fix wrong profile photo displayed when previewing and editing profiles
+	- Fix regression from 4.4 which prevented encrypted signatures from being used for encrypted messages
+	- Fix typo in queueworker addon which broke filtering of duplicate work
+
+
 Hubzilla 4.4 (2019-08-13)
 	- Change primary directory from zotadel.net to hub.netzgemeinde.eu (requested by zotadel admin)
 	- Add Russian context help files

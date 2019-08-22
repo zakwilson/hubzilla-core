@@ -63,12 +63,31 @@ class Activity {
 		}
 		else {
 			$m = parse_url($url);
+
+			// handle bearcaps
+			if ($m['scheme'] === 'bear') {
+				$params = explode('&',$m['query']);
+				if ($params) {
+					foreach ($params as $p) {
+						if (substr($p,0,2) === 'u=') {
+							$url = substr($p,2);
+						}
+						if (substr($p,0,2) === 't=') {
+							$token = substr($p,2);
+						}
+					}
+				}
+			}
+
 			$headers = [
 				'Accept'           => 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 				'Host'             => $m['host'],
 				'(request-target)' => 'get ' . get_request_string($url),
 				'Date'             => datetime_convert('UTC','UTC','now','D, d M Y H:i:s') . ' UTC'
 			];
+			if (isset($token)) {
+				$headers['Authorization'] = 'Bearer ' . $token;
+			}
 			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
 			$x = z_fetch_url($url, true, $redirects, [ 'headers' => $h ] );
 		}
@@ -668,8 +687,24 @@ class Activity {
 		}
 		$ret = [];
 
+		$c = ((array_key_exists('channel_id',$p)) ? $p : channelx_by_hash($p['xchan_hash']));
+
 		$ret['type']  = 'Person';
-		$ret['id']    = $p['xchan_url'];
+
+		if ($c) {
+			$role = get_pconfig($c['channel_id'],'system','permissions_role');
+			if (strpos($role,'forum') !== false) {
+				$ret['type'] = 'Group';
+			}
+		}
+
+		if ($c) {
+			$ret['id'] = channel_url($c);
+		}
+		else {
+			$ret['id'] = ((strpos($p['xchan_hash'],'http') === 0) ? $p['xchan_hash'] : $p['xchan_url']);
+		}
+
 		if($p['xchan_addr'] && strpos($p['xchan_addr'],'@'))
 			$ret['preferredUsername'] = substr($p['xchan_addr'],0,strpos($p['xchan_addr'],'@'));
 		$ret['name']  = $p['xchan_name'];

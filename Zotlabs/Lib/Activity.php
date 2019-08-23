@@ -596,7 +596,7 @@ class Activity {
 				$i['obj'] = json_decode($i['obj'],true);
 			}
 			if($i['obj']['type'] === ACTIVITY_OBJ_PHOTO) {
-				$i['obj']['id'] = $i['id'];
+				$i['obj']['id'] = $i['mid'];
 			}
 
 			$obj = self::encode_object($i['obj']);

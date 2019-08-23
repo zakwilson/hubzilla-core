@@ -266,7 +266,7 @@ function bb_to_markdown($Text, $options = []) {
 	$Text = preg_replace("/\[zrl\=\].*?\[\/zrl\]/is", "", $Text);
 	
 	// Remove unprocessed spoiler HTML tags
-	$Text = strip_tags(preg_replace("/(<\/div>)(>.+)$/im", "$1\n$2", $Text));
+	$Text = preg_replace("/<div.+>([^<]+)<.+>(>.+)$/im", "$1\n$2", $Text);
 
 	$Text = trim($Text);
 

@@ -70,7 +70,7 @@ class Well_known extends \Zotlabs\Web\Controller {
 				        goaway(z_root() . '/cdav');
 				    };
 				    
-				case 'caldav':
+				case 'carddav':
 				    if ($_SERVER['REQUEST_METHOD'] == 'PROPFIND') {
 				        http_status('301', 'moved permanently');
 				        goaway(z_root() . '/cdav');

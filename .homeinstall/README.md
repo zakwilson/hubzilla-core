@@ -1,4 +1,4 @@
-# Step-by-Step Overwiew
+# How to use
 
 ## Disclaimers
 
@@ -18,7 +18,7 @@ Software
 + Fresh installation of Debian 10 (Stretch)
 + Router with open ports 80 and 443 for your web server
 
-## The basic steps (quick overview)
+## How to run the script
 
 + Register your own domain (for example at selfHOST) or a free subdomain (for example at freeDNS)
 + Log on to your fresh Debian

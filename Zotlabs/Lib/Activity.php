@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
 
@@ -339,8 +340,19 @@ class Activity {
 			}
 		}
 
+		if (intval($i['item_wall']) && $i['mid'] === $i['parent_mid']) {
+			$ret['commentPolicy'] = map_scope(PermissionLimits::Get($i['uid'],'post_comments'));
+		}
+
 		if (intval($i['item_private']) === 2) {
 			$ret['directMessage'] = true;
+		}
+
+		if (array_key_exists('comments_closed',$i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] !== NULL_DATE) {
+			if($ret['commentPolicy']) {
+				$ret['commentPolicy'] .= ' ';
+			}
+			$ret['commentPolicy'] .= 'until=' . datetime_convert('UTC','UTC',$i['comments_closed'],ATOM_TIME);
 		}
 
 		$ret['attributedTo'] = $i['author']['xchan_url'];

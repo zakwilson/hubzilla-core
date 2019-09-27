@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v9.31.0",
-        "version_normalized": "9.31.0.0",
+        "version": "v9.34.0",
+        "version_normalized": "9.34.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "2485bf016e1085f0cd8308723064458cb0af5729"
+            "reference": "6d86a591f9a35bb811befb750dcd2c7da9ac05a2"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/2485bf016e1085f0cd8308723064458cb0af5729",
-            "reference": "2485bf016e1085f0cd8308723064458cb0af5729",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/6d86a591f9a35bb811befb750dcd2c7da9ac05a2",
+            "reference": "6d86a591f9a35bb811befb750dcd2c7da9ac05a2",
             "shasum": ""
         },
-        "time": "2019-05-24T07:59:46+00:00",
+        "time": "2019-07-22T13:10:51+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -205,26 +205,26 @@
     },
     {
         "name": "ezyang/htmlpurifier",
-        "version": "v4.10.0",
-        "version_normalized": "4.10.0.0",
+        "version": "v4.11.0",
+        "version_normalized": "4.11.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ezyang/htmlpurifier.git",
-            "reference": "d85d39da4576a6934b72480be6978fb10c860021"
+            "reference": "83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/d85d39da4576a6934b72480be6978fb10c860021",
-            "reference": "d85d39da4576a6934b72480be6978fb10c860021",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7",
+            "reference": "83ab08bc1af7d808a9e0fbf024f1c24bfd73c0a7",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2"
         },
         "require-dev": {
-            "simpletest/simpletest": "^1.1"
+            "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
         },
-        "time": "2018-02-23T01:58:20+00:00",
+        "time": "2019-07-14T18:58:38+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -237,7 +237,7 @@
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
-            "LGPL"
+            "LGPL-2.1-or-later"
         ],
         "authors": [
             {
@@ -254,17 +254,17 @@
     },
     {
         "name": "league/html-to-markdown",
-        "version": "4.8.1",
-        "version_normalized": "4.8.1.0",
+        "version": "4.8.2",
+        "version_normalized": "4.8.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/html-to-markdown.git",
-            "reference": "250d1bf45f80d15594fb6b316df777d6d4c97ad1"
+            "reference": "e747489191f8e9144a7270eb61f8b9516e99e413"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/250d1bf45f80d15594fb6b316df777d6d4c97ad1",
-            "reference": "250d1bf45f80d15594fb6b316df777d6d4c97ad1",
+            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/e747489191f8e9144a7270eb61f8b9516e99e413",
+            "reference": "e747489191f8e9144a7270eb61f8b9516e99e413",
             "shasum": ""
         },
         "require": {
@@ -277,7 +277,7 @@
             "phpunit/phpunit": "4.*",
             "scrutinizer/ocular": "~1.1"
         },
-        "time": "2018-12-24T17:21:44+00:00",
+        "time": "2019-08-02T11:57:39+00:00",
         "bin": [
             "bin/html-to-markdown"
         ],
@@ -299,16 +299,16 @@
         ],
         "authors": [
             {
-                "name": "Nick Cernis",
-                "email": "nick@cern.is",
-                "homepage": "http://modernnerd.net",
-                "role": "Original Author"
-            },
-            {
                 "name": "Colin O'Dell",
                 "email": "colinodell@gmail.com",
                 "homepage": "https://www.colinodell.com",
                 "role": "Lead Developer"
+            },
+            {
+                "name": "Nick Cernis",
+                "email": "nick@cern.is",
+                "homepage": "http://modernnerd.net",
+                "role": "Original Author"
             }
         ],
         "description": "An HTML-to-markdown conversion helper for PHP",
@@ -1049,17 +1049,17 @@
     },
     {
         "name": "simplepie/simplepie",
-        "version": "1.5.2",
-        "version_normalized": "1.5.2.0",
+        "version": "1.5.3",
+        "version_normalized": "1.5.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/simplepie/simplepie.git",
-            "reference": "0e8fe72132dad765d25db4cabc69a91139af1263"
+            "reference": "173663382a9346acd53df60c7ffb20689c9cf1f6"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/0e8fe72132dad765d25db4cabc69a91139af1263",
-            "reference": "0e8fe72132dad765d25db4cabc69a91139af1263",
+            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/173663382a9346acd53df60c7ffb20689c9cf1f6",
+            "reference": "173663382a9346acd53df60c7ffb20689c9cf1f6",
             "shasum": ""
         },
         "require": {
@@ -1078,7 +1078,7 @@
             "ext-mbstring": "",
             "mf2/mf2": "Microformat module that allows for parsing HTML for microformats"
         },
-        "time": "2018-08-02T05:43:58+00:00",
+        "time": "2019-09-22T23:21:30+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1120,7 +1120,7 @@
             "rss"
         ],
         "support": {
-            "source": "https://github.com/simplepie/simplepie/tree/1.5.2",
+            "source": "https://github.com/simplepie/simplepie/tree/1.5.3",
             "issues": "https://github.com/simplepie/simplepie/issues"
         }
     },

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
 
@@ -41,6 +42,8 @@ class Activity {
 			if($x['type'] === ACTIVITY_OBJ_PHOTO) {
 				return self::fetch_image($x); 
 			}
+
+			call_hooks('encode_object',$x);
 		}
 
 		return $x;
@@ -340,8 +343,19 @@ class Activity {
 			}
 		}
 
+		if (intval($i['item_wall']) && $i['mid'] === $i['parent_mid']) {
+			$ret['commentPolicy'] = map_scope(PermissionLimits::Get($i['uid'],'post_comments'));
+		}
+
 		if (intval($i['item_private']) === 2) {
 			$ret['directMessage'] = true;
+		}
+
+		if (array_key_exists('comments_closed',$i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] !== NULL_DATE) {
+			if($ret['commentPolicy']) {
+				$ret['commentPolicy'] .= ' ';
+			}
+			$ret['commentPolicy'] .= 'until=' . datetime_convert('UTC','UTC',$i['comments_closed'],ATOM_TIME);
 		}
 
 		$ret['attributedTo'] = $i['author']['xchan_url'];
@@ -795,6 +809,7 @@ class Activity {
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
+		call_hooks('activity_mapper',$acts);
 
 		if(array_key_exists($verb,$acts) && $acts[$verb]) {
 			return $acts[$verb];
@@ -840,6 +855,7 @@ class Activity {
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
+		call_hooks('activity_decode_mapper',$acts);
 
 		foreach($acts as $k => $v) {
 			if($verb === $v) {
@@ -872,6 +888,8 @@ class Activity {
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 		
 		];
+
+		call_hooks('activity_obj_decode_mapper',$objs);
 
 		foreach($objs as $k => $v) {
 			if($obj === $v) {
@@ -909,6 +927,8 @@ class Activity {
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 		
 		];
+
+		call_hooks('activity_obj_mapper',$objs);
 
 		if(array_key_exists($obj,$objs)) {
 			return $objs[$obj];
@@ -1930,6 +1950,15 @@ class Activity {
 			set_iconfig($s,'activitypub','rawmsg',$act->raw,1);
 		}
 
+		$hookinfo = [
+			'act' => $act,
+			's' => $s
+		];
+
+		call_hooks('decode_note',$hookinfo);
+
+		$s = $hookinfo['s'];
+
 		return $s;
 
 	}
@@ -2119,16 +2148,25 @@ class Activity {
 					break;
 
 			}
-			if(! $item) {
-				break;
+
+			$hookinfo = [
+				'a' => $a,
+				'item' => $item
+			];
+
+			call_hooks('fetch_and_store',$hookinfo);
+
+			$item = $hookinfo['item'];
+
+			if($item) {
+
+				array_unshift($p,[ $a, $item, $replies]);
+	
+				if($item['parent_mid'] === $item['mid'] || count($p) > 20) {
+					break;
+				}
+
 			}
-
-			array_unshift($p,[ $a, $item, $replies]);
-
-			if($item['parent_mid'] === $item['mid'] || count($p) > 20) {
-				break;
-			}
-
 			$current_act = $a;
 			$current_item = $item;
 		}
@@ -2177,11 +2215,19 @@ class Activity {
 				default:
 					break;
 			}
-			if(! $item) {
-				break;
-			}
 
-			array_unshift($p,[ $a, $item ]);
+			$hookinfo = [
+				'a' => $a,
+				'item' => $item
+			];
+
+			call_hooks('fetch_and_store',$hookinfo);
+
+			$item = $hookinfo['item'];
+
+			if($item) {
+				array_unshift($p,[ $a, $item ]);
+			}
 
 		}
 

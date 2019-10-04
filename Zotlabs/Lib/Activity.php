@@ -202,6 +202,7 @@ class Activity {
 			$ev = bbtoevent($x['content']);
 			if($ev) {
 
+
 				if (! $ev['timezone']) {
 					$ev['timezone'] = 'UTC';
 				}

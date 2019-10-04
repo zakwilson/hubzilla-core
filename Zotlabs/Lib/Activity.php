@@ -202,6 +202,19 @@ class Activity {
 			$ev = bbtoevent($x['content']);
 			if($ev) {
 
+				$t = q("select id from item where resource_type = 'event' and resource_id = '%s'",
+					dbesc($ev['event_hash'])
+				);
+				if($t)
+					$tz = get_iconfig($t[0]['id'],'event','timezone','UTC');
+				if(! $tz)
+					$tz = 'UTC';
+					
+				$ev['dtstart'] = datetime_convert($tz,'UTC',$ev['dtstart'], ATOM_TIME);
+				if (! $ev['nofinish']) {
+					$ev['dtend'] = datetime_convert($tz,'UTC',$ev['dtend'], ATOM_TIME);
+				}
+				
 				$actor = null;
 				if(array_key_exists('author',$x) && array_key_exists('link',$x['author'])) {
 					$actor = $x['author']['link'][0]['href'];

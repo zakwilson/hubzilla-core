@@ -334,13 +334,14 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
 	$count = intval($limit);
 
 	if($site) {
-    	$uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
+    	//$uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
 	}
     else {
         $sys = get_sys_channel();
         $uids = " and item.uid  = " . intval($sys['channel_id']) . " ";
-		$sql_extra = " and item_private = 0 ";
     }
+    
+    $sql_extra = " and item_private = 0 ";
 
 	if($recent)
 		$sql_extra .= " and item.created > '" . datetime_convert('UTC','UTC', 'now - ' . intval($recent) . ' days ') . "' ";   

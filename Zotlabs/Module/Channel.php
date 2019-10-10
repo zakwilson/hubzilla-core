@@ -111,17 +111,6 @@ class Channel extends Controller {
 		// we start loading content
 
 		profile_load($which,$profile);
-
-		App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars($channel['channel_name']) . '">' . "\r\n";
-		App::$page['htmlhead'] .= '<meta property="og:image" content="' . $channel['xchan_photo_l'] . '">' . "\r\n";
-
-		if(App::$profile['about'] && perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_profile')) {
-			App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars(App::$profile['about']) . '">' . "\r\n";
-		}
-		else {
-			App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars(sprintf( t('This is the home page of %s.'), $channel['channel_name'])) . '">' . "\r\n";
-		}
-
 	}
 
 	function get($update = 0, $load = false) {
@@ -384,6 +373,44 @@ class Channel extends Controller {
 		} else {
 			$items = array();
 		}
+
+		// Add Opengraph markup
+		//
+		if(! empty($items) && isset($decoded)) {
+		    // get post data
+			if(! empty($r[0]['title']))
+				$ogtitle = $r[0]['title'];
+			
+			if(preg_match("/\[[zi]mg(=[0-9]+x[0-9]+)?\]([^\[]+)/is", $r[0]['body'], $matches))
+				$ogimage = $matches[2];
+			
+			$ogdesc = bbcode($r[0]['body'], [ 'tryoembed' => false ]);
+			$ogdesc = trim(html2plain($ogdesc, 0, true));
+			$ogdesc = html_entity_decode($ogdesc, ENT_QUOTES, 'UTF-8');
+			$ogdesc = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $ogdesc);
+			$ogdesc = substr($ogdesc, 0, 280);
+			$ogdesc = str_replace("\n", " ", $ogdesc);
+			while (strpos($ogdesc, "  ") !== false)
+				$ogdesc = str_replace("  ", " ", $ogdesc);
+			if (substr($ogdesc, -1) != "\n")
+				$ogdesc = rtrim(substr($ogdesc, 0, strrpos($ogdesc, " ")), "?.,:;!-") . "...";
+		}
+
+		$channel = channelx_by_n(App::$profile['profile_uid']);
+
+		if(! isset($ogdesc)) {
+			if(App::$profile['about'] && perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_profile')) {
+				$ogdesc = App::$profile['about'];
+			}
+			else {
+				$ogdesc = sprintf( t('This is the home page of %s.'), $channel['channel_name']);
+			}
+		}
+
+		App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";
+		App::$page['htmlhead'] .= '<meta property="og:image" content="' . (isset($ogimage) ? $ogimage : $channel['xchan_photo_l']) . '">' . "\r\n";
+		App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars($ogdesc) . '">' . 	"\r\n";
+
 
 		if((! $update) && (! $load)) {
 

@@ -381,14 +381,16 @@ class Channel extends Controller {
 			if(! empty($r[0]['title']))
 				$ogtitle = $r[0]['title'];
 			
-			if(preg_match("/\[[zi]mg(=[0-9]+x[0-9]+)?\]([^\[]+)/is", $r[0]['body'], $matches))
+			$ogdesc = str_replace("#^[", "[", $r[0]['body']);
+
+			if(preg_match("/\[[zi]mg(=[0-9]+x[0-9]+)?\]([^\[]+)/is", $ogdesc, $matches))
 				$ogimage = $matches[2];
 			
-			$ogdesc = bbcode($r[0]['body'], [ 'tryoembed' => false ]);
+			$ogdesc = bbcode($ogdesc, [ 'tryoembed' => false ]);
 			$ogdesc = trim(html2plain($ogdesc, 0, true));
 			$ogdesc = html_entity_decode($ogdesc, ENT_QUOTES, 'UTF-8');
 			$ogdesc = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $ogdesc);
-			$ogdesc = substr($ogdesc, 0, 280);
+			$ogdesc = substr($ogdesc, 0, 300);
 			$ogdesc = str_replace("\n", " ", $ogdesc);
 			while (strpos($ogdesc, "  ") !== false)
 				$ogdesc = str_replace("  ", " ", $ogdesc);

@@ -394,6 +394,7 @@ class Channel extends Controller {
 				$ogdesc = str_replace("  ", " ", $ogdesc);
 			if (substr($ogdesc, -1) != "\n")
 				$ogdesc = rtrim(substr($ogdesc, 0, strrpos($ogdesc, " ")), "?.,:;!-") . "...";
+			$ogtype = "article";
 		}
 
 		$channel = channelx_by_n(App::$profile['profile_uid']);
@@ -410,6 +411,7 @@ class Channel extends Controller {
 		App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";
 		App::$page['htmlhead'] .= '<meta property="og:image" content="' . (isset($ogimage) ? $ogimage : $channel['xchan_photo_l']) . '">' . "\r\n";
 		App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars($ogdesc) . '">' . 	"\r\n";
+		App::$page['htmlhead'] .= '<meta property="og:type" content="' . (isset($ogtype) ? $ogtype : "profile") . '">' . "\r\n";
 
 
 		if((! $update) && (! $load)) {

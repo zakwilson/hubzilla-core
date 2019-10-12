@@ -56,9 +56,13 @@
 			$ogdesc = sprintf( t('This is the home page of %s.'), $channel['channel_name']);
 		}
 	}
+	
+	if(! isset($ogimage))
+		$ogimage = $channel['xchan_photo_l'];
 
 	App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";
-	App::$page['htmlhead'] .= '<meta property="og:image" content="' . (isset($ogimage) ? $ogimage : $channel['xchan_photo_l']) . '">' . "\r\n";
+	App::$page['htmlhead'] .= '<meta property="og:image" content="' . $ogimage . '">' . "\r\n";
+	App::$page['htmlhead'] .= '<meta property="og:image:type" content="' . guess_image_type($ogimage) . '">' . "\r\n";
 	App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars($ogdesc) . '">' . 	"\r\n";
 	App::$page['htmlhead'] .= '<meta property="og:type" content="' . (isset($ogtype) ? $ogtype : "profile") . '">' . "\r\n";
 

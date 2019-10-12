@@ -13,6 +13,7 @@ require_once('include/items.php');
 require_once('include/security.php');
 require_once('include/conversation.php');
 require_once('include/acl_selectors.php');
+require_once('include/opengraph.php');
 
 
 /**
@@ -375,46 +376,7 @@ class Channel extends Controller {
 		}
 
 		// Add Opengraph markup
-		//
-		if(! empty($items) && isset($decoded)) {
-		    // get post data
-			if(! empty($r[0]['title']))
-				$ogtitle = $r[0]['title'];
-			
-			$ogdesc = str_replace("#^[", "[", $r[0]['body']);
-
-			if(preg_match("/\[[zi]mg(=[0-9]+x[0-9]+)?\]([^\[]+)/is", $ogdesc, $matches))
-				$ogimage = $matches[2];
-			
-			$ogdesc = bbcode($ogdesc, [ 'tryoembed' => false ]);
-			$ogdesc = trim(html2plain($ogdesc, 0, true));
-			$ogdesc = html_entity_decode($ogdesc, ENT_QUOTES, 'UTF-8');
-			$ogdesc = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $ogdesc);
-			$ogdesc = substr($ogdesc, 0, 300);
-			$ogdesc = str_replace("\n", " ", $ogdesc);
-			while (strpos($ogdesc, "  ") !== false)
-				$ogdesc = str_replace("  ", " ", $ogdesc);
-			if (substr($ogdesc, -1) != "\n")
-				$ogdesc = rtrim(substr($ogdesc, 0, strrpos($ogdesc, " ")), "?.,:;!-") . "...";
-			$ogtype = "article";
-		}
-
-		$channel = channelx_by_n(App::$profile['profile_uid']);
-
-		if(! isset($ogdesc)) {
-			if(App::$profile['about'] && perm_is_allowed($channel['channel_id'],get_observer_hash(),'view_profile')) {
-				$ogdesc = App::$profile['about'];
-			}
-			else {
-				$ogdesc = sprintf( t('This is the home page of %s.'), $channel['channel_name']);
-			}
-		}
-
-		App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";
-		App::$page['htmlhead'] .= '<meta property="og:image" content="' . (isset($ogimage) ? $ogimage : $channel['xchan_photo_l']) . '">' . "\r\n";
-		App::$page['htmlhead'] .= '<meta property="og:description" content="' . htmlspecialchars($ogdesc) . '">' . 	"\r\n";
-		App::$page['htmlhead'] .= '<meta property="og:type" content="' . (isset($ogtype) ? $ogtype : "profile") . '">' . "\r\n";
-
+		opengraph_add_meta((isset($decoded) && (! empty($items)) ? $r[0] : array()), App::$profile);
 
 		if((! $update) && (! $load)) {
 

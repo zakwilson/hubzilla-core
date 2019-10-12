@@ -41,8 +41,7 @@
 		$ogdesc = str_replace("\n", " ", $ogdesc);
 		while (strpos($ogdesc, "  ") !== false)
 			$ogdesc = str_replace("  ", " ", $ogdesc);
-		if (substr($ogdesc, -1) != "\n")
-			$ogdesc = rtrim(substr($ogdesc, 0, strrpos($ogdesc, " ")), "?.,:;!-") . "...";
+		$ogdesc = rtrim(substr($ogdesc, 0, strrpos($ogdesc, " ")), "?.,:;!-") . "...";
 		
 		$ogtype = "article";
 	}

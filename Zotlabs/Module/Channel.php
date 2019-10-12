@@ -352,7 +352,7 @@ class Channel extends Controller {
 
 			$parents_str = ids_to_querystr($r,'item_id');
 
-			$items = q("SELECT item.*, item.id AS item_id
+			$r = q("SELECT item.*, item.id AS item_id
 				FROM item
 				WHERE item.uid = %d $item_normal
 				AND item.parent IN ( %s )
@@ -361,8 +361,8 @@ class Channel extends Controller {
 				dbesc($parents_str)
 			);
 
-			xchan_query($items);
-			$items = fetch_post_tags($items, true);
+			xchan_query($r);
+			$items = fetch_post_tags($r, true);
 			$items = conv_sort($items,$ordering);
 
 			if($load && $mid && (! count($items))) {

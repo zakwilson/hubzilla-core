@@ -23,7 +23,7 @@
 		// find first image if exist
 		if(preg_match("/\[[zi]mg(=[0-9]+x[0-9]+)?\]([^\[]+)/is", $item['body'], $matches)) {
 			$ogimage = $matches[2];
-		    $ogimagetype = guess_image_type($ogimage);	
+			$ogimagetype = guess_image_type($ogimage);	
 		}
 
 		// use summary as description if exist
@@ -61,7 +61,7 @@
 	
 	if(! isset($ogimage)) {
 		$ogimage = $channel['xchan_photo_l'];
-	    $ogimagetype = $channel['xchan_photo_mimetype'];
+		$ogimagetype = $channel['xchan_photo_mimetype'];
 	}
 
 	App::$page['htmlhead'] .= '<meta property="og:title" content="' . htmlspecialchars((isset($ogtitle) ? $ogtitle : $channel['channel_name'])) . '">' . "\r\n";

@@ -16,6 +16,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 
 #: ../../boot.php:1609
 msgid "Create an account to access services and applications"
@@ -265,7 +266,7 @@ msgstr "閉じる"
 msgid ""
 "Post permissions %s cannot be changed %s after a post is shared.</br />These "
 "permissions set who is allowed to view the post."
-msgstr "投稿を共有した後、投稿%s権限%sを%sに変更することはできません。</ br />これらの権限は、投稿の閲覧を許可するユーザーを設定します。"
+msgstr "投稿を共有した後、投稿権限%sを%sに変更することはできません。</ br />これらの権限は、投稿の閲覧を許可するユーザーを設定します。"
 
 #: ../../include/activities.php:42
 msgid " and "

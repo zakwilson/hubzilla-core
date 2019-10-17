@@ -1,6 +1,11 @@
 <?php
 
-;
+if(! function_exists("string_plural_select_ja")) {
+function string_plural_select_ja($n){
+	return 0;;
+}}
+App::$rtl = 0;
+App::$strings["plural_function_code"] = "0;";
 App::$strings["Create an account to access services and applications"] = "サービスとアプリケーションにアクセスするためにアカウントを作成する。";
 App::$strings["Register"] = "登録";
 App::$strings["Logout"] = "ログアウト";

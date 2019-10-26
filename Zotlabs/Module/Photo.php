@@ -160,7 +160,7 @@ class Photo extends \Zotlabs\Web\Controller {
 						if($cache_mode['on']) {
 							$cache = [ 'status' => false, 'item' => $r[0] ];
 							call_hooks('cache_url_hook', $cache);
-							if($cache['status']) {
+							if(! $cache['status']) {
 								$url = html_entity_decode($cache['item']['display_path'], ENT_QUOTES);
 								// SSLify if needed
 								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)

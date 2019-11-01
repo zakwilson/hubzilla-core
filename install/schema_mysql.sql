@@ -595,7 +595,7 @@ CREATE TABLE IF NOT EXISTS `item` (
   `layout_mid` char(191) NOT NULL DEFAULT '',
   `postopts` text NOT NULL,
   `route` text NOT NULL,
-  `llink` text NOT NULL DEFAULT '',
+  `llink` text NOT NULL,
   `plink` text NOT NULL,
   `resource_id` char(191) NOT NULL DEFAULT '',
   `resource_type` char(16) NOT NULL DEFAULT '',

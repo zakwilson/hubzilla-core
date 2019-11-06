@@ -436,6 +436,18 @@ function get_atom_elements($feed, $item) {
 
 	if($summary === $res['body'])
 		$summary = '';
+	else {
+        $res['title'] = bbcode($res['title'], [ 'tryoembed' => false ]);
+        $res['title'] = html2plain($res['title'], 0, true);
+        $res['title'] = html_entity_decode($res['title'], ENT_QUOTES, 'UTF-8');
+        $res['title'] = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $res['title']);
+        while (strpos($res['title'], "\n") !== false)
+            $res['title'] = str_replace("\n", " ", $res['title']);
+        while (strpos($res['title'], "  ") !== false)
+            $res['title'] = str_replace("  ", " ", $res['title']);
+        $res['title'] = trim($res['title']);
+    }
+
 
 	if(($summary) && ((strpos($summary,'<') !== false) || (strpos($summary,'>') !== false))) {
 		$summary = purify_html($summary);

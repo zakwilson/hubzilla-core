@@ -446,7 +446,7 @@ function get_atom_elements($feed, $item) {
 	    while (strpos($res['title'], "  ") !== false)
 	        $res['title'] = str_replace("  ", " ", $res['title']);
 	    $res['title'] = trim($res['title']);
-    }
+	}
 
 
 	if(($summary) && ((strpos($summary,'<') !== false) || (strpos($summary,'>') !== false))) {

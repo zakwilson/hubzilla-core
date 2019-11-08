@@ -86,7 +86,7 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 		$def_attach = get_pconfig($channel['channel_id'],'system','attach_path');
 	
 		$r = attach_store($channel,(($observer) ? $observer['xchan_hash'] : ''),'', array('source' => 'editor', 'visible' => 0, 'album' => $def_album, 'directory' => $def_attach, 'allow_cid' => '<' . $channel['channel_hash'] . '>'));
-	
+
 		if(! $r['success']) {
 			notice( $r['message'] . EOL);
 			killme();
@@ -111,9 +111,24 @@ class Wall_attach extends \Zotlabs\Web\Controller {
 			}
 			if(strpos($r['data']['filetype'],'audio') === 0) {
 				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
-				echo "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
+				$s = "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
 			}
-			
+			if ($r['data']['filetype'] === 'image/svg+xml') {
+				$x = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+				if ($x) {
+					$bb = svg2bb($x);
+					if ($bb) {
+						$s .= "\n\n" . $bb;
+					}
+					else {
+						logger('empty return from svgbb');
+					}
+				}
+				else {
+					logger('unable to read svg data file: ' . 'store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+				}
+			}
+						
 			$s .=  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
 		}
 

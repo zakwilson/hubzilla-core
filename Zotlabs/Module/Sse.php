@@ -83,7 +83,7 @@ class Sse extends Controller {
 				echo 'data: ' . json_encode($result);
 				echo "\n\n";
 
-				del_xconfig(self::$ob_hash, 'sse', 'notifications');
+				set_xconfig(self::$ob_hash, 'sse', 'notifications', []);
 				set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
 				unset($result);
 			}
@@ -97,7 +97,8 @@ class Sse extends Controller {
 			flush();
 
 			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
-				del_xconfig(self::$ob_hash, 'sse', 'timestamp');
+				//TODO: this does not seem to be triggered
+				set_xconfig(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
 				break;
 			}
 

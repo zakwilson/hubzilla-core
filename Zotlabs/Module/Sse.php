@@ -84,6 +84,7 @@ class Sse extends Controller {
 				echo "\n\n";
 
 				del_xconfig(self::$ob_hash, 'sse', 'notifications');
+				set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
 				unset($result);
 			}
 
@@ -96,6 +97,7 @@ class Sse extends Controller {
 			flush();
 
 			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+				del_xconfig(self::$ob_hash, 'sse', 'timestamp');
 				break;
 			}
 

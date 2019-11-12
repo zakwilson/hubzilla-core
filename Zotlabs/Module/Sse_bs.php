@@ -27,6 +27,9 @@ class Sse_bs extends Controller {
 		self::$offset = 0;
 		self::$xchans = '';
 
+		if(self::$ob_hash)
+			set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+
 		if(!empty($_GET['nquery']) && $_GET['nquery'] !== '%') {
 			$nquery = $_GET['nquery'];
 

@@ -83,7 +83,7 @@ class Sse extends Controller {
 				echo 'data: ' . json_encode($result);
 				echo "\n\n";
 
-				set_xconfig(self::$ob_hash, 'sse', 'notifications', []);
+				set_xconfig(self::$ob_hash, 'sse', 'notifications', '');
 				set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
 				unset($result);
 			}

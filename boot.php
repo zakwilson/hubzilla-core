@@ -1839,7 +1839,7 @@ function notice($s) {
 	$t = get_xconfig($hash, 'sse', 'timestamp');
 
 	if(datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
-		del_xconfig($hash, 'sse', 'notifications');
+		set_xconfig($hash, 'sse', 'notifications', []);
 	}
 
 	$x = get_xconfig($hash, 'sse', 'notifications');
@@ -1852,7 +1852,6 @@ function notice($s) {
 
 	if (App::$interactive) {
 		$x['notice']['notifications'][] = $s;
-		set_xconfig($hash, 'sse', 'timestamp', datetime_convert());
 		set_xconfig($hash, 'sse', 'notifications', $x);
 	}
 
@@ -1892,7 +1891,7 @@ function info($s) {
 	$t = get_xconfig($hash, 'sse', 'timestamp');
 
 	if(datetime_convert('UTC', 'UTC', $t) < datetime_convert('UTC', 'UTC', '- 30 seconds')) {
-		del_xconfig($hash, 'sse', 'notifications');
+		set_xconfig($hash, 'sse', 'notifications', []);
 	}
 
 	$x = get_xconfig($hash, 'sse', 'notifications');
@@ -1905,7 +1904,6 @@ function info($s) {
 
 	if(App::$interactive) {
 		$x['info']['notifications'][] = $s;
-		set_xconfig($hash, 'sse', 'timestamp', datetime_convert());
 		set_xconfig($hash, 'sse', 'notifications', $x);
 	}
 

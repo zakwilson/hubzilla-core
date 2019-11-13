@@ -24,6 +24,9 @@ class Sse extends Controller {
 		self::$ob_hash = get_observer_hash();
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
 
+		if(! self::$ob_hash)
+			return;
+
 		$sleep_seconds = 3;
 
 		header("Content-Type: text/event-stream");

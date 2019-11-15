@@ -33,14 +33,14 @@ var sse_partial_result = false;
 
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
+	localStorage.clear();
+	sessionStorage.clear();
 	localStorage.setItem('uid', localUser.toString());
 }
 window.onstorage = function(e) {
 	if(e.key === 'uid' && parseInt(e.newValue) !== localUser) {
 		if(window_needs_alert) {
 			window_needs_alert = false; 
-			localStorage.clear();
-			sessionStorage.clear();
 			alert("Your identity has changed. Page reload required!");
 			window.location.reload();
 			return;

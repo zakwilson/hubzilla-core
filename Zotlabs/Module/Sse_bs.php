@@ -11,6 +11,7 @@ class Sse_bs extends Controller {
 
 	public static $uid;
 	public static $ob_hash;
+	public static $sse_id;
 	public static $vnotify;
 	public static $evdays;
 	public static $limit;
@@ -21,16 +22,26 @@ class Sse_bs extends Controller {
 
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
+		self::$sse_id = false;
+
+		if(! self::$ob_hash) {
+			if(session_id()) {
+				self::$sse_id = true;
+				self::$ob_hash = 'sse_id.' . session_id();
+			}
+			else {
+				return;
+			}
+		}
+
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
 		self::$limit = 100;
 		self::$offset = 0;
 		self::$xchans = '';
 
-		if(self::$ob_hash) {
-			set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
-			set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
-		}
+		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
 
 		if(!empty($_GET['nquery']) && $_GET['nquery'] !== '%') {
 			$nquery = $_GET['nquery'];
@@ -68,9 +79,6 @@ class Sse_bs extends Controller {
 				break;
 			default:
 		}
-
-		//hz_syslog('init: ' . argv(1));
-		//hz_syslog('offset: ' . argv(2));
 
 		if(self::$offset && $f) {
 			$result = self::$f(true);
@@ -226,6 +234,16 @@ class Sse_bs extends Controller {
 
 		$result['pubs']['notifications'] = [];
 		$result['pubs']['count'] = 0;
+
+		if((observer_prohibited(true))) {
+			return $result;
+		}
+
+		if(! intval(get_config('system','open_pubstream',1))) {
+			if(! get_observer_hash()) {
+				return $result;
+			}
+		}
 
 		if(! isset($_SESSION['static_loadtime']))
 			$_SESSION['static_loadtime'] = datetime_convert();

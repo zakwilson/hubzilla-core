@@ -44,6 +44,12 @@ class Cron_daily {
 			db_utcnow(), db_quoteinterval('1 YEAR')
 		);
 
+		// expire anonymous sse notification entries once a day
+
+		q("delete from xconfig where xchan like '%s'",
+			dbesc('sse_id.%')
+		);
+
 
 		//update statistics in config
 		require_once('include/statistics_fns.php');

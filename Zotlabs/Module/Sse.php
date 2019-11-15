@@ -11,22 +11,41 @@ class Sse extends Controller {
 
 	public static $uid;
 	public static $ob_hash;
+	public static $sse_id;
 	public static $vnotify;
 
 	function init() {
 
+		if((observer_prohibited(true))) {
+			killme();
+		}
+
+		if(! intval(get_config('system','open_pubstream',1))) {
+			if(! get_observer_hash()) {
+				killme();
+			}
+		}
+
 		// this is important!
 		session_write_close();
 
-		$sys = get_sys_channel();
-
 		self::$uid = local_channel();
 		self::$ob_hash = get_observer_hash();
+		self::$sse_id = false;
+
+		if(! self::$ob_hash) {
+			if(session_id()) {
+				self::$sse_id = true;
+				self::$ob_hash = 'sse_id.' . session_id();
+			}
+			else {
+				return;
+			}
+		}
+
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
 
-		if(! self::$ob_hash)
-			return;
-
+		$sys = get_sys_channel();
 		$sleep_seconds = 3;
 
 		header("Content-Type: text/event-stream");
@@ -40,7 +59,7 @@ class Sse extends Controller {
 			 * Update chat presence indication (if applicable)
 			 */
 
-			if(self::$ob_hash) {
+			if(! self::$sse_id) {
 				$r = q("select cp_id, cp_room from chatpresence where cp_xchan = '%s' and cp_client = '%s' and cp_room = 0 limit 1",
 					dbesc(self::$ob_hash),
 					dbesc($_SERVER['REMOTE_ADDR'])

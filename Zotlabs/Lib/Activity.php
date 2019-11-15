@@ -609,8 +609,14 @@ class Activity {
 		}
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			$reply = true;
+
+			// inReplyTo needs to be set in the activity for followup actiions (Like, Dislike, Attend, Announce, etc.),
+			// but *not* for comments, where it should only be present in the object
+
+			if (! in_array($ret['type'],[ 'Create','Update' ])) {
+				$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
+			}
 
 			if($i['item_private']) {
 				$d = q("select xchan_url, xchan_addr, xchan_name from item left join xchan on xchan_hash = author_xchan where id = %d limit 1",

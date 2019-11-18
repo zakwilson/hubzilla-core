@@ -211,7 +211,7 @@ class Articles extends Controller {
 		}
 
 		// Add Opengraph markup
-		opengraph_add_meta((! empty($items) ? $r[0] : array()), $channel);
+		opengraph_add_meta((! empty($items) ? $r[0] : []), $channel);
 
 		$mode = 'articles';
 			

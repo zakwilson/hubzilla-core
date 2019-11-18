@@ -376,7 +376,7 @@ class Channel extends Controller {
 		}
 
 		// Add Opengraph markup
-		opengraph_add_meta((isset($decoded) && (! empty($items)) ? $r[0] : array()), App::$profile);
+		opengraph_add_meta((! empty($items) ? $r[0] : array()), App::$profile);
 
 		if((! $update) && (! $load)) {
 

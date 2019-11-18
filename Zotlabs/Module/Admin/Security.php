@@ -43,6 +43,12 @@ class Security {
 	
 		$be = $this->trim_array_elems(explode("\n",$_POST['embed_deny']));
 		set_config('system','embed_deny',$be);
+
+		$thumbnail_security = ((x($_POST,'thumbnail_security')) ? intval($_POST['thumbnail_security']) : 0);
+		set_config('system', 'thumbnail_security' , $thumbnail_security);
+
+		$inline_pdf = ((x($_POST,'inline_pdf')) ? intval($_POST['inline_pdf']) : 0);
+		set_config('system', 'inline_pdf' , $inline_pdf);
 	
 		$ts = ((x($_POST,'transport_security')) ? True : False);
 		set_config('system','transport_security_header',$ts);
@@ -86,7 +92,7 @@ class Security {
 		$embedhelp2 = t("The recommended setting is to only allow unfiltered HTML from the following sites:"); 
 		$embedhelp3 = t("https://youtube.com/<br />https://www.youtube.com/<br />https://youtu.be/<br />https://vimeo.com/<br />https://soundcloud.com/<br />");
 		$embedhelp4 = t("All other embedded content will be filtered, <strong>unless</strong> embedded content from that site is explicitly blocked.");
-	
+
 		$t = get_markup_template('admin_security.tpl');
 		return replace_macros($t, array(
 			'$title' => t('Administration'),
@@ -106,7 +112,9 @@ class Security {
 			'$embed_sslonly' => array('embed_sslonly',t('Only allow embeds from secure (SSL) websites and links.'), intval(get_config('system','embed_sslonly')),''),
 			'$embed_allow' => array('embed_allow', t('Allow unfiltered embedded HTML content only from these domains'), $whiteembeds_str, t('One site per line. By default embedded content is filtered.')),
 			'$embed_deny' => array('embed_deny', t('Block embedded HTML from these domains'), $blackembeds_str, ''),
-	
+			'$thumbnail_security'   => [ 'thumbnail_security', t("Allow SVG thumbnails in file browser"), get_config('system','thumbnail_security',0), t("WARNING: SVG images may contain malicious code.") ],
+			'$inline_pdf'   => [ 'inline_pdf', t("Allow embedded (inline) PDF files"), get_config('system','inline_pdf',0), '' ],
+
 //	        '$embed_coop'     => array('embed_coop', t('Cooperative embed security'), $embed_coop, t('Enable to share embed security with other compatible sites/hubs')),
 
 			'$submit' => t('Submit')

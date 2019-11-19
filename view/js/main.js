@@ -30,7 +30,7 @@ var sse_bs_active = false;
 var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
-var sse_mids;
+var sse_mids = [];
 
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
@@ -2078,7 +2078,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 
 	$(data).each(function() {
 		if(sse_mids.indexOf(this.b64mid) >= 0) {
-			console.log('dismiss: ' + this.b64mid);
+			//console.log('dismiss: ' + this.b64mid);
 			return true;
 		}
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);

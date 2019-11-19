@@ -30,6 +30,7 @@ var sse_bs_active = false;
 var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
+var sse_mids;
 
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
@@ -310,7 +311,7 @@ function handle_comment_form(e) {
 				ex_form.find('.comment-edit-text').removeClass('expanded').attr('placeholder', aStr.comment);
 				ex_form.find(':not(.comment-edit-text)').hide();
 			}
-			i++
+			i++;
 		});
 	}
 
@@ -858,11 +859,14 @@ function updateConvItems(mode,data) {
 		}
 	});
 
+	sse_mids = [];
 
 	// take care of the notifications count updates
 	$('.thread-wrapper', data).each(function() {
 
 		var nmid = $(this).data('b64mid');
+
+		sse_mids.push(nmid);
 
 		if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 			$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
@@ -893,6 +897,7 @@ function updateConvItems(mode,data) {
 
 	});
 
+	//console.log(sse_mids);
 
 	// reset rotators and cursors we may have set before reaching this place
 
@@ -2072,6 +2077,10 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 
 	$(data).each(function() {
+		if(sse_mids.indexOf(this.b64mid) >= 0) {
+			console.log('dismiss: ' + this.b64mid);
+			return true;
+		}
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
 		notify_menu.append(html);
 	});

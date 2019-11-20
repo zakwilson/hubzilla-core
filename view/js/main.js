@@ -49,19 +49,6 @@ window.onstorage = function(e) {
 	}
 }
 
-/*
-// Clear the session and local storage if we switch channel or log out
-var cache_uid = '';
-if(sessionStorage.getItem('uid') !== null) {
-	cache_uid = sessionStorage.getItem('uid');
-}
-if(cache_uid !== localUser.toString()) {
-	sessionStorage.clear();
-	localStorage.clear();
-	sessionStorage.setItem('uid', localUser.toString());
-}
-*/
-
 $.ajaxSetup({cache: false});
 
 $(document).ready(function() {
@@ -859,8 +846,6 @@ function updateConvItems(mode,data) {
 		}
 	});
 
-	sse_mids = [];
-
 	// take care of the notifications count updates
 	$('.thread-wrapper', data).each(function() {
 
@@ -871,33 +856,12 @@ function updateConvItems(mode,data) {
 		if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 			$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 				var n = this.parentElement.id.split('-');
-
-				if(n[1] === 'pubs')
-					return true;
-
-				if(n[1] === 'notify' && (nmid !== bParam_mid || sse_type !== 'notify'))
-					return true;
-
-				var count = Number($('.' + n[1] + '-update').html());
-
-				if(count > 0)
-					count = count - 1;
-
-				if(count < 1) {
-					$('.' + n[1] + '-button').fadeOut();
-					$('.' + n[1] + '-update').html(count);
-				}
-				else
-					$('.' + n[1] + '-update').html(count);
-
-				$('#nav-' + n[1] + '-menu .notification[data-b64mid=\'' + nmid + '\']').fadeOut();
-
+				return sse_updateNotifications(n[1], nmid, true);
 			});
+			sse_mids = [];
 		}
 
 	});
-
-	//console.log(sse_mids);
 
 	// reset rotators and cursors we may have set before reaching this place
 
@@ -2078,12 +2042,12 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 
 	$(data).each(function() {
 		if(sse_mids.indexOf(this.b64mid) >= 0) {
-			//console.log('dismiss: ' + this.b64mid);
-			return true;
+			return sse_updateNotifications(notifyType, this.b64mid, false);
 		}
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
 		notify_menu.append(html);
 	});
+	sse_mids = [];
 
 	if(!replace && !followup) {
 		console.log('sorting');
@@ -2117,3 +2081,33 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 }
 
+function sse_updateNotifications(type, mid, interactive) {
+
+	console.log('interactive: ' + interactive);
+
+	if(type === 'pubs')
+		return true;
+
+	if(type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify'))
+		return true;
+
+	var count = Number($('.' + type + '-update').html());
+
+	if(count > 0)
+		count--;
+
+	if(count < 1) {
+		$('.' + type + '-button').fadeOut();
+		$('.' + type + '-update').html(count);
+	}
+	else
+		$('.' + type + '-update').html(count);
+
+	if(! interactive)
+		return true;
+
+	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut();
+
+	return false;
+
+}

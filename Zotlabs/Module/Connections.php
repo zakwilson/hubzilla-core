@@ -292,12 +292,12 @@ class Connections extends \Zotlabs\Web\Controller {
 					}
 					if(intval(get_abconfig(local_channel(),$rr['xchan_hash'],'their_perms','send_stream'))) {
 						$perminfo['connpermcount']++;
-						$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ',' : $perminfo['connperms'] ;
+						$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 						$perminfo['connperms'] .= t('Stream items');
 					}
 					if(intval(get_abconfig(local_channel(),$rr['xchan_hash'],'their_perms','post_wall'))) {
 						$perminfo['connpermcount']++;
-						$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ',' : $perminfo['connperms'] ;
+						$perminfo['connperms'] = ($perminfo['connperms']) ? $perminfo['connperms'] . ', ' : $perminfo['connperms'] ;
 						$perminfo['connperms'] .= t('Wall posts');
 					}
 

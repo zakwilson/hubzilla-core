@@ -852,7 +852,7 @@ function updateConvItems(mode,data) {
 		//var nmid = $(this).data('b64mid');
 		var nmids = $(this).data('b64mids');
 
-		console.log(nmids);
+		//console.log(nmids);
 
 		sse_mids = nmids;
 
@@ -860,7 +860,6 @@ function updateConvItems(mode,data) {
 			//sse_mids.push(nmid);
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
-					console.log(this);
 					var n = this.parentElement.id.split('-');
 					return sse_updateNotifications(n[1], nmid, true);
 				});

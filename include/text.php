@@ -1024,17 +1024,17 @@ function contact_block() {
 				}
 				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
 					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ',' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 					$rr['perminfo']['connperms'] .= t('Stream items');
 				}
 				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
 					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ',' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
 					$rr['perminfo']['connperms'] .= t('Wall posts');
 				}
 
 				if ($rr['perminfo']['connpermcount'] == 0) {
-					$rr['perminfo']['connperms'] .= t('nothing');
+					$rr['perminfo']['connperms'] .= t('Nothing');
 				}
 
 				$micropro[] = micropro($rr,true,'mpfriend');

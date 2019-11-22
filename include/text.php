@@ -1016,10 +1016,27 @@ function contact_block() {
 				// There is no setting to discover if you are bi-directionally connected
 				// Use the ability to post comments as an indication that this relationship is more
 				// than wishful thinking; even though soapbox channels and feeds will disable it.
-
-				if(! intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
-					$rr['oneway'] = true;
+				$rr['perminfo']['connpermcount']=0;
+				$rr['perminfo']['connperms']=t('Accepts').': ';
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] .= t('Comments');
 				}
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ',' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] .= t('Stream items');
+				}
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ',' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] .= t('Wall posts');
+				}
+
+				if ($rr['perminfo']['connpermcount'] == 0) {
+					$rr['perminfo']['connperms'] .= t('nothing');
+				}
+
 				$micropro[] = micropro($rr,true,'mpfriend');
 			}
 		}
@@ -1086,6 +1103,7 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 		'$click' => (($contact['click']) ? $contact['click'] : ''),
 		'$class' => $class . (($contact['archived']) ? ' archived' : ''),
 		'$oneway' => (($contact['oneway']) ? true : false),
+		'$perminfo' => $contact['perminfo'],
 		'$url' => $url,
 		'$photo' => $contact['xchan_photo_s'],
 		'$name' => $contact['xchan_name'],

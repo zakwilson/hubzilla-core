@@ -78,7 +78,7 @@ class ThreadItem {
 	 */
 
 	public function get_template_data($conv_responses, $thread_level=1, $conv_flags = []) {
-	
+
 		$result = array();
 
 		$item     = $this->get_data();
@@ -356,6 +356,17 @@ class ThreadItem {
                 call_hooks('dropdown_extras',$dropdown_extras_arr);
                 $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
+		$mids = ['b64.' . base64url_encode($item['mid'])];
+		$response_mids = [];
+		foreach($response_verbs as $v) {
+			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
+				$response_mids = array_merge($response_mids, $conv_responses[$v]['mids'][$item['mid']]);
+			}
+		}
+
+		$mids = array_merge($mids, $response_mids);
+		$json_mids = json_encode($mids);
+
 		$tmp_item = array(
 			'template' => $this->get_template(),
 			'mode' => $mode,
@@ -370,6 +381,7 @@ class ThreadItem {
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
 			'mid' => 'b64.' . base64url_encode($item['mid']),
+			'mids' => $json_mids,
 			'parent' => $item['parent'],
 			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
 			'isevent' => $isevent,

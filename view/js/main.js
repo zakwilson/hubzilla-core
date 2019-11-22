@@ -854,10 +854,8 @@ function updateConvItems(mode,data) {
 
 		//console.log(nmids);
 
-		sse_mids = nmids;
-
 		nmids.forEach(function (nmid, index) {
-			//sse_mids.push(nmid);
+			sse_mids.push(nmid);
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 					var n = this.parentElement.id.split('-');

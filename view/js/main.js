@@ -534,10 +534,11 @@ function closeMenu(theID) {
 
 function markRead(notifType) {
 	$.get('ping?f=&markRead='+notifType);
-	$('.' + notifType + '-button').hide();
-	$('#nav-' + notifType + '-sub').removeClass('show');
-	sessionStorage.removeItem('notification_open');
-	sse_setNotificationsStatus();
+	$('.' + notifType + '-button').fadeOut(function() {
+		$('#nav-' + notifType + '-sub').removeClass('show');
+		sessionStorage.removeItem('notification_open');
+		sse_setNotificationsStatus();
+	});
 }
 
 function markItemRead(itemId) {

@@ -140,12 +140,14 @@ $(document).ready(function() {
 			$.get('/sse_bs/' + sse_type + '/' + sse_offset + '?nquery=' + encodeURIComponent(cn_val), function(obj) {
 				console.log('sse: bootstraping ' + sse_type);
 				console.log(obj);
-				sse_handleNotifications(obj, true, false);
+
 				sse_bs_active = false;
 				sse_partial_result = true;
 				sse_offset = obj[sse_type].offset;
 				if(sse_offset < 0)
 					$("#nav-" + sse_type + "-loading").hide();
+
+				sse_handleNotifications(obj, true, false);
 
 			});
 		}
@@ -160,12 +162,14 @@ $(document).ready(function() {
 		$.get('/sse_bs/' + sse_type, function(obj) {
 			console.log('sse: bootstraping ' + sse_type);
 			console.log(obj);
-			sse_handleNotifications(obj, true, false);
+
 			sse_bs_active = false;
 			sse_partial_result = false;
 			sse_offset = obj[sse_type].offset;
 			if(sse_offset < 0)
 				$("#nav-" + sse_type + "-loading").hide();
+
+			sse_handleNotifications(obj, true, false);
 
 		});
 	});
@@ -1866,11 +1870,13 @@ function sse_bs_notifications(e, replace, followup) {
 			$.get('/sse_bs/' + sse_type + '/' + sse_offset + '?nquery=' + encodeURIComponent(cn_val), function(obj) {
 				console.log('sse: bootstraping ' + sse_type);
 				console.log(obj);
-				sse_handleNotifications(obj, replace, followup);
+
 				sse_bs_active = false;
 				sse_offset = obj[sse_type].offset;
 				if(sse_offset < 0)
 					$("#nav-" + sse_type + "-loading").hide();
+
+				sse_handleNotifications(obj, replace, followup);
 
 			});
 		}
@@ -2131,8 +2137,7 @@ function sse_updateNotifications(type, mid, interactive) {
 
 	var count = Number($('.' + type + '-update').html());
 
-	if(count > 0)
-		count--;
+	count--;
 
 	if(count < 1) {
 		$('.' + type + '-button').fadeOut();

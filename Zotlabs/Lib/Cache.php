@@ -42,12 +42,5 @@ class Cache {
 				dbesc(datetime_convert()));
 		}
 	}
-
-		
-	public static function clear() {
-		q("DELETE FROM cache WHERE updated < '%s'",
-			dbesc(datetime_convert('UTC','UTC',"now - 30 days")));			
-	}
-		
 }
 	 

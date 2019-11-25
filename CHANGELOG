@@ -50,6 +50,7 @@ Hubzilla 4.6 (2019-11-??)
 	- Fix entries without sitekey returned from DB in queue_deliver() and Lib/Queue
 
 	Addons
+	- Twitter: send tweet even if attached image uploading was unsuccessful
 	- Livejournal: add link to original post option
 	- Flashcards: update to version 2.06
 	- Pubcrawl: compatibility changes to support pixelfed

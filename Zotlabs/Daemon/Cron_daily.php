@@ -50,7 +50,7 @@ class Cron_daily {
 			dbesc('sse_id.%')
 		);
 
-		// Clean up emdeded contect cache
+		// Clean up emdedded content cache
 		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
 		    db_utcnow(),
 		    db_quoteinterval(get_config('system','active_expire_days', '30') . ' DAY')

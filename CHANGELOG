@@ -34,6 +34,7 @@ Hubzilla 4.6 (2019-11-??)
 	- Update homeinstall script
 
 	Bugfixes
+	- Fix once cached embedded content is used and stored forever
 	- Fix wildcard tag issue
 	- Fix duplicate attachment in jot fileupload
 	- Fix regression with audio file upload

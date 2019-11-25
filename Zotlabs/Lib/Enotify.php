@@ -845,7 +845,8 @@ class Enotify {
 			'photo' => $item[$who]['xchan_photo_s'],
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
-			'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
+			'b64mid' => 'b64.' . base64url_encode($item['mid']),
+			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'notify_id' => 'undefined',
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => strip_tags(bbcode($itemem_text)),
@@ -871,19 +872,8 @@ class Enotify {
 			$message = substr($message, strlen($tt['xname']) + 1);
 
 		$mid = basename($tt['link']);
-		$mid = ((strpos($mid, 'b64.') === 0) ? @base64url_decode(substr($mid, 4)) : $mid);
 
-		if(in_array($tt['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
-			// we need the thread parent
-			$r = q("select thr_parent from item where mid = '%s' and uid = %d limit 1",
-				dbesc($mid),
-				intval(local_channel())
-			);
-			$b64mid = ((strpos($r[0]['thr_parent'], 'b64.') === 0) ? $r[0]['thr_parent'] : 'b64.' . base64url_encode($r[0]['thr_parent']));
-		}
-		else {
-			$b64mid = ((strpos($mid, 'b64.') === 0) ? $mid : 'b64.' . base64url_encode($mid));
-		}
+		$b64mid = ((strpos($mid, 'b64.') === 0) ? $mid : 'b64.' . base64url_encode($mid));
 
 		$x = [
 			'notify_link' => z_root() . '/notify/view/' . $tt['id'],

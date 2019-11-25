@@ -1172,6 +1172,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			if(! $item['thr_parent'])
 				$item['thr_parent'] = $item['parent_mid'];
 
+
+			$conv_responses[$mode]['mids'][$item['thr_parent']][] = 'b64.' . base64url_encode($item['mid']);
+
 			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l'])) 
 				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
 				$conv_responses[$mode][$item['thr_parent'] . '-l'] = array();

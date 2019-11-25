@@ -88,12 +88,6 @@ class Cron_daily {
 		z6_discover();
 
 		call_hooks('cron_daily',datetime_convert());
-		
-		// Clean up emdeded contect cache
-		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
-		    db_utcnow(),
-		    db_quoteinterval(get_config('system','active_expire_days', '30') . ' DAY')
-		);
 
 		set_config('system','last_expire_day',intval(datetime_convert('UTC','UTC','now','d')));
 

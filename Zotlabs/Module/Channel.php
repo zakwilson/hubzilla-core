@@ -110,8 +110,20 @@ class Channel extends Controller {
 
 		// Run profile_load() here to make sure the theme is set before
 		// we start loading content
-
 		profile_load($which,$profile);
+		
+		// Add Opengraph markup
+		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
+		if(strpos($mid,'b64.') === 0)
+		    $mid = @base64url_decode(substr($mid,4));
+		    
+		if($mid)
+		    $r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
+		        dbesc($mid),
+		        intval($channel['channel_id'])
+		    );
+		    
+		opengraph_add_meta($r ? $r[0] : [], $channel);
 	}
 
 	function get($update = 0, $load = false) {
@@ -374,9 +386,6 @@ class Channel extends Controller {
 		} else {
 			$items = array();
 		}
-
-		// Add Opengraph markup
-		opengraph_add_meta((isset($decoded) && (! empty($items)) ? $r[0] : array()), App::$profile);
 
 		if((! $update) && (! $load)) {
 

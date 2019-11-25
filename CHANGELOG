@@ -1,3 +1,70 @@
+Hubzilla 4.6 (2019-11-??)
+	- Improve opengraph support for channels
+	- Add opengraph support for articles
+	- Update abook_connected for RSS feeds only if handle_feed() returned success
+	- Do not embed PDF files by default but allow to enabled this feature in security options
+	- Check if file exists before we include it in the router
+	- Update jquery to version 3.4.1
+	- Update composer libraries
+	- Remove old and unused javascript libraries
+	- Improved BBcode to Markdown conversion
+	- Introduce inline SVG support via BBcode
+	- Sanitize title on Atom/RSS feed import
+	- Improved HTTP headers cache support for photos
+	- Add date headers to signed headers
+	- Add check if item['tag'] is an array
+	- Add hook comments_are_now_closed for addons to override date based comment closure
+	- Change mysql schema for item.llink and item.plink for new installs from char(191) to text
+	- Improved photo cache expiration
+	- Improved plural function processing on translation strings creation from .po file with util/po2php utlility
+	- Improved support for CDN/Infrastructure caching (especially profile images)
+	- New japanese translation
+	- Add connect button for non-zot networks not connected in current location
+	- Allow to send forum channels wall2wall or sent by mentions post to external sites via addons
+	- Allow addons to process forum posts published through mentions
+	- Improved internal routing for ActivityPub messages
+	- Improved admin documentation
+	- Add ITEM_TYPE_CUSTOM and hooks to permit addons to create and distribute custom item types
+	- Support "comment policy" in Zot6 communications
+	- Add selected text as quote on reply if comment button is used
+	- Add more nofollow tags to links to discourage backlink farmers
+	- Improved conversion of emoji reactions from zot to zot6
+	- Add CardDAV/CalDAV autodiscovery
+	- Label source project of zotfeed since it is not completely compatible across projects
+	- Update homeinstall script
+
+	Bugfixes
+	- Fix wildcard tag issue
+	- Fix duplicate attachment in jot fileupload
+	- Fix regression with audio file upload
+	- Fix can not edit menu name or title (#1402)
+	- Fix pagination encoding issue for some server setups
+	- Fix Zap->Hubzilla event title compatibility
+	- Fix event timezones for Zot6
+	- Fix missing summary in mod article_edit
+	- Fix PHP warning failed to write session data using user defined save handler
+	- Fix possible thumbnails distortion on rebuild with util/thumbrepair utility
+	- Fix issues with image import to zot6
+	- Fix attachment permissions on clonned channels sync
+	- Fix entries without sitekey returned from DB in queue_deliver() and Lib/Queue
+
+	Addons
+	- Livejournal: add link to original post option
+	- Flashcards: update to version 2.06
+	- Pubcrawl: compatibility changes to support pixelfed
+	- Cart: update paypal button to API v2
+	- Photocache: rework for speed and lower memory consumption
+	- Photocache: etag support for cached photos
+	- Photocache: purge cache on addon uninstall
+	- Openstreetmap: fix regression if no default values set
+	- Livejournal: allow send posts from non channel owner
+	- Pubcrawl: fix event timezones
+	- Pubcrawl: better ActivityPub channel URL detection
+	- Pubcrawl: fix comments delivery for other channels on the same hub
+	- New addon "workflow" with initial basic "issue tracker" capability
+
+
+
 Hubzilla 4.4.1 (2019-08-16)
 	- Fix wrong profile photo displayed when previewing and editing profiles
 	- Fix regression from 4.4 which prevented encrypted signatures from being used for encrypted messages

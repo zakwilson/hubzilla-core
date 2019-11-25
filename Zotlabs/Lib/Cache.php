@@ -11,8 +11,10 @@ class Cache {
 
 		$hash = hash('whirlpool',$key);
 
-		$r = q("SELECT v FROM cache WHERE k = '%s' limit 1",
-			dbesc($hash)
+		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
+			dbesc($hash),
+			db_utcnow(),
+			db_quoteinterval(get_config('system','object_cache_days', '7') . ' DAY')
 		);
 			
 		if ($r)

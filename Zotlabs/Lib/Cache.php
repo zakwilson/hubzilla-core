@@ -11,8 +11,10 @@ class Cache {
 
 		$hash = hash('whirlpool',$key);
 
-		$r = q("SELECT v FROM cache WHERE k = '%s' limit 1",
-			dbesc($hash)
+		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
+			dbesc($hash),
+			db_utcnow(),
+			db_quoteinterval(get_config('system','object_cache_days', '30') . ' DAY')
 		);
 			
 		if ($r)
@@ -40,12 +42,5 @@ class Cache {
 				dbesc(datetime_convert()));
 		}
 	}
-
-		
-	public static function clear() {
-		q("DELETE FROM cache WHERE updated < '%s'",
-			dbesc(datetime_convert('UTC','UTC',"now - 30 days")));			
-	}
-		
 }
 	 

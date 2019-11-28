@@ -1080,7 +1080,6 @@ class Photos extends \Zotlabs\Web\Controller {
 				$comments = '';
 				if(! $r) {
 					if($observer && ($can_post || $can_comment)) {
-						$feature_auto_save_draft = ((feature_enabled($owner_uid, 'auto_save_draft')) ? "true" : "false");
 						$commentbox = replace_macros($cmnt_tpl,array(
 							'$return_path' => '', 
 							'$mode' => 'photos',
@@ -1096,8 +1095,7 @@ class Photos extends \Zotlabs\Web\Controller {
 							'$submit' => t('Submit'),
 							'$preview' => t('Preview'),
 							'$ww' => '',
-							'$feature_encrypt' => false,
-							'$auto_save_draft' => $feature_auto_save_draft
+							'$feature_encrypt' => false
 						));
 					}
 				}

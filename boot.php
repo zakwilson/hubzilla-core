@@ -1205,7 +1205,8 @@ class App {
 				'$linkrel'         => head_get_links(),
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
-				'$channel_id'      => self::$profile['uid']
+				'$channel_id'      => self::$profile['uid'],
+				'$auto_save_draft' => ((feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
 			]
 		) . self::$page['htmlhead'];
 

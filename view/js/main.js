@@ -1774,7 +1774,9 @@ function sse_updateNotifications(type, mid, interactive) {
 	if(! interactive)
 		return true;
 
-	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut();
+	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut(function() {
+		this.remove();
+	});
 
 }
 

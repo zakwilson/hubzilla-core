@@ -6,6 +6,7 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
+use Zotlabs\Lib\XConfig;
 
 class Sse extends Controller {
 
@@ -83,30 +84,17 @@ class Sse extends Controller {
 				}
 			}
 
-			/**
-			 * Chatpresence continued... if somebody hasn't pinged recently, they've most likely left the page
-			 * and shouldn't count as online anymore. We allow an expection for bots.
-			 */
-			q("delete from chatpresence where cp_last < %s - INTERVAL %s and cp_client != 'auto' ",
-				db_utcnow(),
-				db_quoteinterval('3 MINUTE')
-			);
+			XConfig::Load(self::$ob_hash);
 
-			$x = q("SELECT v FROM xconfig WHERE xchan = '%s' AND cat = 'sse' AND k = 'notifications'",
-				dbesc(self::$ob_hash)
-			);
+			$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+			$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
-			if($x) {
-				$result = unserialize($x[0]['v']);
-			}
-
-			if($result) {
+			if($result && !$lock) {
 				echo "event: notifications\n";
 				echo 'data: ' . json_encode($result);
 				echo "\n\n";
 
-				set_xconfig(self::$ob_hash, 'sse', 'notifications', []);
-				set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
 				unset($result);
 			}
 
@@ -120,7 +108,7 @@ class Sse extends Controller {
 
 			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
 				//TODO: this does not seem to be triggered
-				set_xconfig(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+				XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
 				break;
 			}
 

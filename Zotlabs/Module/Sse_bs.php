@@ -40,9 +40,6 @@ class Sse_bs extends Controller {
 		self::$offset = 0;
 		self::$xchans = '';
 
-		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
-		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
-
 		if(!empty($_GET['nquery']) && $_GET['nquery'] !== '%') {
 			$nquery = $_GET['nquery'];
 
@@ -79,6 +76,10 @@ class Sse_bs extends Controller {
 				break;
 			default:
 		}
+
+		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+		set_xconfig(self::$ob_hash, 'sse', 'notifications', []); // reset the cache
+		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
 
 		if(self::$offset && $f) {
 			$result = self::$f(true);

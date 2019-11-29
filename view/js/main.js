@@ -1606,7 +1606,6 @@ function sse_bs_init() {
 }
 
 function sse_bs_counts() {
-	console.log('sse_bs_counts');
 	$.get('/sse_bs',function(obj) {
 		console.log(obj);
 		sse_handleNotifications(obj, true, false);
@@ -1614,9 +1613,6 @@ function sse_bs_counts() {
 }
 
 function sse_bs_notifications(e, replace, followup) {
-
-	console.log('sse_bs_notifications');
-
 	sse_bs_active = true;
 	var manual = false;
 

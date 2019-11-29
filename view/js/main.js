@@ -23,7 +23,7 @@ var mediaPlaying = false;
 var contentHeightDiff = 0;
 var liveRecurse = 0;
 var savedTitle = '';
-var initialLoad = true;
+var followUpPageLoad = false;
 var window_needs_alert = true;
 
 var sse_bs_active = false;
@@ -124,8 +124,6 @@ $(document).ready(function() {
 		myWorker.port.start();
 	}
 
-	sse_bs_init();
-
 	$('.notification-link').on('click', { replace: true, followup: false }, sse_bs_notifications);
 
 	$('.notification-filter').on('keypress', function(e) {
@@ -218,8 +216,6 @@ $(document).ready(function() {
 	var e = document.getElementById('content-complete');
 	if(e)
 		pageHasMoreContent = false;
-
-	initialLoad = false;
 
 });
 
@@ -718,6 +714,14 @@ function updateConvItems(mode,data) {
 
 	});
 
+	// We are actually dealing with counts in sse_updateNotifications()
+	// for notifications which are already visible. For the case where
+	// unseen items were loaded but their notifications are not yet visible
+	// we need to bootstrap counts here to stay in sync with the DB after
+	// the first page load.
+
+	if(followUpPageLoad)
+		sse_bs_counts();
 
 	// reset rotators and cursors we may have set before reaching this place
 
@@ -772,6 +776,8 @@ function updateConvItems(mode,data) {
 
 		$(document.body).trigger("sticky_kit:recalc");
 	}
+
+	followUpPageLoad = true;
 
 }
 
@@ -864,6 +870,7 @@ function updateInit() {
 	if(src) {
 		liveUpdate();
 	}
+	sse_bs_init();
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
 		if(liking) {
@@ -1594,14 +1601,21 @@ function sse_bs_init() {
 		sse_bs_notifications(sse_type, true, false);
 	}
 	else {
-		$.get('/sse_bs',function(obj) {
-			console.log(obj);
-			sse_handleNotifications(obj, true, false);
-		});
+		sse_bs_counts();
 	}
 }
 
+function sse_bs_counts() {
+	console.log('sse_bs_counts');
+	$.get('/sse_bs',function(obj) {
+		console.log(obj);
+		sse_handleNotifications(obj, true, false);
+	});
+}
+
 function sse_bs_notifications(e, replace, followup) {
+
+	console.log('sse_bs_notifications');
 
 	sse_bs_active = true;
 	var manual = false;
@@ -1668,10 +1682,12 @@ function sse_handleNotifications(obj, replace, followup) {
 	all_notifications.forEach(function(type, index) {
 		if(obj[type] && obj[type].count) {
 			$('.' + type + '-button').fadeIn();
+
 			if(replace || followup)
 				$('.' + type + '-update').html(Number(obj[type].count));
 			else
 				$('.' + type + '-update').html(Number(obj[type].count) + Number($('.' + type + '-update').html()));
+
 		}
 		if(obj[type] && obj[type].notifications.length)
 			sse_handleNotificationsItems(type, obj[type].notifications, replace, followup);

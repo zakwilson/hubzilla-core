@@ -722,6 +722,8 @@ function updateConvItems(mode,data) {
 
 	if(followUpPageLoad)
 		sse_bs_counts();
+	else
+		sse_bs_init();
 
 	// reset rotators and cursors we may have set before reaching this place
 
@@ -870,7 +872,9 @@ function updateInit() {
 	if(src) {
 		liveUpdate();
 	}
-	sse_bs_init();
+	else {
+		sse_bs_init();
+	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
 		if(liking) {
@@ -1672,18 +1676,16 @@ function sse_bs_notifications(e, replace, followup) {
 function sse_handleNotifications(obj, replace, followup) {
 
 	var primary_notifications = ['home', 'intros', 'register', 'mail', 'notify', 'files'];
-	var secondary_notifications = ['network', 'all_events', 'pubs'];
+	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 	var all_notifications = primary_notifications.concat(secondary_notifications);
 
 	all_notifications.forEach(function(type, index) {
 		if(obj[type] && obj[type].count) {
 			$('.' + type + '-button').fadeIn();
-
 			if(replace || followup)
 				$('.' + type + '-update').html(Number(obj[type].count));
 			else
 				$('.' + type + '-update').html(Number(obj[type].count) + Number($('.' + type + '-update').html()));
-
 		}
 		if(obj[type] && obj[type].notifications.length)
 			sse_handleNotificationsItems(type, obj[type].notifications, replace, followup);
@@ -1780,8 +1782,9 @@ function sse_updateNotifications(type, mid, interactive) {
 			sse_setNotificationsStatus();
 		});
 	}
-	else
+	else {
 		$('.' + type + '-update').html(count);
+	}
 
 	if(! interactive)
 		return true;
@@ -1794,7 +1797,7 @@ function sse_updateNotifications(type, mid, interactive) {
 
 function sse_setNotificationsStatus() {
 	var primary_notifications = ['home', 'intros', 'register', 'mail', 'notify', 'files'];
-	var secondary_notifications = ['network', 'all_events', 'pubs'];
+	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 	var all_notifications = primary_notifications.concat(secondary_notifications);
 
 	var primary_available = false;

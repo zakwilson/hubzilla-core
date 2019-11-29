@@ -736,6 +736,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'delete' => t('Delete'),
 					'preview_lbl' => $preview_lbl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
+					'mids' => json_encode(['b64.' . base64url_encode($item['mid'])]),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
 					'thread_action_menu' => thread_action_menu($item,$mode),

@@ -1121,6 +1121,30 @@ function doscrollback(pos) {
 	$(window).scrollTop(pos);
 }
 
+function dopin(id) {
+        id = id.toString();
+        $('#like-rotator-' + id).show();
+        $.post('pin', { 'id' : id } )
+                .done(function() {
+                        var i = $('#wall-item-pinned-' + id);
+                        var me = $('#item-pinnable-' + id);
+                        $('#pinned-wrapper-' + id).fadeOut(function() { this.remove() });
+                        $('.wall-item-pinned').remove();
+                        if(i.length)
+                                me.html(me.html().replace(aStr['unpin_item'],aStr['pin_item']));
+                        else {
+                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>')
+                                me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
+                        };
+                })
+                .fail(function() {
+                        location.reload();
+                })
+                .always(function() {
+                        $('#like-rotator-' + id).hide();
+                });
+}
+
 function dropItem(url, object) { 
 
 	var confirm = confirmDelete();

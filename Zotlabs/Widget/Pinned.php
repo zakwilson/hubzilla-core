@@ -105,6 +105,7 @@ class Pinned {
 				'folders'		=> $body['folders'],
 				'text'			=> strip_tags($body['html']),
 				'id'			=> $item['id'],
+				'mids'			=> json_encode([ 'b64.' . base64url_encode($item['mid']) ]),
 				'isevent'		=> $isevent,
 				'attend'		=> $attend,
 				'consensus'		=> $consensus,

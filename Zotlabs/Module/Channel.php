@@ -468,6 +468,13 @@ class Channel extends Controller {
 				);
 			}
 		}
+		
+		// Add pinned content
+		if(! $decoded && ! $search) {
+		    $pinned = new \Zotlabs\Widget\Pinned;
+		    $r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
+		    $o .= $r['html'];
+        }
 
 		$mode = (($search) ? 'search' : 'channel');
 

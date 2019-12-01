@@ -1128,7 +1128,12 @@ function dopin(id) {
                 .done(function() {
                         var i = $('#wall-item-pinned-' + id);
                         var me = $('#item-pinnable-' + id);
-                        $('#pinned-wrapper-' + id).fadeOut(function() { this.remove(); });
+                        if($('#pinned-wrapper-' + id).length) {
+                                $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
+                                        $('#pinned-wrapper-' + id).fadeOut(function() { this.remove(); 
+                                    });
+                                });
+                        };
                         $('.wall-item-pinned').remove();
                         if(i.length)
                                 me.html(me.html().replace(aStr['unpin_item'],aStr['pin_item']));

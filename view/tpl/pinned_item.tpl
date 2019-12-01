@@ -1,4 +1,4 @@
-<div id="pinned-wrapper-{{$id}}" class="thread-wrapper toplevel_item generic-content-wrapper h-entry">
+<div id="pinned-wrapper-{{$id}}" class="thread-wrapper toplevel_item generic-content-wrapper h-entry" data-b64mids='{{$mids}}'>
 	<div class="wall-item-outside-wrapper" id="wall-item-outside-wrapper-{{$id}}">
 		<div class="clearfix wall-item-content-wrapper" id="wall-item-content-wrapper-{{$id}}">
 			{{if $photo}}
@@ -144,4 +144,3 @@
 		</div>
 	</div>
 </div>
-

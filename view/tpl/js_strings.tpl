@@ -33,7 +33,7 @@
 		'name_empty'  : "{{$name_empty}}",
 		'name_ok1'    : "{{$name_ok1}}",
 		'name_ok2'    : "{{$name_ok2}}",
-		'to_reply'	  : "{{$to_reply}}",
+		'to_reply'    : "{{$to_reply}}",
 		'pinned'      : "{{$pinned}}",
 		'pin_item'    : "{{$pin_item}}",
 		'unpin_item'  : "{{$unpin_item}}",

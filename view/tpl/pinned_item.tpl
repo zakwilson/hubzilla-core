@@ -1,18 +1,18 @@
 <div id="pinned-wrapper-{{$id}}" class="thread-wrapper toplevel_item generic-content-wrapper h-entry" data-b64mids='{{$mids}}'>
-	<div class="wall-item-outside-wrapper" id="wall-item-outside-wrapper-{{$id}}">
-		<div class="clearfix wall-item-content-wrapper" id="wall-item-content-wrapper-{{$id}}">
+	<div class="wall-item-outside-wrapper" id="pinned-item-outside-wrapper-{{$id}}">
+		<div class="clearfix wall-item-content-wrapper" id="pinned-item-content-wrapper-{{$id}}">
 			{{if $photo}}
-				<div class="wall-photo-item" id="wall-photo-item-{{$id}}">
+				<div class="wall-photo-item" id="pinned-photo-item-{{$id}}">
 					{{$photo}}
 				</div>
 			{{/if}}
 			{{if $event}}
-				<div class="wall-event-item" id="wall-event-item-{{$id}}">
+				<div class="wall-event-item" id="pinned-event-item-{{$id}}">
 					{{$event}}
 				</div>
 			{{/if}}
 			{{if $title && !$event}}
-				<div class="p-2{{if $is_new}} bg-primary text-white{{/if}} wall-item-title h3{{if !$photo}} rounded-top{{/if}}" id="wall-item-title-{{$id}}">
+				<div class="p-2{{if $is_new}} bg-primary text-white{{/if}} wall-item-title h3{{if !$photo}} rounded-top{{/if}}" id="pinned-item-title-{{$id}}">
 					{{if $title_tosource}}
 						{{if $plink}}
 							<a href="{{$plink.href}}" title="{{$title}} ({{$plink.title}})" rel="nofollow">
@@ -31,9 +31,9 @@
 			{{/if}}
 			<div class="p-2 clearfix wall-item-head{{if !$title && !$event && !$photo}} rounded-top{{/if}}{{if $is_new && !$event}} wall-item-head-new{{/if}}">
 				<span class="float-right wall-item-pinned" title="{{$pinned}}"><i class="fa fa-thumb-tack">&nbsp;</i></span>
-				<div class="wall-item-info" id="wall-item-info-{{$id}}" >
-					<div class="wall-item-photo-wrapper{{if $owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$id}}">
-						<img src="{{$thumb}}" class="fakelink wall-item-photo u-photo p-name" id="wall-item-photo-{{$id}}" alt="{{$name}}" data-toggle="dropdown" />
+				<div class="wall-item-info" id="pinned-item-info-{{$id}}" >
+					<div class="wall-item-photo-wrapper{{if $owner_url}} wwfrom{{/if}} h-card p-author" id="pinned-item-photo-wrapper-{{$id}}">
+						<img src="{{$thumb}}" class="fakelink wall-item-photo u-photo p-name" id="pinned-item-photo-{{$id}}" alt="{{$name}}" data-toggle="dropdown" />
 						{{if $thread_author_menu}}
 							<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-toggle="dropdown"></i>
 							<div class="dropdown-menu">
@@ -45,18 +45,18 @@
 					</div>
 				</div>
 				<div class="wall-item-author">
-					<a href="{{$profile_url}}" title="{{$linktitle}}" class="wall-item-name-link u-url"><span class="wall-item-name" id="wall-item-name-{{$id}}" >{{$name}}</span></a>{{if $owner_url}}&nbsp;{{$via}}&nbsp;<a href="{{$owner_url}}" title="{{$olinktitle}}" class="wall-item-name-link"><span class="wall-item-name" id="wall-item-ownername-{{$id}}">{{$owner_name}}</span></a>{{/if}}
+					<a href="{{$profile_url}}" title="{{$linktitle}}" class="wall-item-name-link u-url"><span class="wall-item-name" id="pinned-item-name-{{$id}}" >{{$name}}</span></a>{{if $owner_url}}&nbsp;{{$via}}&nbsp;<a href="{{$owner_url}}" title="{{$olinktitle}}" class="wall-item-name-link"><span class="wall-item-name" id="pinned-item-ownername-{{$id}}">{{$owner_name}}</span></a>{{/if}}
 				</div>
-				<div class="wall-item-ago"  id="wall-item-ago-{{$id}}">
-					{{if $verified}}<i class="fa fa-check item-verified" title="{{$verified}}"></i>&nbsp;{{elseif $forged}}<i class="fa fa-exclamation item-forged" title="{{$forged}}"></i>&nbsp;{{/if}}{{if $location}}<span class="wall-item-location p-location" id="wall-item-location-{{$id}}">{{$location}},&nbsp;</span>{{/if}}<span class="autotime" title="{{$isotime}}"><time class="dt-published" datetime="{{$isotime}}">{{$localtime}}</time>{{if $editedtime}}&nbsp;{{$editedtime}}{{/if}}{{if $expiretime}}&nbsp;{{$expiretime}}{{/if}}</span>{{if $editedtime}}&nbsp;<i class="fa fa-pencil"></i>{{/if}}&nbsp;{{if $app}}<span class="item.app">{{$str_app}}</span>{{/if}}
+				<div class="wall-item-ago"  id="pinned-item-ago-{{$id}}">
+					{{if $verified}}<i class="fa fa-check item-verified" title="{{$verified}}"></i>&nbsp;{{elseif $forged}}<i class="fa fa-exclamation item-forged" title="{{$forged}}"></i>&nbsp;{{/if}}{{if $location}}<span class="wall-item-location p-location" id="pinned-item-location-{{$id}}">{{$location}},&nbsp;</span>{{/if}}<span class="autotime" title="{{$isotime}}"><time class="dt-published" datetime="{{$isotime}}">{{$localtime}}</time>{{if $editedtime}}&nbsp;{{$editedtime}}{{/if}}{{if $expiretime}}&nbsp;{{$expiretime}}{{/if}}</span>{{if $editedtime}}&nbsp;<i class="fa fa-pencil"></i>{{/if}}&nbsp;{{if $app}}<span class="item.app">{{$str_app}}</span>{{/if}}
 				</div>
 			</div>
 			{{if $divider}}
 				<hr class="wall-item-divider">
 			{{/if}}
 			{{if $body}}
-				<div class="p-2 wall-item-content clearfix" id="wall-item-content-{{$id}}">
-					<div class="wall-item-body e-content" id="wall-item-body-{{$id}}" >
+				<div class="p-2 wall-item-content clearfix" id="pinned-item-content-{{$id}}">
+					<div class="wall-item-body e-content" id="pinned-item-body-{{$id}}" >
 						{{$body}}
 					</div>
 				</div>
@@ -71,14 +71,14 @@
 				<div class="p-2 clearfix wall-item-tools">
 					<div class="float-right wall-item-tools-right">
 						<div class="btn-group">
-							<div id="like-rotator-{{$id}}" class="spinner-wrapper">
+							<div id="pinned-rotator-{{$id}}" class="spinner-wrapper">
 								<div class="spinner s"></div>
 							</div>
 						</div>
 						<div class="btn-group">
 						{{if $isevent}}
 							<div class="btn-group">
-								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-attend-menu-{{$id}}" title="{{$attend_title}}">
+								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="pinned-item-attend-menu-{{$id}}" title="{{$attend_title}}">
 									<i class="fa fa-calendar-check-o"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right">
@@ -96,7 +96,7 @@
 						{{/if}}
 						{{if $canvote}}
 							<div class="btn-group">
-								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-consensus-menu-{{$id}}" title="{{$vote_title}}">
+								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="pinned-item-consensus-menu-{{$id}}" title="{{$vote_title}}">
 									<i class="fa fa-check-square-o"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-consensus-menu-{{$id}}">
@@ -113,7 +113,7 @@
 							</div>
 						{{/if}}
 						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-menu-{{$id}}">
+							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="pinned-item-menu-{{$id}}">
 								<i class="fa fa-cog"></i>
 							</button>
 							<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$id}}">
@@ -131,9 +131,9 @@
 					</div>
 				</div>
 				{{if $attachments}}
-					<div class="wall-item-tools-left btn-group" id="wall-item-tools-left-{{$id}}">
+					<div class="wall-item-tools-left btn-group" id="pinned-item-tools-left-{{$id}}">
 						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$id}}">
+							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="pinned-attachment-menu-{{$id}}">
 								<i class="fa fa-paperclip"></i>
 							</button>
 							<div class="dropdown-menu">{{$attachments}}</div>

@@ -130,14 +130,49 @@
 						</div>
 					</div>
 				</div>
-				{{if $attachments}}
+				{{if $responses || $attachments}}
 					<div class="wall-item-tools-left btn-group" id="pinned-item-tools-left-{{$id}}">
-						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="pinned-attachment-menu-{{$id}}">
-								<i class="fa fa-paperclip"></i>
-							</button>
-							<div class="dropdown-menu">{{$attachments}}</div>
-						</div>
+						{{if $attachments}}
+							<div class="wall-item-tools-left btn-group" id="pinned-item-tools-left-{{$id}}">
+								<div class="btn-group">
+									<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="pinned-attachment-menu-{{$id}}">
+										<i class="fa fa-paperclip"></i>
+									</button>
+									<div class="dropdown-menu">{{$attachments}}</div>
+								</div>
+							</div>
+						{{/if}}
+						{{foreach $responses as $verb=>$response}}
+							{{if $response.count}}
+								<div class="btn-group">
+									<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle"{{if $response.modal}} data-toggle="modal" data-target="#{{$verb}}Modal-{{$id}}"{{else}} data-toggle="dropdown"{{/if}} id="pinned-item-{{$verb}}-{{$id}}">{{$response.count}} {{$response.button}}</button>
+									{{if $response.modal}}
+										<div class="modal" id="pinned-{{$verb}}Modal-{{$id}}">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h3 class="modal-title">{{$response.count}} {{$response.button}}</h3>
+														<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+													</div>
+													<div class="modal-body response-list">
+														<ul class="nav nav-pills flex-column">
+															{{foreach $response.list as $liker}}<li class="nav-item">{{$liker}}</li>{{/foreach}}
+														</ul>
+													</div>
+													<div class="modal-footer clear">
+														<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{{$modal_dismiss}}</button>
+													</div>
+												</div>
+											</div>
+										</div>
+									{{else}}
+										<div class="dropdown-menu">
+											{{foreach $response.list as $liker}}{{$liker}}{{/foreach}}
+										</div>
+									{{/if}}
+								</div>
+							{{/if}}
+						{{/foreach}}
 					</div>
 				{{/if}}
 			</div>

@@ -30,16 +30,16 @@ class Pinned {
 
 		$this->allowed_types = get_config('system', 'pin_types', [ ITEM_TYPE_POST ]);
 
-		$id_list = $this->list($types);
+		$items = $this->list($types);
 
-		if(empty($id_list))
+		if(empty($items))
 			return $ret;
 
-		$ret['ids'] = array_column($id_list, 'id');
+		$ret['ids'] = array_column($items, 'id');
 
 		$observer = \App::get_observer();
 
-		foreach($id_list as $item) {
+		foreach($items as $item) {
 			
 			$author = channelx_by_hash($item['author_xchan']);
 			$owner = channelx_by_hash($item['owner_xchan']);
@@ -48,20 +48,22 @@ class Pinned {
 			$profile_link = chanlink_hash($item['author_xchan']);
 			$profile_name = $author['xchan_name'];
 
-			$commentable = ($item['item_commnet'] == 0 && $item['comments_closed'] == NULL_DATE ? true : false);
+			$commentable = ($item['item_nocomment'] == 0 && $item['comments_closed'] == NULL_DATE ? true : false);
 
 			$location = format_location($item);
 			$isevent = false;
 			$attend = null;
 			$canvote = false;
-	
+
+			$response_verbs = [];
+
 			if($item['obj_type'] === ACTIVITY_OBJ_EVENT) {
 				$response_verbs[] = 'attendyes';
 				$response_verbs[] = 'attendno';
 				$response_verbs[] = 'attendmaybe';
 				if($commentable && $observer) {
-					$isevent = true;
 					$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+					$isevent = true;
 				}
 			}
 			
@@ -75,7 +77,19 @@ class Pinned {
 					$canvote = true;
 				}
 			}
+
+			$conv_responses = [
+				'agree' => [ 'title' => t('Agree','title') ],
+				'disagree' => [ 'title' => t('Disagree','title') ],
+				'abstain' => [ 'title' => t('Abstain','title') ], 
+				'attendyes' => [ 'title' => t('Attending','title') ], 
+				'attendno' => [ 'title' => t('Not attending','title') ], 
+				'attendmaybe' => [ 'title' => t('Might attend','title') ]
+			];
 			
+			$this->activity($item, $conv_responses);
+logger('$conv_responses: ' . print_r($conv_responses,true));
+
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 			$forged = ((! intval($item['item_verified']) && $item['sig']) ? t('Message signature incorrect') : '');
 			
@@ -96,56 +110,58 @@ class Pinned {
 			$body = prepare_body($item,true);
 			
 			$str = [
-				'item_type'		=> intval($item['item_type']),			
-				'body'			=> $body['html'],
-				'tags'			=> $body['tags'],
-				'categories'	=> $body['categories'],
-				'mentions'		=> $body['mentions'],
-				'attachments'	=> $body['attachments'],
-				'folders'		=> $body['folders'],
-				'text'			=> strip_tags($body['html']),
-				'id'			=> $item['id'],
-				'mids'			=> json_encode([ 'b64.' . base64url_encode($item['mid']) ]),
-				'isevent'		=> $isevent,
-				'attend'		=> $attend,
-				'consensus'		=> $consensus,
-				'conlabels'		=> $conlabels,
-				'canvote'		=> $canvote,
-				'linktitle' 	=> sprintf( t('View %s\'s profile - %s'), $profile_name, ($author['xchan_addr'] ? $author['xchan_addr'] : $author['xchan_url']) ),
-				'olinktitle' 	=> sprintf( t('View %s\'s profile - %s'), $owner['xchan_name'], ($owner['xchan_addr'] ? $owner['xchan_addr'] : $owner['xchan_url']) ),
-				'profile_url' 	=> $profile_link,
-				'name' 			=> $profile_name,
-				'thumb'			=> $profile_avatar,
-				'via'			=> t('via'),
-				'title'			=> $item['title'],
+				'item_type'	 => intval($item['item_type']),			
+				'body'		 => $body['html'],
+				'tags'		 => $body['tags'],
+				'categories'	 => $body['categories'],
+				'mentions'	 => $body['mentions'],
+				'attachments'	 => $body['attachments'],
+				'folders'	 => $body['folders'],
+				'text'		 => strip_tags($body['html']),
+				'id'		 => $item['id'],
+				'mids'		 => json_encode([ 'b64.' . base64url_encode($item['mid']) ]),
+				'isevent'	 => $isevent,
+				'attend'	 => $attend, 
+				'consensus'	 => $consensus,
+				'conlabels'	 => $conlabels,
+				'canvote'	 => $canvote,
+				'linktitle' 	 => sprintf( t('View %s\'s profile - %s'), $profile_name, ($author['xchan_addr'] ? $author['xchan_addr'] : $author['xchan_url']) ),
+				'olinktitle' 	 => sprintf( t('View %s\'s profile - %s'), $owner['xchan_name'], ($owner['xchan_addr'] ? $owner['xchan_addr'] : $owner['xchan_url']) ),
+				'profile_url' 	 => $profile_link,
+				'name'		 => $profile_name,
+				'thumb'		 => $profile_avatar,
+				'via'		 => t('via'),
+				'title'		 => $item['title'],
 				'title_tosource' => get_pconfig($item['uid'],'system','title_tosource'),
-				'ago'			=> relative_date($item['created']),
-				'app' 			=> $item['app'],
-				'str_app' 		=> sprintf( t('from %s'), $item['app'] ),
-				'isotime' 		=> datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
-				'localtime' 	=> datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
-				'editedtime' 	=> (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r') ) : ''),
-				'expiretime' 	=> ($item['expires'] > NULL_DATE ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r') ) : ''),
-				'lock' 			=> $lock,
-				'verified' 		=> $verified,
-				'forged' 		=> $forged,
-				'location' 		=> $location,
-				'divider' 		=> get_pconfig($item['uid'],'system','item_divider'),
-				'attend_title' 	=> t('Attendance Options'),
-				'vote_title' 	=> t('Voting Options'),
-				'is_new' 		=> $is_new,
-				'owner_url' 	=> ($owner['xchan_addr'] != $author['xchan_addr'] ? chanlink_hash($owner['xchan_hash']) : ''),
-				'owner_photo' 	=> $owner['xchan_photo_m'],
-				'owner_name' 	=> $owner['xchan_name'],
-				'photo' 		=> $body['photo'],
-				'event' 		=> $body['event'],
-				'has_tags' 		=> (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false),
+				'ago'		 => relative_date($item['created']),
+				'app'		 => $item['app'],
+				'str_app'	 => sprintf( t('from %s'), $item['app'] ),
+				'isotime'	 => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'c'),
+				'localtime'	 => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
+				'editedtime'	 => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r') ) : ''),
+				'expiretime'	 => ($item['expires'] > NULL_DATE ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r') ) : ''),
+				'lock' 		 => $lock,
+				'verified'	 => $verified,
+				'forged'	 => $forged,
+				'location'	 => $location,
+				'divider'	 => get_pconfig($item['uid'],'system','item_divider'),
+				'attend_title'	 => t('Attendance Options'),
+				'vote_title'	 => t('Voting Options'),
+				'is_new'	 => $is_new,
+				'owner_url'	 => ($owner['xchan_addr'] != $author['xchan_addr'] ? chanlink_hash($owner['xchan_hash']) : ''),
+				'owner_photo'	 => $owner['xchan_photo_m'],
+				'owner_name'	 => $owner['xchan_name'],
+				'photo'		 => $body['photo'],
+				'event'		 => $body['event'],
+				'has_tags'	 => (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false),
 				// Item toolbar buttons
-				'share'     	=> $share,
-				'embed'			=> $embed,
-				'plink'			=> get_plink($item),
-				'pinned'    	=> t('Pinned post')
+				'share'		 => $share,
+				'embed'		 => $embed,
+				'plink'		 => get_plink($item),
+				'pinned'	 => t('Pinned post'),
 				// end toolbar buttons
+				'modal_dismiss' => t('Close'),
+				'responses'	 => $conv_responses
 			];
 			
 			$tpl = get_markup_template('pinned_item.tpl');			
@@ -193,5 +209,75 @@ class Pinned {
 			return $r;
 		
 		return [];
+	}
+
+	
+	/*
+	 * @brief List activities on item
+	 *
+	 * @param array $item
+	 * @param array $conv_responses
+	 * @return array
+	 *
+	 */	
+	private function activity($item, &$conv_responses) {
+
+		foreach(array_keys($conv_responses) as $verb) {
+
+			switch($verb) {
+				case 'like':
+					$v = ACTIVITY_LIKE;
+					break;
+				case 'dislike':
+					$v = ACTIVITY_DISLIKE;
+					break;
+				case 'agree':
+					$v = ACTIVITY_AGREE;
+					break;
+				case 'disagree':
+					$v = ACTIVITY_DISAGREE;
+					break;
+				case 'abstain':
+					$v = ACTIVITY_ABSTAIN;
+					break;
+				case 'attendyes':
+					$v = ACTIVITY_ATTEND;
+					break;
+				case 'attendno':
+					$v = ACTIVITY_ATTENDNO;
+					break;
+				case 'attendmaybe':
+					$v = ACTIVITY_ATTENDMAYBE;
+					break;
+				default:
+					break;
+			}
+
+			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent AND verb IN ( '%s' ) AND item_deleted = 0",
+				intval($item['id']),
+				dbesc($v)
+			);
+			if(! $r) {
+				unset($conv_responses[$verb]);
+				continue;
+			}
+			
+			$conv_responses[$verb]['count'] = count($r);
+			$conv_responses[$verb]['button'] = get_response_button_text($verb, $conv_responses[$verb]['count']);
+			
+			foreach($r as $rr) {
+			
+				$author = q("SELECT * FROM xchan WHERE xchan_hash = '%s' LIMIT 1",
+					dbesc($rr['author_xchan'])
+				);
+				$name = ($author[0]['xchan_name'] ? $author[0]['xchan_name'] : t('Unknown'));
+				$conv_responses[$verb]['list'][] = (($rr['author_xchan'] && $author[0]['xchan_photo_s']) ?
+					'<a class="dropdown-item" href="' . chanlink_hash($rr['author_xchan']) . '">' . '<img class="menu-img-1" src="' . zid($author[0]['xchan_photo_s']) . '" alt="' . urlencode($name) . '" /> ' . $name . '</a>' : 
+					'<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
+				);
+			}
+		}
+		
+		$conv_responses['count'] = count($conv_responses);
 	}
 }

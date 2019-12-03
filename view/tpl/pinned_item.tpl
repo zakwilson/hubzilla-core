@@ -1,3 +1,14 @@
+{{if $hide}}
+<script>
+	function dopinhide(id) {
+		id = id.toString();
+		if($('#pinned-wrapper-' + id).length) {
+			$('#pinned-wrapper-' + id).fadeTo('fast', 0.33, function() { this.remove(); });
+			$.post('pin/hide', { 'id' : id });
+		}
+	}
+</script>
+{{/if}}
 <div id="pinned-wrapper-{{$id}}" class="thread-wrapper toplevel_item generic-content-wrapper h-entry" data-b64mids='{{$mids}}'>
 	<div class="wall-item-outside-wrapper" id="pinned-item-outside-wrapper-{{$id}}">
 		<div class="clearfix wall-item-content-wrapper" id="pinned-item-content-wrapper-{{$id}}">
@@ -118,14 +129,18 @@
 							</button>
 							<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$id}}">
 								{{if $share}}
-									<a class="dropdown-item" href="#" onclick="jotShare({{$id}},{{$item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$share.0}}"></i>{{$share.0}}</a>
+									<a class="dropdown-item" href="#" onclick="jotShare({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$share.0}}"></i>{{$share.0}}</a>
 								{{/if}}
 								{{if $embed}}
-									<a class="dropdown-item" href="#" onclick="jotEmbed({{$id}},{{$item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-share" title="{{$embed.0}}"></i>{{$embed.0}}</a>
+									<a class="dropdown-item" href="#" onclick="jotEmbed({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav fa fa-fw fa-share" title="{{$embed.0}}"></i>{{$embed.0}}</a>
 								{{/if}}
 								{{if $plink}}
 									<a class="dropdown-item" href="{{$plink.href}}" title="{{$plink.title}}" class="u-url"><i class="generic-icons-nav fa fa-fw fa-external-link"></i>{{$plink.title}}</a>
 								{{/if}}
+								{{if $hide}}
+									<a class="dropdown-item" href="#" onclick="dopinhide({{$id}}); return false;" class="u-url"><i class="generic-icons-nav fa fa-fw fa-remove"></i>{{$hide}}</a>
+								{{/if}}
+
 							</div>
 						</div>
 					</div>

@@ -1124,7 +1124,7 @@ function doscrollback(pos) {
 function dopin(id) {
         id = id.toString();
         $('#like-rotator-' + id).show();
-        $.post('pin', { 'id' : id })
+        $.post('pin/pin', { 'id' : id })
                 .done(function() {
                         var i = $('#wall-item-pinned-' + id);
                         var me = $('#item-pinnable-' + id);
@@ -1133,7 +1133,6 @@ function dopin(id) {
                                         $('#pinned-wrapper-' + id).fadeTo('fast', 0.33, function() { this.remove(); });
                                 });
                         };
-                        $('.wall-item-pinned').remove();
                         if(i.length)
                                 me.html(me.html().replace(aStr['unpin_item'],aStr['pin_item']));
                         else {
@@ -1156,12 +1155,12 @@ function dropItem(url, object) {
                 var id = url.split('/')[2];
                 $('body').css('cursor', 'wait');
                 $(object + ', #pinned-wrapper-' + id).fadeTo('fast', 0.33, function () {
-                        $.post('pin', { 'id' : id });
                         $.get(url).done(function() {
                                 $(object + ', #pinned-wrapper-' + id).remove();
                                 $('body').css('cursor', 'auto');
                         });
                 });
+                $.post('pin/pin', { 'id' : id });
                 return true;
         }
         else {

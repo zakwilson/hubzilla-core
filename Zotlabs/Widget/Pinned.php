@@ -88,7 +88,7 @@ class Pinned {
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 			$forged = ((! intval($item['item_verified']) && $item['sig']) ? t('Message signature incorrect') : '');
 			
-			$shareable = ((local_channel() && $item['item_private'] != 1) ? true : false);
+			$shareable = ((local_channel() && \App::$profile_uid == local_channel() && $item['item_private'] != 1) ? true : false);
 			if ($shareable) {
 				// This actually turns out not to be possible in some protocol stacks without opening up hundreds of new issues.
 				// Will allow it only for uri resolvable sources.

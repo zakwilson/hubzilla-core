@@ -41,6 +41,11 @@ class Pinned {
 
 		foreach($items as $item) {
 			
+			$midb64 = 'b64.' . base64url_encode($item['mid']);
+			
+			if(in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
+				continue;
+			
 			$author = channelx_by_hash($item['author_xchan']);
 			$owner = channelx_by_hash($item['owner_xchan']);
 			
@@ -58,9 +63,9 @@ class Pinned {
 			$conv_responses = [];
 
 			if($item['obj_type'] === ACTIVITY_OBJ_EVENT) {
-                                $conv_responses['attendyes'] = [ 'title' => t('Attending','title') ];
-                                $conv_responses['attendno'] = [ 'title' => t('Not attending','title') ];
-                                $conv_responses['attendmaybe'] = [ 'title' => t('Might attend','title') ];
+				$conv_responses['attendyes'] = [ 'title' => t('Attending','title') ];
+				$conv_responses['attendno'] = [ 'title' => t('Not attending','title') ];
+				$conv_responses['attendmaybe'] = [ 'title' => t('Might attend','title') ];
 				if($commentable && $observer) {
 					$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
 					$isevent = true;
@@ -69,9 +74,9 @@ class Pinned {
 			
 			$consensus = (intval($item['item_consensus']) ? true : false);
 			if($consensus) {
-                                $conv_responses['agree'] = [ 'title' => t('Agree','title') ];
-                                $conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
-                                $conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
+				$conv_responses['agree'] = [ 'title' => t('Agree','title') ];
+				$conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
+				$conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
 				if($commentable && $observer) {
 					$conlabels = array( t('I agree'), t('I disagree'), t('I abstain'));
 					$canvote = true;
@@ -109,7 +114,7 @@ class Pinned {
 				'folders'	 => $body['folders'],
 				'text'		 => strip_tags($body['html']),
 				'id'		 => $item['id'],
-				'mids'		 => json_encode([ 'b64.' . base64url_encode($item['mid']) ]),
+				'mids'		 => json_encode([ $midb64 ]),
 				'isevent'	 => $isevent,
 				'attend'	 => $attend, 
 				'consensus'	 => $consensus,
@@ -135,12 +140,12 @@ class Pinned {
 				'forged'	 => $forged,
 				'location'	 => $location,
 				'divider'	 => get_pconfig($item['uid'],'system','item_divider'),
-				'attend_title'	 => t('Attendance Options'),
-				'vote_title'	 => t('Voting Options'),
+				'attend_title' => t('Attendance Options'),
+				'vote_title' => t('Voting Options'),
 				'is_new'	 => $is_new,
 				'owner_url'	 => ($owner['xchan_addr'] != $author['xchan_addr'] ? chanlink_hash($owner['xchan_hash']) : ''),
-				'owner_photo'	 => $owner['xchan_photo_m'],
-				'owner_name'	 => $owner['xchan_name'],
+				'owner_photo'=> $owner['xchan_photo_m'],
+				'owner_name' => $owner['xchan_name'],
 				'photo'		 => $body['photo'],
 				'event'		 => $body['event'],
 				'has_tags'	 => (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false),
@@ -149,6 +154,7 @@ class Pinned {
 				'embed'		 => $embed,
 				'plink'		 => get_plink($item),
 				'pinned'	 => t('Pinned post'),
+				'hide'		 => (! $is_new && ($observer['xchan_hash'] != $owner['xchan_hash']) ? t("Don't show") : ''),
 				// end toolbar buttons
 				'modal_dismiss' => t('Close'),
 				'responses'	 => $conv_responses

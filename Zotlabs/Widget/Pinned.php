@@ -55,12 +55,12 @@ class Pinned {
 			$attend = null;
 			$canvote = false;
 
-			$response_verbs = [];
+			$conv_responses = [];
 
 			if($item['obj_type'] === ACTIVITY_OBJ_EVENT) {
-				$response_verbs[] = 'attendyes';
-				$response_verbs[] = 'attendno';
-				$response_verbs[] = 'attendmaybe';
+                                $conv_responses['attendyes'] = [ 'title' => t('Attending','title') ];
+                                $conv_responses['attendno'] = [ 'title' => t('Not attending','title') ];
+                                $conv_responses['attendmaybe'] = [ 'title' => t('Might attend','title') ];
 				if($commentable && $observer) {
 					$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
 					$isevent = true;
@@ -69,24 +69,15 @@ class Pinned {
 			
 			$consensus = (intval($item['item_consensus']) ? true : false);
 			if($consensus) {
-				$response_verbs[] = 'agree';
-				$response_verbs[] = 'disagree';
-				$response_verbs[] = 'abstain';
+                                $conv_responses['agree'] = [ 'title' => t('Agree','title') ];
+                                $conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
+                                $conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
 				if($commentable && $observer) {
 					$conlabels = array( t('I agree'), t('I disagree'), t('I abstain'));
 					$canvote = true;
 				}
 			}
 
-			$conv_responses = [
-				'agree' => [ 'title' => t('Agree','title') ],
-				'disagree' => [ 'title' => t('Disagree','title') ],
-				'abstain' => [ 'title' => t('Abstain','title') ], 
-				'attendyes' => [ 'title' => t('Attending','title') ], 
-				'attendno' => [ 'title' => t('Not attending','title') ], 
-				'attendmaybe' => [ 'title' => t('Might attend','title') ]
-			];
-			
 			$this->activity($item, $conv_responses);
 
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');

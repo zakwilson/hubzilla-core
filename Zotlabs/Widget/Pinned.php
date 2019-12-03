@@ -243,7 +243,7 @@ class Pinned {
 					break;
 			}
 
-			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent AND verb IN ( '%s' ) AND item_deleted = 0",
+			$r = q("SELECT * FROM item WHERE parent = %d AND id <> parent AND verb = '%s' AND item_deleted = 0",
 				intval($item['id']),
 				dbesc($v)
 			);

@@ -12,11 +12,8 @@ class Pin extends \Zotlabs\Web\Controller {
 
 	function init() {
 
-		if(argc() !== 1)
+		if(argc() !== 2)
 			http_status_exit(400, 'Bad request');
-
-		if(! local_channel())
-			http_status_exit(403, 'Forbidden');
 	}
 
 
@@ -27,24 +24,45 @@ class Pin extends \Zotlabs\Web\Controller {
 		if ($item_id <= 0)
 			http_status_exit(404, 'Not found');
 
-		$channel = \App::get_channel();
+		$observer = \App::get_observer();
+		if(! $observer)
+			http_status_exit(403, 'Forbidden');
 
-		$r = q("SELECT * FROM item WHERE id = %d AND id = parent AND uid = %d AND owner_xchan = '%s' AND item_private = 0 LIMIT 1",
-			$item_id,
-			intval($channel['channel_id']),
-			dbesc($channel['xchan_hash'])
+		$r = q("SELECT * FROM item WHERE id = %d AND id = parent AND item_private = 0 LIMIT 1",
+			$item_id
 		);
-		if(!$r) {
+		if(! $r) {
 			notice(t('Unable to locate original post.'));
 			http_status_exit(404, 'Not found');
 		}
-		else {
-			// Currently allow only one pinned item for each type
-			$midb64 = 'b64.' . base64url_encode($r[0]['mid']);
-			$pinned = (in_array($midb64, get_pconfig($channel['channel_id'], 'pinned', $r[0]['item_type'], [])) ? [] : [ $midb64 ]);
-			set_pconfig($channel['channel_id'], 'pinned', $r[0]['item_type'], $pinned);
-			
-			build_sync_packet($channel['channel_id'], [ 'config' ]);
+
+		$midb64 = 'b64.' . base64url_encode($r[0]['mid']);
+		$pinned = (in_array($midb64, get_pconfig($r[0]['uid'], 'pinned', $r[0]['item_type'], [])) ? true : false);
+
+		switch(argv(1)) {
+
+			case 'pin':
+				if(! local_channel() || local_channel() != $r[0]['uid'])
+					http_status_exit(403, 'Forbidden');
+				// Currently allow only one pinned item for each type
+				set_pconfig($r[0]['uid'], 'pinned', $r[0]['item_type'], ($pinned ? [] : [ $midb64 ]));
+				if($pinned)
+					del_pconfig($r[0]['uid'], 'pinned_hide', $midb64);
+				break;
+
+			case 'hide':
+				if($pinned) {
+					$hidden = get_pconfig($r[0]['uid'], 'pinned_hide', $midb64, []);
+					if(! in_array($observer['xchan_hash'], $hidden)) {
+						$hidden[] = $observer['xchan_hash'];
+						set_pconfig($r[0]['uid'], 'pinned_hide', $midb64, $hidden);
+					}
+				}
+
+			default:
+				http_status_exit(404, 'Not found');
 		}
+
+		build_sync_packet($r[0]['uid'], [ 'config' ]);
 	}
 }

@@ -88,7 +88,6 @@ class Pinned {
 			];
 			
 			$this->activity($item, $conv_responses);
-logger('$conv_responses: ' . print_r($conv_responses,true));
 
 			$verified = (intval($item['item_verified']) ? t('Message signature validated') : '');
 			$forged = ((! intval($item['item_verified']) && $item['sig']) ? t('Message signature incorrect') : '');

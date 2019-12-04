@@ -154,7 +154,7 @@ class Pinned {
 				'embed'		 => $embed,
 				'plink'		 => get_plink($item),
 				'pinned'	 => t('Pinned post'),
-				'pinme'      => t('Unpin from the top'),
+				'pinme'      => (($observer['xchan_hash'] == $owner['xchan_hash']) ? t('Unpin from the top') : ''),
 				'hide'		 => (! $is_new && $observer && ($observer['xchan_hash'] != $owner['xchan_hash']) ? t("Don't show") : ''),
 				// end toolbar buttons
 				'modal_dismiss' => t('Close'),

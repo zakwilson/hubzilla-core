@@ -9,7 +9,7 @@
 	}
 </script>
 {{/if}}
-<div id="pinned-wrapper-{{$id}}" class="thread-wrapper toplevel_item generic-content-wrapper h-entry" data-b64mids='{{$mids}}'>
+<div id="pinned-wrapper-{{$id}}" class="pinned-item thread-wrapper toplevel_item generic-content-wrapper h-entry" data-b64mids='{{$mids}}'>
 	<div class="wall-item-outside-wrapper" id="pinned-item-outside-wrapper-{{$id}}">
 		<div class="clearfix wall-item-content-wrapper" id="pinned-item-content-wrapper-{{$id}}">
 			{{if $photo}}
@@ -41,7 +41,7 @@
 				{{/if}}
 			{{/if}}
 			<div class="p-2 clearfix wall-item-head{{if !$title && !$event && !$photo}} rounded-top{{/if}}{{if $is_new && !$event}} wall-item-head-new{{/if}}">
-				<span class="float-right wall-item-pinned" title="{{$pinned}}"><i class="fa fa-thumb-tack">&nbsp;</i></span>
+				<span class="float-right" title="{{$pinned}}"><i class="fa fa-thumb-tack">&nbsp;</i></span>
 				<div class="wall-item-info" id="pinned-item-info-{{$id}}" >
 					<div class="wall-item-photo-wrapper{{if $owner_url}} wwfrom{{/if}} h-card p-author" id="pinned-item-photo-wrapper-{{$id}}">
 						<img src="{{$thumb}}" class="fakelink wall-item-photo u-photo p-name" id="pinned-item-photo-{{$id}}" alt="{{$name}}" data-toggle="dropdown" />

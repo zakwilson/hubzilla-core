@@ -1,4 +1,4 @@
-Hubzilla 4.6 (2019-11-??)
+Hubzilla 4.6 (2019-12-04)
 	- Improve opengraph support for channels
 	- Add opengraph support for articles
 	- Update abook_connected for RSS feeds only if handle_feed() returned success
@@ -52,7 +52,7 @@ Hubzilla 4.6 (2019-11-??)
 	Addons
 	- Twitter: send tweet even if attached image uploading was unsuccessful
 	- Livejournal: add link to original post option
-	- Flashcards: update to version 2.06
+	- Flashcards: update to version 2.08
 	- Pubcrawl: compatibility changes to support pixelfed
 	- Cart: update paypal button to API v2
 	- Photocache: rework for speed and lower memory consumption

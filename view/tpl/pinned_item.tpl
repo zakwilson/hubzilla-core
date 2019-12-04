@@ -137,10 +137,10 @@
 								{{if $plink}}
 									<a class="dropdown-item" href="{{$plink.href}}" title="{{$plink.title}}" class="u-url"><i class="generic-icons-nav fa fa-fw fa-external-link"></i>{{$plink.title}}</a>
 								{{/if}}
+								<a class="dropdown-item dropdown-item-pinnable" href="#" onclick="dopin({{$item.id}}); return false;"><i class="generic-icons-nav fa fa-fw fa-thumb-tack"></i>{{$item.pinme}}</a>
 								{{if $hide}}
 									<a class="dropdown-item" href="#" onclick="dopinhide({{$id}}); return false;" class="u-url"><i class="generic-icons-nav fa fa-fw fa-remove"></i>{{$hide}}</a>
 								{{/if}}
-
 							</div>
 						</div>
 					</div>

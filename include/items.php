@@ -206,6 +206,25 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 }
 
 function comments_are_now_closed($item) {
+
+	$x = [
+		'item' => $item,
+		'closed' => 'unset'
+	];
+
+	/**
+	 * @hooks comments_are_now_closed
+	 *   Called to determine whether commenting should be closed
+	 *   * \e array \b item
+	 *   * \e boolean \b closed - return value
+	 */
+
+	call_hooks('comments_are_now_closed', $x);
+
+	if ($x['closed'] != 'unset') {
+		return $x['closed'];
+	}
+
 	if($item['comments_closed'] > NULL_DATE) {
 		$d = datetime_convert();
 		if($d > $item['comments_closed'])
@@ -1640,20 +1659,14 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 			'allow_exec' => $allow_exec
 	];
 
-	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
-		/* Custom items are not stored by default
-		   because they require an addon to process. */
-		$d['item']['cancel']=true;
-
-		call_hooks('item_custom',$d);
-	}
 	/**
 	 * @hooks item_store
 	 *   Called when item_store() stores a record of type item.
 	 *   * \e array \b item
 	 *   * \e boolean \b allow_exec
 	 */
-	call_hooks('item_store', $d);
+	call_hooks('item_store_before', $d);
+
 	$arr = $d['item'];
 	$allow_exec = $d['allow_exec'];
 
@@ -1961,6 +1974,7 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 	 */
 	call_hooks('item_store', $arr);
 
+
 	/**
 	 * @hooks post_remote
 	 *   Called when an activity arrives from another site.
@@ -2129,14 +2143,6 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 			'allow_exec' => $allow_exec
 	];
 
-	if ($arr['item_type']==ITEM_TYPE_CUSTOM) {
-		/* Custom items are not stored by default
-		   because they require an addon to process. */
-		$d['item']['cancel']=true;
-
-		call_hooks('item_custom_update',$d);
-	}
-
 	/**
 	 * @hooks item_store_update
 	 *   Called when item_store_update() is called to update a stored item. It
@@ -2144,7 +2150,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	 *   * \e array \b item
 	 *   * \e boolean \b allow_exec
 	 */
-	call_hooks('item_store_update', $d);
+	call_hooks('item_store_update_before', $d);
 	$arr = $d['item'];
 	$allow_exec = $d['allow_exec'];
 

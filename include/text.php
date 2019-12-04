@@ -9,6 +9,8 @@ use Michelf\MarkdownExtra;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
 
+use Zotlabs\Lib\SvgSanitizer;
+
 require_once("include/bbcode.php");
 
 // random string, there are 86 characters max in text mode, 128 for hex
@@ -842,9 +844,9 @@ function get_tags($s) {
 	$ret = array();
 	$match = array();
 
-	// ignore anything in a code block
-
+	// ignore anything in a code or svg block
 	$s = preg_replace('/\[code(.*?)\](.*?)\[\/code\]/sm','',$s);
+	$s = preg_replace('/\[svg(.*?)\](.*?)\[\/svg\]/sm','',$s);
 
 	// ignore anything in [style= ]
 	$s = preg_replace('/\[style=(.*?)\]/sm','',$s);
@@ -2787,6 +2789,9 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			// select someone by attag or nick and the name passed in
 
 			if(! $r) {
+				// strip user-supplied wildcards before running a wildcard search
+				$newname = str_replace('%','',$newname);
+
 				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
 					WHERE xchan_addr like ('%s') AND abook_channel = %d ",
 						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
@@ -3412,18 +3417,20 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[svg(.*?)\[\/(svg)\]/ism','\red_escape_codeblock',$body);
 
-	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
+	$body = preg_replace_callback("/([^\]\='".'"'."\;\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\nakedoembed', $body);
 
-	$body = preg_replace_callback("/([^\]\='".'"'."\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
+	$body = preg_replace_callback("/([^\]\='".'"'."\;\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\red_zrl_callback', $body);
 
 
 	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
-
+	$body = preg_replace_callback('/\[\$b64svg(.*?)\[\/(svg)\]/ism','\red_unescape_codeblock',$body);
+	
 	// fix any img tags that should be zmg
 
 	$body = preg_replace_callback('/\[img(.*?)\](.*?)\[\/img\]/ism','\red_zrlify_img_callback',$body);
@@ -3647,4 +3654,24 @@ function new_uuid() {
 	}
 
 	return $hash;
+}
+
+
+function svg2bb($s) {
+
+	$s = preg_replace("/\<text (.*?)\>(.*?)\<(.*?)\<\/text\>/", '<text $1>$2&lt;$3</text>', $s);
+	$s = preg_replace("/\<text (.*?)\>(.*?)\>(.*?)\<\/text\>/", '<text $1>$2&gt;$3</text>', $s);
+	$s = preg_replace("/\<text (.*?)\>(.*?)\[(.*?)\<\/text\>/", '<text $1>$2&#91;$3</text>', $s);
+	$s = preg_replace("/\<text (.*?)\>(.*?)\](.*?)\<\/text\>/", '<text $1>$2&#93;$3</text>', $s);
+	$s = utf8_encode($s);
+	$purify = new SvgSanitizer();
+	if ($purify->loadXML($s)) {
+		$purify->sanitize();
+		$output = $purify->saveSVG();
+		$output = preg_replace("/\<\?xml(.*?)\>/",'',$output);
+		$output = preg_replace("/\<\!\-\-(.*?)\-\-\>/",'',$output);
+		$output = str_replace(['<','>'],['[',']'],$output);
+		return $output;
+	}
+	return EMPTY_STR;
 }

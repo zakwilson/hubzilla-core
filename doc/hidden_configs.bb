@@ -1,7 +1,10 @@
 [h1]Advanced Configurations for Administrators[/h1]
-$Projectname contains many configuration options hidden from the main admin panel.
 
-These are generally options considered too niche, confusing, or advanced for the average member.  These settings can be activated from the the top level web directory with the syntax
+[i]This document assumes you're an administrator.[/i]
+
+$Projectname contains many configuration options hidden from the main admin panel. These are generally options considered too niche, advanced or prone do confusion.
+
+These settings can be modified through the shell, from the the top level web directory, with the syntax:
 
 [code]util/config cat key value[/code] 
 for a site configuration, or 
@@ -9,8 +12,13 @@ for a site configuration, or
 [code]util/pconfig channel_id cat key value[/code] 
 for a member configuration.
 
-This document assumes you're an administrator.
-[h2]pconfig[/h2][dl terms="mb"]
+For a site configuration, another option is to add a line to .htconfig.php, with the syntax:
+[code]App::$config['cat']['key'] = 'value';[/code]
+
+
+[h2]Member configuration (pconfig)[/h2]
+
+[dl terms="mb"]
   [*= system.always_my_theme ] Always use your own theme when viewing channels on the same hub.  This will break in some quite imaginative ways when viewing channels with  theme dependent Comanche.
   [*= system.blocked ] An array of xchans blocked by this channel.  Technically, this is a hidden config and does belong here, however, addons (notably  superblock) have made this available in the UI.
   [*= system.default_cipher ] Set the default cipher used for E2EE items.
@@ -31,7 +39,10 @@ Options are:
   [*= system.anonymous_comments ] By default or if set to 1, custom permissions can be set to allow anonymous (moderated) comments like WordPress, moderated by the channel owner. If set to 0, no member of your site can select or enable this. 
   [*= system.user_scalable ] Determine if the app is scalable on touch screens.  Defaults to on, to  disable, set to zero - real zero, not just false.
 [/dl]
-[h2]Site config[/h2][dl terms="mb"]
+
+[h2]Site configuration[/h2]
+
+[dl terms="mb"]
   [*= randprofile.check ] When requesting a random profile, check that it actually exists first
   [*= randprofile.retry ] Number of times to retry getting a random profile
   [*= system.admin_email ] Specifies the administrator's email for this site.  This is initially set during install.
@@ -62,6 +73,7 @@ Options are:
   [*= system.max_tagged_forums ] Spam prevention. Limits the number of tagged forums which are recognised in any post. Default is 2. Only the first 'n' tags will be delivered as forums, the others will not cause any delivery. 
   [*= system.minimum_feedcheck_minutes ] The minimum interval between polling RSS feeds.  If this is lower than the cron interval, feeds will be polled with each cronjob. Defaults to 60 if not set. The site setting can also be over-ridden on a channel by channel basis by a service class setting aptly named 'minimum_feedcheck_minutes'.
   [*= system.no_age_restriction ] Do not restrict registration to people over the age of 13. This carries legal responsibilities in  many countries to require that age be provided and to block all personal information from minors,  so please check your local laws before changing.  
+  [*= system.object_cache_days] Set how long is cached embedded content can be used without refetching. Default is 30 days. 
   [*= system.openssl_conf_file ] Specify a file containing OpenSSL configuration. Needed in some Windows installations to  locate the openssl configuration file on the system.  Read the code first. If you can't read the code, don't play with it.
   [*= system.openssl_encrypt ] Use openssl encryption engine, default is false (uses mcrypt for AES encryption)
   [*= system.optimize_items ] Runs optimise_table during some tasks to keep your database nice and  defragmented.  This comes at a performance cost while the operations are running, but also keeps things a bit faster while it's not.   There also exist CLI utilities for performing this operation, which you may prefer, especially if you're a large site.
@@ -87,13 +99,19 @@ Options are:
   [*= system.workflow_channel_next ] The page to direct new members to immediately after creating a channel.
   [*= system.workflow_register_next ] The page to direct members to immediately after creating an account (only when auto_channel_create or UNO is enabled).
 [/dl]
-[h2]Directory config[/h2]
-[h3]Directory search defaults[/h3][dl terms="mb"]
+
+
+[h3]Directory config[/h3]
+
+[h4]Directory search defaults[/h4]
+
+[dl terms="mb"]
   [*= directory.globaldir ] 0 or 1. Default 0.  If you visit the directory on a site you'll just see the members of that site by default. You have to go through an extra step to see the people in the rest of the network; and by doing so there's a clear delineation that these people *aren't* members of that site but of a larger network.
   [*= directory.pubforums ] 0 or 1. Public forums [i]should[/i] be default 0.
   [*= directory.safemode ] 0 or 1.  
 [/dl]
-[h3]Directory server configuration[/h3][i](see [zrl=[baseurl]/help/directories]help/directories[/zrl])[/i]
+
+[h4]Directory server configuration[/h4][i](see [zrl=[baseurl]/help/directories]help/directories[/zrl])[/i]
 
 [dl terms="mb"]
   [*= system.directory_mode ]

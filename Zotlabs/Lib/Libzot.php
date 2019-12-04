@@ -1223,9 +1223,39 @@ class Libzot {
 				if($private) {
 					$arr['item_private'] = true;
 				}
+
+				if ($arr['mid'] === $arr['parent_mid']) {
+					if (is_array($AS->obj) && array_key_exists('commentPolicy',$AS->obj)) {
+						$p = strstr($AS->obj['commentPolicy'],'until=');
+						if($p !== false) {
+							$arr['comments_closed'] = datetime_convert('UTC','UTC', substr($p,6));
+							$arr['comment_policy'] = trim(str_replace($p,'',$AS->obj['commentPolicy']));
+						}
+						else {
+							 $arr['comment_policy'] = $AS->obj['commentPolicy'];
+						}
+					}
+				}
+
+
 				/// @FIXME - spoofable
 				if($AS->data['hubloc']) {
 					$arr['item_verified'] = true;
+
+					if (! array_key_exists('comment_policy',$arr)) {
+						// set comment policy depending on source hub. Unknown or osada is ActivityPub.
+						// Anything else we'll say is zot - which could have a range of project names
+						$s = q("select site_project from site where site_url = '%s' limit 1",
+							dbesc($r[0]['hubloc_url'])
+						);
+
+						if ((! $s) || (in_array($s[0]['site_project'],[ '', 'osada' ]))) {
+							$arr['comment_policy'] = 'authenticated';
+						}
+						else {
+							$arr['comment_policy'] = 'contacts';
+						}
+					}
 				}
 				if($AS->data['signed_data']) {
 					IConfig::Set($arr,'activitystreams','signed_data',$AS->data['signed_data'],false);
@@ -1734,7 +1764,7 @@ class Libzot {
 				// if it's a sourced post, call the post_local hooks as if it were
 				// posted locally so that crosspost connectors will be triggered.
 
-				if(check_item_source($arr['uid'], $arr)) {
+				if(check_item_source($arr['uid'], $arr) || ($channel['xchan_pubforum'] == 1)) {
 					/**
 					 * @hooks post_local
 					 *   Called when an item has been posted on this machine via mod/item.php (also via API).
@@ -1819,6 +1849,10 @@ class Libzot {
 
 		$ret = [];
 
+		$signer = q("select hubloc_hash, hubloc_url from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+			dbesc($a['signature']['signer'])
+		);
+
 		foreach($a['data']['orderedItems'] as $activity) {
 
 			$AS = new ActivityStreams($activity);
@@ -1877,6 +1911,23 @@ class Libzot {
 			if($AS->data['hubloc']) {
 				$arr['item_verified'] = true;
 			}
+
+			// set comment policy depending on source hub. Unknown or osada is ActivityPub.
+			// Anything else we'll say is zot - which could have a range of project names
+
+			if ($signer) {
+				$s = q("select site_project from site where site_url = '%s' limit 1",
+					dbesc($signer[0]['hubloc_url'])
+				);
+				if ((! $s) || (in_array($s[0]['site_project'],[ '', 'osada' ]))) {
+					$arr['comment_policy'] = 'authenticated';
+				}
+				else {
+					$arr['comment_policy'] = 'contacts';
+				}
+			}
+
+
 			if($AS->data['signed_data']) {
 				IConfig::Set($arr,'activitystreams','signed_data',$AS->data['signed_data'],false);
 			}

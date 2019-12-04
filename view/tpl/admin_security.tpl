@@ -13,6 +13,9 @@
 	{{include file="field_checkbox.tpl" field=$content_security}}
 	{{include file="field_checkbox.tpl" field=$embed_sslonly}}
 
+	{{include file="field_checkbox.tpl" field=$thumbnail_security}}
+	{{include file="field_checkbox.tpl" field=$inline_pdf}}
+
 	{{include file="field_textarea.tpl" field=$allowed_email}}
 	{{include file="field_textarea.tpl" field=$not_allowed_email}}	
 

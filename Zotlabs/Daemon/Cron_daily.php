@@ -44,6 +44,11 @@ class Cron_daily {
 			db_utcnow(), db_quoteinterval('1 YEAR')
 		);
 
+		// Clean up emdedded content cache
+		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
+		    db_utcnow(),
+		    db_quoteinterval(get_config('system','active_expire_days', '30') . ' DAY')
+		);
 
 		//update statistics in config
 		require_once('include/statistics_fns.php');

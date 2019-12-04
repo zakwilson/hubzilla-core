@@ -817,11 +817,6 @@ class Item extends Controller {
 							'revision' => $r['data']['revision']
 						);
 					}
-					$ext = substr($r['data']['filename'],strrpos($r['data']['filename'],'.'));
-					if(strpos($r['data']['filetype'],'audio/') !== false)
-						$attach_link =  '[audio]' . z_root() . '/attach/' . $r['data']['hash'] . '/' . $r['data']['revision'] . (($ext) ? $ext : '') . '[/audio]';
-					elseif(strpos($r['data']['filetype'],'video/') !== false)
-						$attach_link =  '[video]' . z_root() . '/attach/' . $r['data']['hash'] . '/' . $r['data']['revision'] . (($ext) ? $ext : '') . '[/video]';
 					$body = str_replace($match[1][$i],$attach_link,$body);
 					$i++;
 				}
@@ -1232,13 +1227,7 @@ class Item extends Controller {
 			killme();
 		}
 		
-		if(($parent) && ($parent != $post_id)) {
-			// Store the comment signature information in case we need to relay to Diaspora
-			//$ditem = $datarray;
-			//$ditem['author'] = $observer;
-			//store_diaspora_comment_sig($ditem,$channel,$parent_item, $post_id, (($walltowall_comment) ? 1 : 0));
-		}
-		else {
+		if(($parent == $post_id) || ($datarray['item_private'] == 1)) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
 			);

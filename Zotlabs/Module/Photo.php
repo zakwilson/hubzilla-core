@@ -31,12 +31,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				// NOTREACHED
 		}
 
-		$cache_mode = array(
-			'on' => false,
-			'age' => 86400,
-			'exp' => true,
-			'leak' => false
-		);
+		$cache_mode = [ 'on' => false, 'age' => 86400, 'exp' => true, 'leak' => false ];
 		call_hooks('cache_mode_hook', $cache_mode);
 		
 		$observer_xchan = get_observer_hash();
@@ -144,7 +139,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				    $resolution = 1;
 			}
 			
-			$r = q("SELECT uid, photo_usage, display_path FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
+			$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 				dbesc($photo),
 				intval($resolution)
 			);
@@ -163,13 +158,10 @@ class Photo extends \Zotlabs\Web\Controller {
 					if($u === PHOTO_CACHE) {
 						// Validate cache
 						if($cache_mode['on']) {
-							$cache = array(
-								'resid' => $photo,
-								'status' => false
-							);
+							$cache = [ 'status' => false, 'item' => $r[0] ];
 							call_hooks('cache_url_hook', $cache);
 							if(! $cache['status']) {
-								$url = html_entity_decode($r[0]['display_path'], ENT_QUOTES);
+								$url = html_entity_decode($cache['item']['display_path'], ENT_QUOTES);
 								// SSLify if needed
 								if(strpos(z_root(),'https:') !== false && strpos($url,'https:') === false)
 									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
@@ -229,7 +221,7 @@ class Photo extends \Zotlabs\Web\Controller {
 
 		header_remove('Pragma');
 
-		if($_SERVER['HTTP_IF_NONE_MATCH'] === $etag || $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT") {
+		if((isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH'] === $etag) || (!isset($_SERVER['HTTP_IF_NONE_MATCH']) && isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && $_SERVER['HTTP_IF_MODIFIED_SINCE'] === gmdate("D, d M Y H:i:s", $modified) . " GMT")) {
 			header_remove('Expires');
 			header_remove('Cache-Control');
 			header_remove('Set-Cookie');
@@ -272,7 +264,12 @@ class Photo extends \Zotlabs\Web\Controller {
 				$maxage = $expires - time();
 			
 		 	header("Expires: " . gmdate("D, d M Y H:i:s", $expires) . " GMT");
-			header("Cache-Control: max-age=" . $maxage . $cachecontrol);
+
+			// set CDN/Infrastructure caching much lower than maxage 
+			// in the event that infrastructure caching is present.
+			$smaxage = intval($maxage/12);
+
+			header("Cache-Control: s-maxage=" . $smaxage . ", max-age=" . $maxage . $cachecontrol);
 	
 		}
 

@@ -1058,7 +1058,7 @@ function pageUpdate() {
 		bParam_page = 1;
 	}
 
-	update_url = baseurl + '/' + page_query + '/?f=&aj=1&page=' + bParam_page + extra_args ;
+	update_url = baseurl + '/' + decodeURIComponent(page_query) + '/?f=&aj=1&page=' + bParam_page + extra_args ;
 
 	$("#page-spinner").show();
 	update_mode = 'append';
@@ -1140,15 +1140,17 @@ function doprofilelike(ident, verb) {
 	$.get('like/' + ident + '?verb=' + verb, function() { window.location.href=window.location.href; });
 }
 
+
 function doreply(parent, ident, owner, hint) {
-	var form = $('#comment-edit-form-' + parent.toString());
-	form.find('input[name=parent]').val(ident);
-	var i = form.find('button[type=submit]');
-	var btn = i.html().replace(/<[^>]*>/g, '').trim();
-	i.html('<i class="fa fa-reply" ></i> ' + btn);
-	i.prop('title', hint);
-	form.find('textarea').val("@{" + owner + "} ");
-	$('#comment-edit-text-' + parent.toString()).focus();
+        var form = $('#comment-edit-form-' + parent.toString());
+        form.find('input[name=parent]').val(ident);
+        var i = form.find('button[type=submit]');
+        var btn = i.html().replace(/<[^>]*>/g, '').trim();
+        i.html('<i class="fa fa-reply" ></i> ' + btn);
+        var sel = 'wall-item-body-' + ident.toString();
+        var quote = window.getSelection().toString().trim();
+        form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
+        $('#comment-edit-text-' + parent.toString()).focus();
 }
 
 function doscroll(parent, hidden) {

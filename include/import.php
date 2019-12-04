@@ -769,7 +769,24 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
  * @param array $relocate default null
  */
 function sync_items($channel, $items, $relocate = null) {
-	import_items($channel, $items, true, $relocate);
+
+        // Check if this is sync of not Zot-related content and we're connected to the top post owner
+        // to avoid confusing with cloned channels
+        $size = count($items);
+        for($i = 0; $i < $size; $i++) {
+                if(($items[$i]['owner']['network'] != 'zot') && ($items[$i]['owner']['network'] != 'zot6')) {
+                        $r = q("SELECT * FROM abook WHERE abook_channel = %d
+                                        AND abook_xchan = ( SELECT xchan_hash FROM xchan WHERE xchan_guid = '%s' LIMIT 1 )
+                                        AND abook_not_here = 0 AND abook_ignored = 0 AND abook_blocked = 0",
+                                intval($channel['channel_id']),
+                                dbesc($items[$i]['owner']['guid'])
+                        );
+                        if(! $r)
+                                unset($items[$i]);
+                }
+        }
+        if(count($items) > 0)
+                import_items($channel, $items, true, $relocate);
 }
 
 /**
@@ -1190,9 +1207,9 @@ function sync_files($channel, $files) {
 					logger('sync_files duplicate check: attach_by_hash() returned ' . print_r($x,true), LOGGER_DEBUG);
 
 					if($x['success']) {
-						$orig_attach = $x[0];
+						$orig_attach = $x['data'];
 						$attach_exists = true;
-						$attach_id = $x[0]['id'];
+						$attach_id = $orig_attach['id'];
 					}
 
 					$newfname = 'store/' . $channel['channel_address'] . '/' . get_attach_binname($att['content']);

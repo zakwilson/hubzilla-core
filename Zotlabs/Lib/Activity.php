@@ -2,10 +2,12 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
+require_once('include/html2plain.php');
 
 class Activity {
 
@@ -40,6 +42,8 @@ class Activity {
 			if($x['type'] === ACTIVITY_OBJ_PHOTO) {
 				return self::fetch_image($x); 
 			}
+
+			call_hooks('encode_object',$x);
 		}
 
 		return $x;
@@ -63,12 +67,32 @@ class Activity {
 		}
 		else {
 			$m = parse_url($url);
+
+			// handle bearcaps
+			if ($m['scheme'] === 'bear') {
+				$params = explode('&',$m['query']);
+				if ($params) {
+					foreach ($params as $p) {
+						if (substr($p,0,2) === 'u=') {
+							$url = substr($p,2);
+						}
+						if (substr($p,0,2) === 't=') {
+							$token = substr($p,2);
+						}
+					}
+					$m = parse_url($url);
+				}
+			}
+
 			$headers = [
 				'Accept'           => 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 				'Host'             => $m['host'],
-				'(request-target)' => 'get ' . get_request_string($url),
-				'Date'             => datetime_convert('UTC','UTC','now','D, d M Y H:i:s') . ' UTC'
+				'Date'             => datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T'),
+				'(request-target)' => 'get ' . get_request_string($url)
 			];
+			if (isset($token)) {
+				$headers['Authorization'] = 'Bearer ' . $token;
+			}
 			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
 			$x = z_fetch_url($url, true, $redirects, [ 'headers' => $h ] );
 		}
@@ -178,6 +202,11 @@ class Activity {
 			$ev = bbtoevent($x['content']);
 			if($ev) {
 
+
+				if (! $ev['timezone']) {
+					$ev['timezone'] = 'UTC';
+				}
+
 				$actor = null;
 				if(array_key_exists('author',$x) && array_key_exists('link',$x['author'])) {
 					$actor = $x['author']['link'][0]['href'];
@@ -185,16 +214,17 @@ class Activity {
 				$y = [ 
 					'type'      => 'Event',
 					'id'        => z_root() . '/event/' . $ev['event_hash'],
-					'summary'   => bbcode($ev['summary'], [ 'cache' => true ]),
+					'name'      => $ev['summary'],
+//					'summary'   => bbcode($ev['summary'], [ 'cache' => true ]),
 					// RFC3339 Section 4.3
-					'startTime' => (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
+					'startTime' => (($ev['adjust']) ? datetime_convert($ev['timezone'],'UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
 					'content'   => bbcode($ev['description'], [ 'cache' => true ]),
 					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location'], [ 'cache' => true ]) ],
 					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
 				if(! $ev['nofinish']) {
-					$y['endTime'] = (($ev['adjust']) ? datetime_convert('UTC','UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
+					$y['endTime'] = (($ev['adjust']) ? datetime_convert($ev['timezone'],'UTC',$ev['dtend'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtend'],'Y-m-d\\TH:i:s-00:00'));
 				}
 				
 				// copy attachments from the passed object - these are already formatted for ActivityStreams
@@ -274,8 +304,14 @@ class Activity {
 
 		$ret = [];
 
-		$objtype = self::activity_obj_mapper($i['obj_type']);
-
+		if($i['verb'] === ACTIVITY_FRIEND) {
+			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
+			$objtype = 'Note';
+		}
+		else {		
+			$objtype = self::activity_obj_mapper($i['obj_type']);
+		}
+		
 		if(intval($i['item_deleted'])) {
 			$ret['type'] = 'Tombstone';
 			$ret['formerType'] = $objtype;
@@ -312,8 +348,19 @@ class Activity {
 			}
 		}
 
+		if (intval($i['item_wall']) && $i['mid'] === $i['parent_mid']) {
+			$ret['commentPolicy'] = map_scope(PermissionLimits::Get($i['uid'],'post_comments'));
+		}
+
 		if (intval($i['item_private']) === 2) {
 			$ret['directMessage'] = true;
+		}
+
+		if (array_key_exists('comments_closed',$i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] !== NULL_DATE) {
+			if($ret['commentPolicy']) {
+				$ret['commentPolicy'] .= ' ';
+			}
+			$ret['commentPolicy'] .= 'until=' . datetime_convert('UTC','UTC',$i['comments_closed'],ATOM_TIME);
 		}
 
 		$ret['attributedTo'] = $i['author']['xchan_url'];
@@ -354,26 +401,30 @@ class Activity {
 
 		$ret = [];
 
-		if($item['tag']) {
-			foreach($item['tag'] as $t) {
-				if(! array_key_exists('type',$t))
+		if ($item['tag'] && is_array($item['tag'])) {
+			$ptr = $item['tag'];
+			if (! array_key_exists(0,$ptr)) {
+				$ptr = [ $ptr ];
+			}
+			foreach ($ptr as $t) {
+				if (! array_key_exists('type',$t))
 					$t['type'] = 'Hashtag';
 
 				switch($t['type']) {
 					case 'Hashtag':
-						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => ((isset($t['href'])) ? $t['href'] : $t['id']), 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
+						$ret[] = [ 'ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'],0,1) === '#') ? substr($t['name'],1) : $t['name']) ];
 						break;
 
 					case 'Mention':
 						$mention_type = substr($t['name'],0,1);
-						if($mention_type === '!') {
+						if ($mention_type === '!') {
 							$ret[] = [ 'ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'],1)) ];
 						}
 						else {
 							$ret[] = [ 'ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'],0,1) === '@') ? substr($t['name'],1) : $t['name']) ];
 						}
 						break;
-	
+
 					default:
 						break;
 				}
@@ -382,6 +433,7 @@ class Activity {
 
 		return $ret;
 	}
+
 
 
 	static function encode_taxonomy($item) {
@@ -467,6 +519,12 @@ class Activity {
 		$ret   = [];
 		$reply = false;
 
+
+		if($i['verb'] === ACTIVITY_FRIEND) {
+			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
+			$ret['obj'] = [];
+		}
+
 		if(intval($i['item_deleted'])) {
 			$ret['type'] = 'Tombstone';
 			$ret['formerType'] = self::activity_obj_mapper($i['obj_type']);
@@ -479,11 +537,6 @@ class Activity {
 			return $ret;
 		}
 
-		if($i['verb'] === ACTIVITY_FRIEND) {
-			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
-			$ret['obj_type'] = ACTIVITY_OBJ_NOTE;
-			$ret['obj'] = [];
-		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);
 
@@ -497,6 +550,25 @@ class Activity {
 				xchan_query($p,true);
 				$p = fetch_post_tags($p,true);
 				$i['obj'] = self::encode_item($p[0]);
+
+				// convert to zot6 emoji reaction encoding which uses the target object to indicate the
+				// specific emoji instead of overloading the verb or type.
+				
+				$im = explode('#',$i['verb']);
+				if($im && count($im) > 1)
+					$emoji = $im[1];
+				if(preg_match("/\[img(.*?)\](.*?)\[\/img\]/ism", $i['body'], $match)) {
+					$ln = $match[2];
+				}
+
+				$i['tgt_type'] = 'Image';
+			
+				$i['target'] = [
+					'type' => 'Image',
+					'name' => $emoji,
+					'url'  => (($ln) ? $ln : z_root() . '/images/emoji/' . $emoji . '.png')
+				];
+				
 			}
 		}
 
@@ -537,8 +609,14 @@ class Activity {
 		}
 
 		if($i['id'] != $i['parent']) {
-			$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			$reply = true;
+
+			// inReplyTo needs to be set in the activity for followup actiions (Like, Dislike, Attend, Announce, etc.),
+			// but *not* for comments, where it should only be present in the object
+
+			if (! in_array($ret['type'],[ 'Create','Update' ])) {
+				$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
+			}
 
 			if($i['item_private']) {
 				$d = q("select xchan_url, xchan_addr, xchan_name from item left join xchan on xchan_hash = author_xchan where id = %d limit 1",
@@ -577,7 +655,7 @@ class Activity {
 				$i['obj'] = json_decode($i['obj'],true);
 			}
 			if($i['obj']['type'] === ACTIVITY_OBJ_PHOTO) {
-				$i['obj']['id'] = $i['id'];
+				$i['obj']['id'] = $i['mid'];
 			}
 
 			$obj = self::encode_object($i['obj']);
@@ -668,8 +746,24 @@ class Activity {
 		}
 		$ret = [];
 
+		$c = ((array_key_exists('channel_id',$p)) ? $p : channelx_by_hash($p['xchan_hash']));
+
 		$ret['type']  = 'Person';
-		$ret['id']    = $p['xchan_url'];
+
+		if ($c) {
+			$role = get_pconfig($c['channel_id'],'system','permissions_role');
+			if (strpos($role,'forum') !== false) {
+				$ret['type'] = 'Group';
+			}
+		}
+
+		if ($c) {
+			$ret['id'] = channel_url($c);
+		}
+		else {
+			$ret['id'] = ((strpos($p['xchan_hash'],'http') === 0) ? $p['xchan_hash'] : $p['xchan_url']);
+		}
+
 		if($p['xchan_addr'] && strpos($p['xchan_addr'],'@'))
 			$ret['preferredUsername'] = substr($p['xchan_addr'],0,strpos($p['xchan_addr'],'@'));
 		$ret['name']  = $p['xchan_name'];
@@ -731,6 +825,7 @@ class Activity {
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
+		call_hooks('activity_mapper',$acts);
 
 		if(array_key_exists($verb,$acts) && $acts[$verb]) {
 			return $acts[$verb];
@@ -741,6 +836,9 @@ class Activity {
 		if(strpos($verb,ACTIVITY_REACT) !== false)
 			return 'emojiReaction';
 		if(strpos($verb,ACTIVITY_MOOD) !== false)
+			return 'Create';
+
+		if(strpos($verb,ACTIVITY_FRIEND) !== false)
 			return 'Create';
 
 		if(strpos($verb,ACTIVITY_POKE) !== false)
@@ -773,6 +871,7 @@ class Activity {
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
 		];
 
+		call_hooks('activity_decode_mapper',$acts);
 
 		foreach($acts as $k => $v) {
 			if($verb === $v) {
@@ -805,6 +904,8 @@ class Activity {
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 		
 		];
+
+		call_hooks('activity_obj_decode_mapper',$objs);
 
 		foreach($objs as $k => $v) {
 			if($obj === $v) {
@@ -842,6 +943,8 @@ class Activity {
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 		
 		];
+
+		call_hooks('activity_obj_mapper',$objs);
 
 		if(array_key_exists($obj,$objs)) {
 			return $objs[$obj];
@@ -1601,11 +1704,12 @@ class Activity {
 		}
 
 		if($act->obj['type'] === 'Event') {
+
 			$s['obj'] = [];
 			$s['obj']['asld'] = $act->obj;
 			$s['obj']['type'] = ACTIVITY_OBJ_EVENT;
 			$s['obj']['id'] = $act->obj['id'];
-			$s['obj']['title'] = $act->obj['summary'];
+			$s['obj']['title'] = $act->obj['name'];
 
 			if(strpos($act->obj['startTime'],'Z'))
 				$s['obj']['adjust'] = true;
@@ -1863,6 +1967,15 @@ class Activity {
 			set_iconfig($s,'activitypub','rawmsg',$act->raw,1);
 		}
 
+		$hookinfo = [
+			'act' => $act,
+			's' => $s
+		];
+
+		call_hooks('decode_note',$hookinfo);
+
+		$s = $hookinfo['s'];
+
 		return $s;
 
 	}
@@ -2052,16 +2165,25 @@ class Activity {
 					break;
 
 			}
-			if(! $item) {
-				break;
+
+			$hookinfo = [
+				'a' => $a,
+				'item' => $item
+			];
+
+			call_hooks('fetch_and_store',$hookinfo);
+
+			$item = $hookinfo['item'];
+
+			if($item) {
+
+				array_unshift($p,[ $a, $item, $replies]);
+	
+				if($item['parent_mid'] === $item['mid'] || count($p) > 20) {
+					break;
+				}
+
 			}
-
-			array_unshift($p,[ $a, $item, $replies]);
-
-			if($item['parent_mid'] === $item['mid'] || count($p) > 20) {
-				break;
-			}
-
 			$current_act = $a;
 			$current_item = $item;
 		}
@@ -2110,11 +2232,19 @@ class Activity {
 				default:
 					break;
 			}
-			if(! $item) {
-				break;
-			}
 
-			array_unshift($p,[ $a, $item ]);
+			$hookinfo = [
+				'a' => $a,
+				'item' => $item
+			];
+
+			call_hooks('fetch_and_store',$hookinfo);
+
+			$item = $hookinfo['item'];
+
+			if($item) {
+				array_unshift($p,[ $a, $item ]);
+			}
 
 		}
 
@@ -2495,7 +2625,12 @@ class Activity {
 		}
 
 		if($event) {
-			$event['summary'] = html2bbcode($content['summary']);
+			$event['summary'] = $content['name'];
+			if(! $event['summary']) {
+				if($content['summary']) {
+					$event['summary'] = html2plain($content['summary']);
+				}
+			}
 			$event['description'] = html2bbcode($content['content']);
 			if($event['summary'] && $event['dtstart']) {
 				$content['event'] = $event;

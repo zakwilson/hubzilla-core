@@ -95,6 +95,8 @@ class Dav extends \Zotlabs\Web\Controller {
 
 
 		$auth = new \Zotlabs\Storage\BasicAuth();
+		$auth->observer = get_observer_hash();
+
 		$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . ' ' . 'WebDAV');
 
 		$rootDirectory = new \Zotlabs\Storage\Directory('/', $auth);

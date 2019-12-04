@@ -1160,7 +1160,7 @@ function dropItem(url, object) {
                                 $('body').css('cursor', 'auto');
                         });
                 });
-                if($('#wall-item-pinned-') + id).length)
+                if($('#wall-item-pinned-' + id).length)
                     $.post('pin/pin', { 'id' : id });
                 return true;
         }

@@ -1128,7 +1128,7 @@ function dopin(id) {
                 .done(function() {
                         var i = $('#wall-item-pinned-' + id);
                         var me = $('#item-pinnable-' + id);
-                        var pin = $('#pinned-wrapper-' + id);
+                        var pin = $('.pinned-item');
                         if(pin.length) {
                                 $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
                                         pin.fadeTo('fast', 0.33, function() { this.remove(); });

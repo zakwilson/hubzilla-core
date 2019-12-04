@@ -1128,15 +1128,15 @@ function dopin(id) {
                 .done(function() {
                         var i = $('#wall-item-pinned-' + id);
                         var me = $('#item-pinnable-' + id);
-                        if($('#pinned-wrapper-' + id).length) {
+                        if($('.pinned-item').length) {
                                 $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
-                                        $('#pinned-wrapper-' + id).fadeTo('fast', 0.33, function() { this.remove(); });
+                                        $('.pinned-item').fadeTo('fast', 0.33, function() { this.remove(); });
                                 });
                         };
-                        if(i.length)
-                                me.html(me.html().replace(aStr['unpin_item'],aStr['pin_item']));
-                        else {
-                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
+                        $('.wall-item-pinned').remove();
+                        $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
+                        if(i.length == 0) {
+                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>')
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })

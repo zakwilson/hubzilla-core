@@ -1121,22 +1121,51 @@ function doscrollback(pos) {
 	$(window).scrollTop(pos);
 }
 
-function dropItem(url, object) { 
+function dopin(id) {
+        id = id.toString();
+        $('#like-rotator-' + id).show();
+        $.post('pin/pin', { 'id' : id })
+                .done(function() {
+                        var i = $('#wall-item-pinned-' + id);
+                        var me = $('#item-pinnable-' + id);
+                        if($('#pinned-wrapper-' + id).length) {
+                                $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
+                                        $('#pinned-wrapper-' + id).fadeTo('fast', 0.33, function() { this.remove(); });
+                                });
+                        };
+                        if(i.length)
+                                me.html(me.html().replace(aStr['unpin_item'],aStr['pin_item']));
+                        else {
+                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
+                                me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
+                        };
+                })
+                .fail(function() {
+                        location.reload();
+                })
+                .always(function() {
+                        $('#like-rotator-' + id).hide();
+                });
+}
 
-	var confirm = confirmDelete();
-	if(confirm) {
-		$('body').css('cursor', 'wait');
-		$(object).fadeTo('fast', 0.33, function () {
-			$.get(url).done(function() {
-				$(object).remove();
-				$('body').css('cursor', 'auto');
-			});
-		});
-		return true;
-	}
-	else {
-		return false;
-	}
+function dropItem(url, object) {
+
+        var confirm = confirmDelete();
+        if(confirm) {
+                var id = url.split('/')[2];
+                $('body').css('cursor', 'wait');
+                $(object + ', #pinned-wrapper-' + id).fadeTo('fast', 0.33, function () {
+                        $.get(url).done(function() {
+                                $(object + ', #pinned-wrapper-' + id).remove();
+                                $('body').css('cursor', 'auto');
+                        });
+                });
+                $.post('pin/pin', { 'id' : id });
+                return true;
+        }
+        else {
+                return false;
+        }
 }
 
 function dosubthread(ident) {

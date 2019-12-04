@@ -95,7 +95,7 @@ class ThreadItem {
 		$total_children = $this->count_descendants();
 		$unseen_comments = (($item['real_uid']) ? 0 : $this->count_unseen_descendants());
 
-		$conv = $this->get_conversation();
+ 		$conv = $this->get_conversation();
 		$observer = $conv->get_observer();
 
 		$lock = (((intval($item['item_private'])) || (($item['uid'] == local_channel()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
@@ -356,7 +356,8 @@ class ThreadItem {
                 call_hooks('dropdown_extras',$dropdown_extras_arr);
                 $dropdown_extras = $dropdown_extras_arr['dropdown_extras'];
 
-		$mids = ['b64.' . base64url_encode($item['mid'])];
+		$midb64 = 'b64.' . base64url_encode($item['mid']);
+		$mids = [ $midb64 ];
 		$response_mids = [];
 		foreach($response_verbs as $v) {
 			if(isset($conv_responses[$v]['mids'][$item['mid']])) {
@@ -366,6 +367,11 @@ class ThreadItem {
 
 		$mids = array_merge($mids, $response_mids);
 		$json_mids = json_encode($mids);
+
+		// Pinned item processing
+		$allowed_type = (in_array($item['item_type'], get_config('system', 'pin_types', [ ITEM_TYPE_POST ])) ? true : false);
+		$pinned_items = ($allowed_type ? get_pconfig($item['uid'], 'pinned', $item['item_type'], []) : []);
+		$pinned = ((!empty($pinned_items) && in_array($midb64, $pinned_items)) ? true : false);
 
 		$tmp_item = array(
 			'template' => $this->get_template(),
@@ -380,7 +386,7 @@ class ThreadItem {
 			'folders' => $body['folders'],
 			'text' => strip_tags($body['html']),
 			'id' => $this->get_id(),
-			'mid' => 'b64.' . base64url_encode($item['mid']),
+			'mid' => $midb64,
 			'mids' => $json_mids,
 			'parent' => $item['parent'],
 			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
@@ -449,6 +455,9 @@ class ThreadItem {
 			'star'      => ((feature_enabled($conv->get_profile_owner(),'star_posts') && ($item['item_type'] == ITEM_TYPE_POST)) ? $star : ''),
 			'tagger'    => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? $tagger : ''),
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing') && ($item['item_type'] == ITEM_TYPE_POST)) ? $filer : ''),
+			'pinned'    => ($pinned ? t('Pinned post') : ''),
+			'pinnable'  => (($this->is_toplevel() && local_channel() && $item['owner_xchan'] == $observer['xchan_hash'] && $allowed_type && $item['item_private'] == 0) ? '1' : ''),
+			'pinme'     => ($pinned ? t('Unpin from the top') : t('Pin to the top')),
 			'bookmark'  => (($conv->get_profile_owner() == local_channel() && local_channel() && $has_bookmarks) ? t('Save Bookmarks') : ''),
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
 			'drop'      => $drop,
@@ -873,8 +882,5 @@ class ThreadItem {
 	private function is_visiting() {
 		return $this->visiting;
 	}
-
-
-
 
 }

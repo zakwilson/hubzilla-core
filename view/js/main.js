@@ -1128,15 +1128,17 @@ function dopin(id) {
                 .done(function() {
                         var i = $('#wall-item-pinned-' + id);
                         var me = $('#item-pinnable-' + id);
-                        if($('.pinned-item').length) {
+                        var pin = $('#pinned-wrapper-' + id);
+                        if(pin.length) {
                                 $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
-                                        $('.pinned-item').fadeTo('fast', 0.33, function() { this.remove(); });
+                                        pin.fadeTo('fast', 0.33, function() { this.remove(); });
                                 });
                         };
-                        $('.wall-item-pinned').remove();
+                        pin.remove();
                         $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
+                        $('.wall-item-pinned').remove()
                         if(i.length == 0) {
-                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>')
+                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })

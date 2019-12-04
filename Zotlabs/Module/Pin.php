@@ -58,6 +58,7 @@ class Pin extends \Zotlabs\Web\Controller {
 						set_pconfig($r[0]['uid'], 'pinned_hide', $midb64, $hidden);
 					}
 				}
+				break;
 
 			default:
 				http_status_exit(404, 'Not found');

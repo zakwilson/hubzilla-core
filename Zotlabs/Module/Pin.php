@@ -42,7 +42,7 @@ class Pin extends \Zotlabs\Web\Controller {
 		switch(argv(1)) {
 
 			case 'pin':
-				if(! local_channel() || local_channel() != $r[0]['uid'])
+				if(! local_channel() || (local_channel() != $r[0]['uid'] && local_channel() != is_site_admin()))
 					http_status_exit(403, 'Forbidden');
 				// Currently allow only one pinned item for each type
 				set_pconfig($r[0]['uid'], 'pinned', $r[0]['item_type'], ($pinned ? [] : [ $midb64 ]));

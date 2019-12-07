@@ -77,10 +77,6 @@ class Sse_bs extends Controller {
 			default:
 		}
 
-		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
-		set_xconfig(self::$ob_hash, 'sse', 'notifications', []); // reset the cache
-		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
-
 		if(self::$offset && $f) {
 			$result = self::$f(true);
 			json_return_and_die($result);
@@ -98,6 +94,10 @@ class Sse_bs extends Controller {
 			self::bs_all_events(),
 			self::bs_register()
 		);
+
+		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+		set_xconfig(self::$ob_hash, 'sse', 'notifications', []); // reset the cache
+		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
 
 		json_return_and_die($result);
 	}
@@ -390,22 +390,29 @@ class Sse_bs extends Controller {
 				$p_str = ids_to_querystr($p, 'parent');
 				$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
 
-				$r = q("select count(id) as unseen from item 
+				$r = q("select mid from item 
 					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
 					dbesc($forums[$x]['xchan_hash'])
 				);
 
-				if($r[0]['unseen']) {
+				if($r) {
+					$mids = flatten_array_recursive($r);
+
+
+					foreach($mids as $mid)
+						$b64mids[] =  'b64.' . base64url_encode($mid);
+
 					$forums[$x]['notify_link'] = (($forums[$x]['private_forum']) ? $forums[$x]['xchan_url'] : z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id']);
 					$forums[$x]['name'] = $forums[$x]['xchan_name'];
 					$forums[$x]['addr'] = $forums[$x]['xchan_addr'];
 					$forums[$x]['url'] = $forums[$x]['xchan_url'];
 					$forums[$x]['photo'] = $forums[$x]['xchan_photo_s'];
-					$forums[$x]['unseen'] = $r[0]['unseen'];
+					$forums[$x]['unseen'] = count($b64mids);
 					$forums[$x]['private_forum'] = (($forums[$x]['private_forum']) ? 'lock' : '');
 					$forums[$x]['message'] = (($forums[$x]['private_forum']) ? t('Private forum') : t('Public forum'));
+					$forums[$x]['mids'] = json_encode($b64mids);
 
 					unset($forums[$x]['abook_id']);
 					unset($forums[$x]['xchan_hash']);
@@ -413,7 +420,7 @@ class Sse_bs extends Controller {
 					unset($forums[$x]['xchan_url']);
 					unset($forums[$x]['xchan_photo_s']);
 
-					$i = $i + $r[0]['unseen'];
+					$i = $i + count($mids);
 
 				}
 				else {

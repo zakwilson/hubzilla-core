@@ -696,11 +696,11 @@ function updateConvItems(mode,data) {
 	// take care of the notifications count updates
 	$('.thread-wrapper', data).each(function() {
 
-		//var nmid = $(this).data('b64mid');
 		var nmids = $(this).data('b64mids');
 
 		nmids.forEach(function(nmid, index) {
 			sse_mids.push(nmid);
+
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 					var n = this.parentElement.id.split('-');
@@ -708,6 +708,27 @@ function updateConvItems(mode,data) {
 				});
 				sse_mids = [];
 			}
+
+			// special handling for forum notification
+			$('.notification-forum').filter(function() {
+				var fmids = $(this).data('b64mids');
+				var n = this.parentElement.id.split('-');
+				if(fmids.indexOf(nmid) > -1) {
+					var fcount = Number($('.' + n[1] + '-update').html());
+					fcount--;
+					$('.' + n[1] + '-update').html(fcount);
+					if(fcount < 1)
+						$('.' + n[1] + '-button').fadeOut();
+
+					var count = Number($(this).find('.badge-secondary').html());
+					count--;
+					$(this).find('.badge-secondary').html(count);
+					if(count < 1)
+						$(this).remove();
+				}
+			});
+
+
 		});
 
 		sse_setNotificationsStatus();
@@ -1757,7 +1778,11 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 		if(sse_mids.indexOf(this.b64mid) >= 0) {
 			return sse_updateNotifications(notifyType, this.b64mid, false);
 		}
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
+		// TODO: this replace() is ugly - try to fix this in a better way.
+		// The problem is that allthough we use single quotes in the template
+		// the browser turns it into double quotes. JQuery picks up the double qoutes
+		// from the browser and breaks the JSON string due to that.
+		html = notifications_tpl.replace(/"/g, "'").format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, this.mids);
 		notify_menu.append(html);
 	});
 

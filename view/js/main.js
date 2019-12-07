@@ -709,9 +709,9 @@ function updateConvItems(mode,data) {
 				sse_mids = [];
 			}
 
-			// special handling for forum notification
+			// special handling for forum notifications
 			$('.notification-forum').filter(function() {
-				var fmids = $(this).data('b64mids');
+				var fmids = decodeURIComponent($(this).data('b64mids'));
 				var n = this.parentElement.id.split('-');
 				if(fmids.indexOf(nmid) > -1) {
 					var fcount = Number($('.' + n[1] + '-update').html());
@@ -1764,7 +1764,7 @@ function sse_handleNotifications(obj, replace, followup) {
 }
 
 function sse_handleNotificationsItems(notifyType, data, replace, followup) {
-	var notifications_tpl = ((notifyType == 'forums') ? unescape($("#nav-notifications-forums-template[rel=template]").html()) : unescape($("#nav-notifications-template[rel=template]").html()));
+	var notifications_tpl = ((notifyType == 'forums') ? decodeURIComponent($("#nav-notifications-forums-template[rel=template]").html()) : decodeURIComponent($("#nav-notifications-template[rel=template]").html()));
 	var notify_menu = $("#nav-" + notifyType + "-menu");
 	var notify_loading = $("#nav-" + notifyType + "-loading");
 	var notify_count = $("." + notifyType + "-update");
@@ -1778,11 +1778,8 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 		if(sse_mids.indexOf(this.b64mid) >= 0) {
 			return sse_updateNotifications(notifyType, this.b64mid, false);
 		}
-		// TODO: this replace() is ugly - try to fix this in a better way.
-		// The problem is that allthough we use single quotes in the template
-		// the browser turns it into double quotes. JQuery picks up the double qoutes
-		// from the browser and breaks the JSON string due to that.
-		html = notifications_tpl.replace(/"/g, "'").format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, this.mids);
+
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids));
 		notify_menu.append(html);
 	});
 

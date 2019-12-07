@@ -105,6 +105,11 @@ define ( 'JPEG_QUALITY',            100  );
 define ( 'PNG_QUALITY',             8  );
 
 /**
+ * App::$config['system']['webp_quality'] from 1 (maximum compressed) to 100 (uncompressed)
+ */
+define ( 'WEBP_QUALITY',             80  );
+
+/**
  * Language detection parameters
  */
 define ( 'LANGUAGE_DETECT_MIN_LENGTH',     128 );
@@ -899,11 +904,12 @@ class App {
                 // Serve raw files from the file system in certain cases.
                 $filext = pathinfo(self::$cmd, PATHINFO_EXTENSION);
 
-                $serve_rawfiles=[
+                $serve_rawfiles = [
                         'jpg'=>'image/jpeg',
                         'jpeg'=>'image/jpeg',
                         'gif'=>'image/gif',
                         'png'=>'image/png',
+			'webp'=>'image/webp',
                         'ico'=>'image/vnd.microsoft.icon',
                         'css'=>'text/css',
                         'js'=>'text/javascript',
@@ -913,7 +919,8 @@ class App {
                         'ttf'=>'font/ttf',
                         'woff'=>'font/woff',
                         'woff2'=>'font/woff2',
-                        'svg'=>'image/svg+xml'];
+                        'svg'=>'image/svg+xml'
+		];
 
                 if (array_key_exists($filext, $serve_rawfiles) && file_exists(self::$cmd)) {
 			$staticfilecwd = getcwd();

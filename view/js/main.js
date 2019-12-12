@@ -1876,10 +1876,12 @@ function sse_setNotificationsStatus() {
 	if(any_available) {
 		$('.notifications-btn').css('opacity', 1);
 		$('#no_notifications').hide();
+		$('#notifications').show();
 	}
 	else {
 		$('.notifications-btn').css('opacity', 0.5);
 		$('#navbar-collapse-1').removeClass('show');
 		$('#no_notifications').show();
+		$('#notifications').hide();
 	}
 }

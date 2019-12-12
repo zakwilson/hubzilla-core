@@ -93,3 +93,7 @@ small,
 .small {
 	font-size: 0.75rem;
 }
+
+.notification-link.collapsed {
+	border-top: 0 !important;
+}

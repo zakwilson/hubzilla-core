@@ -826,7 +826,6 @@ function scrollToItem() {
 			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
 			$(this).addClass('item-highlight');
 		}
-
 	});
 
 }

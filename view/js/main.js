@@ -30,7 +30,6 @@ var sse_bs_active = false;
 var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
-var sse_mids = [];
 
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
@@ -699,14 +698,11 @@ function updateConvItems(mode,data) {
 		var nmids = $(this).data('b64mids');
 
 		nmids.forEach(function(nmid, index) {
-			sse_mids.push(nmid);
-
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 					var n = this.parentElement.id.split('-');
-					return sse_updateNotifications(n[1], nmid, true);
+					return sse_updateNotifications(n[1], nmid);
 				});
-				sse_mids = [];
 			}
 
 			// special handling for forum notifications
@@ -1774,15 +1770,9 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 
 	$(data).each(function() {
-		if(sse_mids.indexOf(this.b64mid) >= 0) {
-			return sse_updateNotifications(notifyType, this.b64mid, false);
-		}
-
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids));
 		notify_menu.append(html);
 	});
-
-	sse_mids = [];
 
 	if(!replace && !followup) {
 		$("#nav-" + notifyType + "-menu .notification").sort(function(a,b) {
@@ -1815,9 +1805,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 }
 
-function sse_updateNotifications(type, mid, interactive) {
-
-	//console.log('interactive: ' + interactive);
+function sse_updateNotifications(type, mid) {
 
 	if(type === 'pubs')
 		return true;
@@ -1838,9 +1826,6 @@ function sse_updateNotifications(type, mid, interactive) {
 	else {
 		$('.' + type + '-update').html(count);
 	}
-
-	if(! interactive)
-		return true;
 
 	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut(function() {
 		this.remove();

@@ -287,7 +287,7 @@ class Directory extends \Zotlabs\Web\Controller {
 	
 							$hometown = ((x($profile,'hometown') == 1) ? $profile['hometown']  : False);
 	
-							$about = ((x($profile,'about') == 1) ? zidify_links(bbcode($profile['about'])) : False);
+							$about = ((x($profile,'about') == 1) ? zidify_links(bbcode($profile['about'], ['tryoembed' => false])) : False);
 	
 							$keywords = ((x($profile,'keywords')) ? $profile['keywords'] : '');
 	

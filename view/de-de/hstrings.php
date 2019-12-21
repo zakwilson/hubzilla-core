@@ -2,10 +2,10 @@
 
 if(! function_exists("string_plural_select_de_de")) {
 function string_plural_select_de_de($n){
-	return ($n != 1);
+	return ($n != 1 ? 1 : 0);
 }}
 App::$rtl = 0;
-App::$strings["plural_function_code"] = "(n != 1)";
+App::$strings["plural_function_code"] = "(n != 1 ? 1 : 0)";
 App::$strings["Default"] = "Standard";
 App::$strings["Focus (Hubzilla default)"] = "Focus (Voreinstellung für Hubzilla)";
 App::$strings["Submit"] = "Absenden";
@@ -77,7 +77,7 @@ App::$strings["Search"] = "Suche";
 App::$strings["Search site @name, !forum, #tag, ?docs, content"] = "Hub durchsuchen: @Name, !Forum, #Schlagwort, ?Dokumentation, Inhalt";
 App::$strings["Admin"] = "Administration";
 App::$strings["Site Setup and Configuration"] = "Seiten-Einrichtung und -Konfiguration";
-App::$strings["Loading"] = "Lädt...";
+App::$strings["Loading"] = "Lädt";
 App::$strings["@name, !forum, #tag, ?doc, content"] = "@Name, !Forum, #Schlagwort, ?Dokumentation, Inhalt";
 App::$strings["Please wait..."] = "Bitte warten...";
 App::$strings["Add Apps"] = "Apps hinzufügen";

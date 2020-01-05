@@ -7,14 +7,23 @@ namespace Zotlabs\Lib;
 	 */
 	 
 class Cache {
-	public static function get($key) {
+    
+    /**
+     * @brief Returns cached content
+     * 
+     * @param string $key
+     * @param string $age in SQL format, default is '30 DAY'
+     * @return string
+     * /
+    
+	public static function get($key, $age = '') {
 
 		$hash = hash('whirlpool',$key);
 
 		$r = q("SELECT v FROM cache WHERE k = '%s' AND updated > %s - INTERVAL %s LIMIT 1",
 			dbesc($hash),
 			db_utcnow(),
-			db_quoteinterval(get_config('system','object_cache_days', '30') . ' DAY')
+			db_quoteinterval(($age ? $age : get_config('system','object_cache_days', '30') . ' DAY'))
 		);
 			
 		if ($r)

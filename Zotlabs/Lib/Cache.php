@@ -14,7 +14,7 @@ class Cache {
      * @param string $key
      * @param string $age in SQL format, default is '30 DAY'
      * @return string
-     * /
+     */
     
 	public static function get($key, $age = '') {
 
@@ -52,4 +52,3 @@ class Cache {
 		}
 	}
 }
-	 

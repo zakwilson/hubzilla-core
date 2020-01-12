@@ -1189,17 +1189,17 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.10.0",
-        "version_normalized": "1.10.0.0",
+        "version": "v1.13.1",
+        "version_normalized": "1.13.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",
-            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
-            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
             "shasum": ""
         },
         "require": {
@@ -1208,11 +1208,11 @@
         "suggest": {
             "ext-ctype": "For best performance"
         },
-        "time": "2018-08-06T14:22:27+00:00",
+        "time": "2019-11-27T13:56:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.9-dev"
+                "dev-master": "1.13-dev"
             }
         },
         "installation-source": "dist",
@@ -1230,12 +1230,12 @@
         ],
         "authors": [
             {
-                "name": "Symfony Community",
-                "homepage": "https://symfony.com/contributors"
-            },
-            {
                 "name": "Gert de Pagter",
                 "email": "BackEndTea@gmail.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
             }
         ],
         "description": "Symfony polyfill for ctype functions",

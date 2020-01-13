@@ -611,10 +611,10 @@ class Activity {
 		if($i['id'] != $i['parent']) {
 			$reply = true;
 
-			// inReplyTo needs to be set in the activity for followup actiions (Like, Dislike, Attend, Announce, etc.),
-			// but *not* for comments, where it should only be present in the object
-
-			if (! in_array($ret['type'],[ 'Create','Update' ])) {
+			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),
+			// but *not* for comments and RSVPs, where it should only be present in the object
+			
+			if (! in_array($ret['type'],[ 'Create','Update','Accept','Reject','TentativeAccept','TentativeReject' ])) {
 				$ret['inReplyTo'] = ((strpos($i['thr_parent'],'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 			}
 
@@ -672,6 +672,9 @@ class Activity {
 				return [];
 		}
 
+		if(array_path_exists('object/type',$ret) && $ret['object']['type'] === 'Event' && $ret['type'] === 'Create') {
+			$ret['type'] = 'Invite';
+		}
 
 		if($i['target']) {
 			if(! is_array($i['target'])) {
@@ -1664,15 +1667,23 @@ class Activity {
 			if($act->type === 'Dislike') {
 				$content['content'] = sprintf( t('Doesn\'t like %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
 			}
-			if($act->type === 'Accept' && $act->obj['type'] === 'Event' ) {
-				$content['content'] = sprintf( t('Will attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
+
+			// handle event RSVPs
+			if (($act->obj['type'] === 'Event') || ($act->obj['type'] === 'Invite' && array_path_exists('object/type',$act->obj) && $act->obj['object']['type'] === 'Event')) {
+				if ($act->type === 'Accept') {
+					$content['content'] = sprintf( t('Will attend %s\'s event'),$mention) . EOL . EOL . $content['content'];
+				}
+				if ($act->type === 'Reject') {
+					$content['content'] = sprintf( t('Will not attend %s\'s event'),$mention) . EOL . EOL . $content['content'];
+				}
+				if ($act->type === 'TentativeAccept') {
+					$content['content'] = sprintf( t('May attend %s\'s event'),$mention) . EOL . EOL . $content['content'];
+				}
+				if ($act->type === 'TentativeReject') {
+					$content['content'] = sprintf( t('May not attend %s\'s event'),$mention) . EOL . EOL . $content['content'];
+				}
 			}
-			if($act->type === 'Reject' && $act->obj['type'] === 'Event' ) {
-				$content['content'] = sprintf( t('Will not attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
-			}
-			if($act->type === 'TentativeAccept' && $act->obj['type'] === 'Event' ) {
-				$content['content'] = sprintf( t('May attend %1$s\'s %2$s'),$mention,$act->obj['type']) . "\n\n" . $content['content'];
-			}
+
 			if($act->type === 'Announce') {
 				$content['content'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
 			}

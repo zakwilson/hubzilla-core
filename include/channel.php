@@ -796,7 +796,7 @@ function get_default_export_sections() {
  * @return array
  *     See function for details
  */
-function identity_basic_export($channel_id, $sections = null) {
+function identity_basic_export($channel_id, $sections = null, $zap_compat = false) {
 
 	/*
 	 * basic channel export
@@ -812,11 +812,15 @@ function identity_basic_export($channel_id, $sections = null) {
 	// with a non-standard platform and version.
 
 	$ret['compatibility'] = [
-		'project' => PLATFORM_NAME,
+		'project' => (($zap_compat) ? 'zap' : PLATFORM_NAME),
 		'version' => STD_VERSION,
 		'database' => DB_UPDATE_VERSION,
 		'server_role' => System::get_server_role()
 	];
+
+	if ($zap_compat) {
+		$ret['compatibility']['codebase'] = 'zap';
+	}
 
 	/*
 	 * Process channel information regardless of it is one of the sections desired
@@ -834,6 +838,13 @@ function identity_basic_export($channel_id, $sections = null) {
 			unset($ret['channel']['channel_password']);
 			unset($ret['channel']['channel_salt']);
 		}
+		if ($zap_compat) {
+			$channel['channel_guid_sig'] = 'sha256.' . $channel['channel_guid_sig'];
+			$channel['channel_hash'] = $channel['channel_portable_id'];
+			unset($channel['channel_portable_id']);
+		}
+
+
 	}
 
 	if(in_array('channel',$sections) || in_array('profile',$sections)) {
@@ -853,7 +864,7 @@ function identity_basic_export($channel_id, $sections = null) {
 			$ret['photo'] = [
 				'type' => $r[0]['mimetype'],
 				'data' => (($r[0]['os_storage'])
-					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode($r[0]['content']))
+					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode(dbunescbin($r[0]['content'])))
 			];
 		}
 	}

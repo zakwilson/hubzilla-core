@@ -1194,7 +1194,7 @@ function event_store_item($arr, $event) {
 
 		if(! $arr['mid']) {
 			$arr['uuid'] = $event['event_hash'];
-			$arr['mid'] = z_root() . '/event/' . $event['event_hash'];
+			$arr['mid'] = z_root() . '/activity/' . $event['event_hash'];
 		}
 
 		$item_arr['aid']             = $z[0]['channel_account_id'];

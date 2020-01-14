@@ -82,7 +82,7 @@
 	{{if $notification.filter}}
 	$(document).on('click', '#tt-{{$notification.type}}-only', function(e) {
 		e.preventDefault();
-		$('#nav-{{$notification.type}}-menu [data-thread_top=false]').toggle();
+		$('#nav-{{$notification.type}}-menu [data-thread_top=false]').toggleClass('d-none');
 		$(this).toggleClass('active sticky-top');
 	});
 	$(document).on('click', '#cn-{{$notification.type}}-input-clear', function(e) {
@@ -117,6 +117,7 @@
 	{{/foreach}}
 
 	function getData(b64mid, notify_id) {
+		$(document).scrollTop(0);
 		$('.thread-wrapper').remove();
 		bParam_mid = b64mid;
 		mode = 'replace';
@@ -143,16 +144,16 @@
 		</a>
 	</div>
 	<div id="nav-notifications-forums-template" rel="template">
-		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}">
+		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
 			<span class="float-right badge badge-secondary">{10}</span>
 			<img class="menu-img-1" src="{1}">
 			<span class="">{2}</span>
 			<i class="fa fa-{11} text-muted"></i> 
 		</a>
 	</div>
-	<div id="notifications" class="navbar-nav">
+	<div id="notifications" class="border rounded border-bottom-0 list-group list-group-flush navbar-nav collapse">
 		{{foreach $notifications as $notification}}
-		<div class="collapse {{$notification.type}}-button">
+		<div class="list-group collapse {{$notification.type}}-button">
 			<a id="notification-link-{{$notification.type}}" class="collapsed list-group-item notification-link" href="#" title="{{$notification.title}}" data-target="#nav-{{$notification.type}}-sub" data-toggle="collapse" data-sse_type="{{$notification.type}}">
 				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
 				<span class="float-right badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
@@ -160,7 +161,7 @@
 					<div class="spinner s"></div>
 				</div>
 			</a>
-			<div id="nav-{{$notification.type}}-sub" class="collapse notification-content" data-parent="#notifications" data-sse_type="{{$notification.type}}">
+			<div id="nav-{{$notification.type}}-sub" class="list-group border-bottom collapse notification-content" data-parent="#notifications" data-sse_type="{{$notification.type}}">
 				{{if $notification.viewall}}
 				<a class="list-group-item text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
 					<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
@@ -185,8 +186,8 @@
 				</div>
 				{{/if}}
 				{{/if}}
-				<div id="nav-{{$notification.type}}-menu"></div>
-				<div id="nav-{{$notification.type}}-loading" style="display: none;">
+				<div id="nav-{{$notification.type}}-menu" class="list-group"></div>
+				<div id="nav-{{$notification.type}}-loading" class="list-group-item border-0" style="display: none;">
 					{{$loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 				</div>
 

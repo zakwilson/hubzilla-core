@@ -267,8 +267,8 @@ class Pinned {
 				$author = q("SELECT * FROM xchan WHERE xchan_hash = '%s' LIMIT 1",
 					dbesc($rr['author_xchan'])
 				);
-				$name = ($author[0]['xchan_name'] ? $author[0]['xchan_name'] : t('Unknown'));
-				$conv_responses[$verb]['list'][] = (($rr['author_xchan'] && $author[0]['xchan_photo_s']) ?
+				$name = (($author && $author[0]['xchan_name']) ? $author[0]['xchan_name'] : t('Unknown'));
+				$conv_responses[$verb]['list'][] = (($rr['author_xchan'] && $author && $author[0]['xchan_photo_s']) ?
 					'<a class="dropdown-item" href="' . chanlink_hash($rr['author_xchan']) . '">' . '<img class="menu-img-1" src="' . zid($author[0]['xchan_photo_s']) . '" alt="' . urlencode($name) . '" /> ' . $name . '</a>' : 
 					'<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
 				);

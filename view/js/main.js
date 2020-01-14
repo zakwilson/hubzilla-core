@@ -30,7 +30,6 @@ var sse_bs_active = false;
 var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
-var sse_mids = [];
 
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
@@ -696,18 +695,36 @@ function updateConvItems(mode,data) {
 	// take care of the notifications count updates
 	$('.thread-wrapper', data).each(function() {
 
-		//var nmid = $(this).data('b64mid');
 		var nmids = $(this).data('b64mids');
 
 		nmids.forEach(function(nmid, index) {
-			sse_mids.push(nmid);
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 					var n = this.parentElement.id.split('-');
-					return sse_updateNotifications(n[1], nmid, true);
+					return sse_updateNotifications(n[1], nmid);
 				});
-				sse_mids = [];
 			}
+
+			// special handling for forum notifications
+			$('.notification-forum').filter(function() {
+				var fmids = decodeURIComponent($(this).data('b64mids'));
+				var n = this.parentElement.id.split('-');
+				if(fmids.indexOf(nmid) > -1) {
+					var fcount = Number($('.' + n[1] + '-update').html());
+					fcount--;
+					$('.' + n[1] + '-update').html(fcount);
+					if(fcount < 1)
+						$('.' + n[1] + '-button').fadeOut();
+
+					var count = Number($(this).find('.badge-secondary').html());
+					count--;
+					$(this).find('.badge-secondary').html(count);
+					if(count < 1)
+						$(this).remove();
+				}
+			});
+
+
 		});
 
 		sse_setNotificationsStatus();
@@ -805,7 +822,6 @@ function scrollToItem() {
 			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
 			$(this).addClass('item-highlight');
 		}
-
 	});
 
 }
@@ -1743,7 +1759,7 @@ function sse_handleNotifications(obj, replace, followup) {
 }
 
 function sse_handleNotificationsItems(notifyType, data, replace, followup) {
-	var notifications_tpl = ((notifyType == 'forums') ? unescape($("#nav-notifications-forums-template[rel=template]").html()) : unescape($("#nav-notifications-template[rel=template]").html()));
+	var notifications_tpl = ((notifyType == 'forums') ? decodeURIComponent($("#nav-notifications-forums-template[rel=template]").html()) : decodeURIComponent($("#nav-notifications-template[rel=template]").html()));
 	var notify_menu = $("#nav-" + notifyType + "-menu");
 	var notify_loading = $("#nav-" + notifyType + "-loading");
 	var notify_count = $("." + notifyType + "-update");
@@ -1754,14 +1770,9 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 
 	$(data).each(function() {
-		if(sse_mids.indexOf(this.b64mid) >= 0) {
-			return sse_updateNotifications(notifyType, this.b64mid, false);
-		}
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids));
 		notify_menu.append(html);
 	});
-
-	sse_mids = [];
 
 	if(!replace && !followup) {
 		$("#nav-" + notifyType + "-menu .notification").sort(function(a,b) {
@@ -1794,9 +1805,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 }
 
-function sse_updateNotifications(type, mid, interactive) {
-
-	//console.log('interactive: ' + interactive);
+function sse_updateNotifications(type, mid) {
 
 	if(type === 'pubs')
 		return true;
@@ -1817,9 +1826,6 @@ function sse_updateNotifications(type, mid, interactive) {
 	else {
 		$('.' + type + '-update').html(count);
 	}
-
-	if(! interactive)
-		return true;
 
 	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut(function() {
 		this.remove();
@@ -1855,10 +1861,12 @@ function sse_setNotificationsStatus() {
 	if(any_available) {
 		$('.notifications-btn').css('opacity', 1);
 		$('#no_notifications').hide();
+		$('#notifications').show();
 	}
 	else {
 		$('.notifications-btn').css('opacity', 0.5);
 		$('#navbar-collapse-1').removeClass('show');
 		$('#no_notifications').show();
+		$('#notifications').hide();
 	}
 }

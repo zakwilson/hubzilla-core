@@ -2992,6 +2992,7 @@ function getIconFromType($type) {
 		'image/jpeg' => 'fa-picture-o',
 		'image/png' => 'fa-picture-o',
 		'image/gif' => 'fa-picture-o',
+		'image/webp' => 'fa-picture-o',
 		'image/svg+xml' => 'fa-picture-o',
 		//Archive
 		'application/zip' => 'fa-file-archive-o',

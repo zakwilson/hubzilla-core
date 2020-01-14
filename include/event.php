@@ -250,12 +250,20 @@ function format_ical_sourcetext($s) {
 }
 
 
-function format_event_bbcode($ev) {
+function format_event_bbcode($ev, $utc = false) {
 
 	$o = '';
 
 	if($ev['event_vdata']) {
 		$o .= '[event]' . $ev['event_vdata'] . '[/event]';
+	}
+
+	if ($utc && $ev['event-timezone'] !== 'UTC') {
+		$ev['dtstart'] = datetime_convert($ev['timezone'],'UTC',$ev['dtstart'],ATOM_TIME);
+		if ($ev['dtend'] && ! $ev['nofinish']) {
+			$ev['dtend'] = datetime_convert($ev['timezone'],'UTC',$ev['dtend'],ATOM_TIME);
+		}
+		$ev['timezone'] = 'UTC';
 	}
 
 	if($ev['summary'])

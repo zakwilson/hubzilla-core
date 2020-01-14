@@ -168,6 +168,10 @@ class Activity {
 		if($r) {
 			xchan_query($r,true);
 			$r = fetch_post_tags($r,true);
+			if ($r[0]['verb'] === 'Create' && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
+				$r[0]['verb'] = 'Invite';
+				return self::encode_activity($r[0]);
+			}
 			return self::encode_item($r[0]);
 		}
 	}
@@ -220,7 +224,7 @@ class Activity {
 					'startTime' => (($ev['adjust']) ? datetime_convert($ev['timezone'],'UTC',$ev['dtstart'], ATOM_TIME) : datetime_convert('UTC','UTC',$ev['dtstart'],'Y-m-d\\TH:i:s-00:00')),
 					'content'   => bbcode($ev['description'], [ 'cache' => true ]),
 					'location'  => [ 'type' => 'Place', 'content' => bbcode($ev['location'], [ 'cache' => true ]) ],
-					'source'    => [ 'content' => format_event_bbcode($ev), 'mediaType' => 'text/bbcode' ],
+					'source'    => [ 'content' => format_event_bbcode($ev,true), 'mediaType' => 'text/bbcode' ],
 					'actor'     => $actor,
 				];
 				if(! $ev['nofinish']) {
@@ -825,7 +829,8 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/unfollow'  => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'       => 'Accept',
 			'http://purl.org/zot/activity/attendno'        => 'Reject',
-			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
+			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept',
+			'Invite'                                       => 'Invite',
 		];
 
 		call_hooks('activity_mapper',$acts);
@@ -871,7 +876,8 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/unfollow'  => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'       => 'Accept',
 			'http://purl.org/zot/activity/attendno'        => 'Reject',
-			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept'
+			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept',
+			'Invite'                                       => 'Invite',
 		];
 
 		call_hooks('activity_decode_mapper',$acts);
@@ -905,6 +911,7 @@ class Activity {
 			'http://purl.org/zot/activity/thing'                => 'Object',
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
+			'Invite'                                            => 'Invite',
 		
 		];
 
@@ -944,7 +951,7 @@ class Activity {
 			'http://purl.org/zot/activity/thing'                => 'Object',
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
-		
+			'Invite'                                            => 'Invite',		
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
@@ -1714,28 +1721,42 @@ class Activity {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
+		$eventptr = null;
+
+		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type',$act->obj) && $act->obj['object']['type'] === 'Event') {
+			$eventptr = $act->obj['object'];
+			$s['mid'] = $s['parent_mid'] = $act->obj['id'];
+		}
+		
 		if($act->obj['type'] === 'Event') {
+			if ($act->type === 'Invite') {
+				$s['mid'] = $s['parent_mid'] = $act->id;
+			}
+			$eventptr = $act->obj;
+		}
+
+		if ($eventptr) {
 
 			$s['obj'] = [];
-			$s['obj']['asld'] = $act->obj;
+			$s['obj']['asld'] = $eventptr;
 			$s['obj']['type'] = ACTIVITY_OBJ_EVENT;
-			$s['obj']['id'] = $act->obj['id'];
-			$s['obj']['title'] = $act->obj['name'];
+			$s['obj']['id'] = $eventptr['id'];
+			$s['obj']['title'] = $eventptr['name'];
 
 			if(strpos($act->obj['startTime'],'Z'))
 				$s['obj']['adjust'] = true;
 			else
 				$s['obj']['adjust'] = false;
 
-			$s['obj']['dtstart'] = datetime_convert('UTC','UTC',$act->obj['startTime']);
+			$s['obj']['dtstart'] = datetime_convert('UTC','UTC',$eventptr['startTime']);
 			if($act->obj['endTime']) 
-				$s['obj']['dtend'] = datetime_convert('UTC','UTC',$act->obj['endTime']);
+				$s['obj']['dtend'] = datetime_convert('UTC','UTC',$eventptr['endTime']);
 			else
 				$s['obj']['nofinish'] = true;
-			$s['obj']['description'] = $act->obj['content'];
+			$s['obj']['description'] = $eventptr['content'];
 
-			if(array_path_exists('location/content',$act->obj))
-				$s['obj']['location'] = $act->obj['location']['content'];
+			if(array_path_exists('location/content',$eventptr))
+				$s['obj']['location'] = $eventptr['location']['content'];
 
 		}
 		else {

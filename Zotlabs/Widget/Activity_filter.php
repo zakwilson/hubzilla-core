@@ -15,8 +15,20 @@ class Activity_filter {
 		$filter_active = false;
 
 		$tabs = [];
+/* leave this commented out until ready for primetime
+		if(x($_GET,'dm')) {
+			$dm_active = (($_GET['dm'] == 1) ? 'active' : '');
+			$filter_active = 'dm';
+		}
 
-
+		$tabs[] = [
+			'label' => t('Direct Messages'),
+			'icon' => 'envelope-o',
+			'url' => z_root() . '/' . $cmd . '/?f=&dm=1',
+			'sel' => $dm_active,
+			'title' => t('Show direct (private) messages')
+		];
+*/
 		if(Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
 			$groups = q("SELECT * FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 				intval(local_channel())

@@ -76,7 +76,7 @@ class Like extends \Zotlabs\Web\Controller {
 		}
 
 		$is_rsvp = false;
-		if (in_array($activity, [ ACTVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE ])) {
+		if (in_array($activity, [ ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE ])) {
 			$is_rsvp = true;
 		}
 

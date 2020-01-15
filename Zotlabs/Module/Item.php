@@ -42,8 +42,6 @@ class Item extends Controller {
 
 		if (Libzot::is_zot_request()) {
 
-			$conversation = false;
-
 			$item_id = argv(1);
 
 			if (! $item_id)

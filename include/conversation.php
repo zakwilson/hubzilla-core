@@ -172,9 +172,9 @@ function localize_item(&$item){
 				$shortbodyverb = t('doesn\'t like %1$s\'s %2$s');
 			}
 
-			$item['shortlocalize'] = sprintf($shortbodyverb, $objauthor, $plink);
+			$item['shortlocalize'] = sprintf($shortbodyverb, '[bdi]' . $objauthor . '[/bdi]', $plink);
 
-			$item['body'] = $item['localize'] = sprintf($bodyverb, $author, $objauthor, $plink);
+			$item['body'] = $item['localize'] = sprintf($bodyverb, '[bdi]' . $author . '[/bdi]', '[bdi]' . $objauthor . '[/bdi]', $plink);
 			if($Bphoto != "") 
 				$item['body'] .= "\n\n\n" . '[zrl=' . chanlink_url($author_link) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 

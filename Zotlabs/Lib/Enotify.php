@@ -803,18 +803,18 @@ class Enotify {
 		localize_item($item);
 
 		if($item['shortlocalize']) {
-			$itemem_text = strip_tags($item['shortlocalize']);
+			$itemem_text = $item['shortlocalize'];
 		}
 		elseif($item['localize']) {
-			$itemem_text = strip_tags($item['localize']);
+			$itemem_text = $item['localize'];
 		}
 		else {
 			$itemem_text = (($item['item_thread_top'])
 				? t('created a new post')
-				: sprintf( t('commented on %s\'s post'), '<bdi>' . strip_tags($item['owner']['xchan_name']) . '</bdi>'));
+				: sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'));
 
 			if($item['verb'] === ACTIVITY_SHARE) {
-				$itemem_text = sprintf( t('repeated %s\'s post'), '<bdi>' . strip_tags($item['author']['xchan_name']) . '</bdi>');
+				$itemem_text = sprintf( t('repeated %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
 			}
 
 		}
@@ -849,7 +849,7 @@ class Enotify {
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'notify_id' => 'undefined',
 			'thread_top' => (($item['item_thread_top']) ? true : false),
-			'message' => $itemem_text,
+			'message' => bbcode(strip_tags($itemem_text)),
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],
 			'uid' => $item['uid'],

@@ -286,7 +286,7 @@ class Acl extends \Zotlabs\Web\Controller {
 				FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d 
 				and xchan_deleted = 0
-				and xchan_network IN ('zot', 'diapora', 'friendica-over-diaspora')
+				and xchan_network IN ('zot', 'diaspora', 'friendica-over-diaspora')
 				$sql_extra3
 				ORDER BY xchan_name ASC ",
 				intval(local_channel())

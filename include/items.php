@@ -930,8 +930,19 @@ function import_author_xchan($x) {
 	}
 
 	// if we were told that it's a zot connection, don't probe/import anything else
-	if(array_key_exists('network',$x) && $x['network'] === 'zot')
+	if(array_key_exists('network',$x) && $x['network'] === 'zot') {
+		if($x['url']) {
+			// check if we already have the zot6 xchan of this xchan_url. if not import it.
+			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
+				dbesc($x['url'])
+			);
+
+			if(! $r)
+				discover_by_webbie($x['url'], 'zot6');
+		}
+
 		return $y;
+	}
 
 	// perform zot6 discovery
 

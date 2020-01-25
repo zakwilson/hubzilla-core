@@ -404,7 +404,7 @@ class Sse_bs extends Controller {
 					foreach($mids as $mid)
 						$b64mids[] =  'b64.' . base64url_encode($mid);
 
-					$forums[$x]['notify_link'] = (($forums[$x]['private_forum']) ? $forums[$x]['xchan_url'] : z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id']);
+					$forums[$x]['notify_link'] = z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id'];
 					$forums[$x]['name'] = $forums[$x]['xchan_name'];
 					$forums[$x]['addr'] = $forums[$x]['xchan_addr'];
 					$forums[$x]['url'] = $forums[$x]['xchan_url'];

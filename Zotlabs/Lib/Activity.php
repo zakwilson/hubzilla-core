@@ -1989,8 +1989,14 @@ class Activity {
 			$s['plink'] = $s['mid'];
 		}
 
-		if($act->recips && (! in_array(ACTIVITY_PUBLIC_INBOX,$act->recips)))
+		if ($act->recips && (! in_array(ACTIVITY_PUBLIC_INBOX,$act->recips)))
 			$s['item_private'] = 1;
+
+		if (is_array($act->obj)) {
+			if (array_key_exists('directMessage',$act->obj) && intval($act->obj['directMessage'])) {
+				$s['item_private'] = 2;
+			}
+		}
 
 		set_iconfig($s,'activitypub','recips',$act->raw_recips);
 

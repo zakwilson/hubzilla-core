@@ -811,10 +811,10 @@ class Enotify {
 		else {
 			$itemem_text = (($item['item_thread_top'])
 				? t('created a new post')
-				: sprintf( t('commented on %s\'s post'), $item['owner']['xchan_name']));
+				: sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'));
 
 			if($item['verb'] === ACTIVITY_SHARE) {
-				$itemem_text = sprintf( t('repeated %s\'s post'), $item['author']['xchan_name']);
+				$itemem_text = sprintf( t('repeated %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
 			}
 
 		}
@@ -849,7 +849,7 @@ class Enotify {
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'notify_id' => 'undefined',
 			'thread_top' => (($item['item_thread_top']) ? true : false),
-			'message' => strip_tags(bbcode($itemem_text)),
+			'message' => bbcode(escape_tags($itemem_text)),
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],
 			'uid' => $item['uid'],

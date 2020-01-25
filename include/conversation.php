@@ -172,9 +172,9 @@ function localize_item(&$item){
 				$shortbodyverb = t('doesn\'t like %1$s\'s %2$s');
 			}
 
-			$item['shortlocalize'] = sprintf($shortbodyverb, $objauthor, $plink);
+			$item['shortlocalize'] = sprintf($shortbodyverb, '[bdi]' . $author_name . '[/bdi]', $post_type);
 
-			$item['body'] = $item['localize'] = sprintf($bodyverb, $author, $objauthor, $plink);
+			$item['body'] = $item['localize'] = sprintf($bodyverb, '[bdi]' . $author . '[/bdi]', '[bdi]' . $objauthor . '[/bdi]', $plink);
 			if($Bphoto != "") 
 				$item['body'] .= "\n\n\n" . '[zrl=' . chanlink_url($author_link) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 
@@ -205,9 +205,11 @@ function localize_item(&$item){
 		$Bname = $obj['title'];
 
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . ']' . $Bname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
+		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
 		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
+
+		$item['shortlocalize'] = sprintf( t('%1$s is now connected with %2$s'), '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
 
 		$item['body'] = $item['localize'] = sprintf( t('%1$s is now connected with %2$s'), $A, $B);
 		$item['body'] .= "\n\n\n" . $Bphoto;
@@ -237,8 +239,8 @@ function localize_item(&$item){
 		}
 		$Bname = $obj['title'];
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . ']' . $Bname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
+		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
 		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 
 		// we can't have a translation string with three positions but no distinguishable text
@@ -252,6 +254,8 @@ function localize_item(&$item){
 
 		// then do the sprintf on the translation string
 
+		$item['shortlocalize'] = sprintf($txt, '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
+
 		$item['body'] = $item['localize'] = sprintf($txt, $A, $B);
 		$item['body'] .= "\n\n\n" . $Bphoto;
 	}
@@ -263,7 +267,7 @@ function localize_item(&$item){
 		$Aname = $item['author']['xchan_name'];
 		$Alink = $item['author']['xchan_url'];
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
 		
 		$txt = t('%1$s is %2$s','mood');
 

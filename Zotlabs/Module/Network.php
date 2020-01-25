@@ -69,6 +69,7 @@ class Network extends \Zotlabs\Web\Controller {
 		$category   = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
 		$hashtags   = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
 		$verb       = ((x($_REQUEST,'verb')) ? $_REQUEST['verb'] : '');
+		$dm         = ((x($_REQUEST,'dm')) ? $_REQUEST['dm'] : 0);
 
 
 		$order = get_pconfig(local_channel(), 'mod_network', 'order', 0);
@@ -363,6 +364,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'$conv'    => (($conv) ? $conv : '0'),
 				'$spam'    => (($spam) ? $spam : '0'),
 				'$fh'      => '0',
+				'$dm'      => (($dm) ? $dm : '0'),
 				'$nouveau' => (($nouveau) ? $nouveau : '0'),
 				'$wall'    => '0',
 				'$static'  => $static, 
@@ -417,6 +419,10 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		if(strlen($file)) {
 			$sql_extra .= term_query('item',$file,TERM_FILE);
+		}
+
+		if ($dm) {
+			$sql_extra .= " AND item_private = 2 ";
 		}
 	
 		if($conv) {

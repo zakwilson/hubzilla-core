@@ -11,6 +11,8 @@ use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Connect;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/zot.php');
 require_once('include/crypto.php');
@@ -346,7 +348,7 @@ function create_identity($arr) {
 		]
 	);
 	if(! $r)
-		logger('Unable to store hub location');
+		logger('Unable to store hub location (zot)');
 
 	$r = hubloc_store_lowlevel(
 		[
@@ -367,7 +369,7 @@ function create_identity($arr) {
 		]
 	);
 	if(! $r)
-		logger('Unable to store hub location');
+		logger('Unable to store hub location (zot6)');
 
 
 	$newuid = $ret['channel']['channel_id'];
@@ -393,6 +395,8 @@ function create_identity($arr) {
 			'xchan_system'      => $system
 		]
 	);
+	if(! $r)
+		logger('Unable to store xchan (zot)');
 
 	$r = xchan_store_lowlevel(
 		[
@@ -415,6 +419,8 @@ function create_identity($arr) {
 			'xchan_system'      => $system
 		]
 	);
+	if(! $r)
+		logger('Unable to store xchan (zot6)');
 
 
 
@@ -521,13 +527,22 @@ function create_identity($arr) {
 
 		$accts = get_config('system','auto_follow');
 		if(($accts) && (! $total_identities)) {
-			require_once('include/follow.php');
 			if(! is_array($accts))
 				$accts = array($accts);
 
 			foreach($accts as $acct) {
-				if(trim($acct))
-					new_contact($newuid,trim($acct),$ret['channel'],false);
+				$acct = trim($acct);
+				if($acct) {
+					$f = connect_and_sync($ret['channel'], $acct);
+					if($f['success']) {
+						$can_view_stream = their_perms_contains($ret['channel']['channel_id'],$f['abook']['abook_xchan'],'view_stream');
+
+						// If we can view their stream, pull in some posts
+						if(($can_view_stream) || ($f['abook']['xchan_network'] === 'rss')) {
+							Master::Summon([ 'Onepoll',$f['abook']['abook_id'] ]);
+						}
+					}
+				}
 			}
 		}
 
@@ -539,12 +554,42 @@ function create_identity($arr) {
 		call_hooks('create_identity', $newuid);
 
 		Master::Summon(array('Directory', $ret['channel']['channel_id']));
+
 	}
 
 	$ret['success'] = true;
 	return $ret;
 }
 
+
+function connect_and_sync($channel,$address, $sub_channel = false) {
+
+	if((! $channel) || (! $address)) {
+		return false;
+	}
+
+	$f = Connect::connect($channel,$address, $sub_channel);
+	if($f['success']) {
+		$clone = [];
+		foreach($f['abook'] as $k => $v) {
+			if(strpos($k,'abook_') === 0) {
+				$clone[$k] = $v;
+			}
+		}
+		unset($clone['abook_id']);
+		unset($clone['abook_account']);
+		unset($clone['abook_channel']);
+
+		$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
+		if($abconfig) {
+			$clone['abconfig'] = $abconfig;
+		}
+
+		Libsync::build_sync_packet($channel['channel_id'], [ 'abook' => [ $clone ] ], true);
+		return $f;
+	}
+	return false;
+}
 
 function change_channel_keys($channel) {
 

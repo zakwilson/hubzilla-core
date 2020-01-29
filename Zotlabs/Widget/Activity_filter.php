@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Widget;
 
+use App;
 use Zotlabs\Lib\Apps;
 
 class Activity_filter {
@@ -63,6 +64,7 @@ class Activity_filter {
 
 		if(feature_enabled(local_channel(),'forums_tab')) {
 			$forums = get_forum_channels(local_channel());
+			$channel = App::get_channel();
 
 			if($forums) {
 				foreach($forums as $f) {
@@ -73,7 +75,7 @@ class Activity_filter {
 					$fsub[] = [
 						'label' => $f['xchan_name'],
 						'img' => $f['xchan_photo_s'],
-						'url' => (($f['private_forum']) ? $f['xchan_url'] : z_root() . '/' . $cmd . '/?f=&pf=1&cid=' . $f['abook_id']),
+						'url' => (($f['private_forum']) ? $f['xchan_url'] . '/?f=&zid=' . $channel['xchan_addr'] : z_root() . '/' . $cmd . '/?f=&pf=1&cid=' . $f['abook_id']),
 						'sel' => $forum_active,
 						'title' => t('Show posts to this forum'),
 						'lock' => (($f['private_forum']) ? 'lock' : '')

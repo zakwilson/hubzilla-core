@@ -922,8 +922,17 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		$r = q("select * from pconfig where uid = %d",
 			intval($channel_id)
 		);
-		if($r)
+
+		if($r) {
+			if ($zap_compat) {
+				for($x = 0; $x < count($r); $x ++) {
+					if (preg_match('|^a:[0-9]+:{.*}$|s', $r[$x]['v'])) {
+						$r[$x]['v'] = serialise(unserialize($r[$x]['v']));
+					}
+				}
+			}
 			$ret['config'] = $r;
+		}
 
 		// All other term types will be included in items, if requested.
 

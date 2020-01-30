@@ -3694,3 +3694,18 @@ function svg2bb($s) {
 	}
 	return EMPTY_STR;
 }
+
+
+
+function serialise($x) {
+	return ((is_array($x)) ? 'json:' . json_encode($x) : $x);
+}
+
+function unserialise($x) {
+	if (is_array($x)) {
+		return $x;
+	}
+	$y = ((substr($x,0,5) === 'json:') ? json_decode(substr($x,5),true) : '');
+	return ((is_array($y)) ? $y : $x);
+}
+

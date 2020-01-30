@@ -5,9 +5,14 @@ namespace Zotlabs\Lib;
 class System {
 
 	static public function get_platform_name() {
-		if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('platform_name',\App::$config['system']))
-			return \App::$config['system']['platform_name'];
-		return PLATFORM_NAME;
+	    
+		if(! isset($platform_name)) {
+			if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('platform_name',\App::$config['system']))
+				static $platform_name = \App::$config['system']['platform_name'];
+			else
+				static $platform_name = PLATFORM_NAME;
+		}
+		return $platform_name;
 	}
 
 	static public function get_site_name() {

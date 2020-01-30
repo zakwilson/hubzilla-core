@@ -152,7 +152,6 @@ class Connect {
 		call_hooks('follow_allow',$hookdata);
 
 		if(! $hookdata['allowed']) {
-			hz_syslog('zesz');
 			$result['message'] = t('Protocol disabled.');
 			return $result;
 		}
@@ -211,7 +210,7 @@ class Connect {
 			$p['perms']['moderated']     = 0;
 		}
 
-		$my_perms = Permissions::serialise($p['perms']);
+		$my_perms = $p['perms'];
 		
 		$profile_assign = get_pconfig($uid,'system','profile_assign','');
 
@@ -279,8 +278,10 @@ class Connect {
 
 		// Set suitable permissions to the connection
 
-		if ($my_perms) {
-			set_abconfig($uid,$xchan_hash,'system','my_perms',$my_perms);
+		if($my_perms) {
+			foreach($my_perms as $k => $v) {
+				set_abconfig($uid,$xchan_hash,'my_perms',$k,$v);
+			}
 		}
 
 		// fetch the entire record

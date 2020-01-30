@@ -1237,8 +1237,17 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[/img]') !== false) {
 		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" />', $Text);
 	}
+	// [img=pathtoimage]image description[/img]
+	if (strpos($Text,'[/img]') !== false) {
+		$Text = preg_replace("/\[img=http(.*?)\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="http$1" alt="$2" title="$2"/>', $Text);
+	}
+	// [zmg]pathtoimage[/zmg]
 	if (strpos($Text,'[/zmg]') !== false) {
 		$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" />', $Text);
+	}
+	// [zmg=pathtoimage]image description[/zmg]
+	if (strpos($Text,'[/zmg]') !== false) {
+		$Text = preg_replace("/\[zmg=http(.*?)\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2"/>', $Text);
 	}
 
 	// [img float={left, right}]pathtoimage[/img]

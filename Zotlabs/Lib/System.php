@@ -6,11 +6,12 @@ class System {
 
 	static public function get_platform_name() {
 	    
-		if(! isset($platform_name)) {
+	    static $platform_name = '';
+		if(empty($platform_name)) {
 			if(is_array(\App::$config) && is_array(\App::$config['system']) && array_key_exists('platform_name',\App::$config['system']))
-				static $platform_name = \App::$config['system']['platform_name'];
+				$platform_name = \App::$config['system']['platform_name'];
 			else
-				static $platform_name = PLATFORM_NAME;
+				$platform_name = PLATFORM_NAME;
 		}
 		return $platform_name;
 	}

@@ -813,6 +813,10 @@ class Activity {
 
 	static function activity_mapper($verb) {
 
+		if ($verb === 'Answer') {
+			return 'Note';
+		}
+
 		if(strpos($verb,'/') === false) {
 			return $verb;
 		}
@@ -932,10 +936,6 @@ class Activity {
 
 	static function activity_obj_mapper($obj) {
 
-		if(strpos($obj,'/') === false) {
-			return $obj;
-		}
-
 		$objs = [
 			'http://activitystrea.ms/schema/1.0/note'           => 'Note',
 			'http://activitystrea.ms/schema/1.0/comment'        => 'Note',
@@ -955,6 +955,15 @@ class Activity {
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
+
+		if ($obj === 'Answer') {
+			return 'Note';
+		}
+
+		if (strpos($obj,'/') === false) {
+			return $obj;
+		}
+
 
 		if(array_key_exists($obj,$objs)) {
 			return $objs[$obj];
@@ -1644,6 +1653,13 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
+		if ($act->type === 'Note' && $act->obj['type'] === 'Question' && $act->data['name']) {
+			$s['mid'] = $act->id;
+			$s['parent_mid'] = $act->obj['id'];
+			$s['replyto'] = $act->replyto;
+			$s['verb'] = 'Answer';
+			$content['content'] = EMPTY_STR;
+		}		
 
 		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
@@ -1711,6 +1727,15 @@ class Activity {
 
 		$s['verb']     = self::activity_decode_mapper($act->type);
 
+		if ($act->type === 'Note' && $act->obj['type'] === 'Question' && $act->data['name'] && ! $content['content']) {
+			$s['verb'] = 'Answer';
+			$s['title'] = purify_html($act->data['name']);
+		}
+
+		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
+		if ($act->type === 'Update' && $act->obj['type'] === 'Question' && $s['edited'] === $s['created']) {
+			$s['edited'] = datetime_convert();
+		}
 
 		if($act->type === 'Tombstone' || $act->type === 'Delete' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
@@ -1796,6 +1821,18 @@ class Activity {
 		if($act->obj['type'] === 'Note' && $s['attach']) {
 			$s['body'] .= self::bb_attach($s['attach'],$s['body']);
 		}
+
+
+		if ($act->obj['type'] === 'Question' && in_array($act->type,['Create','Update'])) {
+			if ($act->obj['endTime']) {
+				$s['comments_closed'] = datetime_convert('UTC','UTC', $act->obj['endTime']);
+			}
+		}
+
+		if ($act->obj['closed']) {
+			$s['comments_closed'] = datetime_convert('UTC','UTC', $act->obj['closed']);
+		}			
+
 
 
 		// we will need a hook here to extract magnet links e.g. peertube

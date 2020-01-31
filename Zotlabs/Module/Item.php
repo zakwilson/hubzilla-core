@@ -718,7 +718,14 @@ class Item extends Controller {
 			// BBCODE alert: the following functions assume bbcode input
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
-			
+
+			$obj = $this->extract_poll_data($body);
+			if ($obj) {
+				$datarray['obj'] = $obj;
+				$obj_type = 'Question';
+			}
+
+
 
 			if(strpos($body,'[/summary]') !== false) {
                 $match = '';
@@ -1387,5 +1394,57 @@ class Item extends Controller {
 		return $ret;
 	}
 	
-	
+	function extract_poll_data(&$body) {
+
+		$multiple = false;
+
+		if (strpos($body,'[/question]') === false && strpos($body,'[/answer]') === false) {
+			return false;
+		}
+		if (strpos($body,'[nobb]') !== false) {
+			return false;
+		}
+
+
+		$obj = [];
+		$ptr = [];
+		$matches = null;
+		$obj['type'] = 'Question';
+
+		if (preg_match_all('/\[answer\](.*?)\[\/answer\]/',$body,$matches,PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				$ptr[] = [ 'name' => $match[1], 'type' => 'Note', 'replies' => [ 'type' => 'Collection', 'totalItems' => 0 ]];
+				$body = str_replace('[answer]' . $match[1] . '[/answer]', EMPTY_STR, $body);
+			}
+		}
+
+		$matches = null;
+
+		if (preg_match('/\[question\](.*?)\[\/question\]/',$body,$matches)) {
+			$obj['content'] = bbcode($matches[1]);
+			$body = str_replace('[question]' . $matches[1] . '[/question]', $matches[1], $body);
+			$obj['oneOf'] = $ptr;
+		}
+
+		$matches = null;
+		
+		if (preg_match('/\[question=multiple\](.*?)\[\/question\]/',$body,$matches)) {
+			$obj['content'] = bbcode($matches[1]);
+			$body = str_replace('[question=multiple]' . $matches[1] . '[/question]', $matches[1], $body);
+			$obj['anyOf'] = $ptr;
+		}
+
+		$matches = null;
+		
+		if (preg_match('/\[ends\](.*?)\[\/ends\]',$body,$matches)) {
+			$obj['endTime'] = datetime_convert(date_default_timezone_get(),'UTC', $matches[1],ATOM_TIME);
+			$body = str_replace('[ends]' . $match[1] . '[/ends]', EMPTY_STR, $body);
+		}
+
+		return $obj;
+
+	}
+
+
+
 }

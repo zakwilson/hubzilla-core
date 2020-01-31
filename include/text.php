@@ -1731,6 +1731,11 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		}
 	}
 
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ 'Create','Update' ])) ? format_poll($item, $s, $opts) : false);
+	if ($poll) {
+		$s = $poll;
+	}
+
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
 
 	$prep_arr = [
@@ -1812,6 +1817,78 @@ function prepare_binary($item) {
 		'$url'       => z_root() . '/viewsrc/' . $item['id'] . '/download'
 	]);
 }
+
+
+function format_poll($item,$s,$opts) {
+
+	if (! is_array($item['obj'])) {
+		$act = json_decode($item['obj'],true);
+	}
+	else {
+		$act = $item['obj'];
+	}
+
+	if (! is_array($act)) {
+		return EMPTY_STR;
+	}
+
+	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR),$item);
+
+	//logger('format_poll: ' . print_r($item,true));
+	$activated = ((local_channel() && local_channel() == $item['uid']) ? true : false);
+	$output = $s . EOL. EOL;
+
+	if ($act['type'] === 'Question') {
+		if ($activated and $commentable) {
+			$output .= '<form id="question-form-' . $item['id'] . '" >';
+		}
+		if (array_key_exists('anyOf',$act) && is_array($act['anyOf'])) {
+			foreach ($act['anyOf'] as $poll) {
+				if (array_key_exists('name',$poll) && $poll['name']) {
+					$text = html2plain(purify_html($poll['name']),256);
+					if (array_path_exists('replies/totalItems',$poll)) {
+						$total = $poll['replies']['totalItems'];
+					}
+					else {
+						$total = 0;
+					}
+					if ($activated && $commentable) {
+						$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+					}
+					else {
+						$output .= '[ ] ' . $text . ' (' . $total . ')' . EOL;
+					}
+				}
+			}
+		}
+		if (array_key_exists('oneOf',$act) && is_array($act['oneOf'])) {
+			foreach ($act['oneOf'] as $poll) {
+				if (array_key_exists('name',$poll) && $poll['name']) {
+					$text = html2plain(purify_html($poll['name']),256);
+					if (array_path_exists('replies/totalItems',$poll)) {
+						$total = $poll['replies']['totalItems'];
+					}
+					else {
+						$total = 0;
+					}
+					if ($activated && $commentable) {
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+					}
+					else {
+						$output .= '( ) ' . $text . ' (' . $total . ')' . EOL;
+					}
+				}
+			}
+		}
+		if ($activated and $commentable) {
+			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="vote" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
+		}
+
+	}
+	return $output;
+}
+
+
 
 
 /**

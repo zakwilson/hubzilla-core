@@ -1615,6 +1615,73 @@ class Activity {
 	}
 
 
+
+	static function update_poll($item,$mid,$content) {
+		$multi = false;
+		if (! $item) {
+			return false;
+		}
+
+		$o = json_decode($item['obj'],true);
+		if ($o && array_key_exists('anyOf',$o)) {
+			$multi = true;
+		}
+		$answer_found = false;
+		$found = false;
+		if ($multi) {
+			for ($c = 0; $c < count($o['anyOf']); $c ++) {
+				if ($o['anyOf'][$c]['name'] === $content) {
+					$answer_found = true;
+					if (is_array($o['anyOf'][$c]['replies'])) {
+						foreach($o['anyOf'][$c]['replies'] as $reply) {
+							if(array_key_exists('id',$reply) && $reply['id'] === $mid) {
+								$found = true;
+							}
+						}
+					}
+
+					if (! $found) {
+						$o['anyOf'][$c]['replies']['totalItems'] ++;
+						$o['anyOf'][$c]['replies']['items'][] = [ 'id' => $mid, 'type' => 'Note' ];
+					}
+				}
+			}
+		}
+		else {
+			for ($c = 0; $c < count($o['oneOf']); $c ++) {
+				if ($o['oneOf'][$c]['name'] === $content) {
+					$answer_found = true;
+					if (is_array($o['oneOf'][$c]['replies'])) {
+						foreach($o['oneOf'][$c]['replies'] as $reply) {
+							if(array_key_exists('id',$reply) && $reply['id'] === $mid) {
+								$found = true;
+							}
+						}
+					}
+
+					if (! $found) {
+						$o['oneOf'][$c]['replies']['totalItems'] ++;
+						$o['oneOf'][$c]['replies']['items'][] = [ 'id' => $mid, 'type' => 'Note' ];
+					}
+				}
+			}
+		}
+		logger('updated_poll: ' . print_r($o,true),LOGGER_DATA);		
+		if ($answer_found && ! $found) {			
+			$x = q("update item set obj = '%s', edited = '%s' where id = %d",
+				dbesc(json_encode($o)),
+				dbesc(datetime_convert()),
+				intval($item['id'])
+			);
+			Master::Summon( [ 'Notifier', 'wall-new', $item['id'] ] );
+			return true;
+		}
+
+		return false;
+	}
+
+
+
 	static function decode_note($act) {
 
 		$response_activity = false;

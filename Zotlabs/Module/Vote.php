@@ -88,15 +88,25 @@ class Vote extends Controller {
 			$item['parent_mid'] = $fetch[0]['mid'];
 			$item['uuid'] = new_uuid();
 			$item['mid'] = z_root() . '/item/' . $item['uuid'];
-			$item['verb'] = 'Answer';
+			$item['verb'] = 'Create';
 			$item['title'] = $res;
 			$item['author_xchan'] = $channel['channel_hash'];
 			$item['owner_xchan'] = $fetch[0]['author_xchan'];
 			
-			$item['obj'] = $obj;
-			$item['obj_type'] = 'Question';
+			$item['obj_type'] = 'Note';
+			$item['author'] = channelx_by_n($channel['channel_id']);
 
-			$x = item_store($item); 
+			$item['obj'] = Activity::encode_item($item,true);
+
+			// now reset the placeholders
+
+			$item['obj_type'] = 'Answer';
+			unset($item['author']);
+
+
+			$x = item_store($item);
+
+
 
 			retain_item($fetch[0]['id']);
 

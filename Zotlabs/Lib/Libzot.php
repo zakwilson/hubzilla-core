@@ -1613,7 +1613,7 @@ class Libzot {
 				// As a side effect we will also do a preliminary check that we have the top-level-post, otherwise
 				// processing it is pointless.
 
-				$r = q("select route, id, owner_xchan, item_private from item where mid = '%s' and uid = %d limit 1",
+				$r = q("select route, id, parent_mid, mid, owner_xchan, item_private, obj_type from item where mid = '%s' and uid = %d limit 1",
 					dbesc($arr['parent_mid']),
 					intval($channel['channel_id'])
 				);
@@ -1638,6 +1638,16 @@ class Libzot {
 					}
 					continue;
 				}
+
+				if ($r[0]['obj_type'] === 'Question') {
+					// route checking doesn't work correctly here because we've changed the privacy
+					$r[0]['route'] = EMPTY_STR;
+					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
+					if ($arr['obj_type'] === ACTIVITY_OBJ_NOTE && $arr['title'] && (! $arr['content'])) {
+						$arr['obj_type'] = 'Answer';
+					}
+				}
+
 
 				if($relay || $friendofriend || (intval($r[0]['item_private']) === 0 && intval($arr['item_private']) === 0)) {
 					// reset the route in case it travelled a great distance upstream

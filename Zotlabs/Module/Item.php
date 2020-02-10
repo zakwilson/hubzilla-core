@@ -976,7 +976,11 @@ class Item extends Controller {
 			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
 			$plink = substr($plink,0,190);
 		}
-		
+
+		if ($datarray['obj']) {
+			$datarray['obj']['id'] = $mid;
+		}
+
 		$datarray['aid']                 = $channel['channel_account_id'];
 		$datarray['uid']                 = $profile_uid;
 		$datarray['uuid']                = $uuid;

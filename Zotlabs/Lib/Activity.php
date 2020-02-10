@@ -928,6 +928,7 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
+			'Question'                                          => 'Question'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -962,7 +963,8 @@ class Activity {
 			'http://purl.org/zot/activity/thing'                => 'Object',
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
-			'Invite'                                            => 'Invite',		
+			'Invite'                                            => 'Invite',
+			'Question'                                          => 'Question'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
@@ -1806,6 +1808,8 @@ class Activity {
 			$s['item_deleted'] = 1;
 		}
 
+
+
 		$s['obj_type'] = self::activity_obj_decode_mapper($act->obj['type']);
 		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
@@ -2218,6 +2222,7 @@ class Activity {
 					// $s['thr_parent'] = $s['mid'];
 				}
 			}
+
 
 			if ($p[0]['obj_type'] === 'Question') {
 				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (! $item['content'])) {

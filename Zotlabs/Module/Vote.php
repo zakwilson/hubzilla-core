@@ -86,6 +86,7 @@ class Vote extends Controller {
 			$item['item_origin'] = true;
 			$item['parent'] = $fetch[0]['id'];
 			$item['parent_mid'] = $fetch[0]['mid'];
+			$item['thr_parent'] = $fetch[0]['mid'];
 			$item['uuid'] = new_uuid();
 			$item['mid'] = z_root() . '/item/' . $item['uuid'];
 			$item['verb'] = 'Create';
@@ -96,16 +97,16 @@ class Vote extends Controller {
 			$item['obj_type'] = 'Note';
 			$item['author'] = channelx_by_n($channel['channel_id']);
 
-			$item['obj'] = Activity::encode_item($item,true);
+			$item['obj'] = Activity::encode_item($item);
 
 			// now reset the placeholders
 
+			$item['verb'] = ACTIVITY_POST;
 			$item['obj_type'] = 'Answer';
 			unset($item['author']);
 
 
 			$x = item_store($item);
-
 
 
 			retain_item($fetch[0]['id']);

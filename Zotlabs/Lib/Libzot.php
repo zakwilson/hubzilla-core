@@ -1643,7 +1643,7 @@ class Libzot {
 					// route checking doesn't work correctly here because we've changed the privacy
 					$r[0]['route'] = EMPTY_STR;
 					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
-					if ($arr['obj_type'] === ACTIVITY_OBJ_NOTE && $arr['title'] && (! $arr['content'])) {
+					if ($arr['obj_type'] === ACTIVITY_OBJ_COMMENT && $arr['title'] && (! $arr['body'])) {
 						$arr['obj_type'] = 'Answer';
 					}
 				}

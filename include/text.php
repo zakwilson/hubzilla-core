@@ -1731,7 +1731,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		}
 	}
 
-	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ 'Create','Update' ])) ? format_poll($item, $s, $opts) : false);
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE ])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
 		$s = $poll;
 	}

@@ -325,6 +325,22 @@ class Activity {
 
 		$ret['type'] = $objtype;
 
+		if ($objtype === 'Question') {
+			if ($i['obj']) {
+				if (is_array($i['obj'])) {
+					$ret = $i['obj'];
+				}
+				else {
+					$ret = json_decode($i['obj'],true);
+				}
+			
+				if(array_path_exists('actor/id',$ret)) {
+					$ret['actor'] = $ret['actor']['id'];
+				}
+			}
+		}
+
+
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
 
 		if($i['title'])
@@ -813,10 +829,6 @@ class Activity {
 
 	static function activity_mapper($verb) {
 
-		if ($verb === 'Answer') {
-			return 'Note';
-		}
-
 		if(strpos($verb,'/') === false) {
 			return $verb;
 		}
@@ -916,7 +928,6 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-		
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -1720,14 +1731,6 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
-		if ($act->type === 'Note' && $act->obj['type'] === 'Question' && $act->data['name']) {
-			$s['mid'] = $act->id;
-			$s['parent_mid'] = $act->obj['id'];
-			$s['replyto'] = $act->replyto;
-			$s['verb'] = 'Answer';
-			$content['content'] = EMPTY_STR;
-		}		
-
 		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
@@ -1793,11 +1796,6 @@ class Activity {
 		$s['body']     = ((self::bb_content($content,'bbcode') && (! $response_activity)) ? self::bb_content($content,'bbcode') : self::bb_content($content,'content'));
 
 		$s['verb']     = self::activity_decode_mapper($act->type);
-
-		if ($act->type === 'Note' && $act->obj['type'] === 'Question' && $act->data['name'] && ! $content['content']) {
-			$s['verb'] = 'Answer';
-			$s['title'] = purify_html($act->data['name']);
-		}
 
 		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
 		if ($act->type === 'Update' && $act->obj['type'] === 'Question' && $s['edited'] === $s['created']) {
@@ -2190,7 +2188,7 @@ class Activity {
 		set_iconfig($item,'activitypub','recips',$act->raw_recips);
 
 		if(! $is_parent) {
-			$p = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
+			$p = q("select parent_mid, id, obj_type from item where mid = '%s' and uid = %d limit 1",
 				dbesc($item['parent_mid']),
 				intval($item['uid'])
 			);
@@ -2220,6 +2218,14 @@ class Activity {
 					// $s['thr_parent'] = $s['mid'];
 				}
 			}
+
+			if ($p[0]['obj_type'] === 'Question') {
+				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (! $item['content'])) {
+					$item['obj_type'] = 'Answer';
+				}
+			}
+
+
 			if($p[0]['parent_mid'] !== $item['parent_mid']) {
 				$item['thr_parent'] = $item['parent_mid'];
 			}

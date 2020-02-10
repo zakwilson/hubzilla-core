@@ -719,14 +719,6 @@ class Item extends Controller {
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
 
-			$obj = $this->extract_poll_data($body);
-			if ($obj) {
-				$datarray['obj'] = $obj;
-				$obj_type = 'Question';
-			}
-
-
-
 			if(strpos($body,'[/summary]') !== false) {
                 $match = '';
                 $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
@@ -928,6 +920,13 @@ class Item extends Controller {
 			$mid = z_root() . '/item/' . $uuid; 
 		}
 
+		$obj = $this->extract_poll_data($body,[ 'item_private' => $private, 'allow_cid' => $str_contact_allow, 'allow_gid' => $str_contact_deny ]);
+		if ($obj) {
+			$obj['url'] = $mid;
+			$obj['attributedTo'] = channel_url($channel);
+			$datarray['obj'] = $obj;
+			$obj_type = 'Question';
+		}
 
 		if(! $parent_mid) {
 			$parent_mid = $mid;
@@ -1394,7 +1393,7 @@ class Item extends Controller {
 		return $ret;
 	}
 	
-	function extract_poll_data(&$body) {
+	function extract_poll_data(&$body,$item) {
 
 		$multiple = false;
 
@@ -1438,7 +1437,15 @@ class Item extends Controller {
 		
 		if (preg_match('/\[ends\](.*?)\[\/ends\]/',$body,$matches)) {
 			$obj['endTime'] = datetime_convert(date_default_timezone_get(),'UTC', $matches[1],ATOM_TIME);
-			$body = str_replace('[ends]' . $match[1] . '[/ends]', EMPTY_STR, $body);
+			$body = str_replace('[ends]' . $matches[1] . '[/ends]', EMPTY_STR, $body);
+		}
+
+
+		if ($item['item_private']) {
+			$obj['to'] = Activity::map_acl($item);
+		}
+		else {
+			$obj['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 		}
 
 		return $obj;

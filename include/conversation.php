@@ -408,10 +408,14 @@ function count_descendants($item) {
  * @return boolean
  */
 function visible_activity($item) {
-	$hidden_activities = [ ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_POLLRESPONSE, 'Answer' ];
+	$hidden_activities = [ ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_AGREE, ACTIVITY_DISAGREE, ACTIVITY_ABSTAIN, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_POLLRESPONSE ];
 
 	if(intval($item['item_notshown']))
 		return false;
+
+	if ($item['obj_type'] === 'Answer') {
+		return false;
+	}
 
 	foreach($hidden_activities as $act) {
 		if((activity_match($item['verb'], $act)) && ($item['mid'] != $item['parent_mid'])) {

@@ -810,8 +810,9 @@ class Enotify {
 		}
 		else {
 			$itemem_text = (($item['item_thread_top'])
-				? t('created a new post')
-				: sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'));
+				? (($item['obj_type'] === 'Question') ? t('created a new poll') : t('created a new post'))
+				: (($item['obj_type'] === 'Answer') ? sprintf( t('voted on %s\'s poll'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]') : sprintf( t('commented on %s\'s post'), '[bdi]' . $item['owner']['xchan_name'] . '[/bdi]'))
+			);
 
 			if($item['verb'] === ACTIVITY_SHARE) {
 				$itemem_text = sprintf( t('repeated %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');

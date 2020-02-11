@@ -1617,6 +1617,7 @@ class Libzot {
 					dbesc($arr['parent_mid']),
 					intval($channel['channel_id'])
 				);
+
 				if(! $r) {
 					$DR->update('comment parent not found');
 					$result[] = $DR->get();

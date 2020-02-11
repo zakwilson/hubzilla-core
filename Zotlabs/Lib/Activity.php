@@ -592,8 +592,15 @@ class Activity {
 			}
 		}
 
-
-		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
+		if (strpos($i['mid'],z_root() . '/item/') !== false) {
+			$ret['id'] = str_replace('/item/','/activity/',$i['mid']);
+		}
+		elseif (strpos($i['mid'],z_root() . '/event/') !== false) {
+			$ret['id'] = str_replace('/event/','/activity/',$i['mid']);
+		}
+		else {
+			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
+		}
 
 		if($i['title'])
 			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));

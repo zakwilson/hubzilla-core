@@ -83,7 +83,7 @@ class Vote extends Controller {
 
 			$item['aid'] = $channel['channel_account_id'];
 			$item['uid'] = $channel['channel_id'];
-			$item['item_origin'] = true;
+			$item['item_origin'] = 1;
 			$item['parent'] = $fetch[0]['id'];
 			$item['parent_mid'] = $fetch[0]['mid'];
 			$item['thr_parent'] = $fetch[0]['mid'];
@@ -93,6 +93,9 @@ class Vote extends Controller {
 			$item['title'] = $res;
 			$item['author_xchan'] = $channel['channel_hash'];
 			$item['owner_xchan'] = $fetch[0]['author_xchan'];
+			$item['allow_cid'] = '<' . $fetch[0]['author_xchan'] . '>';
+			$item['item_private'] = 1;
+
 			
 			$item['obj_type'] = 'Note';
 			$item['author'] = channelx_by_n($channel['channel_id']);

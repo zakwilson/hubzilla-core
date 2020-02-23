@@ -878,11 +878,38 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			$ret['abook'] = $r;
 
 			for($x = 0; $x < count($ret['abook']); $x ++) {
+			
 				$xchans[] = $ret['abook'][$x]['abook_xchan'];
+				$my_perms = [];
+				$their_perms = [];
+				$newconfig = [];
 				$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
-				if($abconfig)
-					$ret['abook'][$x]['abconfig'] = $abconfig;
+				if($abconfig) {
+					foreach ($abconfig as $abc) {
+
+						if ($abc['cat'] === 'my_perms' && intval($abc['v'])) {
+							$my_perms[] = $abc['k'];
+							continue;
+						}
+						if ($abc['cat'] === 'their_perms' && intval($abc['v'])) {
+							$their_perms[] = $abc['k'];
+							continue;
+						}
+						if ($zap_compat && preg_match('|^a:[0-9]+:{.*}$|s', $abc['v'])) {
+							$abc['v'] = serialise(unserialize($abc['v']));
+						}
+						$newconfig[] = $abc;
+					}
+					
+					$ret['abook'][$x]['abconfig'] = $newconfig;
+					if ($zap_compat) {
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'my_perms', 'v' => implode(',',$my_perms) ];
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'their_perms', 'v' => implode(',',$their_perms) ];
+					}	
+				}
+
 				translate_abook_perms_outbound($ret['abook'][$x]);
+				
 			}
 
 			// pick up the zot6 xchan and hublocs also

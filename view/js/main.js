@@ -581,8 +581,10 @@ function contextualHelpFocus(target, openSidePanel) {
 function updatePageItems(mode, data) {
 
 	if(mode === 'append') {
+		newitemcount = 0;
 		$(data).each(function() {
 			$('#page-end').before($(this));
+			newitemcount++;
 		});
 
 		if(loadingPage) {
@@ -593,6 +595,10 @@ function updatePageItems(mode, data) {
 	var e = document.getElementById('content-complete');
 	if(e) {
 		pageHasMoreContent = false;
+	} else {
+		if (newitemcount < 1) {
+			pageUpdate();
+		}
 	}
 
 	collapseHeight();

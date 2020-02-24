@@ -169,24 +169,34 @@ class Cdav extends Controller {
 				logger("debug: method: " . $httpmethod, LOGGER_DEBUG);
 				logger("debug: uri: " . $httpuri, LOGGER_DEBUG);
 
-				// currently we process CardDAV requests only
 				if(strpos($httpuri, 'cdav/addressbooks')) {
+					$sync = 'addressbook';
+					$cdavtable = 'addressbooks';
+				}
+				elseif(strpos($httpuri, 'cdav/calendars')) {
+					$sync = 'calendar';
+					$cdavtable = 'calendarinstances';
+				}
+				else
+					$sync = false;
+
+				if($sync) {
 
 					$uri = basename($httpuri);
 					$httpbody = file_get_contents('php://input');
 
 					logger("debug: body: " . $httpbody, LOGGER_DEBUG);
 
-					if($id = get_cdav_id($principalUri, explode("/", $httpuri)[4], 'addressbooks')) {
+					if($x = get_cdav_id($principalUri, explode("/", $httpuri)[4], $cdavtable)) {
 
-						$cdavdata = $this->get_cdav_data($id, 'addressbooks');
+						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
 						
 						$etag = (isset($_SERVER['HTTP_IF_MATCH']) ? $_SERVER['HTTP_IF_MATCH'] : false);
 						
 						// delete
 						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
 							build_sync_packet($channel['channel_id'], [
-								'addressbook' => [
+								$sync => [
 									'action' => 'delete_card',
 									'uri' => $cdavdata['uri'],
 									'carduri' => $uri
@@ -197,7 +207,7 @@ class Cdav extends Controller {
 								// update
 								if($cdavdata['etag'] !== $etag)
 								    build_sync_packet($channel['channel_id'], [
-									    'addressbook' => [
+									    $sync => [
 										    'action' => 'update_card',
 										    'uri' => $cdavdata['uri'],
 										    'carduri' => $uri,
@@ -208,7 +218,7 @@ class Cdav extends Controller {
 							else {
 								// new
 								build_sync_packet($channel['channel_id'], [
-									'addressbook' => [
+									$sync => [
 										'action' => 'import',
 										'uri' => $cdavdata['uri'],
 										'ids' => [ $uri ],
@@ -326,6 +336,14 @@ class Cdav extends Controller {
 
 				// set new calendar to be visible
 				set_pconfig(local_channel(), 'cdav_calendar' , $id[0], 1);
+
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'create',
+						'uri' => $calendarUri,
+						'properties' => $properties
+					]
+				]);
 			}
 
 			//create new calendar object via ajax request
@@ -335,6 +353,8 @@ class Cdav extends Controller {
 
 				if(!cdav_perms($id[0],$calendars,true))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
 
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
@@ -391,8 +411,16 @@ class Cdav extends Controller {
 					$vcalendar->VEVENT->DTSTART['TZID'] = $tz;
 
 				$calendarData = $vcalendar->serialize();
-
 				$caldavBackend->createCalendarObject($id, $objectUri, $calendarData);
+
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'import',
+						'uri' => $cdavdata['uri'],
+						'ids' => [ $objectUri ],
+						'card' => $calendarData
+					]
+				]);
 
 				killme();
 			}
@@ -405,17 +433,24 @@ class Cdav extends Controller {
 				if(! cdav_perms($id[0],$calendars))
 					return;
 
+				$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
+
 				$mutations = [
 					'{DAV:}displayname' => $_REQUEST['{DAV:}displayname'],
 					'{http://apple.com/ns/ical/}calendar-color' => $_REQUEST['color']
 				];
 
 				$patch = new \Sabre\DAV\PropPatch($mutations);
-
 				$caldavBackend->updateCalendar($id, $patch);
-
 				$patch->commit();
 
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'edit',
+						'uri' => $cdavdata['uri'],
+						'mutations' => $mutations,
+					]
+				]);
 			}
 
 			//edit calendar object via ajax request
@@ -423,8 +458,10 @@ class Cdav extends Controller {
 
 				$id = explode(':', $_REQUEST['target']);
 
-				if(!cdav_perms($id[0],$calendars,true))
+				if(! cdav_perms($id[0],$calendars,true))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
 
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
@@ -471,8 +508,16 @@ class Cdav extends Controller {
 					$vcalendar->VEVENT->LOCATION = $location;
 
 				$calendarData = $vcalendar->serialize();
-
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
+
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'update_card',
+						'uri' => $cdavdata['uri'],
+						'carduri' => $uri,
+						'card' => $calendarData
+					]
+				]);
 
 				killme();
 			}
@@ -482,12 +527,22 @@ class Cdav extends Controller {
 
 				$id = explode(':', $_REQUEST['target']);
 
-				if(!cdav_perms($id[0],$calendars,true))
+				if(! cdav_perms($id[0],$calendars,true))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
 
 				$uri = $_REQUEST['uri'];
 
 				$caldavBackend->deleteCalendarObject($id, $uri);
+
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'delete_card',
+						'uri' => $cdavdata['uri'],
+						'carduri' => $uri
+					]
+				]);
 
 				killme();
 			}
@@ -497,8 +552,10 @@ class Cdav extends Controller {
 
 				$id = [$_REQUEST['id'][0], $_REQUEST['id'][1]];
 
-				if(!cdav_perms($id[0],$calendars,true))
+				if(! cdav_perms($id[0],$calendars,true))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
 
 				$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
 				$tz = (($timezone) ? $timezone : date_default_timezone_get());
@@ -535,8 +592,16 @@ class Cdav extends Controller {
 					unset($vcalendar->VEVENT->DTEND);
 
 				$calendarData = $vcalendar->serialize();
-
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
+
+				build_sync_packet($channel['channel_id'], [
+					'calendar' => [
+						'action' => 'update_card',
+						'uri' => $cdavdata['uri'],
+						'carduri' => $uri,
+						'card' => $calendarData
+					]
+				]);
 
 				killme();
 			}
@@ -602,10 +667,10 @@ class Cdav extends Controller {
 
 				$id = $_REQUEST['id'];
 
-				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
-
 				if(! cdav_perms($id,$addressbooks))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
 
 				$mutations = [
 					'{DAV:}displayname' => $_REQUEST['{DAV:}displayname']
@@ -626,6 +691,7 @@ class Cdav extends Controller {
 
 			//create addressbook card
 			if($_REQUEST['create'] && $_REQUEST['target'] && $_REQUEST['fn']) {
+
 				$id = $_REQUEST['target'];
 
 				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
@@ -656,7 +722,6 @@ class Cdav extends Controller {
 				process_cdav_card($fields, $vcard);
 
 				$cardData = $vcard->serialize();
-
 				$carddavBackend->createCard($id, $uri, $cardData);
 
 				build_sync_packet($channel['channel_id'], [
@@ -674,10 +739,10 @@ class Cdav extends Controller {
 
 				$id = $_REQUEST['target'];
 
-				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
-
-				if(!cdav_perms($id,$addressbooks))
+				if(! cdav_perms($id,$addressbooks))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
 
 				$uri = $_REQUEST['uri'];
 
@@ -714,10 +779,10 @@ class Cdav extends Controller {
 
 				$id = $_REQUEST['target'];
 
-				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
-
-				if(!cdav_perms($id,$addressbooks))
+				if(! cdav_perms($id,$addressbooks))
 					return;
+
+				$cdavdata = $this->get_cdav_data($id, 'addressbooks');
 
 				$uri = $_REQUEST['uri'];
 
@@ -758,9 +823,12 @@ class Cdav extends Controller {
 					$ext = 'ics';
 					$table = 'calendarobjects';
 					$column = 'calendarid';
+					$sync = 'calendar';
 					$objects = new \Sabre\VObject\Splitter\ICalendar($carddata);
 					$profile = \Sabre\VObject\Node::PROFILE_CALDAV;
 					$backend = new \Sabre\CalDAV\Backend\PDO($pdo);
+
+					$cdavdata = $this->get_cdav_data($id, 'calendarinstances');
 				}
 
 				if($_REQUEST['a_upload']) {
@@ -768,6 +836,7 @@ class Cdav extends Controller {
 					$ext = 'vcf';
 					$table = 'cards';
 					$column = 'addressbookid';
+					$sync = 'addressbook';
 					$objects = new \Sabre\VObject\Splitter\VCard($carddata);
 					$profile = \Sabre\VObject\Node::PROFILE_CARDDAV;
 					$backend = new \Sabre\CardDAV\Backend\PDO($pdo);
@@ -778,15 +847,14 @@ class Cdav extends Controller {
 				$ids = [];
 				import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backend, $ids, true);
 				
-				if(isset($cdavdata))
-				    build_sync_packet($channel['channel_id'], [
-				        'addressbook' => [
-				            'action' => 'import',
-				            'uri' => $cdavdata['uri'],
-				            'ids' => $ids,
-				            'card' => $carddata
-				        ]
-				    ]);
+				build_sync_packet($channel['channel_id'], [
+					$sync => [
+						'action' => 'import',
+						'uri' => $cdavdata['uri'],
+						'ids' => $ids,
+						'card' => $carddata
+					]
+				]);
 			}
 			@unlink($src);
 		}
@@ -1095,7 +1163,18 @@ class Cdav extends Controller {
 			if(! cdav_perms($id,$calendars))
 				killme();
 
-			set_pconfig(local_channel(), 'cdav_calendar' , argv(3), argv(4));
+			$cdavdata = $this->get_cdav_data($id, 'calendarinstances');
+
+			set_pconfig(local_channel(), 'cdav_calendar', $id, argv(4));
+
+			build_sync_packet(local_channel(), [
+				'calendar' => [
+					'action' => 'switch',
+					'uri' => $cdavdata['uri'],
+					'switch' => intval(argv(4))
+				]
+			]);
+
 			killme();
 		}
 
@@ -1106,7 +1185,18 @@ class Cdav extends Controller {
 			if(! cdav_perms($id[0],$calendars))
 				killme();
 
+			// get metadata before we delete it
+			$cdavdata = $this->get_cdav_data($id[0], 'calendarinstances');
+
 			$caldavBackend->deleteCalendar($id);
+
+			build_sync_packet($channel['channel_id'], [
+				'calendar' => [
+					'action' => 'drop',
+					'uri' => $cdavdata['uri']
+				]
+			]);
+
 			killme();
 		}
 

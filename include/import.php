@@ -1503,6 +1503,7 @@ function sync_files($channel, $files) {
 	}
 }
 
+
 /**
  * @brief Synchronize addressbooks.
  *
@@ -1562,6 +1563,76 @@ function sync_addressbook($channel, $data) {
 			$objects = new \Sabre\VObject\Splitter\VCard($data['card']);
 			$profile = \Sabre\VObject\Node::PROFILE_CARDDAV;
 			import_cdav_card($id, 'vcf', 'cards', 'addressbookid', $objects, $profile, $carddavBackend, $data['ids']);
+			break;
+
+		default:
+			break;
+	}
+}
+
+
+/**
+ * @brief Synchronize calendars.
+ *
+ * @param array $channel
+ * @param array $data
+ */
+function sync_calendar($channel, $data) {
+
+	if(! \Zotlabs\Lib\Apps::system_app_installed($channel['channel_id'], 'Calendar'))
+		return;
+
+	logger("debug: " . print_r($data,true), LOGGER_DEBUG);
+
+	require_once('include/cdav.php');
+
+        $principalUri = 'principals/' . $channel['channel_address'];
+
+	if($data['action'] !== 'create') {
+		$x = get_cdav_id($principalUri, $data['uri'], 'calendarinstances');
+		if(! $x)
+			return;
+		$id = [ $x['id'], $x['calendarid'] ];
+	}
+
+	$pdo = \DBA::$dba->db;
+
+	$caldavBackend = new \Sabre\CalDAV\Backend\PDO($pdo);
+	$calendars = $caldavBackend->getCalendarsForUser($principalUri);
+
+	switch($data['action']) {
+
+		case 'create':
+			$id = $caldavBackend->createCalendar($principalUri, $data['uri'], $data['properties']);
+			set_pconfig($channel['channel_id'], 'cdav_calendar', $id[0], 1);
+			break;
+
+		case 'drop':
+			$caldavBackend->deleteCalendar($id);
+			break;
+
+		case 'edit':
+			$patch = new \Sabre\DAV\PropPatch($data['mutations']);
+			$caldavBackend->updateCalendar($id, $patch);
+			$patch->commit();
+			break;
+
+		case 'delete_card':
+			$caldavBackend->deleteCalendarObject($id, $data['carduri']);
+			break;
+
+		case 'update_card':
+			$caldavBackend->updateCalendarObject($id, $data['carduri'], $data['card']);			
+			break;
+
+		case 'switch':
+			set_pconfig($channel['channel_id'], 'cdav_calendar', $id[0], $data['switch']);
+			break;
+
+		case 'import':
+			$objects = new \Sabre\VObject\Splitter\ICalendar($data['card']);
+			$profile = \Sabre\VObject\Node::PROFILE_CALDAV;
+			import_cdav_card($id, 'ics', 'calendarobjects', 'calendarid', $objects, $profile, $caldavBackend, $data['ids']);
 			break;
 
 		default:

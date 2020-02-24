@@ -3,7 +3,7 @@
 /**
  * @brief Process CardDAV card
  *
- * @param array $f	fields array
+ * @param array $f	fields
  * @param obj	$vcard	SabreDAV object
  * @param bool	$edit	update card
  *
@@ -96,7 +96,7 @@ function process_cdav_card($f, &$vcard, $edit = false) {
 /**
  * @brief Import CardDAV or CalDAV card
  *
- * @param int	$id		card id
+ * @param mixed	$id     card id
  * @param str	$ext	card extension
  * @param str	$table	name
  * @param str	$column name

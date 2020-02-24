@@ -175,12 +175,12 @@ function import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backe
 
 function get_cdav_id($principaluri, $uri, $table) {
 
-        $r = q("SELECT id FROM $table WHERE principaluri = '%s' AND uri = '%s' LIMIT 1",
+        $r = q("SELECT * FROM $table WHERE principaluri = '%s' AND uri = '%s' LIMIT 1",
                 dbesc($principaluri),
                 dbesc($uri)
         );
         if(! $r)
                 return false;
 
-        return $r[0]['id'];
+        return $r[0];
 }

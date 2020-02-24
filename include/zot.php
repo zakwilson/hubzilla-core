@@ -3614,6 +3614,9 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		if(array_key_exists('addressbook',$arr) && $arr['addressbook'])
 			sync_addressbook($channel,$arr['addressbook']);
 
+		if(array_key_exists('calendar',$arr) && $arr['calendar'])
+			sync_calendar($channel,$arr['calendar']);
+
 		if(array_key_exists('chatroom',$arr) && $arr['chatroom'])
 			sync_chatrooms($channel,$arr['chatroom']);
 

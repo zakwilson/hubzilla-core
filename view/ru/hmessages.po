@@ -9583,11 +9583,11 @@ msgstr "Результаты поиска для: %s"
 
 #: ../../Zotlabs/Module/Notes.php:56
 msgid "Notes App"
-msgstr "Приложение \"Заметки\""
+msgstr "Приложение \"Записки\""
 
 #: ../../Zotlabs/Module/Notes.php:57
 msgid "A simple notes app with a widget (note: notes are not encrypted)"
-msgstr "Простое приложение для заметок с виджетом (примечание: заметки не зашифрованы)"
+msgstr "Простое приложение для записок с виджетом (примечание: записки не зашифрованы)"
 
 #: ../../Zotlabs/Module/Moderate.php:65
 msgid "Comment approved"
@@ -11015,7 +11015,7 @@ msgstr "Форумы"
 #: ../../Zotlabs/Widget/Notes.php:21 ../../Zotlabs/Lib/Apps.php:368
 #: ../../extend/addon/hzaddons/workflow/workflow.php:2592
 msgid "Notes"
-msgstr "Заметки"
+msgstr "Записки"
 
 #: ../../Zotlabs/Widget/Suggestions.php:53
 msgid "Suggestions"

@@ -504,9 +504,46 @@ class Activity {
 				}
 			}
 		}
+		if ($item['iconfig']) {
+			foreach ($item['iconfig'] as $att) {
+				if ($att['sharing']) {
+					$value = ((preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
+					$ret[] = [ 'type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $value ];
+				}
+			}
+		}
 		
 		return $ret;
 	}
+
+	static function decode_iconfig($item) {
+
+		$ret = [];
+
+		if (is_array($item['attachment']) && $item['attachment']) {
+			$ptr = $item['attachment'];
+			if (! array_key_exists(0,$ptr)) {
+				$ptr = [ $ptr ];
+			}
+			foreach ($ptr as $att) {
+				$entry = [];
+				if ($att['type'] === 'PropertyValue') {
+					if (array_key_exists('name',$att) && $att['name']) {
+						$key = explode('.',$att['name']);
+						if (count($key) === 3 && $key[0] === 'zot') {
+							$entry['cat'] = $key[1];
+							$entry['k'] = $key[2];
+							$entry['v'] = $att['value'];
+							$entry['sharing'] = '1';
+							$ret[] = $entry;
+						}
+					}
+				}
+			}
+		}
+		return $ret;
+	}
+
 
 
 	static function decode_attachment($item) {
@@ -1888,16 +1925,21 @@ class Activity {
 				}
 			}
 
-			$a = self::decode_attachment($act->obj);
-			if($a) {
-				$s['attach'] = $a;
-			}
+		}
+
+		$a = self::decode_attachment($act->obj);
+		if ($a) {
+			$s['attach'] = $a;
+		}
+
+		$a = self::decode_iconfig($act->obj);
+		if ($a) {
+			$s['iconfig'] = $a;
 		}
 
 		if($act->obj['type'] === 'Note' && $s['attach']) {
 			$s['body'] .= self::bb_attach($s['attach'],$s['body']);
 		}
-
 
 		if ($act->obj['type'] === 'Question' && in_array($act->type,['Create','Update'])) {
 			if ($act->obj['endTime']) {

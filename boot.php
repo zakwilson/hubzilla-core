@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '4.7.1' );
+define ( 'STD_VERSION',             '4.7.3' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 define ( 'DB_UPDATE_VERSION',       1235 );
@@ -473,7 +473,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.8' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.9' );
 /**
  * activity stream defines
  */

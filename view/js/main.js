@@ -581,8 +581,10 @@ function contextualHelpFocus(target, openSidePanel) {
 function updatePageItems(mode, data) {
 
 	if(mode === 'append') {
+		newitemcount = 0;
 		$(data).each(function() {
 			$('#page-end').before($(this));
+			newitemcount++;
 		});
 
 		if(loadingPage) {
@@ -593,6 +595,10 @@ function updatePageItems(mode, data) {
 	var e = document.getElementById('content-complete');
 	if(e) {
 		pageHasMoreContent = false;
+	} else {
+		if (newitemcount < 1) {
+			pageUpdate();
+		}
 	}
 
 	collapseHeight();
@@ -1266,6 +1272,20 @@ function filestorage(event, nick, id) {
 		last_filestorage_id = id;
 	});
 }
+
+function submitPoll(id) {
+
+	$.post('vote/' + id,
+		$('#question-form-' + id).serialize(),
+		function(data) {
+			$.jGrowl(data.message, { sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: 10000 });
+			if(timer) clearTimeout(timer);
+			timer = setTimeout(updateInit,1500);
+		}
+	);
+
+}
+
 
 function post_comment(id) {
 	unpause();

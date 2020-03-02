@@ -22,6 +22,13 @@ class Activity_filter {
 			$filter_active = 'dm';
 		}
 
+		if(x($_GET,'verb')) {
+			$events_active = (($_GET['verb'] == '.Event') ? 'active' : '');
+			$polls_active = (($_GET['verb'] == '.Question') ? 'active' : '');
+			$filter_active = (($events_active) ? 'events' : 'polls');
+		}
+
+
 		$tabs[] = [
 			'label' => t('Direct Messages'),
 			'icon' => 'envelope-o',
@@ -29,6 +36,27 @@ class Activity_filter {
 			'sel' => $dm_active,
 			'title' => t('Show direct (private) messages')
 		];
+
+		if(feature_enabled(local_channel(),'events_tab')) {
+			$tabs[] = [
+				'label' => t('Events'),
+				'icon' => 'calendar',
+				'url' => z_root() . '/' . $cmd . '/?verb=%2EEvent',
+				'sel' => $events_active,
+				'title' => t('Show posts that include events')
+			];
+		}
+
+		if(feature_enabled(local_channel(),'polls_tab')) {
+			$tabs[] = [
+				'label' => t('Polls'),
+				'icon' => 'bar-chart',
+				'url' => z_root() . '/' . $cmd . '/?verb=%2EQuestion',
+				'sel' => $polls_active,
+				'title' => t('Show posts that include polls')
+			];
+		}
+
 
 		if(Apps::system_app_installed(local_channel(), 'Privacy Groups')) {
 			$groups = q("SELECT * FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",

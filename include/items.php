@@ -9,6 +9,7 @@ use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\Activity;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\AccessList;
 use Zotlabs\Daemon\Master;
@@ -1947,6 +1948,11 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 			if(intval($r[0]['item_uplink']) && (! $r[0]['item_private']))
 				$arr['item_private'] = 0;
+
+			if(in_array($arr['obj_type'], ['Note','Answer']) && $r[0]['obj_type'] === 'Question' && intval($r[0]['item_wall'])) {
+				Activity::update_poll($r[0],$arr);
+			}
+
 		}
 		else {
 			logger('item_store: item parent was not found - ignoring item');

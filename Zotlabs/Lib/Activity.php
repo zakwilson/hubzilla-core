@@ -325,6 +325,22 @@ class Activity {
 
 		$ret['type'] = $objtype;
 
+		if ($objtype === 'Question') {
+			if ($i['obj']) {
+				if (is_array($i['obj'])) {
+					$ret = $i['obj'];
+				}
+				else {
+					$ret = json_decode($i['obj'],true);
+				}
+			
+				if(array_path_exists('actor/id',$ret)) {
+					$ret['actor'] = $ret['actor']['id'];
+				}
+			}
+		}
+
+
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
 
 		if($i['title'])
@@ -488,9 +504,46 @@ class Activity {
 				}
 			}
 		}
+		if ($item['iconfig']) {
+			foreach ($item['iconfig'] as $att) {
+				if ($att['sharing']) {
+					$value = ((preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
+					$ret[] = [ 'type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $value ];
+				}
+			}
+		}
 		
 		return $ret;
 	}
+
+	static function decode_iconfig($item) {
+
+		$ret = [];
+
+		if (is_array($item['attachment']) && $item['attachment']) {
+			$ptr = $item['attachment'];
+			if (! array_key_exists(0,$ptr)) {
+				$ptr = [ $ptr ];
+			}
+			foreach ($ptr as $att) {
+				$entry = [];
+				if ($att['type'] === 'PropertyValue') {
+					if (array_key_exists('name',$att) && $att['name']) {
+						$key = explode('.',$att['name']);
+						if (count($key) === 3 && $key[0] === 'zot') {
+							$entry['cat'] = $key[1];
+							$entry['k'] = $key[2];
+							$entry['v'] = $att['value'];
+							$entry['sharing'] = '1';
+							$ret[] = $entry;
+						}
+					}
+				}
+			}
+		}
+		return $ret;
+	}
+
 
 
 	static function decode_attachment($item) {
@@ -576,8 +629,15 @@ class Activity {
 			}
 		}
 
-
-		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
+		if (strpos($i['mid'],z_root() . '/item/') !== false) {
+			$ret['id'] = str_replace('/item/','/activity/',$i['mid']);
+		}
+		elseif (strpos($i['mid'],z_root() . '/event/') !== false) {
+			$ret['id'] = str_replace('/event/','/activity/',$i['mid']);
+		}
+		else {
+			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
+		}
 
 		if($i['title'])
 			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));
@@ -912,7 +972,7 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-		
+			'Question'                                          => 'Question'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -932,10 +992,6 @@ class Activity {
 
 	static function activity_obj_mapper($obj) {
 
-		if(strpos($obj,'/') === false) {
-			return $obj;
-		}
-
 		$objs = [
 			'http://activitystrea.ms/schema/1.0/note'           => 'Note',
 			'http://activitystrea.ms/schema/1.0/comment'        => 'Note',
@@ -951,10 +1007,20 @@ class Activity {
 			'http://purl.org/zot/activity/thing'                => 'Object',
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
-			'Invite'                                            => 'Invite',		
+			'Invite'                                            => 'Invite',
+			'Question'                                          => 'Question'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
+
+		if ($obj === 'Answer') {
+			return 'Note';
+		}
+
+		if (strpos($obj,'/') === false) {
+			return $obj;
+		}
+
 
 		if(array_key_exists($obj,$objs)) {
 			return $objs[$obj];
@@ -1606,6 +1672,101 @@ class Activity {
 	}
 
 
+
+	static function update_poll($item,$post) {
+		$multi = false;
+		$mid = $post['mid'];
+		$content = $post['title'];
+		
+		if (! $item) {
+			return false;
+		}
+
+		$o = json_decode($item['obj'],true);
+		if ($o && array_key_exists('anyOf',$o)) {
+			$multi = true;
+		}
+
+		$r = q("select mid, title from item where parent_mid = '%s' and author_xchan = '%s'",
+			dbesc($item['mid']),
+			dbesc($post['author_xchan'])
+		);
+
+		// prevent any duplicate votes by same author for oneOf and duplicate votes with same author and same answer for anyOf
+		
+		if ($r) {
+			if ($multi) {
+				foreach ($r as $rv) {
+					if ($rv['title'] === $content && $rv['mid'] !== $mid) {
+						return false;
+					}
+				}
+			}
+			else {
+				foreach ($r as $rv) {
+					if ($rv['mid'] !== $mid) {
+						return false;
+					}
+				}
+			}
+		}
+			
+		$answer_found = false;
+		$found = false;
+		if ($multi) {
+			for ($c = 0; $c < count($o['anyOf']); $c ++) {
+				if ($o['anyOf'][$c]['name'] === $content) {
+					$answer_found = true;
+					if (is_array($o['anyOf'][$c]['replies'])) {
+						foreach($o['anyOf'][$c]['replies'] as $reply) {
+							if(is_array($reply) && array_key_exists('id',$reply) && $reply['id'] === $mid) {
+								$found = true;
+							}
+						}
+					}
+
+					if (! $found) {
+						$o['anyOf'][$c]['replies']['totalItems'] ++;
+						$o['anyOf'][$c]['replies']['items'][] = [ 'id' => $mid, 'type' => 'Note' ];
+					}
+				}
+			}
+		}
+		else {
+			for ($c = 0; $c < count($o['oneOf']); $c ++) {
+				if ($o['oneOf'][$c]['name'] === $content) {
+					$answer_found = true;
+					if (is_array($o['oneOf'][$c]['replies'])) {
+						foreach($o['oneOf'][$c]['replies'] as $reply) {
+							if(is_array($reply) && array_key_exists('id',$reply) && $reply['id'] === $mid) {
+								$found = true;
+							}
+						}
+					}
+
+					if (! $found) {
+						$o['oneOf'][$c]['replies']['totalItems'] ++;
+						$o['oneOf'][$c]['replies']['items'][] = [ 'id' => $mid, 'type' => 'Note' ];
+					}
+				}
+			}
+		}
+		logger('updated_poll: ' . print_r($o,true),LOGGER_DATA);		
+		if ($answer_found && ! $found) {			
+			$x = q("update item set obj = '%s', edited = '%s' where id = %d",
+				dbesc(json_encode($o)),
+				dbesc(datetime_convert()),
+				intval($item['id'])
+			);
+			Master::Summon( [ 'Notifier', 'wall-new', $item['id'] ] );
+			return true;
+		}
+
+		return false;
+	}
+
+
+
 	static function decode_note($act) {
 
 		$response_activity = false;
@@ -1643,7 +1804,6 @@ class Activity {
 		elseif ($act->obj['expires']) {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
-
 
 		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
@@ -1711,10 +1871,16 @@ class Activity {
 
 		$s['verb']     = self::activity_decode_mapper($act->type);
 
+		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
+		if ($act->type === 'Update' && $act->obj['type'] === 'Question' && $s['edited'] === $s['created']) {
+			$s['edited'] = datetime_convert();
+		}
 
 		if($act->type === 'Tombstone' || $act->type === 'Delete' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
 		}
+
+
 
 		$s['obj_type'] = self::activity_obj_decode_mapper($act->obj['type']);
 		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {
@@ -1787,15 +1953,32 @@ class Activity {
 				}
 			}
 
-			$a = self::decode_attachment($act->obj);
-			if($a) {
-				$s['attach'] = $a;
-			}
+		}
+
+		$a = self::decode_attachment($act->obj);
+		if ($a) {
+			$s['attach'] = $a;
+		}
+
+		$a = self::decode_iconfig($act->obj);
+		if ($a) {
+			$s['iconfig'] = $a;
 		}
 
 		if($act->obj['type'] === 'Note' && $s['attach']) {
 			$s['body'] .= self::bb_attach($s['attach'],$s['body']);
 		}
+
+		if ($act->obj['type'] === 'Question' && in_array($act->type,['Create','Update'])) {
+			if ($act->obj['endTime']) {
+				$s['comments_closed'] = datetime_convert('UTC','UTC', $act->obj['endTime']);
+			}
+		}
+
+		if ($act->obj['closed']) {
+			$s['comments_closed'] = datetime_convert('UTC','UTC', $act->obj['closed']);
+		}			
+
 
 
 		// we will need a hook here to extract magnet links e.g. peertube
@@ -2086,7 +2269,7 @@ class Activity {
 		set_iconfig($item,'activitypub','recips',$act->raw_recips);
 
 		if(! $is_parent) {
-			$p = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
+			$p = q("select parent_mid, id, obj_type from item where mid = '%s' and uid = %d limit 1",
 				dbesc($item['parent_mid']),
 				intval($item['uid'])
 			);
@@ -2116,6 +2299,15 @@ class Activity {
 					// $s['thr_parent'] = $s['mid'];
 				}
 			}
+
+
+			if ($p[0]['obj_type'] === 'Question') {
+				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (! $item['content'])) {
+					$item['obj_type'] = 'Answer';
+				}
+			}
+
+
 			if($p[0]['parent_mid'] !== $item['parent_mid']) {
 				$item['thr_parent'] = $item['parent_mid'];
 			}

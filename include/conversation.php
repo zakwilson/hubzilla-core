@@ -1293,7 +1293,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	$feature_voting = feature_enabled($x['profile_uid'], 'consensus_tools');
 	if(x($x, 'hide_voting'))
 		$feature_voting = false;
-	
+
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
 	if(x($x, 'disable_comments'))
 		$feature_nocomment = false;
@@ -1441,6 +1441,11 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$embedPhotosModalOK' => t('OK'),
 		'$setloc' => $setloc,
 		'$voting' => t('Toggle voting'),
+		'$poll' => t('Toggle poll'),
+		'$poll_option_label' => t('Option'),
+		'$poll_add_option_label' => t('Add option'),
+		'$poll_expire_unit_label' => [t('Minutes'), t('Hours'), t('Days')],
+		'$multiple_answers' => ['poll_multiple_answers', t("Allow multiple answers"), '', '', [t('No'), t('Yes')]],
 		'$feature_voting' => $feature_voting,
 		'$consensus' => ((array_key_exists('item',$x)) ? $x['item']['item_consensus'] : 0),
 		'$nocommenttitle' => t('Disable comments'),

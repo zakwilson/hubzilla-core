@@ -230,12 +230,16 @@ function create_identity($arr) {
 		return $ret;
 	}
 
-	$guid = zot_new_uid($nick);
+	$guid = Libzot::new_uid($nick);
 	$key = new_keypair(4096);
 
-	$sig = base64url_encode(rsa_sign($guid,$key['prvkey']));
-	$hash = make_xchan_hash($guid,$sig);
-	$zhash = Libzot::make_xchan_hash($guid,$key['pubkey']);
+	// legacy zot
+	$zsig = base64url_encode(rsa_sign($guid,$key['prvkey']));
+	$zhash = make_xchan_hash($guid,$sig);
+
+	// zot6
+	$sig = Libzot::sign($guid,$key['prvkey']);
+	$hash = Libzot::make_xchan_hash($guid,$key['pubkey']);
 
 	// Force a few things on the short term until we can provide a theme or app with choice
 
@@ -334,8 +338,8 @@ function create_identity($arr) {
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => $sig,
-			'hubloc_hash'     => $hash,
+			'hubloc_guid_sig' => $zsig,
+			'hubloc_hash'     => $zhash,
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
@@ -353,13 +357,13 @@ function create_identity($arr) {
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => 'sha256.' . $sig,
-			'hubloc_hash'     => $zhash,
+			'hubloc_guid_sig' => $sig,
+			'hubloc_hash'     => $hash,
 			'hubloc_id_url'   => channel_url($ret['channel']),  
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_url_sig'  => Libzot::sign(z_root(),$ret['channel']['channel_prvkey']),
 			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey')),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/zot',
@@ -376,9 +380,9 @@ function create_identity($arr) {
 
 	$r = xchan_store_lowlevel(
 		[
-			'xchan_hash'        => $hash,
+			'xchan_hash'        => $zhash,
 			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => $sig,
+			'xchan_guid_sig'    => $zsig,
 			'xchan_pubkey'      => $key['pubkey'],
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
@@ -400,9 +404,9 @@ function create_identity($arr) {
 
 	$r = xchan_store_lowlevel(
 		[
-			'xchan_hash'        => $zhash,
+			'xchan_hash'        => $hash,
 			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => 'sha256.' . $sig,
+			'xchan_guid_sig'    => $sig,
 			'xchan_pubkey'      => $key['pubkey'],
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",

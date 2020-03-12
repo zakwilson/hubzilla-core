@@ -578,7 +578,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 							[
 							'type'       => NOTIFY_INTRO,
 							'from_xchan' => $x['hash'],
-							'to_xchan'   => $channel['channel_hash'],
+							'to_xchan'   => $channel['channel_portable_id'],
 							'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id']
 							]
 						);
@@ -921,7 +921,7 @@ function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 
 		// see if this is a channel clone that's hosted locally - which we treat different from other xchans/connections
 
-		$local = q("select channel_account_id, channel_id from channel where channel_hash = '%s' limit 1",
+		$local = q("select channel_account_id, channel_id from channel where channel_portable_id = '%s' limit 1",
 			dbesc($xchan_hash)
 		);
 		
@@ -1299,7 +1299,7 @@ function zot_fetch($arr) {
  *
  * @returns array
  *   Suitable for logging remotely, enumerating the processing results of each message/recipient combination
- *   * [0] => \e string $channel_hash
+ *   * [0] => \e string $channel_portable_id
  *   * [1] => \e string $delivery_status
  *   * [2] => \e string $address
  */
@@ -1385,7 +1385,7 @@ function zot_import($arr, $sender_url) {
 				if($recip_arr) {
 					stringify_array_elms($recip_arr);
 					$recips = implode(',',$recip_arr);
-					$r = q("select channel_hash as hash from channel where channel_hash in ( " . $recips . " )
+					$r = q("select channel_portable_id as hash from channel where channel_portable_id in ( " . $recips . " )
 						and channel_removed = 0 ");
 				}
 
@@ -1596,11 +1596,11 @@ function public_recips($msg) {
 
 	$r = array();
 
-	$c = q("select channel_id, channel_hash from channel where channel_removed = 0");
+	$c = q("select channel_id, channel_portable_id from channel where channel_removed = 0");
 	if($c) {
 		foreach($c as $cc) {
 			if(perm_is_allowed($cc['channel_id'],$msg['notify']['sender']['hash'],$perm)) {
-				$r[] = [ 'hash' => $cc['channel_hash'] ];
+				$r[] = [ 'hash' => $cc['channel_portable_id'] ];
 			}
 		}
 	}
@@ -1610,7 +1610,7 @@ function public_recips($msg) {
 	if($include_sys && array_key_exists('public_scope',$msg['message']) && $msg['message']['public_scope'] === 'public') {
 		$sys = get_sys_channel();
 		if($sys)
-			$r[] = [ 'hash' => $sys['channel_hash'] ];
+			$r[] = [ 'hash' => $sys['channel_portable_id'] ];
 	}
 
 	// look for any public mentions on this site
@@ -1624,7 +1624,7 @@ function public_recips($msg) {
 					if(($tag['type'] === 'mention' || $tag['type'] === 'forum') && (strpos($tag['url'],z_root()) !== false)) {
 						$address = basename($tag['url']);
 						if($address) {
-							$z = q("select channel_hash as hash from channel where channel_address = '%s'
+							$z = q("select channel_portable_id as hash from channel where channel_address = '%s'
 								and channel_removed = 0 limit 1",
 								dbesc($address)
 							);
@@ -1727,7 +1727,7 @@ function allowed_public_recips($msg) {
 			$condensed_recips[] = $rr['hash'];
 
 		$results = array();
-		$r = q("select channel_hash as hash, channel_id from channel left join abook on abook_channel = channel_id where abook_xchan = '%s' and channel_removed = 0 ",
+		$r = q("select channel_portable_id as hash, channel_id from channel left join abook on abook_channel = channel_id where abook_xchan = '%s' and channel_removed = 0 ",
 			dbesc($hash)
 		);
 		if($r) {
@@ -1776,7 +1776,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 
 		$DR = new Zotlabs\Lib\DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
 
-		$channel = channelx_by_hash($d['hash']);
+		$channel = channelx_by_portid($d['hash']);
 
 		if(! $channel) {
 			$DR->update('recipient not found');
@@ -2076,7 +2076,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 
 		$stored = (($item_result && $item_result['item']) ? $item_result['item'] : false);
 		if((is_array($stored)) && ($stored['id'] != $stored['parent'])
-			&& ($stored['author_xchan'] === $channel['channel_hash'])) {
+			&& ($stored['author_xchan'] === $channel['channel_portable_id'])) {
 			retain_item($stored['item']['parent']);
 		}
 
@@ -2344,7 +2344,7 @@ function process_mail_delivery($sender, $arr, $deliveries) {
 
 		$DR = new Zotlabs\Lib\DReport(z_root(),$sender['hash'],$d['hash'],$arr['mid']);
 
-		$r = q("select * from channel where channel_hash = '%s' limit 1",
+		$r = q("select * from channel where channel_portable_id = '%s' limit 1",
 			dbesc($d['hash'])
 		);
 
@@ -2555,7 +2555,7 @@ function check_location_move($sender_hash, $locations) {
 
 	$loc = $locations[0];
 
-	$r = q("select * from channel where channel_hash = '%s' limit 1",
+	$r = q("select * from channel where channel_portable_id = '%s' limit 1",
 		dbesc($sender_hash)
 	);
 
@@ -2563,7 +2563,7 @@ function check_location_move($sender_hash, $locations) {
 		return;
 
 	if($loc['url'] !== z_root()) {
-		$x = q("update channel set channel_moved = '%s' where channel_hash = '%s' limit 1",
+		$x = q("update channel set channel_moved = '%s' where channel_portable_id = '%s' limit 1",
 			dbesc($loc['url']),
 			dbesc($sender_hash)
 		);
@@ -2826,13 +2826,13 @@ function sync_locations($sender, $arr, $absolute = false) {
  *
  * @see zot_get_hublocs()
  * @param array $channel an associative array which must contain
- *  * \e string \b channel_hash the hash of the channel
+ *  * \e string \b channel_portable_id the hash of the channel
  * @return array an array with associative arrays
  */
 function zot_encode_locations($channel) {
 	$ret = array();
 
-	$x = zot_get_hublocs($channel['channel_hash']);
+	$x = zot_get_hublocs($channel['channel_portable_id']);
 
 	if($x && count($x)) {
 		foreach($x as $hub) {
@@ -3301,7 +3301,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 		return;
 
 	$h = q("select hubloc.*, site.site_crypto from hubloc left join site on site_url = hubloc_url where hubloc_hash = '%s' and hubloc_deleted = 0",
-		dbesc(($keychange) ? $packet['keychange']['old_hash'] : $channel['channel_hash'])
+		dbesc(($keychange) ? $packet['keychange']['old_hash'] : $channel['channel_portable_id'])
 	);
 
 	if(! $h)
@@ -3325,7 +3325,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 		return;
 
 	$r = q("select xchan_guid, xchan_guid_sig from xchan where xchan_hash  = '%s' limit 1",
-		dbesc($channel['channel_hash'])
+		dbesc($channel['channel_portable_id'])
 	);
 	if(! $r)
 		return;
@@ -3446,7 +3446,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 	$keychange = ((array_key_exists('keychange',$arr)) ? true : false);
 
 	foreach ($deliveries as $d) {
-		$r = q("select * from channel where channel_hash = '%s' limit 1",
+		$r = q("select * from channel where channel_portable_id = '%s' limit 1",
 			dbesc(($keychange) ? $arr['keychange']['old_hash'] : $d['hash'])
 		);
 
@@ -3460,8 +3460,8 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		$max_friends = service_class_fetch($channel['channel_id'],'total_channels');
 		$max_feeds = account_service_class_fetch($channel['channel_account_id'],'total_feeds');
 
-		if($channel['channel_hash'] != $sender['hash']) {
-			logger('Possible forgery. Sender ' . $sender['hash'] . ' is not ' . $channel['channel_hash']);
+		if($channel['channel_portable_id'] != $sender['hash']) {
+			logger('Possible forgery. Sender ' . $sender['hash'] . ' is not ' . $channel['channel_portable_id']);
 			$result[] = array($d['hash'],'channel mismatch',$channel['channel_name'],'');
 			continue;
 		}
@@ -3478,7 +3478,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 
 			$r = q("update channel set channel_prvkey = '%s', channel_pubkey = '%s', channel_guid_sig = '%s',
-				channel_hash = '%s' where channel_id = %d",
+				channel_portable_id = '%s' where channel_id = %d",
 				dbesc($arr['channel']['channel_prvkey']),
 				dbesc($arr['channel']['channel_pubkey']),
 				dbesc($sig),
@@ -4192,7 +4192,7 @@ function zot_reply_message_request($data) {
 
 	$arr = $data['recipients'][0];
 	$recip_hash = make_xchan_hash($arr['guid'],$arr['guid_sig']);
-	$c = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_hash = '%s' limit 1",
+	$c = q("select * from channel left join xchan on channel_portable_id = xchan_hash where channel_portable_id = '%s' limit 1",
 		dbesc($recip_hash)
 	);
 	if (! $c) {
@@ -4338,13 +4338,13 @@ function zotinfo($arr) {
 	$r = null;
 
 	if(strlen($zhash)) {
-		$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
-			where channel_hash = '%s' limit 1",
+		$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+			where channel_portable_id = '%s' limit 1",
 			dbesc($zhash)
 		);
 	}
 	elseif(strlen($zguid) && strlen($zguid_sig)) {
-		$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+		$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 			where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
 			dbesc($zguid),
 			dbesc($zguid_sig)
@@ -4352,7 +4352,7 @@ function zotinfo($arr) {
 	}
 	elseif(strlen($zaddr)) {
 		if(strpos($zaddr,'[system]') === false) {       /* normal address lookup */
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 				where ( channel_address = '%s' or xchan_addr = '%s' ) limit 1",
 				dbesc($zaddr),
 				dbesc($zaddr)
@@ -4372,10 +4372,10 @@ function zotinfo($arr) {
 			 *
 			 */
 
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 				where channel_system = 1 order by channel_id limit 1");
 			if(! $r) {
-				$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+				$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
 					where channel_removed = 0 order by channel_id limit 1");
 			}
 		}
@@ -4699,14 +4699,14 @@ function check_zotinfo($channel, $locations, &$ret) {
 			// for the sys channel as normal channels will be trickier.
 
 			q("delete from hubloc where hubloc_hash = '%s'",
-				dbesc($channel['channel_hash'])
+				dbesc($channel['channel_portable_id'])
 			);
 
 			$r = hubloc_store_lowlevel(
 				[
 					'hubloc_guid'     => $channel['channel_guid'],
 					'hubloc_guid_sig' => $channel['channel_guid_sig'],
-					'hubloc_hash'     => $channel['channel_hash'],
+					'hubloc_hash'     => $channel['channel_portable_id'],
 					'hubloc_addr'     => channel_reddress($channel),
 					'hubloc_network'  => 'zot',
 					'hubloc_primary'  => 1,
@@ -4761,7 +4761,7 @@ function delivery_report_is_storable($dr) {
 
 	// Is the sender one of our channels?
 
-	$c = q("select channel_id from channel where channel_hash = '%s' limit 1",
+	$c = q("select channel_id from channel where channel_portable_id = '%s' limit 1",
 		dbesc($dr['sender'])
 	);
 	if(! $c)
@@ -5107,7 +5107,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 
 		$arr = $data['recipients'][0];
 		$recip_hash = make_xchan_hash($arr['guid'], $arr['guid_sig']);
-		$c = q("select channel_id, channel_account_id, channel_prvkey from channel where channel_hash = '%s' limit 1",
+		$c = q("select channel_id, channel_account_id, channel_prvkey from channel where channel_portable_id = '%s' limit 1",
 			dbesc($recip_hash)
 		);
 		if (! $c) {
@@ -5174,7 +5174,7 @@ function zot_reply_purge($sender, $recipients) {
 		// basically this means "unfriend"
 		foreach ($recipients as $recip) {
 			$r = q("select channel.*,xchan.* from channel
-				left join xchan on channel_hash = xchan_hash
+				left join xchan on channel_portable_id = xchan_hash
 				where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
 				dbesc($recip['guid']),
 				dbesc($recip['guid_sig'])
@@ -5227,7 +5227,7 @@ function zot_reply_refresh($sender, $recipients) {
 
 		foreach ($recipients as $recip) {
 			$r = q("select channel.*,xchan.* from channel
-				left join xchan on channel_hash = xchan_hash
+				left join xchan on channel_portable_id = xchan_hash
 				where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
 				dbesc($recip['guid']),
 				dbesc($recip['guid_sig'])

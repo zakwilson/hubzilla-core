@@ -407,8 +407,8 @@ function zot_refresh($them, $channel = null, $force = false) {
 	$postvars['token'] = $token;
 
 	if($channel) {
-		$postvars['target']     = $channel['channel_guid'];
-		$postvars['target_sig'] = $channel['channel_guid_sig'];
+		$postvars['target']     = $channel['xchan_guid'];
+		$postvars['target_sig'] = $channel['xchan_guid_sig'];
 		$postvars['key']        = $channel['channel_pubkey'];
 	}
 
@@ -425,7 +425,6 @@ function zot_refresh($them, $channel = null, $force = false) {
 	$rhs = '/.well-known/zot-info';
 
 	logger('zot_refresh: ' . $url, LOGGER_DATA, LOG_INFO);
-
 
 	$result = z_post_url($url . $rhs,$postvars);
 
@@ -5228,11 +5227,10 @@ function zot_reply_refresh($sender, $recipients) {
 		foreach ($recipients as $recip) {
 			$r = q("select channel.*,xchan.* from channel
 				left join xchan on channel_portable_id = xchan_hash
-				where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
+				where xchan_guid = '%s' and xchan_guid_sig = '%s' limit 1",
 				dbesc($recip['guid']),
 				dbesc($recip['guid_sig'])
 			);
-
 			$x = zot_refresh(array(
 					'xchan_guid'     => $sender['guid'],
 					'xchan_guid_sig' => $sender['guid_sig'],

@@ -625,11 +625,17 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$items = $cb['items'];
 
-	$conv_responses = array(
-		'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
-		'agree' => array('title' => t('Agree','title')),'disagree' => array('title' => t('Disagree','title')), 'abstain' => array('title' => t('Abstain','title')), 
-		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
-	);
+	$conv_responses = [
+		'like' => ['title' => t('Likes','title')],
+		'dislike' => ['title' => t('Dislikes','title')],
+		'agree' => ['title' => t('Agree','title')],
+		'disagree' => ['title' => t('Disagree','title')],
+		'abstain' => ['title' => t('Abstain','title')],
+		'attendyes' => ['title' => t('Attending','title')],
+		'attendno' => ['title' => t('Not attending','title')],
+		'attendmaybe' => ['title' => t('Might attend','title')],
+		'answer' => []
+	];
 
 
 	// array with html for each thread (parent+comments)
@@ -1136,7 +1142,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 	// if this item is a post or comment there's nothing for us to do here, just return.
 
-	if(activity_match($item['verb'],ACTIVITY_POST))
+	if(activity_match($item['verb'],ACTIVITY_POST) && $item['obj_type'] !== 'Answer')
 		return;
 
 	foreach($conv_responses as $mode => $v) {
@@ -1168,6 +1174,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'attendmaybe':
 				$verb = ACTIVITY_ATTENDMAYBE;
 				break;
+			case 'answer':
+				$verb = ACTIVITY_POST;
+				break;
 			default:
 				return;
 				break;
@@ -1183,8 +1192,10 @@ function builtin_activity_puller($item, &$conv_responses) {
 			if(! $item['thr_parent'])
 				$item['thr_parent'] = $item['parent_mid'];
 
-
 			$conv_responses[$mode]['mids'][$item['thr_parent']][] = 'b64.' . base64url_encode($item['mid']);
+
+			if($item['obj_type'] === 'Answer')
+				continue;
 
 			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l'])) 
 				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
@@ -1282,7 +1293,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	$feature_voting = feature_enabled($x['profile_uid'], 'consensus_tools');
 	if(x($x, 'hide_voting'))
 		$feature_voting = false;
-	
+
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
 	if(x($x, 'disable_comments'))
 		$feature_nocomment = false;
@@ -1430,6 +1441,11 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$embedPhotosModalOK' => t('OK'),
 		'$setloc' => $setloc,
 		'$voting' => t('Toggle voting'),
+		'$poll' => t('Toggle poll'),
+		'$poll_option_label' => t('Option'),
+		'$poll_add_option_label' => t('Add option'),
+		'$poll_expire_unit_label' => [t('Minutes'), t('Hours'), t('Days')],
+		'$multiple_answers' => ['poll_multiple_answers', t("Allow multiple answers"), '', '', [t('No'), t('Yes')]],
 		'$feature_voting' => $feature_voting,
 		'$consensus' => ((array_key_exists('item',$x)) ? $x['item']['item_consensus'] : 0),
 		'$nocommenttitle' => t('Disable comments'),

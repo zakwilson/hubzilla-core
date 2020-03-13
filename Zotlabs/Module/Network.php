@@ -340,7 +340,7 @@ class Network extends \Zotlabs\Web\Controller {
 			// The special div is needed for liveUpdate to kick in for this page.
 			// We only launch liveUpdate if you aren't filtering in some incompatible
 			// way and also you aren't writing a comment (discovered in javascript).
-	
+
 			$maxheight = get_pconfig(local_channel(),'system','network_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
@@ -411,10 +411,24 @@ class Network extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		if($verb) {
-			$sql_extra .= sprintf(" AND item.verb like '%s' ",
-				dbesc(protect_sprintf('%' . $verb . '%'))
-			);
+		if ($verb) {
+
+			// the presence of a leading dot in the verb determines
+			// whether to match the type of activity or the child object.
+			// The name 'verb' is a holdover from the earlier XML
+			// ActivityStreams specification.
+
+			if (substr($verb,0,1) === '.') {
+				$verb = substr($verb,1);
+				$sql_extra .= sprintf(" AND item.obj_type like '%s' ",
+					dbesc(protect_sprintf('%' . $verb . '%'))
+				);
+			}
+			else {
+				$sql_extra .= sprintf(" AND item.verb like '%s' ",
+					dbesc(protect_sprintf('%' . $verb . '%'))
+				);
+			}
 		}
 	
 		if(strlen($file)) {

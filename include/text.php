@@ -1731,7 +1731,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		}
 	}
 
-	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE ])) ? format_poll($item, $s, $opts) : false);
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
 		$s = $poll;
 	}
@@ -1881,7 +1881,7 @@ function format_poll($item,$s,$opts) {
 			}
 		}
 		if ($item['comments_closed'] > NULL_DATE) {
-			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d h:i');
+			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
 			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
 			if ($closed) {
 				$message = t('Poll has ended.');
@@ -1892,7 +1892,7 @@ function format_poll($item,$s,$opts) {
 			$output .= EOL . '<div>' . $message . '</div>';
 		}
 		if ($activated and $commentable) {
-			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="vote" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
+			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
 		}
 
 	}

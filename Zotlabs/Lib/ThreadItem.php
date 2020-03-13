@@ -204,6 +204,10 @@ class ThreadItem {
 			}
 		}
 
+		if($item['obj_type'] === 'Question') {
+			$response_verbs[] = 'answer';
+		}
+
 		$consensus = (intval($item['item_consensus']) ? true : false);
 		if($consensus) {
 			$response_verbs[] = 'agree';

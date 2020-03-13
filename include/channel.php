@@ -235,7 +235,7 @@ function create_identity($arr) {
 
 	// legacy zot
 	$zsig = base64url_encode(rsa_sign($guid,$key['prvkey']));
-	$zhash = make_xchan_hash($guid,$sig);
+	$zhash = make_xchan_hash($guid,$zsig);
 
 	// zot6
 	$sig = Libzot::sign($guid,$key['prvkey']);

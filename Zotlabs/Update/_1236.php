@@ -19,7 +19,7 @@ class _1236 {
 		foreach($r as $rr) {
 
 			$zot_xchan = $rr['channel_hash'];
-			$guid = $rr[0]['xchan_guid'];
+			$guid = $rr['xchan_guid'];
 
 			$xchan = q("SELECT xchan_hash, xchan_guid_sig FROM xchan WHERE xchan_guid = '%s' AND xchan_network = 'zot6'",
 				dbesc($guid)

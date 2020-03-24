@@ -3299,7 +3299,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	if(intval($channel['channel_removed']))
 		return;
 
-	$h = q("select hubloc.*, site.site_crypto from hubloc left join site on site_url = hubloc_url where hubloc_hash = '%s' and hubloc_deleted = 0",
+	$h = q("select hubloc.*, site.site_crypto, site.site_version, site.site_project from hubloc left join site on site_url = hubloc_url where hubloc_hash = '%s' and hubloc_deleted = 0",
 		dbesc(($keychange) ? $packet['keychange']['old_hash'] : $channel['channel_portable_id'])
 	);
 
@@ -3311,6 +3311,14 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	foreach($h as $x) {
 		if($x['hubloc_host'] == App::get_hostname())
 			continue;
+
+		if(stripos($x['site_project'], 'hubzilla') !== false && version_compare($x['site_version'], '4.7.3', '<=')) {
+
+			logger('Dismiss sync due to incompatible version.');
+			// logger(print_r($x,true));
+			continue;
+
+		}
 
 		$y = q("select site_dead from site where site_url = '%s' limit 1",
 			dbesc($x['hubloc_url'])
@@ -3326,6 +3334,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 	$r = q("select xchan_guid, xchan_guid_sig from xchan where xchan_hash  = '%s' limit 1",
 		dbesc($channel['channel_portable_id'])
 	);
+
 	if(! $r)
 		return;
 

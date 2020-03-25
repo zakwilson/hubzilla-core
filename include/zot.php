@@ -3454,7 +3454,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 	$keychange = ((array_key_exists('keychange',$arr)) ? true : false);
 
 	foreach ($deliveries as $d) {
-		$r = q("select * from channel where channel_portable_id = '%s' limit 1",
+		$r = q("select * from channel where channel_hash = '%s' limit 1",
 			dbesc(($keychange) ? $arr['keychange']['old_hash'] : $d['hash'])
 		);
 
@@ -3468,8 +3468,8 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 		$max_friends = service_class_fetch($channel['channel_id'],'total_channels');
 		$max_feeds = account_service_class_fetch($channel['channel_account_id'],'total_feeds');
 
-		if($channel['channel_portable_id'] != $sender['hash']) {
-			logger('Possible forgery. Sender ' . $sender['hash'] . ' is not ' . $channel['channel_portable_id']);
+		if($channel['channel_hash'] != $sender['hash']) {
+			logger('Possible forgery. Sender ' . $sender['hash'] . ' is not ' . $channel['channel_hash']);
 			$result[] = array($d['hash'],'channel mismatch',$channel['channel_name'],'');
 			continue;
 		}
@@ -3486,7 +3486,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 
 			$r = q("update channel set channel_prvkey = '%s', channel_pubkey = '%s', channel_guid_sig = '%s',
-				channel_portable_id = '%s' where channel_id = %d",
+				channel_hash = '%s' where channel_id = %d",
 				dbesc($arr['channel']['channel_prvkey']),
 				dbesc($arr['channel']['channel_pubkey']),
 				dbesc($sig),

@@ -388,7 +388,7 @@ function photo_upload($channel, $observer, $args) {
 		'title'   => $title,
 		'created' => $p['created'],
 		'edited'  => $p['edited'],
-		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash,
+		'id'      => z_root() . '/item/' . $photo_hash,
 		'link'    => $link,
 		'body'    => $summary
 	);
@@ -438,13 +438,13 @@ function photo_upload($channel, $observer, $args) {
 		}
 	}
 	else {
-		$uuid = item_message_id();
-		$mid = z_root() . '/item/' . $uuid;
+		// $uuid = item_message_id();
+		$mid = z_root() . '/item/' . $photo_hash;
 
 		$arr = [
 			'aid'             => $account_id,
 			'uid'             => $channel_id,
-			'uuid'            => $uuid,
+			'uuid'            => $photo_hash,
 			'mid'             => $mid,
 			'parent_mid'      => $mid,
 			'item_hidden'     => $item_hidden,

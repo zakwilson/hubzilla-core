@@ -323,6 +323,11 @@ class Activity {
 			return $ret;
 		}
 
+
+		if ($i['obj']) {
+			$ret = Activity::encode_object($i['obj']);
+		}
+
 		$ret['type'] = $objtype;
 
 		if ($objtype === 'Question') {

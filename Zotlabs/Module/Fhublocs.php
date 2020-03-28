@@ -10,6 +10,9 @@ require_once('include/crypto.php');
 class Fhublocs extends \Zotlabs\Web\Controller {
 
 	function get() {
+
+		//TODO: this needs updating to zot6!!!
+		return;
 		
 		if(! is_site_admin())
 			return;

@@ -26,7 +26,8 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 
 				$found = false;
 				$primary_address = '';
-				$x = zot_get_hublocs($rr['channel_hash']);
+				$x = Libzot::get_hublocs($rr['channel_hash']);
+
 				if($x) {
 					foreach($x as $xx) {
 						if($xx['hubloc_url'] === z_root() && $xx['hubloc_sitekey'] === $sitekey) {

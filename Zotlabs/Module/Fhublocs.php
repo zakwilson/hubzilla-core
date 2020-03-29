@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/zot.php');
 require_once('include/crypto.php');
 
@@ -11,9 +13,6 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 
 	function get() {
 
-		//TODO: this needs updating to zot6!!!
-		return;
-		
 		if(! is_site_admin())
 			return;
 	
@@ -24,6 +23,7 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 		
 		if($r) {
 			foreach($r as $rr) {
+
 				$found = false;
 				$primary_address = '';
 				$x = zot_get_hublocs($rr['channel_hash']);
@@ -45,13 +45,12 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 				if($y)
 					$primary_address = $y[0]['xchan_addr'];
 	
-				$hub_address = channel_reddress($rr['channel']);
-	
-			
+				$hub_address = channel_reddress($rr);
+
 				$primary = (($hub_address === $primary_address) ? 1 : 0);
 				if(! $y)
 					$primary = 1;
-	
+
 				$m = q("delete from hubloc where hubloc_hash = '%s' and hubloc_url = '%s' ",
 					dbesc($rr['channel_hash']),
 					dbesc(z_root())
@@ -59,7 +58,7 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 	
 				// Create a verified hub location pointing to this site.
 	
-
+/*
 				$h = hubloc_store_lowlevel(
 					[
 						'hubloc_guid'     => $rr['channel_guid'],
@@ -75,7 +74,26 @@ class Fhublocs extends \Zotlabs\Web\Controller {
 						'hubloc_sitekey'  => $sitekey
 					]
 				);
-	
+*/
+				$h = hubloc_store_lowlevel(
+					[
+						'hubloc_guid'     => $rr['channel_guid'],
+						'hubloc_guid_sig' => $rr['channel_guid_sig'],
+						'hubloc_hash'     => $rr['channel_hash'],
+						'hubloc_id_url'   => channel_url($rr),
+						'hubloc_addr'     => channel_reddress($rr),
+						'hubloc_primary'  => intval($primary),
+						'hubloc_url'      => z_root(),
+						'hubloc_url_sig'  => Libzot::sign(z_root(), $rr['channel_prvkey']),
+						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), $sitekey),
+						'hubloc_host'     => \App::get_hostname(),
+						'hubloc_callback' => z_root() . '/zot',
+						'hubloc_sitekey'  => $sitekey,
+						'hubloc_network'  => 'zot6',
+						'hubloc_updated'  => datetime_convert()
+					]
+				);
+
 				if($h)
 					$o . 'local hubloc created for ' . $rr['channel_name'] . EOL;
 				else

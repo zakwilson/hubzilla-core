@@ -8,11 +8,11 @@ class Expire {
 	static public function run($argc,$argv){
 
 		cli_startup();
-
-                if ($pid = get_xconfig(0, 'expire', 'procid', false)) {
-                        logger('Expire: procedure already run with PID ' . $pid);
-                        return;
-                }
+		
+		if ($pid = get_xconfig(0, 'expire', 'procid', false)) {
+		    logger('Expire: procedure already run with PID ' . $pid, LOGGER_DEBUG);
+		    return;
+		}
 
                 set_xconfig(0, 'expire', 'procid', getmypid());
 

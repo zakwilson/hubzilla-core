@@ -1881,7 +1881,7 @@ function format_poll($item,$s,$opts) {
 			}
 		}
 		if ($item['comments_closed'] > NULL_DATE) {
-			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d h:i');
+			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
 			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
 			if ($closed) {
 				$message = t('Poll has ended.');

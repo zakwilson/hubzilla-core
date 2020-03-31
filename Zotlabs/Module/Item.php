@@ -11,6 +11,7 @@ use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\LDSignatures;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\ThreadListener;
 use App;
 
@@ -1155,7 +1156,7 @@ class Item extends Controller {
 				if($r) {
 					xchan_query($r);
 					$sync_item = fetch_post_tags($r);
-					build_sync_packet($profile_uid,array('item' => array(encode_item($sync_item[0],true))));
+					Libsync::build_sync_packet($profile_uid,array('item' => array(encode_item($sync_item[0],true))));
 				}
 			}
 			if(! $nopush)
@@ -1258,7 +1259,7 @@ class Item extends Controller {
 			if($r) {
 				xchan_query($r);
 				$sync_item = fetch_post_tags($r);
-				build_sync_packet($profile_uid,array('item' => array(encode_item($sync_item[0],true))));
+				Libsync::build_sync_packet($profile_uid,array('item' => array(encode_item($sync_item[0],true))));
 			}
 		}
 	
@@ -1360,7 +1361,7 @@ class Item extends Controller {
 				if($r) {
 					xchan_query($r);
 					$sync_item = fetch_post_tags($r);
-					build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
+					Libsync::build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
 				}
 
 				if($complex) {

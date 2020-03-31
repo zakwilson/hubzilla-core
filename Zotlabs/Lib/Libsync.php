@@ -150,6 +150,7 @@ class Libsync {
 				'account_id' => $channel['channel_account_id'],
 				'channel_id' => $channel['channel_id'],
 				'posturl'    => $hub['hubloc_callback'],
+				'driver'     => $hub['hubloc_network'],
 				'notify'     => $n,
 				'msg'        => EMPTY_STR
 			));

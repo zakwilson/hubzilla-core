@@ -9,7 +9,7 @@ class Expire {
 
 		cli_startup();
 		
-		if ($pid = get_xconfig(0, 'expire', 'procid', false) && (function_exists('posix_getpgid') ? posix_getpgid($pid) : true)) {
+		if ($pid = get_xconfig(0, 'expire', 'procid', false) && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
 		    logger('Expire: procedure already run with PID ' . $pid, LOGGER_DEBUG);
 		    return;
 		}

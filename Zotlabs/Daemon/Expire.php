@@ -9,6 +9,13 @@ class Expire {
 
 		cli_startup();
 
+                if ($pid = get_xconfig(0, 'expire', 'procid', false)) {
+                        logger('Expire: procedure already run with PID ' . $pid);
+                        return;
+                }
+
+                set_xconfig(0, 'expire', 'procid', getmypid());
+
 		// perform final cleanup on previously delete items
 
 		$r = q("select id from item where item_deleted = 1 and item_pending_remove = 0 and changed < %s - INTERVAL %s",
@@ -90,5 +97,7 @@ class Expire {
 
 			logger('Expire: sys: done', LOGGER_DEBUG);
 		}
+		
+		del_xconfig(0, 'expire', 'procid');
 	}
 }

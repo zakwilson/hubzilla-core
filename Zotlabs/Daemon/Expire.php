@@ -9,12 +9,12 @@ class Expire {
 
 		cli_startup();
 		
-		if ($pid = get_pconfig(0, 'expire', 'procid', false) && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
+		if ($pid = get_config('expire', 'procid', false) && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
 		    logger('Expire: procedure already run with PID ' . $pid, LOGGER_DEBUG);
 		    return;
 		}
 		
-		set_pconfig(0, 'expire', 'procid', getmypid());
+		set_config('expire', 'procid', getmypid());
 
 		// perform final cleanup on previously delete items
 
@@ -98,6 +98,6 @@ class Expire {
 			logger('Expire: sys: done', LOGGER_DEBUG);
 		}
 		
-		del_pconfig(0, 'expire', 'procid');
+		del_config('expire', 'procid');
 	}
 }

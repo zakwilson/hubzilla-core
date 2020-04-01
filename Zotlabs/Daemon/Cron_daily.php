@@ -98,7 +98,7 @@ class Cron_daily {
 		remove_obsolete_hublocs();
 
 		z6_discover();
-		z6trans_connections();
+		//z6trans_connections();
 
 		call_hooks('cron_daily',datetime_convert());
 

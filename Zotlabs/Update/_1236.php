@@ -106,7 +106,7 @@ class _1236 {
 		}
 
 		if(count($r) == $i) {
-			z6trans_connections();
+			//z6trans_connections();
 			return UPDATE_SUCCESS;
 		}
 

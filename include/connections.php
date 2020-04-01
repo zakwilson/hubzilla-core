@@ -772,3 +772,67 @@ function vcard_query(&$r) {
 		}
 	}
 }
+
+function z6trans_connections() {
+
+	$r = q("SELECT DISTINCT abook.abook_xchan, hubloc.hubloc_addr, hubloc.hubloc_url, hubloc.hubloc_guid, site.site_project, site.site_version FROM abook
+		LEFT JOIN hubloc ON abook_xchan = hubloc_hash
+		LEFT JOIN site ON hubloc_url = site_url
+		WHERE abook.abook_self = 0 AND hubloc.hubloc_network = 'zot'
+		AND hubloc.hubloc_deleted = 0 AND site.site_dead = 0"
+	);
+
+	foreach($r as $rr) {
+		if(stripos($rr['site_project'], 'hubzilla') !== false && version_compare($rr['site_version'], '4.7.4', '>=')) {
+
+			$zot_xchan = $rr['abook_xchan'];
+			$guid = $rr['hubloc_guid'];
+			$hub_url = $rr['hubloc_url'];
+			$addr = $rr['hubloc_addr'];
+
+			$x = q("SELECT hubloc_hash FROM hubloc
+				WHERE hubloc_guid = '%s' AND hubloc_url = '%s' AND hubloc_network = 'zot6' AND hubloc_deleted = 0",
+				dbesc($guid),
+				dbesc($hub_url)
+			);
+
+			if(!$x) {
+				logger("z6trans_connections: zot6 hubloc for $addr not found");
+				discover_by_webbie($addr,'zot6');
+				continue;
+			}
+
+			$zot6_xchan = $x[0]['hubloc_hash'];
+
+			logger("z6trans_connections: transition $zot_xchan to $zot6_xchan");
+
+			q("START TRANSACTION");
+
+			$q1 = q("UPDATE abook set abook_xchan = '%s' WHERE abook_xchan = '%s'",
+				dbesc($zot6_xchan),
+				dbesc($zot_xchan)
+			);
+
+			$q2 = q("UPDATE abconfig set xchan = '%s' WHERE xchan = '%s'",
+				dbesc($zot6_xchan),
+				dbesc($zot_xchan)
+			);
+
+			$q3 = q("UPDATE pgrp_member set xchan = '%s' WHERE xchan = '%s'",
+				dbesc($zot6_xchan),
+				dbesc($zot_xchan)
+			);
+
+			if($q1 && $q2 && $q3) {
+				q("COMMIT");
+				logger("z6trans_connections: completed");
+				continue;
+			}
+
+			logger("z6trans_connections: failed - performing rollback");
+			q("ROLLBACK");
+
+		}
+	}
+
+}

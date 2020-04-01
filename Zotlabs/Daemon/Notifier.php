@@ -737,10 +737,16 @@ class Notifier {
 				}
 
 				if(stripos($hub['site_project'], 'hubzilla') !== false && version_compare($hub['site_version'], '4.7.3', '<=')) {
-					$encoded_item['owner']['network'] = 'zot';
-					$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
-					$encoded_item['author']['network'] = 'zot';
-					$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+					if($encoded_item['type'] === 'mail') {
+						$encoded_item['from']['network'] = 'zot';
+						$encoded_item['from']['guid_sig'] = str_replace('sha256.', '', $encoded_item['from']['guid_sig']);
+					}
+					else {
+						$encoded_item['owner']['network'] = 'zot';
+						$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
+						$encoded_item['author']['network'] = 'zot';
+						$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+					}
 				}
 
 				queue_insert(

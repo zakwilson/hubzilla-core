@@ -259,9 +259,9 @@ function format_event_bbcode($ev, $utc = false) {
 	}
 
 	if ($utc && $ev['event-timezone'] !== 'UTC') {
-		$ev['dtstart'] = datetime_convert($ev['timezone'],'UTC',$ev['dtstart'],ATOM_TIME);
+		$ev['dtstart'] = datetime_convert($ev['timezone'],'UTC',$ev['dtstart']);
 		if ($ev['dtend'] && ! $ev['nofinish']) {
-			$ev['dtend'] = datetime_convert($ev['timezone'],'UTC',$ev['dtend'],ATOM_TIME);
+			$ev['dtend'] = datetime_convert($ev['timezone'],'UTC',$ev['dtend']);
 		}
 		$ev['timezone'] = 'UTC';
 	}

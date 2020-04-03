@@ -34,8 +34,8 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		
 		$adjust = intval($_POST['adjust']);
 
-		$start = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart']));
-		$finish = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend']));
+		$start = datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtstart']));
+		$finish = datetime_convert($tz, 'UTC', escape_tags($_REQUEST['dtend']));
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));

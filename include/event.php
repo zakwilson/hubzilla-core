@@ -1253,8 +1253,6 @@ function event_store_item($arr, $event) {
 		else
 			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
 
-		set_iconfig($item_arr, 'event', 'timezone', $arr['timezone'], true);
-
 		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
 				dbesc($arr['event_xchan'])
 		);
@@ -1290,7 +1288,7 @@ function event_store_item($arr, $event) {
 		// activities refer to the item message_id as the parent. 
 
 		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
-		//set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
+		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 
 		$res = item_store($item_arr);
 

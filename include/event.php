@@ -40,7 +40,7 @@ function format_event_html($ev) {
 	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['dtstart'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'
-		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+		. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 			$ev['dtstart'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['dtstart'] , $bd_format)))
@@ -50,7 +50,7 @@ function format_event_html($ev) {
 		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['dtend'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'
-			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
+			. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
 				$ev['dtend'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['dtend'] , $bd_format )))
@@ -98,11 +98,11 @@ function format_event_obj($jobject) {
 			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
 			'$dtstart_label' => t('Start:'),
 			'$dtstart_title' => datetime_convert($tz, date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
+			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
 			'$finish'	 => (($object['nofinish']) ? false : true),
 			'$dtend_label'	 => t('End:'),
 			'$dtend_title'	 => datetime_convert($tz, date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
+			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
 			'$allday'	 => $allday,
 			'$oneday'	 => $oneday
 		));
@@ -1097,8 +1097,6 @@ function event_store_item($arr, $event) {
 	);
 
 	if($r) {
-		set_iconfig($r[0], 'event', 'timezone', $arr['timezone'], true);
-
 		$object = json_encode(array(
 			'type'    => ACTIVITY_OBJ_EVENT,
 			'id'      => z_root() . '/event/' . $r[0]['resource_id'],
@@ -1169,7 +1167,7 @@ function event_store_item($arr, $event) {
 		}
 
 		$item_id = $r[0]['id'];
-		//set_iconfig($item_id, 'event', 'timezone', $arr['timezone'], true);
+		set_iconfig($item_id, 'event', 'timezone', $arr['timezone'], true);
 
 		/**
 		 * @hooks event_updated

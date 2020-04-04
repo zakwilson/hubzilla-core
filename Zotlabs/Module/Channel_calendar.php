@@ -16,7 +16,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 		if(! local_channel())
 			return;
-	
+
 		$event_id = ((x($_POST,'event_id')) ? intval($_POST['event_id']) : 0);
 		$event_hash = ((x($_POST,'event_hash')) ? $_POST['event_hash'] : '');
 	
@@ -32,10 +32,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 		$categories = escape_tags(trim($_POST['categories']));
 		
+		// allday events have adjust = 0, normal events have adjust = 1
 		$adjust = intval($_POST['adjust']);
 
-		$start = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtstart']));
-		$finish = datetime_convert('UTC', 'UTC', escape_tags($_REQUEST['dtend']));
+		$start = datetime_convert((($adjust) ? $tz : 'UTC'), 'UTC', escape_tags($_REQUEST['dtstart']));
+		$finish = datetime_convert((($adjust) ? $tz : 'UTC'), 'UTC', escape_tags($_REQUEST['dtend']));
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));
@@ -337,21 +338,16 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 			}
 
 			$events = [];
-	
+
 			if($r) {
 	
 				foreach($r as $rr) {
 
-					$tz = get_iconfig($rr, 'event', 'timezone');
-
-					if(! $tz)
-						$tz = 'UTC';
-
-					$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
+					$start = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 					if ($rr['nofinish']){
 						$end = null;
 					} else {
-						$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
+						$end = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
 					}
 
 					$catsenabled = feature_enabled(local_channel(),'categories');
@@ -371,6 +367,11 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 	
 					$drop = array(z_root().'/events/drop/'.$rr['event_hash'],t('Delete event'),'','');
 	
+					$tz = get_iconfig($rr, 'event', 'timezone');
+
+					if(! $tz)
+						$tz = 'UTC';
+
 					$events[] = array(
 						'calendar_id' => 'channel_calendar',
 						'rw' => true,

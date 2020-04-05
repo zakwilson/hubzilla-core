@@ -137,6 +137,11 @@ class Import extends \Zotlabs\Web\Controller {
 			return;
 		}
 
+		if(version_compare($data['compatibility']['version'], '4.7.3', '<=')) {
+			// zot6 transition: cloning is not compatible with older versions
+			notice('Data export format is not compatible with this software (not a zot6 channel)');
+			return;
+		}
 
 		if($moving)
 			$seize = 1;
@@ -344,7 +349,7 @@ class Import extends \Zotlabs\Web\Controller {
 				}
 
 				if($xchan['xchan_network'] === 'zot6') {
-					$zhash = \Zotlabs\Lib\Libzot::make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_pubkey']);
+					$zhash = Libzot::make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_pubkey']);
 					if($zhash !== $xchan['xchan_hash']) {
 						logger('forged xchan: ' . print_r($xchan,true));
 						continue;

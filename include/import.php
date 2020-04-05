@@ -1,6 +1,7 @@
 <?php
 
 use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\Libzot;
 
 use Zotlabs\Web\HTTPSig;
 
@@ -31,7 +32,7 @@ function import_channel($channel, $account_id, $seize, $newname = '') {
 
 	// Ignore the hash provided and re-calculate
 
-	$channel['channel_hash'] = make_xchan_hash($channel['channel_guid'],$channel['channel_guid_sig']);
+	$channel['channel_hash'] = Libzot::make_xchan_hash($channel['channel_guid'],$channel['channel_pubkey']);
 
 	if($newname) {
 		$channel['channel_address'] = $newname;

@@ -76,7 +76,17 @@ function format_event_obj($jobject) {
 	//ensure compatibility with older items - this check can be removed at a later point
 	if(array_key_exists('description', $object)) {
 
-		$tz = (($object['timezone']) ? $object['timezone'] : 'UTC');
+		$event_tz = '';
+		if(is_array($object['asld']) && isset($object['asld']['attachment'])) {
+			foreach($object['asld']['attachment'] as $attachment) {
+				if($attachment['type'] === 'PropertyValue' && $attachment['name'] == 'zot.event.timezone' ) {
+					$event_tz = $attachment['value'];
+					break;
+				}
+			}
+
+		}
+
 		$allday = (($object['adjust']) ? false : true);
 
 		$dtstart = new DateTime($object['dtstart']);
@@ -104,7 +114,8 @@ function format_event_obj($jobject) {
 			'$dtend_title'	 => datetime_convert('UTC', date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
 			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
 			'$allday'	 => $allday,
-			'$oneday'	 => $oneday
+			'$oneday'	 => $oneday,
+			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($event_tz === date_default_timezone_get()) ? '' : $event_tz)]
 		));
 
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(

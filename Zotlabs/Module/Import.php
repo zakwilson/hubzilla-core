@@ -244,7 +244,7 @@ class Import extends \Zotlabs\Web\Controller {
 			$r = hubloc_store_lowlevel(
 				[
 					'hubloc_guid'     => $channel['channel_guid'],
-					'hubloc_guid_sig' => 'sha256.' . $channel['channel_guid_sig'],
+					'hubloc_guid_sig' => $channel['channel_guid_sig'],
 					'hubloc_hash'     => $channel['channel_hash'],
 					'hubloc_addr'     => channel_reddress($channel),
 					'hubloc_network'  => 'zot6',
@@ -310,7 +310,7 @@ class Import extends \Zotlabs\Web\Controller {
 				[
 					'xchan_hash'           => $channel['channel_hash'],
 					'xchan_guid'           => $channel['channel_guid'],
-					'xchan_guid_sig'       => 'sha256.' . $channel['channel_guid_sig'],
+					'xchan_guid_sig'       => $channel['channel_guid_sig'],
 					'xchan_pubkey'         => $channel['channel_pubkey'],
 					'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
 					'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],

@@ -212,50 +212,21 @@ class Import extends \Zotlabs\Web\Controller {
 		// create new hubloc for the new channel at this site
 
 		if(array_key_exists('channel',$data)) {
-			$r = hubloc_store_lowlevel(
-				[
-					'hubloc_guid'     => $channel['channel_guid'],
-					'hubloc_guid_sig' => $channel['channel_guid_sig'],
-					'hubloc_hash'     => $channel['channel_hash'],
-					'hubloc_addr'     => channel_reddress($channel),
-					'hubloc_network'  => 'zot',
-					'hubloc_primary'  => (($seize) ? 1 : 0),
-					'hubloc_url'      => z_root(),
-					'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
-					'hubloc_host'     => \App::get_hostname(),
-					'hubloc_callback' => z_root() . '/post',
-					'hubloc_sitekey'  => get_config('system','pubkey'),
-					'hubloc_updated'  => datetime_convert()
-				]
-			);
-
-			// reset the original primary hubloc if it is being seized
-			if($seize) {
-				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
-					dbesc($channel['channel_hash']),
-					dbesc(z_root())
-				);
-			}
-
-			// create a new zot6 hubloc if we have got a channel_portable_id
 			if($channel['channel_portable_id']) {
 				$r = hubloc_store_lowlevel(
 					[
 						'hubloc_guid'     => $channel['channel_guid'],
-						'hubloc_guid_sig' => 'sha256.' . $channel['channel_guid_sig'],
+						'hubloc_guid_sig' => $channel['channel_guid_sig'],
 						'hubloc_hash'     => $channel['channel_portable_id'],
 						'hubloc_addr'     => channel_reddress($channel),
-						'hubloc_network'  => 'zot6',
+						'hubloc_network'  => 'zot',
 						'hubloc_primary'  => (($seize) ? 1 : 0),
 						'hubloc_url'      => z_root(),
-						'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+						'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
 						'hubloc_host'     => \App::get_hostname(),
-						'hubloc_callback' => z_root() . '/zot',
+						'hubloc_callback' => z_root() . '/post',
 						'hubloc_sitekey'  => get_config('system','pubkey'),
-						'hubloc_updated'  => datetime_convert(),
-						'hubloc_id_url'   => channel_url($channel),
-						'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'))
-
+						'hubloc_updated'  => datetime_convert()
 					]
 				);
 
@@ -266,7 +237,35 @@ class Import extends \Zotlabs\Web\Controller {
 						dbesc(z_root())
 					);
 				}
+			}
 
+			// create a new zot6 hubloc if we have got a channel_portable_id
+
+			$r = hubloc_store_lowlevel(
+				[
+					'hubloc_guid'     => $channel['channel_guid'],
+					'hubloc_guid_sig' => 'sha256.' . $channel['channel_guid_sig'],
+					'hubloc_hash'     => $channel['channel_hash'],
+					'hubloc_addr'     => channel_reddress($channel),
+					'hubloc_network'  => 'zot6',
+					'hubloc_primary'  => (($seize) ? 1 : 0),
+					'hubloc_url'      => z_root(),
+					'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+					'hubloc_host'     => \App::get_hostname(),
+					'hubloc_callback' => z_root() . '/zot',
+					'hubloc_sitekey'  => get_config('system','pubkey'),
+					'hubloc_updated'  => datetime_convert(),
+					'hubloc_id_url'   => channel_url($channel),
+					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey'))
+				]
+			);
+
+			// reset the original primary hubloc if it is being seized
+			if($seize) {
+				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
+					dbesc($channel['channel_hash']),
+					dbesc(z_root())
+				);
 			}
 
 		}
@@ -285,32 +284,12 @@ class Import extends \Zotlabs\Web\Controller {
 				dbesc($channel['channel_portable_id'])
 			);
 
-			$r = xchan_store_lowlevel(
-				[
-					'xchan_hash'           => $channel['channel_hash'],
-					'xchan_guid'           => $channel['channel_guid'],
-					'xchan_guid_sig'       => $channel['channel_guid_sig'],
-					'xchan_pubkey'         => $channel['channel_pubkey'],
-					'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
-					'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
-					'xchan_photo_s'        => z_root() . "/photo/profile/s/" . $channel['channel_id'],
-					'xchan_addr'           => channel_reddress($channel),
-					'xchan_url'            => z_root() . '/channel/' . $channel['channel_address'],
-					'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
-					'xchan_follow'         => z_root() . '/follow?f=&url=%s',
-					'xchan_name'           => $channel['channel_name'],
-					'xchan_network'        => 'zot',
-					'xchan_photo_date'     => datetime_convert(),
-					'xchan_name_date'      => datetime_convert()
-				]
-			);
-
 			if($channel['channel_portable_id']) {
 				$r = xchan_store_lowlevel(
 					[
-						'xchan_hash'           => \Zotlabs\Lib\Libzot::make_xchan_hash($channel['channel_guid'],$channel['channel_pubkey']),
+						'xchan_hash'           => $channel['channel_portable_id'],
 						'xchan_guid'           => $channel['channel_guid'],
-						'xchan_guid_sig'       => 'sha256.' . $channel['channel_guid_sig'],
+						'xchan_guid_sig'       => $channel['channel_guid_sig'],
 						'xchan_pubkey'         => $channel['channel_pubkey'],
 						'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
 						'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
@@ -320,13 +299,32 @@ class Import extends \Zotlabs\Web\Controller {
 						'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
 						'xchan_follow'         => z_root() . '/follow?f=&url=%s',
 						'xchan_name'           => $channel['channel_name'],
-						'xchan_network'        => 'zot6',
+						'xchan_network'        => 'zot',
 						'xchan_photo_date'     => datetime_convert(),
 						'xchan_name_date'      => datetime_convert()
 					]
 				);
 			}
 
+			$r = xchan_store_lowlevel(
+				[
+					'xchan_hash'           => $channel['channel_hash'],
+					'xchan_guid'           => $channel['channel_guid'],
+					'xchan_guid_sig'       => 'sha256.' . $channel['channel_guid_sig'],
+					'xchan_pubkey'         => $channel['channel_pubkey'],
+					'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
+					'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
+					'xchan_photo_s'        => z_root() . "/photo/profile/s/" . $channel['channel_id'],
+					'xchan_addr'           => channel_reddress($channel),
+					'xchan_url'            => z_root() . '/channel/' . $channel['channel_address'],
+					'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
+					'xchan_follow'         => z_root() . '/follow?f=&url=%s',
+					'xchan_name'           => $channel['channel_name'],
+					'xchan_network'        => 'zot6',
+					'xchan_photo_date'     => datetime_convert(),
+					'xchan_name_date'      => datetime_convert()
+				]
+			);
 
 		}
 

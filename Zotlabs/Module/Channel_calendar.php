@@ -27,9 +27,6 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 		if(($xchan) && ($xchan !== get_observer_hash()))
 			return;
 
-		$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
-		$tz = (($timezone) ? $timezone : date_default_timezone_get());
-
 		$categories = escape_tags(trim($_POST['categories']));
 		
 		// allday events have adjust = 0, normal events have adjust = 1
@@ -37,6 +34,12 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 
 		$start = datetime_convert((($adjust) ? $tz : 'UTC'), 'UTC', escape_tags($_REQUEST['dtstart']));
 		$finish = datetime_convert((($adjust) ? $tz : 'UTC'), 'UTC', escape_tags($_REQUEST['dtend']));
+
+		$timezone = ((x($_POST,'timezone_select')) ? escape_tags(trim($_POST['timezone_select'])) : '');
+		$tz = (($timezone) ? $timezone : date_default_timezone_get());
+
+		if(! $adjust)
+			$tz = 'UTC';
 
 		$summary  = escape_tags(trim($_POST['summary']));
 		$desc     = escape_tags(trim($_POST['desc']));

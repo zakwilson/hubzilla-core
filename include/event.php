@@ -77,14 +77,22 @@ function format_event_obj($jobject) {
 	if(array_key_exists('description', $object)) {
 
 		$event_tz = '';
-		if(is_array($object['asld']) && isset($object['asld']['attachment'])) {
+		if($object['adjust'] && is_array($object['asld']) && is_array($object['asld']['attachment'])) {
 			foreach($object['asld']['attachment'] as $attachment) {
 				if($attachment['type'] === 'PropertyValue' && $attachment['name'] == 'zot.event.timezone' ) {
-					$event_tz = $attachment['value'];
+					// check if the offset of the timezones is different and only set event_tz if offset is not the same
+					$local_tz = new DateTimeZone(date_default_timezone_get());
+					$local_dt = new DateTime('now', $local_tz);
+
+					$ev_tz = new DateTimeZone($attachment['value']);
+					$ev_dt = new DateTime('now', $ev_tz);
+
+					if($local_dt->getOffset() !== $ev_dt->getOffset())
+						$event_tz = $attachment['value'];
+
 					break;
 				}
 			}
-
 		}
 
 		$allday = (($object['adjust']) ? false : true);

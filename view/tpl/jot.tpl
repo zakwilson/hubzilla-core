@@ -155,16 +155,9 @@
 						<i id="profile-encrypt" class="fa fa-key jot-icons"></i>
 					</button>
 				{{/if}}
-				{{if $feature_voting}}
-					<button id="profile-voting-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$voting}}" onclick="toggleVoting();return false;">
-						<i id="profile-voting" class="fa fa-square-o jot-icons"></i>
-					</button>
-				{{/if}}
-
 					<button type="button" id="profile-poll-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$poll}}" onclick="initPoll();">
 						<i id="profile-poll" class="fa fa-bar-chart jot-icons"></i>
 					</button>
-
 				{{if $feature_nocomment}}
 					<button id="profile-nocomment-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$nocommenttitle}}" onclick="toggleNoComment();return false;">
 						<i id="profile-nocomment" class="fa fa-comments jot-icons"></i>
@@ -174,7 +167,7 @@
 					{{$custommoretoolsbuttons}}
 				{{/if}}
 				</div>
-				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $feature_voting || $custommoretoolsdropdown}}
+				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $custommoretoolsdropdown}}
 				<div class="btn-group d-lg-none">
 					<button type="button" id="more-tools" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 						<i id="more-tools-icon" class="fa fa-cog jot-icons"></i>
@@ -205,9 +198,6 @@
 						{{/if}}
 						{{if $feature_encrypt}}
 						<a class="dropdown-item" href="#" onclick="red_encrypt('{{$cipher}}','#profile-jot-text',$('#profile-jot-text').val());return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
-						{{/if}}
-						{{if $feature_voting}}
-						<a class="dropdown-item" href="#" onclick="toggleVoting(); return false;"><i id="profile-voting-sub" class="fa fa-square-o"></i>&nbsp;{{$voting}}</a>
 						{{/if}}
 						<a class="dropdown-item" href="#" onclick="initPoll(); return false"><i id="profile-poll" class="fa fa-bar-chart jot-icons"></i>&nbsp;{{$poll}}</a>
 						{{if $feature_nocomment}}

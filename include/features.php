@@ -229,14 +229,6 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','content_encrypt'),
 			],
-			
-			[
-				'consensus_tools', 
-				t('Enable Voting Tools'),      
-				t('Provide a class of post which others can vote on'),
-				false,
-				get_config('feature_lock','consensus_tools'),
-			],
 
 			[
 				'disable_comments', 

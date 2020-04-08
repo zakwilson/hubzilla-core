@@ -9,12 +9,14 @@ class Expire {
 
 		cli_startup();
 		
-		if ($pid = get_config('expire', 'procid', false) && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
-		    logger('Expire: procedure already run with PID ' . $pid, LOGGER_DEBUG);
+		$pid = get_config('expire', 'procid', false);
+		if ($pid && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
+		    logger('Expire: procedure already run with pid ' . $pid, LOGGER_DEBUG);
 		    return;
 		}
 		
-		set_config('expire', 'procid', getmypid());
+		$pid = getmypid();
+		set_config('expire', 'procid', $pid);
 
 		// perform final cleanup on previously delete items
 
@@ -39,7 +41,7 @@ class Expire {
 		if (intval(get_config('system', 'optimize_items')))
 			q("optimize table item");
 
-		logger('expire: start', LOGGER_DEBUG);
+		logger('expire: start with pid ' . $pid, LOGGER_DEBUG);
 
 		$site_expire = intval(get_config('system', 'default_expire_days'));
 		$commented_days = intval(get_config('system','active_expire_days'));

@@ -34,7 +34,7 @@ class Connections extends \Zotlabs\Web\Controller {
 		}
 
 		nav_set_selected('Connections');
-	
+
 		$active      = false;
 		$blocked     = false;
 		$hidden      = false;

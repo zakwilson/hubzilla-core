@@ -323,6 +323,11 @@ class Activity {
 			return $ret;
 		}
 
+
+		if ($i['obj']) {
+			$ret = Activity::encode_object($i['obj']);
+		}
+
 		$ret['type'] = $objtype;
 
 		if ($objtype === 'Question') {
@@ -507,7 +512,7 @@ class Activity {
 		if ($item['iconfig']) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
-					$value = ((preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
+					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
 					$ret[] = [ 'type' => 'PropertyValue', 'name' => 'zot.' . $att['cat'] . '.' . $att['k'], 'value' => $value ];
 				}
 			}

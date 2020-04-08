@@ -105,10 +105,12 @@ class _1236 {
 
 		}
 
-		if(count($r) == $i)
+		if(count($r) == $i) {
+			z6trans_connections();
 			return UPDATE_SUCCESS;
-		else
-			return UPDATE_FAILED;
+		}
+
+		return UPDATE_FAILED;
 
 	}
 

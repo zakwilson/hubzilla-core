@@ -33,11 +33,11 @@ class Owa extends \Zotlabs\Web\Controller {
 
 					if($keyId) {
 
-						// Hubzilla connections can have both zot and zot6 hublocs
-						// The connections will usually be zot so match those first
+						// Hubzilla connections can have both zot6 and zot hublocs
+						// The connections will usually be zot6 so match those first
 						
 						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-							where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) and hubloc_network = 'zot' ",
+							where ( hubloc_addr = '%s' or hubloc_id_url = '%s' ) and hubloc_network = 'zot6' ",
 							dbesc(str_replace('acct:','',$keyId)),
 							dbesc($keyId)
 						);

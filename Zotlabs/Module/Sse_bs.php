@@ -399,7 +399,7 @@ class Sse_bs extends Controller {
 
 				if($r) {
 					$mids = flatten_array_recursive($r);
-
+					$b64mids = [];
 
 					foreach($mids as $mid)
 						$b64mids[] =  'b64.' . base64url_encode($mid);

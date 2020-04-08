@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '4.7.4' );
+define ( 'STD_VERSION',             '4.7.5' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
 define ( 'DB_UPDATE_VERSION',       1236 );
@@ -1590,6 +1590,22 @@ function fix_system_urls($oldurl, $newurl) {
 			}
 
 			Zotlabs\Daemon\Master::Summon(array('Notifier', 'refresh_all', $c[0]['channel_id']));
+		}
+	}
+
+	// fix links in apps
+
+	$a = q("select id, app_url, app_photo from app where app_url like '%s' OR app_photo like '%s'",
+		dbesc('%' . $oldurl . '%'),
+		dbesc('%' . $oldurl . '%')
+	);
+	if($a) {
+		foreach($a as $aa) {
+			q("update app set app_url = '%s', app_photo = '%s' where id = %d",
+				dbesc(str_replace($oldurl,$newurl,$aa['app_url'])),
+				dbesc(str_replace($oldurl,$newurl,$aa['app_photo'])),
+				intval($aa['id'])
+			);
 		}
 	}
 

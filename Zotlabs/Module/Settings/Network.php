@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
 
 class Network {
 
@@ -21,7 +22,7 @@ class Network {
 
 		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
 		
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		if($_POST['rpath'])
 			goaway($_POST['rpath']);

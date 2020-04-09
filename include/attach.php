@@ -11,6 +11,8 @@
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/permissions.php');
 require_once('include/security.php');
 require_once('include/group.php');
@@ -1018,7 +1020,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$sync = attach_export_data($channel,$hash);
 
 		if($sync)
-			build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 	}
 
 	if($notify) {
@@ -1403,7 +1405,7 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
 		$data = attach_export_data($channel,$resource);
 
 		if($data)
-			build_sync_packet($channel['channel_id'],array('file' => array($data)));
+			Libsync::build_sync_packet($channel['channel_id'],array('file' => array($data)));
 	}
 }
 

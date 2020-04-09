@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/plugin.php');
 require_once('include/channel.php');
 
@@ -603,7 +605,7 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);
-						build_sync_packet($uid,array('app' => $r[0]));
+						Libsync::build_sync_packet($uid,array('app' => $r[0]));
 					}
 				}
 			}
@@ -669,7 +671,7 @@ class Apps {
 						);
 					}
 					if(! intval($x[0]['app_system'])) {
-						build_sync_packet($uid,array('app' => $x));
+						Libsync::build_sync_packet($uid,array('app' => $x));
 					}
 				}
 				else {

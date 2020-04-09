@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Libsync;
+
 define ( 'NWIKI_ITEM_RESOURCE_TYPE', 'nwiki' );
 
 class NativeWiki {
@@ -178,7 +180,7 @@ class NativeWiki {
 				foreach($sync_item as $w) {
 					$pkt[] = encode_item($w,true);
 				}
-				build_sync_packet($uid,array('wiki' => $pkt));
+				Libsync::build_sync_packet($uid,array('wiki' => $pkt));
 			}
 		}
 	}

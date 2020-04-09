@@ -1,7 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
-
+use Zotlabs\Lib\Libsync;
 
 
 
@@ -38,7 +38,7 @@ class Pconfig extends \Zotlabs\Web\Controller {
 		}
 	
 		set_pconfig(local_channel(),$cat,$k,$v);
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		if($aj)
 			killme();

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/menu.php');
 
 class Channel_home {
@@ -24,7 +26,7 @@ class Channel_home {
 		$channel_menu = ((x($_POST['channel_menu'])) ? htmlspecialchars_decode(trim($_POST['channel_menu']),ENT_QUOTES) : '');
 		set_pconfig(local_channel(),'system','channel_menu',$channel_menu);
 		
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		if($_POST['rpath'])
 			goaway($_POST['rpath']);

@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 /* 
    @file cover_photo.php
    @brief Module-file with functions for handling of cover-photos
@@ -66,7 +68,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			
 				$sync = attach_export_data($channel,$r[0]['resource_id']);
 				if($sync)
-				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+				    Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 			}
 
 			// Update directory in background
@@ -230,7 +232,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 					
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
-					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+					    Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
 					// Update directory in background
 					\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));

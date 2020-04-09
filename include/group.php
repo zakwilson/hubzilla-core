@@ -1,5 +1,6 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Libsync;
 
 function group_add($uid,$name,$public = 0) {
 
@@ -44,7 +45,7 @@ function group_add($uid,$name,$public = 0) {
 		$ret = $r;
 	}	
 
-	build_sync_packet($uid,null,true);
+	Libsync::build_sync_packet($uid,null,true);
 
 	return $ret;
 }
@@ -113,7 +114,7 @@ function group_rmv($uid,$name) {
 
 	}
 
-	build_sync_packet($uid,null,true);
+	Libsync::build_sync_packet($uid,null,true);
 
 	return $ret;
 }
@@ -155,7 +156,7 @@ function group_rmv_member($uid,$name,$member) {
 		dbesc($member)
 	);
 
-	build_sync_packet($uid,null,true);
+	Libsync::build_sync_packet($uid,null,true);
 
 	return $r;
 	
@@ -186,7 +187,7 @@ function group_add_member($uid,$name,$member,$gid = 0) {
 			dbesc($member)
 	);
 
-	build_sync_packet($uid,null,true);
+	Libsync::build_sync_packet($uid,null,true);
 
 	return $r;
 }

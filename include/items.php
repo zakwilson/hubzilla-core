@@ -10,6 +10,7 @@ use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\AccessList;
 use Zotlabs\Daemon\Master;
@@ -3873,7 +3874,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 
 		if($x) {
 			$sync_data['event_deleted'] = 1;
-			build_sync_packet($item['uid'], ['event' => [$sync_data]]);
+			Libsync::build_sync_packet($item['uid'], ['event' => [$sync_data]]);
 		}
 	}
 
@@ -3882,7 +3883,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 		$channel = channelx_by_n($item['uid']);
 		$sync_data = attach_export_data($channel, $item['resource_id'], true);
 		if($sync_data)
-			build_sync_packet($item['uid'], ['file' => [$sync_data]]);
+			Libsync::build_sync_packet($item['uid'], ['file' => [$sync_data]]);
 	}
 
 	// immediately remove any undesired profile likes.
@@ -4726,7 +4727,7 @@ function sync_an_item($channel_id,$item_id) {
 	if($r) {
 		xchan_query($r);
 		$sync_item = fetch_post_tags($r);
-		build_sync_packet($channel_id, array('item' => array(encode_item($sync_item[0],true))));
+		Libsync::build_sync_packet($channel_id, array('item' => array(encode_item($sync_item[0],true))));
 	}
 }
 
@@ -4928,7 +4929,7 @@ function item_create_edit_activity($post) {
 		if($r) {
 			xchan_query($r);
 			$sync_item = fetch_post_tags($r);
-			build_sync_packet($new_item['uid'],array('item' => array(encode_item($sync_item[0],true))));
+			Libsync::build_sync_packet($new_item['uid'],array('item' => array(encode_item($sync_item[0],true))));
 		}
 	}
 

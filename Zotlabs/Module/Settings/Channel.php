@@ -3,6 +3,7 @@
 namespace Zotlabs\Module\Settings;
 
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/selectors.php');
 
@@ -286,7 +287,7 @@ class Channel {
 	
 		\Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
 	
-		build_sync_packet();
+		Libsync::build_sync_packet();
 	
 	
 		if($email_changed && \App::$config['system']['register_policy'] == REGISTER_VERIFY) {

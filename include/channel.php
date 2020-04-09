@@ -673,7 +673,7 @@ function change_channel_keys($channel) {
 		}
 	}
 
-	build_sync_packet($channel['channel_id'], [ 'keychange' => $stored ]);
+	Libsync::build_sync_packet($channel['channel_id'], [ 'keychange' => $stored ]);
 
 	$a = q("select * from abook where abook_xchan = '%s' and abook_self = 1",
 		dbesc($stored['old_hash'])
@@ -2241,7 +2241,7 @@ function profiles_build_sync($channel_id,$send = true) {
 	);
 	if($r) {
 		if($send) {
-			build_sync_packet($channel_id,array('profile' => $r));
+			Libsync::build_sync_packet($channel_id,array('profile' => $r));
 		}
 		else {
 			return $r;

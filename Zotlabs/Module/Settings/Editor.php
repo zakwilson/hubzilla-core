@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
 
 class Editor {
 
@@ -15,7 +16,7 @@ class Editor {
 
 		process_module_features_post(local_channel(), $features, $_POST);
 		
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		if($_POST['rpath'])
 			goaway($_POST['rpath']);

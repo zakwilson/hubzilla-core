@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
 
 class Featured {
 		
@@ -10,7 +11,7 @@ class Featured {
 	
 		call_hooks('feature_settings_post', $_POST);
 	
-		build_sync_packet();
+		Libsync::build_sync_packet();
 		return;
 	}
 

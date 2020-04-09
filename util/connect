@@ -1,6 +1,8 @@
 #!/usr/bin/env php
 <?php
 
+use Zotlabs\Lib\Libsync;
+
 // connect utility
 
 if(! file_exists('include/cli_startup.php')) {
@@ -51,7 +53,7 @@ cli_startup();
 	$abconfig = load_abconfig($c['channel_id'],$clone['abook_xchan']);
 	if($abconfig)
 		$clone['abconfig'] = $abconfig;
-	build_sync_packet($c['channel_id'], array('abook' => array($clone)), true);
+	Libsync::build_sync_packet($c['channel_id'], array('abook' => array($clone)), true);
 
 	$can_view_stream = intval(get_abconfig($c['channel_id'],$clone['abook_xchan'],'their_perms','view_stream'));
 

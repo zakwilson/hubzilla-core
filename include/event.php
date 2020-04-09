@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Libsync;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -663,7 +664,7 @@ function event_addtocal($item_id, $uid) {
 				intval($channel['channel_id'])
 			);
 			if($z) {
-				build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
+				Libsync::build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
 			}
 			return true;
 		}

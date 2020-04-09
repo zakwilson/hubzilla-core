@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libsync;
 
 /**
  * @brief Notes Module controller.
@@ -38,7 +39,7 @@ class Notes extends Controller {
 
 		if((argc() > 1) && (argv(1) === 'sync')) {
 			require_once('include/zot.php');
-			build_sync_packet();
+			Libsync::build_sync_packet();
 		}
 
 		logger('notes saved.', LOGGER_DEBUG);

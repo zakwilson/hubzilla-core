@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/conversation.php');
 require_once('include/bbcode.php');
 require_once('include/datetime.php');
@@ -188,7 +190,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 					intval($channel['channel_id'])
 				);
 				if($z) {
-					build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
+					Libsync::build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
 				}
 			}
 		}
@@ -430,7 +432,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 				if($r) {
 
 					$sync_event['event_deleted'] = 1;
-					build_sync_packet(0,array('event' => array($sync_event)));
+					Libsync::build_sync_packet(0,array('event' => array($sync_event)));
 
 					$i = q("select * from item where resource_type = 'event' and resource_id = '%s' and uid = %d",
 						dbesc($event_id),
@@ -479,7 +481,7 @@ class Channel_calendar extends \Zotlabs\Web\Controller {
 							if($ii) {
 								xchan_query($ii);
 								$sync_item = fetch_post_tags($ii);
-								build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
+								Libsync::build_sync_packet($i[0]['uid'],array('item' => array(encode_item($sync_item[0],true))));
 							}
 
 							if($complex) {

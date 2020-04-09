@@ -4,6 +4,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libsync;
 
 class Pdledit extends Controller {
 
@@ -22,7 +23,7 @@ class Pdledit extends Controller {
 			goaway(z_root() . '/pdledit');
 		}
 		set_pconfig(local_channel(),'system','mod_' . $_REQUEST['module'] . '.pdl',escape_tags($_REQUEST['content']));
-		build_sync_packet();
+		Libsync::build_sync_packet();
 		info( t('Layout updated.') . EOL);
 		goaway(z_root() . '/pdledit/' . $_REQUEST['module']);
 	}

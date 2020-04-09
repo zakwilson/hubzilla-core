@@ -5,7 +5,7 @@ namespace Zotlabs\Module;
  *
  */
 
-
+use Zotlabs\Lib\Libsync;
 
 class Filestorage extends \Zotlabs\Web\Controller {
 
@@ -131,7 +131,7 @@ class Filestorage extends \Zotlabs\Web\Controller {
 			if(! $admin_delete) {
 				$sync = attach_export_data($channel, $f['hash'], true);
 				if($sync) {
-					build_sync_packet($channel['channel_id'], array('file' => array($sync)));
+					Libsync::build_sync_packet($channel['channel_id'], array('file' => array($sync)));
 				}
 			}
 

@@ -423,35 +423,9 @@ function visible_activity($item) {
 		}
 	}
 
-
-
-	if(is_edit_activity($item))
-		return false;
-
 	return true;
 }
 
-/**
- * @brief Check if a given activity is an edit activity
- * 
- *
- * @param array $item
- * @return boolean
- */
-
-function is_edit_activity($item) {
-
-	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)]; 
-
-	// In order to share edits with networks which have no concept of editing, we'll create 
-	// separate activities to indicate the edit. Our network will not require them, since our
-	// edits are automatically applied and the activity indicated.  
-
-	if(($item['verb'] === ACTIVITY_UPDATE) && (in_array($item['obj_type'],$post_types)))
-		return true;
-
-	return false;
-}
 
 /**
  * @brief "Render" a conversation or list of items for HTML display.

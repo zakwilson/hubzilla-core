@@ -319,6 +319,139 @@ function translate_design_element($type) {
 	return $ret;
 }
 
+function bb_format_attachdata($body) {
+
+	$data = getAttachmentData($body);
+
+	if($data) {
+		$txt = '';
+		if($data['url'] && $data['title']) {
+			$txt .= "\n\n" . '[url=' . $data['url'] . ']' . $data['title'] . '[/url]';
+		}
+		else {
+			if($data['url']) {
+				$txt .= "\n\n" . $data['url'];
+			}
+			if($data['title']) {
+				$txt .= "\n\n" . $data['title'];
+			}
+		}
+		if($data['preview']) {
+			$txt .= "\n\n" . '[img]' . $data['preview'] . '[/img]';
+		}
+		if($data['image']) {
+			$txt .= "\n\n" . '[img]' . $data['image'] . '[/img]';
+		}
+
+
+		$txt .= "\n\n" . $data['text'];
+		return preg_replace('/\[attachment(.*?)\](.*?)\[\/attachment\]/ism',$txt,$body);
+	}
+
+	return $body;
+}
+
+function getAttachmentData($body) {
+
+	$data = [];
+
+	if (! preg_match("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism", $body, $match)) {
+		return null;
+	}
+
+	$attributes = $match[1];
+
+	$data["text"] = trim($match[2]);
+
+	$type = "";
+	preg_match("/type='(.*?)'/ism", $attributes, $matches);
+
+	if (x($matches, 1)) {
+		$type = strtolower($matches[1]);
+	}
+
+	preg_match('/type=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$type = strtolower($matches[1]);
+	}
+
+	if ($type == "") {
+		return [];
+	}
+
+	if (!in_array($type, ["link", "audio", "photo", "video"])) {
+		return [];
+	}
+
+	if ($type != "") {
+		$data["type"] = $type;
+	}
+	$url = "";
+	preg_match("/url='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$url = $matches[1];
+	}
+
+	preg_match('/url=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$url = $matches[1];
+	}
+
+	if ($url != "") {
+		$data["url"] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+	}
+
+	$title = "";
+	preg_match("/title='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$title = $matches[1];
+	}
+
+	preg_match('/title=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$title = $matches[1];
+	}
+	if ($title != "") {
+		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+		$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
+		$data["title"] = $title;
+	}
+
+	$image = "";
+	preg_match("/image='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$image = $matches[1];
+	}
+
+	preg_match('/image=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$image = $matches[1];
+	}
+
+	if ($image != "") {
+		$data["image"] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
+	}
+
+	$preview = "";
+	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$preview = $matches[1];
+	}
+
+	preg_match('/preview=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$preview = $matches[1];
+	}
+	if ($preview != "") {
+		$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
+	}
+
+	$data["description"] = trim($match[3]);
+
+	$data["after"] = trim($match[4]);
+
+	return $data;
+}
 
 function bb_ShareAttributes($match) {
 
@@ -934,6 +1067,8 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[pre]') !== false) {
 		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
 	}
+
+	$Text = bb_format_attachdata($Text);
 
 	// If we find any event code, turn it into an event.
 	// After we're finished processing the bbcode we'll

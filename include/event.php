@@ -422,6 +422,10 @@ function event_store_event($arr) {
 	$arr['event_xchan']    = (($arr['event_xchan'])    ? $arr['event_xchan']    : '');
 	$arr['event_priority'] = (($arr['event_priority']) ? $arr['event_priority'] : 0);
 
+	if (! $arr['dtend']) {
+		$arr['dtend'] = NULL_DATE;
+		$arr['nofinish'] = 1;
+	}
 
 	if(array_key_exists('event_status_date',$arr))
 		$arr['event_status_date'] = datetime_convert('UTC','UTC', $arr['event_status_date']);
@@ -507,9 +511,9 @@ function event_store_event($arr) {
 			deny_gid = '%s'
 			WHERE id = %d AND uid = %d",
 
-			dbesc($arr['edited']),
-			dbesc($arr['dtstart']),
-			dbesc($arr['dtend']),
+			dbesc(datetime_convert('UTC','UTC',$arr['edited'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtstart'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtend'])),
 			dbesc($arr['summary']),
 			dbesc($arr['description']),
 			dbesc($arr['location']),
@@ -517,7 +521,7 @@ function event_store_event($arr) {
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
 			dbesc($arr['event_status']),
-			dbesc($arr['event_status_date']),
+			dbesc(datetime_convert('UTC','UTC',$arr['event_status_date'])),
 			intval($arr['event_percent']),
 			dbesc($arr['event_repeat']),
 			intval($arr['event_sequence']),
@@ -553,10 +557,10 @@ function event_store_event($arr) {
 			intval($arr['account']),
 			dbesc($arr['event_xchan']),
 			dbesc($hash),
-			dbesc($arr['created']),
-			dbesc($arr['edited']),
-			dbesc($arr['dtstart']),
-			dbesc($arr['dtend']),
+			dbesc(datetime_convert('UTC','UTC',$arr['created'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['edited'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtstart'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtend'])),
 			dbesc($arr['summary']),
 			dbesc($arr['description']),
 			dbesc($arr['location']),
@@ -564,7 +568,7 @@ function event_store_event($arr) {
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
 			dbesc($arr['event_status']),
-			dbesc($arr['event_status_date']),
+			dbesc(datetime_convert('UTC','UTC',$arr['event_status_date'])),
 			intval($arr['event_percent']),
 			dbesc($arr['event_repeat']),
 			intval($arr['event_sequence']),

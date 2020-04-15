@@ -672,15 +672,17 @@ class Notifier {
 					$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
 				}
 			}
-			if($packet_type === 'keychange' && $hub['hubloc_network'] === 'zot') {
+			if($packet_type === 'keychange' && $hub['hubloc_network'] === 'zot6') {
 				$pmsg = get_pconfig($channel['channel_id'],'system','keychange');
-				$packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+				$packet = Libzot::build_packet($channel, $packet_type, (($packet_recips) ? $packet_recips : null));
+				// $packet = zot_build_packet($channel,$packet_type,(($packet_recips) ? $packet_recips : null));
+
 			}
-			elseif($packet_type === 'request' && $hub['hubloc_network'] === 'zot') {
+			elseif($packet_type === 'request' && $hub['hubloc_network'] === 'zot6') {
 				$env = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
-				$packet = zot_build_packet($channel,$packet_type,$env,$hub['hubloc_sitekey'],$hub['site_crypto'],
-					$hash, array('message_id' => $request_message_id)
-				);
+				$packet = Libzot::build_packet($channel, $packet_type, $env, ['message_id' => $request_message_id], 'activitystreams', $hub['hubloc_sitekey'], $hub['site_crypto']);
+				// $packet = zot_build_packet($channel,$packet_type,$env,$hub['hubloc_sitekey'],$hub['site_crypto'],$hash, array('message_id' => $request_message_id));
+
 			}
 
 			if($packet) {

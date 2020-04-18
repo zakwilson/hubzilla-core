@@ -890,7 +890,7 @@ class Activity {
 				$ret['to'] = array_values(array_unique(array_merge($ret['to'], $mentions)));
 			}
 		}
-hz_syslog(print_r($ret,true));
+
 		return $ret;
 	}
 

@@ -721,6 +721,7 @@ class Item extends Controller {
 						); 				
 					}
 				}
+
 			}
 
 			if(($str_contact_allow) && (! $str_group_allow)) {
@@ -1017,10 +1018,9 @@ class Item extends Controller {
 		$datarray['layout_mid']          = $layout_mid;
 		$datarray['public_policy']       = $public_policy;
 		$datarray['comment_policy']      = map_scope($comment_policy); 
-		$datarray['term']                = $post_tags;
+		$datarray['term']                = array_unique($post_tags, SORT_REGULAR);
 		$datarray['plink']               = $plink;
 		$datarray['route']               = $route;
-	
 
 		// A specific ACL over-rides public_policy completely
  

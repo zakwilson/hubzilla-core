@@ -939,7 +939,7 @@ class Activity {
 			$tmp = expand_acl($i['allow_cid']);
 			$list = stringify_array($tmp,true);
 			if ($list) {
-				$details = q("select hubloc_id_url from hubloc where hubloc_hash in (" . $list . ") ");
+				$details = q("select hubloc_id_url from hubloc where hubloc_hash in (" . $list . ") and hubloc_id_url != ''");
 				if ($details) {
 					foreach ($details as $d) {
 						$ret[] = $d['hubloc_id_url'];

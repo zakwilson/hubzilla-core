@@ -674,6 +674,8 @@ class Item extends Controller {
 		$str_group_allow   = $gacl['allow_gid'];
 		$str_contact_deny  = $gacl['deny_cid'];
 		$str_group_deny    = $gacl['deny_gid'];
+
+		$post_tags = [];
 	
 		if($mimetype === 'text/bbcode') {
 	
@@ -708,7 +710,6 @@ class Item extends Controller {
 				// Set permissions based on tag replacements
 				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
 	
-				$post_tags = array();
 				foreach($results as $result) {
 					$success = $result['success'];
 					if($success['replaced']) {

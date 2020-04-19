@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Web\Controller;

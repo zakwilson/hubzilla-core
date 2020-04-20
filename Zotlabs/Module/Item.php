@@ -157,8 +157,9 @@ class Item extends Controller {
 		}
 
 		if(argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' ",
-				dbesc(z_root() . '/item/' . argv(1))
+			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' ",
+				dbesc(z_root() . '/item/' . argv(1)),
+				dbesc(z_root() . '/activity/' . argv(1))
 			);
 			if($x) {
 				foreach($x as $xv) {
@@ -955,8 +956,9 @@ class Item extends Controller {
 		}
 
 		if ((! $plink) && ($item_thread_top)) {
-			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
-			$plink = substr($plink,0,190);
+			// $plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
+			// $plink = substr($plink,0,190);
+			$plink = $mid;
 		}
 
 		if ($datarray['obj']) {

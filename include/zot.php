@@ -408,7 +408,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 
 	if($channel) {
 		$postvars['target']     = $channel['xchan_guid'];
-		$postvars['target_sig'] = $channel['xchan_guid_sig'];
+		$postvars['target_sig'] = str_replace('sha256.', '', $channel['xchan_guid_sig']);
 		$postvars['key']        = $channel['channel_pubkey'];
 	}
 

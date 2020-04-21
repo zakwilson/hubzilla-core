@@ -76,7 +76,11 @@ class Onepoll {
 
 		// update permissions
 
-		$x = zot_refresh($contact,$importer);
+		if($contact['xchan_network'] === 'zot6')
+			$x = Libzot::refresh($contact,$importer);
+
+		if($contact['xchan_network'] === 'zot')
+			$x = zot_refresh($contact,$importer);
 
 		$responded = false;
 		$updated   = datetime_convert();

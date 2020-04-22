@@ -235,7 +235,7 @@ function install_sendmail {
 function install_php {
     # openssl and mbstring are included in libapache2-mod-php
     print_info "installing php..."
-    nocheck_install "libapache2-mod-php php php-pear php-curl php-gd php-mysqli php-mbstring php-xml php-zip"
+    nocheck_install "libapache2-mod-php php php-pear php-curl php-gd php-mbstring php-xml php-zip"
     sed -i "s/^upload_max_filesize =.*/upload_max_filesize = 100M/g" /etc/php/7.3/apache2/php.ini
     sed -i "s/^post_max_size =.*/post_max_size = 100M/g" /etc/php/7.3/apache2/php.ini
 }
@@ -322,7 +322,7 @@ function run_freedns {
         then
             die "You can not use freeDNS AND selfHOST for dynamic IP updates ('freedns_key' AND 'selfhost_user' set in $configfile)"
         fi
-        wget --no-check-certificate -O - https://freedns.afraid.org/dynamic/update.php?$freedns_key       
+        wget --no-check-certificate -O - http://freedns.afraid.org/dynamic/update.php?$freedns_key       
     fi
 }
 
@@ -389,8 +389,8 @@ function configure_cron_freedns {
         #   - every 30 minutes
         if [ -z "`grep 'freedns.afraid.org' /etc/crontab`" ]
         then
-            echo "@reboot root https://freedns.afraid.org/dynamic/update.php?$freedns_key > /dev/null 2>&1" >> /etc/crontab
-            echo "*/30 * * * * root wget --no-check-certificate -O - https://freedns.afraid.org/dynamic/update.php?$freedns_key > /dev/null 2>&1" >> /etc/crontab
+            echo "@reboot root http://freedns.afraid.org/dynamic/update.php?$freedns_key > /dev/null 2>&1" >> /etc/crontab
+            echo "*/30 * * * * root wget --no-check-certificate -O - http://freedns.afraid.org/dynamic/update.php?$freedns_key > /dev/null 2>&1" >> /etc/crontab
         else
             print_info "cron for freedns was configured already"
         fi       
@@ -448,11 +448,11 @@ function check_https {
 function install_hubzilla {
     print_info "installing addons..."
     cd /var/www/html/
-    if git remote -v | grep -i "origin.*hubzilla.*core"
+    if git remote -v | grep -i "origin.*hubzilla.*"
     then
         print_info "hubzilla"
         util/add_addon_repo https://framagit.org/hubzilla/addons hzaddons
-    elif git remote -v | grep -i "origin.*zap.*core"
+    elif git remote -v | grep -i "origin.*zap.*"
     then
         print_info "zap"
         util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons
@@ -460,6 +460,7 @@ function install_hubzilla {
         die "neither zap nor hubzilla repository > did not install addons or zap/hubzilla"
     fi
     mkdir -p "store/[data]/smarty3"
+    mkdir -p "store"
     chmod -R 777 store
     touch .htconfig.php
     chmod ou+w .htconfig.php
@@ -624,7 +625,6 @@ configure_cron_selfhost
 if [ "$le_domain" != "localhost" ]
 then
     install_letsencrypt
-    configure_apache_for_https
     check_https
 else
     print_info "is localhost - skipped installation of letsencrypt and configuration of apache for https"
@@ -632,20 +632,12 @@ fi
 
 install_hubzilla
 
-if [ "$le_domain" != "localhost" ]
-then
-    rewrite_to_https
-    install_rsnapshot
-else
-    print_info "is localhost - skipped rewrite to https and installation of rsnapshot"
-fi     
-
 configure_cron_daily
 
 if [ "$le_domain" != "localhost" ]
 then
     install_cryptosetup
-    write_uninstall_script
+    install_rsync
 else
     print_info "is localhost - skipped installation of cryptosetup"
 fi     

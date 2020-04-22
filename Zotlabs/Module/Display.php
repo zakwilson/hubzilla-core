@@ -101,7 +101,7 @@ class Display extends \Zotlabs\Web\Controller {
 		if($decoded)
 			$item_hash = $decoded;
 
-		$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
+		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
 			dbesc($item_hash . '%')
 		);
 	
@@ -159,14 +159,17 @@ class Display extends \Zotlabs\Web\Controller {
 			}
 		}
 		if($target_item['item_type']  == ITEM_TYPE_CARD) {
+
 			$x = q("select * from channel where channel_id = %d limit 1",
 				intval($target_item['uid'])
 			);
+
 			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
 				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'CARD' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['parent'])
 			);
+
 			if($x && $y) {
 				goaway(z_root() . '/cards/' . $x[0]['channel_address'] . '/' . $y[0]['v']);
 			}

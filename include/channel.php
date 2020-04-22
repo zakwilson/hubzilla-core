@@ -1930,7 +1930,7 @@ function zid_init() {
 				Master::Summon(array('Gprobe',bin2hex($tmp_str)));
 			}
 			if($r) {
-				$r = zot_record_preferred($r);
+				$r = Libzot::zot_record_preferred($r);
 			}
 			if($r && remote_channel() && remote_channel() === $r['hubloc_hash'])
 				return;

@@ -1026,7 +1026,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	}
 
 	if($notify) {
-		file_activity($channel, $observer, $r[0]);
+		attach_store_item($channel, $observer, $r[0]);
 	}
 
 	return $ret;
@@ -1452,9 +1452,6 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		return;
 	}
 
-	$url = get_cloud_url($channel_id, $channel_address, $resource);
-	$object = get_file_activity_object($channel_id, $resource, $url);
-
 	// If resource is a directory delete everything in the directory recursive
 	if(intval($r[0]['is_dir'])) {
 		$x = q("SELECT hash, os_storage, is_dir, flags FROM attach WHERE folder = '%s' AND uid = %d",
@@ -1498,6 +1495,9 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	if($r[0]['is_photo']) {
 		attach_drop_photo($channel_id,$resource);
 	}
+	else {
+		attach_drop_item($channel_id,$resource);
+	}
 
 
 	// update the parent folder's lastmodified timestamp
@@ -1516,8 +1516,6 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	 *   * \e int \b is_photo
 	 */
 	call_hooks('attach_delete', $arr);
-
-	//file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
 
 	return;
 }
@@ -1550,6 +1548,21 @@ function attach_drop_photo($channel_id,$resource) {
 		intval($channel_id),
 		dbesc($resource)
 	);
+
+}
+
+function attach_drop_item($channel_id,$resource) {
+
+	$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'attach' and uid = %d and item_deleted = 0",
+		dbesc($resource),
+		intval($channel_id)
+	);
+
+	if($x) {
+		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
+		$interactive = (($x[0]['item_hidden']) ? false : true);
+		drop_item($x[0]['id'], $interactive, $stage);
+	}
 
 }
 
@@ -1905,7 +1918,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 */
 
 
-function file_activity($channel, $observer, $file) {
+function attach_store_item($channel, $observer, $file) {
 
 	$filetype_parts = explode('/', $file['filetype']);
 
@@ -1945,6 +1958,7 @@ function file_activity($channel, $observer, $file) {
 	$arr['allow_gid'] = $file['allow_gid'];
 	$arr['deny_cid'] = $file['deny_cid'];
 	$arr['deny_gid'] = $file['deny_gid'];
+	$arr['item_wall'] = 1;
 	$arr['item_origin'] = 1;
 	$arr['item_thread_top'] = 1;
 	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);

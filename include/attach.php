@@ -12,6 +12,8 @@
  */
 
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Daemon\Master;
 
 require_once('include/permissions.php');
 require_once('include/security.php');
@@ -1024,9 +1026,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	}
 
 	if($notify) {
-		$cloudPath =  z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['0']['display_path'];
-		$object = get_file_activity_object($channel['channel_id'], $r['0']['hash'], $cloudPath);
-		file_activity($channel['channel_id'], $object, $r['0']['allow_cid'], $r['0']['allow_gid'], $r['0']['deny_cid'], $r['0']['deny_gid'], 'post', $notify);
+		file_activity($channel, $observer, $r[0]);
 	}
 
 	return $ret;
@@ -1517,7 +1517,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	 */
 	call_hooks('attach_delete', $arr);
 
-	file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
+	//file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
 
 	return;
 }
@@ -1754,6 +1754,7 @@ function pipe_streams($in, $out, $bufsize = 16384) {
  * @param string $verb
  * @param boolean $notify
  */
+/*
 function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $verb, $notify) {
 
 	require_once('include/items.php');
@@ -1802,7 +1803,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 	$uuid = item_message_id();
 	$mid = z_root() . '/item/' . $uuid;
 
-	$objtype = ACTIVITY_OBJ_FILE;
+	$objtype = 'ACTIVITY_OBJ_FILE';
 
 	$arr = array();
 	$arr['aid']           = get_account_id();
@@ -1901,6 +1902,62 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 	return;
 }
+*/
+
+
+function file_activity($channel, $observer, $file) {
+
+	$filetype_parts = explode('/', $file['filetype']);
+
+	switch($filetype_parts[0]) {
+		case 'image':
+			$type = 'Image';
+			break;
+		case 'audio':
+			$type = 'Audio';
+			break;
+		case 'video':
+			$type = 'Video';
+			break;
+		default:
+			$type = 'Document';
+	}
+
+	$resource_id = $file['hash'];
+	$uuid = new_uuid();
+
+	$mid = z_root() . '/item/' . $uuid;
+
+	$arr = [];	// Initialize the array of parameters for the post
+	$arr['aid'] = $channel['channel_account_id'];
+	$arr['uuid'] = $uuid;
+	$arr['uid'] = $channel['channel_id'];
+	$arr['mid'] = $mid;
+	$arr['parent_mid'] = $mid;
+	$arr['resource_type'] = 'attach';
+	$arr['resource_id'] = $resource_id;
+	$arr['owner_xchan'] = $channel['channel_hash'];
+	$arr['author_xchan'] = $observer['xchan_hash'];
+	$arr['plink'] = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
+	$arr['llink'] = $arr['plink'];
+	$arr['title'] = $file['filename'];
+	$arr['allow_cid'] = $file['allow_cid'];
+	$arr['allow_gid'] = $file['allow_gid'];
+	$arr['deny_cid'] = $file['deny_cid'];
+	$arr['deny_gid'] = $file['deny_gid'];
+	$arr['item_origin'] = 1;
+	$arr['item_thread_top'] = 1;
+	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
+	$arr['verb'] = ACTIVITY_CREATE;
+	$arr['obj_type'] = $type;
+	$arr['title'] = $file['filename'];
+	$body_str = sprintf(t('%s shared a %s with you'), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $arr['plink'] . ']' . t('file') . '[/zrl]');
+	$arr['body'] = $body_str;
+
+	post_activity_item($arr);
+
+}
+
 
 /**
  * @brief Create file activity object.
@@ -1917,17 +1974,28 @@ function get_file_activity_object($channel_id, $hash, $url) {
 		dbesc($hash)
 	);
 
-	$url = rawurlencode($url);
-
-	$links   = array();
-	$links[] = array(
+	$links   = [];
+	$links[] = [
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $x[0]['filetype'],
 		'href' => $url
-	);
+	];
+
+	$filetype_parts = explode('/', $x[0]['filetype']);
+
+	switch($filetype_parts[0]) {
+		case 'audio':
+			$type = 'Audio';
+			break;
+		case 'video':
+			$type = 'Video';
+			break;
+		default:
+			$type = 'Document';
+	}
 
 	$object = array(
-		'type'  => ACTIVITY_OBJ_FILE,
+		'type'  => $type,
 		'title' => $x[0]['filename'],
 		'id'    => $url,
 		'link'  => $links,

@@ -818,6 +818,9 @@ class Enotify {
 				$itemem_text = sprintf( t('repeated %s\'s post'), '[bdi]' . $item['author']['xchan_name'] . '[/bdi]');
 			}
 
+			if(in_array($item['obj_type'], ['Document', 'Video', 'Audio', 'Image'])) {
+				$itemem_text = t('shared a file with you');
+			}
 		}
 
 		$edit = false;

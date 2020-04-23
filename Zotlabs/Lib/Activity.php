@@ -1131,7 +1131,6 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/photo'          => 'Image',
 			'http://activitystrea.ms/schema/1.0/profile-photo'  => 'Icon',
 			'http://activitystrea.ms/schema/1.0/event'          => 'Event',
-			'http://activitystrea.ms/schema/1.0/wiki'           => 'Document',
 			'http://purl.org/zot/activity/location'             => 'Place',
 			'http://purl.org/zot/activity/chessgame'            => 'Game',
 			'http://purl.org/zot/activity/tagterm'              => 'zot:Tag',
@@ -1139,7 +1138,10 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-			'Question'                                          => 'Question'
+			'Question'                                          => 'Question',
+			'Document'					    => 'Document',
+			'Audio'						    => 'Audio',
+			'Video'						    => 'Video'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -1167,7 +1169,6 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/photo'          => 'Image',
 			'http://activitystrea.ms/schema/1.0/profile-photo'  => 'Icon',
 			'http://activitystrea.ms/schema/1.0/event'          => 'Event',
-			'http://activitystrea.ms/schema/1.0/wiki'           => 'Document',
 			'http://purl.org/zot/activity/location'             => 'Place',
 			'http://purl.org/zot/activity/chessgame'            => 'Game',
 			'http://purl.org/zot/activity/tagterm'              => 'zot:Tag',
@@ -1175,7 +1176,9 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-			'Question'                                          => 'Question'
+			'Question'                                          => 'Question',
+			'Audio'						    => 'Audio',
+			'Video'					            => 'Video'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);

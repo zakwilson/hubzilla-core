@@ -1,5 +1,8 @@
 <?php
 namespace Zotlabs\Module;
+
+use Zotlabs\Web\Controller;
+
 require_once('include/conversation.php');
 require_once('include/text.php');
 
@@ -9,7 +12,7 @@ require_once('include/text.php');
  *
  */
 
-class Sharedwithme extends \Zotlabs\Web\Controller {
+class Sharedwithme extends Controller {
 
 	function get() {
 		if(! local_channel()) {

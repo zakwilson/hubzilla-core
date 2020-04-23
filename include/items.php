@@ -239,19 +239,19 @@ function comments_are_now_closed($item) {
 function item_normal() {
 	return " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 function item_normal_search() {
 	return " and item.item_hidden = 0 and item.item_type in (0,3,6,7) and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 function item_normal_update() {
 	return " and item.item_hidden = 0 and item.item_type = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 
@@ -267,7 +267,7 @@ function is_item_normal($item) {
 
 	if(intval($item['item_hidden']) || intval($item['item_type']) || intval($item['item_deleted'])
 		|| intval($item['item_unpublished']) || intval($item['item_delayed']) || intval($item['item_pending_remove'])
-		|| intval($item['item_blocked']) || ($item['obj_type'] == ACTIVITY_OBJ_FILE))
+		|| intval($item['item_blocked']))
 		return false;
 
 	return true;

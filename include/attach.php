@@ -12,6 +12,7 @@
  */
 
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\Activity;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
 
@@ -1940,6 +1941,7 @@ function attach_store_item($channel, $observer, $file) {
 	$uuid = new_uuid();
 
 	$mid = z_root() . '/item/' . $uuid;
+	$path = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
 
 	$arr = [];	// Initialize the array of parameters for the post
 	$arr['aid'] = $channel['channel_account_id'];
@@ -1951,8 +1953,6 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['resource_id'] = $resource_id;
 	$arr['owner_xchan'] = $channel['channel_hash'];
 	$arr['author_xchan'] = $observer['xchan_hash'];
-	$arr['plink'] = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
-	$arr['llink'] = $arr['plink'];
 	$arr['title'] = $file['filename'];
 	$arr['allow_cid'] = $file['allow_cid'];
 	$arr['allow_gid'] = $file['allow_gid'];
@@ -1965,8 +1965,21 @@ function attach_store_item($channel, $observer, $file) {
 	$arr['verb'] = ACTIVITY_CREATE;
 	$arr['obj_type'] = $type;
 	$arr['title'] = $file['filename'];
-	$body_str = sprintf(t('%s shared a %s with you'), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $arr['plink'] . ']' . t('file') . '[/zrl]');
+	$body_str = sprintf(t('%s shared a %s with you'), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . t('file') . '[/zrl]');
 	$arr['body'] = $body_str;
+
+	$meta = [
+		'name' => $file['filename'],
+		'type' => $file['filetype'],
+		'size' => $file['filesize'],
+		'revision' => $file['revision'],
+		'size' => $file['filesize'],
+		'created' => $file['created'],
+		'edited' => $file['edited'],
+		'path' => $path
+	];
+
+	set_iconfig($arr, 'attach', 'meta' , $meta, true);
 
 	post_activity_item($arr);
 

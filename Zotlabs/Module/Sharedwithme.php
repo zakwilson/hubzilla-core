@@ -23,81 +23,80 @@ class Sharedwithme extends Controller {
 		$channel = \App::get_channel();
 	
 		$is_owner = (local_channel() && (local_channel() == $channel['channel_id']));
-	
-		//check for updated items and remove them
-		require_once('include/sharedwithme.php');
-		apply_updates();
+
+		$item_normal = item_normal();
 	
 		//drop single file - localuser
 		if((argc() > 2) && (argv(2) === 'drop')) {
-		
+
 			$id = intval(argv(1));
-	
-			q("DELETE FROM item WHERE id = %d AND uid = %d",
-				intval($id),
-				intval(local_channel())
-			);
-	
+
+			drop_item($id);
+
 			goaway(z_root() . '/sharedwithme');
+
 		}
 	
 		//drop all files - localuser
 		if((argc() > 1) && (argv(1) === 'dropall')) {
-	
-			q("DELETE FROM item WHERE verb = '%s' AND obj_type = '%s' AND uid = %d",
+
+			$r = q("SELECT id FROM item WHERE verb = '%s' AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 				dbesc(ACTIVITY_POST),
-				dbesc(ACTIVITY_OBJ_FILE),
-				intval(local_channel())
+				intval(local_channel()),
+				dbesc($channel['channel_hash'])
 			);
-	
+
+			$ids = ids_to_array($r);
+
+			if($ids)
+				drop_items($ids);
+
 			goaway(z_root() . '/sharedwithme');
+
 		}
-	
+
 		//list files
-		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb = '%s' AND obj_type = '%s' AND uid = %d AND owner_xchan != '%s'",
+		$r = q("SELECT id, uid, obj, item_unseen FROM item WHERE verb = '%s' AND obj_type IN ('Document', 'Video', 'Audio', 'Image') AND uid = %d AND owner_xchan != '%s' $item_normal",
 			dbesc(ACTIVITY_POST),
-			dbesc(ACTIVITY_OBJ_FILE),
 			intval(local_channel()),
 			dbesc($channel['channel_hash'])
 		);
-	
-		$items =array();
-		$ids = '';
-	
+
+		$items = [];
+		$ids = [];
+
 		if($r) {
 	
 			foreach($r as $rr) {
 				$object = json_decode($rr['obj'],true);
-	
-				$item = array();
+				$meta = self::get_meta($object);
+
+				$item = [];
 				$item['id'] = $rr['id'];
-				$item['objfiletype'] = $object['filetype'];
-				$item['objfiletypeclass'] = getIconFromType($object['filetype']);
-				$item['objurl'] = rawurldecode(get_rel_link($object['link'],'alternate')) . '?f=&zid=' . $channel['xchan_addr'];
-				$item['objfilename'] = $object['filename'];
-				$item['objfilesize'] = userReadableSize($object['filesize']);
-				$item['objedited'] = $object['edited'];
+				$item['objfiletype'] = $meta['type'];
+				$item['objfiletypeclass'] = getIconFromType($meta['type']);
+				$item['objurl'] = $meta['path'] . '?f=&zid=' . $channel['xchan_addr'];
+				$item['objfilename'] = $object['name'];
+				$item['objfilesize'] = userReadableSize($meta['size']);
+				$item['objedited'] = $meta['edited'];
 				$item['unseen'] = $rr['item_unseen'];
 	
 				$items[] = $item;
 	
-				if($item['unseen'] > 0) {
-					$ids .= " '" . $rr['id'] . "',";
+				if($item['unseen']) {
+					$ids[] = $rr['id'];
 				}
 	
 			}
 	
 		}
-	
+
+		$ids = implode(',', $ids);
+
 		if($ids) {
-	
-			//remove trailing ,
-			$ids = rtrim($ids, ",");
-	
 			q("UPDATE item SET item_unseen = 0 WHERE id IN ( $ids ) AND uid = %d",
 				intval(local_channel())
 			);
-	
 		}
 	
 		$o = '';
@@ -117,5 +116,22 @@ class Sharedwithme extends Controller {
 	
 	}
 	
+	function get_meta($object) {
+
+		$ret = [];
+
+		if(! is_array($object['attachment']))
+			return;
+
+		foreach($object['attachment'] as $a) {
+			if($a['name'] === 'zot.attach.meta') {
+				$ret = $a['value'];
+				break;
+			}
+		}
+
+		return $ret;
+
+	}
 	
 }

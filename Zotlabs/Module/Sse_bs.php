@@ -453,11 +453,12 @@ class Sse_bs extends Controller {
 
 		$r = q("SELECT * FROM item 
 			WHERE verb = '%s'
-			AND obj_type in ('Document', 'Video', 'Audio', 'Image')
+			AND obj_type IN ('Document', 'Video', 'Audio', 'Image')
 			AND uid = %d
 			AND author_xchan != '%s'
 			AND item_unseen = 1
-			$item_normal",
+			$item_normal
+			ORDER BY created DESC",
 			dbesc(ACTIVITY_POST),
 			intval(self::$uid),
 			dbesc(self::$ob_hash)

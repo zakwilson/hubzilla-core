@@ -1921,6 +1921,20 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 function attach_store_item($channel, $observer, $file) {
 
+
+	if(is_string($file)) {
+		$r = q("SELECT * FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
+			intval($channel['channel_id']),
+			dbesc($file)
+		);
+
+		if(! $r)
+			return;
+
+		$file = $r[0];
+
+	}
+
 	$filetype_parts = explode('/', $file['filetype']);
 
 	switch($filetype_parts[0]) {

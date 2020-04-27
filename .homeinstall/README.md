@@ -17,6 +17,7 @@ Software
 
 + Fresh installation of Debian 10 (Stretch)
 + Router with open ports 80 and 443 for your web server
++ Some form of email server or email gateway such that PHP mail() works.
 
 ## How to run the script
 
@@ -45,7 +46,7 @@ In Admin settings of hubzilla or via terminal
 
 ## Optional - Switch verification of email on/off
 
-Do this just befor you register the user.
+Do this just befor you register the user and you have no working PHP mail().
 
 In Admin settings of hubzilla or via terminal
 

@@ -1945,7 +1945,8 @@ function attach_store_item($channel, $observer, $file) {
 	if($r) {
 
 		// At the moment only file permission edits are possible.
-		// If permissions did not change do nothing. Otherwise delete the item and create a new one with new permissions.
+		// Since we do not support permission editing on posts yet,
+		// we will delete the item and create a new one with the new permissions for now.
 
 		if($r[0]['allow_cid'] === $file['allow_cid'] &&	$r[0]['allow_gid'] === $file['allow_gid'] && $r[0]['deny_cid'] === $file['deny_cid'] && $r[0]['deny_gid'] === $file['deny_gid']) {
 
@@ -1967,7 +1968,7 @@ function attach_store_item($channel, $observer, $file) {
 			];
 
 			set_iconfig($r[0], 'attach', 'meta' , $meta, true);
-			
+
 			$post = item_store($arr);
 
 			$item_id = $post['item_id'];
@@ -2046,7 +2047,7 @@ function attach_store_item($channel, $observer, $file) {
 	];
 
 	set_iconfig($arr, 'attach', 'meta' , $meta, true);
-	
+
 	$post = item_store($arr);
 
 	$item_id = $post['item_id'];

@@ -1935,6 +1935,59 @@ function attach_store_item($channel, $observer, $file) {
 
 	}
 
+	$path = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
+
+	$r = q("SELECT * FROM item WHERE resource_id = '%s' AND resource_type = 'attach' and uid = %d LIMIT 1",
+		dbesc($file['hash']),
+		intval($channel['channel_id'])
+	);
+
+	if($r) {
+
+		// At the moment only file permission edits are possible.
+		// If permissions did not change do nothing. Otherwise delete the item and create a new one with new permissions.
+
+		if($r[0]['allow_cid'] === $file['allow_cid'] &&	$r[0]['allow_gid'] === $file['allow_gid'] && $r[0]['deny_cid'] === $file['deny_cid'] && $r[0]['deny_gid'] === $file['deny_gid']) {
+
+			/* once possible, other edits (eg rename) can be done here.
+
+			q("UPDATE item SET title = '%s' WHERE id = %d AND uid = %d",
+				dbesc($file['filename'])
+			);
+
+			$meta = [
+				'name' => $file['filename'],
+				'type' => $file['filetype'],
+				'size' => $file['filesize'],
+				'revision' => $file['revision'],
+				'size' => $file['filesize'],
+				'created' => $file['created'],
+				'edited' => $file['edited'],
+				'path' => $path
+			];
+
+			set_iconfig($r[0], 'attach', 'meta' , $meta, true);
+			
+			$post = item_store($arr);
+
+			$item_id = $post['item_id'];
+
+			if($item_id) {
+				Master::Summon(['Notifier', 'activity', $item_id]);
+			}
+
+			*/
+
+			return;
+
+		}
+
+		$stage = (($r[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
+		$interactive = (($r[0]['item_hidden']) ? false : true);
+		drop_item($r[0]['id'], $interactive, $stage);
+
+	}
+
 	$filetype_parts = explode('/', $file['filetype']);
 
 	switch($filetype_parts[0]) {
@@ -1955,7 +2008,6 @@ function attach_store_item($channel, $observer, $file) {
 	$uuid = new_uuid();
 
 	$mid = z_root() . '/item/' . $uuid;
-	$path = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
 
 	$arr = [];	// Initialize the array of parameters for the post
 	$arr['aid'] = $channel['channel_account_id'];
@@ -1994,8 +2046,14 @@ function attach_store_item($channel, $observer, $file) {
 	];
 
 	set_iconfig($arr, 'attach', 'meta' , $meta, true);
+	
+	$post = item_store($arr);
 
-	post_activity_item($arr);
+	$item_id = $post['item_id'];
+
+	if($item_id) {
+		Master::Summon(['Notifier', 'activity', $item_id]);
+	}
 
 }
 

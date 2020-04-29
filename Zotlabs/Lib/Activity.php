@@ -178,7 +178,6 @@ class Activity {
 
 
 	static function fetch_image($x) {
-
 		$ret = [
 			'type' => 'Image',
 			'id' => $x['id'],
@@ -2242,9 +2241,7 @@ class Activity {
 
 			}
 
-			// avoid double images from hubzilla to zap/osada
-
-			if($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
+			if($act->obj['type'] === 'Image') {
 
 				$ptr = null;
 
@@ -2258,10 +2255,11 @@ class Activity {
 						}
 						foreach($ptr as $vurl) {
 							if(strpos($s['body'],$vurl['href']) === false) {
-								$s['body'] .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n" . $s['body'];
+								$bb_imgs .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n";
 								break;
 							}
 						}
+						$s['body'] = $bb_imgs . $s['body'];
 					}
 					elseif(is_string($act->obj['url'])) {
 						if(strpos($s['body'],$act->obj['url']) === false) {

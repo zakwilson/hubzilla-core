@@ -61,7 +61,8 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
+	@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)

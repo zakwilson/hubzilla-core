@@ -239,8 +239,12 @@ class Channel extends Controller {
 		/**
 		 * Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		 */
-
-		$item_normal = item_normal();
+		 
+		 $item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
+		    and item.item_unpublished = 0 and item.item_pending_remove = 0
+		    and item.item_blocked = 0 ";
+		 if (! $is_owner)
+		    $item_normal .= "and item.item_delayed = 0 ";
 		$item_normal_update = item_normal_update();
 		$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
 

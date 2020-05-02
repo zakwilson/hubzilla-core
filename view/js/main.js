@@ -88,7 +88,8 @@ $(document).ready(function() {
 		wordSeparator : aStr['t16'],
 		numbers       : aStr['t17'],
 	};
-
+	
+	jQuery.timeago.settings.allowFuture = true;
 
 	if(typeof(window.SharedWorker) === 'undefined') {
 		// notifications with multiple tabs open will not work very well in this scenario 

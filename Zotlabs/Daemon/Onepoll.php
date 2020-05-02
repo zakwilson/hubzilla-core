@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/zot.php');
 require_once('include/socgraph.php');
 

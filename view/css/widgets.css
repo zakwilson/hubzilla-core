@@ -225,6 +225,11 @@ a.wikilist {
 	margin-bottom: 1rem;
 }
 
+.tt-filter-active,
+.cn-filter-active {
+	display: none !important;
+}
+
 /* contact block */
 .contact-block-div .oneway-overlay {
 	font-size: 20px;

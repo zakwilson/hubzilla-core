@@ -1807,7 +1807,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	$("#nav-" + notifyType + "-menu .notifications-autotime").timeago();
 
 	if($('#tt-' + notifyType + '-only').hasClass('active'))
-		$('#nav-' + notifyType + '-menu [data-thread_top=false]').addClass('d-none');
+		$('#nav-' + notifyType + '-menu [data-thread_top=false]').addClass('tt-filter-active');
 
 	if($('#cn-' + notifyType + '-input').length) {
 		var filter = $('#cn-' + notifyType + '-input').val().toString().toLowerCase();
@@ -1818,9 +1818,9 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 				var cn = $(el).data('contact_name').toString().toLowerCase();
 				var ca = $(el).data('contact_addr').toString().toLowerCase();
 				if(cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1)
-					$(el).addClass('d-none');
+					$(el).addClass('cn-filter-active');
 				else
-					$(el).removeClass('d-none');
+					$(el).removeClass('cn-filter-active');
 			});
 		}
 	}

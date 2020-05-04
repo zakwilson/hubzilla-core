@@ -97,7 +97,6 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 				$perminfo['connperms'] .= t('Nothing');
 			}
 
-	
 			$url = chanlink_hash($rr['xchan_hash']);
 			if($url) {
 				$contacts[] = array(
@@ -111,13 +110,12 @@ class Viewconnections extends \Zotlabs\Web\Controller {
 					'sparkle' => '',
 					'itemurl' => $rr['url'],
 					'network' => '',
-					'perminfo' => $perminfo,
+					'perminfo' => (($is_owner) ? $perminfo : (($perminfo['connpermcount'] === 0) ? $perminfo : [])),
 					'oneway' => $oneway
 				);
 			}
 		}
-	
-	
+
 		if($_REQUEST['aj']) {
 			if($contacts) {
 				$o = replace_macros(get_markup_template('viewcontactsajax.tpl'),array(

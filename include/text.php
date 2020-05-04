@@ -1037,7 +1037,7 @@ function contact_block() {
 					$rr['perminfo']['connperms'] .= t('Nothing');
 				}
 
-				if($is_owner && $rr['perminfo']['connpermcount'] !== 0)
+				if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
 					unset($rr['perminfo']);
 
 				$micropro[] = micropro($rr,true,'mpfriend');

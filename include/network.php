@@ -258,6 +258,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
 	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
+	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)

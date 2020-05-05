@@ -143,19 +143,26 @@ class Enotify {
 
 		$action = t('commented on');
 
-		if(array_key_exists('item',$params) && in_array($params['item']['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		if(array_key_exists('item',$params)) {
 
-			if(! $always_show_in_notices || !($vnotify & VNOTIFY_LIKE)) {
-				logger('notification: not a visible activity. Ignoring.');
-				pop_lang();
-				return;
+			if(in_array($params['item']['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+
+				if(! $always_show_in_notices || !($vnotify & VNOTIFY_LIKE)) {
+					logger('notification: not a visible activity. Ignoring.');
+					pop_lang();
+					return;
+				}
+
+				if(activity_match($params['verb'], ACTIVITY_LIKE))
+					$action = t('liked');
+
+				if(activity_match($params['verb'], ACTIVITY_DISLIKE))
+					$action = t('disliked');
+
 			}
 
-			if(activity_match($params['verb'], ACTIVITY_LIKE))
-				$action = t('liked');
-
-			if(activity_match($params['verb'], ACTIVITY_DISLIKE))
-				$action = t('disliked');
+			if($params['item']['obj_type'] === 'Answer')
+				$action = t('voted on');
 
 		}
 

@@ -327,6 +327,7 @@ class Sse_bs extends Controller {
 		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created DESC",
 			intval(self::$uid)
 		);
+
 		if($r) {
 			foreach($r as $rr) {
 				$result['notify']['notifications'][] = Enotify::format_notify($rr);

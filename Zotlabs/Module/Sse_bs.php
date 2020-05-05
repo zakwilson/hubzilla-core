@@ -119,7 +119,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND author_xchan IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 
@@ -184,7 +184,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND author_xchan IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 
 		$item_normal = item_normal();
@@ -261,7 +261,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND author_xchan IN (" . self::$xchans . ") ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 

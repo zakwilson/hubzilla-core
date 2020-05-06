@@ -2,7 +2,6 @@
 
 namespace Zotlabs\Storage;
 
-use App;
 use Sabre\DAV;
 use Sabre\HTTP\RequestInterface;
 use Sabre\HTTP\ResponseInterface;
@@ -129,16 +128,6 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 		$this->channel_name = $r['channel_address'];
 		$this->channel_id = $r['channel_id'];
 		$this->channel_hash = $this->observer = $r['channel_hash'];
-
-		if ($this->observer) {
-			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
-				dbesc($this->observer)
-			);
-			if ($r) {
-				App::set_observer(array_shift($r));
-			}
-		}
-
 		$_SESSION['uid'] = $r['channel_id'];
 		$_SESSION['account_id'] = $r['channel_account_id'];
 		$_SESSION['authenticated'] = true;

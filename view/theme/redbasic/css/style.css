@@ -22,18 +22,21 @@ body {
 	margin: 0px;
 }
 
-aside {
-	width: $aside_widthpx;
-	min-width: $aside_widthpx;
-	max-width: $aside_widthpx;
-}
-
-aside #region_1 {
+aside#region_1 {
 	border-right: 1px solid transparent;
+	width: $left_aside_widthpx;
+	min-width: $left_aside_widthpx;
+	max-width: $left_aside_widthpx;
 }
 
-aside #left_aside_wrapper,
-aside #right_aside_wrapper {
+aside#region_3 {
+	border-right: 1px solid transparent;
+	width: $right_aside_widthpx;
+	max-width: $right_aside_widthpx;
+}
+
+aside#left_aside_wrapper,
+aside#right_aside_wrapper {
 	margin-bottom: 10px;
 }
 
@@ -1516,8 +1519,8 @@ blockquote {
 	}
 
 	main {
-		left: -$aside_widthpx;
-		width: calc( 100% + $aside_widthpx );
+		left: -$left_aside_widthpx;
+		width: calc( 100% + $left_aside_widthpx );
 	}
 
 	main.region_1-on {

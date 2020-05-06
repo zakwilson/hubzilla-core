@@ -120,10 +120,10 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 		$x .= $schemecss;
 	}
 
-	$aside_width = 288;
+	$left_aside_width = 288;
+	$right_aside_width = 288;
 
-	// left aside and right aside are 285px + converse width
-	$main_width = (($aside_width * 2) + intval($converse_width));
+	$main_width = $left_aside_width + $right_aside_width + intval($converse_width);
 
 	// prevent main_width smaller than 768px
 	$main_width = (($main_width < 768) ? 768 : $main_width);
@@ -150,7 +150,8 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 		'$pmenu_top' => $pmenu_top,
 		'$pmenu_reply' => $pmenu_reply,
 		'$main_width' => $main_width,
-		'$aside_width' => $aside_width
+		'$left_aside_width' => $left_aside_width,
+		'$right_aside_width' => $right_aside_width
 	);
 
 	echo str_replace(array_keys($options), array_values($options), $x);

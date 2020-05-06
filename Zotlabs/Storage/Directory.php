@@ -281,8 +281,19 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 
 		$xpath = attach_syspaths($this->auth->owner_id, $hash);
 
-		// returns the number of bytes that were written to the file, or FALSE on failure
-		$size = file_put_contents($f, $data);
+
+		if (is_resource($data)) {
+			$fp = fopen($f,'wb');
+			if ($fp) {
+				pipe_streams($data,$fp);
+				fclose($fp);
+			}
+			$size = filesize($f);
+		}
+		else {
+			$size = file_put_contents($f, $data);
+		}
+ 
 		// delete attach entry if file_put_contents() failed
 		if ($size === false) {
 			logger('file_put_contents() failed to ' . $f);
@@ -315,7 +326,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 		$d = q("UPDATE attach SET filesize = '%s', os_path = '%s', display_path = '%s', is_photo = %d, edited = '%s' WHERE hash = '%s' AND uid = %d",
 			dbesc($size),
 			dbesc($xpath['os_path']),
-			dbesc($xpath['display_path']),
+			dbesc($xpath['path']),
 			intval($is_photo),
 			dbesc($edited),
 			dbesc($hash),
@@ -364,7 +375,7 @@ class Directory extends DAV\Node implements DAV\ICollection, DAV\IQuota, DAV\IMo
 			$p = photo_upload($c[0], \App::get_observer(), $args);
 		}
 		
-		\Zotlabs\Daemon\Master::Summon([ 'Thumbnail' , $this->folder_hash ]);
+		\Zotlabs\Daemon\Master::Summon([ 'Thumbnail' , $hash ]);
 
 		$sync = attach_export_data($c[0], $hash);
 

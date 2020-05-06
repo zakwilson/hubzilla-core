@@ -81,14 +81,20 @@
 	{{foreach $notifications as $notification}}
 	{{if $notification.filter}}
 	$(document).on('click', '#tt-{{$notification.type}}-only', function(e) {
-		e.preventDefault();
-		$('#nav-{{$notification.type}}-menu [data-thread_top=false]').toggleClass('d-none');
-		$(this).toggleClass('active sticky-top');
+		if($(this).hasClass('active sticky-top')) {
+			$('#nav-{{$notification.type}}-menu .notification[data-thread_top=false]').removeClass('tt-filter-active');
+			$(this).removeClass('active sticky-top');
+		}
+		else {
+			$('#nav-{{$notification.type}}-menu .notification[data-thread_top=false]').addClass('tt-filter-active');
+			$(this).addClass('active sticky-top');
+		}
+
 	});
 	$(document).on('click', '#cn-{{$notification.type}}-input-clear', function(e) {
 		$('#cn-{{$notification.type}}-input').val('');
 		$('#cn-{{$notification.type}}-only').removeClass('active sticky-top');
-		$("#nav-{{$notification.type}}-menu .notification").removeClass('d-none');
+		$("#nav-{{$notification.type}}-menu .notification").removeClass('cn-filter-active');
 		$('#cn-{{$notification.type}}-input-clear').addClass('d-none');
 	});
 	$(document).on('input', '#cn-{{$notification.type}}-input', function(e) {
@@ -108,9 +114,9 @@
 			var ca = $(el).data('contact_addr').toString().toLowerCase();
 
 			if(cn.indexOf(val) === -1 && ca.indexOf(val) === -1)
-				$(this).addClass('d-none');
+				$(this).addClass('cn-filter-active');
 			else
-				$(this).removeClass('d-none');
+				$(this).removeClass('cn-filter-active');
 		});
 	});
 	{{/if}}

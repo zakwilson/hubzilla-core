@@ -178,7 +178,6 @@ class Activity {
 
 
 	static function fetch_image($x) {
-
 		$ret = [
 			'type' => 'Image',
 			'id' => $x['id'],
@@ -419,7 +418,71 @@ class Activity {
 			$ret['attachment'] = $a;
 		}
 
+		$public = (($i['item_private']) ? false : true);
+		$top_level = (($i['mid'] === $i['parent_mid']) ? true : false);
+
+		if ($public) {
+			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+			$ret['cc'] = [ z_root() . '/followers/' . substr($i['author']['xchan_addr'],0,strpos($i['author']['xchan_addr'],'@')) ];
+		}
+		else {
+
+			// private activity
+
+			if ($top_level) {
+				$ret['to'] = self::map_acl($i);
+			}
+			else {
+				$ret['to'] = [];
+				if ($ret['tag']) {
+					foreach ($ret['tag'] as $mention) {
+						if (is_array($mention) && array_key_exists('href',$mention) && $mention['href']) {
+							$h = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
+								dbesc($mention['href'])
+							);
+							if ($h) {
+								if ($h[0]['hubloc_network'] === 'activitypub') {
+									$addr = $h[0]['hubloc_hash'];
+								}
+								else {
+									$addr = $h[0]['hubloc_id_url'];
+								}
+								if (! in_array($addr,$ret['to'])) {
+									$ret['to'][] = $addr;
+								}
+							}
+						}
+					}
+				}
+				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d limit 1",
+					intval($i['parent'])
+				);
+				if ($d) {
+					if ($d[0]['hubloc_network'] === 'activitypub') {
+						$addr = $d[0]['hubloc_hash'];
+					}
+					else {
+						$addr = $d[0]['hubloc_id_url'];
+					}
+					if (! in_array($addr,$ret['to'])) {
+						$ret['cc'][] = $addr;
+					}
+				}
+			}
+		}
+
+		$mentions = self::map_mentions($i);
+		if (count($mentions) > 0) {
+			if (! $ret['to']) {
+				$ret['to'] = $mentions;
+			}
+			else {
+				$ret['to'] = array_values(array_unique(array_merge($ret['to'], $mentions)));
+			}
+		}
+
 		return $ret;
+
 	}
 
 	static function decode_taxonomy($item) {
@@ -756,57 +819,155 @@ class Activity {
 				return [];
 		}
 
+		$t = self::encode_taxonomy($i);
+		if ($t) {
+			$ret['tag'] = $t;
+		}
+
+		// addressing madness
+
+		$public = (($i['item_private']) ? false : true);
+		$top_level = (($reply) ? false : true);
+
+		if ($public) {
+			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+			$ret['cc'] = [ z_root() . '/followers/' . substr($i['author']['xchan_addr'],0,strpos($i['author']['xchan_addr'],'@')) ];
+		}
+		else {
+
+			// private activity
+
+			if ($top_level) {
+				$ret['to'] = self::map_acl($i);
+			}
+			else {
+				$ret['to'] = [];
+				if ($ret['tag']) {
+					foreach ($ret['tag'] as $mention) {
+						if (is_array($mention) && array_key_exists('href',$mention) && $mention['href']) {
+							$h = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
+								dbesc($mention['href'])
+							);
+							if ($h) {
+								if ($h[0]['hubloc_network'] === 'activitypub') {
+									$addr = $h[0]['hubloc_hash'];
+								}
+								else {
+									$addr = $h[0]['hubloc_id_url'];
+								}
+								if (! in_array($addr,$ret['to'])) {
+									$ret['to'][] = $addr;
+								}
+							}
+						}
+					}
+				}
+
+				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d limit 1",
+					intval($i['parent'])
+				);
+				if ($d) {
+					if ($d[0]['hubloc_network'] === 'activitypub') {
+						$addr = $d[0]['hubloc_hash'];
+					}
+					else {
+						$addr = $d[0]['hubloc_id_url'];
+					}
+					if (! in_array($addr,$ret['to'])) {
+						$ret['cc'][] = $addr;
+					}
+				}
+			}
+		}
+
+		$mentions = self::map_mentions($i);
+		if (count($mentions) > 0) {
+			if (! $ret['to']) {
+				$ret['to'] = $mentions;
+			}
+			else {
+				$ret['to'] = array_values(array_unique(array_merge($ret['to'], $mentions)));
+			}
+		}
+
 		return $ret;
 	}
 
+	// Returns an array of URLS for any mention tags found in the item array $i.
+
 	static function map_mentions($i) {
-		if(! $i['term']) {
+
+		if (! $i['term']) {
 			return [];
 		}
 
 		$list = [];
 
 		foreach ($i['term'] as $t) {
-			if($t['ttype'] == TERM_MENTION) {
-				$list[] = $t['url'];
+			if (! $t['url']) {
+				continue;
+			}
+			if ($t['ttype'] == TERM_MENTION) {
+				$url = self::lookup_term_url($t['url']);
+				$list[] = (($url) ? $url : $t['url']);
 			}
 		}
 
 		return $list;
 	}
 
-	static function map_acl($i,$mentions = false) {
+	// Returns an array of all recipients targeted by private item array $i.
 
-		$private = false;
-		$list = [];
-		$x = collect_recipients($i,$private);
-		if($x) {
-			stringify_array_elms($x);
-			if(! $x)
-				return;
+	static function map_acl($i) {
+		$ret = [];
 
-			$strict = (($mentions) ? true : get_config('activitypub','compliance'));
+		if (! $i['item_private']) {
+			return $ret;
+		}
 
-			$sql_extra = (($strict) ? " and xchan_network = 'activitypub' " : '');
+		if ($i['allow_gid']) {
+			$tmp = expand_acl($i['allow_gid']);
+			if ($tmp) {
+				foreach ($tmp as $t) {
+					$ret[] = z_root() . '/lists/' . $t;
+				}
+			}
+		}
 
-			$details = q("select xchan_url, xchan_addr, xchan_name from xchan where xchan_hash in (" . implode(',',$x) . ") $sql_extra");
-
-			if($details) {
-				foreach($details as $d) {
-					if($mentions) {
-						$list[] = [ 'type' => 'Mention', 'href' => $d['xchan_url'], 'name' => '@' . (($d['xchan_addr']) ? $d['xchan_addr'] : $d['xchan_name']) ];
-					}
-					else { 
-						$list[] = $d['xchan_url'];
+		if ($i['allow_cid']) {
+			$tmp = expand_acl($i['allow_cid']);
+			$list = stringify_array($tmp,true);
+			if ($list) {
+				$details = q("select hubloc_id_url from hubloc where hubloc_hash in (" . $list . ") and hubloc_id_url != ''");
+				if ($details) {
+					foreach ($details as $d) {
+						$ret[] = $d['hubloc_id_url'];
 					}
 				}
 			}
 		}
 
-		return $list;
-
+		return $ret;
 	}
 
+	static function lookup_term_url($url) {
+
+		// The xchan_url for mastodon is a text/html rendering. This is called from map_mentions where we need
+		// to convert the mention url to an ActivityPub id. If this fails for any reason, return the url we have
+
+		$r = q("select hubloc_network, hubloc_hash, hubloc_id_url from hubloc where hubloc_id_url = '%s' limit 1",
+			dbesc($url)
+		);
+
+		if ($r) {
+			if ($r[0]['hubloc_network'] === 'activitypub') {
+				return $r[0]['hubloc_hash'];
+			}
+			return $r[0]['hubloc_id_url'];
+		}
+
+		return $url;
+	}
 
 	static function encode_person($p, $extended = true) {
 
@@ -969,7 +1130,6 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/photo'          => 'Image',
 			'http://activitystrea.ms/schema/1.0/profile-photo'  => 'Icon',
 			'http://activitystrea.ms/schema/1.0/event'          => 'Event',
-			'http://activitystrea.ms/schema/1.0/wiki'           => 'Document',
 			'http://purl.org/zot/activity/location'             => 'Place',
 			'http://purl.org/zot/activity/chessgame'            => 'Game',
 			'http://purl.org/zot/activity/tagterm'              => 'zot:Tag',
@@ -977,7 +1137,10 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-			'Question'                                          => 'Question'
+			'Question'                                          => 'Question',
+			'Document'					    => 'Document',
+			'Audio'						    => 'Audio',
+			'Video'						    => 'Video'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -1005,7 +1168,6 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/photo'          => 'Image',
 			'http://activitystrea.ms/schema/1.0/profile-photo'  => 'Icon',
 			'http://activitystrea.ms/schema/1.0/event'          => 'Event',
-			'http://activitystrea.ms/schema/1.0/wiki'           => 'Document',
 			'http://purl.org/zot/activity/location'             => 'Place',
 			'http://purl.org/zot/activity/chessgame'            => 'Game',
 			'http://purl.org/zot/activity/tagterm'              => 'zot:Tag',
@@ -1013,7 +1175,9 @@ class Activity {
 			'http://purl.org/zot/activity/file'                 => 'zot:File',
 			'http://purl.org/zot/activity/mood'                 => 'zot:Mood',
 			'Invite'                                            => 'Invite',
-			'Question'                                          => 'Question'
+			'Question'                                          => 'Question',
+			'Audio'						    => 'Audio',
+			'Video'					            => 'Video'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
@@ -2077,9 +2241,7 @@ class Activity {
 
 			}
 
-			// avoid double images from hubzilla to zap/osada
-
-			if($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
+			if($act->obj['type'] === 'Image') {
 
 				$ptr = null;
 
@@ -2093,10 +2255,11 @@ class Activity {
 						}
 						foreach($ptr as $vurl) {
 							if(strpos($s['body'],$vurl['href']) === false) {
-								$s['body'] .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n" . $s['body'];
+								$bb_imgs .= '[zmg]' . $vurl['href'] . '[/zmg]' . "\n\n";
 								break;
 							}
 						}
+						$s['body'] = $bb_imgs . $s['body'];
 					}
 					elseif(is_string($act->obj['url'])) {
 						if(strpos($s['body'],$act->obj['url']) === false) {
@@ -2177,8 +2340,13 @@ class Activity {
 			$s['plink'] = $s['mid'];
 		}
 
-		if ($act->recips && (! in_array(ACTIVITY_PUBLIC_INBOX,$act->recips)))
-			$s['item_private'] = 1;
+		// assume this is private unless specifically told otherwise.
+
+		$s['item_private'] = 1;
+
+		if ($act->recips && in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)) {
+			$s['item_private'] = 0;
+		}
 
 		if (is_array($act->obj)) {
 			if (array_key_exists('directMessage',$act->obj) && intval($act->obj['directMessage'])) {

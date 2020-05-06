@@ -170,6 +170,8 @@ class Activity extends Controller {
 
 		}
 
+		goaway(z_root() . '/item/' . argv(1));
+
 	}
 
 }

@@ -113,7 +113,7 @@ class ThreadItem {
 		if(intval($item['item_private']) && ($item['owner']['xchan_network'] === 'activitypub')) {
 			$recips = get_iconfig($item['parent'], 'activitypub', 'recips');
 
-			if(! in_array($observer['xchan_url'], $recips['to']))
+			if(! is_array($recips['to']) || ! in_array($observer['xchan_url'], $recips['to']))
 				$privacy_warning = true;
 		}
 
@@ -426,6 +426,7 @@ class ThreadItem {
 			'editedtime' => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r')) : ''),
 			'expiretime' => (($item['expires'] > NULL_DATE) ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r')):''),
 			'lock' => $lock,
+			'delayed' => $item['item_delayed'],
 			'privacy_warning' => $privacy_warning,
 			'verified' => $verified,
 			'unverified' => $unverified,
@@ -460,7 +461,7 @@ class ThreadItem {
 			'tagger'    => ((feature_enabled($conv->get_profile_owner(),'commtag')) ? $tagger : ''),
 			'filer'     => ((feature_enabled($conv->get_profile_owner(),'filing') && ($item['item_type'] == ITEM_TYPE_POST)) ? $filer : ''),
 			'pinned'    => ($pinned ? t('Pinned post') : ''),
-			'pinnable'  => (($this->is_toplevel() && local_channel() && $item['owner_xchan'] == $observer['xchan_hash'] && $allowed_type && $item['item_private'] == 0) ? '1' : ''),
+			'pinnable'  => (($this->is_toplevel() && local_channel() && $item['owner_xchan'] == $observer['xchan_hash'] && $allowed_type && $item['item_private'] == 0 && $item['item_delayed'] == 0) ? '1' : ''),
 			'pinme'     => ($pinned ? t('Unpin from the top') : t('Pin to the top')),
 			'bookmark'  => (($conv->get_profile_owner() == local_channel() && local_channel() && $has_bookmarks) ? t('Save Bookmarks') : ''),
 			'addtocal'  => (($has_event) ? t('Add to Calendar') : ''),
@@ -488,7 +489,7 @@ class ThreadItem {
 			'modal_dismiss' => t('Close'),
 			'showlike' => $showlike,
 			'showdislike' => $showdislike,
-			'comment' => $this->get_comment_box($indent),
+			'comment' => ($item['item_delayed'] ? '' : $this->get_comment_box($indent)),
 			'previewing' => ($conv->is_preview() ? true : false ),
 			'preview_lbl' => t('This is an unsaved preview'),
 			'wait' => t('Please wait'),

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Activity;
 
 class Share {
 
@@ -54,7 +55,7 @@ class Share {
 		if(! $this->item)
 			return $obj;
 
-		$obj['asld']         = $this->item['mid'];
+		$obj['asld']         = Activity::fetch_item( [ 'id' => $this->item['mid'] ] );
 		$obj['type']         = $this->item['obj_type'];
 		$obj['id']           = $this->item['mid'];
 		$obj['content']      = $this->item['body'];

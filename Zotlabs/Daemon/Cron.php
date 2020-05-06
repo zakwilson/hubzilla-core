@@ -38,11 +38,6 @@ class Cron {
 
 		Master::Summon(array('Poller'));
 
-		// maintenance for mod sharedwithme - check for updated items and remove them
-
-		require_once('include/sharedwithme.php');
-		apply_updates();
-
 		/**
 		 * Chatpresence: if somebody hasn't pinged recently, they've most likely left the page
 		 * and shouldn't count as online anymore. We allow an expection for bots.

@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Verify;
 use Zotlabs\Zot\Finger;
 
@@ -402,9 +403,7 @@ function observer_auth($ob_hash) {
 		return;
 	}
 
-	// Note: this has no Libzot namespace so prefers zot over zot6
-	
-	$hubloc = zot_record_preferred($r);
+	$hubloc = Libzot::zot_record_preferred($r);
 
 	$_SESSION['authenticated'] = 1;
 

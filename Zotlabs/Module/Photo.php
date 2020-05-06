@@ -213,7 +213,7 @@ class Photo extends \Zotlabs\Web\Controller {
 
  		if(! $data)
  			killme();
- 			
+ 		
  		$etag = '"' . md5($data . $modified) . '"';
  		
  		if($modified == 0)
@@ -269,7 +269,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			// in the event that infrastructure caching is present.
 			$smaxage = intval($maxage/12);
 
-			header("Cache-Control: s-maxage=" . $smaxage . ", max-age=" . $maxage . $cachecontrol);
+			header("Cache-Control: no-cache, s-maxage=" . $smaxage . ", max-age=" . $maxage . $cachecontrol);
 	
 		}
 

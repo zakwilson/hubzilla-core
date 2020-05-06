@@ -423,10 +423,18 @@ function visible_activity($item) {
 		}
 	}
 
+	// We only need edit activities for other federated protocols
+	// which do not support edits natively. While this does federate 
+	// edits, it presents a number of issues locally - such as #757 and #758.
+	// The SQL check for an edit activity would not perform that well so to fix these issues
+	// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the 
+	// query for searches and notifications.
 
+	// For now we'll just forget about trying to make edits work on network protocols that 
+	// don't support them.  
 
-	if(is_edit_activity($item))
-		return false;
+	// if(is_edit_activity($item))
+	//	return false;
 
 	return true;
 }

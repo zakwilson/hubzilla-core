@@ -97,7 +97,7 @@ class Connect {
 				$feeds = get_config('system','feed_contacts');
 
 				if (($feeds) && (in_array($protocol, [ '', 'feed', 'rss' ]))) {
-					$d = discover_feed($url);
+					$d = discover_by_url($url);
 				}
 				else {
 					$result['message'] = t('Remote channel or protocol unavailable.');

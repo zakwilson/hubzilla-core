@@ -119,7 +119,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND (author_xchan IN (" . self::$xchans . ") OR owner_xchan IN (" . self::$xchans . ")) ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 
@@ -128,6 +128,7 @@ class Sse_bs extends Controller {
 				WHERE uid = %d
 				AND created <= '%s'
 				AND item_unseen = 1 AND item_wall = 0 
+				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				$item_normal
 				$sql_extra
@@ -183,7 +184,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND (author_xchan IN (" . self::$xchans . ") OR owner_xchan IN (" . self::$xchans . ")) ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 
 		$item_normal = item_normal();
@@ -193,6 +194,7 @@ class Sse_bs extends Controller {
 				WHERE uid = %d
 				AND created <= '%s'
 				AND item_unseen = 1 AND item_wall = 1 
+				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				$item_normal
 				$sql_extra
@@ -259,7 +261,7 @@ class Sse_bs extends Controller {
 
 		$sql_extra2 = '';
 		if(self::$xchans)
-			$sql_extra2 = " AND (author_xchan IN (" . self::$xchans . ") OR owner_xchan IN (" . self::$xchans . ")) ";
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
 
 		$item_normal = item_normal();
 
@@ -268,6 +270,7 @@ class Sse_bs extends Controller {
 				WHERE uid = %d
 				AND created <= '%s'
 				AND item_unseen = 1
+				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				AND created > '%s'
 				$item_normal
@@ -324,6 +327,7 @@ class Sse_bs extends Controller {
 		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created DESC",
 			intval(self::$uid)
 		);
+
 		if($r) {
 			foreach($r as $rr) {
 				$result['notify']['notifications'][] = Enotify::format_notify($rr);
@@ -446,21 +450,24 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		$item_normal = item_normal();
+
 		$r = q("SELECT * FROM item 
 			WHERE verb = '%s'
-			AND obj_type = '%s'
+			AND obj_type IN ('Document', 'Video', 'Audio', 'Image')
 			AND uid = %d
-			AND owner_xchan != '%s'
-			AND item_unseen = 1",
+			AND author_xchan != '%s'
+			AND item_unseen = 1
+			$item_normal
+			ORDER BY created DESC",
 			dbesc(ACTIVITY_POST),
-			dbesc(ACTIVITY_OBJ_FILE),
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);
 		if($r) {
 			xchan_query($r);
 			foreach($r as $rr) {
-				$result['files']['notifications'][] = Enotify::format_files($rr);
+				$result['files']['notifications'][] = Enotify::format($rr);
 			}
 			$result['files']['count'] = count($r);
 		}

@@ -1010,7 +1010,7 @@ function contact_block() {
 
 		if(count($r)) {
 			$contacts = t('Connections');
-			$micropro = Array();
+			$micropro = [];
 			foreach($r as $rr) {
 
 				// There is no setting to discover if you are bi-directionally connected
@@ -1037,6 +1037,9 @@ function contact_block() {
 					$rr['perminfo']['connperms'] .= t('Nothing');
 				}
 
+				if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+					unset($rr['perminfo']);
+
 				$micropro[] = micropro($rr,true,'mpfriend');
 			}
 		}
@@ -1047,7 +1050,7 @@ function contact_block() {
 		'$contacts' => $contacts,
 		'$nickname' => App::$profile['channel_address'],
 		'$viewconnections' => (($total > $shown) ? sprintf(t('View all %s connections'),$total) : ''),
-		'$micropro' => $micropro,
+		'$micropro' => $micropro
 	));
 
 	$arr = ['contacts' => $r, 'output' => $o];
@@ -2236,6 +2239,9 @@ function item_post_type($item) {
 
 	if(strlen($item['verb']) && (! activity_match($item['verb'],ACTIVITY_POST)))
 		$post_type = t('activity');
+
+	if($item['obj_type'] === 'Question')
+		$post_type = t('poll');
 
 	return $post_type;
 }
@@ -3732,7 +3738,7 @@ function array_path_exists($str,$arr) {
 
 	if($search) {
 		foreach($search as $s) {
-			if($ptr && array_key_exists($s,$ptr)) {
+			if(is_array($ptr) && array_key_exists($s,$ptr)) {
 				$ptr = $ptr[$s];
 			}
 			else {

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Web\Controller;
@@ -43,9 +44,11 @@ class Item extends Controller {
 
 		if (Libzot::is_zot_request()) {
 
+			$conversation = false;
+
 			$item_id = argv(1);
 
-			if (! $item_id)
+			if(! $item_id)
 				http_status_exit(404, 'Not found');
 
 			$portable_id = EMPTY_STR;
@@ -66,32 +69,24 @@ class Item extends Controller {
 
 			// process an authenticated fetch
 
-			$sigdata = HTTPSig::verify(EMPTY_STR);
-			if($sigdata['portable_id'] && $sigdata['header_valid']) {
+			$sigdata = HTTPSig::verify(($_SERVER['REQUEST_METHOD'] === 'POST') ? file_get_contents('php://input') : EMPTY_STR);
+			if ($sigdata['portable_id'] && $sigdata['header_valid']) {
 				$portable_id = $sigdata['portable_id'];
+				if (! check_channelallowed($portable_id)) {
+					http_status_exit(403, 'Permission denied');
+				}
+				if (! check_siteallowed($sigdata['signer'])) {
+					http_status_exit(403, 'Permission denied');
+				}
 				observer_auth($portable_id);
 
-				// first see if we have a copy of this item's parent owned by the current signer
-				// include xchans for all zot-like networks - these will have the same guid and public key
-
-				$x = q("select * from xchan where xchan_hash = '%s'",
-					dbesc($sigdata['portable_id'])
+				$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan = '%s' limit 1",
+					dbesc($r[0]['parent_mid']),
+					dbesc($portable_id)
 				);
-
-				if ($x) {
-					$xchans = q("select xchan_hash from xchan where xchan_hash = '%s' OR ( xchan_guid = '%s' AND xchan_pubkey = '%s' ) ",
-						dbesc($sigdata['portable_id']),
-						dbesc($x[0]['xchan_guid']),
-						dbesc($x[0]['xchan_pubkey'])
-					);
-
-					if ($xchans) {
-						$hashes = ids_to_querystr($xchans,'xchan_hash',true);
-						$i = q("select id as item_id from item where mid = '%s' $item_normal and owner_xchan in ( " . protect_sprintf($hashes) . " ) limit 1",
-							dbesc($r[0]['parent_mid'])
-						);
-					}
-				}
+			}
+			elseif (Config::get('system','require_authenticated_fetch',false)) {
+				http_status_exit(403,'Permission denied');
 			}
 
 			// if we don't have a parent id belonging to the signer see if we can obtain one as a visitor that we have permission to access
@@ -111,7 +106,7 @@ class Item extends Controller {
 
 			$parents_str = ids_to_querystr($i,'item_id');
 	
-			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal ",
+			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal order by item.id asc",
 				dbesc($parents_str)
 			);
 
@@ -122,43 +117,10 @@ class Item extends Controller {
 			xchan_query($items,true);
 			$items = fetch_post_tags($items,true);
 
-			$observer = App::get_observer();
-			$parent = $items[0];
-			$recips = (($parent['owner']['xchan_network'] === 'activitypub') ? get_iconfig($parent['id'],'activitypub','recips', []) : []);
-			$to = (($recips && array_key_exists('to',$recips) && is_array($recips['to'])) ? $recips['to'] : null);
-			$nitems = [];
-			foreach($items as $i) {
-
-				$mids = [];
-
-				if(intval($i['item_private'])) {
-					if(! $observer) {
-						continue;
-					}
-					// ignore private reshare, possibly from hubzilla
-					if($i['verb'] === 'Announce') {
-						if(! in_array($i['thr_parent'],$mids)) {
-							$mids[] = $i['thr_parent'];
-						}
-						continue;
-					}
-					// also ignore any children of the private reshares
-					if(in_array($i['thr_parent'],$mids)) {
-						continue;
-					}
-
-					if((! $to) || (! in_array($observer['xchan_url'],$to))) {
-						continue;
-					}
-
-				}
-				$nitems[] = $i;
-			}
-
-			if(! $nitems)
+			if(! $items)
 				http_status_exit(404, 'Not found');
 
-			$chan = channelx_by_n($nitems[0]['uid']);
+			$chan = channelx_by_n($items[0]['uid']);
 
 			if(! $chan)
 				http_status_exit(404, 'Not found');
@@ -166,7 +128,8 @@ class Item extends Controller {
 			if(! perm_is_allowed($chan['channel_id'],get_observer_hash(),'view_stream'))
 				http_status_exit(403, 'Forbidden');
 
-			$i = Activity::encode_item_collection($nitems,'conversation/' . $item_id,'OrderedCollection');
+
+			$i = Activity::encode_item_collection($items, 'conversation/' . $item_id, 'OrderedCollection');
 			if($portable_id) {
 				ThreadListener::store(z_root() . '/item/' . $item_id,$portable_id);
 			}
@@ -194,8 +157,9 @@ class Item extends Controller {
 		}
 
 		if(argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' ",
-				dbesc(z_root() . '/item/' . argv(1))
+			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' ",
+				dbesc(z_root() . '/item/' . argv(1)),
+				dbesc(z_root() . '/activity/' . argv(1))
 			);
 			if($x) {
 				foreach($x as $xv) {
@@ -712,6 +676,8 @@ class Item extends Controller {
 		$str_group_allow   = $gacl['allow_gid'];
 		$str_contact_deny  = $gacl['deny_cid'];
 		$str_group_deny    = $gacl['deny_gid'];
+
+		$post_tags = [];
 	
 		if($mimetype === 'text/bbcode') {
 	
@@ -723,16 +689,16 @@ class Item extends Controller {
 			// we may need virtual or template classes to implement the possible alternatives
 
 			if(strpos($body,'[/summary]') !== false) {
-                $match = '';
-                $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
-                if($cnt) {
-                    $summary .= $match[1];
-                }
-                $body_content = preg_replace("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", '',$body);
-                $body = trim($body_content);
-            }
-
-            $summary = cleanup_bbcode($summary);
+			    $match = '';
+			    $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
+			    if($cnt) {
+			        $summary .= $match[1];
+			    }
+			    $body_content = preg_replace("/\[summary\](.*?)\[\/summary\]/ism", '',$body);
+			    $body = trim($body_content);
+			}
+			
+			$summary = cleanup_bbcode($summary);
 
 			$body = cleanup_bbcode($body);
 	
@@ -746,7 +712,6 @@ class Item extends Controller {
 				// Set permissions based on tag replacements
 				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
 	
-				$post_tags = array();
 				foreach($results as $result) {
 					$success = $result['success'];
 					if($success['replaced']) {
@@ -759,6 +724,7 @@ class Item extends Controller {
 						); 				
 					}
 				}
+
 			}
 
 			if(($str_contact_allow) && (! $str_group_allow)) {
@@ -990,8 +956,9 @@ class Item extends Controller {
 		}
 
 		if ((! $plink) && ($item_thread_top)) {
-			$plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
-			$plink = substr($plink,0,190);
+			// $plink = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . gen_link_id($mid);
+			// $plink = substr($plink,0,190);
+			$plink = $mid;
 		}
 
 		if ($datarray['obj']) {
@@ -1055,10 +1022,9 @@ class Item extends Controller {
 		$datarray['layout_mid']          = $layout_mid;
 		$datarray['public_policy']       = $public_policy;
 		$datarray['comment_policy']      = map_scope($comment_policy); 
-		$datarray['term']                = $post_tags;
+		$datarray['term']                = array_unique($post_tags, SORT_REGULAR);
 		$datarray['plink']               = $plink;
 		$datarray['route']               = $route;
-	
 
 		// A specific ACL over-rides public_policy completely
  

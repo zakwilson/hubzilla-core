@@ -121,6 +121,11 @@ class File extends DAV\Node implements DAV\IFile {
 		logger('put file: ' . basename($this->name), LOGGER_DEBUG);
 		$size = 0;
 
+		if ((! $this->auth->owner_id) || (! perm_is_allowed($this->auth->owner_id, $this->auth->observer, 'write_storage'))) {
+			logger('permission denied for put operation');
+			throw new DAV\Exception\Forbidden('Permission denied.');
+		}
+
 		// @todo only 3 values are needed
 		$c = q("SELECT * FROM channel WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
 			intval($this->auth->owner_id)

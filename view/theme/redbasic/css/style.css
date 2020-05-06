@@ -30,8 +30,8 @@ aside#region_1 {
 }
 
 aside#region_3 {
-	border-right: 1px solid transparent;
 	width: $right_aside_widthpx;
+	min-width: $left_aside_widthpx;
 	max-width: $right_aside_widthpx;
 }
 

@@ -19,6 +19,8 @@ interface NotificationInterface extends XmlSerializable
     /**
      * This method serializes the entire notification, as it is used in the
      * response body.
+     *
+     * @param Writer $writer
      */
     public function xmlSerializeFull(Writer $writer);
 

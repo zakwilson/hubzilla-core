@@ -36,6 +36,7 @@ interface IExtendedCollection extends ICollection
      * property for you.
      *
      * @param string $name
+     * @param MkCol  $mkCol
      *
      * @throws Exception\InvalidResourceType
      */

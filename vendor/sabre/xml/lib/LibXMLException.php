@@ -21,7 +21,7 @@ class LibXMLException extends ParseException
     /**
      * The error list.
      *
-     * @var \LibXMLError[]
+     * @var []LibXMLError
      */
     protected $errors;
 
@@ -30,7 +30,8 @@ class LibXMLException extends ParseException
      *
      * You should pass a list of LibXMLError objects in its constructor.
      *
-     * @param LibXMLError[] $errors
+     * @param []LibXMLError $errors
+     * @param int           $code
      * @param Throwable     $previousException
      */
     public function __construct(array $errors, int $code = 0, Throwable $previousException = null)

@@ -7,11 +7,14 @@ namespace Sabre\DAVACL;
 use Sabre\DAV;
 use Sabre\HTTP;
 
+require_once 'Sabre/DAVACL/MockACLNode.php';
+require_once 'Sabre/HTTP/ResponseMock.php';
+
 class PluginAdminTest extends \PHPUnit\Framework\TestCase
 {
     public $server;
 
-    public function setup(): void
+    public function setUp()
     {
         $principalBackend = new PrincipalBackend\Mock();
 

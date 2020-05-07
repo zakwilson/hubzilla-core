@@ -39,7 +39,7 @@ class VCard extends VObject\Document
      * @var array
      */
     public static $componentMap = [
-        'VCARD' => VCard::class,
+        'VCARD' => 'Sabre\\VObject\\Component\\VCard',
     ];
 
     /**
@@ -48,23 +48,22 @@ class VCard extends VObject\Document
      * @var array
      */
     public static $valueMap = [
-        'BINARY' => VObject\Property\Binary::class,
-        'BOOLEAN' => VObject\Property\Boolean::class,
-        'CONTENT-ID' => VObject\Property\FlatText::class,   // vCard 2.1 only
-        'DATE' => VObject\Property\VCard\Date::class,
-        'DATE-TIME' => VObject\Property\VCard\DateTime::class,
-        'DATE-AND-OR-TIME' => VObject\Property\VCard\DateAndOrTime::class, // vCard only
-        'FLOAT' => VObject\Property\FloatValue::class,
-        'INTEGER' => VObject\Property\IntegerValue::class,
-        'LANGUAGE-TAG' => VObject\Property\VCard\LanguageTag::class,
-        'PHONE-NUMBER' => VObject\Property\VCard\PhoneNumber::class, // vCard 3.0 only
-        'TIMESTAMP' => VObject\Property\VCard\TimeStamp::class,
-        'TEXT' => VObject\Property\Text::class,
-        'TIME' => VObject\Property\Time::class,
-        'UNKNOWN' => VObject\Property\Unknown::class, // jCard / jCal-only.
-        'URI' => VObject\Property\Uri::class,
-        'URL' => VObject\Property\Uri::class, // vCard 2.1 only
-        'UTC-OFFSET' => VObject\Property\UtcOffset::class,
+        'BINARY' => 'Sabre\\VObject\\Property\\Binary',
+        'BOOLEAN' => 'Sabre\\VObject\\Property\\Boolean',
+        'CONTENT-ID' => 'Sabre\\VObject\\Property\\FlatText',   // vCard 2.1 only
+        'DATE' => 'Sabre\\VObject\\Property\\VCard\\Date',
+        'DATE-TIME' => 'Sabre\\VObject\\Property\\VCard\\DateTime',
+        'DATE-AND-OR-TIME' => 'Sabre\\VObject\\Property\\VCard\\DateAndOrTime', // vCard only
+        'FLOAT' => 'Sabre\\VObject\\Property\\FloatValue',
+        'INTEGER' => 'Sabre\\VObject\\Property\\IntegerValue',
+        'LANGUAGE-TAG' => 'Sabre\\VObject\\Property\\VCard\\LanguageTag',
+        'TIMESTAMP' => 'Sabre\\VObject\\Property\\VCard\\TimeStamp',
+        'TEXT' => 'Sabre\\VObject\\Property\\Text',
+        'TIME' => 'Sabre\\VObject\\Property\\Time',
+        'UNKNOWN' => 'Sabre\\VObject\\Property\\Unknown', // jCard / jCal-only.
+        'URI' => 'Sabre\\VObject\\Property\\Uri',
+        'URL' => 'Sabre\\VObject\\Property\\Uri', // vCard 2.1 only
+        'UTC-OFFSET' => 'Sabre\\VObject\\Property\\UtcOffset',
     ];
 
     /**
@@ -74,68 +73,68 @@ class VCard extends VObject\Document
      */
     public static $propertyMap = [
         // vCard 2.1 properties and up
-        'N' => VObject\Property\Text::class,
-        'FN' => VObject\Property\FlatText::class,
-        'PHOTO' => VObject\Property\Binary::class,
-        'BDAY' => VObject\Property\VCard\DateAndOrTime::class,
-        'ADR' => VObject\Property\Text::class,
-        'LABEL' => VObject\Property\FlatText::class, // Removed in vCard 4.0
-        'TEL' => VObject\Property\FlatText::class,
-        'EMAIL' => VObject\Property\FlatText::class,
-        'MAILER' => VObject\Property\FlatText::class, // Removed in vCard 4.0
-        'GEO' => VObject\Property\FlatText::class,
-        'TITLE' => VObject\Property\FlatText::class,
-        'ROLE' => VObject\Property\FlatText::class,
-        'LOGO' => VObject\Property\Binary::class,
+        'N' => 'Sabre\\VObject\\Property\\Text',
+        'FN' => 'Sabre\\VObject\\Property\\FlatText',
+        'PHOTO' => 'Sabre\\VObject\\Property\\Binary',
+        'BDAY' => 'Sabre\\VObject\\Property\\VCard\\DateAndOrTime',
+        'ADR' => 'Sabre\\VObject\\Property\\Text',
+        'LABEL' => 'Sabre\\VObject\\Property\\FlatText', // Removed in vCard 4.0
+        'TEL' => 'Sabre\\VObject\\Property\\FlatText',
+        'EMAIL' => 'Sabre\\VObject\\Property\\FlatText',
+        'MAILER' => 'Sabre\\VObject\\Property\\FlatText', // Removed in vCard 4.0
+        'GEO' => 'Sabre\\VObject\\Property\\FlatText',
+        'TITLE' => 'Sabre\\VObject\\Property\\FlatText',
+        'ROLE' => 'Sabre\\VObject\\Property\\FlatText',
+        'LOGO' => 'Sabre\\VObject\\Property\\Binary',
         // 'AGENT'   => 'Sabre\\VObject\\Property\\',      // Todo: is an embedded vCard. Probably rare, so
                                  // not supported at the moment
-        'ORG' => VObject\Property\Text::class,
-        'NOTE' => VObject\Property\FlatText::class,
-        'REV' => VObject\Property\VCard\TimeStamp::class,
-        'SOUND' => VObject\Property\FlatText::class,
-        'URL' => VObject\Property\Uri::class,
-        'UID' => VObject\Property\FlatText::class,
-        'VERSION' => VObject\Property\FlatText::class,
-        'KEY' => VObject\Property\FlatText::class,
-        'TZ' => VObject\Property\Text::class,
+        'ORG' => 'Sabre\\VObject\\Property\\Text',
+        'NOTE' => 'Sabre\\VObject\\Property\\FlatText',
+        'REV' => 'Sabre\\VObject\\Property\\VCard\\TimeStamp',
+        'SOUND' => 'Sabre\\VObject\\Property\\FlatText',
+        'URL' => 'Sabre\\VObject\\Property\\Uri',
+        'UID' => 'Sabre\\VObject\\Property\\FlatText',
+        'VERSION' => 'Sabre\\VObject\\Property\\FlatText',
+        'KEY' => 'Sabre\\VObject\\Property\\FlatText',
+        'TZ' => 'Sabre\\VObject\\Property\\Text',
 
         // vCard 3.0 properties
-        'CATEGORIES' => VObject\Property\Text::class,
-        'SORT-STRING' => VObject\Property\FlatText::class,
-        'PRODID' => VObject\Property\FlatText::class,
-        'NICKNAME' => VObject\Property\Text::class,
-        'CLASS' => VObject\Property\FlatText::class, // Removed in vCard 4.0
+        'CATEGORIES' => 'Sabre\\VObject\\Property\\Text',
+        'SORT-STRING' => 'Sabre\\VObject\\Property\\FlatText',
+        'PRODID' => 'Sabre\\VObject\\Property\\FlatText',
+        'NICKNAME' => 'Sabre\\VObject\\Property\\Text',
+        'CLASS' => 'Sabre\\VObject\\Property\\FlatText', // Removed in vCard 4.0
 
         // rfc2739 properties
-        'FBURL' => VObject\Property\Uri::class,
-        'CAPURI' => VObject\Property\Uri::class,
-        'CALURI' => VObject\Property\Uri::class,
-        'CALADRURI' => VObject\Property\Uri::class,
+        'FBURL' => 'Sabre\\VObject\\Property\\Uri',
+        'CAPURI' => 'Sabre\\VObject\\Property\\Uri',
+        'CALURI' => 'Sabre\\VObject\\Property\\Uri',
+        'CALADRURI' => 'Sabre\\VObject\\Property\\Uri',
 
         // rfc4770 properties
-        'IMPP' => VObject\Property\Uri::class,
+        'IMPP' => 'Sabre\\VObject\\Property\\Uri',
 
         // vCard 4.0 properties
-        'SOURCE' => VObject\Property\Uri::class,
-        'XML' => VObject\Property\FlatText::class,
-        'ANNIVERSARY' => VObject\Property\VCard\DateAndOrTime::class,
-        'CLIENTPIDMAP' => VObject\Property\Text::class,
-        'LANG' => VObject\Property\VCard\LanguageTag::class,
-        'GENDER' => VObject\Property\Text::class,
-        'KIND' => VObject\Property\FlatText::class,
-        'MEMBER' => VObject\Property\Uri::class,
-        'RELATED' => VObject\Property\Uri::class,
+        'SOURCE' => 'Sabre\\VObject\\Property\\Uri',
+        'XML' => 'Sabre\\VObject\\Property\\FlatText',
+        'ANNIVERSARY' => 'Sabre\\VObject\\Property\\VCard\\DateAndOrTime',
+        'CLIENTPIDMAP' => 'Sabre\\VObject\\Property\\Text',
+        'LANG' => 'Sabre\\VObject\\Property\\VCard\\LanguageTag',
+        'GENDER' => 'Sabre\\VObject\\Property\\Text',
+        'KIND' => 'Sabre\\VObject\\Property\\FlatText',
+        'MEMBER' => 'Sabre\\VObject\\Property\\Uri',
+        'RELATED' => 'Sabre\\VObject\\Property\\Uri',
 
         // rfc6474 properties
-        'BIRTHPLACE' => VObject\Property\FlatText::class,
-        'DEATHPLACE' => VObject\Property\FlatText::class,
-        'DEATHDATE' => VObject\Property\VCard\DateAndOrTime::class,
+        'BIRTHPLACE' => 'Sabre\\VObject\\Property\\FlatText',
+        'DEATHPLACE' => 'Sabre\\VObject\\Property\\FlatText',
+        'DEATHDATE' => 'Sabre\\VObject\\Property\\VCard\\DateAndOrTime',
 
         // rfc6715 properties
-        'EXPERTISE' => VObject\Property\FlatText::class,
-        'HOBBY' => VObject\Property\FlatText::class,
-        'INTEREST' => VObject\Property\FlatText::class,
-        'ORG-DIRECTORY' => VObject\Property\FlatText::class,
+        'EXPERTISE' => 'Sabre\\VObject\\Property\\FlatText',
+        'HOBBY' => 'Sabre\\VObject\\Property\\FlatText',
+        'INTEREST' => 'Sabre\\VObject\\Property\\FlatText',
+        'ORG-DIRECTORY' => 'Sabre\\VObject\\Property\\FlatText',
     ];
 
     /**
@@ -526,8 +525,8 @@ class VCard extends VObject\Document
         $className = parent::getClassNameForPropertyName($propertyName);
 
         // In vCard 4, BINARY no longer exists, and we need URI instead.
-        if (VObject\Property\Binary::class == $className && self::VCARD40 === $this->getDocumentType()) {
-            return VObject\Property\Uri::class;
+        if ('Sabre\\VObject\\Property\\Binary' == $className && self::VCARD40 === $this->getDocumentType()) {
+            return 'Sabre\\VObject\\Property\\Uri';
         }
 
         return $className;

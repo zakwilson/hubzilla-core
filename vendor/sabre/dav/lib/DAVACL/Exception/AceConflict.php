@@ -20,6 +20,9 @@ class AceConflict extends DAV\Exception\Conflict
      * Adds in extra information in the xml response.
      *
      * This method adds the {DAV:}no-ace-conflict element as defined in rfc3744
+     *
+     * @param DAV\Server  $server
+     * @param \DOMElement $errorNode
      */
     public function serialize(DAV\Server $server, \DOMElement $errorNode)
     {

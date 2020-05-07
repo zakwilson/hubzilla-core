@@ -117,6 +117,8 @@ class PDO extends AbstractBackend implements SyncSupport, SubscriptionSupport, S
 
     /**
      * Creates the backend.
+     *
+     * @param \PDO $pdo
      */
     public function __construct(\PDO $pdo)
     {
@@ -218,6 +220,7 @@ SQL
      *
      * @param string $principalUri
      * @param string $calendarUri
+     * @param array  $properties
      *
      * @return string
      */
@@ -287,7 +290,8 @@ SQL
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param mixed $calendarId
+     * @param mixed                $calendarId
+     * @param \Sabre\DAV\PropPatch $propPatch
      */
     public function updateCalendar($calendarId, \Sabre\DAV\PropPatch $propPatch)
     {
@@ -479,6 +483,7 @@ SQL
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $calendarId
+     * @param array $uris
      *
      * @return array
      */
@@ -755,6 +760,7 @@ SQL
      * specific components, and VEVENT time-ranges.
      *
      * @param mixed $calendarId
+     * @param array $filters
      *
      * @return array
      */
@@ -1103,6 +1109,7 @@ SQL;
      *
      * @param string $principalUri
      * @param string $uri
+     * @param array  $properties
      *
      * @return mixed
      */

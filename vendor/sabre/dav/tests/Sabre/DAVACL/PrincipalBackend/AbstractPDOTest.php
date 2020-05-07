@@ -10,7 +10,7 @@ abstract class AbstractPDOTest extends \PHPUnit\Framework\TestCase
 {
     use DAV\DbTestHelperTrait;
 
-    public function setup(): void
+    public function setUp()
     {
         $this->dropTables(['principals', 'groupmembers']);
         $this->createSchema('principals');

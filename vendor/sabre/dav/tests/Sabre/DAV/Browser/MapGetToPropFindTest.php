@@ -7,9 +7,11 @@ namespace Sabre\DAV\Browser;
 use Sabre\DAV;
 use Sabre\HTTP;
 
+require_once 'Sabre/DAV/AbstractServer.php';
+
 class MapGetToPropFindTest extends DAV\AbstractServer
 {
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         $this->server->addPlugin(new MapGetToPropFind());

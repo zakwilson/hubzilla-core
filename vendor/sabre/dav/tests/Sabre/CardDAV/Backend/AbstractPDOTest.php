@@ -16,7 +16,7 @@ abstract class AbstractPDOTest extends \PHPUnit\Framework\TestCase
      */
     protected $backend;
 
-    public function setup(): void
+    public function setUp()
     {
         $this->dropTables([
             'addressbooks',
@@ -142,9 +142,11 @@ abstract class AbstractPDOTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals([], $this->backend->getAddressBooksForUser('principals/user1'));
     }
 
+    /**
+     * @expectedException \Sabre\DAV\Exception\BadRequest
+     */
     public function testCreateAddressBookUnsupportedProp()
     {
-        $this->expectException('Sabre\DAV\Exception\BadRequest');
         $this->backend->createAddressBook('principals/user1', 'book2', [
             '{DAV:}foo' => 'bar',
         ]);
@@ -271,7 +273,7 @@ abstract class AbstractPDOTest extends \PHPUnit\Framework\TestCase
 
                 switch ($k) {
                     case 'lastmodified':
-                        $this->assertIsInt($actual);
+                        $this->assertInternalType('int', $actual);
                         break;
                     case 'carddata':
                         if (is_resource($actual)) {

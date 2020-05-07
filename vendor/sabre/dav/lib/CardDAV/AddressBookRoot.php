@@ -41,7 +41,9 @@ class AddressBookRoot extends DAVACL\AbstractPrincipalCollection
      * actually located in a different path, use the $principalPrefix argument
      * to override this.
      *
-     * @param string $principalPrefix
+     * @param DAVACL\PrincipalBackend\BackendInterface $principalBackend
+     * @param Backend\BackendInterface                 $carddavBackend
+     * @param string                                   $principalPrefix
      */
     public function __construct(DAVACL\PrincipalBackend\BackendInterface $principalBackend, Backend\BackendInterface $carddavBackend, $principalPrefix = 'principals')
     {
@@ -65,6 +67,8 @@ class AddressBookRoot extends DAVACL\AbstractPrincipalCollection
      * The passed array contains principal information, and is guaranteed to
      * at least contain a uri item. Other properties may or may not be
      * supplied by the authentication backend.
+     *
+     * @param array $principal
      *
      * @return \Sabre\DAV\INode
      */

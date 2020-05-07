@@ -31,6 +31,9 @@ class Exception extends \Exception
 
     /**
      * This method allows the exception to include additional information into the WebDAV error response.
+     *
+     * @param Server      $server
+     * @param \DOMElement $errorNode
      */
     public function serialize(Server $server, \DOMElement $errorNode)
     {
@@ -40,6 +43,8 @@ class Exception extends \Exception
      * This method allows the exception to return any extra HTTP response headers.
      *
      * The headers must be returned as an array.
+     *
+     * @param Server $server
      *
      * @return array
      */

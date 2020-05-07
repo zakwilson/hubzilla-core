@@ -67,6 +67,8 @@ class Plugin extends ServerPlugin
 
     /**
      * Adds an authentication backend to the plugin.
+     *
+     * @param Backend\BackendInterface $authBackend
      */
     public function addBackend(Backend\BackendInterface $authBackend)
     {
@@ -75,6 +77,8 @@ class Plugin extends ServerPlugin
 
     /**
      * Initializes the plugin. This function is automatically called by the server.
+     *
+     * @param Server $server
      */
     public function initialize(Server $server)
     {
@@ -113,6 +117,9 @@ class Plugin extends ServerPlugin
 
     /**
      * This method is called before any HTTP method and forces users to be authenticated.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -169,6 +176,9 @@ class Plugin extends ServerPlugin
      * unsuccessful. For every auth backend there will be one reason, so usually
      * there's just one.
      *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     *
      * @return array
      */
     public function check(RequestInterface $request, ResponseInterface $response)
@@ -204,6 +214,9 @@ class Plugin extends ServerPlugin
      * This method will for example cause a HTTP Basic backend to set a
      * WWW-Authorization header, indicating to the client that it should
      * authenticate.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return array
      */

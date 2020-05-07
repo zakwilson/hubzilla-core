@@ -7,6 +7,9 @@ namespace Sabre\CardDAV;
 use Sabre\DAV;
 use Sabre\HTTP;
 
+require_once 'Sabre/CardDAV/AbstractPluginTest.php';
+require_once 'Sabre/HTTP/ResponseMock.php';
+
 class AddressBookQueryTest extends AbstractPluginTest
 {
     public function testQuery()

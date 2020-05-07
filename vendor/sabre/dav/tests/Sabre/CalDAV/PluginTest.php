@@ -26,7 +26,7 @@ class PluginTest extends \PHPUnit\Framework\TestCase
      */
     protected $caldavBackend;
 
-    public function setup(): void
+    public function setup()
     {
         $caldavNS = '{urn:ietf:params:xml:ns:caldav}';
 
@@ -349,7 +349,7 @@ END:VCALENDAR';
             }
         }
 
-        $this->assertIsArray($newCalendar);
+        $this->assertInternalType('array', $newCalendar);
 
         $keys = [
             'uri' => 'NEWCALENDAR',
@@ -394,7 +394,7 @@ END:VCALENDAR';
             }
         }
 
-        $this->assertIsArray($newCalendar);
+        $this->assertInternalType('array', $newCalendar);
 
         $keys = [
             'uri' => 'NEWCALENDAR',

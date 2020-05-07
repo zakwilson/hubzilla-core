@@ -38,6 +38,7 @@ class PropFind
      * Creates the PROPFIND object.
      *
      * @param string $path
+     * @param array  $properties
      * @param int    $depth
      * @param int    $requestType
      */

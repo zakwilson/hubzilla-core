@@ -43,8 +43,10 @@ class Component extends Node
      * an iCalendar object, this may be something like CALSCALE:GREGORIAN. To
      * ensure that this does not happen, set $defaults to false.
      *
-     * @param string $name     such as VCALENDAR, VEVENT
-     * @param bool   $defaults
+     * @param Document $root
+     * @param string   $name     such as VCALENDAR, VEVENT
+     * @param array    $children
+     * @param bool     $defaults
      */
     public function __construct(Document $root, $name, array $children = [], $defaults = true)
     {
@@ -274,7 +276,7 @@ class Component extends Node
          *
          * A higher score means the item will be lower in the list.
          * To avoid score collisions, each "score category" has a reasonable
-         * space to accommodate elements. The $key is added to the $score to
+         * space to accomodate elements. The $key is added to the $score to
          * preserve the original relative order of elements.
          *
          * @param int   $key

@@ -37,15 +37,15 @@ class VCalendar extends VObject\Document
      * @var array
      */
     public static $componentMap = [
-        'VCALENDAR' => self::class,
-        'VALARM' => VAlarm::class,
-        'VEVENT' => VEvent::class,
-        'VFREEBUSY' => VFreeBusy::class,
-        'VAVAILABILITY' => VAvailability::class,
-        'AVAILABLE' => Available::class,
-        'VJOURNAL' => VJournal::class,
-        'VTIMEZONE' => VTimeZone::class,
-        'VTODO' => VTodo::class,
+        'VCALENDAR' => 'Sabre\\VObject\\Component\\VCalendar',
+        'VALARM' => 'Sabre\\VObject\\Component\\VAlarm',
+        'VEVENT' => 'Sabre\\VObject\\Component\\VEvent',
+        'VFREEBUSY' => 'Sabre\\VObject\\Component\\VFreeBusy',
+        'VAVAILABILITY' => 'Sabre\\VObject\\Component\\VAvailability',
+        'AVAILABLE' => 'Sabre\\VObject\\Component\\Available',
+        'VJOURNAL' => 'Sabre\\VObject\\Component\\VJournal',
+        'VTIMEZONE' => 'Sabre\\VObject\\Component\\VTimeZone',
+        'VTODO' => 'Sabre\\VObject\\Component\\VTodo',
     ];
 
     /**
@@ -54,21 +54,21 @@ class VCalendar extends VObject\Document
      * @var array
      */
     public static $valueMap = [
-        'BINARY' => VObject\Property\Binary::class,
-        'BOOLEAN' => VObject\Property\Boolean::class,
-        'CAL-ADDRESS' => VObject\Property\ICalendar\CalAddress::class,
-        'DATE' => VObject\Property\ICalendar\Date::class,
-        'DATE-TIME' => VObject\Property\ICalendar\DateTime::class,
-        'DURATION' => VObject\Property\ICalendar\Duration::class,
-        'FLOAT' => VObject\Property\FloatValue::class,
-        'INTEGER' => VObject\Property\IntegerValue::class,
-        'PERIOD' => VObject\Property\ICalendar\Period::class,
-        'RECUR' => VObject\Property\ICalendar\Recur::class,
-        'TEXT' => VObject\Property\Text::class,
-        'TIME' => VObject\Property\Time::class,
-        'UNKNOWN' => VObject\Property\Unknown::class, // jCard / jCal-only.
-        'URI' => VObject\Property\Uri::class,
-        'UTC-OFFSET' => VObject\Property\UtcOffset::class,
+        'BINARY' => 'Sabre\\VObject\\Property\\Binary',
+        'BOOLEAN' => 'Sabre\\VObject\\Property\\Boolean',
+        'CAL-ADDRESS' => 'Sabre\\VObject\\Property\\ICalendar\\CalAddress',
+        'DATE' => 'Sabre\\VObject\\Property\\ICalendar\\Date',
+        'DATE-TIME' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DURATION' => 'Sabre\\VObject\\Property\\ICalendar\\Duration',
+        'FLOAT' => 'Sabre\\VObject\\Property\\FloatValue',
+        'INTEGER' => 'Sabre\\VObject\\Property\\IntegerValue',
+        'PERIOD' => 'Sabre\\VObject\\Property\\ICalendar\\Period',
+        'RECUR' => 'Sabre\\VObject\\Property\\ICalendar\\Recur',
+        'TEXT' => 'Sabre\\VObject\\Property\\Text',
+        'TIME' => 'Sabre\\VObject\\Property\\Time',
+        'UNKNOWN' => 'Sabre\\VObject\\Property\\Unknown', // jCard / jCal-only.
+        'URI' => 'Sabre\\VObject\\Property\\Uri',
+        'UTC-OFFSET' => 'Sabre\\VObject\\Property\\UtcOffset',
     ];
 
     /**
@@ -78,78 +78,78 @@ class VCalendar extends VObject\Document
      */
     public static $propertyMap = [
         // Calendar properties
-        'CALSCALE' => VObject\Property\FlatText::class,
-        'METHOD' => VObject\Property\FlatText::class,
-        'PRODID' => VObject\Property\FlatText::class,
-        'VERSION' => VObject\Property\FlatText::class,
+        'CALSCALE' => 'Sabre\\VObject\\Property\\FlatText',
+        'METHOD' => 'Sabre\\VObject\\Property\\FlatText',
+        'PRODID' => 'Sabre\\VObject\\Property\\FlatText',
+        'VERSION' => 'Sabre\\VObject\\Property\\FlatText',
 
         // Component properties
-        'ATTACH' => VObject\Property\Uri::class,
-        'CATEGORIES' => VObject\Property\Text::class,
-        'CLASS' => VObject\Property\FlatText::class,
-        'COMMENT' => VObject\Property\FlatText::class,
-        'DESCRIPTION' => VObject\Property\FlatText::class,
-        'GEO' => VObject\Property\FloatValue::class,
-        'LOCATION' => VObject\Property\FlatText::class,
-        'PERCENT-COMPLETE' => VObject\Property\IntegerValue::class,
-        'PRIORITY' => VObject\Property\IntegerValue::class,
-        'RESOURCES' => VObject\Property\Text::class,
-        'STATUS' => VObject\Property\FlatText::class,
-        'SUMMARY' => VObject\Property\FlatText::class,
+        'ATTACH' => 'Sabre\\VObject\\Property\\Uri',
+        'CATEGORIES' => 'Sabre\\VObject\\Property\\Text',
+        'CLASS' => 'Sabre\\VObject\\Property\\FlatText',
+        'COMMENT' => 'Sabre\\VObject\\Property\\FlatText',
+        'DESCRIPTION' => 'Sabre\\VObject\\Property\\FlatText',
+        'GEO' => 'Sabre\\VObject\\Property\\FloatValue',
+        'LOCATION' => 'Sabre\\VObject\\Property\\FlatText',
+        'PERCENT-COMPLETE' => 'Sabre\\VObject\\Property\\IntegerValue',
+        'PRIORITY' => 'Sabre\\VObject\\Property\\IntegerValue',
+        'RESOURCES' => 'Sabre\\VObject\\Property\\Text',
+        'STATUS' => 'Sabre\\VObject\\Property\\FlatText',
+        'SUMMARY' => 'Sabre\\VObject\\Property\\FlatText',
 
         // Date and Time Component Properties
-        'COMPLETED' => VObject\Property\ICalendar\DateTime::class,
-        'DTEND' => VObject\Property\ICalendar\DateTime::class,
-        'DUE' => VObject\Property\ICalendar\DateTime::class,
-        'DTSTART' => VObject\Property\ICalendar\DateTime::class,
-        'DURATION' => VObject\Property\ICalendar\Duration::class,
-        'FREEBUSY' => VObject\Property\ICalendar\Period::class,
-        'TRANSP' => VObject\Property\FlatText::class,
+        'COMPLETED' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DTEND' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DUE' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DTSTART' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DURATION' => 'Sabre\\VObject\\Property\\ICalendar\\Duration',
+        'FREEBUSY' => 'Sabre\\VObject\\Property\\ICalendar\\Period',
+        'TRANSP' => 'Sabre\\VObject\\Property\\FlatText',
 
         // Time Zone Component Properties
-        'TZID' => VObject\Property\FlatText::class,
-        'TZNAME' => VObject\Property\FlatText::class,
-        'TZOFFSETFROM' => VObject\Property\UtcOffset::class,
-        'TZOFFSETTO' => VObject\Property\UtcOffset::class,
-        'TZURL' => VObject\Property\Uri::class,
+        'TZID' => 'Sabre\\VObject\\Property\\FlatText',
+        'TZNAME' => 'Sabre\\VObject\\Property\\FlatText',
+        'TZOFFSETFROM' => 'Sabre\\VObject\\Property\\UtcOffset',
+        'TZOFFSETTO' => 'Sabre\\VObject\\Property\\UtcOffset',
+        'TZURL' => 'Sabre\\VObject\\Property\\Uri',
 
         // Relationship Component Properties
-        'ATTENDEE' => VObject\Property\ICalendar\CalAddress::class,
-        'CONTACT' => VObject\Property\FlatText::class,
-        'ORGANIZER' => VObject\Property\ICalendar\CalAddress::class,
-        'RECURRENCE-ID' => VObject\Property\ICalendar\DateTime::class,
-        'RELATED-TO' => VObject\Property\FlatText::class,
-        'URL' => VObject\Property\Uri::class,
-        'UID' => VObject\Property\FlatText::class,
+        'ATTENDEE' => 'Sabre\\VObject\\Property\\ICalendar\\CalAddress',
+        'CONTACT' => 'Sabre\\VObject\\Property\\FlatText',
+        'ORGANIZER' => 'Sabre\\VObject\\Property\\ICalendar\\CalAddress',
+        'RECURRENCE-ID' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'RELATED-TO' => 'Sabre\\VObject\\Property\\FlatText',
+        'URL' => 'Sabre\\VObject\\Property\\Uri',
+        'UID' => 'Sabre\\VObject\\Property\\FlatText',
 
         // Recurrence Component Properties
-        'EXDATE' => VObject\Property\ICalendar\DateTime::class,
-        'RDATE' => VObject\Property\ICalendar\DateTime::class,
-        'RRULE' => VObject\Property\ICalendar\Recur::class,
-        'EXRULE' => VObject\Property\ICalendar\Recur::class, // Deprecated since rfc5545
+        'EXDATE' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'RDATE' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'RRULE' => 'Sabre\\VObject\\Property\\ICalendar\\Recur',
+        'EXRULE' => 'Sabre\\VObject\\Property\\ICalendar\\Recur', // Deprecated since rfc5545
 
         // Alarm Component Properties
-        'ACTION' => VObject\Property\FlatText::class,
-        'REPEAT' => VObject\Property\IntegerValue::class,
-        'TRIGGER' => VObject\Property\ICalendar\Duration::class,
+        'ACTION' => 'Sabre\\VObject\\Property\\FlatText',
+        'REPEAT' => 'Sabre\\VObject\\Property\\IntegerValue',
+        'TRIGGER' => 'Sabre\\VObject\\Property\\ICalendar\\Duration',
 
         // Change Management Component Properties
-        'CREATED' => VObject\Property\ICalendar\DateTime::class,
-        'DTSTAMP' => VObject\Property\ICalendar\DateTime::class,
-        'LAST-MODIFIED' => VObject\Property\ICalendar\DateTime::class,
-        'SEQUENCE' => VObject\Property\IntegerValue::class,
+        'CREATED' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'DTSTAMP' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'LAST-MODIFIED' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'SEQUENCE' => 'Sabre\\VObject\\Property\\IntegerValue',
 
         // Request Status
-        'REQUEST-STATUS' => VObject\Property\Text::class,
+        'REQUEST-STATUS' => 'Sabre\\VObject\\Property\\Text',
 
         // Additions from draft-daboo-valarm-extensions-04
-        'ALARM-AGENT' => VObject\Property\Text::class,
-        'ACKNOWLEDGED' => VObject\Property\ICalendar\DateTime::class,
-        'PROXIMITY' => VObject\Property\Text::class,
-        'DEFAULT-ALARM' => VObject\Property\Boolean::class,
+        'ALARM-AGENT' => 'Sabre\\VObject\\Property\\Text',
+        'ACKNOWLEDGED' => 'Sabre\\VObject\\Property\\ICalendar\\DateTime',
+        'PROXIMITY' => 'Sabre\\VObject\\Property\\Text',
+        'DEFAULT-ALARM' => 'Sabre\\VObject\\Property\\Boolean',
 
         // Additions from draft-daboo-calendar-availability-05
-        'BUSYTYPE' => VObject\Property\Text::class,
+        'BUSYTYPE' => 'Sabre\\VObject\\Property\\Text',
     ];
 
     /**
@@ -276,8 +276,10 @@ class VCalendar extends VObject\Document
      * In addition, this method will cause timezone information to be stripped,
      * and normalized to UTC.
      *
-     * @param DateTimeZone $timeZone reference timezone for floating dates and
-     *                               times
+     * @param DateTimeInterface $start
+     * @param DateTimeInterface $end
+     * @param DateTimeZone      $timeZone reference timezone for floating dates and
+     *                                    times
      *
      * @return VCalendar
      */

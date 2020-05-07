@@ -6,9 +6,10 @@ namespace Sabre\DAV\Browser;
 
 use Sabre\DAV;
 
+require_once 'Sabre/DAV/AbstractServer.php';
 class GuessContentTypeTest extends DAV\AbstractServer
 {
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
         \Sabre\TestUtil::clearTempDir();
@@ -16,7 +17,7 @@ class GuessContentTypeTest extends DAV\AbstractServer
         file_put_contents(SABRE_TEMPDIR.'/somefile.hoi', 'blabla');
     }
 
-    public function tearDown(): void
+    public function tearDown()
     {
         \Sabre\TestUtil::clearTempDir();
         parent::tearDown();

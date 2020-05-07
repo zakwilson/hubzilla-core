@@ -29,6 +29,8 @@ class MapGetToPropFind extends DAV\ServerPlugin
 
     /**
      * Initializes the plugin and subscribes to events.
+     *
+     * @param DAV\Server $server
      */
     public function initialize(DAV\Server $server)
     {
@@ -38,6 +40,9 @@ class MapGetToPropFind extends DAV\ServerPlugin
 
     /**
      * This method intercepts GET requests to non-files, and changes it into an HTTP PROPFIND request.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */

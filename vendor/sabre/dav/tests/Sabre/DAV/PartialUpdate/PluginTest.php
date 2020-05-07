@@ -6,12 +6,14 @@ namespace Sabre\DAV\PartialUpdate;
 
 use Sabre\HTTP;
 
+require_once 'Sabre/DAV/PartialUpdate/FileMock.php';
+
 class PluginTest extends \Sabre\DAVServerTest
 {
     protected $node;
     protected $plugin;
 
-    public function setup(): void
+    public function setUp()
     {
         $this->node = new FileMock();
         $this->tree[] = $this->node;

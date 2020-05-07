@@ -30,6 +30,8 @@ class BasicCallBack extends AbstractBasic
      *
      * A callback must be provided to handle checking the username and
      * password.
+     *
+     * @param callable $callBack
      */
     public function __construct(callable $callBack)
     {

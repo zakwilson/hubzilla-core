@@ -34,6 +34,8 @@ class SupportedPrivilegeSet implements XmlSerializable, HtmlOutput
 
     /**
      * Constructor.
+     *
+     * @param array $privileges
      */
     public function __construct(array $privileges)
     {
@@ -65,6 +67,8 @@ class SupportedPrivilegeSet implements XmlSerializable, HtmlOutput
      * This allows serializers to be re-used for different element names.
      *
      * If you are opening new elements, you must also close them again.
+     *
+     * @param Writer $writer
      */
     public function xmlSerialize(Writer $writer)
     {
@@ -81,6 +85,8 @@ class SupportedPrivilegeSet implements XmlSerializable, HtmlOutput
      *
      * The baseUri parameter is a url to the root of the application, and can
      * be used to construct local links.
+     *
+     * @param HtmlOutputHelper $html
      *
      * @return string
      */
@@ -118,6 +124,7 @@ class SupportedPrivilegeSet implements XmlSerializable, HtmlOutput
      *
      * This is a recursive function.
      *
+     * @param Writer $writer
      * @param string $privName
      * @param array  $privilege
      */

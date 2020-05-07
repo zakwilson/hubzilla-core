@@ -30,7 +30,8 @@ abstract class AbstractBackend implements BackendInterface
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param mixed $calendarId
+     * @param mixed                $calendarId
+     * @param \Sabre\DAV\PropPatch $propPatch
      */
     public function updateCalendar($calendarId, \Sabre\DAV\PropPatch $propPatch)
     {
@@ -45,6 +46,7 @@ abstract class AbstractBackend implements BackendInterface
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $calendarId
+     * @param array $uris
      *
      * @return array
      */
@@ -101,6 +103,7 @@ abstract class AbstractBackend implements BackendInterface
      * to think of.
      *
      * @param mixed $calendarId
+     * @param array $filters
      *
      * @return array
      */
@@ -121,6 +124,9 @@ abstract class AbstractBackend implements BackendInterface
     /**
      * This method validates if a filter (as passed to calendarQuery) matches
      * the given object.
+     *
+     * @param array $object
+     * @param array $filters
      *
      * @return bool
      */

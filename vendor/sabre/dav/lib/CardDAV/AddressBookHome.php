@@ -39,7 +39,8 @@ class AddressBookHome extends DAV\Collection implements DAV\IExtendedCollection,
     /**
      * Constructor.
      *
-     * @param string $principalUri
+     * @param Backend\BackendInterface $carddavBackend
+     * @param string                   $principalUri
      */
     public function __construct(Backend\BackendInterface $carddavBackend, $principalUri)
     {
@@ -151,6 +152,7 @@ class AddressBookHome extends DAV\Collection implements DAV\IExtendedCollection,
      * Creates a new address book.
      *
      * @param string $name
+     * @param MkCol  $mkCol
      *
      * @throws DAV\Exception\InvalidResourceType
      */

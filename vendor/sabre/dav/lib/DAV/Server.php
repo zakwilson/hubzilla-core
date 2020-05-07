@@ -393,6 +393,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
      * Adds a plugin to the server.
      *
      * For more information, console the documentation of Sabre\DAV\ServerPlugin
+     *
+     * @param ServerPlugin $plugin
      */
     public function addPlugin(ServerPlugin $plugin)
     {
@@ -445,7 +447,9 @@ class Server implements LoggerAwareInterface, EmitterInterface
     /**
      * Handles a http request, and execute a method based on its name.
      *
-     * @param bool $sendResponse whether to send the HTTP response to the DAV client
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     * @param bool              $sendResponse whether to send the HTTP response to the DAV client
      */
     public function invokeMethod(RequestInterface $request, ResponseInterface $response, $sendResponse = true)
     {
@@ -704,6 +708,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
      *   * destination - Destination path
      *   * destinationExists - Whether or not the destination is an existing url (and should therefore be overwritten)
      *
+     * @param RequestInterface $request
+     *
      * @throws Exception\BadRequest           upon missing or broken request headers
      * @throws Exception\UnsupportedMediaType when trying to copy into a
      *                                        non-collection
@@ -876,7 +882,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
     /**
      * Small helper to support PROPFIND with DEPTH_INFINITY.
      *
-     * @param array $yieldFirst
+     * @param PropFind $propFind
+     * @param array    $yieldFirst
      *
      * @return \Traversable
      */
@@ -1007,6 +1014,9 @@ class Server implements LoggerAwareInterface, EmitterInterface
      * The result is returned as an array, with paths for it's keys.
      * The result may be returned out of order.
      *
+     * @param array $paths
+     * @param array $propertyNames
+     *
      * @return array
      */
     public function getPropertiesForMultiplePaths(array $paths, array $propertyNames = [])
@@ -1042,6 +1052,9 @@ class Server implements LoggerAwareInterface, EmitterInterface
      * It could be useful to call this, if you already have an instance of your
      * target node and simply want to run through the system to get a correct
      * list of properties.
+     *
+     * @param PropFind $propFind
+     * @param INode    $node
      *
      * @return bool
      */
@@ -1149,7 +1162,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
     /**
      * Use this method to create a new collection.
      *
-     * @param string $uri The new uri
+     * @param string $uri   The new uri
+     * @param MkCol  $mkCol
      *
      * @return array|null
      */
@@ -1246,6 +1260,7 @@ class Server implements LoggerAwareInterface, EmitterInterface
      * as their values.
      *
      * @param string $path
+     * @param array  $properties
      *
      * @return array
      */
@@ -1275,6 +1290,9 @@ class Server implements LoggerAwareInterface, EmitterInterface
      * Normally this method will throw 412 Precondition Failed for failures
      * related to If-None-Match, If-Match and If-Unmodified Since. It will
      * set the status to 304 Not Modified for If-Modified_since.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -1546,6 +1564,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
      *    ],
      * ]
      *
+     * @param RequestInterface $request
+     *
      * @return array
      */
     public function getIfConditions(RequestInterface $request)
@@ -1598,6 +1618,8 @@ class Server implements LoggerAwareInterface, EmitterInterface
     /**
      * Returns an array with resourcetypes for a node.
      *
+     * @param INode $node
+     *
      * @return array
      */
     public function getResourceTypeForNode(INode $node)
@@ -1642,7 +1664,9 @@ class Server implements LoggerAwareInterface, EmitterInterface
     }
 
     /**
+     * @param Writer $w
      * @param $fileProperties
+     * @param bool $strip404s
      */
     private function writeMultiStatus(Writer $w, $fileProperties, bool $strip404s)
     {

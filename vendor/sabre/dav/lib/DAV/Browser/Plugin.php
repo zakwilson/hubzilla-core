@@ -70,6 +70,8 @@ class Plugin extends DAV\ServerPlugin
 
     /**
      * Initializes the plugin and subscribes to events.
+     *
+     * @param DAV\Server $server
      */
     public function initialize(DAV\Server $server)
     {
@@ -86,6 +88,9 @@ class Plugin extends DAV\ServerPlugin
      * This method intercepts GET requests that have ?sabreAction=info
      * appended to the URL.
      *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     *
      * @return bool
      */
     public function httpGetEarly(RequestInterface $request, ResponseInterface $response)
@@ -98,6 +103,9 @@ class Plugin extends DAV\ServerPlugin
 
     /**
      * This method intercepts GET requests to collections and returns the html.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -151,6 +159,9 @@ class Plugin extends DAV\ServerPlugin
 
     /**
      * Handles POST requests for tree operations.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -488,8 +499,9 @@ HTML;
      * This specifically generates the interfaces for creating new files, and
      * creating new directories.
      *
-     * @param mixed  $output
-     * @param string $path
+     * @param DAV\INode $node
+     * @param mixed     $output
+     * @param string    $path
      */
     public function htmlActionsPanel(DAV\INode $node, &$output, $path)
     {
@@ -618,6 +630,7 @@ HTML;
     /**
      * Maps a resource type to a human-readable string and icon.
      *
+     * @param array     $resourceTypes
      * @param DAV\INode $node
      *
      * @return array

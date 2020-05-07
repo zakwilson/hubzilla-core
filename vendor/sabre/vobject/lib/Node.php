@@ -115,6 +115,8 @@ abstract class Node implements \IteratorAggregate, \ArrayAccess, \Countable, \Js
      * Sets the overridden iterator.
      *
      * Note that this is not actually part of the iterator interface
+     *
+     * @param ElementList $iterator
      */
     public function setIterator(ElementList $iterator)
     {

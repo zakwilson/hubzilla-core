@@ -93,6 +93,8 @@ class FloatValue extends Property
     /**
      * Hydrate data from a XML subtree, as it would appear in a xCard or xCal
      * object.
+     *
+     * @param array $value
      */
     public function setXmlValue(array $value)
     {

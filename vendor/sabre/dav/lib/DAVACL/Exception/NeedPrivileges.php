@@ -36,6 +36,7 @@ class NeedPrivileges extends DAV\Exception\Forbidden
      * Constructor.
      *
      * @param string $uri
+     * @param array  $privileges
      */
     public function __construct($uri, array $privileges)
     {
@@ -49,6 +50,9 @@ class NeedPrivileges extends DAV\Exception\Forbidden
      * Adds in extra information in the xml response.
      *
      * This method adds the {DAV:}need-privileges element as defined in rfc3744
+     *
+     * @param DAV\Server  $server
+     * @param \DOMElement $errorNode
      */
     public function serialize(DAV\Server $server, \DOMElement $errorNode)
     {

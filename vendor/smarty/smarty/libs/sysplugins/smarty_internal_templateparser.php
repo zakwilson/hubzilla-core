@@ -2169,13 +2169,8 @@ class Smarty_Internal_Templateparser
     // line 255 "../smarty/lexer/smarty_internal_templateparser.y"
     public function yy_r2()
     {
-    	$text = $this->yystack[ $this->yyidx + 0 ]->minor;
-
-	    if ((string)$text == '') {
-	    	$this->current_buffer->append_subtree($this, null);
-	    }
-
-	    $this->current_buffer->append_subtree($this, new Smarty_Internal_ParseTree_Text($text, $this->strip));
+        $this->current_buffer->append_subtree($this,
+            $this->compiler->processText($this->yystack[ $this->yyidx + 0 ]->minor));
     }
 
     // line 259 "../smarty/lexer/smarty_internal_templateparser.y"
@@ -2257,7 +2252,7 @@ class Smarty_Internal_Templateparser
                 -$this->compiler->getRdelLength()));
         if ($tag == 'strip') {
             $this->strip = true;
-            $this->_retvalue = null;
+            $this->_retvalue = null;;
         } else {
             if (defined($tag)) {
                 if ($this->security) {

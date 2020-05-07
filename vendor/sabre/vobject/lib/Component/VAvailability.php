@@ -26,6 +26,9 @@ class VAvailability extends VObject\Component
      *
      * https://tools.ietf.org/html/draft-daboo-calendar-availability-05#section-3.1
      *
+     * @param DateTimeInterface $start
+     * @param DateTimeInterface $end
+     *
      * @return bool
      */
     public function isInTimeRange(DateTimeInterface $start, DateTimeInterface $end)

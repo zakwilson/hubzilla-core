@@ -7,9 +7,12 @@ namespace Sabre\DAV\Locks;
 use Sabre\DAV;
 use Sabre\HTTP;
 
+require_once 'Sabre/HTTP/ResponseMock.php';
+require_once 'Sabre/TestUtil.php';
+
 class MSWordTest extends \PHPUnit\Framework\TestCase
 {
-    public function teardown(): void
+    public function tearDown()
     {
         \Sabre\TestUtil::clearTempDir();
     }

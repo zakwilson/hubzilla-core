@@ -32,6 +32,8 @@ class VCFExportPlugin extends DAV\ServerPlugin
 
     /**
      * Initializes the plugin and registers event handlers.
+     *
+     * @param DAV\Server $server
      */
     public function initialize(DAV\Server $server)
     {
@@ -46,6 +48,9 @@ class VCFExportPlugin extends DAV\ServerPlugin
 
     /**
      * Intercepts GET requests on addressbook urls ending with ?export.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -106,6 +111,8 @@ class VCFExportPlugin extends DAV\ServerPlugin
 
     /**
      * Merges all vcard objects, and builds one big vcf export.
+     *
+     * @param array $nodes
      *
      * @return string
      */

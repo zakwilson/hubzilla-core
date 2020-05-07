@@ -59,7 +59,8 @@ interface BackendInterface
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param string $path
+     * @param string               $path
+     * @param \Sabre\DAV\PropPatch $propPatch
      */
     public function updatePrincipal($path, \Sabre\DAV\PropPatch $propPatch);
 
@@ -88,6 +89,7 @@ interface BackendInterface
      * from working.
      *
      * @param string $prefixPath
+     * @param array  $searchProperties
      * @param string $test
      *
      * @return array
@@ -138,6 +140,7 @@ interface BackendInterface
      * The principals should be passed as a list of uri's.
      *
      * @param string $principal
+     * @param array  $members
      */
     public function setGroupMemberSet($principal, array $members);
 }

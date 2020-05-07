@@ -18,7 +18,7 @@ class SpecificationTest extends \PHPUnit\Framework\TestCase
 {
     protected $server;
 
-    public function setup(): void
+    public function setUp()
     {
         $tree = [
             new File(SABRE_TEMPDIR.'/foobar.txt'),
@@ -32,7 +32,7 @@ class SpecificationTest extends \PHPUnit\Framework\TestCase
         $this->server = $server;
     }
 
-    public function teardown(): void
+    public function tearDown()
     {
         \Sabre\TestUtil::clearTempDir();
     }

@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v10.21.0",
-        "version_normalized": "10.21.0.0",
+        "version": "v10.7.0",
+        "version_normalized": "10.7.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "74462f4b06e0f3b006d43cb101226f9d0e1219b7"
+            "reference": "4677050d31be2da817e1d23d0bacb81fb4b37cb3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/74462f4b06e0f3b006d43cb101226f9d0e1219b7",
-            "reference": "74462f4b06e0f3b006d43cb101226f9d0e1219b7",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/4677050d31be2da817e1d23d0bacb81fb4b37cb3",
+            "reference": "4677050d31be2da817e1d23d0bacb81fb4b37cb3",
             "shasum": ""
         },
-        "time": "2020-05-06T06:34:07+00:00",
+        "time": "2020-01-04T05:46:30+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -54,12 +54,6 @@
             "selection",
             "upload",
             "widget"
-        ],
-        "funding": [
-            {
-                "url": "https://github.com/blueimp",
-                "type": "github"
-            }
         ]
     },
     {
@@ -359,8 +353,7 @@
             "codecs",
             "php",
             "tags"
-        ],
-        "abandoned": true
+        ]
     },
     {
         "name": "michelf/php-markdown",
@@ -508,23 +501,23 @@
     },
     {
         "name": "psr/log",
-        "version": "1.1.3",
-        "version_normalized": "1.1.3.0",
+        "version": "1.1.2",
+        "version_normalized": "1.1.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-fig/log.git",
-            "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
+            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
-            "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/446d54b4cb6bf489fc9d75f55843658e6f25d801",
+            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2020-03-23T09:12:05+00:00",
+        "time": "2019-11-01T11:05:21+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -557,17 +550,17 @@
     },
     {
         "name": "ramsey/uuid",
-        "version": "3.9.3",
-        "version_normalized": "3.9.3.0",
+        "version": "3.9.2",
+        "version_normalized": "3.9.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ramsey/uuid.git",
-            "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92"
+            "reference": "7779489a47d443f845271badbdcedfe4df8e06fb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ramsey/uuid/zipball/7e1633a6964b48589b142d60542f9ed31bd37a92",
-            "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92",
+            "url": "https://api.github.com/repos/ramsey/uuid/zipball/7779489a47d443f845271badbdcedfe4df8e06fb",
+            "reference": "7779489a47d443f845271badbdcedfe4df8e06fb",
             "shasum": ""
         },
         "require": {
@@ -601,7 +594,7 @@
             "ramsey/uuid-console": "A console application for generating UUIDs with ramsey/uuid",
             "ramsey/uuid-doctrine": "Allows the use of Ramsey\\Uuid\\Uuid as Doctrine field type."
         },
-        "time": "2020-02-21T04:36:14+00:00",
+        "time": "2019-12-17T08:18:51+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -646,17 +639,17 @@
     },
     {
         "name": "sabre/dav",
-        "version": "4.1.0",
-        "version_normalized": "4.1.0.0",
+        "version": "4.0.3",
+        "version_normalized": "4.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/dav.git",
-            "reference": "8f6f4d272504ee8424e1d0a47d6efc7772de2270"
+            "reference": "b793fb4ce27cf0f981b540ad771281c430ffe818"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/dav/zipball/8f6f4d272504ee8424e1d0a47d6efc7772de2270",
-            "reference": "8f6f4d272504ee8424e1d0a47d6efc7772de2270",
+            "url": "https://api.github.com/repos/sabre-io/dav/zipball/b793fb4ce27cf0f981b540ad771281c430ffe818",
+            "reference": "b793fb4ce27cf0f981b540ad771281c430ffe818",
             "shasum": ""
         },
         "require": {
@@ -670,27 +663,25 @@
             "ext-simplexml": "*",
             "ext-spl": "*",
             "lib-libxml": ">=2.7.0",
-            "php": "^7.1.0",
+            "php": ">=7.0.0",
             "psr/log": "^1.0",
             "sabre/event": "^5.0",
-            "sabre/http": "^5.0.5",
+            "sabre/http": "^5.0",
             "sabre/uri": "^2.0",
-            "sabre/vobject": "^4.2.1",
+            "sabre/vobject": "^4.2.0-alpha1",
             "sabre/xml": "^2.0.1"
         },
         "require-dev": {
             "evert/phpdoc-md": "~0.1.0",
-            "friendsofphp/php-cs-fixer": "~2.16.1",
             "monolog/monolog": "^1.18",
-            "phpstan/phpstan": "^0.12",
-            "phpunit/phpunit": "^7.5 || ^8.5 || ^9.0"
+            "phpunit/phpunit": "^6"
         },
         "suggest": {
             "ext-curl": "*",
             "ext-imap": "*",
             "ext-pdo": "*"
         },
-        "time": "2020-03-20T08:55:46+00:00",
+        "time": "2020-01-10T07:52:45+00:00",
         "bin": [
             "bin/sabredav",
             "bin/naturalselection"
@@ -729,27 +720,27 @@
     },
     {
         "name": "sabre/event",
-        "version": "5.1.0",
-        "version_normalized": "5.1.0.0",
+        "version": "5.0.3",
+        "version_normalized": "5.0.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/event.git",
-            "reference": "d00a17507af0e7544cfe17096372f5d733e3b276"
+            "reference": "f5cf802d240df1257866d8813282b98aee3bc548"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/event/zipball/d00a17507af0e7544cfe17096372f5d733e3b276",
-            "reference": "d00a17507af0e7544cfe17096372f5d733e3b276",
+            "url": "https://api.github.com/repos/sabre-io/event/zipball/f5cf802d240df1257866d8813282b98aee3bc548",
+            "reference": "f5cf802d240df1257866d8813282b98aee3bc548",
             "shasum": ""
         },
         "require": {
-            "php": "^7.1"
+            "php": ">=7.0"
         },
         "require-dev": {
-            "friendsofphp/php-cs-fixer": "~2.16.1",
-            "phpunit/phpunit": "^7 || ^8"
+            "phpunit/phpunit": ">=6",
+            "sabre/cs": "~1.0.0"
         },
-        "time": "2020-01-31T18:52:29+00:00",
+        "time": "2018-03-05T13:55:47+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -791,35 +782,34 @@
     },
     {
         "name": "sabre/http",
-        "version": "5.1.0",
-        "version_normalized": "5.1.0.0",
+        "version": "5.0.5",
+        "version_normalized": "5.0.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/http.git",
-            "reference": "23446999f1f6e62892bbd89745070aa902dd3539"
+            "reference": "85962a2ed867e7e5beb9f9d3a15cd53cd521a09b"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/http/zipball/23446999f1f6e62892bbd89745070aa902dd3539",
-            "reference": "23446999f1f6e62892bbd89745070aa902dd3539",
+            "url": "https://api.github.com/repos/sabre-io/http/zipball/85962a2ed867e7e5beb9f9d3a15cd53cd521a09b",
+            "reference": "85962a2ed867e7e5beb9f9d3a15cd53cd521a09b",
             "shasum": ""
         },
         "require": {
             "ext-ctype": "*",
             "ext-curl": "*",
             "ext-mbstring": "*",
-            "php": "^7.1",
+            "php": "^7.0",
             "sabre/event": ">=4.0 <6.0",
             "sabre/uri": "^2.0"
         },
         "require-dev": {
-            "friendsofphp/php-cs-fixer": "~2.16.1",
-            "phpunit/phpunit": "^7.0 || ^8.0"
+            "phpunit/phpunit": "^6.0 || ^7.0"
         },
         "suggest": {
             "ext-curl": " to make http requests with the Client class"
         },
-        "time": "2020-01-31T20:07:09+00:00",
+        "time": "2019-11-28T19:35:25+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -850,27 +840,26 @@
     },
     {
         "name": "sabre/uri",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "2.1.3",
+        "version_normalized": "2.1.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/uri.git",
-            "reference": "059d11012603be2e32ddb7543602965563ddbb09"
+            "reference": "18f454324f371cbcabdad3d0d3755b4b0182095d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/uri/zipball/059d11012603be2e32ddb7543602965563ddbb09",
-            "reference": "059d11012603be2e32ddb7543602965563ddbb09",
+            "url": "https://api.github.com/repos/sabre-io/uri/zipball/18f454324f371cbcabdad3d0d3755b4b0182095d",
+            "reference": "18f454324f371cbcabdad3d0d3755b4b0182095d",
             "shasum": ""
         },
         "require": {
-            "php": "^7.1"
+            "php": ">=7"
         },
         "require-dev": {
-            "friendsofphp/php-cs-fixer": "~2.16.1",
-            "phpunit/phpunit": "^7 || ^8"
+            "phpunit/phpunit": "^6"
         },
-        "time": "2020-01-31T18:53:43+00:00",
+        "time": "2019-09-09T23:00:25+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -903,32 +892,31 @@
     },
     {
         "name": "sabre/vobject",
-        "version": "4.3.0",
-        "version_normalized": "4.3.0.0",
+        "version": "4.2.1",
+        "version_normalized": "4.2.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/vobject.git",
-            "reference": "5b2248d965160f93053f3a24704794a13a22a1bb"
+            "reference": "6d7476fbd227ae285029c19ad518cd451336038c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/5b2248d965160f93053f3a24704794a13a22a1bb",
-            "reference": "5b2248d965160f93053f3a24704794a13a22a1bb",
+            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/6d7476fbd227ae285029c19ad518cd451336038c",
+            "reference": "6d7476fbd227ae285029c19ad518cd451336038c",
             "shasum": ""
         },
         "require": {
             "ext-mbstring": "*",
-            "php": "^7.1",
-            "sabre/xml": "^2.1"
+            "php": ">=5.5",
+            "sabre/xml": ">=1.5 <3.0"
         },
         "require-dev": {
-            "friendsofphp/php-cs-fixer": "~2.16.1",
-            "phpunit/phpunit": "^7 || ^8"
+            "phpunit/phpunit": "> 4.8.35, <6.0.0"
         },
         "suggest": {
             "hoa/bench": "If you would like to run the benchmark scripts"
         },
-        "time": "2020-01-31T18:50:58+00:00",
+        "time": "2019-12-18T19:29:43+00:00",
         "bin": [
             "bin/vobject",
             "bin/generate_vcards"
@@ -1002,17 +990,17 @@
     },
     {
         "name": "sabre/xml",
-        "version": "2.2.0",
-        "version_normalized": "2.2.0.0",
+        "version": "2.1.3",
+        "version_normalized": "2.1.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/xml.git",
-            "reference": "705f5cbf7f4fb1e3dd47173e3f026892818c8d46"
+            "reference": "f08a58f57e2b0d7df769a432756aa371417ab9eb"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/xml/zipball/705f5cbf7f4fb1e3dd47173e3f026892818c8d46",
-            "reference": "705f5cbf7f4fb1e3dd47173e3f026892818c8d46",
+            "url": "https://api.github.com/repos/sabre-io/xml/zipball/f08a58f57e2b0d7df769a432756aa371417ab9eb",
+            "reference": "f08a58f57e2b0d7df769a432756aa371417ab9eb",
             "shasum": ""
         },
         "require": {
@@ -1020,14 +1008,13 @@
             "ext-xmlreader": "*",
             "ext-xmlwriter": "*",
             "lib-libxml": ">=2.6.20",
-            "php": "^7.1",
+            "php": ">=7.0",
             "sabre/uri": ">=1.0,<3.0.0"
         },
         "require-dev": {
-            "friendsofphp/php-cs-fixer": "~2.16.1",
-            "phpunit/phpunit": "^7 || ^8"
+            "phpunit/phpunit": "^6"
         },
-        "time": "2020-01-31T18:52:58+00:00",
+        "time": "2019-08-14T15:41:34+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1067,17 +1054,17 @@
     },
     {
         "name": "simplepie/simplepie",
-        "version": "1.5.5",
-        "version_normalized": "1.5.5.0",
+        "version": "1.5.4",
+        "version_normalized": "1.5.4.0",
         "source": {
             "type": "git",
             "url": "https://github.com/simplepie/simplepie.git",
-            "reference": "ae49e2201b6da9c808e5dac437aca356a11831b4"
+            "reference": "f4c8246511a38fc9d99a59fb42f61eeeafb31663"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/ae49e2201b6da9c808e5dac437aca356a11831b4",
-            "reference": "ae49e2201b6da9c808e5dac437aca356a11831b4",
+            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/f4c8246511a38fc9d99a59fb42f61eeeafb31663",
+            "reference": "f4c8246511a38fc9d99a59fb42f61eeeafb31663",
             "shasum": ""
         },
         "require": {
@@ -1096,7 +1083,7 @@
             "ext-mbstring": "",
             "mf2/mf2": "Microformat module that allows for parsing HTML for microformats"
         },
-        "time": "2020-05-01T12:23:14+00:00",
+        "time": "2019-11-23T07:05:15+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1119,8 +1106,8 @@
                 "role": "Creator, alumnus developer"
             },
             {
-                "name": "Sam Sneddon",
-                "homepage": "https://gsnedders.com/",
+                "name": "Geoffrey Sneddon",
+                "homepage": "http://gsnedders.com/",
                 "role": "Alumnus developer"
             },
             {
@@ -1138,33 +1125,32 @@
             "rss"
         ],
         "support": {
-            "source": "https://github.com/simplepie/simplepie/tree/1.5.5",
+            "source": "https://github.com/simplepie/simplepie/tree/master",
             "issues": "https://github.com/simplepie/simplepie/issues"
         }
     },
     {
         "name": "smarty/smarty",
-        "version": "v3.1.36",
-        "version_normalized": "3.1.36.0",
+        "version": "v3.1.34",
+        "version_normalized": "3.1.34.0",
         "source": {
             "type": "git",
             "url": "https://github.com/smarty-php/smarty.git",
-            "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451"
+            "reference": "c9f0de05f41b9e52798b268ab1e625fac3b8578c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/fd148f7ade295014fff77f89ee3d5b20d9d55451",
-            "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451",
+            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/c9f0de05f41b9e52798b268ab1e625fac3b8578c",
+            "reference": "c9f0de05f41b9e52798b268ab1e625fac3b8578c",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2"
         },
         "require-dev": {
-            "phpunit/phpunit": "6.4.1",
-            "smarty/smarty-lexer": "^3.1"
+            "phpunit/phpunit": "6.4.1"
         },
-        "time": "2020-04-14T14:44:26+00:00",
+        "time": "2019-02-28T06:42:20+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1203,17 +1189,17 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.15.0",
-        "version_normalized": "1.15.0.0",
+        "version": "v1.13.1",
+        "version_normalized": "1.13.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",
-            "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14"
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
-            "reference": "4719fa9c18b0464d399f1a63bf624b42b6fa8d14",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
             "shasum": ""
         },
         "require": {
@@ -1222,11 +1208,11 @@
         "suggest": {
             "ext-ctype": "For best performance"
         },
-        "time": "2020-02-27T09:26:54+00:00",
+        "time": "2019-11-27T13:56:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.15-dev"
+                "dev-master": "1.13-dev"
             }
         },
         "installation-source": "dist",
@@ -1259,20 +1245,6 @@
             "ctype",
             "polyfill",
             "portable"
-        ],
-        "funding": [
-            {
-                "url": "https://symfony.com/sponsor",
-                "type": "custom"
-            },
-            {
-                "url": "https://github.com/fabpot",
-                "type": "github"
-            },
-            {
-                "url": "https://tidelift.com/funding/github/packagist/symfony/symfony",
-                "type": "tidelift"
-            }
         ]
     },
     {

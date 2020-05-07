@@ -22,6 +22,8 @@ abstract class ServerPlugin
      * addPlugin is called.
      *
      * This method should set up the required event subscriptions.
+     *
+     * @param Server $server
      */
     abstract public function initialize(Server $server);
 

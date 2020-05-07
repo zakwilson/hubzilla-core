@@ -51,7 +51,9 @@ abstract class AbstractPrincipalCollection extends DAV\Collection implements IPr
      * default is 'principals', if your principals are stored in a different
      * collection, override $principalPrefix
      *
-     * @param string $principalPrefix
+     *
+     * @param PrincipalBackend\BackendInterface $principalBackend
+     * @param string                            $principalPrefix
      */
     public function __construct(PrincipalBackend\BackendInterface $principalBackend, $principalPrefix = 'principals')
     {
@@ -65,6 +67,8 @@ abstract class AbstractPrincipalCollection extends DAV\Collection implements IPr
      * The passed array contains principal information, and is guaranteed to
      * at least contain a uri item. Other properties may or may not be
      * supplied by the authentication backend.
+     *
+     * @param array $principalInfo
      *
      * @return DAV\INode
      */
@@ -138,6 +142,7 @@ abstract class AbstractPrincipalCollection extends DAV\Collection implements IPr
      * This method should simply return a list of 'child names', which may be
      * used to call $this->getChild in the future.
      *
+     * @param array  $searchProperties
      * @param string $test
      *
      * @return array

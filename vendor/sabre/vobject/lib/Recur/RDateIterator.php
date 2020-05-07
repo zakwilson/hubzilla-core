@@ -24,7 +24,8 @@ class RDateIterator implements Iterator
     /**
      * Creates the Iterator.
      *
-     * @param string|array $rrule
+     * @param string|array      $rrule
+     * @param DateTimeInterface $start
      */
     public function __construct($rrule, DateTimeInterface $start)
     {
@@ -106,6 +107,8 @@ class RDateIterator implements Iterator
     /**
      * This method allows you to quickly go to the next occurrence after the
      * specified date.
+     *
+     * @param DateTimeInterface $dt
      */
     public function fastForward(DateTimeInterface $dt)
     {

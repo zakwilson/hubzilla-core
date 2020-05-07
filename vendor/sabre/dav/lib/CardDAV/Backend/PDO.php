@@ -44,6 +44,8 @@ class PDO extends AbstractBackend implements SyncSupport
 
     /**
      * Sets up the object.
+     *
+     * @param \PDO $pdo
      */
     public function __construct(\PDO $pdo)
     {
@@ -91,7 +93,8 @@ class PDO extends AbstractBackend implements SyncSupport
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param string $addressBookId
+     * @param string               $addressBookId
+     * @param \Sabre\DAV\PropPatch $propPatch
      */
     public function updateAddressBook($addressBookId, \Sabre\DAV\PropPatch $propPatch)
     {
@@ -140,6 +143,7 @@ class PDO extends AbstractBackend implements SyncSupport
      *
      * @param string $principalUri
      * @param string $url          just the 'basename' of the url
+     * @param array  $properties
      *
      * @return int Last insert id
      */
@@ -265,6 +269,7 @@ class PDO extends AbstractBackend implements SyncSupport
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $addressBookId
+     * @param array $uris
      *
      * @return array
      */

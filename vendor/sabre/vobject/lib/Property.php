@@ -123,6 +123,8 @@ abstract class Property extends Node
 
     /**
      * Sets a multi-valued property.
+     *
+     * @param array $parts
      */
     public function setParts(array $parts)
     {
@@ -260,6 +262,8 @@ abstract class Property extends Node
      * Sets the JSON value, as it would appear in a jCard or jCal object.
      *
      * The value must always be an array.
+     *
+     * @param array $value
      */
     public function setJsonValue(array $value)
     {
@@ -305,6 +309,8 @@ abstract class Property extends Node
     /**
      * Hydrate data from a XML subtree, as it would appear in a xCard or xCal
      * object.
+     *
+     * @param array $value
      */
     public function setXmlValue(array $value)
     {

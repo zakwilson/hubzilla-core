@@ -26,6 +26,7 @@ abstract class AbstractBackend implements BackendInterface
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $addressBookId
+     * @param array $uris
      *
      * @return array
      */

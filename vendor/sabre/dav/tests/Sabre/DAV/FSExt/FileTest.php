@@ -4,14 +4,16 @@ declare(strict_types=1);
 
 namespace Sabre\DAV\FSExt;
 
+require_once 'Sabre/TestUtil.php';
+
 class FileTest extends \PHPUnit\Framework\TestCase
 {
-    public function setup(): void
+    public function setUp()
     {
         file_put_contents(SABRE_TEMPDIR.'/file.txt', 'Contents');
     }
 
-    public function teardown(): void
+    public function tearDown()
     {
         \Sabre\TestUtil::clearTempDir();
     }

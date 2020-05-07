@@ -44,6 +44,9 @@ class Mock implements BackendInterface
      *
      * principals/users/[username]
      *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     *
      * @return array
      */
     public function check(RequestInterface $request, ResponseInterface $response)
@@ -74,6 +77,9 @@ class Mock implements BackendInterface
      * WWW-Authenticate headers may already have been set, and you'll want to
      * append your own WWW-Authenticate header instead of overwriting the
      * existing one.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
     public function challenge(RequestInterface $request, ResponseInterface $response)
     {

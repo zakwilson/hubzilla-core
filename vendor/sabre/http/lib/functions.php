@@ -29,6 +29,8 @@ use InvalidArgumentException;
  * See:
  *   http://tools.ietf.org/html/rfc7231#section-7.1.1.1
  *
+ * @param string $dateString
+ *
  * @return bool|DateTime
  */
 function parseDate(string $dateString)
@@ -73,6 +75,10 @@ function parseDate(string $dateString)
 
 /**
  * Transforms a DateTime object to a valid HTTP/1.1 Date header value.
+ *
+ * @param DateTime $dateTime
+ *
+ * @return string
  */
 function toDate(DateTime $dateTime): string
 {
@@ -101,6 +107,7 @@ function toDate(DateTime $dateTime): string
  * implying that no accept header was sent.
  *
  * @param string|null $acceptHeaderValue
+ * @param array       $availableOptions
  *
  * @return string|null
  */
@@ -211,6 +218,8 @@ function negotiateContentType($acceptHeaderValue, array $availableOptions)
  * uses them.
  *
  * @param string|string[] $input
+ *
+ * @return array
  */
 function parsePrefer($input): array
 {
@@ -294,7 +303,7 @@ function getHeaderValues($values, $values2 = null): array
         $values = array_merge($values, (array) $values2);
     }
 
-    $result = [];
+    $result = array();
     foreach ($values as $l1) {
         foreach (explode(',', $l1) as $l2) {
             $result[] = trim($l2);
@@ -311,6 +320,10 @@ function getHeaderValues($values, $values2 = null): array
  * 2. subtype
  * 3. quality
  * 4. parameters
+ *
+ * @param string $str
+ *
+ * @return array
  */
 function parseMimeType(string $str): array
 {

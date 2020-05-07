@@ -39,7 +39,8 @@ class Calendar implements ICalendar, DAV\IProperties, DAV\Sync\ISyncCollection, 
     /**
      * Constructor.
      *
-     * @param array $calendarInfo
+     * @param Backend\BackendInterface $caldavBackend
+     * @param array                    $calendarInfo
      */
     public function __construct(Backend\BackendInterface $caldavBackend, $calendarInfo)
     {
@@ -65,6 +66,8 @@ class Calendar implements ICalendar, DAV\IProperties, DAV\Sync\ISyncCollection, 
      *
      * To update specific properties, call the 'handle' method on this object.
      * Read the PropPatch documentation for more information.
+     *
+     * @param PropPatch $propPatch
      */
     public function propPatch(PropPatch $propPatch)
     {
@@ -346,6 +349,8 @@ class Calendar implements ICalendar, DAV\IProperties, DAV\Sync\ISyncCollection, 
      *
      * The list of filters are specified as an array. The exact array is
      * documented by Sabre\CalDAV\CalendarQueryParser.
+     *
+     * @param array $filters
      *
      * @return array
      */

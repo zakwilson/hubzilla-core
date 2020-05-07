@@ -6,9 +6,11 @@ namespace Sabre\DAV;
 
 use Sabre\HTTP;
 
+require_once 'Sabre/TestUtil.php';
+
 class Issue33Test extends \PHPUnit\Framework\TestCase
 {
-    public function setup(): void
+    public function setUp()
     {
         \Sabre\TestUtil::clearTempDir();
     }

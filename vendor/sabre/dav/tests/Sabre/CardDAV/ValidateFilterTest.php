@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Sabre\CardDAV;
 
+require_once 'Sabre/CardDAV/AbstractPluginTest.php';
+
 class ValidateFilterTest extends AbstractPluginTest
 {
     /**
@@ -14,7 +16,7 @@ class ValidateFilterTest extends AbstractPluginTest
      * @param string|null $message
      * @dataProvider data
      */
-    public function testFilter($input, $filters, $test, $result, $message = '')
+    public function testFilter($input, $filters, $test, $result, $message = null)
     {
         if ($result) {
             $this->assertTrue($this->plugin->validateFilters($input, $filters, $test), $message);

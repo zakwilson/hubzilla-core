@@ -40,7 +40,8 @@ interface NotificationSupport extends BackendInterface
      *
      * This may be called by a client once it deems a notification handled.
      *
-     * @param string $principalUri
+     * @param string                $principalUri
+     * @param NotificationInterface $notification
      */
     public function deleteNotification($principalUri, NotificationInterface $notification);
 

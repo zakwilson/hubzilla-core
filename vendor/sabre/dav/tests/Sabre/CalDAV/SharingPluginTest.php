@@ -6,17 +6,16 @@ namespace Sabre\CalDAV;
 
 use Sabre\DAV;
 use Sabre\DAV\Xml\Element\Sharee;
-use Sabre\DAVServerTest;
 use Sabre\HTTP;
 
-class SharingPluginTest extends DAVServerTest
+class SharingPluginTest extends \Sabre\DAVServerTest
 {
     protected $setupCalDAV = true;
     protected $setupCalDAVSharing = true;
     protected $setupACL = true;
     protected $autoLogin = 'user1';
 
-    public function setup(): void
+    public function setUp()
     {
         $this->caldavCalendars = [
             [
@@ -52,9 +51,11 @@ class SharingPluginTest extends DAVServerTest
         );
     }
 
+    /**
+     * @expectedException \LogicException
+     */
     public function testSetupWithoutCoreSharingPlugin()
     {
-        $this->expectException('LogicException');
         $server = new DAV\Server();
         $server->addPlugin(
             new SharingPlugin()
@@ -179,7 +180,7 @@ RRR;
 
         $request->setBody($xml);
 
-        $this->request($request, 200);
+        $response = $this->request($request, 200);
 
         $this->assertEquals(
             [
@@ -229,7 +230,7 @@ RRR;
 
         $request->setBody($xml);
 
-        $this->request($request, 403);
+        $response = $this->request($request, 403);
     }
 
     public function testInviteReply()
@@ -288,7 +289,7 @@ RRR;
 
         // If the plugin did not handle this request, it must ensure that the
         // body is still accessible by other plugins.
-        $this->assertEquals($xml, $request->getBody());
+        $this->assertEquals($xml, $request->getBody(true));
     }
 
     public function testPostWithoutContentType()

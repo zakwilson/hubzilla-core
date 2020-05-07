@@ -450,6 +450,8 @@ class Client extends EventEmitter
      *   * http_code - HTTP status code, as an int. Only set if Only set if
      *                 status is STATUS_SUCCESS, or STATUS_HTTPERROR
      *
+     * @param array    $headerLines
+     * @param string   $body
      * @param resource $curlHandle
      */
     protected function parseCurlResponse(array $headerLines, string $body, $curlHandle): array

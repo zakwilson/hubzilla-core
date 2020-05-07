@@ -6,7 +6,7 @@ namespace Sabre\DAV\Auth\Backend;
 
 class FileTest extends \PHPUnit\Framework\TestCase
 {
-    public function teardown(): void
+    public function tearDown()
     {
         if (file_exists(SABRE_TEMPDIR.'/filebackend')) {
             unlink(SABRE_TEMPDIR.'/filebackend');
@@ -19,9 +19,11 @@ class FileTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($file instanceof File);
     }
 
+    /**
+     * @expectedException \Sabre\DAV\Exception
+     */
     public function testLoadFileBroken()
     {
-        $this->expectException('Sabre\DAV\Exception');
         file_put_contents(SABRE_TEMPDIR.'/backend', 'user:realm:hash');
         $file = new File(SABRE_TEMPDIR.'/backend');
     }

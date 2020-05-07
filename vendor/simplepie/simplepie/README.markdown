@@ -87,14 +87,14 @@ Authors and contributors
 ### Alumni
 * [Ryan McCue][] (developer, support)
 * [Ryan Parman][] (Creator, developer, evangelism, support)
-* [Sam Sneddon][] (Lead developer)
+* [Geoffrey Sneddon][] (Lead developer)
 * [Michael Shipley][] (Submitter of patches, support)
 * [Steve Minutillo][] (Submitter of patches)
 
 [Malcolm Blaney]: https://unicyclic.com/mal
 [Ryan McCue]: http://ryanmccue.info
 [Ryan Parman]: http://ryanparman.com
-[Sam Sneddon]: https://gsnedders.com
+[Geoffrey Sneddon]: http://gsnedders.com
 [Michael Shipley]: http://michaelpshipley.com
 [Steve Minutillo]: http://minutillo.com/steve/
 

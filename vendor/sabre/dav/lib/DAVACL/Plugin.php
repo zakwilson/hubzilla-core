@@ -269,6 +269,8 @@ class Plugin extends DAV\ServerPlugin
      * Sets the default ACL rules.
      *
      * These rules are used for all nodes that don't implement the IACL interface.
+     *
+     * @param array $acl
      */
     public function setDefaultAcl(array $acl)
     {
@@ -761,6 +763,8 @@ class Plugin extends DAV\ServerPlugin
      * Sets up the plugin.
      *
      * This method is automatically called by the server class.
+     *
+     * @param DAV\Server $server
      */
     public function initialize(DAV\Server $server)
     {
@@ -825,6 +829,9 @@ class Plugin extends DAV\ServerPlugin
 
     /**
      * Triggered before any method is handled.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
     public function beforeMethod(RequestInterface $request, ResponseInterface $response)
     {
@@ -916,7 +923,8 @@ class Plugin extends DAV\ServerPlugin
     /**
      * Triggered before a node is unlocked.
      *
-     * @param string $uri
+     * @param string             $uri
+     * @param DAV\Locks\LockInfo $lock
      * @TODO: not yet implemented
      */
     public function beforeUnlock($uri, DAV\Locks\LockInfo $lock)
@@ -926,6 +934,8 @@ class Plugin extends DAV\ServerPlugin
     /**
      * Triggered before properties are looked up in specific nodes.
      *
+     * @param DAV\PropFind $propFind
+     * @param DAV\INode    $node
      * @TODO really should be broken into multiple methods, or even a class.
      *
      * @return bool
@@ -1034,7 +1044,8 @@ class Plugin extends DAV\ServerPlugin
      * This method intercepts PROPPATCH methods and make sure the
      * group-member-set is updated correctly.
      *
-     * @param string $path
+     * @param string        $path
+     * @param DAV\PropPatch $propPatch
      */
     public function propPatch($path, DAV\PropPatch $propPatch)
     {
@@ -1106,6 +1117,9 @@ class Plugin extends DAV\ServerPlugin
 
     /**
      * This method is responsible for handling the 'ACL' event.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return bool
      */
@@ -1197,7 +1211,8 @@ class Plugin extends DAV\ServerPlugin
      * or a principal URL, the principal URL and principal URLs of groups that
      * principal belongs to.
      *
-     * @param string $path
+     * @param string                           $path
+     * @param Xml\Request\PrincipalMatchReport $report
      */
     protected function principalMatchReport($path, Xml\Request\PrincipalMatchReport $report)
     {
@@ -1419,7 +1434,8 @@ class Plugin extends DAV\ServerPlugin
      * clients to search for groups of principals, based on the value of one
      * or more properties.
      *
-     * @param string $path
+     * @param string                                    $path
+     * @param Xml\Request\PrincipalPropertySearchReport $report
      */
     protected function principalPropertySearchReport($path, Xml\Request\PrincipalPropertySearchReport $report)
     {
@@ -1457,7 +1473,8 @@ class Plugin extends DAV\ServerPlugin
      * is used to for example generate a UI with ACL rules, allowing you
      * to show names for principals for every entry.
      *
-     * @param string $path
+     * @param string                                $path
+     * @param Xml\Request\AclPrincipalPropSetReport $report
      */
     protected function aclPrincipalPropSetReport($path, Xml\Request\AclPrincipalPropSetReport $report)
     {
@@ -1503,7 +1520,8 @@ class Plugin extends DAV\ServerPlugin
      * DAV\Browser\Plugin. This allows us to generate an interface users
      * can use to create new calendars.
      *
-     * @param string $output
+     * @param DAV\INode $node
+     * @param string    $output
      *
      * @return bool
      */

@@ -1,6 +1,4 @@
-<?php
-
-declare(strict_types=1);
+<?php declare (strict_types=1);
 
 namespace Sabre\Event;
 
@@ -23,8 +21,8 @@ use Throwable;
  * @author Evert Pot (http://evertpot.com/)
  * @license http://sabre.io/license/ Modified BSD License
  */
-class Promise
-{
+class Promise {
+
     /**
      * The asynchronous operation is pending.
      */
@@ -56,14 +54,15 @@ class Promise
      * Each are callbacks that map to $this->fulfill and $this->reject.
      * Using the executor is optional.
      */
-    public function __construct(callable $executor = null)
-    {
+    function __construct(callable $executor = null) {
+
         if ($executor) {
             $executor(
                 [$this, 'fulfill'],
                 [$this, 'reject']
             );
         }
+
     }
 
     /**
@@ -85,32 +84,32 @@ class Promise
      * If either of the callbacks throw an exception, the returned promise will
      * be rejected and the exception will be passed back.
      */
-    public function then(callable $onFulfilled = null, callable $onRejected = null): Promise
-    {
+    function then(callable $onFulfilled = null, callable $onRejected = null) : Promise {
+
         // This new subPromise will be returned from this function, and will
         // be fulfilled with the result of the onFulfilled or onRejected event
         // handlers.
         $subPromise = new self();
 
         switch ($this->state) {
-            case self::PENDING:
+            case self::PENDING :
                 // The operation is pending, so we keep a reference to the
                 // event handlers so we can call them later.
                 $this->subscribers[] = [$subPromise, $onFulfilled, $onRejected];
                 break;
-            case self::FULFILLED:
+            case self::FULFILLED :
                 // The async operation is already fulfilled, so we trigger the
                 // onFulfilled callback asap.
                 $this->invokeCallback($subPromise, $onFulfilled);
                 break;
-            case self::REJECTED:
-                // The async operation failed, so we call the onRejected
+            case self::REJECTED :
+                // The async operation failed, so we call teh onRejected
                 // callback asap.
                 $this->invokeCallback($subPromise, $onRejected);
                 break;
         }
-
         return $subPromise;
+
     }
 
     /**
@@ -119,19 +118,20 @@ class Promise
      * Its usage is identical to then(). However, the otherwise() function is
      * preferred.
      */
-    public function otherwise(callable $onRejected): Promise
-    {
+    function otherwise(callable $onRejected) : Promise {
+
         return $this->then(null, $onRejected);
+
     }
 
     /**
      * Marks this promise as fulfilled and sets its return value.
      *
      * @param mixed $value
+     * @return void
      */
-    public function fulfill($value = null)
-    {
-        if (self::PENDING !== $this->state) {
+    function fulfill($value = null) {
+        if ($this->state !== self::PENDING) {
             throw new PromiseAlreadyResolvedException('This promise is already resolved, and you\'re not allowed to resolve a promise more than once');
         }
         $this->state = self::FULFILLED;
@@ -143,10 +143,11 @@ class Promise
 
     /**
      * Marks this promise as rejected, and set it's rejection reason.
+     *
+     * @return void
      */
-    public function reject(Throwable $reason)
-    {
-        if (self::PENDING !== $this->state) {
+    function reject(Throwable $reason) {
+        if ($this->state !== self::PENDING) {
             throw new PromiseAlreadyResolvedException('This promise is already resolved, and you\'re not allowed to resolve a promise more than once');
         }
         $this->state = self::REJECTED;
@@ -154,12 +155,13 @@ class Promise
         foreach ($this->subscribers as $subscriber) {
             $this->invokeCallback($subscriber[0], $subscriber[2]);
         }
+
     }
 
     /**
      * Stops execution until this promise is resolved.
      *
-     * This method stops execution completely. If the promise is successful with
+     * This method stops exection completely. If the promise is successful with
      * a value, this method will return this value. If the promise was
      * rejected, this method will throw an exception.
      *
@@ -169,10 +171,11 @@ class Promise
      *
      * @return mixed
      */
-    public function wait()
-    {
+    function wait() {
+
         $hasEvents = true;
-        while (self::PENDING === $this->state) {
+        while ($this->state === self::PENDING) {
+
             if (!$hasEvents) {
                 throw new \LogicException('There were no more events in the loop. This promise will never be fulfilled.');
             }
@@ -180,9 +183,10 @@ class Promise
             // As long as the promise is not fulfilled, we tell the event loop
             // to handle events, and to block.
             $hasEvents = Loop\tick(true);
+
         }
 
-        if (self::FULFILLED === $this->state) {
+        if ($this->state === self::FULFILLED) {
             // If the state of this promise is fulfilled, we can return the value.
             return $this->value;
         } else {
@@ -190,7 +194,10 @@ class Promise
             // errored. Therefore we need to throw an exception.
             throw $this->value;
         }
+
+
     }
+
 
     /**
      * A list of subscribers. Subscribers are the callbacks that want us to let
@@ -217,18 +224,21 @@ class Promise
      * correctly, and any chained promises are also correctly fulfilled or
      * rejected.
      *
+     * @param Promise $subPromise
      * @param callable $callBack
+     * @return void
      */
-    private function invokeCallback(Promise $subPromise, callable $callBack = null)
-    {
+    private function invokeCallback(Promise $subPromise, callable $callBack = null) {
+
         // We use 'nextTick' to ensure that the event handlers are always
         // triggered outside of the calling stack in which they were originally
         // passed to 'then'.
         //
         // This makes the order of execution more predictable.
-        Loop\nextTick(function () use ($callBack, $subPromise) {
+        Loop\nextTick(function() use ($callBack, $subPromise) {
             if (is_callable($callBack)) {
                 try {
+
                     $result = $callBack($this->value);
                     if ($result instanceof self) {
                         // If the callback (onRejected or onFulfilled)
@@ -247,7 +257,7 @@ class Promise
                     $subPromise->reject($e);
                 }
             } else {
-                if (self::FULFILLED === $this->state) {
+                if ($this->state === self::FULFILLED) {
                     $subPromise->fulfill($this->value);
                 } else {
                     $subPromise->reject($this->value);
@@ -255,4 +265,5 @@ class Promise
             }
         });
     }
+
 }

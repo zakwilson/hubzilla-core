@@ -13,7 +13,7 @@ class AllowAccessTest extends \PHPUnit\Framework\TestCase
      */
     protected $server;
 
-    public function setup(): void
+    public function setUp()
     {
         $nodes = [
             new DAV\Mock\Collection('testdir', [

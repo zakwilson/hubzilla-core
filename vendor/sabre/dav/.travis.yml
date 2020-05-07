@@ -1,15 +1,10 @@
 language: php
 sudo: required
-
-branches:
-  only:
-    - master
-
 php:
+  - 7.0
   - 7.1
   - 7.2
   - 7.3
-  - 7.4
 
 env:
   global:
@@ -18,44 +13,42 @@ env:
     - SABRE_MYSQLDSN="mysql:host=127.0.0.1;dbname=sabredav_test"
     - RUN_PHPSTAN="FALSE"
   matrix:
-    - PREFER_LOWEST="" TEST_DEPS="" REPORT_COVERAGE="TRUE" WITH_COVERAGE="--coverage-clover=coverage.xml"
-    - PREFER_LOWEST="--prefer-lowest" TEST_DEPS="tests/Sabre/" REPORT_COVERAGE="FALSE" WITH_COVERAGE=""
+    - LOWEST_DEPS="" TEST_DEPS="" WITH_COVERAGE="--coverage-clover=coverage.xml"
+    - LOWEST_DEPS="--prefer-lowest" TEST_DEPS="tests/Sabre/" $WITH_COVERAGE=""
 
 matrix:
   include:
     - name: 'PHPStan'
-      php: 7.4
-      env:
-        - RUN_PHPSTAN="TRUE"
-        - REPORT_COVERAGE="FALSE"
+      php: 7.2
+      env: RUN_PHPSTAN="TRUE"
     - name: 'Test with streaming propfind'
       php: 7.2
-      env:
-        - RUN_TEST_WITH_STREAMING_PROPFIND="TRUE"
-        - REPORT_COVERAGE="FALSE"
-  fast_finish: true
+      env: RUN_TEST_WITH_STREAMING_PROPFIND="TRUE"
 
 services:
   - mysql
   - postgresql
 
+install:
+  - if [ $RUN_PHPSTAN == "TRUE"  ]; then wget https://github.com/phpstan/phpstan/releases/download/0.11.8/phpstan.phar; fi
+
 before_script:
-  - mysql -u root -h 127.0.0.1 -e 'create database sabredav_test'
+#  - mysql -u root -h 127.0.0.1 sabredav_test -e 'SELECT VERSION();'
+#- mysql -u root -h 127.0.0.1 -e 'create database sabredav_test'
   - psql -c "create database sabredav_test" -U postgres
   - psql -c "create user sabredav with PASSWORD 'sabredav';GRANT ALL PRIVILEGES ON DATABASE sabredav_test TO sabredav" -U postgres
-  - composer update $PREFER_LOWEST
+  - composer update --prefer-dist $LOWEST_DEPS
 
 addons:
   postgresql: "9.5"
 
 script:
-  - if [ $RUN_PHPSTAN == "FALSE" ]; then php vendor/bin/php-cs-fixer fix --dry-run --diff; fi
-  - if [ $RUN_PHPSTAN == "FALSE" ]; then php vendor/bin/phpunit --configuration tests/phpunit.xml $WITH_COVERAGE $TEST_DEPS; fi
+  - if [ $RUN_PHPSTAN == "FALSE"  ]; then ./bin/phpunit --verbose --configuration tests/phpunit.xml.dist $WITH_COVERAGE $TEST_DEPS; fi
   - if [ $RUN_PHPSTAN == "FALSE"  ]; then rm -f ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini; fi
-  - if [ $RUN_PHPSTAN == "TRUE" ]; then composer phpstan; fi
+  - if [ $RUN_PHPSTAN == "TRUE"  ]; then php phpstan.phar analyse -c phpstan.neon lib; fi
 
 after_success:
-  - if [ $REPORT_COVERAGE == "TRUE" ]; then bash <(curl -s https://codecov.io/bash); fi
+  - bash <(curl -s https://codecov.io/bash)
 
 cache:
   directories:

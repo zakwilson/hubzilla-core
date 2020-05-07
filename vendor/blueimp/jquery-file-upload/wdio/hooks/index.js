@@ -5,9 +5,10 @@
 const cmds = require('wdio-screen-commands')
 
 /* eslint-disable jsdoc/valid-types */
-/** @type WebdriverIO.HookFunctions */
+/** @type WebdriverIO.Config */
 const config = {
   before: async () => {
+    global.Should = require('chai').should()
     browser.addCommand('saveScreenshotByName', cmds.saveScreenshotByName)
     browser.addCommand('saveAndDiffScreenshot', cmds.saveAndDiffScreenshot)
     if (browser.config.maximizeWindow) await browser.maximizeWindow()
@@ -15,10 +16,10 @@ const config = {
   beforeTest: async test => {
     await cmds.startScreenRecording(test)
   },
-  afterTest: async (test, context, result) => {
+  afterTest: async test => {
     await Promise.all([
-      cmds.stopScreenRecording(test, result),
-      cmds.saveScreenshotByTest(test, result)
+      cmds.stopScreenRecording(test),
+      cmds.saveScreenshotByTest(test)
     ])
   }
 }

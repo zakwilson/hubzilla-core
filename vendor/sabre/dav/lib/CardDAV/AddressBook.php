@@ -36,6 +36,9 @@ class AddressBook extends DAV\Collection implements IAddressBook, DAV\IPropertie
 
     /**
      * Constructor.
+     *
+     * @param Backend\BackendInterface $carddavBackend
+     * @param array                    $addressBookInfo
      */
     public function __construct(Backend\BackendInterface $carddavBackend, array $addressBookInfo)
     {
@@ -178,6 +181,8 @@ class AddressBook extends DAV\Collection implements IAddressBook, DAV\IPropertie
      *
      * To update specific properties, call the 'handle' method on this object.
      * Read the PropPatch documentation for more information.
+     *
+     * @param DAV\PropPatch $propPatch
      */
     public function propPatch(DAV\PropPatch $propPatch)
     {

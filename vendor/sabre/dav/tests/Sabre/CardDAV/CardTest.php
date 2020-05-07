@@ -15,7 +15,7 @@ class CardTest extends \PHPUnit\Framework\TestCase
      */
     protected $backend;
 
-    public function setup(): void
+    public function setUp()
     {
         $this->backend = new Backend\Mock();
         $this->card = new Card(
@@ -179,9 +179,11 @@ class CardTest extends \PHPUnit\Framework\TestCase
         ], $card->getACL());
     }
 
+    /**
+     * @expectedException \Sabre\DAV\Exception\Forbidden
+     */
     public function testSetACL()
     {
-        $this->expectException('Sabre\DAV\Exception\Forbidden');
         $this->card->setACL([]);
     }
 

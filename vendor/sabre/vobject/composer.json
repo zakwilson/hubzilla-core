@@ -32,13 +32,12 @@
     "homepage" : "http://sabre.io/vobject/",
     "license" : "BSD-3-Clause",
     "require" : {
-        "php"          : "^7.1",
+        "php"          : ">=5.5",
         "ext-mbstring" : "*",
-        "sabre/xml"    : "^2.1"
+        "sabre/xml"    : ">=1.5 <3.0"
     },
     "require-dev" : {
-        "friendsofphp/php-cs-fixer": "~2.16.1",
-        "phpunit/phpunit" : "^7 || ^8"
+        "phpunit/phpunit" : "> 4.8.35, <6.0.0"
     },
     "suggest" : {
         "hoa/bench"       : "If you would like to run the benchmark scripts"
@@ -70,11 +69,6 @@
     "autoload" : {
         "psr-4" : {
             "Sabre\\VObject\\" : "lib/"
-        }
-    },
-    "autoload-dev" : {
-        "psr-4" : {
-            "Sabre\\VObject\\" : "tests/VObject"
         }
     },
     "bin" : [

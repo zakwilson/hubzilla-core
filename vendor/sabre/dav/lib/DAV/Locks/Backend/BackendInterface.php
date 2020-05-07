@@ -35,7 +35,8 @@ interface BackendInterface
     /**
      * Locks a uri.
      *
-     * @param string $uri
+     * @param string         $uri
+     * @param Locks\LockInfo $lockInfo
      *
      * @return bool
      */
@@ -44,7 +45,8 @@ interface BackendInterface
     /**
      * Removes a lock from a uri.
      *
-     * @param string $uri
+     * @param string         $uri
+     * @param Locks\LockInfo $lockInfo
      *
      * @return bool
      */

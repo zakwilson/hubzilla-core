@@ -203,6 +203,8 @@ class TreeFileTester extends File implements IProperties
      *
      * To update specific properties, call the 'handle' method on this object.
      * Read the PropPatch documentation for more information.
+     *
+     * @param PropPatch $propPatch
      */
     public function propPatch(PropPatch $propPatch)
     {
@@ -218,6 +220,8 @@ class TreeMultiGetTester extends TreeDirectoryTester implements IMultiGet
      * It must return an array with Node objects.
      *
      * If any children are not found, you do not have to return them.
+     *
+     * @param array $paths
      *
      * @return array
      */

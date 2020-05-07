@@ -37,6 +37,8 @@ class Tree
      * Creates the object.
      *
      * This method expects the rootObject to be passed as a parameter
+     *
+     * @param ICollection $rootNode
      */
     public function __construct(ICollection $rootNode)
     {
@@ -286,7 +288,9 @@ class Tree
     /**
      * copyNode.
      *
-     * @param string $destinationName
+     * @param INode       $source
+     * @param ICollection $destinationParent
+     * @param string      $destinationName
      */
     protected function copyNode(INode $source, ICollection $destinationParent, $destinationName = null)
     {

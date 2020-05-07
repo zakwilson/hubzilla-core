@@ -6,6 +6,9 @@ namespace Sabre\DAV;
 
 use Sabre\HTTP;
 
+require_once 'Sabre/HTTP/ResponseMock.php';
+require_once 'Sabre/DAV/AbstractServer.php';
+
 class ServerPropsTest extends AbstractServer
 {
     protected function getRootNode()
@@ -13,7 +16,7 @@ class ServerPropsTest extends AbstractServer
         return new FSExt\Directory(SABRE_TEMPDIR);
     }
 
-    public function setup(): void
+    public function setUp()
     {
         if (file_exists(SABRE_TEMPDIR.'../.sabredav')) {
             unlink(SABRE_TEMPDIR.'../.sabredav');
@@ -25,7 +28,7 @@ class ServerPropsTest extends AbstractServer
         $this->server->addPlugin(new Locks\Plugin(new Locks\Backend\File(SABRE_TEMPDIR.'/.locksdb')));
     }
 
-    public function teardown(): void
+    public function tearDown()
     {
         parent::tearDown();
         if (file_exists(SABRE_TEMPDIR.'../.locksdb')) {

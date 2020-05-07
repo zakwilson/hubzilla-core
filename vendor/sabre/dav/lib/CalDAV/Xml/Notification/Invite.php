@@ -181,6 +181,8 @@ class Invite implements NotificationInterface
      * This allows serializers to be re-used for different element names.
      *
      * If you are opening new elements, you must also close them again.
+     *
+     * @param Writer $writer
      */
     public function xmlSerialize(Writer $writer)
     {
@@ -190,6 +192,8 @@ class Invite implements NotificationInterface
     /**
      * This method serializes the entire notification, as it is used in the
      * response body.
+     *
+     * @param Writer $writer
      */
     public function xmlSerializeFull(Writer $writer)
     {

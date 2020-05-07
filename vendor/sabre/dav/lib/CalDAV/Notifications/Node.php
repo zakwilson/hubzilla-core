@@ -48,7 +48,9 @@ class Node extends DAV\File implements INode, DAVACL\IACL
     /**
      * Constructor.
      *
-     * @param string $principalUri
+     * @param CalDAV\Backend\NotificationSupport $caldavBackend
+     * @param string                             $principalUri
+     * @param NotificationInterface              $notification
      */
     public function __construct(CalDAV\Backend\NotificationSupport $caldavBackend, $principalUri, NotificationInterface $notification)
     {

@@ -7,6 +7,8 @@ namespace Sabre\CardDAV;
 use Sabre\DAV;
 use Sabre\HTTP;
 
+require_once 'Sabre/HTTP/ResponseMock.php';
+
 class MultiGetTest extends AbstractPluginTest
 {
     public function testMultiGet()

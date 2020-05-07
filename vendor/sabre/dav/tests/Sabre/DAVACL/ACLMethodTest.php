@@ -9,9 +9,11 @@ use Sabre\HTTP;
 
 class ACLMethodTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @expectedException \Sabre\DAV\Exception\BadRequest
+     */
     public function testCallback()
     {
-        $this->expectException('Sabre\DAV\Exception\BadRequest');
         $acl = new Plugin();
         $server = new DAV\Server();
         $server->addPlugin(new DAV\Auth\Plugin());
@@ -21,11 +23,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-    /**
+     /**
+     * @expectedException \Sabre\DAV\Exception\MethodNotAllowed
      */
     public function testNotSupportedByNode()
     {
-        $this->expectException('Sabre\DAV\Exception\MethodNotAllowed');
         $tree = [
             new DAV\SimpleCollection('test'),
         ];
@@ -62,9 +64,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $this->assertFalse($acl->httpACL($server->httpRequest, $server->httpResponse));
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\NotRecognizedPrincipal
+     */
     public function testUnrecognizedPrincipal()
     {
-        $this->expectException('Sabre\DAVACL\Exception\NotRecognizedPrincipal');
         $tree = [
             new MockACLNode('test', []),
         ];
@@ -85,9 +89,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\NotRecognizedPrincipal
+     */
     public function testUnrecognizedPrincipal2()
     {
-        $this->expectException('Sabre\DAVACL\Exception\NotRecognizedPrincipal');
         $tree = [
             new MockACLNode('test', []),
             new DAV\SimpleCollection('principals', [
@@ -111,9 +117,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\NotSupportedPrivilege
+     */
     public function testUnknownPrivilege()
     {
-        $this->expectException('Sabre\DAVACL\Exception\NotSupportedPrivilege');
         $tree = [
             new MockACLNode('test', []),
         ];
@@ -134,9 +142,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\NoAbstract
+     */
     public function testAbstractPrivilege()
     {
-        $this->expectException('Sabre\DAVACL\Exception\NoAbstract');
         $tree = [
             new MockACLNode('test', []),
         ];
@@ -160,9 +170,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\AceConflict
+     */
     public function testUpdateProtectedPrivilege()
     {
-        $this->expectException('Sabre\DAVACL\Exception\AceConflict');
         $oldACL = [
             [
                 'principal' => 'principals/notfound',
@@ -191,9 +203,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\AceConflict
+     */
     public function testUpdateProtectedPrivilege2()
     {
-        $this->expectException('Sabre\DAVACL\Exception\AceConflict');
         $oldACL = [
             [
                 'principal' => 'principals/notfound',
@@ -222,9 +236,11 @@ class ACLMethodTest extends \PHPUnit\Framework\TestCase
         $acl->httpACL($server->httpRequest, $server->httpResponse);
     }
 
+    /**
+     * @expectedException \Sabre\DAVACL\Exception\AceConflict
+     */
     public function testUpdateProtectedPrivilege3()
     {
-        $this->expectException('Sabre\DAVACL\Exception\AceConflict');
         $oldACL = [
             [
                 'principal' => 'principals/notfound',

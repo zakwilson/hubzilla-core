@@ -40,6 +40,8 @@ class Time extends Text
      * Sets the JSON value, as it would appear in a jCard or jCal object.
      *
      * The value must always be an array.
+     *
+     * @param array $value
      */
     public function setJsonValue(array $value)
     {
@@ -117,6 +119,8 @@ class Time extends Text
     /**
      * Hydrate data from a XML subtree, as it would appear in a xCard or xCal
      * object.
+     *
+     * @param array $value
      */
     public function setXmlValue(array $value)
     {

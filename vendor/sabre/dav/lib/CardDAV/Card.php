@@ -41,6 +41,10 @@ class Card extends DAV\File implements ICard, DAVACL\IACL
 
     /**
      * Constructor.
+     *
+     * @param Backend\BackendInterface $carddavBackend
+     * @param array                    $addressBookInfo
+     * @param array                    $cardData
      */
     public function __construct(Backend\BackendInterface $carddavBackend, array $addressBookInfo, array $cardData)
     {

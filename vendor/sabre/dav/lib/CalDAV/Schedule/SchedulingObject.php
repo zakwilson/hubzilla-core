@@ -29,6 +29,9 @@ class SchedulingObject extends \Sabre\CalDAV\CalendarObject implements IScheduli
      *   * size - (optional) The size of the data in bytes.
      *   * lastmodified - (optional) format as a unix timestamp.
      *   * acl - (optional) Use this to override the default ACL for the node.
+     *
+     * @param Backend\SchedulingSupport $caldavBackend
+     * @param array                     $objectData
      */
     public function __construct(Backend\SchedulingSupport $caldavBackend, array $objectData)
     {

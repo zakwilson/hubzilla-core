@@ -32,7 +32,8 @@ interface BackendInterface
      * However, you can also support the 'allprops' property here. In that
      * case, you should check for $propFind->isAllProps().
      *
-     * @param string $path
+     * @param string   $path
+     * @param PropFind $propFind
      */
     public function propFind($path, PropFind $propFind);
 
@@ -45,7 +46,8 @@ interface BackendInterface
      * Usually you would want to call 'handleRemaining' on this object, to get;
      * a list of all properties that need to be stored.
      *
-     * @param string $path
+     * @param string    $path
+     * @param PropPatch $propPatch
      */
     public function propPatch($path, PropPatch $propPatch);
 

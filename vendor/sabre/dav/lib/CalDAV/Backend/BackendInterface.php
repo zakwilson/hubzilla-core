@@ -51,6 +51,7 @@ interface BackendInterface
      *
      * @param string $principalUri
      * @param string $calendarUri
+     * @param array  $properties
      *
      * @return mixed
      */
@@ -68,7 +69,8 @@ interface BackendInterface
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param mixed $calendarId
+     * @param mixed                $calendarId
+     * @param \Sabre\DAV\PropPatch $propPatch
      */
     public function updateCalendar($calendarId, \Sabre\DAV\PropPatch $propPatch);
 
@@ -141,6 +143,7 @@ interface BackendInterface
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $calendarId
+     * @param array $uris
      *
      * @return array
      */
@@ -244,6 +247,7 @@ interface BackendInterface
      * to think of.
      *
      * @param mixed $calendarId
+     * @param array $filters
      *
      * @return array
      */

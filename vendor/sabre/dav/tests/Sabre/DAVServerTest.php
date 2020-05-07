@@ -43,7 +43,7 @@ abstract class DAVServerTest extends \PHPUnit\Framework\TestCase
     protected $carddavCards = [];
 
     /**
-     * @var \Sabre\DAV\Server
+     * @var Sabre\DAV\Server
      */
     protected $server;
     protected $tree = [];
@@ -82,17 +82,12 @@ abstract class DAVServerTest extends \PHPUnit\Framework\TestCase
     protected $caldavSchedulePlugin;
 
     /**
-     * @var CalDAV\ICSExportPlugin
-     */
-    protected $caldavICSExportPlugin;
-
-    /**
-     * @var \Sabre\DAV\Auth\Plugin
+     * @var Sabre\DAV\Auth\Plugin
      */
     protected $authPlugin;
 
     /**
-     * @var \Sabre\DAV\Locks\Plugin
+     * @var Sabre\DAV\Locks\Plugin
      */
     protected $locksPlugin;
 
@@ -114,7 +109,7 @@ abstract class DAVServerTest extends \PHPUnit\Framework\TestCase
      */
     protected $autoLogin = null;
 
-    public function setup(): void
+    public function setUp()
     {
         $this->initializeEverything();
     }
@@ -198,7 +193,7 @@ abstract class DAVServerTest extends \PHPUnit\Framework\TestCase
     public function request($request, $expectedStatus = null)
     {
         if (is_array($request)) {
-            $request = HTTP\Sapi::createFromServerArray($request);
+            $request = HTTP\Request::createFromServerArray($request);
         }
         $response = new HTTP\ResponseMock();
 
@@ -300,6 +295,6 @@ abstract class DAVServerTest extends \PHPUnit\Framework\TestCase
     public function assertHttpStatus($expectedStatus, HTTP\Request $req)
     {
         $resp = $this->request($req);
-        $this->assertEquals((int) $expectedStatus, (int) $resp->getStatus(), 'Incorrect HTTP status received: '.$resp->getStatus());
+        $this->assertEquals((int) $expectedStatus, (int) $resp->status, 'Incorrect HTTP status received: '.$resp->body);
     }
 }

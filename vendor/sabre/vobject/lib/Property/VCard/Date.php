@@ -28,6 +28,8 @@ class Date extends DateAndOrTime
 
     /**
      * Sets the property as a DateTime object.
+     *
+     * @param \DateTimeInterface $dt
      */
     public function setDateTime(\DateTimeInterface $dt)
     {

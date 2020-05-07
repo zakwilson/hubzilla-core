@@ -60,6 +60,8 @@ class Plugin extends ServerPlugin
      * addPlugin is called.
      *
      * This method should set up the required event subscriptions.
+     *
+     * @param Server $server
      */
     public function initialize(Server $server)
     {
@@ -78,6 +80,9 @@ class Plugin extends ServerPlugin
 
     /**
      * PropFind.
+     *
+     * @param PropFind  $propFind
+     * @param BaseINode $node
      */
     public function propFind(PropFind $propFind, BaseINode $node)
     {
@@ -107,6 +112,9 @@ class Plugin extends ServerPlugin
      *
      * We use this to intercept GET calls to notification nodes, and return the
      * proper response.
+     *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
     public function httpGet(RequestInterface $request, ResponseInterface $response)
     {

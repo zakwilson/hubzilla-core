@@ -94,6 +94,8 @@ class Plugin extends ServerPlugin
 
     /**
      * Initializes the plugin.
+     *
+     * @param Server $server
      */
     public function initialize(Server $server)
     {
@@ -156,6 +158,9 @@ class Plugin extends ServerPlugin
     /**
      * This method handles POST request for the outbox.
      *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     *
      * @return bool
      */
     public function httpPost(RequestInterface $request, ResponseInterface $response)
@@ -190,6 +195,9 @@ class Plugin extends ServerPlugin
      * This method handler is invoked during fetching of properties.
      *
      * We use this event to add calendar-auto-schedule-specific properties.
+     *
+     * @param PropFind $propFind
+     * @param INode    $node
      */
     public function propFind(PropFind $propFind, INode $node)
     {
@@ -289,7 +297,8 @@ class Plugin extends ServerPlugin
     /**
      * This method is called during property updates.
      *
-     * @param string $path
+     * @param string    $path
+     * @param PropPatch $propPatch
      */
     public function propPatch($path, PropPatch $propPatch)
     {
@@ -344,6 +353,8 @@ class Plugin extends ServerPlugin
 
     /**
      * This method is responsible for delivering the ITip message.
+     *
+     * @param ITip\Message $iTipMessage
      */
     public function deliver(ITip\Message $iTipMessage)
     {
@@ -402,6 +413,8 @@ class Plugin extends ServerPlugin
      *
      * This handler attempts to look at local accounts to deliver the
      * scheduling object.
+     *
+     * @param ITip\Message $iTipMessage
      */
     public function scheduleLocalDelivery(ITip\Message $iTipMessage)
     {
@@ -544,6 +557,9 @@ class Plugin extends ServerPlugin
      * that are supported on a particular node.
      *
      * We need to add a number of privileges for scheduling purposes.
+     *
+     * @param INode $node
+     * @param array $supportedPrivilegeSet
      */
     public function getSupportedPrivilegeSet(INode $node, array &$supportedPrivilegeSet)
     {
@@ -605,6 +621,8 @@ class Plugin extends ServerPlugin
      * This method may update $newObject to add any status changes.
      *
      * @param VCalendar|string $oldObject
+     * @param VCalendar        $newObject
+     * @param array            $addresses
      * @param array            $ignore    any addresses to not send messages to
      * @param bool             $modified  a marker to indicate that the original object
      *                                    modified by this process
@@ -682,6 +700,10 @@ class Plugin extends ServerPlugin
      * The latter is from an expired early draft of the CalDAV scheduling
      * extensions, but iCal depends on a feature from that spec, so we
      * implement it.
+     *
+     * @param IOutbox           $outboxNode
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
     public function outboxRequest(IOutbox $outboxNode, RequestInterface $request, ResponseInterface $response)
     {
@@ -735,6 +757,11 @@ class Plugin extends ServerPlugin
     /**
      * This method is responsible for parsing a free-busy query request and
      * returning it's result.
+     *
+     * @param IOutbox           $outbox
+     * @param VObject\Component $vObject
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      *
      * @return string
      */
@@ -825,7 +852,10 @@ class Plugin extends ServerPlugin
      *   * 2.0;description
      *   * 3.7;description
      *
-     * @param string $email address
+     * @param string             $email   address
+     * @param \DateTimeInterface $start
+     * @param \DateTimeInterface $end
+     * @param VObject\Component  $request
      *
      * @return array
      */
@@ -967,6 +997,8 @@ class Plugin extends ServerPlugin
     /**
      * This method checks the 'Schedule-Reply' header
      * and returns false if it's 'F', otherwise true.
+     *
+     * @param RequestInterface $request
      *
      * @return bool
      */

@@ -33,6 +33,8 @@ class CurrentUserPrivilegeSet implements Element, HtmlOutput
      * Creates the object.
      *
      * Pass the privileges in clark-notation
+     *
+     * @param array $privileges
      */
     public function __construct(array $privileges)
     {
@@ -54,6 +56,8 @@ class CurrentUserPrivilegeSet implements Element, HtmlOutput
      * This allows serializers to be re-used for different element names.
      *
      * If you are opening new elements, you must also close them again.
+     *
+     * @param Writer $writer
      */
     public function xmlSerialize(Writer $writer)
     {
@@ -105,6 +109,8 @@ class CurrentUserPrivilegeSet implements Element, HtmlOutput
      * $reader->parseInnerTree() will parse the entire sub-tree, and advance to
      * the next element.
      *
+     * @param Reader $reader
+     *
      * @return mixed
      */
     public static function xmlDeserialize(Reader $reader)
@@ -132,6 +138,8 @@ class CurrentUserPrivilegeSet implements Element, HtmlOutput
      *
      * The baseUri parameter is a url to the root of the application, and can
      * be used to construct local links.
+     *
+     * @param HtmlOutputHelper $html
      *
      * @return string
      */

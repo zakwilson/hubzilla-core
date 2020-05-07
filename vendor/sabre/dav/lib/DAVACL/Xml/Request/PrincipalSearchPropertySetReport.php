@@ -40,6 +40,8 @@ class PrincipalSearchPropertySetReport implements XmlDeserializable
      * $reader->parseInnerTree() will parse the entire sub-tree, and advance to
      * the next element.
      *
+     * @param Reader $reader
+     *
      * @return mixed
      */
     public static function xmlDeserialize(Reader $reader)

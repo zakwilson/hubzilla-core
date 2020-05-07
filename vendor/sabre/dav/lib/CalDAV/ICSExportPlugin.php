@@ -74,6 +74,9 @@ class ICSExportPlugin extends DAV\ServerPlugin
     /**
      * Intercepts GET requests on calendar urls ending with ?export.
      *
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
+     *
      * @throws BadRequest
      * @throws DAV\Exception\NotFound
      * @throws VObject\InvalidDataException
@@ -161,13 +164,14 @@ class ICSExportPlugin extends DAV\ServerPlugin
     /**
      * This method is responsible for generating the actual, full response.
      *
-     * @param string        $path
-     * @param DateTime|null $start
-     * @param DateTime|null $end
-     * @param bool          $expand
-     * @param string        $componentType
-     * @param string        $format
-     * @param array         $properties
+     * @param string            $path
+     * @param DateTime|null     $start
+     * @param DateTime|null     $end
+     * @param bool              $expand
+     * @param string            $componentType
+     * @param string            $format
+     * @param array             $properties
+     * @param ResponseInterface $response
      *
      * @throws DAV\Exception\NotFound
      * @throws VObject\InvalidDataException
@@ -279,7 +283,8 @@ class ICSExportPlugin extends DAV\ServerPlugin
     /**
      * Merges all calendar objects, and builds one big iCalendar blob.
      *
-     * @param array $properties Some CalDAV properties
+     * @param array $properties   Some CalDAV properties
+     * @param array $inputObjects
      *
      * @return VObject\Component\VCalendar
      */

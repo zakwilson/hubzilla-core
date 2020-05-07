@@ -29,7 +29,7 @@ class Cli
     protected $showHelp = false;
 
     /**
-     * Wether to spit out 'mimedir' or 'json' format.
+     * Whether to spit out 'mimedir' or 'json' format.
      *
      * @var string
      */
@@ -312,8 +312,6 @@ HELP
     /**
      * Validates a VObject file.
      *
-     * @param Component $vObj
-     *
      * @return int
      */
     protected function validate(Component $vObj)
@@ -353,8 +351,6 @@ HELP
 
     /**
      * Repairs a VObject file.
-     *
-     * @param Component $vObj
      *
      * @return int
      */
@@ -516,7 +512,7 @@ HELP
          *
          * A higher score means the item will be lower in the list.
          * To avoid score collisions, each "score category" has a reasonable
-         * space to accomodate elements. The $key is added to the $score to
+         * space to accommodate elements. The $key is added to the $score to
          * preserve the original relative order of elements.
          *
          * @param int   $key
@@ -582,8 +578,6 @@ HELP
 
     /**
      * Colorizes a property.
-     *
-     * @param Property $property
      */
     protected function serializeProperty(Property $property)
     {
@@ -642,8 +636,6 @@ HELP
 
     /**
      * Parses the list of arguments.
-     *
-     * @param array $argv
      */
     protected function parseArguments(array $argv)
     {

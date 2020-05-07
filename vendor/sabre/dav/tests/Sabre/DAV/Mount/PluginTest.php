@@ -7,11 +7,9 @@ namespace Sabre\DAV\Mount;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-
 class PluginTest extends DAV\AbstractServer
 {
-    public function setUp()
+    public function setup(): void
     {
         parent::setUp();
         $this->server->addPlugin(new Plugin());

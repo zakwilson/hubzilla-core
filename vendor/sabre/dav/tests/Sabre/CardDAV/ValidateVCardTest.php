@@ -8,14 +8,12 @@ use Sabre\DAV;
 use Sabre\DAVACL;
 use Sabre\HTTP;
 
-require_once 'Sabre/HTTP/ResponseMock.php';
-
 class ValidateVCardTest extends \PHPUnit\Framework\TestCase
 {
     protected $server;
     protected $cardBackend;
 
-    public function setUp()
+    public function setup(): void
     {
         $addressbooks = [
             [

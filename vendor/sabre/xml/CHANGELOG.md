@@ -1,15 +1,27 @@
 ChangeLog
 =========
 
+2.2.0 (2020-01-31)
+------------------
+
+* #171: Added Support for PHP 7.4, dropped Support for PHP 7.0 (@staabm, @phil-davis)
+* #174: Update testsuite to phpunit8 (@phil-davis)
+* Added phpstan coverage (@phil-davis)
+* #144: Added a new `functionCaller` deserializer function for executing a callable when reading a XML
+element (@vsouz4)
+
+
 2.1.3 (2019-08-14)
 ------------------
 
 * #166: Throw exception when empty inputs found
 
+
 2.1.2 (2019-01-09)
 ------------------
 
 * #161: Prevent infinite loop on empty xml elements
+
 
 2.1.1 (2018-10-09)
 ------------------

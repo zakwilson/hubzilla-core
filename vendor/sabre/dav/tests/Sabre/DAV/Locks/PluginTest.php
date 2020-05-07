@@ -7,8 +7,6 @@ namespace Sabre\DAV\Locks;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-
 class PluginTest extends DAV\AbstractServer
 {
     /**
@@ -16,7 +14,7 @@ class PluginTest extends DAV\AbstractServer
      */
     protected $locksPlugin;
 
-    public function setUp()
+    public function setup(): void
     {
         parent::setUp();
         $locksBackend = new Backend\File(SABRE_TEMPDIR.'/locksdb');
@@ -851,11 +849,9 @@ class PluginTest extends DAV\AbstractServer
         $this->assertEquals(LockInfo::TIMEOUT_INFINITE, $this->locksPlugin->getTimeoutHeader());
     }
 
-    /**
-     * @expectedException \Sabre\DAV\Exception\BadRequest
-     */
     public function testGetTimeoutHeaderInvalid()
     {
+        $this->expectException('Sabre\DAV\Exception\BadRequest');
         $request = new HTTP\Request('GET', '/', ['Timeout' => 'yourmom']);
 
         $this->server->httpRequest = $request;

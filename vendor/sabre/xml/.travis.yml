@@ -1,19 +1,20 @@
 language: php
 sudo: required
-dist: xenial
 php:
-  - 7.0
   - 7.1
   - 7.2
-  - 7.3snapshot
+  - 7.3
+  - 7.4
 
-addons:
-  apt:
-    packages:
-    # required for php7.3
-    - libzip4
+env:
+  global:
+    - RUN_PHPSTAN="FALSE"
 
 matrix:
+  include:
+    - name: 'PHPStan'
+      php: 7.2
+      env: RUN_PHPSTAN="TRUE"
   fast_finish: true
 
 cache:
@@ -21,11 +22,15 @@ cache:
     - $HOME/.composer/cache
 
 install:
+  - if [ $RUN_PHPSTAN == "TRUE"  ]; then composer require --dev phpstan/phpstan:^0.12; fi
+
+before_script:
   - composer install
 
 script:
-  - ./bin/phpunit --configuration tests/phpunit.xml.dist  --coverage-clover=coverage.xml
+  - if [ $RUN_PHPSTAN == "FALSE"  ]; then ./bin/php-cs-fixer  fix --dry-run --diff; fi
+  - if [ $RUN_PHPSTAN == "FALSE"  ]; then ./bin/phpunit --configuration tests/phpunit.xml  --coverage-clover=coverage.xml; fi
+  - if [ $RUN_PHPSTAN == "TRUE"  ]; then php ./bin/phpstan analyse -c phpstan.neon lib; fi
 
 after_success:
-- bash <(curl -s https://codecov.io/bash)
-
+  - bash <(curl -s https://codecov.io/bash)

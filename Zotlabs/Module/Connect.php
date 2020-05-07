@@ -28,10 +28,6 @@ class Connect extends Controller {
 
 		$channel_id = App::$data['channel']['channel_id'];
 
-		if(! Apps::system_app_installed($channel_id, 'Premium Channel')) {
-			return;
-		}
-	
 		profile_load($which,'');
 	}
 	
@@ -42,10 +38,6 @@ class Connect extends Controller {
 
 		$channel_id = App::$data['channel']['channel_id'];
 
-		if(! Apps::system_app_installed($channel_id, 'Premium Channel')) {
-			return;
-		}
-	
 		$edit = ((local_channel() && (local_channel() == $channel_id)) ? true : false);
 	
 		if($edit) {
@@ -97,15 +89,6 @@ class Connect extends Controller {
 
 		$channel_id = App::$data['channel']['channel_id'];
 
-		if(! Apps::system_app_installed($channel_id, 'Premium Channel')) {
-			//Do not display any associated widgets at this point
-			App::$pdl = '';
-
-			$o = '<b>' . t('Premium Channel App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Allows you to set restrictions and terms on those that connect with your channel');
-			return $o;
-		}
-	
 		$edit = ((local_channel() && (local_channel() == $channel_id)) ? true : false);
 	
 		$text = get_pconfig($channel_id,'system','selltext');

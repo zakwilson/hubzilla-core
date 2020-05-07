@@ -37,7 +37,7 @@ class PhotoGdTest extends UnitTestCase {
 	/**
 	 * Cleans up the environment after running a test.
 	 */
-	protected function tearDown() {
+	protected function tearDown(): void {
 		$this->photoGd = null;
 
 		parent::tearDown();

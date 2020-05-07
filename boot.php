@@ -53,7 +53,7 @@ define ( 'PLATFORM_NAME',           'hubzilla' );
 define ( 'STD_VERSION',             '4.7.6' );
 define ( 'ZOT_REVISION',            '6.0a' );
 
-define ( 'DB_UPDATE_VERSION',       1236 );
+define ( 'DB_UPDATE_VERSION',       1237 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 

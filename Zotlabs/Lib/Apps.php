@@ -372,7 +372,6 @@ class Apps {
 			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
 			'PDL Editor' => t('PDL Editor'),
 			'Permission Categories' => t('Permission Categories'),
-			'Premium Channel' => t('Premium Channel'),
 			'Public Stream' => t('Public Stream'),
 			'My Chatrooms' => t('My Chatrooms'),
 			'Channel Export' => t('Channel Export')

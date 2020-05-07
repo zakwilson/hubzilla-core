@@ -4,6 +4,8 @@
  * @brief Channel related functions.
  */
 
+
+use App;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
@@ -2486,6 +2488,12 @@ function channelx_by_nick($nick) {
 
 	$nick = punify($nick);
 
+	// return a cached copy if there is a cached copy and it's a match
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_address',App::$channel) && App::$channel['channel_address'] === $nick) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s'  and channel_removed = 0 LIMIT 1",
 		dbesc($nick)
 	);
@@ -2500,6 +2508,11 @@ function channelx_by_nick($nick) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_hash($hash) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_hash',App::$channel) && App::$channel['channel_hash'] === $hash) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($hash)
 	);
@@ -2515,6 +2528,11 @@ function channelx_by_hash($hash) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_portid($hash) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_portable_id',App::$channel) && intval(App::$channel['channel_portable_id']) === intval($hash)) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($hash)
 	);
@@ -2529,6 +2547,11 @@ function channelx_by_portid($hash) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_n($id) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_id',App::$channel) && intval(App::$channel['channel_id']) === intval($id)) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
 		dbesc($id)
 	);

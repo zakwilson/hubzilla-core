@@ -203,7 +203,7 @@ function string2bb(element) {
 			context: function(text) { return text.toLowerCase(); },
 			template: smiley_format
 		};
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var Textarea = Textcomplete.editors.Textarea;
 
@@ -298,7 +298,7 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var textcomplete;
 		var Textarea = Textcomplete.editors.Textarea;
@@ -341,7 +341,7 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var textcomplete;
 		var Textarea = Textcomplete.editors.Textarea;
@@ -427,7 +427,7 @@ function string2bb(element) {
 			template: bbco_format
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var Textarea = Textcomplete.editors.Textarea;
 

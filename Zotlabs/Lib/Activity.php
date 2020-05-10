@@ -346,6 +346,7 @@ class Activity {
 
 
 		$ret['id']   = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+		$ret['diaspora:guid'] = $i['uuid'];
 
 		if($i['title'])
 			$ret['name'] = $i['title'];
@@ -1662,6 +1663,7 @@ class Activity {
 		$s['aid'] = $channel['channel_account_id'];
 		$s['uid'] = $channel['channel_id'];
 		$s['mid'] = urldecode($act->obj['id']);
+		$s['uuid'] = $act->obj['diaspora:guid'];
 		$s['plink'] = urldecode($act->obj['id']);
 
 
@@ -1953,6 +1955,7 @@ class Activity {
 		self::actor_store($act->actor['id'],$act->actor);
 
 		$s['mid']        = $act->obj['id'];
+		$s['uuid']	 = $act->obj['diaspora:guid'];
 		$s['parent_mid'] = $act->parent_id;
 
 		if($act->data['published']) {
@@ -2400,11 +2403,6 @@ class Activity {
 
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
-		$s['uuid'] = '';
-
-		// Friendica sends the diaspora guid in a nonstandard field via AP
-		if($act->obj['diaspora:guid'])
-			$s['uuid'] = $act->obj['diaspora:guid'];
 
 		if(! ( $item['author_xchan'] && $item['owner_xchan'])) {
 			logger('owner or author missing.');

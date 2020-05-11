@@ -864,6 +864,11 @@ function get_tags($s) {
 			$ret[] = $mtch;
 		}
 	}
+	if(preg_match_all('/([@#\!]\".*?\")/',$s,$match)) {
+		foreach($match[1] as $mtch) {
+			$ret[] = $mtch;
+		}
+	}
 
 	// match bracket mentions
 
@@ -2798,6 +2803,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				$basetag = substr($tag,7);
 				$basetag = substr($basetag,0,-6);
 			}
+			elseif((substr($tag,0,2) === '#"') && (substr($tag,-1,1) === '"')) {
+				$basetag = substr($tag,2);
+				$basetag = substr($basetag,0,-1);
+			}
 			else
 				$basetag = substr($tag,1);
 
@@ -2879,6 +2888,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			if((substr($name,0,6) === '&quot;') && (substr($name,-6,6) === '&quot;')) {
 				$newname = substr($name,6);
 				$newname = substr($newname,0,-6);
+			}
+			elseif((substr($name,0,1) === '"') && (substr($name,-1,1) === '"')) {
+				$newname = substr($name,1);
+				$newname = substr($newname,0,-1);
 			}
 
 			// select someone from this user's contacts by name

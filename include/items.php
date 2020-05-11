@@ -1973,8 +1973,9 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		);
 	}
 	else {
-		$r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d and revision = %d LIMIT 1",
+		$r = q("SELECT id FROM item WHERE (mid = '%s' OR mid = '%s') AND uid = %d and revision = %d LIMIT 1",
 			dbesc($arr['mid']),
+			dbesc(basename(rawurldecode($arr['mid']))), // de-duplicate relayed comments from hubzilla < 4.0
 			intval($arr['uid']),
 			intval($arr['revision'])
 		);

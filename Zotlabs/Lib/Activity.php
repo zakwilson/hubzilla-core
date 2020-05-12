@@ -1548,7 +1548,8 @@ class Activity {
 					'hubloc_host'     => $hostname,
 					'hubloc_callback' => $inbox,
 					'hubloc_updated'  => datetime_convert(),
-					'hubloc_primary'  => 1
+					'hubloc_primary'  => 1,
+					'hubloc_id_url'   => $profile
 				]
 			);
 		}

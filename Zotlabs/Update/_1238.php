@@ -21,11 +21,11 @@ class _1238 {
 
 		// fix singleton networks hubloc_id_url
 		$r2 = q("UPDATE hubloc
-			LEFT JOIN xchan ON hubloc_hash = xchan_hash
-			SET hubloc_id_url = xchan_url
-			WHERE hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-			AND hubloc_id_url = ''
-			AND xchan_url != ''"
+			LEFT JOIN xchan ON hubloc.hubloc_hash = xchan.xchan_hash
+			SET hubloc.hubloc_id_url = xchan.xchan_url
+			WHERE hubloc.hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
+			AND hubloc.hubloc_id_url = ''
+			AND xchan.xchan_url != ''"
 		);
 
 		if($r1 && $r2) {

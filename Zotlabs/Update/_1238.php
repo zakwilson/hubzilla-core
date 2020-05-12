@@ -13,7 +13,7 @@ class _1238 {
 		);
 
 		// fix legacy zot hubloc_id_url
-		$r1 = q("UPDATE hubloc
+		$r1 = dbq("UPDATE hubloc
 			SET hubloc_id_url = CONCAT(hubloc_url, '/channel/', SUBSTRING(hubloc_addr FROM 1 FOR POSITION('@' IN hubloc_addr) -1))
 			WHERE hubloc_network = 'zot'
 			AND hubloc_id_url = ''"
@@ -21,7 +21,7 @@ class _1238 {
 
 		// fix singleton networks hubloc_id_url
 		if(ACTIVE_DBTYPE == DBTYPE_MYSQL) {
-			$r2 = q("UPDATE hubloc
+			$r2 = dbq("UPDATE hubloc
 				LEFT JOIN xchan ON hubloc_hash = xchan_hash
 				SET hubloc_id_url = xchan_url
 				WHERE hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
@@ -30,7 +30,7 @@ class _1238 {
 			);
 		}
 		if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-			$r2 = q("UPDATE hubloc                                                                                   
+			$r2 = dbq("UPDATE hubloc                                                                                   
 				SET hubloc_id_url = xchan_url
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash

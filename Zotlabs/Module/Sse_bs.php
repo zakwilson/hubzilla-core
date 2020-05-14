@@ -57,6 +57,7 @@ class Sse_bs extends Controller {
 			$_SESSION['sse_loadtime'] = datetime_convert();
 
 		$network = false;
+		$dm = false;
 		$home = false;
 		$pubs = false;
 		$f = '';
@@ -65,6 +66,10 @@ class Sse_bs extends Controller {
 			case 'network':
 				$network = true;
 				$f = 'bs_network';
+				break;
+			case 'dm':
+				$dm = true;
+				$f = 'bs_dm';
 				break;
 			case 'home':
 				$home = true;
@@ -84,6 +89,7 @@ class Sse_bs extends Controller {
 
 		$result = array_merge(
 			self::bs_network($network),
+			self::bs_dm($dm),
 			self::bs_home($home),
 			self::bs_notify(),
 			self::bs_intros(),
@@ -127,7 +133,7 @@ class Sse_bs extends Controller {
 			$items = q("SELECT * FROM item 
 				WHERE uid = %d
 				AND created <= '%s'
-				AND item_unseen = 1 AND item_wall = 0 
+				AND item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
 				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				$item_normal
@@ -153,7 +159,7 @@ class Sse_bs extends Controller {
 		}
 
 		$r = q("SELECT count(id) as total FROM item 
-			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 
+			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
 			$item_normal
 			$sql_extra
 			AND author_xchan != '%s'",
@@ -163,6 +169,71 @@ class Sse_bs extends Controller {
 
 		if($r)
 			$result['network']['count'] = intval($r[0]['total']);
+
+		return $result;
+	}
+
+	function bs_dm($notifications) {
+
+		$result['dm']['notifications'] = [];
+		$result['dm']['count'] = 0;
+
+		if(! self::$uid)
+			return $result;
+
+		$limit = intval(self::$limit);
+		$offset = self::$offset;
+
+		$sql_extra = '';
+		if(! (self::$vnotify & VNOTIFY_LIKE))
+			$sql_extra = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
+
+		$sql_extra2 = '';
+		if(self::$xchans)
+			$sql_extra2 = " AND CASE WHEN verb = '" . ACTIVITY_SHARE . "' THEN owner_xchan ELSE author_xchan END IN (" . self::$xchans . ") ";
+
+		$item_normal = item_normal();
+
+		if ($notifications) {
+			$items = q("SELECT * FROM item 
+				WHERE uid = %d
+				AND created <= '%s'
+				AND item_unseen = 1 AND item_wall = 0 AND item_private = 2
+				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+				AND author_xchan != '%s'
+				$item_normal
+				$sql_extra
+				$sql_extra2
+				ORDER BY created DESC LIMIT $limit OFFSET $offset",
+				intval(self::$uid),
+				dbescdate($_SESSION['sse_loadtime']),
+				dbesc(self::$ob_hash)
+			);
+
+			if($items) {
+				$result['dm']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
+				xchan_query($items);
+				foreach($items as $item) {
+					$result['dm']['notifications'][] = Enotify::format($item);
+				}
+			}
+			else {
+				$result['dm']['offset'] = -1;
+			}
+
+		}
+
+		$r = q("SELECT count(id) as total FROM item 
+			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private = 2
+			$item_normal
+			$sql_extra
+			AND author_xchan != '%s'",
+			intval(self::$uid),
+			dbesc(self::$ob_hash)
+		);
+
+		if($r)
+			$result['dm']['count'] = intval($r[0]['total']);
 
 		return $result;
 	}

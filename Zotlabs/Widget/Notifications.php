@@ -28,6 +28,7 @@ class Notifications {
 				]
 			];
 
+
 			$notifications[] = [
 				'type' => 'home',
 				'icon' => 'home',
@@ -40,6 +41,25 @@ class Notifications {
 				],
 				'markall' => [
 					'label' => t('Mark all notifications seen')
+				],
+				'filter' => [
+					'posts_label' => t('Show new posts only'),
+					'name_label' => t('Filter by name or address')
+				]
+			];
+
+			$notifications[] = [
+				'type' => 'dm',
+				'icon' => 'envelope',
+				'severity' => 'danger',
+				'label' => t('New Direct Messages'),
+				'title' => t('New Direct Messages Notifications'),
+				'viewall' => [
+					'url' => 'network/?dm=1',
+					'label' => t('View your direct messages')
+				],
+				'markall' => [
+					'label' => t('Mark all notifications read')
 				],
 				'filter' => [
 					'posts_label' => t('Show new posts only'),

@@ -1744,7 +1744,7 @@ function sse_bs_notifications(e, replace, followup) {
 
 function sse_handleNotifications(obj, replace, followup) {
 
-	var primary_notifications = ['home', 'intros', 'register', 'mail', 'notify', 'files'];
+	var primary_notifications = ['dm', 'home', 'intros', 'register', 'mail', 'notify', 'files'];
 	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 	var all_notifications = primary_notifications.concat(secondary_notifications);
 
@@ -1855,7 +1855,7 @@ function sse_updateNotifications(type, mid) {
 }
 
 function sse_setNotificationsStatus() {
-	var primary_notifications = ['home', 'intros', 'register', 'mail', 'notify', 'files'];
+	var primary_notifications = ['dm', 'home', 'intros', 'register', 'mail', 'notify', 'files'];
 	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 	var all_notifications = primary_notifications.concat(secondary_notifications);
 

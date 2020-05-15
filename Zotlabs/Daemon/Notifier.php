@@ -477,7 +477,6 @@ class Notifier {
 
 		$details = q("select xchan_hash, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . protect_sprintf(implode(',',$recipients)) . ")");
 
-
 		$recip_list = array();
 
 		if($details) {
@@ -567,7 +566,6 @@ class Notifier {
 		$hub_env = []; // per-hub envelope so we don't broadcast the entire envelope to all
 
 		foreach($hubs as $hub) {
-
 			if($env_recips) {
 				foreach($env_recips as $er) {
 					if($hub['hubloc_hash'] === $er['hash']) {
@@ -744,8 +742,8 @@ class Notifier {
 					else {
 						$encoded_item['owner']['network'] = 'zot';
 						$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
-						$encoded_item['author']['network'] = 'zot';
-						$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+						//$encoded_item['author']['network'] = 'zot';
+						//$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
 					}
 				}
 

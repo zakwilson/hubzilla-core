@@ -708,6 +708,8 @@ class Activity {
 			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/activity/' . urlencode($i['mid']));
 		}
 
+		$ret['diaspora:guid'] = $i['uuid'];
+
 		if($i['title'])
 			$ret['name'] = html2plain(bbcode($i['title'], [ 'cache' => true ]));
 
@@ -1983,6 +1985,7 @@ class Activity {
 			$response_activity = true;
 
 			$s['mid'] = $act->id;
+			$s['uuid'] = $act['diaspora:guid'];
 			$s['parent_mid'] = $act->obj['id'];
 
 			// over-ride the object timestamp with the activity

@@ -243,13 +243,15 @@ class HTTPSig {
 
 		$url = ((strpos($id,'#')) ? substr($id,0,strpos($id,'#')) : $id);
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
 			dbesc(str_replace('acct:','',$url)),
 			dbesc($url)
 		);
 
-		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+		$x = Libzot::zot_record_preferred($x);
+
+		if($x && $x['xchan_pubkey']) {
+			return [ 'portable_id' => $x['xchan_hash'], 'public_key' => $x['xchan_pubkey'] , 'hubloc' => $x ];
 		}
 
 		$r = ActivityStreams::fetch($id);
@@ -268,13 +270,15 @@ class HTTPSig {
 
 	function get_webfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
 
-		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+		$x = Libzot::zot_record_preferred($x);
+
+		if($x && $x['xchan_pubkey']) {
+			return [ 'portable_id' => $x['xchan_hash'], 'public_key' => $x['xchan_pubkey'] , 'hubloc' => $x ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -302,12 +306,15 @@ class HTTPSig {
 
 	function get_zotfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' limit 1",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
-		if($x && $x[0]['xchan_pubkey']) {
-			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
+
+		$x = Libzot::zot_record_preferred($x);
+
+		if($x && $x['xchan_pubkey']) {
+			return [ 'portable_id' => $x['xchan_hash'], 'public_key' => $x['xchan_pubkey'] , 'hubloc' => $x ];
 		}
 
 		$wf = Webfinger::exec($id);

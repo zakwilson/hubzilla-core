@@ -734,6 +734,8 @@ class Notifier {
 					}
 				}
 
+
+				// remove this after most hubs have updated to version 5.0
 				if(stripos($hub['site_project'], 'hubzilla') !== false && version_compare($hub['site_version'], '4.7.3', '<=')) {
 					if($encoded_item['type'] === 'mail') {
 						$encoded_item['from']['network'] = 'zot';
@@ -742,8 +744,10 @@ class Notifier {
 					else {
 						$encoded_item['owner']['network'] = 'zot';
 						$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
-						//$encoded_item['author']['network'] = 'zot';
-						//$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+						if(strpos($encoded_item['author']['url'], z_root()) === 0) {
+							$encoded_item['author']['network'] = 'zot';
+							$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+						}
 					}
 				}
 

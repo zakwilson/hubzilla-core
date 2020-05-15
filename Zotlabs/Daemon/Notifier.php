@@ -368,10 +368,10 @@ class Notifier {
 			}
 			else {
 				$activity = array_merge(['@context' => [
-                    ACTIVITYSTREAMS_JSONLD_REV,
-                    'https://w3id.org/security/v1',
-                    z_root() . ZOT_APSCHEMA_REV
-                    ]], Activity::encode_activity($target_item)
+					ACTIVITYSTREAMS_JSONLD_REV,
+					'https://w3id.org/security/v1',
+					z_root() . ZOT_APSCHEMA_REV
+					]], Activity::encode_activity($target_item)
 				);
 			}		
 
@@ -637,7 +637,7 @@ class Notifier {
 			}
 
 			// singleton deliveries by definition 'not got zot'.
-            // Single deliveries are other federated networks (plugins) and we're essentially
+			// Single deliveries are other federated networks (plugins) and we're essentially
 			// delivering only to those that have this site url in their abook_instance
 			// and only from within a sync operation. This means if you post from a clone,
 			// and a connection is connected to one of your other clones; assuming that hub

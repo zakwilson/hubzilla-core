@@ -349,7 +349,7 @@ function update_directory_entry($ud) {
 
 			$hsig = $record['signature'];
 			if($hsig && $hsig['signer'] === $url && $hsig['header_valid'] === true && $hsig['content_valid'] === true) {
-				$x = \Zotlabs\Zot\Libzot::import_xchan($record['data'], 0, $ud);
+				$x = \Zotlabs\Lib\Libzot::import_xchan($record['data'], 0, $ud);
 				if($x['success']) {
 					$success = true;
 				}

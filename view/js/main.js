@@ -792,7 +792,7 @@ function updateConvItems(mode,data) {
 			//console.log('all images loaded, at least one is broken');
 		})
 		.progress( function( instance, image ) {
-			var result = image.isLoaded ? 'loaded' : 'broken';
+			//var result = image.isLoaded ? 'loaded' : 'broken';
 			//console.log( 'image is ' + result + ' for ' + image.img.src );
 		});
 	}

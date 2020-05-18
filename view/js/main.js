@@ -749,10 +749,6 @@ function updateConvItems(mode,data) {
 	else
 		sse_bs_init();
 
-	// reset rotators and cursors we may have set before reaching this place
-
-	$('.like-rotator').hide();
-
 	if(commentBusy) {
 		commentBusy = false;
 		$('body').css('cursor', 'auto');
@@ -779,29 +775,38 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; });
-	var bimgcount = bimgs.length;
+	if(! preloadImages) {
+		$('.wall-item-body, .wall-photo-item').imagesLoaded()
+		.always( function( instance ) {
+			//console.log('all images loaded');
+			collapseHeight();
 
-	if (bimgcount) {
-		bimgs.on('load',function() {
-			bimgcount--;
-			if (! bimgcount) {
-				collapseHeight();
+			if(bParam_mid && mode === 'replace')
+				scrollToItem();
 
-				if(bParam_mid && mode === 'replace')
-					scrollToItem();
-
-				$(document.body).trigger("sticky_kit:recalc");
-			}
+		})
+		.done( function( instance ) {
+			//console.log('all images successfully loaded');
+		})
+		.fail( function() {
+			//console.log('all images loaded, at least one is broken');
+		})
+		.progress( function( instance, image ) {
+			var result = image.isLoaded ? 'loaded' : 'broken';
+			//console.log( 'image is ' + result + ' for ' + image.img.src );
 		});
-	} else {
+	}
+	else {
 		collapseHeight();
 
 		if(bParam_mid && mode === 'replace')
 			scrollToItem();
-
-		$(document.body).trigger("sticky_kit:recalc");
 	}
+
+	// reset rotators and cursors we may have set before reaching this place
+	$('.like-rotator').hide();
+	$("#page-spinner").hide();
+	$("#profile-jot-text-loading").hide();
 
 	followUpPageLoad = true;
 
@@ -999,16 +1004,16 @@ function liveUpdate(notify_id) {
 
 		if(update_mode === 'update' || preloadImages) {
 			console.log('LOADING images...');
+			$('.wall-item-body, .wall-photo-item',data).imagesLoaded()
+			.always( function( instance ) {
+				//console.log('all images loaded');
 
-			$('.wall-item-body, .wall-photo-item',data).imagesLoaded( function() {
 				var iready = new Date();
-				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
+				//console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
 				page_load = false;
 				scroll_next = false;
 				updateConvItems(update_mode,data);
-				$("#page-spinner").hide();
-				$("#profile-jot-text-loading").hide();
 
 				// adjust scroll position if new content was added above viewport
 				if(update_mode === 'update' && !justifiedGalleryActive) {
@@ -1016,16 +1021,26 @@ function liveUpdate(notify_id) {
 				}
 
 				in_progress = false;
+				$('#image_counter').html('');
 
+			})
+			.done( function( instance ) {
+				//console.log('all images successfully loaded');
+			})
+			.fail( function() {
+				//console.log('all images loaded, at least one is broken');
+			})
+			.progress( function( instance, image ) {
+				$('#image_counter').html(instance.progressedCount + '/' + instance.images.length);
+				//var result = image.isLoaded ? 'loaded' : 'broken';
+				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});
+
 		}
 		else {
 			page_load = false;
 			scroll_next = false;
 			updateConvItems(update_mode,data);
-			$("#page-spinner").hide();
-			$("#profile-jot-text-loading").hide();
-
 			in_progress = false;
 
 		}

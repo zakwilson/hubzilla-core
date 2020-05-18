@@ -452,6 +452,7 @@ function get_atom_elements($feed, $item) {
 	else {
 	    $res['title'] = bbcode($res['title'], [ 'tryoembed' => false ]);
 	    $res['title'] = html2plain($res['title'], 0, true);
+		$res['title'] = strip_tags($res['title']);
 	    $res['title'] = html_entity_decode($res['title'], ENT_QUOTES, 'UTF-8');
 	    $res['title'] = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $res['title']);
 	    while (strpos($res['title'], "\n") !== false)

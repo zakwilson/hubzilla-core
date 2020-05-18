@@ -1009,7 +1009,7 @@ function liveUpdate(notify_id) {
 				//console.log('all images loaded');
 
 				var iready = new Date();
-				//console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
+				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
 				page_load = false;
 				scroll_next = false;

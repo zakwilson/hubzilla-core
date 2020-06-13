@@ -81,15 +81,6 @@ nav .dropdown-menu {
 	text-decoration: none;
 }
 
-.wall-item-tools .dropdown-menu {
-	min-width: auto;
-}
-
 label {
 	font-weight: bold;
-}
-
-small,
-.small {
-	font-size: 0.75rem;
 }

@@ -190,7 +190,7 @@
 				{{/if}}
 				{{/if}}
 				<div id="nav-{{$notification.type}}-menu" class="list-group list-group-flush"></div>
-				<div id="nav-{{$notification.type}}-loading" class="list-group-item border border-left-0 border-bottom-0 border-right-0" style="display: none;">
+				<div id="nav-{{$notification.type}}-loading" class="list-group-item" style="display: none;">
 					{{$loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 				</div>
 

@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 class Zfinger extends \Zotlabs\Web\Controller {
 
@@ -10,10 +11,10 @@ class Zfinger extends \Zotlabs\Web\Controller {
 		require_once('include/zot.php');
 		require_once('include/crypto.php');
 	
-		$x = zotinfo($_REQUEST);
+		$x = Libzot::zotinfo($_REQUEST);
 
-		if($x && $x['guid'] && $x['guid_sig']) {
-			$chan_hash = make_xchan_hash($x['guid'],$x['guid_sig']);
+		if($x && $x['id'] && $x['public_key']) {
+			$chan_hash = Libzot::make_xchan_hash($x['id'],$x['public_key']);
 			if($chan_hash) {
 				$chan = channelx_by_hash($chan_hash);
 			}

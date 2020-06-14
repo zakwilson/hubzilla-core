@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v10.21.0",
-        "version_normalized": "10.21.0.0",
+        "version": "v10.30.1",
+        "version_normalized": "10.30.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "74462f4b06e0f3b006d43cb101226f9d0e1219b7"
+            "reference": "fa90144200874f51eefcaeae1e1a05f0611ddf9e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/74462f4b06e0f3b006d43cb101226f9d0e1219b7",
-            "reference": "74462f4b06e0f3b006d43cb101226f9d0e1219b7",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/fa90144200874f51eefcaeae1e1a05f0611ddf9e",
+            "reference": "fa90144200874f51eefcaeae1e1a05f0611ddf9e",
             "shasum": ""
         },
-        "time": "2020-05-06T06:34:07+00:00",
+        "time": "2020-06-10T06:45:27+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1263,23 +1263,23 @@
     },
     {
         "name": "twbs/bootstrap",
-        "version": "v4.4.1",
-        "version_normalized": "4.4.1.0",
+        "version": "v4.5.0",
+        "version_normalized": "4.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twbs/bootstrap.git",
-            "reference": "dca1ab7d877bc4b664b43604657a2b5fbe2b4ecb"
+            "reference": "7a6da5e3e7ad7c749dde806546a35d4d4259d965"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twbs/bootstrap/zipball/dca1ab7d877bc4b664b43604657a2b5fbe2b4ecb",
-            "reference": "dca1ab7d877bc4b664b43604657a2b5fbe2b4ecb",
+            "url": "https://api.github.com/repos/twbs/bootstrap/zipball/7a6da5e3e7ad7c749dde806546a35d4d4259d965",
+            "reference": "7a6da5e3e7ad7c749dde806546a35d4d4259d965",
             "shasum": ""
         },
         "replace": {
             "twitter/bootstrap": "self.version"
         },
-        "time": "2019-11-28T12:59:49+00:00",
+        "time": "2020-05-12T17:44:42+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1312,6 +1312,12 @@
             "responsive",
             "sass",
             "web"
+        ],
+        "funding": [
+            {
+                "url": "https://opencollective.com/bootstrap",
+                "type": "open_collective"
+            }
         ]
     }
 ]

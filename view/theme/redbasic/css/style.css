@@ -1631,13 +1631,14 @@ dl.bb-dl > dd > li {
 }
 
 .form-group.checkbox > div label {
-    display: block; overflow: hidden; cursor: pointer;
-    border: 1px solid #ccc;
-    border-radius: 12px;
-    margin:0px;
+	display: block; overflow: hidden; cursor: pointer;
+	border: 1px solid #ccc;
+	border-radius: 12px;
+	margin:0px;
 	-webkit-transition: border-color ease-in-out .15s, -webkit-box-shadow ease-in-out .15s;
 	-o-transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
 	transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
+	font-weight: normal;
 }
 
 .form-group.checkbox:hover label {

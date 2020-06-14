@@ -1711,6 +1711,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Update\\_1235' => __DIR__ . '/../..' . '/Zotlabs/Update/_1235.php',
         'Zotlabs\\Update\\_1236' => __DIR__ . '/../..' . '/Zotlabs/Update/_1236.php',
         'Zotlabs\\Update\\_1237' => __DIR__ . '/../..' . '/Zotlabs/Update/_1237.php',
+        'Zotlabs\\Update\\_1238' => __DIR__ . '/../..' . '/Zotlabs/Update/_1238.php',
         'Zotlabs\\Web\\Controller' => __DIR__ . '/../..' . '/Zotlabs/Web/Controller.php',
         'Zotlabs\\Web\\HTTPHeaders' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPHeaders.php',
         'Zotlabs\\Web\\HTTPSig' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPSig.php',

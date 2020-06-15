@@ -163,13 +163,13 @@ class Wfinger extends \Zotlabs\Web\Controller {
 			else {
 
 				$result['links'] = [
-	
+
 					[
 						'rel'  => 'http://webfinger.net/rel/avatar',
 						'type' => $r[0]['xchan_photo_mimetype'],
 						'href' => $r[0]['xchan_photo_l']	
 					],
-	
+
 					[
 						'rel'  => 'http://microformats.org/profile/hcard',
 						'type' => 'text/html',
@@ -181,12 +181,11 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'href' => z_root()
 					],
 
-
 					[
 						'rel'  => 'http://webfinger.net/rel/profile-page',
 						'href' => z_root() . '/profile/' . $r[0]['channel_address'],
 					],
-	
+
 					[
 						'rel'  => 'http://schemas.google.com/g/2010#updates-from', 
 						'type' => 'application/atom+xml', 
@@ -197,7 +196,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'rel'  => 'http://webfinger.net/rel/blog',
 						'href' => z_root() . '/channel/' . $r[0]['channel_address'],
 					],
-	
+
 					[
 						'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
 						'template' => z_root() . '/follow?f=&url={uri}',
@@ -220,7 +219,6 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'href' => z_root() . '/owa',
 					],
 
-	
 					[
 						'rel'  => 'magic-public-key',
 						'href' => 'data:application/magic-public-key,' . salmon_key($r[0]['channel_pubkey']),
@@ -241,7 +239,6 @@ class Wfinger extends \Zotlabs\Web\Controller {
 	
 		$arr = [ 'channel' => $r[0], 'pchan' => $pchan, 'request' => $_REQUEST, 'result' => $result ];
 		call_hooks('webfinger',$arr);
-
 
 		json_return_and_die($arr['result'],'application/jrd+json');
 	

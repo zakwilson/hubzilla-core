@@ -1216,6 +1216,7 @@ return array(
     'Zotlabs\\Module\\Removeme' => $baseDir . '/Zotlabs/Module/Removeme.php',
     'Zotlabs\\Module\\Rmagic' => $baseDir . '/Zotlabs/Module/Rmagic.php',
     'Zotlabs\\Module\\Rpost' => $baseDir . '/Zotlabs/Module/Rpost.php',
+    'Zotlabs\\Module\\Sbom' => $baseDir . '/Zotlabs/Module/Sbom.php',
     'Zotlabs\\Module\\Search' => $baseDir . '/Zotlabs/Module/Search.php',
     'Zotlabs\\Module\\Search_ac' => $baseDir . '/Zotlabs/Module/Search_ac.php',
     'Zotlabs\\Module\\Service_limits' => $baseDir . '/Zotlabs/Module/Service_limits.php',

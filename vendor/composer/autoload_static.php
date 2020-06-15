@@ -1384,6 +1384,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Removeme' => __DIR__ . '/../..' . '/Zotlabs/Module/Removeme.php',
         'Zotlabs\\Module\\Rmagic' => __DIR__ . '/../..' . '/Zotlabs/Module/Rmagic.php',
         'Zotlabs\\Module\\Rpost' => __DIR__ . '/../..' . '/Zotlabs/Module/Rpost.php',
+        'Zotlabs\\Module\\Sbom' => __DIR__ . '/../..' . '/Zotlabs/Module/Sbom.php',
         'Zotlabs\\Module\\Search' => __DIR__ . '/../..' . '/Zotlabs/Module/Search.php',
         'Zotlabs\\Module\\Search_ac' => __DIR__ . '/../..' . '/Zotlabs/Module/Search_ac.php',
         'Zotlabs\\Module\\Service_limits' => __DIR__ . '/../..' . '/Zotlabs/Module/Service_limits.php',

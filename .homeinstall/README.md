@@ -81,19 +81,12 @@ The script is known to work without adjustments with
 + Hardware
   - Mini-PC with Debian 10 (stretch), or
   - Rapberry 3 with Raspbian, Debian 10
+  - Rapberry 4 with Raspbian, Debian 10
 + DynDNS
   - selfHOST.de
   - freedns.afraid.org
 
 The script can install both [Hubzilla](https://zotlabs.org/page/hubzilla/hubzilla-project) and [Zap](https://zotlabs.com/zap/). Make sure to use the correct GIT repositories.  
-
-+ Hubzilla
-  - core: git clone https://framagit.org/hubzilla/core.git html (in this readme)
-  - addons: util/add_addon_repo https://framagit.org/hubzilla/addons.git hzaddons (in hubzilla-setup.sh)
-+ Zap
-  - core: git clone https://framagit.org/zot/zap.git html (in this readme)
-  - addons: util/add_addon_repo https://framagit.org/zot/zap-addons.git zaddons (in hubzilla-setup.sh)
-
 
 
 # Step-by-Step - some Details
@@ -102,7 +95,7 @@ The script can install both [Hubzilla](https://zotlabs.org/page/hubzilla/hubzill
 
 ## Configure your Router
 
-Your web has to be visible in the internet.  
+Your webserver has to be visible in the internet.  
 
 Open the ports 80 and 443 on your router for your Debian. Make sure your web server is marked as "exposed host".
 
@@ -144,5 +137,7 @@ to boot the Rapsi to the client console.
 
 DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
+## Reminder for Different Web Wervers
 
+For those of you who feel adventurous enough to use a different web server (Nginx, Lighttpd...), don't forget that this script will install Apache and that you can only have one web server listening to ports 80 & 443. Also, don't forget to tweak /var/www/hubzilla-daily.sh accordingly.
 

@@ -14,6 +14,7 @@ use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\ThreadListener;
+use Zotlabs\Access\PermissionRoles;
 use App;
 
 require_once('include/crypto.php');
@@ -677,6 +678,25 @@ class Item extends Controller {
 		$str_contact_deny  = $gacl['deny_cid'];
 		$str_group_deny    = $gacl['deny_gid'];
 
+
+		$groupww = false;
+
+		// if this is a wall-to-wall post to a group, turn it into a direct message
+		
+		$role = get_pconfig($profile_uid,'system','permissions_role');
+
+		$rolesettings = PermissionRoles::role_perms($role);
+
+		$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
+
+		$is_group = (($channel_type === 'group') ? true : false);
+
+		if (($is_group) && ($walltowall) && (! $walltowall_comment)) {				
+			$groupww = true;
+			$str_contact_allow = $owner_xchan['xchan_hash'];
+			$str_group_allow = '';
+		}
+
 		$post_tags = [];
 	
 		if($mimetype === 'text/bbcode') {
@@ -1233,7 +1253,11 @@ class Item extends Controller {
 		$datarray['llink'] = z_root() . '/display/' . gen_link_id($datarray['mid']);
 	
 		call_hooks('post_local_end', $datarray);
-	
+
+		if ($groupww) {
+			$nopush = false;
+		}
+
 		if(! $nopush)
 			Master::Summon([ 'Notifier', $notify_type, $post_id ]);
 	

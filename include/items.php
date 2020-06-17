@@ -12,6 +12,7 @@ use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\AccessList;
 use Zotlabs\Daemon\Master;
 
@@ -290,7 +291,7 @@ function is_item_normal($item) {
  */
 function can_comment_on_post($observer_xchan, $item) {
 
-//	logger('Comment_policy: ' . $item['comment_policy'], LOGGER_DEBUG);
+	// logger('Comment_policy: ' . $item['comment_policy'], LOGGER_DEBUG);
 
 	$x = [
 		'observer_hash' => $observer_xchan,
@@ -351,7 +352,8 @@ function can_comment_on_post($observer_xchan, $item) {
 				return true;
 			}
 			break;
-		default:
+
+			default:
 			break;
 	}
 	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'red')) {
@@ -2628,6 +2630,12 @@ function get_item_contact($item,$contacts) {
  */
 function tag_deliver($uid, $item_id) {
 
+	$role = get_pconfig($uid,'system','permissions_role');
+	$rolesettings = PermissionRoles::role_perms($role);
+	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
+
+	$is_group = (($channel_type === 'group') ? true : false);
+
 	$mention = false;
 
 	/*
@@ -2647,6 +2655,7 @@ function tag_deliver($uid, $item_id) {
 	if(! $i)
 		return;
 
+	xchan_query($i,true);
 	$i = fetch_post_tags($i);
 
 	$item = $i[0];
@@ -2659,6 +2668,28 @@ function tag_deliver($uid, $item_id) {
 		// after resetting ownership and permission bits
 		logger('updating edited tag_deliver post for ' . $u[0]['channel_address']);
 		start_delivery_chain($u[0], $item, $item_id, 0, true);
+		return;
+	}
+
+	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
+		// group delivery via DM
+		logger('group DM delivery for ' . $u[0]['channel_address']);
+		start_delivery_chain($u[0], $item, $item_id, 0, false);
+		return;
+	}
+
+
+	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
+		if (strpos($item['body'],'[/share]')) {
+			logger('W2W post already shared');
+			return;
+		}
+		// group delivery via W2W
+		logger('rewriting W2W post for ' . $u[0]['channel_address']);
+		start_delivery_chain($u[0], $item, $item_id, 0, false);
+		q("update item set item_wall = 0 where id = %d",
+			intval($item_id)
+		);
 		return;
 	}
 
@@ -2965,6 +2996,13 @@ function item_community_tag($channel,$item) {
  */
 function tgroup_check($uid, $item) {
 
+
+	$role = get_pconfig($uid,'system','permissions_role');
+	$rolesettings = PermissionRoles::role_perms($role);
+	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
+
+	$is_group = (($channel_type === 'group') ? true : false);
+
 	$mention = false;
 
 	// check that the message originated elsewhere and is a top-level post
@@ -2980,6 +3018,15 @@ function tgroup_check($uid, $item) {
 
 		return false;
 	}
+
+	// post to group via DM
+	
+	if ($is_group) {
+		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid']) {
+			return true;
+		}
+	}
+
 
 	// see if we already have this item. Maybe it is being updated.
 
@@ -3135,6 +3182,75 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 			);
 		}
 	}
+
+	// @todo handle edit and parent correctly
+
+	if(! $parent) {
+
+		if ($edit) {
+			return;
+		}
+
+		$arr = [];
+
+		$arr['aid'] = $channel['channel_account_id'];
+		$arr['uid'] = $channel['channel_id'];
+
+		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
+		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		$arr['item_origin'] = 1;
+		$arr['item_wall'] = 1;
+
+		$arr['uuid'] = item_message_id();
+		$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
+		$arr['parent_mid'] = $arr['mid'];
+		$arr['item_thread_top'] = 1;
+	
+		if (strpos($item['body'], "[/share]") !== false) {
+			$pos = strpos($item['body'], "[share");
+			$bb = substr($item['body'], $pos);
+		} else {
+			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
+				"' profile='"       . $item['author']['xchan_url'] .
+				"' portable_id='"   . $item['author']['xchan_hash'] . 
+				"' avatar='"        . $item['author']['xchan_photo_s'] .
+				"' link='"          . $item['plink'] .
+				"' auth='"          . ((in_array($item['author']['network'], ['zot','zot6'])) ? 'true' : 'false') .
+				"' posted='"        . $item['created'] .
+				"' message_id='"    . $item['mid'] .
+			"']";
+			if($item['title'])
+				$bb .= '[b]'.$item['title'].'[/b]'."\r\n";
+			$bb .= $item['body'];
+			$bb .= "[/share]";
+		}
+
+		$mention = '@[zrl=' . $item['author']['xchan_url'] . ']' . $item['author']['xchan_name'] . '[/zrl]';
+		$arr['body'] = $bb;
+
+		$arr['author_xchan'] = $channel['channel_hash'];
+		$arr['owner_xchan']  = $channel['channel_hash'];
+		// $arr['obj'] = $item['obj'];
+		$arr['obj_type'] = $item['obj_type'];
+		$arr['verb'] = ACTIVITY_POST;
+
+		$arr['allow_cid'] = $channel['channel_allow_cid'];
+		$arr['allow_gid'] = $channel['channel_allow_gid'];
+		$arr['deny_cid']  = $channel['channel_deny_cid'];
+		$arr['deny_gid']  = $channel['channel_deny_gid'];
+		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
+
+		$post = item_store($arr);	
+
+		$post_id = $post['item_id'];
+
+		if($post_id) {
+			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+		}
+		return;
+	}
+
 
 	// Change this copy of the post to a forum head message and deliver to all the tgroup members
 	// also reset all the privacy bits to the forum default permissions

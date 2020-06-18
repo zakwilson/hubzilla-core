@@ -100,7 +100,7 @@ $(document).ready(function() {
 			$('#event_submit').val('create_event').html('{{$create}}');
 			$('#event_delete').hide();
 
-			new_event = { id: new_event_id, title: 'New event', start: info.date.toUTCString(), end: dtend ? dtend.toUTCString() : '', allDay: info.allDay, editable: true, color: '#bbb' };
+			new_event = { id: new_event_id, title: 'New event', start: info.date, end: dtend ? dtend : '', allDay: info.allDay, editable: true, color: '#bbb' };
 			calendar.addEvent(new_event);
 		},
 

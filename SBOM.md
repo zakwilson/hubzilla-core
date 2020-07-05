@@ -29,3 +29,4 @@
 |fengyuanchen/cropperjs|1.5.7.0|MIT|https://github.com/fengyuanchen/cropperjs.git|
 |ForkAwesome/Fork-Awesome|1.1.7.0|MIT,SIL OFL,CC BY 3.0|https://github.com/ForkAwesome/Fork-Awesome.git|
 |leafo/sticky-kit|1.1.2.0|MIT|https://github.com/leafo/sticky-kit.git|
+|jquery/jquery|3.5.1.0|MIT|https://github.com/jquery/jquery.git|

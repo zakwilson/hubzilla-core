@@ -816,8 +816,6 @@ class Item extends Controller {
 				$i = 0;
 				foreach($match[2] as $mtch) {
 					$reshare = new \Zotlabs\Lib\Share($mtch);
-					$datarray['obj'] = $reshare->obj();
-					$datarray['obj_type'] = $datarray['obj']['type'];
 					$body = str_replace($match[1][$i],$reshare->bbcode(),$body);
 					$i++;
 				}

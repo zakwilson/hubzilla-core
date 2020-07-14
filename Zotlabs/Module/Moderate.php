@@ -16,7 +16,7 @@ class Moderate extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		\App::set_pager_itemspage(60);
+		\App::set_pager_itemspage(30);
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));               
 
 		//show all items

@@ -4536,8 +4536,8 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		// only setup pagination on initial page view
 		$pager_sql = '';
 	} else {
-		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 20);
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 	}
 

@@ -1082,7 +1082,7 @@ function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).show();
 	$('#' + id).justifiedGallery({
-		selector: 'a, div:not(#page-end)',
+		selector: 'a',
 		margins: 3,
 		border: 0
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });

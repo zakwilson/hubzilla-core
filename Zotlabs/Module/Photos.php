@@ -708,7 +708,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			]);
 
 			if($x = photos_album_exists($owner_uid, get_observer_hash(), $datum)) {
-				\App::set_pager_itemspage(60);
+				\App::set_pager_itemspage(30);
 				$album = $x['display_path'];
 			} 
 			else {
@@ -1289,7 +1289,7 @@ class Photos extends \Zotlabs\Web\Controller {
 		\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
 	
 
-		\App::set_pager_itemspage(60);
+		\App::set_pager_itemspage(30);
 		
 		$r = q("SELECT p.resource_id, p.id, p.filename, p.mimetype, p.album, p.imgscale, p.created, p.display_path 
 			FROM photo p 

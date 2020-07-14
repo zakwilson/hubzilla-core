@@ -129,10 +129,10 @@ function create_sys_channel() {
  * @return array|boolean
  */
 function get_sys_channel() {
-	$r = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1 limit 1");
+	$r = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1");
 
 	if ($r)
-		return $r[0];
+		return Libzot::zot_record_preferred($r, 'xchan_network');
 
 	return false;
 }

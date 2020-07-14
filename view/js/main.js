@@ -1082,6 +1082,7 @@ function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).show();
 	$('#' + id).justifiedGallery({
+		rowHeight: 150,
 		selector: 'a',
 		margins: 3,
 		border: 0

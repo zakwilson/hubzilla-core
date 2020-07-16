@@ -223,6 +223,34 @@ $(document).ready(function() {
 		cache_next_page();
 	});
 
+//hide_aside plugin
+	var hide_aside_timer = null;
+
+	$(document).on('hz:updateConvItems hz:updatePageItems', function(event) {
+		if(bParam_page > 2) {
+			if(hide_aside_timer)
+				clearTimeout(hide_aside_timer);
+
+			hide_aside_timer = setTimeout(function(){$('aside').animate({ opacity: 0 }, 3000);}, 2000);
+		}
+	});
+
+	$('aside, aside *').on('mouseover', function(){
+		clearTimeout(hide_aside_timer);
+		if(bParam_page > 2)
+			$('aside').animate({ opacity: 1 });
+	});
+
+	$('aside').on('mouseleave', function(){
+		if(bParam_page > 2) {
+			if(hide_aside_timer)
+				clearTimeout(hide_aside_timer);
+
+			hide_aside_timer = setTimeout(function(){$('aside').animate({ opacity: 0 }, 3000);}, 7000);
+		}
+	});
+//end plugin
+
 });
 
 function getConversationSettings() {

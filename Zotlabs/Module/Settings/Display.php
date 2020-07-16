@@ -36,9 +36,9 @@ class Display {
 		if($browser_update < 10000)
 			$browser_update = 10000;
 
-		$itemspage   = ((x($_POST,'itemspage')) ? intval($_POST['itemspage']) : 20);
-		if($itemspage > 100)
-			$itemspage = 100;
+		$itemspage   = ((x($_POST,'itemspage')) ? intval($_POST['itemspage']) : 10);
+		if($itemspage > 30)
+			$itemspage = 30;
 
 
 		set_pconfig(local_channel(),'system','preload_images',$preload_images);
@@ -159,7 +159,7 @@ class Display {
 		$browser_update = (($browser_update == 0) ? 80 : $browser_update / 1000); // default if not set: 40 seconds
 
 		$itemspage = intval(get_pconfig(local_channel(), 'system','itemspage'));
-		$itemspage = (($itemspage > 0 && $itemspage < 101) ? $itemspage : 20); // default if not set: 20 items
+		$itemspage = (($itemspage > 0 && $itemspage <= 30) ? $itemspage : 10); // default if not set: 10 items
 
 		$nosmile = get_pconfig(local_channel(),'system','no_smilies');
 		$nosmile = (($nosmile===false)? '0': $nosmile); // default if not set: 0
@@ -197,7 +197,7 @@ class Display {
 			'$preload_images' => array('preload_images', t("Preload images before rendering the page"), $preload_images, t("The subjective page load time will be longer but the page will be ready when displayed"), $yes_no),
 			'$user_scalable' => array('user_scalable', t("Enable user zoom on mobile devices"), $user_scalable, '', $yes_no),
 			'$ajaxint'   => array('browser_update',  t("Update browser every xx seconds"), $browser_update, t('Minimum of 10 seconds, no maximum')),
-			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 100 items')),
+			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 30 items')),
 			'$nosmile'	=> array('nosmile', t("Show emoticons (smilies) as images"), 1-intval($nosmile), '', $yes_no),
 			'$channel_menu' => [ 'channel_menu', t('Provide channel menu in navigation bar'), get_pconfig(local_channel(),'system','channel_menu',get_config('system','channel_menu',0)), t('Default: channel menu located in app menu'),$yes_no ],
 			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),

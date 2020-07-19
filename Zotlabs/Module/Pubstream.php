@@ -169,7 +169,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$pager_sql = '';
 		}
 		else {
-			\App::set_pager_itemspage(20);
+			\App::set_pager_itemspage(10);
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));
 		}
 	

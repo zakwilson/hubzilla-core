@@ -11,7 +11,7 @@ require_once('include/dir_fns.php');
 class Dirsearch extends Controller {
 
 	function init() {
-		App::set_pager_itemspage(60);
+		App::set_pager_itemspage(30);
 	
 	}
 	

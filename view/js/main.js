@@ -31,6 +31,8 @@ var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
 
+var page_cache = {};
+
 // take care of tab/window reloads on channel change
 if(localStorage.getItem('uid') !== localUser.toString()) {
 	localStorage.clear();
@@ -217,15 +219,17 @@ $(document).ready(function() {
 	if(e)
 		pageHasMoreContent = false;
 
+	$(document).on('hz:updateConvItems', function(event) {
+		if(!bParam_mid)
+			cache_next_page();
+	});
+
 });
 
 function getConversationSettings() {
 	$.get('settings/conversation/?f=&aj=1',function(data) {
 		$('#conversation_settings_body').html(data);
 	});
-
-
-
 }
 
 function postConversationSettings() {
@@ -581,6 +585,8 @@ function contextualHelpFocus(target, openSidePanel) {
 
 function updatePageItems(mode, data) {
 
+	$(document).trigger('hz:updatePageItems');
+
 	if(mode === 'append') {
 		newitemcount = 0;
 		$(data).each(function() {
@@ -607,6 +613,8 @@ function updatePageItems(mode, data) {
 
 
 function updateConvItems(mode,data) {
+
+	$(document).trigger('hz:updateConvItems');
 
 	if(mode === 'update' || mode === 'replace') {
 		prev = 'threads-begin';
@@ -954,6 +962,8 @@ function liveUpdate(notify_id) {
 
 	update_url = buildCmd();
 
+	console.log('displaying: ' + update_url);
+
 	if(page_load) {
 		$("#page-spinner").show();
 		if(bParam_page == 1)
@@ -966,13 +976,21 @@ function liveUpdate(notify_id) {
 		var orgHeight = $("#region_2").height();
 	}
 
+	if(page_cache.data && bParam_page == page_cache.page && page_cache.time > (Date.now() - 60000)) {
+		page_load = false;
+		scroll_next = false;
+		updateConvItems(update_mode,page_cache.data);
+		in_progress = false;
+		return;
+	}
+
 	var dstart = new Date();
 	console.log('LOADING data...');
 	$.get(update_url, function(data) {
 
 		// on shared hosts occasionally the live update process will be killed
 		// leaving an incomplete HTML structure, which leads to conversations getting
-		// truncated and the page messed up if all the divs aren't closed. We will try 
+		// truncated and the page messed up if all the divs aren't closed. We will try
 		// again and give up if we can't get a valid HTML response after 10 tries.
 
 		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
@@ -985,7 +1003,7 @@ function liveUpdate(notify_id) {
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
 			}
-		}		
+		}
 
 		// else data was valid - reset the recursion counter
 		liveRecurse = 0;
@@ -1042,10 +1060,65 @@ function liveUpdate(notify_id) {
 			scroll_next = false;
 			updateConvItems(update_mode,data);
 			in_progress = false;
-
 		}
 
 	});
+}
+
+function cache_next_page() {
+	page_load = true;
+	bParam_page = bParam_page + 1;
+	update_url = buildCmd();
+
+	$.get(update_url, function(data) {
+
+		// on shared hosts occasionally the live update process will be killed
+		// leaving an incomplete HTML structure, which leads to conversations getting
+		// truncated and the page messed up if all the divs aren't closed. We will try
+		// again and give up if we can't get a valid HTML response after 10 tries.
+
+		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
+			console.log('Incomplete data. Reloading');
+			in_progress = false;
+			liveRecurse ++;
+			if(liveRecurse < 10) {
+				liveUpdate();
+			}
+			else {
+				console.log('Incomplete data. Too many attempts. Giving up.');
+			}
+		}
+
+		// else data was valid - reset the recursion counter
+		liveRecurse = 0;
+
+		console.log('cached: ' + update_url);
+
+		$('.wall-item-body, .wall-photo-item', data).imagesLoaded()
+		.always( function( instance ) {
+			console.log('page_cache images loaded:');
+
+			page_cache.data = data;
+			page_cache.page = bParam_page;
+			page_cache.time = Date.now();
+
+			bParam_page = bParam_page - 1;
+			page_load = false;
+		})
+		.done( function( instance ) {
+			console.log('success');
+		})
+		.fail( function() {
+			console.log('at least one is broken');
+		})
+		.progress( function( instance, image ) {
+			//console.log(instance.progressedCount + '/' + instance.images.length);
+			//var result = image.isLoaded ? 'loaded' : 'broken';
+			//console.log( 'image is ' + result + ' for ' + image.img.src );
+		});
+
+	});
+
 }
 
 function pageUpdate() {
@@ -1082,7 +1155,8 @@ function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).show();
 	$('#' + id).justifiedGallery({
-		selector: 'a, div:not(#page-end)',
+		rowHeight: 150,
+		selector: 'a',
 		margins: 3,
 		border: 0
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
@@ -1508,7 +1582,7 @@ function zFormError(elm,x) {
 $(window).scroll(function () {
 	if(typeof buildCmd == 'function') {
 		// This is a content page with items and/or conversations
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
 			if((pageHasMoreContent) && (! loadingPage)) {
 				next_page++;
 				scroll_next = true;
@@ -1519,7 +1593,7 @@ $(window).scroll(function () {
 	}
 	else {
 		// This is some other kind of page - perhaps a directory
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
 			if((pageHasMoreContent) && (! loadingPage) && (! justifiedGalleryActive)) {
 				next_page++;
 				scroll_next = true;

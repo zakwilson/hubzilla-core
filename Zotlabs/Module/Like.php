@@ -210,20 +210,8 @@ class Like extends \Zotlabs\Web\Controller {
 			if(! $plink)
 				$plink = '[zrl=' . z_root() . '/profile/' . $ch[0]['channel_address'] . ']' . $post_type . '[/zrl]';
 		
-			$links   = array();
-			$links[] = array('rel' => 'alternate', 'type' => 'text/html',
-				'href' => z_root() . '/profile/' . $ch[0]['channel_address']);
-			$links[] = array('rel' => 'photo', 'type' => $ch[0]['xchan_photo_mimetype'],
-				'href' => $ch[0]['xchan_photo_l']);
-	
-			$object = json_encode(array(
-				'type'  => ACTIVITY_OBJ_PROFILE,
-				'title' => $ch[0]['channel_name'],
-				'id'    => $ch[0]['xchan_url'] . '/' . $ch[0]['xchan_hash'],
-				'link'  => $links
-			));
-	
-	
+			$object = json_encode(Activity::fetch_profile([ 'id' => channel_url($ch[0]) ]));
+
 			// second like of the same thing is "undo" for the first like
 	
 			$z = q("select * from likes where channel_id = %d and liker = '%s' and verb = '%s' and target_type = '%s' and target_id = '%s' limit 1",
@@ -408,27 +396,8 @@ class Like extends \Zotlabs\Web\Controller {
 	
 			$body = $item['body'];
 	
-			$object = json_encode(array(
-				'type'    => $objtype,
-				'id'      => $item['mid'],
-				'asld'    => Activity::fetch_item( [ 'id' => $item['mid'] ] ),
-				'parent'  => (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']),
-				'link'    => $links,
-				'title'   => $item['title'],
-				'content' => $item['body'],
-				'created' => $item['created'],
-				'edited'  => $item['edited'],
-				'author'  => array(
-					'name'     => $item_author['xchan_name'],
-					'address'  => $item_author['xchan_addr'],
-					'guid'     => $item_author['xchan_guid'],
-					'guid_sig' => $item_author['xchan_guid_sig'],
-					'link'     => array(
-						array('rel' => 'alternate', 'type' => 'text/html', 'href' => $item_author['xchan_url']),
-						array('rel' => 'photo', 'type' => $item_author['xchan_photo_mimetype'], 'href' => $item_author['xchan_photo_m'])),
-					),
-			));
-	
+			$object = json_encode(Activity::fetch_item( [ 'id' => $item['mid'] ]));
+
 			if(! intval($item['item_thread_top']))
 				$post_type = 'comment';		
 	

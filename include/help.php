@@ -223,7 +223,7 @@ function find_doc_file($s) {
  */
 function search_doc_files($s) {
 
-	\App::set_pager_itemspage(60);
+	\App::set_pager_itemspage(30);
 	$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));
 
 	$regexop = db_getfunc('REGEXP');

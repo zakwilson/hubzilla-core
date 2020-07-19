@@ -86,19 +86,8 @@ class Chanview extends \Zotlabs\Web\Controller {
 		}
 	
 		if(! \App::$poi) {
-
-			//		We don't know who this is, and we can't figure it out from the URL
-			//		On the plus side, there's a good chance we know somebody else at that 
-			//		hub so sending them there with a Zid will probably work anyway.
-
-			$url = ($_REQUEST['url']);
-			if(! $url) {
-				notice( t('Channel not found.') . EOL);
-				return;
-			}
-			if($observer)
-				$url = zid($url);
-
+			notice( t('Channel not found.') . EOL);
+			return;
 		}
 
 		$is_zot = false;

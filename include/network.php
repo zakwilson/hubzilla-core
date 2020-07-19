@@ -1102,29 +1102,6 @@ function discover_by_webbie($webbie, $protocol = '') {
 
 	$x = webfinger_rfc7033($webbie, true);
 	if($x && array_key_exists('links',$x) && $x['links']) {
-		foreach($x['links'] as $link) {
-			if(array_key_exists('rel',$link)) {
-
-				// If we discover zot - don't search further; grab the info and get out of
-				// here.
-
-				if($link['rel'] === PROTOCOL_ZOT && ((! $protocol) || (strtolower($protocol) === 'zot'))) {
-					logger('zot found for ' . $webbie, LOGGER_DEBUG);
-					if(array_key_exists('zot',$x) && $x['zot']['success']) {
-						$i = import_xchan($x['zot']);
-						return true;
-					}
-					else {
-						$z = z_fetch_url($link['href']);
-						if($z['success']) {
-							$j = json_decode($z['body'],true);
-							$i = import_xchan($j);
-							return true;
-						}
-					}
-				}
-			}
-		}
 
 		foreach($x['links'] as $link) {
 			if(array_key_exists('rel',$link)) {
@@ -1150,6 +1127,31 @@ function discover_by_webbie($webbie, $protocol = '') {
 				}
 			}
 		}
+
+		foreach($x['links'] as $link) {
+			if(array_key_exists('rel',$link)) {
+
+				// If we discover zot - don't search further; grab the info and get out of
+				// here.
+
+				if($link['rel'] === PROTOCOL_ZOT && ((! $protocol) || (strtolower($protocol) === 'zot'))) {
+					logger('zot found for ' . $webbie, LOGGER_DEBUG);
+					if(array_key_exists('zot',$x) && $x['zot']['success']) {
+						$i = import_xchan($x['zot']);
+						return true;
+					}
+					else {
+						$z = z_fetch_url($link['href']);
+						if($z['success']) {
+							$j = json_decode($z['body'],true);
+							$i = import_xchan($j);
+							return true;
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	logger('webfinger: ' . print_r($x,true), LOGGER_DATA, LOG_INFO);

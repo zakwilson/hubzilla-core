@@ -14,7 +14,7 @@ require_once('include/html2plain.php');
 class Directory extends Controller {
 
 	function init() {
-		App::set_pager_itemspage(60);
+		App::set_pager_itemspage(30);
 	
 		if(local_channel() && x($_GET,'ignore')) {
 			q("insert into xign ( uid, xchan ) values ( %d, '%s' ) ",

@@ -119,7 +119,7 @@ class Z6trans extends Controller {
 			'xconfig' => ['xchan', 'v'],
 			'xign' => ['xchan'],
 			'xlink' => ['xlink_xchan', 'xlink_link'],
-			'xprof' => ['xprof_hash'],
+//			'xprof' => ['xprof_hash'],
 			'xtag' => ['xtag_hash'],
 		];
 

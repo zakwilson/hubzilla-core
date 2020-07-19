@@ -159,7 +159,7 @@ class Search extends \Zotlabs\Web\Controller {
 	
 		if(($update) && ($load)) {
 			$itemspage = get_pconfig(local_channel(),'system','itemspage');
-			\App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+			\App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));
 	
 			// in case somebody turned off public access to sys channel content with permissions

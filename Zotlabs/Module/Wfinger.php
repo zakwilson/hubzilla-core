@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 require_once('include/zot.php');
 
+use Zotlabs\Lib\Libzot;
 
 class Wfinger extends \Zotlabs\Web\Controller {
 
@@ -128,7 +129,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					'http://webfinger.net/ns/name'   => $r[0]['channel_name'],
 					'http://xmlns.com/foaf/0.1/name' => $r[0]['channel_name'],
 					'https://w3id.org/security/v1#publicKeyPem' => $r[0]['xchan_pubkey'],
-					'http://purl.org/zot/federation' => 'zot,zot6'
+					'http://purl.org/zot/federation' => 'zot6,zot'
 			];
 	
 			foreach($aliases as $alias) 
@@ -142,7 +143,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					[
 						'rel'  => 'http://webfinger.net/rel/avatar',
 						'type' => $r[0]['xchan_photo_mimetype'],
-						'href' => $r[0]['xchan_photo_l']	
+						'href' => $r[0]['xchan_photo_l']
 					],
 	
 					[
@@ -162,13 +163,13 @@ class Wfinger extends \Zotlabs\Web\Controller {
 			else {
 
 				$result['links'] = [
-	
+
 					[
 						'rel'  => 'http://webfinger.net/rel/avatar',
 						'type' => $r[0]['xchan_photo_mimetype'],
 						'href' => $r[0]['xchan_photo_l']	
 					],
-	
+
 					[
 						'rel'  => 'http://microformats.org/profile/hcard',
 						'type' => 'text/html',
@@ -180,12 +181,11 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'href' => z_root()
 					],
 
-
 					[
 						'rel'  => 'http://webfinger.net/rel/profile-page',
 						'href' => z_root() . '/profile/' . $r[0]['channel_address'],
 					],
-	
+
 					[
 						'rel'  => 'http://schemas.google.com/g/2010#updates-from', 
 						'type' => 'application/atom+xml', 
@@ -196,15 +196,10 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'rel'  => 'http://webfinger.net/rel/blog',
 						'href' => z_root() . '/channel/' . $r[0]['channel_address'],
 					],
-	
+
 					[
 						'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
 						'template' => z_root() . '/follow?f=&url={uri}',
-					],
-	
-					[
-						'rel'  => 'http://purl.org/zot/protocol',
-						'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r[0]['xchan_addr'],
 					],
 
 					[
@@ -214,12 +209,16 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					],
 
 					[
+						'rel'  => 'http://purl.org/zot/protocol',
+						'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r[0]['xchan_addr'],
+					],
+
+					[
 						'rel'  => 'http://purl.org/openwebauth/v1',
 						'type' => 'application/x-zot+json',
 						'href' => z_root() . '/owa',
 					],
 
-	
 					[
 						'rel'  => 'magic-public-key',
 						'href' => 'data:application/magic-public-key,' . salmon_key($r[0]['channel_pubkey']),
@@ -229,7 +228,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 
 			if($zot) {
 				// get a zotinfo packet and return it with webfinger
-				$result['zot'] = zotinfo( [ 'address' => $r[0]['xchan_addr'] ]);
+				$result['zot'] = Libzot::zotinfo( [ 'address' => $r[0]['xchan_addr'] ]);
 			}
 		}
 
@@ -240,7 +239,6 @@ class Wfinger extends \Zotlabs\Web\Controller {
 	
 		$arr = [ 'channel' => $r[0], 'pchan' => $pchan, 'request' => $_REQUEST, 'result' => $result ];
 		call_hooks('webfinger',$arr);
-
 
 		json_return_and_die($arr['result'],'application/jrd+json');
 	

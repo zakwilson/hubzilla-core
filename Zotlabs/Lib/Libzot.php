@@ -2908,7 +2908,7 @@ class Libzot {
 		];
 
 		$ret['channel_role'] = get_pconfig($e['channel_id'],'system','permissions_role','custom');
-		$ret['protocols']    = [ 'zot', 'zot6' ];
+		$ret['protocols']    = [ 'zot6', 'zot' ];
 		$ret['searchable']     = $searchable;
 		$ret['adult_content']  = $adult_channel;
 		$ret['public_forum']   = $public_forum;

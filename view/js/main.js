@@ -627,89 +627,84 @@ function updateConvItems(mode,data) {
 		$('.thread-wrapper').remove(); // clear existing content
 	}
 
-	$('.thread-wrapper.toplevel_item',data).each(function() {
-
-		var ident = $(this).attr('id');
-		var convId = ident.replace('thread-wrapper-','');
-		var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
-
-
-		var itmId = 0;
-		var isVisible = false;
-
-		// figure out the comment state
-		if(typeof commentWrap !== 'undefined')
-			itmId = commentWrap.replace('collapsed-comments-','');
-				
-		if($('#collapsed-comments-'+itmId).is(':visible'))
-			isVisible = true;
-
-
-
-
-		// insert the content according to the mode and first_page 
-		// and whether or not the content exists already (overwrite it)
-
-		if($('#' + ident).length == 0) {
-			if((mode === 'update' || mode === 'replace') && profile_page == 1) {
-					$('#' + prev).after($(this));
-				prev = ident;
-			}
-			if(mode === 'append') {
-				$('#' + next).before($(this));
-			}
-		}
-		else {
-			$('#' + ident).replaceWith($(this));
-		}		
-
-		// set the comment state to the state we discovered earlier
-
-		if(isVisible)
-			showHideComments(itmId);
-
-		var commentBody = localStorage.getItem("comment_body-" + convId);
-
-		if(commentBody) {
-			var commentElm = $('#comment-edit-text-' + convId);
-			if(auto_save_draft) {
-				if($(commentElm).val() === '') {
-					$('#comment-edit-form-' + convId).show();
-					$(commentElm).addClass("expanded");
-					openMenu("comment-tools-" + convId);
-					$(commentElm).val(commentBody);
-				}
-			} else {
-				localStorage.removeItem("comment_body-" + convId);
-			}
-		}
-
-		// trigger the autotime function on all newly created content
-		$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
-		$("> .shared_header .autotime",this).timeago();
-
-		if((mode === 'append' || mode === 'replace') && (loadingPage)) {
-			loadingPage = false;
-		}
-
-		// if single thread view and  the item has a title, display it in the title bar
-
-		if(mode === 'replace') {
-			if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
-				var title = $(".wall-item-title").text();
-				title.replace(/^\s+/, '');
-				title.replace(/\s+$/, '');
-				if (title) {
-					savedTitle = title + " " + savedTitle;
-					document.title = title;
-				}
-			}
-		}
-	});
-
-	// take care of the notifications count updates
 	$('.thread-wrapper', data).each(function() {
+		if(this.classList.contains('toplevel_item')) {
 
+			var ident = this.id;
+			var convId = ident.replace('thread-wrapper-','');
+			var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
+
+			var itmId = 0;
+			var isVisible = false;
+
+			// figure out the comment state
+			if(typeof commentWrap !== 'undefined')
+				itmId = commentWrap.replace('collapsed-comments-','');
+
+			if($('#collapsed-comments-'+itmId).is(':visible'))
+				isVisible = true;
+
+			// insert the content according to the mode and first_page 
+			// and whether or not the content exists already (overwrite it)
+
+			if($('#' + ident).length == 0) {
+				if((mode === 'update' || mode === 'replace') && profile_page == 1) {
+						$('#' + prev).after($(this));
+					prev = ident;
+				}
+				if(mode === 'append') {
+					$('#' + next).before($(this));
+				}
+			}
+			else {
+				$('#' + ident).replaceWith($(this));
+			}
+
+			// set the comment state to the state we discovered earlier
+
+			if(isVisible)
+				showHideComments(itmId);
+
+			var commentBody = localStorage.getItem("comment_body-" + convId);
+
+			if(commentBody) {
+				var commentElm = $('#comment-edit-text-' + convId);
+				if(auto_save_draft) {
+					if($(commentElm).val() === '') {
+						$('#comment-edit-form-' + convId).show();
+						$(commentElm).addClass("expanded");
+						openMenu("comment-tools-" + convId);
+						$(commentElm).val(commentBody);
+					}
+				} else {
+					localStorage.removeItem("comment_body-" + convId);
+				}
+			}
+
+			// trigger the autotime function on all newly created content
+			$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+			$("> .shared_header .autotime",this).timeago();
+
+			if((mode === 'append' || mode === 'replace') && (loadingPage)) {
+				loadingPage = false;
+			}
+
+			// if single thread view and  the item has a title, display it in the title bar
+
+			if(mode === 'replace') {
+				if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
+					var title = $(".wall-item-title").text();
+					title.replace(/^\s+/, '');
+					title.replace(/\s+$/, '');
+					if (title) {
+						savedTitle = title + " " + savedTitle;
+						document.title = title;
+					}
+				}
+			}
+		}
+
+		// take care of the notifications count updates
 		var nmids = $(this).data('b64mids');
 
 		nmids.forEach(function(nmid, index) {

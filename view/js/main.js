@@ -1075,6 +1075,7 @@ function cache_next_page() {
 		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
 			console.log('Incomplete data. Reloading');
 			in_progress = false;
+			bParam_page = bParam_page - 1;
 			liveRecurse ++;
 			if(liveRecurse < 10) {
 				liveUpdate();

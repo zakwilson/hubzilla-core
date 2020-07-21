@@ -2562,8 +2562,8 @@ class Activity {
 			switch($a->type) {
 				case 'Create':
 				case 'Update':
-				case 'Like':
-				case 'Dislike':
+				//case 'Like':
+				//case 'Dislike':
 				case 'Announce':
 					$item = self::decode_note($a);
 					break;

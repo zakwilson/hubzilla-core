@@ -594,9 +594,11 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 	$hash = $_REQUEST[$formname];
 
 	$max_livetime = 10800; // 3 hours
+	$min_livetime = 3; // 3 sec
 
 	$x = explode('.', $hash);
-	if (time() > (IntVal($x[0]) + $max_livetime)) return false;
+	if (time() > (IntVal($x[0]) + $max_livetime) || time() < (IntVal($x[0]) + $min_livetime))
+	    return false;
 
 	$sec_hash = hash('whirlpool', App::$observer['xchan_guid'] . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
 

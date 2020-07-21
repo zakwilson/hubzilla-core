@@ -20,7 +20,7 @@ class Activity {
 
 		if(is_array($x)) {
 
-			if(array_key_exists('asld',$x)) {
+			if(array_key_exists('asld',$x) && is_array($x['asld'])) {
 				return $x['asld'];
 			}
 
@@ -165,6 +165,7 @@ class Activity {
 		$r = q("select * from item where mid = '%s' limit 1",
 			dbesc($x['id'])
 		);
+
 		if($r) {
 			xchan_query($r,true);
 			$r = fetch_post_tags($r,true);

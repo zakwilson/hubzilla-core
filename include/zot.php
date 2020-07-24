@@ -2763,6 +2763,8 @@ function sync_locations($sender, $arr, $absolute = false) {
 			}
 			logger('New hub: ' . $location['url']);
 
+			$addr_arr = explode('@', $location['address']);
+
 			$r = hubloc_store_lowlevel(
 				[
 					'hubloc_guid'      => $sender['guid'],
@@ -2777,7 +2779,8 @@ function sync_locations($sender, $arr, $absolute = false) {
 					'hubloc_callback'  => $location['callback'],
 					'hubloc_sitekey'   => $location['sitekey'],
 					'hubloc_updated'   => datetime_convert(),
-					'hubloc_connected' => datetime_convert()
+					'hubloc_connected' => datetime_convert(),
+					'hubloc_id_url'    => $location['url'] . '/channel/' . $addr_arr[0]
 				]
 			);
 

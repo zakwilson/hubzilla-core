@@ -21,26 +21,40 @@ class _1238 {
 
 		// fix singleton networks hubloc_id_url
 		if(ACTIVE_DBTYPE == DBTYPE_MYSQL) {
-			$r2 = dbq("UPDATE hubloc
+			// fix entries for activitypub which miss the xchan_url due to an earlier bug
+			$r2 = dbq("UPDATE xchan
+				SET xchan_url = xchan_hash
+				WHERE xchan_network = 'activitypub'
+				AND xchan_url = ''
+				AND xchan_hash != ''"
+			);
+
+			$r3 = dbq("UPDATE hubloc
 				LEFT JOIN xchan ON hubloc_hash = xchan_hash
 				SET hubloc_id_url = xchan_url
 				WHERE hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc_id_url = ''
-				AND xchan_url != ''"
+				AND hubloc_id_url = ''"
 			);
 		}
 		if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-			$r2 = dbq("UPDATE hubloc                                                                                   
+			// fix entries for activitypub which miss the xchan_url due to an earlier bug
+			$r2 = dbq("UPDATE xchan
+				SET xchan_url = xchan_hash
+				WHERE xchan_network = 'activitypub'
+				AND xchan_url = ''
+				AND xchan_hash != ''"
+			);
+
+			$r3 = dbq("UPDATE hubloc                                                                                   
 				SET hubloc_id_url = xchan_url
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash
 				AND hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc_id_url = ''
-				AND xchan_url != ''"
+				AND hubloc_id_url = ''"
 			);
 		}
 
-		if($r1 && $r2) {
+		if($r1 && $r2 && $r3) {
 			q("COMMIT");
 			return UPDATE_SUCCESS;
 		}

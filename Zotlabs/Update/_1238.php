@@ -45,7 +45,7 @@ class _1238 {
 				AND xchan_hash != ''"
 			);
 
-			$r3 = dbq("UPDATE hubloc                                                                                   
+			$r3 = dbq("UPDATE hubloc
 				SET hubloc_id_url = xchan_url
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash

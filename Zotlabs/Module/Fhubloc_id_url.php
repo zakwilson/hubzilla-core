@@ -44,7 +44,7 @@ class Fhubloc_id_url extends \Zotlabs\Web\Controller {
 				AND xchan_hash != ''"
 			);
 
-			$r3 = dbq("UPDATE hubloc                                                                                   
+			$r3 = dbq("UPDATE hubloc
 				SET hubloc_id_url = xchan_url
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash

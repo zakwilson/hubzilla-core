@@ -1550,7 +1550,7 @@ String.prototype.format = function() {
 	var formatted = this;
 	for (var i = 0; i < arguments.length; i++) {
 		var regexp = new RegExp('\\{'+i+'\\}', 'gi');
-		formatted = formatted.replace(regexp, arguments[i]);
+		formatted = formatted.replace(regexp, ((typeof arguments[i] !== 'undefined') ? arguments[i] : ''));
 	}
 	return formatted;
 };
@@ -1876,7 +1876,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 
 	$(data).each(function() {
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids));
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids), this.body);
 		notify_menu.append(html);
 	});
 

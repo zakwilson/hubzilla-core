@@ -856,11 +856,11 @@ class Enotify {
 			'photo' => $item[$who]['xchan_photo_s'],
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
-			'b64mid' => 'b64.' . base64url_encode($item['mid']),
+			'b64mid' => (($item['mid']) ? 'b64.' . base64url_encode($item['mid']) : ''),
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
-			'notify_id' => 'undefined',
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
+			'body' =>  htmlentities(html2plain(bbcode($item['body'])), ENT_COMPAT, 'UTF-8', false),
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],
 			'uid' => $item['uid'],
@@ -885,7 +885,6 @@ class Enotify {
 		$mid = basename($tt['link']);
 
 		$b64mid = ((strpos($mid, 'b64.') === 0) ? $mid : 'b64.' . base64url_encode($mid));
-
 		$x = [
 			'notify_link' => z_root() . '/notify/view/' . $tt['id'],
 			'name' => $tt['xname'],
@@ -893,8 +892,8 @@ class Enotify {
 			'photo' => $tt['photo'],
 			'when' => datetime_convert('UTC', date_default_timezone_get(), $tt['created']),
 			'hclass' => (($tt['seen']) ? 'notify-seen' : 'notify-unseen'),
-			'b64mid' => (($tt['otype'] == 'item') ? $b64mid : 'undefined'),
-			'notify_id' => (($tt['otype'] == 'item') ? $tt['id'] : 'undefined'),
+			'b64mid' => (($tt['otype'] == 'item') ? $b64mid : ''),
+			'notify_id' => (($tt['otype'] == 'item') ? $tt['id'] : ''),
 			'message' => $message
 		];
 
@@ -980,8 +979,7 @@ class Enotify {
 		$x = [
 			'notify_link' => z_root() . '/admin/accounts',
 			'name' => $rr['account_email'],
-			'addr' => $rr['account_email'],
-			'url' => '',
+			//'addr' => $rr['account_email'],
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
 			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['account_created']),
 			'hclass' => ('notify-unseen'),

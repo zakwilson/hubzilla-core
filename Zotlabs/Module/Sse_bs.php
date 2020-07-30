@@ -34,7 +34,7 @@ class Sse_bs extends Controller {
 			}
 		}
 
-		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
+		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify', -1);
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
 		self::$limit = 100;
 		self::$offset = 0;
@@ -116,6 +116,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_NETWORK))
+			return $result;
+
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
 
@@ -179,6 +182,9 @@ class Sse_bs extends Controller {
 		$result['dm']['count'] = 0;
 
 		if(! self::$uid)
+			return $result;
+
+		if(! (self::$vnotify & VNOTIFY_MAIL))
 			return $result;
 
 		$limit = intval(self::$limit);
@@ -246,6 +252,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_CHANNEL))
+			return $result;
+
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
 
@@ -308,6 +317,9 @@ class Sse_bs extends Controller {
 
 		$result['pubs']['notifications'] = [];
 		$result['pubs']['count'] = 0;
+
+		if(! (self::$vnotify & VNOTIFY_PUBS))
+			return $result;
 
 		if((observer_prohibited(true))) {
 			return $result;
@@ -395,6 +407,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_SYSTEM))
+			return $result;
+
 		$r = q("SELECT * FROM notify WHERE uid = %d AND seen = 0 ORDER BY created DESC",
 			intval(self::$uid)
 		);
@@ -419,6 +434,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_INTRO))
+			return $result;
+
 		$r = q("SELECT * FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ORDER BY abook_created DESC LIMIT 50",
 			intval(self::$uid)
 		);
@@ -441,6 +459,9 @@ class Sse_bs extends Controller {
 		$result['forums']['offset'] = -1;
 
 		if(! self::$uid)
+			return $result;
+
+		if(! (self::$vnotify & VNOTIFY_FORUMS))
 			return $result;
 
 		$forums = get_forum_channels(self::$uid);
@@ -521,6 +542,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_FILES))
+			return $result;
+
 		$item_normal = item_normal();
 
 		$r = q("SELECT * FROM item 
@@ -556,6 +580,9 @@ class Sse_bs extends Controller {
 		if(! self::$uid)
 			return $result;
 
+		if(! (self::$vnotify & VNOTIFY_MAIL))
+			return $result;
+
 		$r = q("select mail.*, xchan.* from mail left join xchan on xchan_hash = from_xchan
 			where channel_id = %d and mail_seen = 0 and mail_deleted = 0
 			and from_xchan != '%s' order by created desc",
@@ -581,6 +608,9 @@ class Sse_bs extends Controller {
 		$result['all_events']['offset'] = -1;
 
 		if(! self::$uid)
+			return $result;
+
+		if(! (self::$vnotify & VNOTIFY_EVENT))
 			return $result;
 
 		$r = q("SELECT * FROM event left join xchan on event_xchan = xchan_hash
@@ -609,6 +639,9 @@ class Sse_bs extends Controller {
 		$result['register']['offset'] = -1;
 
 		if(! self::$uid && ! is_site_admin())
+			return $result;
+
+		if(! (self::$vnotify & VNOTIFY_REGISTER))
 			return $result;
 
 		$r = q("SELECT account_email, account_created from account where (account_flags & %d) > 0",

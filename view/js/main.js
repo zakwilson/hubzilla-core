@@ -1062,7 +1062,7 @@ function liveUpdate(notify_id) {
 
 function cache_next_page() {
 	page_load = true;
-	bParam_page = bParam_page + 1;
+	bParam_page++;
 	update_url = buildCmd();
 
 	$.get(update_url, function(data) {
@@ -1075,8 +1075,8 @@ function cache_next_page() {
 		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
 			console.log('Incomplete data. Reloading');
 			in_progress = false;
-			bParam_page = bParam_page - 1;
-			liveRecurse ++;
+			bParam_page--;
+			liveRecurse++;
 			if(liveRecurse < 10) {
 				liveUpdate();
 			}
@@ -1098,7 +1098,7 @@ function cache_next_page() {
 			page_cache.page = bParam_page;
 			page_cache.time = Date.now();
 
-			bParam_page = bParam_page - 1;
+			bParam_page--;
 			page_load = false;
 		})
 		.done( function( instance ) {

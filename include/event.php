@@ -74,66 +74,66 @@ function format_event_obj($jobject) {
 
 	$object = json_decode($jobject,true);
 
-	//ensure compatibility with older items - this check can be removed at a later point
-	if(array_key_exists('description', $object)) {
+	$event_tz = '';
+	if($object['adjust'] && is_array($object['asld']) && is_array($object['asld']['attachment'])) {
+		foreach($object['asld']['attachment'] as $attachment) {
+			if($attachment['type'] === 'PropertyValue' && $attachment['name'] == 'zot.event.timezone' ) {
+				// check if the offset of the timezones is different and only set event_tz if offset is not the same
+				$local_tz = new DateTimeZone(date_default_timezone_get());
+				$local_dt = new DateTime('now', $local_tz);
 
-		$event_tz = '';
-		if($object['adjust'] && is_array($object['asld']) && is_array($object['asld']['attachment'])) {
-			foreach($object['asld']['attachment'] as $attachment) {
-				if($attachment['type'] === 'PropertyValue' && $attachment['name'] == 'zot.event.timezone' ) {
-					// check if the offset of the timezones is different and only set event_tz if offset is not the same
-					$local_tz = new DateTimeZone(date_default_timezone_get());
-					$local_dt = new DateTime('now', $local_tz);
-
-					$ev_tz = new DateTimeZone($attachment['value']);
-					$ev_dt = new DateTime('now', $ev_tz);
-
-					if($local_dt->getOffset() !== $ev_dt->getOffset())
-						$event_tz = $attachment['value'];
-
-					break;
-				}
+				$ev_tz = new DateTimeZone($attachment['value']);
+				$ev_dt = new DateTime('now', $ev_tz);
+				if($local_dt->getOffset() !== $ev_dt->getOffset())
+					$event_tz = $attachment['value'];
+				break;
 			}
 		}
 
-		$allday = (($object['adjust']) ? false : true);
-
-		$dtstart = new DateTime($object['dtstart']);
-		$dtend = new DateTime($object['dtend']);
-		$dtdiff = $dtstart->diff($dtend);
-
-		if($allday && ($dtdiff->days < 2))
-			$oneday = true;
-
-		if($allday && !$oneday) {
-			// Subtract one day from the end date so we can use the "first day - last day" format for display.
-			$dtend->modify('-1 day');
-			$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
-		}
-
-		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
-
-		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
-			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
-			'$dtstart_label' => t('Start:'),
-			'$dtstart_title' => datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
-			'$finish'	 => (($object['nofinish']) ? false : true),
-			'$dtend_label'	 => t('End:'),
-			'$dtend_title'	 => datetime_convert('UTC', date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
-			'$allday'	 => $allday,
-			'$oneday'	 => $oneday,
-			'$event_tz'      => ['label' => t('Timezone'), 'value' => (($event_tz === date_default_timezone_get()) ? '' : $event_tz)]
-		));
-
-		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
-			'$description'	  => zidify_links(smilies(bbcode($object['description']))),
-			'$location_label' => t('Location:'),
-			'$location'	  => zidify_links(smilies(bbcode($object['location'])))
-		));
-
 	}
+
+	$allday = (($object['adjust']) ? false : true);
+
+	$dtstart = new DateTime($object['dtstart']);
+	$dtend = new DateTime($object['dtend']);
+	$dtdiff = $dtstart->diff($dtend);
+
+	if($allday && ($dtdiff->days < 2))
+		$oneday = true;
+
+	if($allday && !$oneday) {
+		// Subtract one day from the end date so we can use the "first day - last day" format for display.
+		$dtend->modify('-1 day');
+		$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
+	}
+
+	$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+
+	$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
+		'$title'	 => zidify_links(smilies(bbcode($object['title']))),
+		'$dtstart_label' => t('Start:'),
+		'$dtstart_title' => datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+		'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
+		'$finish'	 => (($object['nofinish']) ? false : true),
+		'$dtend_label'	 => t('End:'),
+		'$dtend_title'	 => datetime_convert('UTC', date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+		'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
+		'$allday'	 => $allday,
+		'$oneday'	 => $oneday,
+		'$event_tz'      => ['label' => t('Timezone'), 'value' => (($event_tz === date_default_timezone_get()) ? '' : $event_tz)]
+	));
+
+	$event_src = [];
+
+	if(array_path_exists('asld/source', $object) && $object['asld']['source']['mediaType'] === 'text/bbcode') {
+		$event_src = bbtoevent($object['asld']['source']['content']);
+	}
+
+	$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
+		'$description'	  => zidify_links(smilies(bbcode($event_src ? $event_src['description'] : $object['description']))),
+		'$location_label' => t('Location:'),
+		'$location'	  => zidify_links(smilies(bbcode($event_src ? $event_src['location'] : $object['location']))),
+	));
 
 	return $event;
 }

@@ -61,7 +61,7 @@
 			{{/if}}
 
 			{{if $module == 'hq'}}
-			if(b64mid !== 'undefined') {
+			if(b64mid) {
 			{{else}}
 			if(path === 'display' && b64mid) {
 			{{/if}}

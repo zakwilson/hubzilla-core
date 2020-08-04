@@ -4830,14 +4830,6 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 	$arr['item_thread_top'] = 1;
 	$arr['item_origin'] = 1;
 	$arr['item_wall'] = 1;
-	$arr['obj_type'] = ACTIVITY_OBJ_PHOTO;
-	$arr['verb'] = ACTIVITY_UPDATE;
-
-	$arr['obj'] = json_encode(array(
-		'type' => $arr['obj_type'],
-		'id' => z_root() . '/photo/profile/l/' . $channel['channel_id'],
-		'link' => array('rel' => 'photo', 'type' => $photo['type'], 'href' => z_root() . '/photo/profile/l/' . $channel['channel_id'])
-	));
 
 	if(stripos($profile['gender'],t('female')) !== false)
 		$t = t('%1$s updated her %2$s');

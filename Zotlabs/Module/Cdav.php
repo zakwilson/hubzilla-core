@@ -819,7 +819,7 @@ class Cdav extends Controller {
 						return;
 					}
 
-					$id = explode(':', $_REQUEST['target'])[0];
+					$id = explode(':', $_REQUEST['target']);
 					$ext = 'ics';
 					$table = 'calendarobjects';
 					$column = 'calendarid';

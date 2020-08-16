@@ -27,7 +27,7 @@ class File extends DAV\Node implements DAV\IFile {
 	 *  * filename (string)
 	 *  * filetype (string)
 	 */
-	private $data;
+	public $data;
 	/**
 	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
 	 * @var \\Zotlabs\\Storage\\BasicAuth $auth

@@ -1396,7 +1396,7 @@ function hz_status_editor($a, $x, $popup = false) {
 
 	$cipher = get_pconfig($x['profile_uid'], 'system', 'default_cipher');
 	if(! $cipher)
-		$cipher = 'aes256';
+		$cipher = 'AES-256';
 
 	if(array_key_exists('catsenabled',$x))
 		$catsenabled = $x['catsenabled'];

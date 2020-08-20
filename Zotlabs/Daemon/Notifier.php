@@ -361,7 +361,7 @@ class Notifier {
 
 			$encoded_item = encode_item($target_item);
 
-			// activitystreams version (recreate for deleted items)
+			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
 			$m = ((intval($target_item['item_deleted'])) ? '' : get_iconfig($target_item,'activitystreams','signed_data'));
 
 			if($m) {

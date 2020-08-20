@@ -314,14 +314,6 @@ class Activity {
 		else {		
 			$objtype = self::activity_obj_mapper($i['obj_type']);
 		}
-		
-		if(intval($i['item_deleted'])) {
-			$ret['type'] = 'Tombstone';
-			$ret['formerType'] = $objtype;
-			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
-			return $ret;
-		}
-
 
 		if ($i['obj']) {
 			$ret = Activity::encode_object($i['obj']);
@@ -651,16 +643,36 @@ class Activity {
 			$ret['obj'] = [];
 		}
 
-		if(intval($i['item_deleted'])) {
-			$ret['type'] = 'Tombstone';
-			$ret['formerType'] = self::activity_obj_mapper($i['obj_type']);
-			$ret['id'] = ((strpos($i['mid'],'http') === 0) ? $i['mid'] : z_root() . '/item/' . urlencode($i['mid']));
+		if (intval($i['item_deleted'])) {
+			$ret['type'] = 'Delete';
+			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#delete';
 			$actor = self::encode_person($i['author'],false);
-			if($actor)
+			if ($actor)
 				$ret['actor'] = $actor;
 			else
 				return []; 
+
+			if ($i['obj']) {
+				if (! is_array($i['obj'])) {
+					$i['obj'] = json_decode($i['obj'],true);
+				}
+				$obj = self::encode_object($i['obj']);
+				if ($obj)
+					$ret['object'] = $obj;
+				else
+					return [];
+			}
+			else {
+				$obj = self::encode_item($i);
+				if ($obj)
+					$ret['object'] = $obj;
+				else
+					return [];
+			}
+
+			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 			return $ret;
+
 		}
 
 

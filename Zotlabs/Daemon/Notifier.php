@@ -361,8 +361,9 @@ class Notifier {
 
 			$encoded_item = encode_item($target_item);
 
-			// activitystreams version
-			$m = get_iconfig($target_item,'activitystreams','signed_data');
+			// activitystreams version (recreate for deleted items)
+			$m = ((intval($target_item['item_deleted'])) ? '' : get_iconfig($target_item,'activitystreams','signed_data'));
+
 			if($m) {
 				$activity = json_decode($m,true);
 			}

@@ -197,7 +197,7 @@ class Chat extends Controller {
 	
 			$cipher = get_pconfig(local_channel(),'system','default_cipher');
 			if(! $cipher)
-				$cipher = 'AES-256';
+				$cipher = 'AES-128-CCM';
 	
 	
 			$o = replace_macros(get_markup_template('chat.tpl'),array(

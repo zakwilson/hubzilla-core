@@ -157,18 +157,18 @@ function hz_encrypt(alg, elem) {
 	if((alg == 'rot13') || (alg == 'triple-rot13'))
 		newdiv = "[crypt alg='rot13']" + window.btoa(str_rot13(text)) + '[/crypt]';
 
-	if(alg == 'AES-256') {
+	if(alg == 'AES-128-CCM') {
 
 			// This is the prompt we're going to use when the receiver tries to open it.
 			// Maybe "Grandma's maiden name" or "our secret place" or something. 
 
 			var enc_hint = bin2hex(prompt(aStr['passhint']));
 
-			enc_text = sjcl.encrypt(enc_key, text, { ks: 256 });
+			enc_text = sjcl.encrypt(enc_key, text);
 
 			encrypted = enc_text.toString();
 
-			newdiv = "[crypt alg='AES-256' hint='" + enc_hint + "']" + window.btoa(encrypted) + '[/crypt]';
+			newdiv = "[crypt alg='AES-128-CCM' hint='" + enc_hint + "']" + window.btoa(encrypted) + '[/crypt]';
 	}
 
 	enc_key = '';
@@ -249,7 +249,7 @@ function hz_decrypt(alg, hint, text, elem) {
 		var enc_key = bin2hex(prompt((hint.length) ? hex2bin(hint) : aStr['passphrase']));
 	}
 
-	if(alg == 'AES-256') {
+	if(alg == 'AES-128-CCM') {
 		dec_text = sjcl.decrypt(enc_key, text);
 	}
 

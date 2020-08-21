@@ -257,7 +257,7 @@ function bb_parse_crypt($match) {
 
 	$x = random_string();
 
-	$f = ((in_array($algorithm, ['AES-256', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
+	$f = ((in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
 
 	$Text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /></div><br />';
 

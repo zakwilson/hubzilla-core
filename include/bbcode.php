@@ -233,7 +233,7 @@ function bb_replace_images($body, $images) {
  */
 function bb_parse_crypt($match) {
 
-	$matches = array();
+	$matches = [];
 	$attributes = $match[1];
 
 	$algorithm = "";
@@ -257,9 +257,17 @@ function bb_parse_crypt($match) {
 
 	$x = random_string();
 
-	$f = ((in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
+	$f = 'hz_decrypt';
 
-	$Text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /></div><br />';
+	//legacy cryptojs support
+	if(plugin_is_installed('cryptojs')) {
+		$f = ((in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
+	}
+
+	$onclick = 'onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');"';
+	$label = t('Encrypted content');
+
+	$Text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div><br />';
 
 	return $Text;
 }

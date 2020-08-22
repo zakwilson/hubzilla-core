@@ -7,7 +7,7 @@
 |commerceguys/intl|1.0.5.0|MIT|https://github.com/commerceguys/intl.git|
 |desandro/imagesloaded|4.1.4.0|MIT|https://github.com/desandro/imagesloaded.git|
 |ezyang/htmlpurifier|4.13.0.0|LGPL-2.1-or-later|https://github.com/ezyang/htmlpurifier.git|
-|league/html-to-markdown|4.9.1.0|MIT|https://github.com/thephpleague/html-to-markdown.git|
+|league/html-to-markdown|4.10.0.0|MIT|https://github.com/thephpleague/html-to-markdown.git|
 |lukasreschke/id3parser|0.0.3.0|GPL|https://github.com/LukasReschke/ID3Parser.git|
 |michelf/php-markdown|1.9.0.0|BSD-3-Clause|https://github.com/michelf/php-markdown.git|
 |paragonie/random_compat|9.99.99.0|MIT|https://github.com/paragonie/random_compat.git|

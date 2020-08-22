@@ -1,5 +1,7 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/items.php');
 
 
@@ -1045,7 +1047,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($contact) {
-		$poke_link = z_root() . '/poke/?f=&c=' . $contact['abook_id'];
+		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
 		if (! intval($contact['abook_self']))  
 			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];

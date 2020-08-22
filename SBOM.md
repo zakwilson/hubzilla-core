@@ -2,7 +2,7 @@
 
 |Name|Version|License|Source|
 |----|-------|-------|------|
-|blueimp/jquery-file-upload|10.30.1.0|MIT|https://github.com/vkhramtsov/jQuery-File-Upload.git|
+|blueimp/jquery-file-upload|10.31.0.0|MIT|https://github.com/vkhramtsov/jQuery-File-Upload.git|
 |bshaffer/oauth2-server-php|1.11.1.0|MIT|https://github.com/bshaffer/oauth2-server-php.git|
 |commerceguys/intl|1.0.5.0|MIT|https://github.com/commerceguys/intl.git|
 |desandro/imagesloaded|4.1.4.0|MIT|https://github.com/desandro/imagesloaded.git|
@@ -14,16 +14,16 @@
 |pear/text_languagedetect|1.0.0.0|BSD-2-Clause|https://github.com/pear/Text_LanguageDetect.git|
 |psr/log|1.1.3.0|MIT|https://github.com/php-fig/log.git|
 |ramsey/uuid|3.9.3.0|MIT|https://github.com/ramsey/uuid.git|
-|sabre/dav|4.1.0.0|BSD-3-Clause|https://github.com/sabre-io/dav.git|
+|sabre/dav|4.1.1.0|BSD-3-Clause|https://github.com/sabre-io/dav.git|
 |sabre/event|5.1.0.0|BSD-3-Clause|https://github.com/sabre-io/event.git|
 |sabre/http|5.1.0.0|BSD-3-Clause|https://github.com/sabre-io/http.git|
 |sabre/uri|2.2.0.0|BSD-3-Clause|https://github.com/sabre-io/uri.git|
-|sabre/vobject|4.3.0.0|BSD-3-Clause|https://github.com/sabre-io/vobject.git|
-|sabre/xml|2.2.0.0|BSD-3-Clause|https://github.com/sabre-io/xml.git|
+|sabre/vobject|4.3.1.0|BSD-3-Clause|https://github.com/sabre-io/vobject.git|
+|sabre/xml|2.2.1.0|BSD-3-Clause|https://github.com/sabre-io/xml.git|
 |simplepie/simplepie|1.5.5.0|BSD-3-Clause|https://github.com/simplepie/simplepie.git|
 |smarty/smarty|3.1.36.0|LGPL-3.0|https://github.com/smarty-php/smarty.git|
 |symfony/polyfill-ctype|1.13.1.0|MIT|https://github.com/symfony/polyfill-ctype.git|
-|twbs/bootstrap|4.5.0.0|MIT|https://github.com/twbs/bootstrap.git|
+|twbs/bootstrap|4.5.2.0|MIT|https://github.com/twbs/bootstrap.git|
 |fullcalendar/fullcalendar|4.4.2.0|MIT|https://github.com/fullcalendar/fullcalendar.git|
 |miromannino/Justified-Gallery|3.8.1.0|MIT|https://github.com/miromannino/Justified-Gallery.git|
 |fengyuanchen/cropperjs|1.5.7.0|MIT|https://github.com/fengyuanchen/cropperjs.git|

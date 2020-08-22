@@ -11,7 +11,7 @@
 |lukasreschke/id3parser|0.0.3.0|GPL|https://github.com/LukasReschke/ID3Parser.git|
 |michelf/php-markdown|1.9.0.0|BSD-3-Clause|https://github.com/michelf/php-markdown.git|
 |paragonie/random_compat|9.99.99.0|MIT|https://github.com/paragonie/random_compat.git|
-|pear/text_languagedetect|1.0.0.0|BSD-2-Clause|https://github.com/pear/Text_LanguageDetect.git|
+|pear/text_languagedetect|1.0.1.0|BSD-2-Clause|https://github.com/pear/Text_LanguageDetect.git|
 |psr/log|1.1.3.0|MIT|https://github.com/php-fig/log.git|
 |ramsey/uuid|3.9.3.0|MIT|https://github.com/ramsey/uuid.git|
 |sabre/dav|4.1.1.0|BSD-3-Clause|https://github.com/sabre-io/dav.git|

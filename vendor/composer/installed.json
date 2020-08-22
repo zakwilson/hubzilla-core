@@ -483,26 +483,26 @@
     },
     {
         "name": "pear/text_languagedetect",
-        "version": "v1.0.0",
-        "version_normalized": "1.0.0.0",
+        "version": "v1.0.1",
+        "version_normalized": "1.0.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/pear/Text_LanguageDetect.git",
-            "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6"
+            "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/bb9ff6f4970f686fac59081e916b456021fe7ba6",
-            "reference": "bb9ff6f4970f686fac59081e916b456021fe7ba6",
+            "url": "https://api.github.com/repos/pear/Text_LanguageDetect/zipball/9e253f26cef9a9066f53f200cc3e0684018cb5b5",
+            "reference": "9e253f26cef9a9066f53f200cc3e0684018cb5b5",
             "shasum": ""
         },
         "require-dev": {
-            "phpunit/phpunit": "*"
+            "phpunit/phpunit": "8.*|9.*"
         },
         "suggest": {
             "ext-mbstring": "May require the mbstring PHP extension"
         },
-        "time": "2017-03-02T16:14:08+00:00",
+        "time": "2020-05-17T12:19:40+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

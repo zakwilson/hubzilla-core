@@ -12,6 +12,9 @@ class _1238 {
 			dbesc('Premium Channel')
 		);
 
+		// completely remove broken xchan entries
+		$r = dbq("DELETE FROM xchan WHERE xchan_hash = ''");
+
 		// fix legacy zot hubloc_id_url
 		$r1 = dbq("UPDATE hubloc
 			SET hubloc_id_url = CONCAT(hubloc_url, '/channel/', SUBSTRING(hubloc_addr FROM 1 FOR POSITION('@' IN hubloc_addr) -1))
@@ -25,8 +28,7 @@ class _1238 {
 			$r2 = dbq("UPDATE xchan
 				SET xchan_url = xchan_hash
 				WHERE xchan_network = 'activitypub'
-				AND xchan_url = ''
-				AND xchan_hash != ''"
+				AND xchan_url = ''"
 			);
 
 			$r3 = dbq("UPDATE hubloc
@@ -41,8 +43,7 @@ class _1238 {
 			$r2 = dbq("UPDATE xchan
 				SET xchan_url = xchan_hash
 				WHERE xchan_network = 'activitypub'
-				AND xchan_url = ''
-				AND xchan_hash != ''"
+				AND xchan_url = ''"
 			);
 
 			$r3 = dbq("UPDATE hubloc

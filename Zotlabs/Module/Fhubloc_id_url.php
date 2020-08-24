@@ -30,10 +30,10 @@ class Fhubloc_id_url extends \Zotlabs\Web\Controller {
 			);
 
 			$r3 = dbq("UPDATE hubloc
-				LEFT JOIN xchan ON hubloc_hash = xchan_hash
-				SET hubloc_id_url = xchan_url
-				WHERE hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc_id_url = ''"
+				LEFT JOIN xchan ON hubloc.hubloc_hash = xchan.xchan_hash
+				SET hubloc.hubloc_id_url = xchan.xchan_url
+				WHERE hubloc.hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
+				AND hubloc.hubloc_id_url = ''"
 			);
 
 		}

@@ -55,5 +55,10 @@ class Fhubloc_id_url extends \Zotlabs\Web\Controller {
 
 
 		}
+
+		if($r && $r1 && $r2 && $r3)
+			return 'Completed';
+		else
+			return 'Failed';
 	}
 }

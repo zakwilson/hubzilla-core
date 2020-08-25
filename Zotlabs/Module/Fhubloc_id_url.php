@@ -33,7 +33,8 @@ class Fhubloc_id_url extends \Zotlabs\Web\Controller {
 				LEFT JOIN xchan ON hubloc.hubloc_hash = xchan.xchan_hash
 				SET hubloc.hubloc_id_url = xchan.xchan_url
 				WHERE hubloc.hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc.hubloc_id_url = ''"
+				AND hubloc.hubloc_id_url = ''
+				AND xchan.xchan_url IS NOT NULL"
 			);
 
 		}
@@ -50,7 +51,8 @@ class Fhubloc_id_url extends \Zotlabs\Web\Controller {
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash
 				AND hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc_id_url = ''"
+				AND hubloc_id_url = ''
+				AND xchan_url IS NOT NULL"
 			);
 
 

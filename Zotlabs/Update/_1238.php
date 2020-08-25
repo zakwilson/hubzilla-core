@@ -35,7 +35,8 @@ class _1238 {
 				LEFT JOIN xchan ON hubloc.hubloc_hash = xchan.xchan_hash
 				SET hubloc.hubloc_id_url = xchan.xchan_url
 				WHERE hubloc.hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc.hubloc_id_url = ''"
+				AND hubloc.hubloc_id_url = ''
+				AND xchan.xchan_url IS NOT NULL"
 			);
 		}
 		if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
@@ -51,7 +52,8 @@ class _1238 {
 				FROM xchan
 				WHERE hubloc_hash = xchan_hash
 				AND hubloc_network IN ('activitypub', 'diaspora', 'friendica-over-diaspora', 'gnusoc')
-				AND hubloc_id_url = ''"
+				AND hubloc_id_url = ''
+				AND xchan_url IS NOT NULL"
 			);
 		}
 

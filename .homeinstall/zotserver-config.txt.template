@@ -9,11 +9,11 @@ db_pass=
 ###############################################
 ### MANDATORY - let's encrypt #################
 #
-# Hubilla requires encrypted communication via secure HTTP (HTTPS).
+# Zot requires encrypted communication via secure HTTP (HTTPS).
 # This script automates installation of an SSL certificate from
 # Let's Encrypt (https://letsencrypt.org)
 #
-# Please give the domain name of your hub
+# Please give the domain name of your hub/instance
 #
 #     Example: my.cooldomain.org
 #     Example: cooldomain.org
@@ -28,6 +28,18 @@ db_pass=
 #
 le_domain=
 le_email=
+
+###############################################
+### OPTIONAL - Webserver choice ###############
+#
+# Please indicate if you want to choose Nginx
+# or Apache as your web server
+#
+# Valid strings are nginx or apache (lower case),
+# any other will stop the setup script.
+# 
+webserver=apache
+
 
 ###############################################
 ### OPTIONAL - selfHOST - dynamic IP address ##
@@ -87,7 +99,7 @@ freedns_key=
 # - encrypted LUKS + ext4, or
 # - ext4
 #
-# You should test to mount the device befor you run the script
+# You should test to mount the device before you run the script
 # (hubzilla-setup.sh).
 # How to find your (pluged-in) devices?
 #
@@ -144,10 +156,13 @@ backup_device_pass=
 #
 ###############################################
 #
-# Database for hubzilla
-hubzilla_db_name=hubzilla
-hubzilla_db_user=hubzilla
-hubzilla_db_pass=$db_pass
+# Database for your hub/instance
+# If left empty, both your database and user will be named after your zot instance (hubzilla, zap or misty)
+# Use custom name, at least fo the database, if you plan to run more than one hub/instance on the same server
+#
+zotserver_db_name=
+zotserver_db_user=
+zotserver_db_pass=$db_pass
 # 
 #
 # Password for package mysql-server

@@ -2046,7 +2046,7 @@ function get_plink($item,$conversation_mode = true) {
 
 	$zidify = true;
 
-	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot')
+	if(array_key_exists('author',$item) && in_array($item['author']['xchan_network'], ['zot6', 'zot']) === false)
 		$zidify = false;
 
 	if(x($item,$key)) {

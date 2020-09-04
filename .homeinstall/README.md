@@ -1,9 +1,10 @@
+
 # How to use
 
 ## Disclaimers
 
 - This script does work with Debian 10 only.
-- This script has to be used on a fresh debian install only (it does not take account for a possibly already installed and configured webserver or sql implementation).
+- This script has to be used on a fresh debian install only (it does not take account for a possibly already installed and configured webserver or sql implementation). You may use it to install several hub/instances on the same server, though.
 
 ## Preconditions
 
@@ -15,9 +16,11 @@ Hardware
 
 Software
 
-+ Fresh installation of Debian 10 (Stretch)
++ Fresh installation of Debian 10 (Buster)
 + Router with open ports 80 and 443 for your web server
-+ Some form of email server or email gateway such that PHP mail() works.
+
+You can of course run the script on a VPS or any distant server as long as the above sotfware requirements are satisfied.  
+
 
 ## How to run the script
 
@@ -26,29 +29,29 @@ Software
   - apt-get install git
   - mkdir -p /var/www
   - cd /var/www
-  - git clone https://framagit.org/hubzilla/core.git html
+  - git clone https://framagit.org/hubzilla/core.git html (you can replace "html" with any folder name you like, which you'll have to do if you plan to have more than one hub/instance running on your server)
   - cd html/.homeinstall
-  - cp hubzilla-config.txt.template hubzilla-config.txt
-  - nano hubzilla-config.txt
+  - cp zotserver-config.txt.template zotserver-config.txt
+  - nano zotserver-config.txt
     - Read the comments carefully
     - Enter your values: db pass, domain, values for dyn DNS
     - Prepare your external disk for backups
-  - hubzilla-setup.sh as root
-    - ... wait, wait, wait until the script is finised
-+ Open your domain with a browser and step throught the initial configuration of hubzilla.
+  - ./zotserver-setup.sh as root
+    - ... wait, wait, wait until the script is finished
++ Open your domain with a browser and step throught the initial configuration of your hub/instance.
 
 ## Optional - Set path to imagemagick
 
-In Admin settings of hubzilla or via terminal
+In Admin settings of your hub/instance or via terminal
 
-    cd /var/www/html
+    cd /var/www/html (or the custom path you chose)
     util/config system.imagick_convert_path /usr/bin/convert
 
 ## Optional - Switch verification of email on/off
 
-Do this just befor you register the user and you have no working PHP mail().
+Do this just before you register the first user.
 
-In Admin settings of hubzilla or via terminal
+In Admin settings of your hub/instance or via terminal
 
     cd /var/www/html
 
@@ -62,18 +65,18 @@ Switch the verification on/off (1/0)
 
 ## What the script will do for you...
 
-+ install everything required by Hubzilla, basically a web server (Apache), PHP, a database (MySQL), certbot,...
++ install everything required by your hub/instance, basically a web server (Apache or Nginx), PHP, a database (MySQL), certbot,...
 + create a database
 + run certbot to have everything for a secure connection (httpS)
 + create a script for daily maintenance
   - backup to external disk (certificates, database, /var/www/)
   - renew certfificate (letsencrypt)
-  - update of Hubzilla
+  - update of your hub/instance (git)
   - update of Debian
   - restart
 + create cron jobs for
   - DynDNS (selfHOST.de or freedns.afraid.org) every 5 minutes
-  - Master.php for Zap/Hubzilla every 10 minutes
+  - Run.php for your hub/instance every 10 minutes
   - daily maintenance script every day at 05:30
 
 The script is known to work without adjustments with
@@ -86,7 +89,7 @@ The script is known to work without adjustments with
   - selfHOST.de
   - freedns.afraid.org
 
-The script can install both [Hubzilla](https://zotlabs.org/page/hubzilla/hubzilla-project) and [Zap](https://zotlabs.com/zap/). Make sure to use the correct GIT repositories.  
+The script can install [Hubzilla](https://zotlabs.org/page/hubzilla/hubzilla-project), [Zap](https://zotlabs.com/zap/) and [Mistpark 2020, aka "Misty"](https://zotlabs.com/misty/). Make sure to use the correct GIT repositories.  
 
 
 # Step-by-Step - some Details
@@ -101,11 +104,11 @@ Open the ports 80 and 443 on your router for your Debian. Make sure your web ser
 
 ## Preparations Dynamic IP Address
 
-Follow the instructions in .homeinstall/hubzilla-config.txt.  
+Follow the instructions in .homeinstall/zotserver-config.txt.  
 
 In short...  
 
-Your Hubzilla must be reachable by a domain that you can type in your browser
+Your Hubzilla server must be reachable by a domain that you can type in your browser
 
     cooldomain.org
 
@@ -127,8 +130,6 @@ The cost is 1,50 € per month (2019).
 
 ## Note on Rasperry 
 
-The script was tested with an Raspberry 3 under Raspian, Debian 10.
-
 It is recommended to run the Raspi without graphical frontend (X-Server). Use...
 
     sudo raspi-config
@@ -139,5 +140,4 @@ DO NOT FORGET TO CHANGE THE DEFAULT PASSWORD FOR USER PI!
 
 ## Reminder for Different Web Wervers
 
-For those of you who feel adventurous enough to use a different web server (Nginx, Lighttpd...), don't forget that this script will install Apache and that you can only have one web server listening to ports 80 & 443. Also, don't forget to tweak /var/www/hubzilla-daily.sh accordingly.
-
+For those of you who feel adventurous enough to use a different web server (i.e. Lighttpd...), don't forget that this script will install Apache or Nginx and that you can only have one web server listening to ports 80 & 443. Also, don't forget to tweak your daily shell script in /var/www/ accordingly.

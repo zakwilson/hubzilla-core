@@ -312,7 +312,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 				'photo_usage' => $flags,
 				'imgscale' => 4,
 				'edited' => $modified,
-				'description' => ($hdrs['etag'] ? $hdrs['etag'] : ''),
+				'description' => (array_key_exists('etag', $hdrs) ? $hdrs['etag'] : ''),
 				'expires' => gmdate('Y-m-d H:i:s', (isset($expires) ? $expires : time() + 86400))
 			];
 

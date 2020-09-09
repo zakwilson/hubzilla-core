@@ -238,6 +238,8 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 
 			if(array_key_exists('expires', $hdrs))
 				$expires = strtotime($hdrs['expires']);
+				if($expires - 60 < time())
+					$expires = time() + 60;
 			else {
 				$cc = '';
 				if(array_key_exists('cache-control', $hdrs))

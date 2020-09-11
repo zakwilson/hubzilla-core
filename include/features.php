@@ -144,7 +144,7 @@ function get_features($filtered = true, $level = (-1)) {
 		'conversation' => [
 
 			t('Conversation'),
-
+/* disable until we agree on how to implemnt this in zot6/activitypub
 			[
 				'commtag',        
 				t('Community Tagging'),					
@@ -152,7 +152,7 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','commtag'),
 			],
-
+*/
 			[
 				'emojis',     
 				t('Emoji Reactions'),			

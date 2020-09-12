@@ -274,7 +274,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 					dbesc($xchan),
 					intval(PHOTO_XCHAN)
 				);
-			$photo_notmofidied = true;
+			$photo_notmodified = true;
 			$photo_failure = true;
 		}
 	}
@@ -344,7 +344,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 		}
 	}
 
-	if($photo_failure && ! isset($photo_notmofidied)) {
+	if($photo_failure && ! isset($photo_notmodified)) {
 		$default = get_default_profile_photo();
 		$photo = z_root() . '/' . $default;
 		$thumb = z_root() . '/' . get_default_profile_photo(80);

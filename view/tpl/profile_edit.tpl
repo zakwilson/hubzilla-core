@@ -294,7 +294,11 @@
 							{{if $fields.sexual}}
 							<div id="profile-edit-sexual-wrapper" class="form-group field" >
 							<label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}}</label>
+							{{if $advanced}}
 							{{$sexual}}
+							{{else}}
+							{{$sexual_min}}
+							{{/if}}
 							</div>
 							<div class="clear"></div>
 							{{/if}}

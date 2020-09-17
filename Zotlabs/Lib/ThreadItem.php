@@ -287,12 +287,16 @@ class ThreadItem {
 
 		$settings = '';
 
+		$tagger = [];
+
 		// FIXME - check this permission
 		if($conv->get_profile_owner() == local_channel()) {
+			/* disable until we agree on how to implemnt this in zot6/activitypub
 			$tagger = array(
 				'tagit' => t("Add Tag"),
 				'classtagger' => "",
 			);
+			*/
 
 			$settings = t('Conversation Tools');
 		}

@@ -71,7 +71,25 @@ class Z6trans extends Controller {
 				}
 
 			}
+			
+			$zot = dbesc($zot_xchan);
+			$zot6 = dbesc($zot6_xchan);
 
+			// Item table
+			foreach(['owner_xchan', 'author_xchan'] as $x) {
+				$q .= sprintf("UPDATE item SET $x = '%s' WHERE $x = '%s';\r\n",
+					$zot6,
+					$zot
+				);
+			}
+			$q .= "UPDATE item SET source_xchan = replace(source_xchan, '$zot', '$zot6'), route = replace(route, '$zot', '$zot6'), allow_cid = replace(allow_cid, '$zot', '$zot6'), deny_cid = replace(deny_cid, '$zot', '$zot6');\r\n";
+
+			// photo table
+			$q .= "UPDATE photo SET xchan = replace(xchan, '$zot', '$zot6'), allow_cid = replace(allow_cid, '$zot', '$zot6'), deny_cid = replace(deny_cid, '$zot', '$zot6');\r\n";
+
+			// dreport table
+			$q .= "UPDATE dreport SET dreport_recip = '$zot6' WHERE dreport_recip = '$zot';\r\n";
+			$q .= "UPDATE dreport SET dreport_xchan = '$zot6' WHERE dreport_xchan = '$zot';\r\n";
 		}
 
 		if($q)
@@ -103,16 +121,16 @@ class Z6trans extends Controller {
 			'chatpresence' => ['cp_xchan'],
 			'chatroom' => ['allow_cid', 'deny_cid'],
 			'config' => ['v'],
-			'dreport' => ['dreport_recip', 'dreport_xchan'],
+//			'dreport' => ['dreport_recip', 'dreport_xchan'],
 			'event' => ['event_xchan', 'allow_cid', 'deny_cid'],
 			'iconfig' => ['v'],
-			'item' => ['owner_xchan', 'author_xchan', 'source_xchan', 'route', 'allow_cid', 'deny_cid'],
+//			'item' => ['owner_xchan', 'author_xchan', 'source_xchan', 'route', 'allow_cid', 'deny_cid'],
 			'mail' => ['from_xchan', 'to_xchan'],
 			'menu_item' => ['allow_cid', 'deny_cid'],
 			'obj' => ['allow_cid', 'deny_cid'],
 			'pconfig' => ['v'],
 			'pgrp_member' => ['xchan'],
-			'photo' => ['xchan', 'allow_cid', 'deny_cid'],
+//			'photo' => ['xchan', 'allow_cid', 'deny_cid'],
 			'source' => ['src_channel_xchan', 'src_xchan'],
 			'updates' => ['ud_hash'],
 			'xchat' => ['xchat_xchan'],

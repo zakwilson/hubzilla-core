@@ -77,7 +77,7 @@ class Z6trans extends Controller {
 		if($q)
 			file_put_contents($path, $q);
 
-		$o = '<h2>' . t('Update to Hubzilla 5.0 setp 2') . '</h2><br>';
+		$o = '<h2>' . t('Update to Hubzilla 5.0 step 2') . '</h2><br>';
 
 		$o .= '<h3>' . t('To complete the update please run') . '</h3>';
 		if(ACTIVE_DBTYPE == DBTYPE_MYSQL)

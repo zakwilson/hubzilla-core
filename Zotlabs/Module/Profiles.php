@@ -610,7 +610,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				$r = q("UPDATE xchan SET xchan_name = '%s', xchan_name_date = '%s' WHERE xchan_url = '%s'",
 					dbesc($name),
 					dbesc(datetime_convert()),
-					dbesc(z_root() . '/channel/' . $channel['xchan_address'])
+					dbesc(z_root() . '/channel/' . $channel['channel_address'])
 				);
 				$r = q("UPDATE channel SET channel_name = '%s' WHERE channel_hash = '%s'",
 					dbesc($name),

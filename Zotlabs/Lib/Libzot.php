@@ -316,14 +316,22 @@ class Libzot {
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
 
+
 		if(! $x['success'])
 			return false;
 
 		if($channel && $record['data']['permissions']) {
 			$permissions = explode(',',$record['data']['permissions']);
+
 			if($permissions && is_array($permissions)) {
 				$old_read_stream_perm = get_abconfig($channel['channel_id'],$x['hash'],'their_perms','view_stream');
 
+				// We need to reset their_perms prior to setting the new ones.
+				// Otherwise withdrawn permissions will not take effect locally.
+				q("DELETE FROM abconfig WHERE chan = %d AND xchan = '%s' AND cat = 'their_perms'",
+					intval($channel['channel_id']),
+					dbesc($x['hash'])
+				);
 				foreach($permissions as $p) {
 					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$p,'1');
 				}

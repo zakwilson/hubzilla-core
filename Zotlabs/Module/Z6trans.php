@@ -14,7 +14,19 @@ class Z6trans extends Controller {
 
 	function get() {
 		if(!is_site_admin())
-			return 'Not Allowed';
+			return '<h1>Not Allowed</h1>';
+
+		$o = '<h2>' . t('Update to Hubzilla 5.0 step 2') . '</h2><br>';
+
+		$o .= '<h3>' . t('To complete the update please run') . '</h3>';
+
+		$o .= '<code>' . t('php util/z6convert.php') . '</code>';
+
+		$o .= '<h3>' . t('from the terminal.') . '</h3>';
+
+		return $o;
+
+/* this code is outdated use util/z6convert.php instead
 
 		$path = 'store/z6trans.sql';
 
@@ -106,6 +118,7 @@ class Z6trans extends Controller {
 		$o .= '<br><h3>' . t('INFO: this command can take a very long time depending on your DB size.') . '</h3>';
 
 		return $o;
+*/
 
 	}
 

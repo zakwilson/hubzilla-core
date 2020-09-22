@@ -775,7 +775,7 @@ function vcard_query(&$r) {
 
 function z6trans_connections() {
 
-	$r = q("SELECT DISTINCT abook.abook_xchan, hubloc.hubloc_addr, hubloc.hubloc_url, hubloc.hubloc_guid, site.site_project, site.site_version FROM abook
+	$r = dbq("SELECT DISTINCT abook.abook_xchan, hubloc.hubloc_addr, hubloc.hubloc_url, hubloc.hubloc_guid, site.site_project, site.site_version FROM abook
 		LEFT JOIN hubloc ON abook_xchan = hubloc_hash
 		LEFT JOIN site ON hubloc_url = site_url
 		WHERE abook.abook_self = 0 AND hubloc.hubloc_network = 'zot'
@@ -806,7 +806,7 @@ function z6trans_connections() {
 
 			logger("z6trans_connections: transition $zot_xchan to $zot6_xchan");
 
-			q("START TRANSACTION");
+			dbq("START TRANSACTION");
 
 			$q1 = q("UPDATE abook set abook_xchan = '%s' WHERE abook_xchan = '%s'",
 				dbesc($zot6_xchan),
@@ -824,13 +824,13 @@ function z6trans_connections() {
 			);
 
 			if($q1 && $q2 && $q3) {
-				q("COMMIT");
+				dbq("COMMIT");
 				logger("z6trans_connections: completed");
 				continue;
 			}
 
 			logger("z6trans_connections: failed - performing rollback");
-			q("ROLLBACK");
+			dbq("ROLLBACK");
 
 		}
 	}

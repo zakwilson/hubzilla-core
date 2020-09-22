@@ -1,3 +1,95 @@
+Hubzilla 5.0 (????-??-??)
+	- Deprecate $a variable for *_plugin_admin() and *_plugin_admin_post()
+	- Support remote host cache directives on profile photo fetching
+	- Disable community tags until it is agreed upon on how to implement in zot6 or activitypub
+	- Improve home install setup script
+	- Cryptojs moved to addon
+	- Implement "more encryption" feature with the SJCL library
+	- Add minimum form lifetime check
+	- Improve updateConvItems() performance
+	- Improve infinite scroll experience
+	- Introduce a software bill of material (wip)
+	- Implement new forum behaviour (direct-message a forum to post on its wall) for cross-plattform forum compatibility
+	- Allow apps to be both pinned and starred independently
+	- Add images load status to spinnner if preload images is enabled
+	- Deprecate premium channel app
+	- Allow to set different values for left and right aside width in $theme.php
+	- Display complete permission info only to channel owner
+	- Set CURLOPT_ENCODING to empty string so that compressed content will be uncompressed
+	- Force browser photo revalidation
+	- Deprecate ACTIVITY_OBJ_FILE and ACTIVITY_OBJ_WIKI in favour of other object types (Document, Audio, Video)
+	- Use $mid as plink to prevent to long plinks
+	- Handle some basic friendica attachment bbcodes
+	- Deprecate is_edit_activity()
+	- Deprecate voting feature in favour of polls
+	- Show event timezone if it differs from the channel timezone
+	- Avoid multiple run of expiry procedure on large sites
+	- Implement zot6 as the primary protocol
+	- Introduce polls
+	- Provide titles for wiki links markup
+	- Implement DAV calendars sync with clones
+	- Optional events and poll filters for mod network
+	- Add new addon hook get_banner
+	- Provide tools to deal with spam channels for primary directory admin
+	- Introduce pinned posts for mod channel
+	- Refactor notifications to utilize server sent events
+	- Provide more descriptive connection status icons
+
+
+	Bugfixes
+	- Apply channel name changes to all associated xchans
+	- Show unchecked box in connedit if value is false
+	- Reset their_perms before setting new permissions to reflect permission retractions on local hub
+	- Respect advanced profile setting in sexual preference selector
+	- Do not allow invite codes to be reused unlimited times
+	- Fix issue with quoted hashtags/mentions
+	- Fix issue generating photo thumbnails when uploaded via davfs
+	- Do not call System::get_platform_name() within t() unless needed
+	- Fix wrong URL detection with Markdown support enabled
+	- Fix once cached embedded content is used and stored forever
+
+	Addons
+	- Diaspora: remove relay@relay.iliketoat.net as default relay (it does not exist anymore)
+	- Diaspora: provide UI for admin to configure relay
+	- Diaspora: move the-federation.info registration to statistics addon
+	- Deprecate $a variable for *_plugin_admin() and *_plugin_admin_post()
+	- Chess: moved to addons-unmaintained repository
+	- Introduce cryptojs addon to allow decryption of legacy e2ee notes
+	- Introduce the hide aside addon - fade out aside areas after a while when using endless scroll
+	- Gallery: only show first row of images in the preview
+	- Gallery: restrict height of images to divmore_height
+	- Diaspora: make sure we only provide strings for unxmlify()
+	- Pubcrawl: fix federation with pixelfed
+	- Pubcrawl: dismiss announce if we already have the original item
+	- Gallery: implement view_storage permission for channel_apps()
+	- Cart: order currency param must be added to the sdk script url
+	- Diaspora utilize Lib/Connect
+	- Cart: utilize Lib/Connect
+	- Cart: add per item and per order customer data entry
+	- Pubcrawl: implement polls
+	- Chord Generator: moved to addons-unmaintained repository
+	- Custom Home: moved to addons-unmaintained repository
+	- Flattr Widget: moved to addons-unmaintained repository
+	- Friendica Photo Migrator: moved to addons-unmaintained repository
+	- Jappix Mini: moved to addons-unmaintained repository
+	- Mahjongg: moved to addons-unmaintained repository
+	- Torch: moved to addons-unmaintained repository
+	- Tour: moved to addons-unmaintained repository
+	- Introduce navbanner_option addon
+	- Pubcrawl: support image description
+	- Queueworker: fix duplicate checking
+	- Diaspora: fix dreport
+	- Move legacy zot/diaspora mail frontend from core to mail addon
+	- Diaspora: improve sql queries performance
+	- Pubcrawl: introduce pubcrawl_activity_mod_init()
+	- Twitter: replace Hubzilla bookmark with unicode icon
+	- Pubcrawl: add sys channel to local subscribers
+	- Pubcrawl: deal with arrays in attributedTo
+	- Workflow: various fixes
+	- Channelreputation: various fixes
+	- Introduce SSE addon to provide realtime notifications utilizing server sent events
+
+
 Hubzilla 4.6 (2019-12-04)
 	- Improve opengraph support for channels
 	- Add opengraph support for articles

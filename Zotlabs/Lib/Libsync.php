@@ -821,7 +821,7 @@ class Libsync {
 					if(intval($r[0]['hubloc_primary']) && (! $location['primary'])) {
 						$m = q("update hubloc set hubloc_primary = 0, hubloc_updated = '%s' where hubloc_id_url = '%s'",
 							dbesc(datetime_convert()),
-							intval($r[0]['hubloc_id_url'])
+							dbesc($r[0]['hubloc_id_url'])
 						);
 						$r[0]['hubloc_primary'] = intval($location['primary']);
 						hubloc_change_primary($r[0]);

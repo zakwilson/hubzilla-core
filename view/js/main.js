@@ -535,6 +535,8 @@ function closeMenu(theID) {
 function markRead(notifType) {
 	$.get('ping?f=&markRead='+notifType);
 	$('.' + notifType + '-button').fadeOut(function() {
+		$("." + notifType + "-update").html('0');
+		$('#nav-' + notifType + '-menu').html('');
 		$('#nav-' + notifType + '-sub').removeClass('show');
 		sessionStorage.removeItem('notification_open');
 		sse_setNotificationsStatus();

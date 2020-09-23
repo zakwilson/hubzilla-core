@@ -819,9 +819,9 @@ class Libsync {
 					}
 
 					if(intval($r[0]['hubloc_primary']) && (! $location['primary'])) {
-						$m = q("update hubloc set hubloc_primary = 0, hubloc_updated = '%s' where hubloc_id = %d",
+						$m = q("update hubloc set hubloc_primary = 0, hubloc_updated = '%s' where hubloc_id_url = '%s'",
 							dbesc(datetime_convert()),
-							intval($r[0]['hubloc_id'])
+							intval($r[0]['hubloc_id_url'])
 						);
 						$r[0]['hubloc_primary'] = intval($location['primary']);
 						hubloc_change_primary($r[0]);
@@ -848,18 +848,18 @@ class Libsync {
 						}
 					}
 					if(intval($r[0]['hubloc_deleted']) && (! intval($location['deleted']))) {
-						$n = q("update hubloc set hubloc_deleted = 0, hubloc_updated = '%s' where hubloc_id = %d",
+						$n = q("update hubloc set hubloc_deleted = 0, hubloc_updated = '%s' where hubloc_id_url = '%s'",
 							dbesc(datetime_convert()),
-							intval($r[0]['hubloc_id'])
+							dbesc($r[0]['hubloc_id_url'])
 						);
 						$what .= 'undelete_hub ';
 						$changed = true;
 					}
 					elseif((! intval($r[0]['hubloc_deleted'])) && (intval($location['deleted']))) {
 						logger('deleting hubloc: ' . $r[0]['hubloc_addr']);
-						$n = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id = %d",
+						$n = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id_url = '%s'",
 							dbesc(datetime_convert()),
-							intval($r[0]['hubloc_id'])
+							dbesc($r[0]['hubloc_id_url'])
 						);
 						$what .= 'delete_hub ';
 						$changed = true;
@@ -918,9 +918,9 @@ class Libsync {
 				foreach($xisting as $x) {
 					if(! array_key_exists('updated',$x)) {
 						logger('Deleting unreferenced hub location ' . $x['hubloc_addr']);
-						$r = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id = %d",
+						$r = q("update hubloc set hubloc_deleted = 1, hubloc_updated = '%s' where hubloc_id_url = '%s'",
 							dbesc(datetime_convert()),
-							intval($x['hubloc_id'])
+							dbesc($x['hubloc_id_url'])
 						);
 						$what .= 'removed_hub ';
 						$changed = true;

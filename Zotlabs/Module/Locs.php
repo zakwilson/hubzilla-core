@@ -18,7 +18,7 @@ class Locs extends Controller {
 			$hubloc_id = intval($_REQUEST['primary']);
 			if($hubloc_id) {
 	
-				$r = q("select hubloc_id from hubloc where hubloc_id = %d and hubloc_hash = '%s' limit 1",
+				$r = q("select * from hubloc where hubloc_id = %d and hubloc_hash = '%s' limit 1",
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
 				);
@@ -28,10 +28,11 @@ class Locs extends Controller {
 					return;
 				}
 	
-				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' ",
-					dbesc($channel['channel_hash'])
+				q("UPDATE hubloc SET hubloc_primary = 0 WHERE hubloc_primary = 1 AND (hubloc_hash = '%s' OR hubloc_hash = '%s')",
+					dbesc($channel['channel_hash']),
+					dbesc($channel['channel_portable_id'])
 				);
-				$r = q("update hubloc set hubloc_primary = 1 where hubloc_id = %d and hubloc_hash = '%s'",
+				q("UPDATE hubloc SET hubloc_primary = 1 WHERE hubloc_id = %d AND hubloc_hash = '%s'",
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
 				);
@@ -70,9 +71,10 @@ class Locs extends Controller {
 					}
 				}
 	
-				$r = q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d and hubloc_hash = '%s'",
-					intval($hubloc_id),
-					dbesc($channel['channel_hash'])
+				q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_id_url = '%s' AND (hubloc_hash = '%s' OR hubloc_hash = '%s')",
+					dbesc($r[0]['hubloc_id_url']),
+					dbesc($channel['channel_hash']),
+					dbesc($channel['channel_portable_id'])
 				);
 				Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
 				return;

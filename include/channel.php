@@ -2812,12 +2812,15 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 		logger('deleting hublocs',LOGGER_DEBUG);
 
-		$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s' OR hubloc_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
+
 		);
 
-		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
 		);
 
 		Master::Summon(array('Notifier','purge_all',$channel_id));
@@ -2901,8 +2904,9 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 	logger('deleting hublocs',LOGGER_DEBUG);
 
-	$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s' and hubloc_url = '%s' ",
+	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE (hubloc_hash = '%s' OR hubloc_hash = '%s') AND hubloc_url = '%s' ",
 		dbesc($channel['channel_hash']),
+		dbesc($channel['channel_portable_id']),
 		dbesc(z_root())
 	);
 
@@ -2917,8 +2921,9 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$hublocs = count($r);
 
 	if(! $hublocs) {
-		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s' ",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
 		);
 	}
 

@@ -37,7 +37,7 @@ class Removeme extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		$global_remove = intval($_POST['global']);
+		$global_remove = 0; //intval($_POST['global']);
 
 		channel_remove(local_channel(),1 - $global_remove,true);
 	
@@ -60,7 +60,7 @@ class Removeme extends \Zotlabs\Web\Controller {
 			'$title'   => t('Remove This Channel'),
 			'$desc'    => [ t('WARNING: '), t('This channel will be completely removed from the network. '), t('This action is permanent and can not be undone!') ],
 			'$passwd'  => t('Please enter your password for verification:'),
-			'$global'  => [ 'global', t('Remove this channel and all its clones from the network'), false, t('By default only the instance of the channel located on this hub will be removed from the network'),  [ t('No'),t('Yes') ] ],
+			// '$global'  => [ 'global', t('Remove this channel and all its clones from the network'), false, t('By default only the instance of the channel located on this hub will be removed from the network'),  [ t('No'),t('Yes') ] ],
 			'$submit'  => t('Remove Channel')
 		));
 	

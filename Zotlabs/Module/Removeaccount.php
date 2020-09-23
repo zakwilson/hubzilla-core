@@ -37,7 +37,7 @@ class Removeaccount extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		$global_remove = intval($_POST['global']);
+		$global_remove = 0; //intval($_POST['global']);
 	
 		account_remove($account_id, 1 - $global_remove);		
 	}
@@ -57,7 +57,7 @@ class Removeaccount extends \Zotlabs\Web\Controller {
 			'$title' => t('Remove This Account'),
 			'$desc' => array(t('WARNING: '), t('This account and all its channels will be completely removed from the network. '), t('This action is permanent and can not be undone!')),
 			'$passwd' => t('Please enter your password for verification:'),
-			'$global' => array('global', t('Remove this account, all its channels and all its channel clones from the network'), false, t('By default only the instances of the channels located on this hub will be removed from the network')),
+			// '$global' => array('global', t('Remove this account, all its channels and all its channel clones from the network'), false, t('By default only the instances of the channels located on this hub will be removed from the network')),
 			'$submit' => t('Remove Account')
 		));
 	

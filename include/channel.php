@@ -2715,6 +2715,9 @@ function account_remove($account_id, $local = true, $unset_session = true) {
 
 	logger('account_remove: ' . $account_id);
 
+	// Global removal (all clones) not currently supported
+	$local = true;
+
 	if(! intval($account_id)) {
 		logger('No account.');
 		return false;
@@ -2775,6 +2778,11 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	if(! $channel_id)
 		return;
 
+	// global removal (all clones) not currently supported
+	// hence this operation _may_ leave orphan data on remote servers
+
+	$local = true;
+
 	logger('Removing channel: ' . $channel_id);
 	logger('local only: ' . intval($local));
 
@@ -2793,6 +2801,7 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	 */
 	call_hooks('channel_remove', $r[0]);
 
+/*
 	if(! $local) {
 
 		if(intval($r[0]['channel_removed'])) {
@@ -2825,7 +2834,7 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 		Master::Summon(array('Notifier','purge_all',$channel_id));
 	}
-
+*/
 
 	$r = q("select iid from iconfig left join item on item.id = iconfig.iid
 		where item.uid = %d",
@@ -2928,7 +2937,6 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	}
 
 	//remove from file system
-
 
 	$f = 'store/' . $channel['channel_address'];
 	if(is_dir($f)) {

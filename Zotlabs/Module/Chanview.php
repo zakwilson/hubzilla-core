@@ -1,13 +1,17 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/zot.php');
+use App;
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Webfinger;
+use Zotlabs\Lib\Zotfinger;
+
 
 class Chanview extends \Zotlabs\Web\Controller {
 
 	function get() {
 	
-		$observer = \App::get_observer();
+		$observer = App::get_observer();
 		$xchan = null;
 	
 		$r = null;
@@ -40,7 +44,7 @@ class Chanview extends \Zotlabs\Web\Controller {
 			);
 		}
 		if($r) {
-			\App::$poi = $r[0];
+			App::$poi = $r[0];
 		}
 	
 	
@@ -49,43 +53,45 @@ class Chanview extends \Zotlabs\Web\Controller {
 		// address, we can and should try to import it. If it's just a hash, we can't continue, but we 
 		// probably wouldn't have a hash if we don't already have an xchan for this channel.
 	
-		if(! \App::$poi) {
+		if(! App::$poi) {
 			logger('mod_chanview: fallback');
-			// This is hackish - construct a zot address from the url
-			if($_REQUEST['url']) {
-				if(preg_match('/https?\:\/\/(.*?)(\/channel\/|\/profile\/)(.*?)$/ism',$_REQUEST['url'],$matches)) {
-					$_REQUEST['address'] = $matches[3] . '@' . $matches[1];
+
+			if($_REQUEST['address']) {
+				$href = Webfinger::zot_url(punify($_REQUEST['address']));
+				if($href) {
+					$_REQUEST['url'] = $href;
 				}
-				logger('mod_chanview: constructed address ' . print_r($matches,true)); 
 			}
 
 			$r = null;
 
-			if($_REQUEST['address']) {
-				$j = \Zotlabs\Zot\Finger::run($_REQUEST['address'],null);
-				if($j['success']) {
-					import_xchan($j);
-					$r = q("select * from xchan where xchan_addr = '%s' limit 1",
-						dbesc($_REQUEST['address'])
+			if($_REQUEST['url']) {
+
+				$zf = Zotfinger::exec($_REQUEST['url'], null);
+
+				if(array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $_REQUEST['url'] && intval($zf['signature']['header_valid'])) {
+					Libzot::import_xchan($j);
+					$r = q("select * from xchan where xchan_url = '%s' limit 1",
+						dbesc($_REQUEST['url'])
 					);
 					if($r) {
-						\App::$poi = $r[0];
+						App::$poi = $r[0];
 					}
 				}
 				if(! $r) {
-					if(discover_by_webbie($_REQUEST['address'])) {
-						$r = q("select * from xchan where xchan_addr = '%s' limit 1",
-							dbesc($_REQUEST['address'])
+					if(discover_by_webbie($_REQUEST['url'])) {
+						$r = q("select * from xchan where xchan_url = '%s' limit 1",
+							dbesc($_REQUEST['url'])
 						);
 						if($r) {
-							\App::$poi = $r[0];
+							App::$poi = $r[0];
 						}
 					}
 				}
 			}
 		}
 	
-		if(! \App::$poi) {
+		if(! App::$poi) {
 			notice( t('Channel not found.') . EOL);
 			return;
 		}
@@ -93,15 +99,15 @@ class Chanview extends \Zotlabs\Web\Controller {
 		$is_zot = false;
 		$connected = false;
 	
-		if (\App::$poi) {
-			$url = \App::$poi['xchan_url'];
-			if(in_array(\App::$poi['xchan_network'], ['zot', 'zot6'])) {
+		if (App::$poi) {
+			$url = App::$poi['xchan_url'];
+			if(in_array(App::$poi['xchan_network'], ['zot', 'zot6'])) {
 				$is_zot = true;
 			}			
 			if(local_channel()) {
 				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
 					intval(local_channel()),
-					dbesc(\App::$poi['xchan_hash'])
+					dbesc(App::$poi['xchan_hash'])
 				);
 				if($c)
 					$connected = true;

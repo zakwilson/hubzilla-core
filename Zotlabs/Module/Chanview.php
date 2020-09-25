@@ -99,19 +99,17 @@ class Chanview extends \Zotlabs\Web\Controller {
 		$is_zot = false;
 		$connected = false;
 	
-		if (App::$poi) {
-			$url = App::$poi['xchan_url'];
-			if(in_array(App::$poi['xchan_network'], ['zot', 'zot6'])) {
-				$is_zot = true;
-			}			
-			if(local_channel()) {
-				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
-					intval(local_channel()),
-					dbesc(App::$poi['xchan_hash'])
-				);
-				if($c)
-					$connected = true;
-			}
+		$url = App::$poi['xchan_url'];
+		if(in_array(App::$poi['xchan_network'], ['zot', 'zot6'])) {
+			$is_zot = true;
+		}
+		if(local_channel()) {
+			$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s' limit 1",
+				intval(local_channel()),
+				dbesc(App::$poi['xchan_hash'])
+			);
+			if($c)
+				$connected = true;
 		}
 		
 		// We will load the chanview template if it's a foreign network, 

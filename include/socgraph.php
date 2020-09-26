@@ -158,7 +158,7 @@ function poco_load($xchan = '', $url = null) {
 			if($address) {
 				if($network === 'zot6') {
 					$j = Zotfinger::exec($profile_url);
-					if(is_array($j) && array_path_exists('signature/signer',$j) && $j['signature']['signer'] === $profile_url && intval($j['signature']['header_valid'])) {
+					if(array_path_exists('signature/signer',$j) && $j['signature']['signer'] === $profile_url && intval($j['signature']['header_valid'])) {
 						Libzot::import_xchan($j['data']);
 					}
 					$x = q("select xchan_hash from xchan where xchan_hash = '%s' limit 1",

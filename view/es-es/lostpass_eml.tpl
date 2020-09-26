@@ -20,8 +20,8 @@ Puede cambiar esta contraseña desde su cuenta después de iniciar sesión.
 
 Los detalles del inicio de sesión son los siguientes:
 
-Localización del sitio:⇥{{$siteurl}}
-Nombre de usuario:⇥{{$email}}
+Localización del sitio:	{{$siteurl}}
+Nombre de usuario:	{{$email}}
 
 
 

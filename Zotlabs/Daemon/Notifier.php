@@ -45,18 +45,18 @@ require_once('include/bbcode.php');
  *
  * where COMMAND is one of the following:
  *
- *		activity				(in diaspora.php, dfrn_confirm.php, profiles.php)
- *		comment-import			(in diaspora.php, items.php)
- *		comment-new				(in item.php)
- *		drop					(in diaspora.php, items.php, photos.php)
- *		edit_post				(in item.php)
- *		event					(in events.php)
- *		expire					(in items.php)
- *		like					(in like.php, poke.php)
- *		mail					(in message.php)
- *		tag						(in photos.php, poke.php, tagger.php)
- *		tgroup					(in items.php)
- *		wall-new				(in photos.php, item.php)
+ *	activity		(in diaspora.php, dfrn_confirm.php, profiles.php)
+ *	comment-import		(in diaspora.php, items.php)
+ *	comment-new		(in item.php)
+ *	drop			(in diaspora.php, items.php, photos.php)
+ *	edit_post		(in item.php)
+ *	event			(in events.php)
+ *	expire			(in items.php)
+ *	like			(in like.php, poke.php)
+ *	mail			(in message.php)
+ *	tag			(in photos.php, poke.php, tagger.php)
+ *	tgroup			(in items.php)
+ *	wall-new		(in photos.php, item.php)
  *
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  *
@@ -66,9 +66,10 @@ require_once('include/bbcode.php');
  *       permission_reject      abook_id
  *       permission_update      abook_id
  *       refresh_all            channel_id
+ *       purge                  channel_id            xchan_hash
  *       purge_all              channel_id
  *       expire                 channel_id
- *       relay					item_id (item was relayed to owner, we will deliver it as owner)
+ *       relay			item_id (item was relayed to owner, we will deliver it as owner)
  *       single_activity        item_id (deliver to a singleton network from the appropriate clone)
  *       single_mail            mail_id (deliver to a singleton network from the appropriate clone)
  *       location               channel_id
@@ -240,25 +241,40 @@ class Notifier {
 			$packet_type = 'location';
 			$location = true;
 		}
+		elseif($cmd === 'purge') {
+			$xchan = $argv[3];
+			logger('notifier: purge: ' . $item_id . ' => ' . $xchan);
+			if (! $xchan) {
+				return;
+			}
+
+			$channel     = channelx_by_n($item_id);
+			$recipients[]  = $xchan;
+			$private     = true;
+			$packet_type = 'purge';
+			$packet_recips[] = ['hash' => $xchan];
+		}
 		elseif($cmd === 'purge_all') {
+
 			logger('notifier: purge_all: ' . $item_id);
-			$s = q("select * from channel where channel_id = %d limit 1",
-				intval($item_id)
-			);
-			if($s)
-				$channel = $s[0];
-			$uid = $item_id;
-			$recipients = array();
+			$channel = channelx_by_n($item_id);
+
+			$recipients = [];
 			$r = q("select abook_xchan from abook where abook_channel = %d and abook_self = 0",
 				intval($item_id)
 			);
-			if($r) {
-				foreach($r as $rr) {
-					$recipients[] = $rr['abook_xchan'];
-				}
+			if (! $r) {
+				return;
 			}
+			foreach ($r as $rr) {
+				$recipients[] = $rr['abook_xchan'];
+				$packet_recips[] = ['hash' => $rr['abook_xchan']];
+			}
+
 			$private = false;
 			$packet_type = 'purge';
+
+
 		}
 		else {
 

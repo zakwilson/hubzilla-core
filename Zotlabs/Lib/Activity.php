@@ -2023,7 +2023,7 @@ class Activity {
 
 			$s['mid'] = $act->id;
 			$s['parent_mid'] = $act->obj['id'];
-			$s['uuid'] = $act->{'diaspora:guid'};
+			$s['uuid'] = $act->data['diaspora:guid'];
 
 			// over-ride the object timestamp with the activity
 

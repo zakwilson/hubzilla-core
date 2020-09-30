@@ -1739,11 +1739,15 @@ class Libzot {
 				continue;
 			}
 
+			// reactions such as like and dislike could	have an	mid with /activity/ in it.
+			// Check for both forms in order to prevent duplicates.
 
-			$r = q("select * from item where mid = '%s' and uid = %d limit 1",
+			$r = q("select * from item where mid in ('%s','%s') and uid = %d limit 1",
 				dbesc($arr['mid']),
+				dbesc(str_replace(z_root() . '/activity/', z_root() . '/item/', $arr['mid'])),
 				intval($channel['channel_id'])
 			);
+
 			if($r) {
 				// We already have this post.
 				$item_id = $r[0]['id'];
@@ -2112,12 +2116,16 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
+		// reactions such as like and dislike could	have an	mid with /activity/ in it.
+		// Check for both forms in order to prevent duplicates.
+
 		$r = q("select * from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
-			and mid = '%s' and uid = %d limit 1",
+			and mid IN ('%s', '%s') and uid = %d limit 1",
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($item['mid']),
+			dbesc(str_replace('/activity/', '/item/', $item['mid'])),
 			intval($uid)
 		);
 

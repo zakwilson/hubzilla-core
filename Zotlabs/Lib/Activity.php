@@ -663,7 +663,7 @@ class Activity {
 					return [];
 			}
 			else {
-				$obj = self::encode_item($i);
+				$obj = self::encode_item($i,$activitypub);
 				if ($obj)
 					$ret['object'] = $obj;
 				else
@@ -672,9 +672,7 @@ class Activity {
 
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 			return $ret;
-
 		}
-
 
 		$ret['type'] = self::activity_mapper($i['verb']);
 
@@ -2023,7 +2021,7 @@ class Activity {
 
 			$s['mid'] = $act->id;
 			$s['parent_mid'] = $act->obj['id'];
-			$s['uuid'] = $act->{'diaspora:guid'};
+			$s['uuid'] = $act->data['diaspora:guid'];
 
 			// over-ride the object timestamp with the activity
 

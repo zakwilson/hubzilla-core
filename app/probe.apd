@@ -1,5 +1,5 @@
-version: 2
-url: $baseurl/probe
+version: 3
+url: $baseurl/zot_probe
 requires: local_channel
 name: Remote Diagnostics
 photo: icon:user-md

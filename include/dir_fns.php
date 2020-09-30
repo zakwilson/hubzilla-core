@@ -3,6 +3,10 @@
  * @file include/dir_fns.php
  */
 
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Webfinger;
+use Zotlabs\Lib\Zotfinger;
+
 require_once('include/permissions.php');
 
 /**
@@ -67,15 +71,10 @@ function check_upstream_directory() {
 	$isadir = true;
 
 	if ($directory) {
-		$h = parse_url($directory);
-		if ($h) {
-			$j = Zotlabs\Zot\Finger::run('[system]@' . $h['host']);
-			if ($j['success']) {
-				if (array_key_exists('site', $j) && array_key_exists('directory_mode', $j['site'])) {
-					if ($j['site']['directory_mode'] === 'normal') {
-						$isadir = false;
-					}
-				}
+		$j = Zotfinger::exec($directory);
+		if (array_path_exists('data/directory_mode',$j)) {
+			if ($j['data']['directory_mode'] === 'normal') {
+				$isadir = false;
 			}
 		}
 	}
@@ -341,9 +340,9 @@ function update_directory_entry($ud) {
 		// Hubzilla channels running traditional zot which have not upgraded can or will be dropped from the directory or
 		// "not found" at the end of the transition period as the directory will only serve zot6 entries at that time.
 		
-		$uri = \Zotlabs\Lib\Webfinger::zot_url($ud['ud_addr']);
+		$uri = Webfinger::zot_url($ud['ud_addr']);
 		if($uri) {
-			$record = \Zotlabs\Lib\Zotfinger::exec($uri);
+			$record = Zotfinger::exec($uri);
 
 			// Check the HTTP signature
 

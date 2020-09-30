@@ -26,7 +26,7 @@ class Gprobe {
 		if(! $r) {
 			$href = Webfinger::zot_url(punify($url));
 			if($href) {
-				$zf = Zotfinger::exec($href,$channel);
+				$zf = Zotfinger::exec($href, null);
 			}
 			if(is_array($zf) && array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
 				$xc = Libzot::import_xchan($zf['data']);

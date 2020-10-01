@@ -645,9 +645,13 @@ class Activity {
 
 		$ret['type'] = self::activity_mapper($i['verb']);
 
+
+
 		if (intval($i['item_deleted'])) {
+			$is_response = false;
 			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
 				$ret['type'] = 'Undo';
+				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';
@@ -659,7 +663,24 @@ class Activity {
 			else
 				return []; 
 
-			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
+			if ($i['obj'] && !$is_response) {
+				if (! is_array($i['obj'])) {
+					$i['obj'] = json_decode($i['obj'],true);
+				}
+				$obj = self::encode_object($i['obj']);
+				if ($obj)
+					$ret['object'] = $obj;
+				else
+					return [];
+			}
+			else {
+				$obj = self::encode_item($i);
+				if ($obj)
+					$ret['object'] = $obj;
+				else
+					return [];
+			}
+
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 			return $ret;
 		}

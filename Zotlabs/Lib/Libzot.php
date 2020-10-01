@@ -2116,11 +2116,6 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
-		$m = parse_url($item['mid']);
-		unset($m['fragment']);
-		$normalised = unparse_url($m);
-
-
 		// reactions such as like and dislike could	have an	mid with /activity/ in it.
 		// Check for both forms in order to prevent duplicates.
 
@@ -2129,8 +2124,8 @@ class Libzot {
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
-			dbesc($normalised),
-			dbesc(str_replace('/activity/', '/item/', $normalised)),
+			dbesc(str_replace('/activity/', '/item/', $item['mid'])),
+			dbesc(str_replace('/item/', '/activity/', $item['mid'])),
 			intval($uid)
 		);
 

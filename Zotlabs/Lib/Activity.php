@@ -643,6 +643,8 @@ class Activity {
 			$ret['obj'] = [];
 		}
 
+		$ret['type'] = self::activity_mapper($i['verb']);
+
 		if (intval($i['item_deleted'])) {
 			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
 				$ret['type'] = 'Undo';
@@ -661,8 +663,6 @@ class Activity {
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 			return $ret;
 		}
-
-		$ret['type'] = self::activity_mapper($i['verb']);
 
 		if($ret['type'] === 'emojiReaction') {
 			// There may not be an object for these items for legacy reasons - it should be the conversation parent.
@@ -1058,6 +1058,8 @@ class Activity {
 			'http://purl.org/zot/activity/attendno'        => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept',
 			'Invite'                                       => 'Invite',
+			'Delete'                                       => 'Delete',
+			'Undo'                                         => 'Undo'
 		];
 
 		call_hooks('activity_mapper',$acts);
@@ -1105,6 +1107,8 @@ class Activity {
 			'http://purl.org/zot/activity/attendno'        => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'     => 'TentativeAccept',
 			'Invite'                                       => 'Invite',
+			'Delete'                                       => 'Delete',
+			'Undo'                                         => 'Undo'
 		];
 
 		call_hooks('activity_decode_mapper',$acts);

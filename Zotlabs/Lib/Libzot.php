@@ -2124,8 +2124,8 @@ class Libzot {
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
-			dbesc($item['mid']),
 			dbesc(str_replace('/activity/', '/item/', $item['mid'])),
+			dbesc(str_replace('/item/', '/activity/', $item['mid'])),
 			intval($uid)
 		);
 

@@ -644,7 +644,12 @@ class Activity {
 		}
 
 		if (intval($i['item_deleted'])) {
-			$ret['type'] = 'Delete';
+			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
+				$ret['type'] = 'Undo';
+			}
+			else {
+				$ret['type'] = 'Delete';
+			}
 			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#delete';
 			$actor = self::encode_person($i['author'],false);
 			if ($actor)
@@ -2087,11 +2092,9 @@ class Activity {
 			$s['edited'] = datetime_convert();
 		}
 
-		if($act->type === 'Tombstone' || $act->type === 'Delete' || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
+		if(in_array($act->type, [ 'Delete', 'Undo', 'Tombstone' ]) || ($act->type === 'Create' && $act->obj['type'] === 'Tombstone')) {
 			$s['item_deleted'] = 1;
 		}
-
-
 
 		$s['obj_type'] = self::activity_obj_decode_mapper($act->obj['type']);
 		if($s['obj_type'] === ACTIVITY_OBJ_NOTE && $s['mid'] !== $s['parent_mid']) {

@@ -19,6 +19,7 @@ class Activity extends Controller {
 	function init() {
 
 		if (Libzot::is_zot_request()) {
+
 			$item_id = argv(1);
 			if (! $item_id)
 				http_status_exit(404, 'Not found');
@@ -200,7 +201,6 @@ class Activity extends Controller {
 				and item.item_delayed = 0 and item.item_blocked = 0 ";
 
 			$sigdata = HTTPSig::verify(EMPTY_STR);
-
 			if ($sigdata['portable_id'] && $sigdata['header_valid']) {
 				$portable_id = $sigdata['portable_id'];
 				if (! check_channelallowed($portable_id)) {
@@ -221,6 +221,7 @@ class Activity extends Controller {
 			else {
 				$sql_extra = item_permissions_sql(0);
 			}
+
 			$r = q("select * from item where uuid = '%s' $item_normal $sql_extra limit 1",
 				dbesc($item_id)
 			);
@@ -245,7 +246,6 @@ class Activity extends Controller {
 				'https://w3id.org/security/v1',
 				z_root() . ZOT_APSCHEMA_REV
 				]], ZlibActivity::encode_activity($items[0],true));
-
 
 			$headers = [];
 			$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;

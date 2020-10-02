@@ -1141,6 +1141,7 @@ class Libzot {
 				}
 
 				logger($AS->debug(),LOGGER_DATA);
+
 		}
 
 

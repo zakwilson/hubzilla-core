@@ -644,41 +644,29 @@ class Activity {
 		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);
-
-
+		$fragment = '';
 
 		if (intval($i['item_deleted'])) {
-			$is_response = false;
 			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
 				$ret['type'] = 'Undo';
-				$is_response = true;
+				$fragment = 'undo';
 			}
 			else {
 				$ret['type'] = 'Delete';
+				$fragment = 'delete';
 			}
-			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#delete';
+
+			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#' . $fragment;
 			$actor = self::encode_person($i['author'],false);
 			if ($actor)
 				$ret['actor'] = $actor;
 			else
 				return []; 
 
-			if ($i['obj'] && !$is_response) {
-				if (! is_array($i['obj'])) {
-					$i['obj'] = json_decode($i['obj'],true);
-				}
-				$obj = self::encode_object($i['obj']);
-				if ($obj)
-					$ret['object'] = $obj;
-				else
-					return [];
-			}
-			else {
-				$obj = self::encode_item($i);
-				if ($obj)
-					$ret['object'] = $obj;
-				else
-					return [];
+			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
+
+			if($i['id'] != $i['parent']) {
+				$ret['inReplyTo'] = $i['thr_parent'];
 			}
 
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
@@ -1166,7 +1154,9 @@ class Activity {
 			'Question'                                          => 'Question',
 			'Document'					    => 'Document',
 			'Audio'						    => 'Audio',
-			'Video'						    => 'Video'
+			'Video'						    => 'Video',
+			'Delete' 	                                    => 'Delete',
+			'Undo'					            => 'Undo'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -1203,7 +1193,9 @@ class Activity {
 			'Invite'                                            => 'Invite',
 			'Question'                                          => 'Question',
 			'Audio'						    => 'Audio',
-			'Video'					            => 'Video'
+			'Video'					            => 'Video',
+			'Delete' 	                                    => 'Delete',
+			'Undo'					            => 'Undo'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
@@ -3113,6 +3105,30 @@ class Activity {
 			}
 		}
 		return $content;
+	}
+
+	// Find either an Authorization: Bearer token or 'token' request variable
+	// in the current web request and return it
+
+	static function token_from_request() {
+
+		foreach ( [ 'REDIRECT_REMOTE_USER', 'HTTP_AUTHORIZATION' ] as $s ) {
+			$auth = ((array_key_exists($s,$_SERVER) && strpos($_SERVER[$s],'Bearer ') === 0)
+				? str_replace('Bearer ', EMPTY_STR, $_SERVER[$s])
+				: EMPTY_STR
+			);
+			if ($auth) {
+				break;
+			}
+		}
+
+		if (! $auth) {
+			if (array_key_exists('token',$_REQUEST) && $_REQUEST['token']) {
+				$auth = $_REQUEST['token'];
+			}
+		}
+
+		return $auth;
 	}
 
 

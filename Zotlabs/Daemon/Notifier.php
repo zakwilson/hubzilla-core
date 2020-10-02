@@ -395,7 +395,6 @@ class Notifier {
 			logger('target_item: ' . print_r($target_item,true), LOGGER_DEBUG);
 			logger('encoded: ' . print_r($activity,true), LOGGER_DEBUG);
 
-
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.
 			// To clarify, a site accepting a new comment is responsible for sending it to the owner for relay.

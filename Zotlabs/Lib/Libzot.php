@@ -1496,13 +1496,14 @@ class Libzot {
 				// Try again using the delivery channel credentials.
 				// We will also need to re-parse the $item array, 
 				// but preserve any values that were set during anonymous parsing.
-							   
+
 				$o = Activity::fetch($act->obj,$channel);
 				if($o) {
 					$act->obj = $o;
 					$arr = array_merge(Activity::decode_note($act),$arr);
 				}
 				else {
+
 					$DR->update('Incomplete or corrupt activity');
 					$result[] = $DR->get();
 					continue;
@@ -2116,6 +2117,10 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
+		$m = parse_url($item['mid']);
+		unset($m['fragment']);
+		$normalised = unparse_url($m);
+
 		// reactions such as like and dislike could	have an	mid with /activity/ in it.
 		// Check for both forms in order to prevent duplicates.
 
@@ -2124,8 +2129,8 @@ class Libzot {
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
-			dbesc(str_replace('/activity/', '/item/', $item['mid'])),
-			dbesc(str_replace('/item/', '/activity/', $item['mid'])),
+			dbesc($normalised),
+			dbesc(str_replace('/activity/', '/item/', $normalised)),
 			intval($uid)
 		);
 

@@ -1203,8 +1203,6 @@ class Libzot {
 
 				$arr = Activity::decode_note($AS);
 
-//hz_syslog(print_r($arr,true));
-
 				//logger($AS->debug());
 
 				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",

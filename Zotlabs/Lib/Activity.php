@@ -319,6 +319,26 @@ class Activity {
 			$ret = Activity::encode_object($i['obj']);
 		}
 
+		if (intval($i['item_deleted'])) {
+			$ret['type'] = 'Tombstone';
+			$ret['formerType'] = $objtype;
+			$ret['id'] = $i['mid'];
+			if($i['id'] != $i['parent'])
+				$ret['inReplyTo'] = $i['thr_parent'];
+
+			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+			return $ret;
+		}
+
+		if ($i['obj']) {
+			if (is_array($i['obj'])) {
+				$ret = $i['obj'];
+			}
+			else {
+				$ret = json_decode($i['obj'],true);
+			}
+		}
+
 		$ret['type'] = $objtype;
 
 		if ($objtype === 'Question') {
@@ -632,7 +652,7 @@ class Activity {
 
 
 
-	static function encode_activity($i) {
+	static function encode_activity($i, $dismiss_deleted = false) {
 
 		$ret   = [];
 		$reply = false;
@@ -644,45 +664,45 @@ class Activity {
 		}
 
 		$ret['type'] = self::activity_mapper($i['verb']);
+		$fragment = '';
 
-
-
-		if (intval($i['item_deleted'])) {
+		if (intval($i['item_deleted']) && !$dismiss_deleted) {
 			$is_response = false;
+
 			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
 				$ret['type'] = 'Undo';
+				$fragment = 'undo';
 				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';
+				$fragment = 'delete';
 			}
-			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#delete';
+
+			$ret['id'] = str_replace('/item/','/activity/',$i['mid']) . '#' . $fragment;
 			$actor = self::encode_person($i['author'],false);
 			if ($actor)
 				$ret['actor'] = $actor;
 			else
 				return []; 
 
-			if ($i['obj'] && !$is_response) {
-				if (! is_array($i['obj'])) {
-					$i['obj'] = json_decode($i['obj'],true);
-				}
-				$obj = self::encode_object($i['obj']);
-				if ($obj)
-					$ret['object'] = $obj;
-				else
-					return [];
+//			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
+
+			$obj = (($is_response) ? self::encode_activity($i,true) : self::encode_item($i,true));
+			if ($obj) {
+				// do not leak private content in deletes
+				unset($obj['object']);
+				unset($obj['cc']);
+				$obj['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+				$ret['object'] = $obj;
 			}
-			else {
-				$obj = self::encode_item($i);
-				if ($obj)
-					$ret['object'] = $obj;
-				else
-					return [];
-			}
+			else
+				return [];
 
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+
 			return $ret;
+
 		}
 
 		if($ret['type'] === 'emojiReaction') {
@@ -1166,7 +1186,9 @@ class Activity {
 			'Question'                                          => 'Question',
 			'Document'					    => 'Document',
 			'Audio'						    => 'Audio',
-			'Video'						    => 'Video'
+			'Video'						    => 'Video',
+			'Delete' 	                                    => 'Delete',
+			'Undo'					            => 'Undo'
 		];
 
 		call_hooks('activity_obj_decode_mapper',$objs);
@@ -1203,7 +1225,9 @@ class Activity {
 			'Invite'                                            => 'Invite',
 			'Question'                                          => 'Question',
 			'Audio'						    => 'Audio',
-			'Video'					            => 'Video'
+			'Video'					            => 'Video',
+			'Delete' 	                                    => 'Delete',
+			'Undo'					            => 'Undo'
 		];
 
 		call_hooks('activity_obj_mapper',$objs);
@@ -2033,7 +2057,7 @@ class Activity {
 			$response_activity = true;
 
 			$s['mid'] = $act->id;
-			$s['parent_mid'] = $act->obj['id'];
+			// $s['parent_mid'] = $act->obj['id'];
 			$s['uuid'] = $act->data['diaspora:guid'];
 
 			// over-ride the object timestamp with the activity
@@ -3113,6 +3137,30 @@ class Activity {
 			}
 		}
 		return $content;
+	}
+
+	// Find either an Authorization: Bearer token or 'token' request variable
+	// in the current web request and return it
+
+	static function token_from_request() {
+
+		foreach ( [ 'REDIRECT_REMOTE_USER', 'HTTP_AUTHORIZATION' ] as $s ) {
+			$auth = ((array_key_exists($s,$_SERVER) && strpos($_SERVER[$s],'Bearer ') === 0)
+				? str_replace('Bearer ', EMPTY_STR, $_SERVER[$s])
+				: EMPTY_STR
+			);
+			if ($auth) {
+				break;
+			}
+		}
+
+		if (! $auth) {
+			if (array_key_exists('token',$_REQUEST) && $_REQUEST['token']) {
+				$auth = $_REQUEST['token'];
+			}
+		}
+
+		return $auth;
 	}
 
 

@@ -1141,6 +1141,7 @@ class Libzot {
 				}
 
 				logger($AS->debug(),LOGGER_DATA);
+
 		}
 
 
@@ -1200,10 +1201,6 @@ class Libzot {
 		if($has_data) {
 
 			if(in_array($env['type'],['activity','response'])) {
-
-				$arr = Activity::decode_note($AS);
-
-				//logger($AS->debug());
 
 				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",
 					dbesc($AS->actor['id'])
@@ -1496,13 +1493,14 @@ class Libzot {
 				// Try again using the delivery channel credentials.
 				// We will also need to re-parse the $item array, 
 				// but preserve any values that were set during anonymous parsing.
-							   
+
 				$o = Activity::fetch($act->obj,$channel);
 				if($o) {
 					$act->obj = $o;
 					$arr = array_merge(Activity::decode_note($act),$arr);
 				}
 				else {
+
 					$DR->update('Incomplete or corrupt activity');
 					$result[] = $DR->get();
 					continue;
@@ -1725,7 +1723,7 @@ class Libzot {
 				$arr['aid'] = $channel['channel_account_id'];
 				$arr['uid'] = $channel['channel_id'];
 
-				$item_id = self::delete_imported_item($sender,$arr,$channel['channel_id'],$relay);
+				$item_id = self::delete_imported_item($sender,$act,$arr,$channel['channel_id'],$relay);
 				$DR->update(($item_id) ? 'deleted' : 'delete_failed');
 				$result[] = $DR->get();
 
@@ -2108,7 +2106,7 @@ class Libzot {
 	 * @return boolean|int post_id
 	 */
 
-	static function delete_imported_item($sender, $item, $uid, $relay) {
+	static function delete_imported_item($sender, $act, $item, $uid, $relay) {
 
 		logger('invoked', LOGGER_DEBUG);
 
@@ -2116,42 +2114,39 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
-		// reactions such as like and dislike could	have an	mid with /activity/ in it.
-		// Check for both forms in order to prevent duplicates.
+		if ($item['verb'] === 'Tombstone') {
+			// The id of the deleted thing is the item mid (activity id)
+			$mid = $item['mid'];
+		}
+		else {
+			// The id is the object id if the type is Undo or Delete
+			$mid = ((is_array($act->obj)) ? $act->obj['id'] : $act->obj);
+		}
+
+		// we may have stored either the object id or the activity id if it was a response activity (like, dislike, etc.)
 
 		$r = q("select * from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
 			and mid IN ('%s', '%s') and uid = %d limit 1",
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
-			dbesc(str_replace('/activity/', '/item/', $item['mid'])),
-			dbesc(str_replace('/item/', '/activity/', $item['mid'])),
+			dbesc($mid),
+			dbesc(str_replace('/activity/','/item/',$mid)),
 			intval($uid)
 		);
 
 		if($r) {
 			$stored = $r[0];
 
-			if($stored['author_xchan'] === $sender || $stored['owner_xchan'] === $sender || $stored['source_xchan'] === $sender)
-				$ownership_valid = true;
+			// we proved ownership in the sql query
+			$ownership_valid = true;
 
 			$post_id = $stored['id'];
 			$item_found = true;
 		}
 		else {
-
-			// perhaps the item is still in transit and the delete notification got here before the actual item did. Store it with the deleted flag set.
-			// item_store() won't try to deliver any notifications or start delivery chains if this flag is set.
-			// This means we won't end up with potentially even more delivery threads trying to push this delete notification.
-			// But this will ensure that if the (undeleted) original post comes in at a later date, we'll reject it because it will have an older timestamp.
-
-			logger('delete received for non-existent item - storing item data.');
-
-			if($item['author_xchan'] === $sender || $item['owner_xchan'] === $sender || $item['source_xchan'] === $sender) {
-				$ownership_valid = true;
-				$item_result = item_store($item);
-				$post_id = $item_result['item_id'];
-			}
+			// this will fail with an ownership issue, so explain the real reason
+			logger('delete received for non-existent item or not owned by sender - ignoring.');
 		}
 
 		if($ownership_valid === false) {

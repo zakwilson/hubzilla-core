@@ -319,6 +319,26 @@ class Activity {
 			$ret = Activity::encode_object($i['obj']);
 		}
 
+		if (intval($i['item_deleted'])) {
+			$ret['type'] = 'Tombstone';
+			$ret['formerType'] = $objtype;
+			$ret['id'] = $i['mid'];
+			if($i['id'] != $i['parent'])
+				$ret['inReplyTo'] = $i['thr_parent'];
+
+			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+			return $ret;
+		}
+
+		if ($i['obj']) {
+			if (is_array($i['obj'])) {
+				$ret = $i['obj'];
+			}
+			else {
+				$ret = json_decode($i['obj'],true);
+			}
+		}
+
 		$ret['type'] = $objtype;
 
 		if ($objtype === 'Question') {
@@ -632,7 +652,7 @@ class Activity {
 
 
 
-	static function encode_activity($i) {
+	static function encode_activity($i, $dismiss_deleted = false) {
 
 		$ret   = [];
 		$reply = false;
@@ -646,10 +666,13 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 		$fragment = '';
 
-		if (intval($i['item_deleted'])) {
+		if (intval($i['item_deleted']) && !$dismiss_deleted) {
+			$is_response = false;
+
 			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
 				$ret['type'] = 'Undo';
 				$fragment = 'undo';
+				$is_response = true;
 			}
 			else {
 				$ret['type'] = 'Delete';
@@ -663,14 +686,23 @@ class Activity {
 			else
 				return []; 
 
-			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
+//			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
 
-			if($i['id'] != $i['parent']) {
-				$ret['inReplyTo'] = $i['thr_parent'];
+			$obj = (($is_response) ? self::encode_activity($i,true) : self::encode_item($i,true));
+			if ($obj) {
+				// do not leak private content in deletes
+				unset($obj['object']);
+				unset($obj['cc']);
+				$obj['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+				$ret['object'] = $obj;
 			}
+			else
+				return [];
 
 			$ret['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+
 			return $ret;
+
 		}
 
 		if($ret['type'] === 'emojiReaction') {
@@ -2020,12 +2052,12 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction', 'Undo', 'Delete' ])) {
+		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
 
 			$response_activity = true;
 
 			$s['mid'] = $act->id;
-			$s['parent_mid'] = $act->parent_id; //$act->obj['id'];
+			// $s['parent_mid'] = $act->obj['id'];
 			$s['uuid'] = $act->data['diaspora:guid'];
 
 			// over-ride the object timestamp with the activity

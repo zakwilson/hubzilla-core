@@ -1212,6 +1212,10 @@ class Libzot {
 					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
+				if (! $arr['author_xchan']) {
+					logger('No author!');
+					return;
+				}
 
 				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($env['sender'])

@@ -652,7 +652,7 @@ class Activity {
 
 
 
-	static function encode_activity($i, $dismiss_deleted = false) {
+	static function encode_activity($i, $recurse = false) {
 
 		$ret   = [];
 		$reply = false;
@@ -666,10 +666,10 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 		$fragment = '';
 
-		if (intval($i['item_deleted']) && !$dismiss_deleted) {
+		if (intval($i['item_deleted']) && !$recurse) {
 			$is_response = false;
 
-			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
+			if (ActivityStreams::is_response_activity($ret['type'])) {
 				$ret['type'] = 'Undo';
 				$fragment = 'undo';
 				$is_response = true;
@@ -686,12 +686,11 @@ class Activity {
 			else
 				return []; 
 
-//			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
-
 			$obj = (($is_response) ? self::encode_activity($i,true) : self::encode_item($i,true));
 			if ($obj) {
-				// do not leak private content in deletes
-				unset($obj['object']);
+				if (array_path_exists('object/id',$obj)) {
+					$obj['object'] = $obj['object']['id'];
+				}
 				unset($obj['cc']);
 				$obj['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 				$ret['object'] = $obj;
@@ -2052,7 +2051,7 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
+		if(ActivityStreams::is_response_activity($act->type)) {
 
 			$response_activity = true;
 

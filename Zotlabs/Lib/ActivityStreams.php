@@ -274,12 +274,19 @@ class ActivityStreams {
 		return self::fetch($url);
 	}
 
-	static function fetch($url,$channel = null) {
-		return Activity::fetch($url,$channel);
+	static function fetch($url, $channel = null) {
+		return Activity::fetch($url, $channel);
 	}
 
 	static function is_an_actor($s) {
-		return(in_array($s,[ 'Application','Group','Organization','Person','Service' ]));
+		return (in_array($s, [ 'Application','Group','Organization','Person','Service' ]));
+	}
+
+	static function is_response_activity($s) {
+		if (! $s) {
+			return false;
+		}
+		return (in_array($s, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact' ]));
 	}
 
 	/**
@@ -402,7 +409,6 @@ class ActivityStreams {
 		return $x;
 	}
 
-
 	static function is_as_request() {
 
 		$x = getBestSupportedMimeType([
@@ -414,6 +420,5 @@ class ActivityStreams {
 		return(($x) ? true : false);
 
 	}
-
 
 }

@@ -441,15 +441,15 @@ class Like extends \Zotlabs\Web\Controller {
 		
 	
 		if($extended_like) {
-			$ulink = '[zrl=' . $ch[0]['xchan_url'] . ']' . $ch[0]['xchan_name'] . '[/zrl]';
-			$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
+			$ulink = '[zrl=' . $ch[0]['xchan_url'] . '][bdi]' . $ch[0]['xchan_name'] . '[/bdi][/zrl]';
+			$alink = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
 			$private = (($public) ? 0 : 1);
 		}
 		else {
 			$arr['parent']       = $item['id'];
 			$arr['thr_parent']   = $item['mid'];
-			$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
-			$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
+			$ulink = '[zrl=' . $item_author['xchan_url'] . '][bdi]' . $item_author['xchan_name'] . '[/bdi][/zrl]';
+			$alink = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
 			$plink = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
 			$allow_cid       = $item['allow_cid'];
 			$allow_gid       = $item['allow_gid'];

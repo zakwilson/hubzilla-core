@@ -1925,7 +1925,7 @@ function zid_init() {
 		call_hooks('zid_init', $arr);
 
 		if(! local_channel()) {
-			$r = q("select * from hubloc where hubloc_addr = '%s' order by hubloc_connected desc",
+			$r = q("select hubloc_url, hubloc_hash, hubloc_network from hubloc where hubloc_addr = '%s' order by hubloc_connected desc",
 				dbesc($tmp_str)
 			);
 			if(! $r) {
@@ -1934,6 +1934,7 @@ function zid_init() {
 			if($r) {
 				$r = Libzot::zot_record_preferred($r);
 			}
+
 			if($r && remote_channel() && remote_channel() === $r['hubloc_hash'])
 				return;
 

@@ -446,8 +446,13 @@ function contact_remove($channel_id, $abook_id) {
 	);
 
 	$r = q("delete from abconfig where chan = %d and xchan = '%s'",
-			intval($channel_id),
-			dbesc($abook['abook_xchan'])
+		intval($channel_id),
+		dbesc($abook['abook_xchan'])
+	);
+
+	$r = q("delete from source where src_channel_id = %d and src_xchan = '%s'",
+		intval($channel_id),
+		dbesc($abook['abook_xchan'])
 	);
 
 	return true;

@@ -3175,6 +3175,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		// This MAY cause you to run afoul of copyright law.
 
 		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
+
 		if($rewrite_author) {
 			$item['author_xchan'] = $channel['channel_hash'];
 
@@ -3246,7 +3247,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				"' portable_id='"   . $item['author']['xchan_hash'] . 
 				"' avatar='"        . $item['author']['xchan_photo_s'] .
 				"' link='"          . $item['plink'] .
-				"' auth='"          . ((in_array($item['author']['network'], ['zot','zot6'])) ? 'true' : 'false') .
+				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
 				"' posted='"        . $item['created'] .
 				"' message_id='"    . $item['mid'] .
 			"']";

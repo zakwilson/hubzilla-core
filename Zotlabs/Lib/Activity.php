@@ -168,7 +168,7 @@ class Activity {
 		if($r) {
 			xchan_query($r,true);
 			$r = fetch_post_tags($r,true);
-			if ($r[0]['verb'] === 'Create' && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
+			if (in_array($r[0]['verb'], ['Create', 'Invite']) && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
 				$r[0]['verb'] = 'Invite';
 				return self::encode_activity($r[0]);
 			}

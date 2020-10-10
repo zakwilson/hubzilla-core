@@ -2921,7 +2921,7 @@ class Activity {
 			$s['parent_mid'] = $s['mid'];
 	
 
-		$post_type = (($parent_item['resource_type'] === 'photo') ? t('photo') : t('status'));
+		$post_type = (($parent_item['resource_type'] === 'photo') ? t('photo') : t('post'));
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $parent_item['plink']));
 		$objtype = (($parent_item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );

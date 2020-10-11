@@ -859,7 +859,7 @@ class Enotify {
 			'b64mid' => (($item['mid']) ? 'b64.' . base64url_encode($item['mid']) : ''),
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
-			'message' => bbcode(escape_tags(str_replace(["\r\n", "\r", "\n"], ' ', $itemem_text))),
+			'message' => bbcode(escape_tags($itemem_text)),
 			'body' =>  htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_COMPAT, 'UTF-8', false),
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],

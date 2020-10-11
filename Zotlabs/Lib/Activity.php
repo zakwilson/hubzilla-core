@@ -1736,6 +1736,23 @@ class Activity {
 
 		$s['aid'] = $channel['channel_account_id'];
 		$s['uid'] = $channel['channel_id'];
+
+		// Make sure we use the zot6 identity where applicable
+
+		$s['author_xchan'] = self::find_best_identity($s['author_xchan']);
+		$s['owner_xchan']  = self::find_best_identity($s['owner_xchan']);
+
+		if(!$s['author_xchan']) {
+			logger('No author: ' . print_r($act, true));
+		}
+
+		if(!$s['owner_xchan']) {
+			logger('No owner: ' . print_r($act, true));
+		}
+
+		if(!$s['author_xchan'] || !$s['owner_xchan'])
+			return;
+
 		$s['mid'] = urldecode($act->obj['id']);
 		$s['uuid'] = $act->obj['diaspora:guid'];
 		$s['plink'] = urldecode($act->obj['id']);
@@ -2477,6 +2494,11 @@ class Activity {
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
 
+		// Make sure we use the zot6 identity where applicable
+
+		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
+		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
+
 		if(! ( $item['author_xchan'] && $item['owner_xchan'])) {
 			logger('owner or author missing.');
 			return;
@@ -3162,5 +3184,15 @@ class Activity {
 		return $auth;
 	}
 
+	static function find_best_identity($xchan) {
+		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+			dbesc($xchan)
+		);
+		if ($r) {
+			$r = Libzot::zot_record_preferred($r);
+			return $r['hubloc_hash'];
+		}
+		return $xchan;
+	}
 
 }

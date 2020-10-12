@@ -3185,14 +3185,19 @@ class Activity {
 	}
 
 	static function find_best_identity($xchan) {
-		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
-			dbesc($xchan)
-		);
-		if ($r) {
-			$r = Libzot::zot_record_preferred($r);
-			return $r['hubloc_hash'];
+
+		if(filter_var($xchan, FILTER_VALIDATE_URL)) {
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+				dbesc($xchan)
+			);
+			if ($r) {
+				$r = Libzot::zot_record_preferred($r);
+				return $r['hubloc_hash'];
+			}
 		}
+
 		return $xchan;
+
 	}
 
 }

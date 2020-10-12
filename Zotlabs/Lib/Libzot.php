@@ -1469,8 +1469,8 @@ class Libzot {
 
 		// Make sure we use the zot6 identity where applicable
 
-		$msg_arr['author_xchan'] = Activity::find_best_identity($msg_arr['author_xchan']);
-		$msg_arr['owner_xchan']  = Activity::find_best_identity($msg_arr['owner_xchan']);
+		$arr['author_xchan'] = Activity::find_best_identity($arr['author_xchan']);
+		$arr['owner_xchan']  = Activity::find_best_identity($arr['owner_xchan']);
 
 		// We've validated the sender. Now make sure that the sender is the owner or author
 

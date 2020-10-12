@@ -102,7 +102,7 @@ function localize_item(&$item){
 			logger('localize_item: failed to decode object: ' . print_r($item['obj'],true));
 		}
 		
-		if($obj['author'] && $obj['author']['link'])
+		if(is_array($obj['author']) && $obj['author']['link'])
 			$author_link = get_rel_link($obj['author']['link'],'alternate');
 		elseif(is_array($obj['actor']) && $obj['actor']['url'])
 			$author_link = ((is_array($obj['actor']['url'])) ? $obj['actor']['url'][0]['href'] : $obj['actor']['url']);
@@ -114,7 +114,8 @@ function localize_item(&$item){
 		if(!$author_name)
 			$author_name = ((is_array($obj['actor']) && $obj['actor']['name']) ? $obj['actor']['name'] : '');
 
-		$item_url = get_rel_link($obj['link'],'alternate');
+		if(is_array($obj['link']))
+			$item_url = get_rel_link($obj['link'],'alternate');
 
 		if(!$item_url)
 			$item_url = $obj['id'];

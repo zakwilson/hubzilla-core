@@ -2070,10 +2070,6 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 				$result[] = $DR->get();
 			}
 			else {
-
-				hz_syslog(print_r($arr,true));
-
-
 				$item_result = item_store($arr);
 				if($item_result['success']) {
 					$item_id = $item_result['item_id'];

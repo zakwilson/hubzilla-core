@@ -105,7 +105,7 @@ function localize_item(&$item){
 		if($obj['author'] && $obj['author']['link'])
 			$author_link = get_rel_link($obj['author']['link'],'alternate');
 		elseif(is_array($obj['actor']) && $obj['actor']['url'])
-			$author_link = ((is_array($obj['actor']['url']) ? $obj['actor']['url'][0]['href'] : $obj['actor']['url']);
+			$author_link = ((is_array($obj['actor']['url'])) ? $obj['actor']['url'][0]['href'] : $obj['actor']['url']);
 		else
 			$author_link = '';
 

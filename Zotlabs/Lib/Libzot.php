@@ -1212,6 +1212,10 @@ class Libzot {
 					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
+				if (! $arr['author_xchan']) {
+					logger('No author!');
+					return;
+				}
 
 				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($env['sender'])
@@ -1462,6 +1466,11 @@ class Libzot {
 	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false) {
 
 		$result = [];
+
+		// Make sure we use the zot6 identity where applicable
+
+		$msg_arr['author_xchan'] = Activity::find_best_identity($msg_arr['author_xchan']);
+		$msg_arr['owner_xchan']  = Activity::find_best_identity($msg_arr['owner_xchan']);
 
 		// We've validated the sender. Now make sure that the sender is the owner or author
 

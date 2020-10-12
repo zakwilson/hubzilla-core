@@ -168,7 +168,7 @@ class Activity {
 		if($r) {
 			xchan_query($r,true);
 			$r = fetch_post_tags($r,true);
-			if ($r[0]['verb'] === 'Create' && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
+			if (in_array($r[0]['verb'], ['Create', 'Invite']) && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
 				$r[0]['verb'] = 'Invite';
 				return self::encode_activity($r[0]);
 			}
@@ -652,7 +652,7 @@ class Activity {
 
 
 
-	static function encode_activity($i, $dismiss_deleted = false) {
+	static function encode_activity($i, $recurse = false) {
 
 		$ret   = [];
 		$reply = false;
@@ -666,10 +666,10 @@ class Activity {
 		$ret['type'] = self::activity_mapper($i['verb']);
 		$fragment = '';
 
-		if (intval($i['item_deleted']) && !$dismiss_deleted) {
+		if (intval($i['item_deleted']) && !$recurse) {
 			$is_response = false;
 
-			if (in_array($ret['type'], [ 'Like', 'Dislike', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject' ])) {
+			if (ActivityStreams::is_response_activity($ret['type'])) {
 				$ret['type'] = 'Undo';
 				$fragment = 'undo';
 				$is_response = true;
@@ -686,12 +686,11 @@ class Activity {
 			else
 				return []; 
 
-//			$ret['object'] = str_replace('/item/','/activity/',$i['mid']);
-
 			$obj = (($is_response) ? self::encode_activity($i,true) : self::encode_item($i,true));
 			if ($obj) {
-				// do not leak private content in deletes
-				unset($obj['object']);
+				if (array_path_exists('object/id',$obj)) {
+					$obj['object'] = $obj['object']['id'];
+				}
 				unset($obj['cc']);
 				$obj['to'] = [ ACTIVITY_PUBLIC_INBOX ];
 				$ret['object'] = $obj;
@@ -1737,6 +1736,23 @@ class Activity {
 
 		$s['aid'] = $channel['channel_account_id'];
 		$s['uid'] = $channel['channel_id'];
+
+		// Make sure we use the zot6 identity where applicable
+
+		$s['author_xchan'] = self::find_best_identity($s['author_xchan']);
+		$s['owner_xchan']  = self::find_best_identity($s['owner_xchan']);
+
+		if(!$s['author_xchan']) {
+			logger('No author: ' . print_r($act, true));
+		}
+
+		if(!$s['owner_xchan']) {
+			logger('No owner: ' . print_r($act, true));
+		}
+
+		if(!$s['author_xchan'] || !$s['owner_xchan'])
+			return;
+
 		$s['mid'] = urldecode($act->obj['id']);
 		$s['uuid'] = $act->obj['diaspora:guid'];
 		$s['plink'] = urldecode($act->obj['id']);
@@ -2052,7 +2068,7 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC','UTC',$act->obj['expires']);
 		}
 
-		if(in_array($act->type, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'emojiReaction' ])) {
+		if(ActivityStreams::is_response_activity($act->type)) {
 
 			$response_activity = true;
 
@@ -2477,6 +2493,11 @@ class Activity {
 
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
+
+		// Make sure we use the zot6 identity where applicable
+
+		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
+		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
 
 		if(! ( $item['author_xchan'] && $item['owner_xchan'])) {
 			logger('owner or author missing.');
@@ -2922,7 +2943,7 @@ class Activity {
 			$s['parent_mid'] = $s['mid'];
 	
 
-		$post_type = (($parent_item['resource_type'] === 'photo') ? t('photo') : t('status'));
+		$post_type = (($parent_item['resource_type'] === 'photo') ? t('photo') : t('post'));
 
 		$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $parent_item['plink']));
 		$objtype = (($parent_item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
@@ -3163,5 +3184,15 @@ class Activity {
 		return $auth;
 	}
 
+	static function find_best_identity($xchan) {
+		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+			dbesc($xchan)
+		);
+		if ($r) {
+			$r = Libzot::zot_record_preferred($r);
+			return $r['hubloc_hash'];
+		}
+		return $xchan;
+	}
 
 }

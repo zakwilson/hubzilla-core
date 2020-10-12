@@ -128,7 +128,7 @@ class Share {
 				"' profile='"    . $this->item['author']['xchan_url'] .
 				"' avatar='"     . $this->item['author']['xchan_photo_s'] .
 				"' link='"       . $this->item['plink'] .
-				"' auth='"       . (($this->item['author']['network'] === 'zot') ? 'true' : 'false') .
+				"' auth='"       . ((in_array($this->item['author']['xchan_network'], ['zot6', 'zot'])) ? 'true' : 'false') .
 				"' posted='"     . $this->item['created'] .
 				"' message_id='" . $this->item['mid'] .
 			"']";

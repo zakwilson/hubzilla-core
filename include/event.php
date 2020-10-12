@@ -1247,7 +1247,7 @@ function event_store_item($arr, $event) {
 		$item_arr['deny_cid']        = $arr['deny_cid'];
 		$item_arr['deny_gid']        = $arr['deny_gid'];
 		$item_arr['item_private']    = $private;
-		$item_arr['verb']            = ACTIVITY_POST;
+		$item_arr['verb']            = 'Invite';
 		$item_arr['item_wall']       = $item_wall;
 		$item_arr['item_origin']     = $item_origin;
 		$item_arr['item_thread_top'] = $item_thread_top;

@@ -62,7 +62,8 @@ class WebServer {
 					$_SESSION['my_address'] = $_GET['zid'];
 					$_SESSION['authenticated'] = 0;
 				}
-				zid_init();
+				if(! $_SESSION['authenticated'])
+					zid_init();
 			}
 		}
 

@@ -104,20 +104,30 @@ function localize_item(&$item){
 		
 		if($obj['author'] && $obj['author']['link'])
 			$author_link = get_rel_link($obj['author']['link'],'alternate');
+		elseif($obj['actor'] && $obj['actor']['url'])
+			$author_link = $obj['actor']['url'][0]['href'];
 		else
 			$author_link = '';
 
 		$author_name = (($obj['author'] && $obj['author']['name']) ? $obj['author']['name'] : '');
 
+		if(!$author_name)
+			$author_name = (($obj['actor'] && $obj['actor']['name']) ? $obj['actor']['name'] : '');
+
 		$item_url = get_rel_link($obj['link'],'alternate');
+
+		if(!$item_url)
+			$item_url = $obj['id'];
 
 		$Bphoto = '';
 
 		switch($obj['type']) {
 			case ACTIVITY_OBJ_PHOTO:
+			case 'Photo':
 				$post_type = t('photo');
 				break;
 			case ACTIVITY_OBJ_EVENT:
+			case 'Event':
 				$post_type = t('event');
 				break;
 			case ACTIVITY_OBJ_PERSON:
@@ -142,9 +152,10 @@ function localize_item(&$item){
 				break;
 
 			case ACTIVITY_OBJ_NOTE:
+			case 'Note':
 			default:
-				$post_type = t('status');
-				if($obj['id'] != $obj['parent'])
+				$post_type = t('post');
+				if(($obj['parent'] && $obj['id'] != $obj['parent']) || $obj['inReplyTo'])
 					$post_type = t('comment');
 				break;
 		}

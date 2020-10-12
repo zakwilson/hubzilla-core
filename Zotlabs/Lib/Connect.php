@@ -187,12 +187,8 @@ class Connect {
 			// Always set these "remote" permissions for feeds since we cannot interact with them
 			// to negotiate a suitable permission response
 
-			$p = get_abconfig($uid,$xchan_hash,'system','their_perms',EMPTY_STR);
-			if ($p) {
-				$p .= ',';
-			}
-			$p .= 'view_stream,republish';
-			set_abconfig($uid,$xchan_hash,'system','their_perms',$p);
+			set_abconfig($uid,$xchan_hash,'their_perms','view_stream',1);
+			set_abconfig($uid,$xchan_hash,'their_perms','republish',1);
 
 		}
 

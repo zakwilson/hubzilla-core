@@ -9,6 +9,7 @@
  */
 
 use Zotlabs\Lib\DReport;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/crypto.php');
 require_once('include/items.php');
@@ -1952,6 +1953,31 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 			intval($channel['channel_id']),
 			dbesc($arr['owner_xchan'])
 		);
+
+		if(! $ab) {
+
+			$best_owner_xchan = find_best_zot_identity($arr['owner_xchan']);
+
+			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
+				intval($channel['channel_id']),
+				dbesc($best_owner_xchan)
+			);
+
+			if($ab)
+				$arr['owner_xchan'] = $best_owner_xchan;
+		}
+
+		$best_author_xchan = find_best_zot_identity($arr['author_xchan']);
+
+		$ab_author = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
+			intval($channel['channel_id']),
+			dbesc($best_author_xchan)
+		);
+
+		if($ab_author)
+			$arr['author_xchan'] = $best_author_xchan;
+
+
 		$abook = (($ab) ? $ab[0] : null);
 
 		if(intval($arr['item_deleted'])) {
@@ -2044,6 +2070,10 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 				$result[] = $DR->get();
 			}
 			else {
+
+				hz_syslog(print_r($arr,true));
+
+
 				$item_result = item_store($arr);
 				if($item_result['success']) {
 					$item_id = $item_result['item_id'];
@@ -5340,4 +5370,34 @@ function zot_record_preferred($arr, $check = 'hubloc_network') {
 
 	return $arr[0];
 
+}
+
+function find_best_zot_identity($xchan) {
+
+	if (filter_var($xchan, FILTER_VALIDATE_URL)) {
+		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+			dbesc($xchan)
+		);
+		if ($r) {
+			$r = Libzot::zot_record_preferred($r);
+			return $r['hubloc_hash'];
+		}
+	}
+
+	$r = q("select hubloc_addr from hubloc where hubloc_hash = '%s'",
+		dbesc($xchan)
+	);
+
+	if ($r) {
+
+		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_addr = '%s'",
+			dbesc($r[0]['hubloc_addr'])
+		);
+		if ($r) {
+			$r = Libzot::zot_record_preferred($r);
+			return $r['hubloc_hash'];
+		}
+	}
+
+	return $xchan;
 }

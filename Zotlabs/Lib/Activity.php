@@ -2499,10 +2499,16 @@ class Activity {
 		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
 		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
 
-		if(! ( $item['author_xchan'] && $item['owner_xchan'])) {
-			logger('owner or author missing.');
-			return;
+		if(!$item['author_xchan']) {
+			logger('No author: ' . print_r($act, true));
 		}
+
+		if(!$item['owner_xchan']) {
+			logger('No owner: ' . print_r($act, true));
+		}
+
+		if(!$item['author_xchan'] || !$item['owner_xchan'])
+			return;
 
 		if($channel['channel_system']) {
 			if(! MessageFilter::evaluate($item,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
@@ -2699,6 +2705,7 @@ class Activity {
 	static public function fetch_and_store_replies($channel, $arr) {
 
 		logger('fetching replies');
+		logger(print_r($arr,true));
 
 		$p = [];
 
@@ -3185,14 +3192,19 @@ class Activity {
 	}
 
 	static function find_best_identity($xchan) {
-		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
-			dbesc($xchan)
-		);
-		if ($r) {
-			$r = Libzot::zot_record_preferred($r);
-			return $r['hubloc_hash'];
+
+		if(filter_var($xchan, FILTER_VALIDATE_URL)) {
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+				dbesc($xchan)
+			);
+			if ($r) {
+				$r = Libzot::zot_record_preferred($r);
+				return $r['hubloc_hash'];
+			}
 		}
+
 		return $xchan;
+
 	}
 
 }

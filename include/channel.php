@@ -2384,7 +2384,7 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	} else {
-		$default_cover = get_config('system','default_cover_photo','pexels-94622');
+		$default_cover = get_config('system','default_cover_photo','bggenerator');
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
 	}
 
@@ -2458,7 +2458,7 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	}
 	else {
-		$default_cover = get_config('system','default_cover_photo','pexels-94622');
+		$default_cover = get_config('system','default_cover_photo','bggenerator');
 		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
 	}
 

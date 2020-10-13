@@ -2499,10 +2499,16 @@ class Activity {
 		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
 		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
 
-		if(! ( $item['author_xchan'] && $item['owner_xchan'])) {
-			logger('owner or author missing.');
-			return;
+		if(!$item['author_xchan']) {
+			logger('No author: ' . print_r($act, true));
 		}
+
+		if(!$item['owner_xchan']) {
+			logger('No owner: ' . print_r($act, true));
+		}
+
+		if(!$item['author_xchan'] || !$item['owner_xchan'])
+			return;
 
 		if($channel['channel_system']) {
 			if(! MessageFilter::evaluate($item,get_config('system','pubstream_incl'),get_config('system','pubstream_excl'))) {
@@ -2699,6 +2705,7 @@ class Activity {
 	static public function fetch_and_store_replies($channel, $arr) {
 
 		logger('fetching replies');
+		logger(print_r($arr,true));
 
 		$p = [];
 

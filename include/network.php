@@ -1120,9 +1120,9 @@ function discover_by_webbie($webbie, $protocol = '') {
 						continue;
 					}
 
-					$x = Libzot::import_xchan($record['data']);
-					if($x['success']) {
-						return $x['hash'];
+					$y = Libzot::import_xchan($record['data']);
+					if($y['success']) {
+						return $y['hash'];
 					}
 				}
 			}

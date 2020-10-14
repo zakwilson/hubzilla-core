@@ -3194,11 +3194,12 @@ class Activity {
 	static function find_best_identity($xchan) {
 
 		if(filter_var($xchan, FILTER_VALIDATE_URL)) {
-			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network in ('zot6', 'zot') and hubloc_deleted = 0",
 				dbesc($xchan)
 			);
 			if ($r) {
 				$r = Libzot::zot_record_preferred($r);
+				logger('find_best_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
 				return $r['hubloc_hash'];
 			}
 		}

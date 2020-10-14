@@ -1964,8 +1964,10 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 				dbesc($best_owner_xchan)
 			);
 
-			if($ab)
+			if($ab) {
+				logger('rewrite owner: ' . $arr['owner_xchan'] . ' > ' . $best_owner_xchan);
 				$arr['owner_xchan'] = $best_owner_xchan;
+			}
 		}
 
 		$best_author_xchan = find_best_zot_identity($arr['author_xchan']);
@@ -1975,9 +1977,10 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 			dbesc($best_author_xchan)
 		);
 
-		if($ab_author)
+		if($ab_author) {
+			logger('rewrite author: ' . $arr['author_xchan'] . ' > ' . $best_author_xchan);
 			$arr['author_xchan'] = $best_author_xchan;
-
+		}
 
 		$abook = (($ab) ? $ab[0] : null);
 
@@ -5382,7 +5385,7 @@ function find_best_zot_identity($xchan) {
 		);
 		if ($r) {
 			$r = Libzot::zot_record_preferred($r);
-			logger('find_best_zot_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
+			hz_syslog('find_best_zot_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
 			return $r['hubloc_hash'];
 		}
 	}

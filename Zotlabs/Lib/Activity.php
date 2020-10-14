@@ -3199,7 +3199,7 @@ class Activity {
 			);
 			if ($r) {
 				$r = Libzot::zot_record_preferred($r);
-				logger('find_best_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
+				hz_syslog('find_best_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
 				return $r['hubloc_hash'];
 			}
 		}

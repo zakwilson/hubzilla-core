@@ -10,6 +10,7 @@
 
 use Zotlabs\Lib\DReport;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Activity;
 
 require_once('include/crypto.php');
 require_once('include/items.php');
@@ -5370,27 +5371,18 @@ function zot_record_preferred($arr, $check = 'hubloc_network') {
 
 function find_best_zot_identity($xchan) {
 
-	if (filter_var($xchan, FILTER_VALIDATE_URL)) {
-		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
-			dbesc($xchan)
-		);
-		if ($r) {
-			$r = Libzot::zot_record_preferred($r);
-			return $r['hubloc_hash'];
-		}
-	}
-
-	$r = q("select hubloc_addr from hubloc where hubloc_hash = '%s'",
+	$r = q("select hubloc_addr from hubloc where hubloc_hash = '%s' and hubloc_network in ('zot6', 'zot') and hubloc_deleted = 0",
 		dbesc($xchan)
 	);
 
 	if ($r) {
 
-		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_addr = '%s'",
+		$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_addr = '%s' and hubloc_network in ('zot6', 'zot') and hubloc_deleted = 0",
 			dbesc($r[0]['hubloc_addr'])
 		);
 		if ($r) {
 			$r = Libzot::zot_record_preferred($r);
+			logger('find_best_zot_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
 			return $r['hubloc_hash'];
 		}
 	}

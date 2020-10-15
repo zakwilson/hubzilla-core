@@ -15,12 +15,14 @@
 				{{if $aclModalDesc}}
 				<div id="acl-dialog-description" class="section-content-info-wrapper">{{$aclModalDesc}}</div>
 				{{/if}}
-				<label for="acl-select">{{$select_label}}</label>
+				<label for="acl-select">{{if $aclModalDesc}}<i class="fa fa-send-o"></i> {{/if}}{{$select_label}}</label>
 				<select id="acl-select" name="optionsRadios" class="form-control form-group">
 					<option id="acl-showall" value="public" {{$public_selected}}>{{$showall}}</option>
-					{{$groups}}
 					<option id="acl-onlyme" value="onlyme" {{$justme_selected}}>{{$onlyme}}</option>
-					<option id="acl-custom" value="custom" {{$custom_selected}}>{{$custom}}</option>
+					{{$groups}}
+					<optgroup label = "{{$custom_label}}">;
+						<option id="acl-custom" value="custom" {{$custom_selected}}>{{$custom}}</option>
+					</optgroup>;
 				</select>
 
 				{{if $showallOrigin}}

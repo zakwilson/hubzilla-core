@@ -79,24 +79,44 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 		$custom = false;
 	}
 
-	$r = q("SELECT id, profile_guid, profile_name from profile where is_default = 0 and uid = %d order by profile_name",
-		intval(local_channel())
-	);
-	if($r) {
-		foreach($r as $rv) {
-			$selected = (($single_group && 'vp.' . $rv['profile_guid'] === $allow_gid[0]) ? ' selected = "selected" ' : '');
-			$groups .= '<option id="' . 'vp' . $rv['id'] . '" value="' . 'vp.' . $rv['profile_guid'] . '"' . $selected . '>' . t('Profile','acl') . ' ' . $rv['profile_name'] . '</option>' . "\r\n";
-		}
-	}
-
 	$r = q("SELECT id, hash, gname FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 		intval(local_channel())
 	);
 
 	if($r) {
+		$groups .= '<optgroup label = "' . t('Privacy Groups').'">';
 		foreach($r as $rr) {
 			$selected = (($single_group && $rr['hash'] === $allow_gid[0]) ? ' selected = "selected" ' : '');
 			$groups .= '<option id="' . $rr['id'] . '" value="' . $rr['hash'] . '"' . $selected . '>' . $rr['gname'] . '</option>' . "\r\n";
+		}
+		$groups .= '</optgroup>';
+	}
+
+	$r = q("SELECT id, profile_guid, profile_name from profile where is_default = 0 and uid = %d order by profile_name",
+		intval(local_channel())
+	);
+
+	if($r) {
+		$groups .= '<optgroup label = "' . t('Profile-Based Privacy Groups').'">';
+		foreach($r as $rv) {
+			$selected = (($single_group && 'vp.' . $rv['profile_guid'] === $allow_gid[0]) ? ' selected = "selected" ' : '');
+			$groups .= '<option id="' . 'vp' . $rv['id'] . '" value="' . 'vp.' . $rv['profile_guid'] . '"' . $selected . '>' . $rv['profile_name'] . '</option>' . "\r\n";
+		}
+		$groups .= '</optgroup>';
+	}
+
+	// $dialog_description is only set in places where we set permissions for a post.
+	// Abuse this fact to decide if forums should be displayed or not.
+	if($dialog_description) {
+		$forums = get_forum_channels(local_channel(),1);
+
+		if($forums) {
+			$groups .= '<optgroup label = "' . t('Forums').'">';
+			foreach($forums as $f) {
+				$selected = (($single_group && $f['hash'] === $allow_cid[0]) ? ' selected = "selected" ' : '');
+				$groups .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . '</option>' . "\r\n";
+			}
+			$groups .= '</optgroup>';
 		}
 	}
 
@@ -104,17 +124,18 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	$o = replace_macros($tpl, array(
 		'$showall'         => $showall_caption,
 		'$onlyme'          => t('Only me'),
-		'$groups'	       => $groups,
+		'$groups'	   => $groups,
 		'$public_selected' => (($has_acl) ? false : true),
 		'$justme_selected' => $just_me,
 		'$custom_selected' => $custom,
 		'$showallOrigin'   => $showall_origin,
 		'$showallIcon'     => $showall_icon,
-		'$select_label'    => t('Who can see this?'),
+		'$select_label'    => t('Share with'),
 		'$custom'          => t('Custom selection'),
-		'$showlimitedDesc' => t('Select "Show" to allow viewing. "Don\'t show" lets you override and limit the scope of "Show".'),
-		'$show'	           => t('Show'),
-		'$hide'	           => t("Don't show"),
+		'$custom_label'    => t('Advanced'),
+		'$showlimitedDesc' => t('Select "Allow" to allow viewing. "Don\'t allow" lets you override and limit the scope of "Allow".'),
+		'$show'	           => t('Allow'),
+		'$hide'	           => t("Don't allow"),
 		'$search'          => t('Search'),
 		'$allowcid'        => json_encode($allow_cid),
 		'$allowgid'        => json_encode($allow_gid),

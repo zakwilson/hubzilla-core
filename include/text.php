@@ -3816,3 +3816,12 @@ function unserialise($x) {
 	return ((is_array($y)) ? $y : $x);
 }
 
+/**
+ * @brief Remove new lines and tabs from strings.
+ *
+ * @return string
+ */
+function sanitize_text_field($str) {
+	return preg_replace('/\s+/S', ' ', $str);
+}
+

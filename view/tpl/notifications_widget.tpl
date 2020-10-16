@@ -143,7 +143,7 @@
 	</div>
 	<div id="nav-notifications-template" rel="template">
 		<a class="list-group-item clearfix notification {6}" href="{0}" title="{13}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-when="{5}">
-			<img class="menu-img-3" src="{1}">
+			<img class="menu-img-3" data-src="{1}">
 			<span class="contactname">{2} <span class="font-weight-normal text-muted">{3}</span></span>
 			<span class="dropdown-sub-text">{4}</span><br>
 			<span class="dropdown-sub-text notifications-autotime" title="{5}">{5}</span>
@@ -152,7 +152,7 @@
 	<div id="nav-notifications-forums-template" rel="template">
 		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
 			<span class="float-right badge badge-secondary">{10}</span>
-			<img class="menu-img-1" src="{1}">
+			<img class="menu-img-1" data-src="{1}">
 			<span class="">{2}</span>
 			<i class="fa fa-{11} text-muted"></i> 
 		</a>

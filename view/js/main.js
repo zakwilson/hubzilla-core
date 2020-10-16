@@ -1867,7 +1867,8 @@ function sse_handleNotifications(obj, replace, followup) {
 }
 
 function sse_handleNotificationsItems(notifyType, data, replace, followup) {
-	var notifications_tpl = ((notifyType == 'forums') ? decodeURIComponent($("#nav-notifications-forums-template[rel=template]").html()) : decodeURIComponent($("#nav-notifications-template[rel=template]").html()));
+
+	var notifications_tpl = ((notifyType == 'forums') ? decodeURIComponent($("#nav-notifications-forums-template[rel=template]").html().replace('data-src', 'src')) : decodeURIComponent($("#nav-notifications-template[rel=template]").html().replace('data-src', 'src')));
 	var notify_menu = $("#nav-" + notifyType + "-menu");
 	var notify_loading = $("#nav-" + notifyType + "-loading");
 	var notify_count = $("." + notifyType + "-update");

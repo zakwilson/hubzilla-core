@@ -36,7 +36,7 @@ class Sse_bs extends Controller {
 
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify', -1);
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
-		self::$limit = 100;
+		self::$limit = 30;
 		self::$offset = 0;
 		self::$xchans = '';
 

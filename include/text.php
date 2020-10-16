@@ -3677,22 +3677,21 @@ function get_forum_channels($uid) {
 			intval($uid)
 		);
 
-		if($x2) {
-			$xf = ids_to_querystr($x2,'xchan',true);
+		$xf = ids_to_querystr($x2,'xchan',true);
+		$sql_extra = (($xf) ? ' and not xchan in (' . $xf . ')' : '');
 
-			// private forums
-			$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") and not xchan in (" . $xf . ") ",
-				intval(local_channel())
-			);
-			if($x3) {
-				$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
-			}
+		// private forums
+		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") $sql_extra ",
+			intval(local_channel())
+		);
+		if($x3) {
+			$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
 		}
 	}
 
-	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
+	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
-	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name",
+	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)
 	);
 

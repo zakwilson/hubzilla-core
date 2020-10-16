@@ -109,12 +109,12 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	// Abuse this fact to decide if forums should be displayed or not.
 	if($dialog_description) {
 		$forums = get_forum_channels(local_channel(),1);
-
 		if($forums) {
 			$groups .= '<optgroup label = "' . t('Forums').'">';
 			foreach($forums as $f) {
+				$private = (($f['private_forum']) ? ' (' . t('Private Forum') . ')' : '');
 				$selected = (($single_group && $f['hash'] === $allow_cid[0]) ? ' selected = "selected" ' : '');
-				$groups .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . '</option>' . "\r\n";
+				$groups .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . $private . '</option>' . "\r\n";
 			}
 			$groups .= '</optgroup>';
 		}

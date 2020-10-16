@@ -3661,11 +3661,15 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	$xf = false;
+	if(App::$data['forum_channels'])
+		return App::$data['forum_channels'];
+
+	$xf = '';
 
 	$x1 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'send_stream' and v = '0'",
 		intval($uid)
 	);
+
 	if($x1) {
 		$xc = ids_to_querystr($x1,'xchan',true);
 
@@ -3701,6 +3705,8 @@ function get_forum_channels($uid) {
 			}
 		}
 	}
+
+	App::$data['forum_channels'] = $r;
 
 	return $r;
 

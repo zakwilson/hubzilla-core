@@ -133,8 +133,6 @@ class Network extends \Zotlabs\Web\Controller {
 		$pf       = ((x($_GET,'pf'))    ? $_GET['pf']            : '');
 		$unseen   = ((x($_GET,'unseen'))    ? $_GET['unseen']            : '');
 		
-		$deftag = '';
-	
                 if (Apps::system_app_installed(local_channel(),'Affinity Tool')) {
 			$affinity_locked = intval(get_pconfig(local_channel(),'affinity','lock',1));
 			if ($affinity_locked) {
@@ -160,10 +158,7 @@ class Network extends \Zotlabs\Web\Controller {
 				goaway(z_root() . '/network');
 				// NOTREACHED
 			}
-			if($pf)
-				$deftag = '!{' . (($cid_r[0]['xchan_addr']) ? $cid_r[0]['xchan_addr'] : $cid_r[0]['xchan_url']) . '}';
-			else
-				$def_acl = [ 'allow_cid' => '<' . $cid_r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
+			$def_acl = [ 'allow_cid' => '<' . $cid_r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 		}
 	
 		if(! $update) {
@@ -177,6 +172,17 @@ class Network extends \Zotlabs\Web\Controller {
 	
 			nav_set_selected('Network');
 
+			$bang = '!';
+
+			if($cid_r) {
+				$forums = get_forum_channels($channel['channel_id']);
+				if($forums) {
+					$forum_xchans = ids_to_array($forums, 'xchan_hash');
+					if(in_array($cid_r[0]['abook_xchan'], $forum_xchans))
+						$bang = $cid_r[0]['abook_xchan'];
+				}
+			}
+
 			$channel_acl = array(
 				'allow_cid' => $channel['channel_allow_cid'], 
 				'allow_gid' => $channel['channel_allow_gid'], 
@@ -184,7 +190,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'deny_gid'  => $channel['channel_deny_gid']
 			);
 
-			$private_editing = ((($group || $cid) && (! intval($_GET['pf']))) ? true : false);
+			$private_editing = (($group || $cid) ? true : false);
 	
 			$x = array(
 				'is_owner'         => true,
@@ -194,7 +200,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
 				'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
 				'permissions'      => (($private_editing) ? $def_acl : $channel_acl),
-				'bang'             => (($private_editing) ? '!' : ''),
+				'bang'             => (($private_editing) ? $bang : ''),
 				'visitor'          => true,
 				'profile_uid'      => local_channel(),
 				'editor_autocomplete' => true,
@@ -203,9 +209,6 @@ class Network extends \Zotlabs\Web\Controller {
 				'jotnets' => true,
 				'reset' => t('Reset form')
 			);
-			if($deftag)
-				$x['pretext'] = $deftag;
-	
 	
 			$status_editor = status_editor($a,$x,false,'Network');
 			$o .= $status_editor;

@@ -12,10 +12,12 @@ function ACL(backend_url) {
 	that.deny_cid  = [];
 	that.deny_gid  = [];
 
-	that.group_uids = [];
-	that.group_ids = [];
-	that.contact_uids = [];
-	that.contact_ids = [];
+	that.group_uids = {};
+	that.group_ids = {};
+	that.contact_uids = {};
+	that.contact_ids = {};
+
+	that.bang = '';
 
 	that.selected_id = '';
 
@@ -80,6 +82,8 @@ ACL.prototype.get_form_data = function(event) {
 		that.allow_gid = (that.form_id.data('allow_gid') || []);
 		that.deny_cid  = (that.form_id.data('deny_cid') || []);
 		that.deny_gid  = (that.form_id.data('deny_gid') || []);
+
+		that.bang = (that.form_id.data('bang') || '');
 
 		that.update_view();
 		that.on_submit();
@@ -167,6 +171,7 @@ ACL.prototype.on_showgroup = function(event) {
 		that.allow_gid = [xid];
 		that.deny_cid  = [];
 		that.deny_gid  = [];
+
 	}
 	else {
 		that.allow_cid = [cid];
@@ -326,10 +331,16 @@ ACL.prototype.update_view = function(value) {
 		$('.profile-jot-net input').attr('disabled', 'disabled');
 	}
 	else if (that.allow_gid.length === 0 && that.allow_cid.length === 1 && that.deny_gid.length === 0 && that.deny_cid.length === 0 && value !== 'custom') {
+
+		if(that.bang && that.bang !== that.allow_cid[0]) {
+			that.update_view('custom');
+			return;
+		}
+
 		that.list.hide(); //hide acl-list
 		that.info.hide(); //show acl-info
 		that.selected_id = that.contact_ids[that.allow_cid[0]];
-		that.update_select(that.selected_id);
+		that.update_select('\\^' + that.selected_id);
 
 		/* jot acl */
 		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');
@@ -338,6 +349,7 @@ ACL.prototype.update_view = function(value) {
 	}
 
 	else {
+
 		that.list.show(); //show acl-list
 		datasrc2src('#acl-list-content .list-group-item img[data-src]');
 		that.info.hide(); //hide acl-info
@@ -459,9 +471,13 @@ ACL.prototype.populate = function(data) {
 			that.group_uids[this.xid] = this.uids;
 			that.group_ids[this.xid] = this.id;
 		}
+		else {
+			that.contact_ids[this.xid] = this.id;
+		}
 		if (this.self === 'abook-self') {
 			that.self[0] = this.xid;
 		}
+
 		that.list_content.append(html);
 	});
 };

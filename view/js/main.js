@@ -1805,14 +1805,16 @@ function sse_bs_notifications(e, replace, followup) {
 
 			var cn_val = (($('#cn-' + sse_type + '-input').length && sse_partial_result) ? $('#cn-' + sse_type + '-input').val().toString().toLowerCase() : '');
 
+			$("#nav-" + sse_type + "-loading").show();
+
 			$.get('/sse_bs/' + sse_type + '/' + sse_offset + '?nquery=' + encodeURIComponent(cn_val), function(obj) {
 				console.log('sse: bootstraping ' + sse_type);
 				console.log(obj);
 
 				sse_bs_active = false;
 				sse_offset = obj[sse_type].offset;
-				if(sse_offset < 0)
-					$("#nav-" + sse_type + "-loading").hide();
+
+				$("#nav-" + sse_type + "-loading").hide();
 
 				sse_handleNotifications(obj, replace, followup);
 
@@ -1862,6 +1864,15 @@ function sse_handleNotifications(obj, replace, followup) {
 		$(obj.info.notifications).each(function(){
 			$.jGrowl(this, { sticky: false, theme: 'info', life: 10000 });
 		});
+	}
+
+	// load more notifications if visible notifications count becomes < 15 
+	if(sse_type) {
+		if($('#nav-' + sse_type + '-menu').children().length < 15) {
+			if(!sse_bs_active) {
+				sse_bs_notifications(sse_type, false, true);
+			}
+		}
 	}
 
 }
@@ -1978,4 +1989,5 @@ function sse_setNotificationsStatus() {
 		$('#no_notifications').show();
 		$('#notifications').hide();
 	}
+
 }

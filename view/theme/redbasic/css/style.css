@@ -799,8 +799,6 @@ div.jGrowl div.jGrowl-notification {
 }
 
 .contactname {
-	font-weight: bold;
-	color: $font_colour;
 	display: block;
 	overflow: hidden;
 	text-overflow: ellipsis;

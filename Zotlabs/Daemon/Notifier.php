@@ -563,16 +563,39 @@ class Notifier {
 		// Now we have collected recipients (except for external mentions, FIXME)
 		// Let's reduce this to a set of hubs; checking that the site is not dead.
 
-		$r = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project from hubloc left join site on site_url = hubloc_url where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
-			and hubloc_error = 0 and hubloc_deleted = 0 and ( site_dead = 0 OR site_dead is null ) "
+		$hubs = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc left join site on site_url = hubloc_url 
+			where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
+			and hubloc_error = 0 and hubloc_deleted = 0"
 		);
+
+		// public posts won't make it to the local public stream unless there's a recipient on this site. 
+		// This code block sees if it's a public post and localhost is missing, and if so adds an entry for the local sys channel to the $hubs list
+
+		if (! $private) {
+			$found_localhost = false;
+			if ($hubs) {
+				foreach ($hubs as $h) {
+					if ($h['hubloc_url'] === z_root()) {
+						$found_localhost = true;
+						break;
+					}
+				}
+			}
+			if (! $found_localhost) {
+				$localhub = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc 
+					left join site on site_url = hubloc_url where hubloc_id_url = '%s' and hubloc_error = 0 and hubloc_deleted = 0",
+					dbesc(z_root() . '/channel/sys')
+				);
+				if ($localhub) {
+					$hubs = array_merge($hubs, $localhub);
+				}
+			}
+		}
  
-		if(! $r) {
+		if(! $hubs) {
 			logger('notifier: no hubs', LOGGER_NORMAL, LOG_NOTICE);
 			return;
 		}
-
-		$hubs = $r;
 
 		/**
 		 * Reduce the hubs to those that are unique. For zot hubs, we need to verify uniqueness by the sitekey, 
@@ -586,8 +609,15 @@ class Notifier {
 		$keys    = []; // array of keys to check uniquness for zot hubs
 		$urls    = []; // array of urls to check uniqueness of hubs from other networks
 		$hub_env = []; // per-hub envelope so we don't broadcast the entire envelope to all
+		$dead    = []; // known dead hubs - report them as undeliverable
 
 		foreach($hubs as $hub) {
+
+			if (intval($hub['site_dead'])) {
+				$dead[] = $hub;
+				continue;
+			}
+
 			if($env_recips) {
 				foreach($env_recips as $er) {
 					if($hub['hubloc_hash'] === $er['hash']) {
@@ -813,6 +843,24 @@ class Notifier {
 			do_delivery($deliveries);
 
 		logger('notifier: basic loop complete.', LOGGER_DEBUG);
+
+		if ($dead) {
+			foreach ($dead as $deceased) {
+				if (is_array($target_item) && (! $target_item['item_deleted']) && (! get_config('system','disable_dreport'))) {
+					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue ) 
+						values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
+						dbesc($target_item['mid']),
+						dbesc($deceased['hubloc_host']),
+						dbesc($deceased['hubloc_host']),
+						dbesc($deceased['hubloc_host']),
+						dbesc('undeliverable/unresponsive site'),
+						dbesc(datetime_convert()),
+						dbesc($channel['channel_hash']),
+						dbesc(random_string(48))
+					);
+				}
+			}
+		}
 
 		call_hooks('notifier_end',$target_item);
 

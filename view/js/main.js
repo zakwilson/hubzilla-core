@@ -1826,11 +1826,13 @@ function sse_bs_notifications(e, replace, followup) {
 			$.ajax({
 				type: 'post',
 				url: '/sse_bs/' + sse_type + '/' + sse_offset,
-				nquery: encodeURIComponent(cn_val)
+				nquery: encodeURIComponent(cn_val),
+				data: { sse_rmids }
 			}).done(function(obj) {
 				console.log('sse: bootstraping ' + sse_type);
 				console.log(obj);
 				sse_bs_active = false;
+				sse_rmids = [];
 				$("#nav-" + sse_type + "-loading").hide();
 				sse_offset = obj[sse_type].offset;
 				sse_handleNotifications(obj, replace, followup);
@@ -1913,7 +1915,7 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	$(data).each(function() {
 
 		// do not add a notification if it is already present
-		if($('.notification[data-b64mid=\'' + this.b64mid + '\']').length)
+		if($('#nav-' + notifyType + '-menu .notification[data-b64mid=\'' + this.b64mid + '\']').length)
 			return true;
 
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids), this.body);

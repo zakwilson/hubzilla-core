@@ -41,8 +41,8 @@
 
 				<div class="list-group-item acl-list-item" rel="acl-template" style="display:none">
 					<div class="acl-item-header clearfix">
-						<img class="menu-img-3" data-src="{0}">
-						<span class="contactname">{1}</span>
+						<img class="menu-img-3" data-src="{0}" loading="lazy" />
+						<span class="font-weight-bold contactname">{1}</span>
 						<span class="dropdown-sub-text">{6}</span>
 					</div>
 					<button class="acl-button-hide btn btn-sm btn-outline-danger"><i class="fa fa-times"></i> {{$hide}}</button>

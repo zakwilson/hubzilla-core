@@ -218,7 +218,7 @@ function bb_replace_images($body, $images) {
 		// We're depending on the property of 'foreach' (specified on the PHP website) that
 		// it loops over the array starting from the first element and going sequentially
 		// to the last element
-		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . $image .'" alt="' . t('Image/photo') . '" loading="eager" />', $newbody);
+		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . $image .'" alt="' . t('Image/photo') . '" loading="lazy" />', $newbody);
 		$cnt++;
 	}
 //	logger('replace_images: ' . $newbody);
@@ -881,7 +881,7 @@ function bb_imgoptions($match) {
 
 	// now assemble the resulting img tag from these components
 	
-	$output = '<img ' . (($match[1] === 'z') ? 'class="zrl" loading="eager"' : '') . ' ';
+	$output = '<img ' . (($match[1] === 'z') ? 'class="zrl" loading="lazy"' : '') . ' ';
 	
 	if ($width) {
 		$style .= 'width: 100%; max-width: ' . $width . 'px; ';
@@ -1483,19 +1483,19 @@ function bbcode($Text, $options = []) {
 	// Images
 	// [img]pathtoimage[/img]
 	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="eager" />', $Text);
+		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="lazy" />', $Text);
 	}
 	// [img=pathtoimage]image description[/img]
 	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img=http(.*?)\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />', $Text);
+		$Text = preg_replace("/\[img=http(.*?)\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="lazy" />', $Text);
 	}
 	// [zmg]pathtoimage[/zmg]
 	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="eager" />', $Text);
+		$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="lazy" />', $Text);
 	}
 	// [zmg=pathtoimage]image description[/zmg]
 	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg=http(.*?)\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />', $Text);
+		$Text = preg_replace("/\[zmg=http(.*?)\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="lazy" />', $Text);
 	}
 
 	$Text = preg_replace_callback("/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",'bb_imgoptions',$Text);

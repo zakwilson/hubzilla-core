@@ -493,7 +493,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$page_mode = 'client';
 
 		$parents_str = '';
-		$update_unseen = '';
 
 		$simple_update = (($update) ? " and item_unseen = 1 " : '');
 
@@ -532,9 +531,6 @@ class Network extends \Zotlabs\Web\Controller {
 			);
 
 			$parents_str = ids_to_querystr($items,'item_id');
-			if($parents_str) {
-				$update_unseen = " AND id IN ( " . dbesc($parents_str) . " )";
-			}
 
 			require_once('include/items.php');
 	
@@ -598,35 +594,6 @@ class Network extends \Zotlabs\Web\Controller {
 				$items = array();
 			}
 
-			if($page_mode === 'list') {
-	
-				/**
-				 * in "list mode", only mark the parent item and any like activities as "seen". 
-				 * We won't distinguish between comment likes and post likes. The important thing
-				 * is that the number of unseen comments will be accurate. The SQL to separate the
-				 * comment likes could also get somewhat hairy. 
-				 */
-	
-				if($parents_str) {
-					$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
-					$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
-				}
-			}
-			else {
-				if($parents_str) {
-					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
-				}
-			}
-		}
-	
-		if($update_unseen) {
-			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
-			call_hooks('update_unseen',$x);
-			if($x['update'] === 'unset' || intval($x['update'])) {
-				$r = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d $update_unseen ",
-					intval(local_channel())
-				);
-			}
 		}
 	
 		$mode = (($nouveau) ? 'network-new' : 'network');

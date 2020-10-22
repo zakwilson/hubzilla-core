@@ -30,6 +30,7 @@ var sse_bs_active = false;
 var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
+var sse_rmids = [];
 
 var page_cache = {};
 
@@ -176,8 +177,7 @@ $(document).ready(function() {
 
 	$('.notification-content').on('scroll', function() {
 		if(this.scrollTop > this.scrollHeight - this.clientHeight - (this.scrollHeight/7)) {
-			if(!sse_bs_active)
-				sse_bs_notifications(sse_type, false, true);
+			sse_bs_notifications(sse_type, false, true);
 		}
 	});
 
@@ -545,7 +545,7 @@ function markRead(notifType) {
 
 function markItemRead(itemId) {
 	$.get('ping?f=&markItemRead='+itemId);
-	$('.unseen-wall-indicator-'+itemId).hide();
+	$('.unseen-wall-indicator-'+itemId).remove();
 }
 
 function contextualHelp() {
@@ -710,6 +710,9 @@ function updateConvItems(mode,data) {
 		var nmids = $(this).data('b64mids');
 
 		nmids.forEach(function(nmid, index) {
+
+			sse_rmids.push(nmid);
+
 			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
 				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
 					var n = this.parentElement.id.split('-');
@@ -742,12 +745,6 @@ function updateConvItems(mode,data) {
 		sse_setNotificationsStatus();
 
 	});
-
-	// We are actually dealing with counts in sse_updateNotifications()
-	// for notifications which are already visible. For the case where
-	// unseen items were loaded but their notifications are not yet visible
-	// we need to bootstrap counts here to stay in sync with the DB after
-	// the first page load.
 
 	if(followUpPageLoad)
 		sse_bs_counts();
@@ -1766,14 +1763,31 @@ function sse_bs_init() {
 }
 
 function sse_bs_counts() {
-	$.get('/sse_bs',function(obj) {
+
+
+	if(sse_bs_active)
+		return;
+
+	sse_bs_active = true;
+
+	$.ajax({
+		type: 'post',
+		url: '/sse_bs',
+		data: { sse_rmids }
+	}).done( function(obj) {
 		console.log(obj);
+		sse_bs_active = false;
+		sse_rmids = [];
 		sse_handleNotifications(obj, true, false);
 	});
 }
 
 function sse_bs_notifications(e, replace, followup) {
-	sse_bs_active = true;
+
+	if(sse_bs_active)
+		return;
+
+
 	var manual = false;
 
 	if(typeof replace === 'undefined')
@@ -1807,17 +1821,19 @@ function sse_bs_notifications(e, replace, followup) {
 
 			$("#nav-" + sse_type + "-loading").show();
 
-			$.get('/sse_bs/' + sse_type + '/' + sse_offset + '?nquery=' + encodeURIComponent(cn_val), function(obj) {
+			sse_bs_active = true;
+
+			$.ajax({
+				type: 'post',
+				url: '/sse_bs/' + sse_type + '/' + sse_offset,
+				nquery: encodeURIComponent(cn_val)
+			}).done(function(obj) {
 				console.log('sse: bootstraping ' + sse_type);
 				console.log(obj);
-
 				sse_bs_active = false;
-				sse_offset = obj[sse_type].offset;
-
 				$("#nav-" + sse_type + "-loading").hide();
-
+				sse_offset = obj[sse_type].offset;
 				sse_handleNotifications(obj, replace, followup);
-
 			});
 		}
 		else
@@ -1838,14 +1854,21 @@ function sse_handleNotifications(obj, replace, followup) {
 	var all_notifications = primary_notifications.concat(secondary_notifications);
 
 	all_notifications.forEach(function(type, index) {
-		if(obj[type] && obj[type].count) {
+		if(typeof obj[type] === typeof undefined)
+			return true;
+
+		if(obj[type].count) {
 			$('.' + type + '-button').fadeIn();
 			if(replace || followup)
 				$('.' + type + '-update').html(Number(obj[type].count));
 			else
 				$('.' + type + '-update').html(Number(obj[type].count) + Number($('.' + type + '-update').html()));
 		}
-		if(obj[type] && obj[type].notifications.length)
+		else {
+			$('.' + type + '-update').html('0');
+			$('.' + type + '-button').fadeOut();
+		}
+		if(obj[type].notifications.length)
 			sse_handleNotificationsItems(type, obj[type].notifications, replace, followup);
 	});
 
@@ -1866,14 +1889,12 @@ function sse_handleNotifications(obj, replace, followup) {
 		});
 	}
 
-	// load more notifications if visible notifications count becomes < 15 
-	if(sse_type) {
-		if($('#nav-' + sse_type + '-menu').children().length < 15) {
-			if(!sse_bs_active) {
-				sse_bs_notifications(sse_type, false, true);
-			}
-		}
+	// load more notifications if visible notifications count becomes low
+	if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children().length <= 20) {
+		sse_offset = 0;
+		sse_bs_notifications(sse_type, false, true);
 	}
+
 
 }
 
@@ -1890,6 +1911,11 @@ function sse_handleNotificationsItems(notifyType, data, replace, followup) {
 	}
 
 	$(data).each(function() {
+
+		// do not add a notification if it is already present
+		if($('.notification[data-b64mid=\'' + this.b64mid + '\']').length)
+			return true;
+
 		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids), this.body);
 		notify_menu.append(html);
 	});
@@ -1932,7 +1958,7 @@ function sse_updateNotifications(type, mid) {
 
 	if(type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify'))
 		return true;
-
+/*
 	var count = Number($('.' + type + '-update').html());
 
 	count--;
@@ -1946,6 +1972,7 @@ function sse_updateNotifications(type, mid) {
 	else {
 		$('.' + type + '-update').html(count);
 	}
+*/
 
 	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut(function() {
 		this.remove();

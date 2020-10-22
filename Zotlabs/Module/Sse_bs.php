@@ -36,12 +36,15 @@ class Sse_bs extends Controller {
 
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify', -1);
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
-		self::$limit = 30;
+		self::$limit = 50;
 		self::$offset = 0;
 		self::$xchans = '';
 
-		if(!empty($_GET['nquery']) && $_GET['nquery'] !== '%') {
-			$nquery = $_GET['nquery'];
+		if($_REQUEST['sse_rmids'])
+			self::mark_read($_REQUEST['sse_rmids']);
+
+		if(!empty($_REQUEST['nquery']) && $_REQUEST['nquery'] !== '%') {
+			$nquery = $_REQUEST['nquery'];
 
 			$x = q("SELECT xchan_hash FROM xchan WHERE xchan_name LIKE '%s' OR xchan_addr LIKE '%s'",
 				dbesc($nquery . '%'),
@@ -108,6 +111,31 @@ class Sse_bs extends Controller {
 		json_return_and_die($result);
 	}
 
+	function mark_read($arr) {
+
+		if(! self::$uid)
+			return;
+
+		$mids = [];
+		$str = '';
+
+		foreach($arr as $a) {
+			$mids[] = '\'' . dbesc(@base64url_decode(substr($a,4))) . '\'';
+		}
+
+		$str = implode($mids, ',');
+
+		$x = [ 'channel_id' => self::$uid, 'update' => 'unset' ];
+		call_hooks('update_unseen',$x);
+
+		if($x['update'] === 'unset' || intval($x['update'])) {
+			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND mid in (". $str . ") AND item_unseen = 1",
+				intval(self::$uid)
+			);
+		}
+
+	}
+
 	function bs_network($notifications) {
 
 		$result['network']['notifications'] = [];
@@ -163,9 +191,10 @@ class Sse_bs extends Controller {
 
 		$r = q("SELECT count(id) as total FROM item 
 			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
+			AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
+			AND author_xchan != '%s'
 			$item_normal
-			$sql_extra
-			AND author_xchan != '%s'",
+			$sql_extra",
 			intval(self::$uid),
 			dbesc(self::$ob_hash)
 		);

@@ -2379,7 +2379,7 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		intval($cover_size),
 		intval(PHOTO_COVER)
 	);
-hz_syslog();
+
 	if($r) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];

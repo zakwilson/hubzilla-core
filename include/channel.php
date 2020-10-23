@@ -2379,13 +2379,13 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		intval($cover_size),
 		intval(PHOTO_COVER)
 	);
-
+hz_syslog();
 	if($r) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	} else {
 		$default_cover = get_config('system','default_cover_photo','bggenerator');
-		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard.tpl'), array(
@@ -2452,14 +2452,14 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 		intval($cover_size),
 		intval(PHOTO_COVER)
 	);
-
+hz_syslog(print_r($r,true));
 	if($r) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	}
 	else {
 		$default_cover = get_config('system','default_cover_photo','bggenerator');
-		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard_embed.tpl'),array(

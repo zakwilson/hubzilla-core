@@ -25,7 +25,7 @@ function xchan_store_lowlevel($arr) {
 		'xchan_connurl' => ((array_key_exists('xchan_connurl',$arr)) ? $arr['xchan_connurl'] : ''),
 		'xchan_follow' => ((array_key_exists('xchan_follow',$arr)) ? $arr['xchan_follow'] : ''),
 		'xchan_connpage' => ((array_key_exists('xchan_connpage',$arr)) ? $arr['xchan_connpage'] : ''),
-		'xchan_name' => ((array_key_exists('xchan_name',$arr)) ? $arr['xchan_name'] : ''),
+		'xchan_name' => ((array_key_exists('xchan_name',$arr)) ? sanitize_text_field($arr['xchan_name']) : ''),
 		'xchan_network' => ((array_key_exists('xchan_network',$arr)) ? $arr['xchan_network'] : ''),
 		'xchan_instance_url' => ((array_key_exists('xchan_instance_url',$arr)) ? $arr['xchan_instance_url'] : ''),
 		'xchan_flags' => ((array_key_exists('xchan_flags',$arr)) ? intval($arr['xchan_flags']) : 0),

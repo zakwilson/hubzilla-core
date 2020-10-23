@@ -199,8 +199,6 @@ class Hq extends \Zotlabs\Web\Controller {
 			]);
 		}
 
-		$updateable = false;
-
 		if($load && $target_item) {
 			$r = null;
 
@@ -212,10 +210,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				intval(local_channel()),
 				dbesc($target_item['parent_mid'])
 			);
-
-			if($r) {
-				$updateable = true;
-			}
 
 			if(!$r) {
 				$sys_item = true;
@@ -242,10 +236,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				intval(local_channel()),
 				dbesc($target_item['parent_mid'])
 			);
-
-			if($r) {
-				$updateable = true;
-			}
 
 			if(!$r) {
 				$sys_item = true;
@@ -282,13 +272,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		$o .= conversation($items, 'hq', $update, 'client');
-
-		if($updateable) {
-			$x = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d AND parent = %d ",
-				intval(local_channel()),
-				intval($r[0]['item_id'])
-			);
-		}
 
 		$o .= '<div id="content-complete"></div>';
 

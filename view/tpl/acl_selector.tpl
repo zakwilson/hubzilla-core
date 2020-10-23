@@ -15,12 +15,14 @@
 				{{if $aclModalDesc}}
 				<div id="acl-dialog-description" class="section-content-info-wrapper">{{$aclModalDesc}}</div>
 				{{/if}}
-				<label for="acl-select">{{$select_label}}</label>
+				<label for="acl-select">{{if $aclModalDesc}}<i class="fa fa-send-o"></i> {{/if}}{{$select_label}}</label>
 				<select id="acl-select" name="optionsRadios" class="form-control form-group">
 					<option id="acl-showall" value="public" {{$public_selected}}>{{$showall}}</option>
-					{{$groups}}
 					<option id="acl-onlyme" value="onlyme" {{$justme_selected}}>{{$onlyme}}</option>
-					<option id="acl-custom" value="custom" {{$custom_selected}}>{{$custom}}</option>
+					{{$groups}}
+					<optgroup label = "{{$custom_label}}">;
+						<option id="acl-custom" value="custom" {{$custom_selected}}>{{$custom}}</option>
+					</optgroup>;
 				</select>
 
 				{{if $showallOrigin}}
@@ -39,8 +41,8 @@
 
 				<div class="list-group-item acl-list-item" rel="acl-template" style="display:none">
 					<div class="acl-item-header clearfix">
-						<img class="menu-img-3" data-src="{0}">
-						<span class="contactname">{1}</span>
+						<img class="menu-img-3" data-src="{0}" loading="lazy" />
+						<span class="font-weight-bold contactname">{1}</span>
 						<span class="dropdown-sub-text">{6}</span>
 					</div>
 					<button class="acl-button-hide btn btn-sm btn-outline-danger"><i class="fa fa-times"></i> {{$hide}}</button>

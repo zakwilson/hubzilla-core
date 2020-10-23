@@ -264,7 +264,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 			// Then fetch all the children of the parents that are on this page
 			$parents_str = '';
-			$update_unseen = '';
 	
 			if($r) {
 	

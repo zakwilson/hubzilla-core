@@ -966,8 +966,8 @@ class Enotify {
 			'url'         => $rr['xchan_url'],
 			'photo'       => $rr['xchan_photo_s'],
 			'when'        => $when,
-			'hclass'       => ('notify-unseen'),
-			'message'     => t('posted an event')
+			'hclass'      => (($today) ? 'notify-unseen bg-warning' : 'notify-unseen'),
+			'message'     => t('created an event')
 		];
 
 		return $x;

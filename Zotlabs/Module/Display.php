@@ -47,7 +47,6 @@ class Display extends \Zotlabs\Web\Controller {
 		}
 	
 		$observer_is_owner = false;
-		$updateable = false;
 
 		if(local_channel() && (! $update)) {
 	
@@ -274,9 +273,6 @@ class Display extends \Zotlabs\Web\Controller {
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
-				if($r) {
-					$updateable = true;
-				}
 			}
 
 			if(! $r) {
@@ -318,9 +314,6 @@ class Display extends \Zotlabs\Web\Controller {
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
-				if($r) {
-					$updateable = true;
-				}
 			}
 
 			if($r === null) {
@@ -431,13 +424,6 @@ class Display extends \Zotlabs\Web\Controller {
 			echo $atom;
 			killme();
 			
-		}
-	
-		if($updateable) {
-			$x = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 AND uid = %d and parent = %d ",
-				intval(local_channel()),
-				intval($r[0]['item_id'])
-			);
 		}
 
 		$o .= '<div id="content-complete"></div>';

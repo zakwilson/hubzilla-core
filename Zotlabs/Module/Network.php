@@ -133,8 +133,6 @@ class Network extends \Zotlabs\Web\Controller {
 		$pf       = ((x($_GET,'pf'))    ? $_GET['pf']            : '');
 		$unseen   = ((x($_GET,'unseen'))    ? $_GET['unseen']            : '');
 		
-		$deftag = '';
-	
                 if (Apps::system_app_installed(local_channel(),'Affinity Tool')) {
 			$affinity_locked = intval(get_pconfig(local_channel(),'affinity','lock',1));
 			if ($affinity_locked) {
@@ -160,10 +158,7 @@ class Network extends \Zotlabs\Web\Controller {
 				goaway(z_root() . '/network');
 				// NOTREACHED
 			}
-			if($pf)
-				$deftag = '!{' . (($cid_r[0]['xchan_addr']) ? $cid_r[0]['xchan_addr'] : $cid_r[0]['xchan_url']) . '}';
-			else
-				$def_acl = [ 'allow_cid' => '<' . $cid_r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
+			$def_acl = [ 'allow_cid' => '<' . $cid_r[0]['abook_xchan'] . '>', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 		}
 	
 		if(! $update) {
@@ -177,6 +172,17 @@ class Network extends \Zotlabs\Web\Controller {
 	
 			nav_set_selected('Network');
 
+			$bang = '!';
+
+			if($cid_r) {
+				$forums = get_forum_channels($channel['channel_id']);
+				if($forums) {
+					$forum_xchans = ids_to_array($forums, 'xchan_hash');
+					if(in_array($cid_r[0]['abook_xchan'], $forum_xchans))
+						$bang = $cid_r[0]['abook_xchan'];
+				}
+			}
+
 			$channel_acl = array(
 				'allow_cid' => $channel['channel_allow_cid'], 
 				'allow_gid' => $channel['channel_allow_gid'], 
@@ -184,7 +190,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'deny_gid'  => $channel['channel_deny_gid']
 			);
 
-			$private_editing = ((($group || $cid) && (! intval($_GET['pf']))) ? true : false);
+			$private_editing = (($group || $cid) ? true : false);
 	
 			$x = array(
 				'is_owner'         => true,
@@ -194,7 +200,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
 				'acl'              => populate_acl((($private_editing) ? $def_acl : $channel_acl), true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
 				'permissions'      => (($private_editing) ? $def_acl : $channel_acl),
-				'bang'             => (($private_editing) ? '!' : ''),
+				'bang'             => (($private_editing) ? $bang : ''),
 				'visitor'          => true,
 				'profile_uid'      => local_channel(),
 				'editor_autocomplete' => true,
@@ -203,9 +209,6 @@ class Network extends \Zotlabs\Web\Controller {
 				'jotnets' => true,
 				'reset' => t('Reset form')
 			);
-			if($deftag)
-				$x['pretext'] = $deftag;
-	
 	
 			$status_editor = status_editor($a,$x,false,'Network');
 			$o .= $status_editor;
@@ -490,7 +493,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$page_mode = 'client';
 
 		$parents_str = '';
-		$update_unseen = '';
 
 		$simple_update = (($update) ? " and item_unseen = 1 " : '');
 
@@ -529,9 +531,6 @@ class Network extends \Zotlabs\Web\Controller {
 			);
 
 			$parents_str = ids_to_querystr($items,'item_id');
-			if($parents_str) {
-				$update_unseen = " AND id IN ( " . dbesc($parents_str) . " )";
-			}
 
 			require_once('include/items.php');
 	
@@ -595,35 +594,6 @@ class Network extends \Zotlabs\Web\Controller {
 				$items = array();
 			}
 
-			if($page_mode === 'list') {
-	
-				/**
-				 * in "list mode", only mark the parent item and any like activities as "seen". 
-				 * We won't distinguish between comment likes and post likes. The important thing
-				 * is that the number of unseen comments will be accurate. The SQL to separate the
-				 * comment likes could also get somewhat hairy. 
-				 */
-	
-				if($parents_str) {
-					$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
-					$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
-				}
-			}
-			else {
-				if($parents_str) {
-					$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
-				}
-			}
-		}
-	
-		if($update_unseen) {
-			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
-			call_hooks('update_unseen',$x);
-			if($x['update'] === 'unset' || intval($x['update'])) {
-				$r = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d $update_unseen ",
-					intval(local_channel())
-				);
-			}
 		}
 	
 		$mode = (($nouveau) ? 'network-new' : 'network');

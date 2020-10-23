@@ -5385,7 +5385,7 @@ function find_best_zot_identity($xchan) {
 		);
 		if ($r) {
 			$r = Libzot::zot_record_preferred($r);
-			hz_syslog('find_best_zot_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
+			logger('find_best_zot_identity: ' . $xchan . ' > ' . $r['hubloc_hash']);
 			return $r['hubloc_hash'];
 		}
 	}

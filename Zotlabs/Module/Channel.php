@@ -442,44 +442,12 @@ class Channel extends Controller {
 
 		}
 
-		$update_unseen = '';
-
-		if($page_mode === 'list') {
-
-			/**
-			 * in "list mode", only mark the parent item and any like activities as "seen".
-			 * We won't distinguish between comment likes and post likes. The important thing
-			 * is that the number of unseen comments will be accurate. The SQL to separate the
-			 * comment likes could also get somewhat hairy.
-			 */
-
-			if($parents_str) {
-				$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
-				$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
-			}
-		}
-		else {
-			if($parents_str) {
-				$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
-			}
-		}
-
-		if($is_owner && $update_unseen) {
-			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
-			call_hooks('update_unseen',$x);
-			if($x['update'] === 'unset' || intval($x['update'])) {
-				$r = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 and item_wall = 1 AND uid = %d $update_unseen",
-					intval(local_channel())
-				);
-			}
-		}
-		
 		// Add pinned content
 		if(! x($_REQUEST,'mid') && ! $search) {
-		    $pinned = new \Zotlabs\Widget\Pinned;
-		    $r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
-		    $o .= $r['html'];
-        }
+			$pinned = new \Zotlabs\Widget\Pinned;
+			$r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
+			$o .= $r['html'];
+		}
 
 		$mode = (($search) ? 'search' : 'channel');
 

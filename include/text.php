@@ -723,7 +723,7 @@ function logid() {
  * @param int $level A log level
  * @param int $priority - compatible with syslog
  */
-function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
+function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO, $syslog = false) {
 
 	if(! defined('BTLOGGER_DEBUG_FILE'))
 		define('BTLOGGER_DEBUG_FILE','btlogger.out');
@@ -742,7 +742,9 @@ function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 		for($x = 1; $x < count($stack); $x ++) {
 			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
 			logger($s,$level, $priority);
-
+			if($syslog) {
+				hz_syslog(print_r($s,true));
+			}
 			if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
 				@file_put_contents(BTLOGGER_DEBUG_FILE, $s . PHP_EOL, FILE_APPEND);
 			}

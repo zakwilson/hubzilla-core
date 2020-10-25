@@ -5,6 +5,9 @@
 // and save to file categories in square brackets.
 // To do this we need to escape these characters if they appear in our tag. 
 
+use Zotlabs\Lib\Cache;
+
+
 function file_tag_encode($s) {
 	return str_replace(array('<','>','[',']'),array('%3c','%3e','%5b','%5d'),$s);
 }
@@ -327,50 +330,56 @@ function pubtagblock($net,$site,$limit,$recent = 0,$safemode = 1, $type = TERM_H
 	return $o;
 }
 
+
 function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
 
+        $item_normal = item_normal();
+        $count = intval($limit);
 
-	$item_normal = item_normal();
-	$count = intval($limit);
+        if($site)
+                $uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
+        else {
+                $sys = get_sys_channel();
+                $uids = " and item.uid  = " . intval($sys['channel_id']) . " ";
+                $sql_extra = " and item_private = 0 ";
+        }
 
-	if($site) {
-    	$uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
-	}
-    else {
-        $sys = get_sys_channel();
-        $uids = " and item.uid  = " . intval($sys['channel_id']) . " ";
-		$sql_extra = " and item_private = 0 ";
-    }
-
-	if($recent)
-		$sql_extra .= " and item.created > '" . datetime_convert('UTC','UTC', 'now - ' . intval($recent) . ' days ') . "' ";   
+        if($recent)
+                $sql_extra .= " and item.created > '" . datetime_convert('UTC','UTC', 'now - ' . intval($recent) . ' days ') . "' ";
 
 
-	if($safemode) {
-		$unsafetags = get_config('system','unsafepubtags', [ 'boobs', 'bot', 'rss', 'girl','girls', 'nsfw', 'sexy', 'nude' ]);
-		if($unsafetags) {
-			$sql_extra .= " and not term.term in ( " . stringify_array($unsafetags,true) . ") ";
-		}
-	}
-				
+        if($safemode) {
+                $unsafetags = get_config('system','unsafepubtags', [ 'boobs', 'bot', 'rss', 'girl','girls', 'nsfw', 'sexy', 'nude' ]);
+                if($unsafetags) {
+                        $sql_extra .= " and not term.term in ( " . stringify_array($unsafetags,true) . ") ";
+                }
+        }
 
-	// Fetch tags
-	$r = q("select term, count(term) as total from term left join item on term.oid = item.id
-		where term.ttype = %d 
-		and otype = %d and item_type = %d 
-		$sql_extra $uids $item_normal
-		group by term order by total desc %s",
-		intval($type),
-		intval(TERM_OBJ_POST),
-		intval(ITEM_TYPE_POST),
-		((intval($count)) ? "limit $count" : '')
-	);
 
-	if(! $r)
-		return array();
+        $key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
+        $content = Cache::get($key, '1 MINUTE');
 
-	return Zotlabs\Text\Tagadelic::calc($r);
+        if(! $content) {
+                // Fetch tags
+                $r = q("SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
+                        where term.ttype = %d
+                        and otype = %d and item_type = %d
+                        $sql_extra $uids $item_normal
+                        group by term order by total desc %s",
+                        intval($type),
+                        intval(TERM_OBJ_POST),
+                        intval(ITEM_TYPE_POST),
+                        ((intval($count)) ? "limit $count" : '')
+                );
+        } else
+                $r = unserialize($content);
 
+        if(! $r)
+                return array();
+        else
+                Cache::set($key, serialize($r));
+
+        return Zotlabs\Text\Tagadelic::calc($r);
 }
 
 

@@ -1,4 +1,5 @@
 Hubzilla 5.0 (????-??-??)
+	- Implement results caching for public tag and profile categories fetching
 	- Deprecate $a variable for *_plugin_admin() and *_plugin_admin_post()
 	- Support remote host cache directives on profile photo fetching
 	- Disable community tags until it is agreed upon on how to implement in zot6 or activitypub

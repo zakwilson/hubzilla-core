@@ -659,6 +659,26 @@ function hz_syslog($msg, $priority = LOG_INFO) {
 	closelog();
 }
 
+/**
+ * @brief like hz_syslog() but with a function backtrace to pinpoint certain classes
+ * of problems which show up deep in the calling stack.
+ *
+ * @param string $msg Message to log
+ * @param int $priority - compatible with syslog
+ */
+function bt_syslog($msg, $priority = LOG_INFO) {
+	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	if($stack) {
+		for($x = 1; $x < count($stack); $x ++) {
+			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
+			openlog("bt-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+			syslog($priority, $msg);
+			closelog();
+		}
+	}
+}
+
+
 
 /**
  * @brief Logging function for Hubzilla.
@@ -723,7 +743,7 @@ function logid() {
  * @param int $level A log level
  * @param int $priority - compatible with syslog
  */
-function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO, $syslog = false) {
+function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 
 	if(! defined('BTLOGGER_DEBUG_FILE'))
 		define('BTLOGGER_DEBUG_FILE','btlogger.out');
@@ -742,9 +762,6 @@ function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO, $syslog = 
 		for($x = 1; $x < count($stack); $x ++) {
 			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
 			logger($s,$level, $priority);
-			if($syslog) {
-				hz_syslog(print_r($s,true));
-			}
 			if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
 				@file_put_contents(BTLOGGER_DEBUG_FILE, $s . PHP_EOL, FILE_APPEND);
 			}

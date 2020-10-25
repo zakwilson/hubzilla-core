@@ -6,11 +6,6 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libzotdir;
 use Zotlabs\Lib\Queue;
 
-require_once('include/zot.php');
-require_once('include/dir_fns.php');
-require_once('include/queue_fn.php');
-
-
 class Directory {
 
 	static public function run($argc,$argv){

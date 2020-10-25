@@ -2,6 +2,10 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libzotdir;
+use Zotlabs\Lib\Queue;
+
 require_once('include/zot.php');
 require_once('include/dir_fns.php');
 require_once('include/queue_fn.php');
@@ -42,7 +46,7 @@ class Directory {
 
 			// this is an in-memory update and we don't need to send a network packet.
 
-			local_dir_update($argv[1],$force);
+			Libzotdir::local_dir_update($argv[1],$force);
 
 			q("update channel set channel_dirdate = '%s' where channel_id = %d",
 				dbesc(datetime_convert()),
@@ -58,13 +62,15 @@ class Directory {
 
 		// otherwise send the changes upstream
 
-		$directory = find_upstream_directory($dirmode);
+		$directory = Libzotdir::find_upstream_directory($dirmode);
 		$url = $directory['url'] . '/post';
 
 		// ensure the upstream directory is updated
 
-		$packet = zot_build_packet($channel,(($force) ? 'force_refresh' : 'refresh'));
-		$z = zot_zot($url,$packet);
+
+		$packet = Libzot::build_packet($channel,(($force) ? 'force_refresh' : 'refresh'));
+		$z = Libzot::zot($url,$packet,$channel);
+
 
 		// re-queue if unsuccessful
 
@@ -76,7 +82,7 @@ class Directory {
 
 			$hash = random_string();
 
-			queue_insert(array(
+			Queue::insert(array(
 				'hash'       => $hash,
 				'account_id' => $channel['channel_account_id'],
 				'channel_id' => $channel['channel_id'],

@@ -1,6 +1,6 @@
 <?php /** @file */
 
-
+use Zotlabs\Lib\Cache;
 
 function findpeople_widget() {
 
@@ -59,6 +59,7 @@ function fileas_widget($baseurl,$selected = '') {
 	));
 }
 
+
 function categories_widget($baseurl,$selected = '') {
 
 	if(! feature_enabled(App::$profile['profile_uid'],'categories'))
@@ -70,25 +71,36 @@ function categories_widget($baseurl,$selected = '') {
 
 	$item_normal = item_normal();
 
+    $key = __FUNCTION__ . "-" . App::$profile['profile_uid'];
+    $content = Cache::get($key, '5 MINUTE');
+
+	if (! $content) {
+		$r = q("select distinct(term.term) from term join item on term.oid = item.id
+			where item.uid = %d
+			and term.uid = item.uid
+			and term.ttype = %d
+			and term.otype = %d
+			and item.owner_xchan = '%s'
+			and item.item_wall = 1
+			and item.verb != '%s'
+			$item_normal
+			$sql_extra
+			order by term.term asc",
+			intval(App::$profile['profile_uid']),
+			intval(TERM_CATEGORY),
+			intval(TERM_OBJ_POST),
+			dbesc(App::$profile['channel_hash']),
+			dbesc(ACTIVITY_UPDATE)
+		);
+	}
+	else 
+		$r = unserialize($content);
+
 	$terms = array();
-	$r = q("select distinct(term.term) from term join item on term.oid = item.id
-		where item.uid = %d
-		and term.uid = item.uid
-		and term.ttype = %d
-		and term.otype = %d
-		and item.owner_xchan = '%s'
-		and item.item_wall = 1
-		and item.verb != '%s'
-		$item_normal
-		$sql_extra
-		order by term.term asc",
-		intval(App::$profile['profile_uid']),
-		intval(TERM_CATEGORY),
-		intval(TERM_OBJ_POST),
-		dbesc(App::$profile['channel_hash']),
-		dbesc(ACTIVITY_UPDATE)
-	);
 	if($r && count($r)) {
+
+		Cache::set($key, serialize($r));
+
 		foreach($r as $rr)
 			$terms[] = array('name' => $rr['term'], 'selected' => (($selected == $rr['term']) ? 'selected' : ''));
 
@@ -103,6 +115,7 @@ function categories_widget($baseurl,$selected = '') {
 	}
 	return '';
 }
+
 
 function cardcategories_widget($baseurl,$selected = '') {
 

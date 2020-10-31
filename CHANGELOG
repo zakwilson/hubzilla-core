@@ -1,4 +1,5 @@
 Hubzilla 5.0 (????-??-??)
+	- Deprecate HTML5_Parser library
 	- Implement results caching for public tag and profile categories fetching
 	- Deprecate $a variable for *_plugin_admin() and *_plugin_admin_post()
 	- Support remote host cache directives on profile photo fetching
@@ -38,6 +39,9 @@ Hubzilla 5.0 (????-??-??)
 
 
 	Bugfixes
+	- Fix issue where interrupted uploads could not be resumed
+	- Fix photo sync issue between clones
+	- Fix issue where profile photos were fetched for unknown channels
 	- Apply channel name changes to all associated xchans
 	- Show unchecked box in connedit if value is false
 	- Reset their_perms before setting new permissions to reflect permission retractions on local hub

@@ -67,18 +67,20 @@ class Photo extends \Zotlabs\Web\Controller {
 			
 			$data = '';
 
-			$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
-				intval($resolution),
-				intval($uid),
-				intval(PHOTO_PROFILE)
-			);
-			if($r) {
-			    $modified = strtotime($r[0]['edited'] . "Z");
-			    $mimetype = $r[0]['mimetype'];
-			    if(intval($r[0]['os_storage']))
-			        $data = file_get_contents(dbunescbin($r[0]['content']));
-			    else
-			        $data = dbunescbin($r[0]['content']);
+			if ($uid > 0) {
+				$r = q("SELECT * FROM photo WHERE imgscale = %d AND uid = %d AND photo_usage = %d LIMIT 1",
+					intval($resolution),
+					intval($uid),
+					intval(PHOTO_PROFILE)
+				);
+				if($r) {
+				    $modified = strtotime($r[0]['edited'] . "Z");
+				    $mimetype = $r[0]['mimetype'];
+				    if(intval($r[0]['os_storage']))
+				        $data = file_get_contents(dbunescbin($r[0]['content']));
+				    else
+				        $data = dbunescbin($r[0]['content']);
+				}
 			}
 				
 			if(! $data) {

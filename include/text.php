@@ -743,7 +743,7 @@ function logid() {
  * @param int $level A log level
  * @param int $priority - compatible with syslog
  */
-function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO, $syslog = false) {
+function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 
 	if(! defined('BTLOGGER_DEBUG_FILE'))
 		define('BTLOGGER_DEBUG_FILE','btlogger.out');

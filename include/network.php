@@ -1333,14 +1333,15 @@ function fetch_xrd_links($url) {
  */
 
 function scrape_feed($url) {
-	require_once('library/HTML5/Parser.php');
 
 	$ret = array();
 	$level = 0;
 	$x = z_fetch_url($url,false,$level,array('novalidate' => true));
 
-	if(! $x['success'])
+	if(! $x['success']) {
+		logger('ERROR fetching URL');
 		return $ret;
+		}
 
 	$headers = $x['header'];
 	$code = $x['return_code'];
@@ -1374,16 +1375,15 @@ function scrape_feed($url) {
 		}
 	}
 
+	$dom = new DOMDocument();
 	try {
-		$dom = HTML5_Parser::parse($s);
+		$dom->loadHTML( $s);
 	} catch (DOMException $e) {
-		logger('Parse error: ' . $e);
-	}
-
-	if(! $dom) {
-		logger('Failed to parse.');
+		logger('Feed parse error: ' . $e);
+		// logger('Feed parse ERROR: ' . libxml_get_last_error()->message);
 		return $ret;
 	}
+
 
 	$head = $dom->getElementsByTagName('base');
 	if($head) {
@@ -1846,15 +1846,15 @@ function probe_api_path($host) {
 
 function scrape_vcard($url) {
 
-	require_once('library/HTML5/Parser.php');
-
 	$ret = array();
 
 	logger('url=' . $url);
 
 	$x = z_fetch_url($url);
-	if(! $x['success'])
+	if(! $x['success']) {
+		logger('ERROR fetching URL');
 		return $ret;
+		}
 
 	$s = $x['body'];
 
@@ -1871,14 +1871,14 @@ function scrape_vcard($url) {
 		}
 	}
 
+	$dom = new DOMDocument();
 	try {
-		$dom = HTML5_Parser::parse($s);
+		$dom->loadHTML( $s);
 	} catch (DOMException $e) {
-		logger('Parse error: ' . $e);
-	}
-
-	if(! $dom)
+		logger('hCard parse error: ' . $e);
+		// logger('hCard fetch ERROR: ' . libxml_get_last_error()->message);
 		return $ret;
+	}
 
 	// Pull out hCard profile elements
 

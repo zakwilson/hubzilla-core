@@ -129,8 +129,9 @@ class Sse_bs extends Controller {
 		call_hooks('update_unseen',$x);
 
 		if($x['update'] === 'unset' || intval($x['update'])) {
-			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND mid in (". $str . ") AND item_unseen = 1",
-				intval(self::$uid)
+			q("UPDATE item SET item_unseen = 0 WHERE uid = %d AND mid in (%s) AND item_unseen = 1",
+				intval(self::$uid),
+				$str // this is dbesc() in the above foreach loop
 			);
 		}
 

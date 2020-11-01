@@ -55,6 +55,7 @@ Hubzilla 5.0 (????-??-??)
 	- Fix once cached embedded content is used and stored forever
 
 	Addons
+	- Pubcrawl: add host to signed headers (required by mastodon 3.2.1)
 	- Diaspora: remove relay@relay.iliketoat.net as default relay (it does not exist anymore)
 	- Diaspora: provide UI for admin to configure relay
 	- Diaspora: move the-federation.info registration to statistics addon

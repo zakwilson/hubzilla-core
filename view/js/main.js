@@ -1868,7 +1868,9 @@ function sse_handleNotifications(obj, replace, followup) {
 		}
 		else {
 			$('.' + type + '-update').html('0');
-			$('.' + type + '-button').fadeOut();
+			$('.' + type + '-button').fadeOut(function() {
+				sse_setNotificationsStatus();
+			});
 		}
 		if(obj[type].notifications.length)
 			sse_handleNotificationsItems(type, obj[type].notifications, replace, followup);

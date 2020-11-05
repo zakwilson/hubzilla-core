@@ -1,4 +1,4 @@
-Hubzilla 5.0 (????-??-??)
+Hubzilla 5.0 (2020-11-05)
 	- Remove unmaintained and deprecated schemas
 	- Deprecate HTML5_Parser library
 	- Implement results caching for public tag and profile categories fetching
@@ -55,6 +55,8 @@ Hubzilla 5.0 (????-??-??)
 	- Fix once cached embedded content is used and stored forever
 
 	Addons
+	- Pubcrawl: fix issue where http signatures were not verified
+	- Pubcrawl: fix issue where private keys were lost from storage
 	- Pubcrawl: add host to signed headers (required by mastodon 3.2.1)
 	- Diaspora: remove relay@relay.iliketoat.net as default relay (it does not exist anymore)
 	- Diaspora: provide UI for admin to configure relay

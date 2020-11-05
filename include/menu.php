@@ -1,5 +1,7 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/security.php');
 require_once('include/bbcode.php');
 
@@ -405,7 +407,7 @@ function menu_sync_packet($uid,$observer_hash,$menu_id,$delete = false) {
 		if($m) {
 			if($delete)
 				$m['menu_delete'] = 1;
-			build_sync_packet($uid,array('menu' => array(menu_element($c,$m))));
+			Libsync::build_sync_packet($uid,array('menu' => array(menu_element($c,$m))));
 		}
 	}
 }

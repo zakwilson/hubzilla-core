@@ -7,9 +7,7 @@ use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Chatroom;
 use Zotlabs\Access\AccessList;
-
-
-
+use Zotlabs\Lib\Libsync;
 
 require_once('include/bookmarks.php');
 
@@ -80,7 +78,7 @@ class Chat extends Controller {
 			intval(local_channel())
 		);
 	
-		build_sync_packet(0, array('chatroom' => $x));
+		Libsync::build_sync_packet(0, array('chatroom' => $x));
 	
 		if($x)
 			goaway(z_root() . '/chat/' . $channel['channel_address'] . '/' . $x[0]['cr_id']);
@@ -199,7 +197,7 @@ class Chat extends Controller {
 	
 			$cipher = get_pconfig(local_channel(),'system','default_cipher');
 			if(! $cipher)
-				$cipher = 'aes256';
+				$cipher = 'AES-128-CCM';
 	
 	
 			$o = replace_macros(get_markup_template('chat.tpl'),array(

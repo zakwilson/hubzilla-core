@@ -659,6 +659,26 @@ function hz_syslog($msg, $priority = LOG_INFO) {
 	closelog();
 }
 
+/**
+ * @brief like hz_syslog() but with a function backtrace to pinpoint certain classes
+ * of problems which show up deep in the calling stack.
+ *
+ * @param string $msg Message to log
+ * @param int $priority - compatible with syslog
+ */
+function bt_syslog($msg, $priority = LOG_INFO) {
+	$stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+	if($stack) {
+		for($x = 1; $x < count($stack); $x ++) {
+			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
+			openlog("bt-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
+			syslog($priority, $s);
+			closelog();
+		}
+	}
+}
+
+
 
 /**
  * @brief Logging function for Hubzilla.
@@ -742,7 +762,6 @@ function btlogger($msg, $level = LOGGER_NORMAL, $priority = LOG_INFO) {
 		for($x = 1; $x < count($stack); $x ++) {
 			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
 			logger($s,$level, $priority);
-
 			if(file_exists(BTLOGGER_DEBUG_FILE) && is_writable(BTLOGGER_DEBUG_FILE)) {
 				@file_put_contents(BTLOGGER_DEBUG_FILE, $s . PHP_EOL, FILE_APPEND);
 			}
@@ -860,6 +879,11 @@ function get_tags($s) {
 	// match any double quoted tags
 
 	if(preg_match_all('/([@#\!]\&quot\;.*?\&quot\;)/',$s,$match)) {
+		foreach($match[1] as $mtch) {
+			$ret[] = $mtch;
+		}
+	}
+	if(preg_match_all('/([@#\!]\".*?\")/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
 		}
@@ -1010,16 +1034,36 @@ function contact_block() {
 
 		if(count($r)) {
 			$contacts = t('Connections');
-			$micropro = Array();
+			$micropro = [];
 			foreach($r as $rr) {
 
 				// There is no setting to discover if you are bi-directionally connected
 				// Use the ability to post comments as an indication that this relationship is more
 				// than wishful thinking; even though soapbox channels and feeds will disable it.
-
-				if(! intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
-					$rr['oneway'] = true;
+				$rr['perminfo']['connpermcount']=0;
+				$rr['perminfo']['connperms']=t('Accepts').': ';
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] .= t('Comments');
 				}
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] .= t('Stream items');
+				}
+				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+					$rr['perminfo']['connpermcount']++;
+					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+					$rr['perminfo']['connperms'] .= t('Wall posts');
+				}
+
+				if ($rr['perminfo']['connpermcount'] == 0) {
+					$rr['perminfo']['connperms'] .= t('Nothing');
+				}
+
+				if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+					unset($rr['perminfo']);
+
 				$micropro[] = micropro($rr,true,'mpfriend');
 			}
 		}
@@ -1030,7 +1074,7 @@ function contact_block() {
 		'$contacts' => $contacts,
 		'$nickname' => App::$profile['channel_address'],
 		'$viewconnections' => (($total > $shown) ? sprintf(t('View all %s connections'),$total) : ''),
-		'$micropro' => $micropro,
+		'$micropro' => $micropro
 	));
 
 	$arr = ['contacts' => $r, 'output' => $o];
@@ -1086,6 +1130,7 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 		'$click' => (($contact['click']) ? $contact['click'] : ''),
 		'$class' => $class . (($contact['archived']) ? ' archived' : ''),
 		'$oneway' => (($contact['oneway']) ? true : false),
+		'$perminfo' => $contact['perminfo'],
 		'$url' => $url,
 		'$photo' => $contact['xchan_photo_s'],
 		'$name' => $contact['xchan_name'],
@@ -1713,6 +1758,11 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		}
 	}
 
+	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
+	if ($poll) {
+		$s = $poll;
+	}
+
 	$event = (($item['obj_type'] === ACTIVITY_OBJ_EVENT) ? format_event_obj($item['obj']) : false);
 
 	$prep_arr = [
@@ -1794,6 +1844,89 @@ function prepare_binary($item) {
 		'$url'       => z_root() . '/viewsrc/' . $item['id'] . '/download'
 	]);
 }
+
+
+function format_poll($item,$s,$opts) {
+
+	if (! is_array($item['obj'])) {
+		$act = json_decode($item['obj'],true);
+	}
+	else {
+		$act = $item['obj'];
+	}
+
+	if (! is_array($act)) {
+		return EMPTY_STR;
+	}
+
+	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR),$item);
+
+	//logger('format_poll: ' . print_r($item,true));
+	$activated = ((local_channel() && local_channel() == $item['uid']) ? true : false);
+	$output = $s . EOL. EOL;
+
+	if ($act['type'] === 'Question') {
+		if ($activated and $commentable) {
+			$output .= '<form id="question-form-' . $item['id'] . '" >';
+		}
+		if (array_key_exists('anyOf',$act) && is_array($act['anyOf'])) {
+			foreach ($act['anyOf'] as $poll) {
+				if (array_key_exists('name',$poll) && $poll['name']) {
+					$text = html2plain(purify_html($poll['name']),256);
+					if (array_path_exists('replies/totalItems',$poll)) {
+						$total = $poll['replies']['totalItems'];
+					}
+					else {
+						$total = 0;
+					}
+					if ($activated && $commentable) {
+						$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+					}
+					else {
+						$output .= '[ ] ' . $text . ' (' . $total . ')' . EOL;
+					}
+				}
+			}
+		}
+		if (array_key_exists('oneOf',$act) && is_array($act['oneOf'])) {
+			foreach ($act['oneOf'] as $poll) {
+				if (array_key_exists('name',$poll) && $poll['name']) {
+					$text = html2plain(purify_html($poll['name']),256);
+					if (array_path_exists('replies/totalItems',$poll)) {
+						$total = $poll['replies']['totalItems'];
+					}
+					else {
+						$total = 0;
+					}
+					if ($activated && $commentable) {
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+					}
+					else {
+						$output .= '( ) ' . $text . ' (' . $total . ')' . EOL;
+					}
+				}
+			}
+		}
+		if ($item['comments_closed'] > NULL_DATE) {
+			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
+			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
+			if ($closed) {
+				$message = t('Poll has ended.');
+			}
+			else {
+				$message = sprintf(t('Poll ends: %s'),$t);
+			}
+			$output .= EOL . '<div>' . $message . '</div>';
+		}
+		if ($activated and $commentable) {
+			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
+		}
+
+	}
+	return $output;
+}
+
+
 
 
 /**
@@ -1932,7 +2065,7 @@ function get_plink($item,$conversation_mode = true) {
 
 	$zidify = true;
 
-	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot')
+	if(array_key_exists('author',$item) && in_array($item['author']['xchan_network'], ['zot6', 'zot']) === false)
 		$zidify = false;
 
 	if(x($item,$key)) {
@@ -2122,7 +2255,7 @@ function item_post_type($item) {
 			$post_type = t('event');
 			break;
 		default:
-			$post_type = t('status');
+			$post_type = t('post');
 			if($item['mid'] != $item['parent_mid'])
 				$post_type = t('comment');
 			break;
@@ -2130,6 +2263,9 @@ function item_post_type($item) {
 
 	if(strlen($item['verb']) && (! activity_match($item['verb'],ACTIVITY_POST)))
 		$post_type = t('activity');
+
+	if($item['obj_type'] === 'Question')
+		$post_type = t('poll');
 
 	return $post_type;
 }
@@ -2686,6 +2822,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				$basetag = substr($tag,7);
 				$basetag = substr($basetag,0,-6);
 			}
+			elseif((substr($tag,0,2) === '#"') && (substr($tag,-1,1) === '"')) {
+				$basetag = substr($tag,2);
+				$basetag = substr($basetag,0,-1);
+			}
 			else
 				$basetag = substr($tag,1);
 
@@ -2767,6 +2907,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			if((substr($name,0,6) === '&quot;') && (substr($name,-6,6) === '&quot;')) {
 				$newname = substr($name,6);
 				$newname = substr($newname,0,-6);
+			}
+			elseif((substr($name,0,1) === '"') && (substr($name,-1,1) === '"')) {
+				$newname = substr($name,1);
+				$newname = substr($newname,0,-1);
 			}
 
 			// select someone from this user's contacts by name
@@ -2974,6 +3118,7 @@ function getIconFromType($type) {
 		'image/jpeg' => 'fa-picture-o',
 		'image/png' => 'fa-picture-o',
 		'image/gif' => 'fa-picture-o',
+		'image/webp' => 'fa-picture-o',
 		'image/svg+xml' => 'fa-picture-o',
 		//Archive
 		'application/zip' => 'fa-file-archive-o',
@@ -3535,11 +3680,15 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	$xf = false;
+	if(App::$data['forum_channels'])
+		return App::$data['forum_channels'];
+
+	$xf = '';
 
 	$x1 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'send_stream' and v = '0'",
 		intval($uid)
 	);
+
 	if($x1) {
 		$xc = ids_to_querystr($x1,'xchan',true);
 
@@ -3547,22 +3696,21 @@ function get_forum_channels($uid) {
 			intval($uid)
 		);
 
-		if($x2) {
-			$xf = ids_to_querystr($x2,'xchan',true);
+		$xf = ids_to_querystr($x2,'xchan',true);
+		$sql_extra = (($xf) ? ' and not xchan in (' . $xf . ')' : '');
 
-			// private forums
-			$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") and not xchan in (" . $xf . ") ",
-				intval(local_channel())
-			);
-			if($x3) {
-				$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
-			}
+		// private forums
+		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") $sql_extra ",
+			intval(local_channel())
+		);
+		if($x3) {
+			$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
 		}
 	}
 
-	$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
+	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
-	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name",
+	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)
 	);
 
@@ -3575,6 +3723,8 @@ function get_forum_channels($uid) {
 			}
 		}
 	}
+
+	App::$data['forum_channels'] = $r;
 
 	return $r;
 
@@ -3625,7 +3775,7 @@ function array_path_exists($str,$arr) {
 
 	if($search) {
 		foreach($search as $s) {
-			if(array_key_exists($s,$ptr)) {
+			if ($ptr && is_array($ptr) && array_key_exists($s,$ptr)) {
 				$ptr = $ptr[$s];
 			}
 			else {
@@ -3675,3 +3825,27 @@ function svg2bb($s) {
 	}
 	return EMPTY_STR;
 }
+
+
+
+function serialise($x) {
+	return ((is_array($x)) ? 'json:' . json_encode($x) : $x);
+}
+
+function unserialise($x) {
+	if (is_array($x)) {
+		return $x;
+	}
+	$y = ((substr($x,0,5) === 'json:') ? json_decode(substr($x,5),true) : '');
+	return ((is_array($y)) ? $y : $x);
+}
+
+/**
+ * @brief Remove new lines and tabs from strings.
+ *
+ * @return string
+ */
+function sanitize_text_field($str) {
+	return preg_replace('/\s+/S', ' ', $str);
+}
+

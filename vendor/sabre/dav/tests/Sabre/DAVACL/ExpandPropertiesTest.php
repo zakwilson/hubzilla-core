@@ -7,8 +7,6 @@ namespace Sabre\DAVACL;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/HTTP/ResponseMock.php';
-
 class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
 {
     public function getServer()
@@ -75,7 +73,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, 'Incorrect status code received. Full body: '.$server->httpResponse->body);
+        $this->assertEquals(207, $server->httpResponse->status, 'Incorrect status code received. Full body: '.$server->httpResponse->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -93,7 +91,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:prop/s:href/d:href' => 1,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($server->httpResponse->getBodyAsString());
         $xml->registerXPathNamespace('d', 'DAV:');
         $xml->registerXPathNamespace('s', 'http://sabredav.org/ns');
         foreach ($check as $v1 => $v2) {
@@ -106,7 +104,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
                 $count = $v2;
             }
 
-            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response: '.$server->httpResponse->body);
+            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response: '.$server->httpResponse->getBodyAsString());
         }
     }
 
@@ -136,7 +134,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, 'Incorrect response status received. Full response body: '.$server->httpResponse->body);
+        $this->assertEquals(207, $server->httpResponse->status, 'Incorrect response status received. Full response body: '.$server->httpResponse->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -156,7 +154,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:prop/s:href/d:response/d:propstat/d:prop/d:displayname' => 1,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($server->httpResponse->getBodyAsString());
         $xml->registerXPathNamespace('d', 'DAV:');
         $xml->registerXPathNamespace('s', 'http://sabredav.org/ns');
         foreach ($check as $v1 => $v2) {
@@ -219,7 +217,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:prop/s:hreflist/d:response/d:propstat/d:prop/d:displayname' => 2,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($server->httpResponse->getBodyAsString());
         $xml->registerXPathNamespace('d', 'DAV:');
         $xml->registerXPathNamespace('s', 'http://sabredav.org/ns');
         foreach ($check as $v1 => $v2) {
@@ -291,7 +289,7 @@ class ExpandPropertiesTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:prop/s:hreflist/d:response/d:propstat/d:prop/s:href/d:response/d:propstat/d:prop/d:displayname' => 1,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($server->httpResponse->getBodyAsString());
         $xml->registerXPathNamespace('d', 'DAV:');
         $xml->registerXPathNamespace('s', 'http://sabredav.org/ns');
         foreach ($check as $v1 => $v2) {

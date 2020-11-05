@@ -3,6 +3,7 @@
 <div id="conversation-end"></div>
 <div id="page-spinner" class="spinner-wrapper">
 	<div  class="spinner m"></div>
+	<div id="image_counter" class="text-muted text-center small"></div>
 </div>
 <div class="modal" id="conversation_settings" tabindex="-1" role="dialog" aria-labelledby="conversation_settings_label" aria-hidden="true">
 	<div class="modal-dialog">

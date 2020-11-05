@@ -11,29 +11,6 @@ nav .dropdown-menu {
 	min-width: 16rem;
 }
 
-@media screen and (min-width: 992px) {
-	nav .badge {
-		top: 0px;
-		left: 0px;
-		line-height: 0.75;
-	}
-}
-
-@media screen and (max-width: 992px) {
-	.navbar {
-		padding: .5rem 7px;
-	}
-
-	nav .badge {
-		top: 0.5rem;
-		left: 1.5rem;
-	}
-}
-
-.widget .badge {
-	font-size: 100%;
-}
-
 .nav-item.nav-item-hack {
 	height: 2.3rem;
 }
@@ -77,19 +54,6 @@ nav .dropdown-menu {
 }
 /* nav overrides end */
 
-.list-group-item:hover {
-	text-decoration: none;
-}
-
-.wall-item-tools .dropdown-menu {
-	min-width: auto;
-}
-
 label {
 	font-weight: bold;
-}
-
-small,
-.small {
-	font-size: 0.75rem;
 }

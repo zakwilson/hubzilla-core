@@ -9,7 +9,10 @@ use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Libsync;
 use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\AccessList;
 use Zotlabs\Daemon\Master;
 
@@ -237,19 +240,19 @@ function comments_are_now_closed($item) {
 function item_normal() {
 	return " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 function item_normal_search() {
 	return " and item.item_hidden = 0 and item.item_type in (0,3,6,7) and item.item_deleted = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 function item_normal_update() {
 	return " and item.item_hidden = 0 and item.item_type = 0
 		and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_pending_remove = 0
-		and item.item_blocked = 0 and item.obj_type != '" . ACTIVITY_OBJ_FILE . "' ";
+		and item.item_blocked = 0 ";
 }
 
 
@@ -265,7 +268,7 @@ function is_item_normal($item) {
 
 	if(intval($item['item_hidden']) || intval($item['item_type']) || intval($item['item_deleted'])
 		|| intval($item['item_unpublished']) || intval($item['item_delayed']) || intval($item['item_pending_remove'])
-		|| intval($item['item_blocked']) || ($item['obj_type'] == ACTIVITY_OBJ_FILE))
+		|| intval($item['item_blocked']))
 		return false;
 
 	return true;
@@ -288,7 +291,7 @@ function is_item_normal($item) {
  */
 function can_comment_on_post($observer_xchan, $item) {
 
-//	logger('Comment_policy: ' . $item['comment_policy'], LOGGER_DEBUG);
+	// logger('Comment_policy: ' . $item['comment_policy'], LOGGER_DEBUG);
 
 	$x = [
 		'observer_hash' => $observer_xchan,
@@ -349,7 +352,8 @@ function can_comment_on_post($observer_xchan, $item) {
 				return true;
 			}
 			break;
-		default:
+
+			default:
 			break;
 	}
 	if(strstr($item['comment_policy'],'network:') && strstr($item['comment_policy'],'red')) {
@@ -421,7 +425,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	if(! array_key_exists('item_origin',$arr))
 		$arr['item_origin'] = 1;
 	if(! array_key_exists('item_wall',$arr) && (! $is_comment))
-		$arr['item_wall'] = 1;
+		$arr['item_wall'] = 0;
 	if(! array_key_exists('item_thread_top',$arr) && (! $is_comment))
 		$arr['item_thread_top'] = 1;
 
@@ -930,8 +934,19 @@ function import_author_xchan($x) {
 	}
 
 	// if we were told that it's a zot connection, don't probe/import anything else
-	if(array_key_exists('network',$x) && $x['network'] === 'zot')
+	if(array_key_exists('network',$x) && $x['network'] === 'zot') {
+		if($x['url']) {
+			// check if we already have the zot6 xchan of this xchan_url. if not import it.
+			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
+				dbesc($x['url'])
+			);
+
+			if(! $r)
+				discover_by_webbie($x['url'], 'zot6');
+		}
+
 		return $y;
+	}
 
 	// perform zot6 discovery
 
@@ -1936,6 +1951,11 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 
 			if(intval($r[0]['item_uplink']) && (! $r[0]['item_private']))
 				$arr['item_private'] = 0;
+
+			if(in_array($arr['obj_type'], ['Note','Answer']) && $r[0]['obj_type'] === 'Question' && intval($r[0]['item_wall'])) {
+				Activity::update_poll($r[0],$arr);
+			}
+
 		}
 		else {
 			logger('item_store: item parent was not found - ignoring item');
@@ -1955,8 +1975,9 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		);
 	}
 	else {
-		$r = q("SELECT id FROM item WHERE mid = '%s' AND uid = %d and revision = %d LIMIT 1",
+		$r = q("SELECT id FROM item WHERE (mid = '%s' OR mid = '%s') AND uid = %d and revision = %d LIMIT 1",
 			dbesc($arr['mid']),
+			dbesc(basename(rawurldecode($arr['mid']))), // de-duplicate relayed comments from hubzilla < 4.0
 			intval($arr['uid']),
 			intval($arr['revision'])
 		);
@@ -2609,6 +2630,12 @@ function get_item_contact($item,$contacts) {
  */
 function tag_deliver($uid, $item_id) {
 
+	$role = get_pconfig($uid,'system','permissions_role');
+	$rolesettings = PermissionRoles::role_perms($role);
+	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
+
+	$is_group = (($channel_type === 'group') ? true : false);
+
 	$mention = false;
 
 	/*
@@ -2628,18 +2655,43 @@ function tag_deliver($uid, $item_id) {
 	if(! $i)
 		return;
 
+	xchan_query($i,true);
 	$i = fetch_post_tags($i);
 
 	$item = $i[0];
 
-	if(($item['source_xchan']) && intval($item['item_uplink'])
+	if(intval($item['item_uplink']) && $item['source_xchan']
 		&& intval($item['item_thread_top']) && ($item['edited'] != $item['created'])) {
 
 		// this is an update (edit) to a post which was already processed by us and has a second delivery chain
 		// Just start the second delivery chain to deliver the updated post
 		// after resetting ownership and permission bits
 		logger('updating edited tag_deliver post for ' . $u[0]['channel_address']);
-		start_delivery_chain($u[0], $item, $item_id, 0, true);
+		start_delivery_chain($u[0], $item, $item_id, 0, false, true);
+		return;
+	}
+
+	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
+		// group delivery via DM
+		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall') || perm_is_allowed($uid,$item['owner_xchan'],'tag_deliver')) {
+			logger('group DM delivery for ' . $u[0]['channel_address']);
+			start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
+		}
+		return;
+	}
+
+
+	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
+		if (strpos($item['body'],'[/share]')) {
+			logger('W2W post already shared');
+			return;
+		}
+		// group delivery via W2W
+		logger('rewriting W2W post for ' . $u[0]['channel_address']);
+		start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
+		q("update item set item_wall = 0 where id = %d",
+			intval($item_id)
+		);
 		return;
 	}
 
@@ -2946,6 +2998,13 @@ function item_community_tag($channel,$item) {
  */
 function tgroup_check($uid, $item) {
 
+
+	$role = get_pconfig($uid,'system','permissions_role');
+	$rolesettings = PermissionRoles::role_perms($role);
+	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
+
+	$is_group = (($channel_type === 'group') ? true : false);
+
 	$mention = false;
 
 	// check that the message originated elsewhere and is a top-level post
@@ -2961,6 +3020,15 @@ function tgroup_check($uid, $item) {
 
 		return false;
 	}
+
+	// post to group via DM
+	
+	if ($is_group) {
+		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid']) {
+			return true;
+		}
+	}
+
 
 	// see if we already have this item. Maybe it is being updated.
 
@@ -3070,7 +3138,7 @@ function tgroup_check($uid, $item) {
  * @param boolean $edit (optional) default false
  * @return void
  */
-function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false) {
+function start_delivery_chain($channel, $item, $item_id, $parent, $group = false, $edit = false) {
 
 	$sourced = check_item_source($channel['channel_id'],$item);
 
@@ -3107,6 +3175,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 		// This MAY cause you to run afoul of copyright law.
 
 		$rewrite_author = intval(get_abconfig($channel['channel_id'],$item['owner_xchan'],'system','rself'));
+
 		if($rewrite_author) {
 			$item['author_xchan'] = $channel['channel_hash'];
 
@@ -3116,6 +3185,107 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 			);
 		}
 	}
+
+	if ($group && (! $parent)) {
+
+		$arr = [];
+		
+		if ($edit) {
+			// process edit or delete action
+			$r = q("select * from item where source_xchan = '%s' and body like '%s' and uid = %d limit 1",
+				dbesc($item['owner_xchan']),
+				dbesc("%message_id='" . $item['mid'] . "'%"),
+				intval($channel['channel_id'])
+			);
+			if ($r) {
+				if (intval($item['item_deleted'])) {
+					drop_item($r[0]['id'],false,DROPITEM_PHASE1);
+					Master::Summon([ 'Notifier','drop',$r[0]['id'] ]);
+					return;
+				}
+				$arr['id'] = intval($r[0]['id']);
+				$arr['parent'] = intval($r[0]['parent']);
+				$arr['uuid'] = $r[0]['uuid'];
+				$arr['mid'] = $r[0]['mid'];
+				$arr['parent_mid'] = $r[0]['parent_mid'];
+				$arr['edited'] = datetime_convert();
+			}
+			else {
+				logger('unable to locate original group post ' . $item['mid']);
+				return;
+			}
+
+		}
+		else {
+			$arr['uuid'] = item_message_id();
+			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
+			$arr['parent_mid'] = $arr['mid'];
+		}
+		
+		$arr['aid'] = $channel['channel_account_id'];
+		$arr['uid'] = $channel['channel_id'];
+
+		// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
+		
+		$arr['item_uplink']  = 0;
+		$arr['source_xchan'] = $item['owner_xchan'];
+
+		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
+		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		$arr['item_origin'] = 1;
+		$arr['item_wall'] = 1;
+
+		$arr['item_thread_top'] = 1;
+	
+		if (strpos($item['body'], "[/share]") !== false) {
+			$pos = strpos($item['body'], "[share");
+			$bb = substr($item['body'], $pos);
+		} else {
+			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
+				"' profile='"       . $item['author']['xchan_url'] .
+				"' portable_id='"   . $item['author']['xchan_hash'] . 
+				"' avatar='"        . $item['author']['xchan_photo_s'] .
+				"' link='"          . $item['plink'] .
+				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
+				"' posted='"        . $item['created'] .
+				"' message_id='"    . $item['mid'] .
+			"']";
+			if($item['title'])
+				$bb .= '[b]'.$item['title'].'[/b]'."\r\n";
+			$bb .= $item['body'];
+			$bb .= "[/share]";
+		}
+
+		$arr['body'] = $bb;
+
+		$arr['author_xchan'] = $channel['channel_hash'];
+		$arr['owner_xchan']  = $channel['channel_hash'];
+
+		$arr['obj_type'] = $item['obj_type'];
+		$arr['verb'] = ACTIVITY_POST;
+
+		$arr['allow_cid'] = $channel['channel_allow_cid'];
+		$arr['allow_gid'] = $channel['channel_allow_gid'];
+		$arr['deny_cid']  = $channel['channel_deny_cid'];
+		$arr['deny_gid']  = $channel['channel_deny_gid'];
+		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
+
+		if ($arr['id']) {
+			$post = item_store_update($arr);
+		}
+		else {
+			$post = item_store($arr);
+		}
+
+		$post_id = $post['item_id'];
+
+		if($post_id) {
+			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+		}
+		return;
+	}
+
 
 	// Change this copy of the post to a forum head message and deliver to all the tgroup members
 	// also reset all the privacy bits to the forum default permissions
@@ -3206,7 +3376,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $edit = false)
 function check_item_source($uid, $item) {
 
 	logger('source: uid: ' . $uid, LOGGER_DEBUG);
-	$xchan = (($item['source_xchan']) ?  $item['source_xchan'] : $item['owner_xchan']);
+	$xchan = (($item['source_xchan'] && intval($item['item_uplink'])) ?  $item['source_xchan'] : $item['owner_xchan']);
 
 	$r = q("select * from source where src_channel_id = %d and ( src_xchan = '%s' or src_xchan = '*' ) limit 1",
 		intval($uid),
@@ -3856,7 +4026,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 
 		if($x) {
 			$sync_data['event_deleted'] = 1;
-			build_sync_packet($item['uid'], ['event' => [$sync_data]]);
+			Libsync::build_sync_packet($item['uid'], ['event' => [$sync_data]]);
 		}
 	}
 
@@ -3865,7 +4035,7 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 		$channel = channelx_by_n($item['uid']);
 		$sync_data = attach_export_data($channel, $item['resource_id'], true);
 		if($sync_data)
-			build_sync_packet($item['uid'], ['file' => [$sync_data]]);
+			Libsync::build_sync_packet($item['uid'], ['file' => [$sync_data]]);
 	}
 
 	// immediately remove any undesired profile likes.
@@ -4367,8 +4537,8 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		// only setup pagination on initial page view
 		$pager_sql = '';
 	} else {
-		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 20);
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 	}
 
@@ -4661,14 +4831,6 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 	$arr['item_thread_top'] = 1;
 	$arr['item_origin'] = 1;
 	$arr['item_wall'] = 1;
-	$arr['obj_type'] = ACTIVITY_OBJ_PHOTO;
-	$arr['verb'] = ACTIVITY_UPDATE;
-
-	$arr['obj'] = json_encode(array(
-		'type' => $arr['obj_type'],
-		'id' => z_root() . '/photo/profile/l/' . $channel['channel_id'],
-		'link' => array('rel' => 'photo', 'type' => $photo['type'], 'href' => z_root() . '/photo/profile/l/' . $channel['channel_id'])
-	));
 
 	if(stripos($profile['gender'],t('female')) !== false)
 		$t = t('%1$s updated her %2$s');
@@ -4709,7 +4871,7 @@ function sync_an_item($channel_id,$item_id) {
 	if($r) {
 		xchan_query($r);
 		$sync_item = fetch_post_tags($r);
-		build_sync_packet($channel_id, array('item' => array(encode_item($sync_item[0],true))));
+		Libsync::build_sync_packet($channel_id, array('item' => array(encode_item($sync_item[0],true))));
 	}
 }
 
@@ -4911,7 +5073,7 @@ function item_create_edit_activity($post) {
 		if($r) {
 			xchan_query($r);
 			$sync_item = fetch_post_tags($r);
-			build_sync_packet($new_item['uid'],array('item' => array(encode_item($sync_item[0],true))));
+			Libsync::build_sync_packet($new_item['uid'],array('item' => array(encode_item($sync_item[0],true))));
 		}
 	}
 

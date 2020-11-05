@@ -18,11 +18,9 @@ class ServerSimpleTest extends AbstractServer
         $this->assertEquals($nodes[0], $server->tree->getNodeForPath('hello'));
     }
 
-    /**
-     * @expectedException \Sabre\DAV\Exception
-     */
     public function testConstructInvalidArg()
     {
+        $this->expectException('Sabre\DAV\Exception');
         $server = new Server(1);
     }
 
@@ -42,7 +40,7 @@ class ServerSimpleTest extends AbstractServer
         ], $this->response->getHeaders());
 
         $this->assertEquals(200, $this->response->status);
-        $this->assertEquals('', $this->response->body);
+        $this->assertEquals('', $this->response->getBodyAsString());
     }
 
     public function testOptionsUnmapped()
@@ -62,7 +60,7 @@ class ServerSimpleTest extends AbstractServer
         ], $this->response->getHeaders());
 
         $this->assertEquals(200, $this->response->status);
-        $this->assertEquals('', $this->response->body);
+        $this->assertEquals('', $this->response->getBodyAsString());
     }
 
     public function testNonExistantMethod()
@@ -189,11 +187,9 @@ class ServerSimpleTest extends AbstractServer
         }
     }
 
-    /**
-     * @expectedException \Sabre\DAV\Exception\Forbidden
-     */
     public function testCalculateUriBreakout()
     {
+        $this->expectException('Sabre\DAV\Exception\Forbidden');
         $uri = '/path1/';
 
         $this->server->setBaseUri('/path2/');
@@ -311,10 +307,10 @@ class ServerSimpleTest extends AbstractServer
 
     /**
      * @depends testGuessBaseUri
-     * @expectedException \Sabre\DAV\Exception
      */
     public function testGuessBaseUriBadConfig()
     {
+        $this->expectException('Sabre\DAV\Exception');
         $serverVars = [
             'REQUEST_METHOD' => 'GET',
             'REQUEST_URI' => '/index.php/root/heyyy',
@@ -371,7 +367,7 @@ class ServerSimpleTest extends AbstractServer
             $this->response->getHeaders()
          );
 
-        $this->assertEquals(415, $this->response->status, 'We got an incorrect status back. Full response body follows: '.$this->response->body);
+        $this->assertEquals(415, $this->response->status, 'We got an incorrect status back. Full response body follows: '.$this->response->getBodyAsString());
     }
 
     public function testReportIntercepted()
@@ -394,7 +390,7 @@ class ServerSimpleTest extends AbstractServer
             $this->response->getHeaders()
         );
 
-        $this->assertEquals(418, $this->response->status, 'We got an incorrect status back. Full response body follows: '.$this->response->body);
+        $this->assertEquals(418, $this->response->status, 'We got an incorrect status back. Full response body follows: '.$this->response->getBodyAsString());
     }
 
     public function reportHandler($reportName, $result, $path)

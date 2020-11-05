@@ -3,6 +3,7 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Activity;
 
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
@@ -44,18 +45,18 @@ require_once('include/bbcode.php');
  *
  * where COMMAND is one of the following:
  *
- *		activity				(in diaspora.php, dfrn_confirm.php, profiles.php)
- *		comment-import			(in diaspora.php, items.php)
- *		comment-new				(in item.php)
- *		drop					(in diaspora.php, items.php, photos.php)
- *		edit_post				(in item.php)
- *		event					(in events.php)
- *		expire					(in items.php)
- *		like					(in like.php, poke.php)
- *		mail					(in message.php)
- *		tag						(in photos.php, poke.php, tagger.php)
- *		tgroup					(in items.php)
- *		wall-new				(in photos.php, item.php)
+ *	activity		(in diaspora.php, dfrn_confirm.php, profiles.php)
+ *	comment-import		(in diaspora.php, items.php)
+ *	comment-new		(in item.php)
+ *	drop			(in diaspora.php, items.php, photos.php)
+ *	edit_post		(in item.php)
+ *	event			(in events.php)
+ *	expire			(in items.php)
+ *	like			(in like.php, poke.php)
+ *	mail			(in message.php)
+ *	tag			(in photos.php, poke.php, tagger.php)
+ *	tgroup			(in items.php)
+ *	wall-new		(in photos.php, item.php)
  *
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  *
@@ -65,9 +66,10 @@ require_once('include/bbcode.php');
  *       permission_reject      abook_id
  *       permission_update      abook_id
  *       refresh_all            channel_id
+ *       purge                  channel_id            xchan_hash
  *       purge_all              channel_id
  *       expire                 channel_id
- *       relay					item_id (item was relayed to owner, we will deliver it as owner)
+ *       relay			item_id (item was relayed to owner, we will deliver it as owner)
  *       single_activity        item_id (deliver to a singleton network from the appropriate clone)
  *       single_mail            mail_id (deliver to a singleton network from the appropriate clone)
  *       location               channel_id
@@ -239,25 +241,40 @@ class Notifier {
 			$packet_type = 'location';
 			$location = true;
 		}
+		elseif($cmd === 'purge') {
+			$xchan = $argv[3];
+			logger('notifier: purge: ' . $item_id . ' => ' . $xchan);
+			if (! $xchan) {
+				return;
+			}
+
+			$channel     = channelx_by_n($item_id);
+			$recipients[]  = $xchan;
+			$private     = true;
+			$packet_type = 'purge';
+			$packet_recips[] = ['hash' => $xchan];
+		}
 		elseif($cmd === 'purge_all') {
+
 			logger('notifier: purge_all: ' . $item_id);
-			$s = q("select * from channel where channel_id = %d limit 1",
-				intval($item_id)
-			);
-			if($s)
-				$channel = $s[0];
-			$uid = $item_id;
-			$recipients = array();
+			$channel = channelx_by_n($item_id);
+
+			$recipients = [];
 			$r = q("select abook_xchan from abook where abook_channel = %d and abook_self = 0",
 				intval($item_id)
 			);
-			if($r) {
-				foreach($r as $rr) {
-					$recipients[] = $rr['abook_xchan'];
-				}
+			if (! $r) {
+				return;
 			}
+			foreach ($r as $rr) {
+				$recipients[] = $rr['abook_xchan'];
+				$packet_recips[] = ['hash' => $rr['abook_xchan']];
+			}
+
 			$private = false;
 			$packet_type = 'purge';
+
+
 		}
 		else {
 
@@ -277,6 +294,12 @@ class Notifier {
 			$r = fetch_post_tags($r);
 		
 			$target_item = $r[0];
+
+			if(in_array($target_item['author']['xchan_network'], ['rss', 'anon'])) {
+				logger('notifier: target item author is not a fetchable actor', LOGGER_DEBUG);
+				return;
+			}
+
 			$deleted_item = false;
 
 			if(intval($target_item['item_deleted'])) {
@@ -360,14 +383,23 @@ class Notifier {
 
 			$encoded_item = encode_item($target_item);
 
-			// activitystreams version
-			$m = get_iconfig($target_item,'activitystreams','signed_data');
+			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
+			$m = ((intval($target_item['item_deleted'])) ? '' : get_iconfig($target_item,'activitystreams','signed_data'));
+
 			if($m) {
 				$activity = json_decode($m,true);
 			}
 			else {
-				$activity = \Zotlabs\Lib\Activity::encode_activity($target_item);
+				$activity = array_merge(['@context' => [
+					ACTIVITYSTREAMS_JSONLD_REV,
+					'https://w3id.org/security/v1',
+					z_root() . ZOT_APSCHEMA_REV
+					]], Activity::encode_activity($target_item)
+				);
 			}		
+
+			logger('target_item: ' . print_r($target_item,true), LOGGER_DEBUG);
+			logger('encoded: ' . print_r($activity,true), LOGGER_DEBUG);
 
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.
@@ -467,7 +499,6 @@ class Notifier {
 
 		$details = q("select xchan_hash, xchan_network, xchan_addr, xchan_guid, xchan_guid_sig from xchan where xchan_hash in (" . protect_sprintf(implode(',',$recipients)) . ")");
 
-
 		$recip_list = array();
 
 		if($details) {
@@ -532,17 +563,39 @@ class Notifier {
 		// Now we have collected recipients (except for external mentions, FIXME)
 		// Let's reduce this to a set of hubs; checking that the site is not dead.
 
-		$r = q("select hubloc.*, site.site_crypto, site.site_flags from hubloc left join site on site_url = hubloc_url where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
-			and hubloc_error = 0 and hubloc_deleted = 0 and ( site_dead = 0 OR site_dead is null ) "
-		);		
- 
+		$hubs = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc left join site on site_url = hubloc_url 
+			where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
+			and hubloc_error = 0 and hubloc_deleted = 0"
+		);
 
-		if(! $r) {
+		// public posts won't make it to the local public stream unless there's a recipient on this site. 
+		// This code block sees if it's a public post and localhost is missing, and if so adds an entry for the local sys channel to the $hubs list
+
+		if (! $private) {
+			$found_localhost = false;
+			if ($hubs) {
+				foreach ($hubs as $h) {
+					if ($h['hubloc_url'] === z_root()) {
+						$found_localhost = true;
+						break;
+					}
+				}
+			}
+			if (! $found_localhost) {
+				$localhub = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc 
+					left join site on site_url = hubloc_url where hubloc_id_url = '%s' and hubloc_error = 0 and hubloc_deleted = 0",
+					dbesc(z_root() . '/channel/sys')
+				);
+				if ($localhub) {
+					$hubs = array_merge($hubs, $localhub);
+				}
+			}
+		}
+ 
+		if(! $hubs) {
 			logger('notifier: no hubs', LOGGER_NORMAL, LOG_NOTICE);
 			return;
 		}
-
-		$hubs = $r;
 
 		/**
 		 * Reduce the hubs to those that are unique. For zot hubs, we need to verify uniqueness by the sitekey, 
@@ -556,8 +609,14 @@ class Notifier {
 		$keys    = []; // array of keys to check uniquness for zot hubs
 		$urls    = []; // array of urls to check uniqueness of hubs from other networks
 		$hub_env = []; // per-hub envelope so we don't broadcast the entire envelope to all
+		$dead    = []; // known dead hubs - report them as undeliverable
 
 		foreach($hubs as $hub) {
+
+			if (intval($hub['site_dead'])) {
+				$dead[] = $hub;
+				continue;
+			}
 
 			if($env_recips) {
 				foreach($env_recips as $er) {
@@ -630,7 +689,7 @@ class Notifier {
 			}
 
 			// singleton deliveries by definition 'not got zot'.
-            // Single deliveries are other federated networks (plugins) and we're essentially
+			// Single deliveries are other federated networks (plugins) and we're essentially
 			// delivering only to those that have this site url in their abook_instance
 			// and only from within a sync operation. This means if you post from a clone,
 			// and a connection is connected to one of your other clones; assuming that hub
@@ -725,7 +784,24 @@ class Notifier {
 						$packet = zot_build_packet($channel,'notify',$env, (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'],$hash);
 
 					}
-				}	
+				}
+
+
+				// remove this after most hubs have updated to version 5.0
+				if(stripos($hub['site_project'], 'hubzilla') !== false && version_compare($hub['site_version'], '4.7.3', '<=')) {
+					if($encoded_item['type'] === 'mail') {
+						$encoded_item['from']['network'] = 'zot';
+						$encoded_item['from']['guid_sig'] = str_replace('sha256.', '', $encoded_item['from']['guid_sig']);
+					}
+					else {
+						$encoded_item['owner']['network'] = 'zot';
+						$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
+						if(strpos($encoded_item['author']['url'], z_root()) === 0) {
+							$encoded_item['author']['network'] = 'zot';
+							$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
+						}
+					}
+				}
 
 				queue_insert(
 					[
@@ -767,6 +843,24 @@ class Notifier {
 			do_delivery($deliveries);
 
 		logger('notifier: basic loop complete.', LOGGER_DEBUG);
+
+		if ($dead) {
+			foreach ($dead as $deceased) {
+				if (is_array($target_item) && (! $target_item['item_deleted']) && (! get_config('system','disable_dreport'))) {
+					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue ) 
+						values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
+						dbesc($target_item['mid']),
+						dbesc($deceased['hubloc_host']),
+						dbesc($deceased['hubloc_host']),
+						dbesc($deceased['hubloc_host']),
+						dbesc('undeliverable/unresponsive site'),
+						dbesc(datetime_convert()),
+						dbesc($channel['channel_hash']),
+						dbesc(random_string(48))
+					);
+				}
+			}
+		}
 
 		call_hooks('notifier_end',$target_item);
 

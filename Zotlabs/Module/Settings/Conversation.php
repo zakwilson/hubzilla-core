@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
 
 class Conversation {
 
@@ -15,7 +16,7 @@ class Conversation {
 
 		process_module_features_post(local_channel(), $features, $_POST);
 		
-		build_sync_packet();
+		Libsync::build_sync_packet();
 		
 		if($_POST['aj']) {
 			if($_POST['auto_update'] == 1)

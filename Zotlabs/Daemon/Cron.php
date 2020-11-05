@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libsync;
+
 class Cron {
 
 	static public function run($argc,$argv) {
@@ -36,10 +38,14 @@ class Cron {
 
 		Master::Summon(array('Poller'));
 
-		// maintenance for mod sharedwithme - check for updated items and remove them
-
-		require_once('include/sharedwithme.php');
-		apply_updates();
+		/**
+		 * Chatpresence: if somebody hasn't pinged recently, they've most likely left the page
+		 * and shouldn't count as online anymore. We allow an expection for bots.
+		 */
+		q("delete from chatpresence where cp_last < %s - INTERVAL %s and cp_client != 'auto' ",
+			db_utcnow(),
+			db_quoteinterval('3 MINUTE')
+		);
 	
 		// expire any expired mail
 
@@ -138,7 +144,7 @@ class Cron {
 					if($z) {
 						xchan_query($z);
 						$sync_item = fetch_post_tags($z);
-						build_sync_packet($sync_item[0]['uid'],
+						Libsync::build_sync_packet($sync_item[0]['uid'],
 							[ 
 								'item' => [ encode_item($sync_item[0],true) ]
 							]
@@ -148,6 +154,11 @@ class Cron {
 				}
 			}
 		}
+
+
+		// check if any connections transitioned to zot6 and upgrade the connections to zot6 at this hub if so.
+		require_once('include/connections.php');
+		z6trans_connections();
 
 		require_once('include/attach.php');
 		attach_upgrade();

@@ -181,7 +181,6 @@ a.wikilist {
 
 .notifications-textinput {
 	padding: .75rem 0.85rem;
-	position: relative;
 }
 
 .notifications-textinput input {
@@ -226,10 +225,19 @@ a.wikilist {
 	margin-bottom: 1rem;
 }
 
+.tt-filter-active,
+.cn-filter-active {
+	display: none !important;
+}
+
 /* contact block */
 .contact-block-div .oneway-overlay {
 	font-size: 20px;
 	margin-left: -25px;
 	margin-top: 25px;
 	opacity: 0.8;
+}
+
+#cid-filter-wrapper {
+	position: relative;
 }

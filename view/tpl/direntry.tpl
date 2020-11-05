@@ -7,6 +7,9 @@
 			{{if $entry.ignlink}}
 			<a class="directory-ignore btn btn-warning btn-sm" href="{{$entry.ignlink}}"> {{$entry.ignore_label}}</a>
 			{{/if}}
+			{{if $entry.censor}}
+			<a class="directory-censor btn btn-danger btn-sm" href="{{$entry.censor}}"> {{$entry.censor_label}}</a>
+			{{/if}}
 			{{if $entry.connect}}
 			<a class="btn btn-success btn-sm" href="{{$entry.connect}}"><i class="fa fa-plus connect-icon"></i> {{$entry.conn_label}}</a>
 			{{/if}}
@@ -20,7 +23,7 @@
 		<div class="contact-photo-wrapper" id="directory-photo-wrapper-{{$entry.hash}}" >
 			<div class="contact-photo" id="directory-photo-{{$entry.hash}}" >
 				<a href="{{$entry.profile_link}}" class="directory-profile-link" id="directory-profile-link-{{$entry.hash}}" >
-					<img class="directory-photo-img" src="{{$entry.photo}}" alt="{{$entry.alttext}}" title="{{$entry.alttext}}" />
+					<img class="directory-photo-img" src="{{$entry.photo}}" alt="{{$entry.alttext}}" title="{{$entry.alttext}}" loading="lazy"/>
 				</a>
 			</div>
 		</div>

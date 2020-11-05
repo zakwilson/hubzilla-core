@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/zot.php');
 require_once('include/socgraph.php');
 
@@ -76,7 +78,11 @@ class Onepoll {
 
 		// update permissions
 
-		$x = zot_refresh($contact,$importer);
+		if($contact['xchan_network'] === 'zot6')
+			$x = Libzot::refresh($contact,$importer);
+
+		if($contact['xchan_network'] === 'zot')
+			$x = zot_refresh($contact,$importer);
 
 		$responded = false;
 		$updated   = datetime_convert();

@@ -5,6 +5,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libsync;
 
 class Permcats extends Controller {
 
@@ -42,7 +43,7 @@ class Permcats extends Controller {
 		
 		\Zotlabs\Lib\Permcat::update(local_channel(),$name,$pcarr);
 
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		info( t('Permission category saved.') . EOL);
 		
@@ -71,7 +72,7 @@ class Permcats extends Controller {
 
 		if(argc() > 2 && argv(2) === 'drop') {
 			\Zotlabs\Lib\Permcat::delete(local_channel(),$name);
-			build_sync_packet();
+			Libsync::build_sync_packet();
 			json_return_and_die([ 'success' => true ]);
 		}
 

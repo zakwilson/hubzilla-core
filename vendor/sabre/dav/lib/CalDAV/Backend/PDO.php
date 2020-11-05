@@ -117,8 +117,6 @@ class PDO extends AbstractBackend implements SyncSupport, SubscriptionSupport, S
 
     /**
      * Creates the backend.
-     *
-     * @param \PDO $pdo
      */
     public function __construct(\PDO $pdo)
     {
@@ -220,7 +218,6 @@ SQL
      *
      * @param string $principalUri
      * @param string $calendarUri
-     * @param array  $properties
      *
      * @return string
      */
@@ -290,8 +287,7 @@ SQL
      *
      * Read the PropPatch documentation for more info and examples.
      *
-     * @param mixed                $calendarId
-     * @param \Sabre\DAV\PropPatch $propPatch
+     * @param mixed $calendarId
      */
     public function updateCalendar($calendarId, \Sabre\DAV\PropPatch $propPatch)
     {
@@ -483,7 +479,6 @@ SQL
      * If the backend supports this, it may allow for some speed-ups.
      *
      * @param mixed $calendarId
-     * @param array $uris
      *
      * @return array
      */
@@ -760,7 +755,6 @@ SQL
      * specific components, and VEVENT time-ranges.
      *
      * @param mixed $calendarId
-     * @param array $filters
      *
      * @return array
      */
@@ -874,6 +868,8 @@ WHERE
     calendar_instances.principaluri = ?
     AND
     calendarobjects.uid = ?
+    AND
+    calendar_instances.access = 1
 SQL;
 
         $stmt = $this->pdo->prepare($query);
@@ -1107,7 +1103,6 @@ SQL;
      *
      * @param string $principalUri
      * @param string $uri
-     * @param array  $properties
      *
      * @return mixed
      */
@@ -1286,13 +1281,18 @@ SQL;
     /**
      * Creates a new scheduling object. This should land in a users' inbox.
      *
-     * @param string $principalUri
-     * @param string $objectUri
-     * @param string $objectData
+     * @param string          $principalUri
+     * @param string          $objectUri
+     * @param string|resource $objectData
      */
     public function createSchedulingObject($principalUri, $objectUri, $objectData)
     {
         $stmt = $this->pdo->prepare('INSERT INTO '.$this->schedulingObjectTableName.' (principaluri, calendardata, uri, lastmodified, etag, size) VALUES (?, ?, ?, ?, ?, ?)');
+
+        if (is_resource($objectData)) {
+            $objectData = stream_get_contents($objectData);
+        }
+
         $stmt->execute([$principalUri, $objectData, $objectUri, time(), md5($objectData), strlen($objectData)]);
     }
 

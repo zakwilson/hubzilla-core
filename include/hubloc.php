@@ -247,6 +247,7 @@ function hubloc_change_primary($hubloc) {
  *
  * We use the post url to distinguish between http and https hublocs.
  * The https might be alive, and the http dead.
+ * Also set site_dead for the corresponding entry in the site table.
  *
  * @param string $posturl Hubloc callback url which to disable
  */
@@ -254,6 +255,13 @@ function hubloc_mark_as_down($posturl) {
 	$r = q("update hubloc set hubloc_status = ( hubloc_status | %d ) where hubloc_callback = '%s'",
 		intval(HUBLOC_OFFLINE),
 		dbesc($posturl)
+	);
+
+	// extract the baseurl and set site.site_dead to match
+	$m = parse_url($posturl);
+	$h = $m['scheme'] . '://' . $m['host'];
+	$r = q("update site set site_dead = 1 where site_url = '%s'",
+		dbesc($h)
 	);
 }
 
@@ -317,7 +325,7 @@ function z6_discover() {
 	if ($c) {
 		foreach ($c as $entry) {
 			$q1 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url != '%s'",
-				dbesc($entry['channel_hash']),
+				dbesc($entry['channel_portable_id']),
 				dbesc(z_root())
 			);
 			if (! $q1) {
@@ -327,7 +335,7 @@ function z6_discover() {
 			// does this particular server have a zot6 clone registered on our site for this channel?
 			foreach ($q1 as $q) {
 				$q2 = q("select * from hubloc left join site on hubloc_url = site_url where hubloc_deleted = 0 and site_dead = 0 and hubloc_hash = '%s' and hubloc_url = '%s'",
-					dbesc($entry['channel_portable_id']),
+					dbesc($entry['channel_hash']),
 					dbesc($q['hubloc_url'])
 				);
 				if ($q2) {

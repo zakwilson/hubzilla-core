@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libzot;
 
 class Rmagic extends \Zotlabs\Web\Controller {
 
@@ -11,23 +12,24 @@ class Rmagic extends \Zotlabs\Web\Controller {
 	
 		$me = get_my_address();
 		if($me) {
-			$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+			$r = q("select hubloc_url from hubloc where hubloc_addr = '%s'",
 				dbesc($me)
 			);		
 			if(! $r) {
 				$w = discover_by_webbie($me);
 				if($w) {
-					$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+					$r = q("select hubloc_url from hubloc where hubloc_addr = '%s'",
 						dbesc($me)
 					);		
 				}
 			}
 
-			if($r) {	
-				if($r[0]['hubloc_url'] === z_root())
+			if($r) {
+				$r = Libzot::zot_record_preferred($r);
+				if($r['hubloc_url'] === z_root())
 					goaway(z_root() . '/login');
 				$dest = bin2hex(z_root() . '/' . str_replace(['rmagic','zid='],['','zid_='],\App::$query_string));
-				goaway($r[0]['hubloc_url'] . '/magic' . '?f=&owa=1&bdest=' . $dest);
+				goaway($r['hubloc_url'] . '/magic' . '?f=&owa=1&bdest=' . $dest);
 			}
 		}
 	}
@@ -55,13 +57,13 @@ class Rmagic extends \Zotlabs\Web\Controller {
 	
 			$r = null;
 			if($address) {
-				$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+				$r = q("select hubloc_url from hubloc where hubloc_addr = '%s'",
 					dbesc($address)
 				);		
 				if(! $r) {
 					$w = discover_by_webbie($address);
 					if($w) {
-						$r = q("select hubloc_url from hubloc where hubloc_addr = '%s' limit 1",
+						$r = q("select hubloc_url from hubloc where hubloc_addr = '%s'",
 							dbesc($address)
 						);		
 					}
@@ -69,7 +71,8 @@ class Rmagic extends \Zotlabs\Web\Controller {
 			}
 
 			if($r) {
-				$url = $r[0]['hubloc_url'];
+				$r = Libzot::zot_record_preferred($r);
+				$url = $r['hubloc_url'];
 			}
 			else {
 				$url = 'https://' . substr($address,strpos($address,'@')+1);

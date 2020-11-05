@@ -1,22 +1,24 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
+use App;
+use Zotlabs\Web\Controller;
+use Zotlabs\Daemon\Master;
 
-
-class Locs extends \Zotlabs\Web\Controller {
+class Locs extends Controller {
 
 	function post() {
 	
 		if(! local_channel())
 			return;
 	
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 	
 		if($_REQUEST['primary']) {
 			$hubloc_id = intval($_REQUEST['primary']);
 			if($hubloc_id) {
 	
-				$r = q("select hubloc_id from hubloc where hubloc_id = %d and hubloc_hash = '%s' limit 1",
+				$r = q("select * from hubloc where hubloc_id = %d and hubloc_hash = '%s' limit 1",
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
 				);
@@ -26,15 +28,16 @@ class Locs extends \Zotlabs\Web\Controller {
 					return;
 				}
 	
-				$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' ",
-					dbesc($channel['channel_hash'])
+				q("UPDATE hubloc SET hubloc_primary = 0 WHERE hubloc_primary = 1 AND (hubloc_hash = '%s' OR hubloc_hash = '%s')",
+					dbesc($channel['channel_hash']),
+					dbesc($channel['channel_portable_id'])
 				);
-				$r = q("update hubloc set hubloc_primary = 1 where hubloc_id = %d and hubloc_hash = '%s'",
+				q("UPDATE hubloc SET hubloc_primary = 1 WHERE hubloc_id = %d AND hubloc_hash = '%s'",
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
 				);
-	
-				\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
+
+				Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
 				return;
 			}			
 		}
@@ -68,11 +71,12 @@ class Locs extends \Zotlabs\Web\Controller {
 					}
 				}
 	
-				$r = q("update hubloc set hubloc_deleted = 1 where hubloc_id = %d and hubloc_hash = '%s'",
-					intval($hubloc_id),
-					dbesc($channel['channel_hash'])
+				q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_id_url = '%s' AND (hubloc_hash = '%s' OR hubloc_hash = '%s')",
+					dbesc($r[0]['hubloc_id_url']),
+					dbesc($channel['channel_hash']),
+					dbesc($channel['channel_portable_id'])
 				);
-				\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
+				Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
 				return;
 			}			
 		}
@@ -88,10 +92,10 @@ class Locs extends \Zotlabs\Web\Controller {
 			return;
 		}
 	
-		$channel = \App::get_channel();
+		$channel = App::get_channel();
 	
 		if($_REQUEST['sync']) {
-			\Zotlabs\Daemon\Master::Summon(array('Notifier','location',$channel['channel_id']));
+			Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
 			info( t('Syncing locations') . EOL);
 			goaway(z_root() . '/locs');
 		}

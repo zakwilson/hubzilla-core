@@ -101,7 +101,13 @@ class ActivityStreams {
 					$this->actor = $this->get_actor('attributedTo',$this->obj);
 				}
 			}
+
+			// fetch recursive or embedded activities
 			
+			if ($this->obj && is_array($this->obj) && array_key_exists('object',$this->obj)) {
+				$this->obj['object'] = $this->get_compound_property($this->obj['object']);
+			}
+
 			if($this->obj && is_array($this->obj) && $this->obj['actor'])
 				$this->obj['actor'] = $this->get_actor('actor',$this->obj);
 			if($this->tgt && is_array($this->tgt) && $this->tgt['actor'])
@@ -140,15 +146,20 @@ class ActivityStreams {
 	 */
 	function collect_recips($base = '', $namespace = '') {
 		$x = [];
+
 		$fields = [ 'to', 'cc', 'bto', 'bcc', 'audience'];
 		foreach($fields as $f) {
 			$y = $this->get_compound_property($f, $base, $namespace);
 			if($y) {
-				$x = array_merge($x, $y);
-				if(! is_array($this->raw_recips))
+				if (! is_array($this->raw_recips)) {
 					$this->raw_recips = [];
+				}
 
-				$this->raw_recips[$f] = $x;
+				if (! is_array($y)) {
+					$y = [ $y ];
+				}
+				$this->raw_recips[$f] = $y;
+				$x = array_merge($x, $y);
 			}
 		}
 // not yet ready for prime time
@@ -263,12 +274,19 @@ class ActivityStreams {
 		return self::fetch($url);
 	}
 
-	static function fetch($url,$channel = null) {
-		return Activity::fetch($url,$channel);
+	static function fetch($url, $channel = null) {
+		return Activity::fetch($url, $channel);
 	}
 
 	static function is_an_actor($s) {
-		return(in_array($s,[ 'Application','Group','Organization','Person','Service' ]));
+		return (in_array($s, [ 'Application','Group','Organization','Person','Service' ]));
+	}
+
+	static function is_response_activity($s) {
+		if (! $s) {
+			return false;
+		}
+		return (in_array($s, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact' ]));
 	}
 
 	/**
@@ -391,7 +409,6 @@ class ActivityStreams {
 		return $x;
 	}
 
-
 	static function is_as_request() {
 
 		$x = getBestSupportedMimeType([
@@ -403,6 +420,5 @@ class ActivityStreams {
 		return(($x) ? true : false);
 
 	}
-
 
 }

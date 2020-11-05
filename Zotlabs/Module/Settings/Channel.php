@@ -3,6 +3,7 @@
 namespace Zotlabs\Module\Settings;
 
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/selectors.php');
 
@@ -273,10 +274,11 @@ class Channel {
 		}
 	
 		if($name_change) {
-			$r = q("update xchan set xchan_name = '%s', xchan_name_date = '%s' where xchan_hash = '%s'",
+			// change name on all associated xchans by matching the url
+			$r = q("update xchan set xchan_name = '%s', xchan_name_date = '%s' where xchan_url = '%s'",
 				dbesc($username),
 				dbesc(datetime_convert()),
-				dbesc($channel['channel_hash'])
+				dbesc(z_root() . '/channel/' . $channel['channel_address'])
 			);
 			$r = q("update profile set fullname = '%s' where uid = %d and is_default = 1",
 				dbesc($username),
@@ -286,7 +288,7 @@ class Channel {
 	
 		\Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
 	
-		build_sync_packet();
+		Libsync::build_sync_packet();
 	
 	
 		if($email_changed && \App::$config['system']['register_policy'] == REGISTER_VERIFY) {

@@ -283,4 +283,15 @@ class Permissions {
 		return ( [ 'perms' => $my_perms, 'automatic' => $automatic ] );
 	}
 
+	static public function serialise($p) {
+		$n = [];
+		if($p) {
+			foreach($p as $k => $v) {
+				if(intval($v)) {
+					$n[] = $k;
+				}
+			}
+		}
+		return implode(',',$n);
+	}
 }

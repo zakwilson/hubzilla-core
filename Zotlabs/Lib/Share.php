@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Activity;
 
 class Share {
 
@@ -54,7 +55,7 @@ class Share {
 		if(! $this->item)
 			return $obj;
 
-		$obj['asld']         = $this->item['mid'];
+		$obj['asld']         = Activity::fetch_item( [ 'id' => $this->item['mid'] ] );
 		$obj['type']         = $this->item['obj_type'];
 		$obj['id']           = $this->item['mid'];
 		$obj['content']      = $this->item['body'];
@@ -127,7 +128,7 @@ class Share {
 				"' profile='"    . $this->item['author']['xchan_url'] .
 				"' avatar='"     . $this->item['author']['xchan_photo_s'] .
 				"' link='"       . $this->item['plink'] .
-				"' auth='"       . (($this->item['author']['network'] === 'zot') ? 'true' : 'false') .
+				"' auth='"       . ((in_array($this->item['author']['xchan_network'], ['zot6', 'zot'])) ? 'true' : 'false') .
 				"' posted='"     . $this->item['created'] .
 				"' message_id='" . $this->item['mid'] .
 			"']";

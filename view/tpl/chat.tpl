@@ -70,7 +70,7 @@
 						</div>
 						{{if $feature_encrypt}}
 						<div class="btn-group mr-2 d-none d-md-flex">
-							<button id="chat-encrypt-wrapper" class="btn btn-outline-secondary btn-sm" onclick="red_encrypt('{{$cipher}}', '#chatText', $('#chatText').val()); return false;">
+							<button id="chat-encrypt-wrapper" class="btn btn-outline-secondary btn-sm" onclick="hz_encrypt('{{$cipher}}', '#chatText'); return false;">
 								<i id="chat-encrypt" class="fa fa-key jot-icons" title="{{$encrypt}}" ></i>
 							</button>
 						</div>
@@ -83,7 +83,7 @@
 								<a class="dropdown-item" href="#" onclick="chatJotGetLink(); return false;" ><i class="fa fa-link"></i>&nbsp;{{$insert}}</a>
 								{{if $feature_encrypt}}
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item" href="#" onclick="red_encrypt('{{$cipher}}', '#chatText' ,$('#chatText').val()); return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
+								<a class="dropdown-item" href="#" onclick="hz_encrypt('{{$cipher}}', '#chatText'); return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
 								{{/if}}
 							</div>
 						</div>

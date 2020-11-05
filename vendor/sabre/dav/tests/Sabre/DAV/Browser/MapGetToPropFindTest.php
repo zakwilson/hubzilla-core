@@ -7,11 +7,9 @@ namespace Sabre\DAV\Browser;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-
 class MapGetToPropFindTest extends DAV\AbstractServer
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
         $this->server->addPlugin(new MapGetToPropFind());
@@ -29,7 +27,7 @@ class MapGetToPropFindTest extends DAV\AbstractServer
         $this->server->httpRequest = ($request);
         $this->server->exec();
 
-        $this->assertEquals(207, $this->response->status, 'Incorrect status response received. Full response body: '.$this->response->body);
+        $this->assertEquals(207, $this->response->status, 'Incorrect status response received. Full response body: '.$this->response->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],

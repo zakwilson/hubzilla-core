@@ -1,5 +1,7 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Apps;
+
 require_once('include/items.php');
 
 
@@ -100,22 +102,33 @@ function localize_item(&$item){
 			logger('localize_item: failed to decode object: ' . print_r($item['obj'],true));
 		}
 		
-		if($obj['author'] && $obj['author']['link'])
+		if(is_array($obj['author']) && $obj['author']['link'])
 			$author_link = get_rel_link($obj['author']['link'],'alternate');
+		elseif(is_array($obj['actor']) && $obj['actor']['url'])
+			$author_link = ((is_array($obj['actor']['url'])) ? $obj['actor']['url'][0]['href'] : $obj['actor']['url']);
 		else
 			$author_link = '';
 
 		$author_name = (($obj['author'] && $obj['author']['name']) ? $obj['author']['name'] : '');
 
-		$item_url = get_rel_link($obj['link'],'alternate');
+		if(!$author_name)
+			$author_name = ((is_array($obj['actor']) && $obj['actor']['name']) ? $obj['actor']['name'] : '');
+
+		if(is_array($obj['link']))
+			$item_url = get_rel_link($obj['link'],'alternate');
+
+		if(!$item_url)
+			$item_url = $obj['id'];
 
 		$Bphoto = '';
 
 		switch($obj['type']) {
 			case ACTIVITY_OBJ_PHOTO:
+			case 'Photo':
 				$post_type = t('photo');
 				break;
 			case ACTIVITY_OBJ_EVENT:
+			case 'Event':
 				$post_type = t('event');
 				break;
 			case ACTIVITY_OBJ_PERSON:
@@ -140,9 +153,10 @@ function localize_item(&$item){
 				break;
 
 			case ACTIVITY_OBJ_NOTE:
+			case 'Note':
 			default:
-				$post_type = t('status');
-				if($obj['id'] != $obj['parent'])
+				$post_type = t('post');
+				if(($obj['parent'] && $obj['id'] != $obj['parent']) || $obj['inReplyTo'])
 					$post_type = t('comment');
 				break;
 		}
@@ -172,9 +186,9 @@ function localize_item(&$item){
 				$shortbodyverb = t('doesn\'t like %1$s\'s %2$s');
 			}
 
-			$item['shortlocalize'] = sprintf($shortbodyverb, $objauthor, $plink);
+			$item['shortlocalize'] = sprintf($shortbodyverb, '[bdi]' . $author_name . '[/bdi]', $post_type);
 
-			$item['body'] = $item['localize'] = sprintf($bodyverb, $author, $objauthor, $plink);
+			$item['body'] = $item['localize'] = sprintf($bodyverb, '[bdi]' . $author . '[/bdi]', '[bdi]' . $objauthor . '[/bdi]', $plink);
 			if($Bphoto != "") 
 				$item['body'] .= "\n\n\n" . '[zrl=' . chanlink_url($author_link) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 
@@ -205,9 +219,11 @@ function localize_item(&$item){
 		$Bname = $obj['title'];
 
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . ']' . $Bname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
+		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
 		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
+
+		$item['shortlocalize'] = sprintf( t('%1$s is now connected with %2$s'), '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
 
 		$item['body'] = $item['localize'] = sprintf( t('%1$s is now connected with %2$s'), $A, $B);
 		$item['body'] .= "\n\n\n" . $Bphoto;
@@ -237,8 +253,8 @@ function localize_item(&$item){
 		}
 		$Bname = $obj['title'];
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
-		$B = '[zrl=' . chanlink_url($Blink) . ']' . $Bname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
+		$B = '[zrl=' . chanlink_url($Blink) . '][bdi]' . $Bname . '[/bdi][/zrl]';
 		if ($Bphoto!="") $Bphoto = '[zrl=' . chanlink_url($Blink) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 
 		// we can't have a translation string with three positions but no distinguishable text
@@ -252,6 +268,8 @@ function localize_item(&$item){
 
 		// then do the sprintf on the translation string
 
+		$item['shortlocalize'] = sprintf($txt, '[bdi]' . $Aname . '[/bdi]', '[bdi]' . $Bname . '[/bdi]');
+
 		$item['body'] = $item['localize'] = sprintf($txt, $A, $B);
 		$item['body'] .= "\n\n\n" . $Bphoto;
 	}
@@ -263,7 +281,7 @@ function localize_item(&$item){
 		$Aname = $item['author']['xchan_name'];
 		$Alink = $item['author']['xchan_url'];
 
-		$A = '[zrl=' . chanlink_url($Alink) . ']' . $Aname . '[/zrl]';
+		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
 		
 		$txt = t('%1$s is %2$s','mood');
 
@@ -409,14 +427,28 @@ function visible_activity($item) {
 	if(intval($item['item_notshown']))
 		return false;
 
+	if ($item['obj_type'] === 'Answer') {
+		return false;
+	}
+
 	foreach($hidden_activities as $act) {
 		if((activity_match($item['verb'], $act)) && ($item['mid'] != $item['parent_mid'])) {
 			return false;
 		}
 	}
 
-	if(is_edit_activity($item))
-		return false;
+	// We only need edit activities for other federated protocols
+	// which do not support edits natively. While this does federate 
+	// edits, it presents a number of issues locally - such as #757 and #758.
+	// The SQL check for an edit activity would not perform that well so to fix these issues
+	// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the 
+	// query for searches and notifications.
+
+	// For now we'll just forget about trying to make edits work on network protocols that 
+	// don't support them.  
+
+	// if(is_edit_activity($item))
+	//	return false;
 
 	return true;
 }
@@ -615,11 +647,17 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 	$items = $cb['items'];
 
-	$conv_responses = array(
-		'like' => array('title' => t('Likes','title')),'dislike' => array('title' => t('Dislikes','title')),
-		'agree' => array('title' => t('Agree','title')),'disagree' => array('title' => t('Disagree','title')), 'abstain' => array('title' => t('Abstain','title')), 
-		'attendyes' => array('title' => t('Attending','title')), 'attendno' => array('title' => t('Not attending','title')), 'attendmaybe' => array('title' => t('Might attend','title'))
-	);
+	$conv_responses = [
+		'like' => ['title' => t('Likes','title')],
+		'dislike' => ['title' => t('Dislikes','title')],
+		'agree' => ['title' => t('Agree','title')],
+		'disagree' => ['title' => t('Disagree','title')],
+		'abstain' => ['title' => t('Abstain','title')],
+		'attendyes' => ['title' => t('Attending','title')],
+		'attendno' => ['title' => t('Not attending','title')],
+		'attendmaybe' => ['title' => t('Might attend','title')],
+		'answer' => []
+	];
 
 
 	// array with html for each thread (parent+comments)
@@ -736,6 +774,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'delete' => t('Delete'),
 					'preview_lbl' => $preview_lbl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
+					'mids' => json_encode(['b64.' . base64url_encode($item['mid'])]),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
 					'thread_action_menu' => thread_action_menu($item,$mode),
@@ -1009,18 +1048,18 @@ function thread_author_menu($item, $mode = '') {
 			$contact = App::$contacts[$item['author_xchan']];
 		}
 		else {
-			if($local_channel && $item['author']['xchan_addr'] && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown' ]))) {
-				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($item['author']['xchan_addr']) . '&interactive=0';
+			$url = (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']);
+			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown' ]))) {
+				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
 		}
-	
 		if($item['uid'] > 0 && author_is_pmable($item['author'],$contact)) {
 			$pm_url = z_root() . '/mail/new/?f=&hash=' . urlencode($item['author_xchan']);
 		}
 	}
 
 	if($contact) {
-		$poke_link = z_root() . '/poke/?f=&c=' . $contact['abook_id'];
+		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
 		if (! intval($contact['abook_self']))  
 			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
@@ -1125,7 +1164,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 	// if this item is a post or comment there's nothing for us to do here, just return.
 
-	if(activity_match($item['verb'],ACTIVITY_POST))
+	if(activity_match($item['verb'],ACTIVITY_POST) && $item['obj_type'] !== 'Answer')
 		return;
 
 	foreach($conv_responses as $mode => $v) {
@@ -1157,6 +1196,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'attendmaybe':
 				$verb = ACTIVITY_ATTENDMAYBE;
 				break;
+			case 'answer':
+				$verb = ACTIVITY_POST;
+				break;
 			default:
 				return;
 				break;
@@ -1171,6 +1213,11 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 			if(! $item['thr_parent'])
 				$item['thr_parent'] = $item['parent_mid'];
+
+			$conv_responses[$mode]['mids'][$item['thr_parent']][] = 'b64.' . base64url_encode($item['mid']);
+
+			if($item['obj_type'] === 'Answer')
+				continue;
 
 			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l'])) 
 				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
@@ -1262,13 +1309,6 @@ function hz_status_editor($a, $x, $popup = false) {
 
 	$plaintext = true;
 
-//	if(feature_enabled(local_channel(),'richtext'))
-//		$plaintext = false;
-
-	$feature_voting = feature_enabled($x['profile_uid'], 'consensus_tools');
-	if(x($x, 'hide_voting'))
-		$feature_voting = false;
-	
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
 	if(x($x, 'disable_comments'))
 		$feature_nocomment = false;
@@ -1370,7 +1410,7 @@ function hz_status_editor($a, $x, $popup = false) {
 
 	$cipher = get_pconfig($x['profile_uid'], 'system', 'default_cipher');
 	if(! $cipher)
-		$cipher = 'aes256';
+		$cipher = 'AES-128-CCM';
 
 	if(array_key_exists('catsenabled',$x))
 		$catsenabled = $x['catsenabled'];
@@ -1416,7 +1456,11 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$embedPhotosModalOK' => t('OK'),
 		'$setloc' => $setloc,
 		'$voting' => t('Toggle voting'),
-		'$feature_voting' => $feature_voting,
+		'$poll' => t('Toggle poll'),
+		'$poll_option_label' => t('Option'),
+		'$poll_add_option_label' => t('Add option'),
+		'$poll_expire_unit_label' => [t('Minutes'), t('Hours'), t('Days')],
+		'$multiple_answers' => ['poll_multiple_answers', t("Allow multiple answers"), '', '', [t('No'), t('Yes')]],
 		'$consensus' => ((array_key_exists('item',$x)) ? $x['item']['item_consensus'] : 0),
 		'$nocommenttitle' => t('Disable comments'),
 		'$nocommenttitlesub' => t('Toggle comments'),

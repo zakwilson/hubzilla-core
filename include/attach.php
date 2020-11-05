@@ -11,6 +11,11 @@
  * @todo Also an 'append' option to the storage function might be a useful addition.
  */
 
+use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Daemon\Master;
+
 require_once('include/permissions.php');
 require_once('include/security.php');
 require_once('include/group.php');
@@ -56,6 +61,7 @@ function z_mime_content_type($filename) {
 	'jpeg' => 'image/jpeg',
 	'jpg'  => 'image/jpeg',
 	'gif'  => 'image/gif',
+	'webp' => 'image/webp',
 	'bmp'  => 'image/bmp',
 	'ico'  => 'image/vnd.microsoft.icon',
 	'tiff' => 'image/tiff',
@@ -616,7 +622,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	$is_photo = 0;
 	$gis = @getimagesize($src);
 	logger('getimagesize: ' . print_r($gis,true), LOGGER_DATA);
-	if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG)) {
+	if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG || $gis[2] === IMAGETYPE_WEBP)) {
 		$is_photo = 1;
 		if($gis[2] === IMAGETYPE_GIF)
 			$def_extension =  '.gif';
@@ -624,6 +630,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$def_extension =  '.jpg';
 		if($gis[2] === IMAGETYPE_PNG)
 			$def_extension =  '.png';
+                if($gis[2] === IMAGETYPE_WEBP)
+                        $def_extension =  '.webp';
 	}
 
 	// If we know it's a photo, over-ride the type in case the source system could not determine what it was
@@ -908,7 +916,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		);
 	}
 
-	if($is_photo) {
+	if($is_photo && $r) {
 
 		$args = array( 'source' => $source, 'visible' => $visible, 'resource_id' => $hash, 'album' => $pathname, 'os_syspath' => $os_basepath . $os_relpath, 'os_path' => $os_path, 'display_path' => $display_path, 'filename' => $filename, 'getimagesize' => $gis, 'directory' => $direct, 'options' => $options );
 		if($arr['contact_allow'])
@@ -942,9 +950,15 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$args['deliver'] = $dosync;
 
 		$p = photo_upload($channel,$observer,$args);
-		if($p['success']) {
-			$ret['body'] = $p['body'];
+		if($p['success'])
+		    $ret['body'] = $p['body'];
+		else {
+		    // Attach as ordinary file if image processing is failed
+		    $x = q("UPDATE attach SET is_photo = 0 WHERE hash = '%s'",
+		        dbesc($hash)
+		    );
 		}
+
 	}
 
 	if(($options !== 'update') && ($remove_when_processed))
@@ -1009,13 +1023,11 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		$sync = attach_export_data($channel,$hash);
 
 		if($sync)
-			build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+			Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 	}
 
 	if($notify) {
-		$cloudPath =  z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['0']['display_path'];
-		$object = get_file_activity_object($channel['channel_id'], $r['0']['hash'], $cloudPath);
-		file_activity($channel['channel_id'], $object, $r['0']['allow_cid'], $r['0']['allow_gid'], $r['0']['deny_cid'], $r['0']['deny_gid'], 'post', $notify);
+		attach_store_item($channel, $observer, $r[0]);
 	}
 
 	return $ret;
@@ -1394,7 +1406,7 @@ function attach_change_permissions($channel_id, $resource, $allow_cid, $allow_gi
 		$data = attach_export_data($channel,$resource);
 
 		if($data)
-			build_sync_packet($channel['channel_id'],array('file' => array($data)));
+			Libsync::build_sync_packet($channel['channel_id'],array('file' => array($data)));
 	}
 }
 
@@ -1441,9 +1453,6 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 		return;
 	}
 
-	$url = get_cloud_url($channel_id, $channel_address, $resource);
-	$object = get_file_activity_object($channel_id, $resource, $url);
-
 	// If resource is a directory delete everything in the directory recursive
 	if(intval($r[0]['is_dir'])) {
 		$x = q("SELECT hash, os_storage, is_dir, flags FROM attach WHERE folder = '%s' AND uid = %d",
@@ -1487,6 +1496,9 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	if($r[0]['is_photo']) {
 		attach_drop_photo($channel_id,$resource);
 	}
+	else {
+		attach_drop_item($channel_id,$resource);
+	}
 
 
 	// update the parent folder's lastmodified timestamp
@@ -1505,8 +1517,6 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	 *   * \e int \b is_photo
 	 */
 	call_hooks('attach_delete', $arr);
-
-	file_activity($channel_id, $object, $object['allow_cid'], $object['allow_gid'], $object['deny_cid'], $object['deny_gid'], 'update', true);
 
 	return;
 }
@@ -1539,6 +1549,21 @@ function attach_drop_photo($channel_id,$resource) {
 		intval($channel_id),
 		dbesc($resource)
 	);
+
+}
+
+function attach_drop_item($channel_id,$resource) {
+
+	$x = q("select id, item_hidden from item where resource_id = '%s' and resource_type = 'attach' and uid = %d and item_deleted = 0",
+		dbesc($resource),
+		intval($channel_id)
+	);
+
+	if($x) {
+		$stage = (($x[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
+		$interactive = (($x[0]['item_hidden']) ? false : true);
+		drop_item($x[0]['id'], $interactive, $stage);
+	}
 
 }
 
@@ -1743,6 +1768,7 @@ function pipe_streams($in, $out, $bufsize = 16384) {
  * @param string $verb
  * @param boolean $notify
  */
+/*
 function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $verb, $notify) {
 
 	require_once('include/items.php');
@@ -1791,7 +1817,7 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 	$uuid = item_message_id();
 	$mid = z_root() . '/item/' . $uuid;
 
-	$objtype = ACTIVITY_OBJ_FILE;
+	$objtype = 'ACTIVITY_OBJ_FILE';
 
 	$arr = array();
 	$arr['aid']           = get_account_id();
@@ -1890,6 +1916,148 @@ function file_activity($channel_id, $object, $allow_cid, $allow_gid, $deny_cid, 
 
 	return;
 }
+*/
+
+
+function attach_store_item($channel, $observer, $file) {
+
+
+	if(is_string($file)) {
+		$r = q("SELECT * FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
+			intval($channel['channel_id']),
+			dbesc($file)
+		);
+
+		if(! $r)
+			return;
+
+		$file = $r[0];
+
+	}
+
+	$path = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $file['display_path'];
+
+	$r = q("SELECT * FROM item WHERE resource_id = '%s' AND resource_type = 'attach' and uid = %d LIMIT 1",
+		dbesc($file['hash']),
+		intval($channel['channel_id'])
+	);
+
+	if($r) {
+
+		// At the moment only file permission edits are possible.
+		// Since we do not support permission editing on posts yet,
+		// we will delete the item and create a new one with the new permissions for now.
+
+		if($r[0]['allow_cid'] === $file['allow_cid'] &&	$r[0]['allow_gid'] === $file['allow_gid'] && $r[0]['deny_cid'] === $file['deny_cid'] && $r[0]['deny_gid'] === $file['deny_gid']) {
+
+			/* once possible, other edits (eg rename) can be done here.
+
+			q("UPDATE item SET title = '%s' WHERE id = %d AND uid = %d",
+				dbesc($file['filename'])
+			);
+
+			$meta = [
+				'name' => $file['filename'],
+				'type' => $file['filetype'],
+				'size' => $file['filesize'],
+				'revision' => $file['revision'],
+				'size' => $file['filesize'],
+				'created' => $file['created'],
+				'edited' => $file['edited'],
+				'path' => $path
+			];
+
+			set_iconfig($r[0], 'attach', 'meta' , $meta, true);
+
+			$post = item_store($arr);
+
+			$item_id = $post['item_id'];
+
+			if($item_id) {
+				Master::Summon(['Notifier', 'activity', $item_id]);
+			}
+
+			*/
+
+			return;
+
+		}
+
+		$stage = (($r[0]['item_hidden']) ? DROPITEM_NORMAL : DROPITEM_PHASE1);
+		$interactive = (($r[0]['item_hidden']) ? false : true);
+		drop_item($r[0]['id'], $interactive, $stage);
+
+	}
+
+	$filetype_parts = explode('/', $file['filetype']);
+
+	switch($filetype_parts[0]) {
+		case 'image':
+			$type = 'Image';
+			break;
+		case 'audio':
+			$type = 'Audio';
+			break;
+		case 'video':
+			$type = 'Video';
+			break;
+		default:
+			$type = 'Document';
+	}
+
+	$resource_id = $file['hash'];
+	$uuid = new_uuid();
+
+	$mid = z_root() . '/item/' . $uuid;
+
+	$arr = [];	// Initialize the array of parameters for the post
+	$arr['aid'] = $channel['channel_account_id'];
+	$arr['uuid'] = $uuid;
+	$arr['uid'] = $channel['channel_id'];
+	$arr['mid'] = $mid;
+	$arr['parent_mid'] = $mid;
+	$arr['resource_type'] = 'attach';
+	$arr['resource_id'] = $resource_id;
+	$arr['owner_xchan'] = $channel['channel_hash'];
+	$arr['author_xchan'] = $observer['xchan_hash'];
+	$arr['title'] = $file['filename'];
+	$arr['allow_cid'] = $file['allow_cid'];
+	$arr['allow_gid'] = $file['allow_gid'];
+	$arr['deny_cid'] = $file['deny_cid'];
+	$arr['deny_gid'] = $file['deny_gid'];
+	$arr['item_wall'] = 1;
+	$arr['item_origin'] = 1;
+	$arr['item_thread_top'] = 1;
+	$arr['item_private'] = (($file['allow_cid'] || $file['allow_gid'] || $file['deny_cid'] || $file['deny_gid']) ? 1 : 0);
+	$arr['verb'] = ACTIVITY_CREATE;
+	$arr['obj_type'] = $type;
+	$arr['title'] = $file['filename'];
+	$body_str = sprintf(t('%s shared a %s with you'), '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]', '[zrl=' . $path . ']' . t('file') . '[/zrl]');
+	$arr['body'] = $body_str;
+
+	$meta = [
+		'name' => $file['filename'],
+		'type' => $file['filetype'],
+		'size' => $file['filesize'],
+		'revision' => $file['revision'],
+		'size' => $file['filesize'],
+		'created' => $file['created'],
+		'edited' => $file['edited'],
+		'path' => $path
+	];
+
+	set_iconfig($arr, 'attach', 'meta' , $meta, true);
+
+	$post = item_store($arr);
+
+	$item_id = $post['item_id'];
+
+	if($item_id) {
+		Master::Summon(['Notifier', 'activity', $item_id]);
+	}
+
+}
+
 
 /**
  * @brief Create file activity object.
@@ -1906,17 +2074,28 @@ function get_file_activity_object($channel_id, $hash, $url) {
 		dbesc($hash)
 	);
 
-	$url = rawurlencode($url);
-
-	$links   = array();
-	$links[] = array(
+	$links   = [];
+	$links[] = [
 		'rel'  => 'alternate',
-		'type' => 'text/html',
+		'type' => $x[0]['filetype'],
 		'href' => $url
-	);
+	];
+
+	$filetype_parts = explode('/', $x[0]['filetype']);
+
+	switch($filetype_parts[0]) {
+		case 'audio':
+			$type = 'Audio';
+			break;
+		case 'video':
+			$type = 'Video';
+			break;
+		default:
+			$type = 'Document';
+	}
 
 	$object = array(
-		'type'  => ACTIVITY_OBJ_FILE,
+		'type'  => $type,
 		'title' => $x[0]['filename'],
 		'id'    => $url,
 		'link'  => $links,
@@ -2628,6 +2807,12 @@ function save_chunk($channel,$start,$end,$len) {
 
 	$new_path = $new_base . '/' . $_FILES['files']['name'];
 
+	if(file_exists($new_path) && intval($start) === 0) {
+		$result['partial'] = true;
+		$result['length']  = intval(filesize($new_path));
+		return $result;
+	}
+
 	if(! file_exists($new_path)) {
 		rename($tmp_path,$new_path);
 	}
@@ -2654,5 +2839,3 @@ function save_chunk($channel,$start,$end,$len) {
 	$result['length']  = intval(filesize($new_path));
 	return $result;
 }
-
-

@@ -61,6 +61,13 @@ class Service
     public $classMap = [];
 
     /**
+     * A bitmask of the LIBXML_* constants.
+     *
+     * @var int
+     */
+    public $options = 0;
+
+    /**
      * Returns a fresh XML Reader.
      */
     public function getReader(): Reader
@@ -107,16 +114,17 @@ class Service
         if (is_resource($input)) {
             // Unfortunately the XMLReader doesn't support streams. When it
             // does, we can optimize this.
-            $input = stream_get_contents($input);
-
-            // If input is an empty string, then its safe to throw exception
-            if ('' === $input) {
-                throw new ParseException('The input element to parse is empty. Do not attempt to parse');
-            }
+            $input = (string) stream_get_contents($input);
         }
+
+        // If input is empty, then its safe to throw exception
+        if (empty($input)) {
+            throw new ParseException('The input element to parse is empty. Do not attempt to parse');
+        }
+
         $r = $this->getReader();
         $r->contextUri = $contextUri;
-        $r->xml($input);
+        $r->XML($input, null, $this->options);
 
         $result = $r->parse();
         $rootElementName = $result['name'];
@@ -140,7 +148,6 @@ class Service
      *
      * @param string|string[] $rootElementName
      * @param string|resource $input
-     * @param string|null     $contextUri
      *
      * @throws ParseException
      *
@@ -151,16 +158,17 @@ class Service
         if (is_resource($input)) {
             // Unfortunately the XMLReader doesn't support streams. When it
             // does, we can optimize this.
-            $input = stream_get_contents($input);
-
-            // If input is empty string, then its safe to throw exception
-            if ('' === $input) {
-                throw new ParseException('The input element to parse is empty. Do not attempt to parse');
-            }
+            $input = (string) stream_get_contents($input);
         }
+
+        // If input is empty, then its safe to throw exception
+        if (empty($input)) {
+            throw new ParseException('The input element to parse is empty. Do not attempt to parse');
+        }
+
         $r = $this->getReader();
         $r->contextUri = $contextUri;
-        $r->xml($input);
+        $r->XML($input, null, $this->options);
 
         $rootElementName = (array) $rootElementName;
 
@@ -172,7 +180,7 @@ class Service
 
         $result = $r->parse();
         if (!in_array($result['name'], $rootElementName, true)) {
-            throw new ParseException('Expected '.implode(' or ', (array) $rootElementName).' but received '.$result['name'].' as the root element');
+            throw new ParseException('Expected '.implode(' or ', $rootElementName).' but received '.$result['name'].' as the root element');
         }
 
         return $result['value'];
@@ -192,7 +200,7 @@ class Service
      * This allows an implementor to easily create URI's relative to the root
      * of the domain.
      *
-     * @param string|array|XmlSerializable $value
+     * @param string|array|object|XmlSerializable $value
      *
      * @return string
      */

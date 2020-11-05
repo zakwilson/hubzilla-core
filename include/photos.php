@@ -388,7 +388,7 @@ function photo_upload($channel, $observer, $args) {
 		'title'   => $title,
 		'created' => $p['created'],
 		'edited'  => $p['edited'],
-		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash,
+		'id'      => z_root() . '/item/' . $photo_hash,
 		'link'    => $link,
 		'body'    => $summary
 	);
@@ -438,13 +438,13 @@ function photo_upload($channel, $observer, $args) {
 		}
 	}
 	else {
-		$uuid = item_message_id();
-		$mid = z_root() . '/item/' . $uuid;
+		// $uuid = item_message_id();
+		$mid = z_root() . '/item/' . $photo_hash;
 
 		$arr = [
 			'aid'             => $account_id,
 			'uid'             => $channel_id,
-			'uuid'            => $uuid,
+			'uuid'            => $photo_hash,
 			'mid'             => $mid,
 			'parent_mid'      => $mid,
 			'item_hidden'     => $item_hidden,
@@ -469,7 +469,7 @@ function photo_upload($channel, $observer, $args) {
 			'body'            => $summary
 		];
 
-		$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
+		$arr['plink'] = $mid;
 
 		if($lat && $lon)
 			$arr['coord'] = $lat . ' ' . $lon;
@@ -850,7 +850,7 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 	$arr['deny_cid']        = $photo['deny_cid'];
 	$arr['deny_gid']        = $photo['deny_gid'];
 
-	$arr['plink']           = z_root() . '/channel/' . $channel['channel_address'] . '/?f=&mid=' . urlencode($arr['mid']);
+	$arr['plink']           = $mid;
 
 	$arr['body']            = '[zrl=' . z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo['resource_id'] . ']'
 		. '[zmg]' . z_root() . '/photo/' . $photo['resource_id'] . '-' . $photo['imgscale'] . '[/zmg]'

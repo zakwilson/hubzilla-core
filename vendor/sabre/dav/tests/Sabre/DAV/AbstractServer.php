@@ -9,17 +9,17 @@ use Sabre\HTTP;
 abstract class AbstractServer extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var Sabre\HTTP\ResponseMock
+     * @var \Sabre\HTTP\ResponseMock
      */
     protected $response;
     protected $request;
     /**
-     * @var Sabre\DAV\Server
+     * @var \Sabre\DAV\Server
      */
     protected $server;
     protected $tempDir = SABRE_TEMPDIR;
 
-    public function setUp()
+    public function setup(): void
     {
         $this->response = new HTTP\ResponseMock();
         $this->server = new Server($this->getRootNode());
@@ -32,7 +32,7 @@ abstract class AbstractServer extends \PHPUnit\Framework\TestCase
         file_put_contents(SABRE_TEMPDIR.'/dir/child.txt', 'Child contents');
     }
 
-    public function tearDown()
+    public function teardown(): void
     {
         $this->deleteTree(SABRE_TEMPDIR, false);
     }

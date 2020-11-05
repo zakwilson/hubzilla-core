@@ -6,8 +6,6 @@ namespace Sabre\DAV;
 
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-
 class ServerEventsTest extends AbstractServer
 {
     private $tempPath;

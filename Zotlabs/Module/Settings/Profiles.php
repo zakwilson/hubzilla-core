@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/selectors.php');
 
 class Profiles {
@@ -19,7 +21,7 @@ class Profiles {
 		$profile_assign  = ((x($_POST,'profile_assign')) ? notags(trim($_POST['profile_assign'])) : '');
 		set_pconfig(local_channel(),'system','profile_assign',$profile_assign);
 		
-		build_sync_packet();
+		Libsync::build_sync_packet();
 
 		if($_POST['rpath'])
 			goaway($_POST['rpath']);

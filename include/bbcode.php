@@ -218,7 +218,7 @@ function bb_replace_images($body, $images) {
 		// We're depending on the property of 'foreach' (specified on the PHP website) that
 		// it loops over the array starting from the first element and going sequentially
 		// to the last element
-		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . $image .'" alt="' . t('Image/photo') . '" />', $newbody);
+		$newbody = str_replace('[$#saved_image' . $cnt . '#$]', '<img src="' . $image .'" alt="' . t('Image/photo') . '" loading="eager" />', $newbody);
 		$cnt++;
 	}
 //	logger('replace_images: ' . $newbody);
@@ -233,7 +233,7 @@ function bb_replace_images($body, $images) {
  */
 function bb_parse_crypt($match) {
 
-	$matches = array();
+	$matches = [];
 	$attributes = $match[1];
 
 	$algorithm = "";
@@ -257,7 +257,17 @@ function bb_parse_crypt($match) {
 
 	$x = random_string();
 
-	$Text = '<br /><div id="' . $x . '"><img src="' . z_root() . '/images/lock_icon.gif" onclick="red_decrypt(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /></div><br />';
+	$f = 'hz_decrypt';
+
+	//legacy cryptojs support
+	if(plugin_is_installed('cryptojs')) {
+		$f = ((in_array($algorithm, ['AES-128-CCM', 'rot13', 'triple-rot13'])) ? 'hz_decrypt' : 'red_decrypt');
+	}
+
+	$onclick = 'onclick="' . $f . '(\'' . $algorithm . '\',\'' . $hint . '\',\'' . $match[2] . '\',\'#' . $x . '\');"';
+	$label = t('Encrypted content');
+
+	$Text = '<br /><div id="' . $x . '"><img class="cursor-pointer" src="' . z_root() . '/images/lock_icon.svg" ' . $onclick . ' alt="' . $label . '" title="' . $label . '" /></div><br />';
 
 	return $Text;
 }
@@ -319,6 +329,139 @@ function translate_design_element($type) {
 	return $ret;
 }
 
+function bb_format_attachdata($body) {
+
+	$data = getAttachmentData($body);
+
+	if($data) {
+		$txt = '';
+		if($data['url'] && $data['title']) {
+			$txt .= "\n\n" . '[url=' . $data['url'] . ']' . $data['title'] . '[/url]';
+		}
+		else {
+			if($data['url']) {
+				$txt .= "\n\n" . $data['url'];
+			}
+			if($data['title']) {
+				$txt .= "\n\n" . $data['title'];
+			}
+		}
+		if($data['preview']) {
+			$txt .= "\n\n" . '[img]' . $data['preview'] . '[/img]';
+		}
+		if($data['image']) {
+			$txt .= "\n\n" . '[img]' . $data['image'] . '[/img]';
+		}
+
+
+		$txt .= "\n\n" . $data['text'];
+		return preg_replace('/\[attachment(.*?)\](.*?)\[\/attachment\]/ism',$txt,$body);
+	}
+
+	return $body;
+}
+
+function getAttachmentData($body) {
+
+	$data = [];
+
+	if (! preg_match("/\[attachment(.*?)\](.*?)\[\/attachment\]/ism", $body, $match)) {
+		return null;
+	}
+
+	$attributes = $match[1];
+
+	$data["text"] = trim($match[2]);
+
+	$type = "";
+	preg_match("/type='(.*?)'/ism", $attributes, $matches);
+
+	if (x($matches, 1)) {
+		$type = strtolower($matches[1]);
+	}
+
+	preg_match('/type=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$type = strtolower($matches[1]);
+	}
+
+	if ($type == "") {
+		return [];
+	}
+
+	if (!in_array($type, ["link", "audio", "photo", "video"])) {
+		return [];
+	}
+
+	if ($type != "") {
+		$data["type"] = $type;
+	}
+	$url = "";
+	preg_match("/url='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$url = $matches[1];
+	}
+
+	preg_match('/url=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$url = $matches[1];
+	}
+
+	if ($url != "") {
+		$data["url"] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+	}
+
+	$title = "";
+	preg_match("/title='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$title = $matches[1];
+	}
+
+	preg_match('/title=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$title = $matches[1];
+	}
+	if ($title != "") {
+		$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+		$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
+		$data["title"] = $title;
+	}
+
+	$image = "";
+	preg_match("/image='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$image = $matches[1];
+	}
+
+	preg_match('/image=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$image = $matches[1];
+	}
+
+	if ($image != "") {
+		$data["image"] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
+	}
+
+	$preview = "";
+	preg_match("/preview='(.*?)'/ism", $attributes, $matches);
+	if (x($matches, 1)) {
+		$preview = $matches[1];
+	}
+
+	preg_match('/preview=\&quot\;(.*?)\&quot\;/ism', $attributes, $matches);
+	if (x($matches, 1)) {
+		$preview = $matches[1];
+	}
+	if ($preview != "") {
+		$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
+	}
+
+	$data["description"] = trim($match[3]);
+
+	$data["after"] = trim($match[4]);
+
+	return $data;
+}
 
 function bb_ShareAttributes($match) {
 
@@ -370,7 +513,7 @@ function bb_ShareAttributes($match) {
 	$headline = '<div id="shared_container_' . $rnd . '" class="shared_container"> <div id="shared_header_' . $rnd . '" class="shared_header">';
 
 	if ($avatar != "")
-		$headline .= '<a href="' . (($auth) ? zid($profile) : $profile) . '" ><img src="' . $avatar . '" alt="' . $author . '" height="32" width="32" /></a>';
+		$headline .= '<a href="' . (($auth) ? zid($profile) : $profile) . '" ><img src="' . $avatar . '" alt="' . $author . '" height="32" width="32" loading="lazy" /></a>';
 
 	if(strpos($link,'/cards/'))
 		$type = t('card');
@@ -382,7 +525,7 @@ function bb_ShareAttributes($match) {
 	// Bob Smith wrote the following post 2 hours ago
 
 	$fmt = sprintf( t('%1$s wrote the following %2$s %3$s'),
-		'<a href="' . (($auth) ? zid($profile) : $profile) . '" >' . $author . '</a>',
+		'<a href="' . (($auth) ? zid($profile) : $profile) . '" ><bdi>' . $author . '</bdi></a>',
 		'<a href="' . (($auth) ? zid($link) : $link) . '" >' . $type . '</a>',
 		$reldate
 	);
@@ -655,6 +798,109 @@ function bb_observer($Text) {
 	return $Text;
 }
 
+function bb_imgoptions($match) {
+
+	// $Text = preg_replace_callback("/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",'bb_imgoptions',$Text);
+	// alt text cannot contain ']'
+	
+	// [img|zmg=wwwxhhh float=left|right alt=alt text]url[/img|zmg]
+
+	$local_match = null;
+	$width       = 0;
+	$float       = false;
+	$alt         = false;
+
+	$style = EMPTY_STR;
+
+	$attributes = $match[3];
+
+	$x = preg_match("/alt='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$alt = $matches[1];
+	}
+	
+	$x = preg_match("/alt=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$alt = $matches[1];
+	}
+
+	$x = preg_match("/width='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$width = $matches[1];
+	}
+	
+	$x = preg_match("/width=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$width = $matches[1];
+	}
+
+	$x = preg_match("/height='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$height = $matches[1];
+	}
+	
+	$x = preg_match("/height=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$height = $matches[1];
+	}
+
+	$x = preg_match("/style='(.*?)'/ism", $attributes, $matches);
+	if ($x) {
+		$style = $matches[1];
+	}
+	
+	$x = preg_match("/style=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
+	if ($x) {
+		$style = $matches[1];
+	}
+
+	// legacy img options
+	
+	if ($match[2] === '=') {
+		// pull out (optional) legacy size declarations first
+		if (preg_match("/([0-9]*)x([0-9]*)/ism",$match[3],$local_match)) {
+			$width = intval($local_match[1]);
+		}
+		$match[3] = substr($match[3],strpos($match[3],' '));
+	}
+
+	// then (optional) legacy float specifiers
+	if ($n = strpos($match[3],'float=left') !== false) {
+		$float = 'left';
+		$match[3] = substr($match[3],$n + 10);
+	}
+	if ($n = strpos($match[3],'float=right') !== false) {
+		$float = 'right';
+		$match[3] = substr($match[3],$n + 11);
+	}
+	
+	// finally alt text which extends to the close of the tag
+	if ((! $alt) && ($n = strpos($match[3],'alt=') !== false)) {
+		$alt = substr($match[3],$n + 4);
+	}
+
+	// now assemble the resulting img tag from these components
+	
+	$output = '<img ' . (($match[1] === 'z') ? 'class="zrl" loading="eager"' : '') . ' ';
+	
+	if ($width) {
+		$style .= 'width: 100%; max-width: ' . $width . 'px; ';
+	}
+	else {
+		$style .= 'max-width: 100%; ';
+	}
+	if ($float) {
+		$style .= 'float: ' . $float . '; ';
+	}
+	
+	$output .= (($style) ? 'style="' . $style . '" ' : '') . 'alt="' . htmlentities(($alt) ? $alt : t('Image/photo'),ENT_COMPAT,'UTF-8') . '" ';
+
+	$output .= 'src="' . $match[4] . '" >';
+	
+	return $output;
+	
+}
+
 function bb_code_protect($s) {
 	return 'b64.^9e%.' . base64_encode($s) . '.b64.$9e%';
 }
@@ -831,6 +1077,8 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[pre]') !== false) {
 		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
 	}
+
+	$Text = bb_format_attachdata($Text);
 
 	// If we find any event code, turn it into an event.
 	// After we're finished processing the bbcode we'll
@@ -1111,6 +1359,12 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[/footer]') !== false) {
 		$Text = preg_replace("(\[footer\](.*?)\[\/footer\])ism", "<div class=\"wall-item-footer\">$1</div>", $Text);
 	}
+
+	// Check for bdi
+	if (strpos($Text,'[/bdi]') !== false) {
+		$Text = preg_replace("(\[bdi\](.*?)\[\/bdi\])ism", "<bdi>$1</bdi>", $Text);
+	}
+
 	// Check for list text
 
 	$Text = preg_replace("/<br \/>\[\*\]/ism",'[*]',$Text);
@@ -1229,47 +1483,22 @@ function bbcode($Text, $options = []) {
 	// Images
 	// [img]pathtoimage[/img]
 	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" />', $Text);
+		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="eager" />', $Text);
 	}
+	// [img=pathtoimage]image description[/img]
+	if (strpos($Text,'[/img]') !== false) {
+		$Text = preg_replace("/\[img=http(.*?)\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />', $Text);
+	}
+	// [zmg]pathtoimage[/zmg]
 	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" />', $Text);
+		$Text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="eager" />', $Text);
+	}
+	// [zmg=pathtoimage]image description[/zmg]
+	if (strpos($Text,'[/zmg]') !== false) {
+		$Text = preg_replace("/\[zmg=http(.*?)\](.*?)\[\/zmg\]/ism", '<img class="zrl" style="max-width: 100%;" src="http$1" alt="$2" title="$2" loading="eager" />', $Text);
 	}
 
-	// [img float={left, right}]pathtoimage[/img]
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img float=left\](.*?)\[\/img\]/ism", '<img src="$1" style="max-width: 100%; float: left;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img float=right\](.*?)\[\/img\]/ism", '<img src="$1" style="max-width: 100%; float: right;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg float=left\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$1" style="max-width: 100%; float: left;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg float=right\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$1" style="max-width: 100%; float: right;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-
-	// [img=widthxheight]pathtoimage[/img]
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: 100%; max-width: $1px;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: 100%; max-width: $1px;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-
-	// [img=widthxheight float={left, right}]pathtoimage[/img]
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*) float=left\](.*?)\[\/img\]/ism", '<img src="$3" style="width: 100%; max-width: $1px; float: left;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace("/\[img\=([0-9]*)x([0-9]*) float=right\](.*?)\[\/img\]/ism", '<img src="$3" style="width: 100%; max-width: $1px; float: right;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*) float=left\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: 100%; max-width: $1px; float: left;" alt="' . t('Image/photo') . '" />', $Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*) float=right\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: 100%; max-width: $1px; float: right;" alt="' . t('Image/photo') . '" />', $Text);
-	}
+	$Text = preg_replace_callback("/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",'bb_imgoptions',$Text);
 
 	// style (sanitized)
 	if (strpos($Text,'[/style]') !== false) {
@@ -1279,7 +1508,7 @@ function bbcode($Text, $options = []) {
 	// crypt
 	if (strpos($Text,'[/crypt]') !== false) {
 		$x = random_string();
-		$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br /><div id="' . $x . '"><img src="' .z_root() . '/images/lock_icon.gif" onclick="red_decrypt(\'rot13\',\'\',\'$1\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br /></div>', $Text);
+		$Text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism",'<br /><div id="' . $x . '"><img class="cursor-pointer" src="' .z_root() . '/images/lock_icon.svg" onclick="red_decrypt(\'rot13\',\'\',\'$1\',\'#' . $x . '\');" alt="' . t('Encrypted content') . '" title="' . t('Encrypted content') . '" /><br /></div>', $Text);
 		$Text = preg_replace_callback("/\[crypt (.*?)\](.*?)\[\/crypt\]/ism", 'bb_parse_crypt', $Text);
 	}
 

@@ -1,8 +1,7 @@
 # Select image from https://hub.docker.com/_/php/
-#image: php:7.2
+#image: php:7.3
 # Use a prepared Hubzilla image to optimise pipeline duration
-image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.2
-
+image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
 
 stages:
   - test
@@ -82,23 +81,23 @@ before_script:
       - tests/results/
 
 
-# PHP7.2 with MySQL 5.7
-php7.2_mysql5.7:
+# PHP7.3 with MySQL 5.7
+php7.3_mysql5.7:
   <<: *job_definition_mysql
   services:
   - mysql:5.7
 
 
-# PHP7.2 with MySQL 8 (latest)
-php7.2_mysql8:
+# PHP7.3 with MySQL 8 (latest)
+php7.3_mysql8:
   <<: *job_definition_mysql
   services:
   - name: mysql:8
     command: ["--default-authentication-plugin=mysql_native_password"]
 
 
-# PHP7.2 with MariaDB 10.2
-php7.2_mariadb10.2:
+# PHP7.3 with MariaDB 10.2
+php7.3_mariadb10.2:
   <<: *job_definition_mysql
   services:
   - name: mariadb:10.2
@@ -114,8 +113,8 @@ php7.3_mariadb10.3:
     alias: mysql
 
 
-# PHP7.2 with PostgreSQL latest (11)
-php7.2_postgres11:
+# PHP7.3 with PostgreSQL latest (11)
+php7.3_postgres11:
   <<: *job_definition_postgres
   artifacts: *artifacts_template
 

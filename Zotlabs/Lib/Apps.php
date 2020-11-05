@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/plugin.php');
 require_once('include/channel.php');
 
@@ -74,7 +76,6 @@ class Apps {
 			'Directory',
 			'Search',
 			'Help',
-			'Mail',
 			'Profile Photo'
 		]);
 
@@ -371,7 +372,6 @@ class Apps {
 			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
 			'PDL Editor' => t('PDL Editor'),
 			'Permission Categories' => t('Permission Categories'),
-			'Premium Channel' => t('Premium Channel'),
 			'Public Stream' => t('Public Stream'),
 			'My Chatrooms' => t('My Chatrooms'),
 			'Channel Export' => t('Channel Export')
@@ -564,7 +564,8 @@ class Apps {
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
 			'$navapps' => (($mode == 'nav') ? true : false),
-			'$order' => (($mode == 'nav-order') ? true : false),
+			'$order' => (($mode === 'nav-order' || $mode === 'nav-order-pinned') ? true : false),
+			'$mode' => $mode,
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray'),
 			'$add_nav' => t('Pin to navbar'),
@@ -604,7 +605,7 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);
-						build_sync_packet($uid,array('app' => $r[0]));
+						Libsync::build_sync_packet($uid,array('app' => $r[0]));
 					}
 				}
 			}
@@ -670,7 +671,7 @@ class Apps {
 						);
 					}
 					if(! intval($x[0]['app_system'])) {
-						build_sync_packet($uid,array('app' => $x));
+						Libsync::build_sync_packet($uid,array('app' => $x));
 					}
 				}
 				else {
@@ -959,9 +960,6 @@ class Apps {
 		if($list) {
 			foreach($list as $li) {
 				$papp = self::app_encode($li);
-				if($menu !== 'nav_pinned_app' && strpos($papp['categories'],'nav_pinned_app') !== false)
-					continue;
-
 				$syslist[] = $papp;
 			}
 		}

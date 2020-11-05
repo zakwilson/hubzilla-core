@@ -3,6 +3,7 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
+use Zotlabs\Lib\Libsync;
 
 /**
  * @brief This class represents a file in DAV.
@@ -26,7 +27,7 @@ class File extends DAV\Node implements DAV\IFile {
 	 *  * filename (string)
 	 *  * filetype (string)
 	 */
-	private $data;
+	public $data;
 	/**
 	 * @see \\Sabre\\DAV\\Auth\\Backend\\BackendInterface
 	 * @var \\Zotlabs\\Storage\\BasicAuth $auth
@@ -106,7 +107,7 @@ class File extends DAV\Node implements DAV\IFile {
 		if($ch) {
 			$sync = attach_export_data($ch,$this->data['hash']);
 			if($sync)
-				build_sync_packet($ch['channel_id'],array('file' => array($sync)));
+				Libsync::build_sync_packet($ch['channel_id'],array('file' => array($sync)));
 		}
 	}
 
@@ -119,6 +120,11 @@ class File extends DAV\Node implements DAV\IFile {
 	public function put($data) {
 		logger('put file: ' . basename($this->name), LOGGER_DEBUG);
 		$size = 0;
+
+		if ((! $this->auth->owner_id) || (! perm_is_allowed($this->auth->owner_id, $this->auth->observer, 'write_storage'))) {
+			logger('permission denied for put operation');
+			throw new DAV\Exception\Forbidden('Permission denied.');
+		}
 
 		// @todo only 3 values are needed
 		$c = q("SELECT * FROM channel WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
@@ -169,7 +175,7 @@ class File extends DAV\Node implements DAV\IFile {
 				}
 				$gis = @getimagesize($f);
 				logger('getimagesize: ' . print_r($gis,true), LOGGER_DATA);
-				if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG)) {
+				if(($gis) && ($gis[2] === IMAGETYPE_GIF || $gis[2] === IMAGETYPE_JPEG || $gis[2] === IMAGETYPE_PNG || $gis[2] === IMAGETYPE_WEBP)) {
 					$is_photo = 1;
 				}
 
@@ -254,7 +260,7 @@ class File extends DAV\Node implements DAV\IFile {
 		$sync = attach_export_data($c[0],$this->data['hash']);
 
 		if($sync)
-			build_sync_packet($c[0]['channel_id'],array('file' => array($sync)));
+			Libsync::build_sync_packet($c[0]['channel_id'],array('file' => array($sync)));
 
 	}
 
@@ -378,7 +384,7 @@ class File extends DAV\Node implements DAV\IFile {
 		if($ch) {
 			$sync = attach_export_data($ch, $this->data['hash'], true);
 			if($sync)
-				build_sync_packet($ch['channel_id'], array('file' => array($sync)));
+				Libsync::build_sync_packet($ch['channel_id'], array('file' => array($sync)));
 		}
 	}
 }

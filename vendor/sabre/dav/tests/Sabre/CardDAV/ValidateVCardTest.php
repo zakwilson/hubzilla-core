@@ -8,14 +8,12 @@ use Sabre\DAV;
 use Sabre\DAVACL;
 use Sabre\HTTP;
 
-require_once 'Sabre/HTTP/ResponseMock.php';
-
 class ValidateVCardTest extends \PHPUnit\Framework\TestCase
 {
     protected $server;
     protected $cardBackend;
 
-    public function setUp()
+    public function setup(): void
     {
         $addressbooks = [
             [
@@ -240,7 +238,7 @@ VCF;
 
         $response = $this->request($request);
 
-        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
 
         $foo = $this->cardBackend->getCard('addressbook1', 'blabla.vcf');
         $this->assertEquals("BEGIN:VCARD\r\nVERSION:4.0\r\nUID:foo\r\nFN:FirstName LastName\r\nEND:VCARD\r\n", $foo['carddata']);
@@ -256,7 +254,7 @@ VCF;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testUpdateFile()

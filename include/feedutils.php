@@ -155,7 +155,7 @@ function get_feed_for($channel, $observer_hash, $params) {
 			if($item['item_private'])
 				continue;
 
-			$atom .= atom_entry($item, $type, null, $owner, true, '', $params['compat']);
+			$atom .= atom_entry($item, $type, null, $channel, true, '', $params['compat']);
 		}
 	}
 
@@ -452,6 +452,7 @@ function get_atom_elements($feed, $item) {
 	else {
 	    $res['title'] = bbcode($res['title'], [ 'tryoembed' => false ]);
 	    $res['title'] = html2plain($res['title'], 0, true);
+		$res['title'] = strip_tags($res['title']);
 	    $res['title'] = html_entity_decode($res['title'], ENT_QUOTES, 'UTF-8');
 	    $res['title'] = preg_replace("/https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,\@]+/", "", $res['title']);
 	    while (strpos($res['title'], "\n") !== false)
@@ -1921,7 +1922,7 @@ function atom_entry($item, $type, $author, $owner, $comment = false, $cid = 0, $
 		$summary = '';
 
 	if($item['allow_cid'] || $item['allow_gid'] || $item['deny_cid'] || $item['deny_gid'])
-		$body = fix_private_photos($body,$owner['uid'],$item,$cid);
+		$body = fix_private_photos($body,$owner['channel_id'],$item,$cid);
 
 	if($compat) {
 		$compat_photos = compat_photos_list($body);

@@ -152,8 +152,8 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			if($target_item) {
 				// if the target item is not a post (eg a like) we want to address its thread parent
-				$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
-
+				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
+				$mid = $target_item['mid'];
 				// if we got a decoded hash we must encode it again before handing to javascript 
 				if($decoded)
 					$mid = 'b64.' . base64url_encode($mid);
@@ -179,6 +179,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$conv'    => '0',
 				'$spam'    => '0',
 				'$fh'      => '0',
+				'$dm'      => '0',
 				'$nouveau' => '0',
 				'$wall'    => '0',
 				'$static'  => $static,
@@ -198,8 +199,6 @@ class Hq extends \Zotlabs\Web\Controller {
 			]);
 		}
 
-		$updateable = false;
-
 		if($load && $target_item) {
 			$r = null;
 
@@ -211,10 +210,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				intval(local_channel()),
 				dbesc($target_item['parent_mid'])
 			);
-
-			if($r) {
-				$updateable = true;
-			}
 
 			if(!$r) {
 				$sys_item = true;
@@ -241,10 +236,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				intval(local_channel()),
 				dbesc($target_item['parent_mid'])
 			);
-
-			if($r) {
-				$updateable = true;
-			}
 
 			if(!$r) {
 				$sys_item = true;
@@ -281,13 +272,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		$o .= conversation($items, 'hq', $update, 'client');
-
-		if($updateable) {
-			$x = q("UPDATE item SET item_unseen = 0 WHERE item_unseen = 1 AND uid = %d AND parent = %d ",
-				intval(local_channel()),
-				intval($r[0]['item_id'])
-			);
-		}
 
 		$o .= '<div id="content-complete"></div>';
 

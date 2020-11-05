@@ -4,6 +4,7 @@
  * @brief Channel related functions.
  */
 
+
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
@@ -11,6 +12,8 @@ use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Connect;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/zot.php');
 require_once('include/crypto.php');
@@ -126,10 +129,10 @@ function create_sys_channel() {
  * @return array|boolean
  */
 function get_sys_channel() {
-	$r = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1 limit 1");
+	$r = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_system = 1");
 
 	if ($r)
-		return $r[0];
+		return Libzot::zot_record_preferred($r, 'xchan_network');
 
 	return false;
 }
@@ -228,12 +231,16 @@ function create_identity($arr) {
 		return $ret;
 	}
 
-	$guid = zot_new_uid($nick);
+	$guid = Libzot::new_uid($nick);
 	$key = new_keypair(4096);
 
-	$sig = base64url_encode(rsa_sign($guid,$key['prvkey']));
-	$hash = make_xchan_hash($guid,$sig);
-	$zhash = Libzot::make_xchan_hash($guid,$key['pubkey']);
+	// legacy zot
+	$zsig = base64url_encode(rsa_sign($guid,$key['prvkey']));
+	$zhash = make_xchan_hash($guid,$zsig);
+
+	// zot6
+	$sig = Libzot::sign($guid,$key['prvkey']);
+	$hash = Libzot::make_xchan_hash($guid,$key['pubkey']);
 
 	// Force a few things on the short term until we can provide a theme or app with choice
 
@@ -332,8 +339,9 @@ function create_identity($arr) {
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => $sig,
-			'hubloc_hash'     => $hash,
+			'hubloc_guid_sig' => $zsig,
+			'hubloc_hash'     => $zhash,
+			'hubloc_id_url'   => channel_url($ret['channel']),
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
@@ -346,18 +354,18 @@ function create_identity($arr) {
 		]
 	);
 	if(! $r)
-		logger('Unable to store hub location');
+		logger('Unable to store hub location (zot)');
 
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => 'sha256.' . $sig,
-			'hubloc_hash'     => $zhash,
-			'hubloc_id_url'   => channel_url($ret['channel']),  
+			'hubloc_guid_sig' => $sig,
+			'hubloc_hash'     => $hash,
+			'hubloc_id_url'   => channel_url($ret['channel']),
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_url_sig'  => Libzot::sign(z_root(),$ret['channel']['channel_prvkey']),
 			'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(),get_config('system','pubkey')),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/zot',
@@ -367,16 +375,16 @@ function create_identity($arr) {
 		]
 	);
 	if(! $r)
-		logger('Unable to store hub location');
+		logger('Unable to store hub location (zot6)');
 
 
 	$newuid = $ret['channel']['channel_id'];
 
 	$r = xchan_store_lowlevel(
 		[
-			'xchan_hash'        => $hash,
+			'xchan_hash'        => $zhash,
 			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => $sig,
+			'xchan_guid_sig'    => $zsig,
 			'xchan_pubkey'      => $key['pubkey'],
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
@@ -393,12 +401,14 @@ function create_identity($arr) {
 			'xchan_system'      => $system
 		]
 	);
+	if(! $r)
+		logger('Unable to store xchan (zot)');
 
 	$r = xchan_store_lowlevel(
 		[
-			'xchan_hash'        => $zhash,
+			'xchan_hash'        => $hash,
 			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => 'sha256.' . $sig,
+			'xchan_guid_sig'    => $sig,
 			'xchan_pubkey'      => $key['pubkey'],
 			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
 			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
@@ -415,6 +425,8 @@ function create_identity($arr) {
 			'xchan_system'      => $system
 		]
 	);
+	if(! $r)
+		logger('Unable to store xchan (zot6)');
 
 
 
@@ -521,13 +533,22 @@ function create_identity($arr) {
 
 		$accts = get_config('system','auto_follow');
 		if(($accts) && (! $total_identities)) {
-			require_once('include/follow.php');
 			if(! is_array($accts))
 				$accts = array($accts);
 
 			foreach($accts as $acct) {
-				if(trim($acct))
-					new_contact($newuid,trim($acct),$ret['channel'],false);
+				$acct = trim($acct);
+				if($acct) {
+					$f = connect_and_sync($ret['channel'], $acct);
+					if($f['success']) {
+						$can_view_stream = their_perms_contains($ret['channel']['channel_id'],$f['abook']['abook_xchan'],'view_stream');
+
+						// If we can view their stream, pull in some posts
+						if(($can_view_stream) || ($f['abook']['xchan_network'] === 'rss')) {
+							Master::Summon([ 'Onepoll',$f['abook']['abook_id'] ]);
+						}
+					}
+				}
 			}
 		}
 
@@ -539,12 +560,42 @@ function create_identity($arr) {
 		call_hooks('create_identity', $newuid);
 
 		Master::Summon(array('Directory', $ret['channel']['channel_id']));
+
 	}
 
 	$ret['success'] = true;
 	return $ret;
 }
 
+
+function connect_and_sync($channel,$address, $sub_channel = false) {
+
+	if((! $channel) || (! $address)) {
+		return false;
+	}
+
+	$f = Connect::connect($channel,$address, $sub_channel);
+	if($f['success']) {
+		$clone = [];
+		foreach($f['abook'] as $k => $v) {
+			if(strpos($k,'abook_') === 0) {
+				$clone[$k] = $v;
+			}
+		}
+		unset($clone['abook_id']);
+		unset($clone['abook_account']);
+		unset($clone['abook_channel']);
+
+		$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
+		if($abconfig) {
+			$clone['abconfig'] = $abconfig;
+		}
+
+		Libsync::build_sync_packet($channel['channel_id'], [ 'abook' => [ $clone ] ], true);
+		return $f;
+	}
+	return false;
+}
 
 function change_channel_keys($channel) {
 
@@ -624,7 +675,7 @@ function change_channel_keys($channel) {
 		}
 	}
 
-	build_sync_packet($channel['channel_id'], [ 'keychange' => $stored ]);
+	Libsync::build_sync_packet($channel['channel_id'], [ 'keychange' => $stored ]);
 
 	$a = q("select * from abook where abook_xchan = '%s' and abook_self = 1",
 		dbesc($stored['old_hash'])
@@ -796,7 +847,7 @@ function get_default_export_sections() {
  * @return array
  *     See function for details
  */
-function identity_basic_export($channel_id, $sections = null) {
+function identity_basic_export($channel_id, $sections = null, $zap_compat = false) {
 
 	/*
 	 * basic channel export
@@ -812,11 +863,15 @@ function identity_basic_export($channel_id, $sections = null) {
 	// with a non-standard platform and version.
 
 	$ret['compatibility'] = [
-		'project' => PLATFORM_NAME,
+		'project' => (($zap_compat) ? 'zap' : PLATFORM_NAME),
 		'version' => STD_VERSION,
 		'database' => DB_UPDATE_VERSION,
 		'server_role' => System::get_server_role()
 	];
+
+	if ($zap_compat) {
+		$ret['compatibility']['codebase'] = 'zap';
+	}
 
 	/*
 	 * Process channel information regardless of it is one of the sections desired
@@ -834,6 +889,13 @@ function identity_basic_export($channel_id, $sections = null) {
 			unset($ret['channel']['channel_password']);
 			unset($ret['channel']['channel_salt']);
 		}
+		if ($zap_compat) {
+			$channel['channel_guid_sig'] = 'sha256.' . $channel['channel_guid_sig'];
+			$channel['channel_hash'] = $channel['channel_portable_id'];
+			unset($channel['channel_portable_id']);
+		}
+
+
 	}
 
 	if(in_array('channel',$sections) || in_array('profile',$sections)) {
@@ -853,7 +915,7 @@ function identity_basic_export($channel_id, $sections = null) {
 			$ret['photo'] = [
 				'type' => $r[0]['mimetype'],
 				'data' => (($r[0]['os_storage'])
-					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode($r[0]['content']))
+					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode(dbunescbin($r[0]['content'])))
 			];
 		}
 	}
@@ -867,11 +929,38 @@ function identity_basic_export($channel_id, $sections = null) {
 			$ret['abook'] = $r;
 
 			for($x = 0; $x < count($ret['abook']); $x ++) {
+			
 				$xchans[] = $ret['abook'][$x]['abook_xchan'];
+				$my_perms = [];
+				$their_perms = [];
+				$newconfig = [];
 				$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
-				if($abconfig)
-					$ret['abook'][$x]['abconfig'] = $abconfig;
+				if($abconfig) {
+					foreach ($abconfig as $abc) {
+
+						if ($abc['cat'] === 'my_perms' && intval($abc['v'])) {
+							$my_perms[] = $abc['k'];
+							continue;
+						}
+						if ($abc['cat'] === 'their_perms' && intval($abc['v'])) {
+							$their_perms[] = $abc['k'];
+							continue;
+						}
+						if ($zap_compat && preg_match('|^a:[0-9]+:{.*}$|s', $abc['v'])) {
+							$abc['v'] = serialise(unserialize($abc['v']));
+						}
+						$newconfig[] = $abc;
+					}
+					
+					$ret['abook'][$x]['abconfig'] = $newconfig;
+					if ($zap_compat) {
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'my_perms', 'v' => implode(',',$my_perms) ];
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'their_perms', 'v' => implode(',',$their_perms) ];
+					}	
+				}
+
 				translate_abook_perms_outbound($ret['abook'][$x]);
+				
 			}
 
 			// pick up the zot6 xchan and hublocs also
@@ -911,8 +1000,17 @@ function identity_basic_export($channel_id, $sections = null) {
 		$r = q("select * from pconfig where uid = %d",
 			intval($channel_id)
 		);
-		if($r)
+
+		if($r) {
+			if ($zap_compat) {
+				for($x = 0; $x < count($r); $x ++) {
+					if (preg_match('|^a:[0-9]+:{.*}$|s', $r[$x]['v'])) {
+						$r[$x]['v'] = serialise(unserialize($r[$x]['v']));
+					}
+				}
+			}
 			$ret['config'] = $r;
+		}
 
 		// All other term types will be included in items, if requested.
 
@@ -1827,15 +1925,16 @@ function zid_init() {
 		call_hooks('zid_init', $arr);
 
 		if(! local_channel()) {
-			$r = q("select * from hubloc where hubloc_addr = '%s' order by hubloc_connected desc",
+			$r = q("select hubloc_url, hubloc_hash, hubloc_network from hubloc where hubloc_addr = '%s' order by hubloc_connected desc",
 				dbesc($tmp_str)
 			);
 			if(! $r) {
 				Master::Summon(array('Gprobe',bin2hex($tmp_str)));
 			}
 			if($r) {
-				$r = zot_record_preferred($r);
+				$r = Libzot::zot_record_preferred($r);
 			}
+
 			if($r && remote_channel() && remote_channel() === $r['hubloc_hash'])
 				return;
 
@@ -2145,7 +2244,7 @@ function profiles_build_sync($channel_id,$send = true) {
 	);
 	if($r) {
 		if($send) {
-			build_sync_packet($channel_id,array('profile' => $r));
+			Libsync::build_sync_packet($channel_id,array('profile' => $r));
 		}
 		else {
 			return $r;
@@ -2285,8 +2384,8 @@ function get_zcard($channel, $observer_hash = '', $args = array()) {
 		$cover = $r[0];
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	} else {
-		$default_cover = get_config('system','default_cover_photo','pexels-94622');
-		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
+		$default_cover = get_config('system','default_cover_photo','bggenerator');
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard.tpl'), array(
@@ -2359,8 +2458,8 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
 		$cover['href'] = z_root() . '/photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];
 	}
 	else {
-		$default_cover = get_config('system','default_cover_photo','pexels-94622');
-		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.jpg' ];
+		$default_cover = get_config('system','default_cover_photo','bggenerator');
+		$cover = [ 'href' => z_root() . '/images/default_cover_photos/' . $default_cover . '/' . $cover_width . '.png' ];
 	}
 
 	$o .= replace_macros(get_markup_template('zcard_embed.tpl'),array(
@@ -2390,6 +2489,12 @@ function channelx_by_nick($nick) {
 
 	$nick = punify($nick);
 
+	// return a cached copy if there is a cached copy and it's a match
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_address',App::$channel) && App::$channel['channel_address'] === $nick) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s'  and channel_removed = 0 LIMIT 1",
 		dbesc($nick)
 	);
@@ -2404,6 +2509,11 @@ function channelx_by_nick($nick) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_hash($hash) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_hash',App::$channel) && App::$channel['channel_hash'] === $hash) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($hash)
 	);
@@ -2419,6 +2529,11 @@ function channelx_by_hash($hash) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_portid($hash) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_portable_id',App::$channel) && intval(App::$channel['channel_portable_id']) === intval($hash)) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($hash)
 	);
@@ -2433,6 +2548,11 @@ function channelx_by_portid($hash) {
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
 function channelx_by_n($id) {
+
+	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_id',App::$channel) && intval(App::$channel['channel_id']) === intval($id)) {
+		return App::$channel;
+	}
+
 	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
 		dbesc($id)
 	);
@@ -2596,6 +2716,9 @@ function account_remove($account_id, $local = true, $unset_session = true) {
 
 	logger('account_remove: ' . $account_id);
 
+	// Global removal (all clones) not currently supported
+	$local = true;
+
 	if(! intval($account_id)) {
 		logger('No account.');
 		return false;
@@ -2656,6 +2779,11 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	if(! $channel_id)
 		return;
 
+	// global removal (all clones) not currently supported
+	// hence this operation _may_ leave orphan data on remote servers
+
+	$local = true;
+
 	logger('Removing channel: ' . $channel_id);
 	logger('local only: ' . intval($local));
 
@@ -2674,6 +2802,7 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	 */
 	call_hooks('channel_remove', $r[0]);
 
+/*
 	if(! $local) {
 
 		if(intval($r[0]['channel_removed'])) {
@@ -2693,17 +2822,20 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 		logger('deleting hublocs',LOGGER_DEBUG);
 
-		$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s'",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s' OR hubloc_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
+
 		);
 
-		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
 		);
 
 		Master::Summon(array('Notifier','purge_all',$channel_id));
 	}
-
+*/
 
 	$r = q("select iid from iconfig left join item on item.id = iconfig.iid
 		where item.uid = %d",
@@ -2782,8 +2914,9 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 	logger('deleting hublocs',LOGGER_DEBUG);
 
-	$r = q("update hubloc set hubloc_deleted = 1 where hubloc_hash = '%s' and hubloc_url = '%s' ",
+	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE (hubloc_hash = '%s' OR hubloc_hash = '%s') AND hubloc_url = '%s' ",
 		dbesc($channel['channel_hash']),
+		dbesc($channel['channel_portable_id']),
 		dbesc(z_root())
 	);
 
@@ -2798,13 +2931,13 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$hublocs = count($r);
 
 	if(! $hublocs) {
-		$r = q("update xchan set xchan_deleted = 1 where xchan_hash = '%s' ",
-			dbesc($channel['channel_hash'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
+			dbesc($channel['channel_hash']),
+			dbesc($channel['channel_portable_id'])
 		);
 	}
 
 	//remove from file system
-
 
 	$f = 'store/' . $channel['channel_address'];
 	if(is_dir($f)) {
@@ -2952,4 +3085,9 @@ function pchan_to_chan($pchan) {
 
 function channel_url($channel) {
 	return (($channel) ? z_root() . '/channel/' . $channel['channel_address'] : z_root());
+}
+
+function get_channel_hashes() {
+	$r = q("SELECT channel_hash FROM channel WHERE channel_removed = 0");
+	return flatten_array_recursive($r);
 }

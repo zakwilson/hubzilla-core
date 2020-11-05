@@ -105,7 +105,7 @@ class Libzot {
 		$data = [
 			'type'     => $type,
 			'encoding' => $encoding,
-			'sender'   => $channel['channel_portable_id'],
+			'sender'   => $channel['channel_hash'],
 			'site_id'  => self::make_xchan_hash(z_root(), get_config('system','pubkey')),
 			'version'  => System::get_zot_revision(),
 		];
@@ -316,16 +316,20 @@ class Libzot {
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
 
+
 		if(! $x['success'])
 			return false;
 
 		if($channel && $record['data']['permissions']) {
 			$permissions = explode(',',$record['data']['permissions']);
+
 			if($permissions && is_array($permissions)) {
 				$old_read_stream_perm = get_abconfig($channel['channel_id'],$x['hash'],'their_perms','view_stream');
 
-				foreach($permissions as $p) {
-					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$p,'1');
+				$permissions = Permissions::FilledPerms($permissions);
+
+				foreach($permissions as $k => $v) {
+					set_abconfig($channel['channel_id'],$x['hash'],'their_perms',$k,$v);
 				}
 			}
 
@@ -422,7 +426,7 @@ class Libzot {
 							[
 							'type'       => NOTIFY_INTRO,
 							'from_xchan' => $x['hash'],
-							'to_xchan'   => $channel['channel_portable_id'],
+							'to_xchan'   => $channel['channel_hash'],
 							'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id']
 							]
 						);
@@ -788,7 +792,7 @@ class Libzot {
 
 			// see if this is a channel clone that's hosted locally - which we treat different from other xchans/connections
 
-			$local = q("select channel_account_id, channel_id from channel where channel_portable_id = '%s' limit 1",
+			$local = q("select channel_account_id, channel_id from channel where channel_hash = '%s' limit 1",
 				dbesc($xchan_hash)
 			);
 			if($local) {
@@ -1133,6 +1137,7 @@ class Libzot {
 				}
 
 				logger($AS->debug(),LOGGER_DATA);
+
 		}
 
 
@@ -1151,7 +1156,7 @@ class Libzot {
 			if($recip_arr) {
 				stringify_array_elms($recip_arr,true);
 				$recips = implode(',',$recip_arr);
-				$r = q("select channel_portable_id as hash from channel where channel_portable_id in ( " . $recips . " ) and channel_removed = 0 ");
+				$r = q("select channel_hash as hash from channel where channel_hash in ( " . $recips . " ) and channel_removed = 0 ");
 			}
 
 			if(! $r) {
@@ -1193,10 +1198,6 @@ class Libzot {
 
 			if(in_array($env['type'],['activity','response'])) {
 
-				$arr = Activity::decode_note($AS);
-
-				//logger($AS->debug());
-
 				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",
 					dbesc($AS->actor['id'])
 				);
@@ -1207,6 +1208,10 @@ class Libzot {
 					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
+				if (! $arr['author_xchan']) {
+					logger('No author!');
+					return;
+				}
 
 				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($env['sender'])
@@ -1220,8 +1225,8 @@ class Libzot {
 					$arr['owner_xchan'] = $env['sender'];
 				}
 
-				if($private) {
-					$arr['item_private'] = true;
+				if ($private && (! intval($arr['item_private']))) {
+					$arr['item_private'] = 1;
 				}
 
 				if ($arr['mid'] === $arr['parent_mid']) {
@@ -1277,7 +1282,12 @@ class Libzot {
 				logger('Channel sync received: ' . print_r($arr,true), LOGGER_DATA, LOG_DEBUG);
 				logger('Channel sync recipients: ' . print_r($deliveries,true), LOGGER_DATA, LOG_DEBUG);
 
-				$result = Libsync::process_channel_sync_delivery($env['sender'],$arr,$deliveries);
+				if ($env['encoding'] === 'hz') {
+					$result = Libsync::process_channel_sync_delivery($env['sender'],$arr,$deliveries);
+				}
+				else {
+					logger('sync packet type not supported.');
+				}
 			}
 		}
 		if ($result) {
@@ -1363,12 +1373,12 @@ class Libzot {
 
 		$r = [];
 
-		$c = q("select channel_id, channel_portable_id from channel where channel_removed = 0");
+		$c = q("select channel_id, channel_hash from channel where channel_removed = 0");
 
 		if($c) {
 			foreach($c as $cc) {
 				if(perm_is_allowed($cc['channel_id'],$msg['sender'],$perm)) {
-					$r[] = $cc['channel_portable_id'];
+					$r[] = $cc['channel_hash'];
 				}
 			}
 		}
@@ -1376,7 +1386,7 @@ class Libzot {
 		if($include_sys) {
 			$sys = get_sys_channel();
 			if($sys)
-				$r[] = $sys['channel_portable_id'];
+				$r[] = $sys['channel_hash'];
 		}
 
 
@@ -1392,7 +1402,7 @@ class Libzot {
 						if($tag['type'] === 'Mention' && (strpos($tag['href'],z_root()) !== false)) {
 							$address = basename($tag['href']);
 							if($address) {
-								$z = q("select channel_portable_id as hash from channel where channel_address = '%s'
+								$z = q("select channel_hash as hash from channel where channel_address = '%s'
 									and channel_removed = 0 limit 1",
 									dbesc($address)
 								);
@@ -1413,7 +1423,7 @@ class Libzot {
 			$thread_parent = self::find_parent($msg,$act);
 
 			if($thread_parent) {
-				$z = q("select channel_portable_id as hash from channel left join item on channel.channel_id = item.uid where ( item.thr_parent = '%s' OR item.parent_mid = '%s' ) ",
+				$z = q("select channel_hash as hash from channel left join item on channel.channel_id = item.uid where ( item.thr_parent = '%s' OR item.parent_mid = '%s' ) ",
 					dbesc($thread_parent),
 					dbesc($thread_parent)
 				);
@@ -1468,7 +1478,7 @@ class Libzot {
 
 			$DR = new DReport(z_root(),$sender,$d,$arr['mid']);
 
-			$channel = channelx_by_portid($d);
+			$channel = channelx_by_hash($d);
 
 			if (! $channel) {
 				$DR->update('recipient not found');
@@ -1483,13 +1493,14 @@ class Libzot {
 				// Try again using the delivery channel credentials.
 				// We will also need to re-parse the $item array, 
 				// but preserve any values that were set during anonymous parsing.
-							   
+
 				$o = Activity::fetch($act->obj,$channel);
 				if($o) {
 					$act->obj = $o;
 					$arr = array_merge(Activity::decode_note($act),$arr);
 				}
 				else {
+
 					$DR->update('Incomplete or corrupt activity');
 					$result[] = $DR->get();
 					continue;
@@ -1505,7 +1516,7 @@ class Libzot {
 			 * access checks.
 			 */
 
-			if($sender === $channel['channel_portable_id'] && $arr['author_xchan'] === $channel['channel_portable_id'] && $arr['mid'] === $arr['parent_mid']) {
+			if($sender === $channel['channel_hash'] && $arr['author_xchan'] === $channel['channel_hash'] && $arr['mid'] === $arr['parent_mid']) {
 				$DR->update('self delivery ignored');
 				$result[] = $DR->get();
 				continue;
@@ -1608,10 +1619,11 @@ class Libzot {
 				// As a side effect we will also do a preliminary check that we have the top-level-post, otherwise
 				// processing it is pointless.
 
-				$r = q("select route, id, owner_xchan, item_private from item where mid = '%s' and uid = %d limit 1",
+				$r = q("select route, id, parent_mid, mid, owner_xchan, item_private, obj_type from item where mid = '%s' and uid = %d limit 1",
 					dbesc($arr['parent_mid']),
 					intval($channel['channel_id'])
 				);
+
 				if(! $r) {
 					$DR->update('comment parent not found');
 					$result[] = $DR->get();
@@ -1633,6 +1645,16 @@ class Libzot {
 					}
 					continue;
 				}
+
+				if ($r[0]['obj_type'] === 'Question') {
+					// route checking doesn't work correctly here because we've changed the privacy
+					$r[0]['route'] = EMPTY_STR;
+					// If this is a poll response, convert the obj_type to our (internal-only) "Answer" type
+					if ($arr['obj_type'] === ACTIVITY_OBJ_COMMENT && $arr['title'] && (! $arr['body'])) {
+						$arr['obj_type'] = 'Answer';
+					}
+				}
+
 
 				if($relay || $friendofriend || (intval($r[0]['item_private']) === 0 && intval($arr['item_private']) === 0)) {
 					// reset the route in case it travelled a great distance upstream
@@ -1701,7 +1723,7 @@ class Libzot {
 				$arr['aid'] = $channel['channel_account_id'];
 				$arr['uid'] = $channel['channel_id'];
 
-				$item_id = self::delete_imported_item($sender,$arr,$channel['channel_id'],$relay);
+				$item_id = self::delete_imported_item($sender,$act,$arr,$channel['channel_id'],$relay);
 				$DR->update(($item_id) ? 'deleted' : 'delete_failed');
 				$result[] = $DR->get();
 
@@ -1715,11 +1737,15 @@ class Libzot {
 				continue;
 			}
 
+			// reactions such as like and dislike could	have an	mid with /activity/ in it.
+			// Check for both forms in order to prevent duplicates.
 
-			$r = q("select * from item where mid = '%s' and uid = %d limit 1",
+			$r = q("select * from item where mid in ('%s','%s') and uid = %d limit 1",
 				dbesc($arr['mid']),
+				dbesc(str_replace(z_root() . '/activity/', z_root() . '/item/', $arr['mid'])),
 				intval($channel['channel_id'])
 			);
+
 			if($r) {
 				// We already have this post.
 				$item_id = $r[0]['id'];
@@ -1811,7 +1837,7 @@ class Libzot {
 
 			$stored = (($item_result && $item_result['item']) ? $item_result['item'] : false);
 			if((is_array($stored)) && ($stored['id'] != $stored['parent'])
-				&& ($stored['author_xchan'] === $channel['channel_hash'] || $stored['author_xchan'] === $channel['channel_portable_id'])) {
+				&& ($stored['author_xchan'] === $channel['channel_hash'] || $stored['author_xchan'] === $channel['channel_hash'])) {
 				retain_item($stored['item']['parent']);
 			}
 
@@ -1933,9 +1959,9 @@ class Libzot {
 			}
 
 			logger('FOF Activity received: ' . print_r($arr,true), LOGGER_DATA, LOG_DEBUG);
-			logger('FOF Activity recipient: ' . $channel['channel_portable_id'], LOGGER_DATA, LOG_DEBUG);
+			logger('FOF Activity recipient: ' . $channel['channel_hash'], LOGGER_DATA, LOG_DEBUG);
 
-			$result = self::process_delivery($arr['owner_xchan'],$AS, $arr, [ $channel['channel_portable_id'] ],false,false,true);
+			$result = self::process_delivery($arr['owner_xchan'],$AS, $arr, [ $channel['channel_hash'] ],false,false,true);
 			if ($result) {
 				$ret = array_merge($ret, $result);
 			}
@@ -2080,7 +2106,7 @@ class Libzot {
 	 * @return boolean|int post_id
 	 */
 
-	static function delete_imported_item($sender, $item, $uid, $relay) {
+	static function delete_imported_item($sender, $act, $item, $uid, $relay) {
 
 		logger('invoked', LOGGER_DEBUG);
 
@@ -2088,38 +2114,39 @@ class Libzot {
 		$item_found = false;
 		$post_id = 0;
 
+		if ($item['verb'] === 'Tombstone') {
+			// The id of the deleted thing is the item mid (activity id)
+			$mid = $item['mid'];
+		}
+		else {
+			// The id is the object id if the type is Undo or Delete
+			$mid = ((is_array($act->obj)) ? $act->obj['id'] : $act->obj);
+		}
+
+		// we may have stored either the object id or the activity id if it was a response activity (like, dislike, etc.)
+
 		$r = q("select * from item where ( author_xchan = '%s' or owner_xchan = '%s' or source_xchan = '%s' )
-			and mid = '%s' and uid = %d limit 1",
+			and mid IN ('%s', '%s') and uid = %d limit 1",
 			dbesc($sender),
 			dbesc($sender),
 			dbesc($sender),
-			dbesc($item['mid']),
+			dbesc($mid),
+			dbesc(str_replace('/activity/','/item/',$mid)),
 			intval($uid)
 		);
 
 		if($r) {
 			$stored = $r[0];
 
-			if($stored['author_xchan'] === $sender || $stored['owner_xchan'] === $sender || $stored['source_xchan'] === $sender)
-				$ownership_valid = true;
+			// we proved ownership in the sql query
+			$ownership_valid = true;
 
 			$post_id = $stored['id'];
 			$item_found = true;
 		}
 		else {
-
-			// perhaps the item is still in transit and the delete notification got here before the actual item did. Store it with the deleted flag set.
-			// item_store() won't try to deliver any notifications or start delivery chains if this flag is set.
-			// This means we won't end up with potentially even more delivery threads trying to push this delete notification.
-			// But this will ensure that if the (undeleted) original post comes in at a later date, we'll reject it because it will have an older timestamp.
-
-			logger('delete received for non-existent item - storing item data.');
-
-			if($item['author_xchan'] === $sender || $item['owner_xchan'] === $sender || $item['source_xchan'] === $sender) {
-				$ownership_valid = true;
-				$item_result = item_store($item);
-				$post_id = $item_result['item_id'];
-			}
+			// this will fail with an ownership issue, so explain the real reason
+			logger('delete received for non-existent item or not owned by sender - ignoring.');
 		}
 
 		if($ownership_valid === false) {
@@ -2191,7 +2218,7 @@ class Libzot {
 
 			$DR = new DReport(z_root(),$sender,$d,$arr['mid']);
 
-			$r = q("select * from channel where channel_portable_id = '%s' limit 1",
+			$r = q("select * from channel where channel_hash = '%s' limit 1",
 				dbesc($d['hash'])
 			);
 
@@ -2346,7 +2373,7 @@ class Libzot {
 
 		$loc = $locations[0];
 
-		$r = q("select * from channel where channel_portable_id = '%s' limit 1",
+		$r = q("select * from channel where channel_hash = '%s' limit 1",
 			dbesc($sender_hash)
 		);
 
@@ -2354,7 +2381,7 @@ class Libzot {
 			return;
 
 		if($loc['url'] !== z_root()) {
-			$x = q("update channel set channel_moved = '%s' where channel_portable_id = '%s' limit 1",
+			$x = q("update channel set channel_moved = '%s' where channel_hash = '%s' limit 1",
 				dbesc($loc['url']),
 				dbesc($sender_hash)
 			);
@@ -2388,7 +2415,7 @@ class Libzot {
 	static function encode_locations($channel) {
 		$ret = [];
 
-		$x = self::get_hublocs($channel['channel_portable_id']);
+		$x = self::get_hublocs($channel['channel_hash']);
 
 		if($x && count($x)) {
 			foreach($x as $hub) {
@@ -2736,13 +2763,13 @@ class Libzot {
 		$r = null;
 
 		if(strlen($zhash)) {
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
-				where channel_portable_id = '%s' limit 1",
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
+				where channel_hash = '%s' limit 1",
 				dbesc($zhash)
 			);
 		}
 		elseif(strlen($zguid) && strlen($zguid_sig)) {
-			$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+			$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
 				where channel_guid = '%s' and channel_guid_sig = '%s' limit 1",
 				dbesc($zguid),
 				dbesc($zguid_sig)
@@ -2750,7 +2777,7 @@ class Libzot {
 		}
 		elseif(strlen($zaddr)) {
 			if(strpos($zaddr,'[system]') === false) {       /* normal address lookup */
-				$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+				$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
 					where ( channel_address = '%s' or xchan_addr = '%s' ) limit 1",
 					dbesc($zaddr),
 					dbesc($zaddr)
@@ -2770,10 +2797,10 @@ class Libzot {
 				 *
 				 */
 
-				$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+				$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
 					where channel_system = 1 order by channel_id limit 1");
 				if(! $r) {
-					$r = q("select channel.*, xchan.* from channel left join xchan on channel_portable_id = xchan_hash
+					$r = q("select channel.*, xchan.* from channel left join xchan on channel_hash = xchan_hash
 						where channel_removed = 0 order by channel_id limit 1");
 				}
 			}
@@ -2892,7 +2919,7 @@ class Libzot {
 		];
 
 		$ret['channel_role'] = get_pconfig($e['channel_id'],'system','permissions_role','custom');
-		$ret['protocols']    = [ 'zot', 'zot6' ];
+		$ret['protocols']    = [ 'zot6', 'zot' ];
 		$ret['searchable']     = $searchable;
 		$ret['adult_content']  = $adult_channel;
 		$ret['public_forum']   = $public_forum;

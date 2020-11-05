@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 class Zfinger extends \Zotlabs\Web\Controller {
 
@@ -9,7 +10,7 @@ class Zfinger extends \Zotlabs\Web\Controller {
 	
 		require_once('include/zot.php');
 		require_once('include/crypto.php');
-	
+
 		$x = zotinfo($_REQUEST);
 
 		if($x && $x['guid'] && $x['guid_sig']) {

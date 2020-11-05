@@ -1,6 +1,6 @@
 <input id="invisible-wall-file-upload" type="file" name="files" style="visibility:hidden;position:absolute;top:-50;left:-50;width:0;height:0;" multiple>
 <input id="invisible-comment-upload" type="file" name="files" style="visibility:hidden;position:absolute;top:-50;left:-50;width:0;height:0;" multiple>
-<form id="profile-jot-form" action="{{$action}}" method="post" class="acl-form" data-form_id="profile-jot-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
+<form id="profile-jot-form" action="{{$action}}" method="post" class="acl-form" data-form_id="profile-jot-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}' data-bang='{{$bang}}'>
 	{{$mimeselect}}
 	{{$layoutselect}}
 	{{if $id_select}}
@@ -30,15 +30,15 @@
 
 		{{if $webpage}}
 		<div id="jot-pagetitle-wrap" class="jothidden">
-			<input name="pagetitle" id="jot-pagetitle" type="text" placeholder="{{$placeholdpagetitle}}" value="{{$pagetitle}}">
+			<input class="w-100 border-0" name="pagetitle" id="jot-pagetitle" type="text" placeholder="{{$placeholdpagetitle}}" value="{{$pagetitle}}">
 		</div>
 		{{/if}}
 		<div id="jot-title-wrap" class="jothidden">
-			<input name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" tabindex="1" value="{{$title}}">
+			<input class="w-100 border-0" name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" tabindex="1" value="{{$title}}">
 		</div>
 		{{if $catsenabled}}
 		<div id="jot-category-wrap" class="jothidden">
-			<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" data-role="cat-tagsinput">
+			<input class="w-100 border-0" name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" data-role="cat-tagsinput">
 		</div>
 		{{/if}}
 		<div id="jot-text-wrap">
@@ -59,6 +59,34 @@
 			<input class="jot-attachment" name="attachment" id="jot-attachment" type="text" value="{{$attachment}}" readonly="readonly" onclick="this.select();">
 		</div>
 		{{/if}}
+		<div id="jot-poll-wrap" class="p-2 d-none">
+			<div id="jot-poll-options">
+				<div class="jot-poll-option form-group">
+					<input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="{{$poll_option_label}}">
+				</div>
+				<div class="jot-poll-option form-group">
+					<input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="{{$poll_option_label}}">
+				</div>
+			</div>
+			{{include file="field_checkbox.tpl" field=$multiple_answers}}
+			<div id="jot-poll-tools" class="clearfix">
+				<div id="poll-tools-left" class="float-left">
+					<button id="jot-add-option" class="btn btn-outline-secondary btn-sm" type="button">
+						<i class="fa fa-plus"></i> {{$poll_add_option_label}}
+					</button>
+				</div>
+				<div id="poll-tools-right" class="float-right">
+					<div class="input-group">
+						<input type="text" name="poll_expire_value" class="form-control" value="10" size="3">
+						<select class="form-control" id="duration-select" name="poll_expire_unit">
+							<option value="Minutes">{{$poll_expire_unit_label.0}}</option>
+							<option value="Hours">{{$poll_expire_unit_label.1}}</option>
+							<option value="Days" selected="selected">{{$poll_expire_unit_label.2}}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+		</div>
 		<div id="profile-jot-submit-wrapper" class="clearfix p-2 jothidden">
 			<div id="profile-jot-submit-left" class="btn-toolbar float-left">
 				{{if $bbcode}}
@@ -123,15 +151,13 @@
 					</button>
 				{{/if}}
 				{{if $feature_encrypt}}
-					<button id="profile-encrypt-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$encrypt}}" onclick="red_encrypt('{{$cipher}}','#profile-jot-text',$('#profile-jot-text').val());return false;">
+					<button id="profile-encrypt-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$encrypt}}" onclick="hz_encrypt('{{$cipher}}','#profile-jot-text');return false;">
 						<i id="profile-encrypt" class="fa fa-key jot-icons"></i>
 					</button>
 				{{/if}}
-				{{if $feature_voting}}
-					<button id="profile-voting-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$voting}}" onclick="toggleVoting();return false;">
-						<i id="profile-voting" class="fa fa-square-o jot-icons"></i>
+					<button type="button" id="profile-poll-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$poll}}" onclick="initPoll();">
+						<i id="profile-poll" class="fa fa-bar-chart jot-icons"></i>
 					</button>
-				{{/if}}
 				{{if $feature_nocomment}}
 					<button id="profile-nocomment-wrapper" class="btn btn-outline-secondary btn-sm" title="{{$nocommenttitle}}" onclick="toggleNoComment();return false;">
 						<i id="profile-nocomment" class="fa fa-comments jot-icons"></i>
@@ -141,7 +167,7 @@
 					{{$custommoretoolsbuttons}}
 				{{/if}}
 				</div>
-				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $feature_voting || $custommoretoolsdropdown}}
+				{{if $writefiles || $weblink || $setloc || $clearloc || $feature_expire || $feature_encrypt || $custommoretoolsdropdown}}
 				<div class="btn-group d-lg-none">
 					<button type="button" id="more-tools" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
 						<i id="more-tools-icon" class="fa fa-cog jot-icons"></i>
@@ -171,11 +197,9 @@
 						<a class="dropdown-item" href="#" onclick="jotGetPubDate();return false;"><i class="fa fa-clock-o"></i>&nbsp;{{$future_txt}}</a>
 						{{/if}}
 						{{if $feature_encrypt}}
-						<a class="dropdown-item" href="#" onclick="red_encrypt('{{$cipher}}','#profile-jot-text',$('#profile-jot-text').val());return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
+						<a class="dropdown-item" href="#" onclick="hz_encrypt('{{$cipher}}','#profile-jot-text');return false;"><i class="fa fa-key"></i>&nbsp;{{$encrypt}}</a>
 						{{/if}}
-						{{if $feature_voting}}
-						<a class="dropdown-item" href="#" onclick="toggleVoting(); return false;"><i id="profile-voting-sub" class="fa fa-square-o"></i>&nbsp;{{$voting}}</a>
-						{{/if}}
+						<a class="dropdown-item" href="#" onclick="initPoll(); return false"><i id="profile-poll" class="fa fa-bar-chart jot-icons"></i>&nbsp;{{$poll}}</a>
 						{{if $feature_nocomment}}
 						<a class="dropdown-item" href="#" onclick="toggleNoComment(); return false;"><i id="profile-nocomment-sub" class="fa fa-comments"></i>&nbsp;{{$nocommenttitlesub}}</a>
 						{{/if}}

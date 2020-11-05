@@ -59,6 +59,8 @@ function nav($template = 'default') {
 
 	if($banner === false) 
 		$banner = get_config('system','sitename');
+		
+	call_hooks('get_banner',$banner);
 
 	App::$page['header'] .= replace_macros(get_markup_template('hdr.tpl'), array(
 		//we could additionally use this to display important system notifications e.g. for updates
@@ -294,14 +296,10 @@ function nav($template = 'default') {
 				$app['active'] = true;
 
 			if($is_owner) {
-				if(strpos($app['categories'],'nav_pinned_app') === false) {
-					$nav_apps[] = Apps::app_render($app,'nav');
-				}
+				$nav_apps[] = Apps::app_render($app,'nav');
 			}
 			elseif(! $is_owner && strpos($app['requires'], 'local_channel') === false) {
-				if(strpos($app['categories'],'nav_pinned_app') === false) {
-					$nav_apps[] = Apps::app_render($app,'nav');
-				}
+				$nav_apps[] = Apps::app_render($app,'nav');
 			}
 		}
 	}

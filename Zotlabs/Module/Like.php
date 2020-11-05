@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Libsync;
 
 require_once('include/security.php');
 require_once('include/bbcode.php');
@@ -75,7 +76,12 @@ class Like extends \Zotlabs\Web\Controller {
 			return EMPTY_STR; 
 		}
 
-	
+		$is_rsvp = false;
+		if (in_array($activity, [ ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE ])) {
+			$is_rsvp = true;
+		}
+
+
 		$extended_like = false;
 		$object = $target = null;
 		$post_type = EMPTY_STR;
@@ -204,20 +210,8 @@ class Like extends \Zotlabs\Web\Controller {
 			if(! $plink)
 				$plink = '[zrl=' . z_root() . '/profile/' . $ch[0]['channel_address'] . ']' . $post_type . '[/zrl]';
 		
-			$links   = array();
-			$links[] = array('rel' => 'alternate', 'type' => 'text/html',
-				'href' => z_root() . '/profile/' . $ch[0]['channel_address']);
-			$links[] = array('rel' => 'photo', 'type' => $ch[0]['xchan_photo_mimetype'],
-				'href' => $ch[0]['xchan_photo_l']);
-	
-			$object = json_encode(array(
-				'type'  => ACTIVITY_OBJ_PROFILE,
-				'title' => $ch[0]['channel_name'],
-				'id'    => $ch[0]['xchan_url'] . '/' . $ch[0]['xchan_hash'],
-				'link'  => $links
-			));
-	
-	
+			$object = json_encode(Activity::fetch_profile([ 'id' => channel_url($ch[0]) ]));
+
 			// second like of the same thing is "undo" for the first like
 	
 			$z = q("select * from likes where channel_id = %d and liker = '%s' and verb = '%s' and target_type = '%s' and target_id = '%s' limit 1",
@@ -230,7 +224,7 @@ class Like extends \Zotlabs\Web\Controller {
 	
 			if($z) {
 				$z[0]['deleted'] = 1;
-				build_sync_packet($ch[0]['channel_id'],array('likes' => $z));
+				Libsync::build_sync_packet($ch[0]['channel_id'],array('likes' => $z));
 	
 				q("delete from likes where id = %d",
 					intval($z[0]['id'])
@@ -381,7 +375,7 @@ class Like extends \Zotlabs\Web\Controller {
 		$arr = array();
 	
 		$arr['uuid']  = $uuid;
-		$arr['mid'] = z_root() . '/item/' . $uuid;
+		$arr['mid'] = z_root() . (($is_rsvp) ? '/activity/' : '/item/') . $uuid;
 
 		if($extended_like) {
 			$arr['item_thread_top'] = 1;
@@ -402,27 +396,8 @@ class Like extends \Zotlabs\Web\Controller {
 	
 			$body = $item['body'];
 	
-			$object = json_encode(array(
-				'type'    => $objtype,
-				'id'      => $item['mid'],
-				'asld'    => Activity::fetch_item( [ 'id' => $item['mid'] ] ),
-				'parent'  => (($item['thr_parent']) ? $item['thr_parent'] : $item['parent_mid']),
-				'link'    => $links,
-				'title'   => $item['title'],
-				'content' => $item['body'],
-				'created' => $item['created'],
-				'edited'  => $item['edited'],
-				'author'  => array(
-					'name'     => $item_author['xchan_name'],
-					'address'  => $item_author['xchan_addr'],
-					'guid'     => $item_author['xchan_guid'],
-					'guid_sig' => $item_author['xchan_guid_sig'],
-					'link'     => array(
-						array('rel' => 'alternate', 'type' => 'text/html', 'href' => $item_author['xchan_url']),
-						array('rel' => 'photo', 'type' => $item_author['xchan_photo_mimetype'], 'href' => $item_author['xchan_photo_m'])),
-					),
-			));
-	
+			$object = json_encode(Activity::fetch_item( [ 'id' => $item['mid'] ]));
+
 			if(! intval($item['item_thread_top']))
 				$post_type = 'comment';		
 	
@@ -466,15 +441,15 @@ class Like extends \Zotlabs\Web\Controller {
 		
 	
 		if($extended_like) {
-			$ulink = '[zrl=' . $ch[0]['xchan_url'] . ']' . $ch[0]['xchan_name'] . '[/zrl]';
-			$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
+			$ulink = '[zrl=' . $ch[0]['xchan_url'] . '][bdi]' . $ch[0]['xchan_name'] . '[/bdi][/zrl]';
+			$alink = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
 			$private = (($public) ? 0 : 1);
 		}
 		else {
 			$arr['parent']       = $item['id'];
 			$arr['thr_parent']   = $item['mid'];
-			$ulink = '[zrl=' . $item_author['xchan_url'] . ']' . $item_author['xchan_name'] . '[/zrl]';
-			$alink = '[zrl=' . $observer['xchan_url'] . ']' . $observer['xchan_name'] . '[/zrl]';
+			$ulink = '[zrl=' . $item_author['xchan_url'] . '][bdi]' . $item_author['xchan_name'] . '[/bdi][/zrl]';
+			$alink = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
 			$plink = '[zrl=' . z_root() . '/display/' . gen_link_id($item['mid']) . ']' . $post_type . '[/zrl]';
 			$allow_cid       = $item['allow_cid'];
 			$allow_gid       = $item['allow_gid'];
@@ -561,7 +536,7 @@ class Like extends \Zotlabs\Web\Controller {
 				dbesc($obj_id)
 			);
 			if($r)
-				build_sync_packet($ch[0]['channel_id'],array('likes' => $r));	
+				Libsync::build_sync_packet($ch[0]['channel_id'],array('likes' => $r));	
 	
 		}
 	

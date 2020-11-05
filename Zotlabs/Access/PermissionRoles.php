@@ -100,6 +100,7 @@ class PermissionRoles {
 					'post_mail', 'post_like' , 'republish', 'chat'
 				];
 				$ret['limits'] = PermissionLimits::Std_Limits();
+				$ret['channel_type'] = 'group';
 
 				break;
 
@@ -113,6 +114,7 @@ class PermissionRoles {
 					'view_pages', 'view_wiki', 'post_wall', 'post_comments', 'tag_deliver',
 					'post_mail', 'post_like' , 'chat' ];
 				$ret['limits'] = PermissionLimits::Std_Limits();
+				$ret['channel_type'] = 'group';
 
 				break;
 
@@ -132,6 +134,7 @@ class PermissionRoles {
 				$ret['limits']['view_storage']  = PERMS_SPECIFIC;
 				$ret['limits']['view_pages']    = PERMS_SPECIFIC;
 				$ret['limits']['view_wiki']     = PERMS_SPECIFIC;
+				$ret['channel_type'] = 'group';
 
 				break;
 
@@ -187,6 +190,7 @@ class PermissionRoles {
 					'post_mail', 'post_like' , 'republish', 'chat', 'write_wiki'
 				];
 				$ret['limits'] = PermissionLimits::Std_Limits();
+				$ret['channel_type'] = 'group';
 
 				break;
 

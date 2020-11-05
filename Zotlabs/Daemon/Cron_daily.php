@@ -44,6 +44,12 @@ class Cron_daily {
 			db_utcnow(), db_quoteinterval('1 YEAR')
 		);
 
+		// expire anonymous sse notification entries once a day
+
+		q("delete from xconfig where xchan like '%s'",
+			dbesc('sse_id.%')
+		);
+
 		// Clean up emdedded content cache
 		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
 		    db_utcnow(),
@@ -90,6 +96,7 @@ class Cron_daily {
 		Master::Summon(array('Cli_suggest'));
 
 		remove_obsolete_hublocs();
+
 		z6_discover();
 
 		call_hooks('cron_daily',datetime_convert());

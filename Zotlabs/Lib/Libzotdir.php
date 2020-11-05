@@ -3,6 +3,8 @@
 namespace Zotlabs\Lib;
 
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Zotfinger;
+use Zotlabs\Lib\Webfinger;
 
 require_once('include/permissions.php');
 
@@ -307,9 +309,9 @@ class Libzotdir {
 		if ($ud['ud_addr'] && (! ($ud['ud_flags'] & UPDATE_FLAGS_DELETED))) {
 			$success = false;
 
-			$href = \Zotlabs\Lib\Webfinger::zot_url(punify($ud['ud_addr']));
+			$href = Webfinger::zot_url(punify($ud['ud_addr']));
 			if($href) {
-				$zf = \Zotlabs\Lib\Zotfinger::exec($href);
+				$zf = Zotfinger::exec($href);
 			}
 			if(is_array($zf) && array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
 				$xc = Libzot::import_xchan($zf['data'], 0, $ud);
@@ -339,7 +341,7 @@ class Libzotdir {
 	
 		logger('local_dir_update: uid: ' . $uid, LOGGER_DEBUG);
 
-		$p = q("select channel.channel_hash, channel_address, channel_timezone, profile.* from profile left join channel on channel_id = uid where uid = %d and is_default = 1",
+		$p = q("select channel.channel_hash, channel_address, channel_timezone, channel_portable_id, profile.* from profile left join channel on channel_id = uid where uid = %d and is_default = 1",
 			intval($uid)
 		);
 
@@ -348,6 +350,7 @@ class Libzotdir {
 
 		if ($p) {
 			$hash = $p[0]['channel_hash'];
+			$legacy_hash = $p[0]['channel_portable_id'];
 
 			$profile['description'] = $p[0]['pdesc'];
 			$profile['birthday']    = $p[0]['dob'];
@@ -381,14 +384,15 @@ class Libzotdir {
 
 			logger('hidden: ' . $hidden);
 
-			$r = q("select xchan_hidden from xchan where xchan_hash = '%s' limit 1",
+			$r = q("select xchan_hidden from xchan where xchan_hash = '%s'",
 				dbesc($p[0]['channel_hash'])
 			);
 
 			if(intval($r[0]['xchan_hidden']) != $hidden) {
-				$r = q("update xchan set xchan_hidden = %d where xchan_hash = '%s'",
+				$r = q("update xchan set xchan_hidden = %d where xchan_hash in ('%s', '%s')",
 					intval($hidden),
-					dbesc($p[0]['channel_hash'])
+					dbesc($hash),
+					dbesc($legacy_hash)
 				);
 			}
 
@@ -402,11 +406,13 @@ class Libzotdir {
 			}
 			else {
 				// they may have made it private
-				$r = q("delete from xprof where xprof_hash = '%s'",
-					dbesc($hash)
+				q("delete from xprof where xprof_hash in ('%s', '%s')",
+					dbesc($hash),
+					dbesc($legacy_hash)
 				);
-				$r = q("delete from xtag where xtag_hash = '%s'",
-					dbesc($hash)
+				q("delete from xtag where xtag_hash in ('%s', '%s')",
+					dbesc($hash),
+					dbesc($legacy_hash)
 				);
 			}
 	

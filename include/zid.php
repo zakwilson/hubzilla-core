@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Verify;
 
 function is_matrix_url($url) {
@@ -278,44 +279,39 @@ function owt_init($token) {
 
 	Verify::purge('owt', '3 MINUTE');
 
-	$key = Verify::get_meta('owt', 0, $token);
+	$ob_hash = Verify::get_meta('owt', 0, $token);
 
-	if($key === false) {
-		return;
-	}
-
-	$parts = explode(',',$key,2);
-	if(count($parts) < 2) {
+	if($ob_hash === false) {
 		return;
 	}
 
 	$r = q("select * from hubloc left join xchan on xchan_hash = hubloc_hash
-		where hubloc_network = '%s' and hubloc_addr = '%s' order by hubloc_id desc",
-		dbesc($parts[0]),
-		dbesc($parts[1])
+		where hubloc_addr = '%s' or hubloc_id_url = '%s' or hubloc_hash = '%s' order by hubloc_id desc",
+		dbesc($ob_hash),
+		dbesc($ob_hash),
+		dbesc($ob_hash)
 	);
 
 	if(! $r) {
-
 		// finger them if they can't be found.
-		// @todo check that this is still needed. Discovery should have been performed in the Owa module.
-		
-		$j = \Zotlabs\Zot\Finger::run($parts[1], null);
-		if ($j['success']) {
-			import_xchan($j);
+		$wf = discover_by_webbie($ob_hash);
+		if($wf) {
 			$r = q("select * from hubloc left join xchan on xchan_hash = hubloc_hash
-				where hubloc_network = '%s' and hubloc_addr = '%s' order by hubloc_id desc",
-				dbesc($parts[0]),
-				dbesc($parts[1])
+				where hubloc_addr = '%s' or hubloc_id_url = '%s' or hubloc_hash = '%s' order by hubloc_id desc",
+				dbesc($ob_hash),
+				dbesc($ob_hash),
+				dbesc($ob_hash)
 			);
 		}
 	}
 	if(! $r) {
-		logger('owt: unable to finger ' . $key);
+		logger('owt: unable to finger ' . $ob_hash);
 		return;
 	}
-	
-	$hubloc = $r[0];
+
+	$r = Libzot::zot_record_preferred($r);
+
+	$hubloc = $r;
 
 	$_SESSION['authenticated'] = 1;
 
@@ -341,7 +337,7 @@ function owt_init($token) {
 	if (! $delegate_success) {
 		// normal visitor (remote_channel) login session credentials
 		$_SESSION['visitor_id'] = $hubloc['xchan_hash'];
-		$_SESSION['my_url']     = $hubloc['xchan_url'];
+		$_SESSION['my_url'] = $hubloc['xchan_url'];
 		$_SESSION['my_address'] = $hubloc['hubloc_addr'];
 		$_SESSION['remote_hub'] = $hubloc['hubloc_url'];
 		$_SESSION['DNT'] = 1;
@@ -401,9 +397,7 @@ function observer_auth($ob_hash) {
 		return;
 	}
 
-	// Note: this has no Libzot namespace so prefers zot over zot6
-	
-	$hubloc = zot_record_preferred($r);
+	$hubloc = Libzot::zot_record_preferred($r);
 
 	$_SESSION['authenticated'] = 1;
 

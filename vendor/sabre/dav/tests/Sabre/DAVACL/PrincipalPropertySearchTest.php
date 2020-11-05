@@ -7,8 +7,6 @@ namespace Sabre\DAVACL;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/HTTP/ResponseMock.php';
-
 class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
 {
     public function getServer()
@@ -140,7 +138,8 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, $server->httpResponse->body);
+        $bodyAsString = $server->httpResponse->getBodyAsString();
+        $this->assertEquals(207, $server->httpResponse->status, $bodyAsString);
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -158,7 +157,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:status' => 4,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($bodyAsString);
         $xml->registerXPathNamespace('d', 'DAV:');
         foreach ($check as $v1 => $v2) {
             $xpath = is_int($v1) ? $v2 : $v1;
@@ -170,7 +169,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
                 $count = $v2;
             }
 
-            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->body);
+            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->getBodyAsString());
         }
     }
 
@@ -211,7 +210,8 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, $server->httpResponse->body);
+        $bodyAsString = $server->httpResponse->getBodyAsString();
+        $this->assertEquals(207, $server->httpResponse->status, $bodyAsString);
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -229,7 +229,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:status' => 0,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($bodyAsString);
         $xml->registerXPathNamespace('d', 'DAV:');
         foreach ($check as $v1 => $v2) {
             $xpath = is_int($v1) ? $v2 : $v1;
@@ -241,7 +241,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
                 $count = $v2;
             }
 
-            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->body);
+            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->getBodyAsString());
         }
     }
 
@@ -282,7 +282,8 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, $server->httpResponse->body);
+        $bodyAsString = $server->httpResponse->getBodyAsString();
+        $this->assertEquals(207, $server->httpResponse->status, $bodyAsString);
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -300,7 +301,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response/d:propstat/d:status' => 4,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($bodyAsString);
         $xml->registerXPathNamespace('d', 'DAV:');
         foreach ($check as $v1 => $v2) {
             $xpath = is_int($v1) ? $v2 : $v1;
@@ -312,7 +313,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
                 $count = $v2;
             }
 
-            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->body);
+            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->getBodyAsString());
         }
     }
 
@@ -346,7 +347,8 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
 
         $server->exec();
 
-        $this->assertEquals(207, $server->httpResponse->status, $server->httpResponse->body);
+        $bodyAsString = $server->httpResponse->getBodyAsString();
+        $this->assertEquals(207, $server->httpResponse->status, $bodyAsString);
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Type' => ['application/xml; charset=utf-8'],
@@ -358,7 +360,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
             '/d:multistatus/d:response' => 0,
         ];
 
-        $xml = simplexml_load_string($server->httpResponse->body);
+        $xml = simplexml_load_string($bodyAsString);
         $xml->registerXPathNamespace('d', 'DAV:');
         foreach ($check as $v1 => $v2) {
             $xpath = is_int($v1) ? $v2 : $v1;
@@ -370,7 +372,7 @@ class PrincipalPropertySearchTest extends \PHPUnit\Framework\TestCase
                 $count = $v2;
             }
 
-            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->body);
+            $this->assertEquals($count, count($result), 'we expected '.$count.' appearances of '.$xpath.' . We found '.count($result).'. Full response body: '.$server->httpResponse->getBodyAsString());
         }
     }
 }

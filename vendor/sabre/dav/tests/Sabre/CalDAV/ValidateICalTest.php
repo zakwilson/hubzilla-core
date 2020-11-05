@@ -8,12 +8,10 @@ use Sabre\DAV;
 use Sabre\DAVACL;
 use Sabre\HTTP;
 
-require_once 'Sabre/HTTP/ResponseMock.php';
-
 class ValidateICalTest extends \PHPUnit\Framework\TestCase
 {
     /**
-     * @var Sabre\DAV\Server
+     * @var DAV\Server
      */
     protected $server;
     /**
@@ -21,7 +19,7 @@ class ValidateICalTest extends \PHPUnit\Framework\TestCase
      */
     protected $calBackend;
 
-    public function setUp()
+    public function setup(): void
     {
         $calendars = [
             [
@@ -56,6 +54,9 @@ class ValidateICalTest extends \PHPUnit\Framework\TestCase
         $this->server->httpResponse = $response;
     }
 
+    /**
+     * @return Sabre\HTTP\ResponseMock
+     */
     public function request(HTTP\Request $request)
     {
         $this->server->httpRequest = $request;
@@ -100,7 +101,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Length' => ['0'],
@@ -140,7 +141,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFileNoVersionFixed()
@@ -166,7 +167,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Length' => ['0'],
@@ -213,7 +214,7 @@ ICS;
         $request->setBody($ics);
 
         $response = $this->request($request);
-        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFileNoUID()
@@ -226,7 +227,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFileVCard()
@@ -239,7 +240,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFile2Components()
@@ -252,7 +253,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFile2UIDS()
@@ -265,7 +266,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(415, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testCreateFileWrongComponent()
@@ -278,7 +279,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testUpdateFile()
@@ -338,7 +339,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     public function testUpdateFileInvalidComponent()
@@ -352,7 +353,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(403, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
     }
 
     /**
@@ -385,7 +386,7 @@ ICS;
 
         $response = $this->request($request);
 
-        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->body);
+        $this->assertEquals(201, $response->status, 'Incorrect status returned! Full response body: '.$response->getBodyAsString());
         $this->assertNull($response->getHeader('ETag'));
     }
 }

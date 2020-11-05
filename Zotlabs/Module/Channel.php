@@ -239,8 +239,12 @@ class Channel extends Controller {
 		/**
 		 * Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		 */
-
-		$item_normal = item_normal();
+		 
+		 $item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
+		    and item.item_unpublished = 0 and item.item_pending_remove = 0
+		    and item.item_blocked = 0 ";
+		 if (! $is_owner)
+		    $item_normal .= "and item.item_delayed = 0 ";
 		$item_normal_update = item_normal_update();
 		$sql_extra = item_permissions_sql(App::$profile['profile_uid']);
 
@@ -330,7 +334,7 @@ class Channel extends Controller {
 
 
 			$itemspage = get_pconfig(local_channel(),'system','itemspage');
-			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
 			if($noscript_content || $load) {
@@ -419,6 +423,7 @@ class Channel extends Controller {
 				'$nouveau' => '0',
 				'$wall' => '1',
 				'$fh' => '0',
+				'$dm' => '0',
 				'$static'  => $static,
 				'$page' => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 				'$search' => $search,
@@ -437,36 +442,11 @@ class Channel extends Controller {
 
 		}
 
-		$update_unseen = '';
-
-		if($page_mode === 'list') {
-
-			/**
-			 * in "list mode", only mark the parent item and any like activities as "seen".
-			 * We won't distinguish between comment likes and post likes. The important thing
-			 * is that the number of unseen comments will be accurate. The SQL to separate the
-			 * comment likes could also get somewhat hairy.
-			 */
-
-			if($parents_str) {
-				$update_unseen = " AND ( id IN ( " . dbesc($parents_str) . " )";
-				$update_unseen .= " OR ( parent IN ( " . dbesc($parents_str) . " ) AND verb in ( '" . dbesc(ACTIVITY_LIKE) . "','" . dbesc(ACTIVITY_DISLIKE) . "' ))) ";
-			}
-		}
-		else {
-			if($parents_str) {
-				$update_unseen = " AND parent IN ( " . dbesc($parents_str) . " )";
-			}
-		}
-
-		if($is_owner && $update_unseen) {
-			$x = [ 'channel_id' => local_channel(), 'update' => 'unset' ];
-			call_hooks('update_unseen',$x);
-			if($x['update'] === 'unset' || intval($x['update'])) {
-				$r = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 and item_wall = 1 AND uid = %d $update_unseen",
-					intval(local_channel())
-				);
-			}
+		// Add pinned content
+		if(! x($_REQUEST,'mid') && ! $search) {
+			$pinned = new \Zotlabs\Widget\Pinned;
+			$r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
+			$o .= $r['html'];
 		}
 
 		$mode = (($search) ? 'search' : 'channel');

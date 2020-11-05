@@ -145,7 +145,7 @@ class Cards extends Controller {
 
 
 		$itemspage = get_pconfig(local_channel(),'system','itemspage');
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
 

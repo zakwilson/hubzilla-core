@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/conversation.php');
 
 
@@ -14,7 +16,7 @@ class Moderate extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		\App::set_pager_itemspage(60);
+		\App::set_pager_itemspage(30);
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(\App::$pager['itemspage']), intval(\App::$pager['start']));               
 
 		//show all items
@@ -77,7 +79,7 @@ class Moderate extends \Zotlabs\Web\Controller {
 				if($r) {
 					xchan_query($r);
 					$sync_item = fetch_post_tags($r);
-					build_sync_packet(local_channel(),array('item' => array(encode_item($sync_item[0],true))));
+					Libsync::build_sync_packet(local_channel(),array('item' => array(encode_item($sync_item[0],true))));
 				}
 				if($action === 'approve') {
 					\Zotlabs\Daemon\Master::Summon(array('Notifier', 'comment-new', $post_id));

@@ -5,8 +5,8 @@
 	</td>
 	{{if $notself}}
 	<td class="abook-them">
-		{{if $field.2 === 1}}<i class="fa fa-check-square-o"></i>{{/if}}
-		{{if $field.2 === 0}}<i class="fa fa-square-o"></i>{{/if}}
+		{{if $field.2 == 1}}<i class="fa fa-check-square-o"></i>{{/if}}
+		{{if $field.2 == 0}}<i class="fa fa-square-o"></i>{{/if}}
 	</td>
 	{{/if}}
 	<td class="abook-me">

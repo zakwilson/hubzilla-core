@@ -1,20 +1,20 @@
 [
     {
         "name": "blueimp/jquery-file-upload",
-        "version": "v10.3.0",
-        "version_normalized": "10.3.0.0",
+        "version": "v10.31.0",
+        "version_normalized": "10.31.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/vkhramtsov/jQuery-File-Upload.git",
-            "reference": "63cb566b29a5407cfbfbda8a5154e10b6e098678"
+            "reference": "0740f81829698b84efe17e72501e0f420ea0d611"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/63cb566b29a5407cfbfbda8a5154e10b6e098678",
-            "reference": "63cb566b29a5407cfbfbda8a5154e10b6e098678",
+            "url": "https://api.github.com/repos/vkhramtsov/jQuery-File-Upload/zipball/0740f81829698b84efe17e72501e0f420ea0d611",
+            "reference": "0740f81829698b84efe17e72501e0f420ea0d611",
             "shasum": ""
         },
-        "time": "2019-11-04T09:18:09+00:00",
+        "time": "2020-07-13T05:42:06+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -54,6 +54,12 @@
             "selection",
             "upload",
             "widget"
+        ],
+        "funding": [
+            {
+                "url": "https://github.com/blueimp",
+                "type": "github"
+            }
         ]
     },
     {
@@ -118,27 +124,27 @@
     },
     {
         "name": "commerceguys/intl",
-        "version": "v1.0.5",
-        "version_normalized": "1.0.5.0",
+        "version": "v1.0.6",
+        "version_normalized": "1.0.6.0",
         "source": {
             "type": "git",
             "url": "https://github.com/commerceguys/intl.git",
-            "reference": "6a8c7a8da189d51856b642a61aeb8ae5114fec6c"
+            "reference": "47d5d6d60d0cc25f867e337ce229a228bf6be6f8"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/commerceguys/intl/zipball/6a8c7a8da189d51856b642a61aeb8ae5114fec6c",
-            "reference": "6a8c7a8da189d51856b642a61aeb8ae5114fec6c",
+            "url": "https://api.github.com/repos/commerceguys/intl/zipball/47d5d6d60d0cc25f867e337ce229a228bf6be6f8",
+            "reference": "47d5d6d60d0cc25f867e337ce229a228bf6be6f8",
             "shasum": ""
         },
         "require": {
-            "php": ">=5.5.0"
+            "php": ">=7.0.8"
         },
         "require-dev": {
             "mikey179/vfsstream": "1.*",
-            "phpunit/phpunit": "~4.0"
+            "phpunit/phpunit": "^6.0"
         },
-        "time": "2019-10-22T10:40:46+00:00",
+        "time": "2020-05-26T12:19:43+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -205,17 +211,17 @@
     },
     {
         "name": "ezyang/htmlpurifier",
-        "version": "v4.12.0",
-        "version_normalized": "4.12.0.0",
+        "version": "v4.13.0",
+        "version_normalized": "4.13.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ezyang/htmlpurifier.git",
-            "reference": "a617e55bc62a87eec73bd456d146d134ad716f03"
+            "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/a617e55bc62a87eec73bd456d146d134ad716f03",
-            "reference": "a617e55bc62a87eec73bd456d146d134ad716f03",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
+            "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
             "shasum": ""
         },
         "require": {
@@ -224,7 +230,7 @@
         "require-dev": {
             "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
         },
-        "time": "2019-10-28T03:44:26+00:00",
+        "time": "2020-06-29T00:56:53+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -233,6 +239,9 @@
             },
             "files": [
                 "library/HTMLPurifier.composer.php"
+            ],
+            "exclude-from-classmap": [
+                "/library/HTMLPurifier/Language/"
             ]
         },
         "notification-url": "https://packagist.org/downloads/",
@@ -254,17 +263,17 @@
     },
     {
         "name": "league/html-to-markdown",
-        "version": "4.9.0",
-        "version_normalized": "4.9.0.0",
+        "version": "4.10.0",
+        "version_normalized": "4.10.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/thephpleague/html-to-markdown.git",
-            "reference": "71319108e3db506250b8987721b13568fd9fa446"
+            "reference": "0868ae7a552e809e5cd8f93ba022071640408e88"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/71319108e3db506250b8987721b13568fd9fa446",
-            "reference": "71319108e3db506250b8987721b13568fd9fa446",
+            "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/0868ae7a552e809e5cd8f93ba022071640408e88",
+            "reference": "0868ae7a552e809e5cd8f93ba022071640408e88",
             "shasum": ""
         },
         "require": {
@@ -277,7 +286,7 @@
             "phpunit/phpunit": "^4.8|^5.7",
             "scrutinizer/ocular": "~1.1"
         },
-        "time": "2019-11-02T14:54:14+00:00",
+        "time": "2020-07-01T00:34:03+00:00",
         "bin": [
             "bin/html-to-markdown"
         ],
@@ -316,6 +325,24 @@
         "keywords": [
             "html",
             "markdown"
+        ],
+        "funding": [
+            {
+                "url": "https://www.colinodell.com/sponsor",
+                "type": "custom"
+            },
+            {
+                "url": "https://www.paypal.me/colinpodell/10.00",
+                "type": "custom"
+            },
+            {
+                "url": "https://github.com/colinodell",
+                "type": "github"
+            },
+            {
+                "url": "https://www.patreon.com/colinodell",
+                "type": "patreon"
+            }
         ]
     },
     {
@@ -353,27 +380,31 @@
             "codecs",
             "php",
             "tags"
-        ]
+        ],
+        "abandoned": true
     },
     {
         "name": "michelf/php-markdown",
-        "version": "1.8.0",
-        "version_normalized": "1.8.0.0",
+        "version": "1.9.0",
+        "version_normalized": "1.9.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/michelf/php-markdown.git",
-            "reference": "01ab082b355bf188d907b9929cd99b2923053495"
+            "reference": "c83178d49e372ca967d1a8c77ae4e051b3a3c75c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/michelf/php-markdown/zipball/01ab082b355bf188d907b9929cd99b2923053495",
-            "reference": "01ab082b355bf188d907b9929cd99b2923053495",
+            "url": "https://api.github.com/repos/michelf/php-markdown/zipball/c83178d49e372ca967d1a8c77ae4e051b3a3c75c",
+            "reference": "c83178d49e372ca967d1a8c77ae4e051b3a3c75c",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2018-01-15T00:49:33+00:00",
+        "require-dev": {
+            "phpunit/phpunit": ">=4.3 <5.8"
+        },
+        "time": "2019-12-02T02:32:27+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -498,23 +529,23 @@
     },
     {
         "name": "psr/log",
-        "version": "1.1.2",
-        "version_normalized": "1.1.2.0",
+        "version": "1.1.3",
+        "version_normalized": "1.1.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/php-fig/log.git",
-            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801"
+            "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/php-fig/log/zipball/446d54b4cb6bf489fc9d75f55843658e6f25d801",
-            "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801",
+            "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
+            "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2019-11-01T11:05:21+00:00",
+        "time": "2020-03-23T09:12:05+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -547,49 +578,51 @@
     },
     {
         "name": "ramsey/uuid",
-        "version": "3.8.0",
-        "version_normalized": "3.8.0.0",
+        "version": "3.9.3",
+        "version_normalized": "3.9.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/ramsey/uuid.git",
-            "reference": "d09ea80159c1929d75b3f9c60504d613aeb4a1e3"
+            "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/ramsey/uuid/zipball/d09ea80159c1929d75b3f9c60504d613aeb4a1e3",
-            "reference": "d09ea80159c1929d75b3f9c60504d613aeb4a1e3",
+            "url": "https://api.github.com/repos/ramsey/uuid/zipball/7e1633a6964b48589b142d60542f9ed31bd37a92",
+            "reference": "7e1633a6964b48589b142d60542f9ed31bd37a92",
             "shasum": ""
         },
         "require": {
-            "paragonie/random_compat": "^1.0|^2.0|9.99.99",
-            "php": "^5.4 || ^7.0",
+            "ext-json": "*",
+            "paragonie/random_compat": "^1 | ^2 | 9.99.99",
+            "php": "^5.4 | ^7 | ^8",
             "symfony/polyfill-ctype": "^1.8"
         },
         "replace": {
             "rhumsaa/uuid": "self.version"
         },
         "require-dev": {
-            "codeception/aspect-mock": "^1.0 | ~2.0.0",
-            "doctrine/annotations": "~1.2.0",
-            "goaop/framework": "1.0.0-alpha.2 | ^1.0 | ~2.1.0",
-            "ircmaxell/random-lib": "^1.1",
-            "jakub-onderka/php-parallel-lint": "^0.9.0",
-            "mockery/mockery": "^0.9.9",
+            "codeception/aspect-mock": "^1 | ^2",
+            "doctrine/annotations": "^1.2",
+            "goaop/framework": "1.0.0-alpha.2 | ^1 | ^2.1",
+            "jakub-onderka/php-parallel-lint": "^1",
+            "mockery/mockery": "^0.9.11 | ^1",
             "moontoast/math": "^1.1",
-            "php-mock/php-mock-phpunit": "^0.3|^1.1",
-            "phpunit/phpunit": "^4.7|^5.0|^6.5",
-            "squizlabs/php_codesniffer": "^2.3"
+            "paragonie/random-lib": "^2",
+            "php-mock/php-mock-phpunit": "^0.3 | ^1.1",
+            "phpunit/phpunit": "^4.8 | ^5.4 | ^6.5",
+            "squizlabs/php_codesniffer": "^3.5"
         },
         "suggest": {
             "ext-ctype": "Provides support for PHP Ctype functions",
             "ext-libsodium": "Provides the PECL libsodium extension for use with the SodiumRandomGenerator",
+            "ext-openssl": "Provides the OpenSSL extension for use with the OpenSslGenerator",
             "ext-uuid": "Provides the PECL UUID extension for use with the PeclUuidTimeGenerator and PeclUuidRandomGenerator",
-            "ircmaxell/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
             "moontoast/math": "Provides support for converting UUID to 128-bit integer (in string form).",
+            "paragonie/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
             "ramsey/uuid-console": "A console application for generating UUIDs with ramsey/uuid",
             "ramsey/uuid-doctrine": "Allows the use of Ramsey\\Uuid\\Uuid as Doctrine field type."
         },
-        "time": "2018-07-19T23:38:55+00:00",
+        "time": "2020-02-21T04:36:14+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -600,7 +633,10 @@
         "autoload": {
             "psr-4": {
                 "Ramsey\\Uuid\\": "src/"
-            }
+            },
+            "files": [
+                "src/functions.php"
+            ]
         },
         "notification-url": "https://packagist.org/downloads/",
         "license": [
@@ -608,17 +644,17 @@
         ],
         "authors": [
             {
+                "name": "Ben Ramsey",
+                "email": "ben@benramsey.com",
+                "homepage": "https://benramsey.com"
+            },
+            {
                 "name": "Marijn Huizendveld",
                 "email": "marijn.huizendveld@gmail.com"
             },
             {
                 "name": "Thibaud Fabre",
                 "email": "thibaud@aztech.io"
-            },
-            {
-                "name": "Ben Ramsey",
-                "email": "ben@benramsey.com",
-                "homepage": "https://benramsey.com"
             }
         ],
         "description": "Formerly rhumsaa/uuid. A PHP 5.4+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).",
@@ -631,17 +667,17 @@
     },
     {
         "name": "sabre/dav",
-        "version": "4.0.2",
-        "version_normalized": "4.0.2.0",
+        "version": "4.1.1",
+        "version_normalized": "4.1.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/dav.git",
-            "reference": "fd0234d46c045fc9b35ec06bd2e7b490240e6ade"
+            "reference": "5736f943c90d8d73d04cd8944d8c913811dc7360"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/dav/zipball/fd0234d46c045fc9b35ec06bd2e7b490240e6ade",
-            "reference": "fd0234d46c045fc9b35ec06bd2e7b490240e6ade",
+            "url": "https://api.github.com/repos/sabre-io/dav/zipball/5736f943c90d8d73d04cd8944d8c913811dc7360",
+            "reference": "5736f943c90d8d73d04cd8944d8c913811dc7360",
             "shasum": ""
         },
         "require": {
@@ -655,25 +691,27 @@
             "ext-simplexml": "*",
             "ext-spl": "*",
             "lib-libxml": ">=2.7.0",
-            "php": ">=7.0.0",
+            "php": "^7.1.0",
             "psr/log": "^1.0",
             "sabre/event": "^5.0",
-            "sabre/http": "^5.0",
+            "sabre/http": "^5.0.5",
             "sabre/uri": "^2.0",
-            "sabre/vobject": "^4.2.0-alpha1",
+            "sabre/vobject": "^4.2.1",
             "sabre/xml": "^2.0.1"
         },
         "require-dev": {
             "evert/phpdoc-md": "~0.1.0",
+            "friendsofphp/php-cs-fixer": "^2.16.3",
             "monolog/monolog": "^1.18",
-            "phpunit/phpunit": "^6"
+            "phpstan/phpstan": "^0.12",
+            "phpunit/phpunit": "^7.5 || ^8.5 || ^9.0"
         },
         "suggest": {
             "ext-curl": "*",
             "ext-imap": "*",
             "ext-pdo": "*"
         },
-        "time": "2019-10-19T07:17:49+00:00",
+        "time": "2020-07-13T13:38:16+00:00",
         "bin": [
             "bin/sabredav",
             "bin/naturalselection"
@@ -712,27 +750,27 @@
     },
     {
         "name": "sabre/event",
-        "version": "5.0.3",
-        "version_normalized": "5.0.3.0",
+        "version": "5.1.0",
+        "version_normalized": "5.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/event.git",
-            "reference": "f5cf802d240df1257866d8813282b98aee3bc548"
+            "reference": "d00a17507af0e7544cfe17096372f5d733e3b276"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/event/zipball/f5cf802d240df1257866d8813282b98aee3bc548",
-            "reference": "f5cf802d240df1257866d8813282b98aee3bc548",
+            "url": "https://api.github.com/repos/sabre-io/event/zipball/d00a17507af0e7544cfe17096372f5d733e3b276",
+            "reference": "d00a17507af0e7544cfe17096372f5d733e3b276",
             "shasum": ""
         },
         "require": {
-            "php": ">=7.0"
+            "php": "^7.1"
         },
         "require-dev": {
-            "phpunit/phpunit": ">=6",
-            "sabre/cs": "~1.0.0"
+            "friendsofphp/php-cs-fixer": "~2.16.1",
+            "phpunit/phpunit": "^7 || ^8"
         },
-        "time": "2018-03-05T13:55:47+00:00",
+        "time": "2020-01-31T18:52:29+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -774,34 +812,35 @@
     },
     {
         "name": "sabre/http",
-        "version": "5.0.4",
-        "version_normalized": "5.0.4.0",
+        "version": "5.1.0",
+        "version_normalized": "5.1.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/http.git",
-            "reference": "73e2fa1ef894eddff145b698b6b0e2e2c5bf1d72"
+            "reference": "23446999f1f6e62892bbd89745070aa902dd3539"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/http/zipball/73e2fa1ef894eddff145b698b6b0e2e2c5bf1d72",
-            "reference": "73e2fa1ef894eddff145b698b6b0e2e2c5bf1d72",
+            "url": "https://api.github.com/repos/sabre-io/http/zipball/23446999f1f6e62892bbd89745070aa902dd3539",
+            "reference": "23446999f1f6e62892bbd89745070aa902dd3539",
             "shasum": ""
         },
         "require": {
             "ext-ctype": "*",
             "ext-curl": "*",
             "ext-mbstring": "*",
-            "php": "^7.0",
+            "php": "^7.1",
             "sabre/event": ">=4.0 <6.0",
             "sabre/uri": "^2.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "^6.0 || ^7.0"
+            "friendsofphp/php-cs-fixer": "~2.16.1",
+            "phpunit/phpunit": "^7.0 || ^8.0"
         },
         "suggest": {
             "ext-curl": " to make http requests with the Client class"
         },
-        "time": "2019-10-09T20:27:43+00:00",
+        "time": "2020-01-31T20:07:09+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -832,26 +871,27 @@
     },
     {
         "name": "sabre/uri",
-        "version": "2.1.3",
-        "version_normalized": "2.1.3.0",
+        "version": "2.2.0",
+        "version_normalized": "2.2.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/uri.git",
-            "reference": "18f454324f371cbcabdad3d0d3755b4b0182095d"
+            "reference": "059d11012603be2e32ddb7543602965563ddbb09"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/uri/zipball/18f454324f371cbcabdad3d0d3755b4b0182095d",
-            "reference": "18f454324f371cbcabdad3d0d3755b4b0182095d",
+            "url": "https://api.github.com/repos/sabre-io/uri/zipball/059d11012603be2e32ddb7543602965563ddbb09",
+            "reference": "059d11012603be2e32ddb7543602965563ddbb09",
             "shasum": ""
         },
         "require": {
-            "php": ">=7"
+            "php": "^7.1"
         },
         "require-dev": {
-            "phpunit/phpunit": "^6"
+            "friendsofphp/php-cs-fixer": "~2.16.1",
+            "phpunit/phpunit": "^7 || ^8"
         },
-        "time": "2019-09-09T23:00:25+00:00",
+        "time": "2020-01-31T18:53:43+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -884,31 +924,33 @@
     },
     {
         "name": "sabre/vobject",
-        "version": "4.2.0",
-        "version_normalized": "4.2.0.0",
+        "version": "4.3.1",
+        "version_normalized": "4.3.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/vobject.git",
-            "reference": "bd500019764e434ff65872d426f523e7882a0739"
+            "reference": "a7feca8311462e5da16952454e420b92c20d3586"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/bd500019764e434ff65872d426f523e7882a0739",
-            "reference": "bd500019764e434ff65872d426f523e7882a0739",
+            "url": "https://api.github.com/repos/sabre-io/vobject/zipball/a7feca8311462e5da16952454e420b92c20d3586",
+            "reference": "a7feca8311462e5da16952454e420b92c20d3586",
             "shasum": ""
         },
         "require": {
             "ext-mbstring": "*",
-            "php": ">=5.5",
-            "sabre/xml": ">=1.5 <3.0"
+            "php": "^7.1",
+            "sabre/xml": "^2.1"
         },
         "require-dev": {
-            "phpunit/phpunit": "> 4.8.35, <6.0.0"
+            "friendsofphp/php-cs-fixer": "~2.16.1",
+            "phpstan/phpstan": "^0.12",
+            "phpunit/phpunit": "^7.5 || ^8.5 || ^9.0"
         },
         "suggest": {
             "hoa/bench": "If you would like to run the benchmark scripts"
         },
-        "time": "2019-02-19T13:05:37+00:00",
+        "time": "2020-07-13T11:23:30+00:00",
         "bin": [
             "bin/vobject",
             "bin/generate_vcards"
@@ -982,17 +1024,17 @@
     },
     {
         "name": "sabre/xml",
-        "version": "2.1.3",
-        "version_normalized": "2.1.3.0",
+        "version": "2.2.1",
+        "version_normalized": "2.2.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/sabre-io/xml.git",
-            "reference": "f08a58f57e2b0d7df769a432756aa371417ab9eb"
+            "reference": "41c6ba148966b10cafd31d1a4e5feb1e2138d95c"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/sabre-io/xml/zipball/f08a58f57e2b0d7df769a432756aa371417ab9eb",
-            "reference": "f08a58f57e2b0d7df769a432756aa371417ab9eb",
+            "url": "https://api.github.com/repos/sabre-io/xml/zipball/41c6ba148966b10cafd31d1a4e5feb1e2138d95c",
+            "reference": "41c6ba148966b10cafd31d1a4e5feb1e2138d95c",
             "shasum": ""
         },
         "require": {
@@ -1000,13 +1042,15 @@
             "ext-xmlreader": "*",
             "ext-xmlwriter": "*",
             "lib-libxml": ">=2.6.20",
-            "php": ">=7.0",
+            "php": "^7.1",
             "sabre/uri": ">=1.0,<3.0.0"
         },
         "require-dev": {
-            "phpunit/phpunit": "^6"
+            "friendsofphp/php-cs-fixer": "~2.16.1",
+            "phpstan/phpstan": "^0.12",
+            "phpunit/phpunit": "^7.5 || ^8.5 || ^9.0"
         },
-        "time": "2019-08-14T15:41:34+00:00",
+        "time": "2020-05-11T09:44:55+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1046,17 +1090,17 @@
     },
     {
         "name": "simplepie/simplepie",
-        "version": "1.5.3",
-        "version_normalized": "1.5.3.0",
+        "version": "1.5.5",
+        "version_normalized": "1.5.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/simplepie/simplepie.git",
-            "reference": "173663382a9346acd53df60c7ffb20689c9cf1f6"
+            "reference": "ae49e2201b6da9c808e5dac437aca356a11831b4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/173663382a9346acd53df60c7ffb20689c9cf1f6",
-            "reference": "173663382a9346acd53df60c7ffb20689c9cf1f6",
+            "url": "https://api.github.com/repos/simplepie/simplepie/zipball/ae49e2201b6da9c808e5dac437aca356a11831b4",
+            "reference": "ae49e2201b6da9c808e5dac437aca356a11831b4",
             "shasum": ""
         },
         "require": {
@@ -1075,7 +1119,7 @@
             "ext-mbstring": "",
             "mf2/mf2": "Microformat module that allows for parsing HTML for microformats"
         },
-        "time": "2019-09-22T23:21:30+00:00",
+        "time": "2020-05-01T12:23:14+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
@@ -1098,8 +1142,8 @@
                 "role": "Creator, alumnus developer"
             },
             {
-                "name": "Geoffrey Sneddon",
-                "homepage": "http://gsnedders.com/",
+                "name": "Sam Sneddon",
+                "homepage": "https://gsnedders.com/",
                 "role": "Alumnus developer"
             },
             {
@@ -1117,32 +1161,33 @@
             "rss"
         ],
         "support": {
-            "source": "https://github.com/simplepie/simplepie/tree/1.5.3",
+            "source": "https://github.com/simplepie/simplepie/tree/1.5.5",
             "issues": "https://github.com/simplepie/simplepie/issues"
         }
     },
     {
         "name": "smarty/smarty",
-        "version": "v3.1.34",
-        "version_normalized": "3.1.34.0",
+        "version": "v3.1.36",
+        "version_normalized": "3.1.36.0",
         "source": {
             "type": "git",
             "url": "https://github.com/smarty-php/smarty.git",
-            "reference": "c9f0de05f41b9e52798b268ab1e625fac3b8578c"
+            "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/c9f0de05f41b9e52798b268ab1e625fac3b8578c",
-            "reference": "c9f0de05f41b9e52798b268ab1e625fac3b8578c",
+            "url": "https://api.github.com/repos/smarty-php/smarty/zipball/fd148f7ade295014fff77f89ee3d5b20d9d55451",
+            "reference": "fd148f7ade295014fff77f89ee3d5b20d9d55451",
             "shasum": ""
         },
         "require": {
             "php": ">=5.2"
         },
         "require-dev": {
-            "phpunit/phpunit": "6.4.1"
+            "phpunit/phpunit": "6.4.1",
+            "smarty/smarty-lexer": "^3.1"
         },
-        "time": "2019-02-28T06:42:20+00:00",
+        "time": "2020-04-14T14:44:26+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1181,17 +1226,17 @@
     },
     {
         "name": "symfony/polyfill-ctype",
-        "version": "v1.10.0",
-        "version_normalized": "1.10.0.0",
+        "version": "v1.13.1",
+        "version_normalized": "1.13.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/polyfill-ctype.git",
-            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19"
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/e3d826245268269cd66f8326bd8bc066687b4a19",
-            "reference": "e3d826245268269cd66f8326bd8bc066687b4a19",
+            "url": "https://api.github.com/repos/symfony/polyfill-ctype/zipball/f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
+            "reference": "f8f0b461be3385e56d6de3dbb5a0df24c0c275e3",
             "shasum": ""
         },
         "require": {
@@ -1200,11 +1245,11 @@
         "suggest": {
             "ext-ctype": "For best performance"
         },
-        "time": "2018-08-06T14:22:27+00:00",
+        "time": "2019-11-27T13:56:44+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
-                "dev-master": "1.9-dev"
+                "dev-master": "1.13-dev"
             }
         },
         "installation-source": "dist",
@@ -1222,12 +1267,12 @@
         ],
         "authors": [
             {
-                "name": "Symfony Community",
-                "homepage": "https://symfony.com/contributors"
-            },
-            {
                 "name": "Gert de Pagter",
                 "email": "BackEndTea@gmail.com"
+            },
+            {
+                "name": "Symfony Community",
+                "homepage": "https://symfony.com/contributors"
             }
         ],
         "description": "Symfony polyfill for ctype functions",
@@ -1241,23 +1286,23 @@
     },
     {
         "name": "twbs/bootstrap",
-        "version": "v4.3.1",
-        "version_normalized": "4.3.1.0",
+        "version": "v4.5.2",
+        "version_normalized": "4.5.2.0",
         "source": {
             "type": "git",
             "url": "https://github.com/twbs/bootstrap.git",
-            "reference": "8fa0d3010112dca5dd6dd501173415856001ba8b"
+            "reference": "5f2480a90ab911babc53039835fe78c6fc12646d"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/twbs/bootstrap/zipball/8fa0d3010112dca5dd6dd501173415856001ba8b",
-            "reference": "8fa0d3010112dca5dd6dd501173415856001ba8b",
+            "url": "https://api.github.com/repos/twbs/bootstrap/zipball/5f2480a90ab911babc53039835fe78c6fc12646d",
+            "reference": "5f2480a90ab911babc53039835fe78c6fc12646d",
             "shasum": ""
         },
         "replace": {
             "twitter/bootstrap": "self.version"
         },
-        "time": "2019-02-13T16:01:40+00:00",
+        "time": "2020-08-06T16:22:43+00:00",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -1271,12 +1316,12 @@
         ],
         "authors": [
             {
-                "name": "Jacob Thornton",
-                "email": "jacobthornton@gmail.com"
-            },
-            {
                 "name": "Mark Otto",
                 "email": "markdotto@gmail.com"
+            },
+            {
+                "name": "Jacob Thornton",
+                "email": "jacobthornton@gmail.com"
             }
         ],
         "description": "The most popular front-end framework for developing responsive, mobile first projects on the web.",
@@ -1290,6 +1335,12 @@
             "responsive",
             "sass",
             "web"
+        ],
+        "funding": [
+            {
+                "url": "https://opencollective.com/bootstrap",
+                "type": "open_collective"
+            }
         ]
     }
 ]

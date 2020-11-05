@@ -36,12 +36,12 @@
 		var path = $(this)[0].pathname.substr(1,7);
 		var stateObj = { b64mid: b64mid };
 
-		if(b64mid === 'undefined' && notify_id === 'undefined')
+		if(! b64mid && ! notify_id)
 			return;
 
 		{{if $module != 'hq' && $startpage == 'hq'}}
 			e.preventDefault();
-			if(typeof notify_id !== 'undefined' && notify_id !== 'undefined') {
+			if(notify_id != null) {
 				$.post(
 					"hq",
 					{
@@ -61,7 +61,7 @@
 			{{/if}}
 
 			{{if $module == 'hq'}}
-			if(b64mid !== 'undefined') {
+			if(b64mid) {
 			{{else}}
 			if(path === 'display' && b64mid) {
 			{{/if}}
@@ -81,20 +81,26 @@
 	{{foreach $notifications as $notification}}
 	{{if $notification.filter}}
 	$(document).on('click', '#tt-{{$notification.type}}-only', function(e) {
-		e.preventDefault();
-		$('#nav-{{$notification.type}}-menu [data-thread_top=false]').toggle();
-		$(this).toggleClass('active sticky-top');
+		if($(this).hasClass('active sticky-top')) {
+			$('#nav-{{$notification.type}}-menu .notification[data-thread_top=false]').removeClass('tt-filter-active');
+			$(this).removeClass('active sticky-top');
+		}
+		else {
+			$('#nav-{{$notification.type}}-menu .notification[data-thread_top=false]').addClass('tt-filter-active');
+			$(this).addClass('active sticky-top');
+		}
+
 	});
-	$(document).on('click ', '#cn-{{$notification.type}}-input-clear', function(e) {
+	$(document).on('click', '#cn-{{$notification.type}}-input-clear', function(e) {
 		$('#cn-{{$notification.type}}-input').val('');
 		$('#cn-{{$notification.type}}-only').removeClass('active sticky-top');
-		$("#nav-{{$notification.type}}-menu .notification").removeClass('d-none');
+		$("#nav-{{$notification.type}}-menu .notification").removeClass('cn-filter-active');
 		$('#cn-{{$notification.type}}-input-clear').addClass('d-none');
 	});
 	$(document).on('input', '#cn-{{$notification.type}}-input', function(e) {
 		var val = $('#cn-{{$notification.type}}-input').val().toString().toLowerCase();
-
 		if(val) {
+			val = val.indexOf('%') == 0 ? val.substring(1) : val;
 			$('#cn-{{$notification.type}}-only').addClass('active sticky-top');
 			$('#cn-{{$notification.type}}-input-clear').removeClass('d-none');
 		}
@@ -108,15 +114,16 @@
 			var ca = $(el).data('contact_addr').toString().toLowerCase();
 
 			if(cn.indexOf(val) === -1 && ca.indexOf(val) === -1)
-				$(this).addClass('d-none');
+				$(this).addClass('cn-filter-active');
 			else
-				$(this).removeClass('d-none');
+				$(this).removeClass('cn-filter-active');
 		});
 	});
 	{{/if}}
 	{{/foreach}}
 
 	function getData(b64mid, notify_id) {
+		$(document).scrollTop(0);
 		$('.thread-wrapper').remove();
 		bParam_mid = b64mid;
 		mode = 'replace';
@@ -135,30 +142,31 @@
 		{{$no_notifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 	</div>
 	<div id="nav-notifications-template" rel="template">
-		<a class="list-group-item clearfix notification {6}" href="{0}" title="{3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}">
-			<img class="menu-img-3" data-src="{1}">
-			<span class="contactname">{2}</span>
-			<span class="dropdown-sub-text">{4}<br>{5}</span>
+		<a class="list-group-item text-decoration-none text-darkclearfix notification {6}" href="{0}" title="{13}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-when="{5}">
+			<img class="menu-img-3" data-src="{1}" loading="lazy">
+			<div class="contactname"><span class="text-dark font-weight-bold">{2}</span> <span class="text-muted">{3}</span></div>
+			<span class="text-muted">{4}</span><br>
+			<span class="text-muted notifications-autotime" title="{5}">{5}</span>
 		</a>
 	</div>
 	<div id="nav-notifications-forums-template" rel="template">
-		<a class="list-group-item clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}">
-			<span class="float-right badge badge-{{$notification.severity}}">{10}</span>
-			<img class="menu-img-1" data-src="{1}">
+		<a class="list-group-item text-decoration-none clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
+			<span class="float-right badge badge-secondary">{10}</span>
+			<img class="menu-img-1" data-src="{1}" loading="lazy">
 			<span class="">{2}</span>
 			<i class="fa fa-{11} text-muted"></i> 
 		</a>
 	</div>
-	<div id="notifications" class="navbar-nav">
+	<div id="notifications" class="border border-bottom-0 rounded navbar-nav collapse">
 		{{foreach $notifications as $notification}}
-		<div class="collapse {{$notification.type}}-button">
-			<a class="list-group-item notification-link" href="#" title="{{$notification.title}}" data-target="#nav-{{$notification.type}}-sub" data-toggle="collapse" data-type="{{$notification.type}}">
+		<div class="rounded list-group list-group-flush collapse {{$notification.type}}-button">
+			<a id="notification-link-{{$notification.type}}" class="collapsed list-group-item text-decoration-none notification-link" href="#" title="{{$notification.title}}" data-target="#nav-{{$notification.type}}-sub" data-toggle="collapse" data-sse_type="{{$notification.type}}">
 				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
 				<span class="float-right badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
 			</a>
-			<div id="nav-{{$notification.type}}-sub" class="collapse notification-content" data-parent="#notifications" data-type="{{$notification.type}}">
+			<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush border border-left-0 border-top-0 border-right-0 collapse notification-content" data-parent="#notifications" data-sse_type="{{$notification.type}}">
 				{{if $notification.viewall}}
-				<a class="list-group-item text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
+				<a class="list-group-item text-decoration-none text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
 					<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
 				</a>
 				{{/if}}
@@ -176,14 +184,16 @@
 				{{if $notification.filter.name_label}}
 				<div class="list-group-item clearfix notifications-textinput" id="cn-{{$notification.type}}-only">
 					<div class="text-muted notifications-textinput-filter"><i class="fa fa-fw fa-filter"></i></div>
-					<input id="cn-{{$notification.type}}-input" type="text" class="form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
+					<input id="cn-{{$notification.type}}-input" type="text" class="notification-filter form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
 					<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="fa fa-times"></i></div>
 				</div>
 				{{/if}}
 				{{/if}}
-				<div id="nav-{{$notification.type}}-menu" class="">
+				<div id="nav-{{$notification.type}}-menu" class="list-group list-group-flush"></div>
+				<div id="nav-{{$notification.type}}-loading" class="list-group-item" style="display: none;">
 					{{$loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 				</div>
+
 			</div>
 		</div>
 		{{/foreach}}

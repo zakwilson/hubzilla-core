@@ -6,9 +6,6 @@ namespace Sabre\DAV;
 
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-require_once 'Sabre/DAV/TestPlugin.php';
-
 class ServerPluginTest extends AbstractServer
 {
     /**
@@ -16,7 +13,7 @@ class ServerPluginTest extends AbstractServer
      */
     protected $testPlugin;
 
-    public function setUp()
+    public function setup(): void
     {
         parent::setUp();
 
@@ -60,7 +57,7 @@ class ServerPluginTest extends AbstractServer
         ], $this->response->getHeaders());
 
         $this->assertEquals(200, $this->response->status);
-        $this->assertEquals('', $this->response->body);
+        $this->assertEquals('', $this->response->getBodyAsString());
         $this->assertEquals('OPTIONS', $this->testPlugin->beforeMethod);
     }
 

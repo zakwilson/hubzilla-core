@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/photo/photo_driver.php');
 require_once('include/photos.php');
 require_once('include/items.php');
@@ -162,7 +164,7 @@ class Photos extends \Zotlabs\Web\Controller {
 						$sync = attach_export_data(\App::$data['channel'],$folder_hash, true);
 	
 						if($sync) 
-							build_sync_packet($page_owner_uid,array('file' => array($sync)));
+							Libsync::build_sync_packet($page_owner_uid,array('file' => array($sync)));
 					}
 				}
 	
@@ -189,7 +191,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				$sync = attach_export_data(\App::$data['channel'],$r[0]['resource_id'], true);
 	
 				if($sync) 
-					build_sync_packet($page_owner_uid,array('file' => array($sync)));
+					Libsync::build_sync_packet($page_owner_uid,array('file' => array($sync)));
 			}
 			elseif(is_site_admin()) {
 				// If the admin deletes a photo, don't sync
@@ -208,9 +210,9 @@ class Photos extends \Zotlabs\Web\Controller {
 			if(($m) && ($m[0]['folder'] != $_POST['move_to_album'])) {
 				attach_move($page_owner_uid,argv(2),$_POST['move_to_album']);			
 
-				$sync = attach_export_data(\App::$data['channel'],argv(2),true);
+				$sync = attach_export_data(\App::$data['channel'], argv(2), false);
 				if($sync) 
-					build_sync_packet($page_owner_uid,array('file' => array($sync)));
+					Libsync::build_sync_packet($page_owner_uid,array('file' => array($sync)));
 
 				if(! ($_POST['desc'] && $_POST['newtag']))
 					goaway(z_root() . '/' . $_SESSION['photo_return']);
@@ -420,7 +422,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			$sync = attach_export_data(\App::$data['channel'],$resource_id);
 	
 			if($sync) 
-				build_sync_packet($page_owner_uid,array('file' => array($sync)));
+				Libsync::build_sync_packet($page_owner_uid,array('file' => array($sync)));
 		
 			goaway(z_root() . '/' . $_SESSION['photo_return']);
 			return; // NOTREACHED
@@ -706,7 +708,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			]);
 
 			if($x = photos_album_exists($owner_uid, get_observer_hash(), $datum)) {
-				\App::set_pager_itemspage(60);
+				\App::set_pager_itemspage(30);
 				$album = $x['display_path'];
 			} 
 			else {
@@ -1287,7 +1289,7 @@ class Photos extends \Zotlabs\Web\Controller {
 		\App::$page['htmlhead'] .= "\r\n" . '<link rel="alternate" type="application/json+oembed" href="' . z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$cmd) . '" title="oembed" />' . "\r\n";
 	
 
-		\App::set_pager_itemspage(60);
+		\App::set_pager_itemspage(30);
 		
 		$r = q("SELECT p.resource_id, p.id, p.filename, p.mimetype, p.album, p.imgscale, p.created, p.display_path 
 			FROM photo p 

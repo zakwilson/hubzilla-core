@@ -28,7 +28,7 @@ class VCFExportTest extends \Sabre\DAVServerTest
         ],
     ];
 
-    public function setUp()
+    public function setup(): void
     {
         parent::setUp();
         $plugin = new VCFExportPlugin();
@@ -57,7 +57,7 @@ class VCFExportTest extends \Sabre\DAVServerTest
         ]);
 
         $response = $this->request($request);
-        $this->assertEquals(200, $response->status, $response->body);
+        $this->assertEquals(200, $response->status, $response->getBodyAsString());
 
         $expected = 'BEGIN:VCARD
 FN:Person1
@@ -75,7 +75,7 @@ END:VCARD
         // We actually expected windows line endings
         $expected = str_replace("\n", "\r\n", $expected);
 
-        $this->assertEquals($expected, $response->body);
+        $this->assertEquals($expected, $response->getBodyAsString());
     }
 
     public function testBrowserIntegration()
@@ -84,7 +84,7 @@ END:VCARD
         $actions = '';
         $addressbook = new AddressBook($this->carddavBackend, []);
         $this->server->emit('browserButtonActions', ['/foo', $addressbook, &$actions]);
-        $this->assertContains('/foo?export', $actions);
+        $this->assertStringContainsString('/foo?export', $actions);
     }
 
     public function testContentDisposition()

@@ -18,11 +18,6 @@ namespace Sabre\Uri;
  * This function takes a basePath, which itself _may_ also be relative, and
  * then applies the relative path on top of it.
  *
- * @param string $basePath
- * @param string $newPath
- *
- * @return string
- *
  * @throws InvalidUriException
  */
 function resolve(string $basePath, string $newPath): string
@@ -112,10 +107,6 @@ function resolve(string $basePath, string $newPath): string
  *
  * It will also change a %3a into a %3A.
  *
- * @param string $uri
- *
- * @return string
- *
  * @throws InvalidUriException
  */
 function normalize(string $uri): string
@@ -183,9 +174,7 @@ function normalize(string $uri): string
  * Unlike PHP's parse_url, it will also convert any non-ascii characters to
  * percent-encoded strings. PHP's parse_url corrupts these characters on OS X.
  *
- * @param string $uri
- *
- * @return array
+ * @return array<string, string>
  *
  * @throws InvalidUriException
  */
@@ -225,9 +214,7 @@ function parse(string $uri): array
  * This function takes the components returned from PHP's parse_url, and uses
  * it to generate a new uri.
  *
- * @param array $parts
- *
- * @return string
+ * @param array<string, string> $parts
  */
 function build(array $parts): string
 {
@@ -281,9 +268,7 @@ function build(array $parts): string
  * If there is no dirname, it will return an empty string. Any / appearing at
  * the end of the string is stripped off.
  *
- * @param string $path
- *
- * @return array
+ * @return array<int, mixed>
  */
 function split(string $path): array
 {
@@ -305,9 +290,7 @@ function split(string $path): array
  * This function is only called if the main parse method fails. It's pretty
  * crude and probably slow, so the original parse_url is usually preferred.
  *
- * @param string $uri
- *
- * @return array
+ * @return array<string, mixed>
  *
  * @throws InvalidUriException
  */

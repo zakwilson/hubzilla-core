@@ -7,8 +7,6 @@ namespace Sabre\DAV\Locks;
 use Sabre\DAV;
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/AbstractServer.php';
-
 class PluginTest extends DAV\AbstractServer
 {
     /**
@@ -16,7 +14,7 @@ class PluginTest extends DAV\AbstractServer
      */
     protected $locksPlugin;
 
-    public function setUp()
+    public function setup(): void
     {
         parent::setUp();
         $locksBackend = new Backend\File(SABRE_TEMPDIR.'/locksdb');
@@ -77,9 +75,9 @@ class PluginTest extends DAV\AbstractServer
         $this->assertEquals('application/xml; charset=utf-8', $this->response->getHeader('Content-Type'));
         $this->assertTrue(1 === preg_match('/^<opaquelocktoken:(.*)>$/', $this->response->getHeader('Lock-Token')), 'We did not get a valid Locktoken back ('.$this->response->getHeader('Lock-Token').')');
 
-        $this->assertEquals(200, $this->response->status, 'Got an incorrect status back. Response body: '.$this->response->body);
+        $this->assertEquals(200, $this->response->status, 'Got an incorrect status back. Response body: '.$this->response->getBodyAsString());
 
-        $body = preg_replace("/xmlns(:[A-Za-z0-9_])?=(\"|\')DAV:(\"|\')/", 'xmlns\\1="urn:DAV"', $this->response->body);
+        $body = preg_replace("/xmlns(:[A-Za-z0-9_])?=(\"|\')DAV:(\"|\')/", 'xmlns\\1="urn:DAV"', $this->response->getBodyAsString());
         $xml = simplexml_load_string($body);
         $xml->registerXPathNamespace('d', 'urn:DAV');
 
@@ -102,7 +100,7 @@ class PluginTest extends DAV\AbstractServer
 
         foreach ($elements as $elem) {
             $data = $xml->xpath($elem);
-            $this->assertEquals(1, count($data), 'We expected 1 match for the xpath expression "'.$elem.'". '.count($data).' were found. Full response body: '.$this->response->body);
+            $this->assertEquals(1, count($data), 'We expected 1 match for the xpath expression "'.$elem.'". '.count($data).' were found. Full response body: '.$this->response->getBodyAsString());
         }
 
         $depth = $xml->xpath('/d:prop/d:lockdiscovery/d:activelock/d:depth');
@@ -110,6 +108,32 @@ class PluginTest extends DAV\AbstractServer
 
         $token = $xml->xpath('/d:prop/d:lockdiscovery/d:activelock/d:locktoken/d:href');
         $this->assertEquals($this->response->getHeader('Lock-Token'), '<'.(string) $token[0].'>', 'Token in response body didn\'t match token in response header.');
+    }
+
+    public function testLockWithContext()
+    {
+        $request = new HTTP\Request('LOCK', '/baseuri/test.txt');
+        $request->setBody('<?xml version="1.0"?>
+<D:lockinfo xmlns:D="DAV:">
+    <D:lockscope><D:exclusive/></D:lockscope>
+    <D:locktype><D:write/></D:locktype>
+    <D:owner>
+        <D:href>http://example.org/~ejw/contact.html</D:href>
+    </D:owner>
+</D:lockinfo>');
+
+        $this->server->setBaseUri('baseuri');
+        $this->server->httpRequest = $request;
+        $this->server->exec();
+
+        $this->assertEquals(200, $this->response->status, 'Got an incorrect status back. Response body: '.$this->response->getBodyAsString());
+
+        $body = preg_replace("/xmlns(:[A-Za-z0-9_])?=(\"|\')DAV:(\"|\')/", 'xmlns\\1="urn:DAV"', $this->response->getBodyAsString());
+        $xml = simplexml_load_string($body);
+        $xml->registerXPathNamespace('d', 'urn:DAV');
+
+        $lockRoot = $xml->xpath('/d:prop/d:lockdiscovery/d:activelock/d:lockroot/d:href');
+        $this->assertEquals('baseuri/test.txt', (string) $lockRoot[0]);
     }
 
     /**
@@ -137,7 +161,7 @@ class PluginTest extends DAV\AbstractServer
 
         $this->assertEquals('application/xml; charset=utf-8', $this->response->getHeader('Content-Type'));
 
-        $this->assertEquals(423, $this->response->status, 'Full response: '.$this->response->body);
+        $this->assertEquals(423, $this->response->status, 'Full response: '.$this->response->getBodyAsString());
     }
 
     /**
@@ -267,7 +291,7 @@ class PluginTest extends DAV\AbstractServer
             $this->response->getHeaders()
          );
 
-        $this->assertEquals(409, $this->response->status, 'Got an incorrect status code. Full response body: '.$this->response->body);
+        $this->assertEquals(409, $this->response->status, 'Got an incorrect status code. Full response body: '.$this->response->getBodyAsString());
     }
 
     /**
@@ -329,7 +353,7 @@ class PluginTest extends DAV\AbstractServer
         $this->server->httpResponse = new HTTP\ResponseMock();
         $this->server->invokeMethod($request, $this->server->httpResponse);
 
-        $this->assertEquals(204, $this->server->httpResponse->status, 'Got an incorrect status code. Full response body: '.$this->response->body);
+        $this->assertEquals(204, $this->server->httpResponse->status, 'Got an incorrect status code. Full response body: '.$this->response->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Length' => ['0'],
@@ -366,7 +390,7 @@ class PluginTest extends DAV\AbstractServer
         $this->server->httpResponse = new HTTP\ResponseMock();
         $this->server->invokeMethod($request, $this->server->httpResponse);
 
-        $this->assertEquals(204, $this->server->httpResponse->status, 'Got an incorrect status code. Full response body: '.$this->response->body);
+        $this->assertEquals(204, $this->server->httpResponse->status, 'Got an incorrect status code. Full response body: '.$this->response->getBodyAsString());
         $this->assertEquals([
             'X-Sabre-Version' => [DAV\Version::VERSION],
             'Content-Length' => ['0'],
@@ -629,7 +653,7 @@ class PluginTest extends DAV\AbstractServer
         $this->server->httpRequest = $request;
         $this->server->exec();
 
-        $this->assertEquals(201, $this->response->status, 'A valid lock-token was provided for the source, so this MOVE operation must succeed. Full response body: '.$this->response->body);
+        $this->assertEquals(201, $this->response->status, 'A valid lock-token was provided for the source, so this MOVE operation must succeed. Full response body: '.$this->response->getBodyAsString());
     }
 
     /**
@@ -809,7 +833,7 @@ class PluginTest extends DAV\AbstractServer
 
         $this->server->httpRequest = $request;
         $this->server->exec();
-        $this->assertEquals(204, $this->response->status, 'Incorrect status received. Full response body:'.$this->response->body);
+        $this->assertEquals(204, $this->response->status, 'Incorrect status received. Full response body:'.$this->response->getBodyAsString());
     }
 
     public function testDeleteWithETagOnCollection()
@@ -851,11 +875,9 @@ class PluginTest extends DAV\AbstractServer
         $this->assertEquals(LockInfo::TIMEOUT_INFINITE, $this->locksPlugin->getTimeoutHeader());
     }
 
-    /**
-     * @expectedException \Sabre\DAV\Exception\BadRequest
-     */
     public function testGetTimeoutHeaderInvalid()
     {
+        $this->expectException('Sabre\DAV\Exception\BadRequest');
         $request = new HTTP\Request('GET', '/', ['Timeout' => 'yourmom']);
 
         $this->server->httpRequest = $request;

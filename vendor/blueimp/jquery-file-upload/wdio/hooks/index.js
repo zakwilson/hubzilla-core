@@ -1,21 +1,26 @@
 'use strict'
 
-/* global browser */
+/* global browser, Promise */
 
 const cmds = require('wdio-screen-commands')
 
-module.exports = {
-  before: () => {
-    global.should = require('chai').should()
+/* eslint-disable jsdoc/valid-types */
+/** @type WebdriverIO.HookFunctions */
+const config = {
+  before: async () => {
     browser.addCommand('saveScreenshotByName', cmds.saveScreenshotByName)
     browser.addCommand('saveAndDiffScreenshot', cmds.saveAndDiffScreenshot)
-    if (browser.config.maximizeWindow) browser.maximizeWindow()
+    if (browser.config.maximizeWindow) await browser.maximizeWindow()
   },
-  beforeTest: test => {
-    cmds.startScreenRecording(test)
+  beforeTest: async test => {
+    await cmds.startScreenRecording(test)
   },
-  afterTest: async test => {
-    await cmds.stopScreenRecording(test)
-    cmds.saveScreenshotByTest(test)
+  afterTest: async (test, context, result) => {
+    await Promise.all([
+      cmds.stopScreenRecording(test, result),
+      cmds.saveScreenshotByTest(test, result)
+    ])
   }
 }
+
+module.exports = config

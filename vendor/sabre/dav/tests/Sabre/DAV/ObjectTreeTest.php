@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace Sabre\DAV;
 
-require_once 'Sabre/TestUtil.php';
-
 class ObjectTreeTest extends \PHPUnit\Framework\TestCase
 {
     protected $tree;
 
-    public function setup()
+    public function setup(): void
     {
         \Sabre\TestUtil::clearTempDir();
         mkdir(SABRE_TEMPDIR.'/root');
@@ -21,7 +19,7 @@ class ObjectTreeTest extends \PHPUnit\Framework\TestCase
         $this->tree = new Tree($rootNode);
     }
 
-    public function teardown()
+    public function teardown(): void
     {
         \Sabre\TestUtil::clearTempDir();
     }

@@ -23,17 +23,32 @@ var mediaPlaying = false;
 var contentHeightDiff = 0;
 var liveRecurse = 0;
 var savedTitle = '';
-var initialLoad = true;
+var followUpPageLoad = false;
+var window_needs_alert = true;
 
-// Clear the session and local storage if we switch channel or log out
-var cache_uid = '';
-if(sessionStorage.getItem('uid') !== null) {
-	cache_uid = sessionStorage.getItem('uid');
-}
-if(cache_uid !== localUser.toString()) {
-	sessionStorage.clear();
+var sse_bs_active = false;
+var sse_offset = 0;
+var sse_type;
+var sse_partial_result = false;
+var sse_rmids = [];
+
+var page_cache = {};
+
+// take care of tab/window reloads on channel change
+if(localStorage.getItem('uid') !== localUser.toString()) {
 	localStorage.clear();
-	sessionStorage.setItem('uid', localUser.toString());
+	sessionStorage.clear();
+	localStorage.setItem('uid', localUser.toString());
+}
+window.onstorage = function(e) {
+	if(e.key === 'uid' && parseInt(e.newValue) !== localUser) {
+		if(window_needs_alert) {
+			window_needs_alert = false; 
+			alert("Your identity has changed. Page reload required!");
+			window.location.reload();
+			return;
+		}
+	}
 }
 
 $.ajaxSetup({cache: false});
@@ -55,28 +70,116 @@ $(document).ready(function() {
 		}
 	});
 
-    var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
+	var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
 
-    jQuery.timeago.settings.strings = {
-        prefixAgo     : aStr['t01'],
-        prefixFromNow : aStr['t02'],
-        suffixAgo     : aStr['t03'],
-        suffixFromNow : aStr['t04'],
-        seconds       : aStr['t05'],
-        minute        : aStr['t06'],
-        minutes       : function(value){return tf(value, aStr['t07']);},
-        hour          : aStr['t08'],
-        hours         : function(value){return tf(value, aStr['t09']);},
-        day           : aStr['t10'],
-        days          : function(value){return tf(value, aStr['t11']);},
-        month         : aStr['t12'],
-        months        : function(value){return tf(value, aStr['t13']);},
-        year          : aStr['t14'],
-        years         : function(value){return tf(value, aStr['t15']);},
-        wordSeparator : aStr['t16'],
-        numbers       : aStr['t17'],
-    };
+	jQuery.timeago.settings.strings = {
+		prefixAgo     : aStr['t01'],
+		prefixFromNow : aStr['t02'],
+		suffixAgo     : aStr['t03'],
+		suffixFromNow : aStr['t04'],
+		seconds       : aStr['t05'],
+		minute        : aStr['t06'],
+		minutes       : function(value){return tf(value, aStr['t07']);},
+		hour          : aStr['t08'],
+		hours         : function(value){return tf(value, aStr['t09']);},
+		day           : aStr['t10'],
+		days          : function(value){return tf(value, aStr['t11']);},
+		month         : aStr['t12'],
+		months        : function(value){return tf(value, aStr['t13']);},
+		year          : aStr['t14'],
+		years         : function(value){return tf(value, aStr['t15']);},
+		wordSeparator : aStr['t16'],
+		numbers       : aStr['t17'],
+	};
+	
+	jQuery.timeago.settings.allowFuture = true;
 
+	if(typeof(window.SharedWorker) === 'undefined') {
+		// notifications with multiple tabs open will not work very well in this scenario 
+		var evtSource = new EventSource('/sse');
+
+		evtSource.addEventListener('notifications', function(e) {
+			var obj = JSON.parse(e.data);
+			sse_handleNotifications(obj, false, false);
+		}, false);
+
+		document.addEventListener('visibilitychange', function() {
+			if (!document.hidden) {
+				sse_offset = 0;
+				sse_bs_init();
+			}
+		}, false);
+
+	}
+	else {
+		var myWorker = new SharedWorker('/view/js/sse_worker.js', localUser);
+
+		myWorker.port.onmessage = function(e) {
+			obj = e.data;
+			console.log(obj);
+			sse_handleNotifications(obj, false, false);
+		}
+
+		myWorker.onerror = function(e) {
+			myWorker.port.close();
+		}
+
+		myWorker.port.start();
+	}
+
+	$('.notification-link').on('click', { replace: true, followup: false }, sse_bs_notifications);
+
+	$('.notification-filter').on('keypress', function(e) {
+		if(e.which == 13) { // enter
+			this.blur();
+			sse_offset = 0;
+			$("#nav-" + sse_type + "-menu").html('');
+			$("#nav-" + sse_type + "-loading").show();
+
+			var cn_val = $('#cn-' + sse_type + '-input').length ? $('#cn-' + sse_type + '-input').val().toString().toLowerCase() : '';
+
+			$.get('/sse_bs/' + sse_type + '/' + sse_offset + '?nquery=' + encodeURIComponent(cn_val), function(obj) {
+				console.log('sse: bootstraping ' + sse_type);
+				console.log(obj);
+
+				sse_bs_active = false;
+				sse_partial_result = true;
+				sse_offset = obj[sse_type].offset;
+				if(sse_offset < 0)
+					$("#nav-" + sse_type + "-loading").hide();
+
+				sse_handleNotifications(obj, true, false);
+
+			});
+		}
+	});
+
+	$('.notifications-textinput-clear').on('click', function(e) {
+		if(! sse_partial_result)
+			return;
+
+		$("#nav-" + sse_type + "-menu").html('');
+		$("#nav-" + sse_type + "-loading").show();
+		$.get('/sse_bs/' + sse_type, function(obj) {
+			console.log('sse: bootstraping ' + sse_type);
+			console.log(obj);
+
+			sse_bs_active = false;
+			sse_partial_result = false;
+			sse_offset = obj[sse_type].offset;
+			if(sse_offset < 0)
+				$("#nav-" + sse_type + "-loading").hide();
+
+			sse_handleNotifications(obj, true, false);
+
+		});
+	});
+
+	$('.notification-content').on('scroll', function() {
+		if(this.scrollTop > this.scrollHeight - this.clientHeight - (this.scrollHeight/7)) {
+			sse_bs_notifications(sse_type, false, true);
+		}
+	});
 
 	//mod_mail only
 	$(".mail-conv-detail .autotime").timeago();
@@ -84,24 +187,6 @@ $(document).ready(function() {
 	savedTitle = document.title;
 
 	updateInit();
-
-	$('a.notification-link').click(function(e){
-		var notifyType = $(this).data('type');
-
-		if(! $('#nav-' + notifyType + '-sub').hasClass('show')) {
-			loadNotificationItems(notifyType);
-			sessionStorage.setItem('notification_open', notifyType);
-		}
-		else {
-			sessionStorage.removeItem('notification_open');
-		}
-	});
-
-	if(sessionStorage.getItem('notification_open') !== null) {
-		var notifyType = sessionStorage.getItem('notification_open');
-		$('#nav-' + notifyType + '-sub').addClass('show');
-		loadNotificationItems(notifyType);
-	}
 
 	// Allow folks to stop the ajax page updates with the pause/break key
 	$(document).keydown(function(event) {
@@ -134,7 +219,10 @@ $(document).ready(function() {
 	if(e)
 		pageHasMoreContent = false;
 
-	initialLoad = false;
+	$(document).on('hz:updateConvItems', function(event) {
+		if(!bParam_mid)
+			cache_next_page();
+	});
 
 });
 
@@ -142,9 +230,6 @@ function getConversationSettings() {
 	$.get('settings/conversation/?f=&aj=1',function(data) {
 		$('#conversation_settings_body').html(data);
 	});
-
-
-
 }
 
 function postConversationSettings() {
@@ -197,7 +282,7 @@ function handle_comment_form(e) {
 				ex_form.find('.comment-edit-text').removeClass('expanded').attr('placeholder', aStr.comment);
 				ex_form.find(':not(.comment-edit-text)').hide();
 			}
-			i++
+			i++;
 		});
 	}
 
@@ -449,145 +534,18 @@ function closeMenu(theID) {
 
 function markRead(notifType) {
 	$.get('ping?f=&markRead='+notifType);
-	$('.' + notifType + '-button').hide();
-	$('#nav-' + notifType + '-sub').removeClass('show');
-	sessionStorage.removeItem(notifType + '_notifications_cache');
-	sessionStorage.removeItem('notification_open');
-	if(timer) clearTimeout(timer);
-	timer = setTimeout(updateInit,2000);
+	$('.' + notifType + '-button').fadeOut(function() {
+		$("." + notifType + "-update").html('0');
+		$('#nav-' + notifType + '-menu').html('');
+		$('#nav-' + notifType + '-sub').removeClass('show');
+		sessionStorage.removeItem('notification_open');
+		sse_setNotificationsStatus();
+	});
 }
 
 function markItemRead(itemId) {
 	$.get('ping?f=&markItemRead='+itemId);
-	$('.unseen-wall-indicator-'+itemId).hide();
-}
-
-function notificationsUpdate(cached_data) {
-	var pingCmd = 'ping' + ((localUser != 0) ? '?f=&uid=' + localUser : '');
-
-	if(cached_data !== undefined) {
-		handleNotifications(cached_data);
-	}
-	else {
-		$.get(pingCmd,function(data) {
-
-			// Put the object into storage
-			if(! data)
-				return;
-
-			sessionStorage.setItem('notifications_cache', JSON.stringify(data));
-
-			var fnotifs = [];
-			if(data.forums) {
-				$.each(data.forums_sub, function() {
-					fnotifs.push(this);
-				});
-				handleNotificationsItems('forums', fnotifs);
-			}
-
-			if(data.invalid == 1) {
-				window.location.href=window.location.href;
-			}
-
-			handleNotifications(data);
-
-			$.jGrowl.defaults.closerTemplate = '<div>[ ' + aStr.closeAll + ']</div>';
-
-			$(data.notice).each(function() {
-				$.jGrowl(this.message, { sticky: true, theme: 'notice' });
-			});
-
-			$(data.info).each(function(){
-				$.jGrowl(this.message, { sticky: false, theme: 'info', life: 10000 });
-			});
-		});
-	}
-
-	var notifyType = null;
-	if($('.notification-content.show').length) {
-		notifyType = $('.notification-content.show').data('type');
-	}
-	if(notifyType !== null) {
-		loadNotificationItems(notifyType);
-	}
-
-	if(timer) clearTimeout(timer);
-	timer = setTimeout(updateInit,updateInterval);
-}
-
-function handleNotifications(data) {
-	if(data.network || data.home || data.intros || data.register || data.mail || data.all_events || data.notify || data.files || data.pubs || data.forums) {
-		$('.notifications-btn').css('opacity', 1);
-		$('#no_notifications').hide();
-	}
-	else {
-		$('.notifications-btn').css('opacity', 0.5);
-		$('#navbar-collapse-1').removeClass('show');
-		$('#no_notifications').show();
-	}
-
-	if(data.home || data.intros || data.register || data.mail || data.notify || data.files) {
-		$('.notifications-btn-icon').removeClass('fa-exclamation-circle');
-		$('.notifications-btn-icon').addClass('fa-exclamation-triangle');
-	}
-	if(!data.home && !data.intros && !data.register && !data.mail && !data.notify && !data.files) {
-		$('.notifications-btn-icon').removeClass('fa-exclamation-triangle');
-		$('.notifications-btn-icon').addClass('fa-exclamation-circle');
-	}
-	if(data.all_events_today) {
-		$('.all_events-update').removeClass('badge-secondary');
-		$('.all_events-update').addClass('badge-danger');
-	}
-	else {
-		$('.all_events-update').removeClass('badge-danger');
-		$('.all_events-update').addClass('badge-secondary');
-	}
-
-	$.each(data, function(index, item) {
-		//do not process those
-		var arr = ['notice', 'info', 'invalid'];
-		if(arr.indexOf(index) !== -1)
-			return;
-
-		if(item == 0) {
-			$('.' + index + '-button').fadeOut();
-			sessionStorage.removeItem(index + '_notifications_cache');
-		} else {
-			$('.' + index + '-button').fadeIn();
-			$('.' + index + '-update').html(item);
-		}
-	});
-}
-
-function handleNotificationsItems(notifyType, data) {
-	var notifications_tpl = ((notifyType == 'forums') ? unescape($("#nav-notifications-forums-template[rel=template]").html()) : unescape($("#nav-notifications-template[rel=template]").html()));
-	var notify_menu = $("#nav-" + notifyType + "-menu");
-
-	notify_menu.html('');
-
-	$(data).each(function() {
-		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum);
-		notify_menu.append(html);
-	});
-
-	datasrc2src('#notifications .notification img[data-src]');
-
-	if($('#tt-' + notifyType + '-only').hasClass('active'))
-		$('#nav-' + notifyType + '-menu [data-thread_top=false]').hide();
-
-	if($('#cn-' + notifyType + '-input').length) {
-		var filter = $('#cn-' + notifyType + '-input').val().toString().toLowerCase();
-		if(filter) {
-			$('#nav-' + notifyType + '-menu .notification').each(function(i, el){
-				var cn = $(el).data('contact_name').toString().toLowerCase();
-				var ca = $(el).data('contact_addr').toString().toLowerCase();
-				if(cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1)
-					$(el).addClass('d-none');
-				else
-					$(el).removeClass('d-none');
-			});
-		}
-	}
+	$('.unseen-wall-indicator-'+itemId).remove();
 }
 
 function contextualHelp() {
@@ -629,9 +587,13 @@ function contextualHelpFocus(target, openSidePanel) {
 
 function updatePageItems(mode, data) {
 
+	$(document).trigger('hz:updatePageItems');
+
 	if(mode === 'append') {
+		newitemcount = 0;
 		$(data).each(function() {
 			$('#page-end').before($(this));
+			newitemcount++;
 		});
 
 		if(loadingPage) {
@@ -642,6 +604,10 @@ function updatePageItems(mode, data) {
 	var e = document.getElementById('content-complete');
 	if(e) {
 		pageHasMoreContent = false;
+	} else {
+		if (newitemcount < 1) {
+			pageUpdate();
+		}
 	}
 
 	collapseHeight();
@@ -649,6 +615,8 @@ function updatePageItems(mode, data) {
 
 
 function updateConvItems(mode,data) {
+
+	$(document).trigger('hz:updateConvItems');
 
 	if(mode === 'update' || mode === 'replace') {
 		prev = 'threads-begin';
@@ -661,92 +629,127 @@ function updateConvItems(mode,data) {
 		$('.thread-wrapper').remove(); // clear existing content
 	}
 
-	$('.thread-wrapper.toplevel_item',data).each(function() {
+	$('.thread-wrapper', data).each(function() {
+		if(this.classList.contains('toplevel_item')) {
 
-		var ident = $(this).attr('id');
-		var convId = ident.replace('thread-wrapper-','');
-		var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
+			var ident = this.id;
+			var convId = ident.replace('thread-wrapper-','');
+			var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
 
+			var itmId = 0;
+			var isVisible = false;
 
-		var itmId = 0;
-		var isVisible = false;
+			// figure out the comment state
+			if(typeof commentWrap !== 'undefined')
+				itmId = commentWrap.replace('collapsed-comments-','');
 
-		// figure out the comment state
-		if(typeof commentWrap !== 'undefined')
-			itmId = commentWrap.replace('collapsed-comments-','');
-				
-		if($('#collapsed-comments-'+itmId).is(':visible'))
-			isVisible = true;
+			if($('#collapsed-comments-'+itmId).is(':visible'))
+				isVisible = true;
 
+			// insert the content according to the mode and first_page 
+			// and whether or not the content exists already (overwrite it)
 
-
-
-		// insert the content according to the mode and first_page 
-		// and whether or not the content exists already (overwrite it)
-
-		if($('#' + ident).length == 0) {
-			if((mode === 'update' || mode === 'replace') && profile_page == 1) {
-					$('#' + prev).after($(this));
-				prev = ident;
-			}
-			if(mode === 'append') {
-				$('#' + next).before($(this));
-			}
-		}
-		else {
-			$('#' + ident).replaceWith($(this));
-		}		
-
-		// set the comment state to the state we discovered earlier
-
-		if(isVisible)
-			showHideComments(itmId);
-
-		var commentBody = localStorage.getItem("comment_body-" + convId);
-
-		if(commentBody) {
-			var commentElm = $('#comment-edit-text-' + convId);
-			if(auto_save_draft) {
-				if($(commentElm).val() === '') {
-					$('#comment-edit-form-' + convId).show();
-					$(commentElm).addClass("expanded");
-					openMenu("comment-tools-" + convId);
-					$(commentElm).val(commentBody);
+			if($('#' + ident).length == 0) {
+				if((mode === 'update' || mode === 'replace') && profile_page == 1) {
+						$('#' + prev).after($(this));
+					prev = ident;
 				}
-			} else {
-				localStorage.removeItem("comment_body-" + convId);
+				if(mode === 'append') {
+					$('#' + next).before($(this));
+				}
 			}
-		}
+			else {
+				$('#' + ident).replaceWith($(this));
+			}
 
+			// set the comment state to the state we discovered earlier
 
+			if(isVisible)
+				showHideComments(itmId);
 
-		// trigger the autotime function on all newly created content
+			var commentBody = localStorage.getItem("comment_body-" + convId);
 
-		$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
-		$("> .shared_header .autotime",this).timeago();
-		
-		if((mode === 'append' || mode === 'replace') && (loadingPage)) {
-			loadingPage = false;
-		}
+			if(commentBody) {
+				var commentElm = $('#comment-edit-text-' + convId);
+				if(auto_save_draft) {
+					if($(commentElm).val() === '') {
+						$('#comment-edit-form-' + convId).show();
+						$(commentElm).addClass("expanded");
+						openMenu("comment-tools-" + convId);
+						$(commentElm).val(commentBody);
+					}
+				} else {
+					localStorage.removeItem("comment_body-" + convId);
+				}
+			}
 
-		// if single thread view and  the item has a title, display it in the title bar
+			// trigger the autotime function on all newly created content
+			$("> .wall-item-outside-wrapper .autotime, > .thread-wrapper .autotime",this).timeago();
+			$("> .shared_header .autotime",this).timeago();
 
-		if(mode === 'replace') {
-			if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
-				var title = $(".wall-item-title").text();
-				title.replace(/^\s+/, '');
-				title.replace(/\s+$/, '');
-				if (title) {
-					savedTitle = title + " " + savedTitle;
-					document.title = title;
+			if((mode === 'append' || mode === 'replace') && (loadingPage)) {
+				loadingPage = false;
+			}
+
+			// if single thread view and  the item has a title, display it in the title bar
+
+			if(mode === 'replace') {
+				if (window.location.search.indexOf("mid=") != -1 || window.location.pathname.indexOf("display") != -1) {
+					var title = $(".wall-item-title").text();
+					title.replace(/^\s+/, '');
+					title.replace(/\s+$/, '');
+					if (title) {
+						savedTitle = title + " " + savedTitle;
+						document.title = title;
+					}
 				}
 			}
 		}
+
+		// take care of the notifications count updates
+		var nmids = $(this).data('b64mids');
+
+		nmids.forEach(function(nmid, index) {
+
+			sse_rmids.push(nmid);
+
+			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
+				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
+					var n = this.parentElement.id.split('-');
+					return sse_updateNotifications(n[1], nmid);
+				});
+			}
+
+			// special handling for forum notifications
+			$('.notification-forum').filter(function() {
+				var fmids = decodeURIComponent($(this).data('b64mids'));
+				var n = this.parentElement.id.split('-');
+				if(fmids.indexOf(nmid) > -1) {
+					var fcount = Number($('.' + n[1] + '-update').html());
+					fcount--;
+					$('.' + n[1] + '-update').html(fcount);
+					if(fcount < 1)
+						$('.' + n[1] + '-button').fadeOut();
+
+					var count = Number($(this).find('.badge-secondary').html());
+					count--;
+					$(this).find('.badge-secondary').html(count);
+					if(count < 1)
+						$(this).remove();
+				}
+			});
+
+
+		});
+
+		sse_setNotificationsStatus();
+
 	});
 
-	// reset rotators and cursors we may have set before reaching this place
-
-	$('.like-rotator').hide();
+	if(followUpPageLoad)
+		sse_bs_counts();
+	else
+		sse_bs_init();
 
 	if(commentBusy) {
 		commentBusy = false;
@@ -774,56 +777,67 @@ function updateConvItems(mode,data) {
 		mediaPlaying = false;
 	});
 
-	var bimgs = $(".wall-item-body img, .wall-photo-item img").not(function() { return this.complete; });
-	var bimgcount = bimgs.length;
+	if(! preloadImages) {
+		$('.wall-item-body, .wall-photo-item').imagesLoaded()
+		.always( function( instance ) {
+			//console.log('all images loaded');
+			collapseHeight();
 
-	if (bimgcount) {
-		bimgs.on('load',function() {
-			bimgcount--;
-			if (! bimgcount) {
-				collapseHeight();
+			if(bParam_mid && mode === 'replace')
+				scrollToItem();
 
-				if(bParam_mid && mode === 'replace')
-					scrollToItem();
-
-				$(document.body).trigger("sticky_kit:recalc");
-			}
+		})
+		.done( function( instance ) {
+			//console.log('all images successfully loaded');
+		})
+		.fail( function() {
+			//console.log('all images loaded, at least one is broken');
+		})
+		.progress( function( instance, image ) {
+			//var result = image.isLoaded ? 'loaded' : 'broken';
+			//console.log( 'image is ' + result + ' for ' + image.img.src );
 		});
-	} else {
+	}
+	else {
 		collapseHeight();
 
 		if(bParam_mid && mode === 'replace')
 			scrollToItem();
-
-		$(document.body).trigger("sticky_kit:recalc");
 	}
+
+	// reset rotators and cursors we may have set before reaching this place
+	$('.like-rotator').hide();
+	$("#page-spinner").hide();
+	$("#profile-jot-text-loading").hide();
+
+	followUpPageLoad = true;
 
 }
 
 function scrollToItem() {
 	// auto-scroll to a particular comment in a thread (designated by mid) when in single-thread mode
-	// use the same method to generate the submid as we use in ThreadItem, 
-	// base64_encode + replace(['+','='],['','']);
 
 	if(justifiedGalleryActive)
 		return;
 
 	var submid = ((bParam_mid.length) ? bParam_mid : 'abcdefg');
 	var encoded = ((submid.substr(0,4) == 'b64.') ? true : false);
-	var submid_encoded = ((encoded) ? submid.substr(4) : window.btoa(submid));
+	var submid_encoded = ((encoded) ? submid : window.btoa(submid));
 
-	submid_encoded = submid_encoded.replace(/[\+\=]/g,'');
-	if($('.item_' + submid_encoded).length && !$('.item_' + submid_encoded).hasClass('toplevel_item')) {
-		if($('.collapsed-comments').length) {
-			var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
-			$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
-			$('#collapsed-comments-' + scrolltoid).show();
-			$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
-			$('#hide-comments-total-' + scrolltoid).hide();
+	$('.thread-wrapper').filter(function() {
+		if($(this).data('b64mids').indexOf(submid_encoded) > -1 && !$(this).hasClass('toplevel_item')) {
+			if($('.collapsed-comments').length) {
+				var scrolltoid = $('.collapsed-comments').attr('id').substring(19);
+				$('#collapsed-comments-' + scrolltoid + ' .autotime').timeago();
+				$('#collapsed-comments-' + scrolltoid).show();
+				$('#hide-comments-' + scrolltoid).html(aStr.showfewer);
+				$('#hide-comments-total-' + scrolltoid).hide();
+			}
+			$('html, body').animate({ scrollTop: $(this).offset().top - $('nav').outerHeight(true) }, 'slow');
+			$(this).addClass('item-highlight');
 		}
-		$('html, body').animate({ scrollTop: $('.item_' + submid_encoded).offset().top - $('nav').outerHeight(true) }, 'slow');
-		$('.item_' + submid_encoded).addClass('item-highlight');
-	}
+	});
+
 }
 
 function collapseHeight() {
@@ -885,25 +899,11 @@ function updateInit() {
 	// if($('#live-cards').length)      { src = 'cards'; }
 	// if($('#live-articles').length)   { src = 'articles'; }
 
-	if (initialLoad && (sessionStorage.getItem('notifications_cache') !== null)) {
-		var cached_data = JSON.parse(sessionStorage.getItem('notifications_cache'));
-		notificationsUpdate(cached_data);
-
-		var fnotifs = [];
-		if(cached_data.forums) {
-			$.each(cached_data.forums_sub, function() {
-				fnotifs.push(this);
-			});
-			handleNotificationsItems('forums', fnotifs);
-		}
-
-	}
-
-	if(! src) {
-		notificationsUpdate();
+	if(src) {
+		liveUpdate();
 	}
 	else {
-		liveUpdate();
+		sse_bs_init();
 	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
@@ -956,6 +956,8 @@ function liveUpdate(notify_id) {
 
 	update_url = buildCmd();
 
+	console.log('displaying: ' + update_url);
+
 	if(page_load) {
 		$("#page-spinner").show();
 		if(bParam_page == 1)
@@ -968,13 +970,21 @@ function liveUpdate(notify_id) {
 		var orgHeight = $("#region_2").height();
 	}
 
+	if(page_cache.data && bParam_page == page_cache.page && page_cache.time > (Date.now() - 180000)) {
+		page_load = false;
+		scroll_next = false;
+		updateConvItems(update_mode,page_cache.data);
+		in_progress = false;
+		return;
+	}
+
 	var dstart = new Date();
 	console.log('LOADING data...');
 	$.get(update_url, function(data) {
 
 		// on shared hosts occasionally the live update process will be killed
 		// leaving an incomplete HTML structure, which leads to conversations getting
-		// truncated and the page messed up if all the divs aren't closed. We will try 
+		// truncated and the page messed up if all the divs aren't closed. We will try
 		// again and give up if we can't get a valid HTML response after 10 tries.
 
 		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
@@ -987,7 +997,7 @@ function liveUpdate(notify_id) {
 			else {
 				console.log('Incomplete data. Too many attempts. Giving up.');
 			}
-		}		
+		}
 
 		// else data was valid - reset the recursion counter
 		liveRecurse = 0;
@@ -1006,16 +1016,16 @@ function liveUpdate(notify_id) {
 
 		if(update_mode === 'update' || preloadImages) {
 			console.log('LOADING images...');
+			$('.wall-item-body, .wall-photo-item',data).imagesLoaded()
+			.always( function( instance ) {
+				//console.log('all images loaded');
 
-			$('.wall-item-body, .wall-photo-item',data).imagesLoaded( function() {
 				var iready = new Date();
 				console.log('IMAGES ready in: ' + (iready - dready)/1000 + ' seconds.');
 
 				page_load = false;
 				scroll_next = false;
 				updateConvItems(update_mode,data);
-				$("#page-spinner").hide();
-				$("#profile-jot-text-loading").hide();
 
 				// adjust scroll position if new content was added above viewport
 				if(update_mode === 'update' && !justifiedGalleryActive) {
@@ -1023,24 +1033,87 @@ function liveUpdate(notify_id) {
 				}
 
 				in_progress = false;
+				$('#image_counter').html('');
 
+			})
+			.done( function( instance ) {
+				//console.log('all images successfully loaded');
+			})
+			.fail( function() {
+				//console.log('all images loaded, at least one is broken');
+			})
+			.progress( function( instance, image ) {
+				$('#image_counter').html(instance.progressedCount + '/' + instance.images.length);
+				//var result = image.isLoaded ? 'loaded' : 'broken';
+				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});
+
 		}
 		else {
 			page_load = false;
 			scroll_next = false;
 			updateConvItems(update_mode,data);
-			$("#page-spinner").hide();
-			$("#profile-jot-text-loading").hide();
-
 			in_progress = false;
-
 		}
 
-	})
-	.done(function() {
-		notificationsUpdate();
 	});
+}
+
+function cache_next_page() {
+	page_load = true;
+	bParam_page++;
+	update_url = buildCmd();
+
+	$.get(update_url, function(data) {
+
+		// on shared hosts occasionally the live update process will be killed
+		// leaving an incomplete HTML structure, which leads to conversations getting
+		// truncated and the page messed up if all the divs aren't closed. We will try
+		// again and give up if we can't get a valid HTML response after 10 tries.
+
+		if((data.indexOf("<html>") != (-1)) && (data.indexOf("</html>") == (-1))) {
+			console.log('Incomplete data. Reloading');
+			in_progress = false;
+			bParam_page--;
+			liveRecurse++;
+			if(liveRecurse < 10) {
+				liveUpdate();
+			}
+			else {
+				console.log('Incomplete data. Too many attempts. Giving up.');
+			}
+		}
+
+		// else data was valid - reset the recursion counter
+		liveRecurse = 0;
+
+		console.log('cached: ' + update_url);
+
+		$('.wall-item-body, .wall-photo-item', data).imagesLoaded()
+		.always( function( instance ) {
+			console.log('page_cache images loaded:');
+
+			page_cache.data = data;
+			page_cache.page = bParam_page;
+			page_cache.time = Date.now();
+
+			bParam_page--;
+			page_load = false;
+		})
+		.done( function( instance ) {
+			console.log('success');
+		})
+		.fail( function() {
+			console.log('at least one is broken');
+		})
+		.progress( function( instance, image ) {
+			//console.log(instance.progressedCount + '/' + instance.images.length);
+			//var result = image.isLoaded ? 'loaded' : 'broken';
+			//console.log( 'image is ' + result + ' for ' + image.img.src );
+		});
+
+	});
+
 }
 
 function pageUpdate() {
@@ -1077,7 +1150,8 @@ function justifyPhotos(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).show();
 	$('#' + id).justifiedGallery({
-		selector: 'a, div:not(#page-end)',
+		rowHeight: 150,
+		selector: 'a',
 		margins: 3,
 		border: 0
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
@@ -1086,38 +1160,6 @@ function justifyPhotos(id) {
 function justifyPhotosAjax(id) {
 	justifiedGalleryActive = true;
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
-}
-
-function loadNotificationItems(notifyType) {
-	var pingExCmd = 'ping/' + notifyType + ((localUser != 0) ? '?f=&uid=' + localUser : '');
-
-	var clicked = $('[data-type=\'' + notifyType + '\']').data('clicked');
-
-	if((clicked === undefined) && (sessionStorage.getItem(notifyType + '_notifications_cache') !== null)) {
-		var cached_data = JSON.parse(sessionStorage.getItem(notifyType + '_notifications_cache'));
-		handleNotificationsItems(notifyType, cached_data);
-		$('[data-type=\'' + notifyType + '\']').data('clicked',true);
-		console.log('updating ' + notifyType + ' notifications from cache...');
-	}
-	else {
-		var cached_data = [];
-	}
-
-	console.log('updating ' + notifyType + ' notifications...');
-
-	$.get(pingExCmd, function(data) {
-		if(data.invalid == 1) {
-			window.location.href=window.location.href;
-		}
-
-		if(JSON.stringify(cached_data[0]) === JSON.stringify(data.notify[0])) {
-			console.log(notifyType + ' notifications cache up to date - update deferred');
-		}
-		else {
-			handleNotificationsItems(notifyType, data.notify);
-			sessionStorage.setItem(notifyType + '_notifications_cache', JSON.stringify(data.notify));
-		}
-	});
 }
 
 // Since our ajax calls are asynchronous, we will give a few
@@ -1154,6 +1196,7 @@ function doreply(parent, ident, owner, hint) {
 }
 
 function doscroll(parent, hidden) {
+	var id;
 	var x = '#hide-comments-outer-' + hidden.toString();
 	var back = $('#back-to-reply');
 	if(back.length == 0)
@@ -1169,7 +1212,13 @@ function doscroll(parent, hidden) {
 		}
 	}
 	back.remove();
-	var id = $('[data-mid="' + parent + '"]');
+
+	$('.thread-wrapper').filter(function() {
+		if($(this).data('b64mids').indexOf(parent) > -1) {
+			id = $(this);
+		}
+	});
+
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
 	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-right" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
 }
@@ -1179,22 +1228,54 @@ function doscrollback(pos) {
 	$(window).scrollTop(pos);
 }
 
-function dropItem(url, object) { 
+function dopin(id) {
+        id = id.toString();
+        $('#like-rotator-' + id).show();
+        $.post('pin/pin', { 'id' : id })
+                .done(function() {
+                        var i = $('#wall-item-pinned-' + id);
+                        var me = $('#item-pinnable-' + id);
+                        var pin = $('.pinned-item');
+                        if(pin.length) {
+                                $('html, body').animate({ scrollTop: $('#region_2').offset().top }, 'slow', function() {
+                                        pin.fadeTo('fast', 0.33, function() { this.remove(); });
+                                });
+                        };
+                        pin.remove();
+                        $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
+                        $('.wall-item-pinned').remove()
+                        if(i.length == 0) {
+                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
+                                me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
+                        };
+                })
+                .fail(function() {
+                        location.reload();
+                })
+                .always(function() {
+                        $('#like-rotator-' + id).hide();
+                });
+}
 
-	var confirm = confirmDelete();
-	if(confirm) {
-		$('body').css('cursor', 'wait');
-		$(object).fadeTo('fast', 0.33, function () {
-			$.get(url).done(function() {
-				$(object).remove();
-				$('body').css('cursor', 'auto');
-			});
-		});
-		return true;
-	}
-	else {
-		return false;
-	}
+function dropItem(url, object) {
+
+        var confirm = confirmDelete();
+        if(confirm) {
+                var id = url.split('/')[2];
+                $('body').css('cursor', 'wait');
+                $(object + ', #pinned-wrapper-' + id).fadeTo('fast', 0.33, function () {
+                        $.get(url).done(function() {
+                                $(object + ', #pinned-wrapper-' + id).remove();
+                                $('body').css('cursor', 'auto');
+                        });
+                });
+                if($('#wall-item-pinned-' + id).length)
+                    $.post('pin/pin', { 'id' : id });
+                return true;
+        }
+        else {
+                return false;
+        }
 }
 
 function dosubthread(ident) {
@@ -1276,6 +1357,20 @@ function filestorage(event, nick, id) {
 		last_filestorage_id = id;
 	});
 }
+
+function submitPoll(id) {
+
+	$.post('vote/' + id,
+		$('#question-form-' + id).serialize(),
+		function(data) {
+			$.jGrowl(data.message, { sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: 10000 });
+			if(timer) clearTimeout(timer);
+			timer = setTimeout(updateInit,1500);
+		}
+	);
+
+}
+
 
 function post_comment(id) {
 	unpause();
@@ -1454,7 +1549,7 @@ String.prototype.format = function() {
 	var formatted = this;
 	for (var i = 0; i < arguments.length; i++) {
 		var regexp = new RegExp('\\{'+i+'\\}', 'gi');
-		formatted = formatted.replace(regexp, arguments[i]);
+		formatted = formatted.replace(regexp, ((typeof arguments[i] !== 'undefined') ? arguments[i] : ''));
 	}
 	return formatted;
 };
@@ -1482,7 +1577,7 @@ function zFormError(elm,x) {
 $(window).scroll(function () {
 	if(typeof buildCmd == 'function') {
 		// This is a content page with items and/or conversations
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
 			if((pageHasMoreContent) && (! loadingPage)) {
 				next_page++;
 				scroll_next = true;
@@ -1493,7 +1588,7 @@ $(window).scroll(function () {
 	}
 	else {
 		// This is some other kind of page - perhaps a directory
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 300) {
+		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
 			if((pageHasMoreContent) && (! loadingPage) && (! justifiedGalleryActive)) {
 				next_page++;
 				scroll_next = true;
@@ -1652,4 +1747,278 @@ function zid(s) {
 	s = s + achar + 'f=&zid=' + zid;
 
 	return s;
+}
+
+function sse_bs_init() {
+	if(sessionStorage.getItem('notification_open') !== null || typeof sse_type !== 'undefined' ) {
+		if(typeof sse_type === 'undefined')
+			sse_type = sessionStorage.getItem('notification_open');
+
+		$("#nav-" + sse_type + "-sub").addClass('show');
+		sse_bs_notifications(sse_type, true, false);
+	}
+	else {
+		sse_bs_counts();
+	}
+}
+
+function sse_bs_counts() {
+
+
+	if(sse_bs_active)
+		return;
+
+	sse_bs_active = true;
+
+	$.ajax({
+		type: 'post',
+		url: '/sse_bs',
+		data: { sse_rmids }
+	}).done( function(obj) {
+		console.log(obj);
+		sse_bs_active = false;
+		sse_rmids = [];
+		sse_handleNotifications(obj, true, false);
+	});
+}
+
+function sse_bs_notifications(e, replace, followup) {
+
+	if(sse_bs_active)
+		return;
+
+
+	var manual = false;
+
+	if(typeof replace === 'undefined')
+		replace = e.data.replace;
+
+	if(typeof followup === 'undefined')
+		followup = e.data.followup;
+
+	if(typeof e === 'string') {
+		sse_type = e;
+	}
+	else {
+		manual = true;
+		sse_offset = 0;
+		sse_type = e.target.dataset.sse_type;
+	}
+
+	if(typeof sse_type === 'undefined')
+		return;
+
+	if(followup || !manual || !($('#nav-' + sse_type + '-sub').hasClass('collapse') && $('#nav-' + sse_type + '-sub').hasClass('show'))) {
+
+		if(sse_offset >= 0) {
+			$("#nav-" + sse_type + "-loading").show();
+		}
+
+		sessionStorage.setItem('notification_open', sse_type);
+		if(sse_offset !== -1 || replace) {
+
+			var cn_val = (($('#cn-' + sse_type + '-input').length && sse_partial_result) ? $('#cn-' + sse_type + '-input').val().toString().toLowerCase() : '');
+
+			$("#nav-" + sse_type + "-loading").show();
+
+			sse_bs_active = true;
+
+			$.ajax({
+				type: 'post',
+				url: '/sse_bs/' + sse_type + '/' + sse_offset,
+				nquery: encodeURIComponent(cn_val),
+				data: { sse_rmids }
+			}).done(function(obj) {
+				console.log('sse: bootstraping ' + sse_type);
+				console.log(obj);
+				sse_bs_active = false;
+				sse_rmids = [];
+				$("#nav-" + sse_type + "-loading").hide();
+				sse_offset = obj[sse_type].offset;
+				sse_handleNotifications(obj, replace, followup);
+			});
+		}
+		else
+			$("#nav-" + sse_type + "-loading").hide();
+
+	}
+	else {
+		sessionStorage.removeItem('notification_open');
+	}
+}
+
+
+
+function sse_handleNotifications(obj, replace, followup) {
+
+	var primary_notifications = ['dm', 'home', 'intros', 'register', 'mail', 'notify', 'files'];
+	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
+	var all_notifications = primary_notifications.concat(secondary_notifications);
+
+	all_notifications.forEach(function(type, index) {
+		if(typeof obj[type] === typeof undefined)
+			return true;
+
+		if(obj[type].count) {
+			$('.' + type + '-button').fadeIn();
+			if(replace || followup)
+				$('.' + type + '-update').html(Number(obj[type].count));
+			else
+				$('.' + type + '-update').html(Number(obj[type].count) + Number($('.' + type + '-update').html()));
+		}
+		else {
+			$('.' + type + '-update').html('0');
+			$('.' + type + '-button').fadeOut(function() {
+				sse_setNotificationsStatus();
+			});
+		}
+		if(obj[type].notifications.length)
+			sse_handleNotificationsItems(type, obj[type].notifications, replace, followup);
+	});
+
+	sse_setNotificationsStatus();
+
+	// notice and info
+	$.jGrowl.defaults.closerTemplate = '<div>[ ' + aStr.closeAll + ']</div>';
+
+	if(obj.notice) {
+		$(obj.notice.notifications).each(function() {
+			$.jGrowl(this, { sticky: true, theme: 'notice' });
+		});
+	}
+
+	if(obj.info) {
+		$(obj.info.notifications).each(function(){
+			$.jGrowl(this, { sticky: false, theme: 'info', life: 10000 });
+		});
+	}
+
+	// load more notifications if visible notifications count becomes low
+	if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children().length <= 20) {
+		sse_offset = 0;
+		sse_bs_notifications(sse_type, false, true);
+	}
+
+
+}
+
+function sse_handleNotificationsItems(notifyType, data, replace, followup) {
+
+	var notifications_tpl = ((notifyType == 'forums') ? decodeURIComponent($("#nav-notifications-forums-template[rel=template]").html().replace('data-src', 'src')) : decodeURIComponent($("#nav-notifications-template[rel=template]").html().replace('data-src', 'src')));
+	var notify_menu = $("#nav-" + notifyType + "-menu");
+	var notify_loading = $("#nav-" + notifyType + "-loading");
+	var notify_count = $("." + notifyType + "-update");
+
+	if(replace && !followup) {
+		notify_menu.html('');
+		notify_loading.hide();
+	}
+
+	$(data).each(function() {
+
+		// do not add a notification if it is already present
+		if($('#nav-' + notifyType + '-menu .notification[data-b64mid=\'' + this.b64mid + '\']').length)
+			return true;
+
+		html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids), this.body);
+		notify_menu.append(html);
+	});
+
+	if(!replace && !followup) {
+		$("#nav-" + notifyType + "-menu .notification").sort(function(a,b) {
+			a = new Date(a.dataset.when);
+			b = new Date(b.dataset.when);
+			return a > b ? -1 : a < b ? 1 : 0;
+		}).appendTo('#nav-' + notifyType + '-menu');
+	}
+
+	$(document.body).trigger("sticky_kit:recalc");
+	$("#nav-" + notifyType + "-menu .notifications-autotime").timeago();
+
+	if($('#tt-' + notifyType + '-only').hasClass('active'))
+		$('#nav-' + notifyType + '-menu [data-thread_top=false]').addClass('tt-filter-active');
+
+	if($('#cn-' + notifyType + '-input').length) {
+		var filter = $('#cn-' + notifyType + '-input').val().toString().toLowerCase();
+		if(filter) {
+			filter = filter.indexOf('%') == 0 ? filter.substring(1) : filter;
+
+			$('#nav-' + notifyType + '-menu .notification').each(function(i, el) {
+				var cn = $(el).data('contact_name').toString().toLowerCase();
+				var ca = $(el).data('contact_addr').toString().toLowerCase();
+				if(cn.indexOf(filter) === -1 && ca.indexOf(filter) === -1)
+					$(el).addClass('cn-filter-active');
+				else
+					$(el).removeClass('cn-filter-active');
+			});
+		}
+	}
+}
+
+function sse_updateNotifications(type, mid) {
+
+	if(type === 'pubs')
+		return true;
+
+	if(type === 'notify' && (mid !== bParam_mid || sse_type !== 'notify'))
+		return true;
+/*
+	var count = Number($('.' + type + '-update').html());
+
+	count--;
+
+	if(count < 1) {
+		$('.' + type + '-update').html(count);
+		$('.' + type + '-button').fadeOut(function() {
+			sse_setNotificationsStatus();
+		});
+	}
+	else {
+		$('.' + type + '-update').html(count);
+	}
+*/
+
+	$('#nav-' + type + '-menu .notification[data-b64mid=\'' + mid + '\']').fadeOut(function() {
+		this.remove();
+	});
+
+}
+
+function sse_setNotificationsStatus() {
+	var primary_notifications = ['dm', 'home', 'intros', 'register', 'mail', 'notify', 'files'];
+	var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
+	var all_notifications = primary_notifications.concat(secondary_notifications);
+
+	var primary_available = false;
+	var any_available = false;
+
+	all_notifications.forEach(function(type, index) {
+		if($('.' + type + '-button').css('display') == 'block') {
+			any_available = true;
+			if(primary_notifications.indexOf(type) > -1)
+				primary_available = true;
+		}
+	});
+
+	if(primary_available) {
+		$('.notifications-btn-icon').removeClass('fa-exclamation-circle');
+		$('.notifications-btn-icon').addClass('fa-exclamation-triangle');
+	}
+	else {
+		$('.notifications-btn-icon').removeClass('fa-exclamation-triangle');
+		$('.notifications-btn-icon').addClass('fa-exclamation-circle');
+	}
+
+	if(any_available) {
+		$('.notifications-btn').css('opacity', 1);
+		$('#no_notifications').hide();
+		$('#notifications').show();
+	}
+	else {
+		$('.notifications-btn').css('opacity', 0.5);
+		$('#navbar-collapse-1').removeClass('show');
+		$('#no_notifications').show();
+		$('#notifications').hide();
+	}
+
 }

@@ -5,6 +5,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/items.php');
 require_once('include/security.php');
 require_once('include/selectors.php');
@@ -124,7 +126,7 @@ class Thing extends \Zotlabs\Web\Controller {
 				dbesc($term_hash)
 			);
 			if($r) {
-				build_sync_packet(0, array('obj' => $r));
+				Libsync::build_sync_packet(0, array('obj' => $r));
 			}
 
 			return;
@@ -180,7 +182,7 @@ class Thing extends \Zotlabs\Web\Controller {
 			dbesc($hash)
 		);
 		if($r) {
-			build_sync_packet(0, array('obj' => $r));
+			Libsync::build_sync_packet(0, array('obj' => $r));
 		}
 
 		if($activity) {
@@ -353,7 +355,7 @@ class Thing extends \Zotlabs\Web\Controller {
 
 			$r[0]['obj_deleted'] = 1;
 
-			build_sync_packet(0,array('obj' => $r));
+			Libsync::build_sync_packet(0,array('obj' => $r));
 
 			return $o;
 		}

@@ -8,6 +8,7 @@
 use Sabre\VObject;
 
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Libsync;
 
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
@@ -40,7 +41,7 @@ function format_event_html($ev) {
 	$o .= '<div class="event-start"><span class="event-label">' . t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 		. datetime_convert('UTC', 'UTC', $ev['dtstart'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 		. '" >'
-		. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
+		. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 			$ev['dtstart'] , $bd_format ))
 			:  day_translate(datetime_convert('UTC', 'UTC',
 			$ev['dtstart'] , $bd_format)))
@@ -50,7 +51,7 @@ function format_event_html($ev) {
 		$o .= '<div class="event-end" ><span class="event-label">' . t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 			. datetime_convert('UTC','UTC',$ev['dtend'], (($ev['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' ))
 			. '" >'
-			. (($ev['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(),
+			. (($ev['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(),
 				$ev['dtend'] , $bd_format ))
 				:  day_translate(datetime_convert('UTC', 'UTC',
 				$ev['dtend'] , $bd_format )))
@@ -73,47 +74,66 @@ function format_event_obj($jobject) {
 
 	$object = json_decode($jobject,true);
 
-	//ensure compatibility with older items - this check can be removed at a later point
-	if(array_key_exists('description', $object)) {
+	$event_tz = '';
+	if($object['adjust'] && is_array($object['asld']) && is_array($object['asld']['attachment'])) {
+		foreach($object['asld']['attachment'] as $attachment) {
+			if($attachment['type'] === 'PropertyValue' && $attachment['name'] == 'zot.event.timezone' ) {
+				// check if the offset of the timezones is different and only set event_tz if offset is not the same
+				$local_tz = new DateTimeZone(date_default_timezone_get());
+				$local_dt = new DateTime('now', $local_tz);
 
-		$tz = (($object['timezone']) ? $object['timezone'] : 'UTC');
-		$allday = (($object['adjust']) ? false : true);
-
-		$dtstart = new DateTime($object['dtstart']);
-		$dtend = new DateTime($object['dtend']);
-		$dtdiff = $dtstart->diff($dtend);
-
-		if($allday && ($dtdiff->days < 2))
-			$oneday = true;
-
-		if($allday && !$oneday) {
-			// Subtract one day from the end date so we can use the "first day - last day" format for display.
-			$dtend->modify('-1 day');
-			$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
+				$ev_tz = new DateTimeZone($attachment['value']);
+				$ev_dt = new DateTime('now', $ev_tz);
+				if($local_dt->getOffset() !== $ev_dt->getOffset())
+					$event_tz = $attachment['value'];
+				break;
+			}
 		}
 
-		$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
-
-		$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
-			'$title'	 => zidify_links(smilies(bbcode($object['title']))),
-			'$dtstart_label' => t('Start:'),
-			'$dtstart_title' => datetime_convert($tz, date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
-			'$finish'	 => (($object['nofinish']) ? false : true),
-			'$dtend_label'	 => t('End:'),
-			'$dtend_title'	 => datetime_convert($tz, date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
-			'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert($tz, date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
-			'$allday'	 => $allday,
-			'$oneday'	 => $oneday
-		));
-
-		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
-			'$description'	  => zidify_links(smilies(bbcode($object['description']))),
-			'$location_label' => t('Location:'),
-			'$location'	  => zidify_links(smilies(bbcode($object['location'])))
-		));
-
 	}
+
+	$allday = (($object['adjust']) ? false : true);
+
+	$dtstart = new DateTime($object['dtstart']);
+	$dtend = new DateTime($object['dtend']);
+	$dtdiff = $dtstart->diff($dtend);
+
+	if($allday && ($dtdiff->days < 2))
+		$oneday = true;
+
+	if($allday && !$oneday) {
+		// Subtract one day from the end date so we can use the "first day - last day" format for display.
+		$dtend->modify('-1 day');
+		$object['dtend'] = datetime_convert('UTC', 'UTC', $dtend->format('Y-m-d H:i:s'));
+	}
+
+	$bd_format = (($allday) ? t('l F d, Y') : t('l F d, Y \@ g:i A')); // Friday January 18, 2011 @ 8:01 AM or Friday January 18, 2011 for allday events
+
+	$event['header'] = replace_macros(get_markup_template('event_item_header.tpl'),array(
+		'$title'	 => zidify_links(smilies(bbcode($object['title']))),
+		'$dtstart_label' => t('Start:'),
+		'$dtstart_title' => datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+		'$dtstart_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtstart'] , $bd_format )) : day_translate(datetime_convert('UTC', 'UTC', $object['dtstart'] , $bd_format))),
+		'$finish'	 => (($object['nofinish']) ? false : true),
+		'$dtend_label'	 => t('End:'),
+		'$dtend_title'	 => datetime_convert('UTC', date_default_timezone_get(), $object['dtend'], (($object['adjust']) ? ATOM_TIME : 'Y-m-d\TH:i:s' )),
+		'$dtend_dt'	 => (($object['adjust']) ? day_translate(datetime_convert('UTC', date_default_timezone_get(), $object['dtend'] , $bd_format )) :  day_translate(datetime_convert('UTC', 'UTC', $object['dtend'] , $bd_format ))),
+		'$allday'	 => $allday,
+		'$oneday'	 => $oneday,
+		'$event_tz'      => ['label' => t('Timezone'), 'value' => (($event_tz === date_default_timezone_get()) ? '' : $event_tz)]
+	));
+
+	$event_src = [];
+
+	if(array_path_exists('asld/source', $object) && $object['asld']['source']['mediaType'] === 'text/bbcode') {
+		$event_src = bbtoevent($object['asld']['source']['content']);
+	}
+
+	$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'),array(
+		'$description'	  => zidify_links(smilies(bbcode($event_src ? $event_src['description'] : $object['description']))),
+		'$location_label' => t('Location:'),
+		'$location'	  => zidify_links(smilies(bbcode($event_src ? $event_src['location'] : $object['location']))),
+	));
 
 	return $event;
 }
@@ -250,14 +270,22 @@ function format_ical_sourcetext($s) {
 }
 
 
-function format_event_bbcode($ev) {
+function format_event_bbcode($ev, $utc = false) {
 
 	$o = '';
 
 	if($ev['event_vdata']) {
 		$o .= '[event]' . $ev['event_vdata'] . '[/event]';
 	}
-
+/*
+	if ($utc && $ev['event-timezone'] !== 'UTC') {
+		$ev['dtstart'] = datetime_convert($ev['timezone'],'UTC',$ev['dtstart']);
+		if ($ev['dtend'] && ! $ev['nofinish']) {
+			$ev['dtend'] = datetime_convert($ev['timezone'],'UTC',$ev['dtend']);
+		}
+		$ev['timezone'] = 'UTC';
+	}
+*/
 	if($ev['summary'])
 		$o .= '[event-summary]' . $ev['summary'] . '[/event-summary]';
 
@@ -276,8 +304,8 @@ function format_event_bbcode($ev) {
 	if($ev['event_hash'])
 		$o .= '[event-id]' . $ev['event_hash'] . '[/event-id]';
 
-	if($ev['timezone'])
-		$o .= '[event-timezone]' . $ev['timezone'] . '[/event-timezone]';
+//	if($ev['timezone'])
+//		$o .= '[event-timezone]' . $ev['timezone'] . '[/event-timezone]';
 
 	if($ev['adjust'])
 		$o .= '[event-adjust]' . $ev['adjust'] . '[/event-adjust]';
@@ -394,6 +422,10 @@ function event_store_event($arr) {
 	$arr['event_xchan']    = (($arr['event_xchan'])    ? $arr['event_xchan']    : '');
 	$arr['event_priority'] = (($arr['event_priority']) ? $arr['event_priority'] : 0);
 
+	if (! $arr['dtend']) {
+		$arr['dtend'] = NULL_DATE;
+		$arr['nofinish'] = 1;
+	}
 
 	if(array_key_exists('event_status_date',$arr))
 		$arr['event_status_date'] = datetime_convert('UTC','UTC', $arr['event_status_date']);
@@ -479,9 +511,9 @@ function event_store_event($arr) {
 			deny_gid = '%s'
 			WHERE id = %d AND uid = %d",
 
-			dbesc($arr['edited']),
-			dbesc($arr['dtstart']),
-			dbesc($arr['dtend']),
+			dbesc(datetime_convert('UTC','UTC',$arr['edited'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtstart'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtend'])),
 			dbesc($arr['summary']),
 			dbesc($arr['description']),
 			dbesc($arr['location']),
@@ -489,7 +521,7 @@ function event_store_event($arr) {
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
 			dbesc($arr['event_status']),
-			dbesc($arr['event_status_date']),
+			dbesc(datetime_convert('UTC','UTC',$arr['event_status_date'])),
 			intval($arr['event_percent']),
 			dbesc($arr['event_repeat']),
 			intval($arr['event_sequence']),
@@ -525,10 +557,10 @@ function event_store_event($arr) {
 			intval($arr['account']),
 			dbesc($arr['event_xchan']),
 			dbesc($hash),
-			dbesc($arr['created']),
-			dbesc($arr['edited']),
-			dbesc($arr['dtstart']),
-			dbesc($arr['dtend']),
+			dbesc(datetime_convert('UTC','UTC',$arr['created'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['edited'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtstart'])),
+			dbesc(datetime_convert('UTC','UTC',$arr['dtend'])),
 			dbesc($arr['summary']),
 			dbesc($arr['description']),
 			dbesc($arr['location']),
@@ -536,7 +568,7 @@ function event_store_event($arr) {
 			intval($arr['adjust']),
 			intval($arr['nofinish']),
 			dbesc($arr['event_status']),
-			dbesc($arr['event_status_date']),
+			dbesc(datetime_convert('UTC','UTC',$arr['event_status_date'])),
 			intval($arr['event_percent']),
 			dbesc($arr['event_repeat']),
 			intval($arr['event_sequence']),
@@ -553,8 +585,18 @@ function event_store_event($arr) {
 		dbesc($hash),
 		intval($arr['uid'])
 	);
-	if($r)
+	if($r) {
+
+		/**
+		 * @hooks event_store_event_end
+		 *   Called after an event record was stored.
+		 *   * \e array \b event
+		 */
+		call_hooks('event_store_event_end', $r[0]);
+
 		return $r[0];
+
+	}
 
 	return false;
 }
@@ -596,7 +638,7 @@ function event_addtocal($item_id, $uid) {
 			$ev['event_hash'] = $item['resource_id'];
 		}
 
-		if($ev->private)
+		if($ev['private'])
 			$ev['allow_cid'] = '<' . $channel['channel_hash'] . '>';
 		else {
 			$acl = new Zotlabs\Access\AccessList($channel);
@@ -626,7 +668,7 @@ function event_addtocal($item_id, $uid) {
 				intval($channel['channel_id'])
 			);
 			if($z) {
-				build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
+				Libsync::build_sync_packet($channel['channel_id'],array('event_item' => array(encode_item($sync_item[0],true)),'event' => $z));
 			}
 			return true;
 		}
@@ -1073,12 +1115,17 @@ function event_store_item($arr, $event) {
 		$item_arr['comment_policy'] = 'none';
 	}
 
-	$r = q("SELECT * FROM item left join xchan on author_xchan = xchan_hash WHERE resource_id = '%s' AND resource_type = 'event' and uid = %d LIMIT 1",
+	$r = q("SELECT * FROM item WHERE resource_id = '%s' AND resource_type = 'event' and uid = %d LIMIT 1",
 		dbesc($event['event_hash']),
 		intval($arr['uid'])
 	);
 
 	if($r) {
+
+		set_iconfig($r[0]['id'], 'event', 'timezone', $arr['timezone'], true);
+		xchan_query($r);
+		$r = fetch_post_tags($r,true);
+
 		$object = json_encode(array(
 			'type'    => ACTIVITY_OBJ_EVENT,
 			'id'      => z_root() . '/event/' . $r[0]['resource_id'],
@@ -1093,13 +1140,13 @@ function event_store_item($arr, $event) {
 			'content' => format_event_bbcode($arr),
 			'attachment' => Activity::encode_attachment($r[0]),
 			'author'  => array(
-				'name'     => $r[0]['xchan_name'],
-				'address'  => $r[0]['xchan_addr'],
-				'guid'     => $r[0]['xchan_guid'],
-				'guid_sig' => $r[0]['xchan_guid_sig'],
+				'name'     => $r[0]['author']['xchan_name'],
+				'address'  => $r[0]['author']['xchan_addr'],
+				'guid'     => $r[0]['author']['xchan_guid'],
+				'guid_sig' => $r[0]['author']['xchan_guid_sig'],
 				'link'     => array(
-					array('rel' => 'alternate', 'type' => 'text/html', 'href' => $r[0]['xchan_url']),
-					array('rel' => 'photo', 'type' => $r[0]['xchan_photo_mimetype'], 'href' => $r[0]['xchan_photo_m'])
+					array('rel' => 'alternate', 'type' => 'text/html', 'href' => $r[0]['author']['xchan_url']),
+					array('rel' => 'photo', 'type' => $r[0]['author']['xchan_photo_mimetype'], 'href' => $r[0]['author']['xchan_photo_m'])
 				),
 			),
 		));
@@ -1149,7 +1196,6 @@ function event_store_item($arr, $event) {
 		}
 
 		$item_id = $r[0]['id'];
-		set_iconfig($item_id, 'event', 'timezone', $arr['timezone'], true);
 
 		/**
 		 * @hooks event_updated
@@ -1184,7 +1230,7 @@ function event_store_item($arr, $event) {
 
 		if(! $arr['mid']) {
 			$arr['uuid'] = $event['event_hash'];
-			$arr['mid'] = z_root() . '/event/' . $event['event_hash'];
+			$arr['mid'] = z_root() . '/activity/' . $event['event_hash'];
 		}
 
 		$item_arr['aid']             = $z[0]['channel_account_id'];
@@ -1201,7 +1247,7 @@ function event_store_item($arr, $event) {
 		$item_arr['deny_cid']        = $arr['deny_cid'];
 		$item_arr['deny_gid']        = $arr['deny_gid'];
 		$item_arr['item_private']    = $private;
-		$item_arr['verb']            = ACTIVITY_POST;
+		$item_arr['verb']            = 'Invite';
 		$item_arr['item_wall']       = $item_wall;
 		$item_arr['item_origin']     = $item_origin;
 		$item_arr['item_thread_top'] = $item_thread_top;
@@ -1229,9 +1275,11 @@ function event_store_item($arr, $event) {
 		// otherwise we'll fallback to /display/$message_id
 
 		if($wall)
-			$item_arr['plink'] = z_root() . '/channel/' . $z[0]['channel_address'] . '/?f=&mid=' . gen_link_id($item_arr['mid']);
+			$item_arr['plink'] = $item_arr['mid'];
 		else
 			$item_arr['plink'] = z_root() . '/display/' . gen_link_id($item_arr['mid']);
+
+		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 
 		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
 				dbesc($arr['event_xchan'])
@@ -1268,7 +1316,6 @@ function event_store_item($arr, $event) {
 		// activities refer to the item message_id as the parent. 
 
 		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
-		set_iconfig($item_arr, 'event','timezone',$arr['timezone'],true);
 
 		$res = item_store($item_arr);
 

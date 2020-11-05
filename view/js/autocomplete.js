@@ -40,7 +40,7 @@ function contact_format(item) {
 		var desc = ((item.label) ? item.nick + ' ' + item.label : item.nick);
 		if(typeof desc === 'undefined') desc = '';
 		if(desc) desc = ' ('+desc+')';
-		return "<div class='{0} dropdown-item dropdown-notification clearfix' title='{4}'><img class='menu-img-2' src='{1}'><span class='contactname'>{2}</span><span class='dropdown-sub-text'>{4}</span></div>".format(item.taggable, item.photo, item.name, desc, typeof(item.link) !== 'undefined' ? item.link : desc.replace('(','').replace(')',''));
+		return "<div class='{0} dropdown-item dropdown-notification clearfix' title='{4}'><img class='menu-img-2' src='{1}' loading='lazy'><span class='font-weight-bold contactname'>{2}</span><span class='dropdown-sub-text'>{4}</span></div>".format(item.taggable, item.photo, item.name, desc, typeof(item.link) !== 'undefined' ? item.link : desc.replace('(','').replace(')',''));
 	}
 	else
 		return "<div>" + item.text + "</div>";
@@ -203,7 +203,7 @@ function string2bb(element) {
 			context: function(text) { return text.toLowerCase(); },
 			template: smiley_format
 		};
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var Textarea = Textcomplete.editors.Textarea;
 
@@ -298,7 +298,7 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var textcomplete;
 		var Textarea = Textcomplete.editors.Textarea;
@@ -341,7 +341,7 @@ function string2bb(element) {
 			template: contact_format,
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var textcomplete;
 		var Textarea = Textcomplete.editors.Textarea;
@@ -372,7 +372,7 @@ function string2bb(element) {
 			return;
 
 		if(type=='bbcode') {
-			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'summary', 'map', 'nobb', 'list', 'checklist', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer', 'observer.language','embed', 'highlight', 'url', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+			var open_close_elements = ['bold', 'italic', 'underline', 'overline', 'strike', 'superscript', 'subscript', 'quote', 'code', 'open', 'spoiler', 'summary', 'map', 'nobb', 'list', 'checklist', 'question', 'answer', 'ul', 'ol', 'dl', 'li', 'table', 'tr', 'th', 'td', 'center', 'color', 'font', 'size', 'zrl', 'zmg', 'rpost', 'qr', 'observer', 'observer.language','embed', 'highlight', 'url', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 			var open_elements = ['observer.baseurl', 'observer.address', 'observer.photo', 'observer.name', 'observer.webname', 'observer.url', '*', 'hr' ];
 
 			var elements = open_close_elements.concat(open_elements);
@@ -427,7 +427,7 @@ function string2bb(element) {
 			template: bbco_format
 		};
 
-		this.attr('autocomplete','off');
+		//this.attr('autocomplete','off');
 
 		var Textarea = Textcomplete.editors.Textarea;
 

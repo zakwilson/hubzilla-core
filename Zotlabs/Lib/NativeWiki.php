@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Lib;
 
+use Zotlabs\Lib\Libsync;
+
 define ( 'NWIKI_ITEM_RESOURCE_TYPE', 'nwiki' );
 
 class NativeWiki {
@@ -71,7 +73,7 @@ class NativeWiki {
 		$arr['item_thread_top'] = 1;
 		$arr['item_private'] = intval($acl->is_private());
 		$arr['verb'] = ACTIVITY_CREATE;
-		$arr['obj_type'] = ACTIVITY_OBJ_WIKI;
+		$arr['obj_type'] = 'Document';
 		$arr['body'] = '[table][tr][td][h1]New Wiki[/h1][/td][/tr][tr][td][zrl=' . $wiki_url . ']' . $wiki['htmlName'] . '[/zrl][/td][/tr][/table]';
 
 		$arr['public_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_wiki'),true);
@@ -178,7 +180,7 @@ class NativeWiki {
 				foreach($sync_item as $w) {
 					$pkt[] = encode_item($w,true);
 				}
-				build_sync_packet($uid,array('wiki' => $pkt));
+				Libsync::build_sync_packet($uid,array('wiki' => $pkt));
 			}
 		}
 	}

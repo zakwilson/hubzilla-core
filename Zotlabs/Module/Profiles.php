@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 require_once('include/channel.php');
 require_once('include/selectors.php');
 
@@ -599,16 +601,16 @@ class Profiles extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				require_once('include/zot.php');
-				build_sync_packet(local_channel(),array('profile' => $r));
+				Libsync::build_sync_packet(local_channel(),array('profile' => $r));
 			}
 	
 			$channel = \App::get_channel();
 	
 			if($namechanged && $is_default) {
-				$r = q("UPDATE xchan SET xchan_name = '%s', xchan_name_date = '%s' WHERE xchan_hash = '%s'",
+				$r = q("UPDATE xchan SET xchan_name = '%s', xchan_name_date = '%s' WHERE xchan_url = '%s'",
 					dbesc($name),
 					dbesc(datetime_convert()),
-					dbesc($channel['xchan_hash'])
+					dbesc(z_root() . '/channel/' . $channel['channel_address'])
 				);
 				$r = q("UPDATE channel SET channel_name = '%s' WHERE channel_hash = '%s'",
 					dbesc($name),

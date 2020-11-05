@@ -144,7 +144,7 @@ function get_features($filtered = true, $level = (-1)) {
 		'conversation' => [
 
 			t('Conversation'),
-
+			/* disable until we agree on how to implemnt this in zot6/activitypub
 			[
 				'commtag',        
 				t('Community Tagging'),					
@@ -152,7 +152,7 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','commtag'),
 			],
-
+			*/
 			[
 				'emojis',     
 				t('Emoji Reactions'),			
@@ -229,14 +229,6 @@ function get_features($filtered = true, $level = (-1)) {
 				false,
 				get_config('feature_lock','content_encrypt'),
 			],
-			
-			[
-				'consensus_tools', 
-				t('Enable Voting Tools'),      
-				t('Provide a class of post which others can vote on'),
-				false,
-				get_config('feature_lock','consensus_tools'),
-			],
 
 			[
 				'disable_comments', 
@@ -297,6 +289,22 @@ function get_features($filtered = true, $level = (-1)) {
 		'network' => [
 
 			t('Network'),
+
+			[
+				'events_tab',
+				t('Events Filter'),
+				t('Ability to display only events'),
+				false,
+				get_config('feature_lock','events_tab')
+			],
+
+			[
+				'polls_tab',
+				t('Polls Filter'),
+				t('Ability to display only polls'),
+				false,
+				get_config('feature_lock','polls_tab')
+			],
 
 			[
 				'savedsearch',    

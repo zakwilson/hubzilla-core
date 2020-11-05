@@ -22,11 +22,9 @@
 	<div class="section-content-tools-wrapper">
 		<div class="contact-photo-wrapper" >
 			<a href="{{$contact.url}}" title="{{$contact.img_hover}}" >
-				<img class="directory-photo-img {{if $contact.classes}}{{$contact.classes}}{{/if}}" src="{{$contact.thumb}}" alt="{{$contact.name}}" />
+				<img class="directory-photo-img {{if $contact.classes}}{{$contact.classes}}{{/if}}" src="{{$contact.thumb}}" alt="{{$contact.name}}" loading="lazy" />
 			</a>
-			{{if $contact.oneway}}
-			<i class="fa fa-fw fa-minus-circle oneway-overlay text-danger"></i>
-			{{/if}}
+			{{include "connstatus.tpl" perminfo=$contact.perminfo}}
 		</div>
 		<div class="contact-info">
 			{{if $contact.status}}

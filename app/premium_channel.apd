@@ -1,6 +1,0 @@
-version: 2
-url: $baseurl/connect/$nick
-requires: local_channel
-name: Premium Channel
-photo: icon:check-circle-o
-categories: Networking

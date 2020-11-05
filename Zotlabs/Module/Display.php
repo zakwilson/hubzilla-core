@@ -47,7 +47,6 @@ class Display extends \Zotlabs\Web\Controller {
 		}
 	
 		$observer_is_owner = false;
-		$updateable = false;
 
 		if(local_channel() && (! $update)) {
 	
@@ -101,7 +100,7 @@ class Display extends \Zotlabs\Web\Controller {
 		if($decoded)
 			$item_hash = $decoded;
 
-		$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
+		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
 			dbesc($item_hash . '%')
 		);
 	
@@ -159,14 +158,17 @@ class Display extends \Zotlabs\Web\Controller {
 			}
 		}
 		if($target_item['item_type']  == ITEM_TYPE_CARD) {
+
 			$x = q("select * from channel where channel_id = %d limit 1",
 				intval($target_item['uid'])
 			);
+
 			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
 				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'CARD' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['parent'])
 			);
+
 			if($x && $y) {
 				goaway(z_root() . '/cards/' . $x[0]['channel_address'] . '/' . $y[0]['v']);
 			}
@@ -200,7 +202,8 @@ class Display extends \Zotlabs\Web\Controller {
 
 			// if the target item is not a post (eg a like) we want to address its thread parent
 
-			$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
+			//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
+			$mid = $target_item['mid'];
 
 			// if we got a decoded hash we must encode it again before handing to javascript 
 			if($decoded)
@@ -223,6 +226,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$conv'    => '0',
 				'$spam'    => '0',
 				'$fh'      => '0',
+				'$dm'      => '0',
 				'$nouveau' => '0',
 				'$wall'    => '0',
 				'$static'  => $static,
@@ -269,9 +273,6 @@ class Display extends \Zotlabs\Web\Controller {
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
-				if($r) {
-					$updateable = true;
-				}
 			}
 
 			if(! $r) {
@@ -313,9 +314,6 @@ class Display extends \Zotlabs\Web\Controller {
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
-				if($r) {
-					$updateable = true;
-				}
 			}
 
 			if($r === null) {
@@ -426,13 +424,6 @@ class Display extends \Zotlabs\Web\Controller {
 			echo $atom;
 			killme();
 			
-		}
-	
-		if($updateable) {
-			$x = q("UPDATE item SET item_unseen = 0 where item_unseen = 1 AND uid = %d and parent = %d ",
-				intval(local_channel()),
-				intval($r[0]['item_id'])
-			);
 		}
 
 		$o .= '<div id="content-complete"></div>';

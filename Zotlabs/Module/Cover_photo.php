@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libsync;
+
 /* 
    @file cover_photo.php
    @brief Module-file with functions for handling of cover-photos
@@ -66,7 +68,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 			
 				$sync = attach_export_data($channel,$r[0]['resource_id']);
 				if($sync)
-				    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+				    Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 			}
 
 			// Update directory in background
@@ -230,7 +232,7 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 					
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
-					    build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+					    Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
 					// Update directory in background
 					\Zotlabs\Daemon\Master::Summon(array('Directory',$channel['channel_id']));
@@ -291,14 +293,6 @@ class Cover_photo extends \Zotlabs\Web\Controller {
 		$arr['item_thread_top'] = 1;
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
-		$arr['obj_type'] = ACTIVITY_OBJ_PHOTO;
-		$arr['verb'] = ACTIVITY_UPDATE;
-	
-		$arr['obj'] = json_encode(array(
-			'type' => $arr['obj_type'],
-			'id' => z_root() . '/photo/' . $photo['resource_id'] . '-7',
-			'link' => array('rel' => 'photo', 'type' => $photo['mimetype'], 'href' => z_root() . '/photo/' . $photo['resource_id'] . '-7')
-		));
 	
 		if($profile && stripos($profile['gender'],t('female')) !== false)
 			$t = t('%1$s updated her %2$s');

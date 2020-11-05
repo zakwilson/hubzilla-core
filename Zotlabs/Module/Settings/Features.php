@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module\Settings;
 
+use Zotlabs\Lib\Libsync;
+
 
 class Features {
 
@@ -19,7 +21,7 @@ class Features {
 					set_pconfig(local_channel(),'feature', $k, '');
 			}
 		}
-		build_sync_packet();
+		Libsync::build_sync_packet();
 		return;
 	}
 

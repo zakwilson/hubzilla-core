@@ -14,6 +14,11 @@ $autoLoader->addPsr4('Sabre\\Xml\\', __DIR__.'/../vendor/sabre/xml/tests/Sabre/X
 
 date_default_timezone_set('UTC');
 
+if ('TRUE' === getenv('RUN_TEST_WITH_STREAMING_PROPFIND')) {
+    echo 'Running unit tests with \Sabre\DAV\Server::$streamMultiStatus = true';
+    \Sabre\DAV\Server::$streamMultiStatus = true;
+}
+
 // List of variables that can be set by the environment
 $environmentVars = [
     'SABRE_MYSQLUSER',
@@ -39,6 +44,7 @@ $config = [
 ];
 
 if (file_exists(__DIR__.'/config.user.php')) {
+    $userConfig = [];
     include __DIR__.'/config.user.php';
     foreach ($userConfig as $key => $value) {
         $config[$key] = $value;

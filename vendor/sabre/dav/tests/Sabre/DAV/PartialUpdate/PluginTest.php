@@ -6,14 +6,12 @@ namespace Sabre\DAV\PartialUpdate;
 
 use Sabre\HTTP;
 
-require_once 'Sabre/DAV/PartialUpdate/FileMock.php';
-
 class PluginTest extends \Sabre\DAVServerTest
 {
     protected $node;
     protected $plugin;
 
-    public function setUp()
+    public function setup(): void
     {
         $this->node = new FileMock();
         $this->tree[] = $this->node;
@@ -44,7 +42,7 @@ class PluginTest extends \Sabre\DAVServerTest
         ]);
         $response = $this->request($request);
 
-        $this->assertEquals(400, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(400, $response->status, 'Full response body:'.$response->getBodyAsString());
     }
 
     public function testPatchNotSupported()
@@ -56,7 +54,7 @@ class PluginTest extends \Sabre\DAVServerTest
         );
         $response = $this->request($request);
 
-        $this->assertEquals(405, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(405, $response->status, 'Full response body:'.$response->getBodyAsString());
     }
 
     public function testPatchNoContentType()
@@ -68,7 +66,7 @@ class PluginTest extends \Sabre\DAVServerTest
         );
         $response = $this->request($request);
 
-        $this->assertEquals(415, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(415, $response->status, 'Full response body:'.$response->getBodyAsString());
     }
 
     public function testPatchBadRange()
@@ -80,7 +78,7 @@ class PluginTest extends \Sabre\DAVServerTest
         );
         $response = $this->request($request);
 
-        $this->assertEquals(416, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(416, $response->status, 'Full response body:'.$response->getBodyAsString());
     }
 
     public function testPatchNoLength()
@@ -92,7 +90,7 @@ class PluginTest extends \Sabre\DAVServerTest
         );
         $response = $this->request($request);
 
-        $this->assertEquals(411, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(411, $response->status, 'Full response body:'.$response->getBodyAsString());
     }
 
     public function testPatchSuccess()
@@ -104,7 +102,7 @@ class PluginTest extends \Sabre\DAVServerTest
         );
         $response = $this->request($request);
 
-        $this->assertEquals(204, $response->status, 'Full response body:'.$response->body);
+        $this->assertEquals(204, $response->status, 'Full response body:'.$response->getBodyAsString());
         $this->assertEquals('aaabbbaa', $this->node->get());
     }
 

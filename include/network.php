@@ -61,7 +61,8 @@ function z_fetch_url($url, $binary = false, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_CAINFO, get_capath());
 	@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 	@curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
-	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
+	@curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; zot)');
+	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -257,6 +258,7 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	@curl_setopt($ch, CURLOPT_POST,1);
 	@curl_setopt($ch, CURLOPT_POSTFIELDS,$params);
 	@curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/5.0 (compatible; zot)");
+	@curl_setopt($ch, CURLOPT_ENCODING, '');
 
 	$ciphers = @get_config('system','curl_ssl_ciphers');
 	if($ciphers)
@@ -505,7 +507,7 @@ function z_dns_check($h,$check_mx = 0) {
 
 	// Otherwise we will assume dns_get_record() works as documented
 
-	$opts = DNS_A + DNS_CNAME + DNS_PTR;
+	$opts = DNS_A + DNS_AAAA;
 	if($check_mx)
 		$opts += DNS_MX;
 
@@ -1099,7 +1101,33 @@ function discover_by_webbie($webbie, $protocol = '') {
 	$network  = null;
 
 	$x = webfinger_rfc7033($webbie, true);
-	if($x && array_key_exists('links',$x) && $x['links']) {
+	if($x && array_key_exists('links',$x) && is_array($x['links'])) {
+
+		foreach($x['links'] as $link) {
+			if(array_key_exists('rel',$link)) {
+				if($link['rel'] === PROTOCOL_ZOT6 && ((! $protocol) || (strtolower($protocol) === 'zot6'))) {
+					logger('zot6 found for ' . $webbie, LOGGER_DEBUG);
+					$record = Zotfinger::exec($link['href']);
+
+					// Check the HTTP signature
+
+					$hsig = $record['signature'];
+					if($hsig && ($hsig['signer'] === $url || $hsig['signer'] === $link['href']) && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
+					$hsig_valid = true;
+
+					if(! $hsig_valid) {
+						logger('http signature not valid: ' . print_r($hsig,true));
+						continue;
+					}
+
+					$y = Libzot::import_xchan($record['data']);
+					if($y['success']) {
+						return $y['hash'];
+					}
+				}
+			}
+		}
+
 		foreach($x['links'] as $link) {
 			if(array_key_exists('rel',$link)) {
 
@@ -1124,30 +1152,6 @@ function discover_by_webbie($webbie, $protocol = '') {
 			}
 		}
 
-		foreach($x['links'] as $link) {
-			if(array_key_exists('rel',$link)) {
-				if($link['rel'] === PROTOCOL_ZOT6 && ((! $protocol) || (strtolower($protocol) === 'zot6'))) {
-					logger('zot6 found for ' . $webbie, LOGGER_DEBUG);
-					$record = Zotfinger::exec($link['href']);
-
-					// Check the HTTP signature
-
-					$hsig = $record['signature'];
-					if($hsig && ($hsig['signer'] === $url || $hsig['signer'] === $link['href']) && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
-					$hsig_valid = true;
-
-					if(! $hsig_valid) {
-						logger('http signature not valid: ' . print_r($hsig,true));
-						continue;
-					}
-
-					$x = Libzot::import_xchan($record['data']);
-					if($x['success']) {
-						return $x['hash'];
-					}
-				}
-			}
-		}
 	}
 
 	logger('webfinger: ' . print_r($x,true), LOGGER_DATA, LOG_INFO);
@@ -1329,14 +1333,15 @@ function fetch_xrd_links($url) {
  */
 
 function scrape_feed($url) {
-	require_once('library/HTML5/Parser.php');
 
 	$ret = array();
 	$level = 0;
 	$x = z_fetch_url($url,false,$level,array('novalidate' => true));
 
-	if(! $x['success'])
+	if(! $x['success']) {
+		logger('ERROR fetching URL');
 		return $ret;
+		}
 
 	$headers = $x['header'];
 	$code = $x['return_code'];
@@ -1370,16 +1375,15 @@ function scrape_feed($url) {
 		}
 	}
 
+	$dom = new DOMDocument();
 	try {
-		$dom = HTML5_Parser::parse($s);
+		$dom->loadHTML( $s);
 	} catch (DOMException $e) {
-		logger('Parse error: ' . $e);
-	}
-
-	if(! $dom) {
-		logger('Failed to parse.');
+		logger('Feed parse error: ' . $e);
+		// logger('Feed parse ERROR: ' . libxml_get_last_error()->message);
 		return $ret;
 	}
+
 
 	$head = $dom->getElementsByTagName('base');
 	if($head) {
@@ -1842,15 +1846,15 @@ function probe_api_path($host) {
 
 function scrape_vcard($url) {
 
-	require_once('library/HTML5/Parser.php');
-
 	$ret = array();
 
 	logger('url=' . $url);
 
 	$x = z_fetch_url($url);
-	if(! $x['success'])
+	if(! $x['success']) {
+		logger('ERROR fetching URL');
 		return $ret;
+		}
 
 	$s = $x['body'];
 
@@ -1867,14 +1871,14 @@ function scrape_vcard($url) {
 		}
 	}
 
+	$dom = new DOMDocument();
 	try {
-		$dom = HTML5_Parser::parse($s);
+		$dom->loadHTML( $s);
 	} catch (DOMException $e) {
-		logger('Parse error: ' . $e);
-	}
-
-	if(! $dom)
+		logger('hCard parse error: ' . $e);
+		// logger('hCard fetch ERROR: ' . libxml_get_last_error()->message);
 		return $ret;
+	}
 
 	// Pull out hCard profile elements
 
@@ -2057,3 +2061,23 @@ function get_request_string($url) {
 	return '/' . ((count($a) > 3) ? $a[3] : EMPTY_STR);
 
 }
+
+
+/*
+ *
+ * Takes the output of parse_url and builds a URL from it
+ *
+ */
+ 
+function unparse_url($parsed_url) {
+	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+	$port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+	$user     = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+	$pass     = isset($parsed_url['pass']) ? ':' . $parsed_url['pass']  : '';
+	$pass     = ($user || $pass) ? "$pass@" : '';
+	$path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
+	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
+  	return "$scheme$user$pass$host$port$path$query$fragment";
+} 

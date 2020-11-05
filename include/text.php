@@ -672,7 +672,7 @@ function bt_syslog($msg, $priority = LOG_INFO) {
 		for($x = 1; $x < count($stack); $x ++) {
 			$s = 'stack: ' . basename($stack[$x]['file']) . ':' . $stack[$x]['line'] . ':' . $stack[$x]['function'] . '()';
 			openlog("bt-log", LOG_PID | LOG_PERROR, LOG_LOCAL0);
-			syslog($priority, $msg);
+			syslog($priority, $s);
 			closelog();
 		}
 	}

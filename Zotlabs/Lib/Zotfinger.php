@@ -6,7 +6,7 @@ use Zotlabs\Web\HTTPSig;
 
 class Zotfinger {
 
-	static function exec($resource,$channel = null) {
+	static function exec($resource,$channel = null, $verify = true) {
 
 		if(! $resource) {
 			return false;
@@ -41,8 +41,9 @@ class Zotfinger {
 		logger('fetch: ' . print_r($x,true));
 
 		if($x['success']) {
-			
-			$result['signature'] = HTTPSig::verify($x);
+			if ($verify) {
+				$result['signature'] = HTTPSig::verify($x, EMPTY_STR, 'zot6');
+			}
     
 			$result['data'] = json_decode($x['body'],true);
 

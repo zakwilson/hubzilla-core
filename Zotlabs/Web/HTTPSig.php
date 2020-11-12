@@ -76,7 +76,7 @@ class HTTPSig {
 
 	// See draft-cavage-http-signatures-10
 
-	static function verify($data,$key = '') {
+	static function verify($data,$key = '', $keytype = '') {
 
 		$body      = $data;
 		$headers   = null;
@@ -151,7 +151,7 @@ class HTTPSig {
 
 		$result['signer'] = $sig_block['keyId'];
 
-		$key = self::get_key($key,$result['signer']);
+		$key = self::get_key($key,$keytype,$result['signer']);
 
 		if(! ($key && $key['public_key'])) {
 			return $result;
@@ -162,13 +162,26 @@ class HTTPSig {
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
 		if(! $x) {
-			logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($key['public_key']) ? '' : ' no key'));
-			$sig_block['signature'] = base64_encode($sig_block['signature']);
-			logger('affected sigblock: ' . print_r($sig_block,true));
-			logger('signed_data: ' . print_r($signed_data,true));
-			logger('headers: ' . print_r($headers,true));
-			logger('server: ' . print_r($_SERVER,true));
-			return $result;
+
+			// try again, ignoring the local actor (xchan) cache and refetching the key
+			// from its source
+
+			$fkey = self::get_key($key,$keytype,$result['signer'],true);
+
+			if ($fkey && $fkey['public_key']) {
+				$y = rsa_verify($signed_data,$sig_block['signature'],$fkey['public_key'],$algorithm);
+				logger('verified: (cache reload) ' . $x, LOGGER_DEBUG);
+			}
+
+			if (! $y) {
+				logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($fkey['public_key']) ? '' : ' no key'));
+				$sig_block['signature'] = base64_encode($sig_block['signature']);
+				logger('affected sigblock: ' . print_r($sig_block,true));
+				logger('headers: ' . print_r($headers,true));
+				logger('server: ' . print_r($_SERVER,true));
+				return $result;
+			}
+
 		}
 
 		$result['portable_id'] = $key['portable_id'];
@@ -187,18 +200,30 @@ class HTTPSig {
 			}
 
 			logger('Content_Valid: ' . (($result['content_valid']) ? 'true' : 'false'));
+			if (! $result['content_valid']) {
+				logger('invalid content signature: data ' . print_r($data,true));
+				logger('invalid content signature: headers ' . print_r($headers,true));
+				logger('invalid content signature: body ' . print_r($body,true));
+			}
 		}
 
 		return $result;
 	}
 
-	static function get_key($key,$id) {
+	static function get_key($key,$keytype,$id) {
 
 		if($key) {
 			if(function_exists($key)) {
 				return $key($id);
 			}
 			return [ 'public_key' => $key ];
+		}
+
+		if($keytype === 'zot6') {
+			$key = self::get_zotfinger_key($id,$force);
+			if($key) {
+				return $key;
+			}
 		}
 
 		if(strpos($id,'#') === false) {
@@ -243,7 +268,7 @@ class HTTPSig {
 
 		$url = ((strpos($id,'#')) ? substr($id,0,strpos($id,'#')) : $id);
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' and hubloc_network in ('zot6', 'activitypub')",
 			dbesc(str_replace('acct:','',$url)),
 			dbesc($url)
 		);
@@ -303,18 +328,15 @@ class HTTPSig {
 		return (($key['public_key']) ? $key : false);
 	}
 
-
 	function get_zotfinger_key($id) {
 
-		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
+		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 			dbesc(str_replace('acct:','',$id)),
 			dbesc($id)
 		);
 
-		$x = Libzot::zot_record_preferred($x);
-
-		if($x && $x['xchan_pubkey']) {
-			return [ 'portable_id' => $x['xchan_hash'], 'public_key' => $x['xchan_pubkey'] , 'hubloc' => $x ];
+		if($x && $x[0]['xchan_pubkey']) {
+			return [ 'portable_id' => $x[0]['xchan_hash'], 'public_key' => $x[0]['xchan_pubkey'] , 'hubloc' => $x[0] ];
 		}
 
 		$wf = Webfinger::exec($id);
@@ -330,13 +352,18 @@ class HTTPSig {
 						continue;
 					}
 					if($l['rel'] === 'http://purl.org/zot/protocol/6.0' && array_key_exists('href',$l) && $l['href'] !== EMPTY_STR) {
-						$z = \Zotlabs\Lib\Zotfinger::exec($l['href']);
+
+						// The third argument to Zotfinger::exec() tells it not to verify signatures
+						// Since we're inside a function that is fetching keys with which to verify signatures,
+						// this is necessary to prevent infinite loops.
+
+						$z = \Zotlabs\Lib\Zotfinger::exec($l['href'],null,false);
 						if($z) {
 							$i = Libzot::import_xchan($z['data']);
 							if($i['success']) {
 								$key['portable_id'] = $i['hash'];
 
-								$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
+								$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 									dbesc($l['href'])
 								);
 								if($x) {
@@ -485,7 +512,6 @@ class HTTPSig {
 
 		if(preg_match('/iv="(.*?)"/ism',$header,$matches))
 			$header = self::decrypt_sigheader($header);
-
 		if(preg_match('/keyId="(.*?)"/ism',$header,$matches))
 			$ret['keyId'] = $matches[1];
 		if(preg_match('/algorithm="(.*?)"/ism',$header,$matches))

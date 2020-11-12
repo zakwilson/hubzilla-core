@@ -104,6 +104,7 @@ class Activity {
 		}
 		else {
 			logger('fetch failed: ' . $url);
+			logger($x['body']);
 		}
 		return null;
 	}

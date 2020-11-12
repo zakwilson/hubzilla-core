@@ -1542,6 +1542,12 @@ class Activity {
 
 		$inbox = $person_obj['inbox'];
 
+		// invalid identity
+
+		if (! $inbox) {
+			return;
+		}
+
 		$collections = [];
 
 		if($inbox) {

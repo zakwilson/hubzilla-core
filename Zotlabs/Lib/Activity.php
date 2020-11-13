@@ -1493,6 +1493,14 @@ class Activity {
 		if(! is_array($person_obj))
 			return;
 
+		$inbox = $person_obj['inbox'];
+
+		// invalid identity
+
+		if (! $inbox || strpos($inbox,z_root()) !== false) {
+			return;
+		}
+
 		$name = $person_obj['name'];
 		if(! $name)
 			$name = $person_obj['preferredUsername'];
@@ -1538,14 +1546,6 @@ class Activity {
 
 		if (! $profile) {
 			$profile = $url;
-		}
-
-		$inbox = $person_obj['inbox'];
-
-		// invalid identity
-
-		if (! $inbox) {
-			return;
 		}
 
 		$collections = [];

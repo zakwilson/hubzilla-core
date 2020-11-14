@@ -62,6 +62,9 @@ class Site {
 		$from_email         = ((array_key_exists('from_email',$_POST) && trim($_POST['from_email'])) ? trim($_POST['from_email']) : 'Administrator@' . \App::get_hostname());
 		$from_email_name    = ((array_key_exists('from_email_name',$_POST) && trim($_POST['from_email_name'])) ? trim($_POST['from_email_name']) : \Zotlabs\Lib\System::get_site_name());
 
+
+		$sse_enabled       = ((x($_POST,'sse_enabled'))      ? true : false);
+
 		$verifyssl         = ((x($_POST,'verifyssl'))        ? True : False);
 		$proxyuser         = ((x($_POST,'proxyuser'))        ? notags(trim($_POST['proxyuser']))  : '');
 		$proxy             = ((x($_POST,'proxy'))            ? notags(trim($_POST['proxy']))      : '');
@@ -151,6 +154,9 @@ class Site {
 
 		set_config('system','no_community_page', $no_community_page);
 		set_config('system','no_utf', $no_utf);
+
+		set_config('system','sse_enabled', $sse_enabled);
+
 		set_config('system','verifyssl', $verifyssl);
 		set_config('system','proxyuser', $proxyuser);
 		set_config('system','proxy', $proxy);
@@ -330,6 +336,8 @@ class Site {
 			'$from_email_name' => [ 'from_email_name', t('Name of email sender for system generated email.'), get_config('system','from_email_name',\Zotlabs\Lib\System::get_site_name()),'' ],
 
 			'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), get_config('system','directory_server'), t("Default directory server"), $dir_choices) : null),
+
+			'$sse_enabled'		=> array('sse_enabled', t('Enable SSE Notifications'), get_config('system', 'sse_enabled', 0), t('If disabled, traditional polling will be used. Warning: this setting might not be suited for shared hosting.')),
 
 			'$proxyuser'		=> array('proxyuser', t("Proxy user"), get_config('system','proxyuser'), ""),
 			'$proxy'			=> array('proxy', t("Proxy URL"), get_config('system','proxy'), ""),

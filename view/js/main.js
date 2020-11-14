@@ -31,6 +31,7 @@ var sse_offset = 0;
 var sse_type;
 var sse_partial_result = false;
 var sse_rmids = [];
+var sse_fallback_interval;
 
 var page_cache = {};
 
@@ -94,37 +95,56 @@ $(document).ready(function() {
 	
 	jQuery.timeago.settings.allowFuture = true;
 
-	if(typeof(window.SharedWorker) === 'undefined') {
-		// notifications with multiple tabs open will not work very well in this scenario 
-		var evtSource = new EventSource('/sse');
 
-		evtSource.addEventListener('notifications', function(e) {
-			var obj = JSON.parse(e.data);
-			sse_handleNotifications(obj, false, false);
-		}, false);
+	if(sse_enabled) {
+		if(typeof(window.SharedWorker) === 'undefined') {
+			// notifications with multiple tabs open will not work very well in this scenario 
+			var evtSource = new EventSource('/sse');
 
-		document.addEventListener('visibilitychange', function() {
-			if (!document.hidden) {
-				sse_offset = 0;
-				sse_bs_init();
+			evtSource.addEventListener('notifications', function(e) {
+				var obj = JSON.parse(e.data);
+				sse_handleNotifications(obj, false, false);
+			}, false);
+
+			document.addEventListener('visibilitychange', function() {
+				if (!document.hidden) {
+					sse_offset = 0;
+					sse_bs_init();
+				}
+			}, false);
+
+		}
+		else {
+			var myWorker = new SharedWorker('/view/js/sse_worker.js', localUser);
+
+			myWorker.port.onmessage = function(e) {
+				obj = e.data;
+				console.log(obj);
+				sse_handleNotifications(obj, false, false);
 			}
-		}, false);
 
+			myWorker.onerror = function(e) {
+				myWorker.port.close();
+			}
+
+			myWorker.port.start();
+		}
 	}
 	else {
-		var myWorker = new SharedWorker('/view/js/sse_worker.js', localUser);
+		if (!document.hidden)
+			sse_fallback_interval = setInterval(sse_fallback, updateInterval);
 
-		myWorker.port.onmessage = function(e) {
-			obj = e.data;
-			console.log(obj);
-			sse_handleNotifications(obj, false, false);
-		}
+		document.addEventListener('visibilitychange', function() {
+			if (document.hidden) {
+				clearInterval(sse_fallback_interval);
+			}
+			else {
+				sse_offset = 0;
+				sse_bs_init();
+				sse_fallback_interval = setInterval(sse_fallback, updateInterval);
+			}
 
-		myWorker.onerror = function(e) {
-			myWorker.port.close();
-		}
-
-		myWorker.port.start();
+		}, false);
 	}
 
 	$('.notification-link').on('click', { replace: true, followup: false }, sse_bs_notifications);
@@ -223,6 +243,8 @@ $(document).ready(function() {
 		if(!bParam_mid)
 			cache_next_page();
 	});
+
+
 
 });
 
@@ -1763,8 +1785,6 @@ function sse_bs_init() {
 }
 
 function sse_bs_counts() {
-
-
 	if(sse_bs_active)
 		return;
 
@@ -2021,4 +2041,16 @@ function sse_setNotificationsStatus() {
 		$('#notifications').hide();
 	}
 
+}
+
+function sse_fallback() {
+	$.get('/sse', function(obj) {
+		if(! obj)
+			return;
+
+		console.log('sse fallback');
+		console.log(obj);
+
+		sse_handleNotifications(obj, false, false);
+	});
 }

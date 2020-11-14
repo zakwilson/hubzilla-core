@@ -1207,6 +1207,7 @@ class App {
 				'$metas'           => self::$meta->get(),
 				'$plugins'         => $x['header'],
 				'$update_interval' => $interval,
+				'$sse_enabled'     => get_config('system', 'sse_enabled', 0),
 				'$head_css'        => head_get_css(),
 				'$head_js'         => head_get_js(),
 				'$linkrel'         => head_get_links(),

@@ -337,7 +337,7 @@ class Site {
 
 			'$directory_server' => (($dir_choices) ? array('directory_server', t("Directory Server URL"), get_config('system','directory_server'), t("Default directory server"), $dir_choices) : null),
 
-			'$sse_enabled'		=> array('sse_enabled', t('Enable SSE Notifications'), get_config('system', 'sse_enabled', 0), t('If disabled, traditional polling will be used. Warning: this setting might not be suited for shared hosting.')),
+			'$sse_enabled'		=> array('sse_enabled', t('Enable SSE Notifications'), get_config('system', 'sse_enabled', 0), t('If disabled, traditional polling will be used. Warning: this setting might not be suited for shared hosting')),
 
 			'$proxyuser'		=> array('proxyuser', t("Proxy user"), get_config('system','proxyuser'), ""),
 			'$proxy'			=> array('proxy', t("Proxy URL"), get_config('system','proxy'), ""),

@@ -10,6 +10,11 @@ class Ratenotif {
 
 	static public function run($argc,$argv) {
 
+
+		// Deprecated
+		return;
+
+
 		require_once("datetime.php");
 		require_once('include/items.php');
 

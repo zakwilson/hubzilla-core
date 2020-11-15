@@ -95,6 +95,7 @@
     </div>
 	
 	<h3>{{$advanced}}</h3>
+	{{include file="field_checkbox.tpl" field=$sse_enabled}}
 	{{include file="field_input.tpl" field=$imagick_path}}
 	{{include file="field_input.tpl" field=$proxy}}
 	{{include file="field_input.tpl" field=$proxyuser}}

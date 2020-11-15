@@ -133,7 +133,7 @@ class Share {
 				"' message_id='" . $this->item['mid'] .
 			"']";
 			if($this->item['title'])
-				$bb .= '[b]'.$this->item['title'].'[/b]'."\r\n";
+				$bb .= '[h3][b]'.$this->item['title'].'[/b][/h3]'."\r\n";
 			$bb .= (($is_photo) ? $photo_bb . "\r\n" . $this->item['body'] : $this->item['body']);
 			$bb .= "[/share]";
 		}

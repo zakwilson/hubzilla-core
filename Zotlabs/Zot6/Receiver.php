@@ -155,7 +155,7 @@ class Receiver {
 
 		$result = false;
 
-		$this->sigdata = HTTPSig::verify($this->rawdata);
+		$this->sigdata = HTTPSig::verify($this->rawdata, EMPTY_STR, 'zot6');
 
 		if ($this->sigdata && $this->sigdata['header_signed'] && $this->sigdata['header_valid']) {
 			$result = true;

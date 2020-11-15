@@ -104,6 +104,7 @@ class Activity {
 		}
 		else {
 			logger('fetch failed: ' . $url);
+			logger($x['body']);
 		}
 		return null;
 	}
@@ -1018,6 +1019,7 @@ class Activity {
 		if(! $extended) {
 			return $p['xchan_url'];
 		}
+
 		$ret = [];
 
 		$c = ((array_key_exists('channel_id',$p)) ? $p : channelx_by_hash($p['xchan_hash']));
@@ -1063,10 +1065,16 @@ class Activity {
 			]
 		];
 
+		$ret['publicKey'] = [
+			'id'           => $p['xchan_url'],
+			'owner'        => $p['xchan_url'],
+			'publicKeyPem' => $p['xchan_pubkey']
+		];
+
 		$arr = [ 'xchan' => $p, 'encoded' => $ret ];
 		call_hooks('encode_person', $arr);
-		$ret = $arr['encoded'];
 
+		$ret = $arr['encoded'];
 
 		return $ret;
 	}
@@ -1485,6 +1493,14 @@ class Activity {
 		if(! is_array($person_obj))
 			return;
 
+		$inbox = $person_obj['inbox'];
+
+		// invalid identity
+
+		if (! $inbox || strpos($inbox,z_root()) !== false) {
+			return;
+		}
+
 		$name = $person_obj['name'];
 		if(! $name)
 			$name = $person_obj['preferredUsername'];
@@ -1531,8 +1547,6 @@ class Activity {
 		if (! $profile) {
 			$profile = $url;
 		}
-
-		$inbox = $person_obj['inbox'];
 
 		$collections = [];
 

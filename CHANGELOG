@@ -1,4 +1,16 @@
-Hubzilla 5.0 (????-??-??)
+Hubzilla 5.0.1 (2020-11-12)
+	- Fix share title size 
+	- Fix issue where hublocs could get mixed up between different protocols
+
+	Addons
+	- Pubcrawl: implement authenticated profile fetches which are now partly required in mastodon
+	- Sse: call xchan_query() just once per item
+	- Pubcrawl: reject messages where sender is not the author if ld-signature is not ok
+
+
+Hubzilla 5.0 (2020-11-05)
+	- Remove unmaintained and deprecated schemas
+	- Deprecate HTML5_Parser library
 	- Implement results caching for public tag and profile categories fetching
 	- Deprecate $a variable for *_plugin_admin() and *_plugin_admin_post()
 	- Support remote host cache directives on profile photo fetching
@@ -38,6 +50,9 @@ Hubzilla 5.0 (????-??-??)
 
 
 	Bugfixes
+	- Fix issue where interrupted uploads could not be resumed
+	- Fix photo sync issue between clones
+	- Fix issue where profile photos were fetched for unknown channels
 	- Apply channel name changes to all associated xchans
 	- Show unchecked box in connedit if value is false
 	- Reset their_perms before setting new permissions to reflect permission retractions on local hub
@@ -50,6 +65,9 @@ Hubzilla 5.0 (????-??-??)
 	- Fix once cached embedded content is used and stored forever
 
 	Addons
+	- Pubcrawl: fix issue where http signatures were not verified
+	- Pubcrawl: fix issue where private keys were lost from storage
+	- Pubcrawl: add host to signed headers (required by mastodon 3.2.1)
 	- Diaspora: remove relay@relay.iliketoat.net as default relay (it does not exist anymore)
 	- Diaspora: provide UI for admin to configure relay
 	- Diaspora: move the-federation.info registration to statistics addon

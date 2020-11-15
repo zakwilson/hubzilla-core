@@ -210,17 +210,24 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 	if($channel && $hublocs) {
 		foreach($hublocs as $hubloc) {
 
-			$hash = make_xchan_hash($hubloc['hubloc_guid'],$hubloc['hubloc_guid_sig']);
-			if($hubloc['hubloc_network'] === 'zot' && $hash !== $hubloc['hubloc_hash']) {
-				logger('forged hubloc: ' . print_r($hubloc,true));
-				continue;
-			}
+			// verify the hash. We can only do this if we already stored the xchan corresponding to this hubloc
+			// as we need the public key from there
 
-			if(! array_key_exists('hubloc_primary',$hubloc)) {
-				$hubloc['hubloc_primary']     = (($hubloc['hubloc_flags']  & 0x0001) ? 1 : 0);
-				$hubloc['hubloc_orphancheck'] = (($hubloc['hubloc_flags']  & 0x0004) ? 1 : 0);
-				$hubloc['hubloc_error']       = (($hubloc['hubloc_status'] & 0x0003) ? 1 : 0);
-				$hubloc['hubloc_deleted']     = (($hubloc['hubloc_flags']  & 0x1000) ? 1 : 0);
+			if ($hubloc['hubloc_network'] === 'zot6') {
+				$x = q("select xchan_pubkey from xchan where xchan_guid = '%s' and xchan_hash = '%s'",
+					dbesc($hubloc['hubloc_guid']),
+					dbesc($hubloc['hubloc_hash'])
+				);
+
+				if (! $x) {
+					logger('hubloc could not be verified. ' . print_r($hubloc,true));
+					continue;
+				}
+				$hash = Libzot::make_xchan_hash($hubloc['hubloc_guid'],$x[0]['xchan_pubkey']);
+				if ($hash !== $hubloc['hubloc_hash']) {
+					logger('forged hubloc: ' . print_r($hubloc,true));
+					continue;
+				}
 			}
 
 			if($moving && $hubloc['hubloc_hash'] === $channel['channel_hash'] && $hubloc['hubloc_url'] !== z_root()) {
@@ -228,17 +235,17 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 			}
 
 			$arr = [
-				'guid'     => $hubloc['hubloc_guid'],
-				'guid_sig' => $hubloc['hubloc_guid_sig'],
-				'url'      => $hubloc['hubloc_url'],
-				'url_sig'  => $hubloc['hubloc_url_sig'],
-				'sitekey'  => ((array_key_exists('hubloc_sitekey',$hubloc)) ? $hubloc['hubloc_sitekey'] : '')
+				'id'           => $hubloc['hubloc_guid'],
+				'id_sig'       => $hubloc['hubloc_guid_sig'],
+				'location'     => $hubloc['hubloc_url'],
+				'location_sig' => $hubloc['hubloc_url_sig']
 			];
 
-			if(($hubloc['hubloc_hash'] === $channel['channel_hash']) && intval($hubloc['hubloc_primary']) && ($seize))
+			if (($hubloc['hubloc_hash'] === $channel['channel_hash']) && intval($hubloc['hubloc_primary']) && ($seize)) {
 				$hubloc['hubloc_primary'] = 0;
+			}
 
-			if(($x = zot_gethub($arr,false)) === false) {
+			if (($x = Libzot::gethub($arr,false)) === false) {
 				unset($hubloc['hubloc_id']);
 				hubloc_store_lowlevel($hubloc);
 			}
@@ -1333,7 +1340,7 @@ function sync_files($channel, $files) {
 							'time' => $time,
 							'resource' => $att['hash'],
 							'revision' => 0,
-							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey']))
+							'signature' => Libzot::sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])
 						);
 
 						$store_path = $newfname;
@@ -1419,7 +1426,7 @@ function sync_files($channel, $files) {
 							'time' => $time,
 							'resource' => $p['resource_id'],
 							'revision' => 0,
-							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])),
+							'signature'  => Libzot::sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey']),
 							'resolution' => intval($p['imgscale'])
 						);
 

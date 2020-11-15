@@ -20,7 +20,7 @@
 			<div class="input-group form-group">
 				<input type="text" name="search" id="contacts-search" class="form-control" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc}}" />
 				<div class="input-group-append">
-					<button id="contacts-search-submit" class="btn btn-outline-secondary" type="submit"><i class="fa fa-fw fa-search"></i></button>
+					<button id="contacts-search-submit" class="btn btn-sm btn-outline-secondary" type="submit"><i class="fa fa-fw fa-search"></i></button>
 				</div>
 			</div>
 		</form>

@@ -9,6 +9,7 @@
 {{$plugins}}
 <script>
 	var updateInterval = {{$update_interval}};
+	var sse_enabled = {{$sse_enabled}};
 	var localUser = {{if $local_channel}}{{$local_channel}}{{else}}false{{/if}};
 	var zid = {{if $zid}}'{{$zid}}'{{else}}null{{/if}};
 	var justifiedGalleryActive = false;

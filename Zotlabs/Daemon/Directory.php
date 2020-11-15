@@ -58,7 +58,8 @@ class Directory {
 		// otherwise send the changes upstream
 
 		$directory = Libzotdir::find_upstream_directory($dirmode);
-		$url = $directory['url'] . '/post';
+
+		$url = $directory['url'] . '/zot';
 
 		// ensure the upstream directory is updated
 

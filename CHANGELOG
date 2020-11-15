@@ -1,3 +1,15 @@
+Hubzilla 5.0.2 (2020-11-16)
+	- Update russian translation
+	- Implement polling for notifications (default) - SSE can be enabled in /admin/site if desired
+	- DB update to remove hublocs with no hubloc_hash or no hubloc_callback
+	- Do not save actors without an inbox
+	- Fix import_hublocs()
+
+	Addons
+	- Pubcrawl: do not save actors without an inbox
+	- Diaspora: fix issue with diaspora where hublocs without hubloc_hash were stored
+
+
 Hubzilla 5.0.1 (2020-11-12)
 	- Fix share title size 
 	- Fix issue where hublocs could get mixed up between different protocols

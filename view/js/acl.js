@@ -340,7 +340,13 @@ ACL.prototype.update_view = function(value) {
 		that.list.hide(); //hide acl-list
 		that.info.hide(); //show acl-info
 		that.selected_id = that.contact_ids[that.allow_cid[0]];
-		that.update_select('\\^' + that.selected_id);
+
+		if(that.acl_select.find('option[id="\\^' + that.selected_id + '"]').length === 0) {
+			that.update_view('custom');
+		}
+		else {
+			that.update_select('\\^' + that.selected_id);
+		}
 
 		/* jot acl */
 		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');

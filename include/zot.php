@@ -3452,7 +3452,7 @@ function build_sync_packet($uid = 0, $packet = null, $groups_changed = false) {
 
 
 		$x = q("select count(outq_hash) as total from outq where outq_delivered = 0");
-		if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',300))) {
+		if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',3000))) {
 			logger('immediate delivery deferred.', LOGGER_DEBUG, LOG_INFO);
 			update_queue_item($hash);
 			continue;
@@ -4286,7 +4286,7 @@ function zot_reply_message_request($data) {
 
 
 			$x = q("select count(outq_hash) as total from outq where outq_delivered = 0");
-			if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',300))) {
+			if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',3000))) {
 				logger('immediate delivery deferred.', LOGGER_DEBUG, LOG_INFO);
 				update_queue_item($hash);
 				continue;

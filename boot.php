@@ -50,10 +50,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.0.1' );
+define ( 'STD_VERSION',             '5.0.2' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1238 );
+define ( 'DB_UPDATE_VERSION',       1239 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -1207,6 +1207,7 @@ class App {
 				'$metas'           => self::$meta->get(),
 				'$plugins'         => $x['header'],
 				'$update_interval' => $interval,
+				'$sse_enabled'     => get_config('system', 'sse_enabled', 0),
 				'$head_css'        => head_get_css(),
 				'$head_js'         => head_get_js(),
 				'$linkrel'         => head_get_links(),

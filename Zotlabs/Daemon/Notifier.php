@@ -4,6 +4,7 @@ namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\Queue;
 
 require_once('include/queue_fn.php');
 require_once('include/html2plain.php');
@@ -734,15 +735,17 @@ class Notifier {
 			}
 
 			if($packet) {
-				queue_insert(array(
-					'hash'       => $hash,
-					'account_id' => $channel['channel_account_id'],
-					'channel_id' => $channel['channel_id'],
-					'posturl'    => $hub['hubloc_callback'],
-					'driver'     => $hub['hubloc_network'],
-					'notify'     => $packet,
-					'msg'        => (($pmsg) ? json_encode($pmsg) : '')
-				));
+				Queue::insert(
+					[
+						'hash'       => $hash,
+						'account_id' => $channel['channel_account_id'],
+						'channel_id' => $channel['channel_id'],
+						'posturl'    => $hub['hubloc_callback'],
+						'driver'     => $hub['hubloc_network'],
+						'notify'     => $packet,
+						'msg'        => (($pmsg) ? json_encode($pmsg) : '')
+					]
+				);
 			}
 			else {
 				$env = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
@@ -803,7 +806,7 @@ class Notifier {
 					}
 				}
 
-				queue_insert(
+				Queue::insert(
 					[
 						'hash'       => $hash,
 						'account_id' => $target_item['aid'],

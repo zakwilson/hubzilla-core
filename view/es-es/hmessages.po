@@ -23,10 +23,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es_ES\n"
 "Plural-Forms: nplurals=2; plural=(n != 1 ? 1 : 0);\n"
-#: ../../view/theme/redbasic/php/config.php:15 ../../include/text.php:3231
-#: ../../Zotlabs/Module/Admin/Site.php:187
-msgid "Default"
-msgstr "Predeterminado"
 
 #: ../../view/theme/redbasic/php/config.php:15
 #: ../../addon/cart/submodules/orderoptions.php:335

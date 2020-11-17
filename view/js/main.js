@@ -56,7 +56,7 @@ $.ajaxSetup({cache: false});
 
 $(document).ready(function() {
 
-	$(document).on('click focus', '.comment-edit-form', handle_comment_form);
+	$(document).on('click', '.comment-edit-form', handle_comment_form);
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
@@ -94,7 +94,6 @@ $(document).ready(function() {
 	};
 	
 	jQuery.timeago.settings.allowFuture = true;
-
 
 	if(sse_enabled) {
 		if(typeof(window.SharedWorker) === 'undefined') {
@@ -244,8 +243,6 @@ $(document).ready(function() {
 			cache_next_page();
 	});
 
-
-
 });
 
 function getConversationSettings() {
@@ -325,7 +322,8 @@ function handle_comment_form(e) {
 	}
 
 	// handle click outside of form (close empty forms)
-	$(document).on('click', function(e) {
+	$(document).one('click', function(e) {
+
 		fields.each(function() {
 			if($(this).val() != '')
 				fields_empty = false;
@@ -344,21 +342,28 @@ function handle_comment_form(e) {
 			form.find(':button[type=submit]').prop('title', '');
 		}
 	});
-	
+
 	var commentSaveTimer = null;
 	var emptyCommentElm = form.find('.comment-edit-text').attr('id');
 	var convId = emptyCommentElm.replace('comment-edit-text-','');
-	$(document).on('focusout','#' + emptyCommentElm,function(e){
+	$('#' + emptyCommentElm).on('focusout',function(e){
 		if(commentSaveTimer)
 			clearTimeout(commentSaveTimer);
 		commentSaveChanges(convId,true);
 		commentSaveTimer = null;
+		$('#' + emptyCommentElm).off();
 	});
 
-	$(document).on('focusin','#' + emptyCommentElm,function(e){
+	$('#' + emptyCommentElm).on('focusin', function (e){
 		commentSaveTimer = setTimeout(function () {
 			commentSaveChanges(convId,false);
 		},10000);
+	});
+
+	$('#' + emptyCommentElm).on('keydown', function (e) {
+		if (e.ctrlKey && e.keyCode === 13) {
+			post_comment(convId);
+		}
 	});
 
 	function commentSaveChanges(convId, isFinal) {
@@ -379,7 +384,10 @@ function handle_comment_form(e) {
 			}
 		}
 	}
+
 }
+
+
 
 function commentClose(obj, id) {
 	if(obj.value === '') {
@@ -1414,7 +1422,7 @@ function post_comment(id) {
 					$(document).unbind( "click.commentOpen");
 				}
 				if(timer) clearTimeout(timer);
-				timer = setTimeout(updateInit,1500);
+				timer = setTimeout(updateInit, 500);
 			}
 			if(data.reload) {
 				window.location.href=data.reload;
@@ -1424,6 +1432,8 @@ function post_comment(id) {
 	);
 	return false;
 }
+
+
 
 function preview_comment(id) {
 	$("#comment-preview-inp-" + id).val("1");

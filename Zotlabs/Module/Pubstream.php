@@ -104,6 +104,9 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 			nav_set_selected(t('Public Stream'));
 
+			if(!$mid)
+				$_SESSION['static_loadtime'] = datetime_convert();
+
 			$maxheight = get_config('system','home_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;

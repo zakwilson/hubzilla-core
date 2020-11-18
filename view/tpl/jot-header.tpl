@@ -303,13 +303,9 @@ var activeCommentText = '';
 		if(reply && reply.length) {
 			reply = reply.replace('#','');
 			if(reply.length) {
-
 				commentBusy = true;
 				$('body').css('cursor', 'wait');
-
-				$.get('{{$baseurl}}/tagger/' + id + '?term=' + reply);
-				if(timer) clearTimeout(timer);
-				timer = setTimeout(updateInit,3000);
+				$.get('{{$baseurl}}/tagger/' + id + '?term=' + reply, updateInit);
 				liking = 1;
 			}
 		}
@@ -356,6 +352,13 @@ var activeCommentText = '';
 			});
 		});
 		
+	}
+
+	function itemFilerRm(id, term) {
+		commentBusy = true;
+		$('body').css('cursor', 'wait');
+		$.get('{{$baseurl}}/filerm/' + id + '?f=&term=' + term, updateInit);
+		liking = 1;
 	}
 
 	function itemBookmark(id) {

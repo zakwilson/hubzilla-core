@@ -23,9 +23,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			}
 		}
 
-		if($load)
-			$_SESSION['loadtime'] = datetime_convert();
-
 		if((observer_prohibited(true))) {
 			return login();
 		}
@@ -59,7 +56,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
 
-		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
 		$net    = ((array_key_exists('net',$_REQUEST))    ? escape_tags($_REQUEST['net']) : '');
 
 		$title = replace_macros(get_markup_template("section_title.tpl"),array(
@@ -103,21 +99,11 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$o .= status_editor($a,$x,false,'Pubstream');
 			$o .= '</div>';
 		}
-
-
-
-
-
 	
 		if(! $update && !$load) {
 
 			nav_set_selected(t('Public Stream'));
 
-			if(!$mid)
-				$_SESSION['static_loadtime'] = datetime_convert();
-
-			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 1);
-	
 			$maxheight = get_config('system','home_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
@@ -148,7 +134,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				'$nouveau' => '0',
 				'$wall'    => '0',
 				'$list'    => '0',
-				'$static'  => $static,
 				'$page'    => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$search'  => '',
 				'$xchan'   => '',
@@ -200,14 +185,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
 
 		$abook_uids = " and abook.abook_channel = " . intval(\App::$profile['profile_uid']) . " ";
-	
-		$simple_update = (($_SESSION['loadtime']) ? " AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' " : '');
-	
-		if($load)
-			$simple_update = '';
 
-		if($static && $simple_update)
-			$simple_update .= " and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
+		$simple_update = '';
+		if($update && $_SESSION['loadtime'])
+			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 		//logger('update: ' . $update . ' load: ' . $load);
 
@@ -220,10 +201,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan 
 						$net_query
-						WHERE mid like '%s' $uids $item_normal
+						WHERE mid = '%s' $uids $item_normal
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
-						$sql_extra3 $sql_extra $sql_nets $net_query2 LIMIT 1",
-						dbesc($mid . '%')
+						$sql_extra3 $sql_extra $sql_nets $net_query2",
+						dbesc($mid)
 					);
 				}
 				else {
@@ -243,10 +224,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					$r = q("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
 						$net_query
-						WHERE mid like '%s' $uids $item_normal_update $simple_update
+						WHERE mid = '%s' $uids $item_normal_update $simple_update
 						and (abook.abook_blocked = 0 or abook.abook_flags is null)
-						$sql_extra3 $sql_extra $sql_nets $net_query2 LIMIT 1",
-						dbesc($mid . '%')
+						$sql_extra3 $sql_extra $sql_nets $net_query2",
+						dbesc($mid)
 					);
 				}
 				else {
@@ -259,7 +240,6 @@ class Pubstream extends \Zotlabs\Web\Controller {
 						$sql_extra3 $sql_extra $sql_nets $net_query2"
 					);
 				}
-				$_SESSION['loadtime'] = datetime_convert();
 			}
 
 			// Then fetch all the children of the parents that are on this page
@@ -291,7 +271,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 	
 		// fake it
 		$mode = (($hashtags) ? 'search' : 'pubstream');
-	
+
 		$o .= conversation($items,$mode,$update,$page_mode);
 
 		if($mid)
@@ -299,6 +279,8 @@ class Pubstream extends \Zotlabs\Web\Controller {
 	
 		if(($items) && (! $update))
 			$o .= alt_pager(count($items));
+
+		$_SESSION['loadtime'] = datetime_convert();
 
 		return $o;
 	

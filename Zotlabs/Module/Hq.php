@@ -38,9 +38,6 @@ class Hq extends \Zotlabs\Web\Controller {
 		if(!local_channel())
 			return;
 
-		if($load)
-			$_SESSION['loadtime'] = datetime_convert();
-	
 		if(argc() > 1 && argv(1) !== 'load') {
 			$item_hash = argv(1);
 		}
@@ -87,15 +84,9 @@ class Hq extends \Zotlabs\Web\Controller {
 				goaway(z_root() . '/moderate/' . $target_item['id']);
 			}
 		
-			$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
-
-			$simple_update = (($update) ? " AND item_unseen = 1 " : '');
-				
+			$simple_update = '';
 			if($update && $_SESSION['loadtime'])
-				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
-		
-			if($static && $simple_update)
-				$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
+				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 			$sys = get_sys_channel();
 			$sql_extra = item_permissions_sql($sys['channel_id']);
@@ -148,8 +139,6 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			nav_set_selected('HQ');
 
-			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 1);
-
 			if($target_item) {
 				// if the target item is not a post (eg a like) we want to address its thread parent
 				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
@@ -182,8 +171,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'$dm'      => '0',
 				'$nouveau' => '0',
 				'$wall'    => '0',
-				'$static'  => $static,
-				'$page'    => 1,
+				'$page'    => '1',
 				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$search'  => '',
 				'$xchan'   => '',
@@ -249,8 +237,6 @@ class Hq extends \Zotlabs\Web\Controller {
 					intval($sys['channel_id'])
 				);
 			}
-
-			$_SESSION['loadtime'] = datetime_convert();
 		}
 		else {
 			$r = [];
@@ -274,6 +260,8 @@ class Hq extends \Zotlabs\Web\Controller {
 		$o .= conversation($items, 'hq', $update, 'client');
 
 		$o .= '<div id="content-complete"></div>';
+
+		$_SESSION['loadtime'] = datetime_convert();
 
 		return $o;
 

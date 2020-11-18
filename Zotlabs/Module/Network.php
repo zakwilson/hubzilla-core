@@ -44,10 +44,6 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		$o = '';
 
-		if($load) {
-			$_SESSION['loadtime'] = datetime_convert();
-		}
-
 		$arr = array('query' => App::$query_string);
 	
 		call_hooks('network_content_init', $arr);
@@ -64,7 +60,6 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		$datequery  = ((x($_GET,'dend') && is_a_date_arg($_GET['dend'])) ? notags($_GET['dend']) : '');
 		$datequery2 = ((x($_GET,'dbegin') && is_a_date_arg($_GET['dbegin'])) ? notags($_GET['dbegin']) : '');
-		$static     = ((x($_GET,'static')) ? intval($_GET['static']) : 0); 
 		$gid        = ((x($_GET,'gid')) ? intval($_GET['gid']) : 0);
 		$category   = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
 		$hashtags   = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
@@ -213,8 +208,6 @@ class Network extends \Zotlabs\Web\Controller {
 			$status_editor = status_editor($a,$x,false,'Network');
 			$o .= $status_editor;
 
-			$static = channel_manual_conv_update(local_channel());
-	
 		}
 	
 	
@@ -370,7 +363,6 @@ class Network extends \Zotlabs\Web\Controller {
 				'$dm'      => (($dm) ? $dm : '0'),
 				'$nouveau' => (($nouveau) ? $nouveau : '0'),
 				'$wall'    => '0',
-				'$static'  => $static, 
 				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$page'    => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 				'$search'  => (($search) ? urlencode($search) : ''),
@@ -494,8 +486,6 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$parents_str = '';
 
-		$simple_update = (($update) ? " and item_unseen = 1 " : '');
-
 		// This fixes a very subtle bug so I'd better explain it. You wake up in the morning or return after a day
 		// or three and look at your matrix page - after opening up your browser. The first page loads just as it
 		// should. All of a sudden a few seconds later, page 2 will get inserted at the beginning of the page
@@ -507,16 +497,11 @@ class Network extends \Zotlabs\Web\Controller {
 		// which "arrived as you were reading page 1". We're going to do this
 		// by storing in your session the current UTC time whenever you LOAD a network page, and only UPDATE items
 		// which are both ITEM_UNSEEN and have "changed" since that time. Cross fingers...
-	
+
+		$simple_update = '';
 		if($update && $_SESSION['loadtime'])
-			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
+			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
-               if($load)
-                       $simple_update = '';
-
-		if($static && $simple_update)
-			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";	
-	
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
 			$items = q("SELECT item.*, item.id AS item_id, created FROM item 
@@ -524,7 +509,6 @@ class Network extends \Zotlabs\Web\Controller {
 				$net_query
 				WHERE true $uids $item_normal
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)
-				$simple_update
 				$sql_extra $sql_options $sql_nets
 				$net_query2
 				ORDER BY item.created DESC $pager_sql "
@@ -570,7 +554,6 @@ class Network extends \Zotlabs\Web\Controller {
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
 					$sql_extra3 $sql_extra $sql_options $sql_nets $net_query2"
 				);
-				$_SESSION['loadtime'] = datetime_convert();
 			}
 
 			// Then fetch all the children of the parents that are on this page
@@ -605,6 +588,8 @@ class Network extends \Zotlabs\Web\Controller {
 	
 		if(($items) && (! $update))
 			$o .= alt_pager(count($items));
+
+		$_SESSION['loadtime'] = datetime_convert();
 	
 		return $o;
 	}

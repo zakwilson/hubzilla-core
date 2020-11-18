@@ -130,9 +130,6 @@ class Channel extends Controller {
 
 		$noscript_content = get_config('system', 'noscript_content', '1');
 
-		if($load)
-			$_SESSION['loadtime'] = datetime_convert();
-
 		$category = $datequery = $datequery2 = '';
 
 		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
@@ -152,7 +149,6 @@ class Channel extends Controller {
 		$category = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
 		$hashtags = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
 		$order    = ((x($_GET,'order')) ? notags($_GET['order']) : 'post');
-		$static   = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
 		$search   = ((x($_GET,'search')) ? $_GET['search'] : EMPTY_STR);
 
 		$groups = array();
@@ -186,8 +182,6 @@ class Channel extends Controller {
 		if(! $update) {
 
 			nav_set_selected('Channel Home');
-
-			$static = channel_manual_conv_update(App::$profile['profile_uid']);
 
 			// search terms header
 			if($search) {
@@ -255,7 +249,9 @@ class Channel extends Controller {
 
 		$abook_uids = " and abook.abook_channel = " . intval(App::$profile['profile_uid']) . " ";
 
-		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
+		$simple_update = '';
+		if($update && $_SESSION['loadtime'])
+			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 		if($search) {
 			$search = escape_tags($search);
@@ -270,21 +266,12 @@ class Channel extends Controller {
 			}
 		}
 
-
 		head_add_link([ 
 			'rel'   => 'alternate',
 			'type'  => 'application/json+oembed',
 			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . App::$query_string),
 			'title' => 'oembed'
 		]);
-
-		if($update && $_SESSION['loadtime'])
-			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
-		if($load)
-			$simple_update = '';
-
-		if($static && $simple_update)
-			$simple_update .= " and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
 
 		if(($update) && (! $load)) {
 
@@ -294,7 +281,6 @@ class Channel extends Controller {
 					dbesc($mid . '%'),
 					intval(App::$profile['profile_uid'])
 				);
-				$_SESSION['loadtime'] = datetime_convert();
 			}
 			else {
 				$r = q("SELECT parent AS item_id from item
@@ -306,9 +292,7 @@ class Channel extends Controller {
 					ORDER BY created DESC",
 					intval(App::$profile['profile_uid'])
 				);
-				$_SESSION['loadtime'] = datetime_convert();
 			}
-
 		}
 		else {
 
@@ -424,7 +408,6 @@ class Channel extends Controller {
 				'$wall' => '1',
 				'$fh' => '0',
 				'$dm' => '0',
-				'$static'  => $static,
 				'$page' => ((App::$pager['page'] != 1) ? App::$pager['page'] : 1),
 				'$search' => $search,
 				'$xchan' => '',
@@ -475,6 +458,8 @@ class Channel extends Controller {
 
 		if($mid)
 			$o .= '<div id="content-complete"></div>';
+
+		$_SESSION['loadtime'] = datetime_convert();
 
 		return $o;
 	}

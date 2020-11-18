@@ -19,9 +19,6 @@ class Search extends \Zotlabs\Web\Controller {
 			}
 		}
 	
-		if($load)
-			$_SESSION['loadtime'] = datetime_convert();
-	
 		nav_set_selected('Search');
 	
 		require_once("include/bbcode.php");
@@ -54,8 +51,6 @@ class Search extends \Zotlabs\Web\Controller {
 			$search = ((x($_GET,'tag')) ? trim(escape_tags(rawurldecode($_GET['tag']))) : '');
 		}
 
-		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
-	
 		$o .= search($search,'search-box','/search',((local_channel()) ? true : false));
 	
 		if(strpos($search,'#') === 0) {
@@ -105,9 +100,6 @@ class Search extends \Zotlabs\Web\Controller {
 
 		if((! $update) && (! $load)) {
 	
-			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 0);
-
-
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.
 	
@@ -131,7 +123,6 @@ class Search extends \Zotlabs\Web\Controller {
 				'$dm' => '0',
 				'$nouveau' => '0',
 				'$wall' => '0',
-				'$static' => $static,
 				'$list' => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$page' => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$search' => (($tag) ? urlencode('#') : '') . $search,

@@ -364,7 +364,6 @@ function handle_comment_form(e) {
 
 function commentClose(obj, id) {
 	if(obj.value === '') {
-		obj.value = aStr.comment;
 		$("#comment-edit-text-" + id).removeClass("expanded");
 		$("#mod-cmnt-wrap-" + id).hide();
 		$("#comment-tools-" + id).hide();
@@ -619,6 +618,8 @@ function updatePageItems(mode, data) {
 
 function updateConvItems(mode,data) {
 
+	var scroll_position = $(window).scrollTop();
+
 	if(mode !== 'update')
 		$(document).trigger('hz:updateConvItems');
 
@@ -749,6 +750,8 @@ function updateConvItems(mode,data) {
 		sse_setNotificationsStatus();
 
 	});
+
+	$(window).scrollTop(scroll_position);
 
 	if(followUpPageLoad)
 		sse_bs_counts();

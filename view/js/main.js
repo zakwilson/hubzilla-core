@@ -1171,7 +1171,7 @@ function doreply(parent, ident, owner, hint) {
         var sel = 'wall-item-body-' + ident.toString();
         var quote = window.getSelection().toString().trim();
         form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
-        $('#comment-edit-text-' + parent.toString()).focus();
+        $('#comment-edit-text-' + parent.toString()).focus().trigger('click');
 }
 
 function doscroll(parent, hidden) {

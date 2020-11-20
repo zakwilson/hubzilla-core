@@ -56,7 +56,7 @@ $.ajaxSetup({cache: false});
 
 $(document).ready(function() {
 
-	$(document).on('click', '.comment-edit-form', handle_comment_form);
+	$(document).on('click focus', '.comment-edit-form', handle_comment_form);
 	$(document).on('click', '.conversation-settings-link', getConversationSettings);
 	$(document).on('click', '#settings_module_ajax_submit', postConversationSettings);
 
@@ -68,6 +68,13 @@ $(document).ready(function() {
 			$(this).bbco_autocomplete('bbcode');
 
 			this.autocomplete_handled = true;
+		}
+
+	});
+
+	$(document).on('keydown', '.comment-edit-form  textarea.expanded', function (e) {
+		if (e.ctrlKey && e.keyCode === 13) {
+			post_comment(this.id.replace('comment-edit-text-',''));
 		}
 	});
 
@@ -280,6 +287,7 @@ function handle_comment_form(e) {
 
 	// handle clicked form
 	var form = $(this);
+
 	var fields = form.find(':input[type=text], textarea');
 	var fields_empty = true;
 
@@ -294,9 +302,9 @@ function handle_comment_form(e) {
 		form.find(':not(:visible)').show();
 	}
 
+
 	// handle click outside of form (close empty forms)
 	$(document).one('click', function(e) {
-
 		fields.each(function() {
 			if($(this).val() != '')
 				fields_empty = false;
@@ -331,12 +339,6 @@ function handle_comment_form(e) {
 		commentSaveTimer = setTimeout(function () {
 			commentSaveChanges(convId,false);
 		},10000);
-	});
-
-	$('#' + emptyCommentElm).on('keydown', function (e) {
-		if (e.ctrlKey && e.keyCode === 13) {
-			post_comment(convId);
-		}
 	});
 
 	function commentSaveChanges(convId, isFinal) {
@@ -1174,7 +1176,7 @@ function doreply(parent, ident, owner, hint) {
         var sel = 'wall-item-body-' + ident.toString();
         var quote = window.getSelection().toString().trim();
         form.find('textarea').val("@{" + owner + "}" + ((($(window.getSelection().anchorNode).closest("#" + sel).attr("id") != sel) || (quote.length === 0))? " " : "\n[quote]" + quote + "[/quote]\n"));
-        $('#comment-edit-text-' + parent.toString()).focus().trigger('click');
+        $('#comment-edit-text-' + parent.toString()).focus();
 }
 
 function doscroll(parent, hidden) {

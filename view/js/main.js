@@ -1366,20 +1366,18 @@ function post_comment(id) {
 			if(data.success) {
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
-				//$("#comment-edit-wrapper-" + id).hide();
-
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
-				var tarea = document.getElementById("comment-edit-text-" + id);
-				if(tarea) {
-					commentClose(tarea, id);
-					$(document).unbind( "click.commentOpen");
-				}
-
 				$('#wall-item-comment-wrapper-' + id).before(data.html);
 				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
 				$('body').css('cursor', 'unset');
-				//if(timer) clearTimeout(timer);
-				//timer = setTimeout(updateInit, 500);
+				commentBusy = false;
+
+				var tarea = document.getElementById("comment-edit-text-" + id);
+				if(tarea) {
+					commentClose(tarea, id);
+					$(document).off( "click.commentOpen");
+				}
+
 			}
 			if(data.reload) {
 				window.location.href=data.reload;

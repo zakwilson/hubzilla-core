@@ -633,12 +633,11 @@ function updateConvItems(mode,data) {
 	}
 	
 	if(mode === 'replace') {
-		$('.thread-wrapper').remove(); // clear existing content
+		$('.thread-parent').remove(); // clear existing content
 	}
 
 	$('.thread-wrapper', data).each(function() {
 		if(this.classList.contains('toplevel_item')) {
-
 			var ident = this.id;
 			var convId = ident.replace('thread-wrapper-','');
 			var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
@@ -1158,7 +1157,21 @@ function justifyPhotosAjax(id) {
 // is delayed and updateInit runs before it completes.
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, updateInit );
+	$.get('like/' + ident.toString() + '?verb=' + verb, function (data) {
+		data = JSON.parse(data);
+		if(data.success) {
+			// this is a bit tricky since the top level thread wrapper wraps the whole thread
+			if($('#thread-wrapper-' + data.id).hasClass('toplevel_item')) {
+				var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
+				$('#wall-item-outside-wrapper-' + data.id).html(wrapper[0].innerHTML);
+			}
+			else {
+				$('#thread-wrapper-' + data.id).replaceWith(data.html);
+			}
+			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+			liking = 0;
+		}
+	});
 	liking = 1;
 }
 

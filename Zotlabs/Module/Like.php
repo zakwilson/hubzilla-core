@@ -357,16 +357,45 @@ class Like extends \Zotlabs\Web\Controller {
 	
 					// drop_item was not done interactively, so we need to invoke the notifier
 					// in order to push the changes to connections
-	
+
 					\Zotlabs\Daemon\Master::Summon(array('Notifier','drop',$rr['id']));
+
+
 	
 				}
 	
 				if($interactive)
 					return;
 	
-				if(! $multi_undo)
+				if(! $multi_undo) {
+					$item_normal = item_normal();
+					$activities = q("SELECT item.*, item.id AS item_id FROM item
+						WHERE uid = %d $item_normal
+						AND thr_parent = '%s'
+						AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+						intval($owner_uid),
+						dbesc($item['mid']),
+						dbesc(ACTIVITY_LIKE),
+						dbesc(ACTIVITY_DISLIKE),
+						dbesc(ACTIVITY_ATTEND),
+						dbesc(ACTIVITY_ATTENDNO),
+						dbesc(ACTIVITY_ATTENDMAYBE)
+					);
+					xchan_query($activities,true);
+					$convitems[] = $item;
+					$convitems = array_merge($convitems, $activities);
+
+					$json = [
+						'success' => 1,
+						'id' => $item['id'],
+						'html' => conversation($convitems,'network',true,'r_preview'),
+					];
+
+					echo json_encode($json);
 					killme();
+				}
+
+
 			}
 		}
 	
@@ -505,6 +534,31 @@ class Like extends \Zotlabs\Web\Controller {
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
 
+		//$item[] = $item;
+
+		$item_normal = item_normal();
+		$activities = q("SELECT item.*, item.id AS item_id FROM item
+			WHERE uid = %d $item_normal
+			AND thr_parent = '%s'
+			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+			intval($owner_uid),
+			dbesc($item['mid']),
+			dbesc(ACTIVITY_LIKE),
+			dbesc(ACTIVITY_DISLIKE),
+			dbesc(ACTIVITY_ATTEND),
+			dbesc(ACTIVITY_ATTENDNO),
+			dbesc(ACTIVITY_ATTENDMAYBE)
+		);
+		xchan_query($activities,true);
+		$convitems[] = $item;
+		$convitems = array_merge($convitems, $activities);
+
+		$json = [
+			'success' => 1,
+			'id' => $item['id'],
+			'html' => conversation($convitems,'network',true,'r_preview'),
+		];
+
 		// save the conversation from expiration
 
 		if(local_channel() && array_key_exists('item',$post) && (intval($post['item']['id']) != intval($post['item']['parent'])))
@@ -548,7 +602,8 @@ class Like extends \Zotlabs\Web\Controller {
 			$o .= t('Thank you.');
 			return $o;
 		}
-	
+
+		echo json_encode($json);
 		killme();
 	}
 	

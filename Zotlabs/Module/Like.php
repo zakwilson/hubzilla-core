@@ -368,31 +368,33 @@ class Like extends \Zotlabs\Web\Controller {
 					return;
 	
 				if(! $multi_undo) {
-					$item_normal = item_normal();
-					$activities = q("SELECT item.*, item.id AS item_id FROM item
-						WHERE uid = %d $item_normal
-						AND thr_parent = '%s'
-						AND verb IN ('%s', '%s', '%s', '%s', '%s')",
-						intval($owner_uid),
-						dbesc($item['mid']),
-						dbesc(ACTIVITY_LIKE),
-						dbesc(ACTIVITY_DISLIKE),
-						dbesc(ACTIVITY_ATTEND),
-						dbesc(ACTIVITY_ATTENDNO),
-						dbesc(ACTIVITY_ATTENDMAYBE)
-					);
-					xchan_query($activities,true);
-					$convitems[] = $item;
-					$convitems = array_merge($convitems, $activities);
+					if(local_channel()) {
+						$item_normal = item_normal();
+						$activities = q("SELECT item.*, item.id AS item_id FROM item
+							WHERE uid = %d $item_normal
+							AND thr_parent = '%s'
+							AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+							intval($owner_uid),
+							dbesc($item['mid']),
+							dbesc(ACTIVITY_LIKE),
+							dbesc(ACTIVITY_DISLIKE),
+							dbesc(ACTIVITY_ATTEND),
+							dbesc(ACTIVITY_ATTENDNO),
+							dbesc(ACTIVITY_ATTENDMAYBE)
+						);
+						xchan_query($activities,true);
+						$convitems[] = $item;
+						$convitems = array_merge($convitems, $activities);
 
-					$json = [
-						'success' => 1,
-						'orig_id' => $item_id,
-						'id' => $item['id'],
-						'html' => conversation($convitems,'network',true,'r_preview'),
-					];
+						$json = [
+							'success' => 1,
+							'orig_id' => $item_id,
+							'id' => $item['id'],
+							'html' => conversation($convitems,'network',true,'r_preview'),
+						];
 
-					echo json_encode($json);
+						echo json_encode($json);
+					}
 					killme();
 				}
 
@@ -531,33 +533,34 @@ class Like extends \Zotlabs\Web\Controller {
 	
 		call_hooks('post_local',$arr);
 
-	
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
 
-		$item_normal = item_normal();
-		$activities = q("SELECT item.*, item.id AS item_id FROM item
-			WHERE uid = %d $item_normal
-			AND thr_parent = '%s'
-			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
-			intval($owner_uid),
-			dbesc($item['mid']),
-			dbesc(ACTIVITY_LIKE),
-			dbesc(ACTIVITY_DISLIKE),
-			dbesc(ACTIVITY_ATTEND),
-			dbesc(ACTIVITY_ATTENDNO),
-			dbesc(ACTIVITY_ATTENDMAYBE)
-		);
-		xchan_query($activities,true);
-		$convitems[] = $item;
-		$convitems = array_merge($convitems, $activities);
+		if(local_channel()) {
+			$item_normal = item_normal();
+			$activities = q("SELECT item.*, item.id AS item_id FROM item
+				WHERE uid = %d $item_normal
+				AND thr_parent = '%s'
+				AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+				intval($owner_uid),
+				dbesc($item['mid']),
+				dbesc(ACTIVITY_LIKE),
+				dbesc(ACTIVITY_DISLIKE),
+				dbesc(ACTIVITY_ATTEND),
+				dbesc(ACTIVITY_ATTENDNO),
+				dbesc(ACTIVITY_ATTENDMAYBE)
+			);
+			xchan_query($activities,true);
+			$convitems[] = $item;
+			$convitems = array_merge($convitems, $activities);
 
-		$json = [
-			'success' => 1,
-			'orig_id' => $item_id, //this is required for pubstream where $item_id != $item['id']
-			'id' => $item['id'],
-			'html' => conversation($convitems,'network',true,'r_preview'),
-		];
+			$json = [
+				'success' => 1,
+				'orig_id' => $item_id, //this is required for pubstream where $item_id != $item['id']
+				'id' => $item['id'],
+				'html' => conversation($convitems,'network',true,'r_preview'),
+			];
+		}
 
 		// save the conversation from expiration
 

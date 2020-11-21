@@ -1374,16 +1374,24 @@ class Item extends Controller {
 			goaway(z_root() . "/" . $return_path);
 		}
 
-		$item[] = $datarray;
-		$item[0]['owner'] = $owner_xchan;
-		$item[0]['author'] = $observer;
-		$item[0]['attach'] = json_encode($datarray['attach']);
 
-		$json = [
-			'success' => 1,
-			'id' => $post_id,
-			'html' => conversation($item,'network',true,'r_preview'),
-		];
+		if(local_channel()) {
+			$item[] = $datarray;
+			$item[0]['owner'] = $owner_xchan;
+			$item[0]['author'] = $observer;
+			$item[0]['attach'] = json_encode($datarray['attach']);
+
+			$json = [
+				'success' => 1,
+				'id' => $post_id,
+				'html' => conversation($item,'network',true,'r_preview'),
+			];
+		}
+		else {
+			$json = [
+				'success' => 1
+			];
+		}
 
 		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
 			$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];

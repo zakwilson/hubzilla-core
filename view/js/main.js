@@ -1148,24 +1148,30 @@ function justifyPhotosAjax(id) {
 
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, function (data) {
-		data = JSON.parse(data);
-		if(data.success) {
-			// this is a bit tricky since the top level thread wrapper wraps the whole thread
-			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
-				var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
-				$('#wall-item-outside-wrapper-' + data.orig_id).html(wrapper[0].innerHTML);
-				// those were not replaced - swap the id
-				$('#thread-wrapper-' + data.orig_id).attr('id', 'thread-wrapper-' + data.id);
-				$('#wall-item-outside-wrapper-' + data.orig_id).attr('id', 'wall-item-outside-wrapper-' + data.id);
+
+	if(! localUser) {
+		$.get('like/' + ident.toString() + '?verb=' + verb, updateInit);
+	}
+	else {
+		$.get('like/' + ident.toString() + '?verb=' + verb, function (data) {
+			data = JSON.parse(data);
+			if(data.success) {
+				// this is a bit tricky since the top level thread wrapper wraps the whole thread
+				if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
+					var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
+					$('#wall-item-outside-wrapper-' + data.orig_id).html(wrapper[0].innerHTML);
+					// those were not replaced - swap the id
+					$('#thread-wrapper-' + data.orig_id).attr('id', 'thread-wrapper-' + data.id);
+					$('#wall-item-outside-wrapper-' + data.orig_id).attr('id', 'wall-item-outside-wrapper-' + data.id);
+				}
+				else {
+					$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
+				}
+				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				liking = 0;
 			}
-			else {
-				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
-			}
-			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
-			liking = 0;
-		}
-	});
+		});
+	}
 	liking = 1;
 }
 
@@ -1374,10 +1380,16 @@ function post_comment(id) {
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
-				$('#wall-item-comment-wrapper-' + id).before(data.html);
-				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
-				$('body').css('cursor', 'unset');
-				commentBusy = false;
+
+				if(! localUser) {
+					updateInit();
+				}
+				else {
+					$('#wall-item-comment-wrapper-' + id).before(data.html);
+					$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+					$('body').css('cursor', 'unset');
+					commentBusy = false;
+				}
 
 				var tarea = document.getElementById("comment-edit-text-" + id);
 				if(tarea) {

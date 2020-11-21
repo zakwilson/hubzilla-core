@@ -14,7 +14,7 @@
 	var zid = {{if $zid}}'{{$zid}}'{{else}}null{{/if}};
 	var justifiedGalleryActive = false;
 	{{if $channel_hash}}var channelHash = '{{$channel_hash}}';{{/if}}
-	{{if $channel_id}}var channelId = '{{$channel_id}}';{{/if}}{{* Used in e.g. autocomplete *}}
+	var channelId = {{if $channel_id}}{{$channel_id}}{{else}}false{{/if}};{{* Used in e.g. autocomplete *}}
 	var preloadImages = {{$preload_images}};
 	var auto_save_draft = {{$auto_save_draft}};
 </script>

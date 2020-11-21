@@ -1168,6 +1168,7 @@ function dolike(ident, verb) {
 					$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
 				}
 				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				collapseHeight();
 				liking = 0;
 			}
 		});
@@ -1388,6 +1389,7 @@ function post_comment(id) {
 					$('#wall-item-comment-wrapper-' + id).before(data.html);
 					$('#wall-item-ago-' + data.id + ' .autotime').timeago();
 					$('body').css('cursor', 'unset');
+					collapseHeight();
 					commentBusy = false;
 				}
 

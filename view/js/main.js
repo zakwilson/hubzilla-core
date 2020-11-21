@@ -1146,27 +1146,21 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-// Since our ajax calls are asynchronous, we will give a few
-// seconds for the first ajax call (setting like/dislike), then
-// run the updater to pick up any changes and display on the page.
-// The updater will turn any rotators off when it's done.
-// This function will have returned long before any of these
-// events have completed and therefore there won't be any
-// visible feedback that anything changed without all this
-// trickery. This still could cause confusion if the "like" ajax call
-// is delayed and updateInit runs before it completes.
 function dolike(ident, verb) {
 	$('#like-rotator-' + ident.toString()).show();
 	$.get('like/' + ident.toString() + '?verb=' + verb, function (data) {
 		data = JSON.parse(data);
 		if(data.success) {
 			// this is a bit tricky since the top level thread wrapper wraps the whole thread
-			if($('#thread-wrapper-' + data.id).hasClass('toplevel_item')) {
+			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
 				var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
-				$('#wall-item-outside-wrapper-' + data.id).html(wrapper[0].innerHTML);
+				$('#wall-item-outside-wrapper-' + data.orig_id).html(wrapper[0].innerHTML);
+				// those were not replaced - swap the id
+				$('#thread-wrapper-' + data.orig_id).attr('id', 'thread-wrapper-' + data.id);
+				$('#wall-item-outside-wrapper-' + data.orig_id).attr('id', 'wall-item-outside-wrapper-' + data.id);
 			}
 			else {
-				$('#thread-wrapper-' + data.id).replaceWith(data.html);
+				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
 			}
 			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
 			liking = 0;

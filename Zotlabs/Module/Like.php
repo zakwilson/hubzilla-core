@@ -387,6 +387,7 @@ class Like extends \Zotlabs\Web\Controller {
 
 					$json = [
 						'success' => 1,
+						'orig_id' => $item_id,
 						'id' => $item['id'],
 						'html' => conversation($convitems,'network',true,'r_preview'),
 					];
@@ -534,8 +535,6 @@ class Like extends \Zotlabs\Web\Controller {
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
 
-		//$item[] = $item;
-
 		$item_normal = item_normal();
 		$activities = q("SELECT item.*, item.id AS item_id FROM item
 			WHERE uid = %d $item_normal
@@ -555,6 +554,7 @@ class Like extends \Zotlabs\Web\Controller {
 
 		$json = [
 			'success' => 1,
+			'orig_id' => $item_id, //this is required for pubstream where $item_id != $item['id']
 			'id' => $item['id'],
 			'html' => conversation($convitems,'network',true,'r_preview'),
 		];

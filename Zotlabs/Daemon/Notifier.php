@@ -640,9 +640,16 @@ class Notifier {
 			}
 			else {
 				if(! in_array($hub['hubloc_url'],$urls)) {
-					$hublist[] = $hub['hubloc_host'] . ' ' . $hub['hubloc_network'];
-					$dhubs[]   = $hub;
-					$urls[]    = $hub['hubloc_url'];
+					if($hub['hubloc_url'] === z_root()) {
+						//deliver to local hub first
+						array_unshift($hublist, $hub['hubloc_host'] . ' ' . $hub['hubloc_network']);
+						array_unshift($dhubs, $hub);
+					}
+					else {
+						$hublist[] = $hub['hubloc_host'] . ' ' . $hub['hubloc_network'];
+						$dhubs[] = $hub;
+					}
+					$urls[] = $hub['hubloc_url'];
 				}
 			}
 		}

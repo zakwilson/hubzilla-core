@@ -86,7 +86,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		
 			$simple_update = '';
 			if($update && $_SESSION['loadtime'])
-				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
+				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
 
 			$sys = get_sys_channel();
 			$sql_extra = item_permissions_sql($sys['channel_id']);

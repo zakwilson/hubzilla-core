@@ -251,7 +251,7 @@ class Channel extends Controller {
 
 		$simple_update = '';
 		if($update && $_SESSION['loadtime'])
-			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) AND author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
+			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
 
 		if($search) {
 			$search = escape_tags($search);

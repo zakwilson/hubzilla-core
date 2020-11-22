@@ -390,7 +390,7 @@ class Channel extends Controller {
 			$o .= '<div id="live-channel"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . App::$profile['profile_uid']
 				. "; var netargs = '?f='; var profile_page = " . App::$pager['page']
-				. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
+				. "; divmore_height = " . intval($maxheight) . ";</script>\r\n";
 
 			App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 				'$baseurl' => z_root(),
@@ -420,7 +420,8 @@ class Channel extends Controller {
 				'$verb' => '',
 				'$net' => '',
 				'$dend' => $datequery,
-				'$dbegin' => $datequery2
+				'$dbegin' => $datequery2,
+				'$conv_mode' => 'channel'
 			));
 
 		}

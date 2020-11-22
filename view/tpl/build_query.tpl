@@ -2,6 +2,9 @@
 
 	var bParam_cmd = "{{$baseurl}}/update/{{$pgtype}}";
 
+	{{if $conv_mode}}
+	var conv_mode = '{{$conv_mode}}';
+	{{/if}}
 
 	var bParam_uid = {{$uid}};
 	var bParam_gid = {{$gid}};

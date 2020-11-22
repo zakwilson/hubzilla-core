@@ -1371,25 +1371,25 @@ function post_comment(id) {
 	$('body').css('cursor', 'wait');
 	$("#comment-preview-inp-" + id).val("0");
 
+	if(typeof conv_mode == typeof undefined)
+		conv_mode = '';
+
+	var form_data =	$("#comment-edit-form-" + id).serialize();
+
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		form_data  + '&conv_mode=' + conv_mode,
 		function(data) {
 			if(data.success) {
+
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
-
-				if(! localUser) {
-					updateInit();
-				}
-				else {
-					$('#wall-item-comment-wrapper-' + id).before(data.html);
-					$('#wall-item-ago-' + data.id + ' .autotime').timeago();
-					$('body').css('cursor', 'unset');
-					collapseHeight();
-					commentBusy = false;
-				}
+				$('#wall-item-comment-wrapper-' + id).before(data.html);
+				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				$('body').css('cursor', 'unset');
+				collapseHeight();
+				commentBusy = false;
 
 				var tarea = document.getElementById("comment-edit-text-" + id);
 				if(tarea) {

@@ -300,6 +300,7 @@ class Item extends Controller {
 	
 		$parent = ((x($_REQUEST,'parent')) ? intval($_REQUEST['parent']) : 0);
 		$parent_mid = ((x($_REQUEST,'parent_mid')) ? trim($_REQUEST['parent_mid']) : '');
+		$mode = (($_REQUEST['conv_mode'] === 'channel') ? 'channel' : 'network');
 	
 		$remote_xchan = ((x($_REQUEST,'remote_xchan')) ? trim($_REQUEST['remote_xchan']) : false);
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
@@ -1374,24 +1375,19 @@ class Item extends Controller {
 			goaway(z_root() . "/" . $return_path);
 		}
 
+		if($mode === 'channel')
+			profile_load($owner_xchan['xchan_name']);
 
-		if(local_channel()) {
-			$item[] = $datarray;
-			$item[0]['owner'] = $owner_xchan;
-			$item[0]['author'] = $observer;
-			$item[0]['attach'] = json_encode($datarray['attach']);
+		$item[] = $datarray;
+		$item[0]['owner'] = $owner_xchan;
+		$item[0]['author'] = $observer;
+		$item[0]['attach'] = json_encode($datarray['attach']);
 
-			$json = [
-				'success' => 1,
-				'id' => $post_id,
-				'html' => conversation($item,'network',true,'r_preview'),
-			];
-		}
-		else {
-			$json = [
-				'success' => 1
-			];
-		}
+		$json = [
+			'success' => 1,
+			'id' => $post_id,
+			'html' => conversation($item,$mode,true,'r_preview'),
+		];
 
 		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
 			$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];

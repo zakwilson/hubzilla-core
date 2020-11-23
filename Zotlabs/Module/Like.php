@@ -7,7 +7,7 @@ use Zotlabs\Lib\Libsync;
 require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
-
+require_once('include/conversation.php');
 
 
 class Like extends \Zotlabs\Web\Controller {

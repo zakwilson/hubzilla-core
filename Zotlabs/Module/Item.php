@@ -20,6 +20,7 @@ use App;
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/security.php');
+require_once('include/conversation.php');
 
 
 /**

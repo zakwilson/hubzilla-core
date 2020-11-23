@@ -713,7 +713,7 @@ class Activity {
 			);
 			if($p) {
 				xchan_query($p,true);
-				$p = fetch_post_tags($p,true);
+				$p = fetch_post_tags($p);
 				$i['obj'] = self::encode_item($p[0]);
 
 				// convert to zot6 emoji reaction encoding which uses the target object to indicate the

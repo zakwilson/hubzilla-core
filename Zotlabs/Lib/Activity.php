@@ -800,7 +800,7 @@ class Activity {
 					$is_directmessage = false;
 					$recips = get_iconfig($i['parent'], 'activitypub', 'recips');
 
-					if(in_array($i['author']['xchan_url'], $recips['to'])) {
+					if(array_path_exists('to', $recips) && in_array($i['author']['xchan_url'], $recips['to'])) {
 						$reply_url = $d[0]['xchan_url'];
 						$is_directmessage = true;
 					}

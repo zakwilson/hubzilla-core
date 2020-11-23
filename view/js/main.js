@@ -1153,7 +1153,6 @@ function dolike(ident, verb) {
 		conv_mode = '';
 
 	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode, function (data) {
-		data = JSON.parse(data);
 		if(data.success) {
 			// this is a bit tricky since the top level thread wrapper wraps the whole thread
 			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {

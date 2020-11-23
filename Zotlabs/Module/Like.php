@@ -9,10 +9,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 require_once('include/conversation.php');
 
-
 class Like extends \Zotlabs\Web\Controller {
-
-
 
 	private function reaction_to_activity($reaction) {
 
@@ -42,7 +39,43 @@ class Like extends \Zotlabs\Web\Controller {
 
 	}
 
+	private function like_response($arr) {
 
+		if($arr['conv_mode'] === 'channel')
+			profile_load($arr['owner_xchan']['xchan_name']);
+
+		$item_normal = item_normal();
+
+		$activities = q("SELECT item.*, item.id AS item_id FROM item
+			WHERE uid = %d $item_normal
+			AND thr_parent = '%s'
+			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+			intval($arr['item']['uid']),
+			dbesc($arr['item']['mid']),
+			dbesc(ACTIVITY_LIKE),
+			dbesc(ACTIVITY_DISLIKE),
+			dbesc(ACTIVITY_ATTEND),
+			dbesc(ACTIVITY_ATTENDNO),
+			dbesc(ACTIVITY_ATTENDMAYBE)
+		);
+
+		xchan_query($activities,true);
+
+		$convitems[] = $arr['item'];
+		$convitems = array_merge($convitems, $activities);
+
+		$convitems = fetch_post_tags($convitems,true);
+
+		$ret = [
+			'success' => 1,
+			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
+			'id' => $arr['item']['id'],
+			'html' => conversation($convitems, $arr['conv_mode'], true, 'r_preview'),
+		];
+
+		return $ret;
+
+	}
 
 	public function get() {
 	
@@ -368,39 +401,13 @@ class Like extends \Zotlabs\Web\Controller {
 					return;
 	
 				if(! $multi_undo) {
-
-					if($mode === 'channel')
-						profile_load($thread_owner['xchan_name']);
-
-					$item_normal = item_normal();
-
-					$activities = q("SELECT item.*, item.id AS item_id FROM item
-						WHERE uid = %d $item_normal
-						AND thr_parent = '%s'
-						AND verb IN ('%s', '%s', '%s', '%s', '%s')",
-						intval($owner_uid),
-						dbesc($item['mid']),
-						dbesc(ACTIVITY_LIKE),
-						dbesc(ACTIVITY_DISLIKE),
-						dbesc(ACTIVITY_ATTEND),
-						dbesc(ACTIVITY_ATTENDNO),
-						dbesc(ACTIVITY_ATTENDMAYBE)
-					);
-
-					xchan_query($activities,true);
-					$convitems[] = $item;
-					$convitems = array_merge($convitems, $activities);
-
-					$json = [
-						'success' => 1,
-						'orig_id' => $item_id,
-						'id' => $item['id'],
-						'html' => conversation($convitems,$mode,true,'r_preview'),
-					];
-
-					echo json_encode($json);
-
-					killme();
+					$ret = self::like_response([
+						'item' => $item,
+						'orig_item_id' => $item_id, 
+						'owner_xchan' => $thread_owner,
+						'conv_mode' => $mode
+					]);
+					json_return_and_die($ret);
 				}
 
 
@@ -541,35 +548,6 @@ class Like extends \Zotlabs\Web\Controller {
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
 
-		if($mode === 'channel')
-			profile_load($thread_owner['xchan_name']);
-
-		$item_normal = item_normal();
-
-		$activities = q("SELECT item.*, item.id AS item_id FROM item
-			WHERE uid = %d $item_normal
-			AND thr_parent = '%s'
-			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
-			intval($owner_uid),
-			dbesc($item['mid']),
-			dbesc(ACTIVITY_LIKE),
-			dbesc(ACTIVITY_DISLIKE),
-			dbesc(ACTIVITY_ATTEND),
-			dbesc(ACTIVITY_ATTENDNO),
-			dbesc(ACTIVITY_ATTENDMAYBE)
-		);
-
-		xchan_query($activities,true);
-		$convitems[] = $item;
-		$convitems = array_merge($convitems, $activities);
-
-		$json = [
-			'success' => 1,
-			'orig_id' => $item_id, //this is required for pubstream where $item_id != $item['id']
-			'id' => $item['id'],
-			'html' => conversation($convitems,$mode,true,'r_preview'),
-		];
-
 		// save the conversation from expiration
 
 		if(local_channel() && array_key_exists('item',$post) && (intval($post['item']['id']) != intval($post['item']['parent'])))
@@ -613,10 +591,14 @@ class Like extends \Zotlabs\Web\Controller {
 			return $o;
 		}
 
-		echo json_encode($json);
-		killme();
+		$ret = self::like_response([
+			'item' => $item,
+			'orig_item_id' => $item_id, 
+			'owner_xchan' => $thread_owner,
+			'conv_mode' => $mode
+		]);
+		json_return_and_die($ret);
+
 	}
-	
-	
 	
 }

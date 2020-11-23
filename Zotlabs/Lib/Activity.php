@@ -2648,7 +2648,7 @@ class Activity {
 		$current_item = $item;
 
 		while($current_item['parent_mid'] !== $current_item['mid']) {
-			$n = ActivityStreams::fetch($current_item['parent_mid'], $channel);
+			$n = self::fetch($current_item['parent_mid'], $channel);
 			if(! $n) {
 				break;
 			}
@@ -2658,6 +2658,10 @@ class Activity {
 
 			if(! $a->is_valid()) {
 				break;
+			}
+
+			if (is_array($a->actor) && array_key_exists('id',$a->actor)) {
+				self::actor_store($a->actor['id'],$a->actor);
 			}
 
 			$replies = null;
@@ -2725,7 +2729,7 @@ class Activity {
 
 		foreach($arr as $url) {
 
-			$n = ActivityStreams::fetch($url, $channel);
+			$n = self::fetch($url, $channel);
 			if(! $n) {
 				break;
 			}

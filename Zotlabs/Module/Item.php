@@ -1377,7 +1377,7 @@ class Item extends Controller {
 		}
 
 		if($mode === 'channel')
-			profile_load($owner_xchan['xchan_name']);
+			profile_load($channel['channel_address']);
 
 		$item[] = $datarray;
 		$item[0]['owner'] = $owner_xchan;

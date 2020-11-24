@@ -41,8 +41,11 @@ class Like extends \Zotlabs\Web\Controller {
 
 	private function like_response($arr) {
 
-		if($arr['conv_mode'] === 'channel')
-			profile_load($arr['owner_xchan']['xchan_name']);
+		if($arr['conv_mode'] === 'channel') {
+			$parts = explode('@', $arr['owner_xchan']['xchan_addr']);
+			profile_load($parts[0]);
+		}
+
 
 		$item_normal = item_normal();
 

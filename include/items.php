@@ -3179,8 +3179,18 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		if($rewrite_author) {
 			$item['author_xchan'] = $channel['channel_hash'];
 
-			$r = q("update item set author_xchan = '%s' where id = %d",
+			//if it's a toplevel rss item we will also rewrite the mid to something fetchable
+			if($item['item_rss'] && $item['item_thread_top']) {
+				$item['mid'] = z_root() . '/item/' . $item['uuid'];
+				$item['parent_mid'] = $item['mid'];
+				$item['thr_parent'] = $item['mid'];
+			}
+
+			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
+				dbesc($item['mid']),
+				dbesc($item['parent_mid']),
+				dbesc($item['thr_parent']),
 				intval($item_id)
 			);
 		}
@@ -3235,7 +3245,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
-
 		$arr['item_thread_top'] = 1;
 	
 		if (strpos($item['body'], "[/share]") !== false) {

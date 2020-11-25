@@ -3299,7 +3299,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$private = 1;
 
 	$item_wall = 1;
-	$item_origin = 1;
+	$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
 	$item_uplink = 0;
 	$item_nocomment = 0;
 
@@ -3315,7 +3315,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		);
 	}
 	else {
-		$item_uplink = 1;
+		$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
 
 		// if this is an edit, item_store_update() will have already updated the item
 		// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan

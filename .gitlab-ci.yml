@@ -49,7 +49,7 @@ before_script:
   - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
   - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - vendor/bin/phpunit --configuration Tests/phpunit.xml --coverage-text
+  - vendor/bin/phpunit --configuration Tests/phpunit.xml --coverage-text --migrate-configuration
 
 # hidden job definition with template for PostgreSQL
 .job_template_postgres: &job_definition_postgres

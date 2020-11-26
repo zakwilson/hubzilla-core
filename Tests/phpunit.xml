@@ -16,13 +16,13 @@
 
 	<testsuites>
 		<testsuite name="Hubzilla default Test Suite">
-			<directory suffix="Test.php">./unit/</directory>
+			<directory suffix="Test.php">./Unit/</directory>
 		</testsuite>
 		<testsuite name="API Test Suite">
-			<directory suffix="Test.php" prefix="API">./unit/</directory>
+			<directory suffix="Test.php" prefix="API">./Unit/</directory>
 		</testsuite>
 		<testsuite name="Ex-/Import Test Suite">
-			<!--<directory suffix="Test.php">./unit/eximport/</directory>-->
+			<!--<directory suffix="Test.php">./Unit/eximport/</directory>-->
 		</testsuite>
 	</testsuites>
 

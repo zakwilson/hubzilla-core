@@ -28,10 +28,14 @@ class Filerm extends \Zotlabs\Web\Controller {
 				intval($item_id),
 				dbesc($term)
 			);
+
+			$x = q("update item set item_retained = 0, changed = '%s' where id = %d and uid = %d",
+				dbesc(datetime_convert()),
+				intval($item_id),
+				intval(local_channel())
+			);
+
 		}
-	
-		if(x($_SESSION,'return_url'))
-			goaway(z_root() . '/' . $_SESSION['return_url']);
 		
 		killme();
 	}

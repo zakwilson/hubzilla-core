@@ -20,11 +20,11 @@ var pageHasMoreContent = true;
 var divmore_height = 400;
 var last_filestorage_id = null;
 var mediaPlaying = false;
-var contentHeightDiff = 0;
 var liveRecurse = 0;
 var savedTitle = '';
 var followUpPageLoad = false;
 var window_needs_alert = true;
+var expanded_items = [];
 
 var sse_bs_active = false;
 var sse_offset = 0;
@@ -69,6 +69,13 @@ $(document).ready(function() {
 
 			this.autocomplete_handled = true;
 		}
+
+	});
+
+	$(document).on('keydown', '.comment-edit-form  textarea.expanded', function (e) {
+		if (e.ctrlKey && e.keyCode === 13) {
+			post_comment(this.id.replace('comment-edit-text-',''));
+		}
 	});
 
 	var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
@@ -94,7 +101,6 @@ $(document).ready(function() {
 	};
 	
 	jQuery.timeago.settings.allowFuture = true;
-
 
 	if(sse_enabled) {
 		if(typeof(window.SharedWorker) === 'undefined') {
@@ -208,33 +214,6 @@ $(document).ready(function() {
 
 	updateInit();
 
-	// Allow folks to stop the ajax page updates with the pause/break key
-	$(document).keydown(function(event) {
-		if(event.keyCode == '8') {
-			var target = event.target || event.srcElement;
-			if (!/input|textarea/i.test(target.nodeName)) {
-				return false;
-			}
-		}
-
-		if(event.keyCode == '19' || (event.ctrlKey && event.which == '32')) {
-			event.preventDefault();
-			if(stopped === false) {
-				stopped = true;
-				if (event.ctrlKey) {
-					totStopped = true;
-				}
-				$('#pause').html('<img src="images/pause.gif" alt="pause" style="border: 1px solid black;" />');
-			} else {
-				unpause();
-			}
-		} else {
-			if (!totStopped) {
-				unpause();
-			}
-		}
-	});
-
 	var e = document.getElementById('content-complete');
 	if(e)
 		pageHasMoreContent = false;
@@ -243,8 +222,6 @@ $(document).ready(function() {
 		if(!bParam_mid)
 			cache_next_page();
 	});
-
-
 
 });
 
@@ -310,6 +287,7 @@ function handle_comment_form(e) {
 
 	// handle clicked form
 	var form = $(this);
+
 	var fields = form.find(':input[type=text], textarea');
 	var fields_empty = true;
 
@@ -324,8 +302,9 @@ function handle_comment_form(e) {
 		form.find(':not(:visible)').show();
 	}
 
+
 	// handle click outside of form (close empty forms)
-	$(document).on('click', function(e) {
+	$(document).one('click', function(e) {
 		fields.each(function() {
 			if($(this).val() != '')
 				fields_empty = false;
@@ -344,18 +323,19 @@ function handle_comment_form(e) {
 			form.find(':button[type=submit]').prop('title', '');
 		}
 	});
-	
+
 	var commentSaveTimer = null;
 	var emptyCommentElm = form.find('.comment-edit-text').attr('id');
 	var convId = emptyCommentElm.replace('comment-edit-text-','');
-	$(document).on('focusout','#' + emptyCommentElm,function(e){
+	$('#' + emptyCommentElm).on('focusout',function(e){
 		if(commentSaveTimer)
 			clearTimeout(commentSaveTimer);
 		commentSaveChanges(convId,true);
 		commentSaveTimer = null;
+		$('#' + emptyCommentElm).off();
 	});
 
-	$(document).on('focusin','#' + emptyCommentElm,function(e){
+	$('#' + emptyCommentElm).on('focusin', function (e){
 		commentSaveTimer = setTimeout(function () {
 			commentSaveChanges(convId,false);
 		},10000);
@@ -379,11 +359,13 @@ function handle_comment_form(e) {
 			}
 		}
 	}
+
 }
+
+
 
 function commentClose(obj, id) {
 	if(obj.value === '') {
-		obj.value = aStr.comment;
 		$("#comment-edit-text-" + id).removeClass("expanded");
 		$("#mod-cmnt-wrap-" + id).hide();
 		$("#comment-tools-" + id).hide();
@@ -638,7 +620,10 @@ function updatePageItems(mode, data) {
 
 function updateConvItems(mode,data) {
 
-	$(document).trigger('hz:updateConvItems');
+	var scroll_position = $(window).scrollTop();
+
+	if(mode !== 'update')
+		$(document).trigger('hz:updateConvItems');
 
 	if(mode === 'update' || mode === 'replace') {
 		prev = 'threads-begin';
@@ -648,12 +633,11 @@ function updateConvItems(mode,data) {
 	}
 	
 	if(mode === 'replace') {
-		$('.thread-wrapper').remove(); // clear existing content
+		$('.thread-parent').remove(); // clear existing content
 	}
 
 	$('.thread-wrapper', data).each(function() {
 		if(this.classList.contains('toplevel_item')) {
-
 			var ident = this.id;
 			var convId = ident.replace('thread-wrapper-','');
 			var commentWrap = $('#'+ident+' .collapsed-comments').attr('id');
@@ -768,6 +752,8 @@ function updateConvItems(mode,data) {
 
 	});
 
+	$(window).scrollTop(scroll_position);
+
 	if(followUpPageLoad)
 		sse_bs_counts();
 	else
@@ -863,25 +849,16 @@ function scrollToItem() {
 }
 
 function collapseHeight() {
-	var origContentHeight = Math.ceil($("#region_2").height());
-	var cDiff = 0;
-	var i = 0;
-	var position = $(window).scrollTop();
 
 	$(".wall-item-content, .directory-collapse").each(function() {
 		var orgHeight = $(this).outerHeight(true);
+		var id = $(this).attr('id')
+		var open = ((expanded_items.indexOf($(this).attr('id')) === -1) ? false : true);
 		if(orgHeight > divmore_height) {
 			if(! $(this).hasClass('divmore') && $(this).has('div.no-collapse').length == 0) {
-
-				// check if we will collapse some content above the visible content and compensate the diff later
-				if($(this).offset().top + divmore_height - $(window).scrollTop() + cDiff - ($(".divgrow-showmore").outerHeight() * i) < 65) {
-					diff = orgHeight - divmore_height;
-					cDiff = cDiff + diff;
-					i++;
-				}
-
 				$(this).readmore({
 					speed: 0,
+					startOpen: open,
 					heightMargin: 50,
 					collapsedHeight: divmore_height,
 					moreLink: '<a href="#" class="divgrow-showmore fakelink">' + aStr.divgrowmore + '</a>',
@@ -891,6 +868,10 @@ function collapseHeight() {
 							if((($(element).offset().top + divmore_height) - $(window).scrollTop()) < 65 ) {
 								$(window).scrollTop($(window).scrollTop() - ($(element).outerHeight(true) - divmore_height));
 							}
+							expanded_items = expanded_items.filter(expanded_items => expanded_items !== id);
+						}
+						else {
+							expanded_items.push(id);
 						}
 					}
 				});
@@ -899,15 +880,6 @@ function collapseHeight() {
 		}
 	});
 
-	var collapsedContentHeight = Math.ceil($("#region_2").height());
-	contentHeightDiff = liking ? 0 : origContentHeight - collapsedContentHeight;
-	console.log('collapseHeight() - contentHeightDiff: ' + contentHeightDiff + 'px');
-
-	if(i && !liking){
-		var sval = position - cDiff + ($(".divgrow-showmore").outerHeight() * i);
-		console.log('collapsed above viewport count: ' + i);
-		$(window).scrollTop(sval);
-	}
 }
 
 function updateInit() {
@@ -942,12 +914,7 @@ function liveUpdate(notify_id) {
 
 	if((src === null) || (stopped) || (! profile_uid)) { $('.like-rotator').hide(); return; }
 
-	// if auto updates are enabled and a comment box is open, 
-	// prevent live updates until the comment is submitted
-
-	var lockUpdates = (($('.comment-edit-text.expanded').length && (! bParam_static)) ? true : false);
-
-	if(lockUpdates || in_progress || mediaPlaying) {
+	if(in_progress || mediaPlaying) {
 		if(livetime) {
 			clearTimeout(livetime);
 		}
@@ -1048,11 +1015,6 @@ function liveUpdate(notify_id) {
 				page_load = false;
 				scroll_next = false;
 				updateConvItems(update_mode,data);
-
-				// adjust scroll position if new content was added above viewport
-				if(update_mode === 'update' && !justifiedGalleryActive) {
-					$(window).scrollTop($(window).scrollTop() + $("#region_2").height() - orgHeight + contentHeightDiff);
-				}
 
 				in_progress = false;
 				$('#image_counter').html('');
@@ -1184,19 +1146,30 @@ function justifyPhotosAjax(id) {
 	$('#' + id).justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-// Since our ajax calls are asynchronous, we will give a few
-// seconds for the first ajax call (setting like/dislike), then
-// run the updater to pick up any changes and display on the page.
-// The updater will turn any rotators off when it's done.
-// This function will have returned long before any of these
-// events have completed and therefore there won't be any
-// visible feedback that anything changed without all this
-// trickery. This still could cause confusion if the "like" ajax call
-// is delayed and updateInit runs before it completes.
 function dolike(ident, verb) {
-	unpause();
 	$('#like-rotator-' + ident.toString()).show();
-	$.get('like/' + ident.toString() + '?verb=' + verb, updateInit );
+
+	if(typeof conv_mode == typeof undefined)
+		conv_mode = '';
+
+	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode, function (data) {
+		if(data.success) {
+			// this is a bit tricky since the top level thread wrapper wraps the whole thread
+			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
+				var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
+				$('#wall-item-outside-wrapper-' + data.orig_id).html(wrapper[0].innerHTML);
+				// those were not replaced - swap the id
+				$('#thread-wrapper-' + data.orig_id).attr('id', 'thread-wrapper-' + data.id);
+				$('#wall-item-outside-wrapper-' + data.orig_id).attr('id', 'wall-item-outside-wrapper-' + data.id);
+			}
+			else {
+				$('#thread-wrapper-' + data.orig_id).replaceWith(data.html);
+			}
+			$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+			collapseHeight();
+			liking = 0;
+		}
+	});
 	liking = 1;
 }
 
@@ -1301,14 +1274,12 @@ function dropItem(url, object) {
 }
 
 function dosubthread(ident) {
-	unpause();
 	$('#like-rotator-' + ident.toString()).show();
 	$.get('subthread/sub/' + ident.toString(), updateInit );
 	liking = 1;
 }
 
 function dounsubthread(ident) {
-	unpause();
 	$('#like-rotator-' + ident.toString()).show();
 	$.get('subthread/unsub/' + ident.toString(), updateInit );
 	liking = 1;
@@ -1387,43 +1358,52 @@ function submitPoll(id) {
 		function(data) {
 			$.jGrowl(data.message, { sticky: false, theme: ((data.success) ? 'info' : 'notice'), life: 10000 });
 			if(timer) clearTimeout(timer);
-			timer = setTimeout(updateInit,1500);
+			timer = setTimeout(updateInit, 500);
 		}
 	);
 
 }
 
-
 function post_comment(id) {
-	unpause();
+
 	commentBusy = true;
 	$('body').css('cursor', 'wait');
 	$("#comment-preview-inp-" + id).val("0");
+
+	if(typeof conv_mode == typeof undefined)
+		conv_mode = '';
+
+	var form_data =	$("#comment-edit-form-" + id).serialize();
+
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		form_data  + '&conv_mode=' + conv_mode,
 		function(data) {
 			if(data.success) {
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
-				$("#comment-edit-wrapper-" + id).hide();
-				$("#comment-edit-text-" + id).val('');
+				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
+				$('#wall-item-comment-wrapper-' + id).before(data.html);
+				$('#wall-item-ago-' + data.id + ' .autotime').timeago();
+				$('body').css('cursor', 'unset');
+				collapseHeight();
+				commentBusy = false;
+
 				var tarea = document.getElementById("comment-edit-text-" + id);
 				if(tarea) {
 					commentClose(tarea, id);
-					$(document).unbind( "click.commentOpen");
+					$(document).off( "click.commentOpen");
 				}
-				if(timer) clearTimeout(timer);
-				timer = setTimeout(updateInit,1500);
-			}
-			if(data.reload) {
-				window.location.href=data.reload;
 			}
 		},
 		"json"
 	);
+
 	return false;
+
 }
+
+
 
 function preview_comment(id) {
 	$("#comment-preview-inp-" + id).val("1");
@@ -1490,13 +1470,6 @@ function preview_mail() {
 	);
 	$("#mail-preview").val("0");
 	return true;
-}
-
-function unpause() {
-	// unpause auto reloads if they are currently stopped
-	totStopped = false;
-	stopped = false;
-	$('#pause').html('');
 }
 
 function bin2hex(s) {
@@ -1595,7 +1568,6 @@ function zFormError(elm,x) {
 	}
 }
 
-
 $(window).scroll(function () {
 	if(typeof buildCmd == 'function') {
 		// This is a content page with items and/or conversations
@@ -1620,22 +1592,6 @@ $(window).scroll(function () {
 		}
 	}
 });
-
-var chanviewFullSize = false;
-
-function chanviewFull() {
-	if(chanviewFullSize) {
-		chanviewFullSize = false;
-		$('#chanview-iframe-border').css({ 'position' : 'relative', 'z-index' : '10' });
-		$('#remote-channel').css({ 'position' : 'relative' , 'z-index' : '10' });
-	}
-	else {
-		chanviewFullSize = true;
-		$('#chanview-iframe-border').css({ 'position' : 'fixed', 'top' : '0', 'left' : '0', 'z-index' : '150001' });
-		$('#remote-channel').css({ 'position' : 'fixed', 'top' : '0', 'left' : '0', 'z-index' : '150000' });
-		resize_iframe();
-	}
-}
 
 function addhtmltext(data) {
 	data = h2b(data);
@@ -1866,8 +1822,6 @@ function sse_bs_notifications(e, replace, followup) {
 		sessionStorage.removeItem('notification_open');
 	}
 }
-
-
 
 function sse_handleNotifications(obj, replace, followup) {
 

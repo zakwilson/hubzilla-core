@@ -271,6 +271,7 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 		and xchan_hidden = 0
 		and xchan_deleted = 0
 		and xlink_static = 0
+		and xchan_network = 'zot6'
 		group by xchan_hash order by total desc limit %d offset %d ",
 		intval($uid),
 		intval($uid),
@@ -290,6 +291,7 @@ function suggestion_query($uid, $myxchan, $start = 0, $limit = 80) {
 		and xchan_hidden = 0
 		and xchan_deleted = 0
 		and xlink_static = 0
+		and xchan_network = 'zot6'
 		group by xchan_hash order by total desc limit %d offset %d ",
 		intval($uid),
 		intval($uid),

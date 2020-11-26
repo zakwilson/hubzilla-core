@@ -168,7 +168,7 @@ class Activity {
 		);
 		if($r) {
 			xchan_query($r,true);
-			$r = fetch_post_tags($r,true);
+			$r = fetch_post_tags($r);
 			if (in_array($r[0]['verb'], ['Create', 'Invite']) && $r[0]['obj_type'] === ACTIVITY_OBJ_EVENT) {
 				$r[0]['verb'] = 'Invite';
 				return self::encode_activity($r[0]);
@@ -713,7 +713,7 @@ class Activity {
 			);
 			if($p) {
 				xchan_query($p,true);
-				$p = fetch_post_tags($p,true);
+				$p = fetch_post_tags($p);
 				$i['obj'] = self::encode_item($p[0]);
 
 				// convert to zot6 emoji reaction encoding which uses the target object to indicate the
@@ -800,7 +800,7 @@ class Activity {
 					$is_directmessage = false;
 					$recips = get_iconfig($i['parent'], 'activitypub', 'recips');
 
-					if(in_array($i['author']['xchan_url'], $recips['to'])) {
+					if(array_path_exists('to', $recips) && in_array($i['author']['xchan_url'], $recips['to'])) {
 						$reply_url = $d[0]['xchan_url'];
 						$is_directmessage = true;
 					}
@@ -2648,7 +2648,7 @@ class Activity {
 		$current_item = $item;
 
 		while($current_item['parent_mid'] !== $current_item['mid']) {
-			$n = ActivityStreams::fetch($current_item['parent_mid'], $channel);
+			$n = self::fetch($current_item['parent_mid'], $channel);
 			if(! $n) {
 				break;
 			}
@@ -2658,6 +2658,10 @@ class Activity {
 
 			if(! $a->is_valid()) {
 				break;
+			}
+
+			if (is_array($a->actor) && array_key_exists('id',$a->actor)) {
+				self::actor_store($a->actor['id'],$a->actor);
 			}
 
 			$replies = null;
@@ -2725,7 +2729,7 @@ class Activity {
 
 		foreach($arr as $url) {
 
-			$n = ActivityStreams::fetch($url, $channel);
+			$n = self::fetch($url, $channel);
 			if(! $n) {
 				break;
 			}

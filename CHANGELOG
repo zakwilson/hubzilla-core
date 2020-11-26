@@ -1,3 +1,18 @@
+Hubzilla 5.0.3 (2020-11-26)
+	- Upgrade phpunit to version 9
+	- Remove dbunit because its not maintained anymore
+	- Add uuid version 5 based uuid's to imported feeds
+	- Fix potential delivery loop
+	- Fix actor of fetched activities not stored
+	- Improve update mechanism for comments and likes to prevent page jumps
+	- Fix issue where channel suggestions was suggesting oneself
+	- Do not auto-update except for own actions
+	- Introduce ctrl-enter shortcut to send comments and posts
+
+	Addons
+	Pubcrawl: improve addressing of mentioned actors
+
+
 Hubzilla 5.0.2 (2020-11-16)
 	- Fix edge case in acl selector
 	- Fix ping_site()

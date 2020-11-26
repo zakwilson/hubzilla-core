@@ -1667,7 +1667,7 @@ function format_filer(&$item) {
 			if(! trim($term))
 				continue;
 			$removelink = z_root() . '/filerm/' . $item['id'] . '?f=&term=' . urlencode($t['term']);
-			$categories[] = array('term' => $term, 'removelink' => $removelink);
+			$categories[] = array('term' => $term, 'removelink' => $removelink, 'id' => $item['id']);
 		}
 
 		$s = replace_macros(get_markup_template('item_filer.tpl'),array(

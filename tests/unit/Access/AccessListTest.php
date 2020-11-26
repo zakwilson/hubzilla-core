@@ -63,11 +63,12 @@ class AccessListTest extends UnitTestCase {
 	/**
 	 * @expectedException PHPUnit\Framework\Error\Error
 	 */
+/*
 	public function testPHPErrorOnInvalidConstructor() {
 		$accessList = new AccessList('invalid');
 		// Causes: "Illegal string offset 'channel_allow_cid'"
 	}
-
+*/
 	public function testDefaultGetExplicit() {
 		$accessList = new AccessList([]);
 
@@ -112,12 +113,14 @@ class AccessListTest extends UnitTestCase {
 	/**
 	 * @expectedException PHPUnit\Framework\Error\Error
 	 */
+/*
 	public function testPHPErrorOnInvalidSet() {
 		$accessList = new AccessList([]);
 
 		$accessList->set('invalid');
 		// Causes: "Illegal string offset 'allow_cid'"
 	}
+*/
 
 	/**
 	 * set_from_array() calls some other functions, too which are not yet unit tested.

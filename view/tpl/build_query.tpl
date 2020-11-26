@@ -2,6 +2,9 @@
 
 	var bParam_cmd = "{{$baseurl}}/update/{{$pgtype}}";
 
+	{{if $conv_mode}}
+	var conv_mode = '{{$conv_mode}}';
+	{{/if}}
 
 	var bParam_uid = {{$uid}};
 	var bParam_gid = {{$gid}};
@@ -18,7 +21,6 @@
 	var bParam_list = {{$list}};
 	var bParam_fh = {{$fh}};
 	var bParam_dm = {{$dm}};
-	var bParam_static = {{$static}};
 
 	var bParam_search = "{{$search}}";
 	var bParam_xchan = "{{$xchan}}";
@@ -42,7 +44,6 @@
 		if(bParam_cmax != (-1)) bCmd = bCmd + "&cmax=" + bParam_cmax;
 		if(bParam_gid != 0) { bCmd = bCmd + "&gid=" + bParam_gid; } else
 		if(bParam_cid != 0) { bCmd = bCmd + "&cid=" + bParam_cid; }
-		if(bParam_static != 0) { bCmd = bCmd + "&static=" + bParam_static; }
 		if(bParam_star != 0) bCmd = bCmd + "&star=" + bParam_star;
 		if(bParam_liked != 0) bCmd = bCmd + "&liked=" + bParam_liked;
 		if(bParam_conv!= 0) bCmd = bCmd + "&conv=" + bParam_conv;

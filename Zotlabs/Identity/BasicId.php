@@ -1,6 +1,6 @@
 <?php
 
-namespace Zotlabs\Identity\BasicId;
+namespace Zotlabs\Identity;
 
 class BasicId {
 

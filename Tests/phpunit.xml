@@ -1,42 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<phpunit bootstrap="../boot.php" colors="true">
-	<php>
-		<var name="db_dsn" value="mysql:dbname=gitlab_ci_hubzilla;host=mysql"/>
-		<var name="db_username" value="root"/>
-		<var name="db_password" value="mysql"/>
-
-		<env name="hz_db_server" value="mysql"/>
-		<env name="hz_db_scheme" value="mysql"/>
-		<env name="hz_db_port" value=""/>
-		<env name="hz_db_user" value="root"/>
-		<env name="hz_db_pass" value="mysql"/>
-		<env name="hz_db_database" value="hello_world_test"/>
-	</php>
-
-	<testsuites>
-		<testsuite name="Hubzilla default Test Suite">
-			<directory suffix="Test.php">./Unit/</directory>
-		</testsuite>
-		<testsuite name="API Test Suite">
-			<directory suffix="Test.php" prefix="API">./Unit/</directory>
-		</testsuite>
-		<testsuite name="Ex-/Import Test Suite">
-			<!--<directory suffix="Test.php">./Unit/eximport/</directory>-->
-		</testsuite>
-	</testsuites>
-
-	<groups>
-		<exclude>
-			<group>postgresql</group>
-		</exclude>
-	</groups>
-	<!--cover reporting-->
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">../Zotlabs/</directory>
-			<directory suffix=".php">../include/</directory>
-		</whitelist>
-	</filter>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="../boot.php" colors="true" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">../Zotlabs/</directory>
+      <directory suffix=".php">../include/</directory>
+    </include>
+  </coverage>
+  <php>
+    <var name="db_dsn" value="mysql:dbname=gitlab_ci_hubzilla;host=mysql"/>
+    <var name="db_username" value="root"/>
+    <var name="db_password" value="mysql"/>
+    <env name="hz_db_server" value="mysql"/>
+    <env name="hz_db_scheme" value="mysql"/>
+    <env name="hz_db_port" value=""/>
+    <env name="hz_db_user" value="root"/>
+    <env name="hz_db_pass" value="mysql"/>
+    <env name="hz_db_database" value="hello_world_test"/>
+  </php>
+  <testsuites>
+    <testsuite name="Hubzilla default Test Suite">
+      <directory suffix="Test.php">./Unit/</directory>
+    </testsuite>
+    <testsuite name="API Test Suite">
+      <directory suffix="Test.php" prefix="API">./Unit/</directory>
+    </testsuite>
+    <testsuite name="Ex-/Import Test Suite">
+      <!--<directory suffix="Test.php">./Unit/eximport/</directory>-->
+    </testsuite>
+  </testsuites>
+  <groups>
+    <exclude>
+      <group>postgresql</group>
+    </exclude>
+  </groups>
+  <!--cover reporting-->
 </phpunit>
-

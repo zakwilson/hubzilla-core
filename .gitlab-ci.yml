@@ -34,8 +34,8 @@ before_script:
 # pecl and composer do not work with PHP production restrictions (from Hubzilla Docker image)
 - if [ -f /usr/local/etc/php/conf.d/z_prod.ini ]; then mv /usr/local/etc/php/conf.d/z_prod.ini /usr/local/etc/php/conf.d/z_prod.ini.off; fi
 # Install & enable Xdebug for code coverage reports
-#- pecl install xdebug
-#- docker-php-ext-enable xdebug
+- pecl install xdebug
+- docker-php-ext-enable xdebug
 # Install composer
 - curl -sS https://getcomposer.org/installer | php
 # Install dev libraries from composer

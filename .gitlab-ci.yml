@@ -40,7 +40,8 @@ before_script:
 - curl -sS https://getcomposer.org/installer | php
 # Install dev libraries from composer
 - php ./composer.phar install --no-progress
-
+# php.ini settings
+- echo 'xdebug.mode=coverage' >> /etc/php/php.ini
 
 # hidden job definition with template for MySQL/MariaDB
 .job_template_mysql: &job_definition_mysql

@@ -1380,7 +1380,6 @@ function post_comment(id) {
 		form_data  + '&conv_mode=' + conv_mode,
 		function(data) {
 			if(data.success) {
-
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
@@ -1395,10 +1394,6 @@ function post_comment(id) {
 					commentClose(tarea, id);
 					$(document).off( "click.commentOpen");
 				}
-
-			}
-			if(data.reload) {
-				window.location.href=data.reload;
 			}
 		},
 		"json"

@@ -26,6 +26,7 @@ namespace Zotlabs\Tests\Unit\Access;
 use Zotlabs\Tests\Unit\UnitTestCase;
 use Zotlabs\Access\PermissionRoles;
 use phpmock\phpunit\PHPMock;
+use DMS\PHPUnitExtensions\ArraySubset\Assert;
 
 /**
  * @brief Unit Test case for PermissionRoles class.
@@ -68,7 +69,7 @@ class PermissionRolesTest extends UnitTestCase {
 				'social_private' => 'Social - Private'
 		];
 
-		$this->assertArraySubset(['Social Networking' => $socialNetworking], $roles);
+		Assert::assertArraySubset(['Social Networking' => $socialNetworking], $roles);
 		$this->assertEquals($socialNetworking, $roles['Social Networking']);
 
 		$this->assertCount(5, $roles, 'There should be 5 permission groups.');

@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '4419c93d8062794e5c2bbc222699881e5b97fc99',
+    'reference' => 'e236b7781744b8a287845b78857787064b70c4f8',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -230,7 +230,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '4419c93d8062794e5c2bbc222699881e5b97fc99',
+      'reference' => 'e236b7781744b8a287845b78857787064b70c4f8',
     ),
   ),
 );

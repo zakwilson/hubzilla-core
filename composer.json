@@ -51,7 +51,8 @@
 		"php-mock/php-mock-phpunit": "@stable",
 		"phpunit/dbunit": "@stable",
 		"phpmd/phpmd": "^2.6",
-		"squizlabs/php_codesniffer": "*"
+		"squizlabs/php_codesniffer": "*",
+		"php-mock/php-mock": "^2.2"
 	},
 	"autoload" : {
 		"psr-4" : {

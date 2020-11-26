@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="../boot.php" forceCoversAnnotation="false" beStrictAboutCoversAnnotation="true" beStrictAboutOutputDuringTests="true" beStrictAboutTodoAnnotatedTests="true" verbose="true">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">../Zotlabs/</directory>
+      <directory suffix=".php">../include/</directory>
+    </include>
+    <report>
+      <html outputDirectory="./results/coverage-report/" lowUpperBound="35" highLowerBound="70"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="Hubzilla default Test Suite">
+      <directory suffix="Test.php">./unit/</directory>
+    </testsuite>
+    <testsuite name="API Test Suite">
+      <directory suffix="Test.php" prefix="API">./unit/</directory>
+    </testsuite>
+  </testsuites>
+  <groups>
+    <exclude>
+      <group>mysql</group>
+    </exclude>
+  </groups>
+  <!--coverage reporting-->
+  <logging>
+    <junit outputFile="./results/junit.xml"/>
+    <!--<log type="coverage-clover" target="./results/coverage-clover.xml"/>-->
+    <!--<log type="testdox-text" target="./results/testdox.txt"/>-->
+    <testdoxHtml outputFile="./results/testdox.html"/>
+  </logging>
+  <php>
+    <!-- Default test database config, only used if no environment variables
+             with same names are set.
+             !!! Never run against a real database, it will truncate all tables -->
+    <env name="hz_db_server" value="postgres"/>
+    <env name="hz_db_scheme" value="pgsql"/>
+    <env name="hz_db_port" value="5432"/>
+    <env name="hz_db_user" value="ci-user"/>
+    <env name="hz_db_pass" value="ci-pass"/>
+    <env name="hz_db_database" value="ci-db"/>
+  </php>
+</phpunit>

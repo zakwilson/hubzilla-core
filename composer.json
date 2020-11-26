@@ -52,7 +52,8 @@
         "php-mock/php-mock-phpunit": "^2.6",
         "phpmd/phpmd": "^2.6",
         "squizlabs/php_codesniffer": "*",
-        "php-mock/php-mock": "^2.2"
+        "php-mock/php-mock": "^2.2",
+        "dms/phpunit-arraysubset-asserts": "^0.2.1"
     },
     "autoload": {
         "psr-4": {

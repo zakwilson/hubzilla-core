@@ -19,10 +19,10 @@
   </php>
   <testsuites>
     <testsuite name="Hubzilla default Test Suite">
-      <directory suffix="Test.php">./Unit/</directory>
+      <directory suffix="Test.php">./unit/</directory>
     </testsuite>
     <testsuite name="API Test Suite">
-      <directory suffix="Test.php" prefix="API">./Unit/</directory>
+      <directory suffix="Test.php" prefix="API">./unit/</directory>
     </testsuite>
     <testsuite name="Ex-/Import Test Suite">
       <!--<directory suffix="Test.php">./Unit/eximport/</directory>-->

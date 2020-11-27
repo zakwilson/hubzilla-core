@@ -1,6 +1,16 @@
 ChangeLog
 =========
 
+4.3.3 (2020-11-09)
+------------------
+
+* #519: Remove US/Pacific-New obsolete timezone (@phil-davis)
+
+4.3.2 (2020-10-03)
+------------------
+
+* #513: Added Support for PHP 8.0 (@phil-davis)
+
 4.3.1 (2020-07-13)
 ------------------
 

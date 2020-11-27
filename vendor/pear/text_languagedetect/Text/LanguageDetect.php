@@ -12,9 +12,9 @@
  * @link      http://pear.php.net/package/Text_LanguageDetect/
  */
 
-//require_once 'Text/LanguageDetect/Exception.php';
-//require_once 'Text/LanguageDetect/Parser.php';
-//require_once 'Text/LanguageDetect/ISO639.php';
+require_once 'LanguageDetect/Exception.php';
+require_once 'LanguageDetect/Parser.php';
+require_once 'LanguageDetect/ISO639.php';
 
 /**
  * Detects the language of a given piece of text.

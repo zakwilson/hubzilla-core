@@ -41,6 +41,7 @@ class Locs extends Controller {
 				$x = q("select * from hubloc where hubloc_id = %d and hubloc_hash = '%s' ",
 					intval($hubloc_id),
 					dbesc($channel['channel_hash'])
+				);
 
 				if ($x) {
 					hubloc_change_primary($x[0]);

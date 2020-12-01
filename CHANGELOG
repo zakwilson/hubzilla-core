@@ -1,3 +1,8 @@
+Hubzilla 5.0.4 (2020-12-01)
+	- Fix regression updating the primary
+	- Dismiss title in response activities
+
+
 Hubzilla 5.0.3 (2020-11-26)
 	- Upgrade phpunit to version 9
 	- Remove dbunit because its not maintained anymore

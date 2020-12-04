@@ -1,3 +1,38 @@
+Hubzilla 5.0.4 (2020-12-01)
+	- Fix regression updating the primary
+	- Dismiss title in response activities
+
+
+Hubzilla 5.0.3 (2020-11-26)
+	- Upgrade phpunit to version 9
+	- Remove dbunit because its not maintained anymore
+	- Add uuid version 5 based uuid's to imported feeds
+	- Fix potential delivery loop
+	- Fix actor of fetched activities not stored
+	- Improve update mechanism for comments and likes to prevent page jumps
+	- Fix issue where channel suggestions was suggesting oneself
+	- Do not auto-update except for own actions
+	- Introduce ctrl-enter shortcut to send comments and posts
+
+	Addons
+	Pubcrawl: improve addressing of mentioned actors
+
+
+Hubzilla 5.0.2 (2020-11-16)
+	- Fix edge case in acl selector
+	- Fix ping_site()
+	- Fix directory post url
+	- Update russian translation
+	- Implement polling for notifications (default) - SSE can be enabled in /admin/site if desired
+	- DB update to remove hublocs with no hubloc_hash or no hubloc_callback
+	- Do not save actors without an inbox
+	- Fix import_hublocs()
+
+	Addons
+	- Pubcrawl: do not save actors without an inbox
+	- Diaspora: fix issue with diaspora where hublocs without hubloc_hash were stored
+
+
 Hubzilla 5.0.1 (2020-11-12)
 	- Fix share title size 
 	- Fix issue where hublocs could get mixed up between different protocols

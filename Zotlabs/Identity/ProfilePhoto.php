@@ -1,5 +1,5 @@
 <?php
-namespace Zotlabs\Identity\ProfilePhoto;
+namespace Zotlabs\Identity;
 
 class ProfilePhoto {
 

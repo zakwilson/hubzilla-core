@@ -212,6 +212,9 @@ class HTTPSig {
 
 	static function get_key($key,$keytype,$id) {
 
+		if(is_array($key))
+			btlogger('key is array: ' . print_r($key,true));
+
 		if($key) {
 			if(function_exists($key)) {
 				return $key($id);

@@ -7,12 +7,9 @@ use Zotlabs\Lib\Libsync;
 require_once('include/security.php');
 require_once('include/bbcode.php');
 require_once('include/items.php');
-
-
+require_once('include/conversation.php');
 
 class Like extends \Zotlabs\Web\Controller {
-
-
 
 	private function reaction_to_activity($reaction) {
 
@@ -42,7 +39,46 @@ class Like extends \Zotlabs\Web\Controller {
 
 	}
 
+	private function like_response($arr) {
 
+		if($arr['conv_mode'] === 'channel') {
+			$parts = explode('@', $arr['owner_xchan']['xchan_addr']);
+			profile_load($parts[0]);
+		}
+
+
+		$item_normal = item_normal();
+
+		$activities = q("SELECT item.*, item.id AS item_id FROM item
+			WHERE uid = %d $item_normal
+			AND thr_parent = '%s'
+			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+			intval($arr['item']['uid']),
+			dbesc($arr['item']['mid']),
+			dbesc(ACTIVITY_LIKE),
+			dbesc(ACTIVITY_DISLIKE),
+			dbesc(ACTIVITY_ATTEND),
+			dbesc(ACTIVITY_ATTENDNO),
+			dbesc(ACTIVITY_ATTENDMAYBE)
+		);
+
+		xchan_query($activities,true);
+
+		$convitems[] = $arr['item'];
+		$convitems = array_merge($convitems, $activities);
+
+		$convitems = fetch_post_tags($convitems,true);
+
+		$ret = [
+			'success' => 1,
+			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
+			'id' => $arr['item']['id'],
+			'html' => conversation($convitems, $arr['conv_mode'], true, 'r_preview'),
+		];
+
+		return $ret;
+
+	}
 
 	public function get() {
 	
@@ -66,7 +102,8 @@ class Like extends \Zotlabs\Web\Controller {
 		}
 	
 		$verb = notags(trim($_GET['verb']));
-	
+		$mode = (($_GET['conv_mode'] === 'channel') ? 'channel' : 'network');
+
 		if(! $verb)
 			$verb = 'like';
 	
@@ -304,7 +341,7 @@ class Like extends \Zotlabs\Web\Controller {
 				$thread_owner = $r[0];
 			else
 				killme();
-	
+
 			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 				dbesc($item['author_xchan'])
 			);
@@ -312,8 +349,7 @@ class Like extends \Zotlabs\Web\Controller {
 				$item_author = $r[0];
 			else
 				killme();
-	
-			
+
 			$verbs = " '".dbesc($activity)."' ";
 	
 			$multi_undo = false;		
@@ -357,16 +393,27 @@ class Like extends \Zotlabs\Web\Controller {
 	
 					// drop_item was not done interactively, so we need to invoke the notifier
 					// in order to push the changes to connections
-	
+
 					\Zotlabs\Daemon\Master::Summon(array('Notifier','drop',$rr['id']));
+
+
 	
 				}
 	
 				if($interactive)
 					return;
 	
-				if(! $multi_undo)
-					killme();
+				if(! $multi_undo) {
+					$ret = self::like_response([
+						'item' => $item,
+						'orig_item_id' => $item_id, 
+						'owner_xchan' => $thread_owner,
+						'conv_mode' => $mode
+					]);
+					json_return_and_die($ret);
+				}
+
+
 			}
 		}
 	
@@ -501,7 +548,6 @@ class Like extends \Zotlabs\Web\Controller {
 	
 		call_hooks('post_local',$arr);
 
-	
 		$post = item_store($arr);	
 		$post_id = $post['item_id'];
 
@@ -540,7 +586,6 @@ class Like extends \Zotlabs\Web\Controller {
 	
 		}
 	
-	
 		\Zotlabs\Daemon\Master::Summon(array('Notifier','like',$post_id));
 	
 		if($interactive) {
@@ -548,10 +593,15 @@ class Like extends \Zotlabs\Web\Controller {
 			$o .= t('Thank you.');
 			return $o;
 		}
-	
-		killme();
+
+		$ret = self::like_response([
+			'item' => $item,
+			'orig_item_id' => $item_id, 
+			'owner_xchan' => $thread_owner,
+			'conv_mode' => $mode
+		]);
+		json_return_and_die($ret);
+
 	}
-	
-	
 	
 }

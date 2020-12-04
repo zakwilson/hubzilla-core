@@ -259,7 +259,7 @@
 		{{/foreach}}
 		{{/if}}
 		{{if $item.comment}}
-		<div class="p-2 wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}" >
+		<div id="wall-item-comment-wrapper-{{$item.id}}" class="p-2 wall-item-comment-wrapper{{if $item.children}} wall-item-comment-wrapper-wc{{/if}}" >
 			{{$item.comment}}
 		</div>
 		{{/if}}

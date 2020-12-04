@@ -2502,7 +2502,7 @@ function item_update_parent_commented($item) {
 		);
 
 		q("UPDATE item set commented = '%s', changed = '%s' WHERE id = %d",
-			dbesc(($z) ? $z[0]['commented'] : datetime_convert()),
+			dbesc(($z[0]['commented']) ? $z[0]['commented'] : datetime_convert()),
 			dbesc(datetime_convert()),
 			intval($item['parent'])
 		);
@@ -3179,8 +3179,18 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		if($rewrite_author) {
 			$item['author_xchan'] = $channel['channel_hash'];
 
-			$r = q("update item set author_xchan = '%s' where id = %d",
+			//if it's a toplevel rss item we will also rewrite the mid to something fetchable
+			if($item['item_rss'] && $item['item_thread_top']) {
+				$item['mid'] = z_root() . '/item/' . $item['uuid'];
+				$item['parent_mid'] = $item['mid'];
+				$item['thr_parent'] = $item['mid'];
+			}
+
+			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
+				dbesc($item['mid']),
+				dbesc($item['parent_mid']),
+				dbesc($item['thr_parent']),
 				intval($item_id)
 			);
 		}
@@ -3235,7 +3245,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
-
 		$arr['item_thread_top'] = 1;
 	
 		if (strpos($item['body'], "[/share]") !== false) {
@@ -3299,7 +3308,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$private = 1;
 
 	$item_wall = 1;
-	$item_origin = 1;
+	$item_origin = (($item['item_deleted']) ? 0 : 1); // item_origin for deleted items is set to 0 in delete_imported_item() to prevent looping. In this case we probably should not set it back to 1 here.
 	$item_uplink = 0;
 	$item_nocomment = 0;
 
@@ -3315,7 +3324,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		);
 	}
 	else {
-		$item_uplink = 1;
+		$item_uplink = (($item['item_rss']) ? 0 : 1); // Do not set item_uplink for rss items - we can not send anything to them.
 
 		// if this is an edit, item_store_update() will have already updated the item
 		// with the correct value for source_xchan (by ignoring it). We cannot set to owner_xchan

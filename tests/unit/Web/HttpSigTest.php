@@ -33,7 +33,7 @@ use Zotlabs\Web\HTTPSig;
  *
  * @covers Zotlabs\Web\HTTPSig
  */
-class PermissionDescriptionTest extends UnitTestCase {
+class HttpSigTest extends UnitTestCase {
 
 	use PHPMock;
 

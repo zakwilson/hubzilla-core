@@ -28,7 +28,6 @@ class Display {
 		$user_scalable     = ((x($_POST,'user_scalable')) ? intval($_POST['user_scalable'])  : 0);
 		$nosmile           = ((x($_POST,'nosmile')) ? intval($_POST['nosmile'])  : 0);
 		$title_tosource    = ((x($_POST,'title_tosource')) ? intval($_POST['title_tosource'])  : 0);
-		$manual_update     = ((array_key_exists('manual_update',$_POST)) ? intval($_POST['manual_update']) : 0);
 		$start_menu        = ((x($_POST,'start_menu')) ? intval($_POST['start_menu']) : 0);
 
 		$browser_update   = ((x($_POST,'browser_update')) ? intval($_POST['browser_update']) : 0);
@@ -47,7 +46,6 @@ class Display {
 		set_pconfig(local_channel(),'system','itemspage', $itemspage);
 		set_pconfig(local_channel(),'system','no_smilies',1-intval($nosmile));
 		set_pconfig(local_channel(),'system','title_tosource',$title_tosource);
-		set_pconfig(local_channel(),'system','manual_conversation_update', $manual_update);
 		set_pconfig(local_channel(),'system','channel_menu', $channel_menu);
 		set_pconfig(local_channel(),'system','start_menu', $start_menu);
 
@@ -200,7 +198,6 @@ class Display {
 			'$itemspage'   => array('itemspage',  t("Maximum number of conversations to load at any time:"), $itemspage, t('Maximum of 30 items')),
 			'$nosmile'	=> array('nosmile', t("Show emoticons (smilies) as images"), 1-intval($nosmile), '', $yes_no),
 			'$channel_menu' => [ 'channel_menu', t('Provide channel menu in navigation bar'), get_pconfig(local_channel(),'system','channel_menu',get_config('system','channel_menu',0)), t('Default: channel menu located in app menu'),$yes_no ],
-			'$manual_update'	=> array('manual_update', t('Manual conversation updates'), channel_manual_conv_update(local_channel()), t('Default is on, turning this off may increase screen jumping'), $yes_no),
 			'$title_tosource'	=> array('title_tosource', t("Link post titles to source"), $title_tosource, '', $yes_no),
 			'$theme_config' => $theme_config,
 			'$start_menu' => ['start_menu', t('New Member Links'), $start_menu, t('Display new member quick links menu'), $yes_no]

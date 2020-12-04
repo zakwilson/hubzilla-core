@@ -61,13 +61,11 @@ var activeCommentText = '';
 		$('#jot-add-option').on('click', jotAddOption);
 		$(document).on('click', '.poll-option-close', jotRemoveOption);
 
-		function jotSetMime() { 
-			var mtype = $('#id_mimetype').val(); 
-			if(mtype == 'text/bbcode')
-				$('#profile-jot-submit-left').show();
-			else
-				$('#profile-jot-submit-left').hide();
-		}
+		$('#profile-jot-form').keydown(function(e) {
+			if (e.ctrlKey && e.keyCode === 13) {
+				$(this).trigger('submit');
+			}
+		});
 
 		$('#invisible-wall-file-upload').fileupload({
 			url: 'wall_attach/{{$nickname}}',
@@ -91,11 +89,10 @@ var activeCommentText = '';
 		$('#wall-file-upload').click(function(event) { event.preventDefault(); $('#invisible-wall-file-upload').trigger('click'); return false;});
 		$('#wall-file-upload-sub').click(function(event) { event.preventDefault(); $('#invisible-wall-file-upload').trigger('click'); return false;});
 
-        // call initialization file
-        if (window.File && window.FileList && window.FileReader) {
-          DragDropUploadInit();
-        }
-
+		// call initialization file
+		if (window.File && window.FileList && window.FileReader) {
+			DragDropUploadInit();
+		}
 
 		$('#invisible-comment-upload').fileupload({
 			url: 'wall_attach/{{$nickname}}',
@@ -127,6 +124,14 @@ var activeCommentText = '';
 		});
 
 	});
+
+	function jotSetMime() { 
+		var mtype = $('#id_mimetype').val(); 
+		if(mtype == 'text/bbcode')
+			$('#profile-jot-submit-left').show();
+		else
+			$('#profile-jot-submit-left').hide();
+	}
 
 	function deleteCheckedItems() {
 		var checkedstr = '';
@@ -298,13 +303,9 @@ var activeCommentText = '';
 		if(reply && reply.length) {
 			reply = reply.replace('#','');
 			if(reply.length) {
-
 				commentBusy = true;
 				$('body').css('cursor', 'wait');
-
-				$.get('{{$baseurl}}/tagger/' + id + '?term=' + reply);
-				if(timer) clearTimeout(timer);
-				timer = setTimeout(updateInit,3000);
+				$.get('{{$baseurl}}/tagger/' + id + '?term=' + reply, updateInit);
 				liking = 1;
 			}
 		}
@@ -351,6 +352,13 @@ var activeCommentText = '';
 			});
 		});
 		
+	}
+
+	function itemFilerRm(id, term) {
+		commentBusy = true;
+		$('body').css('cursor', 'wait');
+		$.get('{{$baseurl}}/filerm/' + id + '?f=&term=' + term, updateInit);
+		liking = 1;
 	}
 
 	function itemBookmark(id) {

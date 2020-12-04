@@ -6,6 +6,7 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Zotlabs\\Tests\\Unit\\' => array($baseDir . '/tests/unit'),
     'Zotlabs\\' => array($baseDir . '/Zotlabs'),
     'Symfony\\Polyfill\\Ctype\\' => array($vendorDir . '/symfony/polyfill-ctype'),
     'Sabre\\Xml\\' => array($vendorDir . '/sabre/xml/lib'),
@@ -18,10 +19,12 @@ return array(
     'Sabre\\CardDAV\\' => array($vendorDir . '/sabre/dav/lib/CardDAV'),
     'Sabre\\CalDAV\\' => array($vendorDir . '/sabre/dav/lib/CalDAV'),
     'Ramsey\\Uuid\\' => array($vendorDir . '/ramsey/uuid/src'),
+    'Ramsey\\Collection\\' => array($vendorDir . '/ramsey/collection/src'),
     'Psr\\Log\\' => array($vendorDir . '/psr/log/Psr/Log'),
     'Michelf\\' => array($vendorDir . '/michelf/php-markdown/Michelf'),
     'League\\HTMLToMarkdown\\' => array($vendorDir . '/league/html-to-markdown/src'),
     'ID3Parser\\' => array($vendorDir . '/lukasreschke/id3parser/src'),
     'Hubzilla\\' => array($baseDir . '/include'),
     'CommerceGuys\\Intl\\' => array($vendorDir . '/commerceguys/intl/src'),
+    'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
 );

@@ -2573,26 +2573,6 @@ function channel_reddress($channel) {
 	return strtolower($channel['channel_address'] . '@' . App::get_hostname());
 }
 
-
-/**
- * @brief Get manual channel conversation update config.
- *
- * Check the channel config \e manual_conversation_update, if not set fall back
- * to global system config, defaults to 1 if nothing set.
- *
- * @param int $channel_id
- * @return int
- */
-function channel_manual_conv_update($channel_id) {
-
-	$x = get_pconfig($channel_id, 'system', 'manual_conversation_update');
-	if($x === false)
-		$x = get_config('system', 'manual_conversation_update', 1);
-
-	return intval($x);
-}
-
-
 /**
  * @brief Return parsed HTML remote_login template.
  *

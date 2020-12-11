@@ -2,6 +2,7 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 /**
  * module: getfile
@@ -54,11 +55,11 @@ class Getfile extends \Zotlabs\Web\Controller {
 
 					if($keyId) {
 						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-							where hubloc_addr = '%s' limit 1",
+							where hubloc_addr = '%s'",
 							dbesc(str_replace('acct:','',$keyId))
 						);
 						if($r) {
-							$hubloc = $r[0];
+							$hubloc = Libzot::zot_record_preferred($r);
 							$verified = HTTPSig::verify('',$hubloc['xchan_pubkey']);	
 							if($verified && $verified['header_signed'] && $verified['header_valid'] && $hash == $hubloc['hubloc_hash']) {
 								$header_verified = true;

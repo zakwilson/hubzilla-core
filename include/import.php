@@ -527,12 +527,12 @@ function sync_apps($channel, $apps) {
 
 /**
  * @brief Import system apps.
- * System apps from the original server may not exist on this system 
+ * System apps from the original server may not exist on this system
  *   (e.g. apps associated with addons that are not installed here).
  *   Check the system apps that were provided in the import file to see if they
  *   exist here and if so, install them locally. Preserve categories that
  *   might have been added by this channel on the other server.
- *   Do not use any paths from the original as they will point to a different server. 
+ *   Do not use any paths from the original as they will point to a different server.
  * @param array $channel
  * @param array $apps
  */
@@ -1373,7 +1373,7 @@ function sync_files($channel, $files) {
 				logger('attachment store failed',LOGGER_NORMAL,LOG_ERR);
 			}
 			if($f['photo']) {
-				
+
 				foreach($f['photo'] as $p) {
  					unset($p['id']);
 					$p['aid'] = $channel['channel_account_id'];
@@ -1446,7 +1446,7 @@ function sync_files($channel, $files) {
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
-						
+
 						// Override remote hub thumbnails storage settings
 						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
 							$p['os_storage'] = 0;
@@ -1488,12 +1488,12 @@ function sync_files($channel, $files) {
 						create_table_from_array('photo',$p, [ 'content' ] );
 					}
 				}
-				
+
 			}
-			
+
             // Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
 			if(isset($update_xchan)) {
-			    
+
 				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
 					dbescdate($update_xchan),
 					dbesc($channel['channel_hash'])
@@ -1522,13 +1522,13 @@ function sync_addressbook($channel, $data) {
 
 	if(! \Zotlabs\Lib\Apps::system_app_installed($channel['channel_id'], 'CardDAV'))
 		return;
-		
+
 	logger("debug: " . print_r($data,true), LOGGER_DEBUG);
 
 	require_once('include/cdav.php');
 
 	$principalUri = 'principals/' . $channel['channel_address'];
-	
+
 	if($data['action'] !== 'create') {
 	    $id = get_cdav_id($principalUri, $data['uri'], 'addressbooks');
 	    if(! $id)
@@ -1630,7 +1630,7 @@ function sync_calendar($channel, $data) {
 			break;
 
 		case 'update_card':
-			$caldavBackend->updateCalendarObject($id, $data['carduri'], $data['card']);			
+			$caldavBackend->updateCalendarObject($id, $data['carduri'], $data['card']);
 			break;
 
 		case 'switch':

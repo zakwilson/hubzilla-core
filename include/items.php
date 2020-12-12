@@ -1551,7 +1551,7 @@ function get_mail_elements($x) {
 		$arr['expires']      = datetime_convert('UTC','UTC',$x['expires']);
 
 	$arr['mail_flags'] = 0;
-	
+
 	if(array_key_exists('sig',$x))
 		$arr['sig'] = $x['sig'];
 
@@ -3022,7 +3022,7 @@ function tgroup_check($uid, $item) {
 	}
 
 	// post to group via DM
-	
+
 	if ($is_group) {
 		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid']) {
 			return true;
@@ -3199,7 +3199,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 	if ($group && (! $parent)) {
 
 		$arr = [];
-		
+
 		if ($edit) {
 			// process edit or delete action
 			$r = q("select * from item where source_xchan = '%s' and body like '%s' and uid = %d limit 1",
@@ -3231,12 +3231,12 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
 		}
-		
+
 		$arr['aid'] = $channel['channel_account_id'];
 		$arr['uid'] = $channel['channel_id'];
 
 		// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
-		
+
 		$arr['item_uplink']  = 0;
 		$arr['source_xchan'] = $item['owner_xchan'];
 
@@ -3246,14 +3246,14 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
 		$arr['item_thread_top'] = 1;
-	
+
 		if (strpos($item['body'], "[/share]") !== false) {
 			$pos = strpos($item['body'], "[share");
 			$bb = substr($item['body'], $pos);
 		} else {
 			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
 				"' profile='"       . $item['author']['xchan_url'] .
-				"' portable_id='"   . $item['author']['xchan_hash'] . 
+				"' portable_id='"   . $item['author']['xchan_hash'] .
 				"' avatar='"        . $item['author']['xchan_photo_s'] .
 				"' link='"          . $item['plink'] .
 				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .

@@ -19,7 +19,7 @@ class Gprobe {
 		if(! strpos($url,'@'))
 			return;
 
-		$r = q("select * from hubloc where hubloc_addr = '%s' limit 1",
+		$r = q("select * from hubloc where hubloc_addr = '%s' and hubloc_network = 'zot6' limit 1",
 			dbesc($url)
 		);
 

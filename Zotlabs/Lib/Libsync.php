@@ -42,7 +42,7 @@ class Libsync {
 
 		$channel = $r[0];
 
-		// don't provide these in the export 
+		// don't provide these in the export
 
 		unset($channel['channel_active']);
 		unset($channel['channel_password']);
@@ -245,7 +245,7 @@ class Libsync {
 
 			if(array_key_exists('app',$arr) && $arr['app'])
 				sync_apps($channel,$arr['app']);
-				
+
 			if(array_key_exists('addressbook',$arr) && $arr['addressbook'])
 				sync_addressbook($channel,$arr['addressbook']);
 
@@ -260,7 +260,7 @@ class Libsync {
 
 			if(array_key_exists('mail',$arr) && $arr['mail'])
 				sync_mail($channel,$arr['mail']);
-	
+
 			if(array_key_exists('event',$arr) && $arr['event'])
 				sync_events($channel,$arr['event']);
 
@@ -269,7 +269,7 @@ class Libsync {
 
 			if(array_key_exists('item',$arr) && $arr['item'])
 				sync_items($channel,$arr['item'],((array_key_exists('relocate',$arr)) ? $arr['relocate'] : null));
-	
+
 			// deprecated, maintaining for a few months for upward compatibility
 			// this should sync webpages, but the logic is a bit subtle
 
@@ -278,7 +278,7 @@ class Libsync {
 
 			if(array_key_exists('menu',$arr) && $arr['menu'])
 				sync_menus($channel,$arr['menu']);
-	
+
 			if(array_key_exists('file',$arr) && $arr['file'])
 				sync_files($channel,$arr['file']);
 
@@ -293,7 +293,7 @@ class Libsync {
 				if(array_key_exists('channel_pageflags',$arr['channel']) && intval($arr['channel']['channel_pageflags'])) {
 
 					// Several pageflags are site-specific and cannot be sync'd.
-					// Only allow those bits which are shareable from the remote and then 
+					// Only allow those bits which are shareable from the remote and then
 					// logically OR with the local flags
 
 					$arr['channel']['channel_pageflags'] = $arr['channel']['channel_pageflags'] & (PAGE_HIDDEN|PAGE_AUTOCONNECT|PAGE_APPLICATION|PAGE_PREMIUM|PAGE_ADULT);
@@ -562,7 +562,7 @@ class Libsync {
 					// our group list is already synchronised
 					if($x) {
 						foreach($x as $y) {
-	
+
 							// for each group, loop on members list we just received
 							if(isset($y['hash']) && isset($members[$y['hash']])) {
 								foreach($members[$y['hash']] as $member) {
@@ -574,9 +574,9 @@ class Libsync {
 									);
 									if($z)
 										$found = true;
-	
+
 									// if somebody is in the group that wasn't before - add them
-	
+
 									if(! $found) {
 										q("INSERT INTO pgrp_member (uid, gid, xchan)
 											VALUES( %d, %d, '%s' ) ",
@@ -587,7 +587,7 @@ class Libsync {
 									}
 								}
 							}
-	
+
 							// now retrieve a list of members we have on this site
 							$m = q("select xchan from pgrp_member where gid = %d and uid = %d",
 								intval($y['id']),
@@ -615,7 +615,7 @@ class Libsync {
 				$disallowed = array('id','aid','uid','guid');
 
 				foreach($arr['profile'] as $profile) {
-	
+
 					$x = q("select * from profile where profile_guid = '%s' and uid = %d limit 1",
 						dbesc($profile['profile_guid']),
 						intval($channel['channel_id'])
@@ -628,7 +628,7 @@ class Libsync {
 								'profile_guid' => $profile['profile_guid'],
 							]
 						);
-	
+
 						$x = q("select * from profile where profile_guid = '%s' and uid = %d limit 1",
 							dbesc($profile['profile_guid']),
 							intval($channel['channel_id'])
@@ -775,14 +775,14 @@ class Libsync {
 				);
 				if($r) {
 					logger('Hub exists: ' . $location['url'], LOGGER_DEBUG);
-	
+
 					// update connection timestamp if this is the site we're talking to
 					// This only happens when called from import_xchan
 
 					$current_site = false;
 
 					$t = datetime_convert('UTC','UTC','now - 15 minutes');
-	
+
 					if(array_key_exists('site',$arr) && $location['url'] == $arr['site']['url']) {
 						q("update hubloc set hubloc_connected = '%s', hubloc_updated = '%s' where hubloc_id = %d and hubloc_connected < '%s'",
 							dbesc(datetime_convert()),
@@ -903,12 +903,14 @@ class Libsync {
 				$changed = true;
 
 				if($location['primary']) {
-					$r = q("select * from hubloc where hubloc_addr = '%s' and hubloc_sitekey = '%s' limit 1",
+					$r = q("select * from hubloc where hubloc_addr = '%s' and hubloc_sitekey = '%s'",
 						dbesc($location['address']),
 						dbesc($location['sitekey'])
 					);
-					if($r)
-						hubloc_change_primary($r[0]);
+					if($r) {
+						$r = Libzot::zot_record_preferred($r);
+						hubloc_change_primary($r);
+					}
 				}
 			}
 

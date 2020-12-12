@@ -51,11 +51,12 @@ class Dav extends \Zotlabs\Web\Controller {
 				if($sigblock) {
 					$keyId = str_replace('acct:','',$sigblock['keyId']);
 					if($keyId) {
-						$r = q("select * from hubloc where hubloc_addr = '%s' limit 1",
+						$r = q("select * from hubloc where hubloc_addr = '%s'",
 							dbesc($keyId)
 						);
 						if($r) {
-							$c = channelx_by_hash($r[0]['hubloc_hash']);
+							$r = Libzot::zot_record_preferred($r);
+							$c = channelx_by_hash($r['hubloc_hash']);
 							if($c) {
 								$a = q("select * from account where account_id = %d limit 1",
 									intval($c['channel_account_id'])

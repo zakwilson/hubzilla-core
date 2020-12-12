@@ -5,6 +5,8 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
+
 
 require_once('include/event.php');
 
@@ -47,11 +49,12 @@ class Cdav extends Controller {
 					if($sigblock) {
 						$keyId = str_replace('acct:','',$sigblock['keyId']);
 						if($keyId) {
-							$r = q("select * from hubloc where hubloc_addr = '%s' limit 1",
+							$r = q("select * from hubloc where hubloc_addr = '%s'",
 								dbesc($keyId)
 							);
 							if($r) {
-								$c = channelx_by_hash($r[0]['hubloc_hash']);
+								$r = Libzot::zot_record_preferred($r);
+								$c = channelx_by_hash($r['hubloc_hash']);
 								if($c) {
 									$a = q("select * from account where account_id = %d limit 1",
 										intval($c['channel_account_id'])
@@ -157,10 +160,10 @@ class Cdav extends Controller {
 				}
 
 			}
-			
+
 			// Track CDAV updates from remote clients
 
-			$httpmethod = $_SERVER['REQUEST_METHOD']; 
+			$httpmethod = $_SERVER['REQUEST_METHOD'];
 
 			if($httpmethod === 'PUT' || $httpmethod === 'DELETE') {
 
@@ -190,9 +193,9 @@ class Cdav extends Controller {
 					if($x = get_cdav_id($principalUri, explode("/", $httpuri)[4], $cdavtable)) {
 
 						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
-						
+
 						$etag = (isset($_SERVER['HTTP_IF_MATCH']) ? $_SERVER['HTTP_IF_MATCH'] : false);
-						
+
 						// delete
 						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
 							build_sync_packet($channel['channel_id'], [
@@ -762,7 +765,7 @@ class Cdav extends Controller {
 				$cardData = $vcard->serialize();
 
 				$carddavBackend->updateCard($id, $uri, $cardData);
-				
+
 				build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'update_card',
@@ -804,7 +807,7 @@ class Cdav extends Controller {
 			$src = $_FILES['userfile']['tmp_name'];
 
 			if($src) {
-			    
+
 				$carddata = @file_get_contents($src);
 
 				if($_REQUEST['c_upload']) {
@@ -840,13 +843,13 @@ class Cdav extends Controller {
 					$objects = new \Sabre\VObject\Splitter\VCard($carddata);
 					$profile = \Sabre\VObject\Node::PROFILE_CARDDAV;
 					$backend = new \Sabre\CardDAV\Backend\PDO($pdo);
-					
+
 					$cdavdata = $this->get_cdav_data($id, 'addressbooks');
 				}
-				
+
 				$ids = [];
 				import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backend, $ids, true);
-				
+
 				build_sync_packet($channel['channel_id'], [
 					$sync => [
 						'action' => 'import',
@@ -1013,7 +1016,7 @@ class Cdav extends Controller {
 			$catsenabled = feature_enabled(local_channel(), 'categories');
 
 			require_once('include/acl_selectors.php');
-	
+
 			$accesslist = new \Zotlabs\Access\AccessList($channel);
 			$perm_defaults = $accesslist->get();
 
@@ -1427,7 +1430,7 @@ class Cdav extends Controller {
 			return;
 
 		$uri = 'principals/' . $channel['channel_address'];
-		
+
 
 		$r = q("select * from principals where uri = '%s' limit 1",
 			dbesc($uri)

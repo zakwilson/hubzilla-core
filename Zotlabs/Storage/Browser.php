@@ -101,17 +101,15 @@ class Browser extends DAV\Browser\Plugin {
 
 		$folder_list = attach_folder_select_list($channel_id);
 
+		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
+		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
+
 		$parent_path = '';
 
-		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
-
-		// Hide parent folder if in /cloud or category view
-		if (($channel_id && ! $cat) || ($siteroot_disabled && $path !== 'cloud')) {
+		if ($channel_id && ! $cat && !($siteroot_disabled && $is_root_folder)) {
 			list($parent_uri) = \Sabre\Uri\split($path);
 			$parent_path = \Sabre\HTTP\encodePath($this->server->getBaseUri() . $parent_uri);
 		}
-
-		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
 
 		$f = [];
 

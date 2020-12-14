@@ -181,7 +181,7 @@ class Attach_edit extends Controller {
 			}
 
 			if (! $admin_delete && $actions_done) {
-				$sync = attach_export_data($channel, $resource, false);
+				$sync = attach_export_data($channel, $resource, (($delete) ? true : false));
 
 				if ($sync) {
 					Libsync::build_sync_packet($channel_id, ['file' => [$sync]]);

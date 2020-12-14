@@ -1208,6 +1208,9 @@ function sync_files($channel, $files) {
 						continue;
 					}
 
+					$term =	$att['term'];
+					unset($att['term']);
+
 					$attach_exists = false;
 					$x = attach_by_hash($att['hash'],$channel['channel_hash']);
 					logger('sync_files duplicate check: attach_exists=' . $attach_exists, LOGGER_DEBUG);
@@ -1373,8 +1376,8 @@ function sync_files($channel, $files) {
 									intval($a[0]['id']),
 									intval(TERM_OBJ_FILE)
 								);
-								if($att['term']) {
-									foreach($att['term'] as $t) {
+								if($term) {
+									foreach($term as $t) {
 										if(array_key_exists('type',$t))
 											$t['ttype'] = $t['type'];
 										store_item_tag($channel['channel_id'], $a[0]['id'], TERM_OBJ_FILE, $t['ttype'], escape_tags($t['term']), escape_tags($t['url']));

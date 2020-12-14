@@ -68,7 +68,7 @@ class Import extends \Zotlabs\Web\Controller {
 				notice( t('Nothing to import.') . EOL);
 				return;
 			} else if(strpos($old_address, '＠')) {
-				// if you copy the identity address from your profile page, make it work for convenience - WARNING: this is a utf-8 variant and NOT an ASCII ampersand. Please do not edit. 
+				// if you copy the identity address from your profile page, make it work for convenience - WARNING: this is a utf-8 variant and NOT an ASCII ampersand. Please do not edit.
 				$old_address = str_replace('＠', '@', $old_address);
 			}
 
@@ -231,7 +231,8 @@ class Import extends \Zotlabs\Web\Controller {
 						'hubloc_host'     => \App::get_hostname(),
 						'hubloc_callback' => z_root() . '/post',
 						'hubloc_sitekey'  => get_config('system','pubkey'),
-						'hubloc_updated'  => datetime_convert()
+						'hubloc_updated'  => datetime_convert(),
+						'hubloc_id_url'   => channel_url($channel)
 					]
 				);
 
@@ -442,7 +443,7 @@ class Import extends \Zotlabs\Web\Controller {
 
 				if(array_key_exists('abook_instance',$abook) && $abook['abook_instance'] && strpos($abook['abook_instance'],z_root()) === false) {
 					$abook['abook_not_here'] = 1;
-				} 
+				}
 
 				if($abook['abook_self']) {
 					$role = get_pconfig($channel['channel_id'],'system','permissions_role');

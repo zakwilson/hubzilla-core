@@ -11,6 +11,9 @@ class Filestorage extends \Zotlabs\Web\Controller {
 
 	function post() {
 
+		notice( t('Deprecated!') . EOL);
+		return;
+
 		$channel_id = ((x($_POST, 'uid')) ? intval($_POST['uid']) : 0);
 
 		if((! $channel_id) || (! local_channel()) || ($channel_id != local_channel())) {
@@ -46,6 +49,9 @@ class Filestorage extends \Zotlabs\Web\Controller {
 	}
 
 	function get() {
+
+		notice( t('Deprecated!') . EOL);
+		return;
 
 		if(argc() > 1)
 			$which = argv(1);
@@ -88,7 +94,7 @@ class Filestorage extends \Zotlabs\Web\Controller {
 				}
 				else {
 					notice( t('Permission denied.') . EOL);
-					if($json_return) 
+					if($json_return)
 						json_return_and_die([ 'success' => false ]);
 					return;
 				}
@@ -102,23 +108,22 @@ class Filestorage extends \Zotlabs\Web\Controller {
 			if(! $r) {
 				notice( t('File not found.') . EOL);
 
-				if($json_return) 
+				if($json_return)
 					json_return_and_die([ 'success' => false ]);
 
 				goaway(z_root() . '/cloud/' . $which);
 			}
 
-			if(local_channel() !== $owner) {
+			if((local_channel() !== $owner) && !$admin_delete) {
 				if($r[0]['creator'] && $r[0]['creator'] !== $ob_hash) {
 					notice( t('Permission denied.') . EOL);
 
-					if($json_return) 
+					if($json_return)
 						json_return_and_die([ 'success' => false ]);
 
 					goaway(z_root() . '/cloud/' . $which);
 				}
 			}
-
 
 			$f = $r[0];
 
@@ -138,7 +143,7 @@ class Filestorage extends \Zotlabs\Web\Controller {
 			if($json_return)
 				json_return_and_die([ 'success' => true ]);
 
-			goaway(dirname($url));
+			//goaway(dirname($url));
 		}
 
 

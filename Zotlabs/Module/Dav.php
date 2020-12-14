@@ -100,7 +100,7 @@ class Dav extends \Zotlabs\Web\Controller {
 
 		$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . ' ' . 'WebDAV');
 
-		$rootDirectory = new \Zotlabs\Storage\Directory('/', $auth);
+		$rootDirectory = new \Zotlabs\Storage\Directory('/', [], $auth);
 
 		// A SabreDAV server-object
 		$server = new SDAV\Server($rootDirectory);

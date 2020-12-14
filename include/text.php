@@ -2983,7 +2983,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 						$str_tags .= $newtag;
 					}
 				}
-			
+
 
 				$fn_results[] =  [
 					'replaced'   => $replaced,
@@ -3060,7 +3060,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			];
 		}
 	}
-	
+
 	return $fn_results;
 
 }
@@ -3098,7 +3098,7 @@ function linkify_tags(&$body, $uid, $in_network = true) {
 function getIconFromType($type) {
 	$iconMap = array(
 		//Folder
-		t('Collection') => 'fa-folder-o',
+		'Collection' => 'fa-folder-o',
 		'multipart/mixed' => 'fa-folder-o', //dirs in attach use this mime type
 		//Common file
 		'application/octet-stream' => 'fa-file-o',
@@ -3242,7 +3242,7 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 		if($oldnick)
 			json_url_replace('/' . $oldnick . '/' ,'/' . $channel['channel_address'] . '/' ,$item['target']);
 	}
-	
+
 	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/(photo|photos|gallery)\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${3}', $item['body']);
 	$item['body'] = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
 
@@ -3575,7 +3575,7 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64svg(.*?)\[\/(svg)\]/ism','\red_unescape_codeblock',$body);
-	
+
 	// fix any img tags that should be zmg
 
 	$body = preg_replace_callback('/\[img(.*?)\](.*?)\[\/img\]/ism','\red_zrlify_img_callback',$body);
@@ -3791,7 +3791,7 @@ function array_path_exists($str,$arr) {
 
 
 /**
- * @brief Generate a unique ID.
+ * @brief Generate a random v4 UUID.
  *
  * @return string
  */
@@ -3806,6 +3806,22 @@ function new_uuid() {
 	return $hash;
 }
 
+
+/**
+ * @brief Generate a name-based v5 UUID in the URL namespace
+ *
+ * @param string $url
+ * @return string
+ */
+function uuid_from_url($url) {
+
+	try {
+		$hash = Uuid::uuid5(Uuid::NAMESPACE_URL, $url)->toString();
+	} catch (UnsatisfiedDependencyException $e) {
+		$hash = md5($url);
+	}
+	return $hash;
+}
 
 function svg2bb($s) {
 

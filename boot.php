@@ -433,7 +433,7 @@ define ( 'TERM_FORUM',        11 );
 define ( 'TERM_EMOJI',        12 );
 
 define ( 'TERM_OBJ_POST',    1 );
-define ( 'TERM_OBJ_PHOTO',   2 );
+define ( 'TERM_OBJ_FILE',   2 );
 define ( 'TERM_OBJ_PROFILE', 3 );
 define ( 'TERM_OBJ_CHANNEL', 4 );
 define ( 'TERM_OBJ_OBJECT',  5 );

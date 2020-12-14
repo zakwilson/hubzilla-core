@@ -19,15 +19,16 @@
 	</form>
 	<div class="clear"></div>
 </div>
-<div id="files-upload-tools" class="section-content-tools-wrapper">
+<div id="files-upload-tools" class="section-content-tools-wrapper ">
 	{{if $quota.limit || $quota.used}}<div class="{{if $quota.warning}}section-content-danger-wrapper{{else}}section-content-info-wrapper{{/if}}">{{if $quota.warning}}<strong>{{$quota.warning}} </strong>{{/if}}{{if $quota.desc}}{{$quota.desc}}<br><br>{{/if}}</div>{{/if}}
 	<form id="ajax-upload-files" method="post" action="#" enctype="multipart/form-data" class="acl-form" data-form_id="ajax-upload-files" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
-		<input type="hidden" name="directory" value="{{$path}}" />
+		<input id="file-folder"type="hidden" name="folder" value="{{$folder}}" />
 		<input type="hidden" name="channick" value="{{$channick}}" />
 		<input type="hidden" name="return_url" value="{{$return_url}}" />
-		<!--label for="files-upload">{{$upload_header}}</label>
-		<input class="form-group pull-left" id="files-upload" type="file" name="files[]" multiple -->
 		{{include file="field_checkbox.tpl" field=$notify}}
+		<div class="cloud-index attach-drop attach-drop-zone text-center p-4 mb-3" data-folder="{{$folder}}">
+			<span class="text-muted">You can select files via the upload button or drop them right here or into an existing folder.</span>
+		</div>
 		<div class="pull-right btn-group">
 			<div class="btn-group">
 				{{if $lockstate}}
@@ -41,4 +42,10 @@
 	</form>
 	<div class="clear"></div>
 </div>
+{{if $breadcrumbs_html}}
 {{$aclselect}}
+{{/if}}
+{{if $breadcrumbs_html}}
+{{$breadcrumbs_html}}
+<hr class="m-0">
+{{/if}}

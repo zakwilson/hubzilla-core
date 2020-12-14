@@ -1,3 +1,8 @@
+Hubzilla 5.0.5 (2020-12-12)
+	- Fix hubloc issue in mod getfile
+	- Remove duplicate SQL query
+
+
 Hubzilla 5.0.4 (2020-12-01)
 	- Fix regression updating the primary
 	- Dismiss title in response activities
@@ -34,7 +39,7 @@ Hubzilla 5.0.2 (2020-11-16)
 
 
 Hubzilla 5.0.1 (2020-11-12)
-	- Fix share title size 
+	- Fix share title size
 	- Fix issue where hublocs could get mixed up between different protocols
 
 	Addons
@@ -350,7 +355,7 @@ Hubzilla 4.2 (2019-06-04)
 
 Hubzilla 4.0.3 (2019-04-26)
 	- Add attachments to zot6 event objects
-	- Add zot6 to federated transports 
+	- Add zot6 to federated transports
 	- Update import/export to handle zot6 hublocs and xchans
 	- Update fix_system_urls() to handle zot6 hublocs
 	- Fix infinite loop using postgres as backend
@@ -403,7 +408,7 @@ Hubzilla 4.0.1 (2019-03-21)
 	- Perform zot6 discovery in import_author_xchan
 	- Fix authenticated fetches
 	- Port zot_record_preferred() from zap
-	
+
 	Addons:
 	- Pubcrawl: deliver comments to abook contacts and thread participants
 	- Pubcrawl: fix can_comment_on_post()
@@ -617,7 +622,7 @@ Hubzilla 3.8.3 (2018-11-05)
 	- Fix forum notifications count not correct
 	- Fix gallery addon which broke mod apps in some situations
 	- Fix wiki_list widget not working on every page respectively level
-	
+
 
 Hubzilla 3.8.2 (2018-10-29)
 	- Merge unmerged changes from dev into master
@@ -633,7 +638,7 @@ Hubzilla 3.8.2 (2018-10-29)
 	- Look for for matches in the entire string when suggesting emojis
 	- Add [summary] bbcode to autocomplete list
 	- Update blueimp_upload to version 9.23
-	- Update spanish strings 
+	- Update spanish strings
 
 	Addons
 	- Cart: don't allow items to be added unless user is logged into the Grid.
@@ -691,7 +696,7 @@ Hubzilla 3.8 (2018-10-19)
 	- Sanitise vcard fields
 	- Don't sync system apps
 
-	
+
 	Bugfixes
 	- Fix issue with timeago plurals
 	- Fix issue with HTTP signatures
@@ -750,7 +755,7 @@ Hubzilla 3.8 (2018-10-19)
 Hubzilla 3.6 (2018-07-25)
 	- Update jquery.timeago library
 	- Implement Hookable CSP
-	- ActivityStreams: accept header changes to support plume 
+	- ActivityStreams: accept header changes to support plume
 	- Streamline inconsistencies in addon naming
 	- SECURITY: hash the session_id in logs
 	- Update justified gallery library
@@ -763,9 +768,9 @@ Hubzilla 3.6 (2018-07-25)
 	- Make droping posts of removed connections more memory efficient
 	- Refactor getOutainfo() for DAV storage
 	- Optionally report total available space when uploading
-	- SECURITY: provide option to disable the cloud 'root' directory and make the cloud module require a target channel nickname 
+	- SECURITY: provide option to disable the cloud 'root' directory and make the cloud module require a target channel nickname
 	- Add plink and llink to viewsource
-	- Add new 'filter by name' feature 
+	- Add new 'filter by name' feature
 	- Remove network tabs
 	- New activity filter widget
 	- New activity order widget
@@ -807,8 +812,8 @@ Hubzilla 3.6 (2018-07-25)
 	- Fix sys channels visible in dirsearch
 	- Fix remote_self not working correctly
 	- Fix photos not syncing properly if destination is a postgres site
-	- Fix wrong hubloc_url for activitypub hublocs 
-	- Fix z_check_dns() for BSD 
+	- Fix wrong hubloc_url for activitypub hublocs
+	- Fix z_check_dns() for BSD
 	- Fix not null violation in oauth1
 	- Fix DB issues with oauth2 on postgresql
 	- Fix 'anybody authenticated' not correctly handled in can_comment_on_post()
@@ -1370,10 +1375,10 @@ Hubzilla 2.6.2 (2017-08-31)
 Hubzilla 2.6.1 (2017-08-18)
 	- Fix a regression with dav clients
 	- Raise install requirements
-	
+
 	Plugins/Addon
 	- Diaspora: fix PHP warning
-	- GNU-Social: fix PHP warning 
+	- GNU-Social: fix PHP warning
 
 
 Hubzilla 2.6 (2017-08-16)
@@ -1381,18 +1386,18 @@ Hubzilla 2.6 (2017-08-16)
 	- Consolidate disable_discover_tab config
 	- Fix some bbcode to markdown conversion issues
 	- Improved finding of recursive attachment permissions
-	- Smaller line-height for notification badges 
+	- Smaller line-height for notification badges
 	- Bluegrid schema removed - will be added again if someone is willing to maintain it
 	- Improved file_activity()
 	- DB - add index for item.obj_type
 	- Add options flag to bb_to_markdown() so we can distinguish between diaspora use and other use and therefore filter and adjust content selectively
-	- Close the apps-menu if the notifications-menu is open and vice versa 
+	- Close the apps-menu if the notifications-menu is open and vice versa
 	- Remove redundant call to jquery ready function in photo albums view
 	- Remove borders from navbar toggler in mobile view
 	- Improve the formatting of shares when converting from bbcode to markdown
 	- Suppress fopen errors from dav
 	- Make local channel (not our own) nav menus appear similar to what we are used from remote channels
-	- Indicate the selected channel in the dropdown menu if the feature is enabled	
+	- Indicate the selected channel in the dropdown menu if the feature is enabled
 	- Provide a mechanism to mark apps active in the app tray
 	- Allow wildcard tag and category searches
 	- Improved installer
@@ -1404,7 +1409,7 @@ Hubzilla 2.6 (2017-08-16)
 	- Update htmlpurifier to version 4.9.3
 	- Update sabre/http to version 4.2.3
 	- Add optimize-autoloader to composer config
-	- Missing abook_{my,their}_perms in pg schema and missing keys in mysql schema 
+	- Missing abook_{my,their}_perms in pg schema and missing keys in mysql schema
 	- Provide a gender icon on the profile sidebar within reason
 	- Provide more comprehensible information on the admin summary page
 	- Upgrade blueimp from 9.8 to 9.18
@@ -1470,7 +1475,7 @@ Hubzilla 2.6 (2017-08-16)
 	Cdav addon moved to core
 	head_add_css() needs a preceding '/' to find files in the addons dir
 	New addon code syntax highlighting (moved from core to addon)
-	Pubsubhubbub: specify a minimum number of records - otherwise it defaults to zero	
+	Pubsubhubbub: specify a minimum number of records - otherwise it defaults to zero
 
 
 Hubzilla 2.4 (2017-05-31)
@@ -1824,10 +1829,10 @@ Hubzilla 1.14 (2016-10-13)
 	- Start grouping addons by server_role
 
 Hubzilla 1.12
-	- extensible permissions so you can create a new permission rule such as "can write to my wiki" or "can see me naked". 
-	- guest access tokens can do anything you let them, including create posts and administer your channel 
+	- extensible permissions so you can create a new permission rule such as "can write to my wiki" or "can see me naked".
+	- guest access tokens can do anything you let them, including create posts and administer your channel
 	- ACLs can be set on files and directories prior to creation.
-	- ACL tool can now be used in multiple forms within a page 
+	- ACL tool can now be used in multiple forms within a page
 	- a myriad of new drag/drop features (drop files or photos into /cloud or a post, or drop link into a post or comment, etc.)
 	- multiple file uploads
 	- improvements to website import
@@ -1852,7 +1857,7 @@ Hubzilla 1.10
 	Wiki:
 		Lots of enhanced functionality, usability improvements, and bugfixes from v1.8
 		Turned into an optional feature (default on) but disabled in UNO
-	Sync: 
+	Sync:
 		Items are now relocated (links patched) when syncing to clones
 	Access Tokens:
 		New feature - allows members to create access controlled guest logins and create/share 'dropbox' style links to protected resources.
@@ -1860,7 +1865,7 @@ Hubzilla 1.10
 		Use icons instead of iconic text constructs
 		Only request geolocation permission when creating a post, not on page load
 		provide 'redeliver' option on Delivery Report page for when things really stuff up
-		CalDAV/CardDAV management pages with heaps of functionality 
+		CalDAV/CardDAV management pages with heaps of functionality
 	Lib:
 		z_fetch_url() updated to accept different request methods and request bodies
 		item_store(), item_store_update() now return the stored items
@@ -1884,7 +1889,7 @@ Hubzilla 1.10
 		issues with 'use existing photo' for profile photo
 		layout editor "list all layouts" returned empty
 		oembed - better detect video file URLs so they aren't loaded into memory.
-		handcrafted bbcode tables could end up with way too much whitespace due to CRLF translation 
+		handcrafted bbcode tables could end up with way too much whitespace due to CRLF translation
 		refresh permissions whitescreen in 1.8
 		force immediate profile photo update on local site
 		regression: 'save bookmarks' post action missing
@@ -1909,7 +1914,7 @@ Hubzilla 1.8
 	Documentation:
 		Clarify privacy rights of commenters w/r/t conversation owners, as this policy is network dependent.
 	Wiki (Git backed):
-		Brand new feature. We'll call it experimental until it has undergone a bit more testing. 
+		Brand new feature. We'll call it experimental until it has undergone a bit more testing.
 	Account Cloning:
 		Regression on clone channel creation created a new channel name each time.
 		New issue (fixed) with directory creation on cloned file content
@@ -1932,7 +1937,7 @@ Hubzilla 1.8
 		Experimental PDO database driver
 		Creation of Daemon Master class and port all daemon (background task) interfaces to use it
 		Create separate class for each of 'Cron', 'Cron daily', and 'Cron weekly'.
-		Always run a Cron maintenance task if not run in the last four hours 
+		Always run a Cron maintenance task if not run in the last four hours
 		Refactor the template classes
 		Refactor the ConversationItem mess into ThreadItem and ThreadStream
 		Refactor Apps, Enotify, and Chat library code
@@ -1940,7 +1945,7 @@ Hubzilla 1.8
 		Created WebServer class for top level
 		Remove mcrypt dependencies (deprecated in PHP 7.1)
 		Remove all reserved (including merely 'not recommended') words as DB table column names
-		Provide mutex lock on DB logging to prevent recursion under rare failure modes. 
+		Provide mutex lock on DB logging to prevent recursion under rare failure modes.
 	Bugfixes:
 		Remove db_close function on page end - not needed and will not work with persistent DB connections.
 		Undefined ref_session_write
@@ -1960,7 +1965,7 @@ Hubzilla 1.8
 		CalDAV/CardDAV plugin provided
 		Issue sending Diaspora 'like' activities from sources that did not propagate the DCV
 		Allow 'superblock' to work across API calls from third party clients
-		statistics.json: use 'zot' as protocol 
+		statistics.json: use 'zot' as protocol
 		Issues fixed during testing of ability to follow Diaspora tags
 		Parse issue with Diaspora reshare content
 		Chess: moved to main repo, ported to 1.8
@@ -1972,7 +1977,7 @@ Hubzilla 1.6
 	Plugin hook interface adapted to call static class methods
 	Context help improved dramatically with content for the most accessed pages.
 	Reverted a compatibility change to support GNU-social events. We copied their feed format and their feed format is wrong (XML namespace collisions).
-	Provide a querystring attribute to CSS/JS resources to avoid caching issues when our code changes (which is often). 
+	Provide a querystring attribute to CSS/JS resources to avoid caching issues when our code changes (which is often).
 	Fix javascript detection and allow either positive or negative detection.
 	Refactor the plugin hook registration procedure, provide 'unregister all' ability.
 	Fix RSD (Real Simple Discovery) which has been broken for some time.
@@ -1981,7 +1986,7 @@ Hubzilla 1.6
 	Update font-awesome to 4.6.1
 	Update SabreDAV to 3.0 (PHP version requirements prevent us from pushing it further at this time)
 	Help text added to cmdline utilities config and pconfig
-	Reworking of the database logging facility to avoid the rare but troublesome recursion when the log facility needed to query the DB internally to obtain config parameters. 
+	Reworking of the database logging facility to avoid the rare but troublesome recursion when the log facility needed to query the DB internally to obtain config parameters.
 	Implement singleton delivery (emulate nomadic identity to singleton networks and services)
 	Fix empty album name in photo activities when photo is stored in top level folder.
 	Allow engineering units to be used in service class data size restrictions (400M, 1G, etc.)
@@ -1989,7 +1994,7 @@ Hubzilla 1.6
 	Admin interface provided to manage external resource repositories
  	Oembed security reworked. Now all sources are filtered by default unless blocked.
 	Remove the date-string version and use only STD_VERSION
-	Add categories and categorisation filtering and the ability to edit all apps (including system apps) for a given channel 
+	Add categories and categorisation filtering and the ability to edit all apps (including system apps) for a given channel
 	Ensure the ability to translate names of all system apps (except those provided in addons)
 	Provide ability to add categories to content from channel sources
 	Lots of work on the presentation of the ACL widget to enhance usability and intuitiveness
@@ -2003,24 +2008,24 @@ Hubzilla 1.6
 	Provide some extra security checks to import data and files to prevent mischief
 	Block CalDAV/CardDAV namespace reserved words from being used as a channel nickname/redress since Sabre is somewhat inflexible in this regard
 	Plugins:
-		Diaspora 
-			markdown translator work needed to eradicate the Diaspora Comment Virus.    
+		Diaspora
+			markdown translator work needed to eradicate the Diaspora Comment Virus.
 			upgrade all inbound paths with the most recent protocol changes (several of these)
 			convert 'diaspora_meta' (Diaspora Comment Virus) to iconfig and eradicate from sites with Diaspora disabled
 			implement social relay and allow following tags
 			upgrade statistics.json to NodeInfo. Currently hubzilla sites are tagged as 'redmatrix' because the NodeInfo schema lacks extensibility and project names are used to designate protocol compatibility rather than protocol names.
 		Std-embeds
-			New addon to allow a handful of corporate providers to run unfiltered embed code (youtube, vimeo, soundcloud) 
+			New addon to allow a handful of corporate providers to run unfiltered embed code (youtube, vimeo, soundcloud)
 		Various:
 			upgrade font-awesome icons and adapt a few addons to Objects and the new hook interface and new controller interface
-			
+
 Hubzilla 1.4
 	[This list may appear brief, but encompasses a huge amount of re-writing and re-factoring
 	of the internal code structure to gain long-term performance and stability and provide a standard
 	interface to alternate protocol federation plugins which were made possible by the UNO configuration.
-	UNO is a configuration of hubzilla introduced in 1.3 with reduced complexity and which provides 
-	improved protocol federation potential to other networks by virtue of removing nomadic identity 
-	(which is not possible to model or work around using other network protocols).]  
+	UNO is a configuration of hubzilla introduced in 1.3 with reduced complexity and which provides
+	improved protocol federation potential to other networks by virtue of removing nomadic identity
+	(which is not possible to model or work around using other network protocols).]
 
 	Implement channel move operation for UNO configuration
 	Remove bookmark references in UNO (which has no bookmarks by default)
@@ -2043,10 +2048,10 @@ Hubzilla 1.4
 	Rework detection of JavaScript to avoid reload penalty under normal operation
 	Changed primary directory server to a hubzilla server
 	Plugins:
-		Diaspora - switch to alternate XML parser to avoid storing compound objects	
+		Diaspora - switch to alternate XML parser to avoid storing compound objects
 		GNU-Social - Huge amounts of work, federation somewhat working now, several issues remain
 		Friendica - Initial federation work (not yet published)
-		
+
 Hubzilla 1.3
 	Admin Security configuration page created which consolidates several previously hidden settings:
 		Communication white/black lists
@@ -2062,26 +2067,26 @@ Hubzilla 1.3
 	"pubsites" module UI reworked
 	item-meta ("iconfig") created which implements arbitrary storage for item metadata for plugins
 	abook-meta ("abconfig") created which implements arbitrary storage for connection metadata for plugins
-	"Strict transport security header" made optional as it conflicts with some existing Apache/nginx configurations 
-	"Hubzilla UNO" (Hubzilla with radically simplified and locked site settings) implemented as an install configuration. 
+	"Strict transport security header" made optional as it conflicts with some existing Apache/nginx configurations
+	"Hubzilla UNO" (Hubzilla with radically simplified and locked site settings) implemented as an install configuration.
 	.well-known directory conflict worked out to support LetsEncrypt cert ownership checks without disrupting webfinger and other internal uses of .well-known
 	Lots of work on 'zcards' which are self-contained HTML representations of a channel including cover photos, profile photos, and some text information
 	Long standing bug uncovered which failed to properly restrict the lower time limit for public feed requests
 	A number of fixes to "readmore" to fix page jumping
 	Bugfix: persons other than the channel owner who have permission to upload photos to a channel could not do so if the js_upload plugin/addon was enabled
 	Siteinfo incorrectly identifying secondary directory servers
-	Allow admin to set and lock features when UNO is configured 
+	Allow admin to set and lock features when UNO is configured
 	Atom feeds: alter how events are formatted to be compatible with GNU-social
 	Allow guest/visitor access to view personal calendar
 	Moved several more classes to "composer format" and provided an autoloader.
 	Bugfix: require existing password to change password
-	Bugfix: allow relative_date() to be translated to Polish which has more than two plural forms. 
+	Bugfix: allow relative_date() to be translated to Polish which has more than two plural forms.
 	Plugin API: add "requires" keyword to module header to indicate dependent addons
 	ActivityStreams improvements and cleanup: photo and file activities
 	UI cleanup for editing profile when multiple profiles enabled
 	Removed the "markdown" feature as there are numerous issues and no maintainer.
 	Provide "footer" bbcode to ease theming of post footer content
-	Bugfix: install issues caused by composer code refactor and typo in postgres load file 
+	Bugfix: install issues caused by composer code refactor and typo in postgres load file
 	Plugins:
 		keepout - "block public on steroids"
 		pubsubhubbub - provides PuSH support to Atom feeds, required for GNU-social federation
@@ -2089,7 +2094,7 @@ Hubzilla 1.3
 		Diaspora protocol - some work to ease migration to the new signing format
 		Diaspost - disabled; numerous issues and no maintainer
 		smileybutton - theme work and fixed compatibility with other jot-tools plugins
-		
+
 
 Hubzilla 1.2
 	Provide extra HTTP security headers (several of them).
@@ -2099,7 +2104,7 @@ Hubzilla 1.2
 	Add locked features to siteinfo report to aid remote debugging
 	Provide version compatibility checking to plugins (minversion, maxversion, and minphpversion)
 	Account config storage
-	Provide optional integrated registration and channel create form 
+	Provide optional integrated registration and channel create form
 	cli utility for managing addons
 	issue with sharing photo "items"
 	cover photo manager: upload, crop, and store
@@ -2121,7 +2126,7 @@ Hubzilla 1.2
 	proc_run modified to use exec() instead of proc_open() - causing issues on some PHP installations
 	remote delegation failure under a specific set of circumstances which we were finally able to duplicate
 	Delegation section of Channel Manager was missing names and contained useless notification icons.
-	Change "expire" channel setting to show system limit if there is one. 
+	Change "expire" channel setting to show system limit if there is one.
 	Regression: provide a one-click ignore of pending connection
 	Config to control directory keyword generation on client and server.
 	"Collections" renamed to "Privacy Groups", documentation improved
@@ -2174,11 +2179,11 @@ Hubzilla 1.1
 	Addons/Plugins:
 		Pageheader addon ported from Friendica
 		Hubwall (allow admin to send email to all accounts on this hub) created
-		GNU-social - queueing added 
-		Diaspora - fixes for various failures to update profile photos, updates to queue API 
+		GNU-social - queueing added
+		Diaspora - fixes for various failures to update profile photos, updates to queue API
 		Cross Domain Authenticated Chess (Andrew Manning's repository)
-	
-	And... the normal "lots of bugs fixed, translations updated, and documentation improved" 
-	
 
-	
+	And... the normal "lots of bugs fixed, translations updated, and documentation improved"
+
+
+

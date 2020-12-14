@@ -14,9 +14,6 @@
  * @return string with an atom feed
  */
 
-use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
-
 function get_public_feed($channel, $params) {
 
 	if(! $params)
@@ -435,13 +432,7 @@ function get_atom_elements($feed, $item) {
 	$res['plink'] = unxmlify($item->get_link(0));
 	$res['item_rss'] = 1;
 
-	try {
-		$uuid = Uuid::uuid5(Uuid::NAMESPACE_URL, $res['plink'])->toString();
-	} catch (UnsatisfiedDependencyException $e) {
-		$uuid = md5($res['plink']);
-	}
-
-	$res['uuid'] = $uuid;
+	$res['uuid'] = uuid_from_url($res['plink']);
 
 	$summary = unxmlify($item->get_description(true));
 

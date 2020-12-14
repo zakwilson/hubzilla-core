@@ -1,10 +1,14 @@
 #files-mkdir-tools,
 #files-upload-tools,
-[id^="perms-panel-"] {
+.cloud-tool,
+.cloud-multi-tool,
+#multi-dbtn-acl,
+#multi-dropdown-button {
 	display: none;
 }
 
-[id^="perms-panel-"] {
+.attach-edit-panel,
+#attach-multi-edit-panel {
 	padding: 3px 10px 0px 10px !important;
 }
 
@@ -17,28 +21,40 @@
 	width: 100%;
 }
 
-#cloud-index td:nth-child(1){
+#cloud-index td:nth-child(3) a {
+	display: block;
+}
+
+#cloud-index td:nth-child(1) {
 	padding: 7px 3px 7px 10px;
 }
 
-#cloud-index td:nth-child(2){
+#cloud-index td:nth-child(6) {
+	padding: 7px 10px 7px 3px;
+}
+
+#cloud-index td:nth-child(3) {
 	word-break: break-all;
 }
 
-#cloud-index th:nth-child(8),
-#cloud-index td:nth-child(8){
+#cloud-index td:nth-child(4) {
+	white-space: nowrap;
+}
+
+#cloud-index th:nth-child(7),
+#cloud-index td:nth-child(7) {
 	padding: 7px 3px;
 	white-space: nowrap;
 }
 
-#cloud-index th:nth-child(9),
-#cloud-index td:nth-child(9){
-	padding: 7px 10px 7px 7px;
+#cloud-index th:nth-child(8),
+#cloud-index td:nth-child(8) {
+	padding: 7px 10px;
 	white-space: nowrap;
 }
 
 .cloud-index-tool {
-	padding: 7px 10px;
+	padding: 7px 0px;
 }
 
 #files-upload {
@@ -52,9 +68,39 @@
 	box-shadow: inset 0 0px 7px #5cb85c;
 }
 
+.attach-drop-ok {
+	background-color: aliceblue !important;
+}
+
+.attach-drop-zone {
+	border-top-width: 3px;
+	border-top-style: dashed;
+	border-top-color: #eee;
+	border-bottom-width: 3px;
+	border-bottom-style: dashed;
+	border-bottom-color: #eee;
+}
+
 .upload-progress-bar {
 	background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mOM2RFTDwAE2QHxFMHIIwAAAABJRU5ErkJggg==') repeat-y;
 	background-size: 0px;
 	padding: 0px !important;
 	height: 3px;
+}
+
+.bootstrap-tagsinput input[type=text] {
+	height: unset;
+}
+
+.bootstrap-tagsinput {
+	box-shadow: none;
+}
+
+.breadcrumb {
+	padding: 0px 10px 0px 10px;
+	margin: 0px 0px 3px 0px;
+}
+
+.breadcrumb-item {
+	margin: 0px;
 }

@@ -2306,6 +2306,18 @@ function attach_export_data($channel, $resource_id, $deleted = false) {
 		$r[0]['content'] = dbunescbin($r[0]['content']);
 
 		$hash_ptr = $r[0]['folder'];
+
+		$r[0]['term'] = [];
+
+		$term = q("SELECT * FROM term WHERE uid = %d AND oid = %d AND otype = %d",
+			intval($channel['channel_id']),
+			intval($r[0]['id']),
+			intval(TERM_OBJ_FILE)
+		);
+
+		if ($term)
+			$r[0]['term'] = array_reverse($term);
+
 		$paths[] = $r[0];
 	} while($hash_ptr);
 
@@ -2313,7 +2325,6 @@ function attach_export_data($channel, $resource_id, $deleted = false) {
 	$paths = array_reverse($paths);
 
 	$ret['attach'] = $paths;
-
 
 	if($attach_ptr['is_photo']) {
 

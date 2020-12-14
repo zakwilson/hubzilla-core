@@ -110,15 +110,7 @@ class Attach_edit extends Controller {
 
 			if ($delete) {
 				attach_delete($channel_id, $resource, $is_photo);
-
-				q("DELETE FROM term WHERE uid = %d AND oid = %d AND otype = %d",
-					intval($channel_id),
-					intval($attach_id),
-					intval(TERM_OBJ_FILE)
-				);
-
 				$actions_done .= 'delete,';
-
 			}
 
 			if ($copy) {
@@ -161,9 +153,8 @@ class Attach_edit extends Controller {
 								store_item_tag($channel_id, $attach_id, TERM_OBJ_FILE, TERM_CATEGORY, $term, $term_link);
 							}
 						}
+						$actions_done .= 'cat_add,';
 					}
-					$actions_done .= 'cat_add,';
-
 				}
 				else {
 					q("DELETE FROM term WHERE uid = %d AND oid = %d AND otype = %d",

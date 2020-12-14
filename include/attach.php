@@ -1432,7 +1432,7 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 	$channel_address = (($c) ? $c[0]['channel_address'] : 'notfound');
 	$photo_sql = (($is_photo) ? " and is_photo = 1 " : '');
 
-	$r = q("SELECT hash, os_storage, flags, is_dir, is_photo, folder FROM attach WHERE hash = '%s' AND uid = %d $photo_sql limit 1",
+	$r = q("SELECT id, hash, os_storage, flags, is_dir, is_photo, folder FROM attach WHERE hash = '%s' AND uid = %d $photo_sql limit 1",
 		dbesc($resource),
 		intval($channel_id)
 	);
@@ -1452,6 +1452,12 @@ function attach_delete($channel_id, $resource, $is_photo = 0) {
 
 		return;
 	}
+
+	q("DELETE FROM term WHERE uid = %d AND oid = %d AND otype = %d",
+		intval($channel_id),
+		intval($r[0]['id']),
+		intval(TERM_OBJ_FILE)
+	);
 
 	// If resource is a directory delete everything in the directory recursive
 	if(intval($r[0]['is_dir'])) {

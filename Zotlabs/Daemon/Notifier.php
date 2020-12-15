@@ -17,26 +17,26 @@ require_once('include/bbcode.php');
 
 /*
  * This file was at one time responsible for doing all deliveries, but this caused
- * big problems on shared hosting systems, where the process might get killed by the 
- * hosting provider and nothing would get delivered. 
+ * big problems on shared hosting systems, where the process might get killed by the
+ * hosting provider and nothing would get delivered.
  * It now only delivers one message under certain cases, and invokes a queued
- * delivery mechanism (include/deliver.php) to deliver individual contacts at 
+ * delivery mechanism (include/deliver.php) to deliver individual contacts at
  * controlled intervals.
  * This has a much better chance of surviving random processes getting killed
- * by the hosting provider. 
+ * by the hosting provider.
  *
  * The basic flow is:
  *   Identify the type of message
  *   Collect any information that needs to be sent
  *   Convert it into a suitable generic format for sending
- *   Figure out who the recipients are and if we need to relay 
+ *   Figure out who the recipients are and if we need to relay
  *       through a conversation owner
- *   Once we know what recipients are involved, collect a list of 
+ *   Once we know what recipients are involved, collect a list of
  *       destination sites
  *   Build and store a queue item for each unique site and invoke
  *       a delivery process for each site or a small number of sites (1-3)
  *       and add a slight delay between each delivery invocation if desired (usually)
- *   
+ *
  */
 
 /*
@@ -61,7 +61,7 @@ require_once('include/bbcode.php');
  *
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  *
- * ZOT 
+ * ZOT
  *       permission_create      abook_id
  *       permission_accept      abook_id
  *       permission_reject      abook_id
@@ -167,7 +167,7 @@ class Notifier {
 			$normal_mode = false;
 		}
 		elseif(in_array($cmd, [ 'permission_update', 'permission_reject', 'permission_accept', 'permission_create' ])) {
-			// Get the (single) recipient	
+			// Get the (single) recipient
 			$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_id = %d and abook_self = 0",
 				intval($item_id)
 			);
@@ -176,7 +176,7 @@ class Notifier {
 				// Get the sender
 				$channel = channelx_by_n($uid);
 				if($channel) {
-					$perm_update = array('sender' => $channel, 'recipient' => $r[0], 'success' => false, 'deliveries' => '');	
+					$perm_update = array('sender' => $channel, 'recipient' => $r[0], 'success' => false, 'deliveries' => '');
 
 					if($cmd === 'permission_create')
 						call_hooks('permissions_create',$perm_update);
@@ -192,7 +192,7 @@ class Notifier {
 							$deliveries[] = $perm_update['deliveries'];
 							do_delivery($deliveries);
 						}
-						return;				
+						return;
 					}
 					else {
 						$recipients[] = $r[0]['abook_xchan'];
@@ -236,7 +236,7 @@ class Notifier {
 				}
 			}
 
-			$encoded_item = array('locations' => zot_encode_locations($channel),'type' => 'location', 'encoding' => 'zot');
+			$encoded_item = array('locations' => Libzot::encode_locations($channel),'type' => 'location', 'encoding' => 'zot');
 			$target_item = array('aid' => $channel['channel_account_id'],'uid' => $channel['channel_id']);
 			$private = false;
 			$packet_type = 'location';
@@ -293,7 +293,7 @@ class Notifier {
 			xchan_query($r);
 
 			$r = fetch_post_tags($r);
-		
+
 			$target_item = $r[0];
 
 			if(in_array($target_item['author']['xchan_network'], ['rss', 'anon'])) {
@@ -329,7 +329,7 @@ class Notifier {
 			// Check for non published items, but allow an exclusion for transmitting hidden file activities
 
 			if(intval($target_item['item_unpublished']) || intval($target_item['item_delayed']) ||
-				intval($target_item['item_blocked']) || 
+				intval($target_item['item_blocked']) ||
 				( intval($target_item['item_hidden']) && ($target_item['obj_type'] !== ACTIVITY_OBJ_FILE))) {
 				logger('notifier: target item not published, so not forwardable', LOGGER_DEBUG);
 				return;
@@ -372,7 +372,7 @@ class Notifier {
 
 				xchan_query($r);
 				$r = fetch_post_tags($r);
-		
+
 				$parent_item = $r[0];
 				$top_level_post = false;
 			}
@@ -397,7 +397,7 @@ class Notifier {
 					z_root() . ZOT_APSCHEMA_REV
 					]], Activity::encode_activity($target_item)
 				);
-			}		
+			}
 
 			logger('target_item: ' . print_r($target_item,true), LOGGER_DEBUG);
 			logger('encoded: ' . print_r($activity,true), LOGGER_DEBUG);
@@ -405,11 +405,11 @@ class Notifier {
 			// Send comments to the owner to re-deliver to everybody in the conversation
 			// We only do this if the item in question originated on this site. This prevents looping.
 			// To clarify, a site accepting a new comment is responsible for sending it to the owner for relay.
-			// Relaying should never be initiated on a post that arrived from elsewhere.  
+			// Relaying should never be initiated on a post that arrived from elsewhere.
 
 			// We should normally be able to rely on ITEM_ORIGIN, but start_delivery_chain() incorrectly set this
 			// flag on comments for an extended period. So we'll also call comment_local_origin() which looks at
-			// the hostname in the message_id and provides a second (fallback) opinion. 
+			// the hostname in the message_id and provides a second (fallback) opinion.
 
 			$relay_to_owner = (((! $top_level_post) && (intval($target_item['item_origin'])) && comment_local_origin($target_item)) ? true : false);
 
@@ -426,9 +426,9 @@ class Notifier {
 			// tag_deliver'd post which needs to be sent back to the original author
 
 			if(($cmd === 'uplink') && intval($parent_item['item_uplink']) && (! $top_level_post)) {
-				logger('notifier: uplink');			
+				logger('notifier: uplink');
 				$uplink = true;
-			} 
+			}
 
 			if(($relay_to_owner || $uplink) && ($cmd !== 'relay')) {
 				logger('notifier: followup relay', LOGGER_DEBUG);
@@ -445,8 +445,8 @@ class Notifier {
 					logger('notifier: owner relay');
 				$upstream = false;
 				// if our parent is a tag_delivery recipient, uplink to the original author causing
-				// a delivery fork. 
-	
+				// a delivery fork.
+
 				if(($parent_item) && intval($parent_item['item_uplink']) && (! $top_level_post) && ($cmd !== 'uplink')) {
 					// don't uplink a relayed post to the relay owner
 					if($parent_item['source_xchan'] !== $parent_item['owner_xchan']) {
@@ -462,7 +462,7 @@ class Notifier {
 				if ($top_level_post) {
 					// remove clones who will receive the post via sync
 					$recipients = array_diff($recipients, [ $target_item['owner_xchan'] ]);
-				} 
+				}
 
 				// FIXME add any additional recipients such as mentions, etc.
 
@@ -476,7 +476,7 @@ class Notifier {
 			}
 		}
 
-		$walltowall = (($top_level_post && $channel['xchan_hash'] === $target_item['author_xchan']) ? true : false); 
+		$walltowall = (($top_level_post && $channel['xchan_hash'] === $target_item['author_xchan']) ? true : false);
 
 		// Generic delivery section, we have an encoded item and recipients
 		// Now start the delivery process
@@ -505,7 +505,7 @@ class Notifier {
 		if($details) {
 			foreach($details as $d) {
 
-				$recip_list[] = $d['xchan_addr'] . ' (' . $d['xchan_hash'] . ')'; 
+				$recip_list[] = $d['xchan_addr'] . ' (' . $d['xchan_hash'] . ')';
 				if($private) {
 					$env_recips[] = [
 						'guid'     => $d['xchan_guid'],
@@ -557,19 +557,19 @@ class Notifier {
 			// shouldn't happen
 			logger('notifier: private message with no envelope recipients.' . print_r($argv,true), LOGGER_NORMAL, LOG_NOTICE);
 		}
-	
+
 		logger('notifier: recipients (may be delivered to more if public): ' . print_r($recip_list,true), LOGGER_DEBUG);
-	
+
 
 		// Now we have collected recipients (except for external mentions, FIXME)
 		// Let's reduce this to a set of hubs; checking that the site is not dead.
 
-		$hubs = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc left join site on site_url = hubloc_url 
-			where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ") 
+		$hubs = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc left join site on site_url = hubloc_url
+			where hubloc_hash in (" . protect_sprintf(implode(',',$recipients)) . ")
 			and hubloc_error = 0 and hubloc_deleted = 0"
 		);
 
-		// public posts won't make it to the local public stream unless there's a recipient on this site. 
+		// public posts won't make it to the local public stream unless there's a recipient on this site.
 		// This code block sees if it's a public post and localhost is missing, and if so adds an entry for the local sys channel to the $hubs list
 
 		if (! $private) {
@@ -583,7 +583,7 @@ class Notifier {
 				}
 			}
 			if (! $found_localhost) {
-				$localhub = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc 
+				$localhub = q("select hubloc.*, site.site_crypto, site.site_flags, site.site_version, site.site_project, site.site_dead from hubloc
 					left join site on site_url = hubloc_url where hubloc_id_url = '%s' and hubloc_error = 0 and hubloc_deleted = 0",
 					dbesc(z_root() . '/channel/sys')
 				);
@@ -592,14 +592,14 @@ class Notifier {
 				}
 			}
 		}
- 
+
 		if(! $hubs) {
 			logger('notifier: no hubs', LOGGER_NORMAL, LOG_NOTICE);
 			return;
 		}
 
 		/**
-		 * Reduce the hubs to those that are unique. For zot hubs, we need to verify uniqueness by the sitekey, 
+		 * Reduce the hubs to those that are unique. For zot hubs, we need to verify uniqueness by the sitekey,
 		 * since it may have been a re-install which has not yet been detected and pruned.
 		 * For other networks which don't have or require sitekeys, we'll have to use the URL
 		 */
@@ -629,7 +629,7 @@ class Notifier {
 					}
 				}
 			}
-			
+
 
 			if($hub['hubloc_network'] == 'zot') {
 				if(! in_array($hub['hubloc_sitekey'],$keys)) {
@@ -714,8 +714,8 @@ class Notifier {
 			}
 
 			// Do not change this to a uuid as long as we have traditional zot servers
-			// in the loop. The signature verification step can't handle dashes in the 
-			// hashes. 
+			// in the loop. The signature verification step can't handle dashes in the
+			// hashes.
 
 			$hash   = random_string(48);
 
@@ -766,13 +766,13 @@ class Notifier {
 						}
 					}
 
-					$packet_type = (($upstream || $uplink) ? 'response' : 'activity'); 
+					$packet_type = (($upstream || $uplink) ? 'response' : 'activity');
 
 					// block zot private reshares from zot6, as this could cause a number of privacy issues
 					// due to parenting differences between the reshare implementations. In zot a reshare is
 					// a standalone parent activity and in zot6 it is a followup/child of the original activity.
 					// For public reshares, some comments to the reshare on the zot fork will not make it to zot6
-					// due to these different message models. This cannot be prevented at this time. 
+					// due to these different message models. This cannot be prevented at this time.
 
 					if($packet_type === 'activity' && $activity['type'] === 'Announce' && intval($target_item['item_private'])) {
 						continue;
@@ -782,7 +782,7 @@ class Notifier {
 				}
 				else {
 					// currently zot6 delivery is only performed on normal items and not sync items or mail or anything else
-					// Eventually we will do this for all deliveries, but for now ensure this is precisely what we are dealing 
+					// Eventually we will do this for all deliveries, but for now ensure this is precisely what we are dealing
 					// with before switching to zot6 as the primary zot6 handler checks for the existence of a message delivery report
 					// to trigger dequeue'ing
 
@@ -839,9 +839,9 @@ class Notifier {
 				}
 			}
 
-			$deliveries[] = $hash;	
+			$deliveries[] = $hash;
 		}
-	
+
 		if($normal_mode) {
 			$x = q("select * from hook where hook = 'notifier_normal'");
 			if($x) {
@@ -857,7 +857,7 @@ class Notifier {
 		if ($dead) {
 			foreach ($dead as $deceased) {
 				if (is_array($target_item) && (! $target_item['item_deleted']) && (! get_config('system','disable_dreport'))) {
-					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue ) 
+					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
 						values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
 						dbesc($target_item['mid']),
 						dbesc($deceased['hubloc_host']),

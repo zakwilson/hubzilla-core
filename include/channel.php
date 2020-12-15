@@ -935,6 +935,16 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 				$their_perms = [];
 				$newconfig = [];
 				$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
+
+				// Partly revert of commit 85cf25a2a8bfbbfe10de485d4affd54626fbbfa4
+				if($abconfig) {
+					$ret['abook'][$x]['abconfig'] = $abconfig;
+				}
+
+				/* This was added in commit 85cf25a2a8bfbbfe10de485d4affd54626fbbfa4
+				 * Seems unfinished work on zap compatibility for cloning.
+				 * It breaks cloning of abconfig for hubzilla - reverted to the above code.
+
 				if($abconfig) {
 					foreach ($abconfig as $abc) {
 
@@ -953,17 +963,21 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 					}
 
 					$ret['abook'][$x]['abconfig'] = $newconfig;
+
 					if ($zap_compat) {
 						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'my_perms', 'v' => implode(',',$my_perms) ];
 						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'their_perms', 'v' => implode(',',$their_perms) ];
 					}
 				}
+				*/
 
 				translate_abook_perms_outbound($ret['abook'][$x]);
 
 			}
 
-			// pick up the zot6 xchan and hublocs also
+
+
+			// pick up the zot xchan and hublocs also
 
 			if($ret['channel']['channel_portable_id']) {
 				$xchans[] = $ret['channel']['channel_portable_id'];

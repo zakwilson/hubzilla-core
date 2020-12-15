@@ -1489,9 +1489,9 @@ class Libzot {
 			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
 
 			if(($act) && ($act->obj) && (! is_array($act->obj))) {
-				// The initial object fetch failed using the sys channel credentials. 
+				// The initial object fetch failed using the sys channel credentials.
 				// Try again using the delivery channel credentials.
-				// We will also need to re-parse the $item array, 
+				// We will also need to re-parse the $item array,
 				// but preserve any values that were set during anonymous parsing.
 
 				$o = Activity::fetch($act->obj,$channel);
@@ -1505,7 +1505,7 @@ class Libzot {
 					$result[] = $DR->get();
 					continue;
 				}
-			}       
+			}
 
 			/**
 			 * We need to block normal top-level message delivery from our clones, as the delivered
@@ -1634,7 +1634,7 @@ class Libzot {
 					// have the copy and we don't want the request to loop.
 					// Also don't do this if this comment came from a conversation request packet.
 					// It's possible that comments are allowed but posting isn't and that could
-					// cause a conversation fetch loop. 
+					// cause a conversation fetch loop.
 					// We'll also check the send_stream permission - because if it isn't allowed,
 					// the top level post is unlikely to be imported and
 					// this is just an exercise in futility.
@@ -2295,7 +2295,7 @@ class Libzot {
 	 *
 	 * @see import_directory_profile()
 	 *
-	 * @param string $sender 
+	 * @param string $sender
 	 * @param array $arr
 	 * @param array $deliveries (unused)
 	 * @return void
@@ -2316,7 +2316,7 @@ class Libzot {
 	/**
 	 * @brief
 	 *
-	 * @param string $sender 
+	 * @param string $sender
 	 * @param array $arr
 	 * @param array $deliveries (unused) deliveries is irrelevant
 	 * @return void

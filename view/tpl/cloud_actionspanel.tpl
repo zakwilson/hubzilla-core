@@ -48,7 +48,7 @@
 	</div>
 	<hr class="m-0">
 </div>
-{{if $breadcrumbs_html}}
+{{if $aclselect}}
 {{$aclselect}}
 {{/if}}
 {{if $breadcrumbs_html}}

@@ -152,7 +152,12 @@
 			<td><i class="fa {{$item.icon_from_type}}" title="{{$item.type}}"></i></td>
 			<td><a href="{{$item.rel_path}}" class="p-2" draggable="false">{{$item.name}}</a></td>
 			<td>{{$item.terms}}</td>
-			<td class="cloud-index-tool p-2">{{if $item.lockstate == 'lock'}}<i class="fa fa-fw fa-{{$item.lockstate}}"></i>{{/if}}</td>
+			<td class="cloud-index-tool p-2">
+				{{if $item.lockstate == 'lock'}}
+				<i class="fa fa-lock lockview" data-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
+				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
+				{{/if}}
+			</td>
 			<td class="cloud-index-tool">
 				{{if ($item.is_owner || $item.is_creator) && $item.attach_id}}
 				<div class="dropdown">

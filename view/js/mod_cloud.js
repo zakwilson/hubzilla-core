@@ -14,6 +14,14 @@ $(document).ready(function () {
 
 	// Per File Tools
 
+	$('.cloud-tool-info-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		close_and_deactivate_all_panels();
+		$('#cloud-tool-info-' + id).toggle();
+		$('#cloud-index-' + id).addClass('cloud-index-active');
+	});
+
 	$('.cloud-tool-perms-btn').on('click', function (e) {
 		e.preventDefault();
 		let id = $(this).data('id');
@@ -323,7 +331,6 @@ $(document).ready(function () {
 
 		$('#cloud-tool-submit-' + id).show();
 		$('#cloud-index-' + id).addClass('cloud-index-active');
-		$('#cloud-tool-submit-' + id).show();
 	}
 
 });
@@ -406,7 +413,7 @@ function prepareHtml(f) {
 	$('#cloud-index #new-upload-progress-bar-' + num.toString()).after(
 		'<tr id="new-upload-' + i + '" class="new-upload">' +
 		'<td></td>' +
-		'<td><i class="fa ' + getIconFromType(f.type) + '" title="' + f.type + '"></i></td>' +
+		'<td><i class="fa fa-fw ' + getIconFromType(f.type) + '" title="' + f.type + '"></i></td>' +
 		'<td>' + f.name + '</td>' +
 		'<td id="upload-progress-' + i + '"></td><td></td><td></td>' +
 		'<td class="d-none d-md-table-cell">' + formatSizeUnits(f.size) + '</td><td class="d-none d-md-table-cell"></td>' +

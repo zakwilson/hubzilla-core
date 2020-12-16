@@ -165,6 +165,7 @@
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
+						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-info"></i> Info</a>
 						{{if $item.is_owner}}
 						<a id="cloud-tool-perms-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-perms-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-{{$item.lockstate}}"></i> Adjust permissions</a>
 						{{/if}}
@@ -210,6 +211,23 @@
 					<div id="cloud-tool-rename-{{$item.attach_id}}" class="cloud-tool">
 						{{include file="field_input.tpl" field=$item.newfilename}}
 					</div>
+					<div id="cloud-tool-info-{{$item.attach_id}}" class="cloud-tool">
+						{{if ! $item.collection}}
+						<div class="form-group">
+							<label for="attach-code-input-{{$item.attach_id}}">Attachment code</label>
+							<input type="text" class="form-control" id="attach-code-input-{{$item.attach_id}}" name="attach-code-input-{{$item.attach_id}}" value="[attachment]{{$item.resource}},{{$item.revision}}[/attachment]" onclick="this.select();" />
+						</div>
+						{{/if}}
+						<div class="form-group">
+							<label for="link-code-input-{{$item.attach_id}}">Link code</label>
+							<input type="text" class="form-control" id="link-code-input-{{$item.attach_id}}" name="link-code-input-{{$item.attach_id}}" value="[zrl={{$item.full_path}}]{{$item.full_path}}[/zrl]" onclick="this.select();" />
+						</div>
+						<div class="form-group">
+							<button id="cloud-tool-close-btn-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm cloud-tool-cancel-btn" type="button" data-id="{{$item.attach_id}}">
+								Close
+							</button>
+						</div>
+					</div>
 					<div id="cloud-tool-move-{{$item.attach_id}}" class="cloud-tool">
 						{{include file="field_select.tpl" field=$item.newfolder}}
 						{{include file="field_checkbox.tpl" field=$item.copy}}
@@ -238,22 +256,6 @@
 							</div>
 						</div>
 					</div>
-					<!--div id="cloud-tool-share-{{$item.attach_id}}" class="">
-						<div id="attach-edit-tools-share-{{$item.attach_id}}" class="btn-group form-group">
-							<button id="link-btn-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm" type="button" onclick="openClose('link-code-{{$item.attach_id}}');" title="{{$link_btn_title}}">
-								<i class="fa fa-link jot-icons"></i>
-							</button>
-						</div>
-					</div>
-					{{if !$item.collection}}
-					<a href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]" id="attach-btn" class="btn btn-outline-secondary btn-sm" title="{{$attach_btn_title}}">
-						<i class="fa fa-share-square-o jot-icons"></i>
-					</a>
-					{{/if}}
-					<div id="link-code-{{$item.attach_id}}" class="form-group link-code">
-						<label for="linkpasteinput-{{$item.attach_id}}">{{$cpldesc}}</label>
-						<input type="text" class="form-control" id="linkpasteinput-{{$item.attach_id}}" name="linkpasteinput-{{$item.attach_id}}" value="{{$item.full_path}}" onclick="this.select();"/>
-					</div-->
 				</form>
 			</td>
 		</tr>

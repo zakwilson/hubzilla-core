@@ -214,13 +214,19 @@
 					<div id="cloud-tool-info-{{$item.attach_id}}" class="cloud-tool">
 						{{if ! $item.collection}}
 						<div class="form-group">
-							<label for="attach-code-input-{{$item.attach_id}}">Attachment code</label>
-							<input type="text" class="form-control" id="attach-code-input-{{$item.attach_id}}" name="attach-code-input-{{$item.attach_id}}" value="[attachment]{{$item.resource}},{{$item.revision}}[/attachment]" onclick="this.select();" />
+							<label for="attach-code-input-{{$item.attach_id}}">Attachment BBcode</label>
+							<input type="text" class="form-control" id="attach-code-input-{{$item.attach_id}}" name="attach-code-input-{{$item.attach_id}}" value="{{$item.attach_bbcode}}" onclick="this.select();" />
+						</div>
+						{{if $item.embed_bbcode}}
+						<div class="form-group">
+							<label for="embed-code-input-{{$item.attach_id}}">Embed BBcode</label>
+							<input type="text" class="form-control" id="embed-code-input-{{$item.attach_id}}" name="embed-code-input-{{$item.attach_id}}" value="{{$item.embed_bbcode}}" onclick="this.select();" />
 						</div>
 						{{/if}}
+						{{/if}}
 						<div class="form-group">
-							<label for="link-code-input-{{$item.attach_id}}">Link code</label>
-							<input type="text" class="form-control" id="link-code-input-{{$item.attach_id}}" name="link-code-input-{{$item.attach_id}}" value="[zrl={{$item.full_path}}]{{$item.full_path}}[/zrl]" onclick="this.select();" />
+							<label for="link-code-input-{{$item.attach_id}}">Link BBcode</label>
+							<input type="text" class="form-control" id="link-code-input-{{$item.attach_id}}" name="link-code-input-{{$item.attach_id}}" value="{{$item.link_bbcode}}" onclick="this.select();" />
 						</div>
 						<div class="form-group">
 							<button id="cloud-tool-close-btn-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm cloud-tool-cancel-btn" type="button" data-id="{{$item.attach_id}}">

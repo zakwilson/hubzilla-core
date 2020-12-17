@@ -111,6 +111,19 @@ class Browser extends DAV\Browser\Plugin {
 			$parent_path = \Sabre\HTTP\encodePath($this->server->getBaseUri() . $parent_uri);
 		}
 
+		$embedable_video_types = [
+			'video/mp4',
+			'video/ogg',
+			'video/webm'
+		];
+
+		$embedable_audio_types = [
+			'audio/mpeg',
+			'audio/wav',
+			'audio/ogg',
+			'audio/webm'
+		];
+
 		$f = [];
 
 		foreach ($files as $file) {
@@ -291,6 +304,29 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['copy'] = ['copy_' . $id, t('Copy to target location'), 0, '', [t('No'), t('Yes')]];
 			$ft['recurse'] = ['recurse_' . $id, t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]];
 			$ft['notify'] = ['notify_edit_' . $id, t('Notify your contacts about this file'), 0, '', [t('No'), t('Yes')]];
+
+			$embed_bbcode = '';
+			$link_bbcode = '';
+			$attach_bbcode = '';
+
+			if($data['is_photo']) {
+				$embed_bbcode = '[zmg]' . $ft['full_path'] . '[/zmg]';
+			}
+			elseif(strpos($type, 'video') === 0 && in_array($type, $embedable_video_types)) {
+				$embed_bbcode = '[zvideo]' . $ft['full_path'] . '[/zvideo]';
+			}
+			elseif(strpos($type, 'audio') === 0 && in_array($type, $embedable_audio_types)) {
+				$embed_bbcode = '[zaudio]' . $ft['full_path'] . '[/zaudio]';
+			}
+			$ft['embed_bbcode'] = $embed_bbcode;
+
+			if(! $data['is_dir']) {
+				$attach_bbcode = '[attachment]' . $data['hash'] . ',' . $data['revision'] . '[/attachment]';
+			}
+			$ft['attach_bbcode'] = $attach_bbcode;
+
+			$link_bbcode = '[zrl]' . $ft['full_path'] . '[/zrl]';
+			$ft['link_bbcode'] = $link_bbcode;
 
 			$f[] = $ft;
 

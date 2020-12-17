@@ -1,3 +1,16 @@
+Hubzilla 5.0.6 (2020-12-17)
+	- Fix zot hublocs with empty hubloc_id_url in DB caused by clone import bug
+	- Only look for zot6 and zot hublocs in mod owa
+	- Fix abconfig issue when cloning a channel
+	- Call notifier with refresh_all instead of location when importing a clone
+	- Use Libzot::encode_locations() instead of zot_encode_locations() in notifier
+	- Fix missing zot hubloc hubloc_id_url when importing a clone
+	- Implement Libzot::zot_record_preferred() in various places to prevent hubloc confusion
+
+	Addons
+	- Fix wrong redirect path for check_form_security_token_redirectOnErr() in various addons
+
+
 Hubzilla 5.0.5 (2020-12-12)
 	- Fix hubloc issue in mod getfile
 	- Remove duplicate SQL query

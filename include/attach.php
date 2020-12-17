@@ -647,16 +647,14 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$pathname = filepath_macro($newalbum);
 		}
 		elseif(array_key_exists('folder',$arr)) {
-			$x = q("select display_path from attach where hash = '%s' and uid = %d limit 1",
-				dbesc($arr['folder']),
-				intval($channel['channel_id'])
-			);
-			if($x)
-				$pathname = $x[0]['display_path'];
+			$pathname = find_path_by_hash($channel['channel_id'], $arr['folder']);
 		}
 		else {
 			$pathname = filepath_macro($album);
 		}
+	}
+	elseif(array_key_exists('folder',$arr)) {
+		$pathname = find_path_by_hash($channel['channel_id'], $arr['folder']);
 	}
 	if(! $pathname) {
 		$pathname = filepath_macro($upload_path);
@@ -807,6 +805,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	$os_relpath   = ltrim($os_relpath,'/');
 
 	$os_path      = $os_relpath;
+
 	$display_path = ltrim($pathname . '/' . $filename,'/');
 
 	if($src) {
@@ -890,7 +889,6 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 		);
 	}
 	else {
-
 		$r = q("INSERT INTO attach ( aid, uid, hash, creator, filename, filetype, folder, filesize, revision, os_storage, is_photo, content, created, edited, os_path, display_path, allow_cid, allow_gid,deny_cid, deny_gid )
 			VALUES ( %d, %d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ) ",
 			intval($channel['channel_account_id']),
@@ -1744,6 +1742,29 @@ function find_filename_by_hash($channel_id, $attachHash) {
 	}
 
 	return $filename;
+}
+
+/**
+ * @brief Returns the display_path of an attachment in a given channel.
+ *
+ * @param int $channel_id
+ *  The id of the channel
+ * @param string $attachHash
+ *  The hash of the attachment
+ * @return string
+ *  The filename of the attachment
+ */
+function find_path_by_hash($channel_id, $attachHash) {
+	$r = q("SELECT display_path FROM attach WHERE uid = %d AND hash = '%s' LIMIT 1",
+		intval($channel_id),
+		dbesc($attachHash)
+	);
+	$display_path = '';
+	if ($r) {
+		$display_path = $r[0]['display_path'];
+	}
+
+	return $display_path;
 }
 
 /**

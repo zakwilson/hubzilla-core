@@ -32,7 +32,7 @@ class Owa extends Controller {
 				$keyId = $sigblock['keyId'];
 				if ($keyId) {
 					$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-						WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_deleted = 0",
+						WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_network IN ('zot6', 'zot')",
 						dbesc(str_replace('acct:','',$keyId)),
 						dbesc($keyId)
 					);
@@ -40,7 +40,7 @@ class Owa extends Controller {
 						$found = discover_by_webbie(str_replace('acct:','',$keyId));
 						if ($found) {
 							$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-								WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_deleted = 0",
+								WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_network IN ('zot6', 'zot')",
 								dbesc(str_replace('acct:','',$keyId)),
 								dbesc($keyId)
 							);

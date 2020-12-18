@@ -3690,6 +3690,11 @@ function get_forum_channels($uid) {
 	);
 
 	if($x1) {
+
+		$x2 = [];
+		$x3 = [];
+		$x4 = [];
+
 		$xc = ids_to_querystr($x1,'xchan',true);
 
 		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . $xc . ") ",
@@ -3706,6 +3711,15 @@ function get_forum_channels($uid) {
 		if($x3) {
 			$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
 		}
+
+		// public forums with no permission to post
+		$x4 = q("select xchan from abconfig left join xchan on xchan = xchan_hash where chan = %d and cat = 'their_perms' and k in ('post_wall', 'tag_deliver') and v = '0' and xchan in (" . $xc . ") and xchan_pubforum = 1 $sql_extra ",
+			intval(local_channel())
+		);
+		if($x4) {
+			$xf = ids_to_querystr(array_merge($x2,$x3,$x4),'xchan',true);
+		}
+
 	}
 
 	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
@@ -3722,6 +3736,15 @@ function get_forum_channels($uid) {
 				}
 			}
 		}
+
+		if($x4) {
+			foreach($x4 as $xx) {
+				if($r[$x]['xchan_hash'] == $xx['xchan']) {
+					$r[$x]['no_post_perms'] = 1;
+				}
+			}
+		}
+
 	}
 
 	App::$data['forum_channels'] = $r;

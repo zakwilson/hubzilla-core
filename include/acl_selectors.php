@@ -82,7 +82,6 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	$r = q("SELECT id, hash, gname FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
 		intval(local_channel())
 	);
-
 	if($r) {
 		$groups .= '<optgroup label = "' . t('Privacy Groups').'">';
 		foreach($r as $rr) {
@@ -110,13 +109,23 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	if($dialog_description) {
 		$forums = get_forum_channels(local_channel(),1);
 		if($forums) {
-			$groups .= '<optgroup label = "' . t('Forums').'">';
+			$forums_count = 0;
+			$forum_otions = '';
 			foreach($forums as $f) {
+				if($f['no_post_perms'])
+					continue;
+
 				$private = (($f['private_forum']) ? ' (' . t('Private Forum') . ')' : '');
 				$selected = (($single_group && $f['hash'] === $allow_cid[0]) ? ' selected = "selected" ' : '');
-				$groups .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . $private . '</option>' . "\r\n";
+				$forum_otions .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . $private . '</option>' . "\r\n";
+				$forums_count++;
 			}
-			$groups .= '</optgroup>';
+			if($forums_count) {
+				$groups .= '<optgroup label = "' . t('Forums').'">';
+				$groups .= $forum_otions;
+				$groups .= '</optgroup>';
+			}
+
 		}
 	}
 

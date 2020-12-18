@@ -32,16 +32,14 @@ class Owa extends Controller {
 				$keyId = $sigblock['keyId'];
 				if ($keyId) {
 					$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-						WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_network IN ('zot6', 'zot')",
-						dbesc(str_replace('acct:','',$keyId)),
+						WHERE hubloc_id_url = '%s'",
 						dbesc($keyId)
 					);
 					if (! $r) {
 						$found = discover_by_webbie(str_replace('acct:','',$keyId));
 						if ($found) {
 							$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-								WHERE ( hubloc_addr = '%s' OR hubloc_id_url = '%s' ) AND hubloc_network IN ('zot6', 'zot')",
-								dbesc(str_replace('acct:','',$keyId)),
+								WHERE OR hubloc_id_url = '%s'",
 								dbesc($keyId)
 							);
 						}
@@ -51,16 +49,16 @@ class Owa extends Controller {
 							$verified = HTTPSig::verify(file_get_contents('php://input'));
 							if ($verified && $verified['header_signed'] && $verified['header_valid'] && ($verified['content_valid'] || (! $verified['content_signed']))) {
 								logger('OWA header: ' . print_r($verified,true),LOGGER_DATA);
-								logger('OWA success: ' . $hubloc['hubloc_addr'],LOGGER_DATA);
+								logger('OWA success: ' . $hubloc['hubloc_id_url'],LOGGER_DATA);
 								$ret['success'] = true;
 								$token = random_string(32);
-								Verify::create('owt',0,$token,$hubloc['hubloc_addr']);
+								Verify::create('owt',0,$token,$hubloc['hubloc_id_url']);
 								$result = '';
 								openssl_public_encrypt($token,$result,$hubloc['xchan_pubkey']);
 								$ret['encrypted_token'] = base64url_encode($result);
 								break;
 							} else {
-								logger('OWA fail: ' . $hubloc['hubloc_id'] . ' ' . $hubloc['hubloc_addr']);
+								logger('OWA fail: ' . $hubloc['hubloc_id'] . ' ' . $hubloc['hubloc_id_url']);
 							}
 						}
 					}

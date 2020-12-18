@@ -2795,7 +2795,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 	$termtype = ((strpos($tag,'#') === 0)   ? TERM_HASHTAG  : TERM_UNKNOWN);
 	$termtype = ((strpos($tag,'@') === 0)   ? TERM_MENTION  : $termtype);
-	$termtype = ((strpos($tag,'!') === 0)   ? TERM_FORUM    : $termtype);
+//	$termtype = ((strpos($tag,'!') === 0)   ? TERM_FORUM    : $termtype);
 	$termtype = ((strpos($tag,'#^[') === 0) ? TERM_BOOKMARK : $termtype);
 
 	// Is it a hashtag of some kind?
@@ -2864,7 +2864,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 	if ( in_array($termtype, [ TERM_MENTION, TERM_FORUM ] )) {
 
-		// The @! tag and !! tag will alter permissions
+		// The @! tag will alter permissions
 
 		// $in_network is set to false to avoid false positives on posts originating
 		// on a network which does not implement privacy tags or implements them differently.
@@ -2966,12 +2966,13 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 					//create profile link
 					$profile = str_replace(',','%2c',$profile);
 					$url = $profile;
+/*
 					if($termtype === TERM_FORUM) {
 						$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 						$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 					}
-					else {
-						// ( $termtype === TERM_MENTION )
+*/
+					if ($termtype === TERM_MENTION) {
 						$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 						$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 					}
@@ -3032,12 +3033,13 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				//create profile link
 				$profile = str_replace(',','%2c',$profile);
 				$url = $profile;
+/*
 				if($termtype === TERM_FORUM) {
 					$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 					$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 				}
-				else {
-					// ( $termtype === TERM_MENTION )
+*/
+				if ($termtype === TERM_MENTION) {
 					$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
 					$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 				}

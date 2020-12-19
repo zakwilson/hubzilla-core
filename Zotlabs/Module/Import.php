@@ -585,11 +585,6 @@ class Import extends \Zotlabs\Web\Controller {
 		if(array_key_exists('item_id',$data) && $data['item_id'])
 			import_item_ids($channel,$data['item_id']);
 
-		// send out refresh requests
-		// notify old server that it may no longer be primary.
-
-		\Zotlabs\Daemon\Master::Summon(array('Notifier','refresh_all',$channel['channel_id']));
-
 		// This will indirectly perform a refresh_all *and* update the directory
 
 		\Zotlabs\Daemon\Master::Summon(array('Directory', $channel['channel_id']));

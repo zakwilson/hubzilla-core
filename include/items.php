@@ -2813,7 +2813,7 @@ function tag_deliver($uid, $item_id) {
 
 
 			// standard forum tagging sequence !forumname
-
+/*
 			$forumpattern = '/\!\!?\[[uz]rl\=([^\]]*?)\]((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
 
 			$forumpattern2 = '/\[[uz]rl\=([^\]]*?)\]\!((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
@@ -2846,6 +2846,8 @@ function tag_deliver($uid, $item_id) {
 					}
 				}
 			}
+
+*/
 
 			if(! ($tagged || $plustagged)) {
 				logger('Mention was in a reshare or exceeded max_tagged_forums - ignoring');
@@ -3076,7 +3078,7 @@ function tgroup_check($uid, $item) {
 
 			$body = preg_replace('/\[share(.*?)\[\/share\]/','',$item['body']);
 
-
+/*
 			$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
 
 			$forumpattern2 = '/\[zrl\=([^\]]*?)\]\!((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
@@ -3111,7 +3113,7 @@ function tgroup_check($uid, $item) {
 					}
 				}
 			}
-
+*/
 			if(! $found) {
 				logger('tgroup_check: mention was in a reshare or exceeded max_tagged_forums - ignoring');
 				continue;
@@ -4800,7 +4802,7 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 			elseif(strpos($access_tag,'gid:') === 0) {
 				$str_group_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 2;
+				$private = 1;
 			}
 		}
 	}

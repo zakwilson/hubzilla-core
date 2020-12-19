@@ -3,6 +3,7 @@
 namespace Zotlabs\Storage;
 
 use Sabre\DAV;
+use App;
 
 /**
  * @brief Provides a DAV frontend for the webbrowser.
@@ -76,49 +77,82 @@ class Browser extends DAV\Browser\Plugin {
 	 * @param string $path which should be displayed
 	 */
 	public function generateDirectoryIndex($path) {
-		// (owner_id = channel_id) is visitor owner of this directory?
-		$is_owner = ((local_channel() && $this->auth->owner_id == local_channel()) ? true : false);
-
-		if ($this->auth->getTimezone())
-			date_default_timezone_set($this->auth->getTimezone());
 
 		require_once('include/conversation.php');
 		require_once('include/text.php');
-		if ($this->auth->owner_nick) {
-			$html = '';
+
+		$nick = $this->auth->owner_nick;
+		$channel_id = $this->auth->owner_id;
+
+		// Is visitor owner of this directory?
+		$is_owner = ((local_channel() && $channel_id == local_channel()) ? true : false);
+		$cat = ((x($_REQUEST,'cat')) ? $_REQUEST['cat'] : '');
+
+		if ($this->auth->getTimezone()) {
+			date_default_timezone_set($this->auth->getTimezone());
 		}
 
-		$files = $this->server->getPropertiesForPath($path, array(
-			'{DAV:}displayname',
-			'{DAV:}resourcetype',
-			'{DAV:}getcontenttype',
-			'{DAV:}getcontentlength',
-			'{DAV:}getlastmodified',
-			), 1);
-
+		$files = $this->server->getPropertiesForPath($path, [], 1);
 		$parent = $this->server->tree->getNodeForPath($path);
 
-		$parentpath = array();
-		// only show parent if not leaving /cloud/; TODO how to improve this?
-		if ($path && $path != "cloud") {
-			list($parentUri) = \Sabre\Uri\split($path);
-			$fullPath = \Sabre\HTTP\encodePath($this->server->getBaseUri() . $parentUri);
+		$arr = explode('/', $parent->os_path);
+		end($arr);
+		$folder_parent = ((isset($arr[1])) ? prev($arr) : '');
 
-			$parentpath['icon'] = $this->enableAssets ? '<a href="' . $fullPath . '"><img src="' . $this->getAssetUrl('icons/parent' . $this->iconExtension) . '" width="24" alt="' . t('parent') . '"></a>' : '';
-			$parentpath['path'] = $fullPath;
+		$folder_list = attach_folder_select_list($channel_id);
+
+		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
+		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
+
+		$parent_path = '';
+
+		if ($channel_id && ! $cat && !($siteroot_disabled && $is_root_folder)) {
+			list($parent_uri) = \Sabre\Uri\split($path);
+			$parent_path = \Sabre\HTTP\encodePath($this->server->getBaseUri() . $parent_uri);
 		}
 
-		$f = array();
+		$embedable_video_types = [
+			'video/mp4',
+			'video/ogg',
+			'video/webm'
+		];
+
+		$embedable_audio_types = [
+			'audio/mpeg',
+			'audio/wav',
+			'audio/ogg',
+			'audio/webm'
+		];
+
+		$f = [];
+
 		foreach ($files as $file) {
-			$ft = array();
+
+			$ft = [];
 			$type = null;
 
-			// This is the current directory, we can skip it
-			if (rtrim($file['href'], '/') == $path) continue;
+			$href = rtrim($file['href'], '/');
 
-			list(, $name) = \Sabre\Uri\split($file['href']);
+			// This is the current directory - skip it
+			if ($href === $path)
+				continue;
+
+			$node = $this->server->tree->getNodeForPath($href);
+			$data = $node->data;
+			$attach_hash = $data['hash'];
+			$folder_hash = $node->folder_hash;
+
+			list(, $filename) = \Sabre\Uri\split($href);
+
+			$name = isset($file[200]['{DAV:}displayname']) ? $file[200]['{DAV:}displayname'] : $filename;
+			$name = $this->escapeHTML($name);
+
+			$size = isset($file[200]['{DAV:}getcontentlength']) ? (int)$file[200]['{DAV:}getcontentlength'] : '';
+
+			$lastmodified = ((isset($file[200]['{DAV:}getlastmodified'])) ? $file[200]['{DAV:}getlastmodified']->getTime()->format('Y-m-d H:i:s') : '');
 
 			if (isset($file[200]['{DAV:}resourcetype'])) {
+
 				$type = $file[200]['{DAV:}resourcetype']->getValue();
 
 				// resourcetype can have multiple values
@@ -128,22 +162,22 @@ class Browser extends DAV\Browser\Plugin {
 					// Some name mapping is preferred
 					switch ($v) {
 						case '{DAV:}collection' :
-							$type[$k] = t('Collection');
+							$type[$k] = 'Collection';
 							break;
 						case '{DAV:}principal' :
-							$type[$k] = t('Principal');
+							$type[$k] = 'Principal';
 							break;
 						case '{urn:ietf:params:xml:ns:carddav}addressbook' :
-							$type[$k] = t('Addressbook');
+							$type[$k] = 'Addressbook';
 							break;
 						case '{urn:ietf:params:xml:ns:caldav}calendar' :
-							$type[$k] = t('Calendar');
+							$type[$k] = 'Calendar';
 							break;
 						case '{urn:ietf:params:xml:ns:caldav}schedule-inbox' :
-							$type[$k] = t('Schedule Inbox');
+							$type[$k] = 'Schedule Inbox';
 							break;
 						case '{urn:ietf:params:xml:ns:caldav}schedule-outbox' :
-							$type[$k] = t('Schedule Outbox');
+							$type[$k] = 'Schedule Outbox';
 							break;
 						case '{http://calendarserver.org/ns/}calendar-proxy-read' :
 							$type[$k] = 'Proxy-Read';
@@ -158,124 +192,167 @@ class Browser extends DAV\Browser\Plugin {
 
 			// If no resourcetype was found, we attempt to use
 			// the contenttype property
-			if (!$type && isset($file[200]['{DAV:}getcontenttype'])) {
+			if (! $type && isset($file[200]['{DAV:}getcontenttype'])) {
 				$type = $file[200]['{DAV:}getcontenttype'];
 			}
-			if (!$type) $type = t('Unknown');
 
-			$size = isset($file[200]['{DAV:}getcontentlength']) ? (int)$file[200]['{DAV:}getcontentlength'] : '';
-			$lastmodified = ((isset($file[200]['{DAV:}getlastmodified'])) ? $file[200]['{DAV:}getlastmodified']->getTime()->format('Y-m-d H:i:s') : '');
+			if (! $type) {
+				$type = $data['filetype'];
+			}
 
-			$fullPath = \Sabre\HTTP\encodePath('/' . trim($this->server->getBaseUri() . ($path ? $path . '/' : '') . $name, '/'));
-
-			$displayName = isset($file[200]['{DAV:}displayname']) ? $file[200]['{DAV:}displayname'] : $name;
-
-			$displayName = $this->escapeHTML($displayName);
 			$type = $this->escapeHTML($type);
 
-
-			$icon = '';
-
-			if ($this->enableAssets) {
-				$node = $this->server->tree->getNodeForPath(($path ? $path . '/' : '') . $name);
-				foreach (array_reverse($this->iconMap) as $class=>$iconName) {
-					if ($node instanceof $class) {
-						$icon = '<a href="' . $fullPath . '"><img src="' . $this->getAssetUrl($iconName . $this->iconExtension) . '" alt="" width="24"></a>';
-						break;
-					}
-				}
-			}
-
-			$parentHash = '';
-			$owner = $this->auth->owner_id;
-			$splitPath = explode('/', $fullPath);
-			if (count($splitPath) > 3) {
-				for ($i = 3; $i < count($splitPath); $i++) {
-					$attachName = urldecode($splitPath[$i]);
-					$attachHash = $this->findAttachHash($owner, $parentHash, $attachName);
-					$parentHash = $attachHash;
-				}
-			}
-
-
-			// generate preview icons for tile view. 
+			// generate preview icons for tile view.
 			// Currently we only handle images, but this could potentially be extended with plugins
-			// to provide document and video thumbnails. SVG, PDF and office documents have some 
+			// to provide document and video thumbnails. SVG, PDF and office documents have some
 			// security concerns and should only be allowed on single-user sites with tightly controlled
-			// upload access. system.thumbnail_security should be set to 1 if you want to include these 
-			// types 
+			// upload access. system.thumbnail_security should be set to 1 if you want to include these
+			// types
 
 			$is_creator = false;
 			$photo_icon = '';
 			$preview_style = intval(get_config('system','thumbnail_security',0));
 
-			$r = q("select content, creator from attach where hash = '%s' and uid = %d limit 1",
-				dbesc($attachHash),
-				intval($owner)
-			);
+			$is_creator = (($data['creator'] === get_observer_hash()) ? true : false);
 
-			if($r) {
-				$is_creator = (($r[0]['creator'] === get_observer_hash()) ? true : false);
-			 	if(file_exists(dbunescbin($r[0]['content']) . '.thumb')) {
-					$photo_icon = 'data:image/jpeg;base64,' . base64_encode(file_get_contents(dbunescbin($r[0]['content']) . '.thumb'));
-//					logger('found thumb: ' . $photo_icon);
-				}
-			}
-
-			if(strpos($type,'image/') === 0 && $attachHash) {
-				$r = q("select resource_id, imgscale from photo where resource_id = '%s' and imgscale in ( %d, %d ) order by imgscale asc limit 1",
-					dbesc($attachHash),
+			if(strpos($type,'image/') === 0 && $attach_hash) {
+				$p = q("select resource_id, imgscale from photo where resource_id = '%s' and imgscale in ( %d, %d ) order by imgscale asc limit 1",
+					dbesc($attach_hash),
 					intval(PHOTO_RES_320),
 					intval(PHOTO_RES_PROFILE_80)
 				);
-				if($r) {
-					$photo_icon = 'photo/' . $r[0]['resource_id'] . '-' . $r[0]['imgscale'];				
+				if($p) {
+					$photo_icon = 'photo/' . $p[0]['resource_id'] . '-' . $p[0]['imgscale'];
 				}
 				if($type === 'image/svg+xml' && $preview_style > 0) {
-					$photo_icon = $fullPath;
+					$photo_icon = $href;
 				}
 			}
 
-			$g = [ 'resource_id' => $attachHash, 'thumbnail' => $photo_icon, 'security' => $preview_style ];
+			$g = [ 'resource_id' => $attach_hash, 'thumbnail' => $photo_icon, 'security' => $preview_style ];
 			call_hooks('file_thumbnail', $g);
 			$photo_icon = $g['thumbnail'];
 
+			$lockstate = (($data['allow_cid'] || $data['allow_gid'] || $data['deny_cid'] || $data['deny_gid']) ? 'lock' : 'unlock');
+			$id = $data['id'];
 
-			$attachIcon = ""; // "<a href=\"attach/".$attachHash."\" title=\"".$displayName."\"><i class=\"fa fa-arrow-circle-o-down\"></i></a>";
+			if($id) {
+				$terms = q("select * from term where oid = %d AND otype = %d",
+					intval($id),
+					intval(TERM_OBJ_FILE)
+				);
+
+				$categories = [];
+				$terms_str = '';
+				if($terms) {
+					foreach($terms as $t) {
+						$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
+						if(! trim($term))
+							continue;
+						$categories[] = array('term' => $term, 'url' => $t['url']);
+						if ($terms_str)
+							$terms_str .= ',';
+						$terms_str .= $term;
+					}
+					$ft['terms'] = replace_macros(get_markup_template('item_categories.tpl'),array(
+						'$categories' => $categories
+					));
+				}
+			}
 
 			// put the array for this file together
-			$ft['attachId'] = $this->findAttachIdByHash($attachHash);
-			$ft['fileStorageUrl'] = substr($fullPath, 0, strpos($fullPath, "cloud/")) . "filestorage/" . $this->auth->owner_nick;
+			$ft['attach_id'] = $id;
 			$ft['icon'] = $icon;
 			$ft['photo_icon'] = $photo_icon;
-			$ft['attachIcon'] = (($size) ? $attachIcon : '');
-			// @todo Should this be an item value, not a global one?
 			$ft['is_owner'] = $is_owner;
 			$ft['is_creator'] = $is_creator;
-			$ft['fullPath'] = $fullPath;
-			$ft['displayName'] = $displayName;
+			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
+			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
+			$ft['name'] = $name;
 			$ft['type'] = $type;
 			$ft['size'] = $size;
-			$ft['sizeFormatted'] = userReadableSize($size);
-			$ft['lastmodified'] = (($lastmodified) ? datetime_convert('UTC', date_default_timezone_get(), $lastmodified) : '');
-			$ft['iconFromType'] = getIconFromType($type);
+			$ft['collection'] = (($type === 'Collection') ? true : false);
+			$ft['size_formatted'] = userReadableSize($size);
+			$ft['last_modified'] = (($lastmodified) ? datetime_convert('UTC', date_default_timezone_get(), $lastmodified) : '');
+			$ft['icon_from_type'] = getIconFromType($type);
+
+			$ft['allow_cid'] = acl2json($data['allow_cid']);
+			$ft['allow_gid'] = acl2json($data['allow_gid']);
+			$ft['deny_cid'] = acl2json($data['deny_cid']);
+			$ft['deny_gid'] = acl2json($data['deny_gid']);
+
+			$ft['raw_allow_cid'] = $data['allow_cid'];
+			$ft['raw_allow_gid'] = $data['allow_gid'];
+			$ft['raw_deny_cid'] = $data['deny_cid'];
+			$ft['raw_deny_gid'] = $data['deny_gid'];
+
+			$ft['lockstate'] = $lockstate;
+			$ft['resource'] = $data['hash'];
+			$ft['folder'] = $data['folder'];
+			$ft['revision'] = $data['revision'];
+			$ft['newfilename'] = ['newfilename_' . $id, t('Change filename to'), $name];
+			$ft['categories'] = ['categories_' . $id, t('Categories'), $terms_str];
+
+			// create a copy of the list which we can alter for the current resource
+			$folders = $folder_list;
+			if($data['is_dir']) {
+				// can not copy a folder into itself
+				unset($folders[$folder_hash]);
+			}
+
+			$ft['newfolder'] = ['newfolder_' . $id, t('Select a target location'), $data['folder'], '', $folders];
+			$ft['copy'] = ['copy_' . $id, t('Copy to target location'), 0, '', [t('No'), t('Yes')]];
+			$ft['recurse'] = ['recurse_' . $id, t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]];
+			$ft['notify'] = ['notify_edit_' . $id, t('Notify your contacts about this file'), 0, '', [t('No'), t('Yes')]];
+
+			$embed_bbcode = '';
+			$link_bbcode = '';
+			$attach_bbcode = '';
+
+			if($data['is_photo']) {
+				$embed_bbcode = '[zmg]' . $ft['full_path'] . '[/zmg]';
+			}
+			elseif(strpos($type, 'video') === 0 && in_array($type, $embedable_video_types)) {
+				$embed_bbcode = '[zvideo]' . $ft['full_path'] . '[/zvideo]';
+			}
+			elseif(strpos($type, 'audio') === 0 && in_array($type, $embedable_audio_types)) {
+				$embed_bbcode = '[zaudio]' . $ft['full_path'] . '[/zaudio]';
+			}
+			$ft['embed_bbcode'] = $embed_bbcode;
+
+			if(! $data['is_dir']) {
+				$attach_bbcode = '[attachment]' . $data['hash'] . ',' . $data['revision'] . '[/attachment]';
+			}
+			$ft['attach_bbcode'] = $attach_bbcode;
+
+			$link_bbcode = '[zrl]' . $ft['full_path'] . '[/zrl]';
+			$ft['link_bbcode'] = $link_bbcode;
 
 			$f[] = $ft;
 
 		}
 
-
 		$output = '';
 		if ($this->enablePost) {
-			$this->server->emit('onHTMLActionsPanel', array($parent, &$output, $path));
+			$this->server->emit('onHTMLActionsPanel', [$parent, &$output, $path]);
 		}
 
 		$deftiles = (($is_owner) ? 0 : 1);
+
 		$tiles = ((array_key_exists('cloud_tiles',$_SESSION)) ? intval($_SESSION['cloud_tiles']) : $deftiles);
 		$_SESSION['cloud_tiles'] = $tiles;
-	
-		$html .= replace_macros(get_markup_template('cloud.tpl'), array(
-				'$header' => t('Files') . ": " . $this->escapeHTML($path) . "/",
+
+		$header = (($cat) ? t('File category') . ": " . $this->escapeHTML($cat) : t('Files'));
+
+		$channel = channelx_by_n($channel_id);
+		if($channel) {
+			$acl = new \Zotlabs\Access\AccessList($channel);
+			$channel_acl = $acl->get();
+			$lockstate = (($acl->is_private()) ? 'lock' : 'unlock');
+		}
+
+		$html = replace_macros(get_markup_template('cloud.tpl'), array(
+				'$header' => $header,
 				'$total' => t('Total'),
 				'$actionspanel' => $output,
 				'$shared' => t('Shared'),
@@ -284,8 +361,11 @@ class Browser extends DAV\Browser\Plugin {
 				'$is_owner' => $is_owner,
 				'$is_admin' => is_site_admin(),
 				'$admin_delete' => t('Admin Delete'),
-				'$parentpath' => $parentpath,
-				'$cpath' => bin2hex(\App::$query_string),
+				'$parentpath' => $parent_path,
+				'$folder_parent' => $folder_parent,
+				'$folder' => $parent->folder_hash,
+				'$is_root_folder' => $is_root_folder,
+				'$cpath' => bin2hex(App::$query_string),
 				'$tiles' => intval($_SESSION['cloud_tiles']),
 				'$entries' => $f,
 				'$name' => t('Name'),
@@ -293,17 +373,33 @@ class Browser extends DAV\Browser\Plugin {
 				'$size' => t('Size'),
 				'$lastmod' => t('Last Modified'),
 				'$parent' => t('parent'),
-				'$edit' => t('Edit'),
+				'$edit' => t('Submit'),
 				'$delete' => t('Delete'),
-				'$nick' => $this->auth->getCurrentUser()
-			));
+				'$channel_id' => $channel_id,
+				'$cpdesc' => t('Copy/paste this code to attach file to a post'),
+				'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
 
+				'$categories' => ['categories', t('Categories')],
+				'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
+
+				'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
+				'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
+				'$return_path' => $path,
+
+				'$lockstate' => $lockstate,
+				'$allow_cid' => acl2json($channel_acl['allow_cid']),
+				'$allow_gid' => acl2json($channel_acl['allow_gid']),
+				'$deny_cid' => acl2json($channel_acl['deny_cid']),
+				'$deny_gid' => acl2json($channel_acl['deny_gid'])
+
+
+			));
 
 		$a = false;
 
 		nav_set_selected('Files');
 
-		\App::$page['content'] = $html;
+		App::$page['content'] = $html;
 		load_pdl();
 
 		$current_theme = \Zotlabs\Render\Theme::current();
@@ -335,6 +431,7 @@ class Browser extends DAV\Browser\Plugin {
 		// SimpleCollection, we won't need to show the panel either.
 		if (get_class($node) === 'Sabre\\DAV\\SimpleCollection')
 			return;
+
 		require_once('include/acl_selectors.php');
 
 		$aclselect = null;
@@ -387,9 +484,38 @@ class Browser extends DAV\Browser\Plugin {
 		$special = 'cloud/' . $this->auth->owner_nick;
 		$count   = strlen($special);
 
-		if(strpos($path,$special) === 0)
-			$path = trim(substr($path,$count),'/');
 
+
+		if(strpos($path,$special) === 0)
+			$display_path = trim(substr($path,$count),'/');
+
+		$breadcrumbs_html = '';
+
+		if($display_path && ! $_REQUEST['cat']){
+			$breadcrumbs = [];
+			$folders = explode('/', $display_path);
+			$folder_hashes = explode('/', $node->os_path);
+			$breadcrumb_path = z_root() . '/cloud/' . $this->auth->owner_nick;
+
+			$breadcrumbs[] = [
+				'name' => $this->auth->owner_nick,
+				'hash' => '',
+				'path' => $breadcrumb_path
+			];
+
+			foreach($folders as $i => $name) {
+					$breadcrumb_path .= '/' . $name;
+					$breadcrumbs[] = [
+						'name' => $name,
+						'hash' => $folder_hashes[$i],
+						'path' => $breadcrumb_path
+					];
+			}
+
+			$breadcrumbs_html = replace_macros(get_markup_template('breadcrumb.tpl'), array(
+				'$breadcrumbs' => $breadcrumbs
+			));
+		}
 
 		$output .= replace_macros(get_markup_template('cloud_actionspanel.tpl'), array(
 				'$folder_header' => t('Create new folder'),
@@ -404,11 +530,11 @@ class Browser extends DAV\Browser\Plugin {
 				'$deny_cid' => acl2json($channel_acl['deny_cid']),
 				'$deny_gid' => acl2json($channel_acl['deny_gid']),
 				'$lockstate' => $lockstate,
-				'$return_url' => \App::$cmd,
-				'$path' => $path,
-				'$folder' => find_folder_hash_by_path($this->auth->owner_id, $path),
+				'$return_url' => $path,
+				'$folder' => $node->folder_hash,
 				'$dragdroptext' => t('Drop files here to immediately upload'),
-				'$notify' => ['notify', t('Show in your contacts shared folder'), 0, '', [t('No'), t('Yes')]]
+				'$notify' => ['notify', t('Show in your contacts shared folder'), 0, '', [t('No'), t('Yes')]],
+				'$breadcrumbs_html' => $breadcrumbs_html
 			));
 	}
 
@@ -441,6 +567,21 @@ class Browser extends DAV\Browser\Plugin {
 		$r = q("SELECT hash FROM attach WHERE uid = %d AND folder = '%s' AND filename = '%s' ORDER BY edited DESC LIMIT 1",
 			intval($owner),
 			dbesc($parentHash),
+			dbesc($attachName)
+		);
+		$hash = '';
+		if ($r) {
+			foreach ($r as $rr) {
+				$hash = $rr['hash'];
+			}
+		}
+
+		return $hash;
+	}
+
+	protected function findAttachHashFlat($owner, $attachName) {
+		$r = q("SELECT hash FROM attach WHERE uid = %d AND filename = '%s' ORDER BY edited DESC LIMIT 1",
+			intval($owner),
 			dbesc($attachName)
 		);
 		$hash = '';

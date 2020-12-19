@@ -11,17 +11,16 @@ require_once('include/photos.php');
 class File_upload extends \Zotlabs\Web\Controller {
 
 	function post() {
-
 		logger('file upload: ' . print_r($_REQUEST,true));
 		logger('file upload: ' . print_r($_FILES,true));
-	
+
 		$channel = (($_REQUEST['channick']) ? channelx_by_nick($_REQUEST['channick']) : null);
-	
+
 		if(! $channel) {
 			logger('channel not found');
 			killme();
 		}
-	
+
 		$_REQUEST['source'] = 'file_upload';
 
 		if($channel['channel_id'] != local_channel()) {
@@ -40,21 +39,17 @@ class File_upload extends \Zotlabs\Web\Controller {
 			$r = attach_mkdir($channel, get_observer_hash(), $_REQUEST);
 			if($r['success']) {
 				$hash = $r['data']['hash'];
-
 				$sync = attach_export_data($channel,$hash);
 				if($sync) {
 					Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 				}
-				goaway(z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path']);
-
+				goaway(z_root() . '/' . $_REQUEST['return_url']);
 			}
 		}
 		else {
 
 			$matches = [];
 			$partial = false;
-
-
 
 			if(array_key_exists('HTTP_CONTENT_RANGE',$_SERVER)) {
 				$pm = preg_match('/bytes (\d*)\-(\d*)\/(\d*)/',$_SERVER['HTTP_CONTENT_RANGE'],$matches);
@@ -83,7 +78,7 @@ class File_upload extends \Zotlabs\Web\Controller {
 					];
 				}
 			}
-			else {	
+			else {
 				if(! array_key_exists('userfile',$_FILES)) {
 					$_FILES['userfile'] = [
 						'name'     => $_FILES['files']['name'],
@@ -103,8 +98,9 @@ class File_upload extends \Zotlabs\Web\Controller {
 
 			}
 		}
+
 		goaway(z_root() . '/' . $_REQUEST['return_url']);
-	
+
 	}
-	
+
 }

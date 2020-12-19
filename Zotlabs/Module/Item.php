@@ -26,17 +26,17 @@ require_once('include/conversation.php');
 /**
  *
  * This is the POST destination for most all locally posted
- * text stuff. This function handles status, wall-to-wall status, 
- * local comments, and remote coments that are posted on this site 
+ * text stuff. This function handles status, wall-to-wall status,
+ * local comments, and remote coments that are posted on this site
  * (as opposed to being delivered in a feed).
- * Also processed here are posts and comments coming through the 
- * statusnet/twitter API. 
- * All of these become an "item" which is our basic unit of 
+ * Also processed here are posts and comments coming through the
+ * statusnet/twitter API.
+ * All of these become an "item" which is our basic unit of
  * information.
- * Posts that originate externally or do not fall into the above 
- * posting categories go through item_store() instead of this function. 
+ * Posts that originate externally or do not fall into the above
+ * posting categories go through item_store() instead of this function.
  *
- */  
+ */
 
 
 class Item extends Controller {
@@ -107,7 +107,7 @@ class Item extends Controller {
 			}
 
 			$parents_str = ids_to_querystr($i,'item_id');
-	
+
 			$items = q("SELECT item.*, item.id AS item_id FROM item WHERE item.parent IN ( %s ) $item_normal order by item.id asc",
 				dbesc($parents_str)
 			);
@@ -285,7 +285,7 @@ class Item extends Controller {
 
 		// This will change. Figure out who the observer is and whether or not
 		// they have permission to post here. Else ignore the post.
-	
+
 		if((! local_channel()) && (! remote_channel()) && (! x($_REQUEST,'anonname')))
 			return;
 
@@ -293,25 +293,25 @@ class Item extends Controller {
 		$channel = null;
 		$observer = null;
 		$datarray = [];
-	
-	
+
+
 		/**
 		 * Is this a reply to something?
 		 */
-	
+
 		$parent = ((x($_REQUEST,'parent')) ? intval($_REQUEST['parent']) : 0);
 		$parent_mid = ((x($_REQUEST,'parent_mid')) ? trim($_REQUEST['parent_mid']) : '');
 		$mode = (($_REQUEST['conv_mode'] === 'channel') ? 'channel' : 'network');
-	
+
 		$remote_xchan = ((x($_REQUEST,'remote_xchan')) ? trim($_REQUEST['remote_xchan']) : false);
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($remote_xchan)
 		);
 		if($r)
 			$remote_observer = $r[0];
-		else 
+		else
 			$remote_xchan = $remote_observer = false;
-	
+
 		$profile_uid = ((x($_REQUEST,'profile_uid')) ? intval($_REQUEST['profile_uid'])    : 0);
 		require_once('include/channel.php');
 
@@ -321,7 +321,7 @@ class Item extends Controller {
 			$channel = $sys;
 			$observer = $sys;
 		}
-	
+
 		if(x($_REQUEST,'dropitems')) {
 			require_once('include/items.php');
 			$arr_drop = explode(',',$_REQUEST['dropitems']);
@@ -330,36 +330,36 @@ class Item extends Controller {
 			echo json_encode($json);
 			killme();
 		}
-	
+
 		call_hooks('post_local_start', $_REQUEST);
-	
+
 		// logger('postvars ' . print_r($_REQUEST,true), LOGGER_DATA);
-	
+
 		$api_source = ((x($_REQUEST,'api_source') && $_REQUEST['api_source']) ? true : false);
-	
+
 		$consensus = intval($_REQUEST['consensus']);
 		$nocomment = intval($_REQUEST['nocomment']);
 
 		$is_poll = ((trim($_REQUEST['poll_answers'][0]) != '' && trim($_REQUEST['poll_answers'][1]) != '') ? true : false);
 
 		// 'origin' (if non-zero) indicates that this network is where the message originated,
-		// for the purpose of relaying comments to other conversation members. 
+		// for the purpose of relaying comments to other conversation members.
 		// If using the API from a device (leaf node) you must set origin to 1 (default) or leave unset.
 		// If the API is used from another network with its own distribution
-		// and deliveries, you may wish to set origin to 0 or false and allow the other 
+		// and deliveries, you may wish to set origin to 0 or false and allow the other
 		// network to relay comments.
-	
-		// If you are unsure, it is prudent (and important) to leave it unset.   
-	
+
+		// If you are unsure, it is prudent (and important) to leave it unset.
+
 		$origin = (($api_source && array_key_exists('origin',$_REQUEST)) ? intval($_REQUEST['origin']) : 1);
-	
+
 		// To represent message-ids on other networks - this will create an iconfig record
-	
+
 		$namespace = (($api_source && array_key_exists('namespace',$_REQUEST)) ? strip_tags($_REQUEST['namespace']) : '');
 		$remote_id = (($api_source && array_key_exists('remote_id',$_REQUEST)) ? strip_tags($_REQUEST['remote_id']) : '');
-	
+
 		$owner_hash = null;
-	
+
 		$message_id  = ((x($_REQUEST,'message_id') && $api_source)  ? strip_tags($_REQUEST['message_id'])       : '');
 		$created     = ((x($_REQUEST,'created'))     ? datetime_convert(date_default_timezone_get(),'UTC',$_REQUEST['created']) : datetime_convert());
 		$post_id     = ((x($_REQUEST,'post_id'))     ? intval($_REQUEST['post_id'])        : 0);
@@ -373,49 +373,49 @@ class Item extends Controller {
 		$layout_mid  = ((x($_REQUEST,'layout_mid'))  ? escape_tags($_REQUEST['layout_mid']): '');
 		$plink       = ((x($_REQUEST,'permalink'))   ? escape_tags($_REQUEST['permalink']) : '');
 		$obj_type    = ((x($_REQUEST,'obj_type'))    ? escape_tags($_REQUEST['obj_type'])  : ACTIVITY_OBJ_NOTE);
-	
-		// allow API to bulk load a bunch of imported items with sending out a bunch of posts. 
+
+		// allow API to bulk load a bunch of imported items with sending out a bunch of posts.
 		$nopush      = ((x($_REQUEST,'nopush'))      ? intval($_REQUEST['nopush'])         : 0);
-	
+
 		/*
 		 * Check service class limits
 		 */
 		if ($uid && !(x($_REQUEST,'parent')) && !(x($_REQUEST,'post_id'))) {
 			$ret = $this->item_check_service_class($uid,(($_REQUEST['webpage'] == ITEM_TYPE_WEBPAGE) ? true : false));
-			if (!$ret['success']) { 
+			if (!$ret['success']) {
 				notice( t($ret['message']) . EOL) ;
 				if($api_source)
-					return ( [ 'success' => false, 'message' => 'service class exception' ] );	
-				if(x($_REQUEST,'return')) 
+					return ( [ 'success' => false, 'message' => 'service class exception' ] );
+				if(x($_REQUEST,'return'))
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
 		}
-	
+
 		if($pagetitle) {
 			require_once('library/urlify/URLify.php');
 			$pagetitle = strtolower(\URLify::transliterate($pagetitle));
 		}
-	
-	
+
+
 		$item_flags = $item_restrict = 0;
 		$expires = NULL_DATE;
-	
+
 		$route = '';
 		$parent_item = null;
 		$parent_contact = null;
 		$thr_parent = '';
 		$parid = 0;
 		$r = false;
-	
+
 		if($parent || $parent_mid) {
-	
+
 			if(! x($_REQUEST,'type'))
 				$_REQUEST['type'] = 'net-comment';
-	
+
 			if($obj_type == ACTIVITY_OBJ_NOTE)
 				$obj_type = ACTIVITY_OBJ_COMMENT;
-	
+
 			if($parent) {
 				$r = q("SELECT * FROM item WHERE id = %d LIMIT 1",
 					intval($parent)
@@ -438,7 +438,7 @@ class Item extends Controller {
 					);
 				}
 
-				// if interacting with a pubstream item, 
+				// if interacting with a pubstream item,
 				// create a copy of the parent in your stream
 
 				if($r[0]['uid'] === $sys['channel_id'] && local_channel()) {
@@ -449,8 +449,8 @@ class Item extends Controller {
 			if(! $r) {
 				notice( t('Unable to locate original post.') . EOL);
 				if($api_source)
-					return ( [ 'success' => false, 'message' => 'invalid post id' ] );	
-				if(x($_REQUEST,'return')) 
+					return ( [ 'success' => false, 'message' => 'invalid post id' ] );
+				if(x($_REQUEST,'return'))
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
@@ -461,15 +461,15 @@ class Item extends Controller {
 			$parent = $r[0]['id'];
 
 			// multi-level threading - preserve the info but re-parent to our single level threading
-	
+
 			$thr_parent = $parent_mid;
-	
+
 			$route = $parent_item['route'];
-	
+
 		}
 
 		$moderated = false;
-	
+
 		if(! $observer) {
 			$observer = \App::get_observer();
 			if(! $observer) {
@@ -479,13 +479,13 @@ class Item extends Controller {
 					$remote_xchan = $remote_observer = $observer;
 				}
 			}
-		} 			
-	
+		}
+
 		if(! $observer) {
 			notice( t('Permission denied.') . EOL) ;
 			if($api_source)
-				return ( [ 'success' => false, 'message' => 'permission denied' ] );	
-			if(x($_REQUEST,'return')) 
+				return ( [ 'success' => false, 'message' => 'permission denied' ] );
+			if(x($_REQUEST,'return'))
 				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
@@ -499,12 +499,12 @@ class Item extends Controller {
                                 if((array_key_exists('owner',$parent_item)) && intval($parent_item['owner']['abook_self'])==1 )
 				        $can_comment = perm_is_allowed($profile_uid,$observer['xchan_hash'],'post_comments');
                         }
-	
+
 			if(! $can_comment) {
 				notice( t('Permission denied.') . EOL) ;
 				if($api_source)
-					return ( [ 'success' => false, 'message' => 'permission denied' ] );	
-				if(x($_REQUEST,'return')) 
+					return ( [ 'success' => false, 'message' => 'permission denied' ] );
+				if(x($_REQUEST,'return'))
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
@@ -513,30 +513,30 @@ class Item extends Controller {
 			if(! perm_is_allowed($profile_uid,$observer['xchan_hash'],($webpage) ? 'write_pages' : 'post_wall')) {
 				notice( t('Permission denied.') . EOL) ;
 				if($api_source)
-					return ( [ 'success' => false, 'message' => 'permission denied' ] );	
-				if(x($_REQUEST,'return')) 
+					return ( [ 'success' => false, 'message' => 'permission denied' ] );
+				if(x($_REQUEST,'return'))
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
 		}
-	
-	
+
+
 		// is this an edited post?
-	
+
 		$orig_post = null;
-	
+
 		if($namespace && $remote_id) {
 			// It wasn't an internally generated post - see if we've got an item matching this remote service id
 			$i = q("select iid from iconfig where cat = 'system' and k = '%s' and v = '%s' limit 1",
 				dbesc($namespace),
-				dbesc($remote_id) 
+				dbesc($remote_id)
 			);
 			if($i)
-				$post_id = $i[0]['iid'];	
+				$post_id = $i[0]['iid'];
 		}
-	
+
 		$iconfig = null;
-	
+
 		if($post_id) {
 			$i = q("SELECT * FROM item WHERE uid = %d AND id = %d LIMIT 1",
 				intval($profile_uid),
@@ -549,8 +549,8 @@ class Item extends Controller {
 				intval($post_id)
 			);
 		}
-	
-	
+
+
 		if(! $channel) {
 			if($uid && $uid == $profile_uid) {
 				$channel = \App::get_channel();
@@ -564,19 +564,19 @@ class Item extends Controller {
 					$channel = $r[0];
 			}
 		}
-	
-	
+
+
 		if(! $channel) {
 			logger("mod_item: no channel.");
 			if($api_source)
-				return ( [ 'success' => false, 'message' => 'no channel' ] );	
-			if(x($_REQUEST,'return')) 
+				return ( [ 'success' => false, 'message' => 'no channel' ] );
+			if(x($_REQUEST,'return'))
 				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
-	
+
 		$owner_xchan = null;
-	
+
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($channel['channel_hash'])
 		);
@@ -586,50 +586,50 @@ class Item extends Controller {
 		else {
 			logger("mod_item: no owner.");
 			if($api_source)
-				return ( [ 'success' => false, 'message' => 'no owner' ] );	
-			if(x($_REQUEST,'return')) 
+				return ( [ 'success' => false, 'message' => 'no owner' ] );
+			if(x($_REQUEST,'return'))
 				goaway(z_root() . "/" . $return_path );
 			killme();
 		}
-	
+
 		$walltowall = false;
 		$walltowall_comment = false;
-	
+
 		if($remote_xchan && ! $moderated)
 			$observer = $remote_observer;
-	
+
 		if($observer) {
 			logger('mod_item: post accepted from ' . $observer['xchan_name'] . ' for ' . $owner_xchan['xchan_name'], LOGGER_DEBUG);
-	
+
 			// wall-to-wall detection.
 			// For top-level posts, if the author and owner are different it's a wall-to-wall
 			// For comments, We need to additionally look at the parent and see if it's a wall post that originated locally.
-	
+
 			if($observer['xchan_name'] != $owner_xchan['xchan_name'])  {
 				if(($parent_item) && ($parent_item['item_wall'] && $parent_item['item_origin'])) {
 					$walltowall_comment = true;
 					$walltowall = true;
 				}
 				if(! $parent) {
-					$walltowall = true;		
+					$walltowall = true;
 				}
 			}
 		}
-	
+
 		$acl = new \Zotlabs\Access\AccessList($channel);
 
-		$view_policy = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream');	
+		$view_policy = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_stream');
 		$comment_policy = \Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'post_comments');
-	
+
 		$public_policy = ((x($_REQUEST,'public_policy')) ? escape_tags($_REQUEST['public_policy']) : map_scope($view_policy,true));
 		if($webpage)
 			$public_policy = '';
 		if($public_policy)
 			$private = 1;
-	
+
 		if($orig_post) {
 			$private = 0;
-			// webpages are allowed to change ACLs after the fact. Normal conversation items aren't. 
+			// webpages are allowed to change ACLs after the fact. Normal conversation items aren't.
 			if($webpage) {
 				$acl->set_from_array($_REQUEST);
 			}
@@ -641,8 +641,8 @@ class Item extends Controller {
 
 			if($public_policy || $acl->is_private()) {
 				$private = (($private) ? $private : 1);
-			}  
-	
+			}
+
 			$location          = $orig_post['location'];
 			$coord             = $orig_post['coord'];
 			$verb              = $orig_post['verb'];
@@ -651,7 +651,7 @@ class Item extends Controller {
 			$summary           = trim($_REQUEST['summary']);
 			$body              = trim($_REQUEST['body']);
 			$item_flags        = $orig_post['item_flags'];
-	
+
 			$item_origin   = $orig_post['item_origin'];
 			$item_unseen   = $orig_post['item_unseen'];
 			$item_starred   = $orig_post['item_starred'];
@@ -675,16 +675,16 @@ class Item extends Controller {
 			$item_delayed   = $orig_post['item_delayed'];
 			$item_pending_remove   = $orig_post['item_pending_remove'];
 			$item_blocked   = $orig_post['item_blocked'];
-	
-	
-	
+
+
+
 			$postopts          = $orig_post['postopts'];
 			$created           = $orig_post['created'];
 			$expires           = $orig_post['expires'];
 			$mid               = $orig_post['mid'];
 			$parent_mid        = $orig_post['parent_mid'];
 			$plink             = $orig_post['plink'];
-	
+
 		}
 		else {
 			if(! $walltowall) {
@@ -695,18 +695,18 @@ class Item extends Controller {
 					$acl->set_from_array($_REQUEST);
 				}
 				elseif(! $api_source) {
-	
+
 					// if no ACL has been defined and we aren't using the API, the form
 					// didn't send us any parameters. This means there's no ACL or it has
 					// been reset to the default audience.
 					// If $api_source is set and there are no ACL parameters, we default
 					// to the channel permissions which were set in the ACL contructor.
-	
+
 					$acl->set(array('allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => ''));
 				}
 			}
-	
-	
+
+
 			$location          = notags(trim($_REQUEST['location']));
 			$coord             = notags(trim($_REQUEST['coord']));
 			$verb              = notags(trim($_REQUEST['verb']));
@@ -716,12 +716,12 @@ class Item extends Controller {
 			$body              .= trim($_REQUEST['attachment']);
 			$postopts          = '';
 
-			$allow_empty       = ((array_key_exists('allow_empty',$_REQUEST)) ? intval($_REQUEST['allow_empty']) : 0);	
+			$allow_empty       = ((array_key_exists('allow_empty',$_REQUEST)) ? intval($_REQUEST['allow_empty']) : 0);
 
 			$private = (($private) ? $private : intval($acl->is_private() || ($public_policy)));
-	
+
 			// If this is a comment, set the permissions from the parent.
-	
+
 			if($parent_item) {
 				$acl->set($parent_item);
 				$private = intval($acl->is_private() || $parent_item['item_private']);
@@ -729,21 +729,21 @@ class Item extends Controller {
 				$owner_hash        = $parent_item['owner_xchan'];
 				$webpage           = $parent_item['item_type'];
 			}
-		
+
 			if((! $allow_empty) && (! strlen($body))) {
 				if($preview)
 					killme();
 				info( t('Empty post discarded.') . EOL );
 				if($api_source)
-					return ( [ 'success' => false, 'message' => 'no content' ] );	
-				if(x($_REQUEST,'return')) 
+					return ( [ 'success' => false, 'message' => 'no content' ] );
+				if(x($_REQUEST,'return'))
 					goaway(z_root() . "/" . $return_path );
 				killme();
 			}
 		}
-		
-	
-	
+
+
+
 		if(feature_enabled($profile_uid,'content_expire')) {
 			if(x($_REQUEST,'expire')) {
 				$expires = datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['expire']);
@@ -756,16 +756,16 @@ class Item extends Controller {
 		$mimetype = notags(trim($_REQUEST['mimetype']));
 		if(! $mimetype)
 			$mimetype = 'text/bbcode';
-	
 
-		$execflag = ((intval($uid) == intval($profile_uid) 
+
+		$execflag = ((intval($uid) == intval($profile_uid)
 			&& ($channel['channel_pageflags'] & PAGE_ALLOWCODE)) ? true : false);
 
 		if($preview) {
 			$summary = z_input_filter($summary,$mimetype,$execflag);
 			$body = z_input_filter($body,$mimetype,$execflag);
 		}
-	
+
 
 		$arr = [ 'profile_uid' => $profile_uid, 'summary' => $summary, 'content' => $body, 'mimetype' => $mimetype ];
 		call_hooks('post_content',$arr);
@@ -773,7 +773,7 @@ class Item extends Controller {
 		$body = $arr['content'];
 		$mimetype = $arr['mimetype'];
 
-	
+
 		$gacl = $acl->get();
 		$str_contact_allow = $gacl['allow_cid'];
 		$str_group_allow   = $gacl['allow_gid'];
@@ -784,7 +784,7 @@ class Item extends Controller {
 		$groupww = false;
 
 		// if this is a wall-to-wall post to a group, turn it into a direct message
-		
+
 		$role = get_pconfig($profile_uid,'system','permissions_role');
 
 		$rolesettings = PermissionRoles::role_perms($role);
@@ -793,19 +793,19 @@ class Item extends Controller {
 
 		$is_group = (($channel_type === 'group') ? true : false);
 
-		if (($is_group) && ($walltowall) && (! $walltowall_comment)) {				
+		if (($is_group) && ($walltowall) && (! $walltowall_comment)) {
 			$groupww = true;
 			$str_contact_allow = $owner_xchan['xchan_hash'];
 			$str_group_allow = '';
 		}
 
 		$post_tags = [];
-	
+
 		if($mimetype === 'text/bbcode') {
-	
-			require_once('include/text.php');			
-	
-	
+
+			require_once('include/text.php');
+
+
 			// BBCODE alert: the following functions assume bbcode input
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
@@ -819,31 +819,31 @@ class Item extends Controller {
 			    $body_content = preg_replace("/\[summary\](.*?)\[\/summary\]/ism", '',$body);
 			    $body = trim($body_content);
 			}
-			
+
 			$summary = cleanup_bbcode($summary);
 
 			$body = cleanup_bbcode($body);
-	
+
 			// Look for tags and linkify them
 
 			$results = linkify_tags($summary, ($uid) ? $uid : $profile_uid);
 			$results = linkify_tags($body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {
-	
+
 				// Set permissions based on tag replacements
 				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
-	
+
 				foreach($results as $result) {
 					$success = $result['success'];
 					if($success['replaced']) {
 						$post_tags[] = array(
-							'uid'   => $profile_uid, 
+							'uid'   => $profile_uid,
 							'ttype' => $success['termtype'],
 							'otype' => TERM_OBJ_POST,
 							'term'  => $success['term'],
 							'url'   => $success['url']
-						); 				
+						);
 					}
 				}
 
@@ -854,10 +854,10 @@ class Item extends Controller {
 				$private = 2;
 			}
 
-	
+
 			/**
 			 *
-			 * When a photo was uploaded into the message using the (profile wall) ajax 
+			 * When a photo was uploaded into the message using the (profile wall) ajax
 			 * uploader, The permissions are initially set to disallow anybody but the
 			 * owner from seeing it. This is because the permissions may not yet have been
 			 * set for the post. If it's private, the photo permissions should be set
@@ -867,27 +867,27 @@ class Item extends Controller {
 			 *
 			 * If the post was end-to-end encrypted we can't find images and attachments in the body,
 			 * use our media_str input instead which only contains these elements - but only do this
-			 * when encrypted content exists because the photo/attachment may have been removed from 
+			 * when encrypted content exists because the photo/attachment may have been removed from
 			 * the post and we should keep it private. If it's encrypted we have no way of knowing
-			 * so we'll set the permissions regardless and realise that the media may not be 
-			 * referenced in the post. 
+			 * so we'll set the permissions regardless and realise that the media may not be
+			 * referenced in the post.
 			 *
 			 */
-	
+
 			if(! $preview) {
 				fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
-	
+
                 fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($summary,'[/crypt]')) ? $_POST['media_str'] : $summary),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
 
 
 				fix_attached_file_permissions($channel,$observer['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
-	
+
 			}
-	
-	
+
+
 			$attachments = '';
 			$match = false;
-	
+
 			if(preg_match_all('/(\[attachment\](.*?)\[\/attachment\])/',$body,$match)) {
 				$attachments = array();
 				$i = 0;
@@ -910,10 +910,9 @@ class Item extends Controller {
 				}
 			}
 
-
 			if(preg_match_all('/(\[share=(.*?)\](.*?)\[\/share\])/',$body,$match)) {
 
-				// process share by id				
+				// process share by id
 
 				$i = 0;
 				foreach($match[2] as $mtch) {
@@ -922,11 +921,11 @@ class Item extends Controller {
 					$i++;
 				}
 			}
-	
+
 		}
-	
+
 	// BBCODE end alert
-	
+
 		if(strlen($categories)) {
 
 			$cats = explode(',',$categories);
@@ -943,15 +942,15 @@ class Item extends Controller {
 				}
 
 				$post_tags[] = array(
-					'uid'   => $profile_uid, 
+					'uid'   => $profile_uid,
 					'ttype' => TERM_CATEGORY,
 					'otype' => TERM_OBJ_POST,
 					'term'  => trim($cat),
 					'url'   => $catlink
-				); 				
+				);
 			}
 		}
-	
+
 		if($orig_post) {
 			// preserve original tags
 			$t = q("select * from term where oid = %d and otype = %d and uid = %d and ttype in ( %d, %d, %d )",
@@ -965,26 +964,26 @@ class Item extends Controller {
 			if($t) {
 				foreach($t as $t1) {
 					$post_tags[] = array(
-						'uid'   => $profile_uid, 
+						'uid'   => $profile_uid,
 						'ttype' => $t1['ttype'],
 						'otype' => TERM_OBJ_POST,
 						'term'  => $t1['term'],
 						'url'   => $t1['url'],
-					); 				
+					);
 				}
 			}
-		} 
-	
-	
+		}
+
+
 		$item_unseen = ((local_channel() != $profile_uid) ? 1 : 0);
 		$item_wall = (($post_type === 'wall' || $post_type === 'wall-comment') ? 1 : 0);
 		$item_origin = (($origin) ? 1 : 0);
 		$item_consensus = (($consensus) ? 1 : 0);
 		$item_nocomment = (($nocomment) ? 1 : 0);
-	
-	
+
+
 		// determine if this is a wall post
-	
+
 		if($parent) {
 			$item_wall = $parent_item['item_wall'];
 		}
@@ -993,20 +992,20 @@ class Item extends Controller {
 				$item_wall = 1;
 			}
 		}
-	
-	
+
+
 		if($moderated)
 			$item_blocked = ITEM_MODERATED;
-	
-			
+
+
 		if(! strlen($verb))
 			$verb = ACTIVITY_POST ;
-	
+
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new' );
-	
+
 		if(! $mid) {
 			$uuid = (($message_id) ? $message_id : item_message_id());
-			$mid = z_root() . '/item/' . $uuid; 
+			$mid = z_root() . '/item/' . $uuid;
 		}
 
 
@@ -1034,23 +1033,23 @@ class Item extends Controller {
 		if(! $parent_mid) {
 			$parent_mid = $mid;
 		}
-	
+
 		if($parent_item)
 			$parent_mid = $parent_item['mid'];
 
 
 
 		// Fallback so that we alway have a thr_parent
-	
+
 		if(!$thr_parent)
 			$thr_parent = $mid;
-	
+
 
 		$item_thread_top = ((! $parent) ? 1 : 0);
-	
+
 
 		// fix permalinks for cards
-	
+
 		if($webpage == ITEM_TYPE_CARD) {
 			$plink = z_root() . '/cards/' . $channel['channel_address'] . '/' . (($pagetitle) ? $pagetitle : $uuid);
 		}
@@ -1138,27 +1137,27 @@ class Item extends Controller {
 		$datarray['item_unpublished']    = intval($item_unpublished);
 		$datarray['item_delayed']        = intval($item_delayed);
 		$datarray['item_pending_remove'] = intval($item_pending_remove);
-		$datarray['item_blocked']        = intval($item_blocked);	
+		$datarray['item_blocked']        = intval($item_blocked);
 		$datarray['layout_mid']          = $layout_mid;
 		$datarray['public_policy']       = $public_policy;
-		$datarray['comment_policy']      = map_scope($comment_policy); 
+		$datarray['comment_policy']      = map_scope($comment_policy);
 		$datarray['term']                = array_unique($post_tags, SORT_REGULAR);
 		$datarray['plink']               = $plink;
 		$datarray['route']               = $route;
 
 		// A specific ACL over-rides public_policy completely
- 
+
 		if(! empty_acl($datarray))
 			$datarray['public_policy'] = '';
 
 		if($iconfig)
 			$datarray['iconfig'] = $iconfig;
-	
+
 		// preview mode - prepare the body for display and send it via json
-	
+
 		if($preview) {
 			require_once('include/conversation.php');
-	
+
 			$datarray['owner'] = $owner_xchan;
 			$datarray['author'] = $observer;
 			$datarray['attach'] = json_encode($datarray['attach']);
@@ -1169,45 +1168,45 @@ class Item extends Controller {
 		}
 		if($orig_post)
 			$datarray['edit'] = true;
-	
+
 		// suppress duplicates, *unless* you're editing an existing post. This could get picked up
 		// as a duplicate if you're editing it very soon after posting it initially and you edited
-		// some attribute besides the content, such as title or categories. 
+		// some attribute besides the content, such as title or categories.
 
 		if(feature_enabled($profile_uid,'suppress_duplicates') && (! $orig_post)) {
-	
+
 			$z = q("select created from item where uid = %d and created > %s - INTERVAL %s and body = '%s' limit 1",
 				intval($profile_uid),
 				db_utcnow(),
 				db_quoteinterval('2 MINUTE'),
 				dbesc($body)
 			);
-	
+
 			if($z) {
 				$datarray['cancel'] = 1;
 				notice( t('Duplicate post suppressed.') . EOL);
 				logger('Duplicate post. Faking plugin cancel.');
 			}
 		}
-	
+
 		call_hooks('post_local',$datarray);
-	
+
 		if(x($datarray,'cancel')) {
 			logger('mod_item: post cancelled by plugin or duplicate suppressed.');
 			if($return_path)
 				goaway(z_root() . "/" . $return_path);
 			if($api_source)
-				return ( [ 'success' => false, 'message' => 'operation cancelled' ] );	
+				return ( [ 'success' => false, 'message' => 'operation cancelled' ] );
 			$json = array('cancel' => 1);
 			$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];
 			echo json_encode($json);
 			killme();
 		}
-	
-	
+
+
 		if(mb_strlen($datarray['title']) > 191)
 			$datarray['title'] = mb_substr($datarray['title'],0,191);
-	
+
 		if($webpage) {
 			IConfig::Set($datarray,'system', webpage_to_namespace($webpage),
 				(($pagetitle) ? $pagetitle : basename($datarray['mid'])), true);
@@ -1220,20 +1219,20 @@ class Item extends Controller {
 
 		if($orig_post) {
 			$datarray['id'] = $post_id;
-	
+
 			$x = item_store_update($datarray,$execflag);
-			
+
 			// We only need edit activities for other federated protocols
-			// which do not support edits natively. While this does federate 
+			// which do not support edits natively. While this does federate
 			// edits, it presents a number of issues locally - such as #757 and #758.
 			// The SQL check for an edit activity would not perform that well so to fix these issues
-			// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the 
+			// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the
 			// query for searches and notifications.
 
-			// For now we'll just forget about trying to make edits work on network protocols that 
-			// don't support them.   
+			// For now we'll just forget about trying to make edits work on network protocols that
+			// don't support them.
 
-			// item_create_edit_activity($x);			
+			// item_create_edit_activity($x);
 
 			if(! $parent) {
 				$r = q("select * from item where id = %d",
@@ -1247,7 +1246,7 @@ class Item extends Controller {
 			}
 			if(! $nopush)
 				Master::Summon([ 'Notifier', 'edit_post', $post_id ]);
-	
+
 
 			if($api_source)
 				return($x);
@@ -1260,18 +1259,18 @@ class Item extends Controller {
 		}
 		else
 			$post_id = 0;
-	
+
 		$post = item_store($datarray,$execflag);
-	
+
 		$post_id = $post['item_id'];
 
 		$datarray = $post['item'];
 
 		if($post_id) {
 			logger('mod_item: saved item ' . $post_id);
-	
+
 			if($parent) {
-	
+
 				// prevent conversations which you are involved from being expired
 
 				if(local_channel())
@@ -1279,7 +1278,7 @@ class Item extends Controller {
 
 				// only send comment notification if this is a wall-to-wall comment,
 				// otherwise it will happen during delivery
-	
+
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && (intval($parent_item['item_wall']))) {
 					Enotify::submit(array(
 						'type'         => NOTIFY_COMMENT,
@@ -1292,12 +1291,12 @@ class Item extends Controller {
 						'parent'       => $parent,
 						'parent_mid'   => $parent_item['mid']
 					));
-				
+
 				}
 			}
 			else {
 				$parent = $post_id;
-	
+
 				if(($datarray['owner_xchan'] != $datarray['author_xchan']) && ($datarray['item_type'] == ITEM_TYPE_POST)) {
 					Enotify::submit(array(
 						'type'         => NOTIFY_WALL,
@@ -1309,7 +1308,7 @@ class Item extends Controller {
 						'otype'        => 'item'
 					));
 				}
-	
+
 				if($uid && $uid == $profile_uid && (is_item_normal($datarray))) {
 					q("update channel set channel_lastpost = '%s' where channel_id = %d",
 						dbesc(datetime_convert()),
@@ -1317,11 +1316,11 @@ class Item extends Controller {
 					);
 				}
 			}
-	
+
 			// photo comments turn the corresponding item visible to the profile wall
 			// This way we don't see every picture in your new photo album posted to your wall at once.
 			// They will show up as people comment on them.
-	
+
 			if(intval($parent_item['item_hidden'])) {
 				$r = q("UPDATE item SET item_hidden = 0 WHERE id = %d",
 					intval($parent_item['id'])
@@ -1337,7 +1336,7 @@ class Item extends Controller {
 				return ( [ 'success' => false, 'message' => 'system error' ] );
 			killme();
 		}
-		
+
 		if(($parent == $post_id) || ($datarray['item_private'] == 1)) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
@@ -1348,10 +1347,10 @@ class Item extends Controller {
 				Libsync::build_sync_packet($profile_uid,array('item' => array(encode_item($sync_item[0],true))));
 			}
 		}
-	
+
 		$datarray['id']    = $post_id;
 		$datarray['llink'] = z_root() . '/display/' . gen_link_id($datarray['mid']);
-	
+
 		call_hooks('post_local_end', $datarray);
 
 		if ($groupww) {
@@ -1360,18 +1359,18 @@ class Item extends Controller {
 
 		if(! $nopush)
 			Master::Summon([ 'Notifier', $notify_type, $post_id ]);
-	
+
 		logger('post_complete');
 
 		if($moderated) {
 			info(t('Your comment is awaiting approval.') . EOL);
 		}
-	
+
 		// figure out how to return, depending on from whence we came
-	
+
 		if($api_source)
 			return $post;
-	
+
 		if($return_path) {
 			goaway(z_root() . "/" . $return_path);
 		}
@@ -1382,7 +1381,7 @@ class Item extends Controller {
 		$item[] = $datarray;
 		$item[0]['owner'] = $owner_xchan;
 		$item[0]['author'] = $observer;
-		$item[0]['attach'] = json_encode($datarray['attach']);
+		$item[0]['attach'] = $datarray['attach'];
 
 		$json = [
 			'success' => 1,
@@ -1392,29 +1391,29 @@ class Item extends Controller {
 
 		if(x($_REQUEST,'jsreload') && strlen($_REQUEST['jsreload']))
 			$json['reload'] = z_root() . '/' . $_REQUEST['jsreload'];
-	
+
 		logger('post_json: ' . print_r($json,true), LOGGER_DEBUG);
-	
+
 		echo json_encode($json);
 		killme();
 		// NOTREACHED
 	}
-	
-	
+
+
 	function get() {
-	
+
 		if((! local_channel()) && (! remote_channel()))
 			return;
-		
+
 		if((argc() == 3) && (argv(1) === 'drop') && intval(argv(2))) {
-	
+
 			require_once('include/items.php');
 
 
 			$i = q("select id, uid, item_origin, author_xchan, owner_xchan, source_xchan, item_type from item where id = %d limit 1",
 				intval(argv(2))
 			);
-	
+
 			if($i) {
 				$can_delete = false;
 				$local_delete = false;
@@ -1422,14 +1421,14 @@ class Item extends Controller {
 				if(local_channel() && local_channel() == $i[0]['uid']) {
 					$local_delete = true;
 				}
-	
+
 				$ob_hash = get_observer_hash();
 				if($ob_hash && ($ob_hash === $i[0]['author_xchan'] || $ob_hash === $i[0]['owner_xchan'] || $ob_hash === $i[0]['source_xchan'])) {
 					$can_delete = true;
 				}
 
 				// The site admin can delete any post/item on the site.
-				// If the item originated on this site+channel the deletion will propagate downstream. 
+				// If the item originated on this site+channel the deletion will propagate downstream.
 				// Otherwise just the local copy is removed.
 
 				if(is_site_admin()) {
@@ -1443,11 +1442,11 @@ class Item extends Controller {
 					notice( t('Permission denied.') . EOL);
 					return;
 				}
-	
+
 				// if this is a different page type or it's just a local delete
 				// but not by the item author or owner, do a simple deletion
 
-				$complex = false;	
+				$complex = false;
 
 				if(intval($i[0]['item_type']) || ($local_delete && (! $can_delete))) {
 					drop_item($i[0]['id']);
@@ -1473,15 +1472,15 @@ class Item extends Controller {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	function item_check_service_class($channel_id,$iswebpage) {
 		$ret = array('success' => false, 'message' => '');
-	
+
 		if ($iswebpage) {
-			$r = q("select count(i.id)  as total from item i 
-				right join channel c on (i.author_xchan=c.channel_hash and i.uid=c.channel_id )  
+			$r = q("select count(i.id)  as total from item i
+				right join channel c on (i.author_xchan=c.channel_hash and i.uid=c.channel_id )
 				and i.parent=i.id and i.item_type = %d and i.item_deleted = 0 and i.uid= %d ",
 				intval(ITEM_TYPE_WEBPAGE),
 				intval($channel_id)
@@ -1492,11 +1491,11 @@ class Item extends Controller {
 				intval($channel_id)
 			);
 		}
-	
+
 		if(! $r) {
 			$ret['message'] = t('Unable to obtain post information from database.');
 			return $ret;
-		} 
+		}
 
 		if (!$iswebpage) {
 			$max = engr_units_to_bytes(service_class_fetch($channel_id,'total_items'));
@@ -1510,13 +1509,13 @@ class Item extends Controller {
 			if(! service_class_allows($channel_id,'total_pages',$r[0]['total'])) {
 				$result['message'] .= upgrade_message() . sprintf( t('You have reached your limit of %1$.0f webpages.'),$max);
 				return $result;
-			}	
+			}
 		}
-	
+
 		$ret['success'] = true;
 		return $ret;
 	}
-	
+
 	function extract_bb_poll_data(&$body,$item) {
 
 		$multiple = false;
@@ -1550,7 +1549,7 @@ class Item extends Controller {
 		}
 
 		$matches = null;
-		
+
 		if (preg_match('/\[question=multiple\](.*?)\[\/question\]/ism',$body,$matches)) {
 			$obj['content'] = bbcode($matches[1]);
 			$body = str_replace('[question=multiple]' . $matches[1] . '[/question]', $matches[1], $body);
@@ -1558,7 +1557,7 @@ class Item extends Controller {
 		}
 
 		$matches = null;
-		
+
 		if (preg_match('/\[ends\](.*?)\[\/ends\]/ism',$body,$matches)) {
 			$obj['endTime'] = datetime_convert(date_default_timezone_get(),'UTC', $matches[1],ATOM_TIME);
 			$body = str_replace('[ends]' . $matches[1] . '[/ends]', EMPTY_STR, $body);

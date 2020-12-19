@@ -171,6 +171,7 @@ function string2bb(element) {
 			template: contact_format
 		};
 
+/*
 		// Autocomplete forums
 		forums = {
 			match: /(^|\s)(\!\!*)([^ \n]{2,})$/,
@@ -180,7 +181,7 @@ function string2bb(element) {
 			replace: editor_replace,
 			template: contact_format
 		};
-
+*/
 
 		// Autocomplete hashtags
 		tags = {

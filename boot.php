@@ -50,10 +50,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.1.9' );
+define ( 'STD_VERSION',             '5.1.10' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1239 );
+define ( 'DB_UPDATE_VERSION',       1240 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -433,7 +433,7 @@ define ( 'TERM_FORUM',        11 );
 define ( 'TERM_EMOJI',        12 );
 
 define ( 'TERM_OBJ_POST',    1 );
-define ( 'TERM_OBJ_PHOTO',   2 );
+define ( 'TERM_OBJ_FILE',   2 );
 define ( 'TERM_OBJ_PROFILE', 3 );
 define ( 'TERM_OBJ_CHANNEL', 4 );
 define ( 'TERM_OBJ_OBJECT',  5 );

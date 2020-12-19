@@ -71,7 +71,7 @@ function abook_connections($channel_id, $sql_conditions = '') {
 		intval($channel_id)
 	);
 	return(($r) ? $r : array());
-}	
+}
 
 function abook_self($channel_id) {
 	$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d
@@ -79,7 +79,7 @@ function abook_self($channel_id) {
 		intval($channel_id)
 	);
 	return(($r) ? $r[0] : array());
-}	
+}
 
 
 function vcard_from_xchan($xchan, $observer = null, $mode = '') {
@@ -119,14 +119,15 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	if(array_key_exists('channel_id',$xchan))
 		App::$profile_uid = $xchan['channel_id'];
 
-	$url = (($observer) 
-		? z_root() . '/magic?f=&owa=1&bdest=' . bin2hex($xchan['xchan_url']) . '&addr=' . $xchan['xchan_addr'] 
+	$url = (($observer)
+		? z_root() . '/magic?f=&owa=1&bdest=' . bin2hex($xchan['xchan_url']) . '&addr=' . $xchan['xchan_addr']
 		: $xchan['xchan_url']
 	);
-					
+
 	return replace_macros(get_markup_template('xchan_vcard.tpl'),array(
 		'$name'    => $xchan['xchan_name'],
-		'$photo'   => ((is_array(App::$profile) && array_key_exists('photo',App::$profile)) ? App::$profile['photo'] : $xchan['xchan_photo_l']),
+		'$addr'    => (($xchan['xchan_addr']) ? $xchan['xchan_addr'] : $xchan['xchan_url']),
+		'$photo'   => $xchan['xchan_photo_m'],
 		'$follow'  => (($xchan['xchan_addr']) ? $xchan['xchan_addr'] : $xchan['xchan_url']),
 		'$link'    => zid($xchan['xchan_url']),
 		'$connect' => $connect,
@@ -177,10 +178,10 @@ function abook_toggle_flag($abook,$flag) {
 	);
 
 
-	// if unsetting the archive bit, update the timestamps so we'll try to connect for an additional 30 days. 
+	// if unsetting the archive bit, update the timestamps so we'll try to connect for an additional 30 days.
 
 	if(($flag === ABOOK_FLAG_ARCHIVED) && (intval($abook['abook_archived']))) {
-		$r = q("update abook set abook_connected = '%s', abook_updated = '%s' 
+		$r = q("update abook set abook_connected = '%s', abook_updated = '%s'
 			where abook_id = %d and abook_channel = %d",
 			dbesc(datetime_convert()),
 			dbesc(datetime_convert()),
@@ -210,7 +211,7 @@ function mark_orphan_hubsxchans() {
 	if($dirmode == DIRECTORY_MODE_NORMAL)
 		return;
 
-	$r = q("update hubloc set hubloc_error = 1 where hubloc_error = 0 
+	$r = q("update hubloc set hubloc_error = 1 where hubloc_error = 0
 		and hubloc_network = 'zot' and hubloc_connected < %s - interval %s",
 		db_utcnow(), db_quoteinterval('36 day')
 	);
@@ -301,9 +302,9 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 		);
 
 		// Cannot delete just one side of the conversation since we do not allow
-		// you to block private mail replies. This would leave open a gateway for abuse. 
+		// you to block private mail replies. This would leave open a gateway for abuse.
 		// Both participants are owners of the conversation and both can remove it.
-		
+
 		$r = q("delete from mail where ( from_xchan = '%s' or to_xchan = '%s' )",
 			dbesc($xchan),
 			dbesc($xchan)
@@ -387,7 +388,7 @@ function contact_remove($channel_id, $abook_id) {
 		$already_saved = [];
 		foreach($r as $rr) {
 			$w = $x = $y = null;
-			
+
 			// optimise so we only process newly seen parent items
 			if (in_array($rr['parent'],$already_saved)) {
 				continue;
@@ -423,7 +424,7 @@ function contact_remove($channel_id, $abook_id) {
 			drop_item($rr['id'],false);
 		}
 	}
-	
+
 	q("delete from abook where abook_id = %d and abook_channel = %d",
 		intval($abook['abook_id']),
 		intval($channel_id)
@@ -501,17 +502,17 @@ function update_vcard($arr,$vcard = null) {
 
 	$fn = $arr['fn'];
 
-	
+
 	// This isn't strictly correct and could be a cause for concern.
 	// 'N' => array_reverse(explode(' ', $fn))
 
 
-	// What we really want is 
+	// What we really want is
 	// 'N' => Adams;John;Quincy;Reverend,Dr.;III
 	// which is a very difficult parsing problem especially if you allow
 	// the surname to contain spaces. The only way to be sure to get it
-	// right is to provide a form to input all the various fields and not 
-	// try to extract it from the FN. 
+	// right is to provide a form to input all the various fields and not
+	// try to extract it from the FN.
 
 	if(! $vcard) {
 		$vcard = new \Sabre\VObject\Component\VCard([
@@ -689,12 +690,12 @@ function get_vcard_array($vc,$id) {
 			if(is_array($entry['address'])) {
 				array_walk($entry['address'],'array_escape_tags');
 			}
-			else { 
+			else {
 				$entry['address'] = (string) escape_tags($entry['address']);
 			}
 
 			$adrs[] = $entry;
-				
+
 		}
 	}
 
@@ -768,7 +769,7 @@ function vcard_query(&$r) {
 		if($a) {
 			foreach($a as $av) {
 				for($x = 0; $x < count($r); $x ++) {
-					if($r[$x]['abook_xchan'] == $av['xchan']) {		
+					if($r[$x]['abook_xchan'] == $av['xchan']) {
 						$vctmp = \Sabre\VObject\Reader::read($av['v']);
 						$r[$x]['vcard'] = (($vctmp) ? get_vcard_array($vctmp,$r[$x]['abook_id']) : [] );
 					}

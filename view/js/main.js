@@ -44,7 +44,7 @@ if(localStorage.getItem('uid') !== localUser.toString()) {
 window.onstorage = function(e) {
 	if(e.key === 'uid' && parseInt(e.newValue) !== localUser) {
 		if(window_needs_alert) {
-			window_needs_alert = false; 
+			window_needs_alert = false;
 			alert("Your identity has changed. Page reload required!");
 			window.location.reload();
 			return;
@@ -99,12 +99,12 @@ $(document).ready(function() {
 		wordSeparator : aStr['t16'],
 		numbers       : aStr['t17'],
 	};
-	
+
 	jQuery.timeago.settings.allowFuture = true;
 
 	if(sse_enabled) {
 		if(typeof(window.SharedWorker) === 'undefined') {
-			// notifications with multiple tabs open will not work very well in this scenario 
+			// notifications with multiple tabs open will not work very well in this scenario
 			var evtSource = new EventSource('/sse');
 
 			evtSource.addEventListener('notifications', function(e) {
@@ -298,7 +298,7 @@ function handle_comment_form(e) {
 		$('#' + commentElm).addClass('expanded').removeAttr('placeholder');
 		$('#' + commentElm).attr('tabindex','9');
 		$('#' + submitElm).attr('tabindex','10');
-		
+
 		form.find(':not(:visible)').show();
 	}
 
@@ -452,7 +452,7 @@ function insertCommentAttach(comment,id) {
 	$('body').css('cursor', 'wait');
 
 	$('#invisible-comment-upload').trigger('click');
- 
+
 	return false;
 
 }
@@ -631,7 +631,7 @@ function updateConvItems(mode,data) {
 	if(mode === 'append') {
 		next = 'threads-end';
 	}
-	
+
 	if(mode === 'replace') {
 		$('.thread-parent').remove(); // clear existing content
 	}
@@ -652,7 +652,7 @@ function updateConvItems(mode,data) {
 			if($('#collapsed-comments-'+itmId).is(':visible'))
 				isVisible = true;
 
-			// insert the content according to the mode and first_page 
+			// insert the content according to the mode and first_page
 			// and whether or not the content exists already (overwrite it)
 
 			if($('#' + ident).length == 0) {
@@ -765,7 +765,7 @@ function updateConvItems(mode,data) {
 	}
 
 	// Setup to determine if the media player is playing. This affects
-	// some content loading decisions. 
+	// some content loading decisions.
 
 	$('video').off('playing');
 	$('video').off('pause');
@@ -1253,24 +1253,25 @@ function dopin(id) {
 }
 
 function dropItem(url, object) {
+	var confirm = confirmDelete();
+	if(confirm) {
+		var id = url.split('/')[2];
+		$('body').css('cursor', 'wait');
+		$(object + ', #pinned-wrapper-' + id).css('opacity', 0.33);
 
-        var confirm = confirmDelete();
-        if(confirm) {
-                var id = url.split('/')[2];
-                $('body').css('cursor', 'wait');
-                $(object + ', #pinned-wrapper-' + id).fadeTo('fast', 0.33, function () {
-                        $.get(url).done(function() {
-                                $(object + ', #pinned-wrapper-' + id).remove();
-                                $('body').css('cursor', 'auto');
-                        });
-                });
-                if($('#wall-item-pinned-' + id).length)
-                    $.post('pin/pin', { 'id' : id });
-                return true;
+		$.get(url, function() {
+			$(object + ', #pinned-wrapper-' + id).remove();
+			$('body').css('cursor', 'auto');
+		});
+
+		if($('#wall-item-pinned-' + id).length)
+			$.post('pin/pin', { 'id' : id });
+
+		return true;
         }
-        else {
-                return false;
-        }
+	else {
+		return false;
+	}
 }
 
 function dosubthread(ident) {
@@ -1336,18 +1337,6 @@ function getPosition(e) {
 function lockview(type, id) {
 	$.get('lockview/' + type + '/' + id, function(data) {
 		$('#panel-' + id).html(data);
-	});
-}
-
-function filestorage(event, nick, id) {
-	$('#cloud-index-' + last_filestorage_id).removeClass('cloud-index-active');
-	$('#perms-panel-' + last_filestorage_id).hide().html('');
-	$('#file-edit-' + id).show();
-	$.get('filestorage/' + nick + '/' + id + '/edit', function(data) {
-		$('#cloud-index-' + id).addClass('cloud-index-active');
-		$('#perms-panel-' + id).html(data).show();
-		$('#file-edit-' + id).hide();
-		last_filestorage_id = id;
 	});
 }
 
@@ -1473,17 +1462,17 @@ function preview_mail() {
 }
 
 function bin2hex(s) {
-	// Converts the binary representation of data to hex    
-	//   
-	// version: 812.316  
-	// discuss at: http://phpjs.org/functions/bin2hex  
-	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)  
-	// +   bugfixed by: Onno Marsman  
-	// +   bugfixed by: Linuxworld  
-	// *     example 1: bin2hex('Kev');  
-	// *     returns 1: '4b6576'  
-	// *     example 2: bin2hex(String.fromCharCode(0x00));  
-	// *     returns 2: '00'  
+	// Converts the binary representation of data to hex
+	//
+	// version: 812.316
+	// discuss at: http://phpjs.org/functions/bin2hex
+	// +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	// +   bugfixed by: Onno Marsman
+	// +   bugfixed by: Linuxworld
+	// *     example 1: bin2hex('Kev');
+	// *     returns 1: '4b6576'
+	// *     example 2: bin2hex(String.fromCharCode(0x00));
+	// *     returns 2: '00'
 	var v,i, f = 0, a = [];
 	s += '';
 	f = s.length;

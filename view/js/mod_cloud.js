@@ -3,22 +3,348 @@
  */
 
 $(document).ready(function () {
+
 	// call initialization file
 	if (window.File && window.FileList && window.FileReader) {
 		UploadInit();
 	}
+
+	var attach_drop_id;
+	var attach_draging;
+
+	// Per File Tools
+
+	$('.cloud-tool-info-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		close_and_deactivate_all_panels();
+		$('#cloud-tool-info-' + id).toggle();
+		$('#cloud-index-' + id).addClass('cloud-index-active');
+	});
+
+	$('.cloud-tool-perms-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		activate_id(id);
+	});
+
+	$('.cloud-tool-rename-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		activate_id(id);
+		$('#cloud-tool-rename-' + id).show();
+	});
+
+	$('.cloud-tool-move-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		activate_id(id);
+		$('#cloud-tool-move-' + id).show();
+	});
+
+	$('.cloud-tool-categories-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		activate_id(id);
+		$('#id_categories_' + id).tagsinput({
+			tagClass: 'badge badge-pill badge-warning text-dark'
+		});
+		$('#cloud-tool-categories-' + id).show();
+	});
+
+	$('.cloud-tool-download-btn').on('click', function (e) {
+		close_and_deactivate_all_panels();
+	});
+
+	$('.cloud-tool-delete-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+
+		close_and_deactivate_all_panels();
+
+		let confirm = confirmDelete();
+		if (confirm) {
+			$('body').css('cursor', 'wait');
+			$('#cloud-index-' + id).css('opacity', 0.33);
+
+			let form = $('#attach_edit_form_' + id).serializeArray();
+			form.push({name: 'delete', value: 1});
+
+			$.post('attach_edit', form, function (data) {
+				if (data.success) {
+					$('#cloud-index-' + id + ', #cloud-tools-' + id).remove();
+					$('body').css('cursor', 'auto');
+				}
+				return true;
+			});
+
+		}
+		return false;
+	});
+
+	$('.cloud-tool-cancel-btn').on('click', function (e) {
+		e.preventDefault();
+		let id = $(this).data('id');
+		close_and_deactivate_all_panels();
+		$('#attach_edit_form_' + id).trigger('reset');
+		$('#id_categories_' + id).tagsinput('destroy');
+	});
+
+	// Per File Tools Eend
+
+	// DnD
+
+	$(document).on('drop', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
+	$(document).on('dragover', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
+	$(document).on('dragleave', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+	});
+
+	$('.cloud-index.attach-drop').on('drop', function (e) {
+
+		let target = $(this);
+		let folder = target.data('folder');
+		let id = target.data('id');
+
+
+		if(typeof folder === typeof undefined) {
+			return false;
+		}
+
+		// Check if it's a file
+		if (e.dataTransfer.files[0]) {
+			$('#file-folder').val(folder);
+			return true;
+		}
+
+		if(id === attach_drop_id) {
+			return false;
+		}
+
+		if(target.hasClass('attach-drop-zone') && attach_draging) {
+			return false;
+		}
+
+		target.removeClass('attach-drop-ok');
+
+		$.post('attach_edit', {'channel_id': channelId, 'dnd': 1, 'attach_id': attach_drop_id, ['newfolder_' + attach_drop_id]: folder }, function (data) {
+			if (data.success) {
+				$('#cloud-index-' + attach_drop_id + ', #cloud-tools-' + attach_drop_id).remove();
+				attach_drop_id = null;
+			}
+		});
+	});
+
+	$('.cloud-index.attach-drop').on('dragover', function (e) {
+		let target = $(this);
+
+		if(target.hasClass('attach-drop-zone') && attach_draging) {
+			return false;
+		}
+
+		target.addClass('attach-drop-ok');
+	});
+
+	$('.cloud-index').on('dragleave', function (e) {
+		let target = $(this);
+		target.removeClass('attach-drop-ok');
+	});
+
+	$('.cloud-index').on('dragstart', function (e) {
+		let target = $(this);
+		attach_drop_id = target.data('id');
+		// dragstart is not fired if a file is draged onto the window
+		// we use this to distinguish between drags and file drops
+		attach_draging = true;
+	});
+
+	$('.cloud-index').on('dragend', function (e) {
+		let target = $(this);
+		target.removeClass('attach-drop-ok');
+		attach_draging = false;
+	});
+
+	// DnD End
+
+	// Multi Tools
+
+	$('#cloud-multi-tool-select-all').on('change', function (e) {
+		if ($(this).is(':checked')) {
+			$('.cloud-multi-tool-checkbox').prop('checked', true);
+			$('.cloud-index:not(#cloud-index-up)').addClass('cloud-index-selected cloud-index-active');
+			$('.cloud-tools').addClass('cloud-index-selected');
+		}
+		else {
+			$('.cloud-multi-tool-checkbox').prop('checked', false);
+			$('.cloud-index').removeClass('cloud-index-selected cloud-index-active');
+			$('.cloud-tools').removeClass('cloud-index-selected');
+		}
+
+		$('.cloud-multi-tool-checkbox').trigger('change');
+	});
+
+
+	$('.cloud-multi-tool-checkbox').on('change', function (e) {
+		let id = $(this).val();
+
+		if ($(this).is(':checked')) {
+			$('#cloud-index-' + id).addClass('cloud-index-selected cloud-index-active');
+			$('#cloud-tools-' + id).addClass('cloud-index-selected');
+			$('<input id="aid_' + id + '" class="attach-ids-input" type="hidden" name="attach_ids[]" value="' + id + '">').prependTo('#attach_multi_edit_form');
+		}
+		else {
+			$('#cloud-index-' + id).removeClass('cloud-index-selected cloud-index-active');
+			$('#cloud-tools-' + id).removeClass('cloud-index-selected');
+			if ($('#cloud-multi-tool-select-all').is(':checked'))
+				$('#cloud-multi-tool-select-all').prop('checked', false);
+
+			$('#aid_' + id).remove();
+		}
+
+		if($('.cloud-multi-tool-checkbox:checked').length) {
+			close_all_panels();
+			$('#cloud-multi-actions').addClass('bg-warning');
+			$('#multi-dropdown-button').fadeIn();
+		}
+		else {
+			$('#cloud-multi-actions').removeClass('bg-warning');
+			$('#multi-dropdown-button').fadeOut();
+			close_and_deactivate_all_panels();
+			disable_multi_acl();
+		}
+
+	});
+
+	$('#cloud-multi-tool-perms-btn').on('click', function (e) {
+		e.preventDefault();
+
+		close_all_panels();
+		enable_multi_acl();
+
+		$('#cloud-multi-tool-submit').show();
+	});
+
+	$('#cloud-multi-tool-move-btn').on('click', function (e) {
+		e.preventDefault();
+
+		close_all_panels();
+		disable_multi_acl();
+
+		$('#cloud-multi-tool-submit, #cloud-multi-tool-move').show();
+	});
+
+	$('#cloud-multi-tool-categories-btn').on('click', function (e) {
+		e.preventDefault();
+
+		close_all_panels();
+		disable_multi_acl();
+
+		$('#id_categories').tagsinput({
+			tagClass: 'badge badge-pill badge-warning text-dark'
+		});
+
+		$('#cloud-multi-tool-submit, #cloud-multi-tool-categories').show();
+	});
+
+	$('#cloud-multi-tool-delete-btn').on('click', function (e) {
+		e.preventDefault();
+
+		let post_data = $('.cloud-multi-tool-checkbox').serializeArray();
+
+		if(! post_data.length) {
+			return false;
+		}
+		let confirm = confirmDelete();
+		if (confirm) {
+			$('body').css('cursor', 'wait');
+			$('.cloud-index-selected').css('opacity', 0.33);
+
+			post_data.push(
+				{ name: 'channel_id', value: channelId },
+				{ name: 'delete', value: 1},
+			);
+
+			$.post('attach_edit', post_data, function (data) {
+				if (data.success) {
+					console.log(data);
+					$('.cloud-index-selected').remove();
+					$('body').css('cursor', 'auto');
+				}
+				return true;
+			});
+		}
+		return false;
+
+	});
+
+	$('.cloud-multi-tool-cancel-btn').on('click', function (e) {
+		e.preventDefault();
+
+		close_and_deactivate_all_panels();
+		disable_multi_acl();
+
+		$('#attach_multi_edit_form').trigger('reset');
+		$('#id_categories').tagsinput('destroy');
+	});
+
+	// Multi Tools End
+
+	// Helper Functions
+
+	function disable_multi_acl() {
+		$('#multi-perms').val(0);
+		$('#multi-dbtn-acl, #recurse_container').hide();
+		$('#attach-multi-edit-perms').removeClass('btn-group');
+	}
+
+	function enable_multi_acl() {
+		$('#multi-perms').val(1);
+		$('#multi-dbtn-acl, #recurse_container').show();
+		$('#attach-multi-edit-perms').addClass('btn-group');
+	}
+
+	function close_all_panels() {
+		$('.cloud-tool, .cloud-multi-tool').hide();
+	}
+
+	function deactivate_all_panels() {
+		$('.cloud-index').removeClass('cloud-index-active');
+	}
+
+	function close_and_deactivate_all_panels() {
+		close_all_panels();
+		deactivate_all_panels();
+	}
+
+	function activate_id(id) {
+		close_and_deactivate_all_panels();
+		$('#cloud-multi-tool-select-all, .cloud-multi-tool-checkbox').prop('checked', false).trigger('change');
+
+		$('#cloud-tool-submit-' + id).show();
+		$('#cloud-index-' + id).addClass('cloud-index-active');
+	}
+
 });
 
-//
+
+
+
 // initialize
 function UploadInit() {
 
-	var fileselect = $("#files-upload");
-	var filedrag = $("#cloud-drag-area");
 	var submit = $("#upload-submit");
 	var count = 1;
+	var filedrag = $(".cloud-index.attach-drop");
 
- 
 	$('#invisible-cloud-file-upload').fileupload({
 			url: 'file_upload',
 			dataType: 'json',
@@ -26,8 +352,8 @@ function UploadInit() {
 			maxChunkSize: 4 * 1024 * 1024,
 
 			add: function(e,data) {
-				$(data.files).each( function() { this.count = ++ count; prepareHtml(this); }); 
-				
+				$(data.files).each( function() { this.count = ++ count; prepareHtml(this); });
+
 				var allow_cid = ($('#ajax-upload-files').data('allow_cid') || []);
 				var allow_gid = ($('#ajax-upload-files').data('allow_gid') || []);
 				var deny_cid  = ($('#ajax-upload-files').data('deny_cid') || []);
@@ -49,7 +375,6 @@ function UploadInit() {
 				});
 
 				data.formData = $('#ajax-upload-files').serializeArray();
-
 				data.submit();
 			},
 
@@ -58,7 +383,7 @@ function UploadInit() {
 
 				// there will only be one file, the one we are looking for
 
-				$(data.files).each( function() { 
+				$(data.files).each( function() {
 					var idx = this.count;
 
 					// Dynamically update the percentage complete displayed in the file upload list
@@ -70,7 +395,6 @@ function UploadInit() {
 
 			},
 
-
 			stop: function(e,data) {
 				window.location.href = window.location.href;
 			}
@@ -81,60 +405,17 @@ function UploadInit() {
 
 }
 
-// file drag hover
-function DragDropUploadFileHover(e) {
-	e.stopPropagation();
-	e.preventDefault();
-	e.currentTarget.className = (e.type == "dragover" ? "hover" : "");
-}
 
-// file selection via drag/drop
-function DragDropUploadFileSelectHandler(e) {
-	// cancel event and hover styling
-	DragDropUploadFileHover(e);
-
-	// fetch FileList object
-	var files = e.target.files || e.originalEvent.dataTransfer.files;
-
-	$('.new-upload').remove();
-
-	// process all File objects
-	for (var i = 0, f; f = files[i]; i++) {
-		prepareHtml(f, i);
-		UploadFile(f, i);
-	}
-}
-
-// file selection via input
-function UploadFileSelectHandler(e) {
-	// fetch FileList object
-	if(e.target.id === 'upload-submit') {
-		e.preventDefault();
-		var files = e.data[0].files;
-	}
-	if(e.target.id === 'files-upload') {
-		$('.new-upload').remove();
-		var files = e.target.files;
-	}
-
-	// process all File objects
-	for (var i = 0, f; f = files[i]; i++) {
-		if(e.target.id === 'files-upload')
-			prepareHtml(f, i);
-		if(e.target.id === 'upload-submit') {
-			UploadFile(f, i);
-		}
-	}
-}
 
 function prepareHtml(f) {
 	var num = f.count - 1;
 	var i = f.count;
 	$('#cloud-index #new-upload-progress-bar-' + num.toString()).after(
 		'<tr id="new-upload-' + i + '" class="new-upload">' +
-		'<td><i class="fa ' + getIconFromType(f.type) + '" title="' + f.type + '"></i></td>' +
+		'<td></td>' +
+		'<td><i class="fa fa-fw ' + getIconFromType(f.type) + '" title="' + f.type + '"></i></td>' +
 		'<td>' + f.name + '</td>' +
-		'<td id="upload-progress-' + i + '"></td><td></td><td></td><td></td><td></td>' +
+		'<td id="upload-progress-' + i + '"></td><td></td><td></td>' +
 		'<td class="d-none d-md-table-cell">' + formatSizeUnits(f.size) + '</td><td class="d-none d-md-table-cell"></td>' +
 		'</tr>' +
 		'<tr id="new-upload-progress-bar-' + i + '" class="new-upload">' +
@@ -199,63 +480,4 @@ function getIconFromType(type) {
 	return iconFromType;
 }
 
-// upload  files
-function UploadFile(file, idx) {
 
-
-	window.filesToUpload = window.filesToUpload + 1;
-
-	var xhr = new XMLHttpRequest();
-
-	xhr.withCredentials = true;   // Include the SESSION cookie info for authentication
-
-	(xhr.upload || xhr).addEventListener('progress', function (e) {
-
-		var done = e.position || e.loaded;
-		var total = e.totalSize || e.total;
-		// Dynamically update the percentage complete displayed in the file upload list
-		$('#upload-progress-' + idx).html(Math.round(done / total * 100) + '%');
-		$('#upload-progress-bar-' + idx).css('background-size', Math.round(done / total * 100) + '%');
-
-		if(done == total) {
-			$('#upload-progress-' + idx).html('Processing...');
-		}
-
-	});
-
-
-	xhr.addEventListener('load', function (e) {
-		//we could possibly turn the filenames to real links here and add the delete and edit buttons to avoid page reload...
-		$('#upload-progress-' + idx).html('Ready!');
-
-		//console.log('xhr upload complete', e);
-		window.fileUploadsCompleted = window.fileUploadsCompleted + 1;
-
-		// When all the uploads have completed, refresh the page
-		if (window.filesToUpload > 0 && window.fileUploadsCompleted === window.filesToUpload) {
-
-			window.fileUploadsCompleted = window.filesToUpload = 0;
-
-			// After uploads complete, refresh browser window to display new files
-			window.location.href = window.location.href;
-		}
-	});
-
-
-	xhr.addEventListener('error', function (e) {
-		$('#upload-progress-' + idx).html('<span style="color: red;">ERROR</span>');
-	});
-
-	// POST to the entire cloud path 
-//	xhr.open('post', 'file_upload', true);
-
-//	var formfields = $("#ajax-upload-files").serializeArray();
-
-//	var data = new FormData();
-//	$.each(formfields, function(i, field) {
-//		data.append(field.name, field.value);
-//	});
-//	data.append('userfile', file);
-
-//	xhr.send(data);
-}

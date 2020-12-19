@@ -1533,6 +1533,7 @@ function sync_addressbook($channel, $data) {
 	    $id = get_cdav_id($principalUri, $data['uri'], 'addressbooks');
 	    if(! $id)
 	        return;
+		$id = $id['id'];
 	}
 
 	$pdo = \DBA::$dba->db;

@@ -4074,11 +4074,6 @@ function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
 	if($stage == DROPITEM_PHASE1)
 		return true;
 
-	$r = q("delete from term where otype = %d and oid = %d",
-		intval(TERM_OBJ_POST),
-		intval($item['id'])
-	);
-
 	q("delete from iconfig where iid = %d",
 		intval($item['id'])
 	);

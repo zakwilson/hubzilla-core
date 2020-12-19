@@ -6,6 +6,7 @@ use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libsync;
 
 
 require_once('include/event.php');
@@ -198,7 +199,7 @@ class Cdav extends Controller {
 
 						// delete
 						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
-							build_sync_packet($channel['channel_id'], [
+							Libsync::build_sync_packet($channel['channel_id'], [
 								$sync => [
 									'action' => 'delete_card',
 									'uri' => $cdavdata['uri'],
@@ -209,7 +210,7 @@ class Cdav extends Controller {
 							if($etag) {
 								// update
 								if($cdavdata['etag'] !== $etag)
-								    build_sync_packet($channel['channel_id'], [
+								    Libsync::build_sync_packet($channel['channel_id'], [
 									    $sync => [
 										    'action' => 'update_card',
 										    'uri' => $cdavdata['uri'],
@@ -220,7 +221,7 @@ class Cdav extends Controller {
 							}
 							else {
 								// new
-								build_sync_packet($channel['channel_id'], [
+								Libsync::build_sync_packet($channel['channel_id'], [
 									$sync => [
 										'action' => 'import',
 										'uri' => $cdavdata['uri'],
@@ -340,7 +341,7 @@ class Cdav extends Controller {
 				// set new calendar to be visible
 				set_pconfig(local_channel(), 'cdav_calendar' , $id[0], 1);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'create',
 						'uri' => $calendarUri,
@@ -416,7 +417,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->createCalendarObject($id, $objectUri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -447,7 +448,7 @@ class Cdav extends Controller {
 				$caldavBackend->updateCalendar($id, $patch);
 				$patch->commit();
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'edit',
 						'uri' => $cdavdata['uri'],
@@ -513,7 +514,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -539,7 +540,7 @@ class Cdav extends Controller {
 
 				$caldavBackend->deleteCalendarObject($id, $uri);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'delete_card',
 						'uri' => $cdavdata['uri'],
@@ -597,7 +598,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -656,7 +657,7 @@ class Cdav extends Controller {
 
 				$carddavBackend->createAddressBook($principalUri, $addressbookUri, $properties);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
                                         'addressbook' => [
                                                 'action' => 'create',
 						'uri' => $addressbookUri,
@@ -683,7 +684,7 @@ class Cdav extends Controller {
 				$carddavBackend->updateAddressBook($id, $patch);
 				$patch->commit();
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'edit',
 						'uri' => $cdavdata['uri'],
@@ -727,7 +728,7 @@ class Cdav extends Controller {
 				$cardData = $vcard->serialize();
 				$carddavBackend->createCard($id, $uri, $cardData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -766,7 +767,7 @@ class Cdav extends Controller {
 
 				$carddavBackend->updateCard($id, $uri, $cardData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -791,7 +792,7 @@ class Cdav extends Controller {
 
 				$carddavBackend->deleteCard($id, $uri);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'delete_card',
 						'uri' => $cdavdata['uri'],
@@ -850,7 +851,7 @@ class Cdav extends Controller {
 				$ids = [];
 				import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backend, $ids, true);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					$sync => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -1170,7 +1171,7 @@ class Cdav extends Controller {
 
 			set_pconfig(local_channel(), 'cdav_calendar', $id, argv(4));
 
-			build_sync_packet(local_channel(), [
+			Libsync::build_sync_packet(local_channel(), [
 				'calendar' => [
 					'action' => 'switch',
 					'uri' => $cdavdata['uri'],
@@ -1193,7 +1194,7 @@ class Cdav extends Controller {
 
 			$caldavBackend->deleteCalendar($id);
 
-			build_sync_packet($channel['channel_id'], [
+			Libsync::build_sync_packet($channel['channel_id'], [
 				'calendar' => [
 					'action' => 'drop',
 					'uri' => $cdavdata['uri']
@@ -1412,7 +1413,7 @@ class Cdav extends Controller {
 			$carddavBackend->deleteAddressBook($id);
 
 			if($cdavdata)
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'drop',
 						'uri' => $cdavdata['uri']

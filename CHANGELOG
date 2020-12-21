@@ -1,3 +1,10 @@
+Hubzilla 5.0.7 (2020-12-21)
+	- Fix CardDAV addressbook ID
+	- Use Zot6 for CardDAV and CalDAV sync between clones
+	- Handle owa with hubloc_id_url only
+	- Fix attachment in comment not visible after commenting - issue #1499
+
+
 Hubzilla 5.0.6 (2020-12-17)
 	- Fix zot hublocs with empty hubloc_id_url in DB caused by clone import bug
 	- Only look for zot6 and zot hublocs in mod owa

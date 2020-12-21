@@ -87,6 +87,7 @@
 						{{/if}}
 						<a id="cloud-multi-tool-move-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-copy"></i> Move or copy</a>
 						<a id="cloud-multi-tool-categories-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-asterisk"></i> Categories</a>
+						<a id="cloud-multi-tool-download-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
 						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-trash-o"></i> {{$delete}}</a>
 					</div>
 				</div>
@@ -172,23 +173,27 @@
 						<a id="cloud-tool-rename-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-rename-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-pencil"></i> Rename</a>
 						<a id="cloud-tool-move-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-move-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-copy"></i> Move or copy</a>
 						<a id="cloud-tool-categories-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-categories-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-asterisk"></i> Categories</a>
-						{{if !$item.collection}}
 						{{if $item.is_owner}}
 						<a id="cloud-tool-share-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-share-btn" href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]&acl[allow_cid]={{$item.raw_allow_cid}}&acl[allow_gid]={{$item.raw_allow_gid}}&acl[deny_cid]={{$item.raw_deny_cid}}&acl[deny_gid]={{$item.raw_deny_gid}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-share-square-o"></i> Post</a>
 						{{/if}}
+						{{if $item.collection}}
+						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
+						{{else}}
 						<a id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
 						{{/if}}
 						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-trash-o"></i> {{$delete}}</a>
 					</div>
 				</div>
 				{{else}}
-				{{if ($is_admin || !$item.collection) && $item.attach_id}}
+				{{if $is_admin || $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
-						{{if !$item.collection}}
+						{{if $item.collection}}
+						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
+						{{else}}
 						<a id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
 						{{/if}}
 						{{if $is_admin}}

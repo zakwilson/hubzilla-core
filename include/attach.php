@@ -300,6 +300,44 @@ function attach_by_hash($hash, $observer_hash, $rev = 0) {
 }
 
 
+/**
+ * @brief Find an attachment by id.
+ *
+ * Returns the entire attach structure including data.
+ *
+ * This could exhaust memory so most useful only when immediately sending the data.
+ *
+ * @param string $hash
+ * @param string $observer_hash
+ * @return array
+ */
+function attach_by_id($id, $observer_hash) {
+
+	$ret = array('success' => false);
+
+	// Check for existence, which will also provide us the owner uid
+
+	$r = q("SELECT * FROM attach WHERE id = %d",
+		intval($id)
+	);
+	if(! $r) {
+		$ret['message'] = t('Item was not found.');
+		return $ret;
+	}
+
+	if(! attach_can_view($r[0]['uid'], $observer_hash, $r[0]['hash'])) {
+		$ret['message'] = t('Permission denied.');
+		return $ret;
+	}
+
+	$r[0]['content'] = dbunescbin($r[0]['content']);
+
+	$ret['success'] = true;
+	$ret['data'] = $r[0];
+
+	return $ret;
+}
+
 function attach_can_view($uid,$ob_hash,$resource) {
 
 	$sql_extra = permissions_sql($uid,$ob_hash);
@@ -1119,7 +1157,6 @@ function attach_mkdir($channel, $observer_hash, $arr = null) {
 
 	if(! is_dir($os_basepath))
 		os_mkdir($os_basepath,STORAGE_DEFAULT_PERMISSIONS, true);
-
 
 	$os_basepath .= '/';
 

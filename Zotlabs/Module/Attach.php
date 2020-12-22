@@ -3,6 +3,7 @@ namespace Zotlabs\Module;
 
 use ZipArchive;
 use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Verify;
 
 require_once('include/security.php');
 require_once('include/attach.php');
@@ -32,34 +33,31 @@ class Attach extends Controller {
 			if (! is_dir($zip_dir))
 				mkdir($zip_dir, STORAGE_DEFAULT_PERMISSIONS, true);
 
-			$rnd = random_string(10);
+			$token = random_string(32);
 
-			$zip_file = 'download_' . $rnd . '.zip';
+			$zip_file = 'download_' . $token . '.zip';
 			$zip_path = $zip_dir . '/' . $zip_file;
 
 			$zip = new ZipArchive();
 
 			if ($zip->open($zip_path, ZipArchive::CREATE) === true) {
 
-				$filename = self::zip_archive_handler($zip, $attach_ids, $attach_path);
+				$zip_filename = self::zip_archive_handler($zip, $attach_ids, $attach_path);
 
 				$zip->close();
 
-				header('Content-Type: application/zip');
-				header('Content-Disposition: attachment; filename="' . $filename . '"');
-				header('Content-Length: ' . filesize($zip_path));
+				$meta = [
+					'zip_filename' => $zip_filename,
+					'zip_path' => $zip_path
+				];
 
-				$istream = fopen($zip_path, 'rb');
-				$ostream = fopen('php://output', 'wb');
+				Verify::create('zip_token', 0, $token, json_encode($meta));
 
-				if ($istream && $ostream) {
-					pipe_streams($istream,$ostream);
-					fclose($istream);
-					fclose($ostream);
-				}
+				json_return_and_die([
+					'success' => true,
+					'token' => $token
+				]);
 
-				unlink($zip_path);
-				killme();
 			}
 		}
 	}
@@ -69,6 +67,28 @@ class Attach extends Controller {
 		if(argc() < 2) {
 			notice( t('Item not available.') . EOL);
 			return;
+		}
+
+		if(argv(1) === 'download') {
+
+			$token = ((x($_REQUEST, 'token')) ? $_REQUEST['token'] : '');
+			$meta = Verify::get_meta('zip_token', 0, $token);
+			$meta = json_decode($meta, true);
+
+			header('Content-Type: application/zip');
+			header('Content-Disposition: attachment; filename="'. $meta['zip_filename'] . '"');
+			header('Content-Length: ' . filesize($meta['zip_path']));
+
+			$istream = fopen($meta['zip_path'], 'rb');
+			$ostream = fopen('php://output', 'wb');
+			if($istream && $ostream) {
+				pipe_streams($istream,$ostream);
+				fclose($istream);
+				fclose($ostream);
+			}
+
+			unlink($meta['zip_path']);
+			killme();
 		}
 
 		$r = attach_by_hash(argv(1),get_observer_hash(),((argc() > 2) ? intval(argv(2)) : 0));

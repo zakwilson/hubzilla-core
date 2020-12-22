@@ -67,12 +67,21 @@ $(document).ready(function () {
 
 		close_and_deactivate_all_panels();
 
-		// some trickery to trigger download action via ajax
-		let form = $('<form></form>').attr('action', 'attach').attr('method', 'post');
-		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_path').attr('value', window.location.pathname));
-		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'channel_id').attr('value', channelId));
-		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_ids[]').attr('value', id));
-		form.appendTo('body').submit().remove();
+		$('body').css('cursor', 'wait');
+
+		let data = [
+			{name: 'attach_path', value: window.location.pathname},
+			{name: 'channel_id', value: channelId},
+			{name: 'attach_ids[]', value: id}
+		]
+
+		$.post('attach', data, function (data) {
+			if (data.success) {
+				$('body').css('cursor', 'auto');
+				window.location.href = '/attach/download?token=' + data.token;
+			}
+		});
+
 	});
 
 	$('.cloud-tool-delete-btn').on('click', function (e) {
@@ -277,7 +286,7 @@ $(document).ready(function () {
 	$('#cloud-multi-tool-download-btn').on('click', function (e) {
 		e.preventDefault();
 
-		let post_data = $('.cloud-multi-tool-checkbox:checked');
+		let post_data = $('.cloud-multi-tool-checkbox:checked').serializeArray();
 
 		if(! post_data.length) {
 			return false;
@@ -285,6 +294,20 @@ $(document).ready(function () {
 
 		close_and_deactivate_all_panels();
 
+		$('body').css('cursor', 'wait');
+
+		post_data.push(
+			{name: 'attach_path', value: window.location.pathname},
+			{name: 'channel_id', value: channelId},
+		);
+
+		$.post('attach', post_data, function (data) {
+			if (data.success) {
+				$('body').css('cursor', 'auto');
+				window.location.href = '/attach/download?token=' + data.token;
+			}
+		});
+/*
 		// some trickery to trigger download action via ajax
 		var form = $('<form></form>').attr('action', 'attach').attr('method', 'post');
 		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_path').attr('value', window.location.pathname));
@@ -293,6 +316,7 @@ $(document).ready(function () {
 			form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_ids[]').attr('value', this.value));
 		});
 		form.appendTo('body').submit().remove();
+*/
 	});
 
 	$('#cloud-multi-tool-delete-btn').on('click', function (e) {

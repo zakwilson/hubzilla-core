@@ -68,6 +68,7 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
+		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
 
 		let data = [
 			{name: 'attach_path', value: window.location.pathname},
@@ -295,6 +296,7 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
+		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
 
 		post_data.push(
 			{name: 'attach_path', value: window.location.pathname},
@@ -307,16 +309,7 @@ $(document).ready(function () {
 				window.location.href = '/attach/download?token=' + data.token;
 			}
 		});
-/*
-		// some trickery to trigger download action via ajax
-		var form = $('<form></form>').attr('action', 'attach').attr('method', 'post');
-		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_path').attr('value', window.location.pathname));
-		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'channel_id').attr('value', channelId));
-		post_data.each(function () {
-			form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_ids[]').attr('value', this.value));
-		});
-		form.appendTo('body').submit().remove();
-*/
+
 	});
 
 	$('#cloud-multi-tool-delete-btn').on('click', function (e) {

@@ -69,6 +69,7 @@ $(document).ready(function () {
 
 		// some trickery to trigger download action via ajax
 		let form = $('<form></form>').attr('action', 'attach').attr('method', 'post');
+		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_path').attr('value', window.location.pathname));
 		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'channel_id').attr('value', channelId));
 		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_ids[]').attr('value', id));
 		form.appendTo('body').submit().remove();
@@ -286,6 +287,7 @@ $(document).ready(function () {
 
 		// some trickery to trigger download action via ajax
 		var form = $('<form></form>').attr('action', 'attach').attr('method', 'post');
+		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_path').attr('value', window.location.pathname));
 		form.append($("<input></input>").attr('type', 'hidden').attr('name', 'channel_id').attr('value', channelId));
 		post_data.each(function () {
 			form.append($("<input></input>").attr('type', 'hidden').attr('name', 'attach_ids[]').attr('value', this.value));

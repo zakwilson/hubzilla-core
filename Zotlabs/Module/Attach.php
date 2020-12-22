@@ -12,18 +12,21 @@ class Attach extends Controller {
 	function post() {
 
 		$attach_ids = ((x($_REQUEST, 'attach_ids')) ? $_REQUEST['attach_ids'] : []);
+		$attach_path = ((x($_REQUEST, 'attach_path')) ? $_REQUEST['attach_path'] : '');
+
+		$channel_id = ((x($_REQUEST, 'channel_id')) ? intval($_REQUEST['channel_id']) : 0);
+		$channel = channelx_by_n($channel_id);
+
+		if (! $channel) {
+			notice(t('Channel not found.') . EOL);
+			return;
+		}
+
+		$strip_str = '/cloud/' . $channel['channel_address'] . '/';
+		$count   = strlen($strip_str);
+		$attach_path = substr($attach_path, $count);
 
 		if ($attach_ids) {
-
-			$ret = ['success' => false];
-
-			$channel_id = ((x($_REQUEST, 'channel_id')) ? intval($_REQUEST['channel_id']) : 0);
-			$channel = channelx_by_n($channel_id);
-
-			if (! $channel) {
-				notice(t('Channel not found.') . EOL);
-				return;
-			}
 
 			$zip_dir = 'store/[data]/' . $channel['channel_address'] . '/tmp';
 			if (! is_dir($zip_dir))
@@ -38,7 +41,7 @@ class Attach extends Controller {
 
 			if ($zip->open($zip_path, ZipArchive::CREATE) === true) {
 
-				$filename = self::zip_archive_handler($zip, $attach_ids);
+				$filename = self::zip_archive_handler($zip, $attach_ids, $attach_path);
 
 				$zip->close();
 
@@ -82,7 +85,6 @@ class Attach extends Controller {
 		if(! $c)
 			return;
 
-
 		$unsafe_types = array('text/html','text/css','application/javascript');
 
 		if(in_array($r['data']['filetype'],$unsafe_types) && (! channel_codeallowed($r['data']['uid']))) {
@@ -112,11 +114,11 @@ class Attach extends Controller {
 
 	}
 
-	function zip_archive_handler($zip, $attach_ids, $pass = 1) {
+	public function zip_archive_handler($zip, $attach_ids, $attach_path, $pass = 1) {
 
 		$observer_hash = get_observer_hash();
 		$single = ((count($attach_ids) == 1) ? true : false);
-		$filename = 'download.zip';
+		$download_name = 'download.zip';
 
 		foreach($attach_ids as $attach_id) {
 
@@ -127,27 +129,34 @@ class Attach extends Controller {
 			}
 
 			if ($r['data']['is_dir'] && $single && $pass === 1)
-				$filename = $r['data']['filename'] . '.zip';
+				$download_name = $r['data']['filename'] . '.zip';
+
+			$zip_path = $r['data']['display_path'];
+
+			if ($attach_path) {
+				$strip_str = $attach_path . '/';
+				$count   = strlen($strip_str);
+				$zip_path = substr($r['data']['display_path'], $count);
+			}
 
 			if ($r['data']['is_dir']) {
-				$zip->addEmptyDir($r['data']['display_path']);
+				$zip->addEmptyDir($zip_path);
 
 				$d = q("SELECT id FROM attach WHERE folder = '%s'",
 					dbesc($r['data']['hash'])
 				);
 
 				$attach_ids = ids_to_array($d);
-				self::zip_archive_handler($zip, $attach_ids, $observer_hash, $pass++);
+				self::zip_archive_handler($zip, $attach_ids, $attach_path, $pass++);
 			}
 			else {
 				$file_path = $r['data']['content'];
-				$file_name = $r['data']['display_path'];
-				$zip->addFile($file_path, $file_name);
+				$zip->addFile($file_path, $zip_path);
 			}
 
 		}
 
-		return $filename;
+		return $download_name;
 	}
 
 }

@@ -150,7 +150,7 @@ $(document).ready(function () {
 		}
 
 		// Check if it's a file
-		if (e.dataTransfer.files[0]) {
+		if (typeof e.dataTransfer !== typeof undefined && e.dataTransfer.files[0]) {
 			$('#file-folder').val(folder);
 			return true;
 		}

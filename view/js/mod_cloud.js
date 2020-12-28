@@ -70,8 +70,11 @@ $(document).ready(function () {
 		$('body').css('cursor', 'wait');
 		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
 
+		var download_token = makeid(32);
+
 		let data = [
 			{name: 'attach_path', value: window.location.pathname},
+			{name: 'download_token', value: download_token},
 			{name: 'channel_id', value: channelId},
 			{name: 'attach_ids[]', value: id}
 		]
@@ -79,9 +82,21 @@ $(document).ready(function () {
 		$.post('attach', data, function (data) {
 			if (data.success) {
 				$('body').css('cursor', 'auto');
-				window.location.href = '/attach/download?token=' + data.token;
+				window.location.href = '/attach/download?token=' + data.token + '&download_token=' + download_token;
+				clearInterval(fallback);
 			}
 		});
+
+		// fallback if server timed out
+
+		var fallback = setInterval(function(){ $.get('/attach/check?download_token=' + download_token, function(data){
+			if (data.success) {
+				$('body').css('cursor', 'auto');
+				window.location.href = '/attach/download?token=' + data.token;
+				clearInterval(fallback);
+			}
+
+		}); }, 30000);
 
 	});
 
@@ -298,17 +313,33 @@ $(document).ready(function () {
 		$('body').css('cursor', 'wait');
 		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
 
+		var download_token = makeid(32);
+
 		post_data.push(
 			{name: 'attach_path', value: window.location.pathname},
+			{name: 'download_token', value: download_token},
 			{name: 'channel_id', value: channelId},
 		);
 
 		$.post('attach', post_data, function (data) {
 			if (data.success) {
 				$('body').css('cursor', 'auto');
-				window.location.href = '/attach/download?token=' + data.token;
+				window.location.href = '/attach/download?token=' + data.token + '&download_token=' + download_token;
+				clearInterval(fallback);
 			}
 		});
+
+		// fallback if server timed out
+
+		var fallback = setInterval(function(){ $.get('/attach/check?download_token=' + download_token, function(data){
+			if (data.success) {
+				$('body').css('cursor', 'auto');
+				window.location.href = '/attach/download?token=' + data.token;
+				clearInterval(fallback);
+			}
+
+		}); }, 30000);
+
 
 	});
 

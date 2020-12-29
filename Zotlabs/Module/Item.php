@@ -1337,7 +1337,7 @@ class Item extends Controller {
 			killme();
 		}
 
-		if(($parent == $post_id) || ($datarray['item_private'] == 1)) {
+		if($parent || $datarray['item_private'] == 1) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
 			);

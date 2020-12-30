@@ -1,3 +1,16 @@
+Hubzilla 5.0.8 (2020-12-30)
+	- Fix single quotes not escaped in the notifications title (issue 1503)
+	- Return zot6 xchans for random_profile()
+	- Return zot6 entries in dirsearch
+	- Fix comment sync issue
+	- Fix duplicate entries in contact autocomplete
+	- Fix issue where direct message notifications where not displayed for wall items
+	- Do not revalidate cached photos
+	- Implement imagemagic resource consumption limiting
+	- Specify key in mod owa
+	- Fix issue where array was passed to get_key()
+
+
 Hubzilla 5.0.7 (2020-12-21)
 	- Fix CardDAV addressbook ID
 	- Use Zot6 for CardDAV and CalDAV sync between clones

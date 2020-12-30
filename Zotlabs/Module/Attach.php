@@ -14,8 +14,6 @@ class Attach extends Controller {
 
 		$attach_ids = ((x($_REQUEST, 'attach_ids')) ? $_REQUEST['attach_ids'] : []);
 		$attach_path = ((x($_REQUEST, 'attach_path')) ? $_REQUEST['attach_path'] : '');
-		$download_token = ((x($_REQUEST, 'download_token')) ? $_REQUEST['download_token'] : '');
-
 		$channel_id = ((x($_REQUEST, 'channel_id')) ? intval($_REQUEST['channel_id']) : 0);
 		$channel = channelx_by_n($channel_id);
 
@@ -53,7 +51,6 @@ class Attach extends Controller {
 				];
 
 				Verify::create('zip_token', 0, $token, json_encode($meta));
-				Verify::create('download_token', 0, $download_token, $token);
 
 				json_return_and_die([
 					'success' => true,
@@ -72,19 +69,6 @@ class Attach extends Controller {
 		}
 
 		$token = ((x($_REQUEST, 'token')) ? $_REQUEST['token'] : '');
-		$download_token = ((x($_REQUEST, 'download_token')) ? $_REQUEST['download_token'] : '');
-
-		if(argv(1) === 'check') {
-			$meta = Verify::get_meta('download_token', 0, $download_token);
-
-			if(! $meta)
-				killme();
-
-			json_return_and_die([
-				'success' => true,
-				'token' => $meta
-			]);
-		}
 
 		if(argv(1) === 'download') {
 			$meta = Verify::get_meta('zip_token', 0, $token);
@@ -93,9 +77,6 @@ class Attach extends Controller {
 				killme();
 
 			$meta = json_decode($meta, true);
-
-			// make sure we remove the download_token in case we have not checked yet
-			Verify::get_meta('download_token', 0, $download_token);
 
 			header('Content-Type: application/zip');
 			header('Content-Disposition: attachment; filename="'. $meta['zip_filename'] . '"');

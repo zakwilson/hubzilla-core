@@ -55,8 +55,6 @@ class Attach extends Controller {
 				Verify::create('zip_token', 0, $token, json_encode($meta));
 				Verify::create('download_token', 0, $download_token, $token);
 
-
-
 				json_return_and_die([
 					'success' => true,
 					'token' => $token
@@ -196,6 +194,8 @@ class Attach extends Controller {
 			else {
 				$file_path = $r['data']['content'];
 				$zip->addFile($file_path, $zip_path);
+				// compressing can be ressource intensive - just store the data
+				$zip->setCompressionName($zip_path, ZipArchive::CM_STORE);
 			}
 
 		}

@@ -3263,7 +3263,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				"' message_id='"    . $item['mid'] .
 			"']";
 			if($item['title'])
-				$bb .= '[b]'.$item['title'].'[/b]'."\r\n";
+				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
 			$bb .= $item['body'];
 			$bb .= "[/share]";
 		}

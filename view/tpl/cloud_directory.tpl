@@ -35,8 +35,8 @@
 				{{$item.name}}
 			</a>
 		</div>
-		{{if $item.is_owner}}
-			{{* add file tools here*}}
+		{{if $is_owner}}
+			{{* add file tools here *}}
 		{{/if}}
 	</div>
 	{{/foreach}}
@@ -160,25 +160,25 @@
 				{{/if}}
 			</td>
 			<td class="cloud-index-tool">
-				{{if ($item.is_owner || $item.is_creator) && $item.attach_id}}
+				{{if ($is_owner || $item.is_creator) && $item.attach_id}}
 				<div class="dropdown">
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-info"></i> Info</a>
-						{{if $item.is_owner}}
+						{{if $is_owner}}
 						<a id="cloud-tool-perms-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-perms-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-{{$item.lockstate}}"></i> Adjust permissions</a>
 						{{/if}}
 						<a id="cloud-tool-rename-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-rename-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-pencil"></i> Rename</a>
 						<a id="cloud-tool-move-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-move-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-copy"></i> Move or copy</a>
 						<a id="cloud-tool-categories-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-categories-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-asterisk"></i> Categories</a>
-						{{if $item.is_owner}}
-						<a id="cloud-tool-share-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-share-btn" href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]&acl[allow_cid]={{$item.raw_allow_cid}}&acl[allow_gid]={{$item.raw_allow_gid}}&acl[deny_cid]={{$item.raw_deny_cid}}&acl[deny_gid]={{$item.raw_deny_gid}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-share-square-o"></i> Post</a>
-						{{/if}}
 						{{if $item.collection}}
 						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
 						{{else}}
+						{{if $is_owner}}
+						<a id="cloud-tool-share-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-share-btn" href="/rpost?attachment=[attachment]{{$item.resource}},{{$item.revision}}[/attachment]&acl[allow_cid]={{$item.raw_allow_cid}}&acl[allow_gid]={{$item.raw_allow_gid}}&acl[deny_cid]={{$item.raw_deny_cid}}&acl[deny_gid]={{$item.raw_deny_gid}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-share-square-o"></i> Post</a>
+						{{/if}}
 						<a id="cloud-tool-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-download-btn" href="/attach/{{$item.resource}}" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> Download</a>
 						{{/if}}
 						<a id="cloud-tool-delete-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-delete-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-trash-o"></i> {{$delete}}</a>
@@ -247,7 +247,7 @@
 						{{include file="field_input.tpl" field=$item.categories}}
 					</div>
 					<div id="cloud-tool-submit-{{$item.attach_id}}" class="cloud-tool">
-						{{if $item.is_owner}}
+						{{if $is_owner}}
 						{{if !$item.collection}}{{include file="field_checkbox.tpl" field=$item.notify}}{{/if}}
 						{{if $item.collection}}{{include file="field_checkbox.tpl" field=$item.recurse}}{{/if}}
 						{{/if}}
@@ -256,7 +256,7 @@
 									Cancel
 							</button>
 							<div id="attach-edit-perms-{{$item.attach_id}}" class="btn-group float-right">
-								{{if $item.is_owner}}
+								{{if $is_owner}}
 								<button id="dbtn-acl-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" type="button">
 									<i id="jot-perms-icon-{{$item.attach_id}}" class="fa fa-{{$item.lockstate}} jot-icons jot-perms-icon"></i>
 								</button>

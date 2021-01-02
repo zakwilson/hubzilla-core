@@ -264,7 +264,6 @@ class Browser extends DAV\Browser\Plugin {
 			$ft['attach_id'] = $id;
 			$ft['icon'] = $icon;
 			$ft['photo_icon'] = $photo_icon;
-			$ft['is_owner'] = $is_owner;
 			$ft['is_creator'] = $is_creator;
 			$ft['rel_path'] = (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
 			$ft['full_path'] = z_root() . (($data) ? '/cloud/' . $nick .'/' . $data['display_path'] : $href);
@@ -391,6 +390,8 @@ class Browser extends DAV\Browser\Plugin {
 				'$allow_gid' => acl2json($channel_acl['allow_gid']),
 				'$deny_cid' => acl2json($channel_acl['deny_cid']),
 				'$deny_gid' => acl2json($channel_acl['deny_gid'])
+
+				'$is_owner' = $is_owner;
 
 
 			));

@@ -389,10 +389,9 @@ class Browser extends DAV\Browser\Plugin {
 				'$allow_cid' => acl2json($channel_acl['allow_cid']),
 				'$allow_gid' => acl2json($channel_acl['allow_gid']),
 				'$deny_cid' => acl2json($channel_acl['deny_cid']),
-				'$deny_gid' => acl2json($channel_acl['deny_gid'])
+				'$deny_gid' => acl2json($channel_acl['deny_gid']),
 
-				'$is_owner' = $is_owner;
-
+				'$is_owner' => $is_owner
 
 			));
 

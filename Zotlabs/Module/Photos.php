@@ -277,6 +277,9 @@ class Photos extends \Zotlabs\Web\Controller {
 
 						unset($arr['os_syspath']);
 
+						$width = $r[0]['width'];
+						$height = $r[0]['height'];
+
 						if($width > 1024 || $height > 1024)
 							$ph->scaleImage(1024);
 						$ph->storeThumbnail($arr, PHOTO_RES_1024);
@@ -309,8 +312,6 @@ class Photos extends \Zotlabs\Web\Controller {
 					intval($page_owner_uid)
 				);
 			}
-
-			$item_private = (($str_contact_allow || $str_group_allow || $str_contact_deny || $str_group_deny) ? true : false);
 
 			$old_is_nsfw = $p[0]['is_nsfw'];
 			if($old_is_nsfw != $is_nsfw) {

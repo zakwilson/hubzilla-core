@@ -324,7 +324,7 @@ class Browser extends DAV\Browser\Plugin {
 			}
 			$ft['attach_bbcode'] = $attach_bbcode;
 
-			$link_bbcode = '[zrl]' . $ft['full_path'] . '[/zrl]';
+			$link_bbcode = '[zrl=' . $ft['full_path'] . ']' . $ft['name'] . '[/zrl]';
 			$ft['link_bbcode'] = $link_bbcode;
 
 			$f[] = $ft;

@@ -324,7 +324,7 @@ class Browser extends DAV\Browser\Plugin {
 			}
 			$ft['attach_bbcode'] = $attach_bbcode;
 
-			$link_bbcode = '[zrl]' . $ft['full_path'] . '[/zrl]';
+			$link_bbcode = '[zrl=' . $ft['full_path'] . ']' . $ft['name'] . '[/zrl]';
 			$ft['link_bbcode'] = $link_bbcode;
 
 			$f[] = $ft;
@@ -359,7 +359,7 @@ class Browser extends DAV\Browser\Plugin {
 				'$upload' => t('Add Files'),
 				'$is_owner' => $is_owner,
 				'$is_admin' => is_site_admin(),
-				'$admin_delete' => t('Admin Delete'),
+				'$admin_delete_label' => t('Admin Delete'),
 				'$parentpath' => $parent_path,
 				'$folder_parent' => $folder_parent,
 				'$folder' => $parent->folder_hash,
@@ -372,27 +372,36 @@ class Browser extends DAV\Browser\Plugin {
 				'$size' => t('Size'),
 				'$lastmod' => t('Last Modified'),
 				'$parent' => t('parent'),
-				'$edit' => t('Submit'),
-				'$delete' => t('Delete'),
+				'$submit_label' => t('Submit'),
+				'$cancel_label' => t('Cancel'),
+				'$delete_label' => t('Delete'),
 				'$channel_id' => $channel_id,
 				'$cpdesc' => t('Copy/paste this code to attach file to a post'),
 				'$cpldesc' => t('Copy/paste this URL to link file from a web page'),
-
 				'$categories' => ['categories', t('Categories')],
 				'$recurse' => ['recurse', t('Set permissions for all files and sub folders'), 0, '', [t('No'), t('Yes')]],
-
 				'$newfolder' => ['newfolder', t('Select a target location'), $parent->folder_hash, '', $folder_list],
 				'$copy' => ['copy', t('Copy to target location'), 0, '', [t('No'), t('Yes')]],
 				'$return_path' => $path,
-
 				'$lockstate' => $lockstate,
 				'$allow_cid' => acl2json($channel_acl['allow_cid']),
 				'$allow_gid' => acl2json($channel_acl['allow_gid']),
 				'$deny_cid' => acl2json($channel_acl['deny_cid']),
 				'$deny_gid' => acl2json($channel_acl['deny_gid']),
-
-				'$is_owner' => $is_owner
-
+				'$is_owner' => $is_owner,
+				'$select_all_label' => t('Select All'),
+				'$bulk_actions_label' => t('Bulk Actions'),
+				'$adjust_permissions_label' => t('Adjust Permissions'),
+				'$move_copy_label' => t('Move or Copy'),
+				'$categories_label' => t('Categories'),
+				'$download_label' => t('Download'),
+				'$info_label' => t('Info'),
+				'$rename_label' => t('Rename'),
+				'$post_label' => t('Post'),
+				'$attach_bbcode_label' => t('Attachment BBcode'),
+				'$embed_bbcode_label' => t('Embed BBcode'),
+				'$link_bbcode_label' => t('Link BBcode'),
+				'$close_label' => t('Close')
 			));
 
 		$a = false;
@@ -491,7 +500,7 @@ class Browser extends DAV\Browser\Plugin {
 
 		$breadcrumbs_html = '';
 
-		if($display_path && ! $_REQUEST['cat']){
+		if($display_path && ! $_REQUEST['cat'] && ! $_SESSION['cloud_tiles']){
 			$breadcrumbs = [];
 			$folders = explode('/', $display_path);
 			$folder_hashes = explode('/', $node->os_path);
@@ -534,7 +543,8 @@ class Browser extends DAV\Browser\Plugin {
 				'$folder' => $node->folder_hash,
 				'$dragdroptext' => t('Drop files here to immediately upload'),
 				'$notify' => ['notify', t('Show in your contacts shared folder'), 0, '', [t('No'), t('Yes')]],
-				'$breadcrumbs_html' => $breadcrumbs_html
+				'$breadcrumbs_html' => $breadcrumbs_html,
+				'$drop_area_label' => t('You can select files via the upload button or drop them right here or into an existing folder.')
 			));
 	}
 

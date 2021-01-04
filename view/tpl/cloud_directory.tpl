@@ -24,7 +24,7 @@
 				<a href="{{$item.rel_path}}" title="{{$item.type}}" >
 					<div class="m-2">
 						{{if $item.photo_icon}}
-						<img src="{{$item.photo_icon}}" class="card-img-top" alt="{{$item.photo_icon}}" style="height: 4rem; width: auto">
+						<img src="{{$item.photo_icon}}" class="card-img-top rounded" alt="{{$item.photo_icon}}" style="height: 4rem; width: auto">
 						{{else}}
 						<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.type}}" style="font-size: 4rem"></i>
 						{{/if}}

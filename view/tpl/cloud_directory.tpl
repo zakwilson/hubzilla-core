@@ -7,11 +7,11 @@
 		{{if $parentpath}}
 		<div class="col mb-4">
 			<div class="card h-100">
-				<a href="{{$parentpath}}">
-					<div class="text-center m-2">
-						<i class="fa fa-fw fa-level-up fa-5x" title="{{$item.type}}" style="font-size: 4rem"></i>
+				<a href="{{$parentpath}}" class="text-decoration-none">
+					<div class="d-flex align-items-center justify-content-center m-1" style="height: 4.5rem;">
+						<i class="fa fa-fw fa-level-up fa-5x" style="font-size: 4rem"></i>
 					</div>
-					<div class="card-footer">
+					<div class="card-footer text-center">
 						<small class="text-muted text-truncate">..</small>
 					</div>
 				</a>
@@ -20,16 +20,16 @@
 		{{/if}}
 		{{foreach $entries as $item}}
 		<div class="col mb-4">
-			<div class="card text-center">
-				<a href="{{$item.rel_path}}" title="{{$item.type}}" >
-					<div class="m-2">
+			<div class="card h-100">
+				<a href="{{$item.rel_path}}" title="{{$item.name}}" class="text-decoration-none">
+					<div class="d-flex align-items-center justify-content-center m-1" style="height: 4.5rem;">
 						{{if $item.photo_icon}}
-						<img src="{{$item.photo_icon}}" class="card-img-top rounded" alt="{{$item.photo_icon}}" style="height: 4rem; width: auto">
+						<img src="{{$item.photo_icon}}" class="rounded" alt="{{$item.photo_icon}}" title="{{$item.size_formatted}}" style="max-height: 4rem; width: auto; max-width: 100%;">
 						{{else}}
-						<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.type}}" style="font-size: 4rem"></i>
+						<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.size_formatted}}" style="font-size: 4rem"></i>
 						{{/if}}
 					</div>
-					<div class="card-footer text-truncate">
+					<div class="card-footer text-truncate text-center">
 						<small class="text-muted">{{$item.name}}</small>
 					</div>
 				</a>

@@ -500,7 +500,7 @@ class Browser extends DAV\Browser\Plugin {
 
 		$breadcrumbs_html = '';
 
-		if($display_path && ! $_REQUEST['cat']){
+		if($display_path && ! $_REQUEST['cat'] && ! $_SESSION['cloud_tiles']){
 			$breadcrumbs = [];
 			$folders = explode('/', $display_path);
 			$folder_hashes = explode('/', $node->os_path);

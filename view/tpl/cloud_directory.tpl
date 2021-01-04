@@ -1,46 +1,42 @@
-<div class="section-content-wrapper-np">
+<div class="{{if $tiles}}section-content-wrapper{{else}}section-content-wrapper-np{{/if}}">
 	{{if $tiles}}
 	<table id="cloud-index">
 		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
 	</table>
-
-	{{if $parentpath}}
-	<div class="cloud-container" >
-		<div class="cloud-icon tiles">
-			<a href="{{$parentpath}}">
-				<div class="cloud-icon-container">
-					<i class="fa fa-fw fa-level-up" ></i>
-				</div>
-			</a>
-		</div>
-		<div class="cloud-title">
-			<a href="{{$parentpath}}">..</a>
-		</div>
-	</div>
-	{{/if}}
-
-	{{foreach $entries as $item}}
-	<div class="cloud-container">
-		<div class="cloud-icon tiles"><a href="{{$item.rel_path}}">
-		{{if $item.photo_icon}}
-		<img src="{{$item.photo_icon}}" title="{{$item.type}}" >
-		{{else}}
-		<div class="cloud-icon-container">
-			<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.type}}"></i>
+	<div class="row row-cols-2 row-cols-md-4">
+		{{if $parentpath}}
+		<div class="col mb-4">
+			<div class="card h-100">
+				<a href="{{$parentpath}}">
+					<div class="text-center m-2">
+						<i class="fa fa-fw fa-level-up fa-5x" title="{{$item.type}}" style="font-size: 4rem"></i>
+					</div>
+					<div class="card-footer">
+						<small class="text-muted text-truncate">..</small>
+					</div>
+				</a>
+			</div>
 		</div>
 		{{/if}}
+		{{foreach $entries as $item}}
+		<div class="col mb-4">
+			<div class="card text-center">
+				<a href="{{$item.rel_path}}" title="{{$item.type}}" >
+					<div class="m-2">
+						{{if $item.photo_icon}}
+						<img src="{{$item.photo_icon}}" class="card-img-top" alt="{{$item.photo_icon}}" style="height: 4rem; width: auto">
+						{{else}}
+						<i class="fa fa-fw {{$item.icon_from_type}}" title="{{$item.type}}" style="font-size: 4rem"></i>
+						{{/if}}
+					</div>
+					<div class="card-footer text-truncate">
+						<small class="text-muted">{{$item.name}}</small>
+					</div>
+				</a>
+			</div>
 		</div>
-		<div class="cloud-title">
-			<a href="{{$item.rel_path}}">
-				{{$item.name}}
-			</a>
-		</div>
-		{{if $is_owner}}
-			{{* add file tools here *}}
-		{{/if}}
+		{{/foreach}}
 	</div>
-	{{/foreach}}
-	<div class="clear"></div>
 	{{else}}
 	<table id="cloud-index">
 		<tr>

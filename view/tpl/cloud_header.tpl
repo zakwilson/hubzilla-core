@@ -1,6 +1,6 @@
 <div class="section-title-wrapper">
 	<div class="pull-right">
-		<a href="cloud_tiles/{{$cpath}}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-fw {{if $tiles}}fa-list-ul{{else}}fa-table{{/if}}"></i></a>
+		<a href="cloud_tiles/{{$cpath}}" class="btn btn-sm btn-outline-secondary"><i class="fa fa-fw {{if $tiles}}fa-th-list{{else}}fa-th-large{{/if}}"></i></a>
 		{{if $actionspanel}}
 		{{if $is_owner}}
 		<a href="/sharedwithme" class="btn btn-sm btn-outline-secondary"><i class="fa fa-cloud-download"></i>&nbsp;{{$shared}}</a>

@@ -31,7 +31,7 @@
 			<input type="hidden" name="return_url" value="{{$return_url}}" />
 			{{include file="field_checkbox.tpl" field=$notify}}
 			<div class="cloud-index attach-drop attach-drop-zone text-center p-4 mb-3" data-folder="{{$folder}}">
-				<span class="text-muted">You can select files via the upload button or drop them right here or into an existing folder.</span>
+				<span class="text-muted">{{$drop_area_label}}</span>
 			</div>
 			<div class="pull-right btn-group">
 				<div class="btn-group">

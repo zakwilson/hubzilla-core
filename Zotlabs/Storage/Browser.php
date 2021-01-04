@@ -543,7 +543,8 @@ class Browser extends DAV\Browser\Plugin {
 				'$folder' => $node->folder_hash,
 				'$dragdroptext' => t('Drop files here to immediately upload'),
 				'$notify' => ['notify', t('Show in your contacts shared folder'), 0, '', [t('No'), t('Yes')]],
-				'$breadcrumbs_html' => $breadcrumbs_html
+				'$breadcrumbs_html' => $breadcrumbs_html,
+				'$drop_area_label' => t('You can select files via the upload button or drop them right here or into an existing folder.')
 			));
 	}
 

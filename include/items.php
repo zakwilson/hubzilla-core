@@ -3270,6 +3270,8 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr['body'] = $bb;
 
+		$arr['term'] = $item['term'];
+
 		$arr['author_xchan'] = $channel['channel_hash'];
 		$arr['owner_xchan']  = $channel['channel_hash'];
 

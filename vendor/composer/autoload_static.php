@@ -22,7 +22,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     public static $prefixLengthsPsr4 = array (
         'Z' => 
         array (
-            'Zotlabs\\Tests\\Unit\\' => 19,
             'Zotlabs\\' => 8,
         ),
         'S' => 
@@ -74,10 +73,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixDirsPsr4 = array (
-        'Zotlabs\\Tests\\Unit\\' => 
-        array (
-            0 => __DIR__ . '/../..' . '/tests/unit',
-        ),
         'Zotlabs\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
@@ -1584,19 +1579,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Storage\\File' => __DIR__ . '/../..' . '/Zotlabs/Storage/File.php',
         'Zotlabs\\Storage\\GitRepo' => __DIR__ . '/../..' . '/Zotlabs/Storage/GitRepo.php',
         'Zotlabs\\Storage\\ZotOauth2Pdo' => __DIR__ . '/../..' . '/Zotlabs/Storage/ZotOauth2Pdo.php',
-        'Zotlabs\\Tests\\Unit\\Access\\AccessListTest' => __DIR__ . '/../..' . '/tests/unit/Access/AccessListTest.php',
-        'Zotlabs\\Tests\\Unit\\Access\\PermissionLimitsTest' => __DIR__ . '/../..' . '/tests/unit/Access/PermissionLimitsTest.php',
-        'Zotlabs\\Tests\\Unit\\Access\\PermissionRolesTest' => __DIR__ . '/../..' . '/tests/unit/Access/PermissionRolesTest.php',
-        'Zotlabs\\Tests\\Unit\\Access\\PermissionsTest' => __DIR__ . '/../..' . '/tests/unit/Access/PermissionsTest.php',
-        'Zotlabs\\Tests\\Unit\\Lib\\PermissionDescriptionTest' => __DIR__ . '/../..' . '/tests/unit/Lib/PermissionDescriptionTest.php',
-        'Zotlabs\\Tests\\Unit\\Photo\\PhotoGdTest' => __DIR__ . '/../..' . '/tests/unit/Photo/PhotoGdTest.php',
-        'Zotlabs\\Tests\\Unit\\UnitTestCase' => __DIR__ . '/../..' . '/tests/unit/UnitTestCase.php',
-        'Zotlabs\\Tests\\Unit\\Web\\HttpSigTest' => __DIR__ . '/../..' . '/tests/unit/Web/HttpSigTest.php',
-        'Zotlabs\\Tests\\Unit\\includes\\FeedutilsTest' => __DIR__ . '/../..' . '/tests/unit/includes/FeedutilsTest.php',
-        'Zotlabs\\Tests\\Unit\\includes\\LanguageTest' => __DIR__ . '/../..' . '/tests/unit/includes/LanguageTest.php',
-        'Zotlabs\\Tests\\Unit\\includes\\MarkdownTest' => __DIR__ . '/../..' . '/tests/unit/includes/MarkdownTest.php',
-        'Zotlabs\\Tests\\Unit\\includes\\PhotodriverTest' => __DIR__ . '/../..' . '/tests/unit/includes/PhotodriverTest.php',
-        'Zotlabs\\Tests\\Unit\\includes\\TextTest' => __DIR__ . '/../..' . '/tests/unit/includes/TextTest.php',
         'Zotlabs\\Text\\Tagadelic' => __DIR__ . '/../..' . '/Zotlabs/Text/Tagadelic.php',
         'Zotlabs\\Thumbs\\Epubthumb' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Epubthumb.php',
         'Zotlabs\\Thumbs\\Mp3audio' => __DIR__ . '/../..' . '/Zotlabs/Thumbs/Mp3audio.php',
@@ -1843,6 +1825,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Update\\_1237' => __DIR__ . '/../..' . '/Zotlabs/Update/_1237.php',
         'Zotlabs\\Update\\_1238' => __DIR__ . '/../..' . '/Zotlabs/Update/_1238.php',
         'Zotlabs\\Update\\_1239' => __DIR__ . '/../..' . '/Zotlabs/Update/_1239.php',
+        'Zotlabs\\Update\\_1240' => __DIR__ . '/../..' . '/Zotlabs/Update/_1240.php',
         'Zotlabs\\Web\\Controller' => __DIR__ . '/../..' . '/Zotlabs/Web/Controller.php',
         'Zotlabs\\Web\\HTTPHeaders' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPHeaders.php',
         'Zotlabs\\Web\\HTTPSig' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPSig.php',

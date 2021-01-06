@@ -2987,10 +2987,7 @@ function attach_folder_select_list($channel_id) {
 
 	if($r) {
 		foreach($r as $rv) {
-			$x = attach_folder_rpaths($r,$rv);
-			if($x) {
-				$out[$x[0]] = $x[1];
-			}
+			$out[$rv['hash']] = $rv['display_path'];
 		}
 	}
 

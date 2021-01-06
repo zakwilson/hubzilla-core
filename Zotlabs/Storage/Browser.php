@@ -100,7 +100,7 @@ class Browser extends DAV\Browser\Plugin {
 		$folder_parent = ((isset($arr[1])) ? prev($arr) : '');
 
 		$folder_list = attach_folder_select_list($channel_id);
-
+hz_syslog(print_r($folder_list,true));
 		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
 		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
 
@@ -294,9 +294,16 @@ class Browser extends DAV\Browser\Plugin {
 
 			// create a copy of the list which we can alter for the current resource
 			$folders = $folder_list;
+
 			if($data['is_dir']) {
-				// can not copy a folder into itself
-				unset($folders[$folder_hash]);
+
+				$rm_path = $folders[$folder_hash];
+				// can not copy a folder into itself or own child folders
+				foreach($folders as $k => $v) {
+					if(strpos($v, $rm_path) === 0)
+						unset($folders[$k]);
+				}
+
 			}
 
 			$ft['newfolder'] = ['newfolder_' . $id, t('Select a target location'), $data['folder'], '', $folders];

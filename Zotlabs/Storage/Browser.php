@@ -100,7 +100,7 @@ class Browser extends DAV\Browser\Plugin {
 		$folder_parent = ((isset($arr[1])) ? prev($arr) : '');
 
 		$folder_list = attach_folder_select_list($channel_id);
-hz_syslog(print_r($folder_list,true));
+
 		$siteroot_disabled = get_config('system', 'cloud_disable_siteroot');
 		$is_root_folder = (($path === 'cloud/' . $nick) ? true : false);
 

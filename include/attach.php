@@ -3017,7 +3017,7 @@ function attach_folder_rpaths($all_folders,$that_folder) {
 			if(! $found)
 				$error = true;
 		}
-		while((! $found) && (! $error) && ($parent_hash != ''));
+		while((! $error) && ($parent_hash != ''));
 	}
 
 	return (($error) ? false : [ $current_hash , $path ]);

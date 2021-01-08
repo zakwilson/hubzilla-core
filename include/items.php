@@ -2206,6 +2206,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 		return $ret;
 	}
 
+
 	// override the unseen flag with the original
 
 	$arr['item_unseen'] = $orig[0]['item_unseen'];
@@ -2682,6 +2683,12 @@ function tag_deliver($uid, $item_id) {
 
 
 	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
+
+		if($item['resource_type'] === 'group_item') {
+			logger('resource_type group_item: already shared');
+			return;
+		}
+
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
@@ -3113,11 +3120,12 @@ function tgroup_check($uid, $item) {
 					}
 				}
 			}
-*/
+
 			if(! $found) {
 				logger('tgroup_check: mention was in a reshare or exceeded max_tagged_forums - ignoring');
 				continue;
 			}
+*/
 
 			return true;
 		}
@@ -3203,16 +3211,18 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr = [];
 
 		if ($edit) {
+
 			// process edit or delete action
-			$r = q("select * from item where source_xchan = '%s' and body like '%s' and uid = %d limit 1",
-				dbesc($item['owner_xchan']),
-				dbesc("%message_id='" . $item['mid'] . "'%"),
-				intval($channel['channel_id'])
+			$r = q("select * from item where uid = %d and resource_id = '%s' and source_xchan = '%s' and resource_type = 'group_item' limit 1",
+				intval($channel['channel_id']),
+				dbesc($item['mid']),
+				dbesc($item['author_xchan'])
 			);
+
 			if ($r) {
 				if (intval($item['item_deleted'])) {
-					drop_item($r[0]['id'],false,DROPITEM_PHASE1);
-					Master::Summon([ 'Notifier','drop',$r[0]['id'] ]);
+					drop_item($r[0]['id'], false, DROPITEM_PHASE1);
+					Master::Summon([ 'Notifier', 'drop', $r[0]['id'] ]);
 					return;
 				}
 				$arr['id'] = intval($r[0]['id']);
@@ -3242,6 +3252,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_uplink']  = 0;
 		$arr['source_xchan'] = $item['owner_xchan'];
 
+		$arr['resource_id'] = $item['mid'];
+		$arr['resource_type'] = 'group_item';
+
 		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
 
@@ -3269,7 +3282,6 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		}
 
 		$arr['body'] = $bb;
-
 		$arr['term'] = $item['term'];
 
 		$arr['author_xchan'] = $channel['channel_hash'];

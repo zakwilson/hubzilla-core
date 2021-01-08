@@ -1801,7 +1801,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$tags = format_hashtags($item);
 
-	if($item['resource_type'])
+	if($item['resource_type'] == 'photo')
 		$mentions = format_mentions($item);
 
 	$categories = format_categories($item,$writeable);

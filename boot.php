@@ -82,11 +82,11 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
 define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.netzgemeinde.eu');
 
-$DIRECTORY_FALLBACK_SERVERS = array(
+$DIRECTORY_FALLBACK_SERVERS = [
 	'https://hub.netzgemeinde.eu',
 	'https://zotsite.net',
 	'https://hub.libranet.de'
-);
+];
 
 
 /**
@@ -2017,7 +2017,7 @@ function proc_run(){
 	}
 
 	$args = array_map('escapeshellarg',$args);
-	$cmdline = implode($args," ");
+	$cmdline = implode(' ', $args);
 
 	if(is_windows()) {
 		$cwd = getcwd();

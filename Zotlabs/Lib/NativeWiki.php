@@ -9,7 +9,7 @@ define ( 'NWIKI_ITEM_RESOURCE_TYPE', 'nwiki' );
 class NativeWiki {
 
 
-	static public function listwikis($channel, $observer_hash) {
+	public static function listwikis($channel, $observer_hash) {
 
 		$sql_extra = item_permissions_sql($channel['channel_id'], $observer_hash);
 		$wikis = q("SELECT * FROM item 
@@ -40,7 +40,7 @@ class NativeWiki {
 	}
 
 
-	function create_wiki($channel, $observer_hash, $wiki, $acl) {
+	public static function create_wiki($channel, $observer_hash, $wiki, $acl) {
 
 		$resource_id = new_uuid();
 		$uuid = new_uuid();
@@ -101,7 +101,7 @@ class NativeWiki {
 		}
 	}
 
-	function update_wiki($channel_id, $observer_hash, $arr, $acl) {
+	public static function update_wiki($channel_id, $observer_hash, $arr, $acl) {
 
 		$w = self::get_wiki($channel_id, $observer_hash, $arr['resource_id']);
 		$item = $w['wiki'];
@@ -156,7 +156,7 @@ class NativeWiki {
 		}
 	}
 
-	static public function sync_a_wiki_item($uid,$id,$resource_id) {
+	public static function sync_a_wiki_item($uid,$id,$resource_id) {
 
 
 		$r = q("SELECT * from item WHERE uid = %d AND ( id = %d OR ( resource_type = '%s' and resource_id = '%s' )) ",
@@ -185,7 +185,7 @@ class NativeWiki {
 		}
 	}
 
-	function delete_wiki($channel_id,$observer_hash,$resource_id) {
+	public static function delete_wiki($channel_id,$observer_hash,$resource_id) {
 
 		$w = self::get_wiki($channel_id,$observer_hash,$resource_id);
 		$item = $w['wiki'];
@@ -202,7 +202,7 @@ class NativeWiki {
 	}
 
 
-	static public function get_wiki($channel_id, $observer_hash, $resource_id) {
+	public static function get_wiki($channel_id, $observer_hash, $resource_id) {
 		
 		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
 
@@ -236,7 +236,7 @@ class NativeWiki {
 	}
 
 
-	static public function exists_by_name($uid, $urlName) {
+	public static function exists_by_name($uid, $urlName) {
 
 		$sql_extra = item_permissions_sql($uid);		
 
@@ -258,7 +258,7 @@ class NativeWiki {
 	}
 
 
-	static public function get_permissions($resource_id, $owner_id, $observer_hash) {
+	public static function get_permissions($resource_id, $owner_id, $observer_hash) {
 		// TODO: For now, only the owner can edit
 		$sql_extra = item_permissions_sql($owner_id, $observer_hash);
 

@@ -299,7 +299,7 @@ function load_context_help() {
 			break;
 
 		array_pop($args);
-		$path = implode($args,'/');
+		$path = implode('/', $args);
 	}
 
 	return $context_help;

@@ -466,13 +466,6 @@ class Notifier {
 
 				// FIXME add any additional recipients such as mentions, etc.
 
-				// don't send deletions onward for other people's stuff
-				// TODO verify this is needed - copied logic from same place in old code
-
-				if(intval($target_item['item_deleted']) && (! intval($target_item['item_wall']))) {
-					logger('notifier: ignoring delete notification for non-wall item', LOGGER_NORMAL, LOG_NOTICE);
-					return;
-				}
 			}
 		}
 

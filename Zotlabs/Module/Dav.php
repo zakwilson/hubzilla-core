@@ -51,7 +51,7 @@ class Dav extends \Zotlabs\Web\Controller {
 				if($sigblock) {
 					$keyId = str_replace('acct:','',$sigblock['keyId']);
 					if($keyId) {
-						$r = q("select * from hubloc where hubloc_addr = '%s'",
+						$r = q("select * from hubloc where hubloc_id_url = '%s'",
 							dbesc($keyId)
 						);
 						if($r) {

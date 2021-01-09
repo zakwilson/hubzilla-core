@@ -123,7 +123,7 @@ class Sse_bs extends Controller {
 			$mids[] = '\'' . dbesc(@base64url_decode(substr($a,4))) . '\'';
 		}
 
-		$str = implode($mids, ',');
+		$str = implode(',', $mids);
 
 		$x = [ 'channel_id' => self::$uid, 'update' => 'unset' ];
 		call_hooks('update_unseen',$x);

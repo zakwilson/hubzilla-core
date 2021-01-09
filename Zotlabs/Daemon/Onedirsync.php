@@ -74,7 +74,7 @@ class Onedirsync {
 		if($h && ! in_array($h['hubloc_network'], ['zot6', 'zot']))
 			return;
 
-		update_directory_entry($r[0]);
+		Libzotdir::update_directory_entry($r[0]);
 
 		return;
 	}

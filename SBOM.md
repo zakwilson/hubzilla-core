@@ -2,7 +2,6 @@
 
 |Name|Version|License|Source|
 |----|-------|-------|------|
-
 |blueimp/jquery-file-upload|10.31.0.0|MIT|https://github.com/vkhramtsov/jQuery-File-Upload.git|
 |brick/math|0.9.1.0|MIT|https://github.com/brick/math.git|
 |bshaffer/oauth2-server-php|1.11.1.0|MIT|https://github.com/bshaffer/oauth2-server-php.git|

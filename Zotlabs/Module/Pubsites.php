@@ -1,18 +1,19 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libzotdir;
 
 class Pubsites extends \Zotlabs\Web\Controller {
 
 	function get() {
-		require_once('include/dir_fns.php'); 
+		require_once('include/dir_fns.php');
 		$dirmode = intval(get_config('system','directory_mode'));
-	
+
 		if(($dirmode == DIRECTORY_MODE_PRIMARY) || ($dirmode == DIRECTORY_MODE_STANDALONE)) {
 			$url = z_root() . '/dirsearch';
 		}
 		if(! $url) {
-			$directory = find_upstream_directory($dirmode);
+			$directory = Libzotdir::find_upstream_directory($dirmode);
 			$url = $directory['url'] . '/dirsearch';
 		}
 		$url .= '/sites';
@@ -20,12 +21,12 @@ class Pubsites extends \Zotlabs\Web\Controller {
 		$rating_enabled = get_config('system','rating_enabled');
 
 		$o .= '<div class="generic-content-wrapper">';
-	
+
 		$o .= '<div class="section-title-wrapper"><h2>' . t('Public Hubs') . '</h2></div>';
-	
-		$o .= '<div class="section-content-tools-wrapper"><div class="descriptive-text">' . 
+
+		$o .= '<div class="section-content-tools-wrapper"><div class="descriptive-text">' .
 			t('The listed hubs allow public registration for the $Projectname network. All hubs in the network are interlinked so membership on any of them conveys membership in the network as a whole. Some hubs may require subscription or provide tiered service plans. The hub itself <strong>may</strong> provide additional details.') . '</div>' . EOL;
-	
+
 		$ret = z_fetch_url($url);
 		if($ret['success']) {
 			$j = json_decode($ret['body'],true);
@@ -48,8 +49,8 @@ class Pubsites extends \Zotlabs\Web\Controller {
 						$host = strtolower(substr($jj['url'],strpos($jj['url'],'://')+3));
 						$rate_links = ((local_channel()) ? '<td><a href="rate?f=&target=' . $host . '" class="btn-btn-default"><i class="fa fa-check-square-o"></i> ' . t('Rate') . '</a></td>' : '');
 						$location = '';
-						if(!empty($jj['location'])) { 
-							$location = '<p title="' . t('Location') . '" style="margin: 5px 5px 0 0; text-align: right"><i class="fa fa-globe"></i> ' . $jj['location'] . '</p>'; 
+						if(!empty($jj['location'])) {
+							$location = '<p title="' . t('Location') . '" style="margin: 5px 5px 0 0; text-align: right"><i class="fa fa-globe"></i> ' . $jj['location'] . '</p>';
 							}
 						else {
 							$location = '<br />&nbsp;';
@@ -61,14 +62,14 @@ class Pubsites extends \Zotlabs\Web\Controller {
 						$o .=  '</tr>';
 					}
 				}
-		
+
 				$o .= '</table>';
-	
+
 				$o .= '</div></div>';
-	
+
 			}
 		}
 		return $o;
 	}
-	
+
 }

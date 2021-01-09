@@ -4,6 +4,8 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Libzotdir;
+
 
 require_once('include/socgraph.php');
 require_once('include/dir_fns.php');
@@ -15,7 +17,7 @@ class Directory extends Controller {
 
 	function init() {
 		App::set_pager_itemspage(30);
-	
+
 		if(local_channel() && x($_GET,'ignore')) {
 			q("insert into xign ( uid, xchan ) values ( %d, '%s' ) ",
 				intval(local_channel()),
@@ -26,12 +28,12 @@ class Directory extends Controller {
 
 		if(local_channel())
 			App::$profile_uid = local_channel();
-	
+
 		$observer = get_observer_hash();
 		$global_changed = false;
 		$safe_changed = false;
 		$pubforums_changed = false;
-	
+
 		if(array_key_exists('global',$_REQUEST)) {
 			$globaldir = intval($_REQUEST['global']);
 			$global_changed = true;
@@ -41,7 +43,7 @@ class Directory extends Controller {
 			if($observer)
 				set_xconfig($observer,'directory','globaldir',$globaldir);
 		}
-	
+
 		if(array_key_exists('safe',$_REQUEST)) {
 			$safemode = intval($_REQUEST['safe']);
 			$safe_changed = true;
@@ -51,8 +53,8 @@ class Directory extends Controller {
 			if($observer)
 				set_xconfig($observer,'directory','safemode',$safemode);
 		}
-	
-	
+
+
 		if(array_key_exists('pubforums',$_REQUEST)) {
 			$pubforums = intval($_REQUEST['pubforums']);
 			$pubforums_changed = true;
@@ -64,52 +66,52 @@ class Directory extends Controller {
 		}
 
 	}
-	
+
 	function get() {
-	
+
 		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
-	
+
 		if(get_config('system','block_public_directory',false) && (! get_observer_hash())) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
-			
+
 		$observer = get_observer_hash();
-	
-		$globaldir = get_directory_setting($observer, 'globaldir');
+
+		$globaldir = Libzotdir::get_directory_setting($observer, 'globaldir');
 
 		// override your personal global search pref if we're doing a navbar search of the directory
 		if(intval($_REQUEST['navsearch']))
 			$globaldir = 1;
-	
-		$safe_mode = get_directory_setting($observer, 'safemode');
-	
-		$pubforums = get_directory_setting($observer, 'pubforums');
-	
+
+		$safe_mode = Libzotdir::get_directory_setting($observer, 'safemode');
+
+		$pubforums = Libzotdir::get_directory_setting($observer, 'pubforums');
+
 		$o = '';
 		nav_set_selected('Directory');
-	
+
 		if(x($_POST,'search'))
 			$search = notags(trim($_POST['search']));
 		else
 			$search = ((x($_GET,'search')) ? notags(trim(rawurldecode($_GET['search']))) : '');
-	
-	
+
+
 		if(strpos($search,'=') && local_channel() && feature_enabled(local_channel(), 'advanced_dirsearch'))
 			$advanced = $search;
-	
+
 		$keywords = (($_GET['keywords']) ? $_GET['keywords'] : '');
-	
+
 		// Suggest channels if no search terms or keywords are given
 		$suggest = (local_channel() && x($_REQUEST,'suggest')) ? $_REQUEST['suggest'] : '';
-	
+
 		if($suggest) {
 
 			// the directory options have no effect in suggestion mode
-			
+
 			$globaldir = 1;
 			$safe_mode = 1;
 			$type = 0;
@@ -120,7 +122,7 @@ class Directory extends Controller {
 				notice( t('No default suggestions were found.') . EOL);
 				return;
 			}
-	
+
 			// Remember in which order the suggestions were
 			$addresses = array();
 			$common = array();
@@ -129,7 +131,7 @@ class Directory extends Controller {
 				$common[$rr['xchan_addr']] = ((intval($rr['total']) > 0) ? intval($rr['total']) - 1 : 0);
 				$addresses[$rr['xchan_addr']] = $index++;
 			}
-	
+
 			// Build query to get info about suggested people
 			$advanced = '';
 			foreach(array_keys($addresses) as $address) {
@@ -137,13 +139,13 @@ class Directory extends Controller {
 			}
 			// Remove last space in the advanced query
 			$advanced = rtrim($advanced);
-	
+
 		}
-	
+
 		$tpl = get_markup_template('directory_header.tpl');
-	
+
 		$dirmode = intval(get_config('system','directory_mode'));
-	
+
 		$directory_admin = false;
 
 		if(($dirmode == DIRECTORY_MODE_PRIMARY) || ($dirmode == DIRECTORY_MODE_STANDALONE)) {
@@ -154,19 +156,19 @@ class Directory extends Controller {
  		}
 
 		if(! $url) {
-			$directory = find_upstream_directory($dirmode);
+			$directory = Libzotdir::find_upstream_directory($dirmode);
 			if((! $directory) || (! array_key_exists('url',$directory)) || (! $directory['url']))
 				logger('CRITICAL: No directory server URL');
 			$url = $directory['url'] . '/dirsearch';
 		}
-	
+
 		$token = get_config('system','realm_token');
-	
-	
+
+
 		logger('mod_directory: URL = ' . $url, LOGGER_DEBUG);
-	
+
 		$contacts = array();
-	
+
 		if(local_channel()) {
 			$x = q("select abook_xchan from abook where abook_channel = %d",
 				intval(local_channel())
@@ -176,24 +178,24 @@ class Directory extends Controller {
 					$contacts[] = $xx['abook_xchan'];
 			}
 		}
-	
+
 		if($url) {
-	
+
 			$numtags = get_config('system','directorytags');
-	
+
 			$kw = ((intval($numtags) > 0) ? intval($numtags) : 50);
-	
+
 			if(get_config('system','disable_directory_keywords'))
 				$kw = 0;
-	
+
 			$query = $url . '?f=&kw=' . $kw . (($safe_mode != 1) ? '&safe=' . $safe_mode : '');
-	
+
 			if($token)
 				$query .= '&t=' . $token;
-	
+
 			if(! $globaldir)
 				$query .= '&hub=' . App::get_hostname();
-	
+
 			if($search)
 				$query .= '&name=' . urlencode($search) . '&keywords=' . urlencode($search);
 			if(strpos($search,'@'))
@@ -204,29 +206,29 @@ class Directory extends Controller {
 				$query .= '&query=' . urlencode($advanced);
 			if(! is_null($pubforums))
 				$query .= '&pubforums=' . intval($pubforums);
-	
+
 			$directory_sort_order = get_config('system','directory_sort_order');
 			if(! $directory_sort_order)
 				$directory_sort_order = 'date';
-	
+
 			$sort_order  = ((x($_REQUEST,'order')) ? $_REQUEST['order'] : $directory_sort_order);
-	
+
 			if($sort_order)
 				$query .= '&order=' . urlencode($sort_order);
-				
+
 			if(App::$pager['page'] != 1)
 				$query .= '&p=' . App::$pager['page'];
-	
+
 			logger('mod_directory: query: ' . $query);
-	
+
 			$x = z_fetch_url($query);
 			logger('directory: return from upstream: ' . print_r($x,true), LOGGER_DATA);
-	
+
 			if($x['success']) {
 				$t = 0;
 				$j = json_decode($x['body'],true);
 				if($j) {
-	
+
 					if($j['results']) {
 
 						$results = $j['results'];
@@ -235,23 +237,23 @@ class Directory extends Controller {
 						}
 
 						$entries = array();
-	
+
 						$photo = 'thumb';
-	
+
 						foreach($results as $rr) {
-	
+
 							$profile_link = chanlink_url($rr['url']);
-			
+
 							$pdesc = (($rr['description']) ? $rr['description'] . '<br />' : '');
-							$connect_link = ((local_channel()) ? z_root() . '/follow?f=&url=' . urlencode($rr['address']) : ''); 		
-	
+							$connect_link = ((local_channel()) ? z_root() . '/follow?f=&url=' . urlencode($rr['address']) : '');
+
 							// Checking status is disabled ATM until someone checks the performance impact more carefully
 							//$online = remote_online_status($rr['address']);
 							$online = '';
-	
+
 							if(in_array($rr['hash'],$contacts))
 								$connect_link = '';
-	
+
 							$location = '';
 							if(strlen($rr['locale']))
 								$location .= $rr['locale'];
@@ -265,53 +267,53 @@ class Directory extends Controller {
 									$location .= ', ';
 								$location .= $rr['country'];
 							}
-	
+
 							$age = '';
 							if(strlen($rr['birthday'])) {
 								if(($years = age($rr['birthday'],'UTC','')) > 0)
 									$age = $years;
 							}
-	
+
 							$page_type = '';
-	
+
 							$rating_enabled = get_config('system','rating_enabled');
 
 							if($rr['total_ratings'] && $rating_enabled)
 								$total_ratings = sprintf( tt("%d rating", "%d ratings", $rr['total_ratings']), $rr['total_ratings']);
 							else
 								$total_ratings = '';
-	
+
 							$profile = $rr;
-	
+
 							if ((x($profile,'locale') == 1)
 								|| (x($profile,'region') == 1)
 								|| (x($profile,'postcode') == 1)
 								|| (x($profile,'country') == 1))
-	
+
 							$gender = ((x($profile,'gender') == 1) ? t('Gender: ') . $profile['gender']: False);
-		
+
 							$marital = ((x($profile,'marital') == 1) ?  t('Status: ') . $profile['marital']: False);
-			
+
 							$homepage = ((x($profile,'homepage') == 1) ?  t('Homepage: ') : False);
-							$homepageurl = ((x($profile,'homepage') == 1) ?  html2plain($profile['homepage']) : ''); 
-	
+							$homepageurl = ((x($profile,'homepage') == 1) ?  html2plain($profile['homepage']) : '');
+
 							$hometown = ((x($profile,'hometown') == 1) ? html2plain($profile['hometown'])  : False);
-	
+
 							$about = ((x($profile,'about') == 1) ? zidify_links(bbcode($profile['about'], ['tryoembed' => false])) : False);
 							if ($about && $safe_mode) {
 								$about = html2plain($about);
 							}
-							
+
 							$keywords = ((x($profile,'keywords')) ? $profile['keywords'] : '');
-	
+
 
 							$out = '';
-	
+
 							if($keywords) {
 								$keywords = str_replace(',',' ', $keywords);
 								$keywords = str_replace('  ',' ', $keywords);
 								$karr = explode(' ', $keywords);
-	
+
 								if($karr) {
 									if(local_channel()) {
 										$r = q("select keywords from profile where uid = %d and is_default = 1 limit 1",
@@ -332,9 +334,9 @@ class Directory extends Controller {
 											$out .= '<a href="' . z_root() . '/directory/f=&keywords=' . urlencode($k)  .'">' . $k . '</a>';
 									}
 								}
-				
+
 							}
-	
+
 							$entry = array(
 								'id' => ++$t,
 								'profile_link' => $profile_link,
@@ -366,7 +368,7 @@ class Directory extends Controller {
 								'about' => $about,
 								'about_label' => t('About:'),
 								'conn_label' => t('Connect'),
-								'forum_label' => t('Public Forum:'), 
+								'forum_label' => t('Public Forum:'),
 								'connect' => $connect_link,
 								'online' => $online,
 								'kw' => (($out) ? t('Keywords: ') : ''),
@@ -378,36 +380,36 @@ class Directory extends Controller {
 								'common_count' => intval($common[$rr['address']]),
 								'safe' => $safe_mode
 							);
-	
+
 							$arr = array('contact' => $rr, 'entry' => $entry);
-	
+
 							call_hooks('directory_item', $arr);
-	
+
 							unset($profile);
 							unset($location);
-	
+
 							if(! $arr['entry']) {
 								continue;
-							}			
-							
+							}
+
 							if($sort_order == '' && $suggest) {
 								$entries[$addresses[$rr['address']]] = $arr['entry']; // Use the same indexes as originally to get the best suggestion first
 							}
-	
+
 							else {
 								$entries[] = $arr['entry'];
 							}
 						}
-	
+
 						ksort($entries); // Sort array by key so that foreach-constructs work as expected
-	
+
 						if($j['keywords']) {
 							App::$data['directory_keywords'] = $j['keywords'];
 						}
-	
+
 						logger('mod_directory: entries: ' . print_r($entries,true), LOGGER_DATA);
-	
-	
+
+
 						if($_REQUEST['aj']) {
 							if($entries) {
 								$o = replace_macros(get_markup_template('directajax.tpl'),array(
@@ -422,9 +424,9 @@ class Directory extends Controller {
 						}
 						else {
 							$maxheight = 94;
-	
+
 							$dirtitle = (($globaldir) ? t('Global Directory') : t('Local Directory'));
-	
+
 							$o .= "<script> var page_query = '" . escape_tags(urlencode($_GET['q'])) . "'; var extra_args = '" . extra_query_args() . "' ; divmore_height = " . intval($maxheight) . ";  </script>";
 							$o .= replace_macros($tpl, array(
 								'$search' => $search,
@@ -442,10 +444,10 @@ class Directory extends Controller {
 								'$reversedate' => t('Oldest to Newest'),
 								'$suggest' => $suggest ? '&suggest=1' : ''
 							));
-	
-	
+
+
 						}
-	
+
 					}
 					else {
 						if($_REQUEST['aj']) {
@@ -463,7 +465,7 @@ class Directory extends Controller {
 		}
 		return $o;
 	}
-	
+
 	static public function reorder_results($results,$suggests) {
 
 		if(! $suggests)

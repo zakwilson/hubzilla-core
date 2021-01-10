@@ -355,6 +355,7 @@ define ( 'UPDATE_FLAGS_UPDATED',  0x0001);
 define ( 'UPDATE_FLAGS_FORCED',   0x0002);
 define ( 'UPDATE_FLAGS_DELETED',  0x1000);
 
+define ( 'HUBLOC_OFFLINE', 0x0001);
 
 define ( 'DROPITEM_NORMAL',      0);
 define ( 'DROPITEM_PHASE1',      1);

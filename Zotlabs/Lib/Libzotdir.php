@@ -188,8 +188,9 @@ class Libzotdir {
 			return;
 
 		$realm = get_directory_realm();
+
 		if ($realm == DIRECTORY_REALM) {
-			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d and ( site_realm = '%s' or site_realm = '') ",
+			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d and ( site_realm = '%s' or site_realm = '') and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
 				intval(SITE_TYPE_ZOT),
@@ -197,13 +198,15 @@ class Libzotdir {
 			);
 		} 
 		else {
-			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' and site_type = %d ",
+			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' and site_type = %d  and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
 				dbesc(protect_sprintf('%' . $realm . '%')),
 				intval(SITE_TYPE_ZOT)
 			);
 		}
+
+
 
 		// If there are no directory servers, setup the fallback master
 		/** @FIXME What to do if we're in a different realm? */
@@ -221,7 +224,7 @@ class Libzotdir {
 				]
 			);
 
-			$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d ",
+			$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY),
 				intval(DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
@@ -245,7 +248,6 @@ class Libzotdir {
 
 			$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 			$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
-
 			if (! $x['success'])
 				continue;
 

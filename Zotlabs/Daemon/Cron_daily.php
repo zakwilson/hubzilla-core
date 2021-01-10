@@ -88,7 +88,7 @@ class Cron_daily {
 		$dirmode = get_config('system','directory_mode');
 
 		if($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
-			Libzot::sync_directories($dirmode);
+			Libzotdir::sync_directories($dirmode);
 		}
 
 

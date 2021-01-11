@@ -82,11 +82,16 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
 define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.netzgemeinde.eu');
 
-$DIRECTORY_FALLBACK_SERVERS = [
-	'https://hub.netzgemeinde.eu',
-	'https://zotsite.net',
-	'https://hub.libranet.de'
-];
+
+function get_directory_fallback_servers() {
+	$ret = [
+		'https://hub.netzgemeinde.eu',
+		'https://zotsite.net',
+		'https://hub.libranet.de'
+	];
+
+	return $ret;
+}
 
 
 /**
@@ -355,6 +360,7 @@ define ( 'UPDATE_FLAGS_UPDATED',  0x0001);
 define ( 'UPDATE_FLAGS_FORCED',   0x0002);
 define ( 'UPDATE_FLAGS_DELETED',  0x1000);
 
+define ( 'HUBLOC_OFFLINE', 0x0001);
 
 define ( 'DROPITEM_NORMAL',      0);
 define ( 'DROPITEM_PHASE1',      1);

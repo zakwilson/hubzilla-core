@@ -3,6 +3,7 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libzotdir;
 
 require_once('include/zot.php');
 require_once('include/dir_fns.php');

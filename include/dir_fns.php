@@ -16,7 +16,6 @@ require_once('include/permissions.php');
  * @return array
  */
 function find_upstream_directory($dirmode) {
-	global $DIRECTORY_FALLBACK_SERVERS;
 
 	$preferred = get_config('system','directory_server');
 
@@ -43,10 +42,12 @@ function find_upstream_directory($dirmode) {
 		 * directory server if you don't like our choice or if circumstances change.
 		 */
 
+		$directory_fallback_servers = get_directory_fallback_servers();
+
 		$dirmode = intval(get_config('system','directory_mode'));
 		if ($dirmode == DIRECTORY_MODE_NORMAL) {
-			$toss = mt_rand(0,count($DIRECTORY_FALLBACK_SERVERS));
-			$preferred = $DIRECTORY_FALLBACK_SERVERS[$toss];
+			$toss = mt_rand(0,count($directory_fallback_servers));
+			$preferred = $directory_fallback_servers[$toss];
 			set_config('system','directory_server',$preferred);
 		} else{
 			set_config('system','directory_server',z_root());

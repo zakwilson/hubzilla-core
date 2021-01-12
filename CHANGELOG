@@ -23,7 +23,7 @@ Hubzilla 5.2 (2021-xx-xx)
 	- Update composer libs
 
 	Bugfixes
-	- Fix issue where directory_fallback_servers were not accesssible from static function
+	- Fix issue where directory_fallback_servers were not accessible from static function
 	- Fix missing constant defenition for HUBLOC_OFFLINE
 	- Fix sync_directories() including known dead sites
 	- Fix undefined variable in poller preventing Onedirsync from running

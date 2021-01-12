@@ -458,6 +458,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'ID3Parser\\ID3Parser' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/ID3Parser.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v1' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
         'ID3Parser\\getID3\\Tags\\getid3_id3v2' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
+        'ID3Parser\\getID3\\getID3' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getID3.php',
         'ID3Parser\\getID3\\getid3_exception' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_exception.php',
         'ID3Parser\\getID3\\getid3_handler' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_handler.php',
         'ID3Parser\\getID3\\getid3_lib' => __DIR__ . '/..' . '/lukasreschke/id3parser/src/getID3/getid3_lib.php',

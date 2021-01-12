@@ -277,6 +277,7 @@ return array(
     'ID3Parser\\ID3Parser' => $vendorDir . '/lukasreschke/id3parser/src/ID3Parser.php',
     'ID3Parser\\getID3\\Tags\\getid3_id3v1' => $vendorDir . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v1.php',
     'ID3Parser\\getID3\\Tags\\getid3_id3v2' => $vendorDir . '/lukasreschke/id3parser/src/getID3/Tags/getid3_id3v2.php',
+    'ID3Parser\\getID3\\getID3' => $vendorDir . '/lukasreschke/id3parser/src/getID3/getID3.php',
     'ID3Parser\\getID3\\getid3_exception' => $vendorDir . '/lukasreschke/id3parser/src/getID3/getid3_exception.php',
     'ID3Parser\\getID3\\getid3_handler' => $vendorDir . '/lukasreschke/id3parser/src/getID3/getid3_handler.php',
     'ID3Parser\\getID3\\getid3_lib' => $vendorDir . '/lukasreschke/id3parser/src/getID3/getid3_lib.php',

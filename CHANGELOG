@@ -23,7 +23,8 @@ Hubzilla 5.2 (2021-xx-xx)
 	- Update composer libs
 
 	Bugfixes
-	- Fix issue where directory_fallback_servers were not accesssible from static functional
+	- Fix ID3Parser composer autoload
+	- Fix issue where directory_fallback_servers were not accessible from static function
 	- Fix missing constant defenition for HUBLOC_OFFLINE
 	- Fix sync_directories() including known dead sites
 	- Fix undefined variable in poller preventing Onedirsync from running
@@ -31,6 +32,7 @@ Hubzilla 5.2 (2021-xx-xx)
 	- Fix issue where categories were not saved on forum wall posts
 	- Fix no channel_id provided for contact_remove() in reply_purge()
 	- Fix typo in notifier command
+	- Fix profile title/description allowed more than 191 characters
 
 	Addons
 	- Queueworker: cleanup whitespace

@@ -12,11 +12,11 @@ class Profiles extends \Zotlabs\Web\Controller {
 	function init() {
 
 		nav_set_selected('Profiles', 'settings/profiles');
-	
+
 		if(! local_channel()) {
 			return;
 		}
-	
+
 		if((argc() > 2) && (argv(1) === "drop") && intval(argv(2))) {
 			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d AND is_default = 0 LIMIT 1",
 				intval(argv(2)),
@@ -28,11 +28,11 @@ class Profiles extends \Zotlabs\Web\Controller {
 				return; // NOTREACHED
 			}
 			$profile_guid = $r['profile_guid'];
-			
+
 			check_form_security_token_redirectOnErr('/profiles', 'profile_drop', 't');
-	
+
 			// move every contact using this profile as their default to the user default
-	
+
 			$r = q("UPDATE abook SET abook_profile = (SELECT profile_guid FROM profile WHERE is_default = 1 AND uid = %d LIMIT 1) WHERE abook_profile = '%s' AND abook_channel = %d ",
 				intval(local_channel()),
 				dbesc($profile_guid),
@@ -44,34 +44,34 @@ class Profiles extends \Zotlabs\Web\Controller {
 			);
 			if($r)
 				info( t('Profile deleted.') . EOL);
-	
-			// @fixme this is a much more complicated sync - add any changed abook entries and 
+
+			// @fixme this is a much more complicated sync - add any changed abook entries and
 			// also add deleted flag to profile structure
 			// profiles_build_sync is just here as a placeholder - it doesn't work at all here
-	
+
 			// profiles_build_sync(local_channel());
-	
+
 			goaway(z_root() . '/profiles');
 			return; // NOTREACHED
 		}
-	
-	
-	
-	
-	
+
+
+
+
+
 		if((argc() > 1) && (argv(1) === 'new')) {
-			
+
 	//		check_form_security_token_redirectOnErr('/profiles', 'profile_new', 't');
-	
+
 			$r0 = q("SELECT id FROM profile WHERE uid = %d",
 				intval(local_channel()));
 			$num_profiles = count($r0);
-	
+
 			$name = t('Profile-') . ($num_profiles + 1);
-	
+
 			$r1 = q("SELECT fullname, photo, thumb FROM profile WHERE uid = %d AND is_default = 1 LIMIT 1",
 				intval(local_channel()));
-			
+
 			$r2 = profile_store_lowlevel(
 				[
 					'aid'          => intval(get_account_id()),
@@ -83,27 +83,27 @@ class Profiles extends \Zotlabs\Web\Controller {
 					'thumb'        => $r1[0]['thumb']
 				]
 			);
-	
+
 			$r3 = q("SELECT id FROM profile WHERE uid = %d AND profile_name = '%s' LIMIT 1",
 				intval(local_channel()),
 				dbesc($name)
 			);
-	
+
 			info( t('New profile created.') . EOL);
 			if(count($r3) == 1)
 				goaway(z_root() . '/profiles/' . $r3[0]['id']);
-			
+
 			goaway(z_root() . '/profiles');
-		} 
-	
+		}
+
 		if((argc() > 2) && (argv(1) === 'clone')) {
-			
+
 			check_form_security_token_redirectOnErr('/profiles', 'profile_clone', 't');
-	
+
 			$r0 = q("SELECT id FROM profile WHERE uid = %d",
 				intval(local_channel()));
 			$num_profiles = count($r0);
-	
+
 			$name = t('Profile-') . ($num_profiles + 1);
 			$r1 = q("SELECT * FROM profile WHERE uid = %d AND id = %d LIMIT 1",
 				intval(local_channel()),
@@ -116,30 +116,30 @@ class Profiles extends \Zotlabs\Web\Controller {
 			}
 			unset($r1[0]['id']);
 			$r1[0]['is_default'] = 0;
-			$r1[0]['publish'] = 0;	
+			$r1[0]['publish'] = 0;
 			$r1[0]['profile_name'] = dbesc($name);
 			$r1[0]['profile_guid'] = dbesc(random_string());
-	
+
 			create_table_from_array('profile', $r1[0]);
-	
+
 			$r3 = q("SELECT id FROM profile WHERE uid = %d AND profile_name = '%s' LIMIT 1",
 				intval(local_channel()),
 				dbesc($name)
 			);
 			info( t('New profile created.') . EOL);
-	
+
 			profiles_build_sync(local_channel());
-	
+
 			if(($r3) && (count($r3) == 1))
 				goaway(z_root() . '/profiles/' . $r3[0]['id']);
-			
+
 			goaway(z_root() . '/profiles');
-			
+
 			return; // NOTREACHED
 		}
-	
+
 		if((argc() > 2) && (argv(1) === 'export')) {
-			
+
 			$r1 = q("SELECT * FROM profile WHERE uid = %d AND id = %d LIMIT 1",
 				intval(local_channel()),
 				intval(argv(2))
@@ -151,7 +151,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			}
 			header('content-type: application/octet_stream');
 			header('content-disposition: attachment; filename="' . $r1[0]['profile_name'] . '.json"' );
-	
+
 			unset($r1[0]['id']);
 			unset($r1[0]['aid']);
 			unset($r1[0]['uid']);
@@ -162,10 +162,10 @@ class Profiles extends \Zotlabs\Web\Controller {
 			echo json_encode($r1[0]);
 			killme();
 		}
-	
-	
-	
-	
+
+
+
+
 		// Run profile_load() here to make sure the theme is set before
 		// we start loading content
 		if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
@@ -187,28 +187,28 @@ class Profiles extends \Zotlabs\Web\Controller {
 				\App::$error = 404;
 				return;
 			}
-	
+
 			$chan = \App::get_channel();
-	
+
 			profile_load($chan['channel_address'],$r[0]['id']);
 		}
 	}
-	
+
 	function post() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 		require_once('include/activities.php');
-	
+
 		$namechanged = false;
-	
-	
+
+
 		// import from json export file.
 	 	// Only import fields that are allowed on this hub
-	
+
 		if(x($_FILES,'userfile')) {
 			$src      = $_FILES['userfile']['tmp_name'];
 			$filesize = intval($_FILES['userfile']['size']);
@@ -230,10 +230,10 @@ class Profiles extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
-		
+
 		call_hooks('profile_post', $_POST);
-	
-	
+
+
 		if((argc() > 1) && (argv(1) !== "new") && intval(argv(1))) {
 			$orig = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
 				intval(\App::$argv[1]),
@@ -243,26 +243,26 @@ class Profiles extends \Zotlabs\Web\Controller {
 				notice( t('Profile not found.') . EOL);
 				return;
 			}
-			
+
 			check_form_security_token_redirectOnErr('/profiles', 'profile_edit');
-			
+
 
 			$is_default = (($orig[0]['is_default']) ? 1 : 0);
-	
+
 			$profile_name = notags(trim($_POST['profile_name']));
 			if(! strlen($profile_name)) {
 				notice( t('Profile Name is required.') . EOL);
 				return;
 			}
-	
+
 			$dob = $_POST['dob'] ? escape_tags(trim($_POST['dob'])) : '0000-00-00'; // FIXME: Needs to be validated?
-	
+
 			$y = substr($dob,0,4);
 			if((! ctype_digit($y)) || ($y < 1900))
 				$ignore_year = true;
 			else
 				$ignore_year = false;
-	
+
 			if($dob != '0000-00-00') {
 				if(strpos($dob,'0000-') === 0) {
 					$ignore_year = true;
@@ -272,12 +272,12 @@ class Profiles extends \Zotlabs\Web\Controller {
 				if($ignore_year)
 					$dob = '0000-' . $dob;
 			}
-				
+
 			$name = escape_tags(trim($_POST['name']));
-	
+
 			if($orig[0]['fullname'] != $name) {
 				$namechanged = true;
-	
+
 				$v = validate_channelname($name);
 				if($v) {
 					notice($v);
@@ -285,7 +285,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 					$name = $orig[0]['fullname'];
 				}
 			}
-	
+
 			$pdesc        = escape_tags(trim($_POST['pdesc']));
 			$gender       = escape_tags(trim($_POST['gender']));
 			$address      = escape_tags(trim($_POST['address']));
@@ -301,10 +301,10 @@ class Profiles extends \Zotlabs\Web\Controller {
 			$hometown     = escape_tags(trim($_POST['hometown']));
 			$politic      = escape_tags(trim($_POST['politic']));
 			$religion     = escape_tags(trim($_POST['religion']));
-	
+
 			$likes        = fix_mce_lf(escape_tags(trim($_POST['likes'])));
 			$dislikes     = fix_mce_lf(escape_tags(trim($_POST['dislikes'])));
-	
+
 			$about        = fix_mce_lf(escape_tags(trim($_POST['about'])));
 			$interest     = fix_mce_lf(escape_tags(trim($_POST['interest'])));
 			$contact      = fix_mce_lf(escape_tags(trim($_POST['contact'])));
@@ -316,11 +316,11 @@ class Profiles extends \Zotlabs\Web\Controller {
 			$romance      = fix_mce_lf(escape_tags(trim($_POST['romance'])));
 			$work         = fix_mce_lf(escape_tags(trim($_POST['work'])));
 			$education    = fix_mce_lf(escape_tags(trim($_POST['education'])));
-	
+
 			$hide_friends = ((intval($_POST['hide_friends'])) ? 1: 0);
-	
+
 // start fresh and create a new vcard. TODO: preserve the original guid or whatever else needs saving
-//			$orig_vcard = (($orig[0]['profile_vcard']) ? \Sabre\VObject\Reader::read($orig[0]['profile_vcard']) : null); 
+//			$orig_vcard = (($orig[0]['profile_vcard']) ? \Sabre\VObject\Reader::read($orig[0]['profile_vcard']) : null);
 
 			$orig_vcard = null;
 
@@ -347,7 +347,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				5 => $postal_code,
 				6 => $country_name
 			];
-				
+
 			$profile_vcard = update_vcard($defcard,$orig_vcard);
 
 			$orig_vcard = \Sabre\VObject\Reader::read($profile_vcard);
@@ -370,19 +370,19 @@ class Profiles extends \Zotlabs\Web\Controller {
 			linkify_tags($romance, local_channel());
 			linkify_tags($work, local_channel());
 			linkify_tags($education, local_channel());
-	
-	
+
+
 			$with         = ((x($_POST,'with')) ? escape_tags(trim($_POST['with'])) : '');
-	
+
 			if(! strlen($howlong))
 				$howlong = NULL_DATE;
 			else
 				$howlong = datetime_convert(date_default_timezone_get(),'UTC',$howlong);
-	 
+
 			// linkify the relationship target if applicable
-	
+
 			$withchanged = false;
-	
+
 			if(strlen($with)) {
 				if($with != strip_tags($orig[0]['partner'])) {
 					$withchanged = true;
@@ -392,7 +392,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 						$lookup = substr($lookup,1);
 					$lookup = str_replace('_',' ', $lookup);
 					$newname = $lookup;
-	
+
 					$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash WHERE xchan_name = '%s' AND abook_channel = %d LIMIT 1",
 						dbesc($newname),
 						intval(local_channel())
@@ -407,8 +407,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 						$prf = $r[0]['xchan_url'];
 						$newname = $r[0]['xchan_name'];
 					}
-	
-		
+
+
 					if($prf) {
 						$with = str_replace($lookup,'<a href="' . $prf . '">' . $newname	. '</a>', $with);
 						if(strpos($with,'@') === 0)
@@ -418,7 +418,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				else
 					$with = $orig[0]['partner'];
 			}
-	
+
 			$profile_fields_basic    = get_profile_fields_basic();
 			$profile_fields_advanced = get_profile_fields_advanced();
 			$advanced = ((feature_enabled(local_channel(),'advanced_profiles')) ? true : false);
@@ -426,7 +426,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				$fields = $profile_fields_advanced;
 			else
 				$fields = $profile_fields_basic;
-	
+
 			$z = q("select * from profdef where true");
 			if($z) {
 				foreach($z as $zz) {
@@ -453,7 +453,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 					}
 				}
 			}
-														
+
 			$changes = array();
 			$value = '';
 			if($is_default) {
@@ -513,12 +513,12 @@ class Profiles extends \Zotlabs\Web\Controller {
 					$comma2 = (($region && $country_name) ? ', ' : '');
 					$value = $locality . $comma1 . $region . $comma2 . $country_name;
 				}
-	
+
 				profile_activity($changes,$value);
-	
-			}			
-				
-			$r = q("UPDATE profile 
+
+			}
+
+			$r = q("UPDATE profile
 				SET profile_name = '%s',
 				fullname = '%s',
 				pdesc = '%s',
@@ -591,10 +591,10 @@ class Profiles extends \Zotlabs\Web\Controller {
 				intval(argv(1)),
 				intval(local_channel())
 			);
-	
+
 			if($r)
 				info( t('Profile updated.') . EOL);
-	
+
 			$r = q("select * from profile where id = %d and uid = %d limit 1",
 				intval(argv(1)),
 				intval(local_channel())
@@ -603,9 +603,9 @@ class Profiles extends \Zotlabs\Web\Controller {
 				require_once('include/zot.php');
 				Libsync::build_sync_packet(local_channel(),array('profile' => $r));
 			}
-	
+
 			$channel = \App::get_channel();
-	
+
 			if($namechanged && $is_default) {
 				$r = q("UPDATE xchan SET xchan_name = '%s', xchan_name_date = '%s' WHERE xchan_url = '%s'",
 					dbesc($name),
@@ -617,7 +617,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 					dbesc($channel['xchan_hash'])
 				);
 			}
-	
+
 			if($is_default) {
 				// reload the info for the sidebar widget - why does this not work?
 				profile_load($channel['channel_address']);
@@ -625,24 +625,24 @@ class Profiles extends \Zotlabs\Web\Controller {
 			}
 		}
 	}
-	
-	
+
+
 	function get() {
-	
+
 		$o = '';
-	
+
 		$channel = \App::get_channel();
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 		require_once('include/channel.php');
-	
+
 		$profile_fields_basic    = get_profile_fields_basic();
 		$profile_fields_advanced = get_profile_fields_advanced();
-	
+
 		if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
 			if(feature_enabled(local_channel(),'multi_profiles'))
 				$id = \App::$argv[1];
@@ -652,7 +652,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				);
 				if($x)
 					$id = $x[0]['id'];
-			}		
+			}
 			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
 				intval($id),
 				intval(local_channel())
@@ -661,20 +661,20 @@ class Profiles extends \Zotlabs\Web\Controller {
 				notice( t('Profile not found.') . EOL);
 				return;
 			}
-	
+
 			$editselect = 'none';
-	
+
 			\App::$page['htmlhead'] .= replace_macros(get_markup_template('profed_head.tpl'), array(
 				'$baseurl'    => z_root(),
 				'$editselect' => $editselect,
 			));
-	
+
 			$advanced = ((feature_enabled(local_channel(),'advanced_profiles')) ? true : false);
 			if($advanced)
 				$fields = $profile_fields_advanced;
 			else
 				$fields = $profile_fields_basic;
-	
+
 			$hide_friends = array(
 				'hide_friends',
 				t('Hide your connections list from viewers of this profile'),
@@ -682,36 +682,36 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'',
 				array(t('No'),t('Yes'))
 			);
-	
+
 			$q = q("select * from profdef where true");
 			if($q) {
 				$extra_fields = array();
-	
+
 				foreach($q as $qq) {
 					$mine = q("select v from profext where k = '%s' and hash = '%s' and channel_id = %d limit 1",
-						dbesc($qq['field_name']),					
+						dbesc($qq['field_name']),
 						dbesc($r[0]['profile_guid']),
 						intval(local_channel())
 					);
-	
+
 					if(array_key_exists($qq['field_name'],$fields)) {
 						$extra_fields[] = array($qq['field_name'],$qq['field_desc'],(($mine) ? $mine[0]['v'] : ''), $qq['field_help']);
 					}
 				}
 			}
-	
+
 	//logger('extra_fields: ' . print_r($extra_fields,true));
 
 			$vc = $r[0]['profile_vcard'];
-			$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null); 
+			$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null);
 			$vcard = (($vctmp) ? get_vcard_array($vctmp,$r[0]['id']) : [] );
-	
+
 			$f = get_config('system','birthday_input_format');
 			if(! $f)
 				$f = 'ymd';
-	
+
 			$is_default = (($r[0]['is_default']) ? 1 : 0);
-	
+
 			$tpl = get_markup_template("profile_edit.tpl");
 			$o .= replace_macros($tpl,array(
 				'$multi_profiles' => ((feature_enabled(local_channel(),'multi_profiles')) ? true : false),
@@ -749,7 +749,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$default'      => t('This is your default profile.') . EOL . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))),
 				'$advanced'     => $advanced,
 				'$name'         => array('name', t('Your full name'), $r[0]['fullname'], t('Required'), '*'),
-				'$pdesc'        => array('pdesc', t('Title/Description'), $r[0]['pdesc']),
+				'$pdesc'        => array('pdesc', t('Short title/tescription'), $r[0]['pdesc'], t('Maximal 190 characters'), '', 'maxlength="190"'),
 				'$dob'          => dob($r[0]['dob']),
 				'$hide_friends' => $hide_friends,
 				'$address'      => array('address', t('Street address'), $r[0]['address']),
@@ -802,18 +802,18 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$delete'         => t('Delete'),
 				'$cancel'         => t('Cancel'),
 			));
-	
+
 			$arr = array('profile' => $r[0], 'entry' => $o);
 			call_hooks('profile_edit', $arr);
-	
+
 			return $o;
 		}
 		else {
-	
+
 			$r = q("SELECT * FROM profile WHERE uid = %d",
 				local_channel());
 			if($r) {
-	
+
 				$tpl = get_markup_template('profile_entry.tpl');
 				foreach($r as $rr) {
 					$profiles .= replace_macros($tpl, array(
@@ -821,24 +821,24 @@ class Profiles extends \Zotlabs\Web\Controller {
 						'$id' => $rr['id'],
 						'$alt' => t('Profile Image'),
 						'$profile_name' => $rr['profile_name'],
-						'$visible' => (($rr['is_default']) 
-							? '<strong>' . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))) . '</strong>' 
+						'$visible' => (($rr['is_default'])
+							? '<strong>' . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))) . '</strong>'
 							: '<a href="' . z_root() . '/profperm/' . $rr['id'] . '" />' . t('Edit visibility') . '</a>')
 					));
 				}
-	
+
 				$tpl_header = get_markup_template('profile_listing_header.tpl');
 				$o .= replace_macros($tpl_header,array(
 					'$header' => t('Edit Profiles'),
 					'$cr_new' => t('Create New'),
 					'$cr_new_link' => 'profiles/new?t=' . get_form_security_token("profile_new"),
 					'$profiles' => $profiles
-				));	
-				
+				));
+
 			}
 			return $o;
 		}
-	
+
 	}
-	
+
 }

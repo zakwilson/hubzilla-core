@@ -1,4 +1,4 @@
-Hubzilla 5.2 (2021-xx-xx)
+Hubzilla 5.2 (2021-01-13)
 	- Use libzotdir for directory
 	- Streamline usage of channel url for keyId
 	- Basic work on PHP8 compatibility

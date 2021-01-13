@@ -1551,7 +1551,7 @@ function get_mail_elements($x) {
 		$arr['expires']      = datetime_convert('UTC','UTC',$x['expires']);
 
 	$arr['mail_flags'] = 0;
-	
+
 	if(array_key_exists('sig',$x))
 		$arr['sig'] = $x['sig'];
 
@@ -2206,6 +2206,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 		return $ret;
 	}
 
+
 	// override the unseen flag with the original
 
 	$arr['item_unseen'] = $orig[0]['item_unseen'];
@@ -2672,6 +2673,11 @@ function tag_deliver($uid, $item_id) {
 	}
 
 	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
+
+		// do not turn the groups own direkt messages into group items
+		if($item['item_wall'] && $item['author_xchan'] === $u[0]['channel_hash'])
+			return;
+
 		// group delivery via DM
 		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall') || perm_is_allowed($uid,$item['owner_xchan'],'tag_deliver')) {
 			logger('group DM delivery for ' . $u[0]['channel_address']);
@@ -2682,6 +2688,12 @@ function tag_deliver($uid, $item_id) {
 
 
 	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
+
+		if($item['resource_type'] === 'group_item') {
+			logger('resource_type group_item: already shared');
+			return;
+		}
+
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
@@ -2813,7 +2825,7 @@ function tag_deliver($uid, $item_id) {
 
 
 			// standard forum tagging sequence !forumname
-
+/*
 			$forumpattern = '/\!\!?\[[uz]rl\=([^\]]*?)\]((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
 
 			$forumpattern2 = '/\[[uz]rl\=([^\]]*?)\]\!((?:.(?!\[[uz]rl\=))*?)\[\/[uz]rl\]/';
@@ -2846,6 +2858,8 @@ function tag_deliver($uid, $item_id) {
 					}
 				}
 			}
+
+*/
 
 			if(! ($tagged || $plustagged)) {
 				logger('Mention was in a reshare or exceeded max_tagged_forums - ignoring');
@@ -3022,7 +3036,7 @@ function tgroup_check($uid, $item) {
 	}
 
 	// post to group via DM
-	
+
 	if ($is_group) {
 		if (intval($item['item_private']) === 2 && $item['mid'] === $item['parent_mid']) {
 			return true;
@@ -3076,7 +3090,7 @@ function tgroup_check($uid, $item) {
 
 			$body = preg_replace('/\[share(.*?)\[\/share\]/','',$item['body']);
 
-
+/*
 			$forumpattern = '/\!\!?\[zrl\=([^\]]*?)\]((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
 
 			$forumpattern2 = '/\[zrl\=([^\]]*?)\]\!((?:.(?!\[zrl\=))*?)\[\/zrl\]/';
@@ -3116,6 +3130,7 @@ function tgroup_check($uid, $item) {
 				logger('tgroup_check: mention was in a reshare or exceeded max_tagged_forums - ignoring');
 				continue;
 			}
+*/
 
 			return true;
 		}
@@ -3199,18 +3214,20 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 	if ($group && (! $parent)) {
 
 		$arr = [];
-		
+
 		if ($edit) {
+
 			// process edit or delete action
-			$r = q("select * from item where source_xchan = '%s' and body like '%s' and uid = %d limit 1",
-				dbesc($item['owner_xchan']),
-				dbesc("%message_id='" . $item['mid'] . "'%"),
-				intval($channel['channel_id'])
+			$r = q("select * from item where uid = %d and resource_id = '%s' and source_xchan = '%s' and resource_type = 'group_item' limit 1",
+				intval($channel['channel_id']),
+				dbesc($item['mid']),
+				dbesc($item['author_xchan'])
 			);
+
 			if ($r) {
 				if (intval($item['item_deleted'])) {
-					drop_item($r[0]['id'],false,DROPITEM_PHASE1);
-					Master::Summon([ 'Notifier','drop',$r[0]['id'] ]);
+					drop_item($r[0]['id'], false, DROPITEM_PHASE1);
+					Master::Summon([ 'Notifier', 'drop', $r[0]['id'] ]);
 					return;
 				}
 				$arr['id'] = intval($r[0]['id']);
@@ -3231,14 +3248,17 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
 		}
-		
+
 		$arr['aid'] = $channel['channel_account_id'];
 		$arr['uid'] = $channel['channel_id'];
 
 		// WARNING: the presence of both source_xchan and non-zero item_uplink here will cause a delivery loop
-		
+
 		$arr['item_uplink']  = 0;
 		$arr['source_xchan'] = $item['owner_xchan'];
+
+		$arr['resource_id'] = $item['mid'];
+		$arr['resource_type'] = 'group_item';
 
 		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
@@ -3246,14 +3266,14 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
 		$arr['item_thread_top'] = 1;
-	
+
 		if (strpos($item['body'], "[/share]") !== false) {
 			$pos = strpos($item['body'], "[share");
 			$bb = substr($item['body'], $pos);
 		} else {
 			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
 				"' profile='"       . $item['author']['xchan_url'] .
-				"' portable_id='"   . $item['author']['xchan_hash'] . 
+				"' portable_id='"   . $item['author']['xchan_hash'] .
 				"' avatar='"        . $item['author']['xchan_photo_s'] .
 				"' link='"          . $item['plink'] .
 				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
@@ -3261,12 +3281,13 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				"' message_id='"    . $item['mid'] .
 			"']";
 			if($item['title'])
-				$bb .= '[b]'.$item['title'].'[/b]'."\r\n";
+				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
 			$bb .= $item['body'];
 			$bb .= "[/share]";
 		}
 
 		$arr['body'] = $bb;
+		$arr['term'] = $item['term'];
 
 		$arr['author_xchan'] = $channel['channel_hash'];
 		$arr['owner_xchan']  = $channel['channel_hash'];
@@ -4800,7 +4821,7 @@ function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow,
 			elseif(strpos($access_tag,'gid:') === 0) {
 				$str_group_allow .= '<' . substr($access_tag,4) . '>';
 				$access_tag = '';
-				$private = 2;
+				$private = 1;
 			}
 		}
 	}

@@ -713,7 +713,7 @@ class Libsync {
 		if($arr['locations']) {
 
 			if($absolute)
-				self::check_location_move($sender['hash'],$arr['locations']);
+				Libzot::check_location_move($sender['hash'],$arr['locations']);
 
 			$xisting = q("select * from hubloc where hubloc_hash = '%s'",
 				dbesc($sender['hash'])

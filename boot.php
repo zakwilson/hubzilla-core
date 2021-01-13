@@ -50,7 +50,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.0.8' );
+define ( 'STD_VERSION',             '5.2' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1240 );
@@ -82,11 +82,16 @@ define ( 'DIRECTORY_MODE_STANDALONE',  0x0100); // A detached (off the grid) hub
 define ( 'DIRECTORY_REALM',            'RED_GLOBAL');
 define ( 'DIRECTORY_FALLBACK_MASTER',  'https://hub.netzgemeinde.eu');
 
-$DIRECTORY_FALLBACK_SERVERS = array(
-	'https://hub.netzgemeinde.eu',
-	'https://zotsite.net',
-	'https://hub.libranet.de'
-);
+
+function get_directory_fallback_servers() {
+	$ret = [
+		'https://hub.netzgemeinde.eu',
+		'https://zotsite.net',
+		'https://hub.libranet.de'
+	];
+
+	return $ret;
+}
 
 
 /**
@@ -355,6 +360,7 @@ define ( 'UPDATE_FLAGS_UPDATED',  0x0001);
 define ( 'UPDATE_FLAGS_FORCED',   0x0002);
 define ( 'UPDATE_FLAGS_DELETED',  0x1000);
 
+define ( 'HUBLOC_OFFLINE', 0x0001);
 
 define ( 'DROPITEM_NORMAL',      0);
 define ( 'DROPITEM_PHASE1',      1);
@@ -433,7 +439,7 @@ define ( 'TERM_FORUM',        11 );
 define ( 'TERM_EMOJI',        12 );
 
 define ( 'TERM_OBJ_POST',    1 );
-define ( 'TERM_OBJ_PHOTO',   2 );
+define ( 'TERM_OBJ_FILE',   2 );
 define ( 'TERM_OBJ_PROFILE', 3 );
 define ( 'TERM_OBJ_CHANNEL', 4 );
 define ( 'TERM_OBJ_OBJECT',  5 );
@@ -2017,7 +2023,7 @@ function proc_run(){
 	}
 
 	$args = array_map('escapeshellarg',$args);
-	$cmdline = implode($args," ");
+	$cmdline = implode(' ', $args);
 
 	if(is_windows()) {
 		$cwd = getcwd();

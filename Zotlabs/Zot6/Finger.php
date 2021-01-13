@@ -88,7 +88,7 @@ class Finger {
 			$headers = [];
 			$headers['X-Zot-Channel'] = $channel['channel_address'] . '@' . \App::get_hostname();
 			$headers['X-Zot-Nonce']   = random_string();
-			$xhead = HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel));
+			$xhead = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel));
 
 			$retries = 0;
 
@@ -100,7 +100,7 @@ class Finger {
 					$result = z_post_url('http://' . $host . $rhs,$postvars, $retries, [ 'headers' => $xhead ]);
 				}
 			}
-		} 
+		}
 		else {
 			$rhs .= '?f=&address=' . urlencode($address) . '&token=' . self::$token;
 

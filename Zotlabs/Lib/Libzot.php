@@ -421,7 +421,7 @@ class Libzot {
 
 					if($new_connection) {
 						if(! Permissions::PermsCompare($new_perms,$previous_perms))
-							Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
+							Master::Summon([ 'Notifier', 'permission_create', $new_connection[0]['abook_id'] ]);
 						Enotify::submit(
 							[
 							'type'       => NOTIFY_INTRO,

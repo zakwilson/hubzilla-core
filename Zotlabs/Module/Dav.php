@@ -51,7 +51,7 @@ class Dav extends \Zotlabs\Web\Controller {
 				if($sigblock) {
 					$keyId = str_replace('acct:','',$sigblock['keyId']);
 					if($keyId) {
-						$r = q("select * from hubloc where hubloc_addr = '%s'",
+						$r = q("select * from hubloc where hubloc_id_url = '%s'",
 							dbesc($keyId)
 						);
 						if($r) {
@@ -100,7 +100,7 @@ class Dav extends \Zotlabs\Web\Controller {
 
 		$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . ' ' . 'WebDAV');
 
-		$rootDirectory = new \Zotlabs\Storage\Directory('/', $auth);
+		$rootDirectory = new \Zotlabs\Storage\Directory('/', [], $auth);
 
 		// A SabreDAV server-object
 		$server = new SDAV\Server($rootDirectory);

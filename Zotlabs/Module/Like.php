@@ -21,7 +21,7 @@ class Like extends \Zotlabs\Web\Controller {
 			'abstain'     => ACTIVITY_ABSTAIN ,
 			'attendyes'   => ACTIVITY_ATTEND ,
 			'attendno'    => ACTIVITY_ATTENDNO ,
-			'attendmaybe' => ACTIVITY_ATTENDMAYBE 
+			'attendmaybe' => ACTIVITY_ATTENDMAYBE
 		];
 
 		// unlike (etc.) reactions are an undo of positive reactions, rather than a negative action.
@@ -81,7 +81,7 @@ class Like extends \Zotlabs\Web\Controller {
 	}
 
 	public function get() {
-	
+
 		$o = EMPTY_STR;
 
 		$sys_channel = get_sys_channel();
@@ -92,7 +92,7 @@ class Like extends \Zotlabs\Web\Controller {
 		if((! $observer) || ($interactive)) {
 			$o .= '<h1>' . t('Like/Dislike') . '</h1>';
 			$o .= EOL . EOL;
-	
+
 			if(! $observer) {
 				$_SESSION['return_url'] = \App::$query_string;
 				$o .= t('This action is restricted to members.') . EOL;
@@ -100,17 +100,17 @@ class Like extends \Zotlabs\Web\Controller {
 				return $o;
 			}
 		}
-	
+
 		$verb = notags(trim($_GET['verb']));
 		$mode = (($_GET['conv_mode'] === 'channel') ? 'channel' : 'network');
 
 		if(! $verb)
 			$verb = 'like';
-	
+
 		$activity = $this->reaction_to_activity($verb);
 
 		if(! $activity) {
-			return EMPTY_STR; 
+			return EMPTY_STR;
 		}
 
 		$is_rsvp = false;
@@ -123,23 +123,23 @@ class Like extends \Zotlabs\Web\Controller {
 		$object = $target = null;
 		$post_type = EMPTY_STR;
 		$objtype = EMPTY_STR;
-	
+
 		if(argc() == 3) {
-	
+
 			if(! $observer)
 				killme();
-	
+
 			$extended_like = true;
 			$obj_type = argv(1);
 			$obj_id = argv(2);
 			$public = true;
-	
+
 			if($obj_type == 'profile') {
 				$r = q("select * from profile where profile_guid = '%s' limit 1",
 					dbesc(argv(2))
 				);
 				if(! $r)
-					killme();			
+					killme();
 				$owner_uid = $r[0]['uid'];
 				if($r[0]['is_default'])
 					$public = true;
@@ -165,54 +165,54 @@ class Like extends \Zotlabs\Web\Controller {
 				}
 				$post_type = t('channel');
 				$objtype = ACTIVITY_OBJ_PROFILE;
-	
+
 				$profile = $r[0];
 			}
 			elseif($obj_type == 'thing') {
-	
+
 				$r = q("select * from obj where obj_type = %d and obj_obj = '%s' limit 1",
 	            	intval(TERM_OBJ_THING),
 	            	dbesc(argv(2))
 	        	);
-	
+
 				if(! $r) {
 					if($interactive) {
 						notice( t('Invalid request.') . EOL);
 						return $o;
 					}
-					killme();		
+					killme();
 				}
-	
+
 				$owner_uid = $r[0]['obj_channel'];
-	
+
 				$allow_cid = $r[0]['allow_cid'];
 				$allow_gid = $r[0]['allow_gid'];
 				$deny_cid = $r[0]['deny_cid'];
 				$deny_gid = $r[0]['deny_gid'];
-				if($allow_cid || $allow_gid || $deny_cid || $deny_gid)			
+				if($allow_cid || $allow_gid || $deny_cid || $deny_gid)
 					$public = false;
-	
+
 				$post_type = t('thing');
 				$objtype = ACTIVITY_OBJ_PROFILE;
 				$tgttype = ACTIVITY_OBJ_THING;
-	
+
 				$links   = array();
 				$links[] = array('rel' => 'alternate', 'type' => 'text/html',
 					'href' => z_root() . '/thing/' . $r[0]['obj_obj']);
-				if($r[0]['imgurl'])	
+				if($r[0]['imgurl'])
 					$links[] = array('rel' => 'photo', 'href' => $r[0]['obj_imgurl']);
-	
+
 				$target = json_encode(array(
 					'type'  => $tgttype,
 					'title' => $r[0]['obj_term'],
 					'id'    => z_root() . '/thing/' . $r[0]['obj_obj'],
 					'link'  => $links
 				));
-	
+
 				$plink = '[zrl=' . z_root() . '/thing/' . $r[0]['obj_obj'] . ']' . $r[0]['obj_term'] . '[/zrl]';
-	
+
 			}
-			
+
 			if(! ($owner_uid && $r)) {
 				if($interactive) {
 					notice( t('Invalid request.') . EOL);
@@ -220,11 +220,11 @@ class Like extends \Zotlabs\Web\Controller {
 				}
 				killme();
 			}
-	
+
 			// The resultant activity is going to be a wall-to-wall post, so make sure this is allowed
-	
+
 			$perms = get_all_perms($owner_uid,$observer['xchan_hash']);
-	
+
 			if(! ($perms['post_like'] && $perms['view_profile'])) {
 				if($interactive) {
 					notice( t('Permission denied.') . EOL);
@@ -232,7 +232,7 @@ class Like extends \Zotlabs\Web\Controller {
 				}
 				killme();
 			}
-	
+
 			$ch = q("select * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
 				intval($owner_uid)
 			);
@@ -243,14 +243,14 @@ class Like extends \Zotlabs\Web\Controller {
 				}
 				killme();
 			}
-				
+
 			if(! $plink)
 				$plink = '[zrl=' . z_root() . '/profile/' . $ch[0]['channel_address'] . ']' . $post_type . '[/zrl]';
-		
+
 			$object = json_encode(Activity::fetch_profile([ 'id' => channel_url($ch[0]) ]));
 
 			// second like of the same thing is "undo" for the first like
-	
+
 			$z = q("select * from likes where channel_id = %d and liker = '%s' and verb = '%s' and target_type = '%s' and target_id = '%s' limit 1",
 				intval($ch[0]['channel_id']),
 				dbesc($observer['xchan_hash']),
@@ -258,11 +258,11 @@ class Like extends \Zotlabs\Web\Controller {
 				dbesc(($tgttype)?$tgttype:$objtype),
 				dbesc($obj_id)
 			);
-	
+
 			if($z) {
 				$z[0]['deleted'] = 1;
 				Libsync::build_sync_packet($ch[0]['channel_id'],array('likes' => $z));
-	
+
 				q("delete from likes where id = %d",
 					intval($z[0]['id'])
 				);
@@ -285,17 +285,17 @@ class Like extends \Zotlabs\Web\Controller {
 
 			if(! $observer)
 				killme();
-	
+
 			// this is used to like an item or comment
-	
+
 			$item_id = ((argc() == 2) ? notags(trim(argv(1))) : 0);
-	
+
 			logger('like: verb ' . $verb . ' item ' . $item_id, LOGGER_DEBUG);
-	
+
 			// get the item. Allow linked photos (which are normally hidden) to be liked
 
-			$r = q("SELECT * FROM item WHERE id = %d 
-				and item_type in (0,6,7) and item_deleted = 0 and item_unpublished = 0 
+			$r = q("SELECT * FROM item WHERE id = %d
+				and item_type in (0,6,7) and item_deleted = 0 and item_unpublished = 0
 				and item_delayed = 0 and item_pending_remove = 0 and item_blocked = 0 LIMIT 1",
 				intval($item_id)
 			);
@@ -351,12 +351,12 @@ class Like extends \Zotlabs\Web\Controller {
 				killme();
 
 			$verbs = " '".dbesc($activity)."' ";
-	
-			$multi_undo = false;		
-	
+
+			$multi_undo = false;
+
 			// event participation and consensus items are essentially radio toggles. If you make a subsequent choice,
-			// we need to eradicate your first choice. 
-	
+			// we need to eradicate your first choice.
+
 			if($activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE) {
 				$verbs = " '" . dbesc(ACTIVITY_ATTEND) . "','" . dbesc(ACTIVITY_ATTENDNO) . "','" . dbesc(ACTIVITY_ATTENDMAYBE) . "' ";
 				$multi_undo = 1;
@@ -365,16 +365,16 @@ class Like extends \Zotlabs\Web\Controller {
 				$verbs = " '" . dbesc(ACTIVITY_AGREE) . "','" . dbesc(ACTIVITY_DISAGREE) . "','" . dbesc(ACTIVITY_ABSTAIN) . "' ";
 				$multi_undo = true;
 			}
-	
+
 			$item_normal = item_normal();
-	
+
 			$r = q("SELECT id, parent, uid, verb FROM item WHERE verb in ( $verbs ) $item_normal
 				AND author_xchan = '%s' AND thr_parent = '%s' and uid = %d ",
 				dbesc($observer['xchan_hash']),
 				dbesc($item['mid']),
 				intval($owner_uid)
 			);
-	
+
 			if($r) {
 				// already liked it. Drop that item.
 				require_once('include/items.php');
@@ -386,27 +386,27 @@ class Like extends \Zotlabs\Web\Controller {
 						intval($rr['parent']),
 						intval($rr['uid'])
 					);
-					// Prior activity was a duplicate of the one we're submitting, just undo it; 
+					// Prior activity was a duplicate of the one we're submitting, just undo it;
 					// don't fall through and create another
 					if(activity_match($rr['verb'],$activity))
 						$multi_undo = false;
-	
+
 					// drop_item was not done interactively, so we need to invoke the notifier
 					// in order to push the changes to connections
 
 					\Zotlabs\Daemon\Master::Summon(array('Notifier','drop',$rr['id']));
 
 
-	
+
 				}
-	
+
 				if($interactive)
 					return;
-	
+
 				if(! $multi_undo) {
 					$ret = self::like_response([
 						'item' => $item,
-						'orig_item_id' => $item_id, 
+						'orig_item_id' => $item_id,
 						'owner_xchan' => $thread_owner,
 						'conv_mode' => $mode
 					]);
@@ -416,11 +416,11 @@ class Like extends \Zotlabs\Web\Controller {
 
 			}
 		}
-	
+
 		$uuid = item_message_id();
-	
+
 		$arr = array();
-	
+
 		$arr['uuid']  = $uuid;
 		$arr['mid'] = z_root() . (($is_rsvp) ? '/activity/' : '/item/') . $uuid;
 
@@ -433,38 +433,38 @@ class Like extends \Zotlabs\Web\Controller {
 			$post_type = (($item['resource_type'] === 'photo') ? t('photo') : t('status'));
 			if($item['obj_type'] === ACTIVITY_OBJ_EVENT)
 				$post_type = t('event');
-	
+
 			$links = array(array('rel' => 'alternate','type' => 'text/html', 'href' => $item['plink']));
-			$objtype = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE ); 
+			$objtype = (($item['resource_type'] === 'photo') ? ACTIVITY_OBJ_PHOTO : ACTIVITY_OBJ_NOTE );
 
 			if($objtype === ACTIVITY_OBJ_NOTE && (! intval($item['item_thread_top'])))
 				$objtype = ACTIVITY_OBJ_COMMENT;
 
-	
+
 			$body = $item['body'];
-	
+
 			$object = json_encode(Activity::fetch_item( [ 'id' => $item['mid'] ]));
 
 			if(! intval($item['item_thread_top']))
-				$post_type = 'comment';		
-	
+				$post_type = 'comment';
+
 			$arr['item_origin'] = 1;
 			$arr['item_notshown'] = 1;
 			$arr['item_type'] = $item['item_type'];
-	
+
 			if(intval($item['item_wall']))
 				$arr['item_wall'] = 1;
-	
+
 			// if this was a linked photo and was hidden, unhide it.
-	
+
 			if(intval($item['item_hidden'])) {
 				$r = q("update item set item_hidden = 0 where id = %d",
 					intval($item['id'])
 				);
-			}	
-	
+			}
+
 		}
-	
+
 		if($verb === 'like')
 			$bodyverb = t('%1$s likes %2$s\'s %3$s');
 		if($verb === 'dislike')
@@ -481,12 +481,12 @@ class Like extends \Zotlabs\Web\Controller {
 			$bodyverb = t('%1$s is not attending %2$s\'s %3$s');
 		if($verb === 'attendmaybe')
 			$bodyverb = t('%1$s may attend %2$s\'s %3$s');
-	
+
 		if(! isset($bodyverb))
-				killme(); 
-	
-		
-	
+				killme();
+
+
+
 		if($extended_like) {
 			$ulink = '[zrl=' . $ch[0]['xchan_url'] . '][bdi]' . $ch[0]['xchan_name'] . '[/bdi][/zrl]';
 			$alink = '[zrl=' . $observer['xchan_url'] . '][bdi]' . $observer['xchan_name'] . '[/bdi][/zrl]';
@@ -503,64 +503,64 @@ class Like extends \Zotlabs\Web\Controller {
 			$deny_cid        = $item['deny_cid'];
 			$deny_gid        = $item['deny_gid'];
 			$private         = $item['private'];
-	
+
 		}
-		
-	
+
+
 		$arr['aid']          = (($extended_like) ? $ch[0]['channel_account_id'] : $owner_aid);
 		$arr['uid']          = $owner_uid;
 
 
-		$arr['item_flags']   = $item_flags;
-		$arr['item_wall']    = $item_wall;
+		$arr['item_flags']   = $item['item_flags'];
+		$arr['item_wall']    = $item['item_wall'];
 		$arr['parent_mid']   = (($extended_like) ? $arr['mid'] : $item['mid']);
 		$arr['owner_xchan']  = (($extended_like) ? $ch[0]['xchan_hash'] : $thread_owner['xchan_hash']);
 		$arr['author_xchan'] = $observer['xchan_hash'];
-	
-		
+
+
 		$arr['body']          =  sprintf( $bodyverb, $alink, $ulink, $plink );
 		if($obj_type === 'thing' && $r[0]['imgurl']) {
 			$arr['body'] .= "\n\n[zmg=80x80]" . $r[0]['imgurl'] . '[/zmg]';
-		}	
+		}
 		if($obj_type === 'profile') {
 			if($public) {
-				$arr['body'] .= "\n\n" . '[embed]' . z_root() . '/profile/' . $ch[0]['channel_address'] . '[/embed]';	
+				$arr['body'] .= "\n\n" . '[embed]' . z_root() . '/profile/' . $ch[0]['channel_address'] . '[/embed]';
 			}
 			else
 				$arr['body'] .= "\n\n[zmg=80x80]" . $profile['thumb'] . '[/zmg]';
-		}	
-	
-	
+		}
+
+
 		$arr['verb']          = $activity;
 		$arr['obj_type']      = $objtype;
 		$arr['obj']           = $object;
-	
+
 		if($target) {
 			$arr['tgt_type']  = $tgttype;
 			$arr['target']    = $target;
 		}
-	
+
 		$arr['allow_cid']     = $allow_cid;
 		$arr['allow_gid']     = $allow_gid;
 		$arr['deny_cid']      = $deny_cid;
 		$arr['deny_gid']      = $deny_gid;
 		$arr['item_private']  = $private;
-	
+
 		call_hooks('post_local',$arr);
 
-		$post = item_store($arr);	
+		$post = item_store($arr);
 		$post_id = $post['item_id'];
 
 		// save the conversation from expiration
 
 		if(local_channel() && array_key_exists('item',$post) && (intval($post['item']['id']) != intval($post['item']['parent'])))
-			retain_item($post['item']['parent']); 
-	
+			retain_item($post['item']['parent']);
+
 		$arr['id'] = $post_id;
-	
+
 		call_hooks('post_local_end', $arr);
-	
-	
+
+
 		if($extended_like) {
 			$r = q("insert into likes (channel_id,liker,likee,iid,i_mid,verb,target_type,target_id,target) values (%d,'%s','%s',%d,'%s','%s','%s','%s','%s')",
 				intval($ch[0]['channel_id']),
@@ -582,12 +582,12 @@ class Like extends \Zotlabs\Web\Controller {
 				dbesc($obj_id)
 			);
 			if($r)
-				Libsync::build_sync_packet($ch[0]['channel_id'],array('likes' => $r));	
-	
+				Libsync::build_sync_packet($ch[0]['channel_id'],array('likes' => $r));
+
 		}
-	
+
 		\Zotlabs\Daemon\Master::Summon(array('Notifier','like',$post_id));
-	
+
 		if($interactive) {
 			notice( t('Action completed.') . EOL);
 			$o .= t('Thank you.');
@@ -596,12 +596,12 @@ class Like extends \Zotlabs\Web\Controller {
 
 		$ret = self::like_response([
 			'item' => $item,
-			'orig_item_id' => $item_id, 
+			'orig_item_id' => $item_id,
 			'owner_xchan' => $thread_owner,
 			'conv_mode' => $mode
 		]);
 		json_return_and_die($ret);
 
 	}
-	
+
 }

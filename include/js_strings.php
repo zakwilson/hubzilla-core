@@ -47,10 +47,10 @@ function js_strings() {
 		'days'          => tt('%d days', '%d days', '%d'),
 		'months'        => tt('%d months', '%d months', '%d'),
 		'years'         => tt('%d years', '%d years', '%d'),
-		
+
 		// get plural function code
 		'plural_func'   => tf(),
-                
+
 		'$t01' => ((t('timeago.prefixAgo') == 'timeago.prefixAgo') ? '' : ((t('timeago.prefixAgo') == 'NONE') ? '' : t('timeago.prefixAgo'))),
 		'$t02' => ((t('timeago.prefixFromNow') == 'timeago.prefixFromNow') ? '' : ((t('timeago.prefixFromNow') == 'NONE') ? '' : t('timeago.prefixFromNow'))),
 		'$t03' => ((t('timeago.suffixAgo') == 'timeago.suffixAgo') ? 'ago' : ((t('timeago.suffixAgo') == 'NONE') ? '' : t('timeago.suffixAgo'))),
@@ -113,6 +113,9 @@ function js_strings() {
 		'$month' => t('month','calendar'),
 		'$week' => t('week','calendar'),
 		'$day' => t('day','calendar'),
-		'$allday' => t('All day','calendar')
+		'$allday' => t('All day','calendar'),
+
+		// mod cloud
+		'$download_info' => t('Please stand by while your download is being prepared.')
 	));
 }

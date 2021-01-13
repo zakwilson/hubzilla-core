@@ -30,7 +30,7 @@ function ACL(backend_url) {
 	that.custom       = $("#acl-custom");
 	that.acl_select   = $("#acl-select");
 
-	// set the initial ACL lists in case the enclosing form gets submitted before the ajax loader completes. 
+	// set the initial ACL lists in case the enclosing form gets submitted before the ajax loader completes.
 	//that.on_submit();
 
 	/*events*/
@@ -90,7 +90,7 @@ ACL.prototype.get_form_data = function(event) {
 
 }
 
-// no longer called only on submit - call to update whenever a change occurs to the acl list. 
+// no longer called only on submit - call to update whenever a change occurs to the acl list.
 ACL.prototype.on_submit = function() {
 
 	$('.acl-field').remove();

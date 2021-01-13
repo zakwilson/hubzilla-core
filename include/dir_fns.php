@@ -16,7 +16,6 @@ require_once('include/permissions.php');
  * @return array
  */
 function find_upstream_directory($dirmode) {
-	global $DIRECTORY_FALLBACK_SERVERS;
 
 	$preferred = get_config('system','directory_server');
 
@@ -28,7 +27,7 @@ function find_upstream_directory($dirmode) {
 		);
 		if(($r) && ($r[0]['site_flags'] & DIRECTORY_MODE_STANDALONE)) {
 			$preferred = '';
-		}		
+		}
 	}
 
 
@@ -39,14 +38,16 @@ function find_upstream_directory($dirmode) {
 		 * from our list of directory servers. However, if we're a directory
 		 * server ourself, point at the local instance
 		 * We will then set this value so this should only ever happen once.
-		 * Ideally there will be an admin setting to change to a different 
+		 * Ideally there will be an admin setting to change to a different
 		 * directory server if you don't like our choice or if circumstances change.
 		 */
 
+		$directory_fallback_servers = get_directory_fallback_servers();
+
 		$dirmode = intval(get_config('system','directory_mode'));
 		if ($dirmode == DIRECTORY_MODE_NORMAL) {
-			$toss = mt_rand(0,count($DIRECTORY_FALLBACK_SERVERS));
-			$preferred = $DIRECTORY_FALLBACK_SERVERS[$toss];
+			$toss = mt_rand(0,count($directory_fallback_servers));
+			$preferred = $directory_fallback_servers[$toss];
 			set_config('system','directory_server',$preferred);
 		} else{
 			set_config('system','directory_server',z_root());
@@ -94,7 +95,7 @@ function get_directory_setting($observer, $setting) {
 		$ret = get_config('directory', $setting);
 
 
-	// 'safemode' is the default if there is no observer or no established preference. 
+	// 'safemode' is the default if there is no observer or no established preference.
 
 	if($setting == 'safemode' && $ret === false)
 		$ret = 1;
@@ -152,8 +153,8 @@ function dir_sort_links() {
  *
  * Checks the directory mode of this hub to see if it is some form of directory server. If it is,
  * get the directory realm of this hub. Fetch a list of all other directory servers in this realm and request
- * a directory sync packet. This will contain both directory updates and new ratings. Store these all in the DB. 
- * In the case of updates, we will query each of them asynchronously from a poller task. Ratings are stored 
+ * a directory sync packet. This will contain both directory updates and new ratings. Store these all in the DB.
+ * In the case of updates, we will query each of them asynchronously from a poller task. Ratings are stored
  * directly if the rater's signature matches.
  *
  * @param int $dirmode;
@@ -189,7 +190,7 @@ function sync_directories($dirmode) {
 			[
 				'site_url'       => DIRECTORY_FALLBACK_MASTER,
 				'site_flags'     => DIRECTORY_MODE_PRIMARY,
-				'site_update'    => NULL_DATE, 
+				'site_update'    => NULL_DATE,
 				'site_directory' => DIRECTORY_FALLBACK_MASTER . '/dirsearch',
 				'site_realm'     => DIRECTORY_REALM,
 				'site_valid'     => 1,
@@ -335,11 +336,11 @@ function update_directory_entry($ud) {
 		// modify the directory search to only return zot6 entries, and also modify this function
 		// to *only* fetch the zot6 entries.
 		// Otherwise we'll be showing duplicates or have a mostly empty directory for a good chunk of
-		// the transition period. Directory server load will likely increase "moderately" during this transition. 
-		// The one month counter begins when the primary directory has upgraded to a release which uses this code. 
+		// the transition period. Directory server load will likely increase "moderately" during this transition.
+		// The one month counter begins when the primary directory has upgraded to a release which uses this code.
 		// Hubzilla channels running traditional zot which have not upgraded can or will be dropped from the directory or
 		// "not found" at the end of the transition period as the directory will only serve zot6 entries at that time.
-		
+
 		$uri = Webfinger::zot_url($ud['ud_addr']);
 		if($uri) {
 			$record = Zotfinger::exec($uri);
@@ -347,8 +348,8 @@ function update_directory_entry($ud) {
 			// Check the HTTP signature
 
 			$hsig = $record['signature'];
-			if($hsig && $hsig['signer'] === $url && $hsig['header_valid'] === true && $hsig['content_valid'] === true) {
-				$x = \Zotlabs\Lib\Libzot::import_xchan($record['data'], 0, $ud);
+			if($hsig && $hsig['signer'] === $uri && $hsig['header_valid'] === true && $hsig['content_valid'] === true) {
+				$x = Libzot::import_xchan($record['data'], 0, $ud);
 				if($x['success']) {
 					$success = true;
 				}
@@ -394,7 +395,7 @@ function local_dir_update($uid, $force) {
 
 		$profile['description'] = $p[0]['pdesc'];
 		$profile['birthday']    = $p[0]['dob'];
-		if ($age = age($p[0]['dob'],$p[0]['channel_timezone'],''))  
+		if ($age = age($p[0]['dob'],$p[0]['channel_timezone'],''))
 			$profile['age'] = $age;
 
 		$profile['gender']      = $p[0]['gender'];

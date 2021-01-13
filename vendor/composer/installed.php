@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '188975ccbd3a9c584238c35dd8c5a8fda7718199',
+    'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -20,6 +20,15 @@
       ),
       'reference' => '0740f81829698b84efe17e72501e0f420ea0d611',
     ),
+    'brick/math' => 
+    array (
+      'pretty_version' => '0.9.1',
+      'version' => '0.9.1.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '283a40c901101e66de7061bd359252c013dcc43c',
+    ),
     'bshaffer/oauth2-server-php' => 
     array (
       'pretty_version' => 'v1.11.1',
@@ -31,12 +40,12 @@
     ),
     'commerceguys/intl' => 
     array (
-      'pretty_version' => 'v1.0.6',
-      'version' => '1.0.6.0',
+      'pretty_version' => 'v1.0.7',
+      'version' => '1.0.7.0',
       'aliases' => 
       array (
       ),
-      'reference' => '47d5d6d60d0cc25f867e337ce229a228bf6be6f8',
+      'reference' => '0bf0beb12e37ef1a61e0d09dc66cdaa1a23e62e1',
     ),
     'desandro/imagesloaded' => 
     array (
@@ -83,23 +92,14 @@
       ),
       'reference' => 'c83178d49e372ca967d1a8c77ae4e051b3a3c75c',
     ),
-    'paragonie/random_compat' => 
-    array (
-      'pretty_version' => 'v9.99.99',
-      'version' => '9.99.99.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95',
-    ),
     'pear/text_languagedetect' => 
     array (
-      'pretty_version' => 'v1.0.0',
-      'version' => '1.0.0.0',
+      'pretty_version' => 'v1.0.1',
+      'version' => '1.0.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'bb9ff6f4970f686fac59081e916b456021fe7ba6',
+      'reference' => '9e253f26cef9a9066f53f200cc3e0684018cb5b5',
     ),
     'psr/log' => 
     array (
@@ -110,84 +110,93 @@
       ),
       'reference' => '0f73288fd15629204f9d42b7055f72dacbe811fc',
     ),
-    'ramsey/uuid' => 
+    'ramsey/collection' => 
     array (
-      'pretty_version' => '3.9.3',
-      'version' => '3.9.3.0',
+      'pretty_version' => '1.1.1',
+      'version' => '1.1.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '7e1633a6964b48589b142d60542f9ed31bd37a92',
+      'reference' => '24d93aefb2cd786b7edd9f45b554aea20b28b9b1',
     ),
-    'rhumsaa/uuid' => 
-    array (
-      'replaced' => 
-      array (
-        0 => '3.9.3',
-      ),
-    ),
-    'sabre/dav' => 
+    'ramsey/uuid' => 
     array (
       'pretty_version' => '4.1.1',
       'version' => '4.1.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '5736f943c90d8d73d04cd8944d8c913811dc7360',
+      'reference' => 'cd4032040a750077205918c86049aa0f43d22947',
+    ),
+    'rhumsaa/uuid' => 
+    array (
+      'replaced' => 
+      array (
+        0 => '4.1.1',
+      ),
+    ),
+    'sabre/dav' => 
+    array (
+      'pretty_version' => '4.1.3',
+      'version' => '4.1.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'b903eeedfbdcd6cab7935661ec6dc2d90cdf8a1e',
     ),
     'sabre/event' => 
     array (
-      'pretty_version' => '5.1.0',
-      'version' => '5.1.0.0',
+      'pretty_version' => '5.1.2',
+      'version' => '5.1.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'd00a17507af0e7544cfe17096372f5d733e3b276',
+      'reference' => 'c120bec57c17b6251a496efc82b732418b49d50a',
     ),
     'sabre/http' => 
     array (
-      'pretty_version' => '5.1.0',
-      'version' => '5.1.0.0',
+      'pretty_version' => '5.1.1',
+      'version' => '5.1.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '23446999f1f6e62892bbd89745070aa902dd3539',
+      'reference' => 'd0aafede6961df6195ce7a8dad49296b0aaee22e',
     ),
     'sabre/uri' => 
-    array (
-      'pretty_version' => '2.2.0',
-      'version' => '2.2.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '059d11012603be2e32ddb7543602965563ddbb09',
-    ),
-    'sabre/vobject' => 
-    array (
-      'pretty_version' => '4.3.1',
-      'version' => '4.3.1.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'a7feca8311462e5da16952454e420b92c20d3586',
-    ),
-    'sabre/xml' => 
     array (
       'pretty_version' => '2.2.1',
       'version' => '2.2.1.0',
       'aliases' => 
       array (
       ),
-      'reference' => '41c6ba148966b10cafd31d1a4e5feb1e2138d95c',
+      'reference' => 'f502edffafea8d746825bd5f0b923a60fd2715ff',
     ),
-    'simplepie/simplepie' => 
+    'sabre/vobject' => 
     array (
-      'pretty_version' => '1.5.5',
-      'version' => '1.5.5.0',
+      'pretty_version' => '4.3.3',
+      'version' => '4.3.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'ae49e2201b6da9c808e5dac437aca356a11831b4',
+      'reference' => '58f9f9b46a1080c0130bd86f4df9a568aacb9c79',
+    ),
+    'sabre/xml' => 
+    array (
+      'pretty_version' => '2.2.3',
+      'version' => '2.2.3.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'c3b959f821c19b36952ec4a595edd695c216bfc6',
+    ),
+    'simplepie/simplepie' => 
+    array (
+      'pretty_version' => '1.5.6',
+      'version' => '1.5.6.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '1c68e14ca3ac84346b6e6fe3c5eedf725d0f92c6',
     ),
     'smarty/smarty' => 
     array (
@@ -209,18 +218,18 @@
     ),
     'twbs/bootstrap' => 
     array (
-      'pretty_version' => 'v4.5.2',
-      'version' => '4.5.2.0',
+      'pretty_version' => 'v4.5.3',
+      'version' => '4.5.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '5f2480a90ab911babc53039835fe78c6fc12646d',
+      'reference' => 'a716fb03f965dc0846df479e14388b1b4b93d7ce',
     ),
     'twitter/bootstrap' => 
     array (
       'replaced' => 
       array (
-        0 => 'v4.5.2',
+        0 => 'v4.5.3',
       ),
     ),
     'zotlabs/hubzilla' => 
@@ -230,7 +239,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '188975ccbd3a9c584238c35dd8c5a8fda7718199',
+      'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
     ),
   ),
 );

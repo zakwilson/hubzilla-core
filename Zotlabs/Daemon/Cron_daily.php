@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Daemon;
 
+use Zotlabs\Lib\Libzotdir;
+
 class Cron_daily {
 
 	static public function run($argc,$argv) {
@@ -14,12 +16,11 @@ class Cron_daily {
 		 */
 
 
-		require_once('include/dir_fns.php');
-		check_upstream_directory();
+		Libzotdir::check_upstream_directory();
 
 
 		// Fire off the Cron_weekly process if it's the correct day.
- 
+
 		$d3 = intval(datetime_convert('UTC','UTC','now','N'));
 		if($d3 == 7) {
 			Master::Summon(array('Cron_weekly'));
@@ -80,15 +81,14 @@ class Cron_daily {
 		downgrade_accounts();
 
 		// If this is a directory server, request a sync with an upstream
-		// directory at least once a day, up to once every poll interval. 
+		// directory at least once a day, up to once every poll interval.
 		// Pull remote changes and push local changes.
-		// potential issue: how do we keep from creating an endless update loop? 
+		// potential issue: how do we keep from creating an endless update loop?
 
 		$dirmode = get_config('system','directory_mode');
 
 		if($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
-			require_once('include/dir_fns.php');
-			sync_directories($dirmode);
+			Libzotdir::sync_directories($dirmode);
 		}
 
 

@@ -54,10 +54,9 @@ class Getfile extends \Zotlabs\Web\Controller {
 					$keyId = $sigblock['keyId'];
 
 					if($keyId) {
-						$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-							WHERE hubloc_addr = '%s' OR hubloc_id_url = '%s'",
-							dbesc(str_replace('acct:','',$keyId)),
-							dbesc($keyId)
+						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash
+							where hubloc_id_url = '%s'",
+							dbesc(str_replace('acct:','',$keyId))
 						);
 						if($r) {
 							$hubloc = Libzot::zot_record_preferred($r);

@@ -1358,7 +1358,7 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_reddress($channel), true, 'sha512');
+						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);

@@ -2,7 +2,7 @@ Hubzilla 5.2 (2021-xx-xx)
 	- Use libzotdir for directory
 	- Streamline usage of channel url for keyId
 	- Basic work on PHP8 compatibility
-	- Improve performance for form post edit action
+	- Improve performance for forum post edit action
 	- Improve File App tiles view
 	- Update es strings
 	- Update ru strings
@@ -23,6 +23,7 @@ Hubzilla 5.2 (2021-xx-xx)
 	- Update composer libs
 
 	Bugfixes
+	- Fix direct messages by forum channel turned into group item
 	- Fix ID3Parser composer autoload
 	- Fix issue where directory_fallback_servers were not accessible from static function
 	- Fix missing constant defenition for HUBLOC_OFFLINE

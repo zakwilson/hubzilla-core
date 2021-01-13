@@ -2673,6 +2673,11 @@ function tag_deliver($uid, $item_id) {
 	}
 
 	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
+
+		// do not turn the groups own direkt messages into group items
+		if($item['item_wall'] && $item['author_xchan'] === $u[0]['channel_hash'])
+			return;
+
 		// group delivery via DM
 		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall') || perm_is_allowed($uid,$item['owner_xchan'],'tag_deliver')) {
 			logger('group DM delivery for ' . $u[0]['channel_address']);

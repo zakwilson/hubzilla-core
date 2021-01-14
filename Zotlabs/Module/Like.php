@@ -41,41 +41,52 @@ class Like extends \Zotlabs\Web\Controller {
 
 	private function like_response($arr) {
 
-		if($arr['conv_mode'] === 'channel') {
+		$page_mode = (($arr['item']['item_thread_top'] && $_REQUEST['page_mode']) ? $_REQUEST['page_mode'] : 'r_preview');
+		$conv_mode = (($_REQUEST['conv_mode']) ? $_REQUEST['conv_mode'] : 'network');
+
+		if($conv_mode === 'channel') {
 			$parts = explode('@', $arr['owner_xchan']['xchan_addr']);
 			profile_load($parts[0]);
 		}
 
-
 		$item_normal = item_normal();
 
-		$activities = q("SELECT item.*, item.id AS item_id FROM item
-			WHERE uid = %d $item_normal
-			AND thr_parent = '%s'
-			AND verb IN ('%s', '%s', '%s', '%s', '%s')",
-			intval($arr['item']['uid']),
-			dbesc($arr['item']['mid']),
-			dbesc(ACTIVITY_LIKE),
-			dbesc(ACTIVITY_DISLIKE),
-			dbesc(ACTIVITY_ATTEND),
-			dbesc(ACTIVITY_ATTENDNO),
-			dbesc(ACTIVITY_ATTENDMAYBE)
-		);
+		if($page_mode === 'list') {
+			$items = q("SELECT item.*, item.id AS item_id FROM item
+				WHERE uid = %d $item_normal
+				AND parent = %d",
+				intval($arr['item']['uid']),
+				intval($arr['item']['parent'])
+			);
+			xchan_query($items,true);
+			$items = fetch_post_tags($items, true);
+			$items = conv_sort($items, 'commented');
+		}
+		else {
+			$activities = q("SELECT item.*, item.id AS item_id FROM item
+				WHERE uid = %d $item_normal
+				AND thr_parent = '%s'
+				AND verb IN ('%s', '%s', '%s', '%s', '%s')",
+				intval($arr['item']['uid']),
+				dbesc($arr['item']['mid']),
+				dbesc(ACTIVITY_LIKE),
+				dbesc(ACTIVITY_DISLIKE),
+				dbesc(ACTIVITY_ATTEND),
+				dbesc(ACTIVITY_ATTENDNO),
+				dbesc(ACTIVITY_ATTENDMAYBE)
+			);
+			xchan_query($activities,true);
+			$items = array_merge([$arr['item']], $activities);
+			$items = fetch_post_tags($items, true);
+		}
 
-		xchan_query($activities,true);
-
-		$convitems[] = $arr['item'];
-		$convitems = array_merge($convitems, $activities);
-
-		$convitems = fetch_post_tags($convitems,true);
 
 		$ret = [
 			'success' => 1,
 			'orig_id' => $arr['orig_item_id'], //this is required for pubstream items where $item_id != $item['id']
 			'id' => $arr['item']['id'],
-			'html' => conversation($convitems, $arr['conv_mode'], true, 'r_preview'),
+			'html' => conversation($items, $conv_mode, true, $page_mode),
 		];
-
 		return $ret;
 
 	}
@@ -102,7 +113,7 @@ class Like extends \Zotlabs\Web\Controller {
 		}
 
 		$verb = notags(trim($_GET['verb']));
-		$mode = (($_GET['conv_mode'] === 'channel') ? 'channel' : 'network');
+		$mode = (($_GET['conv_mode']) ? $_GET['conv_mode'] : '');
 
 		if(! $verb)
 			$verb = 'like';
@@ -407,8 +418,7 @@ class Like extends \Zotlabs\Web\Controller {
 					$ret = self::like_response([
 						'item' => $item,
 						'orig_item_id' => $item_id,
-						'owner_xchan' => $thread_owner,
-						'conv_mode' => $mode
+						'owner_xchan' => $thread_owner
 					]);
 					json_return_and_die($ret);
 				}
@@ -597,8 +607,7 @@ class Like extends \Zotlabs\Web\Controller {
 		$ret = self::like_response([
 			'item' => $item,
 			'orig_item_id' => $item_id,
-			'owner_xchan' => $thread_owner,
-			'conv_mode' => $mode
+			'owner_xchan' => $thread_owner
 		]);
 		json_return_and_die($ret);
 

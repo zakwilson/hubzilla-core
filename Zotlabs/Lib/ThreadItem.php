@@ -35,7 +35,7 @@ class ThreadItem {
 
 
 	public function __construct($data) {
-				
+
 		$this->data = $data;
 		$this->toplevel = ($this->get_id() == $this->get_data_value('parent'));
 		$this->threaded = get_config('system','thread_allow');
@@ -98,7 +98,7 @@ class ThreadItem {
  		$conv = $this->get_conversation();
 		$observer = $conv->get_observer();
 
-		$lock = (((intval($item['item_private'])) || (($item['uid'] == local_channel()) && (strlen($item['allow_cid']) || strlen($item['allow_gid']) 
+		$lock = (((intval($item['item_private'])) || (($item['uid'] == local_channel()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
 			? t('Private Message')
 			: false);
@@ -151,9 +151,9 @@ class ThreadItem {
 
 
 		if($observer && $observer['xchan_hash']
-			&& ($observer['xchan_hash'] == $this->get_data_value('author_xchan') 
-			|| $observer['xchan_hash'] == $this->get_data_value('owner_xchan') 
-			|| $observer['xchan_hash'] == $this->get_data_value('source_xchan') 
+			&& ($observer['xchan_hash'] == $this->get_data_value('author_xchan')
+			|| $observer['xchan_hash'] == $this->get_data_value('owner_xchan')
+			|| $observer['xchan_hash'] == $this->get_data_value('source_xchan')
 			|| $this->get_data_value('uid') == local_channel()))
 			$dropping = true;
 
@@ -169,15 +169,15 @@ class ThreadItem {
 				'dropping' => $dropping,
 				'delete' => t('Delete'),
 			);
-		}		
+		}
 		elseif(is_site_admin()) {
 			$drop = [ 'dropping' => true, 'delete' => t('Admin Delete') ];
 		}
 
 // FIXME
-		if($observer_is_pageowner) {		
+		if($observer_is_pageowner) {
 			$multidrop = array(
-				'select' => t('Select'), 
+				'select' => t('Select'),
 			);
 		}
 
@@ -223,7 +223,7 @@ class ThreadItem {
 
 		if(! feature_enabled($conv->get_profile_owner(),'dislike'))
 			unset($conv_responses['dislike']);
-  
+
 		$responses = get_responses($conv_responses,$response_verbs,$this,$item);
 
 		$my_responses = [];
@@ -254,7 +254,7 @@ class ThreadItem {
 		}
 
 		$showlike    = ((x($conv_responses['like'],$item['mid'])) ? format_like($conv_responses['like'][$item['mid']],$conv_responses['like'][$item['mid'] . '-l'],'like',$item['mid']) : '');
-		$showdislike = ((x($conv_responses['dislike'],$item['mid']) && feature_enabled($conv->get_profile_owner(),'dislike'))  
+		$showdislike = ((x($conv_responses['dislike'],$item['mid']) && feature_enabled($conv->get_profile_owner(),'dislike'))
 				? format_like($conv_responses['dislike'][$item['mid']],$conv_responses['dislike'][$item['mid'] . '-l'],'dislike',$item['mid']) : '');
 
 		/*
@@ -264,7 +264,7 @@ class ThreadItem {
 		 */
 
 		$this->check_wall_to_wall();
-		
+
 		if($this->is_toplevel()) {
 			// FIXME check this permission
 			if(($conv->get_profile_owner() == local_channel()) && (! array_key_exists('real_uid',$item))) {
@@ -275,7 +275,7 @@ class ThreadItem {
 				);
 
 			}
-		} 
+		}
 		else {
 			$is_comment = true;
 		}
@@ -349,7 +349,7 @@ class ThreadItem {
 
 		// $viewthread (below) is only valid in list mode. If this is a channel page, build the thread viewing link
 		// since we can't depend on llink or plink pointing to the right local location.
- 
+
 		$owner_address = substr($item['owner']['xchan_addr'],0,strpos($item['owner']['xchan_addr'],'@'));
 		$viewthread = $item['llink'];
 		if($conv->get_mode() === 'channel')
@@ -357,7 +357,7 @@ class ThreadItem {
 
 		$comment_count_txt = sprintf( tt('%d comment','%d comments',$total_children),$total_children );
 		$list_unseen_txt = (($unseen_comments) ? sprintf( t('%d unseen'),$unseen_comments) : '');
-		
+
 		$children = $this->get_children();
 
 		$has_tags = (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false);
@@ -386,7 +386,7 @@ class ThreadItem {
 		$tmp_item = array(
 			'template' => $this->get_template(),
 			'mode' => $mode,
-			'item_type' => intval($item['item_type']),			
+			'item_type' => intval($item['item_type']),
 			//'type' => implode("",array_slice(explode("/",$item['verb']),-1)),
 			'body' => $body['html'],
 			'tags' => $body['tags'],
@@ -518,8 +518,8 @@ class ThreadItem {
 
 //		needed for scroll to comment from notification but needs more work
 //		as we do not want to open all comments unless there is actually an #item_xx anchor
-//		and the url fragment is not sent to the server. 
-//		if(in_array(\App::$module,['display','update_display'])) 
+//		and the url fragment is not sent to the server.
+//		if(in_array(\App::$module,['display','update_display']))
 //			$visible_comments = 99999;
 
 		if(($this->get_display_mode() === 'normal') && ($nb_children > 0)) {
@@ -539,7 +539,7 @@ class ThreadItem {
 				}
 			}
 		}
-		
+
 		$result['private'] = $item['item_private'];
 		$result['toplevel'] = ($this->is_toplevel() ? 'toplevel_item' : '');
 
@@ -554,7 +554,7 @@ class ThreadItem {
 
 		return $result;
 	}
-	
+
 	public function get_id() {
 		return $this->get_data_value('id');
 	}
@@ -609,7 +609,7 @@ class ThreadItem {
 		if(activity_match($item->get_data_value('verb'),ACTIVITY_LIKE) || activity_match($item->get_data_value('verb'),ACTIVITY_DISLIKE)) {
 			return false;
 		}
-		
+
 		$item->set_parent($this);
 		$this->children[] = $item;
 		return end($this->children);
@@ -683,7 +683,7 @@ class ThreadItem {
 	 */
 	public function set_conversation($conv) {
 		$previous_mode = ($this->conversation ? $this->conversation->get_mode() : '');
-		
+
 		$this->conversation = $conv;
 
 		// Set it on our children too
@@ -792,7 +792,7 @@ class ThreadItem {
 		if(!$this->is_toplevel() && !get_config('system','thread_allow')) {
 			return '';
 		}
-		
+
 		$comment_box = '';
 		$conv = $this->get_conversation();
 
@@ -808,7 +808,7 @@ class ThreadItem {
 		$arr = array('comment_buttons' => '','id' => $this->get_id());
 		call_hooks('comment_buttons',$arr);
 		$comment_buttons = $arr['comment_buttons'];
-		
+
 		$comment_box = replace_macros($template,array(
 			'$return_path' => '',
 			'$threaded' => $this->is_threaded(),
@@ -865,7 +865,7 @@ class ThreadItem {
 
 		if($conv->get_mode() === 'channel')
 			return;
-		
+
 		if($this->is_toplevel() && ($this->get_data_value('author_xchan') != $this->get_data_value('owner_xchan'))) {
 			$this->owner_url = chanlink_hash($this->data['owner']['xchan_hash']);
 			$this->owner_photo = $this->data['owner']['xchan_photo_m'];

@@ -25,7 +25,7 @@ class Channel extends Controller {
 
 	function init() {
 
-		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']))	
+		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']))
 			goaway('search' . '?f=&search=' . $_GET['search']);
 
 		$which = null;
@@ -56,10 +56,10 @@ class Channel extends Controller {
 			http_status_exit(404, 'Not found');
 		}
 
-		// handle zot6 channel discovery 
+		// handle zot6 channel discovery
 
 		if(Libzot::is_zot_request()) {
-	
+
 			$sigdata = HTTPSig::verify(file_get_contents('php://input'), EMPTY_STR, 'zot6');
 
 			if($sigdata && $sigdata['signer'] && $sigdata['header_valid']) {
@@ -76,8 +76,8 @@ class Channel extends Controller {
 				$data = json_encode(Libzot::zotinfo([ 'address' => $channel['channel_address'] ]));
 			}
 
-			$headers = [ 
-				'Content-Type'     => 'application/x-zot+json', 
+			$headers = [
+				'Content-Type'     => 'application/x-zot+json',
 				'Digest'           => HTTPSig::generate_digest_header($data),
 				'(request-target)' => strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI']
 			 ];
@@ -93,15 +93,15 @@ class Channel extends Controller {
 			$profile = argv(1);
 		}
 
-		head_add_link( [ 
-			'rel'   => 'alternate', 
+		head_add_link( [
+			'rel'   => 'alternate',
 			'type'  => 'application/atom+xml',
 			'title' => t('Posts and comments'),
 			'href'  => z_root() . '/feed/' . $which
 		]);
 
-		head_add_link( [ 
-			'rel'   => 'alternate', 
+		head_add_link( [
+			'rel'   => 'alternate',
 			'type'  => 'application/atom+xml',
 			'title' => t('Only posts'),
 			'href'  => z_root() . '/feed/' . $which . '?f=&top=1'
@@ -111,18 +111,18 @@ class Channel extends Controller {
 		// Run profile_load() here to make sure the theme is set before
 		// we start loading content
 		profile_load($which,$profile);
-		
+
 		// Add Opengraph markup
 		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
 		if(strpos($mid,'b64.') === 0)
 		    $mid = @base64url_decode(substr($mid,4));
-		    
+
 		if($mid)
 		    $r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
 		        dbesc($mid),
 		        intval($channel['channel_id'])
 		    );
-		    
+
 		opengraph_add_meta($r ? $r[0] : [], $channel);
 	}
 
@@ -233,7 +233,7 @@ class Channel extends Controller {
 		/**
 		 * Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
 		 */
-		 
+
 		 $item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_deleted = 0
 		    and item.item_unpublished = 0 and item.item_pending_remove = 0
 		    and item.item_blocked = 0 ";
@@ -266,7 +266,7 @@ class Channel extends Controller {
 			}
 		}
 
-		head_add_link([ 
+		head_add_link([
 			'rel'   => 'alternate',
 			'type'  => 'application/json+oembed',
 			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . App::$query_string),
@@ -333,12 +333,12 @@ class Channel extends Controller {
 					}
 				}
 				else {
-					$r = q("SELECT DISTINCT item.parent AS item_id, $ordering FROM item 
+					$r = q("SELECT DISTINCT item.parent AS item_id, $ordering FROM item
 						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
 						WHERE true and item.uid = %d $item_normal
 						AND (abook.abook_blocked = 0 or abook.abook_flags is null)
 						AND item.item_wall = 1 AND item.item_thread_top = 1
-						$sql_extra $sql_extra2 
+						$sql_extra $sql_extra2
 						ORDER BY $ordering DESC, item_id $pager_sql ",
 						intval(App::$profile['profile_uid'])
 					);
@@ -374,6 +374,15 @@ class Channel extends Controller {
 		} else {
 			$items = array();
 		}
+
+		// Add pinned content
+		if(! x($_REQUEST,'mid') && ! $search) {
+			$pinned = new \Zotlabs\Widget\Pinned;
+			$r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
+			$o .= $r['html'];
+		}
+
+		$mode = (($search) ? 'search' : 'channel');
 
 		if((! $update) && (! $load)) {
 
@@ -421,19 +430,10 @@ class Channel extends Controller {
 				'$net' => '',
 				'$dend' => $datequery,
 				'$dbegin' => $datequery2,
-				'$conv_mode' => 'channel'
+				'$conv_mode' => 'channel',
+				'$page_mode' => $page_mode
 			));
-
 		}
-
-		// Add pinned content
-		if(! x($_REQUEST,'mid') && ! $search) {
-			$pinned = new \Zotlabs\Widget\Pinned;
-			$r = $pinned->widget(intval(App::$profile['profile_uid']), [ITEM_TYPE_POST]);
-			$o .= $r['html'];
-		}
-
-		$mode = (($search) ? 'search' : 'channel');
 
 		if($update) {
 			$o .= conversation($items,$mode,$update,$page_mode);

@@ -90,7 +90,7 @@ class Profile extends \Zotlabs\Web\Controller {
 
 		if(argc() > 2 && argv(2) === 'vcard') {
 			header('Content-type: text/vcard');
-			header('content-disposition: attachment; filename="' . t('vcard') . '-' . $profile['channel_address'] . '.vcf"' );
+			header('content-disposition: attachment; filename="' . t('vcard') . '-' . \App::$profile['channel_address'] . '.vcf"' );
 			echo \App::$profile['profile_vcard'];
 			killme();
 		}

@@ -147,7 +147,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				$allowed = (-1);
-
+				$filename = $r[0]['filename'];
 				$u = intval($r[0]['photo_usage']);
 				if($u) {
 					$allowed = 1;

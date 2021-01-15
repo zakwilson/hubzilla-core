@@ -87,7 +87,7 @@ class Libzot {
 	 *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
 	 * @param array $recipients
 	 *   envelope recipients, array of portable_id's; empty for public posts
-	 * @param string $msg
+	 * @param array $msg
 	 *   optional message
 	 * @param string $encoding
 	 *   optional encoding, default 'activitystreams'
@@ -98,7 +98,7 @@ class Libzot {
 	 *   optional comma separated list of encryption methods @ref best_algorithm()
 	 * @returns string json encoded zot packet
 	 */
-	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = '', $encoding = 'activitystreams', $remote_key = null, $methods = '') {
+	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = [], $encoding = 'activitystreams', $remote_key = null, $methods = '') {
 
 		$sig_method = get_config('system','signature_algorithm','sha256');
 

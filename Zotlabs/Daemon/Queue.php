@@ -27,7 +27,6 @@ class Queue {
 		);
 		if($r) {
 			foreach($r as $rr) {
-				$site_url = '';
 				$h = parse_url($rr['outq_posturl']);
 				$desturl = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
 				q("update site set site_dead = 1 where site_dead = 0 and site_url = '%s' and site_update < %s - INTERVAL %s",
@@ -37,7 +36,7 @@ class Queue {
 			}
 		}
 
-		$r = q("DELETE FROM outq WHERE outq_created < %s - INTERVAL %s",
+		q("DELETE FROM outq WHERE outq_created < %s - INTERVAL %s",
 			db_utcnow(), db_quoteinterval('3 DAY')
 		);
 

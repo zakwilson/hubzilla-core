@@ -163,7 +163,7 @@ class NativeWikiPage {
 			return [ 'success' => true, 'page' => $page ];
 		}
 
-		return [ 'success' => false, 'item_id' => $c['item_id'], 'message' => t('Page not found') ];
+		return [ 'success' => false, 'message' => t('Page not found') ];
 	
 	}
 
@@ -339,7 +339,6 @@ class NativeWikiPage {
 	}
 
 	static public function save_page($arr) {
-
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
 		$content       = ((array_key_exists('content',$arr))       ? $arr['content']       : '');
 		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
@@ -385,7 +384,7 @@ class NativeWikiPage {
 		$ret = item_store($item, false, false);
 
 		if($ret['item_id'])
-			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $filename, 'success' => true);
+			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $pageUrlName, 'success' => true);
 		else
 			return array('message' => t('Page update failed.'), 'success' => false);
 	}	

@@ -4724,7 +4724,7 @@ function webpage_to_namespace($webpage) {
 
 function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remote_id,$mid) {
 
-	if(! $post_id)
+	if(! intval($post_id))
 		return;
 
 	$page_type = webpage_to_namespace($webpage);
@@ -4746,7 +4746,7 @@ function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remo
 		// as the entire mid. If it were the post_id the link would be less portable.
 
 		IConfig::Set(
-			intval($post_id),
+			$post_id,
 			'system',
 			$page_type,
 			($pagetitle) ? $pagetitle : substr($mid,0,16),

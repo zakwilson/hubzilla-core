@@ -40,7 +40,8 @@ class Embedphotos extends \Zotlabs\Web\Controller {
 			if (!$href) {
 				json_return_and_die(array('errormsg' => 'Error retrieving link ' . $href, 'status' => false));
 			}
-			$resource_id = array_pop(explode('/', $href));
+			$arr = explode('/', $href);
+			$resource_id = array_pop($arr);
 			$x = self::photolink($resource_id);
 			if($x) 
 				json_return_and_die(array('status' => true, 'photolink' => $x, 'resource_id' => $resource_id));

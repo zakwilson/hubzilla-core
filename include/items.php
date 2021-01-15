@@ -130,7 +130,7 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 						case 'sit':
 						case 'any':
 						case 'con':
-							if($rr['xchan_network'] != 'zot')
+							if(in_array($rr['xchan_network'], ['zot6', 'zot']))
 								break;
 						case 'pub':
 						case '':

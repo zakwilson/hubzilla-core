@@ -28,6 +28,7 @@ class Cron {
 		}
 	
 		// Create a lockfile.  Needs two vars, but $x doesn't need to contain anything.
+		$x = '';
 		file_put_contents($lockfile, $x);
 
 		logger('cron: start');
@@ -54,6 +55,8 @@ class Cron {
 			db_utcnow()
 		);
 
+		$interval = get_config('system','delivery_interval', 3);
+
 		// expire any expired items
 
 		$r = q("select id,item_wall from item where expires > '2001-01-01 00:00:00' and expires < %s 
@@ -67,6 +70,8 @@ class Cron {
 				if($rr['item_wall']) {
 					// The notifier isn't normally invoked unless item_drop is interactive.
 					Master::Summon( [ 'Notifier', 'drop', $rr['id'] ] );
+					if($interval)
+						@time_sleep_until(microtime(true) + (float) $interval);
 				}
 			}
 		}
@@ -139,7 +144,7 @@ class Cron {
 				);
 				if($x) {
 					$z = q("select * from item where id = %d",
-						intval($message_id)
+						intval($rr['id'])
 					);
 					if($z) {
 						xchan_query($z);
@@ -151,6 +156,8 @@ class Cron {
 						);
 					}
 					Master::Summon(array('Notifier','wall-new',$rr['id']));
+					if($interval)
+						@time_sleep_until(microtime(true) + (float) $interval);
 				}
 			}
 		}

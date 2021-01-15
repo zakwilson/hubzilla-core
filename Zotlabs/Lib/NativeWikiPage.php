@@ -431,12 +431,12 @@ class NativeWikiPage {
 		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
 
 		if (! $commitHash) {
-			return array('content' => $content, 'message' => 'No commit was provided', 'success' => false);
+			return array('message' => 'No commit was provided', 'success' => false);
 		}
 
 		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 		if (!$w['wiki']) {
-			return array('content' => $content, 'message' => 'Error reading wiki', 'success' => false);
+			return array('message' => 'Error reading wiki', 'success' => false);
 		}
 
 		$x = $arr;
@@ -450,7 +450,7 @@ class NativeWikiPage {
 				$content = $loaded['body'];
 				return [ 'content' => $content, 'success' => true ];
 			}
-			return [ 'content' => $content, 'success' => false ]; 
+			return [ 'success' => false ];
 		}
 	}
 	

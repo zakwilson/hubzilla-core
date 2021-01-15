@@ -88,7 +88,7 @@ class Queue {
 
 	static function set_delivered($id,$channel = 0) {
 		logger('queue: set delivered ' . $id,LOGGER_DEBUG);
-		$sql_extra = (($channel_id) ? " and outq_channel = " . intval($channel_id) . " " : '');
+		$sql_extra = (($channel['channel_id']) ? " and outq_channel = " . intval($channel['channel_id']) . " " : '');
 
 		// Set the next scheduled run date so far in the future that it will be expired
 		// long before it ever makes it back into the delivery chain. 

@@ -3064,8 +3064,7 @@ function attach_syspaths($channel_id,$attach_hash) {
 
 
 function attach_upgrade() {
-
-	$r = q("select id, uid, hash from attach where os_path = '' and display_path = '' limit 100");
+	$r = q("SELECT id, uid, hash FROM attach WHERE os_path = '' OR display_path = '' LIMIT 100");
 	if($r) {
 		foreach($r as $rv) {
 			$x = attach_syspaths($rv['uid'],$rv['hash']);

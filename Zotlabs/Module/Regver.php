@@ -6,8 +6,6 @@ class Regver extends \Zotlabs\Web\Controller {
 
 	function get() {
 	
-		global $lang;
-	
 		$_SESSION['return_url'] = \App::$cmd;
 	
 		if(argc() != 3)

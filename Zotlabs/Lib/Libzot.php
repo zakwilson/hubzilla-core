@@ -237,7 +237,7 @@ class Libzot {
 	 *
 	 * @param array $them => xchan structure of sender
 	 * @param array $channel => local channel structure of target recipient, required for "friending" operations
-	 * @param array $force (optional) default false
+	 * @param boolean $force (optional) default false
 	 *
 	 * @return boolean
 	 *   * \b true if successful

@@ -1,3 +1,9 @@
+Hubzilla 5.2.1 (2021-01-16)
+	- Fix attach_upgrade() to catch all broken entries in attach
+	- Fix collect_recipients() public policy filter for zot6
+	- Fix leaking of duplicate tasks in queueworker addon_common
+
+
 Hubzilla 5.2 (2021-01-13)
 	- Use libzotdir for directory
 	- Streamline usage of channel url for keyId

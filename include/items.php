@@ -790,8 +790,8 @@ function get_item_elements($x,$allow_code = false) {
 			dbesc($arr['author_xchan'])
 		);
 		if($r) {
-			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot') {
-				if(rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey'])) {
+			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
+				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
 					$arr['item_verified'] = 1;
 				}
 				else {

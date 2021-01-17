@@ -211,8 +211,8 @@ function mark_orphan_hubsxchans() {
 	if($dirmode == DIRECTORY_MODE_NORMAL)
 		return;
 
-	$r = q("update hubloc set hubloc_error = 1 where hubloc_error = 0
-		and hubloc_network = 'zot' and hubloc_connected < %s - interval %s",
+	$r = q("UPDATE hubloc SET hubloc_error = 1 WHERE hubloc_error = 0
+		AND hubloc_network IN ('zot6', 'zot') AND hubloc_connected < %s - INTERVAL %s",
 		db_utcnow(), db_quoteinterval('36 day')
 	);
 

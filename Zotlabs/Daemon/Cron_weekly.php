@@ -19,7 +19,7 @@ class Cron_weekly {
 		z_check_cert();
 
 		prune_hub_reinstalls();
-	
+
 		mark_orphan_hubsxchans();
 
 		// Find channels that were removed in the last three weeks, but 

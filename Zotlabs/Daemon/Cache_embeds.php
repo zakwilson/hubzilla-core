@@ -2,7 +2,6 @@
 
 namespace Zotlabs\Daemon;
 
-
 class Cache_embeds {
 
 	static public function run($argc,$argv) {

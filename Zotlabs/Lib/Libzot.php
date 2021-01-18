@@ -189,7 +189,7 @@ class Libzot {
 	 * @see z_post_url()
 	 *
 	 * @param string $url
-	 * @param array $data
+	 * @param string $data
 	 * @param array $channel (required if using zot6 delivery)
 	 * @param array $crypto (required if encrypted httpsig, requires hubloc_sitekey and site_crypto elements)
 	 * @return array see z_post_url() for returned data format

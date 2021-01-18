@@ -21,7 +21,8 @@ class Expire {
 		// perform final cleanup on previously delete items
 
 		$r = q("select id from item where item_deleted = 1 and item_pending_remove = 0 and changed < %s - INTERVAL %s",
-			db_utcnow(), db_quoteinterval('10 DAY')
+			db_utcnow(),
+			db_quoteinterval('10 DAY')
 		);
 		if ($r) {
 			foreach ($r as $rr) {
@@ -47,7 +48,7 @@ class Expire {
 
 		logger('site_expire: ' . $site_expire);
 
-		$r = q("SELECT channel_id, channel_system, channel_address, channel_expire_days from channel where true");
+		$r = dbq("SELECT channel_id, channel_system, channel_address, channel_expire_days from channel where true");
 
 		if ($r) {
 			foreach ($r as $rr) {

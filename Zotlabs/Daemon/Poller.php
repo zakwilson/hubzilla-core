@@ -57,7 +57,7 @@ class Poller {
 		reload_plugins();
 
 		// Only poll from those with suitable relationships
-
+		$abandon_days = intval(get_config('system', 'account_abandon_days', 0));
 		$abandon_sql = (($abandon_days)
 			? sprintf(" AND account_lastlog > %s - INTERVAL %s ", db_utcnow(), db_quoteinterval(intval($abandon_days) . ' DAY'))
 			: ''

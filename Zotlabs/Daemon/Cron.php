@@ -170,11 +170,6 @@ class Cron {
 		require_once('include/attach.php');
 		attach_upgrade();
 
-		$abandon_days = intval(get_config('system', 'account_abandon_days'));
-		if ($abandon_days < 1)
-			$abandon_days = 0;
-
-
 		// once daily run birthday_updates and then expire in background
 
 		// FIXME: add birthday updates, both locally and for xprof for use

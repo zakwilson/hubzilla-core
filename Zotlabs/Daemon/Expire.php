@@ -5,16 +5,16 @@ namespace Zotlabs\Daemon;
 
 class Expire {
 
-	static public function run($argc,$argv){
+	static public function run($argc, $argv) {
 
 		cli_startup();
-		
+
 		$pid = get_config('expire', 'procid', false);
 		if ($pid && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
-		    logger('Expire: procedure already run with pid ' . $pid, LOGGER_DEBUG);
-		    return;
+			logger('Expire: procedure already run with pid ' . $pid, LOGGER_DEBUG);
+			return;
 		}
-		
+
 		$pid = getmypid();
 		set_config('expire', 'procid', $pid);
 
@@ -32,19 +32,18 @@ class Expire {
 		// physically remove anything that has been deleted for more than two months
 		/** @FIXME - this is a wretchedly inefficient query */
 
-		$r = q("delete from item where item_pending_remove = 1 and changed < %s - INTERVAL %s",
-			db_utcnow(), db_quoteinterval('36 DAY')
+		q("delete from item where item_pending_remove = 1 and changed < %s - INTERVAL %s",
+			db_utcnow(),
+			db_quoteinterval('36 DAY')
 		);
-
-		/** @FIXME make this optional as it could have a performance impact on large sites */
 
 		if (intval(get_config('system', 'optimize_items')))
 			q("optimize table item");
 
 		logger('expire: start with pid ' . $pid, LOGGER_DEBUG);
 
-		$site_expire = intval(get_config('system', 'default_expire_days'));
-		$commented_days = intval(get_config('system','active_expire_days'));
+		$site_expire    = intval(get_config('system', 'default_expire_days'));
+		$commented_days = intval(get_config('system', 'active_expire_days'));
 
 		logger('site_expire: ' . $site_expire);
 
@@ -64,11 +63,12 @@ class Expire {
 					$channel_expire = $service_class_expire;
 				else
 					$channel_expire = $site_expire;
-	
+
 				if (intval($channel_expire) && (intval($channel_expire) < intval($rr['channel_expire_days'])) ||
 					intval($rr['channel_expire_days'] == 0)) {
 					$expire_days = $channel_expire;
-				} else {
+				}
+				else {
 					$expire_days = $rr['channel_expire_days'];
 				}
 
@@ -93,13 +93,13 @@ class Expire {
 			}
 
 			logger('Expire: sys interval: ' . $expire_days, LOGGER_DEBUG);
-	
+
 			if ($expire_days)
 				item_expire($x['channel_id'], $expire_days, $commented_days);
 
 			logger('Expire: sys: done', LOGGER_DEBUG);
 		}
-		
+
 		del_config('expire', 'procid');
 	}
 }

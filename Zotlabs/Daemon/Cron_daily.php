@@ -6,7 +6,7 @@ use Zotlabs\Lib\Libzotdir;
 
 class Cron_daily {
 
-	static public function run($argc,$argv) {
+	static public function run($argc, $argv) {
 
 		logger('cron_daily: start');
 
@@ -15,14 +15,12 @@ class Cron_daily {
 		 *
 		 */
 
-
 		Libzotdir::check_upstream_directory();
-
 
 		// Fire off the Cron_weekly process if it's the correct day.
 
-		$d3 = intval(datetime_convert('UTC','UTC','now','N'));
-		if($d3 == 7) {
+		$d3 = intval(datetime_convert('UTC', 'UTC', 'now', 'N'));
+		if ($d3 == 7) {
 			Master::Summon(array('Cron_weekly'));
 		}
 
@@ -53,8 +51,8 @@ class Cron_daily {
 
 		// Clean up emdedded content cache
 		q("DELETE FROM cache WHERE updated < %s - INTERVAL %s",
-		    db_utcnow(),
-		    db_quoteinterval(get_config('system','active_expire_days', '30') . ' DAY')
+			db_utcnow(),
+			db_quoteinterval(get_config('system', 'active_expire_days', '30') . ' DAY')
 		);
 
 		//update statistics in config
@@ -68,8 +66,8 @@ class Cron_daily {
 
 		// expire old delivery reports
 
-		$keep_reports = intval(get_config('system','expire_delivery_reports'));
-		if($keep_reports === 0)
+		$keep_reports = intval(get_config('system', 'expire_delivery_reports'));
+		if ($keep_reports === 0)
 			$keep_reports = 10;
 
 		q("delete from dreport where dreport_time < %s - INTERVAL %s",
@@ -85,12 +83,11 @@ class Cron_daily {
 		// Pull remote changes and push local changes.
 		// potential issue: how do we keep from creating an endless update loop?
 
-		$dirmode = get_config('system','directory_mode');
+		$dirmode = get_config('system', 'directory_mode');
 
-		if($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
+		if ($dirmode == DIRECTORY_MODE_SECONDARY || $dirmode == DIRECTORY_MODE_PRIMARY) {
 			Libzotdir::sync_directories($dirmode);
 		}
-
 
 		Master::Summon(array('Expire'));
 		Master::Summon(array('Cli_suggest'));
@@ -99,9 +96,10 @@ class Cron_daily {
 
 		z6_discover();
 
-		call_hooks('cron_daily',datetime_convert());
+		$date = datetime_convert();
+		call_hooks('cron_daily', $date);
 
-		set_config('system','last_expire_day',intval(datetime_convert('UTC','UTC','now','d')));
+		set_config('system', 'last_expire_day', intval(datetime_convert('UTC', 'UTC', 'now', 'd')));
 
 		/**
 		 * End Cron Daily

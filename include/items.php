@@ -4478,7 +4478,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE $item_uids and item_thread_top = 1 $sql_options $item_normal ) ";
 
 	if($arr['since_id'])
-		$sql_extra .= " and item.id > " . $since_id . " ";
+		$sql_extra .= " and item.id > " . intval($arr['since_id']) . " ";
 
 	if($arr['cat'])
 		$sql_extra .= protect_sprintf(term_query('item', $arr['cat'], TERM_CATEGORY));

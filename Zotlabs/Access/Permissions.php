@@ -75,7 +75,7 @@ class Permissions {
 
 		$x = [
 			'permissions' => $perms,
-			'filter' => $filter
+			'filter'      => $filter
 		];
 		/**
 		 * @hooks permissions_list
@@ -84,7 +84,7 @@ class Permissions {
 		 */
 		call_hooks('permissions_list', $x);
 
-		return($x['permissions']);
+		return ($x['permissions']);
 	}
 
 	/**
@@ -96,10 +96,10 @@ class Permissions {
 	 */
 	static public function BlockedAnonPerms() {
 
-		$res = [];
+		$res   = [];
 		$perms = PermissionLimits::Std_limits();
-		foreach($perms as $perm => $limit) {
-			if($limit != PERMS_PUBLIC) {
+		foreach ($perms as $perm => $limit) {
+			if ($limit != PERMS_PUBLIC) {
 				$res[] = $perm;
 			}
 		}
@@ -111,7 +111,7 @@ class Permissions {
 		 */
 		call_hooks('write_perms', $x);
 
-		return($x['permissions']);
+		return ($x['permissions']);
 	}
 
 	/**
@@ -120,20 +120,20 @@ class Permissions {
 	 * Converts [ 0 => 'view_stream', ... ]
 	 * to [ 'view_stream' => 1 ] for any permissions in $arr;
 	 * Undeclared permissions which exist in Perms() are added and set to 0.
- 	 *
+	 *
 	 * @param array $arr
 	 * @return array
 	 */
 	static public function FilledPerms($arr) {
-		if(is_null($arr)) {
+		if (is_null($arr)) {
 			btlogger('FilledPerms: null');
 			$arr = [];
 		}
 
 		$everything = self::Perms();
-		$ret = [];
-		foreach($everything as $k => $v) {
-			if(in_array($k, $arr))
+		$ret        = [];
+		foreach ($everything as $k => $v) {
+			if (in_array($k, $arr))
 				$ret[$k] = 1;
 			else
 				$ret[$k] = 0;
@@ -155,9 +155,9 @@ class Permissions {
 	 */
 	static public function OPerms($arr) {
 		$ret = [];
-		if($arr) {
-			foreach($arr as $k => $v) {
-				$ret[] = [ 'name' => $k, 'value' => $v ];
+		if ($arr) {
+			foreach ($arr as $k => $v) {
+				$ret[] = ['name' => $k, 'value' => $v];
 			}
 		}
 		return $ret;
@@ -170,15 +170,16 @@ class Permissions {
 	 * @return boolean|array
 	 */
 	static public function FilledAutoperms($channel_id) {
-		if(! intval(get_pconfig($channel_id,'system','autoperms')))
+		if (!intval(get_pconfig($channel_id, 'system', 'autoperms')))
 			return false;
 
 		$arr = [];
+
 		$r = q("select * from pconfig where uid = %d and cat = 'autoperms'",
 			intval($channel_id)
 		);
-		if($r) {
-			foreach($r as $rr) {
+		if ($r) {
+			foreach ($r as $rr) {
 				$arr[$rr['k']] = intval($rr['v']);
 			}
 		}
@@ -193,11 +194,11 @@ class Permissions {
 	 * @return boolean true if all perms from $p1 exist also in $p2
 	 */
 	static public function PermsCompare($p1, $p2) {
-		foreach($p1 as $k => $v) {
-			if(! array_key_exists($k, $p2))
+		foreach ($p1 as $k => $v) {
+			if (!array_key_exists($k, $p2))
 				return false;
 
-			if($p1[$k] != $p2[$k])
+			if ($p1[$k] != $p2[$k])
 				return false;
 		}
 
@@ -214,18 +215,18 @@ class Permissions {
 	 */
 	static public function connect_perms($channel_id) {
 
-		$my_perms = [];
-		$permcat = null;
+		$my_perms  = [];
+		$permcat   = null;
 		$automatic = 0;
 
 		// If a default permcat exists, use that
 
-		$pc = ((feature_enabled($channel_id,'permcats')) ? get_pconfig($channel_id,'system','default_permcat') : 'default');
-		if(! in_array($pc, [ '','default' ])) {
-			$pcp = new Zlib\Permcat($channel_id);
+		$pc = ((feature_enabled($channel_id, 'permcats')) ? get_pconfig($channel_id, 'system', 'default_permcat') : 'default');
+		if (!in_array($pc, ['', 'default'])) {
+			$pcp     = new Zlib\Permcat($channel_id);
 			$permcat = $pcp->fetch($pc);
-			if($permcat && $permcat['perms']) {
-				foreach($permcat['perms'] as $p) {
+			if ($permcat && $permcat['perms']) {
+				foreach ($permcat['perms'] as $p) {
 					$my_perms[$p['name']] = $p['value'];
 				}
 			}
@@ -235,15 +236,15 @@ class Permissions {
 		// and if there was no permcat or a default permcat, set the perms
 		// from the role
 
-		$role = get_pconfig($channel_id,'system','permissions_role');
-		if($role) {
+		$role = get_pconfig($channel_id, 'system', 'permissions_role');
+		if ($role) {
 			$xx = PermissionRoles::role_perms($role);
-			if($xx['perms_auto'])
+			if ($xx['perms_auto'])
 				$automatic = 1;
 
-			if((! $my_perms) && ($xx['perms_connect'])) {
+			if ((!$my_perms) && ($xx['perms_connect'])) {
 				$default_perms = $xx['perms_connect'];
-				$my_perms = Permissions::FilledPerms($default_perms);
+				$my_perms      = Permissions::FilledPerms($default_perms);
 			}
 		}
 
@@ -251,11 +252,11 @@ class Permissions {
 		// it is likely a custom permissions role. First see if there are any
 		// automatic permissions.
 
-		if(! $my_perms) {
+		if (!$my_perms) {
 			$m = Permissions::FilledAutoperms($channel_id);
-			if($m) {
+			if ($m) {
 				$automatic = 1;
-				$my_perms = $m;
+				$my_perms  = $m;
 			}
 		}
 
@@ -263,35 +264,35 @@ class Permissions {
 		// custom perms but they are not automatic. They will be stored in abconfig with
 		// the channel's channel_hash (the 'self' connection).
 
-		if(! $my_perms) {
+		if (!$my_perms) {
 			$r = q("select channel_hash from channel where channel_id = %d",
 				intval($channel_id)
 			);
-			if($r) {
+			if ($r) {
 				$x = q("select * from abconfig where chan = %d and xchan = '%s' and cat = 'my_perms'",
 					intval($channel_id),
 					dbesc($r[0]['channel_hash'])
 				);
-				if($x) {
-					foreach($x as $xv) {
+				if ($x) {
+					foreach ($x as $xv) {
 						$my_perms[$xv['k']] = intval($xv['v']);
 					}
 				}
 			}
 		}
 
-		return ( [ 'perms' => $my_perms, 'automatic' => $automatic ] );
+		return (['perms' => $my_perms, 'automatic' => $automatic]);
 	}
 
 	static public function serialise($p) {
 		$n = [];
-		if($p) {
-			foreach($p as $k => $v) {
-				if(intval($v)) {
+		if ($p) {
+			foreach ($p as $k => $v) {
+				if (intval($v)) {
 					$n[] = $k;
 				}
 			}
 		}
-		return implode(',',$n);
+		return implode(',', $n);
 	}
 }

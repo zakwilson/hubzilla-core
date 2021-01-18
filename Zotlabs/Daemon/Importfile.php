@@ -6,22 +6,21 @@ use Zotlabs\Lib\Libsync;
 
 class Importfile {
 
-	static public function run($argc,$argv){
+	static public function run($argc, $argv) {
 
-		logger('Importfile: ' . print_r($argv,true));
+		logger('Importfile: ' . print_r($argv, true));
 
-		if($argc < 3)
+		if ($argc < 3)
 			return;
 
 		$channel = channelx_by_n($argv[1]);
-		if(! $channel)
+		if (!$channel)
 			return;
 
 		$srcfile = $argv[2];
 		$folder  = (($argc > 3) ? $argv[3] : '');
 		$dstname = (($argc > 4) ? $argv[4] : '');
-
-		$hash = random_string();
+		$hash    = random_string();
 
 		$arr = [
 			'src'               => $srcfile,
@@ -35,15 +34,15 @@ class Importfile {
 			'replace'           => true
 		];
 
-		if($folder)
+		if ($folder)
 			$arr['folder'] = $folder;
 
-		attach_store($channel,$channel['channel_hash'],'import',$arr);
+		attach_store($channel, $channel['channel_hash'], 'import', $arr);
 
-		$sync = attach_export_data($channel,$hash);
-		if($sync)
-			Libsync::build_sync_packet($channel['channel_id'],array('file' => array($sync)));
-	
+		$sync = attach_export_data($channel, $hash);
+		if ($sync)
+			Libsync::build_sync_packet($channel['channel_id'], ['file' => [$sync]]);
+
 		return;
 	}
 }

@@ -3970,10 +3970,10 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 		);
 		if($items) {
 			foreach($items as $i)
-				delete_item_lowlevel($i,$stage,$force);
+				delete_item_lowlevel($i, $stage);
 		}
 		else
-			delete_item_lowlevel($item,$stage,$force);
+			delete_item_lowlevel($item, $stage);
 
 		if(! $interactive)
 			return 1;
@@ -4007,7 +4007,6 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
  *
  * @param array $item
  * @param int $stage
- * @param boolean $force
  * @return boolean
  */
 function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {

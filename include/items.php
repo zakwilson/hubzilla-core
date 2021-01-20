@@ -4562,9 +4562,11 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		// only setup pagination on initial page view
 		$pager_sql = '';
 	} else {
-		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		if(! $arr['total']) {
+			$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 20);
+			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		}
 	}
 
 	if (isset($arr['start']) && isset($arr['records']))
@@ -4612,6 +4614,18 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	if ((($arr['compat']) || ($arr['nouveau'] && ($client_mode & CLIENT_MODE_LOAD))) && $channel) {
 
 		// "New Item View" - show all items unthreaded in reverse created date order
+
+		if ($arr['total']) {
+			$items = q("SELECT count(item.id) AS total FROM item
+				WHERE $item_uids $item_restrict
+				$simple_update
+				$sql_extra $sql_nets $sql_extra3"
+			);
+			if ($items) {
+				return intval($items[0]['total']);
+			}
+			return 0;
+		}
 
 		$items = q("SELECT item.*, item.id AS item_id FROM item
 				WHERE $item_uids $item_restrict

@@ -23,9 +23,10 @@ class ZotURL {
 		$portable_url = substr($url,6);
 		$u = explode('/',$portable_url);		
 		$portable_id = $u[0];
+		hz_syslog(print_r($u,true));
 
 		$hosts = self::lookup($portable_id);
-
+		hz_syslog(print_r($hosts,true));
 		if(! $hosts) {
 			return $ret;
 		}

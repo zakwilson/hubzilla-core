@@ -82,7 +82,7 @@ class Externals {
 					if ($j['success'] && $j['messages']) {
 						$sys = get_sys_channel();
 						foreach ($j['messages'] as $message) {
-							// on these posts, clear any route info. 
+							// on these posts, clear any route info.
 							$message['route'] = '';
 							process_delivery(['hash' => 'undefined'], get_item_elements($message),
 								[['hash' => $sys['xchan_hash']]], false, true);

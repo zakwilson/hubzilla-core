@@ -8,7 +8,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Lib\Libsync;
 
-class Pin extends Zotlabs\Web\Controller {
+class Pin extends \Zotlabs\Web\Controller {
 
 
 	function init() {

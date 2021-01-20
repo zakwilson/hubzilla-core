@@ -6,6 +6,7 @@ namespace Zotlabs\Module;
  */
 
 use App;
+use Zotlabs\Lib\Libsync;
 
 class Pin extends \Zotlabs\Web\Controller {
 
@@ -64,6 +65,6 @@ class Pin extends \Zotlabs\Web\Controller {
 				http_status_exit(404, 'Not found');
 		}
 
-		build_sync_packet($r[0]['uid'], [ 'config' ]);
+		Libsync::build_sync_packet($r[0]['uid'], [ 'config' ]);
 	}
 }

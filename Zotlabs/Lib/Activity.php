@@ -299,7 +299,13 @@ class Activity {
 		if ($items) {
 			$x = [];
 			foreach ($items as $i) {
-				$t = ((get_iconfig($i['id'], 'activitypub', 'rawmsg')) ? get_iconfig($i['id'], 'activitypub', 'rawmsg') : self::encode_activity($i));
+				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
+				if (is_string($m)) {
+					$t = json_decode($m, true);
+				}
+				else {
+					$t = $m;
+				}
 				if ($t) {
 					$x[] = $t;
 				}

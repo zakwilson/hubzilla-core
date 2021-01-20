@@ -2,12 +2,12 @@
 
 namespace Zotlabs\Daemon;
 
-use App;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\ASCollection;
 use Zotlabs\Lib\Libzot;
 
-require_once('include/zot.php');
 require_once('include/socgraph.php');
-
 
 class Onepoll {
 
@@ -38,8 +38,7 @@ class Onepoll {
 			return;
 		}
 
-		$contact = $contacts[0];
-
+		$contact      = array_shift($contacts);
 		$importer_uid = $contact['abook_channel'];
 
 		$r = q("SELECT * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
@@ -53,6 +52,7 @@ class Onepoll {
 
 		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
+		// TODO: unused
 		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= NULL_DATE))
 			? datetime_convert('UTC', 'UTC', 'now - 7 days')
 			: datetime_convert('UTC', 'UTC', $contact['abook_updated'] . ' - 2 days')
@@ -103,80 +103,108 @@ class Onepoll {
 		if (!$responded)
 			return;
 
-		if ($contact['xchan_connurl']) {
-			$fetch_feed = true;
-			$x          = null;
+		$fetch_feed = true;
+		$x          = null;
 
-			// They haven't given us permission to see their stream
+		// They haven't given us permission to see their stream
 
-			$can_view_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'their_perms', 'view_stream'));
+		$can_view_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'their_perms', 'view_stream'));
 
-			if (!$can_view_stream)
-				$fetch_feed = false;
+		if (!$can_view_stream)
+			$fetch_feed = false;
 
-			// we haven't given them permission to send us their stream
+		// we haven't given them permission to send us their stream
 
-			$can_send_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'my_perms', 'send_stream'));
+		$can_send_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'my_perms', 'send_stream'));
 
-			if (!$can_send_stream)
-				$fetch_feed = false;
+		if (!$can_send_stream)
+			$fetch_feed = false;
 
-			if ($fetch_feed) {
+		if ($fetch_feed) {
 
-				if (strpos($contact['xchan_connurl'], z_root()) === 0) {
-					// local channel - save a network fetch
-					$c = channelx_by_hash($contact['xchan_hash']);
-					if ($c) {
-						$x = [
-							'success' => true,
-							'body'    => json_encode([
-								'success'  => true,
-								'messages' => zot_feed($c['channel_id'], $importer['xchan_hash'], ['mindate' => $last_update])
-							])
-						];
-					}
+			$max = intval(get_config('system', 'max_imported_posts', 30));
+
+			if (intval($max)) {
+				$cl = get_xconfig($contact['abook_xchan'], 'activitypub', 'collections');
+
+				if (is_array($cl) && $cl) {
+					$url = ((array_key_exists('outbox', $cl)) ? $cl['outbox'] : '');
 				}
 				else {
-					// remote fetch	
-
-					$feedurl = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
-					$feedurl .= '?f=&mindate=' . urlencode($last_update) . '&zid=' . $importer['channel_address'] . '@' . App::get_hostname();
-					$recurse = 0;
-					$x       = z_fetch_url($feedurl, false, $recurse, ['session' => true]);
+					$url = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
 				}
 
-				logger('feed_update: ' . print_r($x, true), LOGGER_DATA);
-			}
-
-			if (($x) && ($x['success'])) {
-				$total = 0;
-				logger('onepoll: feed update ' . $contact['xchan_name'] . ' ' . $feedurl);
-
-				$j = json_decode($x['body'], true);
-				if ($j['success'] && $j['messages']) {
-					foreach ($j['messages'] as $message) {
-						$results = process_delivery(['hash' => $contact['xchan_hash']], get_item_elements($message),
-							[['hash' => $importer['xchan_hash']]], false);
-						logger('onepoll: feed_update: process_delivery: ' . print_r($results, true), LOGGER_DATA);
-						$total++;
+				if ($url) {
+					logger('fetching outbox');
+					$obj      = new ASCollection($url, $importer, 0, $max);
+					$messages = $obj->get();
+					if ($messages) {
+						foreach ($messages as $message) {
+							if (is_string($message)) {
+								$message = Activity::fetch($message, $importer);
+							}
+							$AS = new ActivityStreams($message);
+							if ($AS->is_valid() && is_array($AS->obj)) {
+								$item = Activity::decode_note($AS);
+								Activity::store($importer, $contact['abook_xchan'], $AS, $item);
+							}
+						}
 					}
-					logger("onepoll: $total messages processed");
 				}
 			}
 		}
 
+		/*			if ($fetch_feed) {
+
+						if (strpos($contact['xchan_connurl'], z_root()) === 0) {
+							// local channel - save a network fetch
+							$c = channelx_by_hash($contact['xchan_hash']);
+							if ($c) {
+								$x = [
+									'success' => true,
+									'body'    => json_encode([
+										'success'  => true,
+										'messages' => zot_feed($c['channel_id'], $importer['xchan_hash'], ['mindate' => $last_update])
+									])
+								];
+							}
+						}
+						else {
+							// remote fetch
+
+							$feedurl = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
+							$feedurl .= '?f=&mindate=' . urlencode($last_update) . '&zid=' . $importer['channel_address'] . '@' . App::get_hostname();
+							$recurse = 0;
+							$x       = z_fetch_url($feedurl, false, $recurse, ['session' => true]);
+						}
+
+						logger('feed_update: ' . print_r($x, true), LOGGER_DATA);
+					}
+
+					if (($x) && ($x['success'])) {
+						$total = 0;
+						logger('onepoll: feed update ' . $contact['xchan_name'] . ' ' . $feedurl);
+
+						$j = json_decode($x['body'], true);
+						if ($j['success'] && $j['messages']) {
+							foreach ($j['messages'] as $message) {
+								$results = process_delivery(['hash' => $contact['xchan_hash']], get_item_elements($message),
+									[['hash' => $importer['xchan_hash']]], false);
+								logger('onepoll: feed_update: process_delivery: ' . print_r($results, true), LOGGER_DATA);
+								$total++;
+							}
+							logger("onepoll: $total messages processed");
+						}
+					}
+		*/
 
 		// update the poco details for this connection
-
-		if ($contact['xchan_connurl']) {
-			$r = q("SELECT xlink_id from xlink 
-				where xlink_xchan = '%s' and xlink_updated > %s - INTERVAL %s and xlink_static = 0 limit 1",
-				intval($contact['xchan_hash']),
-				db_utcnow(), db_quoteinterval('1 DAY')
-			);
-			if (!$r) {
-				poco_load($contact['xchan_hash'], $contact['xchan_connurl']);
-			}
+		$r = q("SELECT xlink_id from xlink where xlink_xchan = '%s' and xlink_updated > %s - INTERVAL %s and xlink_static = 0 limit 1",
+			intval($contact['xchan_hash']),
+			db_utcnow(), db_quoteinterval('1 DAY')
+		);
+		if (!$r) {
+			poco_load($contact['xchan_hash'], $contact['xchan_connurl']);
 		}
 
 		return;

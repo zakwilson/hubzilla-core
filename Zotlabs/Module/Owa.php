@@ -39,7 +39,7 @@ class Owa extends Controller {
 						$found = discover_by_webbie(str_replace('acct:','',$keyId));
 						if ($found) {
 							$r = q("SELECT * FROM hubloc LEFT JOIN xchan ON hubloc_hash = xchan_hash
-								WHERE OR hubloc_id_url = '%s'",
+								WHERE hubloc_id_url = '%s'",
 								dbesc($keyId)
 							);
 						}

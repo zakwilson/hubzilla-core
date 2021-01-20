@@ -54,7 +54,7 @@ class AccessList {
 	 *   * \e string \b channel_deny_gid => string of denied gids
 	 */
 	function __construct($channel) {
-		if($channel) {
+		if ($channel) {
 			$this->allow_cid = $channel['channel_allow_cid'];
 			$this->allow_gid = $channel['channel_allow_gid'];
 			$this->deny_cid  = $channel['channel_deny_cid'];
@@ -99,7 +99,6 @@ class AccessList {
 		$this->allow_gid = $arr['allow_gid'];
 		$this->deny_cid  = $arr['deny_cid'];
 		$this->deny_gid  = $arr['deny_gid'];
-
 		$this->explicit  = $explicit;
 	}
 

@@ -87,7 +87,7 @@ class Libzot {
 	 *   packet type: one of 'ping', 'pickup', 'purge', 'refresh', 'keychange', 'force_refresh', 'notify', 'auth_check'
 	 * @param array $recipients
 	 *   envelope recipients, array of portable_id's; empty for public posts
-	 * @param string $msg
+	 * @param array $msg
 	 *   optional message
 	 * @param string $encoding
 	 *   optional encoding, default 'activitystreams'
@@ -98,7 +98,7 @@ class Libzot {
 	 *   optional comma separated list of encryption methods @ref best_algorithm()
 	 * @returns string json encoded zot packet
 	 */
-	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = '', $encoding = 'activitystreams', $remote_key = null, $methods = '') {
+	static function build_packet($channel, $type = 'activity', $recipients = null, $msg = [], $encoding = 'activitystreams', $remote_key = null, $methods = '') {
 
 		$sig_method = get_config('system','signature_algorithm','sha256');
 
@@ -189,7 +189,7 @@ class Libzot {
 	 * @see z_post_url()
 	 *
 	 * @param string $url
-	 * @param array $data
+	 * @param string $data
 	 * @param array $channel (required if using zot6 delivery)
 	 * @param array $crypto (required if encrypted httpsig, requires hubloc_sitekey and site_crypto elements)
 	 * @return array see z_post_url() for returned data format
@@ -237,7 +237,7 @@ class Libzot {
 	 *
 	 * @param array $them => xchan structure of sender
 	 * @param array $channel => local channel structure of target recipient, required for "friending" operations
-	 * @param array $force (optional) default false
+	 * @param boolean $force (optional) default false
 	 *
 	 * @return boolean
 	 *   * \b true if successful
@@ -421,7 +421,7 @@ class Libzot {
 
 					if($new_connection) {
 						if(! Permissions::PermsCompare($new_perms,$previous_perms))
-							Master::Summon([ 'Notifier', 'permissions_create', $new_connection[0]['abook_id'] ]);
+							Master::Summon([ 'Notifier', 'permission_create', $new_connection[0]['abook_id'] ]);
 						Enotify::submit(
 							[
 							'type'       => NOTIFY_INTRO,

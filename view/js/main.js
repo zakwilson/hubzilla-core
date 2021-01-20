@@ -1152,7 +1152,10 @@ function dolike(ident, verb) {
 	if(typeof conv_mode == typeof undefined)
 		conv_mode = '';
 
-	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode, function (data) {
+	if(typeof page_mode == typeof undefined)
+		page_mode = '';
+
+	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode, function (data) {
 		if(data.success) {
 			// this is a bit tricky since the top level thread wrapper wraps the whole thread
 			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
@@ -1996,4 +1999,14 @@ function sse_fallback() {
 
 		sse_handleNotifications(obj, false, false);
 	});
+}
+
+function makeid(length) {
+	var result = '';
+	var characters = 'abcdef0123456789';
+	var charactersLength = characters.length;
+	for ( var i = 0; i < length; i++ ) {
+		result += characters.charAt(Math.floor(Math.random() * charactersLength));
+	}
+	return result;
 }

@@ -1,3 +1,70 @@
+Hubzilla 5.2.1 (2021-01-16)
+	- Fix attach_upgrade() to catch all broken entries in attach
+	- Fix collect_recipients() public policy filter for zot6
+	- Fix leaking of duplicate tasks in queueworker addon_common
+
+
+Hubzilla 5.2 (2021-01-13)
+	- Use libzotdir for directory
+	- Streamline usage of channel url for keyId
+	- Basic work on PHP8 compatibility
+	- Improve performance for forum post edit action
+	- Improve File App tiles view
+	- Update es strings
+	- Update ru strings
+	- Implement directory download via zip files in Files App
+	- Implement bulk file download via zip files in Files App
+	- Deprecate ! and !! forum tags - use direct messages to post to forums
+	- Do not show forums where we do not have permission to post in ACL selector
+	- Implement lockview for Files App
+	- Implement file and directory rename functionality Files App
+	- Implement file and directory copy functionality in Files App
+	- Implement file and directory move functionality in Files App
+	- Implement categories for files and directories in Files App
+	- Implement drag and drop move action for files and directories in Files App
+	- Implement bulk file actions for move, copy, categories and permissions
+	- Implement a files categories widget
+	- Implement a breadcrumb view for file paths
+	- Rewrite xchan_vcard template
+	- Update composer libs
+
+	Bugfixes
+	- Fix direct messages by forum channel turned into group item
+	- Fix ID3Parser composer autoload
+	- Fix issue where directory_fallback_servers were not accessible from static function
+	- Fix missing constant defenition for HUBLOC_OFFLINE
+	- Fix sync_directories() including known dead sites
+	- Fix undefined variable in poller preventing Onedirsync from running
+	- Fix w2w posts not editable/deletable from local server
+	- Fix issue where categories were not saved on forum wall posts
+	- Fix no channel_id provided for contact_remove() in reply_purge()
+	- Fix typo in notifier command
+	- Fix profile title/description allowed more than 191 characters
+
+
+	Addons
+	- Queueworker: cleanup whitespace
+	- Queueworker: add some tweaks to prevent deadlocks for postgresql
+	- Flashcards: compatibility for the changes in the Files App
+	- Openstreemap: fix hostname parsing from URL
+	- Openstreemap: fix content security policy
+	- Pubcrawl: fix peertube video display
+	- Pubcrawl: deliver updates to anyone owning the item
+
+
+Hubzilla 5.0.8 (2020-12-30)
+	- Fix single quotes not escaped in the notifications title (issue 1503)
+	- Return zot6 xchans for random_profile()
+	- Return zot6 entries in dirsearch
+	- Fix comment sync issue
+	- Fix duplicate entries in contact autocomplete
+	- Fix issue where direct message notifications where not displayed for wall items
+	- Do not revalidate cached photos
+	- Implement imagemagic resource consumption limiting
+	- Specify key in mod owa
+	- Fix issue where array was passed to get_key()
+
+
 Hubzilla 5.0.7 (2020-12-21)
 	- Fix CardDAV addressbook ID
 	- Use Zot6 for CardDAV and CalDAV sync between clones

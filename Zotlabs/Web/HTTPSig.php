@@ -225,7 +225,7 @@ class HTTPSig {
 		}
 
 		if($keytype === 'zot6') {
-			$key = self::get_zotfinger_key($id,$force);
+			$key = self::get_zotfinger_key($id);
 			if($key) {
 				return $key;
 			}

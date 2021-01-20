@@ -976,7 +976,7 @@ class Item extends Controller {
 
 
 		$item_unseen = ((local_channel() != $profile_uid) ? 1 : 0);
-		$item_wall = (($post_type === 'wall' || $post_type === 'wall-comment') ? 1 : 0);
+		$item_wall = (($_REQUEST['type'] === 'wall' || $_REQUEST['type'] === 'wall-comment') ? 1 : 0);
 		$item_origin = (($origin) ? 1 : 0);
 		$item_consensus = (($consensus) ? 1 : 0);
 		$item_nocomment = (($nocomment) ? 1 : 0);
@@ -1337,7 +1337,7 @@ class Item extends Controller {
 			killme();
 		}
 
-		if(($parent == $post_id) || ($datarray['item_private'] == 1)) {
+		if($parent || $datarray['item_private'] == 1) {
 			$r = q("select * from item where id = %d",
 				intval($post_id)
 			);

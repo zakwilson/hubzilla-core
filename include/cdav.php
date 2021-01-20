@@ -111,7 +111,7 @@ function process_cdav_card($f, &$vcard, $edit = false) {
 function import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backend, &$ids, $notice = false) {
 
 	$i = 0;
-	$newid = (count($ids) ? false : true); 
+	$newid = (count($ids) ? false : true);
 
 	while ($object = $objects->getNext()) {
 
@@ -161,7 +161,7 @@ function import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backe
 				);
 			}
 
-			if($notice && $exp == 'vcf') {
+			if($notice && $ext == 'vcf') {
 				notice(
 					'<strong>' . t('INVALID CARD DISMISSED!') . '</strong>' . EOL .
 					'<strong>' . t('Name: ') . '</strong>' . (($object->FN) ? $object->FN : t('Unknown')) . EOL .

@@ -68,7 +68,7 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
-		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
+		$.jGrowl(aStr.download_info, { sticky: false, theme: 'info', life: 10000 });
 
 		let data = [
 			{name: 'attach_path', value: window.location.pathname},
@@ -296,11 +296,11 @@ $(document).ready(function () {
 		close_and_deactivate_all_panels();
 
 		$('body').css('cursor', 'wait');
-		$.jGrowl('Please stand by while your download is being prepared...', { sticky: false, theme: 'info', life: 10000 });
+		$.jGrowl(aStr.download_info, { sticky: false, theme: 'info', life: 10000 });
 
 		post_data.push(
 			{name: 'attach_path', value: window.location.pathname},
-			{name: 'channel_id', value: channelId},
+			{name: 'channel_id', value: channelId}
 		);
 
 		$.post('attach', post_data, function (data) {

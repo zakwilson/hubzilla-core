@@ -11,6 +11,7 @@ use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\AccessList;
@@ -130,7 +131,7 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 						case 'sit':
 						case 'any':
 						case 'con':
-							if($rr['xchan_network'] != 'zot')
+							if(!in_array($rr['xchan_network'], ['zot6', 'zot']))
 								break;
 						case 'pub':
 						case '':
@@ -790,8 +791,8 @@ function get_item_elements($x,$allow_code = false) {
 			dbesc($arr['author_xchan'])
 		);
 		if($r) {
-			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot') {
-				if(rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey'])) {
+			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
+				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -2206,6 +2207,7 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 		return $ret;
 	}
 
+
 	// override the unseen flag with the original
 
 	$arr['item_unseen'] = $orig[0]['item_unseen'];
@@ -2672,6 +2674,11 @@ function tag_deliver($uid, $item_id) {
 	}
 
 	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
+
+		// do not turn the groups own direkt messages into group items
+		if($item['item_wall'] && $item['author_xchan'] === $u[0]['channel_hash'])
+			return;
+
 		// group delivery via DM
 		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall') || perm_is_allowed($uid,$item['owner_xchan'],'tag_deliver')) {
 			logger('group DM delivery for ' . $u[0]['channel_address']);
@@ -2682,6 +2689,12 @@ function tag_deliver($uid, $item_id) {
 
 
 	if ($is_group && intval($item['item_thread_top']) && intval($item['item_wall']) && $item['author_xchan'] !== $item['owner_xchan']) {
+
+		if($item['resource_type'] === 'group_item') {
+			logger('resource_type group_item: already shared');
+			return;
+		}
+
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
@@ -3113,11 +3126,12 @@ function tgroup_check($uid, $item) {
 					}
 				}
 			}
-*/
+
 			if(! $found) {
 				logger('tgroup_check: mention was in a reshare or exceeded max_tagged_forums - ignoring');
 				continue;
 			}
+*/
 
 			return true;
 		}
@@ -3203,16 +3217,18 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr = [];
 
 		if ($edit) {
+
 			// process edit or delete action
-			$r = q("select * from item where source_xchan = '%s' and body like '%s' and uid = %d limit 1",
-				dbesc($item['owner_xchan']),
-				dbesc("%message_id='" . $item['mid'] . "'%"),
-				intval($channel['channel_id'])
+			$r = q("select * from item where uid = %d and resource_id = '%s' and source_xchan = '%s' and resource_type = 'group_item' limit 1",
+				intval($channel['channel_id']),
+				dbesc($item['mid']),
+				dbesc($item['author_xchan'])
 			);
+
 			if ($r) {
 				if (intval($item['item_deleted'])) {
-					drop_item($r[0]['id'],false,DROPITEM_PHASE1);
-					Master::Summon([ 'Notifier','drop',$r[0]['id'] ]);
+					drop_item($r[0]['id'], false, DROPITEM_PHASE1);
+					Master::Summon([ 'Notifier', 'drop', $r[0]['id'] ]);
 					return;
 				}
 				$arr['id'] = intval($r[0]['id']);
@@ -3242,6 +3258,9 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_uplink']  = 0;
 		$arr['source_xchan'] = $item['owner_xchan'];
 
+		$arr['resource_id'] = $item['mid'];
+		$arr['resource_type'] = 'group_item';
+
 		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
 
@@ -3263,12 +3282,13 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				"' message_id='"    . $item['mid'] .
 			"']";
 			if($item['title'])
-				$bb .= '[b]'.$item['title'].'[/b]'."\r\n";
+				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
 			$bb .= $item['body'];
 			$bb .= "[/share]";
 		}
 
 		$arr['body'] = $bb;
+		$arr['term'] = $item['term'];
 
 		$arr['author_xchan'] = $channel['channel_hash'];
 		$arr['owner_xchan']  = $channel['channel_hash'];
@@ -3950,10 +3970,10 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 		);
 		if($items) {
 			foreach($items as $i)
-				delete_item_lowlevel($i,$stage,$force);
+				delete_item_lowlevel($i, $stage);
 		}
 		else
-			delete_item_lowlevel($item,$stage,$force);
+			delete_item_lowlevel($item, $stage);
 
 		if(! $interactive)
 			return 1;
@@ -3987,7 +4007,6 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
  *
  * @param array $item
  * @param int $stage
- * @param boolean $force
  * @return boolean
  */
 function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
@@ -4458,7 +4477,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE $item_uids and item_thread_top = 1 $sql_options $item_normal ) ";
 
 	if($arr['since_id'])
-		$sql_extra .= " and item.id > " . $since_id . " ";
+		$sql_extra .= " and item.id > " . intval($arr['since_id']) . " ";
 
 	if($arr['cat'])
 		$sql_extra .= protect_sprintf(term_query('item', $arr['cat'], TERM_CATEGORY));
@@ -4705,7 +4724,7 @@ function webpage_to_namespace($webpage) {
 
 function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remote_id,$mid) {
 
-	if(! $post_id)
+	if(! intval($post_id))
 		return;
 
 	$page_type = webpage_to_namespace($webpage);
@@ -4727,7 +4746,7 @@ function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remo
 		// as the entire mid. If it were the post_id the link would be less portable.
 
 		IConfig::Set(
-			intval($post_id),
+			$post_id,
 			'system',
 			$page_type,
 			($pagetitle) ? $pagetitle : substr($mid,0,16),

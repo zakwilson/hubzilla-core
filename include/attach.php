@@ -2987,10 +2987,7 @@ function attach_folder_select_list($channel_id) {
 
 	if($r) {
 		foreach($r as $rv) {
-			$x = attach_folder_rpaths($r,$rv);
-			if($x) {
-				$out[$x[0]] = $x[1];
-			}
+			$out[$rv['hash']] = $rv['display_path'];
 		}
 	}
 
@@ -3020,7 +3017,7 @@ function attach_folder_rpaths($all_folders,$that_folder) {
 			if(! $found)
 				$error = true;
 		}
-		while((! $found) && (! $error) && ($parent_hash != ''));
+		while((! $error) && ($parent_hash != ''));
 	}
 
 	return (($error) ? false : [ $current_hash , $path ]);
@@ -3067,8 +3064,7 @@ function attach_syspaths($channel_id,$attach_hash) {
 
 
 function attach_upgrade() {
-
-	$r = q("select id, uid, hash from attach where os_path = '' and display_path = '' limit 100");
+	$r = q("SELECT id, uid, hash FROM attach WHERE os_path = '' OR display_path = '' LIMIT 100");
 	if($r) {
 		foreach($r as $rv) {
 			$x = attach_syspaths($rv['uid'],$rv['hash']);

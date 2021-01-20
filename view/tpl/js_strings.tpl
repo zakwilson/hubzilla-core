@@ -66,8 +66,13 @@
 		'month' : "{{$month}}",
 		'week' : "{{$week}}",
 		'day' : "{{$day}}",
-		'allday' : "{{$allday}}"
+		'allday' : "{{$allday}}",
+
+		// mod cloud
+
+		'download_info' : "{{$download_info}}"
+
 	};
 
 </script>
-		
+

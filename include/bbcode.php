@@ -966,7 +966,7 @@ function bbtopoll($s) {
 	$pl['poll_id'] = $match[1];
 	$pl['poll_question'] = $match[2];
 
-	$match = '';
+	$match = [];
 	if(preg_match_all("/\[poll\-answer=(.*?)\](.*?)\[\/poll\-answer\]/is",$s,$match,PREG_SET_ORDER)) {
 		$pl['answer'] = [];
 		foreach($match as $m) {
@@ -1349,7 +1349,7 @@ function bbcode($Text, $options = []) {
 	// Check for table of content with params
 	while(strpos($Text,'[toc') !== false) {
 		$toc_id = 'toc-' . random_string(10);
-		$Text = preg_replace("/\[toc([^\]]+?)\]/ism", '<ul id="' . $toc_id . '" class="toc"$1></ul><script>$("#' . $toc_id . '").toc();</script>', $Text, 1);
+		$Text = preg_replace("/\[toc([^\]]+?)\]/ism", '<ul id="' . $toc_id . '" class="toc" $1></ul><script>$("#' . $toc_id . '").toc();</script>', $Text, 1);
 	}
 	// Check for centered text
 	if (strpos($Text,'[/center]') !== false) {

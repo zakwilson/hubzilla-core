@@ -651,7 +651,7 @@ function change_channel_keys($channel) {
 		foreach($h as $hv) {
 			$hv['hubloc_guid_sig'] = $sig;
 			$hv['hubloc_hash']     = $hash;
-			$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$modifed['channel_prvkey']));
+			$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$modified['channel_prvkey']));
 			hubloc_store_lowlevel($hv);
 		}
 	}

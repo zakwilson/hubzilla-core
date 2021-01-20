@@ -123,7 +123,7 @@ class Sse_bs extends Controller {
 			$mids[] = '\'' . dbesc(@base64url_decode(substr($a,4))) . '\'';
 		}
 
-		$str = implode($mids, ',');
+		$str = implode(',', $mids);
 
 		$x = [ 'channel_id' => self::$uid, 'update' => 'unset' ];
 		call_hooks('update_unseen',$x);
@@ -162,7 +162,7 @@ class Sse_bs extends Controller {
 		$item_normal = item_normal();
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item 
+			$items = q("SELECT * FROM item
 				WHERE uid = %d
 				AND created <= '%s'
 				AND item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
@@ -190,7 +190,7 @@ class Sse_bs extends Controller {
 
 		}
 
-		$r = q("SELECT count(id) as total FROM item 
+		$r = q("SELECT count(id) as total FROM item
 			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private IN (0, 1)
 			AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 			AND author_xchan != '%s'
@@ -231,10 +231,10 @@ class Sse_bs extends Controller {
 		$item_normal = item_normal();
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item 
+			$items = q("SELECT * FROM item
 				WHERE uid = %d
 				AND created <= '%s'
-				AND item_unseen = 1 AND item_wall = 0 AND item_private = 2
+				AND item_unseen = 1 AND item_private = 2
 				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				$item_normal
@@ -259,8 +259,8 @@ class Sse_bs extends Controller {
 
 		}
 
-		$r = q("SELECT count(id) as total FROM item 
-			WHERE uid = %d and item_unseen = 1 AND item_wall = 0 AND item_private = 2
+		$r = q("SELECT count(id) as total FROM item
+			WHERE uid = %d and item_unseen = 1 AND item_private = 2
 			$item_normal
 			$sql_extra
 			AND author_xchan != '%s'",
@@ -300,10 +300,10 @@ class Sse_bs extends Controller {
 		$item_normal = item_normal();
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item 
+			$items = q("SELECT * FROM item
 				WHERE uid = %d
 				AND created <= '%s'
-				AND item_unseen = 1 AND item_wall = 1 
+				AND item_unseen = 1 AND item_wall = 1 AND item_private IN (0, 1)
 				AND obj_type NOT IN ('Document', 'Video', 'Audio', 'Image')
 				AND author_xchan != '%s'
 				$item_normal
@@ -328,8 +328,8 @@ class Sse_bs extends Controller {
 
 		}
 
-		$r = q("SELECT count(id) as total FROM item 
-			WHERE uid = %d and item_unseen = 1 AND item_wall = 1 
+		$r = q("SELECT count(id) as total FROM item
+			WHERE uid = %d and item_unseen = 1 AND item_wall = 1 AND item_private IN (0, 1)
 			$item_normal
 			$sql_extra
 			AND author_xchan != '%s'",
@@ -379,7 +379,7 @@ class Sse_bs extends Controller {
 		$item_normal = item_normal();
 
 		if ($notifications) {
-			$items = q("SELECT * FROM item 
+			$items = q("SELECT * FROM item
 				WHERE uid = %d
 				AND created <= '%s'
 				AND item_unseen = 1
@@ -410,7 +410,7 @@ class Sse_bs extends Controller {
 
 		}
 
-		$r = q("SELECT count(id) as total FROM item 
+		$r = q("SELECT count(id) as total FROM item
 			WHERE uid = %d AND item_unseen = 1
 			AND created > '%s'
 			$item_normal
@@ -516,7 +516,7 @@ class Sse_bs extends Controller {
 				$p_str = ids_to_querystr($p, 'parent');
 				$p_sql = (($p_str) ? "OR parent IN ( $p_str )" : '');
 
-				$r = q("select mid from item 
+				$r = q("select mid from item
 					where uid = %d and ( owner_xchan = '%s' OR author_xchan = '%s' $p_sql ) and item_unseen = 1 $sql_extra $item_normal",
 					intval(self::$uid),
 					dbesc($forums[$x]['xchan_hash']),
@@ -577,7 +577,7 @@ class Sse_bs extends Controller {
 
 		$item_normal = item_normal();
 
-		$r = q("SELECT * FROM item 
+		$r = q("SELECT * FROM item
 			WHERE verb = '%s'
 			AND obj_type IN ('Document', 'Video', 'Audio', 'Image')
 			AND uid = %d

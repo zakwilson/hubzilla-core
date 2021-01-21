@@ -15,7 +15,7 @@ class Cache_query {
 
 		$pid = get_config('procid', $key, false);
 		if ($pid && (function_exists('posix_kill') ? posix_kill($pid, 0) : true)) {
-			logger($key . ': procedure already run with pid ' . $pid);
+			logger($key . ': procedure already run with pid ' . $pid, LOGGER_DEBUG);
 			return;
 		}
 

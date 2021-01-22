@@ -201,7 +201,7 @@ class Cron {
 			require_once('include/photo/photo_driver.php');
 			foreach ($r as $rr) {
 				$photos = import_xchan_photo($rr['xchan_photo_l'], $rr['xchan_hash'], false, true);
-				$x      = q("update xchan set xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s'
+				q("update xchan set xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s'
 					where xchan_hash = '%s'",
 					dbesc($photos[0]),
 					dbesc($photos[1]),
@@ -219,8 +219,6 @@ class Cron {
 		if (!$disable_discover_tab)
 			Master::Summon(array('Externals'));
 
-		$generation = 0;
-
 		$restart = false;
 
 		if (($argc > 1) && ($argv[1] == 'restart')) {
@@ -231,8 +229,6 @@ class Cron {
 		}
 
 		reload_plugins();
-
-		$d = datetime_convert();
 
 		// TODO check to see if there are any cronhooks before wasting a process
 

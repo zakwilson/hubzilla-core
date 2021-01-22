@@ -15,15 +15,19 @@ Your validation code is
 {{$hash}}
 
 
+{{if $due}}{{$due}}{{/if}} 
+
+
+
 If you registered this account, please enter the validation code when requested or visit the following link:
 
-{{$siteurl}}/regver/allow/{{$hash}} 
+{{$siteurl}}/regate/{{$mail}}
 
 
 To deny the request and remove the account, please visit:
 
 
-{{$siteurl}}/regver/deny/{{$hash}}
+{{$siteurl}}/regate/{{$mail}}{{if $ko}}/{{$ko}}{{/if}} 
 
 
 Thank you.

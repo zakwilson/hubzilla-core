@@ -37,7 +37,7 @@ class Externals {
 
 				$r = q("select site_url, site_pull from site where site_url != '%s'
 						and site_flags != %d and site_type = %d
-                        and site_dead = 0 and site_project like '%s' and site_version > '5.3.1' order by $randfunc limit 1",
+						and site_dead = 0 and site_project like '%s' and site_version > '5.3.1' order by $randfunc limit 1",
 					dbesc(z_root()),
 					intval(DIRECTORY_MODE_STANDALONE),
 					intval(SITE_TYPE_ZOT),

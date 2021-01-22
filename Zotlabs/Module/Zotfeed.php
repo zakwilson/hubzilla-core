@@ -66,7 +66,7 @@ class Zotfeed extends Controller {
 				}
 				else {
 					$items = zot_feed($channel['channel_id'], $observer_hash, []);
-					$ret = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+					$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
 				}
 
 				as_return_and_die($ret, $channel);
@@ -114,7 +114,7 @@ class Zotfeed extends Controller {
 						'compat'     => $params['compat']
 					], $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module
 				);
-				$ret = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+				$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
 			}
 
 			as_return_and_die($ret, $channel);

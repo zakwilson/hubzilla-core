@@ -374,7 +374,7 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
 				(intval($count) ? "LIMIT $count" : '')
 			];
 			
-			\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, $arr ]);
+			\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 		}
 		
 		$r = unserialize($content);

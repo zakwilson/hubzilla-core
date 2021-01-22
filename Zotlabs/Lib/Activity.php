@@ -267,7 +267,7 @@ class Activity {
 
 	static function encode_item_collection($items, $id, $type, $total = 0) {
 
-		if ($total > 100) {
+		if ($total > 30) {
 			$ret = [
 				'id'   => z_root() . '/' . $id,
 				'type' => $type . 'Page',
@@ -300,11 +300,17 @@ class Activity {
 			$x = [];
 			foreach ($items as $i) {
 				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
-				if (is_string($m)) {
-					$t = json_decode($m, true);
+				if ($m) {
+					if (is_string($m))
+						$t = json_decode($m,true);
+					else
+						$t = $m;
 				}
 				else {
-					$t = $m;
+					$t = self::encode_activity($i);
+				}
+				if ($t) {
+					$x[] = $t;
 				}
 				if ($t) {
 					$x[] = $t;

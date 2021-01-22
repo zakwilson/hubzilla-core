@@ -77,10 +77,10 @@ class Zotfeed extends Controller {
 
 			if ($total) {
 				App::set_pager_total($total);
-				App::set_pager_itemspage(100);
+				App::set_pager_itemspage(10);
 			}
 
-			if (App::$pager['unset'] && $total > 100) {
+			if (App::$pager['unset'] && $total > 10) {
 				$ret = Activity::paged_collection_init($total, App::$query_string);
 			}
 			else {

@@ -97,7 +97,7 @@ function categories_widget($baseurl,$selected = '') {
 			dbesc(ACTIVITY_UPDATE)
 		];
 
-		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, $arr ]);
+		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
 
 	$r = unserialize($content);

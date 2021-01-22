@@ -5,6 +5,9 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Libsync;
+
 
 require_once('include/event.php');
 
@@ -47,11 +50,12 @@ class Cdav extends Controller {
 					if($sigblock) {
 						$keyId = str_replace('acct:','',$sigblock['keyId']);
 						if($keyId) {
-							$r = q("select * from hubloc where hubloc_addr = '%s' limit 1",
+							$r = q("select * from hubloc where hubloc_id_url = '%s'",
 								dbesc($keyId)
 							);
 							if($r) {
-								$c = channelx_by_hash($r[0]['hubloc_hash']);
+								$r = Libzot::zot_record_preferred($r);
+								$c = channelx_by_hash($r['hubloc_hash']);
 								if($c) {
 									$a = q("select * from account where account_id = %d limit 1",
 										intval($c['channel_account_id'])
@@ -157,10 +161,10 @@ class Cdav extends Controller {
 				}
 
 			}
-			
+
 			// Track CDAV updates from remote clients
 
-			$httpmethod = $_SERVER['REQUEST_METHOD']; 
+			$httpmethod = $_SERVER['REQUEST_METHOD'];
 
 			if($httpmethod === 'PUT' || $httpmethod === 'DELETE') {
 
@@ -190,12 +194,12 @@ class Cdav extends Controller {
 					if($x = get_cdav_id($principalUri, explode("/", $httpuri)[4], $cdavtable)) {
 
 						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
-						
+
 						$etag = (isset($_SERVER['HTTP_IF_MATCH']) ? $_SERVER['HTTP_IF_MATCH'] : false);
-						
+
 						// delete
 						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
-							build_sync_packet($channel['channel_id'], [
+							Libsync::build_sync_packet($channel['channel_id'], [
 								$sync => [
 									'action' => 'delete_card',
 									'uri' => $cdavdata['uri'],
@@ -206,7 +210,7 @@ class Cdav extends Controller {
 							if($etag) {
 								// update
 								if($cdavdata['etag'] !== $etag)
-								    build_sync_packet($channel['channel_id'], [
+								    Libsync::build_sync_packet($channel['channel_id'], [
 									    $sync => [
 										    'action' => 'update_card',
 										    'uri' => $cdavdata['uri'],
@@ -217,7 +221,7 @@ class Cdav extends Controller {
 							}
 							else {
 								// new
-								build_sync_packet($channel['channel_id'], [
+								Libsync::build_sync_packet($channel['channel_id'], [
 									$sync => [
 										'action' => 'import',
 										'uri' => $cdavdata['uri'],
@@ -337,7 +341,7 @@ class Cdav extends Controller {
 				// set new calendar to be visible
 				set_pconfig(local_channel(), 'cdav_calendar' , $id[0], 1);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'create',
 						'uri' => $calendarUri,
@@ -413,7 +417,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->createCalendarObject($id, $objectUri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -444,7 +448,7 @@ class Cdav extends Controller {
 				$caldavBackend->updateCalendar($id, $patch);
 				$patch->commit();
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'edit',
 						'uri' => $cdavdata['uri'],
@@ -510,7 +514,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -536,7 +540,7 @@ class Cdav extends Controller {
 
 				$caldavBackend->deleteCalendarObject($id, $uri);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'delete_card',
 						'uri' => $cdavdata['uri'],
@@ -594,7 +598,7 @@ class Cdav extends Controller {
 				$calendarData = $vcalendar->serialize();
 				$caldavBackend->updateCalendarObject($id, $uri, $calendarData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'calendar' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -653,7 +657,7 @@ class Cdav extends Controller {
 
 				$carddavBackend->createAddressBook($principalUri, $addressbookUri, $properties);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
                                         'addressbook' => [
                                                 'action' => 'create',
 						'uri' => $addressbookUri,
@@ -680,7 +684,7 @@ class Cdav extends Controller {
 				$carddavBackend->updateAddressBook($id, $patch);
 				$patch->commit();
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'edit',
 						'uri' => $cdavdata['uri'],
@@ -724,7 +728,7 @@ class Cdav extends Controller {
 				$cardData = $vcard->serialize();
 				$carddavBackend->createCard($id, $uri, $cardData);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -762,8 +766,8 @@ class Cdav extends Controller {
 				$cardData = $vcard->serialize();
 
 				$carddavBackend->updateCard($id, $uri, $cardData);
-				
-				build_sync_packet($channel['channel_id'], [
+
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'update_card',
 						'uri' => $cdavdata['uri'],
@@ -788,7 +792,7 @@ class Cdav extends Controller {
 
 				$carddavBackend->deleteCard($id, $uri);
 
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'delete_card',
 						'uri' => $cdavdata['uri'],
@@ -804,7 +808,7 @@ class Cdav extends Controller {
 			$src = $_FILES['userfile']['tmp_name'];
 
 			if($src) {
-			    
+
 				$carddata = @file_get_contents($src);
 
 				if($_REQUEST['c_upload']) {
@@ -840,14 +844,14 @@ class Cdav extends Controller {
 					$objects = new \Sabre\VObject\Splitter\VCard($carddata);
 					$profile = \Sabre\VObject\Node::PROFILE_CARDDAV;
 					$backend = new \Sabre\CardDAV\Backend\PDO($pdo);
-					
+
 					$cdavdata = $this->get_cdav_data($id, 'addressbooks');
 				}
-				
+
 				$ids = [];
 				import_cdav_card($id, $ext, $table, $column, $objects, $profile, $backend, $ids, true);
-				
-				build_sync_packet($channel['channel_id'], [
+
+				Libsync::build_sync_packet($channel['channel_id'], [
 					$sync => [
 						'action' => 'import',
 						'uri' => $cdavdata['uri'],
@@ -1013,7 +1017,7 @@ class Cdav extends Controller {
 			$catsenabled = feature_enabled(local_channel(), 'categories');
 
 			require_once('include/acl_selectors.php');
-	
+
 			$accesslist = new \Zotlabs\Access\AccessList($channel);
 			$perm_defaults = $accesslist->get();
 
@@ -1167,7 +1171,7 @@ class Cdav extends Controller {
 
 			set_pconfig(local_channel(), 'cdav_calendar', $id, argv(4));
 
-			build_sync_packet(local_channel(), [
+			Libsync::build_sync_packet(local_channel(), [
 				'calendar' => [
 					'action' => 'switch',
 					'uri' => $cdavdata['uri'],
@@ -1190,7 +1194,7 @@ class Cdav extends Controller {
 
 			$caldavBackend->deleteCalendar($id);
 
-			build_sync_packet($channel['channel_id'], [
+			Libsync::build_sync_packet($channel['channel_id'], [
 				'calendar' => [
 					'action' => 'drop',
 					'uri' => $cdavdata['uri']
@@ -1409,7 +1413,7 @@ class Cdav extends Controller {
 			$carddavBackend->deleteAddressBook($id);
 
 			if($cdavdata)
-				build_sync_packet($channel['channel_id'], [
+				Libsync::build_sync_packet($channel['channel_id'], [
 					'addressbook' => [
 						'action' => 'drop',
 						'uri' => $cdavdata['uri']
@@ -1427,7 +1431,7 @@ class Cdav extends Controller {
 			return;
 
 		$uri = 'principals/' . $channel['channel_address'];
-		
+
 
 		$r = q("select * from principals where uri = '%s' limit 1",
 			dbesc($uri)

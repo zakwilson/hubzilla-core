@@ -8,7 +8,11 @@ namespace Zotlabs\Module;
  */
 
 use Sabre\DAV as SDAV;
-use \Zotlabs\Storage;
+use \Zotlabs\Web\Controller;
+use \Zotlabs\Storage\BasicAuth;
+use \Zotlabs\Storage\Directory;
+use \Zotlabs\Storage\Browser;
+
 
 // composer autoloader for SabreDAV
 require_once('vendor/autoload.php');
@@ -20,7 +24,7 @@ require_once('include/attach.php');
  * @brief Cloud Module.
  *
  */
-class Cloud extends \Zotlabs\Web\Controller {
+class Cloud extends Controller {
 
 	/**
 	 * @brief Fires up the SabreDAV server.
@@ -42,7 +46,7 @@ class Cloud extends \Zotlabs\Web\Controller {
 
 
 
-		$auth = new \Zotlabs\Storage\BasicAuth();
+		$auth = new BasicAuth();
 
 		$ob_hash = get_observer_hash();
 
@@ -72,7 +76,7 @@ class Cloud extends \Zotlabs\Web\Controller {
 		if($x !== \App::$query_string)
 			goaway(z_root() . '/' . $x);
 
-		$rootDirectory = new \Zotlabs\Storage\Directory('/', $auth);
+		$rootDirectory = new Directory('/', [], $auth);
 
 		// A SabreDAV server-object
 		$server = new SDAV\Server($rootDirectory);
@@ -85,7 +89,7 @@ class Cloud extends \Zotlabs\Web\Controller {
 		$is_readable = false;
 
 		// provide a directory view for the cloud in Hubzilla
-		$browser = new \Zotlabs\Storage\Browser($auth);
+		$browser = new Browser($auth);
 		$auth->setBrowserPlugin($browser);
 
 		$server->addPlugin($browser);
@@ -105,13 +109,13 @@ class Cloud extends \Zotlabs\Web\Controller {
 
 		if($browser->build_page)
 			construct_page();
-		
+
 		killme();
 	}
 
 
 	function DAVException($err) {
-			
+
 		if($err instanceof \Sabre\DAV\Exception\NotFound) {
 			notice( t('Not found') . EOL);
 		}
@@ -126,7 +130,7 @@ class Cloud extends \Zotlabs\Web\Controller {
 		}
 
 		construct_page();
-			
+
 		killme();
 	}
 

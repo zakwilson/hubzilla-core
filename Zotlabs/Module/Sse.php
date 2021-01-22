@@ -14,6 +14,7 @@ class Sse extends Controller {
 	public static $ob_hash;
 	public static $sse_id;
 	public static $vnotify;
+	public static $sse_enabled;
 
 	function init() {
 
@@ -49,18 +50,86 @@ class Sse extends Controller {
 		$sys = get_sys_channel();
 		$sleep_seconds = 3;
 
-		header("Content-Type: text/event-stream");
-		header("Cache-Control: no-cache");
-		header("Connection: keep-alive");
-		header("X-Accel-Buffering: no");
+		self::$sse_enabled = get_config('system', 'sse_enabled', 0);
 
-		while(true) {
+		if(self::$sse_enabled) {
 
-			/**
-			 * Update chat presence indication (if applicable)
-			 */
+			// Server Sent Events
+
+			header("Content-Type: text/event-stream");
+			header("Cache-Control: no-cache");
+			header("Connection: keep-alive");
+			header("X-Accel-Buffering: no");
+
+			while(true) {
+
+				if(! self::$sse_id) {
+
+					// Update chat presence indication
+
+					$r = q("select cp_id, cp_room from chatpresence where cp_xchan = '%s' and cp_client = '%s' and cp_room = 0 limit 1",
+						dbesc(self::$ob_hash),
+						dbesc($_SERVER['REMOTE_ADDR'])
+					);
+					$basic_presence = false;
+					if($r) {
+						$basic_presence = true;
+						q("update chatpresence set cp_last = '%s' where cp_id = %d",
+							dbesc(datetime_convert()),
+							intval($r[0]['cp_id'])
+						);
+					}
+					if(! $basic_presence) {
+						q("insert into chatpresence ( cp_xchan, cp_last, cp_status, cp_client)
+							values( '%s', '%s', '%s', '%s' ) ",
+							dbesc(self::$ob_hash),
+							dbesc(datetime_convert()),
+							dbesc('online'),
+							dbesc($_SERVER['REMOTE_ADDR'])
+						);
+					}
+				}
+
+				XConfig::Load(self::$ob_hash);
+
+				$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+				$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
+
+				if($result && !$lock) {
+					echo "event: notifications\n";
+					echo 'data: ' . json_encode($result);
+					echo "\n\n";
+
+					XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+					unset($result);
+				}
+
+				// always send heartbeat to detect disconnected clients
+				echo "event: heartbeat\n";
+				echo 'data: {}';
+				echo "\n\n";
+
+				ob_end_flush();
+				flush();
+
+				if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
+					//TODO: this does not seem to be triggered
+					XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
+					break;
+				}
+
+				sleep($sleep_seconds);
+
+			}
+
+		}
+		else {
+			// Fallback to traditional polling
 
 			if(! self::$sse_id) {
+
+				// Update chat presence indication
+
 				$r = q("select cp_id, cp_room from chatpresence where cp_xchan = '%s' and cp_client = '%s' and cp_room = 0 limit 1",
 					dbesc(self::$ob_hash),
 					dbesc($_SERVER['REMOTE_ADDR'])
@@ -90,29 +159,11 @@ class Sse extends Controller {
 			$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
 			if($result && !$lock) {
-				echo "event: notifications\n";
-				echo 'data: ' . json_encode($result);
-				echo "\n\n";
-
 				XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
-				unset($result);
+				json_return_and_die($result);
 			}
 
-			// always send heartbeat to detect disconnected clients
-			echo "event: heartbeat\n";
-			echo 'data: {}';
-			echo "\n\n";
-
-			ob_end_flush();
-			flush();
-
-			if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {
-				//TODO: this does not seem to be triggered
-				XConfig::Set(self::$ob_hash, 'sse', 'timestamp', NULL_DATE);
-				break;
-			}
-
-			sleep($sleep_seconds);
+			killme();
 
 		}
 

@@ -2,6 +2,7 @@
 
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Queue;
 
 /**
  * @file include/network.php
@@ -713,7 +714,7 @@ function sxml2array ( $xmlObject, $out = array () )
  * @brief xml2array() will convert the given XML text to an array in the XML structure.
  *
  * Link: http://www.bin-co.com/php/scripts/xml2array/
- * Portions significantly re-written by mike@macgirvin.com 
+ * Portions significantly re-written by mike@macgirvin.com
  * (namespaces, lowercase tags, get_attribute default changed, more...)
  *
  * Examples: $array =  xml2array(file_get_contents('feed.xml'));
@@ -1112,8 +1113,8 @@ function discover_by_webbie($webbie, $protocol = '') {
 					// Check the HTTP signature
 
 					$hsig = $record['signature'];
-					if($hsig && ($hsig['signer'] === $url || $hsig['signer'] === $link['href']) && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
-					$hsig_valid = true;
+					if($hsig && $hsig['signer'] === $link['href'] && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
+						$hsig_valid = true;
 
 					if(! $hsig_valid) {
 						logger('http signature not valid: ' . print_r($hsig,true));
@@ -1430,17 +1431,17 @@ function scrape_feed($url) {
 function do_delivery($deliveries, $force = false) {
 
 	// $force is set if a site that wasn't responding suddenly returns to life.
-	// Try and shove through everything going to that site while it's responding. 
+	// Try and shove through everything going to that site while it's responding.
 
 	if(! (is_array($deliveries) && count($deliveries)))
 		return;
 
 
 	$x = q("select count(outq_hash) as total from outq where outq_delivered = 0");
-	if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',300)) && (! $force)) {
+	if(intval($x[0]['total']) > intval(get_config('system','force_queue_threshold',3000)) && (! $force)) {
 		logger('immediate delivery deferred.', LOGGER_DEBUG, LOG_INFO);
 		foreach($deliveries as $d) {
-			update_queue_item($d);
+			Queue::update($d);
 		}
 		return;
 	}
@@ -2068,7 +2069,7 @@ function get_request_string($url) {
  * Takes the output of parse_url and builds a URL from it
  *
  */
- 
+
 function unparse_url($parsed_url) {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
@@ -2080,4 +2081,4 @@ function unparse_url($parsed_url) {
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
 	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
   	return "$scheme$user$pass$host$port$path$query$fragment";
-} 
+}

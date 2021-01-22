@@ -13,6 +13,7 @@
  * @param array $params associative array which configures the feed
  * @return string with an atom feed
  */
+
 function get_public_feed($channel, $params) {
 
 	if(! $params)
@@ -431,6 +432,7 @@ function get_atom_elements($feed, $item) {
 	$res['plink'] = unxmlify($item->get_link(0));
 	$res['item_rss'] = 1;
 
+	$res['uuid'] = uuid_from_url($res['plink']);
 
 	$summary = unxmlify($item->get_description(true));
 
@@ -1516,6 +1518,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				continue;
 			}
+
 		}
 	}
 }

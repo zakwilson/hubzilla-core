@@ -93,7 +93,7 @@ function categories_widget($baseurl,$selected = '') {
 			dbesc(ACTIVITY_UPDATE)
 		);
 	}
-	else 
+	else
 		$r = unserialize($content);
 
 	$terms = array();
@@ -206,6 +206,40 @@ function articlecategories_widget($baseurl,$selected = '') {
 	return '';
 }
 
+function filecategories_widget($baseurl,$selected = '') {
+
+	$perms = permissions_sql(App::$profile['profile_uid']);
+
+	$terms = array();
+	$r = q("select distinct(term.term)
+			from term join attach on term.oid = attach.id
+			where attach.uid = %d
+			and term.uid = attach.uid
+			and term.ttype = %d
+			and term.otype = %d
+			$perms
+			order by term.term asc",
+			intval(App::$profile['profile_uid']),
+			intval(TERM_CATEGORY),
+			intval(TERM_OBJ_FILE)
+	);
+
+	if($r && count($r)) {
+		foreach($r as $rr)
+			$terms[] = array('name' => $rr['term'], 'selected' => (($selected == $rr['term']) ? 'selected' : ''));
+
+		return replace_macros(get_markup_template('categories_widget.tpl'),array(
+			'$title' => t('Categories'),
+			'$desc' => '',
+			'$sel_all' => (($selected == '') ? 'selected' : ''),
+			'$all' => t('Everything'),
+			'$terms' => $terms,
+			'$base' => $baseurl,
+		));
+	}
+
+	return '';
+}
 
 
 function common_friends_visitor_widget($profile_uid,$cnt = 25) {

@@ -210,17 +210,24 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 	if($channel && $hublocs) {
 		foreach($hublocs as $hubloc) {
 
-			$hash = make_xchan_hash($hubloc['hubloc_guid'],$hubloc['hubloc_guid_sig']);
-			if($hubloc['hubloc_network'] === 'zot' && $hash !== $hubloc['hubloc_hash']) {
-				logger('forged hubloc: ' . print_r($hubloc,true));
-				continue;
-			}
+			// verify the hash. We can only do this if we already stored the xchan corresponding to this hubloc
+			// as we need the public key from there
 
-			if(! array_key_exists('hubloc_primary',$hubloc)) {
-				$hubloc['hubloc_primary']     = (($hubloc['hubloc_flags']  & 0x0001) ? 1 : 0);
-				$hubloc['hubloc_orphancheck'] = (($hubloc['hubloc_flags']  & 0x0004) ? 1 : 0);
-				$hubloc['hubloc_error']       = (($hubloc['hubloc_status'] & 0x0003) ? 1 : 0);
-				$hubloc['hubloc_deleted']     = (($hubloc['hubloc_flags']  & 0x1000) ? 1 : 0);
+			if ($hubloc['hubloc_network'] === 'zot6') {
+				$x = q("select xchan_pubkey from xchan where xchan_guid = '%s' and xchan_hash = '%s'",
+					dbesc($hubloc['hubloc_guid']),
+					dbesc($hubloc['hubloc_hash'])
+				);
+
+				if (! $x) {
+					logger('hubloc could not be verified. ' . print_r($hubloc,true));
+					continue;
+				}
+				$hash = Libzot::make_xchan_hash($hubloc['hubloc_guid'],$x[0]['xchan_pubkey']);
+				if ($hash !== $hubloc['hubloc_hash']) {
+					logger('forged hubloc: ' . print_r($hubloc,true));
+					continue;
+				}
 			}
 
 			if($moving && $hubloc['hubloc_hash'] === $channel['channel_hash'] && $hubloc['hubloc_url'] !== z_root()) {
@@ -228,17 +235,17 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 			}
 
 			$arr = [
-				'guid'     => $hubloc['hubloc_guid'],
-				'guid_sig' => $hubloc['hubloc_guid_sig'],
-				'url'      => $hubloc['hubloc_url'],
-				'url_sig'  => $hubloc['hubloc_url_sig'],
-				'sitekey'  => ((array_key_exists('hubloc_sitekey',$hubloc)) ? $hubloc['hubloc_sitekey'] : '')
+				'id'           => $hubloc['hubloc_guid'],
+				'id_sig'       => $hubloc['hubloc_guid_sig'],
+				'location'     => $hubloc['hubloc_url'],
+				'location_sig' => $hubloc['hubloc_url_sig']
 			];
 
-			if(($hubloc['hubloc_hash'] === $channel['channel_hash']) && intval($hubloc['hubloc_primary']) && ($seize))
+			if (($hubloc['hubloc_hash'] === $channel['channel_hash']) && intval($hubloc['hubloc_primary']) && ($seize)) {
 				$hubloc['hubloc_primary'] = 0;
+			}
 
-			if(($x = zot_gethub($arr,false)) === false) {
+			if (($x = Libzot::gethub($arr,false)) === false) {
 				unset($hubloc['hubloc_id']);
 				hubloc_store_lowlevel($hubloc);
 			}
@@ -520,12 +527,12 @@ function sync_apps($channel, $apps) {
 
 /**
  * @brief Import system apps.
- * System apps from the original server may not exist on this system 
+ * System apps from the original server may not exist on this system
  *   (e.g. apps associated with addons that are not installed here).
  *   Check the system apps that were provided in the import file to see if they
  *   exist here and if so, install them locally. Preserve categories that
  *   might have been added by this channel on the other server.
- *   Do not use any paths from the original as they will point to a different server. 
+ *   Do not use any paths from the original as they will point to a different server.
  * @param array $channel
  * @param array $apps
  */
@@ -1201,6 +1208,9 @@ function sync_files($channel, $files) {
 						continue;
 					}
 
+					$term =	$att['term'];
+					unset($att['term']);
+
 					$attach_exists = false;
 					$x = attach_by_hash($att['hash'],$channel['channel_hash']);
 					logger('sync_files duplicate check: attach_exists=' . $attach_exists, LOGGER_DEBUG);
@@ -1333,7 +1343,7 @@ function sync_files($channel, $files) {
 							'time' => $time,
 							'resource' => $att['hash'],
 							'revision' => 0,
-							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey']))
+							'signature' => Libzot::sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])
 						);
 
 						$store_path = $newfname;
@@ -1345,17 +1355,35 @@ function sync_files($channel, $files) {
 						}
 						$redirects = 0;
 
-
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],	'acct:' . channel_reddress($channel),true,'sha512');
+						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
 
 						if($x['success']) {
 							$attachment_stored = true;
+
+							$a = q("SELECT id FROM attach WHERE hash = '%s' AND uid = %d LIMIT 1",
+								dbesc($att['hash']),
+								intval($channel['channel_id'])
+							);
+							if($a) {
+								q("DELETE FROM term WHERE uid = %d AND oid = %d AND otype = %d",
+									intval($channel['channel_id']),
+									intval($a[0]['id']),
+									intval(TERM_OBJ_FILE)
+								);
+								if($term) {
+									foreach($term as $t) {
+										if(array_key_exists('type',$t))
+											$t['ttype'] = $t['type'];
+										store_item_tag($channel['channel_id'], $a[0]['id'], TERM_OBJ_FILE, $t['ttype'], escape_tags($t['term']), escape_tags($t['url']));
+									}
+								}
+							}
 						}
 						continue;
 					}
@@ -1366,7 +1394,7 @@ function sync_files($channel, $files) {
 				logger('attachment store failed',LOGGER_NORMAL,LOG_ERR);
 			}
 			if($f['photo']) {
-				
+
 				foreach($f['photo'] as $p) {
  					unset($p['id']);
 					$p['aid'] = $channel['channel_account_id'];
@@ -1419,7 +1447,7 @@ function sync_files($channel, $files) {
 							'time' => $time,
 							'resource' => $p['resource_id'],
 							'revision' => 0,
-							'signature' => base64url_encode(rsa_sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey'])),
+							'signature'  => Libzot::sign($channel['channel_hash'] . '.' . $time, $channel['channel_prvkey']),
 							'resolution' => intval($p['imgscale'])
 						);
 
@@ -1435,11 +1463,11 @@ function sync_files($channel, $files) {
 						$headers = [];
 						$headers['Accept'] = 'application/x-zot+json' ;
 						$headers['Sigtoken'] = random_string();
-						$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],'acct:' . channel_reddress($channel),true,'sha512');
+						$headers = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), true, 'sha512');
 
 						$x = z_post_url($fetch_url,$parr,$redirects,[ 'filep' => $fp, 'headers' => $headers]);
 						fclose($fp);
-						
+
 						// Override remote hub thumbnails storage settings
 						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
 							$p['os_storage'] = 0;
@@ -1481,12 +1509,12 @@ function sync_files($channel, $files) {
 						create_table_from_array('photo',$p, [ 'content' ] );
 					}
 				}
-				
+
 			}
-			
+
             // Set xchan photo date to prevent thumbnails fetch for clones on profile update packet recieve
 			if(isset($update_xchan)) {
-			    
+
 				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
 					dbescdate($update_xchan),
 					dbesc($channel['channel_hash'])
@@ -1515,17 +1543,18 @@ function sync_addressbook($channel, $data) {
 
 	if(! \Zotlabs\Lib\Apps::system_app_installed($channel['channel_id'], 'CardDAV'))
 		return;
-		
+
 	logger("debug: " . print_r($data,true), LOGGER_DEBUG);
 
 	require_once('include/cdav.php');
 
 	$principalUri = 'principals/' . $channel['channel_address'];
-	
+
 	if($data['action'] !== 'create') {
 	    $id = get_cdav_id($principalUri, $data['uri'], 'addressbooks');
 	    if(! $id)
 	        return;
+		$id = $id['id'];
 	}
 
 	$pdo = \DBA::$dba->db;
@@ -1623,7 +1652,7 @@ function sync_calendar($channel, $data) {
 			break;
 
 		case 'update_card':
-			$caldavBackend->updateCalendarObject($id, $data['carduri'], $data['card']);			
+			$caldavBackend->updateCalendarObject($id, $data['carduri'], $data['card']);
 			break;
 
 		case 'switch':

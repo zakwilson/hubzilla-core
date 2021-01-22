@@ -7,7 +7,7 @@ use Zotlabs\Lib\Libzot;
 class Zfinger extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
+
 		require_once('include/zot.php');
 		require_once('include/crypto.php');
 
@@ -26,7 +26,7 @@ class Zfinger extends \Zotlabs\Web\Controller {
 
 		if($chan) {
 			$headers['Digest'] = HTTPSig::generate_digest_header($ret);
-			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'],'acct:' . channel_reddress($chan));
+			$h = HTTPSig::create_sig($headers,$chan['channel_prvkey'], channel_url($chan));
 			HTTPSig::set_headers($h);
 		}
 		else {
@@ -37,7 +37,7 @@ class Zfinger extends \Zotlabs\Web\Controller {
 
 		echo $ret;
 		killme();
-	
+
 	}
-	
+
 }

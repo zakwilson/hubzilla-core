@@ -31,7 +31,8 @@ class Filer extends \Zotlabs\Web\Controller {
 				intval(local_channel())
 			);
 			if($r) {
-				$x = q("update item set item_retained = 1 where id = %d and uid = %d",
+				$x = q("update item set item_retained = 1, changed = '%s' where id = %d and uid = %d",
+					dbesc(datetime_convert()),
 					intval($r[0]['parent']),
 					intval(local_channel())
 				);

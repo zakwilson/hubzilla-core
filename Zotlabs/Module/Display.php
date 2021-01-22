@@ -22,9 +22,6 @@ class Display extends \Zotlabs\Web\Controller {
 				$module_format = 'html';			
 		}
 
-		if($load)
-			$_SESSION['loadtime'] = datetime_convert();
-	
 		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
@@ -183,22 +180,11 @@ class Display extends \Zotlabs\Web\Controller {
 			return '';
 		}
 		
-		
-		$static = ((array_key_exists('static',$_REQUEST)) ? intval($_REQUEST['static']) : 0);
-
-		$simple_update = (($update) ? " AND item_unseen = 1 " : '');
-			
+		$simple_update = '';
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
-		if($load)
-			$simple_update = '';
-	
-		if($static && $simple_update)
-			$simple_update .= " and item_thread_top = 0 and author_xchan = '" . protect_sprintf(get_observer_hash()) . "' ";
-	
-		if((! $update) && (! $load)) {
 
-			$static  = ((local_channel()) ? channel_manual_conv_update(local_channel()) : 1);
+		if((! $update) && (! $load)) {
 
 			// if the target item is not a post (eg a like) we want to address its thread parent
 
@@ -229,7 +215,6 @@ class Display extends \Zotlabs\Web\Controller {
 				'$dm'      => '0',
 				'$nouveau' => '0',
 				'$wall'    => '0',
-				'$static'  => $static,
 				'$page'    => ((\App::$pager['page'] != 1) ? \App::$pager['page'] : 1),
 				'$list'    => ((x($_REQUEST,'list')) ? intval($_REQUEST['list']) : 0),
 				'$search'  => '',
@@ -315,7 +300,6 @@ class Display extends \Zotlabs\Web\Controller {
 					dbesc($target_item['parent_mid'])
 				);
 			}
-
 			if($r === null) {
 				// in case somebody turned off public access to sys channel content using permissions
 				// make that content unsearchable by ensuring the owner_xchan can't match
@@ -335,7 +319,6 @@ class Display extends \Zotlabs\Web\Controller {
 					intval($sysid)
 				);
 			}
-			$_SESSION['loadtime'] = datetime_convert();
 		}
 	
 		else {
@@ -447,6 +430,8 @@ class Display extends \Zotlabs\Web\Controller {
 			}
 	
 		}
+
+		$_SESSION['loadtime'] = datetime_convert();
 
 		return $o;
 

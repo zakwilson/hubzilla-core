@@ -10,7 +10,7 @@ require_once('include/zot.php');
 
 /**
  * remote post
- * 
+ *
  * https://yoursite/rpost?f=&title=&body=&remote_return=
  *
  * This can be called via either GET or POST, use POST for long body content as suhosin often limits GET parameter length
@@ -20,7 +20,7 @@ require_once('include/zot.php');
  * body= Body of post
  * url= URL which will be parsed and the results appended to the body
  * source= Source application
- * post_id= post_id of post to 'share' (local use only) 
+ * post_id= post_id of post to 'share' (local use only)
  * remote_return= absolute URL to return after posting is finished
  * type= choices are 'html' or 'bbcode', default is 'bbcode'
  *
@@ -32,16 +32,16 @@ require_once('include/zot.php');
 class Rpost extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		$o = '';
-	
+
 		if(! local_channel()) {
 			if(remote_channel()) {
 				// redirect to your own site.
 				// We can only do this with a GET request so you'll need to keep the text short or risk getting truncated
 				// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
 				// blocks them.
-	
+
 				$url = get_rpost_path(\App::get_observer());
 				// make sure we're not looping to our own hub
 				if(($url) && (! stristr($url, \App::get_hostname()))) {
@@ -53,10 +53,10 @@ class Rpost extends \Zotlabs\Web\Controller {
 					goaway($url);
 				}
 			}
-	
+
 			// The login procedure is going to bugger our $_REQUEST variables
 			// so save them in the session.
-	
+
 			if(array_key_exists('body',$_REQUEST)) {
 				$_SESSION['rpost'] = $_REQUEST;
 			}
@@ -64,14 +64,14 @@ class Rpost extends \Zotlabs\Web\Controller {
 		}
 
 		nav_set_selected('Post');
-	
+
 		// If we have saved rpost session variables, but nothing in the current $_REQUEST, recover the saved variables
-	
+
 		if((! array_key_exists('body',$_REQUEST)) && (array_key_exists('rpost',$_SESSION))) {
 			$_REQUEST = $_SESSION['rpost'];
 			unset($_SESSION['rpost']);
 		}
-	
+
 		if(array_key_exists('channel',$_REQUEST)) {
 			$r = q("select channel_id from channel where channel_account_id = %d and channel_address = '%s' limit 1",
 				intval(get_account_id()),
@@ -82,7 +82,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 				$change = change_channel($r[0]['channel_id']);
 			}
 		}
-	
+
 		if($_REQUEST['remote_return']) {
 			$_SESSION['remote_return'] = $_REQUEST['remote_return'];
 		}
@@ -91,21 +91,27 @@ class Rpost extends \Zotlabs\Web\Controller {
 				goaway($_SESSION['remote_return']);
 			goaway(z_root() . '/network');
 		}
-	
+
 		$plaintext = true;
-	
+
 		if(array_key_exists('type', $_REQUEST) && $_REQUEST['type'] === 'html') {
 			require_once('include/html2bbcode.php');
-			$_REQUEST['body'] = html2bbcode($_REQUEST['body']); 
+			$_REQUEST['body'] = html2bbcode($_REQUEST['body']);
 		}
-	
+
 		$channel = \App::get_channel();
-	
-	
-		$acl = new \Zotlabs\Access\AccessList($channel);
-	
-		$channel_acl = $acl->get();
-	
+
+		if($_REQUEST['acl']) {
+				$acl = new \Zotlabs\Access\AccessList([]);
+				$acl->set($_REQUEST['acl']);
+				$channel_acl = $acl->get();
+		}
+		else {
+				$acl = new \Zotlabs\Access\AccessList($channel);
+				$channel_acl = $acl->get();
+		}
+
+
 		if($_REQUEST['url']) {
 			$x = z_fetch_url(z_root() . '/linkinfo?f=&url=' . urlencode($_REQUEST['url']));
 			if($x['success'])
@@ -115,7 +121,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 		if($_REQUEST['post_id']) {
 			$_REQUEST['body'] .= '[share=' . intval($_REQUEST['post_id']) . '][/share]';
 		}
-	
+
 		$x = array(
 			'is_owner'            => true,
 			'allow_location'      => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
@@ -137,19 +143,19 @@ class Rpost extends \Zotlabs\Web\Controller {
 			'bbcode'              => true,
 			'jotnets'             => true
 		);
-	
+
 		$editor = status_editor($a,$x,false,'Rpost');
-	
+
 		$o .= replace_macros(get_markup_template('edpost_head.tpl'), array(
 			'$title' => t('Edit post'),
 			'$cancel' => '',
 			'$editor' => $editor
 		));
-	
+
 		return $o;
-	
+
 	}
-	
-	
-	
+
+
+
 }

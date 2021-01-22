@@ -35,7 +35,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		call_hooks('cache_mode_hook', $cache_mode);
 		
 		$observer_xchan = get_observer_hash();
-		$cachecontrol = '';
+		$cachecontrol = ', no-cache';
 
 		if(isset($type)) {
 	
@@ -81,18 +81,18 @@ class Photo extends \Zotlabs\Web\Controller {
 				    else
 				        $data = dbunescbin($r[0]['content']);
 				}
-			}
 				
-			if(! $data) {
-			    $d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
-			    call_hooks('get_profile_photo',$d);
-			    
-			    $resolution = $d['imgscale'];
-			    $uid        = $d['channel_id']; 	
-			    $default    = $d['default'];
-			    $data       = $d['data'];
-			    $mimetype   = $d['mimetype'];
-			    $modified   = 0;
+				if(! $data) {
+					$d = [ 'imgscale' => $resolution, 'channel_id' => $uid, 'default' => $default, 'data'  => '', 'mimetype' => '' ];
+					call_hooks('get_profile_photo',$d);
+					
+					$resolution = $d['imgscale'];
+					$uid        = $d['channel_id']; 	
+					$default    = $d['default'];
+					$data       = $d['data'];
+					$mimetype   = $d['mimetype'];
+					$modified   = 0;
+				}
 			}
 
 			if(! $data) {
@@ -102,7 +102,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			    $modified = filemtime($default);
 			}
 
-			$cachecontrol = ', must-revalidate';
+			$cachecontrol .= ', must-revalidate';
 		}
 		else {
 	
@@ -169,6 +169,7 @@ class Photo extends \Zotlabs\Web\Controller {
 									$url = z_root() . '/sslify/' . $filename . '?f=&url=' . urlencode($url);
 								goaway($url);
 							}
+							$cachecontrol = '';
 						}
 					}
 				}
@@ -271,7 +272,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			// in the event that infrastructure caching is present.
 			$smaxage = intval($maxage/12);
 
-			header("Cache-Control: no-cache, s-maxage=" . $smaxage . ", max-age=" . $maxage . $cachecontrol);
+			header("Cache-Control: s-maxage=" . $smaxage . ", max-age=" . $maxage . $cachecontrol);
 	
 		}
 

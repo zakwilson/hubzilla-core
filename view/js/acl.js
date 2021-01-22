@@ -30,7 +30,7 @@ function ACL(backend_url) {
 	that.custom       = $("#acl-custom");
 	that.acl_select   = $("#acl-select");
 
-	// set the initial ACL lists in case the enclosing form gets submitted before the ajax loader completes. 
+	// set the initial ACL lists in case the enclosing form gets submitted before the ajax loader completes.
 	//that.on_submit();
 
 	/*events*/
@@ -90,7 +90,7 @@ ACL.prototype.get_form_data = function(event) {
 
 }
 
-// no longer called only on submit - call to update whenever a change occurs to the acl list. 
+// no longer called only on submit - call to update whenever a change occurs to the acl list.
 ACL.prototype.on_submit = function() {
 
 	$('.acl-field').remove();
@@ -340,7 +340,13 @@ ACL.prototype.update_view = function(value) {
 		that.list.hide(); //hide acl-list
 		that.info.hide(); //show acl-info
 		that.selected_id = that.contact_ids[that.allow_cid[0]];
-		that.update_select('\\^' + that.selected_id);
+
+		if(that.acl_select.find('option[id="\\^' + that.selected_id + '"]').length === 0) {
+			that.update_view('custom');
+		}
+		else {
+			that.update_select('\\^' + that.selected_id);
+		}
 
 		/* jot acl */
 		$('#jot-perms-icon, #dialog-perms-icon, #' + that.form_id[0].id + ' .jot-perms-icon').removeClass('fa-unlock').addClass('fa-lock');

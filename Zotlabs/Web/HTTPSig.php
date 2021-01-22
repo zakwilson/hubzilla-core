@@ -151,13 +151,13 @@ class HTTPSig {
 
 		$result['signer'] = $sig_block['keyId'];
 
-		$key = self::get_key($key,$keytype,$result['signer']);
+		$cached_key = self::get_key($key,$keytype,$result['signer']);
 
-		if(! ($key && $key['public_key'])) {
+		if(! ($cached_key && $cached_key['public_key'])) {
 			return $result;
 		}
 
-		$x = rsa_verify($signed_data,$sig_block['signature'],$key['public_key'],$algorithm);
+		$x = rsa_verify($signed_data,$sig_block['signature'],$cached_key['public_key'],$algorithm);
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
@@ -166,15 +166,15 @@ class HTTPSig {
 			// try again, ignoring the local actor (xchan) cache and refetching the key
 			// from its source
 
-			$fkey = self::get_key($key,$keytype,$result['signer'],true);
+			$fetched_key = self::get_key($key,$keytype,$result['signer'],true);
 
-			if ($fkey && $fkey['public_key']) {
-				$y = rsa_verify($signed_data,$sig_block['signature'],$fkey['public_key'],$algorithm);
+			if ($fetched_key && $fetched_key['public_key']) {
+				$y = rsa_verify($signed_data,$sig_block['signature'],$fetched_key['public_key'],$algorithm);
 				logger('verified: (cache reload) ' . $x, LOGGER_DEBUG);
 			}
 
 			if (! $y) {
-				logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($fkey['public_key']) ? '' : ' no key'));
+				logger('verify failed for ' . $result['signer'] . ' alg=' . $algorithm . (($fetched_key['public_key']) ? '' : ' no key'));
 				$sig_block['signature'] = base64_encode($sig_block['signature']);
 				logger('affected sigblock: ' . print_r($sig_block,true));
 				logger('headers: ' . print_r($headers,true));
@@ -183,6 +183,8 @@ class HTTPSig {
 			}
 
 		}
+
+		$key = (($fetched_key) ? $fetched_key : $cached_key);
 
 		$result['portable_id'] = $key['portable_id'];
 		$result['header_valid'] = true;
@@ -211,6 +213,9 @@ class HTTPSig {
 	}
 
 	static function get_key($key,$keytype,$id) {
+
+		if(is_array($key))
+			btlogger('key is array: ' . print_r($key,true));
 
 		if($key) {
 			if(function_exists($key)) {
@@ -241,7 +246,7 @@ class HTTPSig {
 
 	function convertKey($key) {
 
-		if(strstr($key,'RSA ')) { 
+		if(strstr($key,'RSA ')) {
 			return rsatopem($key);
 		}
 		elseif(substr($key,0,5) === 'data:') {
@@ -450,7 +455,7 @@ class HTTPSig {
 			foreach($headers as $h) {
 				header($h);
 			}
-		} 
+		}
 	}
 
 

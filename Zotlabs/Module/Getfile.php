@@ -2,23 +2,24 @@
 namespace Zotlabs\Module;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Libzot;
 
 /**
  * module: getfile
- * 
+ *
  * used for synchronising files and photos across clones
- * 
+ *
  * The site initiating the file operation will send a sync packet to known clones.
  * They will respond by building the DB structures they require, then will provide a
  * post request to this site to grab the file data. This is sent as a stream direct to
  * disk at the other end, avoiding memory issues.
  *
  * Since magic-auth cannot easily be used by the CURL process at the other end,
- * we will require a signed request which includes a timestamp. This should not be 
- * used without SSL and is potentially vulnerable to replay if an attacker decrypts 
+ * we will require a signed request which includes a timestamp. This should not be
+ * used without SSL and is potentially vulnerable to replay if an attacker decrypts
  * the SSL traffic fast enough. The amount of time slop is configurable but defaults
  * to 3 minutes.
- * 
+ *
  */
 
 
@@ -53,13 +54,13 @@ class Getfile extends \Zotlabs\Web\Controller {
 					$keyId = $sigblock['keyId'];
 
 					if($keyId) {
-						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash 
-							where hubloc_addr = '%s' limit 1",
+						$r = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash
+							where hubloc_id_url = '%s'",
 							dbesc(str_replace('acct:','',$keyId))
 						);
 						if($r) {
-							$hubloc = $r[0];
-							$verified = HTTPSig::verify('',$hubloc['xchan_pubkey']);	
+							$hubloc = Libzot::zot_record_preferred($r);
+							$verified = HTTPSig::verify('',$hubloc['xchan_pubkey']);
 							if($verified && $verified['header_signed'] && $verified['header_valid'] && $hash == $hubloc['hubloc_hash']) {
 								$header_verified = true;
 							}
@@ -73,15 +74,15 @@ class Getfile extends \Zotlabs\Web\Controller {
 		logger('post: ' . print_r($_POST,true),LOGGER_DEBUG,LOG_INFO);
 		if($header_verified) {
 				logger('HTTPSig verified');
-		}	
-	
+		}
+
 		$channel = channelx_by_hash($hash);
 
 		if((! $channel) || (! $time) || (! $sig)) {
 			logger('error: missing info');
 			killme();
 		}
-	
+
 		if(isset($_POST['resolution']))
 			$resolution = intval($_POST['resolution']);
 		elseif(substr($resource,-2,1) == '-') {
@@ -90,21 +91,21 @@ class Getfile extends \Zotlabs\Web\Controller {
 		}
 		else {
 			$resolution = (-1);
-		}			
+		}
 
 		$slop = intval(get_pconfig($channel['channel_id'],'system','getfile_time_slop'));
 		if($slop < 1)
 			$slop = 3;
-	
+
 		$d1 = datetime_convert('UTC','UTC',"now + $slop minutes");
-		$d2 = datetime_convert('UTC','UTC',"now - $slop minutes");	
-	
+		$d2 = datetime_convert('UTC','UTC',"now - $slop minutes");
+
 		if(! $header_verified) {
 			if(($time > $d1) || ($time < $d2)) {
 				logger('time outside allowable range');
 				killme();
 			}
-	
+
 			if(! rsa_verify($hash . '.' . $time,base64url_decode($sig),$channel['channel_pubkey'])) {
 				logger('verify failed.');
 				killme();
@@ -136,20 +137,20 @@ class Getfile extends \Zotlabs\Web\Controller {
 				else {
 					echo dbunescbin($r[0]['content']);
 				}
-			}			
+			}
 			killme();
 		}
 
 		$r = attach_by_hash($resource,$channel['channel_hash'],$revision);
-	
+
 		if(! $r['success']) {
 			logger('attach_by_hash failed: ' . $r['message']);
 			notice( $r['message'] . EOL);
 			return;
 		}
-			
+
 		$unsafe_types = array('text/html','text/css','application/javascript');
-	
+
 		if(in_array($r['data']['filetype'],$unsafe_types) && (! channel_codeallowed($channel['channel_id']))) {
 				header('Content-type: text/plain');
 		}

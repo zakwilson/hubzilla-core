@@ -38,6 +38,10 @@ function photo_factory($data, $type = null) {
 		$v = Imagick::getVersion();
 		preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m);
 		if(version_compare($m[1], '6.6.7') >= 0) {
+			$limits = get_config('system', 'imagick_limits', false);
+			if ($limits)
+				foreach ($limits as $k => $v)
+					IMagick::setResourceLimit($k, $v);
 			$ph = new PhotoImagick($data, $type);
 		} else {
 			// earlier imagick versions have issues with scaling png's

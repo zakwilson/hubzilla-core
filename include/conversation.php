@@ -511,6 +511,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 	$jsreload        = '';
 
 	$preview = (($page_mode === 'preview') ? true : false);
+	$r_preview = (($page_mode === 'r_preview') ? true : false);
 	$previewing = (($preview) ? ' preview ' : '');
 	$preview_lbl = t('This is an unsaved preview');
 
@@ -873,11 +874,13 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				}
 
 
+
 				$item['pagedrop'] = $page_dropping;
 
-				if($item['id'] == $item['parent']) {
+				if($item['id'] == $item['parent'] || $r_preview) {
 
 					$item_object = new Zotlabs\Lib\ThreadItem($item);
+
 					$conv->add_thread($item_object);
 					if(($page_mode === 'list') || ($page_mode === 'pager_list')) {
 						$item_object->set_template('conv_list.tpl');

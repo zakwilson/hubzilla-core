@@ -49,7 +49,7 @@ class ActivityStreams {
 		if($this->data) {
 
 			// verify and unpack JSalmon signature if present
-			
+
 			if(is_array($this->data) && array_key_exists('signed',$this->data)) {
 				$ret = JSalmon::verify($this->data);
 				$tmp = JSalmon::unpack($this->data['data']);
@@ -103,7 +103,7 @@ class ActivityStreams {
 			}
 
 			// fetch recursive or embedded activities
-			
+
 			if ($this->obj && is_array($this->obj) && array_key_exists('object',$this->obj)) {
 				$this->obj['object'] = $this->get_compound_property($this->obj['object']);
 			}
@@ -115,10 +115,10 @@ class ActivityStreams {
 
 			$this->parent_id = $this->get_property_obj('inReplyTo');
 
-			if((! $this->parent_id) && is_array($this->obj)) {				
+			if((! $this->parent_id) && is_array($this->obj)) {
 				$this->parent_id = $this->obj['inReplyTo'];
 			}
-			if((! $this->parent_id) && is_array($this->obj)) {				
+			if((! $this->parent_id) && is_array($this->obj)) {
 				$this->parent_id = $this->obj['id'];
 			}
 		}
@@ -286,7 +286,7 @@ class ActivityStreams {
 		if (! $s) {
 			return false;
 		}
-		return (in_array($s, [ 'Like', 'Dislike', 'Flag', 'Block', 'Announce', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact' ]));
+		return (in_array($s, [ 'Like', 'Dislike', 'Flag', 'Block', 'Accept', 'Reject', 'TentativeAccept', 'TentativeReject', 'emojiReaction', 'EmojiReaction', 'EmojiReact' ]));
 	}
 
 	/**
@@ -302,7 +302,7 @@ class ActivityStreams {
 		$x = $this->get_property_obj($property, $base, $namespace);
 		if($this->is_url($x)) {
 
-			// SECURITY: If we have already stored the actor profile, re-generate it 
+			// SECURITY: If we have already stored the actor profile, re-generate it
 			// from cached data - don't refetch it from the network
 
 			$r = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
@@ -344,7 +344,7 @@ class ActivityStreams {
 		}
 
 		// verify and unpack JSalmon signature if present
-			
+
 		if(is_array($x) && array_key_exists('signed',$x)) {
 			$ret = JSalmon::verify($x);
 			$tmp = JSalmon::unpack($x['data']);

@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Libzotdir;
+
 require_once 'include/acl_selectors.php';
 require_once 'include/group.php';
 
@@ -46,20 +48,20 @@ class Acl extends \Zotlabs\Web\Controller {
 		//  'a'  =>  autocomplete connections (mod_connections, mod_poke, mod_sources, mod_photos)
 		//  'x'  =>  nav search bar autocomplete (match any xchan)
 		// $_REQUEST['query'] contains autocomplete search text.
-	
-		// List of channels whose connections to also suggest, 
+
+		// List of channels whose connections to also suggest,
 		// e.g. currently viewed channel or channels mentioned in a post
 
 		$extra_channels = (x($_REQUEST,'extra_channels') ? $_REQUEST['extra_channels'] : array());
-	
+
 		// The different autocomplete libraries use different names for the search text
 		// parameter. Internally we'll use $search to represent the search text no matter
-		// what request variable it was attached to. 
-	
+		// what request variable it was attached to.
+
 		if(array_key_exists('query',$_REQUEST)) {
 			$search = $_REQUEST['query'];
 		}
-	
+
 		if( (! local_channel()) && (! in_array($type, [ 'x', 'c', 'f' ])))
 			killme();
 
@@ -68,7 +70,7 @@ class Acl extends \Zotlabs\Web\Controller {
 		if(in_array($type, [ 'm', 'a', 'c', 'f' ])) {
 
 			// These queries require permission checking. We'll create a simple array of xchan_hash for those with
-			// the requisite permissions which we can check against. 
+			// the requisite permissions which we can check against.
 
 			$x = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = '%s' and v = '1'",
 				intval(local_channel()),
@@ -85,34 +87,34 @@ class Acl extends \Zotlabs\Web\Controller {
 			$sql_extra2 = "AND ( xchan_name LIKE " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'%" . dbesc(punify($search)) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
 			$sql_extra2_xchan = "AND ( xchan_name LIKE " . protect_sprintf( "'" . dbesc($search) . "%'" ) . " OR xchan_addr LIKE " . protect_sprintf( "'" . dbesc(punify($search)) . ((strpos($search,'@') === false) ? "%@%'"  : "%'")) . ") ";
 
-			// This horrible mess is needed because position also returns 0 if nothing is found. 
+			// This horrible mess is needed because position also returns 0 if nothing is found.
 			// Would be MUCH easier if it instead returned a very large value
-			// Otherwise we could just 
+			// Otherwise we could just
 			// order by LEAST(POSITION($search IN xchan_name),POSITION($search IN xchan_addr)).
 
-			$order_extra2 = "CASE WHEN xchan_name LIKE " 
-					. protect_sprintf( "'%" . dbesc($search) . "%'" ) 
-					. " then POSITION('" . protect_sprintf(dbesc($search)) 
+			$order_extra2 = "CASE WHEN xchan_name LIKE "
+					. protect_sprintf( "'%" . dbesc($search) . "%'" )
+					. " then POSITION('" . protect_sprintf(dbesc($search))
 					. "' IN xchan_name) else position('" . protect_sprintf(dbesc(punify($search))) . "' IN xchan_addr) end, ";
 
 			$sql_extra3 = "AND ( xchan_addr like " . protect_sprintf( "'%" . dbesc(punify($search)) . "%'" ) . " OR xchan_name like " . protect_sprintf( "'%" . dbesc($search) . "%'" ) . " ) ";
-	
+
 		}
 		else {
 			$sql_extra = $sql_extra2 = $sql_extra3 = "";
 		}
-		
-		
+
+
 		$groups = array();
 		$contacts = array();
-		
+
 		if($type == '' || $type == 'g') {
 
 			// virtual groups based on private profile viewing ability
 
 			$r = q("select id, profile_guid, profile_name from profile where is_default = 0 and uid = %d",
 				intval(local_channel())
-			);	
+			);
 			if($r) {
 				foreach($r as $rv) {
 					$groups[] = array(
@@ -130,19 +132,19 @@ class Acl extends \Zotlabs\Web\Controller {
 			// Normal privacy groups
 
 			$r = q("SELECT pgrp.id, pgrp.hash, pgrp.gname
-					FROM pgrp, pgrp_member 
-					WHERE pgrp.deleted = 0 AND pgrp.uid = %d 
+					FROM pgrp, pgrp_member
+					WHERE pgrp.deleted = 0 AND pgrp.uid = %d
 					AND pgrp_member.gid = pgrp.id
 					$sql_extra
 					GROUP BY pgrp.id
-					ORDER BY pgrp.gname 
+					ORDER BY pgrp.gname
 					LIMIT %d OFFSET %d",
 				intval(local_channel()),
 				intval($count),
 				intval($start)
 			);
 
-			if($r) {	
+			if($r) {
 				foreach($r as $g){
 		//		logger('acl: group: ' . $g['gname'] . ' members: ' . group_get_members_xchan($g['id']));
 					$groups[] = array(
@@ -157,10 +159,10 @@ class Acl extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
-	
+
 		if($type == '' || $type == 'c' || $type === 'f') {
 
-			$extra_channels_sql  = ''; 
+			$extra_channels_sql  = '';
 
 			// Only include channels who allow the observer to view their connections
 			if($extra_channels) {
@@ -172,7 +174,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					}
 				}
 			}
-	
+
 			// Getting info from the abook is better for local users because it contains info about permissions
 			if(local_channel()) {
 				if($extra_channels_sql != '')
@@ -199,7 +201,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					$r2 = array();
 					foreach($r1 as $rr) {
 						$x = atoken_xchan($rr);
-						$r2[] = [ 
+						$r2[] = [
 							'id' => 'a' . $rr['atoken_id'] ,
 							'hash' => $x['xchan_hash'],
 							'name' => $x['xchan_name'],
@@ -211,12 +213,12 @@ class Acl extends \Zotlabs\Web\Controller {
 							'abook_self' => 0
 						];
 					}
-				} 
+				}
 
 				// add connections
-	
-				$r = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, xchan_pubforum, abook_flags, abook_self 
-					FROM abook left join xchan on abook_xchan = xchan_hash 
+
+				$r = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, xchan_pubforum, abook_flags, abook_self
+					FROM abook left join xchan on abook_xchan = xchan_hash
 					WHERE (abook_channel = %d $extra_channels_sql) AND abook_blocked = 0 and abook_pending = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc" ,
 					intval(local_channel())
 				);
@@ -225,28 +227,28 @@ class Acl extends \Zotlabs\Web\Controller {
 
 			}
 			else { // Visitors
-				$r = q("SELECT xchan_hash as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self
+				$r = q("SELECT xchan_hash as id, xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self
 					FROM xchan left join xlink on xlink_link = xchan_hash
 					WHERE xlink_xchan  = '%s' AND xchan_deleted = 0 $sql_extra2_xchan order by $order_extra2 xchan_name asc" ,
 					dbesc(get_observer_hash())
 				);
-	
+
 				// Find contacts of extra channels
 				// This is probably more complicated than it needs to be
 				if($extra_channels_sql) {
 					// Build a list of hashes that we got previously so we don't get them again
 					$known_hashes = array("'".get_observer_hash()."'");
 					if($r)
-						foreach($r as $rr) 
+						foreach($r as $rr)
 							$known_hashes[] = "'".$rr['hash']."'";
 					$known_hashes_sql = 'AND xchan_hash not in ('.join(',',$known_hashes).')';
-	
-					$r2 = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, abook_flags, abook_self 
-						FROM abook left join xchan on abook_xchan = xchan_hash 
+
+					$r2 = q("SELECT abook_id as id, xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, abook_their_perms, abook_flags, abook_self
+						FROM abook left join xchan on abook_xchan = xchan_hash
 						WHERE abook_channel IN ($extra_channels_sql) $known_hashes_sql AND abook_blocked = 0 and abook_pending = 0 and abook_hidden = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc");
 					if($r2)
 						$r = array_merge($r,$r2);
-	
+
 					// Sort accoring to match position, then alphabetically. This could be avoided if the above two SQL queries could be combined into one, and the sorting could be done on the SQl server (like in the case of a local user)
 					$matchpos = function($x) use($search) {
 						$namepos = strpos($x['name'],$search);
@@ -269,22 +271,22 @@ class Acl extends \Zotlabs\Web\Controller {
 				}
 			}
 			if((count($r) < 100) && $type == 'c') {
-				$r2 = q("SELECT substr(xchan_hash,1,18) as id, xchan_hash as hash, xchan_name as name, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self 
-					FROM xchan 
+				$r2 = q("SELECT substr(xchan_hash,1,18) as id, xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_photo_s as micro, xchan_url as url, xchan_addr as nick, 0 as abook_their_perms, 0 as abook_flags, 0 as abook_self
+					FROM xchan
 					WHERE xchan_deleted = 0 and not xchan_network  in ('rss','anon','unknown') $sql_extra2_xchan order by $order_extra2 xchan_name asc"
 				);
 				if($r2) {
 					$r = array_merge($r,$r2);
 					$r = unique_multidim_array($r,'hash');
-				}		
+				}
 			}
 		}
 		elseif($type == 'm') {
 
 			$r = array();
-			$z = q("SELECT xchan_hash as hash, xchan_name as name, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url 
+			$z = q("SELECT xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url
 				FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d 
+				WHERE abook_channel = %d
 				and xchan_deleted = 0
 				and xchan_network IN ('zot', 'diaspora', 'friendica-over-diaspora')
 				$sql_extra3
@@ -298,18 +300,18 @@ class Acl extends \Zotlabs\Web\Controller {
 					}
 				}
 			}
-			
+
 		}
 		elseif($type == 'a') {
-	
-			$r = q("SELECT abook_id as id, xchan_name as name, xchan_hash as hash, xchan_addr as nick, xchan_photo_s as micro, xchan_network as network, xchan_url as url, xchan_addr as attag , abook_their_perms FROM abook left join xchan on abook_xchan = xchan_hash
+
+			$r = q("SELECT abook_id as id, xchan_name as name, xchan_network as net, xchan_hash as hash, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url, xchan_addr as attag , abook_their_perms FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d
 				and xchan_deleted = 0
 				$sql_extra3
 				ORDER BY xchan_name ASC ",
 				intval(local_channel())
 			);
-	
+
 		}
 		elseif($type == 'x') {
 			$r = $this->navbar_complete($a);
@@ -323,7 +325,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					);
 				}
 			}
-	
+
 			$o = array(
 				'start' => $start,
 				'count'	=> $count,
@@ -334,27 +336,34 @@ class Acl extends \Zotlabs\Web\Controller {
 		}
 		else
 			$r = array();
-	
+
 		if($r) {
+			$i = count($contacts);
+			$x = [];
 			foreach($r as $g) {
-	
-				if(in_array($g['network'],['rss','anon','unknown']) && ($type != 'a'))
+
+				if(in_array($g['net'],['rss','anon','unknown']) && ($type != 'a'))
 					continue;
 
 				$g['hash'] = urlencode($g['hash']);
-				
+
 				if(! $g['nick']) {
 					$g['nick'] = $g['url'];
 				}
 
+				$clink = ($g['nick']) ? $g['nick'] : $g['url'];
+				$lkey = md5($clink);
+				if (! array_key_exists($lkey, $x))
+					$x[$lkey] = $i;
+
 				if(in_array($g['hash'],$permitted) && $type === 'f' && (! $noforums)) {
-					$contacts[] = array(
+					$contacts[$i] = array(
 						"type"     => "c",
 						"photo"    => "images/twopeople.png",
 						"name"     => $g['name'],
 						"id"	   => urlencode($g['id']),
 						"xid"      => $g['hash'],
-						"link"     => (($g['nick']) ? $g['nick'] : $g['url']),
+						"link"     => $clink,
 						"nick"     => substr($g['nick'],0,strpos($g['nick'],'@')),
 						"self"     => (intval($g['abook_self']) ? 'abook-self' : ''),
 						"taggable" => 'taggable',
@@ -362,24 +371,28 @@ class Acl extends \Zotlabs\Web\Controller {
 					);
 				}
 				if($type !== 'f') {
-					$contacts[] = array(
-						"type"     => "c",
-						"photo"    => $g['micro'],
-						"name"     => $g['name'],
-						"id"	   => urlencode($g['id']),
-						"xid"      => $g['hash'],
-						"link"     => (($g['nick']) ? $g['nick'] : $g['url']),
-						"nick"     => ((strpos($g['nick'],'@')) ? substr($g['nick'],0,strpos($g['nick'],'@')) : $g['nick']),
-						"self"     => (intval($g['abook_self']) ? 'abook-self' : ''),
-						"taggable" => '',
-						"label"    => '',
-					);
+					if (! array_key_exists($x[$lkey], $contacts) || ($contacts[$x[$lkey]]['net'] !== 'zot6' && ($g['net'] == 'zot6' || $g['net'] == 'zot'))) {
+						$contacts[$x[$lkey]] = array(
+							"type"     => "c",
+							"photo"    => $g['micro'],
+							"name"     => $g['name'],
+							"id"	   => urlencode($g['id']),
+							"xid"      => $g['hash'],
+							"link"     => $clink,
+							"nick"     => ((strpos($g['nick'],'@')) ? substr($g['nick'],0,strpos($g['nick'],'@')) : $g['nick']),
+							"self"     => (intval($g['abook_self']) ? 'abook-self' : ''),
+							"taggable" => '',
+							"label"    => '',
+							"net"      => $g['net']
+						);
+					}
 				}
-			}			
+				$i++;
+			}
 		}
-			
+
 		$items = array_merge($groups, $contacts);
-		
+
 		$o = array(
 			'start' => $start,
 			'count'	=> $count,
@@ -393,50 +406,50 @@ class Acl extends \Zotlabs\Web\Controller {
 
 
 	function navbar_complete(&$a) {
-	
+
 	//	logger('navbar_complete');
-	
+
 		if(observer_prohibited()) {
 			return;
 		}
-	
+
 		$dirmode = intval(get_config('system','directory_mode'));
 		$search = ((x($_REQUEST,'search')) ? htmlentities($_REQUEST['search'],ENT_COMPAT,'UTF-8',false) : '');
 		if(! $search || mb_strlen($search) < 2)
 			return array();
-	
+
 		$star = false;
 		$address = false;
-	
+
 		if(substr($search,0,1) === '@')
 			$search = substr($search,1);
-	
+
 		if(substr($search,0,1) === '*') {
 			$star = true;
 			$search = substr($search,1);
 		}
-	
+
 		if(strpos($search,'@') !== false) {
 			$address = true;
 		}
-	
+
 		if(($dirmode == DIRECTORY_MODE_PRIMARY) || ($dirmode == DIRECTORY_MODE_STANDALONE)) {
 			$url = z_root() . '/dirsearch';
 		}
-	
+
 		if(! $url) {
 			require_once("include/dir_fns.php");
-			$directory = find_upstream_directory($dirmode);
+			$directory = Libzotdir::find_upstream_directory($dirmode);
 			$url = $directory['url'] . '/dirsearch';
 		}
 
 		$token = get_config('system','realm_token');
-	
+
 		$count = (x($_REQUEST,'count') ?  $_REQUEST['count'] : 100);
 		if($url) {
 			$query = $url . '?f=' . (($token) ? '&t=' . urlencode($token) : '');
 			$query .= '&name=' . urlencode($search) . "&limit=$count" . (($address) ? '&address=' . urlencode(punify($search)) : '');
-	
+
 			$x = z_fetch_url($query);
 			if($x['success']) {
 				$t = 0;

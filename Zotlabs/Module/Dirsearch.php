@@ -192,7 +192,7 @@ class Dirsearch extends Controller {
 		else {
 			$qlimit = " LIMIT " . intval($perpage) . " OFFSET " . intval($startrec);
 			if($return_total) {
-				$r = q("SELECT COUNT(xchan_hash) AS total FROM xchan left join xprof on xchan_hash = xprof_hash where $logic $sql_extra and xchan_network = 'zot' and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 $safesql ");
+				$r = q("SELECT COUNT(xchan_hash) AS total FROM xchan left join xprof on xchan_hash = xprof_hash where $logic $sql_extra and xchan_network = 'zot6' and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 $safesql ");
 				if($r) {
 					$ret['total_items'] = $r[0]['total'];
 				}
@@ -261,7 +261,7 @@ class Dirsearch extends Controller {
 		else {
 	
 			$r = q("SELECT xchan.*, xprof.* from xchan left join xprof on xchan_hash = xprof_hash 
-				where ( $logic $sql_extra ) $hub_query and xchan_network = 'zot' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 
+				where ( $logic $sql_extra ) $hub_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0 
 				$safesql $order $qlimit "
 			);
 	

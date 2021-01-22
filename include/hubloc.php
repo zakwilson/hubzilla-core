@@ -4,6 +4,8 @@
  * @brief Hubloc related functions.
  */
 
+use Zotlabs\Daemon\Master;
+
 /**
  * @brief Create an array for hubloc table and insert record.
  *
@@ -163,7 +165,7 @@ function remove_obsolete_hublocs() {
 			dbesc($rr['hubloc_hash'])
 		);
 		if($x) {
-			Zotlabs\Daemon\Master::Summon(array('Notifier', 'location', $x[0]['channel_id']));
+			Master::Summon(array('Notifier', 'refresh_all', $x[0]['channel_id']));
 			if($interval)
 				@time_sleep_until(microtime(true) + (float) $interval);
 		}
@@ -288,30 +290,18 @@ function locations_by_netid($netid) {
 
 function ping_site($url) {
 
-		$ret = array('success' => false);
+	$ret = array('success' => false);
 
-		$sys = get_sys_channel();
+	$r = Zotlabs\Lib\Zotfinger::exec($url);
 
-		$m = zot_build_packet($sys, 'ping');
-		$r = zot_zot($url . '/post', $m);
-		if(! $r['success']) {
-			$ret['message'] = 'no answer from ' . $url;
-			return $ret;
-		}
-		$packet_result = json_decode($r['body'], true);
-		if(! $packet_result['success']) {
-			$ret['message'] = 'packet failure from ' . $url;
-			return $ret;
-		}
-
-		if($packet_result['success']) {
-			$ret['success'] = true;
-		}
-		else {
-			$ret['message'] = 'unknown error from ' . $url;
-		}
-
+	if(! $r['data']) {
+		$ret['message'] = 'no answer from ' . $url;
 		return $ret;
+	}
+
+	$ret['success'] = true;
+	return $ret;
+
 }
 
 

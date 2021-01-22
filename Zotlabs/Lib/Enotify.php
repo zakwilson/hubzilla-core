@@ -64,7 +64,7 @@ class Enotify {
 		$sitename   = get_config('system','sitename');
 		$site_admin = sprintf( t('%s Administrator'), $sitename);
 		$opt_out1   = sprintf( t('This email was sent by %1$s at %2$s.'), t('$Projectname'), \App::get_hostname());
-		$opt_out2   = sprintf( t('To stop receiving these messages, please adjust your Notification Settings at %s'), z_root() . '/settings');		
+		$opt_out2   = sprintf( t('To stop receiving these messages, please adjust your Notification Settings at %s'), z_root() . '/settings');
 		$hopt_out2  = sprintf( t('To stop receiving these messages, please adjust your %s.'), '<a href="' . z_root() . '/settings' . '">' . t('Notification Settings')  . '</a>');
 		$sender_name = $product;
 		$hostname = \App::get_hostname();
@@ -80,7 +80,7 @@ class Enotify {
 		$sender_email = get_config('system','from_email');
 		if(! $sender_email)
 			$sender_email = 'Administrator' . '@' . $hostname;
-	
+
 		$sender_name = get_config('system','from_email_name');
 		if(! $sender_name)
 			$sender_name = \Zotlabs\Lib\System::get_site_name();
@@ -108,7 +108,7 @@ class Enotify {
 				logger('notification invoked for an old item which may have been refetched.',LOGGER_DEBUG,LOG_INFO);
 				return;
 			}
-		} 
+		}
 		else {
 			$title = $body = '';
 		}
@@ -181,7 +181,7 @@ class Enotify {
 			pop_lang();
 			return;
 		}
-	
+
 
 		// if it's a post figure out who's post it is.
 
@@ -219,7 +219,7 @@ class Enotify {
 				$itemlink,
 				$p[0]['author']['xchan_name'],
 				$item_post_type);
-		
+
 		// "your post"
 		if($p[0]['owner']['xchan_name'] == $p[0]['author']['xchan_name'] && intval($p[0]['item_wall']))
 			$dest_str = sprintf(t('%1$s %2$s [zrl=%3$s]your %4$s[/zrl]'),
@@ -230,15 +230,15 @@ class Enotify {
 
 		// Some mail softwares relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
-		// Before this we have the name of the replier on the subject rendering 
+		// Before this we have the name of the replier on the subject rendering
 		// differents subjects for messages on the same thread.
 
 		if($moderated)
 			$subject = sprintf( t('[$Projectname:Notify] Moderated Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
 		else
 			$subject = sprintf( t('[$Projectname:Notify] Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
-		$preamble = sprintf( t('%1$s commented on an item/conversation you have been following.'), $sender['xchan_name']); 
-		$epreamble = $dest_str; 
+		$preamble = sprintf( t('%1$s commented on an item/conversation you have been following.'), $sender['xchan_name']);
+		$epreamble = $dest_str;
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -247,7 +247,7 @@ class Enotify {
 			$tsitelink .= "\n\n" . sprintf( t('Please visit %s to approve or reject this comment.'), z_root() . '/moderate' );
 			$hsitelink .= "<br><br>" . sprintf( t('Please visit %s to approve or reject this comment.'), '<a href="' . z_root() . '/moderate">' . z_root() . '/moderate</a>' );
 		}
-		
+
 	}
 
 	if ($params['type'] == NOTIFY_LIKE) {
@@ -278,7 +278,7 @@ class Enotify {
 			pop_lang();
 			return;
 		}
-	
+
 
 		// if it's a post figure out who's post it is.
 
@@ -314,12 +314,12 @@ class Enotify {
 
 		// Some mail softwares relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
-		// Before this we have the name of the replier on the subject rendering 
+		// Before this we have the name of the replier on the subject rendering
 		// differents subjects for messages on the same thread.
 
 		$subject = sprintf( t('[$Projectname:Notify] Like received to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
-		$preamble = sprintf( t('%1$s liked an item/conversation you created.'), $sender['xchan_name']); 
-		$epreamble = $dest_str; 
+		$preamble = sprintf( t('%1$s liked an item/conversation you created.'), $sender['xchan_name']);
+		$epreamble = $dest_str;
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -335,7 +335,7 @@ class Enotify {
 
 		$epreamble = sprintf( t('%1$s posted to [zrl=%2$s]your wall[/zrl]') ,
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
-			$params['link']); 
+			$params['link']);
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -355,12 +355,12 @@ class Enotify {
 			pop_lang();
 			return;
 		}
-	
+
 		$subject =	sprintf( t('[$Projectname:Notify] %s tagged you') , $sender['xchan_name']);
 		$preamble = sprintf( t('%1$s tagged you at %2$s') , $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s [zrl=%2$s]tagged you[/zrl].') ,
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
-			$params['link']); 
+			$params['link']);
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -373,7 +373,7 @@ class Enotify {
 		$preamble = sprintf( t('%1$s poked you at %2$s') , $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s [zrl=%2$s]poked you[/zrl].') ,
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
-			$params['link']); 
+			$params['link']);
 
 		$subject = str_replace('poked', t($params['activity']), $subject);
 		$preamble = str_replace('poked', t($params['activity']), $preamble);
@@ -390,7 +390,7 @@ class Enotify {
 		$preamble = sprintf( t('%1$s tagged your post at %2$s'),$sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s tagged [zrl=%2$s]your post[/zrl]') ,
 			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]',
-			$itemlink); 
+			$itemlink);
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf( $sitelink, $siteurl );
@@ -400,10 +400,10 @@ class Enotify {
 
 	if ($params['type'] == NOTIFY_INTRO) {
 		$subject = sprintf( t('[$Projectname:Notify] Introduction received'));
-		$preamble = sprintf( t('You\'ve received an new connection request from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename); 
+		$preamble = sprintf( t('You\'ve received an new connection request from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [zrl=%1$s]a new connection request[/zrl] from %2$s.'),
 			$siteurl . '/connections/ifpending',
-			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]'); 
+			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]');
 		$body = sprintf( t('You may visit their profile at %s'),$sender['xchan_url']);
 
 		$sitelink = t('Please visit %s to approve or reject the connection request.');
@@ -414,11 +414,11 @@ class Enotify {
 
 	if ($params['type'] == NOTIFY_SUGGEST) {
 		$subject = sprintf( t('[$Projectname:Notify] Friend suggestion received'));
-		$preamble = sprintf( t('You\'ve received a friend suggestion from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename); 
+		$preamble = sprintf( t('You\'ve received a friend suggestion from \'%1$s\' at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('You\'ve received [zrl=%1$s]a friend suggestion[/zrl] for %2$s from %3$s.'),
 			$itemlink,
 			'[zrl=' . $params['item']['url'] . ']' . $params['item']['name'] . '[/zrl]',
-			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]'); 
+			'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]');
 
 		$body = t('Name:') . ' ' . $params['item']['name'] . "\n";
 		$body .= t('Photo:') . ' ' . $params['item']['photo'] . "\n";
@@ -462,7 +462,7 @@ class Enotify {
 	$sitelink  = $h['sitelink'];
 	$tsitelink = $h['tsitelink'];
 	$hsitelink = $h['hsitelink'];
-	$itemlink  = $h['itemlink']; 
+	$itemlink  = $h['itemlink'];
 
 
 	require_once('include/html2bbcode.php');
@@ -510,7 +510,7 @@ class Enotify {
 	// Mark some notifications as seen right away
 	// Note! The notification have to be created, because they are used to send emails
 	// So easiest solution to hide them from Notices is to mark them as seen right away.
-	// Another option would be to not add them to the DB, and change how emails are handled 
+	// Another option would be to not add them to the DB, and change how emails are handled
 	// (probably would be better that way)
 
 	if (!$always_show_in_notices) {
@@ -555,7 +555,7 @@ class Enotify {
 	// wretched hack, but we don't want to duplicate all the preamble variations and we also don't want to screw up a translation
 
 	if ((\App::$language === 'en' || (! \App::$language)) && strpos($msg,', '))
-		$msg = substr($msg,strpos($msg,', ')+1);	
+		$msg = substr($msg,strpos($msg,', ')+1);
 
 	$datarray['id'] = $notify_id;
 	$datarray['msg'] = $msg;
@@ -587,12 +587,12 @@ class Enotify {
 		$htmlversion = bbcode(stripslashes(str_replace(array("\\r","\\n"), array("","<br />\n"),$body)));
 
 
-		// use $_SESSION['zid_override'] to force zid() to use 
+		// use $_SESSION['zid_override'] to force zid() to use
 		// the recipient address instead of the current observer
 
 		$_SESSION['zid_override'] = channel_reddress($recip);
 		$_SESSION['zrl_override'] = z_root() . '/channel/' . $recip['channel_address'];
-		
+
 		$textversion = zidify_links($textversion);
 		$htmlversion = zidify_links($htmlversion);
 
@@ -754,7 +754,7 @@ class Enotify {
 			return $params['result'];
 		}
 
-		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8'); 
+		$fromName = email_header_encode(html_entity_decode($params['fromName'],ENT_QUOTES,'UTF-8'),'UTF-8');
 		$messageSubject = email_header_encode(html_entity_decode($params['messageSubject'],ENT_QUOTES,'UTF-8'),'UTF-8');
 
 		// generate a mime boundary
@@ -767,8 +767,8 @@ class Enotify {
 		$messageHeader =
 			$params['additionalMailHeader'] .
 			"From: $fromName <{$params['fromEmail']}>" . PHP_EOL .
-			"Reply-To: $fromName <{$params['replyTo']}>" . PHP_EOL . 
-			"MIME-Version: 1.0" . PHP_EOL . 
+			"Reply-To: $fromName <{$params['replyTo']}>" . PHP_EOL .
+			"MIME-Version: 1.0" . PHP_EOL .
 			"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
@@ -782,7 +782,7 @@ class Enotify {
 			$textBody . PHP_EOL .
 			"--" . $mimeBoundary . PHP_EOL .					// text/html section
 			"Content-Type: text/html; charset=UTF-8" . PHP_EOL .
-			"Content-Transfer-Encoding: base64" . PHP_EOL . PHP_EOL . 
+			"Content-Transfer-Encoding: base64" . PHP_EOL . PHP_EOL .
 			$htmlBody . PHP_EOL .
 			"--" . $mimeBoundary . "--" . PHP_EOL;					// message ending
 
@@ -803,7 +803,7 @@ class Enotify {
 
 		require_once('include/conversation.php');
 
-		// Call localize_item to get a one line status for activities. 
+		// Call localize_item to get a one line status for activities.
 		// This should set $item['localized'] to indicate we have a brief summary.
 		// and perhaps $item['shortlocalized'] for an even briefer summary
 
@@ -860,7 +860,7 @@ class Enotify {
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
-			'body' =>  htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_COMPAT, 'UTF-8', false),
+			'body' =>  htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_QUOTES, 'UTF-8', false),
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],
 			'uid' => $item['uid'],

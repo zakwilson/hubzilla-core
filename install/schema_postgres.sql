@@ -1094,7 +1094,7 @@ create index "pc_expire" on profile_check ("expire");
 CREATE TABLE "register" (
   "reg_id"     serial  NOT NULL,
   "reg_vital"  int     DEFAULT 1 NOT NULL,
-  "reg_flags_" bigint  DEFAULT 0 NOT NULL,
+  "reg_flags" bigint  DEFAULT 0 NOT NULL,
   "reg_didx"   char(1) DEFAULT '' NOT NULL,
   "reg_did2"   text    DEFAULT '' NOT NULL,
   "reg_hash"   text    DEFAULT '' NOT NULL,

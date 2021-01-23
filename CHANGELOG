@@ -1,3 +1,6 @@
+Hubzilla 5.2.2 /2021-01-23)
+    - Update and enhance Account, Invite, Register
+
 Hubzilla 5.2.1 (2021-01-16)
 	- Fix attach_upgrade() to catch all broken entries in attach
 	- Fix collect_recipients() public policy filter for zot6

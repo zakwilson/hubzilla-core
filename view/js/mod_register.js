@@ -1,5 +1,8 @@
 $(document).ready(function() {
-	$("#id_email").blur(function() {
+	typeof(window.tao) == 'undefined' ? window.tao = {} : '';
+	tao.zar = { vsn: '2.0.0' };
+
+	$("#id_emailNOP").blur(function() {
 		var zreg_email = $("#id_email").val();
 		$.get("register/email_check.json?f=&email=" + encodeURIComponent(zreg_email), function(data) {
 			$("#help_email").html(data.message);

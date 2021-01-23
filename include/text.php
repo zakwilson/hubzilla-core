@@ -2313,6 +2313,18 @@ function undo_post_tagging($s) {
 	return $s;
 }
 
+/**
+ * @brief php to js string transfer
+ * Hilmar, 20200227
+ * String values built in php for using as content for js variables become sanitized. Often required
+ * in cases, where some content will be translated by t(any text...) and is furthermore transfered via
+ * templates to the outputted html stream. Redecoding in js not required nor useful.
+ * Apply like: p2j(t('any text\nI will place on a "next line"'));
+ */
+function p2j($string) {
+	return preg_replace('/\r?\n/', '\\n', addslashes($string));
+}
+
 function quote_tag($s) {
 	if(strpos($s,' ') !== false)
 		return '&quot;' . $s . '&quot;';

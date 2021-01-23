@@ -70,3 +70,7 @@
 	margin-top: 0px !important;
 	margin-left: 0px !important;
 }
+
+tr.zebra9 { background-color: #eafaf1; }
+tr.zebra0 { background-color: #fbeee6; }
+tr.zebra1 { background-color: #fef9e7; }

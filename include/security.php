@@ -835,3 +835,106 @@ function stream_perms_xchans($perms = NULL ) {
 
 	return $str;
 }
+
+
+/**
+ * Duty day / time checks for account register
+ * @author hilmar runge
+ * @since  2020.02.10
+ * @param  $op what to test: isOpen, nextOpen
+ * @param  $wd weekday according ISO-8601 (1 monday, 7 sunday)
+ * @param  $hhmm a 24h clock value hours and minutes
+ *		   if no params are given, the values are taken from the current time
+ *         return is bool(false) if register_duty is not available
+ */
+function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
+
+	$isduty = get_config('system', 'register_duty_jso');
+
+	if (!$isduty) 
+		return (bool)false;
+
+	is_null($wd) ? $wd = date('N') : '';
+	is_null($hhmm) ? $hhmm = date('Hi') : '';
+
+	if (!intval($wd . $hhmm)) return (bool)false;
+
+	// be sure to have a valid weekday as index
+	$wd = (7 + $wd) % 7;
+	$wd === 0 ? $wd = 7 : '';
+
+	$duty = json_decode($isduty, true);
+	if (!$duty) 
+		return (bool)false;
+
+	switch ($op) {
+		case 'isOpen':
+			/**
+			 * Check if registration is open
+ 			 * @return int(0) for not close (open) or int(1) for closed.
+			 *         return is bool(false) if register_duty is not available
+			 */
+			if (!$duty[$wd]) return (bool)false;
+			$dutyis = 0;
+			foreach ($duty[$wd] as $o => $tf) {
+				if ($o > $hhmm) {
+					$dutyis = $tf;
+					break;
+				}
+			}
+			return $dutyis;
+			break;
+		
+		case 'nextOpen':
+			/**
+			 * Look for next period opens
+			 * @return "=>N =>Hi" date value of the next period register is open for requests
+ 			 *			where N is a weekday (1=monday ... 7=sunday) according ISO-8601
+			 *			where Hi is a 24h clock value hhmm by hours and minutes.
+			 *			If no next period open is available, return results to false.
+			 */
+			$myd = $wd;
+			$myh = $hhmm;
+			$is1 = false;
+
+			// $myd = "5";		// testcase only
+			// $myh = "1110";	// testcase only
+
+			// a 1st match may be applied below my time and is to see as a cycle to the next week
+			// but looking is also for a open time after my time is available this week
+			foreach ($duty as $dd => $dhs) {
+
+				if ($is1 && $dd < $myd)
+					continue;
+
+				foreach ($dhs as $dh => $tf) {
+
+					if ($tf) continue; 	// close
+
+					// a weeks 1st open
+					if (!$is1) $is1 = array($dd, $dh);
+
+					// but is a match after now?
+					//if ($dd == $myd && $myh >= $dh && $myh <= $dh) continue;
+
+					// if the day is not (more) today start find early morning
+					if ($dd > $myd) $myh = "0000";
+
+					// a next period after now in the remainder of the week
+					if ($dd >= $myd && $dh >= $myh && !$tf)
+						return array($dd, $dh);
+					else
+						continue;			
+				}
+			}
+			return $is1; // false or array
+			break;
+
+		default:
+			//
+			break;
+	}
+	
+}
+
+

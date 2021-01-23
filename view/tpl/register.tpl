@@ -9,6 +9,7 @@
 			<div class="section-content-warning-wrapper">
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
+				<h2>{{$now}}</h2>
 			</div>
 			{{/if}}
 
@@ -19,14 +20,19 @@
 			{{/if}}
 
 			{{if $invitations}}
-			{{include file="field_input.tpl" field=$invite_code}}
+			<div style="text-align: center;">
+				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
+			</div>
+			<div id="zar015" style="display: none;">
+			{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","","",$atform]}}
+			</div>
 			{{/if}}
 
-			{{include file="field_input.tpl" field=$email}}
+			{{include file="field_input.tpl" field=[$email.0,$email.1,"",$email.3,"",""]}}
 
-			{{include file="field_password.tpl" field=$pass1}}
+			{{include file="field_password.tpl" field=[$pass1.0,$pass1.1,"","","",$atform]}}
 
-			{{include file="field_password.tpl" field=$pass2}}
+			{{include file="field_password.tpl" field=[$pass2.0,$pass2.1,"","","",$atform]}}
 
 			{{if $auto_create}}
 				{{if $default_role}}
@@ -46,12 +52,12 @@
 			{{/if}}
 
 			{{if $enable_tos}}
-			{{include file="field_checkbox.tpl" field=$tos}}
+			{{include file="field_checkbox.tpl" field=[$tos.0,$tos.1,"","","",$atform]}}
 			{{else}}
 			<input type="hidden" name="tos" value="1" />
 			{{/if}}
 
-			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}">{{$submit}}</button>
+			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
 			<br />
@@ -59,3 +65,20 @@
 
 	</div>
 </div>
+{{* 
+	COMMENTS for this template:
+	hilmar, 2020.02
+*}}
+<script>
+	$('head').append(
+	  '<style> '+
+ 	 '  .zuiqmid  { font-weight: normal; font-family: monospace; }'+
+	  '</style>');
+	// does not work $('#id_email').off('blur');
+	$('#id_email').change( function() {
+		if ($('#id_email').val().length > 0) {
+			$('#newchannel-submit-button').removeAttr('disabled');
+		}
+	});
+	$('#zar014').click( function () { $('#zar015').toggle(); });
+</script>

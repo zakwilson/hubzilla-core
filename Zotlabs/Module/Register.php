@@ -1,4 +1,5 @@
 <?php
+
 namespace Zotlabs\Module;
 
 use Zotlabs\Web\Controller;
@@ -7,7 +8,12 @@ require_once('include/security.php');
 
 class Register extends Controller {
 
+	const MYP = 	'ZAR';		// ZAR0x
+	const VERSION =	'2.0.0';
+
 	function init() {
+
+		// ZAR0
 	
 		$result = null;
 		$cmd = ((argc() > 1) ? argv(1) : '');
@@ -43,25 +49,98 @@ class Register extends Controller {
 
 		check_form_security_token_redirectOnErr('/register', 'register');
 
-		$max_dailies = intval(get_config('system','max_daily_registrations'));
-		if($max_dailies) {
-			$r = q("select count(account_id) as total from account where account_created > %s - INTERVAL %s",
-				db_utcnow(), db_quoteinterval('1 day')
+		/**
+		 * [hilmar:]
+		 * It may happen, the posted form arrives in a strange fashion. With the control of the duty hours
+		 * for registration, the input form was disabled at html. While receiving posted data, checks are
+		 * required if all is on the right road (no posts accepted during off duty).
+		 *
+		 */
+
+        $act        = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
+		$duty 		= zar_register_dutystate();
+		$ip 		= $_SERVER['REMOTE_ADDR'];
+		$sameip  	= intval(get_config('system','register_sameip'));
+		
+		$arr 		 = $_POST;
+		$invite_code = ( (x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$email 		 = ( (x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
+		$password 	 = ( (x($arr,'password'))      ? trim($arr['password'])              : '');
+		$reonar		 = array();
+	
+		// assume someone tries to validate (dId2 C/D/E), because only field email entered
+		if ( $email && ( ! $invite_code ) && ( ! $password ) && ( ! $_POST['password2'] ) ) {
+
+			// dId2 logic
+
+			if ( preg_match('/^\@{1,1}.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
+				// dId2 C channel - ffu
+			}
+
+			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
+				// dId2 E email
+				goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
+			}
+
+			if ( preg_match('/^d{1,1}[0-9]{1,10}$/', $email ) ) {
+				// dId2 A artifical & anonymous
+				goaway(z_root() . '/regate/' . bin2hex($email) . 'a' );
+			}
+
+		}
+
+		if ($act > 0 && !$duty['isduty']) {
+			// normally, that should never arrive here (ie js hack or sth like)
+			// log suitable for f2b also
+			$logmsg = 'ZAR0230S Unexpected registration request'; 
+			zar_log($logmsg);
+			goaway(z_root() . '/');
+		}
+
+		if ($sameip) { 
+			$f = q("SELECT COUNT(reg_atip) AS atip FROM register WHERE reg_vital = 1 AND reg_atip = '%s' ",
+				dbesc($ip)
 			);
-			if($r && $r[0]['total'] >= $max_dailies) {
-				notice( t('Maximum daily site registrations exceeded. Please try again tomorrow.') . EOL);
+			if ($f && $f[0]['atip'] > $sameip) {
+				$logmsg = 'ZAR0239S Exceeding same ip register request of ' . $sameip;
+				zar_log($logmsg);
+				goaway(z_root() . '/');
+			}
+		}
+
+		// s2 max daily 
+		if ( self::check_max_daily_exceeded() ) return;
+
+		// accept tos
+		if(! x($_POST,'tos')) {
+			notice( 'ZAR0230E ' 
+			. t('Please indicate acceptance of the Terms of Service. Registration failed.') . EOL);
+			return;
+		}
+	
+		// pw1 == pw2
+		if((! $_POST['password']) || ($_POST['password'] !== $_POST['password2'])) {
+			notice( 'ZAR0230E ' 
+			. t('Passwords do not match.') . EOL);
+			return;
+		}
+
+
+		$email_verify = intval(get_config('system','verify_email'));
+
+		if ($email) {
+			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
+				notice('ZAR0239E ' 
+				.  t('Email address mistake') . EOL);
 				return;
 			}
 		}
 	
-		if(! x($_POST,'tos')) {
-			notice( t('Please indicate acceptance of the Terms of Service. Registration failed.') . EOL);
-			return;
-		}
-	
-		$policy = get_config('system','register_policy');
-	
-		$email_verify = get_config('system','verify_email');
+		$policy  = intval(get_config('system','register_policy'));
+		$invonly = intval(get_config('system','invitation_only'));
+		$invalso = intval(get_config('system','invitation_also'));
+		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
+		$auto_create = true;
 	
 	
 		switch($policy) {
@@ -71,7 +150,7 @@ class Register extends Controller {
 				break;
 	
 			case REGISTER_APPROVE:
-				$flags = ACCOUNT_BLOCKED | ACCOUNT_PENDING;
+				$flags = ACCOUNT_PENDING;
 				break;
 	
 			default:
@@ -84,103 +163,224 @@ class Register extends Controller {
 				break;
 		}
 	
-		if($email_verify && $policy == REGISTER_OPEN)
-			$flags = $flags | ACCOUNT_UNVERIFIED;
+		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE) )
+			$flags = ($flags | ACCOUNT_UNVERIFIED);
 			
-	
-		if((! $_POST['password']) || ($_POST['password'] !== $_POST['password2'])) {
-			notice( t('Passwords do not match.') . EOL);
-			return;
-		}
-	
-		$arr = $_POST;
+		// $arr has $_POST;
 		$arr['account_flags'] = $flags;
-	
-		$result = create_account($arr);
-	
-		if(! $result['success']) {
-			notice($result['message']);
-			return;
-		}
-		require_once('include/security.php');
-	
-	
-		if($_REQUEST['name'])
-			set_aconfig($result['account']['account_id'],'register','channel_name',$_REQUEST['name']);
-		if($_REQUEST['nickname'])
-			set_aconfig($result['account']['account_id'],'register','channel_address',$_REQUEST['nickname']);
-		if($_REQUEST['permissions_role'])
-			set_aconfig($result['account']['account_id'],'register','permissions_role',$_REQUEST['permissions_role']);
-	
-	
-	 	$using_invites = intval(get_config('system','invitation_only'));
-		$num_invites   = intval(get_config('system','number_invites'));
-		$invite_code   = ((x($_POST,'invite_code'))  ? notags(trim($_POST['invite_code']))  : '');
-	
-		if($using_invites && $invite_code) {
-			q("delete from register where hash = '%s'", dbesc($invite_code));
-			// @FIXME - this also needs to be considered when using 'invites_remaining' in mod/invite.php
-			set_aconfig($result['account']['account_id'],'system','invites_remaining',$num_invites);
-		}
-	
-		if($policy == REGISTER_OPEN ) {
-			if($email_verify) {
-				$res = verify_email_address($result);
+		$now = datetime_convert();
+		$well = false;
+
+		// s3
+		if ($invite_code) {
+
+			if ($invonly || $invalso) {
+
+				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_didx = 'i' AND reg_hash = '%s'",
+					 dbesc($invite_code));
+
+				if ( $reg && count($reg) == 1 ) {
+					$reg = $reg[0];
+					if ($reg['reg_email'] == ($email)) {
+
+						if ($reg['reg_startup'] <= $now && $reg['reg_expires'] >= $now) {
+
+							// is invitor admin
+							$isa = get_account_by_id($reg['reg_uid']);
+							$isa = ( $isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN) );
+
+							// approve contra invite by admin 
+							if ($isa && $policy == REGISTER_APPROVE)
+								$flags &= $flags ^ ACCOUNT_PENDING;
+
+							// if $flags == 0  ??
+
+							// trans ?
+
+							// update reg vital 0 off
+							$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
+								intval($reg['reg_id'])
+							);	
+
+							info('ZAR0237I ' . t('Invitation code succesfully applied') . EOL);
+
+							$well = true;
+							
+
+						} else {
+							notice('ZAR0236E ' . t('Invitation not in time or too late') . EOL);
+							goaway(z_root()); 
+						}
+
+					} else {
+						// no match email adr
+						$msg = 'ZAR0235S ' . t('Invitation email failed');
+						zar_log($msg);
+						notice($msg . EOL);
+						goaway(z_root()); 
+					}
+
+				} else {
+					// no match invitecode
+					$msg = 'ZAR0234S ' . t('Invitation code failed') ;
+					zar_log($msg);
+					notice( $msg . EOL);
+					goaway(z_root()); 
+				}
+
+			} else {
+				notice('ZAR0232E ' . t('Invitations are not available') . EOL);
+				goaway(z_root()); 
 			}
-			else {
-				$res = send_register_success_email($result['email'],$result['password']);
+
+
+		} else {
+
+			$icdone = false;
+			// no ivc entered
+			if ( ! $invonly) {
+				// possibly the email is just in use ?
+				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
+					 dbesc('e' . $email));
+
+				if ( ! $reg) 
+					$act = q("SELECT * from account WHERE account_email = '%s'", dbesc($email));
+
+				// in case an invitation was made but the invitecode was not entered, better ignore.
+				// goaway(z_root() . '/regate/' . bin2hex($reg['email']));
+
+				if ( ! $reg && ! $act) {
+					// email useable
+
+					$well = true;
+
+
+				} else {
+					$msg = 'ZAR0237E ' . t('Email address already in use') . EOL;
+					notice($msg);
+					// problem, the msg tells to anonymous about existant email addrs
+					// use another msg instead ? TODO ?
+					// on the other hand can play the fail2ban game
+					zar_log($msg . ' (' . $email . ')');
+					goaway(z_root()); 		
+				}		
+
+			} else {
+				$msg = 'ZAR0233E ' . t('Registration on this hub is by invitation only') . EOL;
+				notice($msg);
+				zar_log($msg);
+				goaway(z_root()); 
 			}
-			if($res) {
-				if($invite_code) {
-					info( t('Registration successful. Continue to create your first channel...') . EOL ) ;
-				} 
-				else {
-					info( t('Registration successful. Please check your email for validation instructions.') . EOL ) ;
+
+		}
+
+		if ($well) {
+
+			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
+
+				$cfgdelay = get_config( 'system', 'register_delay' ); 
+				$regdelay = calculate_adue( $cfgdelay );
+				$regdelay = $regdelay ? $regdelay['due'] : $now; 
+
+				$cfgexpire = get_config('system','register_expire' ); 
+				$regexpire = calculate_adue( $cfgexpire );
+				$regexpire = $regexpire ? $regexpire['due'] : '2099-12-31 23:59:59'; 
+
+				// handle an email request that will be verified or an ivitation associated with an email address
+				if ( $email > '' && ($email_verify || $icdone) ) {
+					// enforce in case of icdone
+					$flags |= ACCOUNT_UNVERIFIED;
+					$empin = $pass2 = random_string(24);
+					$did2  = $email;
+					$didx  = 'e';
+
+					push_lang(($reg['lang']) ? $reg['lang'] : 'en');
+					$reonar['from'] = get_config('system', 'from_email');
+					$reonar['to'] = $email;
+					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
+					$reonar['txtpersonal']= t('Valid from') . ' ' . $regdelay . ' ' . t('and expire') . ' ' . $regexpire;
+					$reonar['txttemplate']= replace_macros(get_intltext_template('register_verify_member.tpl'),
+						[
+						'$sitename' => get_config('system','sitename'),
+						'$siteurl'  => z_root(),
+						'$email'    => $email,
+						'$due'		=> $reonar['txtpersonal'],
+						'$mail'		=> bin2hex($email) . 'e',
+						'$ko'		=> bin2hex(substr($empin,0,4)),
+						'$hash'     => $empin
+				 		]
+					);
+					pop_lang();
+					zar_reg_mail($reonar);
+
+				} else {
+					// that is an anonymous request without email or with email not to verify
+					$acpin = $pass2 = rand(100000,999999);
+					$did2 = rand(10,99);
+					$didx = 'a';
+					// enforce delayed verify
+					$flags = ($flags | ACCOUNT_UNVERIFIED);
+					if ($email) {
+						$reonar['email.untrust'] = $email;
+						$reonar['email.comment'] = 'received, but no need for';
+					}
+				}
+
+				if ( $auto_create ) {
+					$reonar['chan.name'] = notags(trim($arr['name']));
+					$reonar['chan.did1'] = notags(trim($arr['nickname']));
+				}
+
+				$reg = q("INSERT INTO register ("
+				. "reg_flags,reg_didx,reg_did2,reg_hash,reg_created,reg_startup,reg_expires,"
+				. "reg_email,reg_pass,reg_lang,reg_atip,reg_stuff)"
+				. " VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+						intval($flags),
+						dbesc($didx),
+						dbesc($did2),
+						dbesc($pass2),
+						dbesc(datetime_convert('','',$now)),
+						dbesc(datetime_convert('','',$regdelay)),
+						dbesc(datetime_convert('','',$regexpire)),
+						dbesc($email),
+						dbesc(bin2hex($password)),
+						dbesc(substr(get_best_language(),0,2)),
+						dbesc($ip),
+						dbesc(json_encode( $reonar ))
+					);	
+
+				if ($didx == 'a') {
+					
+					$lid = q("SELECT reg_id FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' AND reg_pass = '%s' ",
+						 	dbesc($did2), dbesc(bin2hex($password)) );
+
+					if ($lid && count($lid) == 1 ) {
+
+						$didnew = ( $lid[0]['reg_id'] . $did2 ) 
+						 		. ( substr( base_convert( md5( $lid[0]['reg_id'] . $did2 ), 16, 10 ),-2 ) );
+
+						$reg = q("UPDATE register SET reg_did2 = CONCAT('d','%s') WHERE reg_id = %d ",
+							dbesc($didnew), intval($lid[0]['reg_id'])
+						);
+
+						// notice( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
+						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
+						. t('and your pin for is') . ' ' . $pass2 . EOL
+						. t('Keep these infos and your entered password safe') . EOL
+						. t('Valid from') . ' ' . $regdelay . ' ' . t('and expire') . ' ' . $regexpire . EOL );
+
+						// acpin verify
+						// goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
+						goaway(z_root() . '/regate');
+					}
+					else {
+						$msg = 'ZAR0239D,' . t('Error creating dId A');
+						notice( $msg );
+						zar_log( $msg . ' ' . $did2);
+					}
 				}
 			}
 		}
-		elseif($policy == REGISTER_APPROVE) {
-			$res = send_reg_approval_email($result);
-			if($res) {
-				info( t('Your registration is pending approval by the site owner.') . EOL ) ;
-			}
-			else {
-				notice( t('Your registration can not be processed.') . EOL);
-			}
-			goaway(z_root());
-		}
-	
-		if($email_verify) {
-			goaway(z_root() . '/email_validation/' . bin2hex($result['email']));
-		}
-
-		// fall through and authenticate if no approvals or verifications were required. 	
-
-		authenticate_success($result['account'],null,true,false,true);
-		
-		$new_channel = false;
-		$next_page = 'new_channel';
-	
-		if(get_config('system','auto_channel_create')) {
-			$new_channel = auto_channel_create($result['account']['account_id']);
-			if($new_channel['success']) {
-				$channel_id = $new_channel['channel']['channel_id'];
-				change_channel($channel_id);
-				$next_page = '~';
-			}
-			else
-				$new_channel = false;
-		}
-	
-		$x = get_config('system','workflow_register_next');
-		if($x) {
-			$next_page = $x;
-			$_SESSION['workflow'] = true;
-		}
-
-		unset($_SESSION['login_return_url']);
-		goaway(z_root() . '/' . $next_page);
-	
 	}
 	
 	
@@ -192,7 +392,7 @@ class Register extends Controller {
 	
 		if(intval(get_config('system','register_policy')) === REGISTER_CLOSED) {
 			if(intval(get_config('system','directory_mode')) === DIRECTORY_MODE_STANDALONE) {
-				notice( t('Registration on this hub is disabled.')  . EOL);
+				notice( 'ZAR0130E ' . t('Registration on this hub is disabled.')  . EOL);
 				return;
 			}
 
@@ -201,37 +401,34 @@ class Register extends Controller {
 		}
 	
 		if(intval(get_config('system','register_policy')) == REGISTER_APPROVE) {
-			$registration_is = t('Registration on this hub is by approval only.');
-			$other_sites = t('<a href="pubsites">Register at another affiliated hub.</a>');
+			$registration_is = t('Registration on this hub is by approval only.') . '<sup>ZAR0131I</sup>';
+			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
 
+		if ( !get_config('system', 'register_duty_jso') ) {
+			// duty yet not configured
+			$duty = array( 'isduty' => false, 'atfrm' => '', 'nowfmt' => '');
+		} else {
+			$duty = zar_register_dutystate();
+		}
 
 		$invitations = false;
-
 		if(intval(get_config('system','invitation_only'))) {
 			$invitations = true;
-			$registration_is = t('Registration on this hub is by invitation only.');
-			$other_sites = t('<a href="pubsites">Register at another affiliated hub.</a>');
+			$registration_is = t('Registration on this hub is by invitation only.') . '<sup>ZAR0132I</sup>';
+			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub') . '</a>';
+		} elseif (intval(get_config('system','invitation_also'))) {
+			$invitations = true;
 		}
-	
-		$max_dailies = intval(get_config('system','max_daily_registrations'));
-		if($max_dailies) {
-			$r = q("select count(account_id) as total from account where account_created > %s - INTERVAL %s",
-				db_utcnow(), db_quoteinterval('1 day')
-			);
-			if($r && $r[0]['total'] >= $max_dailies) {
-				logger('max daily registrations exceeded.');
-				notice( t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
-				return;
-			}
-		}
+
+		if ( self::check_max_daily_exceeded() ) 
+			$duty['atform'] = 'disabled';
 
 		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
 
 		// Configurable terms of service link
-	
 		$tosurl = get_config('system','tos_url');
 		if(! $tosurl)
 			$tosurl = z_root() . '/help/TermsOfService';
@@ -254,16 +451,35 @@ class Register extends Controller {
 
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 	
-		$email        = array('email', t('Your email address'), ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : ""));
+		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
+		$email = array('email',
+				 	t('Your email address (or leave blank to register without email)') . ' <sup>ZAR0136I</sup>',
+				 	$emailval, 
+				 	t('If the registation was already submitted with your data once ago, enter your identity (like email) here and submit') . '<sup>ZAR0133I</sup>'
+					);
+
 		$password     = array('password', t('Choose a password'), ''); 
 		$password2    = array('password2', t('Please re-enter your password'), ''); 
+		
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
-		$name = array('name', t('Your Name'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
-		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
-		$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'), $nickhub));
-		$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel permission role for your usage needs and privacy requirements.') . ' <a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">' . t('Read more about channel permission roles') . '</a>',$perm_roles);
-		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
 
+		//
+		$name = array('name', t('Your Name'),
+			((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
+		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
+		$nickname = array('nickname', t('Choose a short nickname'), 
+			((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), 
+			sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'),
+			$nickhub));
+		$role = array('permissions_role' , t('Channel role and privacy'), 
+			($privacy_role) ? $privacy_role : 'social', 
+			t('Select a channel permission role for your usage needs and privacy requirements.') 
+			. ' <a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">' 
+			. t('Read more about channel permission roles') 
+			. '</a>',$perm_roles);
+		//
+
+		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
 
 		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 		$default_role = get_config('system','default_permissions_role');
@@ -280,6 +496,9 @@ class Register extends Controller {
 			'$other_sites'  => $other_sites,
 			'$invitations'  => $invitations,
 			'$invite_code'  => $invite_code,
+			'$haveivc'		=> t('I have an invite code') . '.<sup>ZAR0134I</sup>',
+			'$now'			=> $duty['nowfmt'],
+			'$atform'		=> $duty['atform'],
 			'$auto_create'  => $auto_create,
 			'$name'         => $name,
 			'$role'         => $role,
@@ -288,15 +507,40 @@ class Register extends Controller {
 			'$enable_tos'	=> $enable_tos,
 			'$tos'          => $tos,
 			'$email'        => $email,
+			'$validate'		=> $validate,
+			'$validate_link'=> $validate_link,
+			'$validate_here'=> $validate_here,
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
-			'$verify_note'  => (($email_verify) ? t('This site requires email verification. After completing this form, please check your email for further instructions.') : ''),
+			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') . '<sup>ZAR0135I</sup>' : ''),
 		));
 	
 		return $o;
-	
 	}
-	
-	
+
+	function check_max_daily_exceeded() {
+		// check against register, account
+		$max_dailies = intval(get_config('system','max_daily_registrations'));
+		if ( $max_dailies ) {
+			$r = q("SELECT COUNT(reg_id) AS nr FROM register WHERE reg_vital = 1 AND reg_created > %s - INTERVAL %s",
+				db_utcnow(), db_quoteinterval('1 day')
+			);
+			$re = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
+			if ( !$re ) {
+				$r = q("SELECT COUNT(account_id) AS nr FROM account WHERE account_created > %s - INTERVAL %s",
+					db_utcnow(), db_quoteinterval('1 day')
+				);
+				$re = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
+			}
+			if ( $re ) {
+				zar_log('ZAR0333W max daily registrations exceeded.');
+				notice( 'ZAR0333W ' 
+				. t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.')
+				. EOL);
+				return true;
+			}
+		}
+		return false;
+	}
 }

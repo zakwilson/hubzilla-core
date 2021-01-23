@@ -1092,17 +1092,37 @@ create index "pc_sec" on profile_check ("sec");
 create index "pc_expire" on profile_check ("expire");
 
 CREATE TABLE "register" (
-  "id" serial  NOT NULL,
-  "hash" text NOT NULL,
-  "created" timestamp NOT NULL,
-  "uid" bigint  NOT NULL,
-  "password" text NOT NULL,
-  "lang" varchar(16) NOT NULL,
-  PRIMARY KEY ("id")
+  "reg_id"     serial  NOT NULL,
+  "reg_vital"  int     DEFAULT 1 NOT NULL,
+  "reg_flags_" bigint  DEFAULT 0 NOT NULL,
+  "reg_didx"   char(1) DEFAULT '' NOT NULL,
+  "reg_did2"   text    DEFAULT '' NOT NULL,
+  "reg_hash"   text    DEFAULT '' NOT NULL,
+  "reg_email"  text    DEFAULT '' NOT NULL,
+  "reg_created" timestamp  NOT NULL,
+  "reg_startup" timestamp  NOT NULL,
+  "reg_expires" timestamp  NOT NULL,
+  "reg_byc"    bigint  DEFAULT 0 NOT NULL,
+  "reg_uid"    bigint  DEFAULT 0 NOT NULL,
+  "reg_atip"   text    DEFAULT '' NOT NULL,
+  "reg_pass"   text    DEFAULT '' NOT NULL,
+  "reg_lang"   varchar(16) DEFAULT '' NOT NULL,
+  "reg_stuff"  text    NOT NULL,
+  PRIMARY KEY ("reg_id")
 );
-create index "reg_hash" on register ("hash");
-create index "reg_created" on register ("created");
-create index "reg_uid" on register ("uid");
+create index "ix_reg_vital" on register ("reg_vital");
+create index "ix_reg_flags" on register ("reg_flags");
+create index "ix_reg_didx" on register ("reg_didx");
+create index "ix_reg_did2" on register ("reg_did2");
+create index "ix_reg_hash" on register ("reg_hash");
+create index "ix_reg_email" on register ("reg_email");
+create index "ix_reg_created" on register ("reg_created");
+create index "ix_reg_startup" on register ("reg_startup");
+create index "ix_reg_expires" on register ("reg_expires");
+create index "ix_reg_byc" on register ("reg_byc");
+create index "ix_reg_uid" on register ("reg_uid");
+create index "ix_reg_atip" on register ("reg_atip");
+
 CREATE TABLE "session" (
   "id" serial,
   "sid" text NOT NULL,

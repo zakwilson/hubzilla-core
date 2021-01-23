@@ -1,15 +1,3 @@
-<script>
-	function confirm_delete(uname){
-		return confirm( "{{$confirm_delete}}".format(uname));
-	}
-	function confirm_delete_multi(){
-		return confirm("{{$confirm_delete_multi}}");
-	}
-	function toggle_selectall(cls){
-		$("."+cls).prop("checked", !$("."+cls).prop("checked"));
-		return false;
-	}
-</script>
 <div class="generic-content-wrapper-styled" id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
@@ -17,6 +5,7 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_pending}}</h3>
+		{{if $debug}}<div>{{$debug}}</div>{{/if}}
 		{{if $pending}}
 			<table id="pending">
 				<thead>
@@ -27,20 +16,34 @@
 				</tr>
 				</thead>
 				<tbody>
-			{{foreach $pending as $u}}
-				<tr>
-					<td class="created">{{$u.account_created}}</td>
-					<td class="email">{{$u.account_email}}</td>
-					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$u.hash}}" name="pending[]" value="{{$u.hash}}"></td>
+			{{foreach $pending as $n => $u}}
+				<tr class="zebra zebra{{$u.reg_z}}">
+					<td class="created">{{$u.reg_created}}<br>{{$u.reg_n}}
+						{{if $u.reg_expires < $now}} ★EXPIRED★{{/if}}</td>
+					<td class="created">{{$u.reg_startup}}<br>{{$u.reg_expires}}</td>
+					<td class="email">{{$u.reg_did2}}<br>{{$u.reg_vfd}}</td>
+					<td class="email">{{$u.reg_email}}<br>{{$u.reg_atip}}</td>
+					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 					<td class="tools">
-						<a href="{{$baseurl}}/regmod/allow/{{$u.hash}}" class="btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
-						<a href="{{$baseurl}}/regmod/deny/{{$u.hash}}" class="btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
+						<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
+						<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
+						<span id="zarreax_{{$n}}" class="zarreax"></span>
 					</td>
 				</tr>
 			{{/foreach}}
 				</tbody>
 			</table>
-			<div class="selectall"><a href="#" onclick="return toggle_selectall('pending_ckbx');">{{$select_all}}</a></div>
+			{{* before, alternate:
+				*
+				<a href="#" onclick="return toggle_selectall('pending_ckbx');">{{$select_all}}</a>
+				*
+			*}}
+			<div class="selectall">
+				<a id="zar2aas" class="zar2xas btn btn-primary" href="javascript:;">{{$sel_aprv}}</a> ◄► 
+				<a id="zar2das" class="zar2xas btn btn-primary" href="javascript:;">{{$sel_deny}}</a> ◄► 
+				<a id="zar2sat" class="btn btn-primary" href="javascript:;">{{$sel_tall}}</a>
+				<br><br>
+			</div>
 			<div class="submit">
                 <input type="submit" name="page_accounts_deny" class="btn btn-primary" value="{{$deny}}" /> 
                 <input type="submit" name="page_accounts_approve" class="btn btn-primary" value="{{$approve}}" />
@@ -83,7 +86,11 @@
 				{{/foreach}}
 				</tbody>
 			</table>
+		
+			<div class="selectall"><a id="zarckbxtoggle" href="javascript:;">{{$select_all}}</a></div>
+		{{* 
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('users_ckbx');">{{$select_all}}</a></div>
+		*}}
 			<div class="submit">
                 <input type="submit" name="page_accounts_block" class="btn btn-primary" value="{{$block}}/{{$unblock}}" /> 
                 <input type="submit" name="page_accounts_delete" class="btn btn-primary" onclick="return confirm_delete_multi()" value="{{$delete}}" />
@@ -93,3 +100,63 @@
 		{{/if}}
 	</form>
 </div>
+{{* 
+	COMMENTS for this template:
+	hilmar, 2020.01
+	script placed at the end
+*}}
+<script>
+  	function confirm_delete(uname){
+		return confirm( "{{$confirm_delete}}".format(uname));
+	}
+	function confirm_delete_multi(){
+		return confirm("{{$confirm_delete_multi}}");
+	}
+	function toggle_selectall(cls){
+		$("."+cls).prop("checked", !$("."+cls).prop("checked"));
+		return false;
+	}
+  	// @hilmar |->
+  	typeof(window.tao) == 'undefined' ? window.tao = {} : '';
+  	tao.zar = { vsn: '2.0.0', c2s: {}, t: {} };
+  	{{$tao}}
+  	$('#adminpage').on( 'click', '#zar2sat', function() {
+		$('input.pending_ckbx:checkbox').each( function() { this.checked = ! this.checked; });		
+  	});
+  	$('#adminpage').on( 'click', '.zar2xas', function() {
+  	 	tao.zar.c2s.x = $(this).attr('id').substr(4,1);
+		$('input.pending_ckbx:checkbox:checked').each( function() { 
+			//if (this.checked) 
+			// take the underscore with to prevent numeric 0 headdage
+			tao.zar.c2s.n = $(this).attr('id').substr(10);
+    		$('#zarreax'+tao.zar.c2s.n).html(tao.zar.zarax);
+    		zarCSC();
+		});		
+  	});
+  	$('.zar2s').click( function() {
+    	tao.zar.c2s.ix=$(this).attr('id');
+    	if (tao.zar.c2s.ix=='') { return false; };
+    	tao.zar.c2s.n=tao.zar.c2s.ix.substr(4);
+    	tao.zar.c2s.x=tao.zar.c2s.ix.substr(3,1);
+    	$('#zarreax'+tao.zar.c2s.n).html(tao.zar.zarax);
+    	zarCSC();
+  	});
+
+  	function zarCSC() {
+  		$.ajax({
+      		type: 'POST', url: 'admin/accounts', 
+      		data: {
+        		zarat: tao.zar.c2s.n,
+        		zardo: tao.zar.c2s.x,
+        		zarse: tao.zar.zarar[(tao.zar.c2s.n).substr(1)],
+        		form_security_token: $("input[name='form_security_token']").val() 
+      		}
+    	}).done( function(r) {
+      		tao.zar.r = JSON.parse(r);
+      		$('#zarreax'+tao.zar.r.at).html(tao.zar.r.re + ',' + tao.zar.r.rc);
+      		$('#zara'+tao.zar.r.at+',#zard'+tao.zar.r.at+',#id_pending'+tao.zar.r.at).remove();
+      		//$('#zar-remsg').text(tao.zar.r.feedbk);
+    	})
+  	}
+
+</script>

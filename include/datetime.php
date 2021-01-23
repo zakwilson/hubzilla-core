@@ -534,3 +534,35 @@ function update_birthdays() {
 		}
 	}
 }
+
+/**
+ *
+ * Calculate a due by interval
+ * based on the current datetime the interval is added/subtracted
+ * @author Hilmar Runge
+ * @since  2020-02-20
+ * @param  $duri the interval in the format n[n]i
+ *		   where n is a 1-2 digit numeric amount and i is a unit
+ *         example $duri='1w' represents one week
+ *         unit may be one of i(minutes), h(hours), d(days), w(weeks), m(months, y(years))
+ * @return array['due']  computed datetime in format 'Y-m-d H:i:s'
+ * 				['durn'] the amount
+ *				['duru'] the unit
+ *		   or false
+ */
+	function calculate_adue($duri=false, $sign='+') {
+		if ( preg_match( '/^[0-9]{1,2}[ihdwmy]{1}$/', $duri ) && ($sign == '+' || $sign == '-')  ) {
+			$duru = substr( $duri, -1);
+			$durn = substr( $duri, 0, -1);
+			$due  = date( 'Y-m-d H:i:s', strtotime(
+					'+' . $durn . ' ' 
+				  . str_replace( array(':i',':h',':d',':w',':m',':y'), 
+			 				 	 array('minutes', 'hours', 'days', 'weeks', 'months', 'years'),
+			 					 ( ':'. $duru ) 
+			 					) 
+					)
+			);
+			return array( 'durn' => $durn, 'duru' => $duru, 'due' => $due);
+		}
+		return false;
+	}

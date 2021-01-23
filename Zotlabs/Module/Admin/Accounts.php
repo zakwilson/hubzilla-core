@@ -15,6 +15,9 @@ class Accounts {
 	 *
 	 */
 
+	const MYP = 	'ZAR';			// ZAR2x
+	const VERSION =	'2.0.0';
+
 	function post() {
 
 		$pending = ( x($_POST, 'pending') ? $_POST['pending'] : array() );
@@ -23,6 +26,68 @@ class Accounts {
 	
 		check_form_security_token_redirectOnErr('/admin/accounts', 'admin_accounts');
 	
+		$isajax = is_ajax();
+		$rc = 0;
+
+		If (!is_site_admin()) {
+			if ($isajax) {
+				killme();
+				exit;
+			}
+			goaway(z_root() . '/');
+		}
+
+		if ($isajax) {
+			//$debug = print_r($_SESSION[self::MYP],true);
+			$zarop = (x($_POST['zardo']) && preg_match('/^[ad]{1,1}$/', $_POST['zardo']) )
+					 ? $_POST['zardo'] : '';			
+			// zarat arrives with leading underscore _n
+			$zarat = (x($_POST['zarat']) && preg_match('/^_{1,1}[0-9]{1,6}$/', $_POST['zarat']) )
+					 ? substr($_POST['zarat'],1) : '';
+			$zarse = (x($_POST['zarse']) && preg_match('/^[0-9a-f]{8,8}$/', $_POST['zarse']) )
+					 ? hex2bin($_POST['zarse']) : '';
+
+			if ($zarop && $zarat >= 0 && $zarse && $zarse == $_SESSION[self::MYP]['h'][$zarat]) {
+
+				//
+				if ($zarop == 'd') {
+					$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
+						intval($_SESSION[self::MYP]['i'][$zarat]),
+						dbesc($_SESSION[self::MYP]['h'][$zarat])
+					);
+					$rc = '× ' . count($rd);
+				}
+				elseif ($zarop == 'a') {
+					// approval, REGISTER_DENIED by user 0x0040, REGISTER_AGREED by user 0x0020 @Regate
+					$rd = q("UPDATE register SET reg_flags = (reg_flags & ~ 16), "
+						.	" reg_vital = (CASE (reg_flags & ~ 48) WHEN 0 THEN 0 ELSE 1 END) "
+						.	" WHERE reg_vital = 1 AND reg_id = %d AND SUBSTR(reg_hash,1,4) = '%s' ",
+						intval($_SESSION[self::MYP]['i'][$zarat]),
+						dbesc($_SESSION[self::MYP]['h'][$zarat])
+					);
+					$rc = 0;	
+					$rs = q("SELECT * from register WHERE reg_id = %d ",
+							intval($_SESSION[self::MYP]['i'][$zarat])
+					);
+					if ($rs && ($rs[0]['reg_flags'] & ~ 48) == 0) {
+
+						// create account
+						$rc='ok'.$rs[0]['reg_id'];
+						$ac = create_account_from_register($rs[0]);
+						if ( $ac['success'] ) $rc .= '✔';
+
+					} else {
+						$rc='oh×';
+					}
+				}
+
+				//
+				echo json_encode(array('re' => $zarop, 'at' => '_' . $zarat, 'rc' => $rc));
+			}
+			killme();
+			exit;
+		}
+
 		// change to switch structure?
 		// account block/unblock button was submitted
 		if (x($_POST, 'page_accounts_block')) {
@@ -82,6 +147,8 @@ class Accounts {
 			}
 	
 			check_form_security_token_redirectOnErr('/admin/accounts', 'admin_accounts', 't');
+
+			$debug = '';
 	
 			switch (argv(2)){
 				case 'delete':
@@ -112,9 +179,44 @@ class Accounts {
 		}
 	
 		/* get pending */
-		$pending = q("SELECT account.*, register.hash from account left join register on account_id = register.uid where (account_flags & %d )>0 ",
+		// [hilmar ->
+		/*
+		$pending = q("SELECT account.*, reg_hash FROM account LEFT JOIN register ON account_id = reg_uid WHERE reg_vital = 1 AND (account_flags & %d) > 0",
 			intval(ACCOUNT_PENDING)
 		);
+		*/
+		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
+
+		$pending = q("SELECT @i:=@i+1 AS reg_n, @i MOD 2 AS reg_z, "
+					." reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, "
+					." CASE (reg_flags & %d) WHEN 0 THEN '✔ verified' WHEN 1 THEN '× not yet' END AS reg_vfd "
+					." FROM register, (SELECT @i:=0) AS i  "
+					." WHERE reg_vital = 1 AND (reg_flags & %d) > 0 ",
+			intval(ACCOUNT_UNVERIFIED),
+			intval(ACCOUNT_PENDING)
+		);
+
+		unset($_SESSION[self::MYP]);
+		if ($pending) {
+			// collect and group all ip
+			$atips = q("SELECT reg_atip AS atip, COUNT(reg_atip) AS atips FROM register "
+					." WHERE reg_vital = 1 GROUP BY reg_atip ");
+			$atips ? $atipn = array_column($atips, 'atips', 'atip') : $atipn = array('' => 0);
+
+			$tao .= 'tao.zar.zarar = {';
+			foreach ($pending as $n => $v) {
+				if (array_key_exists($v['reg_atip'], $atipn)) {
+
+					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
+				}
+				// better secure
+				$tao .= $n . ": '" . substr(bin2hex($v['reg_hash']),0,8) . "',";
+				$_SESSION[self::MYP]['h'][] = substr($v['reg_hash'],0,4);
+				$_SESSION[self::MYP]['i'][] = $v['reg_id'];
+			}
+			$tao = rtrim($tao,',') . '};' . "\n";
+		}
+		// <- hilmar]
 	
 		/* get accounts */
 	
@@ -143,7 +245,7 @@ class Accounts {
 			intval(\App::$pager['itemspage']),
 			intval(\App::$pager['start'])
 		);
-	
+
 	//	function _setup_users($e){
 	//		$accounts = Array(
 	//			t('Normal Account'), 
@@ -163,12 +265,16 @@ class Accounts {
 		$t = get_markup_template('admin_accounts.tpl');
 		$o = replace_macros($t, array(
 			// strings //
+			'$debug' => $debug,
 			'$title' => t('Administration'),
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
 			'$select_all' => t('select all'),
+			'$sel_tall' => t('SelectToggle'),
+			'$sel_deny' => t('× DenySelected'),
+			'$sel_aprv' => t('✔ ApproveSelected'),
 			'$h_pending' => t('Registrations waiting for confirm'),
-			'$th_pending' => array( t('Request date'), t('Email') ),
+			'$th_pending' => array( t('Request date'), t('Startup,Expires'), 'dId2', t('specified,atip') ),
 			'$no_pending' =>  t('No registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
@@ -187,21 +293,22 @@ class Accounts {
 				[ t('Expires'), 'account_expires' ],
 				[ t('Service Class'), 'account_service_class'] ),
 	
-			'$confirm_delete_multi' => t('Selected accounts will be deleted!\n\nEverything these accounts had posted on this site will be permanently deleted!\n\nAre you sure?'),
-			'$confirm_delete' => t('The account {0} will be deleted!\n\nEverything this account has posted on this site will be permanently deleted!\n\nAre you sure?'),
+			'$confirm_delete_multi' => p2j(t('Selected accounts will be deleted!\n\nEverything these accounts had posted on this site will be permanently deleted!\n\nAre you sure?')),
+			'$confirm_delete' => p2j(t('The account {0} will be deleted!\n\nEverything this account has posted on this site will be permanently deleted!\n\nAre you sure?')),
 	
 			'$form_security_token' => get_form_security_token("admin_accounts"),
 	
 			// values //
-			'$baseurl' => z_root(),
-	
-			'$pending' => $pending,
-			'$users' => $users,
+			'$now'		=> date('Y-m-d H:i:s'),
+			'$baseurl' 	=> z_root(),
+			'$tao'		=> $tao,
+			'$pending' 	=> $pending,
+			'$users' 	=> $users,
 		));
 		$o .= paginate($a);
 	
 		return $o;
 	}
 	
-
 }
+

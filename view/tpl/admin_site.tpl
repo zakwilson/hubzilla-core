@@ -1,39 +1,3 @@
-<script>
-	$(function(){
-		
-		$("#cnftheme").colorbox({
-			width: 800,
-			onLoad: function(){
-				var theme = $("#id_theme :selected").val();
-				$("#cnftheme").attr('href',"{{$baseurl}}/admin/themes/"+theme);
-			}, 
-			onComplete: function(){
-				$(this).colorbox.resize(); 
-				$("#colorbox form").submit(function(e){
-					var url = $(this).attr('action');
-					// can't get .serialize() to work...
-					var data={};
-					$(this).find("input").each(function(){
-						data[$(this).attr('name')] = $(this).val();
-					});
-					$(this).find("select").each(function(){
-						data[$(this).attr('name')] = $(this).children(":selected").val();
-					});
-					console.log(":)", url, data);
-					
-					$.post(url, data, function(data) {
-						if(timer) clearTimeout(timer);
-						updateInit();
-						$.colorbox.close();
-					})
-					
-					return false;
-				});
-				
-			}
-		});
-	});
-</script>
 <div id="adminpage" class="generic-content-wrapper-styled">
 	<h1>{{$title}} - {{$page}}</h1>
 	
@@ -69,10 +33,19 @@
 	{{include file="field_input.tpl" field=$register_text}}
 	{{include file="field_select_grouped.tpl" field=$role}}
 	{{include file="field_select.tpl" field=$register_policy}}
+	{{include file="register_duty.tpl" field=$register_duty}}
+	{{include file="field_input.tpl" field=$register_perday}}
+	{{include file="field_input.tpl" field=$register_sameip}}
+	{{$reg_delay}}
+	{{$reg_expire}}
+	{{include file="field_checkbox.tpl" field=$reg_autochannel}}
 	{{include file="field_checkbox.tpl" field=$invite_only}}
+	{{include file="field_checkbox.tpl" field=$invite_also}}
 	{{include file="field_input.tpl" field=$minimum_age}}
 	{{include file="field_select.tpl" field=$access_policy}}
 	{{include file="field_input.tpl" field=$location}}
+	{{include file="field_select.tpl" field=$access_policy}}
+	{{include file="field_input.tpl" field=$minimum_age}}
 	{{include file="field_input.tpl" field=$sellpage}}
 	{{include file="field_input.tpl" field=$first_page}}
 
@@ -115,3 +88,51 @@
 	
 	</form>
 </div>
+{{* 
+	COMMENTS for this template:
+	hilmar, 2020.01
+	script placed at the end
+*}}
+<script>
+	$(function(){
+		
+		$("#cnftheme").colorbox({
+			width: 800,
+			onLoad: function(){
+				var theme = $("#id_theme :selected").val();
+				$("#cnftheme").attr('href',"{{$baseurl}}/admin/themes/"+theme);
+			}, 
+			onComplete: function(){
+				$(this).colorbox.resize(); 
+				$("#colorbox form").submit(function(e){
+					var url = $(this).attr('action');
+					// can't get .serialize() to work...
+					var data={};
+					$(this).find("input").each(function(){
+						data[$(this).attr('name')] = $(this).val();
+					});
+					$(this).find("select").each(function(){
+						data[$(this).attr('name')] = $(this).children(":selected").val();
+					});
+					console.log(":)", url, data);
+					
+					$.post(url, data, function(data) {
+						if(timer) clearTimeout(timer);
+						updateInit();
+						$.colorbox.close();
+					})
+					
+					return false;
+				});
+				
+			}
+		});
+	});
+	// [hilmar->
+	$('head').append(
+	  '<style> '+
+ 		'  .zuiqmid { font-weight: normal; font-family: monospace; }'+
+  		'  .zui_n  	{ width: 5em; text-align: center; }'+
+	  '</style>');
+	// <-hilmar]
+</script>

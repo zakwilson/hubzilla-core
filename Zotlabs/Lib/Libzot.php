@@ -667,9 +667,8 @@ class Libzot {
 			$arr['connect_url'] = '';
 
 		if ($r) {
-			if ($arr['photo'] && array_key_exists('updated', $arr['photo']) && $r[0]['xchan_photo_date'] != $arr['photo']['updated']) {
+			if ($arr['photo'] && array_key_exists('updated', $arr['photo']) && $arr['photo']['updated'] > $r[0]['xchan_photo_date'])
 				$import_photos = true;
-			}
 
 			// if we import an entry from a site that's not ours and either or both of us is off the grid - hide the entry.
 			/** @TODO: check if we're the same directory realm, which would mean we are allowed to see it */

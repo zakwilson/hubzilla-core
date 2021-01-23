@@ -795,7 +795,10 @@ class Libzot {
 				dbesc($xchan_hash)
 			);
 			if ($local) {
-				$ph = z_fetch_url($arr['photo']['url'], true);
+
+				$ph = false;
+				if (strpos($arr['photo']['url'], z_root()) === false)
+					$ph = z_fetch_url($arr['photo']['url'], true);
 				if ($ph['success']) {
 
 					$hash = import_channel_photo($ph['body'], $arr['photo']['type'], $local[0]['channel_account_id'], $local[0]['channel_id']);

@@ -407,7 +407,7 @@ function import_channel_photo($photo, $type, $aid, $uid) {
 		intval(PHOTO_RES_PROFILE_300)
 	);
 	if ($r)
-		hash = $r[0]['resource_id'];
+		$hash = $r[0]['resource_id'];
 	else
 		$hash = photo_new_resource();
 

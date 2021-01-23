@@ -4318,54 +4318,54 @@ function fetch_post_tags($items, $link = false) {
  */
 function zot_feed($uid, $observer_hash, $arr) {
 
-	$result = array();
-	$mindate = null;
+	$result     = [];
+	$mindate    = null;
 	$message_id = null;
-	$wall = true;
+	$wall       = true;
 
 	require_once('include/security.php');
 
-	if(array_key_exists('mindate',$arr)) {
-		$mindate = datetime_convert('UTC','UTC',$arr['mindate']);
+	if (array_key_exists('mindate', $arr)) {
+		$mindate = datetime_convert('UTC', 'UTC', $arr['mindate']);
 	}
 
-	if(array_key_exists('message_id',$arr)) {
+	if (array_key_exists('message_id', $arr)) {
 		$message_id = $arr['message_id'];
 	}
 
-	if(array_key_exists('wall',$arr)) {
+	if (array_key_exists('wall', $arr)) {
 		$wall = intval($arr['wall']);
 	}
 
-	if(! $mindate)
+	if (!$mindate)
 		$mindate = NULL_DATE;
 
 	$mindate = dbesc($mindate);
 
 	logger('zot_feed: requested for uid ' . $uid . ' from observer ' . $observer_hash, LOGGER_DEBUG);
-	if($message_id)
-		logger('message_id: ' . $message_id,LOGGER_DEBUG);
+	if ($message_id)
+		logger('message_id: ' . $message_id, LOGGER_DEBUG);
 
-	if(! perm_is_allowed($uid,$observer_hash,'view_stream')) {
+	if (!perm_is_allowed($uid, $observer_hash, 'view_stream')) {
 		logger('zot_feed: permission denied.');
 		return $result;
 	}
 
-	if(! is_sys_channel($uid))
-		$sql_extra = item_permissions_sql($uid,$observer_hash);
+	if (!is_sys_channel($uid))
+		$sql_extra = item_permissions_sql($uid, $observer_hash);
 
 	$limit = " LIMIT 5000 ";
 
-	if($mindate > NULL_DATE) {
+	if ($mindate > NULL_DATE) {
 		$sql_extra .= " and ( created > '$mindate' or changed > '$mindate' ) ";
 	}
 
-	if($message_id) {
+	if ($message_id) {
 		$sql_extra .= " and mid = '" . dbesc($message_id) . "' ";
-		$limit = '';
+		$limit     = '';
 	}
 
-	if($wall) {
+	if ($wall) {
 		$sql_extra .= " and item_wall = 1 ";
 	}
 
@@ -4374,18 +4374,39 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	$item_normal = item_normal();
 
-	if(is_sys_channel($uid)) {
+	if (is_sys_channel($uid)) {
+		$nonsys_uids     = q("SELECT channel_id FROM channel WHERE channel_system = 0");
+		$nonsys_uids_str = ids_to_querystr($nonsys_uids, 'channel_id');
 
-		$nonsys_uids = q("SELECT channel_id FROM channel WHERE channel_system = 0");
-		$nonsys_uids_str = ids_to_querystr($nonsys_uids,'channel_id');
+		if ($arr['total']) {
+			$items = q("SELECT count(created) AS total FROM item
+				WHERE uid IN ( %s )
+				AND item_private = 0
+				$sql_extra $item_normal",
+				dbesc($nonsys_uids_str)
+			);
+			if ($items) {
+				return intval($items[0]['total']);
+			}
+			return 0;
+		}
 
-		$r = q("SELECT parent, postopts FROM item
+		$itemspage = (($uid) ? get_pconfig($uid, 'system', 'itemspage') : 30);
+		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 30));
+		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+
+		$items = q("SELECT item.*, item.id AS item_id FROM item
 			WHERE uid IN ( %s )
 			AND item_private = 0
-			$item_normal
-			$sql_extra ORDER BY created ASC $limit",
-			intval($nonsys_uids_str)
+			$item_normal $sql_extra
+			ORDER BY item.created DESC $pager_sql",
+			dbesc($nonsys_uids_str)
 		);
+
+		xchan_query($items);
+		$items = fetch_post_tags($items, true);
+
+		return $items;
 	}
 	else {
 		$r = q("SELECT parent, postopts FROM item
@@ -4398,20 +4419,19 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	$parents = [];
 
-	if($r) {
-		foreach($r as $rv) {
-			if(array_key_exists($rv['parent'],$parents))
+	if ($r) {
+		foreach ($r as $rv) {
+			if (array_key_exists($rv['parent'], $parents))
 				continue;
-			if(strpos($rv['postopts'],'nodeliver') !== false)
+			if (strpos($rv['postopts'], 'nodeliver') !== false)
 				continue;
 			$parents[$rv['parent']] = $rv;
-			if(count($parents) > 200)
+			if (count($parents) > 200)
 				break;
 		}
 
-		$parents_str = ids_to_querystr($parents,'parent');
-		$sys_query = ((is_sys_channel($uid)) ? $sql_extra : '');
-		$item_normal = item_normal();
+		$parents_str = ids_to_querystr($parents, 'parent');
+		$sys_query   = ((is_sys_channel($uid)) ? $sql_extra : '');
 
 		$items = q("SELECT item.*, item.id AS item_id FROM item
 			WHERE item.parent IN ( %s ) $item_normal $sys_query ",
@@ -4419,23 +4439,22 @@ function zot_feed($uid, $observer_hash, $arr) {
 		);
 	}
 
-	if($items) {
+	if ($items) {
 		xchan_query($items);
 		$items = fetch_post_tags($items);
 		require_once('include/conversation.php');
-		$items = conv_sort($items,'ascending');
+		$items = conv_sort($items, 'ascending');
 	}
 	else
-		$items = array();
+		$items = [];
 
-	logger('zot_feed: number items: ' . count($items),LOGGER_DEBUG);
+	logger('zot_feed: number items: ' . count($items), LOGGER_DEBUG);
 
-	foreach($items as $item)
+	foreach ($items as $item)
 		$result[] = encode_item($item);
 
 	return $result;
 }
-
 
 
 function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = CLIENT_MODE_NORMAL,$module = 'network') {
@@ -4563,8 +4582,8 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$pager_sql = '';
 	} else {
 		if(! $arr['total']) {
-			$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 20);
-			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 20));
+			$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
+			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 		}
 	}
@@ -4602,7 +4621,6 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	require_once('include/security.php');
 	$sql_extra .= item_permissions_sql($channel['channel_id'],$observer_hash);
 
-
 	if($arr['pages'])
 		$item_restrict = " AND item_type = " . ITEM_TYPE_WEBPAGE . " ";
 	else
@@ -4616,7 +4634,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		// "New Item View" - show all items unthreaded in reverse created date order
 
 		if ($arr['total']) {
-			$items = q("SELECT count(item.id) AS total FROM item
+			$items = dbq("SELECT count(item.id) AS total FROM item
 				WHERE $item_uids $item_restrict
 				$simple_update
 				$sql_extra $sql_nets $sql_extra3"
@@ -4627,11 +4645,11 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			return 0;
 		}
 
-		$items = q("SELECT item.*, item.id AS item_id FROM item
-				WHERE $item_uids $item_restrict
-				$simple_update
-				$sql_extra $sql_nets $sql_extra3
-				ORDER BY item.received DESC $pager_sql"
+		$items = dbq("SELECT item.*, item.id AS item_id FROM item
+			WHERE $item_uids $item_restrict
+			$simple_update
+			$sql_extra $sql_nets $sql_extra3
+			ORDER BY item.received DESC $pager_sql"
 		);
 
 		require_once('include/items.php');
@@ -4652,7 +4670,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 			// Fetch a page full of parent items for this page
 
-			$r = q("SELECT distinct item.id AS item_id, item.$ordering FROM item
+			$r = dbq("SELECT distinct item.id AS item_id, item.$ordering FROM item
 				left join abook on item.author_xchan = abook.abook_xchan
 				WHERE $item_uids $item_restrict
 				AND item.parent = item.id
@@ -4663,7 +4681,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		}
 		else {
 			// update
-			$r = q("SELECT item.parent AS item_id FROM item
+			$r = dbq("SELECT item.parent AS item_id FROM item
 				left join abook on item.author_xchan = abook.abook_xchan
 				WHERE $item_uids $item_restrict $simple_update
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)

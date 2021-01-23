@@ -24,8 +24,10 @@ class Cache_query {
 
 		array_shift($argv);
 		array_shift($argv);
+		
+		$arr = json_decode(base64_decode($argv[0]), true);
 
-		$r = call_user_func_array('q', $argv);
+		$r = call_user_func_array('q', $arr);
 		if($r)
 			Cache::set($key, serialize($r));
 

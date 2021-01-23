@@ -138,7 +138,6 @@ class Onepoll {
 					logger('fetching outbox');
 					$obj      = new ASCollection($url, $importer, 0, $max);
 					$messages = $obj->get();
-					hz_syslog(print_r($messages,true));
 					if ($messages) {
 						foreach ($messages as $message) {
 							if (is_string($message)) {

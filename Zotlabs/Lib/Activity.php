@@ -267,7 +267,7 @@ class Activity {
 
 	static function encode_item_collection($items, $id, $type, $total = 0) {
 
-		if ($total > 100) {
+		if ($total > 30) {
 			$ret = [
 				'id'   => z_root() . '/' . $id,
 				'type' => $type . 'Page',
@@ -300,11 +300,17 @@ class Activity {
 			$x = [];
 			foreach ($items as $i) {
 				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
-				if (is_string($m)) {
-					$t = json_decode($m, true);
+				if ($m) {
+					if (is_string($m))
+						$t = json_decode($m,true);
+					else
+						$t = $m;
 				}
 				else {
-					$t = $m;
+					$t = self::encode_activity($i);
+				}
+				if ($t) {
+					$x[] = $t;
 				}
 				if ($t) {
 					$x[] = $t;
@@ -2481,34 +2487,168 @@ class Activity {
 
 	}
 
-	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true) {
+	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false) {
 
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
+		$is_child_node  = false;
+
+		// TODO: not implemented
+		// Pleroma scrobbles can be really noisy and contain lots of duplicate activities. Disable them by default.
+		/*if (($act->type === 'Listen') && ($is_sys_channel || get_pconfig($channel['channel_id'], 'system', 'allow_scrobbles', false))) {
+			return;
+		}*/
 
 		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
 		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
 		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
 
 		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
-		$is_parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
 
-		if ($is_parent && (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream))) {
+		// TODO: this his handled in pubcrawl atm.
+		// very unpleasant and imperfect way of determining a Mastodon DM
+		/*if ($act->raw_recips && array_key_exists('to',$act->raw_recips) && is_array($act->raw_recips['to']) && count($act->raw_recips['to']) === 1 && $act->raw_recips['to'][0] === channel_url($channel) && ! $act->raw_recips['cc']) {
+			$item['item_private'] = 2;
+		}*/
+
+		// TODO: remove
+		// $is_parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
+
+		if ($item['parent_mid'] && $item['parent_mid'] !== $item['mid']) {
+			$is_child_node = true;
+		}
+
+		$allowed = false;
+
+		// TODO: not implemented
+		// $permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system','permit_all_mentions') && i_am_mentioned($channel,$item));
+
+		if ($is_child_node) {
+			$p = q("select * from item where mid = '%s' and uid = %d and item_wall = 1",
+				dbesc($item['parent_mid']),
+				intval($channel['channel_id'])
+			);
+			if ($p) {
+				// check permissions against the author, not the sender
+				$allowed = perm_is_allowed($channel['channel_id'], $item['author_xchan'], 'post_comments');
+				if ((!$allowed)/* && $permit_mentions*/) {
+					if ($p[0]['owner_xchan'] === $channel['channel_hash']) {
+						$allowed = false;
+					}
+					else {
+						$allowed = true;
+					}
+				}
+
+				// TODO: not implemented
+				/*if (absolutely_no_comments($p[0])) {
+					$allowed = false;
+				}*/
+
+				if (!$allowed) {
+					logger('rejected comment from ' . $item['author_xchan'] . ' for ' . $channel['channel_address']);
+					logger('rejected: ' . print_r($item, true), LOGGER_DATA);
+
+					// TODO: not implemented
+					// let the sender know we received their comment but we don't permit spam here.
+					// self::send_rejection_activity($channel,$item['author_xchan'],$item);
+					return;
+				}
+
+				// TODO: not implemented
+				/*if (perm_is_allowed($channel['channel_id'],$item['author_xchan'],'moderated')) {
+					$item['item_blocked'] = ITEM_MODERATED;
+				}*/
+			}
+			else {
+				$allowed = true;
+				// reject public stream comments that weren't sent by the conversation owner
+				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash) {
+					// TODO: check why? This would make it impossible to fetch externals via zotfeed where $observer_hash = sys channel
+					// $allowed = false;
+				}
+			}
+
+			if ($p && $p[0]['obj_type'] === 'Question') {
+				if ($item['obj_type'] === 'Note' && $item['title'] && (!$item['content'])) {
+					$item['obj_type'] = 'Answer';
+				}
+			}
+		}
+		else {
+			// The $item['item_fetched'] flag is set in fetch_and_store_parents().
+			// In this case we should check against author permissions because sender is not owner.
+			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || ($is_sys_channel && $pubstream)) {
+				$allowed = true;
+			}
+			// TODO: not implemented
+			/*if ($permit_mentions) {
+				$allowed = true;
+			}*/
+		}
+
+		// TODO: remove
+		/*if ($is_parent && (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream))) {
+			logger('no permission');
+			return;
+		}*/
+
+		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
+			// for forum deliveries, make sure we keep a copy of the signed original
+			set_iconfig($item, 'activitypub', 'rawmsg', $act->raw, 1);
+			$allowed = true;
+		}
+
+		// TODO: not implemented
+		/*if (intval($channel['channel_system'])) {
+
+			if (! check_pubstream_channelallowed($observer_hash)) {
+				$allowed = false;
+			}
+
+			// don't allow pubstream posts if the sender even has a clone on a pubstream denied site
+
+			$h = q("select hubloc_url from hubloc where hubloc_hash = '%s'",
+				dbesc($observer_hash)
+			);
+			if ($h) {
+				foreach ($h as $hub) {
+					if (! check_pubstream_siteallowed($hub['hubloc_url'])) {
+						$allowed = false;
+						break;
+					}
+				}
+			}
+		}*/
+
+		// TODO: not implemented
+		/*$blocked = LibBlock::fetch($channel['channel_id'],BLOCKTYPE_SERVER);
+		if ($blocked) {
+			foreach($blocked as $b) {
+				if (strpos($observer_hash,$b['block_entity']) !== false) {
+					$allowed = false;
+				}
+			}
+		}*/
+
+		if (!$allowed && !$force) {
 			logger('no permission');
 			return;
 		}
 
-		if (is_array($act->obj)) {
+		// TODO: remove
+		/*if (is_array($act->obj)) {
 			$content = self::get_content($act->obj);
 		}
 		if (!$content) {
 			logger('no content');
 			return;
-		}
+		}*/
 
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
 
-		// Make sure we use the zot6 identity where applicable
+		// Some authors may be zot6 authors in which case we want to store their nomadic identity
+		// instead of their ActivityPub identity
 
 		$item['author_xchan'] = self::find_best_identity($item['author_xchan']);
 		$item['owner_xchan']  = self::find_best_identity($item['owner_xchan']);
@@ -2543,18 +2683,35 @@ class Activity {
 			}
 		}
 
-
 		if ($act->obj['conversation']) {
 			set_iconfig($item, 'ostatus', 'conversation', $act->obj['conversation'], 1);
 		}
 
 		// This isn't perfect but the best we can do for now.
-
 		$item['comment_policy'] = 'authenticated';
 
 		set_iconfig($item, 'activitypub', 'recips', $act->raw_recips);
 
-		if (!$is_parent) {
+		// TODO: inheritPrivacy should probably be set in encode activity. Zap does not do so yet - check what this is about
+		if (!(isset($act->data['inheritPrivacy']) && $act->data['inheritPrivacy'])) {
+			if ($item['item_private']) {
+				$item['item_restrict'] = $item['item_restrict'] & 1;
+				if ($is_child_node) {
+					$item['allow_cid'] = '<' . $channel['channel_hash'] . '>';
+					$item['allow_gid'] = $item['deny_cid'] = $item['deny_gid'] = '';
+				}
+				logger('restricted');
+			}
+		}
+
+		if (intval($act->sigok)) {
+			$item['item_verified'] = 1;
+		}
+
+		$parent = null;
+
+		// TODO: remove
+		/*if (!$is_parent) {
 			$p = q("select parent_mid, id, obj_type from item where mid = '%s' and uid = %d limit 1",
 				dbesc($item['parent_mid']),
 				intval($item['uid'])
@@ -2586,13 +2743,11 @@ class Activity {
 				}
 			}
 
-
 			if ($p[0]['obj_type'] === 'Question') {
 				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (!$item['content'])) {
 					$item['obj_type'] = 'Answer';
 				}
 			}
-
 
 			if ($p[0]['parent_mid'] !== $item['parent_mid']) {
 				$item['thr_parent'] = $item['parent_mid'];
@@ -2601,7 +2756,49 @@ class Activity {
 				$item['thr_parent'] = $p[0]['parent_mid'];
 			}
 			$item['parent_mid'] = $p[0]['parent_mid'];
+		}*/
+
+		if ($is_child_node) {
+
+			$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
+				dbesc($item['parent_mid']),
+				intval($item['uid'])
+			);
+			if (!$parent) {
+				if (!plugin_is_installed('pubcrawl')) {
+					return;
+				}
+				else {
+					$fetch = false;
+					// TODO: debug
+					// if (perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && (PConfig::Get($channel['channel_id'],'system','hyperdrive',true)*/ || $act->type === 'Announce')) {
+					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || ($is_sys_channel && $pubstream)) {
+						$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item) : false);
+					}
+					if ($fetch) {
+						$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
+							dbesc($item['parent_mid']),
+							intval($item['uid'])
+						);
+					}
+					else {
+						logger('no parent');
+						return;
+					}
+				}
+			}
+
+			if ($parent[0]['parent_mid'] !== $item['parent_mid']) {
+				$item['thr_parent'] = $item['parent_mid'];
+			}
+			else {
+				$item['thr_parent'] = $parent[0]['parent_mid'];
+			}
+			$item['parent_mid'] = $parent[0]['parent_mid'];
 		}
+
+		// TODO: not implemented
+		// self::rewrite_mentions($item);
 
 		$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['mid']),
@@ -2620,8 +2817,51 @@ class Activity {
 			$x = item_store($item);
 		}
 
+		// TODO: remove
+		/*$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
+			dbesc($item['mid']),
+			intval($item['uid'])
+		);
+		if ($r) {
+			if ($item['edited'] > $r[0]['edited']) {
+				$item['id'] = $r[0]['id'];
+				$x          = item_store_update($item);
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			$x = item_store($item);
+		}*/
+
+		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
+			logger('topfetch', LOGGER_DEBUG);
+			// if the thread owner is a connnection, we will already receive any additional comments to their posts
+			// but if they are not we can try to fetch others in the background
+			$x = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
+				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
+				intval($channel['channel_id']),
+				dbesc($parent[0]['owner_xchan'])
+			);
+			if (!$x) {
+				// determine if the top-level post provides a replies collection
+				if ($parent[0]['obj']) {
+					$parent[0]['obj'] = json_decode($parent[0]['obj'], true);
+				}
+				logger('topfetch: ' . print_r($parent[0], true), LOGGER_ALL);
+				$id = ((array_path_exists('obj/replies/id', $parent[0])) ? $parent[0]['obj']['replies']['id'] : false);
+				if (!$id) {
+					$id = ((array_path_exists('obj/replies', $parent[0]) && is_string($parent[0]['obj']['replies'])) ? $parent[0]['obj']['replies'] : false);
+				}
+				if ($id) {
+					Master::Summon(['Convo', $id, $channel['channel_id'], $observer_hash]);
+				}
+			}
+		}
+
 		if (is_array($x) && $x['item_id']) {
-			if ($is_parent) {
+			if ($is_child_node) {
 				if ($item['owner_xchan'] === $channel['channel_hash']) {
 					// We are the owner of this conversation, so send all received comments back downstream
 					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
@@ -2636,10 +2876,26 @@ class Activity {
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
 
+		// TODO: remove
+		/*if (is_array($x) && $x['item_id']) {
+			if ($is_parent) {
+				if ($item['owner_xchan'] === $channel['channel_hash']) {
+					// We are the owner of this conversation, so send all received comments back downstream
+					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
+				}
+				$r = q("select * from item where id = %d limit 1",
+					intval($x['item_id'])
+				);
+				if ($r) {
+					send_status_notifications($x['item_id'], $r[0]);
+				}
+			}
+			sync_an_item($channel['channel_id'], $x['item_id']);
+		}*/
+
 	}
 
-	static public function fetch_and_store_parents($channel, $item) {
-
+	static public function fetch_and_store_parents($channel, $observer_hash, $item) {
 		logger('fetching parents');
 
 		$p = [];
@@ -2647,42 +2903,35 @@ class Activity {
 		$current_item = $item;
 
 		while ($current_item['parent_mid'] !== $current_item['mid']) {
-			$n = self::fetch($current_item['parent_mid'], $channel);
+			$n = self::fetch($current_item['parent_mid']);
 			if (!$n) {
 				break;
 			}
-			$a = new ActivityStreams($n);
+			// set client flag to convert objects to implied activities
+			$a = new ActivityStreams($n, null, true);
+			if ($a->type === 'Announce' && is_array($a->obj)
+				&& array_key_exists('object', $a->obj) && array_key_exists('actor', $a->obj)) {
+				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
+				// Reparse the encapsulated Activity and use that instead
+				logger('relayed activity', LOGGER_DEBUG);
+				$a = new ActivityStreams($a->obj, null, true);
+			}
 
-			//logger($a->debug());
+			logger($a->debug(), LOGGER_DATA);
 
 			if (!$a->is_valid()) {
+				logger('not a valid activity');
 				break;
 			}
-
 			if (is_array($a->actor) && array_key_exists('id', $a->actor)) {
-				self::actor_store($a->actor['id'], $a->actor);
+				Activity::actor_store($a->actor['id'], $a->actor);
 			}
 
-			$replies = null;
-			if (isset($a->obj['replies']['first']['items'])) {
-				$replies = $a->obj['replies']['first']['items'];
-				// we already have this one
-				array_diff($replies, [$current_item['mid']]);
-			}
+			// ActivityPub sourced items are cacheable
+			$item = Activity::decode_note($a);
 
-			$item = null;
-
-			switch ($a->type) {
-				case 'Create':
-				case 'Update':
-					//case 'Like':
-					//case 'Dislike':
-				case 'Announce':
-					$item = self::decode_note($a);
-					break;
-				default:
-					break;
-
+			if (!$item) {
+				break;
 			}
 
 			$hookinfo = [
@@ -2695,22 +2944,22 @@ class Activity {
 			$item = $hookinfo['item'];
 
 			if ($item) {
+				$item['item_fetched'] = 1;
+				array_unshift($p, [$a, $item]);
 
-				array_unshift($p, [$a, $item, $replies]);
-
-				if ($item['parent_mid'] === $item['mid'] || count($p) > 20) {
+				if ($item['parent_mid'] === $item['mid'] || count($p) > 100) {
 					break;
 				}
-
 			}
+
 			$current_item = $item;
 		}
 
 		if ($p) {
 			foreach ($p as $pv) {
-				self::store($channel, $pv[0]->actor['id'], $pv[0], $pv[1], false);
-				if ($pv[2])
-					self::fetch_and_store_replies($channel, $pv[2]);
+				if ($pv[0]->is_valid()) {
+					Activity::store($channel, $observer_hash, $pv[0], $pv[1], false);
+				}
 			}
 			return true;
 		}
@@ -2718,6 +2967,87 @@ class Activity {
 		return false;
 	}
 
+	/*
+		static public function fetch_and_store_parents($channel, $item) {
+
+			logger('fetching parents');
+
+			$p = [];
+
+			$current_item = $item;
+
+			while ($current_item['parent_mid'] !== $current_item['mid']) {
+				$n = self::fetch($current_item['parent_mid'], $channel);
+				if (!$n) {
+					break;
+				}
+				$a = new ActivityStreams($n);
+
+				//logger($a->debug());
+
+				if (!$a->is_valid()) {
+					break;
+				}
+
+				if (is_array($a->actor) && array_key_exists('id', $a->actor)) {
+					self::actor_store($a->actor['id'], $a->actor);
+				}
+
+				$replies = null;
+				if (isset($a->obj['replies']['first']['items'])) {
+					$replies = $a->obj['replies']['first']['items'];
+					// we already have this one
+					array_diff($replies, [$current_item['mid']]);
+				}
+
+				$item = null;
+
+				switch ($a->type) {
+					case 'Create':
+					case 'Update':
+						//case 'Like':
+						//case 'Dislike':
+					case 'Announce':
+						$item = self::decode_note($a);
+						break;
+					default:
+						break;
+
+				}
+
+				$hookinfo = [
+					'a'    => $a,
+					'item' => $item
+				];
+
+				call_hooks('fetch_and_store', $hookinfo);
+
+				$item = $hookinfo['item'];
+
+				if ($item) {
+
+					array_unshift($p, [$a, $item, $replies]);
+
+					if ($item['parent_mid'] === $item['mid'] || count($p) > 20) {
+						break;
+					}
+
+				}
+				$current_item = $item;
+			}
+
+			if ($p) {
+				foreach ($p as $pv) {
+					self::store($channel, $pv[0]->actor['id'], $pv[0], $pv[1], false);
+					if ($pv[2])
+						self::fetch_and_store_replies($channel, $pv[2]);
+				}
+				return true;
+			}
+
+			return false;
+		}
+	*/
 	static public function fetch_and_store_replies($channel, $arr) {
 
 		logger('fetching replies');

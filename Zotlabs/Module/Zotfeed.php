@@ -19,16 +19,8 @@ class Zotfeed extends Controller {
 				killme();
 			}
 
-			if (argc() < 2) {
-				killme();
-			}
-
-			$channel = channelx_by_nick(argv(1));
+			$channel = ((argv(1)) ? channelx_by_nick(argv(1)) : get_sys_channel());
 			if (!$channel) {
-				killme();
-			}
-
-			if (intval($channel['channel_system'])) {
 				killme();
 			}
 
@@ -60,10 +52,32 @@ class Zotfeed extends Controller {
 			$params['cat']       = ((x($_REQUEST, 'cat')) ? escape_tags($_REQUEST['cat']) : '');
 			$params['compat']    = 1;
 
+			if (intval($channel['channel_system'])) {
+				$total = zot_feed($channel['channel_id'], $observer_hash, ['total' => true]);
+
+				if ($total) {
+					App::set_pager_total($total);
+					App::set_pager_itemspage(30);
+				}
+
+				if (App::$pager['unset'] && $total > 30) {
+					$ret = Activity::paged_collection_init($total, App::$query_string);
+
+				}
+				else {
+					$items = zot_feed($channel['channel_id'], $observer_hash, []);
+					$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+				}
+
+				as_return_and_die($ret, $channel);
+
+				return;
+			}
+
 			$total = items_fetch(
 				[
 					'total'      => true,
-					'wall'       => '1',
+					'wall'       => 1,
 					'datequery'  => $params['end'],
 					'datequery2' => $params['begin'],
 					'direction'  => dbesc($params['direction']),
@@ -77,16 +91,17 @@ class Zotfeed extends Controller {
 
 			if ($total) {
 				App::set_pager_total($total);
-				App::set_pager_itemspage(100);
+				App::set_pager_itemspage(30);
 			}
 
-			if (App::$pager['unset'] && $total > 100) {
+			if (App::$pager['unset'] && $total > 30) {
 				$ret = Activity::paged_collection_init($total, App::$query_string);
 			}
 			else {
+
 				$items = items_fetch(
 					[
-						'wall'       => '1',
+						'wall'       => 1,
 						'datequery'  => $params['end'],
 						'datequery2' => $params['begin'],
 						'records'    => intval(App::$pager['itemspage']),
@@ -99,8 +114,7 @@ class Zotfeed extends Controller {
 						'compat'     => $params['compat']
 					], $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module
 				);
-
-				$ret = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+				$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
 			}
 
 			as_return_and_die($ret, $channel);

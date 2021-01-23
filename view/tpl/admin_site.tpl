@@ -41,8 +41,8 @@
 	{{include file="field_checkbox.tpl" field=$reg_autochannel}}
 	{{include file="field_checkbox.tpl" field=$invite_only}}
 	{{include file="field_checkbox.tpl" field=$invite_also}}
-	{{include file="field_input.tpl" field=$minimum_age}}
-	{{include file="field_select.tpl" field=$access_policy}}
+	{{include file="field_checkbox.tpl" field=$verify_email}}
+	{{include file="field_input.tpl" field=$abandon_days}}
 	{{include file="field_input.tpl" field=$location}}
 	{{include file="field_select.tpl" field=$access_policy}}
 	{{include file="field_input.tpl" field=$minimum_age}}
@@ -54,7 +54,6 @@
     </div>
 
 	<h3>{{$corporate}}</h3>
-	{{include file="field_checkbox.tpl" field=$verify_email}}
 	{{include file="field_checkbox.tpl" field=$feed_contacts}}
 	{{include file="field_checkbox.tpl" field=$force_publish}}
 	{{include file="field_checkbox.tpl" field=$disable_discover_tab}}
@@ -78,7 +77,6 @@
 	{{include file="field_input.tpl" field=$force_queue}}
 	{{include file="field_input.tpl" field=$poll_interval}}
 	{{include file="field_input.tpl" field=$maxloadavg}}
-	{{include file="field_input.tpl" field=$abandon_days}}
 	{{include file="field_input.tpl" field=$default_expire_days}}
 	{{include file="field_input.tpl" field=$active_expire_days}}
 	

@@ -1469,7 +1469,7 @@ function sync_files($channel, $files) {
 						fclose($fp);
 
 						// Override remote hub thumbnails storage settings
-						if(! boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
+						if(! boolval(get_config('system','photo_storage_type', 1))) {
 							$p['os_storage'] = 0;
 							$p['content'] = file_get_contents($stored_image);
 							@unlink($stored_image);

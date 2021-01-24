@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Photo;
 
+use Zotlabs\Lib\Hashpath; 
+
 /**
  * @brief Abstract photo driver class.
  *
@@ -505,18 +507,25 @@ abstract class PhotoDriver {
 	 * @return boolean
 	 */
 	public function storeThumbnail($arr, $scale = 0) {
-	    
-	    // We only process thumbnails here
-	    if($scale == 0)
-	        return false;
-	    
-	    $arr['imgscale'] = $scale;
 
-		if(boolval(get_config('system','filesystem_storage_thumbnails', 0))) {
-			$channel = channelx_by_n($arr['uid']);
+		// We only process thumbnails here
+		if($scale == 0)
+			return false;
+
+		$arr['imgscale'] = $scale;
+
+		if(boolval(get_config('system','photo_storage_type', 1))) {
+
 			$arr['os_storage'] = 1;
-			$arr['os_syspath'] = 'store/' . $channel['channel_address'] . '/' . $arr['os_path'] . '-' . $scale;
-			if(! $this->saveImage($arr['os_syspath']))
+
+			if (array_key_exists('uid', $arr) && ! in_array($scale, [ PHOTO_RES_PROFILE_300, PHOTO_RES_PROFILE_80, PHOTO_RES_PROFILE_48 ])) {
+				$channel = channelx_by_n($arr['uid']);
+				$arr['os_syspath'] = 'store/' . $channel['channel_address'] . '/' . $arr['os_path'] . '-' . $scale;
+			}
+			else
+				$arr['os_syspath'] = Hashpath::path($arr['resource_id'], 'store/[data]/[xchan]', 2, 1) . '-' . $scale;
+
+			if (! $this->saveImage($arr['os_syspath']))
 				return false;
 		}
 		else

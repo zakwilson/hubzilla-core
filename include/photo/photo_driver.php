@@ -205,7 +205,11 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 	if($thing)
 		$hash = photo_new_resource();
 	else {
-		$r = q("SELECT resource_id, edited, mimetype, expires, description FROM photo WHERE xchan = '%s' AND photo_usage = %d AND imgscale = 4 LIMIT 1", dbesc($xchan), intval(PHOTO_XCHAN));
+		$r = q("SELECT resource_id, edited, mimetype, expires, description FROM photo WHERE xchan = '%s' AND photo_usage = %d AND imgscale = %d LIMIT 1",
+			dbesc($xchan),
+			intval(PHOTO_XCHAN),
+			intval(PHOTO_RES_PROFILE_300)
+		);
 		if($r) {
 			$hash = $r[0]['resource_id'];
 			$modified = $r[0]['edited'];
@@ -316,26 +320,20 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 				'filename' => basename($photo),
 				'album' => $album,
 				'photo_usage' => $flags,
-				'imgscale' => 4,
 				'edited' => $modified,
 				'description' => (array_key_exists('etag', $hdrs) ? $hdrs['etag'] : ''),
 				'expires' => gmdate('Y-m-d H:i:s', (isset($expires) ? $expires : time() + 86400))
 			];
 
-			$r = $img->save($p);
-			if($r === false)
-				$photo_failure = true;
+			$r1 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 
 			$img->scaleImage(80);
-			$p['imgscale'] = 5;
-			$r = $img->save($p);
-			if($r === false)
-				$photo_failure = true;
+			$r2 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 
 			$img->scaleImage(48);
-			$p['imgscale'] = 6;
-			$r = $img->save($p);
-			if($r === false)
+			$r3 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_48);
+
+			if($r1 === false || $r2 === false || $r3 === false)
 				$photo_failure = true;
 
 			$photo = z_root() . '/photo/' . $hash . '-4';
@@ -424,31 +422,26 @@ function import_channel_photo($photo, $type, $aid, $uid) {
 				'resource_id' => $hash,
 				'filename' => $filename,
 				'album' => t('Profile Photos'),
-				'photo_usage' => PHOTO_PROFILE,
-				'imgscale' => 4,
+				'photo_usage' => PHOTO_PROFILE
 		];
 
 		// photo size
 		$img->scaleImageSquare(300);
-		$r = $img->save($p);
-		if($r === false)
-			$photo_failure = true;
+		$r1 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 
 		// thumb size
 		$img->scaleImage(80);
-		$p['imgscale'] = 5;
-		$r = $img->save($p);
-		if($r === false)
-			$photo_failure = true;
+		$r2 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 
 		// micro size
 		$img->scaleImage(48);
-		$p['imgscale'] = 6;
-		$r = $img->save($p);
-		if($r === false)
+		$r3 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_48);
+
+		if($r1 === false || $r2 === false || $r3 === false)
 			$photo_failure = true;
 
-	} else {
+	}
+	else {
 		logger('Invalid image.');
 		$photo_failure = true;
 	}

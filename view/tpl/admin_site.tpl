@@ -43,9 +43,9 @@
 	{{include file="field_checkbox.tpl" field=$invite_also}}
 	{{include file="field_checkbox.tpl" field=$verify_email}}
 	{{include file="field_input.tpl" field=$abandon_days}}
-	{{include file="field_input.tpl" field=$location}}
-	{{include file="field_select.tpl" field=$access_policy}}
 	{{include file="field_input.tpl" field=$minimum_age}}
+	{{include file="field_select.tpl" field=$access_policy}}
+	{{include file="field_input.tpl" field=$location}}
 	{{include file="field_input.tpl" field=$sellpage}}
 	{{include file="field_input.tpl" field=$first_page}}
 

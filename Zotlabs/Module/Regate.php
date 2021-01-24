@@ -137,10 +137,10 @@ class Regate extends \Zotlabs\Web\Controller {
 													 . ' ' . $cra['account']['account_language']);
 										$nextpage = 'new_channel';
 
-										/* oops, ffu perhaps
 										$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 
 										if($auto_create) {
+											// prepare channel creation
 											if($reonar['chan.name'])
 												set_aconfig($cra['account']['account_id'],
 													'register','channel_name',$reonar['chan.name']);
@@ -148,30 +148,29 @@ class Regate extends \Zotlabs\Web\Controller {
 												set_aconfig($cra['account']['account_id'],
 													'register','channel_address',$reonar['chan.did1']);
 										}
-										*/
+										
 										authenticate_success($cra['account'],null,true,false,true);
 
-										/* oops, ffu perhaps
 										if($auto_create) {
+											// create channel
 											$new_channel = auto_channel_create($cra['account']['account_id']);
+
 											if($new_channel['success']) {
 												$channel_id = $new_channel['channel']['channel_id'];
 												change_channel($channel_id);
 												$nextpage = 'profiles/' . $channel_id;
+												$msg = 'ZAR1239I ' . t('Channel successfull created') . ' ' . $did2;
 											} 
 											else {
-												zar_log($new_channel['message'] 
-													. ', ' . $reonar['chan.did1'] 
-													. ', ' . $reonar['chan.name']
-												);
+												$msg = 'ZAR1239E ' . $new_channel['message'] . ' ' . $did2;
 											}
+											zar_log($msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
 										}
-										*/
 										unset($_SESSION['login_return_url']);
 									} 
 									else {
 										q("ROLLBACK");
-										$msg = 'ZAR1239E ' . t('Account creation error');
+										$msg = 'ZAR1238E ' . t('Account creation error');
 										zar_log($msg . ':' . print_r($cra, true));
 									}
 								} 

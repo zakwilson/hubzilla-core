@@ -2598,9 +2598,10 @@ class Activity {
 			$allowed = true;
 		}
 
-		// TODO: not implemented
-		/*if (intval($channel['channel_system'])) {
 
+		if ($is_sys_channel) {
+
+			/* TODO: not implemented
 			if (! check_pubstream_channelallowed($observer_hash)) {
 				$allowed = false;
 			}
@@ -2618,7 +2619,12 @@ class Activity {
 					}
 				}
 			}
-		}*/
+			*/
+
+			if (intval($item['item_private'])) {
+				$allowed = false;
+			}
+		}
 
 		// TODO: not implemented
 		/*$blocked = LibBlock::fetch($channel['channel_id'],BLOCKTYPE_SERVER);
@@ -2945,9 +2951,20 @@ class Activity {
 
 			if ($item) {
 				$item['item_fetched'] = 1;
-				array_unshift($p, [$a, $item]);
 
-				if ($item['parent_mid'] === $item['mid'] || count($p) > 100) {
+				if (intval($channel['channel_system']) && intval($item['item_private'])) {
+					$p = [];
+					break;
+				}
+
+				if (count($p) > 100) {
+					$p = [];
+					break;
+				}
+
+				array_unshift($p,[ $a, $item ]);
+
+				if ($item['parent_mid'] === $item['mid']) {
 					break;
 				}
 			}

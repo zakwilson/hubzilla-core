@@ -4375,38 +4375,17 @@ function zot_feed($uid, $observer_hash, $arr) {
 	$item_normal = item_normal();
 
 	if (is_sys_channel($uid)) {
+
 		$nonsys_uids     = q("SELECT channel_id FROM channel WHERE channel_system = 0");
 		$nonsys_uids_str = ids_to_querystr($nonsys_uids, 'channel_id');
 
-		if ($arr['total']) {
-			$items = q("SELECT count(created) AS total FROM item
-				WHERE uid IN ( %s )
-				AND item_private = 0
-				$sql_extra $item_normal",
-				dbesc($nonsys_uids_str)
-			);
-			if ($items) {
-				return intval($items[0]['total']);
-			}
-			return 0;
-		}
-
-		$itemspage = (($uid) ? get_pconfig($uid, 'system', 'itemspage') : 30);
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 30));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
-
-		$items = q("SELECT item.*, item.id AS item_id FROM item
+		$r = q("SELECT parent, postopts FROM item
 			WHERE uid IN ( %s )
 			AND item_private = 0
-			$item_normal $sql_extra
-			ORDER BY item.created DESC $pager_sql",
+			$item_normal
+			$sql_extra ORDER BY created ASC $limit",
 			dbesc($nonsys_uids_str)
 		);
-
-		xchan_query($items);
-		$items = fetch_post_tags($items, true);
-
-		return $items;
 	}
 	else {
 		$r = q("SELECT parent, postopts FROM item
@@ -4432,6 +4411,7 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 		$parents_str = ids_to_querystr($parents, 'parent');
 		$sys_query   = ((is_sys_channel($uid)) ? $sql_extra : '');
+		$item_normal = item_normal();
 
 		$items = q("SELECT item.*, item.id AS item_id FROM item
 			WHERE item.parent IN ( %s ) $item_normal $sys_query ",
@@ -4455,7 +4435,6 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	return $result;
 }
-
 
 function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = CLIENT_MODE_NORMAL,$module = 'network') {
 

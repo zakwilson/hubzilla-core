@@ -6,13 +6,13 @@ use App;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
 
 class Zotfeed extends Controller {
 
 	function init() {
-
 		if (ActivityStreams::is_as_request()) {
 
 			if (observer_prohibited(true)) {
@@ -21,6 +21,10 @@ class Zotfeed extends Controller {
 
 			$channel = ((argv(1)) ? channelx_by_nick(argv(1)) : get_sys_channel());
 			if (!$channel) {
+				killme();
+			}
+
+			if (intval($channel['channel_system'])) {
 				killme();
 			}
 
@@ -51,28 +55,6 @@ class Zotfeed extends Controller {
 			$params['direction'] = ((x($_REQUEST, 'direction')) ? dbesc($_REQUEST['direction']) : 'desc'); // unimplemented
 			$params['cat']       = ((x($_REQUEST, 'cat')) ? escape_tags($_REQUEST['cat']) : '');
 			$params['compat']    = 1;
-
-			if (intval($channel['channel_system'])) {
-				$total = zot_feed($channel['channel_id'], $observer_hash, ['total' => true]);
-
-				if ($total) {
-					App::set_pager_total($total);
-					App::set_pager_itemspage(30);
-				}
-
-				if (App::$pager['unset'] && $total > 30) {
-					$ret = Activity::paged_collection_init($total, App::$query_string);
-
-				}
-				else {
-					$items = zot_feed($channel['channel_id'], $observer_hash, []);
-					$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
-				}
-
-				as_return_and_die($ret, $channel);
-
-				return;
-			}
 
 			$total = items_fetch(
 				[
@@ -114,7 +96,26 @@ class Zotfeed extends Controller {
 						'compat'     => $params['compat']
 					], $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module
 				);
-				$ret   = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+
+				if ($items && $observer_hash) {
+
+					// check to see if this observer is a connection. If not, register any items
+					// belonging to this channel for notification of deletion/expiration
+
+					$x = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+						intval($channel['channel_id']),
+						dbesc($observer_hash)
+					);
+					if (!$x) {
+						foreach ($items as $item) {
+							if (strpos($item['mid'], z_root()) === 0) {
+								ThreadListener::store($item['mid'], $observer_hash);
+							}
+						}
+					}
+				}
+
+				$ret = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
 			}
 
 			as_return_and_die($ret, $channel);

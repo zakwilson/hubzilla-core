@@ -131,9 +131,13 @@ class Regate extends \Zotlabs\Web\Controller {
 									if ($cra['success']) {
 
 										q("COMMIT");
-										$msg = 'ZAR1238I' . t('Account successfull created');
-										zar_log($msg . ':' . print_r($cra, true));
-										$nextpage = '~';
+										$msg = 'ZAR1238I ' . t('Account successfull created');
+										// zar_log($msg . ':' . print_r($cra, true));
+										zar_log($msg . ' ' . $cra['account']['account_email']
+													 . ' ' . $cra['account']['account_language']);
+										$nextpage = 'new_channel';
+
+										/* oops, ffu perhaps
 										$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 
 										if($auto_create) {
@@ -144,9 +148,10 @@ class Regate extends \Zotlabs\Web\Controller {
 												set_aconfig($cra['account']['account_id'],
 													'register','channel_address',$reonar['chan.did1']);
 										}
-
+										*/
 										authenticate_success($cra['account'],null,true,false,true);
 
+										/* oops, ffu perhaps
 										if($auto_create) {
 											$new_channel = auto_channel_create($cra['account']['account_id']);
 											if($new_channel['success']) {
@@ -161,6 +166,7 @@ class Regate extends \Zotlabs\Web\Controller {
 												);
 											}
 										}
+										*/
 										unset($_SESSION['login_return_url']);
 									} 
 									else {

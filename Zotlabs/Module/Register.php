@@ -363,6 +363,8 @@ class Register extends Controller {
 							dbesc($didnew), intval($lid[0]['reg_id'])
 						);
 
+						zar_log( 'ZAR0239A ' . t('New register request') . ' d' . $didnew . ', ' 
+							.  $regdelay . ' - ' . $regexpire);
 						// notice( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
 						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
 						. t('and your pin for is') . ' ' . $pass2 . EOL

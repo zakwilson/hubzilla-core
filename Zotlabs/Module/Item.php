@@ -132,12 +132,13 @@ class Item extends Controller {
 
 
 			$i = Activity::encode_item_collection($items, 'conversation/' . $item_id, 'OrderedCollection');
-			if($portable_id) {
-				ThreadListener::store(z_root() . '/item/' . $item_id,$portable_id);
-			}
 
 			if(! $i)
 				http_status_exit(404, 'Not found');
+
+			if($portable_id) {
+				ThreadListener::store(z_root() . '/item/' . $item_id,$portable_id);
+			}
 
 			$x = array_merge(['@context' => [
 				ACTIVITYSTREAMS_JSONLD_REV,
@@ -236,6 +237,10 @@ class Item extends Controller {
 
 			if(! $i)
 				http_status_exit(404, 'Not found');
+
+			if($portable_id) {
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
+			}
 
 			$x = array_merge(['@context' => [
 				ACTIVITYSTREAMS_JSONLD_REV,

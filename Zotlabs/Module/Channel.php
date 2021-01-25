@@ -73,7 +73,7 @@ class Channel extends Controller {
 				}
 			}
 			else {
-				$data = json_encode(Libzot::zotinfo([ 'address' => $channel['channel_address'] ]));
+				$data = json_encode(Libzot::zotinfo([ 'guid_hash' => $channel['channel_hash'] ]));
 			}
 
 			$headers = [
@@ -86,7 +86,6 @@ class Channel extends Controller {
 			echo $data;
 			killme();
 		}
-
 
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 			$which = $channel['channel_address'];

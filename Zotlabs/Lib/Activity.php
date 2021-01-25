@@ -2488,7 +2488,6 @@ class Activity {
 	}
 
 	static function store($channel, $observer_hash, $act, $item, $fetch_parents = true, $force = false) {
-
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 		$is_child_node  = false;
 
@@ -2523,6 +2522,7 @@ class Activity {
 		// $permit_mentions = intval(PConfig::Get($channel['channel_id'], 'system','permit_all_mentions') && i_am_mentioned($channel,$item));
 
 		if ($is_child_node) {
+
 			$p = q("select * from item where mid = '%s' and uid = %d and item_wall = 1",
 				dbesc($item['parent_mid']),
 				intval($channel['channel_id'])
@@ -2560,6 +2560,7 @@ class Activity {
 				}*/
 			}
 			else {
+
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
 				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash) {
@@ -2575,6 +2576,7 @@ class Activity {
 			}
 		}
 		else {
+
 			// The $item['item_fetched'] flag is set in fetch_and_store_parents().
 			// In this case we should check against author permissions because sender is not owner.
 			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || ($is_sys_channel && $pubstream)) {
@@ -2694,7 +2696,7 @@ class Activity {
 		}
 
 		// This isn't perfect but the best we can do for now.
-		$item['comment_policy'] = 'authenticated';
+		$item['comment_policy'] = ((isset($act->data['commentPolicy'])) ? $act->data['commentPolicy'] : 'authenticated');
 
 		set_iconfig($item, 'activitypub', 'recips', $act->raw_recips);
 
@@ -2777,9 +2779,9 @@ class Activity {
 				else {
 					$fetch = false;
 					// TODO: debug
-					// if (perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && (PConfig::Get($channel['channel_id'],'system','hyperdrive',true)*/ || $act->type === 'Announce')) {
+					// if (perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && (PConfig::Get($channel['channel_id'],'system','hyperdrive',true) || $act->type === 'Announce')) {
 					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || ($is_sys_channel && $pubstream)) {
-						$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item) : false);
+						$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item, $force) : false);
 					}
 					if ($fetch) {
 						$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
@@ -2901,7 +2903,7 @@ class Activity {
 
 	}
 
-	static public function fetch_and_store_parents($channel, $observer_hash, $item) {
+	static public function fetch_and_store_parents($channel, $observer_hash, $item, $force = false) {
 		logger('fetching parents');
 
 		$p = [];
@@ -2909,18 +2911,19 @@ class Activity {
 		$current_item = $item;
 
 		while ($current_item['parent_mid'] !== $current_item['mid']) {
-			$n = self::fetch($current_item['parent_mid']);
+			$n = self::fetch($current_item['parent_mid'], $channel);
+
 			if (!$n) {
 				break;
 			}
-			// set client flag to convert objects to implied activities
-			$a = new ActivityStreams($n, null, true);
+
+			$a = new ActivityStreams($n);
 			if ($a->type === 'Announce' && is_array($a->obj)
 				&& array_key_exists('object', $a->obj) && array_key_exists('actor', $a->obj)) {
 				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
 				// Reparse the encapsulated Activity and use that instead
 				logger('relayed activity', LOGGER_DEBUG);
-				$a = new ActivityStreams($a->obj, null, true);
+				$a = new ActivityStreams($a->obj);
 			}
 
 			logger($a->debug(), LOGGER_DATA);
@@ -2933,7 +2936,6 @@ class Activity {
 				Activity::actor_store($a->actor['id'], $a->actor);
 			}
 
-			// ActivityPub sourced items are cacheable
 			$item = Activity::decode_note($a);
 
 			if (!$item) {
@@ -2975,7 +2977,7 @@ class Activity {
 		if ($p) {
 			foreach ($p as $pv) {
 				if ($pv[0]->is_valid()) {
-					Activity::store($channel, $observer_hash, $pv[0], $pv[1], false);
+					Activity::store($channel, $observer_hash, $pv[0], $pv[1], false, $force);
 				}
 			}
 			return true;

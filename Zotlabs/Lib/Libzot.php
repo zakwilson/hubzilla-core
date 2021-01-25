@@ -1235,8 +1235,14 @@ class Libzot {
 					if (is_array($AS->obj) && array_key_exists('commentPolicy', $AS->obj)) {
 						$p = strstr($AS->obj['commentPolicy'], 'until=');
 						if ($p !== false) {
-							$arr['comments_closed'] = datetime_convert('UTC', 'UTC', substr($p, 6));
-							$arr['comment_policy']  = trim(str_replace($p, '', $AS->obj['commentPolicy']));
+							$comments_closed_at = datetime_convert('UTC', 'UTC', substr($p, 6));
+							if ($comments_closed_at === $arr['created']) {
+								$arr['item_nocomment'] = 1;
+							}
+							else {
+								$arr['comments_closed'] = $comments_closed_at;
+								$arr['comment_policy']  = trim(str_replace($p, '', $AS->obj['commentPolicy']));
+							}
 						}
 						else {
 							$arr['comment_policy'] = $AS->obj['commentPolicy'];
@@ -1545,8 +1551,7 @@ class Libzot {
 			}
 
 			$tag_delivery = tgroup_check($channel['channel_id'], $arr);
-
-			$perm = 'send_stream';
+			$perm         = 'send_stream';
 			if (($arr['mid'] !== $arr['parent_mid']) && ($relay))
 				$perm = 'post_comments';
 
@@ -1563,7 +1568,7 @@ class Libzot {
 
 			if ((!$tag_delivery) && (!$local_public)) {
 				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
-				if ((!$allowed) && $perm === 'post_comments') {
+				if (!$allowed) {
 					$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
 						dbesc($arr['parent_mid']),
 						intval($channel['channel_id'])

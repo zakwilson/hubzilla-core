@@ -136,8 +136,8 @@ class Item extends Controller {
 			if(! $i)
 				http_status_exit(404, 'Not found');
 
-			if($portable_id) {
-				ThreadListener::store(z_root() . '/item/' . $item_id,$portable_id);
+			if($portable_id && (! intval($items[0]['item_private']))) {
+				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
 			}
 
 			$x = array_merge(['@context' => [
@@ -238,8 +238,14 @@ class Item extends Controller {
 			if(! $i)
 				http_status_exit(404, 'Not found');
 
-			if($portable_id) {
-				ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
+			if ($portable_id && (! intval($items[0]['item_private']))) {
+				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+					intval($items[0]['uid']),
+					dbesc($portable_id)
+				);
+				if (! $c) {
+					ThreadListener::store(z_root() . '/item/' . $item_id, $portable_id);
+				}
 			}
 
 			$x = array_merge(['@context' => [

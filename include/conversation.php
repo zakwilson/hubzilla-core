@@ -739,6 +739,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					? t('Private Message')
 					: false
 				);
+				$locktype = $item['item_private'];
+
 
 				$likebuttons = false;
 				$shareable = false;
@@ -783,6 +785,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
+					'locktype' => $locktype,
 					'thumb' => $profile_avatar,
 					'title' => $item['title'],
 					'body' => $body['html'],

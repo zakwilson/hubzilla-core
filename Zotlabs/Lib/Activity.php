@@ -292,7 +292,7 @@ class Activity {
 			$ret = [
 				'id'         => z_root() . '/' . $id,
 				'type'       => $type,
-				'totalItems' => count($items),
+				'totalItems' => $total,
 			];
 		}
 
@@ -2525,6 +2525,9 @@ class Activity {
 				intval($channel['channel_id'])
 			);
 			if ($p) {
+				// set the owner to the owner of the parent
+				$item['owner_xchan'] = $p[0]['owner_xchan'];
+
 				// check permissions against the author, not the sender
 				$allowed = perm_is_allowed($channel['channel_id'], $item['author_xchan'], 'post_comments');
 				if ((!$allowed)/* && $permit_mentions*/) {
@@ -2560,9 +2563,8 @@ class Activity {
 
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
-				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash) {
-					// TODO: check why? This would make it impossible to fetch externals via zotfeed where $observer_hash = sys channel
-					// $allowed = false;
+				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && ! $fetch_parents) {					// TODO: check why? This would make it impossible to fetch externals via zotfeed where $observer_hash = sys channel
+					$allowed = false;
 				}
 			}
 

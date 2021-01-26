@@ -292,7 +292,7 @@ class Activity {
 			$ret = [
 				'id'         => z_root() . '/' . $id,
 				'type'       => $type,
-				'totalItems' => $total,
+				'totalItems' => count($items),
 			];
 		}
 
@@ -308,9 +308,6 @@ class Activity {
 				}
 				else {
 					$t = self::encode_activity($i);
-				}
-				if ($t) {
-					$x[] = $t;
 				}
 				if ($t) {
 					$x[] = $t;

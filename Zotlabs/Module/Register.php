@@ -109,7 +109,7 @@ class Register extends Controller {
 		}
 
 		// s2 max daily 
-		if ( self::check_max_daily_exceeded() ) return;
+		if ( self::check_reg_limits() ) return;
 
 		// accept tos
 		if(! x($_POST,'tos')) {
@@ -423,8 +423,9 @@ class Register extends Controller {
 			$invitations = true;
 		}
 
-		if ( self::check_max_daily_exceeded() ) 
-			$duty['atform'] = 'disabled';
+		$opal = self::check_reg_limits();
+		if ( $opal['is']) 
+			 $duty['atform'] = 'disabled';
 
 		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
 
@@ -496,6 +497,7 @@ class Register extends Controller {
 			'$reg_is'       => $registration_is,
 			'$registertext' => bbcode(get_config('system','register_text')),
 			'$other_sites'  => $other_sites,
+			'$msg'			=> $opal['rn'] . ',' . $opal['an'],
 			'$invitations'  => $invitations,
 			'$invite_code'  => $invite_code,
 			'$haveivc'		=> t('I have an invite code') . '.<sup>ZAR0134I</sup>',
@@ -521,28 +523,36 @@ class Register extends Controller {
 		return $o;
 	}
 
-	function check_max_daily_exceeded() {
+	function check_reg_limits() {
 		// check against register, account
+		$rear = array( 'is' => false, 'rn' => 0, 'an' => 0, 'msg' => '' );
+
 		$max_dailies = intval(get_config('system','max_daily_registrations'));
+
 		if ( $max_dailies ) {
+
 			$r = q("SELECT COUNT(reg_id) AS nr FROM register WHERE reg_vital = 1 AND reg_created > %s - INTERVAL %s",
 				db_utcnow(), db_quoteinterval('1 day')
 			);
-			$re = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
-			if ( !$re ) {
+
+			$rear['is'] = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
+			$rear['rn'] = $r[0]['nr'];
+
+			if ( !$rear['is']) {
 				$r = q("SELECT COUNT(account_id) AS nr FROM account WHERE account_created > %s - INTERVAL %s",
 					db_utcnow(), db_quoteinterval('1 day')
 				);
-				$re = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
+
+				$rear['is'] = ( $r && ($r[0]['nr'] + $rear['rn']) >= $max_dailies ) ? true : false;
+				$rear['ra'] = $r[0]['nr'];
 			}
-			if ( $re ) {
-				zar_log('ZAR0333W max daily registrations exceeded.');
-				notice( 'ZAR0333W ' 
-				. t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.')
-				. EOL);
-				return true;
+
+			if ( $rear['is']) {
+				$rear['msg'] = 'ZAR0333W ' . t('This site has exceeded the number of allowed daily account registrations');
+				zar_log($msg);
+				$rear['is'] = true;
 			}
 		}
-		return false;
+		return $rear;
 	}
 }

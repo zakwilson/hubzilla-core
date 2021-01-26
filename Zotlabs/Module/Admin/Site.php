@@ -5,6 +5,10 @@ namespace Zotlabs\Module\Admin;
 
 class Site {
 
+	// system cfgs
+	const ivo = 'invitation_only';
+	const iva = 'invitation_also';
+
 	/**
 	 * @brief POST handler for Admin Site Page.
 	 *
@@ -42,8 +46,8 @@ class Site {
 		$minimum_age           = ((x($_POST,'minimum_age'))          ? intval(trim($_POST['minimum_age']))    : 13);
 		$access_policy	=	((x($_POST,'access_policy'))	? intval(trim($_POST['access_policy']))	:  0);
 		$reg_autochannel	= ((x($_POST,'auto_channel_create'))		? True	: False);
-		$invite_only	= ((x($_POST,'invite_only'))		? True	: False);
-		$invite_also	= ((x($_POST,'invite_also'))		? True	: False);
+		$invitation_only	= ((x($_POST,'invitation_only'))		? True	: False);
+		$invitation_also	= ((x($_POST,'invitation_also'))		? True	: False);
 		$abandon_days	=	((x($_POST,'abandon_days'))	    ? intval(trim($_POST['abandon_days']))	    :  0);
 
 		$register_text		=	((x($_POST,'register_text'))	? notags(trim($_POST['register_text']))		: '');
@@ -192,8 +196,8 @@ class Site {
 		set_config('system','register_policy', $register_policy);
 		set_config('system','minimum_age', $minimum_age);
 		set_config('system','auto_channel_create', $reg_autochannel);
-		set_config('system','invitation_only', $invite_only);
-		set_config('system','invitation_also', $invite_also);
+		set_config('system',self::ivo, $invitation_only);
+		set_config('system',self::iva, $invitation_also);
 		set_config('system','access_policy', $access_policy);
 		set_config('system','account_abandon_days', $abandon_days);
 		set_config('system','register_text', $register_text);
@@ -399,6 +403,8 @@ class Site {
 			 	'rabot'	=> 	$reg_rabots 
 			 )
 		);
+		$invitation_only = get_config('system',self::ivo);
+		$invitation_also = get_config('system',self::iva);
 
 		$tao = '';
 		$t = get_markup_template("admin_site.tpl");
@@ -478,16 +484,19 @@ class Site {
 				get_config('system','auto_channel_create'), 
 				t("Auto create a channel when register a new account. When On, the register form will show additional fields for the channel-name and the nickname."),
 				"",	"",	'ZAR0870C'),
-			'$invite_only'		=> array('invite_only',
-				t("Invitation only"), 
-				get_config('system','invitation_only'), 
+
+			'$invitation_only'		=> array(self::ivo,
+				($invitation_only === false ? '✗' : '✓') . ' ' . t("Invitation only"), 
+				$invitation_only, 
 				t("Only allow new member registrations with an invitation code. Above register policy must be set to Yes."),
 				"",	"",	'ZAR0880C'),
-			'$invite_also'		=> array('invite_also',
-				t("Invitation also"), 
-				get_config('system','invitation_also'), 
+
+			'$invitation_also'		=> array(self::iva,
+				($invitation_also === false ? '✗' : '✓') . ' ' . t("Invitation also"), 
+				$invitation_also,
 				t("Also allow new member registrations with an invitation code. Above register policy must be set to Yes."),
 				"",	"",	'ZAR0881C'),
+
 			'$verify_email'		=> array('verify_email',
 				t("Verify Email Addresses"), 
 				get_config('system','verify_email'), 

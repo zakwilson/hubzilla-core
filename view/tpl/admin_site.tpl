@@ -39,8 +39,8 @@
 	{{$reg_delay}}
 	{{$reg_expire}}
 	{{include file="field_checkbox.tpl" field=$reg_autochannel}}
-	{{include file="field_checkbox.tpl" field=$invite_only}}
-	{{include file="field_checkbox.tpl" field=$invite_also}}
+	{{include file="field_checkbox.tpl" field=$invitation_only}}
+	{{include file="field_checkbox.tpl" field=$invitation_also}}
 	{{include file="field_checkbox.tpl" field=$verify_email}}
 	{{include file="field_input.tpl" field=$abandon_days}}
 	{{include file="field_input.tpl" field=$minimum_age}}

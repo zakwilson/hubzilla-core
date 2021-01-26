@@ -5,13 +5,13 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-			{{if $reg_is}}
 			<div class="section-content-warning-wrapper">
+				{{if $reg_is}}
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
+				{{/if}}
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
 				<h2>{{$now}}</h2>
 			</div>
-			{{/if}}
 
 			{{if $registertext}}
 			<div class="section-content-info-wrapper">
@@ -19,16 +19,16 @@
 			</div>
 			{{/if}}
 
-			{{if $invitations}}
 			<div style="text-align: center;">
+			{{if $invitations}}
 				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
-			</div>
-			<div id="zar015" style="display: none;">
-			{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","","",$atform]}}
-			</div>
+				<div id="zar015" style="display: none;">
+				{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
+				</div>
 			{{/if}}
 
 			{{include file="field_input.tpl" field=[$email.0,$email.1,"",$email.3,"",""]}}
+			</div>
 
 			{{include file="field_password.tpl" field=[$pass1.0,$pass1.1,"","","",$atform]}}
 
@@ -44,10 +44,10 @@
 				{{include file="field_select_grouped.tpl" field=$role}}
 				{{/if}}
 
-				{{include file="field_input.tpl" field=$name}}
+				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
 				<div id="name-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
 
-				{{include file="field_input.tpl" field=$nickname}}
+				{{include file="field_input.tpl" field=[$nickname.0,$nickname.1,"","","",$atform]}}
 				<div id="nick-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
 			{{/if}}
 
@@ -60,9 +60,8 @@
 			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
-			<br />
-			<div class="descriptive-text">{{$verify_note}}</div>
-
+		<br />
+		<div class="descriptive-text">{{$verify_note}} {{$msg}}</div>
 	</div>
 </div>
 {{* 

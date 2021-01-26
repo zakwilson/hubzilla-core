@@ -1250,8 +1250,6 @@ class Libzot {
 					}
 				}
 
-
-				/// @FIXME - spoofable
 				if ($AS->data['hubloc']) {
 					$arr['item_verified'] = true;
 
@@ -1273,7 +1271,6 @@ class Libzot {
 				if ($AS->data['signed_data']) {
 					IConfig::Set($arr, 'activitystreams', 'signed_data', $AS->data['signed_data'], false);
 				}
-
 
 				logger('Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
 				logger('Activity recipients: ' . print_r($deliveries, true), LOGGER_DATA, LOG_DEBUG);
@@ -1867,43 +1864,61 @@ class Libzot {
 
 		// Use Zotfinger to create a signed request
 
+		logger('fetching conversation: ' . $mid, LOGGER_DEBUG);
+
 		$a = Zotfinger::exec($mid, $channel);
 
 		logger('received conversation: ' . print_r($a, true), LOGGER_DATA);
 
-		if ($a['data']['type'] !== 'OrderedCollection') {
-			return;
+		if (!$a) {
+			return false;
 		}
 
-		if (!intval($a['data']['totalItems'])) {
-			return;
+		if ($a['data']['type'] !== 'OrderedCollection') {
+			return false;
+		}
+
+		$obj   = new ASCollection($a['data'], $channel);
+		$items = $obj->get();
+
+		if (!$items) {
+			return false;
 		}
 
 		$ret = [];
+
 
 		$signer = q("select hubloc_hash, hubloc_url from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 			dbesc($a['signature']['signer'])
 		);
 
-		foreach ($a['data']['orderedItems'] as $activity) {
+		foreach ($items as $activity) {
 
 			$AS = new ActivityStreams($activity);
+			if ($AS->is_valid() && $AS->type === 'Announce' && is_array($AS->obj)
+				&& array_key_exists('object', $AS->obj) && array_key_exists('actor', $AS->obj)) {
+				// This is a relayed/forwarded Activity (as opposed to a shared/boosted object)
+				// Reparse the encapsulated Activity and use that instead
+				logger('relayed activity', LOGGER_DEBUG);
+				$AS = new ActivityStreams($AS->obj);
+			}
+
 			if (!$AS->is_valid()) {
 				logger('FOF Activity rejected: ' . print_r($activity, true));
 				continue;
 			}
 			$arr = Activity::decode_note($AS);
 
-			logger($AS->debug());
+			// logger($AS->debug());
 
-			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
 				dbesc($AS->actor['id'])
 			);
 
 			if (!$r) {
 				$y = import_author_xchan(['url' => $AS->actor['id']]);
 				if ($y) {
-					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
 						dbesc($AS->actor['id'])
 					);
 				}
@@ -1926,38 +1941,16 @@ class Libzot {
 				$arr['author_xchan'] = $r[0]['hubloc_hash'];
 			}
 
-			$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
-				dbesc($a['signature']['signer'])
-			);
-
-			if ($s) {
-				$arr['owner_xchan'] = $s[0]['hubloc_hash'];
+			if ($signer) {
+				$arr['owner_xchan'] = $signer[0]['hubloc_hash'];
 			}
 			else {
 				$arr['owner_xchan'] = $a['signature']['signer'];
 			}
 
-
-			/// @FIXME - spoofable
-			if ($AS->data['hubloc']) {
+			if ($AS->data['hubloc'] || $arr['author_xchan'] === $arr['owner_xchan']) {
 				$arr['item_verified'] = true;
 			}
-
-			// set comment policy depending on source hub. Unknown or osada is ActivityPub.
-			// Anything else we'll say is zot - which could have a range of project names
-
-			if ($signer) {
-				$s = q("select site_project from site where site_url = '%s' limit 1",
-					dbesc($signer[0]['hubloc_url'])
-				);
-				if ((!$s) || (in_array($s[0]['site_project'], ['', 'osada']))) {
-					$arr['comment_policy'] = 'authenticated';
-				}
-				else {
-					$arr['comment_policy'] = 'contacts';
-				}
-			}
-
 
 			if ($AS->data['signed_data']) {
 				IConfig::Set($arr, 'activitystreams', 'signed_data', $AS->data['signed_data'], false);
@@ -1974,7 +1967,6 @@ class Libzot {
 
 		return $ret;
 	}
-
 
 	/**
 	 * @brief Remove community tag.

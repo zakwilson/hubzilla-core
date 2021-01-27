@@ -41,6 +41,11 @@
 			<input class="w-100 border-0" name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" data-role="cat-tagsinput">
 		</div>
 		{{/if}}
+                {{if $customjotheaders}}
+		<div id="jot-customjotheaders-wrap" class="jothidden">
+			{{$customjotheaders}}
+		</div>
+		{{/if}}
 		<div id="jot-text-wrap">
 			<div id="profile-jot-tools" class="btn-group d-none">
 				{{if $is_owner}}

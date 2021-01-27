@@ -41,7 +41,6 @@ Hubzilla 5.2 (2021-01-13)
 	- Fix typo in notifier command
 	- Fix profile title/description allowed more than 191 characters
 
-
 	Addons
 	- Queueworker: cleanup whitespace
 	- Queueworker: add some tweaks to prevent deadlocks for postgresql

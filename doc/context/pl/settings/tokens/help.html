@@ -1,0 +1,43 @@
+<dl class="dl-horizontal">
+    <dt><a href="/help/member/member_guide#Guest_Access_Tokens">Tokeny dostępu gościa</a></dt>
+    <dd>
+        Aby ułatwić udostępnianie prywatnych zasobów osobom niebędącym członkami
+        lub członkami sfederyzowanych węzłów (hubów) i zapewnić zabezpieczone
+        wykrywaniem danych identyfikacyjnych, Hubzilla zawiera mechanizm tworzenia
+        i zarządzania tymczasowymi ("jednorazowymi") loginami, zwanymi "tokenami
+        dostępu Zot”. Tokeny te, będące swojego rodzaju danymi uwierzytelniającymi,
+        mogą być używane do uwierzytelniania w serwisie Hubzilla wyłącznie w celu
+        uzyskania dostępu do uprzywilejowanych lub kontrolowanych zasobów (pliki,
+        zdjęcia, posty, strony internetowe, pokoje rozmów itp.).
+    </dd>
+    <dt>Utworzenie tokenu</dt>
+    <dd>
+    	Formularz do tworzenia i edycji akceptuje trzy parametry: czytelną dla
+    	człowieka nazwę, hasło lub token dostępu oraz opconalną okres ważności.
+    	Po wygaśnięciu token dostępu nie jest już ważny, nie może być już używany
+    	i będzie automatycznie usunięte z listy kont tymczasowych. Pole hasła
+    	w formularzach tworzenia i edycji wyświetla tekst tokenu dostępu, a nie
+    	zasłonięte hasło.
+    </dd>
+    <dt>Udostępnienie tokenu</dt>
+    <dd>
+    	Nie jest narzucony sposób udostępniania tych tokenów innym osobom. Można
+    	użyć dowolnej metody komunikacji. Wszystkie utworzone tokeny są dodawane
+    	do selektora listy kontroli dostępu i mogą być używane wszędzie tam, gdzie
+    	są dostępne listy kontroli dostępu.
+		
+        <b>Przykład</b>: Odwiedzający nawiguje w przeglądarce do Twojąej witryny.
+        Ma podany przez Ciebie token dostępu i próbuje odwiedzić jeden z Twoich
+        albumów ze zdjęciami (który jest ograniczony do przeglądania tylko przez
+        Ciebie i jedną tymczasową tożsamość). Odmowa dostępu.
+
+        Odwiedzający wybiera teraz opcję „Zaloguj się” z paska nawigacji menu.
+        To wyświetli stronę logowania. Wpisuje tam nazwę i hasło, które podałeś
+        i może teraz przeglądać zabezpieczony album ze zdjęciami.
+
+        Alternatywnie możesz udostępnić łącze do chronionego pliku, dodając parametr
+        "&zat=abc123" do adresu URL, gdzie ciąg "abc123" to token dostępu lub
+        hasło do tymczasowego logowania. Nie są wymagane dalsze negocjacje
+        a żądany zasób zostanie wyświetlony.
+    </dd>
+</dl>

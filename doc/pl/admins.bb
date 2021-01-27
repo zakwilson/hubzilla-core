@@ -1,0 +1,15 @@
+[h2]Dokumentacja dla administratorów huba[/h2]
+[h3]Wdrozenie swojego huba[/h3]
+[zrl=[baseurl]/help/install]Instalacja[/zrl]
+[zrl=[baseurl]/help/red2pi]Instalowanie $Projectname na Raspberry Pi[/zrl]
+[zrl=[baseurl]/help/Hubzilla_on_OpenShift]$Projectname na OpenShift[/zrl]
+[h3]Utrzymywanie swojego huba[/h3]
+[zrl=[baseurl]/help/troubleshooting]Wskazówki dotyczące rozwiązywania problemów[/zrl]
+[zrl=[baseurl]/help/theme_management]Zarządzanie motywami[/zrl]
+[zrl=[baseurl]/help/hidden_configs]Poprawianie ukrytych konfiguracji $Projectname[/zrl]
+[zrl=[baseurl]/help/service_classes]Klasy usługi[/zrl]
+[zrl=[baseurl]/help/directories]Praca z katalogami i ich konfigurowanie[/zrl]
+[h3]Najczęściej zadawane pytania[/h3]
+[zrl=[baseurl]/help/faq_admins]FAQ dla administratorów[/zrl]
+
+#include doc/macros/main_footer.bb;

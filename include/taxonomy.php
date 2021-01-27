@@ -357,10 +357,10 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
 		
 		$key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
 		
-		$content = Cache::get($key, '1 MINUTE');
+		$content = Cache::get($key, '5 MINUTE');
 		if(! $content) {
 			
-			$content = Cache::get($key, '1 WEEK');
+			$content = Cache::get($key, '1 MONTH');
 			$arr = [
 				"SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
 				WHERE term.ttype = %d

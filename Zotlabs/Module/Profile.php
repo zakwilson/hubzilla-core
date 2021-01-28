@@ -1,5 +1,12 @@
 <?php
-namespace Zotlabs\Module; /** @file */
+namespace Zotlabs\Module;
+
+use App;
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Web\Controller;
+
+/** @file */
 
 require_once('include/contact_widgets.php');
 require_once('include/items.php');
@@ -10,7 +17,7 @@ require_once('include/acl_selectors.php');
 
 
 
-class Profile extends \Zotlabs\Web\Controller {
+class Profile extends Controller {
 
 	function init() {
 	
@@ -18,15 +25,23 @@ class Profile extends \Zotlabs\Web\Controller {
 			$which = argv(1);
 		else {
 			notice( t('Requested profile is not available.') . EOL );
-			\App::$error = 404;
+			App::$error = 404;
 			return;
 		}
 
-		nav_set_selected('Profile');
-	
 		$profile = '';
-		$channel = \App::get_channel();
-	
+		$channel = App::get_channel();
+
+		if(! $channel)
+			http_status_exit(404, 'Not found');
+
+		if(ActivityStreams::is_as_request()) {
+			$p = Activity::encode_person($channel,true);
+			as_return_and_die([ 'type' => 'Profile', 'describes' => $p ], $channel);
+		}
+
+		nav_set_selected('Profile');
+
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
 			$which = $channel['channel_address'];
 			$profile = argv(1);		
@@ -59,7 +74,7 @@ class Profile extends \Zotlabs\Web\Controller {
 				dbesc(argv(1))
 			);
 			if($x) {
-				\App::$profile = $x[0];
+				App::$profile = $x[0];
 			}
 		}
 	
@@ -81,7 +96,7 @@ class Profile extends \Zotlabs\Web\Controller {
 		$tab = 'profile';
 		$o = '';
 	
-		if(! (perm_is_allowed(\App::$profile['profile_uid'],get_observer_hash(), 'view_profile'))) {
+		if(! (perm_is_allowed(App::$profile['profile_uid'],get_observer_hash(), 'view_profile'))) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
@@ -90,14 +105,14 @@ class Profile extends \Zotlabs\Web\Controller {
 
 		if(argc() > 2 && argv(2) === 'vcard') {
 			header('Content-type: text/vcard');
-			header('content-disposition: attachment; filename="' . t('vcard') . '-' . \App::$profile['channel_address'] . '.vcf"' );
-			echo \App::$profile['profile_vcard'];
+			header('content-disposition: attachment; filename="' . t('vcard') . '-' . App::$profile['channel_address'] . '.vcf"' );
+			echo App::$profile['profile_vcard'];
 			killme();
 		}
 	
-		$is_owner = ((local_channel()) && (local_channel() == \App::$profile['profile_uid']) ? true : false);
+		$is_owner = ((local_channel()) && (local_channel() == App::$profile['profile_uid']) ? true : false);
 	
-		if(\App::$profile['hidewall'] && (! $is_owner) && (! remote_channel())) {
+		if(App::$profile['hidewall'] && (! $is_owner) && (! remote_channel())) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
@@ -105,7 +120,7 @@ class Profile extends \Zotlabs\Web\Controller {
 		head_add_link([ 
 			'rel'   => 'alternate',
 			'type'  => 'application/json+oembed',
-			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string),
+			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . App::$query_string),
 			'title' => 'oembed'
 		]);
 

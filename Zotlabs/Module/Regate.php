@@ -162,7 +162,7 @@ class Regate extends \Zotlabs\Web\Controller {
 												$msg = 'ZAR1239I ' . t('Channel successfull created') . ' ' . $did2;
 											} 
 											else {
-												$msg = 'ZAR1239E ' . $new_channel['message'] . ' ' . $did2;
+												$msg = 'ZAR1239E ' . t('Channel still not created') . ' ' . $did2;
 											}
 											zar_log($msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
 										}

@@ -14,7 +14,7 @@ class Register extends Controller {
 	function init() {
 
 		// ZAR0
-	
+		
 		$result = null;
 		$cmd = ((argc() > 1) ? argv(1) : '');
 	
@@ -53,9 +53,10 @@ class Register extends Controller {
 		 * [hilmar:]
 		 * It may happen, the posted form arrives in a strange fashion. With the control of the duty hours
 		 * for registration, the input form was disabled at html. While receiving posted data, checks are
-		 * required if all is on the right road (no posts accepted during off duty).
+		 * required if all is on the right road (most posts are not accepted during off duty).
 		 *
 		 */
+		
 
         $act        = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
 		$duty 		= zar_register_dutystate();
@@ -82,7 +83,7 @@ class Register extends Controller {
 				goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
 			}
 
-			if ( preg_match('/^d{1,1}[0-9]{1,10}$/', $email ) ) {
+			if ( preg_match('/^d{1,1}[0-9]{6,10}$/', $email ) ) {
 				// dId2 A artifical & anonymous
 				goaway(z_root() . '/regate/' . bin2hex($email) . 'a' );
 			}
@@ -109,7 +110,7 @@ class Register extends Controller {
 		}
 
 		// s2 max daily 
-		if ( self::check_reg_limits() ) return;
+		if ( self::check_reg_limits()['is'] ) return;
 
 		// accept tos
 		if(! x($_POST,'tos')) {
@@ -209,7 +210,7 @@ class Register extends Controller {
 
 						} else {
 							notice('ZAR0236E ' . t('Invitation not in time or too late') . EOL);
-							goaway(z_root()); 
+							goaway(z_root() . '/~'); 
 						}
 
 					} else {
@@ -217,7 +218,7 @@ class Register extends Controller {
 						$msg = 'ZAR0235S ' . t('Invitation email failed');
 						zar_log($msg);
 						notice($msg . EOL);
-						goaway(z_root()); 
+						goaway(z_root() . '/~'); 
 					}
 
 				} else {
@@ -225,12 +226,12 @@ class Register extends Controller {
 					$msg = 'ZAR0234S ' . t('Invitation code failed') ;
 					zar_log($msg);
 					notice( $msg . EOL);
-					goaway(z_root()); 
+					goaway(z_root() . '/~'); 
 				}
 
 			} else {
 				notice('ZAR0232E ' . t('Invitations are not available') . EOL);
-				goaway(z_root()); 
+				goaway(z_root() . '/~'); 
 			}
 
 
@@ -388,7 +389,7 @@ class Register extends Controller {
 	
 	
 	function get() {
-	
+		
 		$registration_is = '';
 		$other_sites = '';
 	
@@ -491,6 +492,12 @@ class Register extends Controller {
 		require_once('include/bbcode.php');
 	
 		$o = replace_macros(get_markup_template('register.tpl'), array(
+
+			'$tao'			=> 	"typeof(window.tao) == 'undefined' ? window.tao = {} : '';\n"
+							.	"tao.zar = { vsn: '2.0.0', form: {}, msg: {} };\n"
+							.	"tao.zar.patano = /^d[0-9]{6}$/;\n"
+							.	"tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;\n"
+							.	"tao.zar.msg.ZAR0239E = '" . t('email mistake') . "';\n",
 
 			'$form_security_token' => get_form_security_token("register"),
 			'$title'        => t('Registration'),

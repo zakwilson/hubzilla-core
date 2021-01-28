@@ -72,12 +72,7 @@
 	$('head').append(
 	  '<style> '+
  	 '  .zuiqmid  { font-weight: normal; font-family: monospace; }'+
+ 	 '  .zuirise  { font-weight: bold; font-size: 100%; color: red; }'+
 	  '</style>');
-	// does not work $('#id_email').off('blur');
-	$('#id_email').change( function() {
-		if ($('#id_email').val().length > 0) {
-			$('#newchannel-submit-button').removeAttr('disabled');
-		}
-	});
-	$('#zar014').click( function () { $('#zar015').toggle(); });
+	{{$tao}}
 </script>

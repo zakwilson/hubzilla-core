@@ -4,10 +4,12 @@ namespace Zotlabs\Module;
 
 
 use App;
-use Zotlabs\Web\Controller;
-use Zotlabs\Lib\PermissionDescription;
-use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\PermissionDescription;
+use Zotlabs\Web\Controller;
+use Zotlabs\Web\HTTPSig;
 
 require_once('include/items.php');
 require_once('include/security.php');
@@ -25,7 +27,7 @@ class Channel extends Controller {
 
 	function init() {
 
-		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']))
+		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']) || strpos($_GET['search'], 'https://') === 0)
 			goaway('search' . '?f=&search=' . $_GET['search']);
 
 		$which = null;
@@ -85,6 +87,38 @@ class Channel extends Controller {
 			HTTPSig::set_headers($h);
 			echo $data;
 			killme();
+		}
+
+		if (ActivityStreams::is_as_request($channel)) {
+
+			// Somebody may attempt an ActivityStreams fetch on one of our message permalinks
+			// Make it do the right thing.
+
+			$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
+			if ($mid && strpos($mid,'b64.') === 0) {
+				$decoded = @base64url_decode(substr($mid,4));
+				if ($decoded) {
+					$mid = $decoded;
+				}
+			}
+			if ($mid) {
+				$obj = null;
+				if (strpos($mid, z_root() . '/item/') === 0) {
+					App::$argc = 2;
+					App::$argv = [ 'item', basename($mid) ];
+					$obj = new Item();
+				}
+				if (strpos($mid, z_root() . '/activity/') === 0) {
+					App::$argc = 2;
+					App::$argv = [ 'activity', basename($mid) ];
+					$obj = new Activity();
+				}
+				if ($obj) {
+					$obj->init();
+				}
+			}
+
+			as_return_and_die(Activity::encode_person($channel,true),$channel);
 		}
 
 		if((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {

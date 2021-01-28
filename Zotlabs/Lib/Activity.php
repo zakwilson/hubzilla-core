@@ -87,14 +87,16 @@ class Activity {
 			}
 
 			$headers = [
-				'Accept'           => 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				'Accept'           => ActivityStreams::get_accept_header_string($channel),
 				'Host'             => $m['host'],
 				'Date'             => datetime_convert('UTC', 'UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T'),
 				'(request-target)' => 'get ' . get_request_string($url)
 			];
+
 			if (isset($token)) {
 				$headers['Authorization'] = 'Bearer ' . $token;
 			}
+
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
 			$x = z_fetch_url($url, true, $redirects, ['headers' => $h]);
 		}
@@ -302,7 +304,7 @@ class Activity {
 				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
 				if ($m) {
 					if (is_string($m))
-						$t = json_decode($m,true);
+						$t = json_decode($m, true);
 					else
 						$t = $m;
 				}
@@ -2563,7 +2565,7 @@ class Activity {
 
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
-				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && ! $fetch_parents) {					// TODO: check why? This would make it impossible to fetch externals via zotfeed where $observer_hash = sys channel
+				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
 					$allowed = false;
 				}
 			}
@@ -2963,7 +2965,7 @@ class Activity {
 					break;
 				}
 
-				array_unshift($p,[ $a, $item ]);
+				array_unshift($p, [$a, $item]);
 
 				if ($item['parent_mid'] === $item['mid']) {
 					break;

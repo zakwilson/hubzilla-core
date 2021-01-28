@@ -409,15 +409,32 @@ class ActivityStreams {
 		return $x;
 	}
 
-	static function is_as_request() {
+	static function is_as_request($channel = null) {
 
-		$x = getBestSupportedMimeType([
-			'application/ld+json;profile="https://www.w3.org/ns/activitystreams"',
-			'application/activity+json',
-			'application/ld+json;profile="http://www.w3.org/ns/activitystreams"'
-		]);
+		$hookdata = [];
+		if($channel)
+			$hookdata['channel'] = $channel;
 
+		$hookdata['data'] = ['application/x-zot-activity+json'];
+
+		call_hooks('is_as_request', $hookdata);
+
+		$x = getBestSupportedMimeType($hookdata['data']);
 		return(($x) ? true : false);
+
+	}
+
+	static function get_accept_header_string($channel = null) {
+
+		$hookdata = [];
+		if($channel)
+			$hookdata['channel'] = $channel;
+
+		$hookdata['data'] = 'application/x-zot-activity+json';
+
+		call_hooks('get_accept_header_string', $hookdata);
+
+		return $hookdata['data'];
 
 	}
 

@@ -22,7 +22,7 @@ class Register extends Controller {
 		// when they first need to register someplace. Once they've
 		// created a channel, we'll try to revive the connection request 
 		// and process it.
-	
+
 		if($_REQUEST['connect'])
 			$_SESSION['connect'] = $_REQUEST['connect'];
 	
@@ -69,6 +69,17 @@ class Register extends Controller {
 		$password 	 = ( (x($arr,'password'))      ? trim($arr['password'])              : '');
 		$reonar		 = array();
 	
+
+		if ($email && $invite_code) {
+
+			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
+				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
+					// xxx
+				//goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
+				}
+			}
+
+		}
 		// assume someone tries to validate (dId2 C/D/E), because only field email entered
 		if ( $email && ( ! $invite_code ) && ( ! $password ) && ( ! $_POST['password2'] ) ) {
 

@@ -113,7 +113,6 @@ class Activity {
 		return null;
 	}
 
-
 	static function fetch_person($x) {
 		return self::fetch_profile($x);
 	}
@@ -178,7 +177,6 @@ class Activity {
 			return self::encode_item($r[0]);
 		}
 	}
-
 
 	static function fetch_image($x) {
 		$ret = [
@@ -352,7 +350,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function encode_item($i) {
 
@@ -585,7 +582,6 @@ class Activity {
 		return $ret;
 	}
 
-
 	static function encode_taxonomy($item) {
 
 		$ret = [];
@@ -674,7 +670,6 @@ class Activity {
 		return $ret;
 	}
 
-
 	static function decode_attachment($item) {
 
 		$ret = [];
@@ -697,7 +692,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function encode_activity($i, $recurse = false) {
 
@@ -960,7 +954,6 @@ class Activity {
 	}
 
 	// Returns an array of URLS for any mention tags found in the item array $i.
-
 	static function map_mentions($i) {
 
 		if (!$i['term']) {
@@ -983,7 +976,6 @@ class Activity {
 	}
 
 	// Returns an array of all recipients targeted by private item array $i.
-
 	static function map_acl($i) {
 		$ret = [];
 
@@ -1066,6 +1058,7 @@ class Activity {
 
 		if ($p['xchan_addr'] && strpos($p['xchan_addr'], '@'))
 			$ret['preferredUsername'] = substr($p['xchan_addr'], 0, strpos($p['xchan_addr'], '@'));
+
 		$ret['name']    = $p['xchan_name'];
 		$ret['updated'] = datetime_convert('UTC', 'UTC', $p['xchan_name_date'], ATOM_TIME);
 		$ret['icon']    = [
@@ -1095,14 +1088,17 @@ class Activity {
 			'publicKeyPem' => $p['xchan_pubkey']
 		];
 
-		$arr = ['xchan' => $p, 'encoded' => $ret];
+		$arr = [
+			'xchan' => $p,
+			'encoded' => $ret
+		];
+
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
 
 		return $ret;
 	}
-
 
 	static function activity_mapper($verb) {
 
@@ -1147,14 +1143,13 @@ class Activity {
 		if (strpos($verb, ACTIVITY_POKE) !== false)
 			return 'Activity';
 
-		// We should return false, however this will trigger an uncaught execption  and crash 
+		// We should return false, however this will trigger an uncaught execption  and crash
 		// the delivery system if encountered by the JSON-LDSignature library
 
 		logger('Unmapped activity: ' . $verb);
 		return 'Create';
 		//	return false;
 	}
-
 
 	static function activity_decode_mapper($verb) {
 
@@ -1227,7 +1222,6 @@ class Activity {
 		return 'Note';
 	}
 
-
 	static function activity_obj_mapper($obj) {
 
 		$objs = [
@@ -1274,17 +1268,16 @@ class Activity {
 
 	}
 
-
 	static function follow($channel, $act) {
 
 		$contact         = null;
 		$their_follow_id = null;
 
 		/*
-		 * 
-		 * if $act->type === 'Follow', actor is now following $channel 
-		 * if $act->type === 'Accept', actor has approved a follow request from $channel 
-		 *	 
+		 *
+		 * if $act->type === 'Follow', actor is now following $channel
+		 * if $act->type === 'Accept', actor has approved a follow request from $channel
+		 *
 		 */
 
 		$person_obj = $act->actor;
@@ -1299,7 +1292,7 @@ class Activity {
 
 			self::actor_store($person_obj['id'], $person_obj);
 
-			// Find any existing abook record 
+			// Find any existing abook record
 
 			$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_xchan = '%s' and abook_channel = %d limit 1",
 				dbesc($person_obj['id']),
@@ -1316,7 +1309,7 @@ class Activity {
 
 		if ($contact && $contact['abook_id']) {
 
-			// A relationship of some form already exists on this site. 
+			// A relationship of some form already exists on this site.
 
 			switch ($act->type) {
 
@@ -1471,7 +1464,6 @@ class Activity {
 
 	}
 
-
 	static function unfollow($channel, $act) {
 
 		$contact = null;
@@ -1496,7 +1488,6 @@ class Activity {
 
 		return;
 	}
-
 
 	static function actor_store($url, $person_obj) {
 
@@ -1603,7 +1594,7 @@ class Activity {
 		else {
 
 			// Record exists. Cache existing records for one week at most
-			// then refetch to catch updated profile photos, names, etc. 
+			// then refetch to catch updated profile photos, names, etc.
 
 			$d = datetime_convert('UTC', 'UTC', 'now - 1 week');
 			if ($r[0]['xchan_name_date'] > $d)
@@ -1665,7 +1656,6 @@ class Activity {
 
 	}
 
-
 	static function create_action($channel, $observer_hash, $act) {
 
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
@@ -1683,7 +1673,6 @@ class Activity {
 
 	}
 
-
 	static function like_action($channel, $observer_hash, $act) {
 
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
@@ -1694,7 +1683,6 @@ class Activity {
 	}
 
 	// sort function width decreasing
-
 	static function vid_sort($a, $b) {
 		if ($a['width'] === $b['width'])
 			return 0;
@@ -1956,7 +1944,6 @@ class Activity {
 
 	}
 
-
 	static function update_poll($item, $post) {
 		$multi   = false;
 		$mid     = $post['mid'];
@@ -2048,7 +2035,6 @@ class Activity {
 
 		return false;
 	}
-
 
 	static function decode_note($act) {
 
@@ -3388,7 +3374,6 @@ class Activity {
 		return;
 	}
 
-
 	static function bb_attach($attach, $body) {
 
 		$ret = false;
@@ -3414,9 +3399,7 @@ class Activity {
 		return $ret;
 	}
 
-
 	// check for the existence of existing media link in body
-
 	static function media_not_in_body($s, $body) {
 
 		if ((strpos($body, ']' . $s . '[/img]') === false) &&
@@ -3427,7 +3410,6 @@ class Activity {
 		}
 		return false;
 	}
-
 
 	static function bb_content($content, $field) {
 
@@ -3456,7 +3438,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function get_content($act) {
 
@@ -3513,7 +3494,6 @@ class Activity {
 		return $content;
 	}
 
-
 	static function get_textfield($act, $field) {
 
 		$content = false;
@@ -3530,7 +3510,6 @@ class Activity {
 
 	// Find either an Authorization: Bearer token or 'token' request variable
 	// in the current web request and return it
-
 	static function token_from_request() {
 
 		foreach (['REDIRECT_REMOTE_USER', 'HTTP_AUTHORIZATION'] as $s) {

@@ -116,7 +116,6 @@ class Channel extends Controller {
 					$obj->init();
 				}
 			}
-
 			as_return_and_die(Activity::encode_person($channel, true), $channel);
 		}
 

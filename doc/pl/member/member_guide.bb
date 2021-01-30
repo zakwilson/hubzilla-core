@@ -443,7 +443,7 @@ wytworzy taki HTML:
 
 Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do lokalnego folderu plików w chmurze. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w hubie.
 
-[h5] Struktura folderu [/h5]
+[h5][b] Struktura folderu [/b][/h5]
 Definicje elementów muszą być przechowywane w katalogu głównym repozytorium w folderach o nazwie odpowiadającej typowi elementu: 
 [code]
 	/pages/
@@ -453,8 +453,8 @@ Definicje elementów muszą być przechowywane w katalogu głównym repozytorium
 
 Każdy element tych typów musi być zdefiniowany w osobnym podfolderze przy użyciu dwóch plików: jednego w formacie JSON dla metadanych i drugiego w zwykłym formacie testowym dla zawartości elementu.
 
-[h5] Elementy strony [/h5]
-Page element metadata is specified in a JSON-formatted file called [code]page.json[/code] with the following properties:
+[h5][b] Elementy strony [/b][/h5]
+Metadane elementu strony są zdefiniowane w pliku w formacie JSON o nazwie [code]strona.json[/code] z następującymi właściwościami:
 [list]
 [*] title
 [*] pagelink
@@ -462,14 +462,14 @@ Page element metadata is specified in a JSON-formatted file called [code]page.js
 [*] layout
 [*] contentfile
 [/list]
-[b]Example[/b] 
+[b]Przykład[/b] 
 
-Files: 
+Pliki: 
 [code]	
 	/pages/my-page/page.json
 	/pages/my-page/my-page.bbcode
 [/code]	
-Content of [code]page.json[/code]:
+Treść [code]page.json[/code]:
 [code]	
 	{
 		"title": "My Page",
@@ -479,22 +479,22 @@ Content of [code]page.json[/code]:
 		"contentfile": "my-page.bbcode"
 	}
 [/code]	
-[h5] Layout elements [/h5]
+[h5][b] Elementy układu [/b][/h5]
 
-Layout element metadata is specified in a JSON-formatted file called [code]layout.json[/code] with the following properties:
+Metadane elementu układu są zdefiniowane w pliku w formacie JSON o nazwie [code]layout.json[/code] z następującymi właściwościami:
 [list]
 [*] name
 [*] description
 [*] contentfile
 [/list]
-[b]Example[/b] 
+[b]Przykład[/b] 
 
-Files:
+Pliki:
 [code]
 	/layouts/my-layout/layout.json
 	/layouts/my-layout/my-layout.bbcode
 [/code]	
-Content of [code]layout.json[/code]:
+Treść [code]layout.json[/code]:
 [code]
 	{
 		"name": "my-layout",
@@ -503,23 +503,23 @@ Content of [code]layout.json[/code]:
 	}
 [/code]
 
-[h5] Block elements [/h5]
+[h5][b] Elementy bloku [/b][/h5]
 
-Block element metadata is specified in a JSON-formatted file called [code]block.json[/code] with the following properties:
+Metadane elementu bloku są określone w pliku w formacie JSON o nazwie [code]block.json[/code] z następującymi właściwościami:
 [list]
 [*] name
 [*] title
 [*] mimetype
 [*] contentfile
 [/list]
-[b]Example[/b] 
+[b]Przykład[/b] 
 
-Files:
+Pliki:
 [code]	
 	/blocks/my-block/block.json
 	/blocks/my-block/my-block.html
 [/code]
-Content of [code]block.json[/code]:	
+Treść [code]block.json[/code]:	
 
 [code]
 	{
@@ -530,112 +530,110 @@ Content of [code]block.json[/code]:
 	}
 [/code]
 
-[h3]Comanche Page Description Language[/h3]
+[h3]Język opisu stron Comanche[/h3]
 
-Comanche is a markup language similar to [url=[baseurl]/help/member/bbcode]BBcode[/url] with which to create elaborate and complex web pages by assembling them from a series of components - some of which are pre-built and others which can be defined on the fly. Comanche uses a Page Decription Language to create these pages.
+Comanche to język znaczników podobny do [url=[baseurl]/help/member/bbcode]BBcode[/url], za pomocą którego można tworzyć rozbudowane i złożone strony internetowe, łącząc je z szeregu komponentów - z których niektóre są już wstępnie zbudowane i inne, które można skonstruować w locie. Comanche używa własnego języka opisu strony do tworzenia tych stron.
 
-Comanche primarily chooses what content will appear in various regions of the page. The various regions have names and these names can change depending on what layout template you choose.
+Comanche przede wszystkim wybiera, jakie treści pojawią się w różnych [b]regionach[/b] strony. Regiony mają swoje nazwy, które mogą się zmieniać w zależności od wybranego szablonu układu.
 
-[h4]Page Templates[/h4]
-Currently there are five layout templates, unless your site provides additional layouts.
+[h4][b]Szablony strony[/b][/h4]
+Obecnie dostępnych jest pięć szablonów układów, ale w serwisie można udostępniać dodatkowe, własne układy.
 
 [dl terms="b"]
 [*= default]
-The default template defines a &quot;nav&quot; region across the top, &quot;aside&quot; as a fixed width sidebar, 
-&quot;content&quot; for the main content region, and &quot;footer&quot; for a page footer.
+Domyślny szablon zawiera definicję regionu "nav" znajdującego się u góry, "aside" jako pasek boczny o stałej szerokości,
+"content" dla głównego regionu treści i "footer" dla stopki strony.
 
 [*= full]
-The full template defines the same as the default template with the exception that there is no &quot;aside&quot; region.
+Pełny szablon definiuje to samo, co szablon "default", z tą różnicą, że nie ma regionu "aside".
 
 [*= choklet]
-The choklet template provides a number of fluid layout styles which can be specified by flavour:
+Szablon "choklet" zapewnia kilka płynnych układów, które można wybierać według odmiany:
 [list]
-[*]	(default flavour) - a two column layout similar to the "default" template, but more fluid
-[*]	bannertwo - a two column layout with a banner region, compatible with the "default" template on small displays
-[*]	three - three column layout (adds a "right_aside" region to the default template)
-[*]	edgestwo - two column layout with fixed side margins
-[*]	edgesthree - three column layout with fixed side margins
-[*]	full - three column layout with fixed side margins and adds a "header" region beneath the navigation bar
+[*]	(domyślna odmiana) - układ dwukolumnowy, podobny do szaablonu "default", ale jest bardziej płynny
+[*]	bannertwo - układ dwukolumnowy z regionem "banner", zgodny z szablonem "default" na małych wyświetlaczach
+[*]	three - układ trzykolumnowy (dodany region "right_aside" do szablonu domyślnego)
+[*]	edgestwo - układ dwukolumnowy ze stałymi marginesami bocznymi
+[*]	edgesthree - układ trzykolumnowy ze stałymi marginesami bocznymi
+[*]	full - układ trzykolumnowy ze stałymi marginesami bocznymi i dodanym obszarem "header" poniżej paska nawigacji
 [/list]
 
 [*= redable]
-A template for reading longer texts full screen (so without navigation bar). Three columns: aside, content and right_aside.
-For maximum readability it is advised to only use the middle content column.
+Szablon do czytania dłuższych tekstów na pełnym ekranie (czyli bez paska nawigacyjnego). Trzy kolumny: "aside", "content" i "right_aside".
+Aby zapewnić maksymalną czytelność, zaleca się używanie tylko środkowej kolumny treści.
 
 [*= zen]
-Gives you the freedom to do everything yourself. Just a blank page with a content region.
+Daje swobodę robienia wszystkiego samemu. Tylko pusta strona z obszarem zawartości.
 [/dl]
 
-To choose a layout template, use the 'template' tag.
+Aby wybrać szablon układu, trzeba użyć tagu "template".
 
 [code]
 	[template]full[/template]
 
 [/code]
 
-To choose the "choklet" template with the "three" flavour:
+Wybranie szablonu "choklet" z odmianą "three":
 
 [code]
 	[template=three]choklet[/template]
 
 [/code]
 
-The default template will be used if no other template is specified. The template can use any names it desires for content regions. You will be using 'region' tags to decide what content to place in the respective regions.
+Jeśli nie określono innego szablonu, zostanie użyty szablon domyślny. W szablonie można używać dowolnych nazw dla regionów zawartości. Używa sie też tagów "region", aby zdecydować, jakie treści umieścić w odpowiednich regionach.
 
-Three &quot;macros&quot; have been defined for your use.
+Zadefiniowane są też trzy "makra", które można użyć na stronie.
 [code]
-	$htmlhead - replaced with the site head content.
-	$nav - replaced with the site navigation bar content.
-	$content - replaced with the main page content.
+	$htmlhead - wstawia zawartość nagłówka strony.
+	$nav - wstawia zawartość paska nawigacji.
+	$content - wstawia główną treść strony.
 
 [/code]
 
-By default, $nav is placed in the &quot;nav&quot; page region and $content is placed in the &quot;content&quot; region. You only need to use these macros if you wish to re-arrange where these items appear, either to change the order or to move them to other regions.
+Domyślnie, makro $nav jest umieszczane w regionie "nav" strony a $content w regionie "content". Tych makr potrzebujesz tylko wtedy, gdy chcesz zmienić rozmieszczenie tych elementów, aby zmienić kolejność lub przenieść je do innych regionów.
 
-
-To select a theme for your page, use the 'theme' tag.
+Aby wybrać motyw dla swojej strony, użyj tagu "theme".
 [code]
 	[theme]suckerberg[/theme]
 
 [/code]
-This will select the theme named &quot;suckerberg&quot;. By default your channel's preferred theme will be used.
+Spowoduje to wybranie motywu o nazwie "suckerberg". Domyślnie używany jest preferowany motyw Twojego kanału.
 
 [code]
 	[theme=passion]suckerberg[/theme]
 
 [/code]
-This will select the theme named &quot;suckerberg&quot; and select the &quot;passion&quot; schema (theme variant). Alternatively it may be possible to use a condensed theme notation for this. 
+Spowoduje to wybranie motywu o nazwie "suckerberg" oraz wybór schematu "passion" (wariant motywu). Alternatywnie można użyć do tego zwięzłej notacji motywu.
 
 [code]
 	[theme]suckerberg:passion[/theme]
 
 [/code]
 
-The condensed notation isn't part of Comanche itself but is recognised by $Projectname platform as a theme specifier.
+Notacja zwięzła nie jest częścią samego Comanche, ale jest rozpoznawana przez platformę $Projectname jako specyfikator motywu.
 
-[h4]Navbar[/h4]
+[h4][b]Pasek nawigacji[/b][/h4]
 
 [code]
 	[navbar]tucson[/navbar]
 [/code]
 
-Use the 'tucson' navbar template and CSS rules. By default the 'default' navbar template will be used.
+Kod ten powoduje użycie szablonu paska nawigacyjnego "tucson" i reguł CSS. Domyślnie stosowany jest szablon domyślny szablon paska nawigacyjnego.
 
-
-[h4]Regions[/h4]
-Each region has a name, as noted above. You will specify the region of interest using a 'region' tag, which includes the name. Any content you wish placed in this region should be placed between the opening region tag and the closing tag.
+[h4][b]Regiony[/b][/h4]
+Tak jak wspomniano wyżej, każdy region swoją nazwę. Wybrany eegion określa używając tagu "region", który zawiera nazwę. Wszelkie treści, które chcesz umieścić w tym regionie, powinny być umieszczone między tagiem otwierającego a zamykającym.
 
 [code]
-	[region=htmlhead]....content goes here....[/region]
-	[region=aside]....content goes here....[/region]
-	[region=nav]....content goes here....[/region]
-	[region=content]....content goes here....[/region]
+	[region=htmlhead]....tutaj jest treść....[/region]
+	[region=aside]....tutaj jest treść....[/region]
+	[region=nav]....tutaj jest treść....[/region]
+	[region=content]....tutaj jest treść....[/region]
 
 [/code]
 
-[h4]CSS and Javascript[/h4]
-We have the possibility to include javascript and css libraries in the htmlhead region. At present we make use of jquery (js), bootstrap (css/js) and foundation (css/js).
-This will overwrite the selected themes htmlhead.
+[h4][b]CSS i Javascript[/b][/h4]
+Jest możliwość włączenia bibliotek JavaScript i CSS w regionie "htmlhead". Obecnie korzystamy z bibliotek jQuery (JS), Bootstrap (CSS i JS) oraz Foundation (CSS i JS).
+Ten kod spowoduje nadpisanie regionu htmlhead wybranego motywu.
 
 [code]
 	[region=htmlhead]
@@ -646,116 +644,121 @@ This will overwrite the selected themes htmlhead.
 
 [/code]
 
-[h4]Menus and Blocks[/h4]
-Your webpage creation tools allow you to create menus and blocks, in addition to page content. These provide a chunk of existing content to be placed in whatever regions and whatever order you specify. Each of these has a name which you define when the menu or block is created.
+[h4][b]Elementy menu i bloki[/b][/h4]
+Narzędzia do tworzenia stron internetowych umożliwiają również tworzenie eleentów menu i bloków. Dostarczają one fragment kodu, który można umieścić w dowolnych regionach i w dowolnej kolejności. Każdy z takich fragmentów ma nazwę, którą definiuje się podczas tworzenia elementów menu lub bloku.
 
+Ten kod:
 [code]
 	[menu]mymenu[/menu]
 
 [/code]
-This places the menu called &quot;mymenu&quot; at this location on the page, which must be inside a region. 
+spowoduje umieszczenie w tym miejscu menu o nazwie "mymenu”, ale miejsce to musi się ono znajdować wewnątrz regionu. 
 
+Kod:
 [code]
 	[menu=horizontal]mymenu[/menu]
 
 [/code]
-This places the menu called &quot;mymenu&quot; at this location on the page, which must be inside a region. Additionally it applies the "horizontal" class to the menu. "horizontal" is defined in the redbasic theme. It may or may not be available in other themes. 
+spowoduje umieszczenie w tym miejscu menu o nazwie "mymenu", ale musi się ono znajdować które musi znajdować wewnątrz regionu. Dodatkowo zastosowano tu do menu klasę "horizontal". Klasa "horizontal" jest zdefiniowana w motwie "redbasic". Może być dostępna lub nie w innych motywach. 
 
+W tym bloku:
 [code]
 	[menu][var=wrap]none[/var]mymenu[/menu]
 
 [/code]
-The variable [var=wrap]none[/var] in a block removes the wrapping div element from the menu.
+zmienna [code][var=wrap]none[/var][/code] usuwa z menu element [code]div[/code].
 
+Ten kod:
 [code]
 	[block]contributors[/block]
 [/code]
-This places a block named &quot;contributors&quot; in this region.
+umieszcza blok o nazwie &quot;contributors&quot; w regionie, w którym został wstawiony.
 
+Kod:
 [code]
 	[block=someclass]contributors[/block]
 
 [/code]
-This places a block named &quot;contributors&quot; in this region. Additionally it applies the &quot;someclass&quot; class to the block. This replaces the default block classes &quot;bblock widget&quot;.
+też umieszcza blok o nazwie &quot;contributors&quot; w tym regionie, ale dodatkowo stosuje dla tego bloku klasę &quot;someclass&quot;. Zamienia to domyślną klasę bloku &quot;bblock widget&quot;.
 
+W bloku:
 [code]
 	[block][var=wrap]none[/var]contributors[/block]
 
 [/code]
-The variable [var=wrap]none[/var] in a block removes the wrapping div element from the block.
+zmienna [code][var=wrap]none[/var][/code] usuwa z bloku opakowujący go element [code]div[/code].
 
-[h4]Widgets[/h4]
-Widgets are executable apps provided by the system which you can place on your page. Some widgets take arguments which allows you to tailor the widget to your purpose. System widgets are listed [url=help/Widgets]here[/url]. Widgets can also ve created by plugins, themes, or your site administrator to provide additional functionality.
+[h4][b]Widżety[/b][/h4]
+Widżety to wykonywalne aplikacje dostarczane przez system, które można umieścić na swojej stronie. Niektóre widżety przyjmują argumenty, które pozwalają dostosować widżet do własnych potrzeb. Widżety systemowe są wymienione [url=help/Widgets]tutaj[/url]. Widżety mogą być również tworzone w ramach wtyczek, motywów lub przez administratora witryny, aby zapewnić dodatkowe funkcje.
 
-
-Widgets and arguments are specified with the 'widget' and 'var' tags.
+Widżety i ich argumenty są określane za pomocą tagów "widget" i "var".
 [code]
 	[widget=recent_visitors][var=count]24[/var][/widget]
 
 [/code]
 
-This loads the &quot;recent_visitors&quot; widget and supplies it with the argument &quot;count&quot; set to &quot;24&quot;. 
+Spowoduje to załadowanie widżetu &bdquo;latest_visitors&rdquo; i dostarcza mu argument "count" ustawiony na „24”.
  
-[h4]Comments[/h4]
-The 'comment' tag is used to delimit comments. These comments will not appear on the rendered page.
+[h4][b]Komentarze[/b][/h4]
+Tag "comment" jest używany do wydzielenia komentarzy. Komentarze te nie pojawią się na renderowanej stronie.
 
 [code]
 	[comment]This is a comment[/comment]
 
 [/code]
 
-[h4]Conditional Execution[/h4]
-You can use an 'if' construct to make decisions. These are currently based on system configuration variable or the current observer.
+[h4][b]Wykonanie warunkowe[/b][/h4]
+Można użyć konstrukcji [code]if[/code] warunkowego wykonania kodu. Jest to obecnie oparte na zmiennej konfiguracji systemu [code]$config.system[/code] lub zmiennej [code]$observer[/code].
 
 [code]
 	[if $config.system.foo]
-		... the configuration variable system.foo evaluates to 'true'.
+		... zmienna konfiguracyjna system.foo przyjmuje wartość 'true'.
 	[else]
-		... the configuration variable system.foo evaluates to 'false'.
+		... zmienna konfiguracyjna system.foo przyjmuje wartość 'false'.
  	[/if]
 
 	[if $observer]
-		... this content will only be show to authenticated viewers
+		... ta treść będzie pokazywana tylko uwierzytelnionym użytownikom
 	[/if]
 
 [/code]
 
-	The 'else' clause is optional. 
+	Klauzula 'else' jest opcjonalna. 
 
-	Several tests are supported besides boolean evaluation.
+	Oprócz oceny logicznej obsługiwanych jest też kilka testów.
 
 [code]
 	[if $config.system.foo == bar]
-		... the configuration variable system.foo is equal to the string 'bar'
+		... zmienna konfiguracyjne system.foo jest równa łańcuchowi 'bar'
 	[/if]
 	[if $config.system.foo != bar]
-		... the configuration variable system.foo is not equal to the string 'bar'
+		... zmienna konfiguracyjne system.foo nie jest równa łańcuchowi 'bar'
 	[/if]
 	[if $config.system.foo {} bar ]
-		... the configuration variable system.foo is a simple array containing a value 'bar'
+		... zmienna konfiguracyjna system.foo jest prostą tablicą zawierającą zmienną 'bar'
 	[/if]
 	[if $config.system.foo {*} bar]
-		... the configuration variable system.foo is a simple array containing a key named 'bar'
+		... zmienna konfiguracyjna system.foo jest prostą tablicą zawierającą klucz o nazwie 'bar'
 	[/if]
 [/code]
 
-[h4]Complex Example[/h4]
+[h4][b]Złożony przykład[/b][/h4]
 [code]
-	[comment]use an existing page template which provides a banner region plus 3 columns beneath it[/comment]
+	[comment]użyj istniejący szablon strony, który zawiera obszar banera oraz 3 kolumny poniżej[/comment]
 
 	[template]3-column-with-header[/template]
 
-	[comment]Use the &quot;darknight&quot; theme[/comment]
+	[comment]Użyj motyw &quot;darknight&quot;[/comment]
 
 	[theme]darkknight[/theme]
 
-	[comment]Use the existing site navigation menu[/comment]
+	[comment]Użyj istniejące menu nawigacyjne strony[/comment]
 
 	[region=nav]$nav[/region]
 
 	[region=side]
 
-		[comment]Use my chosen menu and a couple of widgets[/comment]
+		[comment]Użyj wybranego przeze mnie menu i kilku widżetów[/comment]
 
 		[menu]myfavouritemenu[/menu]
 
@@ -773,7 +776,7 @@ You can use an 'if' construct to make decisions. These are currently based on sy
 
 	[region=middle]
 
-		[comment]Show the normal page content[/comment]
+		[comment]Pokaż normalną zawartość strony[/comment]
 
 		$content
 
@@ -783,7 +786,7 @@ You can use an 'if' construct to make decisions. These are currently based on sy
 
 	[region=right]
 
-		[comment]Show my condensed channel &quot;wall&quot; feed and allow interaction if the observer is allowed to interact[/comment]
+		[comment]Pokaż mój skondensowany kanał RSS "wal" i zezwól na interakcję, jeśli obserwator ma możliwość interakcji[/comment]
 
 		[widget]channel[/widget]
 
@@ -792,237 +795,230 @@ You can use an 'if' construct to make decisions. These are currently based on sy
 [/code]
 
 
-[h3]Personal Cloud Storage[/h3]
+[h3]Osobisty magazyn w chmurze[/h3]
 
-$Projectname provides an ability to store privately and/or share arbitrary files with friends.
+$Projectname umożliwia prywatne przechowywanie i udostępnianie znajomym dowolnych plików. Możesz przesłać pliki ze swojego komputera do obszaru przechowywania lub skopiować je bezpośrednio z systemu operacyjnego przy użyciu protokołu WebDAV.
 
-You may either upload files from your computer into your storage area, or copy them directly from the operating system using the WebDAV protocol.
+Funkcjonuje to podobnie do usług "chmurowych", takich jak [i]Dopbox[/i], [i]Dysk[/i] Google czy [i]One Drive[/i] Microsoftu.
 
-On many public servers there may be limits on disk usage.
+Na wielu serwerach publicznych mogą obowiązywać ograniczenia dotyczące przydzielonej powierzchni dyskowej.
 
-[h4]File Attachments[/h4]
+[h4][b]Załączniki plikowe[/b][/h4]
 
-The quickest and easiest way to share files is through file attachments. In the row of icons below the status post editor is a tool to upload attachments. Click the tool, select a file and submit. After the file is uploaded, you will see an attachment code placed inside the text region. Do not edit this line or it may break the ability for your friends to see the attachment. You can use the post permissions dialogue box or privacy hashtags to restrict the visibility of the file - which will be set to match the permissions of the post your are sending.
+Najszybszym i najłatwiejszym sposobem udostępniania plików są załączniki. W rzędzie ikon poniżej edytora statusu znajduje się narzędzie do przesyłania załączników. Kliknij narzędzie, wybierz plik i prześlij. Po załadowaniu pliku zobaczysz kod załącznika umieszczony w obszarze tekstowym. Nie edytuj tego kodu, ponieważ może to uniemożliwić Ci udostępnienie tego pliku znajomym. Możesz użyć okna dialogowego uprawnień do publikowania lub hasztagów prywatności, aby ograniczyć widoczność pliku - który zostanie ustawiony zgodnie z uprawnieniami wysyłanego postu.
 
-To delete attachments or change the permissions on the stored files, visit [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username replacing username with the nickname you provided during channel creation[/observer].
+Aby usunąć załączniki lub zmienić uprawnienia do przechowywanych plików, odwiedź [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username,  zastępując [code]username[/code] pseudonimem, jaki podałeś podczas tworzenia kanału[/observer].
 
-[h4]Web Access[/h4]
+[h4][b]Dostęp internetowy[/b][/h4]
 
-Your files are visible on the web at the location [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer] to anybody who is allowed to view them. If the viewer has sufficient privileges, they may also have the ability to create new files and folders/directories. This should only be used for smaller files and photos (up to a few megabytes) as it uses internal memory. For larger files (videos, music, etc.), please upload using WebDAV. These files may still be retrieved via web access. 
+Twoje pliki są widoczne w sieci pod adresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer] dla każdego, kto ma uprawnienia do ich przeglądania. Jeśli przeglądający ma wystarczające uprawnienia, może mieć również możliwość tworzenia nowych plików i folderów (katalogów) w interfejsie przeglądarki. Dostęp internetowy powinnien być używane tylko w przypadku mniejszych plików i zdjęć (do kilku megabajtów), ponieważ wykorzystuje pamięć wewnętrzną. W przypadku większych plików (filmy, muzyka itp.) przesyłaj je za pomocą protokołu WebDAV, cojest omówione w następnym rozdziale. Takie pliki będzie można nadal pobierać za pośrednictwem dostępu internetowego.
 
-[h4]WebDAV access[/h4]
+[h4][b]Dostęp WebDAV[/b][/h4]
 
-WebDAV provides a way to copy files directly to or from your computer's operating system, where your cloud files appear as a virtual disk drive. This should be used to upload large files such as video and audio; as it is not limited to available memory. See [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] below.
+WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego komputera, gdzie Twój "magazyn chmurze" pojawia się jako wirtualny dysk. Dostęp ten powinien być używany do przesyłania dużych plików, takich jak wideo i audio, ponieważ nie jest ograniczony dostępną pamięcią wewnętrzna. Zobacz [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] poniżej.
 
-[h4]CalDAV and CardDAV access on Android[/h4]
+[h4][b]Dostęp CalDAV i CardDAV na Androidzie[/b][/h4]
 
-You can sync you calendar and contacts on Android with your Hub.
+Możesz zsynchronizować swój kalendarz i kontakty w systemie Android ze swoim hubem.
 
-The following steps where tested for [url=https://f-droid.org/en/packages/at.bitfire.davdroid/]DAVdroid[/url]
+Poniższe kroki zostały przetestowane pod kątem zasosowania [url=https://f-droid.org/en/packages/at.bitfire.davdroid/] DAVdroid [/url]:
+
 [list]
-[*] install DAVdroid
-[*] add account
-[*] use "URL" and "user name" to login
+[*] zainstaluj DAVdroid
+[*] dodaj konto
+[*] użyj "URL" i "user name" do zalogowania się
 [list]
-[*] base url is [baseurl]/cdav
-[*] user name is [observer=1][observer.webname][/observer][observer=0]username[/observer]
+[*] podstawowy URL to [baseurl]/cdav
+[*] Twoja nazwa użytkowka to [observer=1][observer.webname][/observer][observer=0]username[/observer]
 [/list]
 [/list]
 
-To share your calendar visit [observer.baseurl]/cdav/calendar
+Aby udostępnić kalendarz odwiedź [observer.baseurl]/cdav/calendar
 
+[h4][b]Uprawnienia[/b][/h4]
 
-[h4]Permissions[/h4]
+W przypadku korzystania z protokołu WebDAV plik jest tworzony z domyślnymi uprawnieniami do plików kanału, których nie można zmienić z poziomu systemu operacyjnego. Może też nie być to tak restrykcyjne, jak byś chciał. Najlepiej, utwórz foldery (katalogi), następnie odwiedź swoją "chmurę" pod aadresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer], wybierz katalog i zmień uprawnienia. Zrób to zanim umieścisz cokolwiek w katalogu. Uprawnienia do katalogu mają pierwszeństwo, więc możesz następnie umieścić pliki lub inne foldery w tym kontenerze i będą one chronione przed niechcianymi widzami przez ustawienie uprawnienia do katalogu. Często zdarza się, że użytkownicy tworzą folder "osobisty" lub "prywatny", który jest ograniczony do nich samych. Możesz używać tego jako osobistej chmury do przechowywania wszystkiego z dowolnego miejsca w Internecie lub dowolnego komputera i jest to chroniony przed innymi. Możesz także utworzyć foldery dla "rodziny" lub "przyjaciele" za zgodą udzieloną odpowiednim grupom prywatności.
 
-When using WebDAV, the file is created with your channel's default file permissions and this cannot be changed from within the operating system. It also may not be as restrictive as you would like. What we've found is that the preferred method of making files private is to first create folders or directories; then visit [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer] select the directory and change the permissions. Do this before you put anything into the directory. The directory permissions take precedence so you can then put files or other folders into that container and they will be protected from unwanted viewers by the directory permissions. It is common for folks to create a &quot;personal&quot; or &quot;private&quot; folder which is restricted to themselves. You can use this as a personal cloud to store anything from anywhere on the web or any computer and it is protected from others. You might also create folders for &quot;family&quot; and &quot;friends&quot; with permission granted to appropriate privacy groups.
+[h3]Klienty desktopowe dla chmury[/h3]
 
-[h3]Cloud Desktop Clients[/h3]
+[h4][b]Klienty dla Windows[/b][/h4]
 
+W Windows 7 połaczenie WebDAV można nawiązać przy użyciu kreatora z graficznym interfejsem:
+1. Kliknij lewym przyciskiem myszy na przycisk "Start", aby otworzyc menu "Start".
+2. Kliknij prawym przyciskiem myszy na ikone "Mój komputer", aby uzyskac dostęp do tego menu.
+3. Kliknij lewym przysiskiem myszy na link "Mapuj dysk sieciowy...", aby otworzyć okno dialogowe kreatora połączeń.
+4. Wpisz '[baseurl]/dav/nickname' w polu tekstowym (zamieniając 'nickname' na pseudonim swojego kanału) i kliknij przycisk "Gotowe".
+5. Wpisz pseudonim kanału $Projectname. WAŻNE - bez znaku @ lub nazwy domeny
+6. Wpisz swoje hasło $Projectname
 
-[h4]Cloud Desktop Clients - Windows[/h4]
+[h4][b]Klienty dla Linux[/b][/h4]
 
-WebDAV using Windows 7 graphical user interface wizard:
-1. Left-click the Start-button to open the start menu.
-2. Right-click the My computer icon to access its menu.
-3. Left-click Map network drive... to open the connection dialog wizard.
-4. Type '[baseurl]/dav/nickname' in the textbox (replace nickname with your channel nickname) and click the Complete button.
-5. Type your $Projectname channel nickname. IMPORTANT - NO at-sign or domain name.
-6. Type your $Projectname password
+[h5][b]Montowanie katalogu w systemie plików[/b][/h5]
 
-[h4]Cloud Desktop Clients - Linux[/h4]
+Aby zainstalować katalog w chmurze jako system plików, musisz najpierw zainstalować davfs2. Dla większości dystrybucji program ten jest dostępny w repozytoriach. Instalacja w Debianie:
 
-[h5]Mount as a filesystem[/h5]
+[code]sudo apt-get install davfs2[/code]
 
-[b]Mounting As A Filesystem[/b]
+Następnie skonfiguruj davfs2:
 
-To install your cloud directory as a filesystem, you first need davfs2 installed.  99% of the time, this will be included in your distributions repositories.  In Debian
+[code]sudo dpkg-reconfigure davfs2[/code]
 
-[code]apt-get install davfs2[/code]
+i wybierz &quot;yes&quot; przy zapytaniu.
 
-If you want to let normal users mount the filesystem
+Teraz musisz dodać użytkownika, który ma mieć możliwość montowania dav, do grupy davfs2:
 
-[code] dpkg-reconfigure davfs2[/code]
+[code]sudo usermod -aG davfs2 &lt;DesktopUser&gt;[/code]
 
-and select &quot;yes&quot; at the prompt.
+[b]Note:[/b] w niektórych systemach grupa użytkowników może być inna,
+np. "network" w Arch Linux. W razie wątpliwości sprawdź dokumentację
+davfs dla swojego konkretnego systemu operacyjnego.
 
-Now you need to add any user you want to be able to mount dav to the davfs2 group
-
-[code]usermod -aG davfs2 &lt;DesktopUser&gt;[/code]
-
-[b]Note:[/b] on some systems the user group may be different, i.e. - "network" 
-on Arch Linux. If in doubt, check the davfs documentation for your 
-particular OS.
-
-Edit /etc/fstab
+Edytuj /etc/fstab:
 
 [code]nano /etc/fstab[/code]
 
- to include your cloud directory by adding
+aby uwzględnić katalog w chmurze, dodając:
 
 [code]
 [baseurl]/dav/ /mount/point davfs user,noauto,uid=&lt;DesktopUser&gt;,file_mode=600,dir_mode=700 0 1
 [/code]
 
-Where [baseurl] is the URL of your hub, /mount/point is the location you want to mount the cloud, and &lt;DesktopUser&gt; is the user you log in to one your computer.  Note that if you are mounting as a normal user (not root) the mount point must be in your home directory.
+gdzie [baseurl] jest adresem URL huba, /mount/point to lokalizacja, w której chcesz zamontować chmurę, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
 
-For example, if I wanted to mount my cloud to a directory called 'cloud' in my home directory, and my username was bob, my fstab would be 
+Na przykład, jeśli chciałbyś zamontować swoją chmurę w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob', zapis w fstab będzie następujący: 
 
 [code][baseurl]/dav/ /home/bob/cloud davfs user,noauto,uid=bob,file_mode=600,dir_mode=700 0 1[/code]
 
-Now, create the mount point.
+Teraz utówrz punkt montowania:
 
 [code]mkdir /home/bob/cloud[/code]
 
-and also create a directory file to store your credentials
+oraz utwórz plik katalogu do przechowywania danych uwierzytelniania:
 
 [code]mkdir /home/bob/.davfs2[/code]
 
-Create a file called 'secrets'
+Utwórz plik o nazwie 'secrets'
 
 [code]nano /home/bob/.davfs2/secrets[/code]
 
-and add your cloud login credentials
+i dodaj tam swoje dane uwierzytelniania w chmurze
 
 [code]
 [baseurl]/dav &lt;username&gt; &lt;password&gt;
 [/code]
 
-Where &lt;username&gt; and &lt;password&gt; are the username and password [i]for your hub[/i].
+gdzie &lt;username&gt; i &lt;password&gt; to nazwa użytkownika i hasło [i]na Twoim kanale w hubie[/i].
 
-Don't let this file be writeable by anyone who doesn't need it with
+Nie pozwól, aby ten plik mógł być zapisywany przez kogoś nieupoważnionego:
 
 [code]chmod 600 /home/bob/.davfs2/secrets[/code]
 
-Finally, mount the drive.
+Na koniec, zamontuj dysk:
 
 [code]mount [baseurl]/dav[/code]
 
-You can now find your cloud at /home/bob/cloud and use it as though it were part of your local filesystem - even if the applications you are using have no dav support themselves.
+Możesz teraz znaleźć swoją chmurę w /home/bob/cloud i używać jej tak, jakby była częścią lokalnego systemu plików - nawet jeśli aplikacje, których używasz, same nie obsługują dav.
 
-[b]Troubleshooting[/b]
+[b]Rozwiązywanie problemów[/b]
 
-With some webservers and certain configurations, you may find davfs2 creating files with 0 bytes file size where other clients work just fine.  This is generally caused by cache and locks.  If you are affected by this issue, you need to edit your davfs2 configuration.
+W przypadku niektórych serwerów WWW i pewnych konfiguracji może się okazać, że davfs2 tworzy pliki o rozmiarze pliku 0 bajtów, podczas gdy inni klienty działają dobrze. Zwykle jest to spowodowane pamięcią podręczną i blokadami. Jeśli występuje ten problem, musisz edytować konfigurację davfs2.
 
-[code]nano /etc/davfs2/davfs2.conf[/code]
+[code]sudo nano /etc/davfs2/davfs2.conf[/code]
 
-Your distribution will provide a sample configuration, and this file should already exist, however, most of it will be commented out with a # at the beginning of the line.  
+Twoja dystrybucja dostarczy przykładową konfigurację i ten plik powinien już istnieć, jednak większość jego treści jest zakomentowana znakiem # na początku wiersza.    
 
-First step is to remove locks.
+Pierwszym krokiem jest usunięcie blokad.
 
-Edit the use_locks line so it reads [code]use_locks 0[/code].
+Edytuj wiersz use_locks, tak aby odczytywał [code]use_locks 0[/code].
 
-Unmount your file system, remount your file system, and try copying over a file from the command line.  Note you should copy a new file, and not overwrite an old one for this test.  Leave it a minute or two then do [code]ls -l -h[/code] and check the file size of your new file is still greater than 0 bytes.  If it is, stop there, and do nothing else.
+Odłącz system plików, podłącz go ponownie i spróbuj skopiować plik z wiersza poleceń. Zauważ, że powinieneś skopiować nowy plik a nie nadpisywać starego. który został utwozony na potrzeby tego testu. Poczekaj minutę lub dwie, a następnie wykonaj polecenie [code]ls -l -h[/code] i sprawdź, czy rozmiar nowego pliku jest nadal większy niż 0 bajtów. Jeśli tak, zatrzymaj się na tym i nie rób nic więcej.
 
-If that still doesn't work, disable the cache.  Note that this has a performance impact so should only be done if disabling locks didn't solve your problem.  Edit the cache_size and set it to [code]cache_size 0[/code] and also set file_refresh to [code]file_refresh 0[/code].  Unmount your filesystem, remount your file system, and test it again.
+Jeśli to nadal nie zadziała, wyłącz pamięć podręczną. Pamiętaj, że ma to wpływ na wydajność, więc należy to robić tylko wtedy, gdy wyłączenie blokad nie rozwiązało problemu. Edytuj cache_size i ustaw ją na [code]cache_size 0[/code], a także ustaw file_refresh na [code]file_refresh 0[/code]. Odmontuj system plików, ponownie go podłącz i przetestuj ponownie.
 
-If it [i]still[/i] doesn't work, there is one more thing you can try.  (This one is caused by a bug in older versions of dav2fs itself, so updating to a new version may also help).  Enable weak etag dropping by setting [code]drop_weak_etags 1[/code].  Unmount and remount your filesystem to apply the changes.
+Jeśli [i]nadal[/i] to nie działa, jest jeszcze jedna rzecz, której możesz spróbować. (Ten jest spowodowany błędem w starszych wersjach samego dav2fs, więc aktualizacja do nowej wersji może również pomóc). Włącz słabe usuwanie etagów, ustawiając [code]drop_weak_etags 1[]/code. Odmontuj i ponownie podłącz swój system plików, aby zastosować zmiany.
 
+[h5][b]Dolphin[/b][/h5]
+Dolphin Browser to przeglądarka internetowa dla Android i iOS. Odwiedź w niej [code]webdavs://example.com/dav[/code], gdzie [code]example.com[/code] to URL do Twojego huba.
 
-[h5]Dolphin[/h5]
-Visit webdavs://example.com/dav where &quot;example.com&quot; is the URL of your hub.
+Gdy zostaniesz poproszony o podanie nazwy użytkownika i hasła, wprowadź nazwę swojego kanału (pierwszą część swojej strony internetowej - bez znaku @ i nazwy domeny) i hasło do swojego normalnego konta.
 
-When prompted for a username and password, enter your channel name (the first part of your webbie - no @ or domain name) and password for your normal account.
+Pamiętaj, że jeśli jesteś już zalogowany do interfejsu WWW przez Konqueror, nie zostaniesz poproszony o dalsze uwierzytelnianie.
 
-Note, if you are already logged in to the web interface via Konqueror, you will not be prompted for further authentication.
+[h5][b]Konqueror[/b][/h5]
+Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumentów dla środowiska KDE. Wystarczy odwiedzić w niej serwis [code]webdavs://example.com/dav[/code] po zalogowaniu się do swojego huba, gdzie [code]example.com[/code] to adres URL huba.
 
-[h5]Konqueror[/h5]
+Jeśli jesteś zalogowany do swojego huba w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
 
-Simply visit webdavs://example.com/dav after logging in to your hub, where &quot;example.com&quot; is the URL of your hub.
+Ponadto, jeśli ktoś uwierzytelnił się w innym hubie podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do chmury dla tych hubów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania, pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
 
-No further authentication is required if you are logged in to your hub in the normal manner.  
+Ta funkcja jest zwykle ograniczona do interfejsu sieciowego i nie jest dostępna dla żadnego innego środowiska graficznego niż KDE.
 
-Additionally, if one has authenticated at a different hub during their normal browser session, your identity will be passed to the cloud for these hubs too - meaning you can access any private files on any server, as long as you have permissions to see them, as long as you have visited that site earlier in your session.
+[h5][b]Nautilus[/b][/h5]
 
-This functionality is normally restricted to the web interface, and is not available to any desktop software other than KDE.
+Nautilus to popularny menadżer plików dla środowiska GNOME. Jeśli sie nią posługujesz:
 
-[h5]Nautilus[/h5]
+1. Otwórz okno przeglądarki plików;
+2. Wybierz z menu opcję Plik &gt; Połącz z serwerem...;
+3. Wpisz davs://&lt;domain_name&gt;/dav/&lt;your_channelname&gt; i kliknij Połącz;
+4. Zostaniesz poproszony o podanie nazwy kanału (tak samo jak poprzednio) i hasło;
+5. Twój osobisty katalog DAV zostanie udostęþniony w oknie przeglądarki.
 
-1. Open a File browsing window (that's Nautilus)
-2. Select File &gt; Connect to server from the menu
-3. Type davs://&lt;domain_name&gt;/dav/&lt;your_channelname&gt; and click Connect
-4. You will be prompted for your channel name (same as above) and password
-5. Your personal DAV directory will be shown in the window
+[h5][b]Nemo[/b][/h5]
 
-[h5]Nemo[/h5]
+Pierwszy sposób:
 
-For (file browser) Nemo 1.8.2 under Linux Mint 15, Cinnamon 1.8.8. Nemo ist the standard file browser there.
+wpisz w pasku adresowym &quot;davs://&lt;domain_name&gt;/dav/&lt;your_channelname&gt;&quot;.
 
-1st way
-type &quot;davs://&lt;domain_name&gt;/dav/&lt;your_channelname&gt;&quot; in the address bar.
+Drugi sposób:
 
-2nd way
-Menu &gt; file &gt; connect to server
-Fill the dialog
-- Server: hubzilla_domain_name
-- Type: Secure WebDAV (https)
+1) Menu &gt; Plik &gt; Połącz z serwerem...
+2) Wypełnij okna w formatce dialogowej:
+- Sewer: hubzilla_domain_name
+- Typ: Secure WebDAV (https)
 - Folder: /dav
-- Username: yourchannelname
-- Password: yourpassword
+- Nazwa użytkownika: twoja_nazwa_kanału
+- Hasło: twoje_hasło
 
-Once open you can set a bookmark.
+Po otwarciu możesz ustawić zakładkę.
 
-[h5]Server Notes[/h5]
+[h5][b]Uwagi dotyczące serwera[/b][/h5]
 
-Note: There have been reported issues with clients that use "chunked transfer encoding", which includes Apple iOS services, and also the "AnyClient" and "CyberDuck" tools. These work fine for downloads, but uploads often end up with files of zero size. This is caused by an incorrect implemention of chunked encoding in some current FCGI (fast-cgi) implementations. Apache running with PHP as a module does not have these issues, but when running under FCGI you may need to use alternative clients or use the web uploader. At the time of this writing the issue has been open and no updates provided for at least a year. If you encounter zero size files with other clients, please check the client notes; as there are occasional configuration issues which can also produce these symptoms.  
+Zgłoszono problemy z klientami używającymi "chunked transfer encoding", które obejmuje usługi Apple iOS, a także narzędzia "AnyClient" i "CyberDuck". Działają one dobrze w przypadku pobierania, ale przesyłanie często kończy się plikami o zerowym rozmiarze. Jest to spowodowane nieprawidłową implementacją kodowania fragmentarycznego w niektórych obecnych implementacjach FCGI (fast-cgi). Apache działający z PHP jako modułem nie ma tych problemów, ale podczas pracy pod FCGI może być konieczne użycie alternatywnych klientów lub użycie programu do przesyłania internetowego. W chwili pisania tego artykułu problem był otwarty i nie udostępniono żadnych aktualizacji przez co najmniej rok. Jeśli napotkasz pliki o rozmiarze zerowym z innymi klientami, zapoznaj się z uwagami klienta; ponieważ czasami występują problemy z konfiguracją, które również mogą powodować te objawy.    
 
-[h3]Saved Searches[/h3]
+[h3]Zapisane wyszukiwania[/h3]
 
-In order to quickly find information, the 'saved search' widget may be used. This widget may be presented as a sidebar tool on your network page and possibly from your channel page. It is differentiated from the 'navigation bar' search tool in that it does not search the entire site, but only the subset of information available to your channel. 
+W celu szybkiego wyszukania informacji można skorzystać z widżetu "saved search". Ten widżet może być prezentowany jako narzędzie paska bocznego na Twojej stronie internetowej i prawdopodobnie na stronie Twojego kanału. Różni się od narzędzia wyszukiwania "paska nawigacji" tym, że nie przeszukuje całej witryny, a jedynie podzbiór informacji dostępnych na Twoim kanale. 
 
-Additionally the search terms you provide may activate a one-time search or be saved in a list for re-use. Saving the search item also invokes the search in addition to adding it to the saved list (which is displayed below the search text entry box). Any item in the list may be discarded if it is no longer needed. 
+Ponadto podane przez Ciebie frazy wyszukiwania mogą aktywować jednorazowe wyszukiwanie lub zostać zapisane na liście do ponownego wykorzystania. Zapisanie elementu wyszukiwania wywołuje również przeszukiwanie, oprócz dodania go do zapisanej listy (która jest wyświetlana poniżej pola wprowadzania tekstu wyszukiwania). Każdy element na liście może zostać odrzucony, jeśli nie jest już potrzebny. 
 
-The saved search widget will provide autocompletion of channels (the results are prefixed with '@'), and hashtags (prefixed with '#'). You do not need to enter these tags; although entering the desired tag will reduce the autocomplete results to only hold the relevant information. The behaviour maps as follows:
+Zapisany widżet wyszukiwania zapewni automatyczne uzupełnianie kanałów (wyniki są poprzedzone znakiem @) i hashtagami (poprzedzonymi znakiem #). Nie trzeba wprowadzać tych tagów; chociaż wprowadzenie żądanego tagu zmniejszy wyniki autouzupełniania, aby zawierały tylko istotne informacje. Zachowanie odwzorowuje się następująco:
 
 [list]
-[*]@name - search your network stream for posts or comments written by 'name'. This will also change the post editor permissions to include only 'name'; as if this was a privacy group.
-[*]#hashtag - search you network stream for posts containing #hashtag.
-[*]text - search your network stream for posts containing 'text'.
+[*]@name - przeszukuje strumienia sieci w poszukiwaniu postów lub komentarzy napisanych przez 'name'. Spowoduje to również zmianę uprawnień edytora postów, aby zawierały tylko 'name'; jakby to była grupa prywatności.
+[*]#hashtag - przeszukauje strumień sieci w poszukiwaniu postów zawierających #hashtag.
+[*]text - przeszukaj strumień sieci w poszukiwaniu postów zawierających 'text'.
 [/list]
 
 
-[h3]Remove Channel or Account[/h3]
+[h3]Usunięcie kanału lub konta[/h3]
 
-[h4]Remove Channel[/h4]
+[h4][b]Usuniecie kanału[/b][/h4]
 
-Select the 'Remove Channel' link on your channel settings page or visit the URL:
+Wybierz link 'Usuń kanał' na stronie ustawień kanału lub odwiedź URL [baseurl]/removeme. 
 
-	[baseurl]/removeme 
+Będziesz musiał potwierdzić swoje hasło i kanał, na którym jesteś obecnie zalogowany, zostanie usunięty. 
 
-You will need to confirm your password and the channel you are currently logged into will be removed. 
+[hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-[hl][i][b]This is irreversible.[/b][/i][/hl]
+Jeśli masz klony tożsamości na innych hubach, nie zostaną one usuniete. Operacja ta spowoduje tylko usunięcie tej instancji kanału, która istnieje w hubie, na którym dokonujesz usunięcia kanału.
 
-If you have identity clones on other hubs this only removes  by default the channel instance which exists on this hub.
+[h4][b]Usuniecie konta[/b][/h4]
 
-[h4]Remove Account[/h4]
-
-Select 'Remove Account' from your account settings page or visit the URL:
-
-	[baseurl]/removeaccount
+Wybierz link 'Usuń konto' widoczny na stronie ustawień konta lub odwiedź URL: [baseurl]/removeaccount
 	
-You will need to confirm your password and the account you are currently logged into will be removed. 
+Będziesz musiał potwierdzić swoje hasło i konto, na którym jesteś obecnie zalogowany, zostanie usunięte. 
 
-[hl][i][b]This is irreversible.[/b][/i][/hl]
+[hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-All your channels will be deleted. If you have identity clones on other hubs this only removes by default the channels instances which exists on this hub.
+Wszystkie Twoje kanały zostaną usunięte. Jeśli masz klony tożsamości na innych hubach - nie zostaną one usuniete. Operacja ta powoduje tylko usunięcie instancji kanałów, które istnieją hubie, na którym dokonujesz tą operację.
 

@@ -60,6 +60,7 @@ class Register extends Controller {
 
         $act        = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
 		$duty 		= zar_register_dutystate();
+		$is247		= false;
 		$ip 		= $_SERVER['REMOTE_ADDR'];
 		$sameip  	= intval(get_config('system','register_sameip'));
 		
@@ -70,12 +71,12 @@ class Register extends Controller {
 		$reonar		 = array();
 	
 
+		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
 
 			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
 				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
-					// xxx
-				//goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
+					$is247 = true;
 				}
 			}
 
@@ -101,30 +102,33 @@ class Register extends Controller {
 
 		}
 
-		if ($act > 0 && !$duty['isduty']) {
-			// normally, that should never arrive here (ie js hack or sth like)
+
+		if ($act > 0 && !$is247 && !$duty['isduty']) {
+			// normally (except very 1st timr after install), that should never arrive here (ie js hack or sth like)
 			// log suitable for f2b also
-			$logmsg = 'ZAR0230S Unexpected registration request'; 
+			$logmsg = 'ZAR0230S Unexpected registration request off duty'; 
 			zar_log($logmsg);
-			goaway(z_root() . '/');
+			goaway(z_root() . '/~');
 		}
 
-		if ($sameip) { 
+		if ($sameip && !$is247) { 
 			$f = q("SELECT COUNT(reg_atip) AS atip FROM register WHERE reg_vital = 1 AND reg_atip = '%s' ",
 				dbesc($ip)
 			);
 			if ($f && $f[0]['atip'] > $sameip) {
 				$logmsg = 'ZAR0239S Exceeding same ip register request of ' . $sameip;
 				zar_log($logmsg);
-				goaway(z_root() . '/');
+				goaway(z_root() . '/~');
 			}
 		}
 
 		// s2 max daily 
-		if ( self::check_reg_limits()['is'] ) return;
+		// msg?
+		if ( !$is247 && self::check_reg_limits()['is'] ) return;
 
 		// accept tos
 		if(! x($_POST,'tos')) {
+			// msg!
 			notice( 'ZAR0230E ' 
 			. t('Please indicate acceptance of the Terms of Service. Registration failed.') . EOL);
 			return;
@@ -132,6 +136,7 @@ class Register extends Controller {
 	
 		// pw1 == pw2
 		if((! $_POST['password']) || ($_POST['password'] !== $_POST['password2'])) {
+			// msg!
 			notice( 'ZAR0230E ' 
 			. t('Passwords do not match.') . EOL);
 			return;
@@ -142,6 +147,7 @@ class Register extends Controller {
 
 		if ($email) {
 			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
+				// msg!
 				notice('ZAR0239E ' 
 				.  t('Email address mistake') . EOL);
 				return;
@@ -207,19 +213,23 @@ class Register extends Controller {
 
 							// if $flags == 0  ??
 
-							// trans ?
+							// transit ?
 
 							// update reg vital 0 off
 							$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
 								intval($reg['reg_id'])
 							);	
 
-							info('ZAR0237I ' . t('Invitation code succesfully applied') . EOL);
+							$msg = 'ZAR0237I ' . t('Invitation code succesfully applied');
+							zar_log($msg) . ', ' . $email;
+							// msg!
+							info($msg . EOL);
 
 							$well = true;
 							
 
 						} else {
+							// msg!
 							notice('ZAR0236E ' . t('Invitation not in time or too late') . EOL);
 							goaway(z_root() . '/~'); 
 						}

@@ -1096,7 +1096,6 @@ class Activity {
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
-
 		return $ret;
 	}
 

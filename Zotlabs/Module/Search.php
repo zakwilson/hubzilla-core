@@ -58,15 +58,13 @@ class Search extends Controller {
 
 		$o .= search($search, 'search-box', '/search', ((local_channel()) ? true : false));
 
-		if (local_channel() && strpos($search, 'https://') === 0) {
+		if (local_channel() && strpos($search, 'https://') === 0 && !$update && !$load) {
 			$j = Activity::fetch($search, App::get_channel());
 			if ($j) {
 				$AS = new ActivityStreams($j);
-
 				if ($AS->is_valid()) {
 					// check if is_an_actor, otherwise import activity
 					if (is_array($AS->obj) && !ActivityStreams::is_an_actor($AS->obj)) {
-						// The boolean flag enables html cache of the item
 						$item = Activity::decode_note($AS);
 						if ($item) {
 							logger('parsed_item: ' . print_r($item, true), LOGGER_DATA);
@@ -75,6 +73,14 @@ class Search extends Controller {
 						}
 					}
 				}
+			}
+			else {
+				// try other fetch providers (e.g. diaspora)
+				$hookdata = [
+					'channel' => App::get_channel(),
+					'data' => $search
+				];
+				call_hooks('fetch_provider', $hookdata);
 			}
 		}
 
@@ -120,7 +126,7 @@ class Search extends Controller {
 		// Here is the way permissions work in the search module...
 		// Only public posts can be shown
 		// OR your own posts if you are a logged in member
-		// No items will be shown if the member has a blocked profile wall. 
+		// No items will be shown if the member has a blocked profile wall.
 
 
 		if ((!$update) && (!$load)) {

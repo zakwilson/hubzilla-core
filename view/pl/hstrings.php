@@ -2,11 +2,10 @@
 
 if(! function_exists("string_plural_select_pl")) {
 function string_plural_select_pl($n){
-	return ($n==1 ? 0 : $n%10>=2 && $n%10<=4 && ($n%100<12))
-;
+	return ($n==1 ? 0 : ($n%10>=2 && $n%10<=4 && ($n%100<12 || $n%100>14) ? 1 : 2));
 }}
 App::$rtl = 0;
-App::$strings["plural_function_code"] = "(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12))";
+App::$strings["plural_function_code"] = "(n==1 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))";
 App::$strings["Can view my channel stream and posts"] = "Może wyświetlać strumień i posty z mojego kanału";
 App::$strings["Can send me their channel stream and posts"] = "Może przesyłać mi strumień swojego kanału i posty";
 App::$strings["Can view my default channel profile"] = "Może wyświetlać mój domyślny profil kanału";
@@ -21,7 +20,7 @@ App::$strings["Can post on my channel (wall) page"] = "Może publikować na stro
 App::$strings["Can comment on or like my posts"] = "Może komentować lub polubić moje posty";
 App::$strings["Can send me private mail messages"] = "Może wysyłać mi prywatne wiadomości e-mail";
 App::$strings["Can like/dislike profiles and profile things"] = "Może polubiać/dezaprobować profile i rzeczy w profilach";
-App::$strings["Can forward to all my channel connections via ! mentions in posts"] = "Może przekazywać informacje do wszystkich moich połączeń kanałowych za pośrednictwem! wzmianki w postach";
+App::$strings["Can forward to all my channel connections via ! mentions in posts"] = "Może przekazywać informacje do wszystkich moich połączeń kanałowych za pośrednictwem !wzmianki w postach";
 App::$strings["Can chat with me"] = "Może ze mną rozmawiać";
 App::$strings["Can source my public posts in derived channels"] = "Może pozyskiwać moje publiczne posty w kanałach pochodnych";
 App::$strings["Can administer my channel"] = "Może zarządzać moim kanałem";
@@ -987,7 +986,7 @@ App::$strings["The recommended setting is to only allow unfiltered HTML from the
 App::$strings["https://youtube.com/<br />https://www.youtube.com/<br />https://youtu.be/<br />https://vimeo.com/<br />https://soundcloud.com/<br />"] = "https://youtube.com/<br />https://www.youtube.com/<br />https://youtu.be/<br />https://vimeo.com/<br />https://soundcloud.com/<br />";
 App::$strings["All other embedded content will be filtered, <strong>unless</strong> embedded content from that site is explicitly blocked."] = "Wszystkie inne osadzone treści będą filtrowane, <strong>chyba że</strong> osadzone treści z tego serwisu są jawnie zablokowane.";
 App::$strings["Security"] = "Bezpieczeństwo";
-App::$strings["Block public"] = "Zablokuj publiczny dstęp";
+App::$strings["Block public"] = "Zablokuj publiczny dostęp";
 App::$strings["Check to block public access to all otherwise public personal pages on this site unless you are currently authenticated."] = "Zaznacz, aby zablokować publiczny dostęp do wszystkich innych publicznych stron osobistych w tej witrynie, chyba że jesteś obecnie uwierzytelniony.";
 App::$strings["Provide a cloud root directory"] = "Podaj katalog główny w chmurze";
 App::$strings["The cloud root directory lists all channel names which provide public files"] = "Katalog główny w chmurze zawiera listę wszystkich nazw kanałów, które udostępniają pliki publiczne";
@@ -1039,7 +1038,7 @@ App::$strings["Selected accounts will be deleted!\\n\\nEverything these accounts
 App::$strings["The account {0} will be deleted!\\n\\nEverything this account has posted on this site will be permanently deleted!\\n\\nAre you sure?"] = "Konto {0} zostanie usuniete!\\n\\nWszystko co opublikowano z tego konta na tym serwisie zostanie bezpowrotnie usunięte!\\n\\nCzy na pewno usunąć?";
 App::$strings["Off"] = "Off";
 App::$strings["On"] = "On";
-App::$strings["Lock feature %s"] = "Funkcja blokady %s";
+App::$strings["Lock feature %s"] = "Blokuj funkcję %s";
 App::$strings["Manage Additional Features"] = "Zarządzaj dodatkowymi funkcjami";
 App::$strings["Queue Statistics"] = "Statystyki kolejki";
 App::$strings["Total Entries"] = "Ogółem postów";
@@ -2057,7 +2056,7 @@ App::$strings["You have %1$.0f of %2$.0f allowed connections."] = "Masz %1$.0f z
 App::$strings["Add New Connection"] = "Dodaj nowe połączenie";
 App::$strings["Enter channel address"] = "Wprowadź adres kanału";
 App::$strings["Examples: bob@example.com, https://example.com/barbara"] = "Przykłady: bob@example.com, https://example.com/barbara";
-App::$strings["Suggestions"] = "Prpozycje";
+App::$strings["Suggestions"] = "Propozycje";
 App::$strings["See more..."] = "Zobacz więcej...";
 App::$strings["Tasks"] = "Zadania";
 App::$strings["Member registrations waiting for confirmation"] = "Rejestracja członków czeka na potwierdzenie";
@@ -2314,7 +2313,7 @@ App::$strings["Musical interests:"] = "Zainteresowania muzyczne:";
 App::$strings["Books, literature:"] = "Książki, literatura:";
 App::$strings["Television:"] = "Telewizja:";
 App::$strings["Film/dance/culture/entertainment:"] = "Film/taniec/kultura/rozrywka:";
-App::$strings["Love/Romance:"] = "Miłość/romans:";
+App::$strings["Love/Romance:"] = "Miłość/Romans:";
 App::$strings["Work/employment:"] = "Praca/zatrudnienie:";
 App::$strings["School/education:"] = "Szkoła/edukacja:";
 App::$strings["Like this thing"] = "Jak ta rzecz";

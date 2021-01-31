@@ -10,8 +10,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 "
-"|| n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2));\n"
 "X-Generator: Poedit 2.3\n"
 
 #: ../../Zotlabs/Access/Permissions.php:56
@@ -74,7 +73,7 @@ msgstr "Może polubiać/dezaprobować profile i rzeczy w profilach"
 msgid "Can forward to all my channel connections via ! mentions in posts"
 msgstr ""
 "Może przekazywać informacje do wszystkich moich połączeń kanałowych za "
-"pośrednictwem! wzmianki w postach"
+"pośrednictwem !wzmianki w postach"
 
 #: ../../Zotlabs/Access/Permissions.php:71
 msgid "Can chat with me"
@@ -5095,7 +5094,7 @@ msgstr "Bezpieczeństwo"
 
 #: ../../Zotlabs/Module/Admin/Security.php:101
 msgid "Block public"
-msgstr "Zablokuj publiczny dstęp"
+msgstr "Zablokuj publiczny dostęp"
 
 #: ../../Zotlabs/Module/Admin/Security.php:101
 msgid ""
@@ -5325,7 +5324,7 @@ msgstr "On"
 #: ../../Zotlabs/Module/Admin/Features.php:56
 #, php-format
 msgid "Lock feature %s"
-msgstr "Funkcja blokady %s"
+msgstr "Blokuj funkcję %s"
 
 #: ../../Zotlabs/Module/Admin/Features.php:64
 msgid "Manage Additional Features"
@@ -9984,7 +9983,7 @@ msgstr "Przykłady: bob@example.com, https://example.com/barbara"
 
 #: ../../Zotlabs/Widget/Suggestions.php:53
 msgid "Suggestions"
-msgstr "Prpozycje"
+msgstr "Propozycje"
 
 #: ../../Zotlabs/Widget/Suggestions.php:54
 msgid "See more..."
@@ -10943,7 +10942,7 @@ msgstr "Film/taniec/kultura/rozrywka:"
 
 #: ../../include/channel.php:1861
 msgid "Love/Romance:"
-msgstr "Miłość/romans:"
+msgstr "Miłość/Romans:"
 
 #: ../../include/channel.php:1863
 msgid "Work/employment:"

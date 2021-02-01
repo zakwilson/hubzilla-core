@@ -2493,9 +2493,6 @@ class Activity {
 			$item['item_private'] = 2;
 		}*/
 
-		// TODO: remove
-		// $is_parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
-
 		if ($item['parent_mid'] && $item['parent_mid'] !== $item['mid']) {
 			$is_child_node = true;
 		}
@@ -2574,12 +2571,6 @@ class Activity {
 			}*/
 		}
 
-		// TODO: remove
-		/*if ($is_parent && (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream))) {
-			logger('no permission');
-			return;
-		}*/
-
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
 			// for forum deliveries, make sure we keep a copy of the signed original
 			set_iconfig($item, 'activitypub', 'rawmsg', $act->raw, 1);
@@ -2628,15 +2619,6 @@ class Activity {
 			logger('no permission');
 			return;
 		}
-
-		// TODO: remove
-		/*if (is_array($act->obj)) {
-			$content = self::get_content($act->obj);
-		}
-		if (!$content) {
-			logger('no content');
-			return;
-		}*/
 
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
@@ -2704,54 +2686,6 @@ class Activity {
 
 		$parent = null;
 
-		// TODO: remove
-		/*if (!$is_parent) {
-			$p = q("select parent_mid, id, obj_type from item where mid = '%s' and uid = %d limit 1",
-				dbesc($item['parent_mid']),
-				intval($item['uid'])
-			);
-			if (!$p) {
-				$a = (($fetch_parents) ? self::fetch_and_store_parents($channel, $item) : false);
-				if ($a) {
-					$p = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
-						dbesc($item['parent_mid']),
-						intval($item['uid'])
-					);
-				}
-				else {
-					logger('could not fetch parents');
-					return;
-
-					// @TODO we maybe could accept these is we formatted the body correctly with share_bb()
-					// or at least provided a link to the object
-					// if(in_array($act->type,[ 'Like','Dislike' ])) {
-					//	return;
-					// }
-
-					// @TODO do we actually want that?
-					// if no parent was fetched, turn into a top-level post
-
-					// turn into a top level post
-					// $s['parent_mid'] = $s['mid'];
-					// $s['thr_parent'] = $s['mid'];
-				}
-			}
-
-			if ($p[0]['obj_type'] === 'Question') {
-				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (!$item['content'])) {
-					$item['obj_type'] = 'Answer';
-				}
-			}
-
-			if ($p[0]['parent_mid'] !== $item['parent_mid']) {
-				$item['thr_parent'] = $item['parent_mid'];
-			}
-			else {
-				$item['thr_parent'] = $p[0]['parent_mid'];
-			}
-			$item['parent_mid'] = $p[0]['parent_mid'];
-		}*/
-
 		if ($is_child_node) {
 
 			$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
@@ -2811,24 +2745,6 @@ class Activity {
 			$x = item_store($item);
 		}
 
-		// TODO: remove
-		/*$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
-			dbesc($item['mid']),
-			intval($item['uid'])
-		);
-		if ($r) {
-			if ($item['edited'] > $r[0]['edited']) {
-				$item['id'] = $r[0]['id'];
-				$x          = item_store_update($item);
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			$x = item_store($item);
-		}*/
-
 		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
 			logger('topfetch', LOGGER_DEBUG);
 			// if the thread owner is a connnection, we will already receive any additional comments to their posts
@@ -2869,23 +2785,6 @@ class Activity {
 			}
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
-
-		// TODO: remove
-		/*if (is_array($x) && $x['item_id']) {
-			if ($is_parent) {
-				if ($item['owner_xchan'] === $channel['channel_hash']) {
-					// We are the owner of this conversation, so send all received comments back downstream
-					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-				}
-				$r = q("select * from item where id = %d limit 1",
-					intval($x['item_id'])
-				);
-				if ($r) {
-					send_status_notifications($x['item_id'], $r[0]);
-				}
-			}
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}*/
 
 	}
 

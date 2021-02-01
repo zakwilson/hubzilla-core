@@ -69,7 +69,7 @@ function photo_factory($data, $type = null) {
  * @return null|string Guessed mimetype
  */
 function guess_image_type($filename, $data = '') {
-	
+
 	if($data)
 		$headers = (is_array($data) ? $data['header'] : $data);
 
@@ -135,9 +135,10 @@ function guess_image_type($filename, $data = '') {
 			}
 		}
 
-		if(is_null($type) && strpos($filename, 'http') === false) {
+		if(is_null($type) && strpos($filename, 'http') === 0) {
 			$size = getimagesize($filename);
-			$type = ((array_key_exists($size['mime'], $types)) ? $size['mime'] : 'image/jpeg');
+			if (array_key_exists($size['mime'], $types))
+				$type = $size['mime'];
 		}
 
 		if(is_null($type)) {

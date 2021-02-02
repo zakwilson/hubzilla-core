@@ -307,7 +307,7 @@ class Apps {
 				}
 			}
 		}
-		if($ret) {
+		if(isset($ret)) {
 			if($translate)
 				self::translate_system_apps($ret);
 

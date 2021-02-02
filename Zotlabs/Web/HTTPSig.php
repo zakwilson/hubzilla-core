@@ -161,6 +161,8 @@ class HTTPSig {
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
+		$fetched_key = '';
+
 		if(! $x) {
 
 			// try again, ignoring the local actor (xchan) cache and refetching the key
@@ -244,7 +246,7 @@ class HTTPSig {
 	}
 
 
-	function convertKey($key) {
+	static function convertKey($key) {
 
 		if(strstr($key,'RSA ')) {
 			return rsatopem($key);
@@ -267,7 +269,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return the pub key
 	 */
 
-	function get_activitystreams_key($id) {
+	static function get_activitystreams_key($id) {
 
 		// remove fragment
 
@@ -298,7 +300,7 @@ class HTTPSig {
 	}
 
 
-	function get_webfinger_key($id) {
+	static function get_webfinger_key($id) {
 
 		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
 			dbesc(str_replace('acct:','',$id)),
@@ -333,7 +335,7 @@ class HTTPSig {
 		return (($key['public_key']) ? $key : false);
 	}
 
-	function get_zotfinger_key($id) {
+	static function get_zotfinger_key($id) {
 
 		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 			dbesc(str_replace('acct:','',$id)),

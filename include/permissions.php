@@ -279,7 +279,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 	// First find out what the channel owner declared permissions to be.
 
-	$channel_perm = \Zotlabs\Access\PermissionLimits::Get($uid,$permission);
+	$channel_perm = intval(\Zotlabs\Access\PermissionLimits::Get($uid,$permission));
 
 	$r = q("select channel_pageflags, channel_moved, channel_hash from channel where channel_id = %d limit 1",
 		intval($uid)

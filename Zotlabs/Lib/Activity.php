@@ -87,14 +87,16 @@ class Activity {
 			}
 
 			$headers = [
-				'Accept'           => 'application/activity+json, application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				'Accept'           => ActivityStreams::get_accept_header_string($channel),
 				'Host'             => $m['host'],
 				'Date'             => datetime_convert('UTC', 'UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T'),
 				'(request-target)' => 'get ' . get_request_string($url)
 			];
+
 			if (isset($token)) {
 				$headers['Authorization'] = 'Bearer ' . $token;
 			}
+
 			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel), false);
 			$x = z_fetch_url($url, true, $redirects, ['headers' => $h]);
 		}
@@ -110,7 +112,6 @@ class Activity {
 		}
 		return null;
 	}
-
 
 	static function fetch_person($x) {
 		return self::fetch_profile($x);
@@ -176,7 +177,6 @@ class Activity {
 			return self::encode_item($r[0]);
 		}
 	}
-
 
 	static function fetch_image($x) {
 		$ret = [
@@ -302,7 +302,7 @@ class Activity {
 				$m = get_iconfig($i['id'], 'activitypub', 'rawmsg');
 				if ($m) {
 					if (is_string($m))
-						$t = json_decode($m,true);
+						$t = json_decode($m, true);
 					else
 						$t = $m;
 				}
@@ -350,7 +350,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function encode_item($i) {
 
@@ -583,7 +582,6 @@ class Activity {
 		return $ret;
 	}
 
-
 	static function encode_taxonomy($item) {
 
 		$ret = [];
@@ -672,7 +670,6 @@ class Activity {
 		return $ret;
 	}
 
-
 	static function decode_attachment($item) {
 
 		$ret = [];
@@ -695,7 +692,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function encode_activity($i, $recurse = false) {
 
@@ -958,7 +954,6 @@ class Activity {
 	}
 
 	// Returns an array of URLS for any mention tags found in the item array $i.
-
 	static function map_mentions($i) {
 
 		if (!$i['term']) {
@@ -981,7 +976,6 @@ class Activity {
 	}
 
 	// Returns an array of all recipients targeted by private item array $i.
-
 	static function map_acl($i) {
 		$ret = [];
 
@@ -1064,6 +1058,7 @@ class Activity {
 
 		if ($p['xchan_addr'] && strpos($p['xchan_addr'], '@'))
 			$ret['preferredUsername'] = substr($p['xchan_addr'], 0, strpos($p['xchan_addr'], '@'));
+
 		$ret['name']    = $p['xchan_name'];
 		$ret['updated'] = datetime_convert('UTC', 'UTC', $p['xchan_name_date'], ATOM_TIME);
 		$ret['icon']    = [
@@ -1093,14 +1088,16 @@ class Activity {
 			'publicKeyPem' => $p['xchan_pubkey']
 		];
 
-		$arr = ['xchan' => $p, 'encoded' => $ret];
+		$arr = [
+			'xchan' => $p,
+			'encoded' => $ret
+		];
+
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
-
 		return $ret;
 	}
-
 
 	static function activity_mapper($verb) {
 
@@ -1145,14 +1142,13 @@ class Activity {
 		if (strpos($verb, ACTIVITY_POKE) !== false)
 			return 'Activity';
 
-		// We should return false, however this will trigger an uncaught execption  and crash 
+		// We should return false, however this will trigger an uncaught execption  and crash
 		// the delivery system if encountered by the JSON-LDSignature library
 
 		logger('Unmapped activity: ' . $verb);
 		return 'Create';
 		//	return false;
 	}
-
 
 	static function activity_decode_mapper($verb) {
 
@@ -1225,7 +1221,6 @@ class Activity {
 		return 'Note';
 	}
 
-
 	static function activity_obj_mapper($obj) {
 
 		$objs = [
@@ -1272,17 +1267,16 @@ class Activity {
 
 	}
 
-
 	static function follow($channel, $act) {
 
 		$contact         = null;
 		$their_follow_id = null;
 
 		/*
-		 * 
-		 * if $act->type === 'Follow', actor is now following $channel 
-		 * if $act->type === 'Accept', actor has approved a follow request from $channel 
-		 *	 
+		 *
+		 * if $act->type === 'Follow', actor is now following $channel
+		 * if $act->type === 'Accept', actor has approved a follow request from $channel
+		 *
 		 */
 
 		$person_obj = $act->actor;
@@ -1297,7 +1291,7 @@ class Activity {
 
 			self::actor_store($person_obj['id'], $person_obj);
 
-			// Find any existing abook record 
+			// Find any existing abook record
 
 			$r = q("select * from abook left join xchan on abook_xchan = xchan_hash where abook_xchan = '%s' and abook_channel = %d limit 1",
 				dbesc($person_obj['id']),
@@ -1314,7 +1308,7 @@ class Activity {
 
 		if ($contact && $contact['abook_id']) {
 
-			// A relationship of some form already exists on this site. 
+			// A relationship of some form already exists on this site.
 
 			switch ($act->type) {
 
@@ -1469,7 +1463,6 @@ class Activity {
 
 	}
 
-
 	static function unfollow($channel, $act) {
 
 		$contact = null;
@@ -1494,7 +1487,6 @@ class Activity {
 
 		return;
 	}
-
 
 	static function actor_store($url, $person_obj) {
 
@@ -1601,7 +1593,7 @@ class Activity {
 		else {
 
 			// Record exists. Cache existing records for one week at most
-			// then refetch to catch updated profile photos, names, etc. 
+			// then refetch to catch updated profile photos, names, etc.
 
 			$d = datetime_convert('UTC', 'UTC', 'now - 1 week');
 			if ($r[0]['xchan_name_date'] > $d)
@@ -1663,7 +1655,6 @@ class Activity {
 
 	}
 
-
 	static function create_action($channel, $observer_hash, $act) {
 
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
@@ -1681,7 +1672,6 @@ class Activity {
 
 	}
 
-
 	static function like_action($channel, $observer_hash, $act) {
 
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Video'])) {
@@ -1692,7 +1682,6 @@ class Activity {
 	}
 
 	// sort function width decreasing
-
 	static function vid_sort($a, $b) {
 		if ($a['width'] === $b['width'])
 			return 0;
@@ -1954,7 +1943,6 @@ class Activity {
 
 	}
 
-
 	static function update_poll($item, $post) {
 		$multi   = false;
 		$mid     = $post['mid'];
@@ -2046,7 +2034,6 @@ class Activity {
 
 		return false;
 	}
-
 
 	static function decode_note($act) {
 
@@ -2506,9 +2493,6 @@ class Activity {
 			$item['item_private'] = 2;
 		}*/
 
-		// TODO: remove
-		// $is_parent = (($item['parent_mid'] && $item['parent_mid'] === $item['mid']) ? true : false);
-
 		if ($item['parent_mid'] && $item['parent_mid'] !== $item['mid']) {
 			$is_child_node = true;
 		}
@@ -2563,7 +2547,7 @@ class Activity {
 
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
-				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && ! $fetch_parents) {					// TODO: check why? This would make it impossible to fetch externals via zotfeed where $observer_hash = sys channel
+				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
 					$allowed = false;
 				}
 			}
@@ -2586,12 +2570,6 @@ class Activity {
 				$allowed = true;
 			}*/
 		}
-
-		// TODO: remove
-		/*if ($is_parent && (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream))) {
-			logger('no permission');
-			return;
-		}*/
 
 		if (tgroup_check($channel['channel_id'], $item) && (!$is_child_node)) {
 			// for forum deliveries, make sure we keep a copy of the signed original
@@ -2641,15 +2619,6 @@ class Activity {
 			logger('no permission');
 			return;
 		}
-
-		// TODO: remove
-		/*if (is_array($act->obj)) {
-			$content = self::get_content($act->obj);
-		}
-		if (!$content) {
-			logger('no content');
-			return;
-		}*/
 
 		$item['aid'] = $channel['channel_account_id'];
 		$item['uid'] = $channel['channel_id'];
@@ -2717,54 +2686,6 @@ class Activity {
 
 		$parent = null;
 
-		// TODO: remove
-		/*if (!$is_parent) {
-			$p = q("select parent_mid, id, obj_type from item where mid = '%s' and uid = %d limit 1",
-				dbesc($item['parent_mid']),
-				intval($item['uid'])
-			);
-			if (!$p) {
-				$a = (($fetch_parents) ? self::fetch_and_store_parents($channel, $item) : false);
-				if ($a) {
-					$p = q("select parent_mid from item where mid = '%s' and uid = %d limit 1",
-						dbesc($item['parent_mid']),
-						intval($item['uid'])
-					);
-				}
-				else {
-					logger('could not fetch parents');
-					return;
-
-					// @TODO we maybe could accept these is we formatted the body correctly with share_bb()
-					// or at least provided a link to the object
-					// if(in_array($act->type,[ 'Like','Dislike' ])) {
-					//	return;
-					// }
-
-					// @TODO do we actually want that?
-					// if no parent was fetched, turn into a top-level post
-
-					// turn into a top level post
-					// $s['parent_mid'] = $s['mid'];
-					// $s['thr_parent'] = $s['mid'];
-				}
-			}
-
-			if ($p[0]['obj_type'] === 'Question') {
-				if ($item['obj_type'] === ACTIVITY_OBJ_NOTE && $item['title'] && (!$item['content'])) {
-					$item['obj_type'] = 'Answer';
-				}
-			}
-
-			if ($p[0]['parent_mid'] !== $item['parent_mid']) {
-				$item['thr_parent'] = $item['parent_mid'];
-			}
-			else {
-				$item['thr_parent'] = $p[0]['parent_mid'];
-			}
-			$item['parent_mid'] = $p[0]['parent_mid'];
-		}*/
-
 		if ($is_child_node) {
 
 			$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
@@ -2824,24 +2745,6 @@ class Activity {
 			$x = item_store($item);
 		}
 
-		// TODO: remove
-		/*$r = q("select id, created, edited from item where mid = '%s' and uid = %d limit 1",
-			dbesc($item['mid']),
-			intval($item['uid'])
-		);
-		if ($r) {
-			if ($item['edited'] > $r[0]['edited']) {
-				$item['id'] = $r[0]['id'];
-				$x          = item_store_update($item);
-			}
-			else {
-				return;
-			}
-		}
-		else {
-			$x = item_store($item);
-		}*/
-
 		if ($fetch_parents && $parent && !intval($parent[0]['item_private'])) {
 			logger('topfetch', LOGGER_DEBUG);
 			// if the thread owner is a connnection, we will already receive any additional comments to their posts
@@ -2882,23 +2785,6 @@ class Activity {
 			}
 			sync_an_item($channel['channel_id'], $x['item_id']);
 		}
-
-		// TODO: remove
-		/*if (is_array($x) && $x['item_id']) {
-			if ($is_parent) {
-				if ($item['owner_xchan'] === $channel['channel_hash']) {
-					// We are the owner of this conversation, so send all received comments back downstream
-					Master::Summon(['Notifier', 'comment-import', $x['item_id']]);
-				}
-				$r = q("select * from item where id = %d limit 1",
-					intval($x['item_id'])
-				);
-				if ($r) {
-					send_status_notifications($x['item_id'], $r[0]);
-				}
-			}
-			sync_an_item($channel['channel_id'], $x['item_id']);
-		}*/
 
 	}
 
@@ -2963,7 +2849,7 @@ class Activity {
 					break;
 				}
 
-				array_unshift($p,[ $a, $item ]);
+				array_unshift($p, [$a, $item]);
 
 				if ($item['parent_mid'] === $item['mid']) {
 					break;
@@ -3386,7 +3272,6 @@ class Activity {
 		return;
 	}
 
-
 	static function bb_attach($attach, $body) {
 
 		$ret = false;
@@ -3412,9 +3297,7 @@ class Activity {
 		return $ret;
 	}
 
-
 	// check for the existence of existing media link in body
-
 	static function media_not_in_body($s, $body) {
 
 		if ((strpos($body, ']' . $s . '[/img]') === false) &&
@@ -3425,7 +3308,6 @@ class Activity {
 		}
 		return false;
 	}
-
 
 	static function bb_content($content, $field) {
 
@@ -3454,7 +3336,6 @@ class Activity {
 
 		return $ret;
 	}
-
 
 	static function get_content($act) {
 
@@ -3511,7 +3392,6 @@ class Activity {
 		return $content;
 	}
 
-
 	static function get_textfield($act, $field) {
 
 		$content = false;
@@ -3528,7 +3408,6 @@ class Activity {
 
 	// Find either an Authorization: Bearer token or 'token' request variable
 	// in the current web request and return it
-
 	static function token_from_request() {
 
 		foreach (['REDIRECT_REMOTE_USER', 'HTTP_AUTHORIZATION'] as $s) {

@@ -45,7 +45,8 @@
         "ramsey/uuid": "^4.1",
         "twbs/bootstrap": "^4.3.1",
         "blueimp/jquery-file-upload": "^10.3",
-        "desandro/imagesloaded": "^4.1"
+        "desandro/imagesloaded": "^4.1",
+        "phpseclib/phpseclib": "~3.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.4",

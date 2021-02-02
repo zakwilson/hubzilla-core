@@ -86,7 +86,7 @@ Możliwość wyświetlania tylko tych postów, z którymi miało się interakcj�
 <h5>Użyj trybu bloga/listy</h5>
 Komentarze będą wyświetlane osobno       
 
-<h3> id="photos_settings">photos_settings">Zdjęcia</h3>
+<h3> id="photos_settings">Zdjęcia</h3>
 
 <h5>Lokalizacja zdjecia</h5>
         

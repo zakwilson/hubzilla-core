@@ -1,7 +1,7 @@
 
 Dziękujemy za zarejestrowanie się na serwisie {{$sitename}}.
 
-Szczegóły Twojego logowania są nastęþujące:
+Szczegóły Twojego logowania są następujące:
 
 Lokalizacja serwisu:	{{$siteurl}}
 Nazwa logowania:	{{$email}}

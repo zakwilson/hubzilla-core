@@ -1083,7 +1083,7 @@ msgstr "Nie można wygenerować podglądu."
 
 #: ../../Zotlabs/Module/Events.php:122 ../../Zotlabs/Module/Channel_calendar.php:65
 msgid "Event title and start time are required."
-msgstr "Wymaga się wprowadzenie tytułu wydarzenia i godziny rozpoczęcia."
+msgstr "Wymaga się wprowadzenia tytułu wydarzenia i godziny rozpoczęcia."
 
 #: ../../Zotlabs/Module/Events.php:144 ../../Zotlabs/Module/Events.php:271
 #: ../../Zotlabs/Module/Channel_calendar.php:82
@@ -4414,7 +4414,7 @@ msgstr "Dezaprobaty"
 #: ../../include/acl_selectors.php:155
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:233
 msgid "Close"
-msgstr "Zamknięte"
+msgstr "Zamknij"
 
 #: ../../Zotlabs/Module/Photos.php:1348 ../../Zotlabs/Module/Photos.php:1361
 #: ../../Zotlabs/Module/Photos.php:1362 ../../include/photos.php:667
@@ -8862,7 +8862,7 @@ msgstr "[$Projectname:Notify] Moderowany komentarz do rozmowy #%1$d przez %2$s"
 #: ../../Zotlabs/Lib/Enotify.php:239
 #, php-format
 msgid "[$Projectname:Notify] Comment to conversation #%1$d by %2$s"
-msgstr "[$Projectname:Notify] Komentarz do roz,owy #%1$d przez %2$s"
+msgstr "[$Projectname:Notify] Komentarz do rozmowy #%1$d przez %2$s"
 
 #: ../../Zotlabs/Lib/Enotify.php:240
 #, php-format
@@ -8958,7 +8958,7 @@ msgstr "%1$s tagged [zrl=%2$s]Twój post[/zrl]"
 
 #: ../../Zotlabs/Lib/Enotify.php:402
 msgid "[$Projectname:Notify] Introduction received"
-msgstr "[$Projectname:Notify] Otrzymano wprowadzenie"
+msgstr "[$Projectname:Notify] Otrzymano prośbę o połączenie"
 
 #: ../../Zotlabs/Lib/Enotify.php:403
 #, php-format

@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
+    'reference' => '08c9152abdfa90da09931bdcc6e6c81ea243434c',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -92,6 +92,24 @@
       ),
       'reference' => 'c83178d49e372ca967d1a8c77ae4e051b3a3c75c',
     ),
+    'paragonie/constant_time_encoding' => 
+    array (
+      'pretty_version' => 'v2.4.0',
+      'version' => '2.4.0.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => 'f34c2b11eb9d2c9318e13540a1dbc2a3afbd939c',
+    ),
+    'paragonie/random_compat' => 
+    array (
+      'pretty_version' => 'v9.99.100',
+      'version' => '9.99.100.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '996434e5492cb4c3edcb9168db6fbb1359ef965a',
+    ),
     'pear/text_languagedetect' => 
     array (
       'pretty_version' => 'v1.0.1',
@@ -100,6 +118,15 @@
       array (
       ),
       'reference' => '9e253f26cef9a9066f53f200cc3e0684018cb5b5',
+    ),
+    'phpseclib/phpseclib' => 
+    array (
+      'pretty_version' => '3.0.4',
+      'version' => '3.0.4.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '845a2275e886ba9fb386c8f59cb383dd9c8963e9',
     ),
     'psr/log' => 
     array (
@@ -239,7 +266,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
+      'reference' => '08c9152abdfa90da09931bdcc6e6c81ea243434c',
     ),
   ),
 );

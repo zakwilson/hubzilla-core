@@ -311,12 +311,13 @@ class Libzotdir {
 
 		if ($ud['ud_addr'] && (! ($ud['ud_flags'] & UPDATE_FLAGS_DELETED))) {
 			$success = false;
+			$zf = [];
 
 			$href = Webfinger::zot_url(punify($ud['ud_addr']));
 			if($href) {
 				$zf = Zotfinger::exec($href);
 			}
-			if(is_array($zf) && array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
+			if(array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
 				$xc = Libzot::import_xchan($zf['data'], 0, $ud);
 			}
 			else {

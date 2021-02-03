@@ -49,7 +49,7 @@ class Convo {
 				// and that lets us use implied_create
 				$AS = new ActivityStreams($message);
 				if ($AS->is_valid() && is_array($AS->obj)) {
-					$item = Activity::decode_note($AS, true);
+					$item = Activity::decode_note($AS);
 					Activity::store($channel, $contact['abook_xchan'], $AS, $item);
 				}
 			}

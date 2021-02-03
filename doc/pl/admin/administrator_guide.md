@@ -214,7 +214,7 @@ i włączać te protokoły automatycznie dla wszystkich nowo tworzonych kanałó
 
 ### Klasy usług
 
-Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Na przykład utwórz klasę standard i premium, używając następujących wierszy:
+Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Dla przykładu utwórzmy klasę standard i premium, używając następujący kod:
 
     // Service classes
 
@@ -265,19 +265,20 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 
 * ustawienie konta, które jest właścicielem kanału `blogchan` na klasę _firstclass_ (z potwierdzeniem)
 	
-	util/service_class --channel=badmin/dziennikchan firstclass
+	util/service_class --channel=blogchan firstclass
 
 **Opcje limitu klas usług**
 
 ##### Opcje limitów klas usług:
 
-* _photo_upload_limit_ - maksymalna łączna liczba bajtów na zdjęcia
-* _total_items_ - maksymalna liczba wpisów na najwyższym poziomie
-* _total_pages_ - maksymalna liczba stron comanche
+* _photo_upload_limit_ - maksymalna łączna powierzchnia dysku na przesłane pliki (w bajtach)
+* _attach_upload_limit_ - maksymalna powierzchnia dysku na przesyłane załączniki plikow (w bajtach)
+* _total_items_ - maksymalna liczba postów na najwyższym poziomie
+* _total_pages_ - maksymalna liczba stron Comanche
 * _total_identities_ - maksymalna liczba kanałów posiadanych na koncie
 * _total_channels_ - maksymalna liczba kanałów
 * _total_feeds_ - maksymalna liczba kanałów RSS
-* _attach_upload_limit_ - maksymalna pojemność przesyłania plików (w bajtach)
+
 * _minimum_feedcheck_minutes_ - najniższe ustawienie dozwolone dla odpytywania kanałów RSS
 * _chatrooms_ - maksymalna liczba czatów
 * _chatters_inroom_ - maksymalna liczba rozmówców w czacie 

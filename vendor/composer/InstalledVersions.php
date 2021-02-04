@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '34b28cd8d36c7805e65c442ff1588ccf5165387a',
+    'reference' => 'a6162d3134cd7fcde4f45064b75f90008a7f8177',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -272,7 +272,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '34b28cd8d36c7805e65c442ff1588ccf5165387a',
+      'reference' => 'a6162d3134cd7fcde4f45064b75f90008a7f8177',
     ),
   ),
 );

@@ -3,8 +3,8 @@
 namespace Zotlabs\Web;
 
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Webfinger;
-use Zotlabs\Web\HTTPHeaders;
 use Zotlabs\Lib\Libzot;
 
 /**
@@ -252,7 +252,7 @@ class HTTPSig {
 			return rsatopem($key);
 		}
 		elseif(substr($key,0,5) === 'data:') {
-			return convert_salmon_key($key);
+			return Keyutils::convertSalmonKey($key);
 		}
 		else {
 			return $key;

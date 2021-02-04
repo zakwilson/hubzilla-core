@@ -1,7 +1,7 @@
 <?php /** @file */
 
-use phpseclib3\Crypt\PublicKeyLoader;
-use phpseclib3\Math\BigInteger;
+use phpseclib\Crypt\RSA;
+use phpseclib\Math\BigInteger;
 
 require_once('library/ASNValue.class.php');
 require_once('library/asn1.php');
@@ -393,12 +393,12 @@ function pkcs1_encode($Modulus,$PublicExponent) {
  */
 function metopem($m, $e) {
 
-	$key = PublicKeyLoader::load([
+	$rsa = new RSA();
+	$rsa->loadKey([
 		'e' => new BigInteger($e, 256),
 		'n' => new BigInteger($m, 256)
 	]);
-	hz_syslog('metopem: ' . $key->toString('PKCS8'));
-	return $key->toString('PKCS8');
+	return $rsa->getPublicKey();
 
 /*	$der = pkcs8_encode($m,$e);
 	$key = DerToPem($der,false);
@@ -423,10 +423,10 @@ function pubrsatome($key,&$m,&$e) {
 
 function rsatopem($key) {
 
-	$key = PublicKeyLoader::load($key);
-	hz_syslog('rsatopem: ' . $key->toString('PKCS8'));
+	$rsa = new RSA();
+	$rsa->setPublicKey($key);
 
-	return $key->toString('PKCS8');
+	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
 
 
 /*	pubrsatome($key,$m,$e);
@@ -434,10 +434,10 @@ function rsatopem($key) {
 }
 
 function pemtorsa($key) {
-	$key = PublicKeyLoader::load($key);
-	hz_syslog('pemtorsa: ' . $key->toString('PKCS1'));
+	$rsa = new RSA();
+	$rsa->setPublicKey($key);
 
-	return $key->toString('PKCS1');
+	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
 
 /*	pemtome($key,$m,$e);
 	return(metorsa($m,$e));*/
@@ -446,9 +446,12 @@ function pemtorsa($key) {
 
 function pemtome($key,&$m,&$e) {
 
-	$key = PublicKeyLoader::load($key);
-	$m = new BigInteger($key->n, 256);
-	$e = new BigInteger($key->e, 256);
+	$rsa = new RSA();
+	$rsa->loadKey($key);
+	$rsa->setPublicKey();
+
+	$e  = $rsa->modulus->toBytes();
+	$m = $rsa->exponent->toBytes();
 
 
 /*	$rsa = new RSA();
@@ -473,13 +476,12 @@ function pemtome($key,&$m,&$e) {
 
 function metorsa($m,$e) {
 
-	$key = PublicKeyLoader::load([
+	$rsa = new RSA();
+	$rsa->loadKey([
 		'e' => new BigInteger($e, 256),
 		'n' => new BigInteger($m, 256)
 	]);
-	hz_syslog('metorsa: ' . $key->toString('PKCS8'));
-
-	return $key->toString('PKCS8');
+	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
 
 /*	$der = pkcs1_encode($m,$e);
 	$key = DerToRsa($der);

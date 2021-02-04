@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-master',
-    'version' => 'dev-master',
+    'pretty_version' => 'dev-5.2RC',
+    'version' => 'dev-5.2RC',
     'aliases' => 
     array (
     ),
-    'reference' => '08c9152abdfa90da09931bdcc6e6c81ea243434c',
+    'reference' => '34b28cd8d36c7805e65c442ff1588ccf5165387a',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -92,24 +92,6 @@
       ),
       'reference' => 'c83178d49e372ca967d1a8c77ae4e051b3a3c75c',
     ),
-    'paragonie/constant_time_encoding' => 
-    array (
-      'pretty_version' => 'v2.4.0',
-      'version' => '2.4.0.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => 'f34c2b11eb9d2c9318e13540a1dbc2a3afbd939c',
-    ),
-    'paragonie/random_compat' => 
-    array (
-      'pretty_version' => 'v9.99.100',
-      'version' => '9.99.100.0',
-      'aliases' => 
-      array (
-      ),
-      'reference' => '996434e5492cb4c3edcb9168db6fbb1359ef965a',
-    ),
     'pear/text_languagedetect' => 
     array (
       'pretty_version' => 'v1.0.1',
@@ -121,12 +103,12 @@
     ),
     'phpseclib/phpseclib' => 
     array (
-      'pretty_version' => '3.0.4',
-      'version' => '3.0.4.0',
+      'pretty_version' => '2.0.30',
+      'version' => '2.0.30.0',
       'aliases' => 
       array (
       ),
-      'reference' => '845a2275e886ba9fb386c8f59cb383dd9c8963e9',
+      'reference' => '136b9ca7eebef78be14abf90d65c5e57b6bc5d36',
     ),
     'psr/log' => 
     array (
@@ -261,12 +243,12 @@
     ),
     'zotlabs/hubzilla' => 
     array (
-      'pretty_version' => 'dev-master',
-      'version' => 'dev-master',
+      'pretty_version' => 'dev-5.2RC',
+      'version' => 'dev-5.2RC',
       'aliases' => 
       array (
       ),
-      'reference' => '08c9152abdfa90da09931bdcc6e6c81ea243434c',
+      'reference' => '34b28cd8d36c7805e65c442ff1588ccf5165387a',
     ),
   ),
 );

@@ -1,5 +1,8 @@
 <?php /** @file */
 
+use phpseclib3\Crypt\PublicKeyLoader;
+use phpseclib3\Math\BigInteger;
+
 require_once('library/ASNValue.class.php');
 require_once('library/asn1.php');
 
@@ -25,7 +28,7 @@ function rsa_verify($data,$sig,$key,$alg = 'sha256') {
 	if($verify === (-1)) {
 		while($msg = openssl_error_string())
 			logger('openssl_verify: ' . $msg,LOGGER_NORMAL,LOG_ERR);
-		btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR); 
+		btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR);
 	}
 
 	return (($verify > 0) ? true : false);
@@ -110,7 +113,7 @@ function CAST5CFB_decrypt($data,$key,$iv) {
 
 function crypto_encapsulate($data,$pubkey,$alg='aes256cbc') {
 	$fn = strtoupper($alg) . '_encrypt';
-	
+
 	if($alg === 'aes256cbc')
 		return aes_encapsulate($data,$pubkey);
 
@@ -150,7 +153,7 @@ function other_encapsulate($data,$pubkey,$alg) {
 		// assurance of security since it is meaningless if the source algorithms
 		// have been compromised. Also none of this matters if RSA has been
 		// compromised by state actors and evidence is mounting that this has
-		// already happened.   
+		// already happened.
 
 		$result = [ 'encrypted' => true ];
 		$key = openssl_random_pseudo_bytes(256);
@@ -177,11 +180,11 @@ function other_encapsulate($data,$pubkey,$alg) {
 
 function crypto_methods() {
 
-	// aes256cbc is provided for compatibility with earlier zot implementations which assume 32-byte key and 16-byte iv. 
+	// aes256cbc is provided for compatibility with earlier zot implementations which assume 32-byte key and 16-byte iv.
 	// other_encapsulate() now produces these longer keys/ivs by default so that it is difficult to guess a
-	// particular implementation or choice of underlying implementations based on the key/iv length. 
+	// particular implementation or choice of underlying implementations based on the key/iv length.
 	// The actual methods are responsible for deriving the actual key/iv from the provided parameters;
-	// possibly by truncation or segmentation - though many other methods could be used.  
+	// possibly by truncation or segmentation - though many other methods could be used.
 
 	$r = [ 'aes256ctr.oaep', 'camellia256cfb.oaep', 'cast5cfb.oaep', 'aes256ctr', 'camellia256cfb', 'cast5cfb', 'aes256cbc', 'aes128cbc', 'cast5cbc' ];
 	call_hooks('crypto_methods',$r);
@@ -280,13 +283,13 @@ function new_keypair($bits) {
 	$openssl_options = array(
 		'digest_alg'       => 'sha1',
 		'private_key_bits' => $bits,
-		'encrypt_key'      => false 
+		'encrypt_key'      => false
 	);
 
 	$conf = get_config('system','openssl_conf_file');
 	if($conf)
 		$openssl_options['config'] = $conf;
-	
+
 	$result = openssl_pkey_new($openssl_options);
 
 	if(empty($result)) {
@@ -321,7 +324,7 @@ function DerToPem($Der, $Private=false)
     $result = "-----BEGIN {$title}-----\n";
     $result .= $body . "\n";
     $result .= "-----END {$title}-----\n";
- 
+
     return $result;
 }
 
@@ -338,7 +341,7 @@ function DerToRsa($Der)
     $result = "-----BEGIN {$title}-----\n";
     $result .= $body . "\n";
     $result .= "-----END {$title}-----\n";
- 
+
     return $result;
 }
 
@@ -383,11 +386,24 @@ function pkcs1_encode($Modulus,$PublicExponent) {
 
 
 // http://stackoverflow.com/questions/27568570/how-to-convert-raw-modulus-exponent-to-rsa-public-key-pem-format
-function metopem($m,$e) {
-	$der = pkcs8_encode($m,$e);
+/**
+ * @param string $m modulo
+ * @param string $e exponent
+ * @return string
+ */
+function metopem($m, $e) {
+
+	$key = PublicKeyLoader::load([
+		'e' => new BigInteger($e, 256),
+		'n' => new BigInteger($m, 256)
+	]);
+	hz_syslog('metopem: ' . $key->toString('PKCS8'));
+	return $key->toString('PKCS8');
+
+/*	$der = pkcs8_encode($m,$e);
 	$key = DerToPem($der,false);
-	return $key;
-}	
+	return $key;*/
+}
 
 
 function pubrsatome($key,&$m,&$e) {
@@ -406,16 +422,44 @@ function pubrsatome($key,&$m,&$e) {
 
 
 function rsatopem($key) {
-	pubrsatome($key,$m,$e);
-	return(metopem($m,$e));
+
+	$key = PublicKeyLoader::load($key);
+	hz_syslog('rsatopem: ' . $key->toString('PKCS8'));
+
+	return $key->toString('PKCS8');
+
+
+/*	pubrsatome($key,$m,$e);
+	return(metopem($m,$e));*/
 }
 
 function pemtorsa($key) {
-	pemtome($key,$m,$e);
-	return(metorsa($m,$e));
+	$key = PublicKeyLoader::load($key);
+	hz_syslog('pemtorsa: ' . $key->toString('PKCS1'));
+
+	return $key->toString('PKCS1');
+
+/*	pemtome($key,$m,$e);
+	return(metorsa($m,$e));*/
+
 }
 
 function pemtome($key,&$m,&$e) {
+
+	$key = PublicKeyLoader::load($key);
+	$m = new BigInteger($key->n, 256);
+	$e = new BigInteger($key->e, 256);
+
+
+/*	$rsa = new RSA();
+	$rsa->loadKey($key);
+	$rsa->setPublicKey();
+
+	$modulus  = $rsa->modulus->toBytes();
+	$exponent = $rsa->exponent->toBytes();
+
+
+
 	$lines = explode("\n",$key);
 	unset($lines[0]);
 	unset($lines[count($lines)]);
@@ -424,14 +468,23 @@ function pemtome($key,&$m,&$e) {
 	$r = ASN_BASE::parseASNString($x);
 
 	$m = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
-	$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+	$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);*/
 }
 
 function metorsa($m,$e) {
-	$der = pkcs1_encode($m,$e);
+
+	$key = PublicKeyLoader::load([
+		'e' => new BigInteger($e, 256),
+		'n' => new BigInteger($m, 256)
+	]);
+	hz_syslog('metorsa: ' . $key->toString('PKCS8'));
+
+	return $key->toString('PKCS8');
+
+/*	$der = pkcs1_encode($m,$e);
 	$key = DerToRsa($der);
-	return $key;
-}	
+	return $key;*/
+}
 
 
 

@@ -7906,16 +7906,16 @@ msgstr "Trzeba będzie podać ten kod zaproszenia:"
 #: ../../Zotlabs/Module/Invite.php:161
 msgid "1. Register at any $Projectname location (they are all inter-connected)"
 msgstr ""
-"1. Zarejestruj się w dowolnej lokalizacji $Projectname (wszystkie są ze sobą "
-"połączone)"
+"1. Zarejestruj się na wskazanym hubie $Projectname (choć możesz też na innym, bo "
+"wszystkie są ze sobą połączone)"
 
 #: ../../Zotlabs/Module/Invite.php:163
 msgid "2. Enter my $Projectname network address into the site searchbar."
-msgstr "2. Wpisz mój adres sieciowy $Projectname w pasku wyszukiwania serwisu."
+msgstr "2. Wpisz w pasku wyszukiwania serwisu mój adres sieciowy $Projectname."
 
 #: ../../Zotlabs/Module/Invite.php:164
 msgid "or visit"
-msgstr "lub odwiedź"
+msgstr "lub odwiedź adres URL"
 
 #: ../../Zotlabs/Module/Invite.php:166
 msgid "3. Click [Connect]"
@@ -15868,7 +15868,7 @@ msgstr "Startpage"
 #: ../../view/theme/redbasic/php/config.php:16
 #: ../../view/theme/redbasic/php/config.php:19
 msgid "Focus (Hubzilla default)"
-msgstr "Fokus (domyślnie Hubzilla)"
+msgstr "Fokus (domyślny w Hubzilla)"
 
 #: ../../view/theme/redbasic/php/config.php:98
 msgid "Theme settings"

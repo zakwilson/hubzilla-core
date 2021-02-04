@@ -366,23 +366,6 @@ function pemtome($key,&$m,&$e) {
 
 }
 
-/**
- * @param string $m modulo
- * @param string $e exponent
- * @return string
- */
-function metorsa($m,$e) {
-
-	$rsa = new RSA();
-	$rsa->loadKey([
-		'e' => new BigInteger($e, 256),
-		'n' => new BigInteger($m, 256)
-	]);
-	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
-
-}
-
-
 function salmon_key($pubkey) {
 	pemtome($pubkey,$m,$e);
 	return 'RSA' . '.' . base64url_encode($m,true) . '.' . base64url_encode($e,true) ;

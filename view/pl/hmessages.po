@@ -7872,7 +7872,7 @@ msgstr[2] "Wysłano %d wiadomości."
 
 #: ../../Zotlabs/Module/Invite.php:110
 msgid "Invite App"
-msgstr "Aplikacja Invite"
+msgstr "Aplikacja Zaproszenie"
 
 #: ../../Zotlabs/Module/Invite.php:111
 msgid "Send email invitations to join this network"
@@ -9369,12 +9369,12 @@ msgstr "Adres URL Twojej witryny (opcjonalnie)"
 #: ../../Zotlabs/Lib/Activity.php:2110
 #, php-format
 msgid "Likes %1$s's %2$s"
-msgstr "Polibień %2$s %1$s"
+msgstr "Lubi %2$s %1$s"
 
 #: ../../Zotlabs/Lib/Activity.php:2113
 #, php-format
 msgid "Doesn't like %1$s's %2$s"
-msgstr "Dezaprobat %2$s %1$s"
+msgstr "Nie lubi %2$s %1$s"
 
 #: ../../Zotlabs/Lib/Activity.php:2119
 #, php-format

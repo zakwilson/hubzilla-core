@@ -111,7 +111,7 @@ function guess_image_type($filename, $data = '') {
 				elseif (is_array($data) && array_key_exists('body', $data))
 					$body = $data['body'];
 				if ($body) {
-					$image = new Imagick($filename);
+					$image = new Imagick();
 					$image->readImageBlob($body);
 					$r = $image->identifyImage();
 					if ($r && is_array($r) && array_key_exists($r['mimetype'], $types))

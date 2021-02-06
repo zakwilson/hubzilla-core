@@ -345,7 +345,7 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
         }
 
         if($recent)
-                $sql_extra .= " and item.created > '" . datetime_convert('UTC','UTC', 'now - ' . intval($recent) . ' days ') . "' ";
+                $sql_extra .= " and item.created > NOW() - INTERVAL " . db_quoteinterval(intval($recent) . ' DAY') . " ";
 
 
         if($safemode) {

@@ -1,12 +1,12 @@
 <?php return array (
   'root' => 
   array (
-    'pretty_version' => 'dev-5.2RC',
-    'version' => 'dev-5.2RC',
+    'pretty_version' => 'dev-master',
+    'version' => 'dev-master',
     'aliases' => 
     array (
     ),
-    'reference' => 'a6162d3134cd7fcde4f45064b75f90008a7f8177',
+    'reference' => '1bcf84f27510e9afe20a3c6a509ca7062aba0aa9',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -243,12 +243,12 @@
     ),
     'zotlabs/hubzilla' => 
     array (
-      'pretty_version' => 'dev-5.2RC',
-      'version' => 'dev-5.2RC',
+      'pretty_version' => 'dev-master',
+      'version' => 'dev-master',
       'aliases' => 
       array (
       ),
-      'reference' => 'a6162d3134cd7fcde4f45064b75f90008a7f8177',
+      'reference' => '1bcf84f27510e9afe20a3c6a509ca7062aba0aa9',
     ),
   ),
 );

@@ -25,7 +25,7 @@ class ComposerAutoloaderInit7b34d7e50a62201ec5d5e526a5b8b35d
         require __DIR__ . '/platform_check.php';
 
         spl_autoload_register(array('ComposerAutoloaderInit7b34d7e50a62201ec5d5e526a5b8b35d', 'loadClassLoader'), true, true);
-        self::$loader = $loader = new \Composer\Autoload\ClassLoader(\dirname(\dirname(__FILE__)));
+        self::$loader = $loader = new \Composer\Autoload\ClassLoader();
         spl_autoload_unregister(array('ComposerAutoloaderInit7b34d7e50a62201ec5d5e526a5b8b35d', 'loadClassLoader'));
 
         $includePaths = require __DIR__ . '/include_paths.php';

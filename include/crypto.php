@@ -1,7 +1,7 @@
 <?php /** @file */
 
-use phpseclib\Crypt\RSA;
-use phpseclib\Math\BigInteger;
+require_once('library/ASNValue.class.php');
+require_once('library/asn1.php');
 
 function rsa_sign($data,$key,$alg = 'sha256') {
 	if(! $key)
@@ -163,7 +163,7 @@ function other_encapsulate($data,$pubkey,$alg) {
 		}
 
 		$result['alg'] = $alg;
-	 	$result['key'] = base64url_encode($k,true);
+		$result['key'] = base64url_encode($k,true);
 		openssl_public_encrypt($iv,$i,$pubkey,$padding);
 		$result['iv'] = base64url_encode($i,true);
 		return $result;
@@ -215,7 +215,7 @@ function aes_encapsulate($data,$pubkey) {
 		logger('aes_encapsulate: RSA failed. ' . print_r($x[0],true));
 	}
 	$result['alg'] = 'aes256cbc';
- 	$result['key'] = base64url_encode($k,true);
+	$result['key'] = base64url_encode($k,true);
 	openssl_public_encrypt($iv,$i,$pubkey);
 	$result['iv'] = base64url_encode($i,true);
 	return $result;
@@ -226,9 +226,9 @@ function crypto_unencapsulate($data,$prvkey) {
 		return;
 
 	$alg = ((is_array($data) && (array_key_exists('encrypted',$data) || array_key_exists('iv',$data))) ? $data['alg'] : '');
-    if(! $alg) {
+	if(! $alg) {
 		return $data;
-    }
+	}
 
 	if($alg === 'aes256cbc') {
 		return aes_unencapsulate($data,$prvkey);
@@ -308,68 +308,138 @@ function new_keypair($bits) {
 
 }
 
-/**
- * @param string $m modulo
- * @param string $e exponent
- * @return string
- */
-function metopem($m, $e) {
+function DerToPem($Der, $Private=false)
+{
+	//Encode:
+	$Der = base64_encode($Der);
+	//Split lines:
+	$lines = str_split($Der, 65);
+	$body = implode("\n", $lines);
+	//Get title:
+	$title = $Private? 'RSA PRIVATE KEY' : 'PUBLIC KEY';
+	//Add wrapping:
+	$result = "-----BEGIN {$title}-----\n";
+	$result .= $body . "\n";
+	$result .= "-----END {$title}-----\n";
 
-	$rsa = new RSA();
-	$rsa->loadKey([
-		'e' => new BigInteger($e, 256),
-		'n' => new BigInteger($m, 256)
-	]);
-	return $rsa->getPublicKey();
-
+	return $result;
 }
 
-/**
- * @param string key
- * @return string
- */
+function DerToRsa($Der)
+{
+	//Encode:
+	$Der = base64_encode($Der);
+	//Split lines:
+	$lines = str_split($Der, 64);
+	$body = implode("\n", $lines);
+	//Get title:
+	$title = 'RSA PUBLIC KEY';
+	//Add wrapping:
+	$result = "-----BEGIN {$title}-----\n";
+	$result .= $body . "\n";
+	$result .= "-----END {$title}-----\n";
+
+	return $result;
+}
+
+
+function pkcs8_encode($Modulus,$PublicExponent) {
+	//Encode key sequence
+	$modulus = new ASNValue(ASNValue::TAG_INTEGER);
+	$modulus->SetIntBuffer($Modulus);
+	$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
+	$publicExponent->SetIntBuffer($PublicExponent);
+	$keySequenceItems = array($modulus, $publicExponent);
+	$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
+	$keySequence->SetSequence($keySequenceItems);
+	//Encode bit string
+	$bitStringValue = $keySequence->Encode();
+	$bitStringValue = chr(0x00) . $bitStringValue; //Add unused bits byte
+	$bitString = new ASNValue(ASNValue::TAG_BITSTRING);
+	$bitString->Value = $bitStringValue;
+	//Encode body
+	$bodyValue = "\x30\x0d\x06\x09\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01\x05\x00" . $bitString->Encode();
+	$body = new ASNValue(ASNValue::TAG_SEQUENCE);
+	$body->Value = $bodyValue;
+	//Get DER encoded public key:
+	$PublicDER = $body->Encode();
+	return $PublicDER;
+}
+
+
+function pkcs1_encode($Modulus,$PublicExponent) {
+	//Encode key sequence
+	$modulus = new ASNValue(ASNValue::TAG_INTEGER);
+	$modulus->SetIntBuffer($Modulus);
+	$publicExponent = new ASNValue(ASNValue::TAG_INTEGER);
+	$publicExponent->SetIntBuffer($PublicExponent);
+	$keySequenceItems = array($modulus, $publicExponent);
+	$keySequence = new ASNValue(ASNValue::TAG_SEQUENCE);
+	$keySequence->SetSequence($keySequenceItems);
+	//Encode bit string
+	$bitStringValue = $keySequence->Encode();
+	return $bitStringValue;
+}
+
+
+// http://stackoverflow.com/questions/27568570/how-to-convert-raw-modulus-exponent-to-rsa-public-key-pem-format
+function metopem($m,$e) {
+	$der = pkcs8_encode($m,$e);
+	$key = DerToPem($der,false);
+	return $key;
+}
+
+
+function pubrsatome($key,&$m,&$e) {
+	require_once('library/asn1.php');
+
+	$lines = explode("\n",$key);
+	unset($lines[0]);
+	unset($lines[count($lines)]);
+	$x = base64_decode(implode('',$lines));
+
+	$r = ASN_BASE::parseASNString($x);
+
+	$m = base64url_decode($r[0]->asnData[0]->asnData);
+	$e = base64url_decode($r[0]->asnData[1]->asnData);
+}
+
+
 function rsatopem($key) {
-
-	$rsa = new RSA();
-	$rsa->setPublicKey($key);
-
-	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
-
+	pubrsatome($key,$m,$e);
+	return(metopem($m,$e));
 }
 
-/**
- * @param string key
- * @return string
- */
 function pemtorsa($key) {
-
-	$rsa = new RSA();
-	$rsa->setPublicKey($key);
-
-	return $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
-
+	pemtome($key,$m,$e);
+	return(metorsa($m,$e));
 }
 
-/**
- * @param string $key key
- * @param string $m reference modulo
- * @param string $e reference exponent
- */
 function pemtome($key,&$m,&$e) {
+	$lines = explode("\n",$key);
+	unset($lines[0]);
+	unset($lines[count($lines)]);
+	$x = base64_decode(implode('',$lines));
 
-	$rsa = new RSA();
-	$rsa->loadKey($key);
-	$rsa->setPublicKey();
+	$r = ASN_BASE::parseASNString($x);
 
-	$e  = $rsa->modulus->toBytes();
-	$m = $rsa->exponent->toBytes();
-
+	$m = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
+	$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
 }
+
+function metorsa($m,$e) {
+	$der = pkcs1_encode($m,$e);
+	$key = DerToRsa($der);
+	return $key;
+}
+
+
 
 function salmon_key($pubkey) {
 	pemtome($pubkey,$m,$e);
 	return 'RSA' . '.' . base64url_encode($m,true) . '.' . base64url_encode($e,true) ;
 }
+
 
 function convert_salmon_key($key) {
 

@@ -33,59 +33,63 @@ use Zotlabs\Lib\Keyutils;
  *
  * @covers Zotlabs\Lib\Keyutils
  */
+
+
+
 class KeyutilsTest extends UnitTestCase {
 
-	public function testMeToPem() {
-		$orig_key = '-----BEGIN PUBLIC KEY-----
-MIICITANBgkqhkiG9w0BAQEFAAOCAg4AMIICCQKCAgB2Kuku7L3ElK4Et4x4Dpur
-Ij5dqrcI0j7o6w39RR09ikPe43S99IVqTvTuvdOcWqkqrFffM82+GWZpco1GdTdv
-wnRUCLNpDWnVU3YnwruPHDHgdybJf0gBvP1dbcOe3H3KPZVQ6WWInH6r3B3p9MCT
-9AXeeC11CJCk/tNb4MPqhyG7/0MkiCJ4mNnjqQX97X2kS1mCkduVs7H6ZW//DCpR
-oBft2cvCLoURUbwW0wlBnFiLH9IrRNMSCX3BZaML04NKDGSbp/n6GDTM9tX/HEf1
-OH2q8vh11I64hGWsVqWu8ogitiZxXCZAZ57YlQ5ZYwqWAwHtw2XICn9ddPIHeYt7
-PadOocf0L4tBdJcP7DAPuJyJSymT+zIkVD5M2h3hyORbaqpVBTMNhKyQEaTipijk
-B26MS7GQSURJ1csKXSe792YV9dwBzlihX9MxT6r3sFhifUJ8PVklgHzOZ0zw9CHH
-W2xGFku1h9fT+kNCi0YnTZlbmXEQKo2/Qha/nMCvA+idfDcHw9DVZNIMpH5kk3JC
-GxBR2GGV8LISqKpZqZ+9AzZeqt8aCSC2/h8nq5nCWLVMTtJIiV/1GE5aEe2fR9GS
-Az76YS3wXMqvWx19XE+v74sBNqhtxrZfQRfeHalDv1nUkcBkaYglQmggZ2jd+p6d
-soJHIKiLs/8fMzRqLyrqZwIDAQAB
------END PUBLIC KEY-----';
-
-		$orig_key = str_replace(["\r", "\n"], "\r\n", $orig_key);
-
-		Keyutils::pemToMe($orig_key, $m, $e);
-		$gen_key = Keyutils::meToPem($m, $e);
-		self::assertEquals($orig_key, $gen_key);
+	protected function getPubPKCS1() {
+		$key = '-----BEGIN RSA PUBLIC KEY-----
+MIIBCgKCAQEArXcEXQSkk25bwDxq5Ym85/OwernfOz0hgve46Jm1KXCF0+yeje8J
+BDbQTsMgkF+G8eP1er3oz3E0qlIFpYrza5o6kaaLETSroTyZR5QW5S21r/QJHE+4
+F08bw1zp9hrlvoOCE/g/W0mr3asO/x7LrQRKOETlZ/U6HGexTdYLyKlXJtB+VKjI
+XKAHxfVLRW2AvnFj+deowS1OhTN8ECpz88xG9wnh5agoq7Uol0WZNNm0p4oR6+cd
+zTPx/mBwcOoSqHLlO7ZACbx/VyD5G7mQKWfGP4b96D8FcUO74531my+aKIpLF4Io
+1JN4R4a4P8tZ8BkCnMvpuq9TF1s6vEthYQIDAQAB
+-----END RSA PUBLIC KEY-----';
+		return str_replace(["\r", "\n"], "\r\n", $key);
 	}
 
+	protected function getPubPKCS8() {
+		$key = '-----BEGIN PUBLIC KEY-----
+MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDUKfOIkFX/Zcv6bmaTIYO6OO2g
+XQOne+iPfXo6YDdrtvvQNZwW5P/fptrgBzmUBkpuc/sEEKpMV2bGhBLsWSlPBYHe
+2ewwLwyzbnuHvGhc1PzwMNQ7R60ubVDQT6sBVigYGZIDBgUPjAXeqmg5qgWWh04H
+8Zf/YxyoGEovWDMxGQIDAQAB
+-----END PUBLIC KEY-----';
+		return str_replace(["\r", "\n"], "\r\n", $key);
+	}
+
+	public function testMeToPem() {
+		Keyutils::pemToMe($this->getPubPKCS8(), $m, $e);
+		$gen_key = Keyutils::meToPem($m, $e);
+		self::assertEquals($this->getPubPKCS8(), $gen_key);
+	}
+
+	public function testRsaToPem() {
+		$rsa = new RSA();
+		$rsa->setPublicKey($this->getPubPKCS8());
+		$key = $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS1);
+		$gen_key = Keyutils::rsaToPem($key);
+		self::assertEquals($gen_key, $this->getPubPKCS8());
+	}
+
+	public function testPemToRsa() {
+		$rsa = new RSA();
+		$rsa->setPublicKey($this->getPubPKCS1());
+		$key = $rsa->getPublicKey(RSA::PUBLIC_FORMAT_PKCS8);
+		$gen_key = Keyutils::pemToRsa($key);
+		self::assertEquals($gen_key, $this->getPubPKCS1());
+	}
 
 	public function testPemToMe() {
-		$orig_key = '-----BEGIN PUBLIC KEY-----
-MIICITANBgkqhkiG9w0BAQEFAAOCAg4AMIICCQKCAgB2Kuku7L3ElK4Et4x4Dpur
-Ij5dqrcI0j7o6w39RR09ikPe43S99IVqTvTuvdOcWqkqrFffM82+GWZpco1GdTdv
-wnRUCLNpDWnVU3YnwruPHDHgdybJf0gBvP1dbcOe3H3KPZVQ6WWInH6r3B3p9MCT
-9AXeeC11CJCk/tNb4MPqhyG7/0MkiCJ4mNnjqQX97X2kS1mCkduVs7H6ZW//DCpR
-oBft2cvCLoURUbwW0wlBnFiLH9IrRNMSCX3BZaML04NKDGSbp/n6GDTM9tX/HEf1
-OH2q8vh11I64hGWsVqWu8ogitiZxXCZAZ57YlQ5ZYwqWAwHtw2XICn9ddPIHeYt7
-PadOocf0L4tBdJcP7DAPuJyJSymT+zIkVD5M2h3hyORbaqpVBTMNhKyQEaTipijk
-B26MS7GQSURJ1csKXSe792YV9dwBzlihX9MxT6r3sFhifUJ8PVklgHzOZ0zw9CHH
-W2xGFku1h9fT+kNCi0YnTZlbmXEQKo2/Qha/nMCvA+idfDcHw9DVZNIMpH5kk3JC
-GxBR2GGV8LISqKpZqZ+9AzZeqt8aCSC2/h8nq5nCWLVMTtJIiV/1GE5aEe2fR9GS
-Az76YS3wXMqvWx19XE+v74sBNqhtxrZfQRfeHalDv1nUkcBkaYglQmggZ2jd+p6d
-soJHIKiLs/8fMzRqLyrqZwIDAQAB
------END PUBLIC KEY-----';
-
-		$orig_key = str_replace(["\r", "\n"], "\r\n", $orig_key);
-
-		Keyutils::pemToMe($orig_key, $m, $e);
-
+		Keyutils::pemToMe($this->getPubPKCS8(), $m, $e);
 		$gen_key = new RSA();
 		$gen_key->loadKey([
 			'e' => new BigInteger($e, 256),
 			'n' => new BigInteger($m, 256)
 		]);
-
-		self::assertEquals($gen_key->getPublicKey(), $orig_key);
+		self::assertEquals($gen_key->getPublicKey(), $this->getPubPKCS8());
 	}
 
 }

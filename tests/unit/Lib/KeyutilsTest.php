@@ -49,7 +49,9 @@ W2xGFku1h9fT+kNCi0YnTZlbmXEQKo2/Qha/nMCvA+idfDcHw9DVZNIMpH5kk3JC
 GxBR2GGV8LISqKpZqZ+9AzZeqt8aCSC2/h8nq5nCWLVMTtJIiV/1GE5aEe2fR9GS
 Az76YS3wXMqvWx19XE+v74sBNqhtxrZfQRfeHalDv1nUkcBkaYglQmggZ2jd+p6d
 soJHIKiLs/8fMzRqLyrqZwIDAQAB
-		-----END PUBLIC KEY-----';
+-----END PUBLIC KEY-----';
+
+		$orig_key = str_replace(["\r", "\n"], "\r\n", $orig_key);
 
 		Keyutils::pemToMe($orig_key, $m, $e);
 		$gen_key = Keyutils::meToPem($m, $e);
@@ -71,7 +73,9 @@ W2xGFku1h9fT+kNCi0YnTZlbmXEQKo2/Qha/nMCvA+idfDcHw9DVZNIMpH5kk3JC
 GxBR2GGV8LISqKpZqZ+9AzZeqt8aCSC2/h8nq5nCWLVMTtJIiV/1GE5aEe2fR9GS
 Az76YS3wXMqvWx19XE+v74sBNqhtxrZfQRfeHalDv1nUkcBkaYglQmggZ2jd+p6d
 soJHIKiLs/8fMzRqLyrqZwIDAQAB
-		-----END PUBLIC KEY-----';
+-----END PUBLIC KEY-----';
+
+		$orig_key = str_replace(["\r", "\n"], "\r\n", $orig_key);
 
 		Keyutils::pemToMe($orig_key, $m, $e);
 

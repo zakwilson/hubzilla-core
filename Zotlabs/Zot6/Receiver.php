@@ -3,6 +3,7 @@
 namespace Zotlabs\Zot6;
 
 use Zotlabs\Lib\Config;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\HTTPSig;
 
@@ -70,7 +71,7 @@ class Receiver {
 			$this->encrypted = ((array_key_exists('encrypted',$this->data) && intval($this->data['encrypted'])) ? true : false);
 
 			if ($this->encrypted && $this->prvkey) {
-				$uncrypted = crypto_unencapsulate($this->data,$this->prvkey);
+				$uncrypted = Crypto::unencapsulate($this->data,$this->prvkey);
 				if ($uncrypted) {
 					$this->data = json_decode($uncrypted,true);
 				}
@@ -88,7 +89,7 @@ class Receiver {
 		if ($this->error) {
 			// make timing attacks on the decryption engine a bit more difficult
 			usleep(mt_rand(10000,100000));
-			return($this->response); 
+			return($this->response);
 		}
 
 		if ($this->data) {
@@ -126,7 +127,7 @@ class Receiver {
 			$x = Libzot::register_hub($this->sigdata['signer']);
 			if($x['success']) {
 				$hub = Libzot::valid_hub($this->sender,$this->site_id);
-			}	
+			}
 			if(! $hub) {
 	           	$this->response['message'] = 'sender unknown';
 				return false;
@@ -168,8 +169,8 @@ class Receiver {
 			}
 		}
 		return $result;
-	}	
-		
+	}
+
 	function Dispatch() {
 
 		switch ($this->messagetype) {
@@ -207,13 +208,13 @@ class Receiver {
 			$this->EncryptResponse();
 		}
 
-		return($this->response); 
+		return($this->response);
 	}
 
 	function EncryptResponse() {
 		$algorithm = Libzot::best_algorithm($this->hub['site_crypto']);
 		if ($algorithm) {
-			$this->response = crypto_encapsulate(json_encode($this->response),$this->hub['hubloc_sitekey'], $algorithm);
+			$this->response = Crypto::encapsulate(json_encode($this->response),$this->hub['hubloc_sitekey'], $algorithm);
 		}
 	}
 

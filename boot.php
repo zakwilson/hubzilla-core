@@ -28,6 +28,8 @@
  */
 
 // composer autoloader for all namespaced Classes
+use Zotlabs\Lib\Crypto;
+
 require_once('vendor/autoload.php');
 
 require_once('include/config.php');
@@ -1570,7 +1572,7 @@ function fix_system_urls($oldurl, $newurl) {
 				dbesc($channel_address . '@' . $rhs),
 				dbesc($newurl),
 				dbesc(str_replace($oldurl,$newurl,$rv['hubloc_id_url'])),
-				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(rsa_sign($newurl,$c[0]['channel_prvkey']))),
+				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(Crypto::sign($newurl,$c[0]['channel_prvkey']))),
 				dbesc($newhost),
 				dbesc(($rv['hubloc_network'] === 'zot6') ? $newurl . '/zot' : $newurl . '/post'),
 				dbesc($rv['xchan_hash']),

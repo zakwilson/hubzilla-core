@@ -9,6 +9,8 @@
 //  $return['abook'] Address book entry joined with xchan if successful
 //  $return['message'] error text if success is false.
 
+use Zotlabs\Lib\Crypto;
+
 require_once('include/zot.php');
 
 function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) {
@@ -19,7 +21,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 	$is_zot   = false;
 	$protocol = '';
 
-	
+
 	if(substr($url,0,1) === '[') {
 		$x = strpos($url,']');
 		if($x) {
@@ -62,7 +64,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 	call_hooks('follow_init', $arr);
 
-	if($arr['channel']['success']) 
+	if($arr['channel']['success'])
 		$ret = $arr['channel'];
 	elseif((! $is_http) && ((! $protocol) || (strtolower($protocol) === 'zot')))
 		$ret = Zotlabs\Zot\Finger::run($url,$channel);
@@ -98,11 +100,11 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 				return $result;
 			}
 		}
-				
-				
+
+
 
 		// do we have an xchan and hubloc?
-		// If not, create them.	
+		// If not, create them.
 
 		$x = import_xchan($j);
 
@@ -111,13 +113,13 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 			return $result;
 		}
 
-		if(! $x['success']) 
+		if(! $x['success'])
 			return $x;
 
 		$xchan_hash = $x['hash'];
 
 		if( array_key_exists('permissions',$j) && array_key_exists('data',$j['permissions'])) {
-			$permissions = crypto_unencapsulate(array(
+			$permissions = Crypto::unencapsulate(array(
 				'data' => $j['permissions']['data'],
 				'alg'  => $j['permissions']['alg'],
 				'key'  => $j['permissions']['key'],
@@ -140,7 +142,7 @@ function new_contact($uid,$url,$channel,$interactive = false, $confirm = false) 
 
 		$xchan_hash = '';
 		$sql_options = (($protocol) ? " and xchan_network = '" . dbesc($protocol) . "' " : '');
-		
+
 
 		$r = q("select * from xchan where (xchan_addr = '%s' or xchan_url = '%s') $sql_options ",
 			dbesc($url),

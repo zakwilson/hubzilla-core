@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Zot;
 
+use Zotlabs\Lib\Crypto;
+
 class Receiver {
 
 	protected $data;
@@ -30,7 +32,7 @@ class Receiver {
 			$this->encrypted = ((array_key_exists('iv',$data)) ? true : false);
 
 			if($this->encrypted) {
-				$this->data = @json_decode(@crypto_unencapsulate($data,$prvkey),true);
+				$this->data = @json_decode(@Crypto::unencapsulate($data,$prvkey),true);
 			}
 			if(! $this->data)
 				$this->data = $data;
@@ -72,7 +74,7 @@ class Receiver {
 		$this->validated = true;
     }
 
-		
+
 	function Dispatch() {
 
 		/* Handle tasks which don't require sender validation */
@@ -144,8 +146,8 @@ class Receiver {
  * $contents->iv and $contents->key are random strings encrypted with this site's RSA public key and then base64url encoded.
  *
  * Once decrypted, one will find the normal json_encoded zot message packet.
- * 
- * Defined packet types are: notify, purge, refresh, force_refresh, auth_check, ping, and pickup 
+ *
+ * Defined packet types are: notify, purge, refresh, force_refresh, auth_check, ping, and pickup
  *
  * Standard packet: (used by notify, purge, refresh, force_refresh, and auth_check)
  * \code{.json}
@@ -167,7 +169,7 @@ class Receiver {
  * \endcode
  *
  * Signature fields are all signed with the sender channel private key and base64url encoded.
- * Recipients are arrays of guid and guid_sig, which were previously signed with the recipients private 
+ * Recipients are arrays of guid and guid_sig, which were previously signed with the recipients private
  * key and base64url encoded and later obtained via channel discovery. Absence of recipients indicates
  * a public message or visible to all potential listeners on this site.
  *
@@ -186,7 +188,7 @@ class Receiver {
  *
  * In the pickup packet, the sig fields correspond to the respective data
  * element signed with this site's system private key and then base64url encoded.
- * The "secret" is the same as the original secret from the notify packet. 
+ * The "secret" is the same as the original secret from the notify packet.
  *
  * If verification is successful, a json structure is returned containing a
  * success indicator and an array of type 'pickup'.
@@ -283,18 +285,18 @@ class Receiver {
  * }
  * \endcode
  *
- * The ping packet can be used to verify that a site has not been re-installed, and to 
+ * The ping packet can be used to verify that a site has not been re-installed, and to
  * initiate corrective action if it has. The url_sig is signed with the site private key
  * and base64url encoded - and this should verify with the enclosed sitekey. Failure to
  * verify indicates the site is corrupt or otherwise unable to communicate using zot.
  * This return packet is not otherwise verified, so should be compared with other
  * results obtained from this site which were verified prior to taking action. For instance
- * if you have one verified result with this signature and key, and other records for this 
+ * if you have one verified result with this signature and key, and other records for this
  * url which have different signatures and keys, it indicates that the site was re-installed
  * and corrective action may commence (remove or mark invalid any entries with different
  * signatures).
  * If you have no records which match this url_sig and key - no corrective action should
- * be taken as this packet may have been returned by an imposter.  
+ * be taken as this packet may have been returned by an imposter.
  *
  * @param[in,out] App &$a
  */

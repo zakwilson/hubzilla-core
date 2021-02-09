@@ -4,6 +4,7 @@
  * @brief Items related functions.
  */
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
@@ -1652,7 +1653,7 @@ function item_sign(&$item) {
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(rsa_sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
 	$item['item_verified'] = 1;
 }
 
@@ -2971,7 +2972,7 @@ function item_community_tag($channel,$item) {
 		$pitem = $items[0];
 		$auth = get_iconfig($item,'system','communitytagauth');
 		if($auth) {
-			if(rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
+			if(Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
 				logger('tag_deliver: tagging the post: ' . $channel['channel_name']);
 				$tag_the_post = true;
 			}
@@ -2980,7 +2981,7 @@ function item_community_tag($channel,$item) {
 			if(($pitem['owner_xchan'] === $channel['channel_hash']) && (! intval(get_pconfig($channel['channel_id'],'system','blocktags')))) {
 				logger('tag_deliver: community tag recipient: ' . $channel['channel_name']);
 				$tag_the_post = true;
-				$sig = rsa_sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
+				$sig = Crypto::sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
 				logger('tag_deliver: setting iconfig for ' . $item['id']);
 				set_iconfig($item['id'],'system','communitytagauth',base64url_encode($sig),1);
 			}

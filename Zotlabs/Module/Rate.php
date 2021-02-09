@@ -3,21 +3,23 @@ namespace Zotlabs\Module;
 
 
 
+use Zotlabs\Lib\Crypto;
+
 class Rate extends \Zotlabs\Web\Controller {
 
 	function init() {
-	
+
 		if(! local_channel())
 			return;
-	
+
 		$channel = \App::get_channel();
-	
+
 		$target = $_REQUEST['target'];
 		if(! $target)
 			return;
-	
+
 		\App::$data['target'] = $target;
-	
+
 		if($target) {
 			$r = q("SELECT * FROM xchan where xchan_hash like '%s' LIMIT 1",
 				dbesc($target)
@@ -36,43 +38,43 @@ class Rate extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
-	
-	
+
+
 		return;
-	
+
 	}
-	
-	
+
+
 	function post() {
-	
+
 		if(! local_channel())
 			return;
-	
+
 		if(! \App::$data['target'])
 			return;
-	
+
 		if(! $_REQUEST['execute'])
 			return;
-	
+
 		$channel = \App::get_channel();
-	
+
 		$rating = intval($_POST['rating']);
 		if($rating < (-10))
 			$rating = (-10);
 		if($rating > 10)
 			$rating = 10;
-	
+
 		$rating_text = trim(escape_tags($_REQUEST['rating_text']));
-	
+
 		$signed = \App::$data['target'] . '.' . $rating . '.' . $rating_text;
-	
-		$sig = base64url_encode(rsa_sign($signed,$channel['channel_prvkey']));
-	
+
+		$sig = base64url_encode(Crypto::sign($signed,$channel['channel_prvkey']));
+
 		$z = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1 limit 1",
 			dbesc($channel['channel_hash']),
 			dbesc(\App::$data['target'])
 		);
-	
+
 		if($z) {
 			$record = $z[0]['xlink_id'];
 			$w = q("update xlink set xlink_rating = '%d', xlink_rating_text = '%s', xlink_sig = '%s', xlink_updated = '%s'
@@ -100,39 +102,39 @@ class Rate extends \Zotlabs\Web\Controller {
 			if($z)
 				$record = $z[0]['xlink_id'];
 		}
-	
+
 		if($record) {
 			\Zotlabs\Daemon\Master::Summon(array('Ratenotif','rating',$record));
 		}
-	
+
 	}
-	
+
 	function get() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 	//	if(! \App::$data['target']) {
 	//		notice( t('No recipients.') . EOL);
 	//		return;
 	//	}
-	
+
 		$rating_enabled = get_config('system','rating_enabled');
 		if(! $rating_enabled) {
 			notice('Ratings are disabled on this site.');
 			return;
 		}
-	
+
 		$channel = \App::get_channel();
-	
+
 		$r = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1",
 			dbesc($channel['channel_hash']),
 			dbesc(\App::$data['target'])
 		);
 		if($r) {
-			\App::$data['xlink'] = $r[0];				
+			\App::$data['xlink'] = $r[0];
 			$rating_val = $r[0]['xlink_rating'];
 			$rating_text = $r[0]['xlink_rating_text'];
 		}
@@ -140,7 +142,7 @@ class Rate extends \Zotlabs\Web\Controller {
 			$rating_val = 0;
 			$rating_text = '';
 		}
-	
+
 		if($rating_enabled) {
 			$rating = replace_macros(get_markup_template('rating_slider.tpl'),array(
 				'$min' => -10,
@@ -150,7 +152,7 @@ class Rate extends \Zotlabs\Web\Controller {
 		else {
 			$rating = false;
 		}
-	
+
 		$o = replace_macros(get_markup_template('rating_form.tpl'),array(
 			'$header' => t('Rating'),
 			'$website' => t('Website:'),
@@ -165,8 +167,8 @@ class Rate extends \Zotlabs\Web\Controller {
 			'$slide'          => $slide,
 			'$submit' => t('Submit')
 		));
-	
+
 		return $o;
-	
+
 	}
 }

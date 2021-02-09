@@ -34,8 +34,6 @@ use Zotlabs\Lib\Keyutils;
  * @covers Zotlabs\Lib\Keyutils
  */
 
-
-
 class KeyutilsTest extends UnitTestCase {
 
 	protected function getPubPKCS1() {

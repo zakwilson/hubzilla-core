@@ -6,6 +6,7 @@ namespace Zotlabs\Module;
 use App;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\PermissionDescription;
 use Zotlabs\Web\Controller;
@@ -70,7 +71,7 @@ class Channel extends Controller {
 				);
 
 				if ($s) {
-					$data = json_encode(crypto_encapsulate($data, $s[0]['hubloc_sitekey'], Libzot::best_algorithm($s[0]['site_crypto'])));
+					$data = json_encode(Crypto::encapsulate($data, $s[0]['hubloc_sitekey'], Libzot::best_algorithm($s[0]['site_crypto'])));
 				}
 			}
 			else {

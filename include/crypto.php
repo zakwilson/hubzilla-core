@@ -1,5 +1,7 @@
 <?php /** @file */
 
+use Zotlabs\Lib\Crypto;
+
 require_once('library/ASNValue.class.php');
 require_once('library/asn1.php');
 
@@ -191,7 +193,6 @@ function crypto_methods() {
 
 
 function signing_methods() {
-
 
 	$r = [ 'sha256' ];
 	call_hooks('signing_methods',$r);
@@ -461,12 +462,12 @@ function convert_salmon_key($key) {
 
 
 function z_obscure($s) {
-	return json_encode(crypto_encapsulate($s,get_config('system','pubkey')));
+	return json_encode(Crypto::encapsulate($s,get_config('system','pubkey')));
 }
 
 function z_unobscure($s) {
 	if(strpos($s,"{\"") !== 0)
 		return $s;
-	return crypto_unencapsulate(json_decode($s,true),get_config('system','prvkey'));
+	return Crypto::unencapsulate(json_decode($s,true),get_config('system','prvkey'));
 }
 

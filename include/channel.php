@@ -9,6 +9,7 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
 use Zotlabs\Lib\Libzot;
@@ -107,7 +108,7 @@ function create_sys_channel() {
 
 	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
 		require_once('include/crypto.php');
-		$hostkey = new_keypair(4096);
+		$hostkey = Crypto::new_keypair(4096);
 		set_config('system', 'pubkey', $hostkey['pubkey']);
 		set_config('system', 'prvkey', $hostkey['prvkey']);
 	}
@@ -232,10 +233,10 @@ function create_identity($arr) {
 	}
 
 	$guid = Libzot::new_uid($nick);
-	$key = new_keypair(4096);
+	$key = Crypto::new_keypair(4096);
 
 	// legacy zot
-	$zsig = base64url_encode(rsa_sign($guid,$key['prvkey']));
+	$zsig = base64url_encode(Crypto::sign($guid,$key['prvkey']));
 	$zhash = make_xchan_hash($guid,$zsig);
 
 	// zot6
@@ -345,7 +346,7 @@ function create_identity($arr) {
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$ret['channel']['channel_prvkey'])),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/post',
 			'hubloc_sitekey'  => get_config('system','pubkey'),
@@ -603,9 +604,9 @@ function change_channel_keys($channel) {
 
 	$stored = [];
 
-	$key = new_keypair(4096);
+	$key = Crypto::new_keypair(4096);
 
-	$sig = base64url_encode(rsa_sign($channel['channel_guid'],$key['prvkey']));
+	$sig = base64url_encode(Crypto::sign($channel['channel_guid'],$key['prvkey']));
 	$hash = make_xchan_hash($channel['channel_guid'],$sig);
 
 	$stored['old_guid']     = $channel['channel_guid'];
@@ -614,7 +615,7 @@ function change_channel_keys($channel) {
 	$stored['old_hash']     = $channel['channel_hash'];
 
 	$stored['new_key']      = $key['pubkey'];
-	$stored['new_sig']      = base64url_encode(rsa_sign($key['pubkey'],$channel['channel_prvkey']));
+	$stored['new_sig']      = base64url_encode(Crypto::sign($key['pubkey'],$channel['channel_prvkey']));
 
 	// Save this info for the notifier to collect
 
@@ -651,7 +652,7 @@ function change_channel_keys($channel) {
 		foreach($h as $hv) {
 			$hv['hubloc_guid_sig'] = $sig;
 			$hv['hubloc_hash']     = $hash;
-			$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$modified['channel_prvkey']));
+			$hv['hubloc_url_sig']  = base64url_encode(Crypto::sign(z_root(),$modified['channel_prvkey']));
 			hubloc_store_lowlevel($hv);
 		}
 	}

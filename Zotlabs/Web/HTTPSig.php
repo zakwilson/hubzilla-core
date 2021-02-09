@@ -3,6 +3,7 @@
 namespace Zotlabs\Web;
 
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Webfinger;
 use Zotlabs\Lib\Libzot;
@@ -157,7 +158,7 @@ class HTTPSig {
 			return $result;
 		}
 
-		$x = rsa_verify($signed_data,$sig_block['signature'],$cached_key['public_key'],$algorithm);
+		$x = Crypto::verify($signed_data,$sig_block['signature'],$cached_key['public_key'],$algorithm);
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
 
@@ -171,7 +172,7 @@ class HTTPSig {
 			$fetched_key = self::get_key($key,$keytype,$result['signer'],true);
 
 			if ($fetched_key && $fetched_key['public_key']) {
-				$y = rsa_verify($signed_data,$sig_block['signature'],$fetched_key['public_key'],$algorithm);
+				$y = Crypto::verify($signed_data,$sig_block['signature'],$fetched_key['public_key'],$algorithm);
 				logger('verified: (cache reload) ' . $x, LOGGER_DEBUG);
 			}
 
@@ -417,7 +418,7 @@ class HTTPSig {
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm . '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
 		if($encryption) {
-			$x = crypto_encapsulate($headerval,$encryption['key'],$encryption['algorithm']);
+			$x = Crypto::encapsulate($headerval,$encryption['key'],$encryption['algorithm']);
 			if(is_array($x)) {
 				$headerval = 'iv="' . $x['iv'] . '",key="' . $x['key'] . '",alg="' . $x['alg'] . '",data="' . $x['data'] . '"';
 			}
@@ -491,7 +492,7 @@ class HTTPSig {
 			$headers = rtrim($headers,"\n");
 		}
 
-		$sig = base64_encode(rsa_sign($headers,$prvkey,$alg));
+		$sig = base64_encode(Crypto::sign($headers,$prvkey,$alg));
 
 		$ret['headers']   = $fields;
 		$ret['signature'] = $sig;
@@ -567,7 +568,7 @@ class HTTPSig {
 			$data = $matches[1];
 
 		if($iv && $key && $alg && $data) {
-			return crypto_unencapsulate([ 'encrypted' => true, 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
+			return Crypto::unencapsulate([ 'encrypted' => true, 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
 		}
 
 		return '';

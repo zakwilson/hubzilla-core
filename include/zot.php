@@ -8,6 +8,7 @@
  *
  */
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\DReport;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
@@ -123,15 +124,15 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 		'type' => $type,
 		'sender' => [
 			'guid' => $channel['channel_guid'],
-			'guid_sig' => base64url_encode(rsa_sign($channel['channel_guid'],$channel['channel_prvkey'],$sig_method)),
+			'guid_sig' => base64url_encode(Crypto::sign($channel['channel_guid'],$channel['channel_prvkey'],$sig_method)),
 			'url' => z_root(),
-			'url_sig' => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'],$sig_method)),
+			'url_sig' => base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'],$sig_method)),
 			'sitekey' => get_config('system','pubkey')
 		],
 		'callback' => '/post',
 		'version' => Zotlabs\Lib\System::get_zot_revision(),
-		'encryption' => crypto_methods(),
-		'signing' => signing_methods()
+		'encryption' => Crypto::methods(),
+		'signing' => Crypto::signing_methods()
 	];
 
 	if ($recipients) {
@@ -143,7 +144,7 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 
 	if ($secret) {
 		$data['secret'] = preg_replace('/[^0-9a-fA-F]/','',$secret);
-		$data['secret_sig'] = base64url_encode(rsa_sign($secret,$channel['channel_prvkey'],$sig_method));
+		$data['secret_sig'] = base64url_encode(Crypto::sign($secret,$channel['channel_prvkey'],$sig_method));
 	}
 
 	if ($extra) {
@@ -157,7 +158,7 @@ function zot_build_packet($channel, $type = 'notify', $recipients = null, $remot
 
 	if($remote_key) {
 		$algorithm = zot_best_algorithm($methods);
-		$data = crypto_encapsulate(json_encode($data),$remote_key, $algorithm);
+		$data = Crypto::encapsulate(json_encode($data),$remote_key, $algorithm);
 	}
 
 	return json_encode($data);
@@ -197,15 +198,15 @@ function zot6_build_packet($channel, $type = 'notify', $recipients = null, $msg 
 		'type' => $type,
 		'sender' => [
 			'guid' => $channel['channel_guid'],
-			'guid_sig' => base64url_encode(rsa_sign($channel['channel_guid'],$channel['channel_prvkey'],$sig_method)),
+			'guid_sig' => base64url_encode(Crypto::sign($channel['channel_guid'],$channel['channel_prvkey'],$sig_method)),
 			'url' => z_root(),
-			'url_sig' => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'],$sig_method)),
+			'url_sig' => base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'],$sig_method)),
 			'sitekey' => get_config('system','pubkey')
 		],
 		'callback' => '/post',
 		'version' => Zotlabs\Lib\System::get_zot_revision(),
-		'encryption' => crypto_methods(),
-		'signing' => signing_methods()
+		'encryption' => Crypto::methods(),
+		'signing' => Crypto::signing_methods()
 	];
 
 	if ($recipients) {
@@ -221,7 +222,7 @@ function zot6_build_packet($channel, $type = 'notify', $recipients = null, $msg 
 
 	if ($secret) {
 		$data['secret'] = preg_replace('/[^0-9a-fA-F]/','',$secret);
-		$data['secret_sig'] = base64url_encode(rsa_sign($secret,$channel['channel_prvkey'],$sig_method));
+		$data['secret_sig'] = base64url_encode(Crypto::sign($secret,$channel['channel_prvkey'],$sig_method));
 	}
 
 	if ($extra) {
@@ -235,7 +236,7 @@ function zot6_build_packet($channel, $type = 'notify', $recipients = null, $msg 
 
 	if($remote_key) {
 		$algorithm = zot_best_algorithm($methods);
-		$data = crypto_encapsulate(json_encode($data),$remote_key, $algorithm);
+		$data = Crypto::encapsulate(json_encode($data),$remote_key, $algorithm);
 	}
 
 	return json_encode($data);
@@ -249,7 +250,7 @@ function zot6_build_packet($channel, $type = 'notify', $recipients = null, $msg 
  *
  * @param string $methods
  *   comma separated list of encryption methods
- * @return string first match from our site method preferences crypto_methods() array
+ * @return string first match from our site method preferences Crypto::methods() array
  * of a method which is common to both sites; or 'aes256cbc' if no matches are found.
  */
 function zot_best_algorithm($methods) {
@@ -272,7 +273,7 @@ function zot_best_algorithm($methods) {
 	if($methods) {
 		$x = explode(',', $methods);
 		if($x) {
-			$y = crypto_methods();
+			$y = Crypto::methods();
 			if($y) {
 				foreach($y as $yv) {
 					$yv = trim($yv);
@@ -443,7 +444,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 
 		$signed_token = ((is_array($j) && array_key_exists('signed_token',$j)) ? $j['signed_token'] : null);
 		if($signed_token) {
-			$valid = rsa_verify('token.' . $token,base64url_decode($signed_token),$j['key']);
+			$valid = Crypto::verify('token.' . $token,base64url_decode($signed_token),$j['key']);
 			if(! $valid) {
 				logger('invalid signed token: ' . $url . $rhs, LOGGER_NORMAL, LOG_ERR);
 				return false;
@@ -461,7 +462,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 
 		if($channel) {
 			if($j['permissions']['data']) {
-				$permissions = crypto_unencapsulate(
+				$permissions = Crypto::unencapsulate(
 					[
 					'data' => $j['permissions']['data'],
 					'key'  => $j['permissions']['key'],
@@ -719,8 +720,8 @@ function zot_register_hub($arr) {
 			 */
 
 			foreach($sig_methods as $method) {
-				if((rsa_verify($arr['guid'],base64url_decode($arr['guid_sig']),$record['key'],$method))
-				&& (rsa_verify($arr['url'],base64url_decode($arr['url_sig']),$record['key'],$method))
+				if((Crypto::verify($arr['guid'],base64url_decode($arr['guid_sig']),$record['key'],$method))
+				&& (Crypto::verify($arr['url'],base64url_decode($arr['url_sig']),$record['key'],$method))
 				&& ($arr['guid'] === $record['guid'])
 				&& ($arr['guid_sig'] === $record['guid_sig'])) {
 					$c = import_xchan($record);
@@ -790,7 +791,7 @@ function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 	$verified = false;
 
 	foreach($sig_methods as $method) {
-		if(! rsa_verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key'],$method)) {
+		if(! Crypto::verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key'],$method)) {
 			logger('Unable to verify channel signature for ' . $arr['address'] . ' using ' . $method);
 			continue;
 		}
@@ -925,28 +926,28 @@ function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 		$local = q("select channel_account_id, channel_id from channel where channel_portable_id = '%s' limit 1",
 			dbesc($xchan_hash)
 		);
-		
+
 		if($local) {
-			// @FIXME This should be removed in future when profile photo update by file sync procedure will be applied 
+			// @FIXME This should be removed in future when profile photo update by file sync procedure will be applied
 			// on most hubs in the network
 			// <---
 			$ph = z_fetch_url($arr['photo'], true);
-			
+
 			if($ph['success']) {
-				
+
 				// Do not fetch already received thumbnails
 				$x = q("SELECT resource_id FROM photo WHERE uid = %d AND imgscale = %d AND filesize = %d LIMIT 1",
 					intval($local[0]['channel_id']),
 					intval(PHOTO_RES_PROFILE_300),
 					strlen($ph['body'])
-				);				
+				);
 
 				if($x)
 					$hash = $x[0]['resource_id'];
 				else
 					$hash = import_channel_photo($ph['body'], $arr['photo_mimetype'], $local[0]['channel_account_id'], $local[0]['channel_id']);
 			}
-			
+
 			if($hash) {
 				// unless proven otherwise
 				$is_default_profile = 1;
@@ -972,7 +973,7 @@ function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
 				}
 			}
 			// --->
-			
+
 			// reset the names in case they got messed up when we had a bug in this function
 			$photos = array(
 				z_root() . '/photo/profile/l/' . $local[0]['channel_id'],
@@ -1128,7 +1129,7 @@ function zot_process_response($hub, $arr, $outq) {
 	if(is_array($x) && array_key_exists('delivery_report',$x) && is_array($x['delivery_report'])) {
 
 		if(array_key_exists('iv',$x['delivery_report'])) {
-			$j = crypto_unencapsulate($x['delivery_report'],get_config('system','prvkey'));
+			$j = Crypto::unencapsulate($x['delivery_report'],get_config('system','prvkey'));
 			if($j) {
 				$x['delivery_report'] = json_decode($j,true);
 			}
@@ -1253,14 +1254,14 @@ function zot_fetch($arr) {
 			$data = [
 				'type'         => 'pickup',
 				'url'          => z_root(),
-				'callback_sig' => base64url_encode(rsa_sign(z_root() . '/post', get_config('system','prvkey'))),
+				'callback_sig' => base64url_encode(Crypto::sign(z_root() . '/post', get_config('system','prvkey'))),
 				'callback'     => z_root() . '/post',
 				'secret'       => $secret,
-				'secret_sig'   => base64url_encode(rsa_sign($secret, get_config('system','prvkey')))
+				'secret_sig'   => base64url_encode(Crypto::sign($secret, get_config('system','prvkey')))
 			];
 
 			$algorithm = zot_best_algorithm($hub['site_crypto']);
-			$datatosend = json_encode(crypto_encapsulate(json_encode($data),$hub['hubloc_sitekey'], $algorithm));
+			$datatosend = json_encode(Crypto::encapsulate(json_encode($data),$hub['hubloc_sitekey'], $algorithm));
 
 			$import = zot_zot($url,$datatosend);
 
@@ -1272,7 +1273,7 @@ function zot_fetch($arr) {
 		$result = zot_import($import, $arr['sender']['url']);
 
 		if($result) {
-			$result = crypto_encapsulate(json_encode($result),$hub['hubloc_sitekey'], $algorithm);
+			$result = Crypto::encapsulate(json_encode($result),$hub['hubloc_sitekey'], $algorithm);
 			return $result;
 		}
 
@@ -1314,7 +1315,7 @@ function zot_import($arr, $sender_url) {
 	}
 
 	if(array_key_exists('iv', $data)) {
-		$data = json_decode(crypto_unencapsulate($data,get_config('system','prvkey')),true);
+		$data = json_decode(Crypto::unencapsulate($data,get_config('system','prvkey')),true);
 	}
 
 	if(! is_array($data)) {
@@ -1342,7 +1343,7 @@ function zot_import($arr, $sender_url) {
 			$result = null;
 
 			if(array_key_exists('iv',$i['notify'])) {
-				$i['notify'] = json_decode(crypto_unencapsulate($i['notify'],get_config('system','prvkey')),true);
+				$i['notify'] = json_decode(Crypto::unencapsulate($i['notify'],get_config('system','prvkey')),true);
 			}
 
 			logger('Notify: ' . print_r($i['notify'],true), LOGGER_DATA, LOG_DEBUG);
@@ -2466,7 +2467,7 @@ function process_rating_delivery($sender, $arr) {
 		dbesc($sender['hash'])
 	);
 
-	if((! $z) || (! rsa_verify($arr['target'] . '.' . $arr['rating'] . '.' . $arr['rating_text'], base64url_decode($arr['signature']),$z[0]['xchan_pubkey']))) {
+	if((! $z) || (! Crypto::verify($arr['target'] . '.' . $arr['rating'] . '.' . $arr['rating_text'], base64url_decode($arr['signature']),$z[0]['xchan_pubkey']))) {
 		logger('failed to verify rating');
 		return;
 	}
@@ -2652,7 +2653,7 @@ function sync_locations($sender, $arr, $absolute = false) {
 			$arr['locations'][0]['primary'] = true;
 
 		foreach($arr['locations'] as $location) {
-			if(! rsa_verify($location['url'],base64url_decode($location['url_sig']),$sender['key'])) {
+			if(! Crypto::verify($location['url'],base64url_decode($location['url_sig']),$sender['key'])) {
 				logger('Unable to verify site signature for ' . $location['url']);
 				$ret['message'] .= sprintf( t('Unable to verify site signature for %s'), $location['url']) . EOL;
 				continue;
@@ -3126,7 +3127,7 @@ function import_site($arr, $pubkey) {
 	if( (! is_array($arr)) || (! $arr['url']) || (! $arr['url_sig']))
 		return false;
 
-	if(! rsa_verify($arr['url'], base64url_decode($arr['url_sig']), $pubkey)) {
+	if(! Crypto::verify($arr['url'], base64url_decode($arr['url_sig']), $pubkey)) {
 		logger('Bad url_sig');
 		return false;
 	}
@@ -3509,12 +3510,12 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 
 		if($keychange) {
 			// verify the keychange operation
-			if(! rsa_verify($arr['channel']['channel_pubkey'],base64url_decode($arr['keychange']['new_sig']),$channel['channel_prvkey'])) {
+			if(! Crypto::verify($arr['channel']['channel_pubkey'],base64url_decode($arr['keychange']['new_sig']),$channel['channel_prvkey'])) {
 				logger('sync keychange: verification failed');
 				continue;
 			}
 
-			$sig = base64url_encode(rsa_sign($channel['channel_guid'],$arr['channel']['channel_prvkey']));
+			$sig = base64url_encode(Crypto::sign($channel['channel_guid'],$arr['channel']['channel_prvkey']));
 			$hash = make_xchan_hash($channel['channel_guid'],$sig);
 
 
@@ -3551,7 +3552,7 @@ function process_channel_sync_delivery($sender, $arr, $deliveries) {
 				foreach($h as $hv) {
 					$hv['hubloc_guid_sig'] = $sig;
 					$hv['hubloc_hash']     = $hash;
-					$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey']));
+					$hv['hubloc_url_sig']  = base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey']));
 					hubloc_store_lowlevel($hv);
 				}
 			}
@@ -4329,7 +4330,7 @@ function zot_rekey_request($sender,$data) {
 
 	$xchan = $r[0];
 
-	if(! rsa_verify($data['new_key'],base64url_decode($data['new_sig']),$xchan['xchan_pubkey'])) {
+	if(! Crypto::verify($data['new_key'],base64url_decode($data['new_sig']),$xchan['xchan_pubkey'])) {
 		json_return_and_die($ret);
 	}
 
@@ -4367,7 +4368,7 @@ function zotinfo($arr) {
 	$feed      = ((x($arr,'feed'))       ? intval($arr['feed']) : 0);
 
 	if($ztarget) {
-		if((! $zkey) || (! $zsig) || (! rsa_verify($ztarget,base64url_decode($zsig),$zkey))) {
+		if((! $zkey) || (! $zsig) || (! Crypto::verify($ztarget,base64url_decode($zsig),$zkey))) {
 			logger('zfinger: invalid target signature');
 			$ret['message'] = t("invalid target signature");
 			return($ret);
@@ -4531,7 +4532,7 @@ function zotinfo($arr) {
 	// Communication details
 
 	if($token)
-		$ret['signed_token'] = base64url_encode(rsa_sign('token.' . $token,$e['channel_prvkey'],$sig_method));
+		$ret['signed_token'] = base64url_encode(Crypto::sign('token.' . $token,$e['channel_prvkey'],$sig_method));
 
 
 	$ret['guid']           = $e['xchan_guid'];
@@ -4587,7 +4588,7 @@ function zotinfo($arr) {
 	// because ztarget refers to an xchan and we don't necessarily know the origination
 	// location.
 
-	$ret['permissions'] = (($ztarget && $zkey) ? crypto_encapsulate(json_encode($permissions),$zkey) : $permissions);
+	$ret['permissions'] = (($ztarget && $zkey) ? crypto_encapsulate(json_encode($permissions),$zkey,) : $permissions);
 
 	if($permissions['view_profile'])
 		$ret['profile']  = $profile;
@@ -4622,9 +4623,9 @@ function zot_site_info($channel_key = '') {
 	$ret['site'] = [];
 	$ret['site']['url'] = z_root();
 	if($channel_key) {
-		$ret['site']['url_sig'] = base64url_encode(rsa_sign(z_root(),$channel_key,$sig_method));
+		$ret['site']['url_sig'] = base64url_encode(Crypto::sign(z_root(),$channel_key,$sig_method));
 	}
-	$ret['site']['url_site_sig'] = base64url_encode(rsa_sign(z_root(),$signing_key,$sig_method));
+	$ret['site']['url_site_sig'] = base64url_encode(Crypto::sign(z_root(),$signing_key,$sig_method));
 	$ret['site']['post'] = z_root() . '/post';
 	$ret['site']['openWebAuth']  = z_root() . '/owa';
 	$ret['site']['authRedirect'] = z_root() . '/magic';
@@ -4644,8 +4645,8 @@ function zot_site_info($channel_key = '') {
 		$ret['site']['directory_url'] = z_root() . '/dirsearch';
 
 
-	$ret['site']['encryption'] = crypto_methods();
-	$ret['site']['signing'] = signing_methods();
+	$ret['site']['encryption'] = Crypto::methods();
+	$ret['site']['signing'] = Crypto::signing_methods();
 	$ret['site']['zot'] = Zotlabs\Lib\System::get_zot_revision();
 
 	// hide detailed site information if you're off the grid
@@ -4724,7 +4725,7 @@ function check_zotinfo($channel, $locations, &$ret) {
 		// the sys channel must have a location (hubloc)
 		$valid_location = false;
 		if((count($locations) === 1) && ($locations[0]['primary']) && (! $locations[0]['deleted'])) {
-			if((rsa_verify($locations[0]['url'],base64url_decode($locations[0]['url_sig']),$channel['channel_pubkey']))
+			if((Crypto::verify($locations[0]['url'],base64url_decode($locations[0]['url_sig']),$channel['channel_pubkey']))
 				&& ($locations[0]['sitekey'] === get_config('system','pubkey'))
 				&& ($locations[0]['url'] === z_root()))
 				$valid_location = true;
@@ -4752,7 +4753,7 @@ function check_zotinfo($channel, $locations, &$ret) {
 					'hubloc_network'  => 'zot',
 					'hubloc_primary'  => 1,
 					'hubloc_url'      => z_root(),
-					'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+					'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'])),
 					'hubloc_host'     => App::get_hostname(),
 					'hubloc_callback' => z_root() . '/post',
 					'hubloc_sitekey'  => get_config('system','pubkey'),
@@ -4931,7 +4932,7 @@ function zot_reply_ping() {
 	$ret['success'] = true;
 	$ret['site'] = array();
 	$ret['site']['url'] = z_root();
-	$ret['site']['url_sig'] = base64url_encode(rsa_sign(z_root(),get_config('system','prvkey')));
+	$ret['site']['url_sig'] = base64url_encode(Crypto::sign(z_root(),get_config('system','prvkey')));
 	$ret['site']['sitekey'] = get_config('system','pubkey');
 
 	json_return_and_die($ret);
@@ -4979,10 +4980,10 @@ function zot_reply_pickup($data) {
 
 		logger('mod_zot: Checking sitekey: ' . $sitekey, LOGGER_DATA, LOG_DEBUG);
 
-		if(rsa_verify($data['callback'],base64url_decode($data['callback_sig']),$sitekey)) {
+		if(Crypto::verify($data['callback'],base64url_decode($data['callback_sig']),$sitekey)) {
 			$forgery = false;
 		}
-		if(rsa_verify($data['secret'],base64url_decode($data['secret_sig']),$sitekey)) {
+		if(Crypto::verify($data['secret'],base64url_decode($data['secret_sig']),$sitekey)) {
 			$secret_fail = false;
 		}
 		if((! $forgery) && (! $secret_fail))
@@ -5076,7 +5077,7 @@ function zot_reply_pickup($data) {
 	);
 	$algorithm = zot_best_algorithm(($x) ? $x[0]['site_crypto'] : '');
 
-	$encrypted = crypto_encapsulate(json_encode($ret),$sitekey,$algorithm);
+	$encrypted = Crypto::encapsulate(json_encode($ret),$sitekey,$algorithm);
 
 	json_return_and_die($encrypted);
 	// @FIXME:  There is a possibility that the transmission will get interrupted
@@ -5133,7 +5134,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 	// First verify their signature. We will have obtained a zot-info packet from them as part of the sender
 	// verification.
 
-	if ((! $y) || (! rsa_verify($data['secret'], base64url_decode($data['secret_sig']),$y[0]['xchan_pubkey']))) {
+	if ((! $y) || (! Crypto::verify($data['secret'], base64url_decode($data['secret_sig']),$y[0]['xchan_pubkey']))) {
 		logger('mod_zot: auth_check: sender not found or secret_sig invalid.');
 		$ret['message'] .= 'sender not found or sig invalid ' . print_r($y,true) . EOL;
 
@@ -5158,7 +5159,7 @@ function zot_reply_auth_check($data,$encrypted_packet) {
 			json_return_and_die($ret);
 		}
 
-		$confirm = base64url_encode(rsa_sign($data['secret'] . $recip_hash,$c[0]['channel_prvkey']));
+		$confirm = base64url_encode(Crypto::sign($data['secret'] . $recip_hash,$c[0]['channel_prvkey']));
 
 		// This additionally checks for forged sites since we already stored the expected result in meta
 		// and we've already verified that this is them via zot_gethub() and that their key signed our token

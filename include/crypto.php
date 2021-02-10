@@ -462,12 +462,12 @@ function convert_salmon_key($key) {
 
 
 function z_obscure($s) {
-	return json_encode(Crypto::encapsulate($s,get_config('system','pubkey')));
+	return json_encode(crypto_encapsulate($s,get_config('system','pubkey')));
 }
 
 function z_unobscure($s) {
 	if(strpos($s,"{\"") !== 0)
 		return $s;
-	return Crypto::unencapsulate(json_decode($s,true),get_config('system','prvkey'));
+	return crypto_unencapsulate(json_decode($s,true),get_config('system','prvkey'));
 }
 

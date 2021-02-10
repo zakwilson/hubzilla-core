@@ -1,7 +1,5 @@
 <?php /** @file */
 
-use Zotlabs\Lib\Crypto;
-
 require_once('library/ASNValue.class.php');
 require_once('library/asn1.php');
 

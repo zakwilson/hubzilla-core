@@ -136,6 +136,7 @@ class Onepoll {
 
 				if ($url) {
 					logger('fetching outbox');
+					$url      = $url . '?date_begin=' .  urlencode($last_update);
 					$obj      = new ASCollection($url, $importer, 0, $max);
 					$messages = $obj->get();
 					if ($messages) {

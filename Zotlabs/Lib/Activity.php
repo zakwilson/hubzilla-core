@@ -2094,6 +2094,7 @@ class Activity {
 
 			$obj_actor = ((isset($act->obj['actor'])) ? $act->obj['actor'] : $act->get_actor('attributedTo', $act->obj));
 			// ensure we store the original actor
+
 			self::actor_store($obj_actor['id'], $obj_actor);
 
 			$mention = self::get_actor_bbmention($obj_actor['id']);
@@ -2816,9 +2817,6 @@ class Activity {
 			if (!$a->is_valid()) {
 				logger('not a valid activity');
 				break;
-			}
-			if (is_array($a->actor) && array_key_exists('id', $a->actor)) {
-				Activity::actor_store($a->actor['id'], $a->actor);
 			}
 
 			$item = Activity::decode_note($a);

@@ -1499,7 +1499,6 @@ class Activity {
 	}
 
 	static function actor_store($url, $person_obj) {
-		hz_syslog('actor_store: ' . $url);
 
 		if (!is_array($person_obj))
 			return;

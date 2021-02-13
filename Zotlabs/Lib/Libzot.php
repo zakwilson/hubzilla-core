@@ -3143,6 +3143,11 @@ class Libzot {
 			);
 		}
 
+		// this site obviously isn't dead because they are trying to communicate with us.
+		q("update site set site_dead = 0 where site_dead = 1 and site_url = '%s' ",
+			dbesc($hub['hubloc_url'])
+		);
+
 		return $hub['hubloc_url'];
 	}
 

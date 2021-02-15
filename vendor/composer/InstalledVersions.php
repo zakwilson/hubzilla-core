@@ -29,7 +29,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '0cd4c3410121b9b584dc1b108e555832843b2576',
+    'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -250,18 +250,18 @@ private static $installed = array (
     ),
     'twbs/bootstrap' => 
     array (
-      'pretty_version' => 'v4.5.3',
-      'version' => '4.5.3.0',
+      'pretty_version' => 'v4.6.0',
+      'version' => '4.6.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'a716fb03f965dc0846df479e14388b1b4b93d7ce',
+      'reference' => '6ffb0b48e455430f8a5359ed689ad64c1143fac2',
     ),
     'twitter/bootstrap' => 
     array (
       'replaced' => 
       array (
-        0 => 'v4.5.3',
+        0 => 'v4.6.0',
       ),
     ),
     'zotlabs/hubzilla' => 
@@ -271,7 +271,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '0cd4c3410121b9b584dc1b108e555832843b2576',
+      'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
     ),
   ),
 );

@@ -914,14 +914,14 @@ function bb_code_unprotect_sub($match) {
 }
 
 function bb_code($match) {
-	if(strpos($match[0], "<br />"))
+	if(strpos($match[0], PHP_EOL))
 		return '<pre><code>' . bb_code_protect(trim($match[1])) . '</code></pre>';
 	else
 		return '<code class="inline-code">' . bb_code_protect(trim($match[1])) . '</code>';
 }
 
 function bb_code_options($match) {
-	if(strpos($match[0], "<br />")) {
+	if(strpos($match[0], PHP_EOL)) {
 		$class = "";
 		$pre = true;
 	} else {

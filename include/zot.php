@@ -471,11 +471,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 					],
 					$channel['channel_prvkey']);
 				if($permissions) {
-					if(is_array($permissions))
-						hz_syslog(print_r($permissions,true));
-
 					$permissions = json_decode($permissions,true);
-
 				}
 				logger('decrypted permissions: ' . print_r($permissions,true), LOGGER_DATA, LOG_DEBUG);
 			}

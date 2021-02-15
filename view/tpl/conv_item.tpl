@@ -141,7 +141,7 @@
 									</a>
 									<a class="dropdown-item" href="#" title="{{$item.conlabels.1}}" onclick="dolike({{$item.id}},'disagree'); return false;">
 										 <i class="item-act-list fa fa-times{{if $item.my_responses.disagree}} ivoted{{/if}}" ></i> {{$item.conlabels.1}}
-									</a> 
+									</a>
 									<a class="dropdown-item" href="#" title="{{$item.conlabels.2}}" onclick="dolike({{$item.id}},'abstain'); return false;">
 										<i class="item-act-list fa fa-question{{if $item.my_responses.abstain}} ivoted{{/if}}" ></i> {{$item.conlabels.2}}
 									</a>

@@ -923,7 +923,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 //	logger('nouveau: ' . print_r($threads,true));
 
-
 	$o .= replace_macros($page_template, array(
 		'$baseurl' => z_root(),
 		'$photo_item' => $content_html,
@@ -935,6 +934,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$wait' => t('Loading...'),
 		'$conversation_tools' => t('Conversation Tools'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
+		'$preview' => $preview
 	));
 
 	return $o;

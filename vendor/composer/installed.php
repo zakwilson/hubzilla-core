@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '4171a0136ad4f14bdd5d7621b4c7decd3e942c8c',
+    'reference' => '18c8f1b903e90ca3632520b90d21ec3770bf6e0b',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -121,12 +121,12 @@
     ),
     'ramsey/collection' => 
     array (
-      'pretty_version' => '1.1.1',
-      'version' => '1.1.1.0',
+      'pretty_version' => '1.1.3',
+      'version' => '1.1.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '24d93aefb2cd786b7edd9f45b554aea20b28b9b1',
+      'reference' => '28a5c4ab2f5111db6a60b2b4ec84057e0f43b9c1',
     ),
     'ramsey/uuid' => 
     array (
@@ -248,7 +248,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '4171a0136ad4f14bdd5d7621b4c7decd3e942c8c',
+      'reference' => '18c8f1b903e90ca3632520b90d21ec3770bf6e0b',
     ),
   ),
 );

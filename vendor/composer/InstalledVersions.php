@@ -29,7 +29,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'd72a096fa55e1b0c9d78a0fc0fa5a0b72988c69d',
+    'reference' => '4171a0136ad4f14bdd5d7621b4c7decd3e942c8c',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -45,12 +45,12 @@ private static $installed = array (
     ),
     'brick/math' => 
     array (
-      'pretty_version' => '0.9.1',
-      'version' => '0.9.1.0',
+      'pretty_version' => '0.9.2',
+      'version' => '0.9.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '283a40c901101e66de7061bd359252c013dcc43c',
+      'reference' => 'dff976c2f3487d42c1db75a3b180e2b9f0e72ce0',
     ),
     'bshaffer/oauth2-server-php' => 
     array (
@@ -271,7 +271,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'd72a096fa55e1b0c9d78a0fc0fa5a0b72988c69d',
+      'reference' => '4171a0136ad4f14bdd5d7621b4c7decd3e942c8c',
     ),
   ),
 );

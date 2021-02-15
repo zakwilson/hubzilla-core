@@ -1153,22 +1153,7 @@ function bbcode($Text, $options = []) {
 
 	$Text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$Text);
 
-	// Convert new line chars to html <br /> tags
-
-	// nlbr seems to be hopelessly messed up
-	//	$Text = nl2br($Text);
-
-	// We'll emulate it.
-
-	$Text = str_replace("\r\n", "\n", $Text);
-	$Text = str_replace(array("\r", "\n"), array('<br />', '<br />'), $Text);
-
-	if ($preserve_nl)
-		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
-
-
 	$Text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $Text);
-
 
 	// Check for [code] text
 	if (strpos($Text,'[code]') !== false) {
@@ -1632,6 +1617,19 @@ function bbcode($Text, $options = []) {
 	$Text = preg_replace("/\<(.*?)(src|href)=\"[^zhfmt#](.*?)\>/ism", '<$1$2="">', $Text);
 
 	$Text = bb_replace_images($Text, $saved_images);
+
+	// Convert new line chars to html <br /> tags
+
+	// nlbr seems to be hopelessly messed up
+	//	$Text = nl2br($Text);
+
+	// We'll emulate it.
+
+	$Text = str_replace("\r\n", "\n", $Text);
+	$Text = str_replace(array("\r", "\n"), array('<br />', '<br />'), $Text);
+
+	if ($preserve_nl)
+		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
 
 	call_hooks('bbcode', $Text);
 

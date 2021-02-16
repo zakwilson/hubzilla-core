@@ -2392,9 +2392,14 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	logger('item_store_update: ' . print_r($arr,true), LOGGER_DATA);
 
-	$str = '';
-	foreach($arr as $k => $v) {
-		if($str)
+	$columns = db_columns('item');
+	$str     = '';
+	foreach ($arr as $k => $v) {
+		if (!in_array($k, $columns)) {
+			continue;
+		}
+
+		if ($str)
 			$str .= ",";
 		$str .= " " . TQUOT . $k . TQUOT . " = '" . $v . "' ";
 	}

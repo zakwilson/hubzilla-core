@@ -181,7 +181,7 @@ function oembed_fetch_url($embedurl){
 
 			if($html_text) {
 				$dom = new DOMDocument;
-				$dom->loadHTML($html_text);
+				@$dom->loadHTML($html_text);
 				if ($dom){
 					$xpath = new DOMXPath($dom);
 					$attr = "oembed";

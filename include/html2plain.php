@@ -102,12 +102,14 @@ function html2plain($html, $wraplength = 75, $compact = false)
 {
 
 	$message = str_replace("\r", "", $html);
+	$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
+
+	if(!$message)
+		return;
+
 
 	$doc = new DOMDocument();
 	$doc->preserveWhiteSpace = false;
-
-	$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
-
 	@$doc->loadHTML($message);
 
 	$xpath = new DomXPath($doc);

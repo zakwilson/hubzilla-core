@@ -1725,13 +1725,11 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	$ret = array();
 	foreach($response_verbs as $v) {
 		$ret[$v] = array();
-		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : '');
+		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : 0);
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
 		$ret[$v]['button'] = get_response_button_text($v,$ret[$v]['count']);
 		$ret[$v]['title'] = $conv_responses[$v]['title'];
-		if($ret[$v]['count'] > MAX_LIKERS) {
-			$ret[$v]['modal'] = true;
-		}
+		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 	$count = 0;

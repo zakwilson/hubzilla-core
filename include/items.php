@@ -1204,9 +1204,16 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	if($item['term'])
 		$x['tags']        = encode_item_terms($item['term'],$mirror);
 
-	if($item['iconfig'])
+	if($item['iconfig']) {
+		if ($zap_compat) {
+			for ($x = 0; $x < count($item['iconfig']); $x ++) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$x]['v'])) {
+					$item['iconfig'][$x]['v'] = serialise(unserialize($item['iconfig'][$x]['v']));
+				}
+			}
+		}
 		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
-
+	}
 
 	logger('encode_item: ' . print_r($x,true), LOGGER_DATA);
 

@@ -1089,7 +1089,7 @@ function empty_acl($item) {
 	return (($item['allow_cid'] === EMPTY_STR && $item['allow_gid'] === EMPTY_STR && $item['deny_cid'] === EMPTY_STR && $item['deny_gid'] === EMPTY_STR) ? true : false);
 }
 
-function encode_item($item,$mirror = false) {
+function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x = [];
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';

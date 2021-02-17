@@ -87,12 +87,13 @@
 			return false;
 		}
 		$sections = (($_REQUEST['sections']) ? explode(',',$_REQUEST['sections']) : '');
+		$codebase = ((isset($_REQUEST['codebase']) && $_REQUEST['codebase'] === 'zap') ? true : false);
 		if($_REQUEST['posts']) {
 			$sections = get_default_export_sections();
 			$sections[] = 'items';
 		}
 
-		json_return_and_die(identity_basic_export(api_user(),$sections));
+		json_return_and_die(identity_basic_export(api_user(),$sections,$codebase));
 	}
 
 	function api_item_export_page($type) {
@@ -111,8 +112,9 @@
 			$start = datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['since']);
 		}
 		$finish = datetime_convert(date_default_timezone_get(),'UTC', (($_REQUEST['until']) ? $_REQUEST['until'] : 'now'));
+		$codebase = ((isset($_REQUEST['codebase']) && $_REQUEST['codebase'] === 'zap') ? true : false);
 
-		json_return_and_die(channel_export_items_page(api_user(),$start,$finish,$page,$records));
+		json_return_and_die(channel_export_items_page(api_user(),$start,$finish,$page,$records,$codebase));
 	}
 
 

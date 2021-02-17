@@ -1102,7 +1102,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['event_item'][] = encode_item($rr,true);
+				$ret['event_item'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1125,7 +1125,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['webpages'][] = encode_item($rr,true);
+				$ret['webpages'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1162,7 +1162,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rv) {
-				$ret['wiki'][] = encode_item($rv,true);
+				$ret['wiki'][] = encode_item($rv,true, $zap_compat);
 			}
 		}
 	}
@@ -1187,7 +1187,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['item'][] = encode_item($rr,true);
+				$ret['item'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1283,7 +1283,7 @@ function channel_export_items_date($channel_id, $start, $finish, $zap_compat = f
 		xchan_query($r);
 		$r = fetch_post_tags($r, true);
 		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true);
+			$ret['item'][] = encode_item($rr, true, $zap_compat);
 	}
 
 	return $ret;
@@ -1347,7 +1347,7 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		xchan_query($r);
 		$r = fetch_post_tags($r, true);
 		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true);
+			$ret['item'][] = encode_item($rr, true, $zap_compat);
 	}
 
 	return $ret;

@@ -1167,9 +1167,9 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
-	$x['verb']            = $item['verb'];
-	$x['object_type']     = $item['obj_type'];
-	$x['target_type']     = $item['tgt_type'];
+	$x['verb']            = (($zap_compat) ? Activity::activity_mapper($item['verb']) : $item['verb']);
+	$x['object_type']     = (($zap_compat && $item['obj_type']) ? Activity::activity_object_mapper($item['obj_type']) : $item['obj_type']);
+	$x['target_type']     = (($zap_compat && $item['tgt_type']) ? Activity::activity_object_mapper($item['tgt_type']) : $item['tgt_type']);
 	$x['permalink']       = $item['plink'];
 	$x['location']        = $item['location'];
 	$x['longlat']         = $item['coord'];
@@ -1179,9 +1179,13 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['author']          = encode_item_xchan($item['author']);
 
 	if($item['obj'])
-		$x['object']      = json_decode($item['obj'],true);
+		$x['object']      = (($zap_compat)
+			? Activity::encode_object(json_decode($item['obj'],true))
+			: json_decode($item['obj'],true)) ;
 	if($item['target'])
-		$x['target']      = json_decode($item['target'],true);
+		$x['target']      = (($zap_compat)
+			? Activity::encode_object(json_decode($item['target'],true))
+			: json_decode($item['target'],true)) ;
 	if($item['attach'])
 		$x['attach']      = json_decode($item['attach'],true);
 	if($y = encode_item_flags($item))

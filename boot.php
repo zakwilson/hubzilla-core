@@ -2065,12 +2065,10 @@ function is_site_admin() {
 	if(! session_id())
 		return false;
 
-	if($_SESSION['delegate'])
+	if(isset($_SESSION['delegate']))
 		return false;
 
-	if((intval($_SESSION['authenticated']))
-		&& (is_array(App::$account))
-		&& (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
+	if(isset($_SESSION['authenticated']) && is_array(App::$account) && (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
 		return true;
 
 	return false;

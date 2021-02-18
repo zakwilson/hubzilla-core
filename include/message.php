@@ -17,9 +17,9 @@ function mail_prepare_binary($item) {
 
 
 // send a private message
-	
 
-function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $replyto = '', $expires = NULL_DATE, $mimetype = 'text/bbcode', $raw = false, $sig = '') { 
+
+function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $replyto = '', $expires = NULL_DATE, $mimetype = 'text/bbcode', $raw = false, $sig = '') {
 
 	$ret = array('success' => false);
 	$is_reply = false;
@@ -80,7 +80,7 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 		$ret['message'] = t('No recipient provided.');
 		return $ret;
 	}
-	
+
 	if(! strlen($subject))
 		$subject = t('[no subject]');
 
@@ -99,13 +99,13 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 		if($r) {
 			$conv_guid = $r[0]['conv_guid'];
 		}
-	}		
+	}
 
 	if(! $conv_guid) {
 
 		// create a new conversation
 
-		$retconv = create_conversation($channel,$recipient,$subject);	
+		$retconv = create_conversation($channel,$recipient,$subject);
 		if($retconv) {
 			$conv_guid = $retconv['guid'];
 		}
@@ -153,7 +153,7 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 
 	/**
 	 *
-	 * When a photo was uploaded into the message using the (profile wall) ajax 
+	 * When a photo was uploaded into the message using the (profile wall) ajax
 	 * uploader, The permissions are initially set to disallow anybody but the
 	 * owner from seeing it. This is because the permissions may not yet have been
 	 * set for the post. If it's private, the photo permissions should be set
@@ -232,7 +232,7 @@ function send_message($uid = 0, $recipient = '', $body = '', $subject = '', $rep
 				dbesc($image_uri),
 				intval($channel['channel_id']),
 				dbesc('<' . $channel['channel_hash'] . '>')
-			); 
+			);
 		}
 	}
 
@@ -293,7 +293,7 @@ function create_conversation($channel,$recipient,$subject) {
 		dbesc($conv_guid),
 		intval($channel['channel_id'])
 	);
-	
+
 	return $r[0];
 
 }
@@ -308,11 +308,12 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 
 	if($numitems)
 		$limit = " LIMIT " . intval($numitems) . " OFFSET " . intval($start);
-		
+
 	if($mailbox !== '') {
 		$x = q("select channel_hash from channel where channel_id = %d limit 1",
 			intval($uid)
 		);
+
 		if(! $x)
 			return array();
 
@@ -332,10 +333,9 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 			case 'combined':
 			default:
 				$parents = q("SELECT mail.parent_mid FROM mail LEFT JOIN conv ON mail.conv_guid = conv.guid WHERE mail.mid = mail.parent_mid AND mail.channel_id = %d ORDER BY conv.updated DESC $limit",
-					dbesc($local_channel)
+					intval($local_channel)
 				);
 				break;
-
 		}
 
 	}
@@ -346,7 +346,7 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 		foreach($parents as $parent) {
 			$all = q("SELECT * FROM mail WHERE parent_mid = '%s' AND channel_id = %d ORDER BY created DESC limit 1",
 				dbesc($parent['parent_mid']),
-				dbesc($local_channel)
+				intval($local_channel)
 			);
 
 			if($all) {
@@ -356,7 +356,7 @@ function private_messages_list($uid, $mailbox = '', $start = 0, $numitems = 0) {
 			}
 		}
 	}
-	else {
+	elseif($sql) {
 		$r = q($sql);
 	}
 
@@ -477,7 +477,7 @@ function private_messages_drop($channel_id, $messageitem_id, $drop_conversation 
 					dbesc($x[0]['conv_guid']),
 					intval($channel_id)
 				);
-			}		
+			}
 			$m['mail'] = array();
 			foreach($z as $zz) {
 				xchan_mail_query($zz);
@@ -513,7 +513,7 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 		intval($messageitem_id)
 	);
 
-	if(! $r) 
+	if(! $r)
 		return array();
 
 	$messages = q("select * from mail where parent_mid = '%s' and channel_id = %d order by created asc",
@@ -559,7 +559,7 @@ function private_messages_fetch_conversation($channel_id, $messageitem_id, $upda
 			intval($channel_id)
 		);
 	}
-	
+
 	return $messages;
 
 }

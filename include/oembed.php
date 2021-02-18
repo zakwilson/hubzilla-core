@@ -433,9 +433,12 @@ function oembed_html2bbcode($text) {
 		$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
 
 		// If it doesn't parse at all, just return the text.
-		$dom = @DOMDocument::loadHTML($html_text);
+
+		$dom = new DOMDocument;
+		@$dom->loadHTML($html_text);
 		if(! $dom)
 			return $text;
+
 		$xpath = new DOMXPath($dom);
 		$attr = "oembed";
 

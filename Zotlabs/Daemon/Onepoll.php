@@ -24,7 +24,7 @@ class Onepoll {
 		}
 
 		$contacts = q("SELECT abook.*, xchan.*, account.*
-			FROM abook LEFT JOIN account on abook_account = account_id left join xchan on xchan_hash = abook_xchan 
+			FROM abook LEFT JOIN account on abook_account = account_id left join xchan on xchan_hash = abook_xchan
 			where abook_id = %d
 			and abook_pending = 0 and abook_archived = 0 and abook_blocked = 0 and abook_ignored = 0
 			AND (( account_flags = %d ) OR ( account_flags = %d )) limit 1",
@@ -52,7 +52,6 @@ class Onepoll {
 
 		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
-		// TODO: unused
 		$last_update = ((($contact['abook_updated'] === $contact['abook_created']) || ($contact['abook_updated'] <= NULL_DATE))
 			? datetime_convert('UTC', 'UTC', 'now - 7 days')
 			: datetime_convert('UTC', 'UTC', $contact['abook_updated'] . ' - 2 days')
@@ -120,7 +119,7 @@ class Onepoll {
 		if (!$can_send_stream)
 			$fetch_feed = false;
 
-		if ($fetch_feed) {
+		if ($fetch_feed && $contact['xchan_network'] !== 'zot') {
 
 			$max = intval(get_config('system', 'max_imported_posts', 30));
 

@@ -12,7 +12,8 @@ class Crypto {
 
 		['aes256ctr', 'aes-256-ctr', 32, 16],
 		['camellia256cfb', 'camellia-256-cfb', 32, 16],
-		['cast5cfb', 'cast5-cfb', 16, 8]
+		['cast5cfb', 'cast5-cfb', 16, 8],
+		['aes256cbc', 'aes-256-cbc', 32, 16] // remove after legacy zot has been sunset
 
 	];
 

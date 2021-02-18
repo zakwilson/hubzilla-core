@@ -464,6 +464,7 @@ function zot_refresh($them, $channel = null, $force = false) {
 			if($j['permissions']['data']) {
 				$permissions = Crypto::unencapsulate(
 					[
+					'encrypted' => true,
 					'data' => $j['permissions']['data'],
 					'key'  => $j['permissions']['key'],
 					'iv'   => $j['permissions']['iv'],

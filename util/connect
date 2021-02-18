@@ -2,6 +2,7 @@
 <?php
 
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\Connect;
 
 // connect utility
 
@@ -11,7 +12,6 @@ if(! file_exists('include/cli_startup.php')) {
 }
 
 require_once('include/cli_startup.php');
-require_once('include/follow.php');
 
 cli_startup();
 
@@ -33,7 +33,7 @@ cli_startup();
 		exit(1);
 	}
 
-	$result = new_contact($c['channel_id'],$argv[2],$c,false,false);
+	$result = Connect::connect($channel, $argv[2]);
 
 	if($result['success'] == false) {
 		echo $result['message'];

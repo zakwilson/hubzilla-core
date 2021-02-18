@@ -147,7 +147,7 @@ class Photo extends \Zotlabs\Web\Controller {
 			);
 			if($r) {
 				$allowed = (-1);
-
+				$filename = $r[0]['filename'];
 				$u = intval($r[0]['photo_usage']);
 				if($u) {
 					$allowed = 1;
@@ -194,9 +194,9 @@ class Photo extends \Zotlabs\Web\Controller {
 					$mimetype = $e[0]['mimetype'];
 					$modified = strtotime($e[0]['edited'] . 'Z');
 
-					if(intval($e[0]['os_storage'])) {
+					if(intval($e[0]['os_storage']))
 						$streaming = $data;
-					}
+
 					if($e[0]['allow_cid'] != '' || $e[0]['allow_gid'] != '' || $e[0]['deny_gid'] != '' || $e[0]['deny_gid'] != '')
 						$prvcachecontrol = 'no-store, no-cache, must-revalidate';
 				}
@@ -282,7 +282,7 @@ class Photo extends \Zotlabs\Web\Controller {
 		header("Content-Length: " . (isset($filesize) ? $filesize : strlen($data)));
 
 		// If it's a file resource, stream it. 
-		if($streaming && $channel) {
+		if($streaming) {
 			if(strpos($streaming,'store') !== false)
 				$istream = fopen($streaming,'rb');
 			else

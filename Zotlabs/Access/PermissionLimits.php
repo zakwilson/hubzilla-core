@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Access;
 
+use App;
 use Zotlabs\Lib\PConfig;
 
 /**
@@ -39,10 +40,10 @@ class PermissionLimits {
 	 */
 	static public function Std_Limits() {
 		$limits = [];
-		$perms = Permissions::Perms();
+		$perms  = Permissions::Perms();
 
-		foreach($perms as $k => $v) {
-			if(strstr($k, 'view'))
+		foreach ($perms as $k => $v) {
+			if (strstr($k, 'view'))
 				$limits[$k] = PERMS_PUBLIC;
 			else
 				$limits[$k] = PERMS_SPECIFIC;
@@ -77,14 +78,14 @@ class PermissionLimits {
 	 *   * \b array with all permission limits, if $perm is not set
 	 */
 	static public function Get($channel_id, $perm = '') {
-		if($perm) {
+		if ($perm) {
 			return intval(PConfig::Get($channel_id, 'perm_limits', $perm));
 		}
 
 		PConfig::Load($channel_id);
-		if(array_key_exists($channel_id, \App::$config)
-				&& array_key_exists('perm_limits', \App::$config[$channel_id]))
-			return \App::$config[$channel_id]['perm_limits'];
+		if (array_key_exists($channel_id, App::$config)
+			&& array_key_exists('perm_limits', App::$config[$channel_id]))
+			return App::$config[$channel_id]['perm_limits'];
 
 		return false;
 	}

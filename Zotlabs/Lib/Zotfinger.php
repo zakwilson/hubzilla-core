@@ -34,7 +34,6 @@ class Zotfinger {
 				
 		$result = [];
 
-
 		$redirects = 0;
 		$x = z_post_url($resource,$data,$redirects, [ 'headers' => $h  ] );
 

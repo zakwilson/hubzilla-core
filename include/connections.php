@@ -211,8 +211,8 @@ function mark_orphan_hubsxchans() {
 	if($dirmode == DIRECTORY_MODE_NORMAL)
 		return;
 
-	$r = q("update hubloc set hubloc_error = 1 where hubloc_error = 0
-		and hubloc_network = 'zot' and hubloc_connected < %s - interval %s",
+	$r = q("UPDATE hubloc SET hubloc_error = 1 WHERE hubloc_error = 0
+		AND hubloc_network IN ('zot6', 'zot') AND hubloc_connected < %s - INTERVAL %s",
 		db_utcnow(), db_quoteinterval('36 day')
 	);
 
@@ -357,7 +357,7 @@ function contact_remove($channel_id, $abook_id) {
 	call_hooks('connection_remove',$x);
 
 
-	$archive = get_pconfig($channel_id, 'system','archive_removed_contacts');
+	$archive = get_pconfig($channel_id, 'system', 'archive_removed_contacts');
 	if($archive) {
 		q("update abook set abook_archived = 1 where abook_id = %d and abook_channel = %d",
 			intval($abook_id),

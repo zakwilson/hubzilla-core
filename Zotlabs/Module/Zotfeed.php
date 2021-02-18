@@ -1,29 +1,142 @@
 <?php
+
 namespace Zotlabs\Module;
 
-require_once('include/items.php');
-require_once('include/zot.php');
+use App;
+use Zotlabs\Lib\Activity;
+use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Config;
+use Zotlabs\Lib\ThreadListener;
+use Zotlabs\Web\Controller;
+use Zotlabs\Web\HTTPSig;
 
-
-class Zotfeed extends \Zotlabs\Web\Controller {
+class Zotfeed extends Controller {
 
 	function init() {
-	
+		if (ActivityStreams::is_as_request()) {
+
+			if (observer_prohibited(true)) {
+				killme();
+			}
+
+			$channel = ((argv(1)) ? channelx_by_nick(argv(1)) : get_sys_channel());
+			if (!$channel) {
+				killme();
+			}
+
+			if (intval($channel['channel_system'])) {
+				killme();
+			}
+
+			$sigdata = HTTPSig::verify(($_SERVER['REQUEST_METHOD'] === 'POST') ? file_get_contents('php://input') : EMPTY_STR);
+			if ($sigdata['portable_id'] && $sigdata['header_valid']) {
+				$portable_id = $sigdata['portable_id'];
+				if (!check_channelallowed($portable_id)) {
+					http_status_exit(403, 'Permission denied');
+				}
+				if (!check_siteallowed($sigdata['signer'])) {
+					http_status_exit(403, 'Permission denied');
+				}
+				observer_auth($portable_id);
+			}
+			elseif (Config::get('system', 'require_authenticated_fetch', false)) {
+				http_status_exit(403, 'Permission denied');
+			}
+
+			$observer_hash = get_observer_hash();
+
+			$params = [];
+
+			$params['begin']     = ((x($_REQUEST, 'date_begin')) ? $_REQUEST['date_begin'] : NULL_DATE);
+			$params['end']       = ((x($_REQUEST, 'date_end')) ? $_REQUEST['date_end'] : '');
+			$params['type']      = 'json';
+			$params['pages']     = ((x($_REQUEST, 'pages')) ? intval($_REQUEST['pages']) : 0);
+			$params['top']       = ((x($_REQUEST, 'top')) ? intval($_REQUEST['top']) : 0);
+			$params['direction'] = ((x($_REQUEST, 'direction')) ? dbesc($_REQUEST['direction']) : 'desc'); // unimplemented
+			$params['cat']       = ((x($_REQUEST, 'cat')) ? escape_tags($_REQUEST['cat']) : '');
+			$params['compat']    = 1;
+
+			$total = items_fetch(
+				[
+					'total'      => true,
+					'wall'       => 1,
+					'datequery'  => $params['end'],
+					'datequery2' => $params['begin'],
+					'direction'  => dbesc($params['direction']),
+					'pages'      => $params['pages'],
+					'order'      => dbesc('post'),
+					'top'        => $params['top'],
+					'cat'        => $params['cat'],
+					'compat'     => $params['compat']
+				], $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module
+			);
+
+			if ($total) {
+				App::set_pager_total($total);
+				App::set_pager_itemspage(30);
+			}
+
+			if (App::$pager['unset'] && $total > 30) {
+				$ret = Activity::paged_collection_init($total, App::$query_string);
+			}
+			else {
+
+				$items = items_fetch(
+					[
+						'wall'       => 1,
+						'datequery'  => $params['end'],
+						'datequery2' => $params['begin'],
+						'records'    => intval(App::$pager['itemspage']),
+						'start'      => intval(App::$pager['start']),
+						'direction'  => dbesc($params['direction']),
+						'pages'      => $params['pages'],
+						'order'      => dbesc('post'),
+						'top'        => $params['top'],
+						'cat'        => $params['cat'],
+						'compat'     => $params['compat']
+					], $channel, $observer_hash, CLIENT_MODE_NORMAL, App::$module
+				);
+
+				if ($items && $observer_hash) {
+
+					// check to see if this observer is a connection. If not, register any items
+					// belonging to this channel for notification of deletion/expiration
+
+					$x = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+						intval($channel['channel_id']),
+						dbesc($observer_hash)
+					);
+					if (!$x) {
+						foreach ($items as $item) {
+							if (strpos($item['mid'], z_root()) === 0) {
+								ThreadListener::store($item['mid'], $observer_hash);
+							}
+						}
+					}
+				}
+
+				$ret = Activity::encode_item_collection($items, App::$query_string, 'OrderedCollection', $total);
+			}
+
+			as_return_and_die($ret, $channel);
+		}
+
+		/*
 		$result = array('success' => false);
-	
+
 		$mindate = (($_REQUEST['mindate']) ? datetime_convert('UTC','UTC',$_REQUEST['mindate']) : '');
 		if(! $mindate)
 			$mindate = datetime_convert('UTC','UTC', 'now - 14 days');
-	
+
 		if(observer_prohibited()) {
 			$result['message'] = 'Public access denied';
 			json_return_and_die($result);
 		}
-	
-		$observer = \App::get_observer();
-	
+
+		$observer = App::get_observer();
+
 		logger('observer: ' . get_observer_hash(), LOGGER_DEBUG);
-		
+
 		$channel_address = ((argc() > 1) ? argv(1) : '');
 		if($channel_address) {
 			$r = q("select channel_id, channel_name from channel where channel_address = '%s' and channel_removed = 0 limit 1",
@@ -40,12 +153,12 @@ class Zotfeed extends \Zotlabs\Web\Controller {
 			$result['message'] = 'Channel not found.';
 			json_return_and_die($result);
 		}
-	
+
 		logger('zotfeed request: ' . $r[0]['channel_name'], LOGGER_DEBUG);
-		$result['project'] = 'Hubzilla';	
+		$result['project'] = 'Hubzilla';
 		$result['messages'] = zot_feed($r[0]['channel_id'],$observer['xchan_hash'],array('mindate' => $mindate));
 		$result['success'] = true;
 		json_return_and_die($result);
+		*/
 	}
-	
 }

@@ -218,13 +218,13 @@ class PermissionRoles {
 		// set permissionlimits for this permission here, for example:
 
 		// if($perm === 'mynewperm')
-		//     \Zotlabs\Access\PermissionLimits::Set($uid,$perm,1);
+		// 		PermissionLimits::Set($uid,$perm,1);
 
 		if($perm === 'view_wiki')
-			\Zotlabs\Access\PermissionLimits::Set($uid, $perm, PERMS_PUBLIC);
+			PermissionLimits::Set($uid, $perm, PERMS_PUBLIC);
 
 		if($perm === 'write_wiki')
-			\Zotlabs\Access\PermissionLimits::Set($uid, $perm, PERMS_SPECIFIC);
+			PermissionLimits::Set($uid, $perm, PERMS_SPECIFIC);
 
 
 		// set autoperms here if applicable
@@ -262,11 +262,11 @@ class PermissionRoles {
 					case 'view_wiki':
 						set_abconfig($uid,$ab['abook_xchan'],'my_perms',$perm,
 							intval(get_abconfig($uid,$ab['abook_xchan'],'my_perms','view_pages')));
-
+						break;
 					case 'write_wiki':
 						set_abconfig($uid,$ab['abook_xchan'],'my_perms',$perm,
 							intval(get_abconfig($uid,$ab['abook_xchan'],'my_perms','write_pages')));
-
+						break;
 					default:
 						break;
 				}

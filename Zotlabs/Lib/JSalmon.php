@@ -40,15 +40,15 @@ class JSalmon {
 		$ret = [ 'results' => [] ];
 
 		if(! is_array($x)) {
-			return $false;
+			return false;
 		}
 		if(! ( array_key_exists('signed',$x) && $x['signed'])) {
-			return $false;
+			return false;
 		}
 
-		$signed_data = preg_replace('/\s+/','',$x['data']) . '.' 
-			. base64url_encode($x['data_type'],true) . '.' 
-			. base64url_encode($x['encoding'],true) . '.' 
+		$signed_data = preg_replace('/\s+/','',$x['data']) . '.'
+			. base64url_encode($x['data_type'],true) . '.'
+			. base64url_encode($x['encoding'],true) . '.'
 			. base64url_encode($x['alg'],true);
 
 		$key = HTTPSig::get_key(EMPTY_STR,'zot6',base64url_decode($x['sigs']['key_id']));

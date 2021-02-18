@@ -18,7 +18,8 @@
 
 #jot-title-wrap,
 #jot-pagetitle-wrap,
-#jot-category-wrap {
+#jot-category-wrap,
+#jot-customjotheaders-wrap {
 	border-bottom: 1px solid rgba(0, 0, 0, .2);
 }
 
@@ -28,7 +29,8 @@
 }
 
 #jot-title-wrap input,
-#jot-pagetitle-wrap input {
+#jot-pagetitle-wrap input,
+#jot-customjotheaders-wrap {
 	padding: 0.5rem;
 }
 

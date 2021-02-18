@@ -50,7 +50,7 @@ class Cdav extends Controller {
 					if($sigblock) {
 						$keyId = str_replace('acct:','',$sigblock['keyId']);
 						if($keyId) {
-							$r = q("select * from hubloc where hubloc_addr = '%s'",
+							$r = q("select * from hubloc where hubloc_id_url = '%s'",
 								dbesc($keyId)
 							);
 							if($r) {
@@ -284,7 +284,7 @@ class Cdav extends Controller {
 			$server->addPlugin(new \Sabre\CardDAV\VCFExportPlugin());
 
 			// And off we go!
-			$server->exec();
+			$server->start();
 
 			killme();
 

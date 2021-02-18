@@ -19,7 +19,6 @@ class Libzotdir {
 	 */
 
 	static function find_upstream_directory($dirmode) {
-		global $DIRECTORY_FALLBACK_SERVERS;
 
 		$preferred = get_config('system','directory_server');
 
@@ -31,7 +30,7 @@ class Libzotdir {
 			);
 			if(($r) && ($r[0]['site_flags'] & DIRECTORY_MODE_STANDALONE)) {
 				$preferred = '';
-			}		
+			}
 		}
 
 
@@ -42,19 +41,21 @@ class Libzotdir {
 			 * from our list of directory servers. However, if we're a directory
 			 * server ourself, point at the local instance
 			 * We will then set this value so this should only ever happen once.
-			 * Ideally there will be an admin setting to change to a different 
+			 * Ideally there will be an admin setting to change to a different
 			 * directory server if you don't like our choice or if circumstances change.
 			 */
 
+			$directory_fallback_servers = get_directory_fallback_servers();
+
 			$dirmode = intval(get_config('system','directory_mode'));
 			if ($dirmode == DIRECTORY_MODE_NORMAL) {
-				$toss = mt_rand(0,count($DIRECTORY_FALLBACK_SERVERS));
-				$preferred = $DIRECTORY_FALLBACK_SERVERS[$toss];
+				$toss = mt_rand(0,count($directory_fallback_servers));
+				$preferred = $directory_fallback_servers[$toss];
 				if(! $preferred) {
 					$preferred = DIRECTORY_FALLBACK_MASTER;
 				}
 				set_config('system','directory_server',$preferred);
-			} 
+			}
 			else {
 				set_config('system','directory_server',z_root());
 			}
@@ -108,7 +109,7 @@ class Libzotdir {
 			$ret = get_config('directory', $setting);
 
 
-		// 'safemode' is the default if there is no observer or no established preference. 
+		// 'safemode' is the default if there is no observer or no established preference.
 
 		if($setting === 'safemode' && $ret === false)
 			$ret = 1;
@@ -175,8 +176,8 @@ class Libzotdir {
 	 *
 	 * Checks the directory mode of this hub to see if it is some form of directory server. If it is,
 	 * get the directory realm of this hub. Fetch a list of all other directory servers in this realm and request
-	 * a directory sync packet. This will contain both directory updates and new ratings. Store these all in the DB. 
-	 * In the case of updates, we will query each of them asynchronously from a poller task. Ratings are stored 
+	 * a directory sync packet. This will contain both directory updates and new ratings. Store these all in the DB.
+	 * In the case of updates, we will query each of them asynchronously from a poller task. Ratings are stored
 	 * directly if the rater's signature matches.
 	 *
 	 * @param int $dirmode;
@@ -188,22 +189,25 @@ class Libzotdir {
 			return;
 
 		$realm = get_directory_realm();
+
 		if ($realm == DIRECTORY_REALM) {
-			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d and ( site_realm = '%s' or site_realm = '') ",
+			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_type = %d and ( site_realm = '%s' or site_realm = '') and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
 				intval(SITE_TYPE_ZOT),
 				dbesc($realm)
 			);
-		} 
+		}
 		else {
-			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' and site_type = %d ",
+			$r = q("select * from site where (site_flags & %d) > 0 and site_url != '%s' and site_realm like '%s' and site_type = %d  and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY|DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
 				dbesc(protect_sprintf('%' . $realm . '%')),
 				intval(SITE_TYPE_ZOT)
 			);
 		}
+
+
 
 		// If there are no directory servers, setup the fallback master
 		/** @FIXME What to do if we're in a different realm? */
@@ -214,14 +218,14 @@ class Libzotdir {
 				[
 					'site_url'       => DIRECTORY_FALLBACK_MASTER,
 					'site_flags'     => DIRECTORY_MODE_PRIMARY,
-					'site_update'    => NULL_DATE, 
+					'site_update'    => NULL_DATE,
 					'site_directory' => DIRECTORY_FALLBACK_MASTER . '/dirsearch',
 					'site_realm'     => DIRECTORY_REALM,
 					'site_valid'     => 1,
 				]
 			);
 
-			$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d ",
+			$r = q("select * from site where site_flags in (%d, %d) and site_url != '%s' and site_type = %d and site_dead = 0",
 				intval(DIRECTORY_MODE_PRIMARY),
 				intval(DIRECTORY_MODE_SECONDARY),
 				dbesc(z_root()),
@@ -245,7 +249,6 @@ class Libzotdir {
 
 			$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 			$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
-
 			if (! $x['success'])
 				continue;
 
@@ -273,7 +276,7 @@ class Libzotdir {
 						$ud_flags |= UPDATE_FLAGS_DELETED;
 					if (is_array($t['flags']) && in_array('forced',$t['flags']))
 						$ud_flags |= UPDATE_FLAGS_FORCED;
-	
+
 					$z = q("insert into updates ( ud_hash, ud_guid, ud_date, ud_flags, ud_addr )
 						values ( '%s', '%s', '%s', %d, '%s' ) ",
 						dbesc($t['hash']),
@@ -338,7 +341,7 @@ class Libzotdir {
 
 	static function local_dir_update($uid, $force) {
 
-	
+
 		logger('local_dir_update: uid: ' . $uid, LOGGER_DEBUG);
 
 		$p = q("select channel.channel_hash, channel_address, channel_timezone, channel_portable_id, profile.* from profile left join channel on channel_id = uid where uid = %d and is_default = 1",
@@ -354,7 +357,7 @@ class Libzotdir {
 
 			$profile['description'] = $p[0]['pdesc'];
 			$profile['birthday']    = $p[0]['dob'];
-			if ($age = age($p[0]['dob'],$p[0]['channel_timezone'],''))  
+			if ($age = age($p[0]['dob'],$p[0]['channel_timezone'],''))
 				$profile['age'] = $age;
 
 			$profile['gender']      = $p[0]['gender'];
@@ -415,7 +418,7 @@ class Libzotdir {
 					dbesc($legacy_hash)
 				);
 			}
-	
+
 		}
 
 		$ud_hash = random_string() . '@' . \App::get_hostname();
@@ -446,7 +449,7 @@ class Libzotdir {
 		$arr['xprof_hash']         = $hash;
 		$arr['xprof_dob']          = (($profile['birthday'] === '0000-00-00') ? $profile['birthday'] : datetime_convert('','',$profile['birthday'],'Y-m-d')); // !!!! check this for 0000 year
 		$arr['xprof_age']          = (($profile['age'])         ? intval($profile['age']) : 0);
-		$arr['xprof_desc']         = (($profile['description']) ? htmlspecialchars($profile['description'], ENT_COMPAT,'UTF-8',false) : '');	
+		$arr['xprof_desc']         = (($profile['description']) ? htmlspecialchars($profile['description'], ENT_COMPAT,'UTF-8',false) : '');
 		$arr['xprof_gender']       = (($profile['gender'])      ? htmlspecialchars($profile['gender'],      ENT_COMPAT,'UTF-8',false) : '');
 		$arr['xprof_marital']      = (($profile['marital'])     ? htmlspecialchars($profile['marital'],     ENT_COMPAT,'UTF-8',false) : '');
 		$arr['xprof_sexual']       = (($profile['sexual'])      ? htmlspecialchars($profile['sexual'],      ENT_COMPAT,'UTF-8',false) : '');
@@ -641,7 +644,7 @@ class Libzotdir {
 				dbesc(datetime_convert()),
 				intval($flags),
 				dbesc($addr)
-			);	
+			);
 		}
 		else {
 			q("update updates set ud_flags = ( ud_flags | %d ) where ud_addr = '%s' and not (ud_flags & %d)>0 ",

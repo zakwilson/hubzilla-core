@@ -7,7 +7,7 @@ use Zotlabs\Lib as Zlib;
 
 use Michelf\MarkdownExtra;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 use Zotlabs\Lib\SvgSanitizer;
 
@@ -1801,7 +1801,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 
 	$tags = format_hashtags($item);
 
-	if($item['resource_type'])
+	if($item['resource_type'] == 'photo')
 		$mentions = format_mentions($item);
 
 	$categories = format_categories($item,$writeable);
@@ -3824,7 +3824,7 @@ function new_uuid() {
 
 	try {
 		$hash = Uuid::uuid4()->toString();
-	} catch (UnsatisfiedDependencyException $e) {
+	} catch (UnableToBuildUuidException $e) {
 		$hash = random_string(48);
 	}
 
@@ -3842,7 +3842,7 @@ function uuid_from_url($url) {
 
 	try {
 		$hash = Uuid::uuid5(Uuid::NAMESPACE_URL, $url)->toString();
-	} catch (UnsatisfiedDependencyException $e) {
+	} catch (UnableToBuildUuidException $e) {
 		$hash = md5($url);
 	}
 	return $hash;

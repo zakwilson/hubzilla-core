@@ -1,8 +1,10 @@
 <?php
 
+use Zotlabs\Lib\LDSignatures;
 use Zotlabs\Lib\Zotfinger;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Queue;
+use Zotlabs\Web\HTTPSig;
 
 /**
  * @file include/network.php
@@ -404,6 +406,31 @@ function json_return_and_die($x, $content_type = 'application/json') {
 	killme();
 }
 
+function as_return_and_die($obj,$channel) {
+
+	$x = array_merge(['@context' => [
+		ACTIVITYSTREAMS_JSONLD_REV,
+		'https://w3id.org/security/v1',
+		z_root() . ZOT_APSCHEMA_REV
+	]], $obj );
+
+	$headers = [];
+	$headers['Content-Type'] = 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"' ;
+	$x['signature'] = LDSignatures::sign($x,$channel);
+	$ret = json_encode($x, JSON_UNESCAPED_SLASHES);
+	logger('data: ' . jindent($ret), LOGGER_DATA);
+	$headers['Date'] = datetime_convert('UTC','UTC', 'now', 'D, d M Y H:i:s \\G\\M\\T');
+	$headers['Digest'] = HTTPSig::generate_digest_header($ret);
+	$headers['(request-target)'] = strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI'];
+
+	$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel));
+	HTTPSig::set_headers($h);
+
+	echo $ret;
+	killme();
+
+}
+
 /**
  * @brief Send HTTP status header.
  *
@@ -714,7 +741,7 @@ function sxml2array ( $xmlObject, $out = array () )
  * @brief xml2array() will convert the given XML text to an array in the XML structure.
  *
  * Link: http://www.bin-co.com/php/scripts/xml2array/
- * Portions significantly re-written by mike@macgirvin.com 
+ * Portions significantly re-written by mike@macgirvin.com
  * (namespaces, lowercase tags, get_attribute default changed, more...)
  *
  * Examples: $array =  xml2array(file_get_contents('feed.xml'));
@@ -1113,8 +1140,8 @@ function discover_by_webbie($webbie, $protocol = '') {
 					// Check the HTTP signature
 
 					$hsig = $record['signature'];
-					if($hsig && ($hsig['signer'] === $url || $hsig['signer'] === $link['href']) && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
-					$hsig_valid = true;
+					if($hsig && $hsig['signer'] === $link['href'] && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
+						$hsig_valid = true;
 
 					if(! $hsig_valid) {
 						logger('http signature not valid: ' . print_r($hsig,true));
@@ -1431,7 +1458,7 @@ function scrape_feed($url) {
 function do_delivery($deliveries, $force = false) {
 
 	// $force is set if a site that wasn't responding suddenly returns to life.
-	// Try and shove through everything going to that site while it's responding. 
+	// Try and shove through everything going to that site while it's responding.
 
 	if(! (is_array($deliveries) && count($deliveries)))
 		return;
@@ -1978,7 +2005,7 @@ function getBestSupportedMimeType($mimeTypes = null, $acceptedTypes = false) {
 		// check if there is a different quality
 		if (strpos($a, ';q=')) {
 			// divide "mime/type;q=X" into two parts: "mime/type" i "X"
-			list($a, $q) = explode(';q=', $a);
+			[$a, $q] = explode(';q=', $a);
 		}
 		// mime-type $a is accepted with the quality $q
 		// WARNING: $q == 0 means, that mime-type isn’t supported!
@@ -2069,7 +2096,7 @@ function get_request_string($url) {
  * Takes the output of parse_url and builds a URL from it
  *
  */
- 
+
 function unparse_url($parsed_url) {
 	$scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
 	$host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
@@ -2081,4 +2108,4 @@ function unparse_url($parsed_url) {
 	$query    = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
 	$fragment = isset($parsed_url['fragment']) ? '#' . $parsed_url['fragment'] : '';
   	return "$scheme$user$pass$host$port$path$query$fragment";
-} 
+}

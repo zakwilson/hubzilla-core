@@ -21,9 +21,8 @@ class ZotURL {
 		}
 
 		$portable_url = substr($url,6);
-		$u = explode('/',$portable_url);		
+		$u = explode('/',$portable_url);
 		$portable_id = $u[0];
-
 		$hosts = self::lookup($portable_id);
 
 		if(! $hosts) {
@@ -39,8 +38,8 @@ class ZotURL {
 
 			if($channel && $m) {
 
-				$headers = [ 
-					'Accept'           => 'application/x-zot+json', 
+				$headers = [
+					'Accept'           => 'application/x-zot+json',
 					'Content-Type'     => 'application/x-zot+json',
 					'X-Zot-Token'      => random_string(),
 					'Digest'           => HTTPSig::generate_digest_header($data),
@@ -50,9 +49,9 @@ class ZotURL {
 				$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
 			}
 			else {
-				$h = [ 'Accept: application/x-zot+json' ]; 
+				$h = [ 'Accept: application/x-zot+json' ];
 			}
-				
+
 			$result = [];
 
 			$redirects = 0;

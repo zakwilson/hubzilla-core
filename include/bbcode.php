@@ -1417,7 +1417,7 @@ function bbcode($Text, $options = []) {
 
 
 	if(strpos($Text,'[/summary]') !== false) {
-		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", 'bb_summary', $Text);
+		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/is", 'bb_summary', $Text);
 	}
 
 	// Check for [spoiler] text

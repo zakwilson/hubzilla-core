@@ -1088,11 +1088,17 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 	}
 
 	if(in_array('events',$sections)) {
+
+		// @fixme - Not totally certain how to handle $zot_compat for the event timezone which exists
+		// in Hubzilla but is stored with the item and not the event. In Zap, stored information is
+		// always UTC and localised on access as per standard conventions for working with global time data. 
+		
 		$r = q("select * from event where uid = %d",
 			intval($channel_id)
 		);
-		if($r)
+		if ($r) {
 			$ret['event'] = $r;
+		}
 
 		$r = q("select * from item where resource_type = 'event' and uid = %d",
 			intval($channel_id)

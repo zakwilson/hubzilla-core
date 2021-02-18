@@ -87,7 +87,7 @@
 			return false;
 		}
 		$sections = (($_REQUEST['sections']) ? explode(',',$_REQUEST['sections']) : '');
-		$codebase = ((isset($_REQUEST['codebase']) && $_REQUEST['codebase'] === 'zap') ? true : false);
+		$codebase = ((isset($_REQUEST['zap_compat']) && $_REQUEST['zap_compat']) ? true : false);
 		if($_REQUEST['posts']) {
 			$sections = get_default_export_sections();
 			$sections[] = 'items';
@@ -112,7 +112,7 @@
 			$start = datetime_convert(date_default_timezone_get(),'UTC', $_REQUEST['since']);
 		}
 		$finish = datetime_convert(date_default_timezone_get(),'UTC', (($_REQUEST['until']) ? $_REQUEST['until'] : 'now'));
-		$codebase = ((isset($_REQUEST['codebase']) && $_REQUEST['codebase'] === 'zap') ? true : false);
+		$codebase = ((isset($_REQUEST['zap_compat']) && $_REQUEST['zap_compat']) ? true : false);
 
 		json_return_and_die(channel_export_items_page(api_user(),$start,$finish,$page,$records,$codebase));
 	}
@@ -291,10 +291,11 @@
 			return false;
 		if(! $_REQUEST['file_id'])
 			return false;
+		$codebase = ((isset($_REQUEST['zap_compat']) && $_REQUEST['zap_compat']) ? true : false);
 
 		$channel = channelx_by_n(api_user());
 
-		$ret = attach_export_data($channel,$_REQUEST['file_id']);
+		$ret = attach_export_data($channel,$_REQUEST['file_id'],false,$codebase);
 
 		if($ret) {
 			json_return_and_die($ret);

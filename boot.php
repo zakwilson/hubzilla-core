@@ -1758,7 +1758,7 @@ function shutdown() {
  */
 function get_account_id() {
 
-	if(intval($_SESSION['account_id']))
+	if(isset($_SESSION['account_id']))
 		return intval($_SESSION['account_id']);
 
 	if(App::$account)
@@ -2252,6 +2252,8 @@ function load_pdl() {
 
 		$n = 'mod_' . App::$module . '.pdl' ;
 		$u = App::$comanche->get_channel_id();
+		$s = '';
+
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
 		if(! $s)

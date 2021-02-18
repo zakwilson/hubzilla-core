@@ -18,6 +18,7 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
 	$lastlog_updated = false;
+	$uid_to_load = null;
 
 	if (x($user_record, 'account_id')) {
 		App::$account = $user_record;

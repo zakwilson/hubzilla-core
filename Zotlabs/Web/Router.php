@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Web;
 
+use App;
 use Zotlabs\Extend\Route;
 use Exception;
 
@@ -43,7 +44,7 @@ class Router {
 	 */
 	function __construct() {
 
-		$module = \App::$module;
+		$module = App::$module;
 		$modname = "Zotlabs\\Module\\" . ucfirst($module);
 
 		if(strlen($module)) {
@@ -60,7 +61,7 @@ class Router {
 						include_once($route[0]);
 						if(class_exists($modname)) {
 							$this->controller = new $modname;
-							\App::$module_loaded = true;
+							App::$module_loaded = true;
 						}
 					}
 				}
@@ -68,15 +69,15 @@ class Router {
 
 			// legacy plugins - this can be removed when they have all been converted
 
-			if(! (\App::$module_loaded)) {
-				if(is_array(\App::$plugins) && in_array($module,\App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
+			if(! (App::$module_loaded)) {
+				if(is_array(App::$plugins) && in_array($module, App::$plugins) && file_exists("addon/{$module}/{$module}.php")) {
 					include_once("addon/{$module}/{$module}.php");
 					if(class_exists($modname)) {
 						$this->controller = new $modname;
-						\App::$module_loaded = true;
+						App::$module_loaded = true;
 					}
 					elseif(function_exists($module . '_module')) {
-						\App::$module_loaded = true;
+						App::$module_loaded = true;
 					}
 				}
 			}
@@ -86,40 +87,40 @@ class Router {
 			 * Otherwise, look for the standard program module
 			 */
 
-			if(! (\App::$module_loaded)) {
+			if(! (App::$module_loaded)) {
 				try {
 					$filename = 'Zotlabs/SiteModule/'. ucfirst($module). '.php';
 					if(file_exists($filename)) {
 						// This won't be picked up by the autoloader, so load it explicitly
 						require_once($filename);
 						$this->controller = new $modname;
-						\App::$module_loaded = true;
+						App::$module_loaded = true;
 					}
 					else {
 						$filename = 'Zotlabs/Module/'. ucfirst($module). '.php';
 						if(file_exists($filename)) {
 							$this->controller = new $modname;
-							\App::$module_loaded = true;
+							App::$module_loaded = true;
 						}
 					}
-					if(! \App::$module_loaded)
-						throw new \Exception('Module not found');
+					if(! App::$module_loaded)
+						throw new Exception('Module not found');
 				}
-				catch(\Exception $e) {
+				catch(Exception $e) {
 					if(file_exists("mod/site/{$module}.php")) {
 						include_once("mod/site/{$module}.php");
-						\App::$module_loaded = true;
+						App::$module_loaded = true;
 					}
 					elseif(file_exists("mod/{$module}.php")) {
 						include_once("mod/{$module}.php");
-						\App::$module_loaded = true;
+						App::$module_loaded = true;
 					}
 				}
 			}
 
 			$x = [
 					'module' => $module,
-					'installed' => \App::$module_loaded,
+					'installed' => App::$module_loaded,
 					'controller' => $this->controller
 			];
 			/**
@@ -136,7 +137,7 @@ class Router {
 			 */
 			call_hooks('module_loaded', $x);
 			if($x['installed']) {
-				\App::$module_loaded = true;
+				App::$module_loaded = true;
 				$this->controller = $x['controller'];
 			}
 
@@ -144,7 +145,7 @@ class Router {
 			 * The URL provided does not resolve to a valid module.
 	 		 */
 
-			if(! (\App::$module_loaded)) {
+			if(! (App::$module_loaded)) {
 
 				// undo the setting of a letsencrypt acme-challenge rewrite rule
 				// which blocks access to our .well-known routes.
@@ -160,7 +161,7 @@ class Router {
 
 				$x = [
 					'module' => $module,
-					'installed' => \App::$module_loaded,
+					'installed' => App::$module_loaded,
 					'controller' => $this->controller
 				];
 				call_hooks('page_not_found',$x);
@@ -181,14 +182,14 @@ class Router {
 
 				header($_SERVER['SERVER_PROTOCOL'] . ' 404 Not Found');
 				$tpl = get_markup_template('404.tpl');
-				\App::$page['content'] = replace_macros($tpl, array(
+				App::$page['content'] = replace_macros($tpl, array(
 						'$message' => t('Page not found.')
 				));
 
 				// pretend this is a module so it will initialise the theme
-				\App::$module = '404';
-				\App::$module_loaded = true;
-				\App::$error = true;
+				App::$module = '404';
+				App::$module_loaded = true;
+				App::$error = true;
 			}
 		}
 	}
@@ -203,9 +204,9 @@ class Router {
 		 * Call module functions
 		 */
 
-		if(\App::$module_loaded) {
+		if(App::$module_loaded) {
 
-			\App::$page['page_title'] = \App::$module;
+			App::$page['page_title'] = App::$module;
 			$placeholder = '';
 
 			/*
@@ -216,13 +217,13 @@ class Router {
 			 */
 
 			$arr = array('init' => true, 'replace' => false);
-			call_hooks(\App::$module . '_mod_init', $arr);
+			call_hooks(App::$module . '_mod_init', $arr);
 			if(! $arr['replace']) {
 				if($this->controller && method_exists($this->controller,'init')) {
 					$this->controller->init();
 				}
-				elseif(function_exists(\App::$module . '_init')) {
-					$func = \App::$module . '_init';
+				elseif(function_exists(App::$module . '_init')) {
+					$func = App::$module . '_init';
 					$func($a);
 				}
 			}
@@ -258,41 +259,41 @@ class Router {
 				$func = str_replace('-', '_', $current_theme[0]) . '_init';
 				$func($a);
 			}
-			elseif (x(\App::$theme_info, 'extends') && file_exists('view/theme/' . \App::$theme_info['extends'] . '/php/theme.php')) {
-				require_once('view/theme/' . \App::$theme_info['extends'] . '/php/theme.php');
-				if(function_exists(str_replace('-', '_', \App::$theme_info['extends']) . '_init')) {
-					$func = str_replace('-', '_', \App::$theme_info['extends']) . '_init';
+			elseif (x(App::$theme_info, 'extends') && file_exists('view/theme/' . App::$theme_info['extends'] . '/php/theme.php')) {
+				require_once('view/theme/' . App::$theme_info['extends'] . '/php/theme.php');
+				if(function_exists(str_replace('-', '_', App::$theme_info['extends']) . '_init')) {
+					$func = str_replace('-', '_', App::$theme_info['extends']) . '_init';
 					$func($a);
 				}
 			}
 
-			if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! \App::$error) && (! x($_POST, 'auth-params'))) {
-				call_hooks(\App::$module . '_mod_post', $_POST);
+			if(($_SERVER['REQUEST_METHOD'] === 'POST') && (! App::$error) && (! x($_POST, 'auth-params'))) {
+				call_hooks(App::$module . '_mod_post', $_POST);
 
 				if($this->controller && method_exists($this->controller,'post')) {
 					$this->controller->post();
 				}
-				elseif(function_exists(\App::$module . '_post')) {
-					$func = \App::$module . '_post';
+				elseif(function_exists(App::$module . '_post')) {
+					$func = App::$module . '_post';
 					$func($a);
 				}
 			}
 
-			if(! \App::$error) {
-				$arr = array('content' => \App::$page['content'], 'replace' => false);
-				call_hooks(\App::$module . '_mod_content', $arr);
+			if(! App::$error) {
+				$arr = array('content' => App::$page['content'], 'replace' => false);
+				call_hooks(App::$module . '_mod_content', $arr);
 
 				if(! $arr['replace']) {
 					if($this->controller && method_exists($this->controller,'get')) {
 						$arr = array('content' => $this->controller->get());
 					}
-					elseif(function_exists(\App::$module . '_content')) {
-						$func = \App::$module . '_content';
+					elseif(function_exists(App::$module . '_content')) {
+						$func = App::$module . '_content';
 						$arr = array('content' => $func($a));
 					}
 				}
-				call_hooks(\App::$module . '_mod_aftercontent', $arr);
-				\App::$page['content'] = (($arr['replace']) ? $arr['content'] : \App::$page['content'] . $arr['content']);
+				call_hooks(App::$module . '_mod_aftercontent', $arr);
+				App::$page['content'] = ((isset($arr['replace'])) ? $arr['content'] : App::$page['content'] . $arr['content']);
 			}
 		}
 	}

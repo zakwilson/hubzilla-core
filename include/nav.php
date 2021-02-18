@@ -17,6 +17,9 @@ function nav($template = 'default') {
 	if(!(x(App::$page,'nav')))
 		App::$page['nav'] = '';
 
+	if(! isset(App::$page['htmlhead']))
+		App::$page['htmlhead'] = '';
+
 	App::$page['htmlhead'] .= '<script>$(document).ready(function() { $("#nav-search-text").search_autocomplete(\'' . z_root() . '/acl' . '\');});</script>';
 
 	$is_owner = (((local_channel()) && ((App::$profile_uid == local_channel()) || (App::$profile_uid == 0))) ? true : false);
@@ -45,8 +48,9 @@ function nav($template = 'default') {
 	$nav_apps = [];
 	$navbar_apps = [];
 	$channel_apps = [];
-	
-	$channel_apps[] = channel_apps($is_owner, App::$profile['channel_address']);
+
+	if(isset(App::$profile['channel_address']))
+		$channel_apps[] = channel_apps($is_owner, App::$profile['channel_address']);
 
 
 	/**
@@ -57,9 +61,9 @@ function nav($template = 'default') {
 
 	$banner = get_config('system','banner');
 
-	if($banner === false) 
+	if($banner === false)
 		$banner = get_config('system','sitename');
-		
+
 	call_hooks('get_banner',$banner);
 
 	App::$page['header'] .= replace_macros(get_markup_template('hdr.tpl'), array(
@@ -74,7 +78,7 @@ function nav($template = 'default') {
 
 	/**
 	 * Display login or logout
-	 */	
+	 */
 
 	$nav['usermenu'] = [];
 	$userinfo = null;
@@ -102,19 +106,19 @@ function nav($template = 'default') {
 
  		$nav['settings'] = array('settings', t('Settings'),"", t('Account/Channel Settings'),'settings_nav_btn');
 
-	
+
 		if($chans && count($chans) > 1 && feature_enabled(local_channel(),'nav_channel_select'))
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = ['logout',t('Logout'), "", t('End this session'),'logout_nav_btn'];
-		
+
 		// user menu
-		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), ((\App::$nav_sel['raw_name'] == 'Profile') ? 'active' : ''), t('Your profile page'),'profile_nav_btn'];
+		$nav['usermenu'][] = ['profile/' . $channel['channel_address'], t('View Profile'), ((App::$nav_sel['raw_name'] == 'Profile') ? 'active' : ''), t('Your profile page'),'profile_nav_btn'];
 
 		if(feature_enabled(local_channel(),'multi_profiles'))
-			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'), ((\App::$nav_sel['raw_name'] == 'Profiles') ? 'active' : '') , t('Manage/Edit profiles'),'profiles_nav_btn'];
+			$nav['usermenu'][]   = ['profiles', t('Edit Profiles'), ((App::$nav_sel['raw_name'] == 'Profiles') ? 'active' : '') , t('Manage/Edit profiles'),'profiles_nav_btn'];
 		else
-			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'), ((\App::$nav_sel['raw_name'] == 'Profiles') ? 'active' : ''), t('Edit your profile'),'profiles_nav_btn'];
+			$nav['usermenu'][]   = ['profiles/' . $prof[0]['id'], t('Edit Profile'), ((App::$nav_sel['raw_name'] == 'Profiles') ? 'active' : ''), t('Edit your profile'),'profiles_nav_btn'];
 
 	}
 	else {
@@ -127,7 +131,7 @@ function nav($template = 'default') {
 				$nav['login'] = login(true,'main-login',false,false);
 				$nav['loginmenu'][] = ['login',t('Login'),'',t('Sign in'),'login_nav_btn'];
 				App::$page['content'] .= replace_macros(get_markup_template('nav_login.tpl'),
-					[ 
+					[
 						'$nav' => $nav,
 						'userinfo' => $userinfo
 					]
@@ -198,8 +202,8 @@ function nav($template = 'default') {
 
 	call_hooks('nav', $x);
 
-	// Not sure the best place to put this on the page. So I'm implementing it but leaving it 
-	// turned off until somebody discovers this and figures out a good location for it. 
+	// Not sure the best place to put this on the page. So I'm implementing it but leaving it
+	// turned off until somebody discovers this and figures out a good location for it.
 	$powered_by = '';
 
 	$url = '';
@@ -342,7 +346,7 @@ function nav($template = 'default') {
 	));
 
 	if(x($_SESSION, 'reload_avatar') && $observer) {
-		// The avatar has been changed on the server but the browser doesn't know that, 
+		// The avatar has been changed on the server but the browser doesn't know that,
 		// force the browser to reload the image from the server instead of its cache.
 		$tpl = get_markup_template('force_image_reload.tpl');
 
@@ -358,7 +362,7 @@ function nav($template = 'default') {
 
 /*
  * Set a menu item in navbar as selected
- * 
+ *
  */
 function nav_set_selected($raw_name, $settings_url = ''){
 	App::$nav_sel['raw_name'] = $raw_name;
@@ -384,7 +388,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 	if($channel && is_null($nickname))
 		$nickname = $channel['channel_address'];
 
-	$uid = ((App::$profile['profile_uid']) ? App::$profile['profile_uid'] : local_channel());
+	$uid = ((isset(App::$profile['profile_uid'])) ? App::$profile['profile_uid'] : local_channel());
 
 	if(! get_pconfig($uid, 'system', 'channelapps','1'))
 	    return;
@@ -529,7 +533,7 @@ function channel_apps($is_owner = false, $nickname = null) {
 			'icon'  => 'newspaper-o'
 		];
 	}
- 
+
 
 	if ($p['view_wiki'] && Apps::system_app_installed($uid, 'Wiki')) {
 		$tabs[] = [
@@ -544,9 +548,9 @@ function channel_apps($is_owner = false, $nickname = null) {
 
 	$arr = array('is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => (($tab) ? $tab : false), 'tabs' => $tabs);
 
-	call_hooks('channel_apps', $arr);	
+	call_hooks('channel_apps', $arr);
 
-	return replace_macros(get_markup_template('profile_tabs.tpl'), 
+	return replace_macros(get_markup_template('profile_tabs.tpl'),
 		[
 			'$tabs'  => $arr['tabs'],
 			'$name'  => App::$profile['channel_name'],

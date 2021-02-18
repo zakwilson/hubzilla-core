@@ -32,6 +32,7 @@ class Receiver {
 			$this->encrypted = ((array_key_exists('iv',$data)) ? true : false);
 
 			if($this->encrypted) {
+				$data['encrypted'] = true;
 				$this->data = @json_decode(@Crypto::unencapsulate($data,$prvkey),true);
 			}
 			if(! $this->data)

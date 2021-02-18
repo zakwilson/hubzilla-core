@@ -423,7 +423,7 @@ class Activity {
 		$ret['published'] = datetime_convert('UTC', 'UTC', $i['created'], ATOM_TIME);
 		if ($i['created'] !== $i['edited'])
 			$ret['updated'] = datetime_convert('UTC', 'UTC', $i['edited'], ATOM_TIME);
-		if ($i['expires'] <= NULL_DATE) {
+		if ($i['expires'] > NULL_DATE) {
 			$ret['expires'] = datetime_convert('UTC', 'UTC', $i['expires'], ATOM_TIME);
 		}
 
@@ -450,7 +450,7 @@ class Activity {
 			$ret['directMessage'] = true;
 		}
 
-		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] !== NULL_DATE) {
+		if (array_key_exists('comments_closed', $i) && $i['comments_closed'] !== EMPTY_STR && $i['comments_closed'] > NULL_DATE) {
 			if ($ret['commentPolicy']) {
 				$ret['commentPolicy'] .= ' ';
 			}
@@ -1108,6 +1108,34 @@ class Activity {
 		$ret = $arr['encoded'];
 		return $ret;
 	}
+
+	static function encode_item_object($item, $elm = 'obj') {
+		$ret = [];
+		
+		if ($item[$elm]) {
+			if (! is_array($item[$elm])) {
+				$item[$elm] = json_decode($item[$elm],true);
+			}
+			if ($item[$elm]['type'] === ACTIVITY_OBJ_PHOTO) {
+				$item[$elm]['id'] = $item['mid'];
+			}
+
+			$obj = self::encode_object($item[$elm]);
+			if ($obj)
+				return $obj;
+			else
+				return [];
+		}
+		else {
+			$obj = self::encode_item($item);
+			if ($obj)
+				return $obj;
+			else
+				return [];
+		}
+
+	}
+
 
 	static function activity_mapper($verb) {
 

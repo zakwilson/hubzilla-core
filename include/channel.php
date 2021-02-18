@@ -903,8 +903,20 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		$r = q("select * from profile where uid = %d",
 			intval($channel_id)
 		);
-		if($r)
+		
+		if($r) {
 			$ret['profile'] = $r;
+			if ($zap_compat) {
+				// zap only supports one profile
+				foreach ($r as $rv) {
+					if ($rv['is_default']) {
+						$ret['profile'] = [ $rv ];
+						break;
+					}
+				}
+			}
+		}
+
 
 		$r = q("select mimetype, content, os_storage from photo
 			where imgscale = 4 and photo_usage = %d and uid = %d limit 1",
@@ -1092,15 +1104,20 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		// @fixme - Not totally certain how to handle $zot_compat for the event timezone which exists
 		// in Hubzilla but is stored with the item and not the event. In Zap, stored information is
 		// always UTC and localised on access as per standard conventions for working with global time data. 
+
+		// Older Zot (pre-Zot6) records aren't translated correctly w/r/t AS2 so only include events for the last year or so if
+		// migrating to Zap. 
 		
-		$r = q("select * from event where uid = %d",
+		$sqle = (($zap_compat) ? " and created > '2020-01-01 00:00:00' " : '');
+
+		$r = q("select * from event where uid = %d $sqle",
 			intval($channel_id)
 		);
 		if ($r) {
 			$ret['event'] = $r;
 		}
 
-		$r = q("select * from item where resource_type = 'event' and uid = %d",
+		$r = q("select * from item where resource_type = 'event' and uid = %d $sqle",
 			intval($channel_id)
 		);
 		if($r) {

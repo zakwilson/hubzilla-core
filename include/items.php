@@ -1168,8 +1168,8 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
 	$x['verb']            = (($zap_compat) ? Activity::activity_mapper($item['verb']) : $item['verb']);
-	$x['object_type']     = (($zap_compat && $item['obj_type']) ? Activity::activity_object_mapper($item['obj_type']) : $item['obj_type']);
-	$x['target_type']     = (($zap_compat && $item['tgt_type']) ? Activity::activity_object_mapper($item['tgt_type']) : $item['tgt_type']);
+	$x['object_type']     = (($zap_compat && $item['obj_type']) ? Activity::activity_obj_mapper($item['obj_type']) : $item['obj_type']);
+	$x['target_type']     = (($zap_compat && $item['tgt_type']) ? Activity::activity_obj_mapper($item['tgt_type']) : $item['tgt_type']);
 	$x['permalink']       = $item['plink'];
 	$x['location']        = $item['location'];
 	$x['longlat']         = $item['coord'];
@@ -1178,13 +1178,18 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['owner']           = encode_item_xchan($item['owner']);
 	$x['author']          = encode_item_xchan($item['author']);
 
-	if($item['obj'])
-		$x['object']      = (($zap_compat)
-			? Activity::encode_object(json_decode($item['obj'],true))
-			: json_decode($item['obj'],true)) ;
+	if ($zap_compat) {
+		$x['object'] = Activity::encode_item_object($item,'obj');
+	}
+	else {
+		if ($item['obj']) {
+			$x['object'] = json_decode($item['obj'],true);
+		}
+	}
+
 	if($item['target'])
 		$x['target']      = (($zap_compat)
-			? Activity::encode_object(json_decode($item['target'],true))
+			? Activity::encode_item_object($item,'target')
 			: json_decode($item['target'],true)) ;
 	if($item['attach'])
 		$x['attach']      = json_decode($item['attach'],true);
@@ -1206,9 +1211,9 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 
 	if($item['iconfig']) {
 		if ($zap_compat) {
-			for ($x = 0; $x < count($item['iconfig']); $x ++) {
-				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$x]['v'])) {
-					$item['iconfig'][$x]['v'] = serialise(unserialize($item['iconfig'][$x]['v']));
+			for ($y = 0; $y < count($item['iconfig']); $y ++) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
+					$item['iconfig'][$y]['v'] = serialise(unserialize($item['iconfig'][$y]['v']));
 				}
 			}
 		}

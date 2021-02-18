@@ -690,7 +690,7 @@ function startup() {
 
 	if(function_exists ('ini_set')) {
 		// This has to be quite large to deal with embedded private photos
-		@ini_set('pcre.backtrack_limit', 500000);
+		//@ini_set('pcre.backtrack_limit', 500000);
 
 		// Use cookies to store the session ID on the client side
 		@ini_set('session.use_only_cookies', 1);

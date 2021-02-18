@@ -14,8 +14,8 @@ function nav($template = 'default') {
 	 *
 	 */
 
-	App::$page['nav'] = isset(App::$page['nav']) ?? '';
-	App::$page['htmlhead'] = isset(App::$page['htmlhead']) ?? '';
+	App::$page['nav'] = App::$page['nav'] ?? '';
+	App::$page['htmlhead'] = App::$page['htmlhead'] ?? '';
 	App::$page['htmlhead'] .= '<script>$(document).ready(function() { $("#nav-search-text").search_autocomplete(\'' . z_root() . '/acl' . '\');});</script>';
 	$is_owner = (((local_channel()) && ((App::$profile_uid == local_channel()) || (App::$profile_uid == 0))) ? true : false);
 	$observer = [];
@@ -64,7 +64,7 @@ function nav($template = 'default') {
 
 	call_hooks('get_banner', $banner);
 
-	App::$page['header'] = isset(App::$page['header']) ?? '';
+	App::$page['header'] = App::$page['header'] ?? '';
 	App::$page['header'] .= replace_macros(get_markup_template('hdr.tpl'), [
 		//we could additionally use this to display important system notifications e.g. for updates
 	]);
@@ -151,8 +151,8 @@ function nav($template = 'default') {
 	}
 
 	$homelink_arr = parse_url($my_url);
-	$scheme       = isset($homelink_arr['scheme']) ?? '';
-	$host         = isset($homelink_arr['host']) ?? '';
+	$scheme       = $homelink_arr['scheme'] ?? '';
+	$host         = $homelink_arr['host'] ?? '';
 	$homelink = $scheme . '://' . $host;
 
 	if (!$is_owner) {

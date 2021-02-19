@@ -272,6 +272,26 @@ function bb_parse_crypt($match) {
 	return $Text;
 }
 
+/**
+ * @brief Returns raw base64 encoded crypt content.
+ *
+ * @param array $match
+ * @return string
+ */
+function bb_parse_b64_crypt($match) {
+
+	if(empty($match[2]))
+		return;
+
+	$r .= '----- ENCRYPTED CONTENT -----' . PHP_EOL;
+	$r .= $match[2] . PHP_EOL;
+	$r .= '----- END ENCRYPTED CONTENT -----';
+
+	return $r;
+
+}
+
+
 function bb_parse_app($match) {
 
 	$app = Zotlabs\Lib\Apps::app_decode($match[1]);

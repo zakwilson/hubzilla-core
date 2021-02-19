@@ -2701,10 +2701,13 @@ function tag_deliver($uid, $item_id) {
 			return;
 		}
 
+		/* this should not be required anymore due to the check above
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
 		}
+		*/
+
 		// group delivery via W2W
 		logger('rewriting W2W post for ' . $u[0]['channel_address']);
 		start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
@@ -3274,24 +3277,19 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_wall'] = 1;
 		$arr['item_thread_top'] = 1;
 
-		if (strpos($item['body'], "[/share]") !== false) {
-			$pos = strpos($item['body'], "[share");
-			$bb = substr($item['body'], $pos);
-		} else {
-			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
-				"' profile='"       . $item['author']['xchan_url'] .
-				"' portable_id='"   . $item['author']['xchan_hash'] .
-				"' avatar='"        . $item['author']['xchan_photo_s'] .
-				"' link='"          . $item['plink'] .
-				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
-				"' posted='"        . $item['created'] .
-				"' message_id='"    . $item['mid'] .
-			"']";
-			if($item['title'])
-				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
-			$bb .= $item['body'];
-			$bb .= "[/share]";
-		}
+		$bb = "[share author='" . urlencode($item['author']['xchan_name']).
+			"' profile='"       . $item['author']['xchan_url'] .
+			"' portable_id='"   . $item['author']['xchan_hash'] .
+			"' avatar='"        . $item['author']['xchan_photo_s'] .
+			"' link='"          . $item['plink'] .
+			"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
+			"' posted='"        . $item['created'] .
+			"' message_id='"    . $item['mid'] .
+		"']";
+		if($item['title'])
+			$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
+		$bb .= $item['body'];
+		$bb .= "[/share]";
 
 		$arr['body'] = $bb;
 		$arr['term'] = $item['term'];

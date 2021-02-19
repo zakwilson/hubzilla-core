@@ -1204,9 +1204,12 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $Text);
 	}
 
-	if (strpos($Text,'[/share]') !== false) {
+	$count = 0;
+	while (strpos($Text,'[/share]') !== false && $count < 10) {
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism", 'bb_ShareAttributes', $Text);
+		$count ++;
 	}
+
 	if($tryoembed) {
 		if (strpos($Text,'[/url]') !== false) {
 			$Text = preg_replace_callback("/[^\^]\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);

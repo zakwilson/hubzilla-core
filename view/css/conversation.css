@@ -17,6 +17,7 @@
 }
 
 #jot-title-wrap,
+#jot-summary-wrap,
 #jot-pagetitle-wrap,
 #jot-category-wrap,
 #jot-customjotheaders-wrap {
@@ -29,6 +30,7 @@
 }
 
 #jot-title-wrap input,
+#jot-summary-wrap input,
 #jot-pagetitle-wrap input,
 #jot-customjotheaders-wrap {
 	padding: 0.5rem;

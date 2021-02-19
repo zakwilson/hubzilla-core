@@ -102,6 +102,17 @@ class Activity {
 		}
 
 		if ($x['success']) {
+			$m = parse_url($url);
+			if ($m) {
+				$site_url = unparse_url(['scheme' => $m['scheme'], 'host' => $m['host'], 'port' => $m['port'] ]);
+				q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
+					dbesc(datetime_convert()),
+					dbesc($site_url),
+					db_utcnow(),
+					db_quoteinterval('1 DAY')
+				);
+			}
+
 			$y = json_decode($x['body'], true);
 			logger('returned: ' . json_encode($y, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOGGER_DEBUG);
 			return json_decode($x['body'], true);
@@ -1350,7 +1361,7 @@ class Activity {
 							$abook_instance .= ',';
 						$abook_instance .= z_root();
 
-						q("update abook set abook_instance = '%s', abook_not_here = 0 
+						q("update abook set abook_instance = '%s', abook_not_here = 0
 							where abook_id = %d and abook_channel = %d",
 							dbesc($abook_instance),
 							intval($contact['abook_id']),
@@ -1630,7 +1641,7 @@ class Activity {
 		$m = parse_url($url);
 		if ($m) {
 			$hostname = $m['host'];
-			$baseurl  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$site_url  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
 		}
 
 		if (!$r) {
@@ -1640,7 +1651,7 @@ class Activity {
 					'hubloc_hash'     => $url,
 					'hubloc_addr'     => '',
 					'hubloc_network'  => 'activitypub',
-					'hubloc_url'      => $baseurl,
+					'hubloc_url'      => $site_url,
 					'hubloc_host'     => $hostname,
 					'hubloc_callback' => $inbox,
 					'hubloc_updated'  => datetime_convert(),
@@ -1649,6 +1660,13 @@ class Activity {
 				]
 			);
 		}
+
+		q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
+			dbesc(datetime_convert()),
+			dbesc($site_url),
+			db_utcnow(),
+			db_quoteinterval('1 DAY')
+		);
 
 		if (!$icon)
 			$icon = z_root() . '/' . get_default_profile_photo(300);

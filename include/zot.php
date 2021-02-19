@@ -1131,6 +1131,7 @@ function zot_process_response($hub, $arr, $outq) {
 	if(is_array($x) && array_key_exists('delivery_report',$x) && is_array($x['delivery_report'])) {
 
 		if(array_key_exists('iv',$x['delivery_report'])) {
+			$x['delivery_report']['encrypted'] = true;
 			$j = Crypto::unencapsulate($x['delivery_report'],get_config('system','prvkey'));
 			if($j) {
 				$x['delivery_report'] = json_decode($j,true);
@@ -1317,6 +1318,7 @@ function zot_import($arr, $sender_url) {
 	}
 
 	if(array_key_exists('iv', $data)) {
+		$data['encrypted'] = true;
 		$data = json_decode(Crypto::unencapsulate($data,get_config('system','prvkey')),true);
 	}
 
@@ -1345,6 +1347,7 @@ function zot_import($arr, $sender_url) {
 			$result = null;
 
 			if(array_key_exists('iv',$i['notify'])) {
+				$i['notify']['encrypted'] = true;
 				$i['notify'] = json_decode(Crypto::unencapsulate($i['notify'],get_config('system','prvkey')),true);
 			}
 

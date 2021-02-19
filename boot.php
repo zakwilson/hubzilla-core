@@ -684,14 +684,18 @@ function sys_boot() {
 
 
 function startup() {
-	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	error_reporting(E_ALL & ~E_NOTICE);
+
+	if (version_compare(PHP_VERSION, '8.0.0') >= 0) {
+		error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+	}
 
 	// Some hosting providers block/disable this
 	@set_time_limit(0);
 
 	if(function_exists ('ini_set')) {
 		// This has to be quite large to deal with embedded private photos
-		@ini_set('pcre.backtrack_limit', 500000);
+		//@ini_set('pcre.backtrack_limit', 500000);
 
 		// Use cookies to store the session ID on the client side
 		@ini_set('session.use_only_cookies', 1);
@@ -1759,7 +1763,7 @@ function shutdown() {
  */
 function get_account_id() {
 
-	if(intval($_SESSION['account_id']))
+	if(isset($_SESSION['account_id']))
 		return intval($_SESSION['account_id']);
 
 	if(App::$account)
@@ -2066,12 +2070,10 @@ function is_site_admin() {
 	if(! session_id())
 		return false;
 
-	if($_SESSION['delegate'])
+	if(isset($_SESSION['delegate']))
 		return false;
 
-	if((intval($_SESSION['authenticated']))
-		&& (is_array(App::$account))
-		&& (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
+	if(isset($_SESSION['authenticated']) && is_array(App::$account) && (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
 		return true;
 
 	return false;
@@ -2253,6 +2255,8 @@ function load_pdl() {
 
 		$n = 'mod_' . App::$module . '.pdl' ;
 		$u = App::$comanche->get_channel_id();
+		$s = '';
+
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
 		if(! $s)

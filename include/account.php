@@ -4,6 +4,8 @@
  * @brief Somme account related functions.
  */
 
+use Zotlabs\Lib\Crypto;
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -26,8 +28,8 @@ function check_account_email($email) {
 	$email = punify($email);
 	$result = array('error' => false, 'message' => '');
 
-	// Caution: empty email isn't counted as an error in this function. 
-	// Check for empty value separately. 
+	// Caution: empty email isn't counted as an error in this function.
+	// Check for empty value separately.
 
 	if(! strlen($email))
 		return $result;
@@ -36,7 +38,7 @@ function check_account_email($email) {
 		$result['message'] .= t('Not a valid email address') . EOL;
 	elseif(! allowed_email($email))
 		$result['message'] = t('Your email domain is not among those allowed on this site');
-	else {	
+	else {
 		$r = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
@@ -175,7 +177,7 @@ function create_account($arr) {
 	// Ensure that there is a host keypair.
 
 	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
-		$hostkey = new_keypair(4096);
+		$hostkey = Crypto::new_keypair(4096);
 		set_config('system', 'pubkey', $hostkey['pubkey']);
 		set_config('system', 'prvkey', $hostkey['prvkey']);
 	}
@@ -306,8 +308,8 @@ function verify_email_address($arr) {
 	);
 
 	$res = z_mail(
-		[ 
-		'toEmail' => $arr['email'], 
+		[
+		'toEmail' => $arr['email'],
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
 		'textVersion' => $email_msg,
 		]
@@ -375,8 +377,8 @@ function send_reg_approval_email($arr) {
 		 ));
 
 		$res = z_mail(
-			[ 
-			'toEmail' => $admin['email'], 
+			[
+			'toEmail' => $admin['email'],
 			'messageSubject' => sprintf( t('Registration request at %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
 			]
@@ -403,7 +405,7 @@ function send_register_success_email($email,$password) {
 	));
 
 	$res = z_mail(
-		[ 
+		[
 			'toEmail' => $email,
 			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
@@ -446,7 +448,7 @@ function account_allow($hash) {
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
@@ -466,7 +468,7 @@ function account_allow($hash) {
 	));
 
 	$res = z_mail(
-		[ 
+		[
 		'toEmail' => $account[0]['account_email'],
 		'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
 		'textVersion' => $email_msg,
@@ -556,13 +558,13 @@ function account_approve($hash) {
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
 		intval($register[0]['uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_UNVERIFIED),
 		intval(ACCOUNT_UNVERIFIED),
@@ -583,7 +585,7 @@ function account_approve($hash) {
 	else {
 		$_SESSION['login_return_url'] = 'new_channel';
 		authenticate_success($account[0],null,true,true,false,true);
-	}	
+	}
 
 	return true;
 }
@@ -592,14 +594,14 @@ function account_approve($hash) {
 /**
  * @brief Checks for accounts that have past their expiration date.
  *
- * If the account has a service class which is not the site default, 
+ * If the account has a service class which is not the site default,
  * the service class is reset to the site default and expiration reset to never.
  * If the account has no service class it is expired and subsequently disabled.
  * called from include/poller.php as a scheduled task.
  *
  * Reclaiming resources which are no longer within the service class limits is
- * not the job of this function, but this can be implemented by plugin if desired. 
- * Default behaviour is to stop allowing additional resources to be consumed. 
+ * not the job of this function, but this can be implemented by plugin if desired.
+ * Default behaviour is to stop allowing additional resources to be consumed.
  */
 function downgrade_accounts() {
 

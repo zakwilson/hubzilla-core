@@ -2,21 +2,23 @@
 namespace Zotlabs\Module;
 
 
+use Zotlabs\Lib\Crypto;
+
 class Prate extends \Zotlabs\Web\Controller {
 
 	function init() {
 		if($_SERVER['REQUEST_METHOD'] === 'post')
 			return;
-	
+
 		if(! local_channel())
 			return;
-	
+
 		$channel = \App::get_channel();
-	
+
 		$target = argv(1);
 		if(! $target)
 			return;
-	
+
 		$r = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1",
 			dbesc($channel['channel_hash']),
 			dbesc($target)
@@ -25,34 +27,34 @@ class Prate extends \Zotlabs\Web\Controller {
 			json_return_and_die(array('rating' => $r[0]['xlink_rating'],'rating_text' => $r[0]['xlink_rating_text']));
 		killme();
 	}
-	
+
 		function post() {
-	
+
 		if(! local_channel())
 			return;
-	
+
 		$channel = \App::get_channel();
-	
+
 		$target = trim($_REQUEST['target']);
 		if(! $target)
 			return;
-	
+
 		if($target === $channel['channel_hash'])
 			return;
-	
+
 		$rating = intval($_POST['rating']);
 		if($rating < (-10))
 			$rating = (-10);
 		if($rating > 10)
 			$rating = 10;
-	
+
 		$rating_text = trim(escape_tags($_REQUEST['rating_text']));
-	
+
 		$signed = $target . '.' . $rating . '.' . $rating_text;
-	
-		$sig = base64url_encode(rsa_sign($signed,$channel['channel_prvkey']));
-	
-	
+
+		$sig = base64url_encode(Crypto::sign($signed,$channel['channel_prvkey']));
+
+
 		$z = q("select * from xlink where xlink_xchan = '%s' and xlink_link = '%s' and xlink_static = 1 limit 1",
 			dbesc($channel['channel_hash']),
 			dbesc($target)
@@ -87,19 +89,19 @@ class Prate extends \Zotlabs\Web\Controller {
 		if($record) {
 			\Zotlabs\Daemon\Master::Summon(array('Ratenotif','rating',$record));
 		}
-	
+
 		json_return_and_die(array('result' => true));;
 	}
-				
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
 }

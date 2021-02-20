@@ -923,7 +923,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 //	logger('nouveau: ' . print_r($threads,true));
 
-
 	$o .= replace_macros($page_template, array(
 		'$baseurl' => z_root(),
 		'$photo_item' => $content_html,
@@ -935,6 +934,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$wait' => t('Loading...'),
 		'$conversation_tools' => t('Conversation Tools'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
+		'$preview' => $preview
 	));
 
 	return $o;
@@ -1474,7 +1474,9 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$nocomment' => ((array_key_exists('item',$x)) ? $x['item']['item_nocomment'] : 0),
 		'$clearloc' => $clearloc,
 		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
+		'$summary' => ((x($x, 'summary')) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
 		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
+		'$placeholdersummary' => ((x($x, 'placeholdersummary')) ? $x['placeholdersummary'] : t('Summary (optional)')),
 		'$catsenabled' => $catsenabled,
 		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
@@ -1725,13 +1727,11 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	$ret = array();
 	foreach($response_verbs as $v) {
 		$ret[$v] = array();
-		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : '');
+		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : 0);
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
 		$ret[$v]['button'] = get_response_button_text($v,$ret[$v]['count']);
 		$ret[$v]['title'] = $conv_responses[$v]['title'];
-		if($ret[$v]['count'] > MAX_LIKERS) {
-			$ret[$v]['modal'] = true;
-		}
+		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 	$count = 0;

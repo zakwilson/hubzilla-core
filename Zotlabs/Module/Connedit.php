@@ -9,6 +9,7 @@ namespace Zotlabs\Module;
 
 use App;
 use Zotlabs\Lib\Apps;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Daemon\Master;
@@ -178,7 +179,7 @@ class Connedit extends Controller {
 		if(! $is_self) {
 
 			$signed = $orig_record[0]['abook_xchan'] . '.' . $rating . '.' . $rating_text;
-			$sig = base64url_encode(rsa_sign($signed,$channel['channel_prvkey']));
+			$sig = base64url_encode(Crypto::sign($signed,$channel['channel_prvkey']));
 
 			$rated = ((intval($rating) || strlen($rating_text)) ? true : false);
 

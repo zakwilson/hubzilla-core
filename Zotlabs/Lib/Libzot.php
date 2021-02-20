@@ -130,7 +130,7 @@ class Libzot {
 		if ($remote_key) {
 			$algorithm = self::best_algorithm($methods);
 			if ($algorithm) {
-				$data = crypto_encapsulate(json_encode($data), $remote_key, $algorithm);
+				$data = Crypto::encapsulate(json_encode($data), $remote_key, $algorithm);
 			}
 		}
 
@@ -143,7 +143,7 @@ class Libzot {
 	 *
 	 * @param string $methods
 	 *   Comma separated list of encryption methods
-	 * @return string first match from our site method preferences crypto_methods() array
+	 * @return string first match from our site method preferences Crypto::methods() array
 	 *   of a method which is common to both sites; or 'aes256cbc' if no matches are found.
 	 */
 	static function best_algorithm($methods) {
@@ -167,7 +167,7 @@ class Libzot {
 		if ($methods) {
 			$x = explode(',', $methods);
 			if ($x) {
-				$y = crypto_methods();
+				$y = Crypto::methods();
 				if ($y) {
 					foreach ($y as $yv) {
 						$yv = trim($yv);
@@ -983,7 +983,7 @@ class Libzot {
 			logger('Headers: ' . print_r($arr['header'], true), LOGGER_DATA, LOG_DEBUG);
 		}
 
-		$x = crypto_unencapsulate($x, get_config('system', 'prvkey'));
+		$x = Crypto::unencapsulate($x, get_config('system', 'prvkey'));
 
 		if (!is_array($x)) {
 			$x = json_decode($x, true);
@@ -3020,7 +3020,7 @@ class Libzot {
 			$ret['site']['directory_url'] = z_root() . '/dirsearch';
 
 
-		$ret['site']['encryption'] = crypto_methods();
+		$ret['site']['encryption'] = Crypto::methods();
 		$ret['site']['zot']        = System::get_zot_revision();
 
 		// hide detailed site information if you're off the grid
@@ -3139,6 +3139,11 @@ class Libzot {
 				dbesc($hub['hubloc_hash'])
 			);
 		}
+
+		// this site obviously isn't dead because they are trying to communicate with us.
+		q("update site set site_dead = 0 where site_dead = 1 and site_url = '%s' ",
+			dbesc($hub['hubloc_url'])
+		);
 
 		return $hub['hubloc_url'];
 	}

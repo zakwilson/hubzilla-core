@@ -14,7 +14,7 @@ function oembed_replacecb($matches){
 
 	$j = oembed_fetch_url($result['url']);
 	$s = oembed_format_object($j);
-	return $s;  
+	return $s;
 }
 
 
@@ -52,7 +52,7 @@ function oembed_action($embedurl) {
 			}
 		}
 	}
-	
+
 	$found = false;
 
 	if(($x = get_config('system','embed_allow'))) {
@@ -74,7 +74,7 @@ function oembed_action($embedurl) {
 	}
 
 	// allow individual members to block something that wasn't blocked already.
-	// They cannot over-ride the site to allow or change the filtering on an 
+	// They cannot over-ride the site to allow or change the filtering on an
 	// embed that is not allowed by the site admin.
 
 	if(local_channel()) {
@@ -96,7 +96,7 @@ function oembed_action($embedurl) {
 	$arr = array('url' => $embedurl, 'action' => $action);
 	call_hooks('oembed_action',$arr);
 
-	logger('action: ' . $arr['action'] . ' url: ' . $arr['url'], LOGGER_DEBUG,LOG_DEBUG); 
+	logger('action: ' . $arr['action'] . ' url: ' . $arr['url'], LOGGER_DEBUG,LOG_DEBUG);
 
 	return $arr;
 
@@ -122,7 +122,7 @@ function oembed_fetch_url($embedurl){
 
 	$noexts = [ '.mp3', '.mp4', '.ogg', '.ogv', '.oga', '.ogm', '.webm', '.opus', '.m4a' ];
 
-	$result = oembed_action($embedurl); 
+	$result = oembed_action($embedurl);
 
 	$embedurl = $result['url'];
 	$action = $result['action'];
@@ -153,7 +153,7 @@ function oembed_fetch_url($embedurl){
 			'title' => t('View PDF'),
 			'type' => 'pdf'
 		];
-		
+
 		// set $txt to something so that we don't attempt to fetch what could be a lengthy pdf.
 		$txt = EMPTY_STR;
 	}
@@ -165,12 +165,12 @@ function oembed_fetch_url($embedurl){
 		if ($action !== 'block') {
 			// try oembed autodiscovery
 			$redirects = 0;
-			$result = z_fetch_url($furl, false, $redirects, 
+			$result = z_fetch_url($furl, false, $redirects,
 				[
-					'timeout'        => 30, 
-					'accept_content' => "text/*", 
-					'novalidate'     => true, 
-					'session'        => ((local_channel() && $zrl) ? true : false) 
+					'timeout'        => 30,
+					'accept_content' => "text/*",
+					'novalidate'     => true,
+					'session'        => ((local_channel() && $zrl) ? true : false)
 				]
 			);
 
@@ -180,7 +180,8 @@ function oembed_fetch_url($embedurl){
 				logger('fetch failure: ' . $furl);
 
 			if($html_text) {
-				$dom = @DOMDocument::loadHTML($html_text);
+				$dom = new DOMDocument;
+				@$dom->loadHTML($html_text);
 				if ($dom){
 					$xpath = new DOMXPath($dom);
 					$attr = "oembed";
@@ -203,7 +204,7 @@ function oembed_fetch_url($embedurl){
 							logger('fetch failed: ' . $href);
 						break;
 					}
-					// soundcloud is now using text/json+oembed instead of application/json+oembed, 
+					// soundcloud is now using text/json+oembed instead of application/json+oembed,
 					// others may be also
 					$entries = $xpath->query("//link[@type='text/json+oembed']");
 					foreach($entries as $e){
@@ -218,18 +219,18 @@ function oembed_fetch_url($embedurl){
 				}
 			}
 		}
-		
+
 		if ($txt==false || $txt=="") {
 			$x = array('url' => $embedurl,'videowidth' => App::$videowidth);
 			call_hooks('oembed_probe',$x);
 			if(array_key_exists('embed',$x))
 				$txt = $x['embed'];
 		}
-		
+
 		$txt=trim($txt);
 
 		if ($txt[0]!="{") $txt='{"type":"error"}';
-	
+
 		// save in cache
 
 		if(! get_config('system','oembed_cache_disable'))
@@ -252,7 +253,7 @@ function oembed_fetch_url($embedurl){
 
 			// some sites wrap their entire embed in an iframe
 			// which we will purify away and which we provide anyway.
-			// So if we see this, grab the frame src url and use that 
+			// So if we see this, grab the frame src url and use that
 			// as the embed content - which will still need to be purified.
 
 			if(preg_match('#\<iframe(.*?)src\=[\'\"](.*?)[\'\"]#',$j['html'],$matches)) {
@@ -261,16 +262,16 @@ function oembed_fetch_url($embedurl){
 			}
 
 			logger('frame src: ' . $j['html'], LOGGER_DATA);
-		
+
 			$j['html'] = purify_html($j['html'],$allow_position);
 			if($j['html'] != $orig) {
-				logger('oembed html was purified. original: ' . $orig . ' purified: ' . $j['html'], LOGGER_DEBUG, LOG_INFO); 
+				logger('oembed html was purified. original: ' . $orig . ' purified: ' . $j['html'], LOGGER_DEBUG, LOG_INFO);
 			}
 
 			$orig_len = mb_strlen(preg_replace('/\s+/','',$orig));
 			$new_len = mb_strlen(preg_replace('/\s+/','',$j['html']));
 
-			if(stripos($orig,'<script') || (! $new_len)) 
+			if(stripos($orig,'<script') || (! $new_len))
 				$j['type'] = 'error';
 			elseif($orig_len) {
 				$ratio = $new_len / $orig_len;
@@ -292,7 +293,7 @@ function oembed_fetch_url($embedurl){
 
 
 }
-	
+
 function oembed_format_object($j){
 
     $embedurl = $j['embedurl'];
@@ -308,7 +309,7 @@ function oembed_format_object($j){
 				$tw = (isset($j['thumbnail_width'])) ? $j['thumbnail_width'] : 200;
 				$th = (isset($j['thumbnail_height'])) ? $j['thumbnail_height'] : 180;
 				$tr = $tw/$th;
-				
+
 				$th=120; $tw = $th*$tr;
 				$tpl=get_markup_template('oembed_video.tpl');
 
@@ -320,7 +321,7 @@ function oembed_format_object($j){
 					'$th'=>$th,
 					'$turl'=> $j['thumbnail_url'],
 				));
-				
+
 			} else {
 				$ret=$jhtml;
 			}
@@ -329,7 +330,7 @@ function oembed_format_object($j){
 		case "photo": {
 			$ret.= "<img width='".$j['width']."' src='".$j['url']."'>";
 			$ret.="<br>";
-		}; break;  
+		}; break;
 		case "link": {
 			if($j['thumbnail_url']) {
 				if(is_matrix_url($embedurl)) {
@@ -340,14 +341,14 @@ function oembed_format_object($j){
 			}
 
 			//$ret = "<a href='".$embedurl."'>".$j['title']."</a>";
-		}; break;  
+		}; break;
 		case 'pdf': {
 			$ret = $j['html'];
 			break;
 		}
 
 		case "rich": {
-			// not so safe.. 
+			// not so safe..
 			if($j['zrl']) {
 			    $ret = ((preg_match('/^<div[^>]+>(.*?)<\/div>$/is',$j['html'],$o)) ? $o[1] : $j['html']);
 			} else {
@@ -382,7 +383,7 @@ function oembed_iframe($src,$width,$height) {
 		$scroll = ' scrolling="auto" ';
 	}
 
-	// try and leave some room for the description line. 
+	// try and leave some room for the description line.
 	$height = intval($height) + 80;
 	$width  = intval($width) + 40;
 
@@ -390,8 +391,8 @@ function oembed_iframe($src,$width,$height) {
 
 	// Make sure any children are sandboxed within their own iframe.
 
-	return '<iframe ' . $scroll . 'height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen frameborder="no" >' 
-		. t('Embedded content') . '</iframe>'; 
+	return '<iframe ' . $scroll . 'height="' . $height . '" width="' . $width . '" src="' . $s . '" allowfullscreen frameborder="no" >'
+		. t('Embedded content') . '</iframe>';
 
 }
 
@@ -418,7 +419,7 @@ function oe_get_inner_html( $node ) {
         $innerHTML .= $child->ownerDocument->saveXML( $child );
     }
     return $innerHTML;
-} 
+}
 
 /**
  * Find <span class='oembed'>..<a href='url' rel='oembed'>..</a></span>
@@ -427,17 +428,20 @@ function oe_get_inner_html( $node ) {
 function oembed_html2bbcode($text) {
 	// start parser only if 'oembed' is in text
 	if (strpos($text, "oembed")){
-		
+
 		// convert non ascii chars to html entities
 		$html_text = mb_convert_encoding($text, 'HTML-ENTITIES', mb_detect_encoding($text));
-		
+
 		// If it doesn't parse at all, just return the text.
-		$dom = @DOMDocument::loadHTML($html_text);
+
+		$dom = new DOMDocument;
+		@$dom->loadHTML($html_text);
 		if(! $dom)
 			return $text;
+
 		$xpath = new DOMXPath($dom);
 		$attr = "oembed";
-		
+
 		$xattr = oe_build_xpath("class","oembed");
 		$entries = $xpath->query("//span[$xattr]");
 
@@ -449,7 +453,7 @@ function oembed_html2bbcode($text) {
 		return oe_get_inner_html( $dom->getElementsByTagName("body")->item(0) );
 	} else {
 		return $text;
-	} 
+	}
 }
 
 

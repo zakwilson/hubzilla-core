@@ -110,7 +110,7 @@ class Cards extends Controller {
 				'webpage'           => ITEM_TYPE_CARD,
 				'is_owner'          => true,
 				'content_label'     => t('Add Card'),
-				'button'            => t('Create'),
+				'button'            => t('Save'),
 				'nickname'          => $channel['channel_address'],
 				'lockstate'         => (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 					|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),

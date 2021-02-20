@@ -4,6 +4,7 @@
  * @brief Items related functions.
  */
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
@@ -1652,7 +1653,7 @@ function item_sign(&$item) {
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(rsa_sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
 	$item['item_verified'] = 1;
 }
 
@@ -2391,9 +2392,14 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	logger('item_store_update: ' . print_r($arr,true), LOGGER_DATA);
 
-	$str = '';
-	foreach($arr as $k => $v) {
-		if($str)
+	$columns = db_columns('item');
+	$str     = '';
+	foreach ($arr as $k => $v) {
+		if (!in_array($k, $columns)) {
+			continue;
+		}
+
+		if ($str)
 			$str .= ",";
 		$str .= " " . TQUOT . $k . TQUOT . " = '" . $v . "' ";
 	}
@@ -2695,10 +2701,13 @@ function tag_deliver($uid, $item_id) {
 			return;
 		}
 
+		/* this should not be required anymore due to the check above
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
 		}
+		*/
+
 		// group delivery via W2W
 		logger('rewriting W2W post for ' . $u[0]['channel_address']);
 		start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
@@ -2971,7 +2980,7 @@ function item_community_tag($channel,$item) {
 		$pitem = $items[0];
 		$auth = get_iconfig($item,'system','communitytagauth');
 		if($auth) {
-			if(rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
+			if(Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
 				logger('tag_deliver: tagging the post: ' . $channel['channel_name']);
 				$tag_the_post = true;
 			}
@@ -2980,7 +2989,7 @@ function item_community_tag($channel,$item) {
 			if(($pitem['owner_xchan'] === $channel['channel_hash']) && (! intval(get_pconfig($channel['channel_id'],'system','blocktags')))) {
 				logger('tag_deliver: community tag recipient: ' . $channel['channel_name']);
 				$tag_the_post = true;
-				$sig = rsa_sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
+				$sig = Crypto::sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
 				logger('tag_deliver: setting iconfig for ' . $item['id']);
 				set_iconfig($item['id'],'system','communitytagauth',base64url_encode($sig),1);
 			}
@@ -3268,24 +3277,19 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_wall'] = 1;
 		$arr['item_thread_top'] = 1;
 
-		if (strpos($item['body'], "[/share]") !== false) {
-			$pos = strpos($item['body'], "[share");
-			$bb = substr($item['body'], $pos);
-		} else {
-			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
-				"' profile='"       . $item['author']['xchan_url'] .
-				"' portable_id='"   . $item['author']['xchan_hash'] .
-				"' avatar='"        . $item['author']['xchan_photo_s'] .
-				"' link='"          . $item['plink'] .
-				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
-				"' posted='"        . $item['created'] .
-				"' message_id='"    . $item['mid'] .
-			"']";
-			if($item['title'])
-				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
-			$bb .= $item['body'];
-			$bb .= "[/share]";
-		}
+		$bb = "[share author='" . urlencode($item['author']['xchan_name']).
+			"' profile='"       . $item['author']['xchan_url'] .
+			"' portable_id='"   . $item['author']['xchan_hash'] .
+			"' avatar='"        . $item['author']['xchan_photo_s'] .
+			"' link='"          . $item['plink'] .
+			"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
+			"' posted='"        . $item['created'] .
+			"' message_id='"    . $item['mid'] .
+		"']";
+		if($item['title'])
+			$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
+		$bb .= $item['body'];
+		$bb .= "[/share]";
 
 		$arr['body'] = $bb;
 		$arr['term'] = $item['term'];

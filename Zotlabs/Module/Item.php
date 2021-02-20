@@ -821,18 +821,7 @@ class Item extends Controller {
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
 
-			if(strpos($body,'[/summary]') !== false) {
-			    $match = '';
-			    $cnt = preg_match("/\[summary\](.*?)\[\/summary\]/ism",$body,$match);
-			    if($cnt) {
-			        $summary .= $match[1];
-			    }
-			    $body_content = preg_replace("/\[summary\](.*?)\[\/summary\]/ism", '',$body);
-			    $body = trim($body_content);
-			}
-
 			$summary = cleanup_bbcode($summary);
-
 			$body = cleanup_bbcode($body);
 
 			// Look for tags and linkify them
@@ -887,14 +876,9 @@ class Item extends Controller {
 
 			if(! $preview) {
 				fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
-
                 fix_attached_photo_permissions($profile_uid,$owner_xchan['xchan_hash'],((strpos($summary,'[/crypt]')) ? $_POST['media_str'] : $summary),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
-
-
 				fix_attached_file_permissions($channel,$observer['xchan_hash'],((strpos($body,'[/crypt]')) ? $_POST['media_str'] : $body),$str_contact_allow,$str_group_allow,$str_contact_deny,$str_group_deny);
-
 			}
-
 
 			$attachments = '';
 			$match = false;
@@ -933,9 +917,8 @@ class Item extends Controller {
 				}
 			}
 
+			// BBCODE end alert
 		}
-
-	// BBCODE end alert
 
 		if(strlen($categories)) {
 

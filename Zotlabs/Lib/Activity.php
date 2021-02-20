@@ -102,6 +102,17 @@ class Activity {
 		}
 
 		if ($x['success']) {
+			$m = parse_url($url);
+			if ($m) {
+				$site_url = unparse_url(['scheme' => $m['scheme'], 'host' => $m['host'], 'port' => $m['port'] ]);
+				q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
+					dbesc(datetime_convert()),
+					dbesc($site_url),
+					db_utcnow(),
+					db_quoteinterval('1 DAY')
+				);
+			}
+
 			$y = json_decode($x['body'], true);
 			logger('returned: ' . json_encode($y, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOGGER_DEBUG);
 			return json_decode($x['body'], true);
@@ -275,17 +286,27 @@ class Activity {
 
 			$numpages = $total / App::$pager['itemspage'];
 			$lastpage = (($numpages > intval($numpages)) ? intval($numpages) + 1 : $numpages);
+			$url_parts = parse_url($id);
 
-			$stripped = preg_replace('/([&|\?]page=[0-9]*)/', '', $id);
-			$stripped = rtrim($stripped, '/');
+			$ret['partOf'] = z_root() . '/' . $url_parts['path'];
 
-			$ret['partOf'] = z_root() . '/' . $stripped;
+			$extra_query_args = '';
+			$query_args = null;
+			if(isset($url_parts['query'])) {
+				parse_str($url_parts['query'], $query_args);
+			}
+
+			if(is_array($query_args)) {
+				unset($query_args['page']);
+				foreach($query_args as $k => $v)
+					$extra_query_args .= '&' . urlencode($k) . '=' . urlencode($v);
+			}
 
 			if (App::$pager['page'] < $lastpage) {
-				$ret['next'] = z_root() . '/' . $stripped . '?page=' . (intval(App::$pager['page']) + 1);
+				$ret['next'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) + 1) . $extra_query_args;
 			}
 			if (App::$pager['page'] > 1) {
-				$ret['prev'] = z_root() . '/' . $stripped . '?page=' . (intval(App::$pager['page']) - 1);
+				$ret['prev'] = z_root() . '/' . $url_parts['path'] . '?page=' . (intval(App::$pager['page']) - 1) . $extra_query_args;
 			}
 		}
 		else {
@@ -1340,7 +1361,7 @@ class Activity {
 							$abook_instance .= ',';
 						$abook_instance .= z_root();
 
-						q("update abook set abook_instance = '%s', abook_not_here = 0 
+						q("update abook set abook_instance = '%s', abook_not_here = 0
 							where abook_id = %d and abook_channel = %d",
 							dbesc($abook_instance),
 							intval($contact['abook_id']),
@@ -1620,7 +1641,7 @@ class Activity {
 		$m = parse_url($url);
 		if ($m) {
 			$hostname = $m['host'];
-			$baseurl  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$site_url  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
 		}
 
 		if (!$r) {
@@ -1630,7 +1651,7 @@ class Activity {
 					'hubloc_hash'     => $url,
 					'hubloc_addr'     => '',
 					'hubloc_network'  => 'activitypub',
-					'hubloc_url'      => $baseurl,
+					'hubloc_url'      => $site_url,
 					'hubloc_host'     => $hostname,
 					'hubloc_callback' => $inbox,
 					'hubloc_updated'  => datetime_convert(),
@@ -1639,6 +1660,13 @@ class Activity {
 				]
 			);
 		}
+
+		q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
+			dbesc(datetime_convert()),
+			dbesc($site_url),
+			db_utcnow(),
+			db_quoteinterval('1 DAY')
+		);
 
 		if (!$icon)
 			$icon = z_root() . '/' . get_default_profile_photo(300);
@@ -2094,6 +2122,7 @@ class Activity {
 
 			$obj_actor = ((isset($act->obj['actor'])) ? $act->obj['actor'] : $act->get_actor('attributedTo', $act->obj));
 			// ensure we store the original actor
+
 			self::actor_store($obj_actor['id'], $obj_actor);
 
 			$mention = self::get_actor_bbmention($obj_actor['id']);
@@ -2816,9 +2845,6 @@ class Activity {
 			if (!$a->is_valid()) {
 				logger('not a valid activity');
 				break;
-			}
-			if (is_array($a->actor) && array_key_exists('id', $a->actor)) {
-				Activity::actor_store($a->actor['id'], $a->actor);
 			}
 
 			$item = Activity::decode_note($a);

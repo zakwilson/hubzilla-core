@@ -64,8 +64,8 @@ class Keyutils {
 		$rsa->loadKey($key);
 		$rsa->setPublicKey();
 
-		$e = $rsa->modulus->toBytes();
-		$m = $rsa->exponent->toBytes();
+		$m = $rsa->modulus->toBytes();
+		$e = $rsa->exponent->toBytes();
 
 	}
 

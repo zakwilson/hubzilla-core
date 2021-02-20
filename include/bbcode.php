@@ -80,7 +80,7 @@ function tryoembed($match) {
 		return $match[0];
 
 	$html = oembed_format_object($o);
-	return $html; 
+	return $html;
 }
 
 
@@ -92,7 +92,7 @@ function nakedoembed($match) {
 	// this function no longer performs oembed on naked links
 	// because they author may have created naked links intentionally.
 	// Now it just strips zids on naked links.
-	
+
 	return str_replace($url,$strip_url,$match[0]);
 }
 
@@ -272,6 +272,26 @@ function bb_parse_crypt($match) {
 	return $Text;
 }
 
+/**
+ * @brief Returns raw base64 encoded crypt content.
+ *
+ * @param array $match
+ * @return string
+ */
+function bb_parse_b64_crypt($match) {
+
+	if(empty($match[2]))
+		return;
+
+	$r .= '----- ENCRYPTED CONTENT -----' . PHP_EOL;
+	$r .= $match[2] . PHP_EOL;
+	$r .= '----- END ENCRYPTED CONTENT -----';
+
+	return $r;
+
+}
+
+
 function bb_parse_app($match) {
 
 	$app = Zotlabs\Lib\Apps::app_decode($match[1]);
@@ -283,7 +303,7 @@ function bb_svg($match) {
 
 	$params = str_replace(['<br>', '&quot;'], [ '', '"'],$match[1]);
 	$Text = str_replace([ '[',']' ], [ '<','>' ], $match[2]);
-	
+
 	$output =  '<svg' . (($params) ? $params : ' width="100%" height="480" ') . '>' . str_replace(['<br>', '&quot;', '&nbsp;'], [ '', '"', ' '],$Text) . '</svg>';
 
 	$purify = new SvgSanitizer();
@@ -641,24 +661,24 @@ function bb_definitionList($match) {
 
 	// The bbcode transformation will be:
 	// [*=term-text] description-text   =>   </dd> <dt>term-text<dt><dd> description-text
-	// then after all replacements have been made, the extra </dd> at the start of the 
+	// then after all replacements have been made, the extra </dd> at the start of the
 	// first line can be removed. HTML5 allows the tag to be missing from the end of the last line.
 	// Using '(?<!\\\)' to allow backslash-escaped closing braces to appear in the term-text.
 	$closeDescriptionTag = "</dd>\n";
 	$eatLeadingSpaces = '(?:&nbsp;|[ \t])*'; // prevent spaces infront of [*= from adding another line to the previous element
 	$listElements = preg_replace('/^(\n|<br \/>)/', '', $match[2]); // ltrim the first newline
 	$listElements = preg_replace(
-		'/' . $eatLeadingSpaces . '\[\*=([[:print:]]*?)(?<!\\\)\]/uism', 
-		$closeDescriptionTag . '<dt>$1</dt><dd>', 
+		'/' . $eatLeadingSpaces . '\[\*=([[:print:]]*?)(?<!\\\)\]/uism',
+		$closeDescriptionTag . '<dt>$1</dt><dd>',
 		$listElements
 	);
 	// Unescape any \] inside the <dt> tags
 	$listElements = preg_replace_callback('/<dt>(.*?)<\/dt>/ism', 'bb_definitionList_unescapeBraces', $listElements);
-	
+
 	// Remove the extra </dd> at the start of the string, if there is one.
 	$firstOpenTag  = strpos($listElements, '<dd>');
 	$firstCloseTag = strpos($listElements, $closeDescriptionTag);
-	if ($firstCloseTag !== false && ($firstOpenTag === false || ($firstCloseTag < $firstOpenTag))) {		
+	if ($firstCloseTag !== false && ($firstOpenTag === false || ($firstCloseTag < $firstOpenTag))) {
 		$listElements = preg_replace( '/<\/dd>/ism', '', $listElements, 1);
 	}
 
@@ -802,7 +822,7 @@ function bb_imgoptions($match) {
 
 	// $Text = preg_replace_callback("/\[([zi])mg([ \=])(.*?)\](.*?)\[\/[zi]mg\]/ism",'bb_imgoptions',$Text);
 	// alt text cannot contain ']'
-	
+
 	// [img|zmg=wwwxhhh float=left|right alt=alt text]url[/img|zmg]
 
 	$local_match = null;
@@ -818,7 +838,7 @@ function bb_imgoptions($match) {
 	if ($x) {
 		$alt = $matches[1];
 	}
-	
+
 	$x = preg_match("/alt=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
 	if ($x) {
 		$alt = $matches[1];
@@ -828,7 +848,7 @@ function bb_imgoptions($match) {
 	if ($x) {
 		$width = $matches[1];
 	}
-	
+
 	$x = preg_match("/width=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
 	if ($x) {
 		$width = $matches[1];
@@ -838,7 +858,7 @@ function bb_imgoptions($match) {
 	if ($x) {
 		$height = $matches[1];
 	}
-	
+
 	$x = preg_match("/height=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
 	if ($x) {
 		$height = $matches[1];
@@ -848,14 +868,14 @@ function bb_imgoptions($match) {
 	if ($x) {
 		$style = $matches[1];
 	}
-	
+
 	$x = preg_match("/style=\&quot\;(.*?)\&quot\;/ism", $attributes, $matches);
 	if ($x) {
 		$style = $matches[1];
 	}
 
 	// legacy img options
-	
+
 	if ($match[2] === '=') {
 		// pull out (optional) legacy size declarations first
 		if (preg_match("/([0-9]*)x([0-9]*)/ism",$match[3],$local_match)) {
@@ -873,16 +893,16 @@ function bb_imgoptions($match) {
 		$float = 'right';
 		$match[3] = substr($match[3],$n + 11);
 	}
-	
+
 	// finally alt text which extends to the close of the tag
 	if ((! $alt) && ($n = strpos($match[3],'alt=') !== false)) {
 		$alt = substr($match[3],$n + 4);
 	}
 
 	// now assemble the resulting img tag from these components
-	
+
 	$output = '<img ' . (($match[1] === 'z') ? 'class="zrl" loading="eager"' : '') . ' ';
-	
+
 	if ($width) {
 		$style .= 'width: 100%; max-width: ' . $width . 'px; ';
 	}
@@ -892,13 +912,13 @@ function bb_imgoptions($match) {
 	if ($float) {
 		$style .= 'float: ' . $float . '; ';
 	}
-	
+
 	$output .= (($style) ? 'style="' . $style . '" ' : '') . 'alt="' . htmlentities(($alt) ? $alt : t('Image/photo'),ENT_COMPAT,'UTF-8') . '" ';
 
 	$output .= 'src="' . $match[4] . '" >';
-	
+
 	return $output;
-	
+
 }
 
 function bb_code_protect($s) {
@@ -914,14 +934,14 @@ function bb_code_unprotect_sub($match) {
 }
 
 function bb_code($match) {
-	if(strpos($match[0], "<br />"))
+	if(strpos($match[0], PHP_EOL))
 		return '<pre><code>' . bb_code_protect(trim($match[1])) . '</code></pre>';
 	else
 		return '<code class="inline-code">' . bb_code_protect(trim($match[1])) . '</code>';
 }
 
 function bb_code_options($match) {
-	if(strpos($match[0], "<br />")) {
+	if(strpos($match[0], PHP_EOL)) {
 		$class = "";
 		$pre = true;
 	} else {
@@ -935,7 +955,7 @@ function bb_code_options($match) {
 	}
 	if($pre) {
 		return '<pre><code class="'. $class .'" style="'. $style .'">' . bb_code_protect(trim($match[2])) . '</code></pre>';
-	} else {	
+	} else {
 		return '<code class="'. $class .'" style="'. $style .'">' . bb_code_protect(trim($match[2])) . '</code>';
 	}
 }
@@ -949,7 +969,7 @@ function bb_fixtable_lf($match) {
 	// remove extraneous whitespace between table element tags since newlines will all
 	// be converted to '<br />' and turn your neatly crafted tables into a whole lot of
 	// empty space.
- 
+
 	$x = preg_replace("/\]\s+\[/",'][',$match[1]);
 	return '[table]' . $x . '[/table]';
 
@@ -991,7 +1011,7 @@ function parseIdentityAwareHTML($Text) {
 	}
 	if (strpos($Text,'[pre]') !== false) {
 		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
-	}   
+	}
 	// process [observer] tags before we do anything else because we might
 	// be stripping away stuff that then doesn't need to be worked on anymore
 
@@ -1012,7 +1032,7 @@ function parseIdentityAwareHTML($Text) {
 			$Text = preg_replace("/\[observer\=0\](.*?)\[\/observer\]/ism", '$1', $Text);
 			$Text = preg_replace("/\[rpost(=.*?)?\](.*?)\[\/rpost\]/ism", '', $Text);
 		}
-	} 
+	}
 	// replace [observer.baseurl]
 	if ($observer) {
 		$s1 = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
@@ -1033,11 +1053,11 @@ function parseIdentityAwareHTML($Text) {
 		$Text = str_replace('[observer.webname]','',$Text);
 		$Text = str_replace('[observer.photo]','', $Text);
 	}
-        
-	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
-        
 
-	// Unhide all [noparse] contained bbtags unspacefying them 
+	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
+
+
+	// Unhide all [noparse] contained bbtags unspacefying them
 	// and triming the [noparse] tag.
 	if (strpos($Text,'[noparse]') !== false) {
 		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_unspacefy_and_trim', $Text);
@@ -1153,22 +1173,7 @@ function bbcode($Text, $options = []) {
 
 	$Text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$Text);
 
-	// Convert new line chars to html <br /> tags
-
-	// nlbr seems to be hopelessly messed up
-	//	$Text = nl2br($Text);
-
-	// We'll emulate it.
-
-	$Text = str_replace("\r\n", "\n", $Text);
-	$Text = str_replace(array("\r", "\n"), array('<br />', '<br />'), $Text);
-
-	if ($preserve_nl)
-		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
-
-
 	$Text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $Text);
-
 
 	// Check for [code] text
 	if (strpos($Text,'[code]') !== false) {
@@ -1219,9 +1224,12 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $Text);
 	}
 
-	if (strpos($Text,'[/share]') !== false) {
+	$count = 0;
+	while (strpos($Text,'[/share]') !== false && $count < 10) {
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism", 'bb_ShareAttributes', $Text);
+		$count ++;
 	}
+
 	if($tryoembed) {
 		if (strpos($Text,'[/url]') !== false) {
 			$Text = preg_replace_callback("/[^\^]\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);
@@ -1266,7 +1274,7 @@ function bbcode($Text, $options = []) {
 			$Text = preg_replace("/\[map\]/", '<div class="map"></div>', $Text);
 		}
 	}
-	
+
 	// Check for bold text
 	if (strpos($Text,'[b]') !== false) {
 		$Text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $Text);
@@ -1392,8 +1400,8 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $Text);
 
 		// [dl] tags have an optional [dl terms="bi"] form where bold/italic/underline/mono/large
-		// etc. style may be specified for the "terms" in the definition list. The quotation marks 
-		// are also optional. The regex looks intimidating, but breaks down as: 
+		// etc. style may be specified for the "terms" in the definition list. The quotation marks
+		// are also optional. The regex looks intimidating, but breaks down as:
 		//   "[dl" <optional-whitespace> <optional-termStyles> "]" <matchGroup2> "[/dl]"
 		// where optional-termStyles are: "terms=" <optional-quote> <matchGroup1> <optional-quote>
 		$Text = preg_replace_callback('/\[dl[[:space:]]*(?:terms=(?:&quot;|")?([a-zA-Z]+)(?:&quot;|")?)?\](.*?)\[\/dl\]/ism', 'bb_definitionList', $Text);
@@ -1432,7 +1440,7 @@ function bbcode($Text, $options = []) {
 
 
 	if(strpos($Text,'[/summary]') !== false) {
-		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/ism", 'bb_summary', $Text);
+		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/is", 'bb_summary', $Text);
 	}
 
 	// Check for [spoiler] text
@@ -1579,7 +1587,7 @@ function bbcode($Text, $options = []) {
 
 	// If we found an event earlier, strip out all the event code and replace with a reformatted version.
 	// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
-	// Summary (e.g. title) is required, earlier revisions only required description (in addition to 
+	// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 	// start which is always required). Allow desc with a missing summary for compatibility.
 
 	if ((x($ev,'desc') || x($ev,'summary')) && x($ev,'dtstart')) {
@@ -1588,7 +1596,7 @@ function bbcode($Text, $options = []) {
 
 		$sub = str_replace('$',"\0",$sub);
 
-		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism",$sub,$Text); 
+		$Text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism",$sub,$Text);
 
 		$Text = preg_replace("/\[event\](.*?)\[\/event\]/ism",'',$Text);
 		$Text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism",'',$Text);
@@ -1603,7 +1611,7 @@ function bbcode($Text, $options = []) {
 
 	}
 
-	// Unhide all [noparse] contained bbtags unspacefying them 
+	// Unhide all [noparse] contained bbtags unspacefying them
 	// and triming the [noparse] tag.
 	if (strpos($Text,'[noparse]') !== false) {
 		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_unspacefy_and_trim', $Text);
@@ -1632,6 +1640,19 @@ function bbcode($Text, $options = []) {
 	$Text = preg_replace("/\<(.*?)(src|href)=\"[^zhfmt#](.*?)\>/ism", '<$1$2="">', $Text);
 
 	$Text = bb_replace_images($Text, $saved_images);
+
+	// Convert new line chars to html <br /> tags
+
+	// nlbr seems to be hopelessly messed up
+	//	$Text = nl2br($Text);
+
+	// We'll emulate it.
+
+	$Text = str_replace("\r\n", "\n", $Text);
+	$Text = str_replace(array("\r", "\n"), array('<br />', '<br />'), $Text);
+
+	if ($preserve_nl)
+		$Text = str_replace(array("\n", "\r"), array('', ''), $Text);
 
 	call_hooks('bbcode', $Text);
 

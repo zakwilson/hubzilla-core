@@ -58,9 +58,9 @@ class Editpost extends \Zotlabs\Web\Controller {
 
 		if ($catsenabled){
 		        $itm = fetch_post_tags($itm);
-	
+
 	                $cats = get_terms_oftype($itm[0]['term'], TERM_CATEGORY);
-	
+
 		        foreach ($cats as $cat) {
 		                if (strlen($category))
 		                        $category .= ', ';
@@ -95,6 +95,7 @@ class Editpost extends \Zotlabs\Web\Controller {
 			'defloc' => $channel['channel_location'],
 			'visitor' => true,
 			'title' => htmlspecialchars_decode($itm[0]['title'],ENT_COMPAT),
+			'summary' => htmlspecialchars_decode($itm[0]['summary'],ENT_COMPAT),
 			'category' => $category,
 			'showacl' => false,
 			'profile_uid' => $owner_uid,

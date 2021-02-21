@@ -8,7 +8,7 @@ class _1243 {
 		
 		$x = get_config('system','filesystem_storage_thumbnails');
 		del_config('system','filesystem_storage_thumbnails');
-		if ($x !=== false)
+		if ($x !== false)
 			set_config('system','photo_storage_type', intval($x));
 			
 		return UPDATE_SUCCESS;

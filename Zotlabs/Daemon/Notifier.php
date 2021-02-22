@@ -347,7 +347,6 @@ class Notifier {
 				return;
 			}
 
-
 			if ($target_item['mid'] === $target_item['parent_mid']) {
 				$parent_item    = $target_item;
 				$top_level_post = true;
@@ -381,7 +380,7 @@ class Notifier {
 			$encoded_item = encode_item($target_item);
 
 			// Re-use existing signature unless the activity type changed to a Tombstone, which won't verify.
-			$m = ((intval($target_item['item_deleted'])) ? '' : get_iconfig($target_item, 'activitystreams', 'signed_data'));
+			$m = ((intval($target_item['item_deleted'])) ? '' : get_iconfig($target_item, 'activitypub', 'signed_data'));
 
 			if ($m) {
 				$activity = json_decode($m, true);

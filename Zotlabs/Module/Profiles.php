@@ -749,7 +749,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$default'      => t('This is your default profile.') . EOL . translate_scope(map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_profile'))),
 				'$advanced'     => $advanced,
 				'$name'         => array('name', t('Your full name'), $r[0]['fullname'], t('Required'), '*'),
-				'$pdesc'        => array('pdesc', t('Short title/tescription'), $r[0]['pdesc'], t('Maximal 190 characters'), '', 'maxlength="190"'),
+				'$pdesc'        => array('pdesc', t('Short title/description'), $r[0]['pdesc'], t('Maximal 190 characters'), '', 'maxlength="190"'),
 				'$dob'          => dob($r[0]['dob']),
 				'$hide_friends' => $hide_friends,
 				'$address'      => array('address', t('Street address'), $r[0]['address']),

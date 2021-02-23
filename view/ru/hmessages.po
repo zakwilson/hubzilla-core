@@ -12727,7 +12727,7 @@ msgid "Your full name"
 msgstr "Ваше полное имя"
 
 #: ../../Zotlabs/Module/Profiles.php:752
-msgid "Short title/tescription"
+msgid "Short title/description"
 msgstr "Краткий заголовок или наименование"
 
 #: ../../Zotlabs/Module/Profiles.php:752

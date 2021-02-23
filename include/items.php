@@ -1416,6 +1416,25 @@ function decode_tags($t) {
 	return '';
 }
 
+
+function purify_imported_object($obj) {
+	$ret = null;
+	if (is_array($obj)) {
+		foreach ( $obj as $k => $v ) {
+			$ret[$k] = purify_html($v);
+		}
+	}
+	elseif (is_string($obj)) {
+		$ret = purify_html($obj);
+	}
+	
+	return $ret;
+}
+
+
+
+
+
 /**
  * @brief Santise a potentially complex array.
  *
@@ -1427,6 +1446,10 @@ function activity_sanitise($arr) {
 		if(is_array($arr)) {
 			$ret = array();
 			foreach($arr as $k => $x) {
+				if (in_array($k, [ 'content', 'summary', 'contentMap', 'summaryMap' ])) {
+					$ret[$k] = purify_imported_object($arr[$k]);
+					continue;
+				}
 				if(is_array($x))
 					$ret[$k] = activity_sanitise($x);
 				else

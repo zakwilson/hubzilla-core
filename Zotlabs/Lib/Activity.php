@@ -3313,17 +3313,17 @@ class Activity {
 		$ret = false;
 
 		foreach ($attach as $a) {
-			if (strpos($a['type'], 'image') !== false) {
+			if (array_key_exists('type',$a) && stripos($a['type'], 'image') !== false) {
 				if (self::media_not_in_body($a['href'], $body)) {
 					$ret .= "\n\n" . '[img]' . $a['href'] . '[/img]';
 				}
 			}
-			if (array_key_exists('type', $a) && strpos($a['type'], 'video') === 0) {
+			if (array_key_exists('type', $a) && stripos($a['type'], 'video') !== false) {
 				if (self::media_not_in_body($a['href'], $body)) {
 					$ret .= "\n\n" . '[video]' . $a['href'] . '[/video]';
 				}
 			}
-			if (array_key_exists('type', $a) && strpos($a['type'], 'audio') === 0) {
+			if (array_key_exists('type', $a) && stripos($a['type'], 'audio') !== false) {
 				if (self::media_not_in_body($a['href'], $body)) {
 					$ret .= "\n\n" . '[audio]' . $a['href'] . '[/audio]';
 				}

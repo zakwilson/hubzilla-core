@@ -891,19 +891,14 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			unset($ret['channel']['channel_salt']);
 		}
 		if ($zap_compat) {
-			$channel['channel_guid_sig'] = 'sha256.' . $channel['channel_guid_sig'];
-			$channel['channel_hash'] = $channel['channel_portable_id'];
 			unset($channel['channel_portable_id']);
 		}
-
-
 	}
 
 	if(in_array('channel',$sections) || in_array('profile',$sections)) {
 		$r = q("select * from profile where uid = %d",
 			intval($channel_id)
 		);
-		
 		if($r) {
 			$ret['profile'] = $r;
 			if ($zap_compat) {

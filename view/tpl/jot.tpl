@@ -36,12 +36,15 @@
 		<div id="jot-title-wrap" class="jothidden">
 			<input class="w-100 border-0" name="title" id="jot-title" type="text" placeholder="{{$placeholdertitle}}" tabindex="1" value="{{$title}}">
 		</div>
+		<div id="jot-summary-wrap" class="jothidden">
+			<input class="w-100 border-0" name="summary" id="jot-summary" type="text" placeholder="{{$placeholdersummary}}" tabindex="2" value="{{$summary}}">
+		</div>
 		{{if $catsenabled}}
 		<div id="jot-category-wrap" class="jothidden">
 			<input class="w-100 border-0" name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" value="{{$category}}" data-role="cat-tagsinput">
 		</div>
 		{{/if}}
-                {{if $customjotheaders}}
+		{{if $customjotheaders}}
 		<div id="jot-customjotheaders-wrap" class="jothidden">
 			{{$customjotheaders}}
 		</div>

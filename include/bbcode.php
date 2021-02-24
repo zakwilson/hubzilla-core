@@ -272,6 +272,26 @@ function bb_parse_crypt($match) {
 	return $Text;
 }
 
+/**
+ * @brief Returns raw base64 encoded crypt content.
+ *
+ * @param array $match
+ * @return string
+ */
+function bb_parse_b64_crypt($match) {
+
+	if(empty($match[2]))
+		return;
+
+	$r .= '----- ENCRYPTED CONTENT -----' . PHP_EOL;
+	$r .= $match[2] . PHP_EOL;
+	$r .= '----- END ENCRYPTED CONTENT -----';
+
+	return $r;
+
+}
+
+
 function bb_parse_app($match) {
 
 	$app = Zotlabs\Lib\Apps::app_decode($match[1]);
@@ -1204,9 +1224,12 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $Text);
 	}
 
-	if (strpos($Text,'[/share]') !== false) {
+	$count = 0;
+	while (strpos($Text,'[/share]') !== false && $count < 10) {
 		$Text = preg_replace_callback("/\[share(.*?)\](.*?)\[\/share\]/ism", 'bb_ShareAttributes', $Text);
+		$count ++;
 	}
+
 	if($tryoembed) {
 		if (strpos($Text,'[/url]') !== false) {
 			$Text = preg_replace_callback("/[^\^]\[url\]([$URLSearchString]*)\[\/url\]/ism", 'tryoembed', $Text);

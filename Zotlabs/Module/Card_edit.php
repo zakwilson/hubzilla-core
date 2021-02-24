@@ -63,9 +63,9 @@ class Card_edit extends \Zotlabs\Web\Controller {
 
 		if ($catsenabled){
 		        $itm = fetch_post_tags($itm);
-	
+
 	                $cats = get_terms_oftype($itm[0]['term'], TERM_CATEGORY);
-	
+
 		        foreach ($cats as $cat) {
 		                if (strlen($category))
 		                        $category .= ', ';
@@ -114,6 +114,7 @@ class Card_edit extends \Zotlabs\Web\Controller {
 			'post_id' => $post_id,
 			'visitor' => true,
 			'title' => htmlspecialchars($itm[0]['title'],ENT_COMPAT,'UTF-8'),
+			'summary' => htmlspecialchars($itm[0]['summary'],ENT_COMPAT,'UTF-8'),
 			'placeholdertitle' => t('Title (optional)'),
 			'pagetitle' => $card_title,
 			'profile_uid' => (intval($channel['channel_id'])),

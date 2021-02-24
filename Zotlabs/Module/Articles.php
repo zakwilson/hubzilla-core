@@ -15,7 +15,7 @@ require_once('include/opengraph.php');
 class Articles extends Controller {
 
 	function init() {
-	
+
 		if(argc() > 1)
 			$which = argv(1);
 
@@ -28,13 +28,13 @@ class Articles extends Controller {
 				return;
 			}
                 }
-	
+
 		profile_load($which);
-	
+
 	}
-	
+
 	function get($update = 0, $load = false) {
-	
+
 		if(observer_prohibited(true)) {
 			return login();
 		}
@@ -56,7 +56,7 @@ class Articles extends Controller {
 
 		nav_set_selected('Articles');
 
-		head_add_link([ 
+		head_add_link([
 			'rel'   => 'alternate',
 			'type'  => 'application/json+oembed',
 			'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . App::$query_string),
@@ -65,7 +65,7 @@ class Articles extends Controller {
 
 
 		$category = (($_REQUEST['cat']) ? escape_tags(trim($_REQUEST['cat'])) : '');
-					
+
 		if($category) {
 			$sql_extra2 .= protect_sprintf(term_item_parent_query(App::$profile['profile_uid'],'item', $category, TERM_CATEGORY));
 		}
@@ -74,24 +74,24 @@ class Articles extends Controller {
 		$datequery2 = ((x($_GET,'dbegin') && is_a_date_arg($_GET['dbegin'])) ? notags($_GET['dbegin']) : '');
 
 		$which = argv(1);
-		
+
 		$selected_card = ((argc() > 2) ? argv(2) : '');
 
 		$_SESSION['return_url'] = App::$query_string;
-	
+
 		$uid      = local_channel();
 		$owner    = App::$profile_uid;
 		$observer = App::get_observer();
-	
+
 		$ob_hash = (($observer) ? $observer['xchan_hash'] : '');
-		
+
 		if(! perm_is_allowed($owner,$ob_hash,'view_pages')) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-		
+
 		$is_owner = ($uid && $uid == $owner);
-	
+
 		$channel = channelx_by_n($owner);
 
 		if($channel) {
@@ -105,7 +105,7 @@ class Articles extends Controller {
 		else {
 			$channel_acl = [ 'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 		}
-	
+
 
 
 		if(perm_is_allowed($owner,$ob_hash,'write_pages')) {
@@ -114,16 +114,15 @@ class Articles extends Controller {
 				'webpage'           => ITEM_TYPE_ARTICLE,
 				'is_owner'          => true,
 				'content_label'     => t('Add Article'),
-				'button'            => t('Create'),
+				'button'            => t('Save'),
 				'nickname'          => $channel['channel_address'],
-				'lockstate'         => (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] 
+				'lockstate'         => (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 					|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-				'acl'               => (($is_owner) ? populate_acl($channel_acl, false, 
+				'acl'               => (($is_owner) ? populate_acl($channel_acl, false,
 					PermissionDescription::fromGlobalPermission('view_pages')) : ''),
 				'permissions'       => $channel_acl,
 				'showacl'           => (($is_owner) ? true : false),
 				'visitor'           => true,
-				'body'              => '[summary][/summary]',
 				'hide_location'     => false,
 				'hide_voting'       => false,
 				'profile_uid'       => intval($owner),
@@ -147,12 +146,12 @@ class Articles extends Controller {
 		else {
 			$editor = '';
 		}
-		
+
 		$itemspage = get_pconfig(local_channel(),'system','itemspage');
 		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 
-		
+
 		$sql_extra = item_permissions_sql($owner);
 		$sql_item = '';
 
@@ -176,8 +175,8 @@ class Articles extends Controller {
 			$sql_extra2 .= " and item.item_thread_top != 0 ";
 		}
 
-		$r = q("select * from item 
-			where item.uid = %d and item_type = %d 
+		$r = q("select * from item
+			where item.uid = %d and item_type = %d
 			$sql_extra $sql_extra2 $sql_item order by item.created desc $pager_sql",
 			intval($owner),
 			intval(ITEM_TYPE_ARTICLE)
@@ -214,7 +213,7 @@ class Articles extends Controller {
 		opengraph_add_meta((! empty($items) ? $r[0] : []), $channel);
 
 		$mode = 'articles';
-			
+
 		if(get_pconfig(local_channel(),'system','articles_list_mode') && (! $selected_card))
             $page_mode = 'pager_list';
         else

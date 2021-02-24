@@ -891,7 +891,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			unset($ret['channel']['channel_salt']);
 		}
 		if ($zap_compat) {
-			unset($channel['channel_portable_id']);
+			unset($ret['channel']['channel_portable_id']);
 		}
 	}
 

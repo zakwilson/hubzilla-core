@@ -1089,7 +1089,7 @@ function empty_acl($item) {
 	return (($item['allow_cid'] === EMPTY_STR && $item['allow_gid'] === EMPTY_STR && $item['deny_cid'] === EMPTY_STR && $item['deny_gid'] === EMPTY_STR) ? true : false);
 }
 
-function encode_item($item,$mirror = false) {
+function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x = [];
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
@@ -1167,9 +1167,9 @@ function encode_item($item,$mirror = false) {
 	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
-	$x['verb']            = $item['verb'];
-	$x['object_type']     = $item['obj_type'];
-	$x['target_type']     = $item['tgt_type'];
+	$x['verb']            = (($zap_compat) ? Activity::activity_mapper($item['verb']) : $item['verb']);
+	$x['object_type']     = (($zap_compat && $item['obj_type']) ? Activity::activity_obj_mapper($item['obj_type']) : $item['obj_type']);
+	$x['target_type']     = (($zap_compat && $item['tgt_type']) ? Activity::activity_obj_mapper($item['tgt_type']) : $item['tgt_type']);
 	$x['permalink']       = $item['plink'];
 	$x['location']        = $item['location'];
 	$x['longlat']         = $item['coord'];
@@ -1178,10 +1178,19 @@ function encode_item($item,$mirror = false) {
 	$x['owner']           = encode_item_xchan($item['owner']);
 	$x['author']          = encode_item_xchan($item['author']);
 
-	if($item['obj'])
-		$x['object']      = json_decode($item['obj'],true);
+	if ($zap_compat) {
+		$x['object'] = Activity::encode_item_object($item,'obj');
+	}
+	else {
+		if ($item['obj']) {
+			$x['object'] = json_decode($item['obj'],true);
+		}
+	}
+
 	if($item['target'])
-		$x['target']      = json_decode($item['target'],true);
+		$x['target']      = (($zap_compat)
+			? Activity::encode_item_object($item,'target')
+			: json_decode($item['target'],true)) ;
 	if($item['attach'])
 		$x['attach']      = json_decode($item['attach'],true);
 	if($y = encode_item_flags($item))
@@ -1200,9 +1209,16 @@ function encode_item($item,$mirror = false) {
 	if($item['term'])
 		$x['tags']        = encode_item_terms($item['term'],$mirror);
 
-	if($item['iconfig'])
+	if($item['iconfig']) {
+		if ($zap_compat) {
+			for ($y = 0; $y < count($item['iconfig']); $y ++) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
+					$item['iconfig'][$y]['v'] = serialise(unserialize($item['iconfig'][$y]['v']));
+				}
+			}
+		}
 		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
-
+	}
 
 	logger('encode_item: ' . print_r($x,true), LOGGER_DATA);
 
@@ -1400,6 +1416,30 @@ function decode_tags($t) {
 	return '';
 }
 
+
+function purify_imported_object($obj) {
+	$ret = null;
+	if (is_array($obj)) {
+		foreach ( $obj as $k => $v ) {
+			if (is_array($v)) {
+				$ret[$k] = purify_imported_object($v);
+			}
+			elseif (is_string($v)) {
+				$ret[$k] = purify_html($v);
+			}
+		}
+	}
+	elseif (is_string($obj)) {
+		$ret = purify_html($obj);
+	}
+	
+	return $ret;
+}
+
+
+
+
+
 /**
  * @brief Santise a potentially complex array.
  *
@@ -1411,6 +1451,10 @@ function activity_sanitise($arr) {
 		if(is_array($arr)) {
 			$ret = array();
 			foreach($arr as $k => $x) {
+				if (in_array($k, [ 'content', 'summary', 'contentMap', 'summaryMap' ])) {
+					$ret[$k] = purify_imported_object($arr[$k]);
+					continue;
+				}
 				if(is_array($x))
 					$ret[$k] = activity_sanitise($x);
 				else

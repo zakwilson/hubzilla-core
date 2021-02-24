@@ -603,6 +603,7 @@ define ( 'DBTYPE_POSTGRES', 1 );
 
 function sys_boot() {
 
+
 	// our central App object
 
 	App::init();

@@ -17,6 +17,7 @@ class Uexport extends Controller {
 		if(argc() > 1) {
 
 			$sections = (($_REQUEST['sections']) ? explode(',',$_REQUEST['sections']) : '');
+			$zap_compat = (($_REQUEST['zap_compat']) ? intval($_REQUEST['zap_compat']) : false);
 
 			$channel = App::get_channel();
 
@@ -32,12 +33,12 @@ class Uexport extends Controller {
 			header('content-disposition: attachment; filename="' . $channel['channel_address'] . (($year) ? '-' . $year : '') . (($month) ? '-' . $month : '') . (($_REQUEST['sections']) ? '-' . $_REQUEST['sections'] : '')  . '.json"' );
 	
 			if($year) {
-				echo json_encode(identity_export_year(local_channel(),$year,$month));
+				echo json_encode(identity_export_year(local_channel(),$year,$month, $zap_compat));
 				killme();
 			}
 	
 			if(argc() > 1 && argv(1) === 'basic') {
-				echo json_encode(identity_basic_export(local_channel(),$sections));
+				echo json_encode(identity_basic_export(local_channel(),$sections, $zap_compat));
 				killme();
 			}
 	
@@ -46,7 +47,7 @@ class Uexport extends Controller {
 			if(argc() > 1 && argv(1) === 'complete') {
 				$sections = get_default_export_sections();
 				$sections[] = 'items';
-				echo json_encode(identity_basic_export(local_channel(),$sections));
+				echo json_encode(identity_basic_export(local_channel(),$sections, $zap_compat));
 				killme();
 			}
 		}

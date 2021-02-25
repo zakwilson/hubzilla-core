@@ -295,11 +295,10 @@ function nav($template = 'default') {
 		foreach ($syslist as $app) {
 			if (isset(App::$nav_sel['name']) && App::$nav_sel['name'] == $app['name'])
 				$app['active'] = true;
-
 			if ($is_owner) {
 				$nav_apps[] = Apps::app_render($app, 'nav');
 			}
-			elseif (!$is_owner && isset($app['requires']) && strpos($app['requires'], 'local_channel') === false) {
+			elseif (!$is_owner && (!isset($app['requires']) || (isset($app['requires']) && strpos($app['requires'], 'local_channel') === false))) {
 				$nav_apps[] = Apps::app_render($app, 'nav');
 			}
 		}
@@ -400,9 +399,9 @@ function channel_apps($is_owner = false, $nickname = null) {
 	$sql_options = item_permissions_sql($uid);
 
 	$r = q("select item.* from item left join iconfig on item.id = iconfig.iid
-		where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s' 
-		and item.item_delayed = 0 and item.item_deleted = 0 
-		and ( iconfig.k = 'WEBPAGE' and item_type = %d ) 
+		where item.uid = %d and iconfig.cat = 'system' and iconfig.v = '%s'
+		and item.item_delayed = 0 and item.item_deleted = 0
+		and ( iconfig.k = 'WEBPAGE' and item_type = %d )
 		$sql_options limit 1",
 		intval($uid),
 		dbesc('home'),

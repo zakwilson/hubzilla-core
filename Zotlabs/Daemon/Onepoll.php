@@ -23,9 +23,15 @@ class Onepoll {
 			return;
 		}
 
+		$sql_extra = '';
+		$allow_feeds = get_config('system', 'feed_contacts');
+		if(!$allow_feeds) {
+			$sql_extra = ' and abook_feed = 0 ';
+		}
+
 		$contacts = q("SELECT abook.*, xchan.*, account.*
 			FROM abook LEFT JOIN account on abook_account = account_id left join xchan on xchan_hash = abook_xchan
-			where abook_id = %d
+			where abook_id = %d $sql_extra
 			and abook_pending = 0 and abook_archived = 0 and abook_blocked = 0 and abook_ignored = 0
 			AND (( account_flags = %d ) OR ( account_flags = %d )) limit 1",
 			intval($contact_id),

@@ -891,7 +891,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			unset($ret['channel']['channel_salt']);
 		}
 		if ($zap_compat) {
-			unset($channel['channel_portable_id']);
+			unset($ret['channel']['channel_portable_id']);
 		}
 	}
 
@@ -899,7 +899,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		$r = q("select * from profile where uid = %d",
 			intval($channel_id)
 		);
-
 		if($r) {
 			$ret['profile'] = $r;
 			if ($zap_compat) {
@@ -1099,11 +1098,11 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 
 		// @fixme - Not totally certain how to handle $zot_compat for the event timezone which exists
 		// in Hubzilla but is stored with the item and not the event. In Zap, stored information is
-		// always UTC and localised on access as per standard conventions for working with global time data.
+		// always UTC and localised on access as per standard conventions for working with global time data. 
 
 		// Older Zot (pre-Zot6) records aren't translated correctly w/r/t AS2 so only include events for the last year or so if
-		// migrating to Zap.
-
+		// migrating to Zap. 
+		
 		$sqle = (($zap_compat) ? " and created > '2020-01-01 00:00:00' " : '');
 
 		$r = q("select * from event where uid = %d $sqle",

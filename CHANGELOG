@@ -1,5 +1,10 @@
-Hubzilla 5.2.2 /2021-01-23)
+Hubzilla 5.2.9 (2021-01-23)
     - Update and enhance Account, Invite, Register
+
+
+Hubzilla 5.2.2 (2021-02-13)
+    - Fix issue with ping_site()
+
 
 Hubzilla 5.2.1 (2021-01-16)
 	- Fix attach_upgrade() to catch all broken entries in attach

@@ -17,13 +17,8 @@ $(document).ready(function() {
 	}
 	$('#css3-calc').remove(); // Remove the test element
 
-	if($(window).width() >= 992) {
-		$('#left_aside_wrapper, #right_aside_wrapper').stick_in_parent({
-			offset_top: parseInt($('aside').css('padding-top')),
-			parent: 'main',
-			spacer: '.aside_spacer'
-		});
-	}
+	stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
+	stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
 
 	$('#expand-aside').on('click', toggleAside);
 
@@ -33,24 +28,6 @@ $(document).ready(function() {
 		}
 	});
 
-	var left_aside_height = $('#left_aside_wrapper').height();
-
-	$('#left_aside_wrapper').on('click', function() {
-		if(left_aside_height != $('#left_aside_wrapper').height()) {
-			$(document.body).trigger("sticky_kit:recalc");
-			left_aside_height = $('#left_aside_wrapper').height();
-		}
-	});
-
-
-	var right_aside_height = $('#right_aside_wrapper').height();
-
-	$('#right_aside_wrapper').on('click', function() {
-		if(right_aside_height != $('#right_aside_wrapper').height()) {
-			$(document.body).trigger("sticky_kit:recalc");
-			right_aside_height = $('#right_aside_wrapper').height();
-		}
-	});
 
 	$('.usermenu').click(function() {
 		if($('#navbar-collapse-1, #navbar-collapse-2').hasClass('show')){
@@ -84,7 +61,7 @@ $(document).ready(function() {
 	var doctitle = document.title;
 	function checkNotify() {
 		var notifyUpdateElem = document.getElementById('notify-update');
-		if(notifyUpdateElem !== null) { 
+		if(notifyUpdateElem !== null) {
 			if(notifyUpdateElem.innerHTML !== "")
 				document.title = "(" + notifyUpdateElem.innerHTML + ") " + doctitle;
 			else
@@ -93,6 +70,58 @@ $(document).ready(function() {
 	}
 	setInterval(function () {checkNotify();}, 10 * 1000);
 });
+
+function setStyle(element, cssProperty) {
+	for (var property in cssProperty){
+		element.style[property] = cssProperty[property];
+	}
+}
+
+function stickyScroll(sticky, stickyTop, container, topOffset, bottomOffset) {
+	var lastScrollTop = 0;
+	var sticky = document.querySelector(sticky);
+	var stickyHeight = sticky.getBoundingClientRect().height;
+	var stickyTop = document.querySelector(stickyTop);
+	var content = document.querySelector(container);
+	var diff = window.innerHeight - stickyHeight;
+	var h = 0;
+	var lasth = 0;
+	var st = window.pageYOffset || document.documentElement.scrollTop;
+
+	var resizeObserver = new ResizeObserver(function(entries) {
+		stickyHeight = sticky.getBoundingClientRect().height;
+		st = window.pageYOffset || document.documentElement.scrollTop;
+		diff = window.innerHeight - stickyHeight;
+	});
+
+	resizeObserver.observe(sticky);
+	resizeObserver.observe(content);
+
+	window.addEventListener('scroll', function() {
+		if(window.innerHeight > stickyHeight + topOffset) {
+			setStyle(stickyTop, { height: 0 + 'px' });
+			setStyle(sticky, { position: 'sticky', top: topOffset + 'px'});
+		}
+		else {
+			st = window.pageYOffset || document.documentElement.scrollTop; // Credits: "https://github.com/qeremy/so/blob/master/so.dom.js#L426"
+			if (st > lastScrollTop){
+				// downscroll code
+				setStyle(stickyTop, { height: lasth + 'px' });
+				setStyle(sticky, { position: 'sticky', top: Math.round(diff) - bottomOffset + 'px', bottom: '' });
+			} else {
+				// upscroll code
+				h = sticky.getBoundingClientRect().top - content.getBoundingClientRect().top - topOffset;
+				if(Math.round(stickyTop.getBoundingClientRect().height) === lasth) {
+					setStyle(stickyTop, { height: Math.round(h) + 'px' });
+				}
+				lasth = Math.round(h);
+				setStyle(sticky, { position: 'sticky', top: '', bottom: Math.round(diff - topOffset) + 'px' });
+			}
+			lastScrollTop = st <= 0 ? 0 : st; // For Mobile or negative scrolling
+		}
+	}, false);
+
+}
 
 function makeFullScreen(full) {
 	if(typeof full=='undefined' || full == true) {
@@ -104,7 +133,6 @@ function makeFullScreen(full) {
 		$('main').removeClass('fullscreen');
 		$('header, nav, aside, #fullscreen-btn').show();
 		$('#inline-btn').hide();
-		$(document.body).trigger("sticky_kit:recalc");
 	}
 }
 
@@ -114,16 +142,10 @@ function toggleAside() {
 		$('html, body').css('overflow-x', '');
 		$('main').removeClass('region_1-on')
 		$('#overlay').remove();
-		$('#left_aside_wrapper').trigger("sticky_kit:detach");
 	}
 	else {
 		$('html, body').css('overflow-x', 'hidden');
 		$('main').addClass('region_1-on')
 		$('<div id="overlay"></div>').appendTo('section');
-		$('#left_aside_wrapper').stick_in_parent({
-			offset_top: parseInt($('aside').css('padding-top')),
-			parent: 'main',
-			spacer: '.aside_spacer'
-		});
 	}
 }

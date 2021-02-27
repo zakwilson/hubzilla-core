@@ -2837,7 +2837,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// replace tag by the link. Make sure to not replace something in the middle of a word
 
-			$body = preg_replace('/(?<![a-zA-Z0-9=])'.preg_quote($tag,'/').'/', $newtag, $body);
+			$body = preg_replace('/(?<![a-zA-Z0-9=\/])'.preg_quote($tag,'/').'/', $newtag, $body);
 			$replaced = true;
 		}
 

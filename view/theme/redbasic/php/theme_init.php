@@ -13,5 +13,3 @@ head_add_js('/library/bootbox/bootbox.min.js');
 head_add_js('/library/bootstrap-tagsinput/bootstrap-tagsinput.js');
 head_add_js('/library/datetimepicker/jquery.datetimepicker.js');
 head_add_js('/library/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.js');
-
-

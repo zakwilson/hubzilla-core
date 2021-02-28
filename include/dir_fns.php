@@ -3,6 +3,7 @@
  * @file include/dir_fns.php
  */
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Webfinger;
 use Zotlabs\Lib\Zotfinger;
@@ -280,7 +281,7 @@ function sync_directories($dirmode) {
 					logger('key unavailable on this site for ' . $rr['channel']);
 					continue;
 				}
-				if (! rsa_verify($rr['target'] . '.' . $rr['rating'] . '.' . $rr['rating_text'], base64url_decode($rr['signature']),$y[0]['xchan_pubkey'])) {
+				if (! Crypto::verify($rr['target'] . '.' . $rr['rating'] . '.' . $rr['rating_text'], base64url_decode($rr['signature']),$y[0]['xchan_pubkey'])) {
 					logger('failed to verify rating');
 					continue;
 				}

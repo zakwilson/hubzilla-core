@@ -1,0 +1,343 @@
+<style>
+	section {
+		display: inline-block;
+		overflow-x: scroll;
+	}
+</style>
+<h2>Informator o BBCode</h2>
+<p>
+W Hubzilla stosowana jest własna odmiana BBCode. Niniejszy informator jest
+treściwym opisem składni tej odmiany BBCode.
+</p>
+
+<h3>Dekracja tekstu</h3>
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Tekst formatowany</th>
+		</tr>
+		<tr>
+			<td><code>[b]pogrubiony[/b]</code></td><td><strong>pogrubiony</strong></td>
+		</tr>
+		<tr>
+			<td><code>[i]pochyły[/i]</code></td><td><em>pochyły</em></td>
+		</tr>
+		<tr>
+			<td><code>[u]podkreślony[/u]</code></td><td><u>podkreślony</u></td>
+		</tr>
+		<tr>
+			<td><code>[s]przekreślony[/s]</code></td><td><strike>przekreślony</strike></td>
+		</tr>
+		<tr>
+			<td><code>[color=red]czerwony[/color]</code></td><td><span style="color:  red;">czerwony</span></td>
+		</tr>
+		<tr>
+			<td><code>[hl]podświetlony[/hl]</code></td><td><span style="background-color: yellow;">podświetlony</span></td>
+		</tr>
+		<tr>
+			<td><code>[font=courier]jaiś tekst[/font] </code></td><td><span style="font-family: courier;">jakiś tekst</span></td>
+		</tr>
+		<tr>
+			<td><code>[quote]cytat[/quote]</code></td><td><blockquote>cytat</blockquote></td>
+		</tr>
+		<tr>
+			<td><code>[quote=Author]Autor? Ja? Nie, nie, nie...[/quote]</code></td><td><strong class="author">Autor napisał:</strong><blockquote>Autor? Ja? Nie, nie, nie...</blockquote></td>
+		</tr>
+		<tr>
+			<td><code>
+					[size=small]tekst mały (small)[/size]<br>
+					[size=xx-large]tekst wielki (xx-large)[/size]<br>
+					[size=20]tekst z czcionką 20px[/size]<br>
+				</code>
+				Opcje rozmiaru obejmują: <strong>xx-small, small, medium, large, xx-large</strong></td><td><span style="font-size: small;">tekst mały (small)</span><br><span style="font-size: xx-large;">tekst wielki ()xx-large)</span><br><span style="font-size: 20px;">tekst z czcionką 20px</span></td>
+		</tr>
+		<tr>
+			<td><code>Dodanie poziomego paska
+[hr]
+Tak jak to
+				</code></td><td>
+					Dodanie poziomego paska<br><hr><br>Tak jak to
+				</td>
+		</tr>
+		<tr>
+			<td><code>To jest
+[center]wyśrodkowany[/center]
+tekst</code></td><td>
+					To jest<br><div style="text-align:center;">wyśrodkowany</div><br>tekst
+				</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Bloki kodu</h3>
+Kod można renderować generalnie w formacie blokowym lub wbudowanym (w zależności od tego, czy w tekście znajdują się znaki nowego wiersza) lub można określić obsługiwany język dla rozszerzonego podświetlania składni. Podświetlanie składni wymaga odpowiedniej wtyczki renderującej, takiej jak <strong>hilite</strong>. Obsługiwane języki z wtyczką hilite to <strong>php, css, mysql, sql, abap, diff, html, perl, ruby, vbscript, avrc, dtd, java, xml, cpp, python, javascript, js, json, sh</strong>.
+<br><br>
+Jeśli wtyczka renderująca nie jest zainstalowana lub określono nieobsługiwany język, dane wyjściowe bloków kodu z podświetleniem składni są takie same, jak znacznik kodu formatu bloku.
+<br><br> 
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Wyjście</th>
+		</tr>
+		<tr>
+			<td><code>[code]funkcja bbcode() { }[/code]</code></td><td><code>funkcja bbcode() { }</code></td>
+		</tr>
+		<tr>
+			<td><code>[code=php]funkcja bbcode() {<br>
+  $variable = true;<br>
+  if( $variable ) {<br>
+    echo "true";<br>
+  }<br>
+}[/code]</code></td><td><code><div class="hl-main"><ol class="hl-main"><li><span class="hl-code">&nbsp;</span><span class="hl-reserved">function</span><span class="hl-code"> </span><span class="hl-identifier">bbcode</span><span class="hl-brackets">(</span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-var">$variable</span><span class="hl-code"> = </span><span class="hl-reserved">true</span><span class="hl-code">;</span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-reserved">if</span><span class="hl-brackets">(</span><span class="hl-code"> </span><span class="hl-var">$variable</span><span class="hl-code"> </span><span class="hl-brackets">)</span><span class="hl-code"> </span><span class="hl-brackets">{</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="hl-reserved">echo</span><span class="hl-code"> </span><span class="hl-quotes">"</span><span class="hl-string">true</span><span class="hl-quotes">"</span><span class="hl-code">;</span></li><li><span class="hl-code">&nbsp;&nbsp;&nbsp;</span><span class="hl-brackets">}</span><span class="hl-code"></span></li><li><span class="hl-code">&nbsp;</span><span class="hl-brackets">}</span></li></ol></div></code></td>
+		</tr>
+		<tr>
+			<td><code>[nobb][nobb]W ten sposób [i]możesz[/i] 
+[u]pokazać[/u] jak użyć składnię 
+[hl]BBcode[/hl][/nobb][/nobb]</code></td><td>[nobb]W ten sposób [i]możesz[/i] [u]pokazać[/u] jak uzyć składnię []hl]BBcode[/hl][/nobb]</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Listy</h3>
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Wyrenderowana lista</th>
+		</tr>
+		<tr>
+			<td><code>[ul]<br>
+[*] Pierwszy element listy<br>
+[*] Drugo element listy<br>
+[/ul]</code></td><td><ul class="listbullet" style="list-style-type: circle;"><li> Pierwszy element listy</li><li> Drugi element listy<br></li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[ol]<br>
+[*] Pierwszy element listy<br>
+[*] Drugi element listy<br>
+[/ol]</code></td><td><ul class="listdecimal" style="list-style-type: decimal;"><li> Pierwszy element listy</li><li> Drugi element listy<br></li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[list=A]<br>
+[*] Pierwszy element listy<br>
+[*] Drugi element listy<br>
+[/list]</code>
+				Elementami listy są <code>1, i, I, a, A</code>.</td><td><ul class="listupperalpha" style="list-style-type: upper-alpha;"><li> Pierwszy element listy</li><li> Drugi element listy</li></ul></td>
+		</tr>
+		<tr>
+			<td><code>[dl terms="b"]<br>
+[*= Pierwsze hasło] Opis pierwszego hasła<br>
+[*= Drugie hasło] Opis drugiego hasła<br>
+[/dl]</code>
+				Opcje stylu <strong>hasła</strong> mogą być kombinacją tekstu:
+	<dl class="bb-dl dl-horizontal">
+	<dt>b</dt><dd> z czcionką bold</dd>
+	<dt>i</dt><dd> z czcionką italic</dd>
+	<dt>u</dt><dd> z czcionką underline</dd>
+	<dt>m</dt><dd> z czcionką monospace</dd>
+	<dt>l</dt><dd> z czcionką large</dd>
+	<dt>h</dt><dd>poziomego &mdash; tak jak <em>tta</em> lista definicyjna</dd>
+	</dl>
+			</td><td><dl class="bb-dl dl-terms-bold">
+<dt> Pierwsze hasło</dt><dd> Opis pierwszego hasła<br></dd>
+<dt> Drugie hasło</dt><dd> Opis drugiego hasła<br></dd></dl></td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Tabele</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Wyrenderowana tabela</th>
+		</tr>
+		<tr>
+			<td><code>[table border=0]<br>
+[tr]<br>
+[th]Nagłówek 1[/th][th]Nagłówek 2[/th]<br>
+[/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[/table]</code></td><td><table class="table table-responsive"><tbody><tr><th>Nagłówek 1</th><th>Nagłówek 2</th></tr>
+<tr><td>Content</td><td>Content</td></tr><tr><td>Treść</td><td>Treść</td></tr></tbody></table></td>
+		</tr>
+		<tr>
+			<td><code>[table border=1]<br>
+[tr]<br>
+[th]Nagłówek 1[/th][th]Nagłówek 2[/th]<br>
+[/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[/table]</code></td><td><table class="table table-responsive table-bordered"><tbody><tr><th>Nagłówek 1</th><th>Nagłówek 2</th></tr>
+<tr><td>Content</td><td>Content</td></tr><tr><td>Treść</td><td>Treść</td></tr></tbody></table></td>
+		</tr>
+		<tr>
+			<td><code>[table]<br>
+[tr]<br>
+[th]Nagłówek 1[/th][th]Nagłówek 2[/th]<br>
+[/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[tr][td]Treść[/td][td]Treść[/td][/tr]<br>
+[/table]</code></td><td><table><tbody><tr><th>Nagłówek 1</th><th>Nagłówek 2</th></tr><tr><td>Treść</td><td>Treść</td></tr><tr><td>Treść</td><td>Treść</td></tr></tbody></table>
+</td>
+		</tr>
+	</tbody>
+</table>
+
+<h3>Odnośniki i treść osadzona</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Wyjście</th>
+		</tr>
+		<tr>
+			<td><code>[video]URL wideo[/video]<br>
+[audio]URL audio[/audio]</code></td><td></td>
+		</tr>
+		<tr>
+			<td><code>[url=https://hubzilla.org]Hubzilla[/url]</code></td><td><a href="https://hubzilla.org" target="_blank">Hubzilla</a></td>
+		</tr>
+		<tr>
+			<td><code>Obraz [img]https://example.org/image.jpg[/img] 
+w jakimś tekście </code></td><td>
+				Obraz <img src="/images/default_profile_photos/rainbow_man/48.jpg" alt="Image/photo"> w jakimś tekście
+			</td>
+		</tr>
+	</tbody>
+</table>
+	
+
+<h3>Kod specyficzny dla $Projectname</h3>
+
+<table class="table table-responsive table-bordered">
+	<tbody>
+		<tr>
+			<th>Składnia BBcode</th><th>Wyjście</th>
+		</tr>
+		<tr>
+			<td>Wersja tagu [url] wykorzystująca magiczne uwierzytelnianie
+				<code>[zrl=https://hubzilla.org]Link rozpoznający tożsamość[/zrl]</code>
+			</td><td><code>https://hubzilla.org/?zid=[observer=1][observer.address][/observer][observer=0]your_channel@your.home.hub[/observer]</code></td>
+		</tr>
+		<tr>
+			<td>Wersja tagu [img] wykorzystująca magiczną uwierzytelnianie
+				<code>[zmg]https://hubzilla.org/some/photo.jpg[/zmg]</code>
+			</td><td>Obraz jest widoczny tylko dla osób uwierzytelnionych i za zgodą właściciela kanału.</td>
+		</tr>
+		<tr>
+			<td>Wyjście zależne od obserwatora:<code>
+				[nobb][observer=1]Tekst do wyświetlenia, jeśli obserwator JEST uwierzytelniony[/observer][/nobb]
+				</code></td><td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer=0]Tekst wyświetlany, jeśli obserwator NIE JEST uwierzytelniony[/observer][/nobb]
+				</code>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.language=en]Tekst wyświetlany, jeśli językiem obserwatora jest angielski[/observer][/nobb]
+				</code>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.language!=de]Tekst wyświetlany, jeśli językiem obserwatora nie jest język niemiecki[/observer][/nobb]
+				</code>
+			</td>
+			<td></td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.url][/nobb] 
+				</code>
+			</td>
+			<td>adres URL kanału obserwatora</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.baseurl][/nobb] 
+				</code>
+			</td>
+			<td>witryna WWW obserwatora</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.name][/nobb] 
+				</code>
+			</td>
+			<td>nazwa obserwatora</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.webname][/nobb] 
+				</code>
+			</td>
+			<td>krótka nazwa w adresie URL obserwatora</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.address][/nobb] 
+				</code>
+			</td>
+			<td>adres (ZOT-id) obserwatora</td>
+		</tr>
+		<tr>
+			<td>
+				<code>
+				[nobb][observer.photo][/nobb] 
+				</code>
+			</td>
+			<td>zdjęcie profilowe obserwatora</td>
+		</tr>
+		<tr>
+			<td><code>Co to jest spoiler?<br>
+					[spoiler]Tekst, który chcesz ukryć.[/spoiler]</code></td><td>
+					Co to jest spoiler? <div onclick="openClose('opendiv-1131603764'); return false;" class="fakelink">Kliknij, aby otworzyć/zamknąć</div><blockquote id="opendiv-1131603764" style="display: none;">Tekst, który chcesz ukryć.</blockquote>
+				</td>
+		</tr>
+		<tr>
+			<td><code>[toc data-toc='div.page-body' data-toc-headings='h1,h2']</code><br>
+Utwórz spis treści na stronie internetowej lub stronie wiki. Proszę zapoznać się z <a href="http://ndabas.github.io/toc/" target="_blank">oryginalnym widżetem TOC jQuery</a> aby uzyskać więcej informacji.
+	<ul>
+		<li>Opcjonalny parametr: 'data-toc'. Jeśli pominięty, domyślną wartością jest „body”</li>
+		<li>Opcjonalny parametr: 'data-toc-headings'. Jeśli pominięty, wartość domyślna to „h1, h2, h3”</li>
+	</ul></td><td></td>
+		</tr>
+		<tr>
+			<td><code>[nobb][rpost=title]Tekst do publikacji[/rpost][/nobb]</code><br>
+Obserwator wróci do swojego macierzystego huba, aby wprowadzić post z określonym tytułem i treścią. Obie opcje są opcjonalne</td><td><a href="[baseurl]/rpost?f=&amp;title=title&amp;body=Text+to+post" target="_blank">[baseurl]/rpost?f=&amp;title=title&amp;body=Text+to+post</a></td>
+		</tr>
+		<tr>
+			<td>Wymaga to wtyczki <a href="https://framagit.org/hubzilla/addons/tree/master/qrator"><strong>qrator</strong></a>.<br><code>[qr]tekst do publikacji[/qr]</code></td><td><img src="/doc/member/assets/qr_text_to_post.png"></td>
+		</tr>
+		<tr>
+			<td>Wymaga to odpowiedniej wtyczki mapy, takiej jak <strong><a href="https://framagit.org/hubzilla/addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map]</code></td><td>Wygenerowanie wbudowanej mapy przy użyciu aktualnych współrzędnych plakatu w przeglądarce, jeśli lokalizacja przeglądarki jest włączona</td>
+		</tr>
+		<tr>
+			<td>Wymaga to odpowiedniej wtyczki mapy, takiej jak <strong><a href="https://framagit.org/hubzilla/addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map=latitude,longitude]</code></td><td>Wygenerowanie mapy przy wykorzystaniu współrzędnych globalnych.</td></tr>
+		<tr>
+			<td>Wymaga to odpowiedniej wtyczki mapy, takiej jak <strong><a href="https://framagit.org/hubzilla/addons/tree/master/openstreetmap">openstreetmap</a></strong>.
+				<code>[map]Nazwa miejsca[/map]</code></td><td>
+Wygenerowanie mapy dla podanej nazwanej lokalizacji. Zwracana jest pierwsza pasująca lokalizacja. Na przykład „Sydney” zazwyczaj zwraca Sydney w Australii, a nie Sydney w Nowej Szkocji w Kanadzie, chyba że określono dokładniejszą lokalizację. Zdecydowanie zalecamy skorzystanie z narzędzia podglądu posta, aby upewnić się, że masz prawidłową lokalizację przed wysłaniem postu.
+</td>
+		</tr>
+		<tr>
+			<td><code>[&amp;copy;]</code></td><td> &copy; </td>
+		</tr>
+	</tbody>
+</table>

@@ -2,8 +2,6 @@
 
 namespace Zotlabs\Lib;
 
-use Zotlabs\Lib\Activity;
-
 class Share {
 
 	private $item = null;

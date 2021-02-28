@@ -18,6 +18,8 @@ require_once('include/cli_startup.php');
 
 cli_startup();
 
+use Zotlabs\Lib\Hashpath;
+
 if($argc == 1) {
 	usage();
 	killme();
@@ -25,15 +27,20 @@ if($argc == 1) {
 
 if($argc == 2) {
 	
-	$storage = (intval(get_config('system','filesystem_storage_thumbnails', 0)) > 0 ? 1 : 0);
+	$storage = (intval(get_config('system','photo_storage_type', 1)) > 0 ? 1 : 0);
 	echo 'Current storage set to: ' . ($storage ? 'filesystem' : 'SQL database') . PHP_EOL;
 	switch($argv[1]) {
 		case 'stats':
 			$x = q("SELECT COUNT(resource_id) AS qty FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
 			echo 'Local images: ' . $x[0]['qty'] . PHP_EOL;
-			$x = q("SELECT COUNT(id) AS qty FROM photo WHERE resource_id IN (SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 and os_storage = 1) AND imgscale > 0");
-			echo 'Thumbnails total: ' . $x[0]['qty'] . PHP_EOL;
-			$x = q("SELECT COUNT(id) AS qty FROM photo WHERE resource_id IN (SELECT DISTINCT resource_id FROM photo WHERE photo_usage = 0 and os_storage = 1) AND os_storage != %d AND imgscale > 0",
+			$x = q("SELECT COUNT(resource_id) AS qty FROM photo WHERE photo_usage = 0 AND imgscale > 0");
+			echo 'Image thumbnails: ' . $x[0]['qty'] . PHP_EOL;
+			$xx = intval($x[0]['qty']);
+			$x = q("SELECT COUNT(resource_id) AS qty FROM photo WHERE photo_usage IN (1, 2)");
+			echo 'Imported profiles thumbnails: ' . $x[0]['qty'] . PHP_EOL;
+			$xx += intval($x[0]['qty']);			
+			echo 'Thumbnails total: ' . $xx . PHP_EOL;
+			$x = q("SELECT COUNT(id) AS qty FROM photo WHERE os_storage != %d AND imgscale > 0",
 				$storage
 			);
 			echo 'Thumbnails to convert: ' . $x[0]['qty'] . PHP_EOL;
@@ -41,87 +48,108 @@ if($argc == 2) {
 			
 		case 'fs':
 			if($storage == 0) {
-				echo 'Please set system.filesystem_storage_thumbnails to 1 before move thumbnails to filesystem storage' . PHP_EOL;
+				echo 'Please set system.photo_storage_type to 1 before move thumbnails to filesystem storage' . PHP_EOL;
 				break;
 			}
 
-			$x = q("SELECT resource_id, content FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
+			$cur_id = 0;
+			$i = 0;
 
-			if($x) {
-				foreach($x as $xx) {
-					
-					$n = q("SELECT id, imgscale, content FROM photo WHERE resource_id = '%s' AND os_storage != %d AND imgscale > 0",
-						dbesc($xx['resource_id']),
-						$storage
-					);
+			$r = dbq("SELECT COUNT(id) AS max_num FROM photo WHERE os_storage = 0 AND imgscale > 0");
+			$max_num = $r[0]['max_num'];
 
-					$img_path = dbunescbin($xx['content']);
-					
-					foreach($n as $nn) {
-						
-						echo '.';
-						
-						$filename = $img_path . '-' . $nn['imgscale'];
+			while ($i < $max_num) {
 
-						if(! file_put_contents($filename, dbunescbin($nn['content']))) {
-							echo 'Failed to save file ' . $filename . PHP_EOL;
+				$x = q("SELECT id, uid, resource_id, content, imgscale FROM photo WHERE id > %d AND os_storage = 0 AND imgscale > 0 ORDER BY id LIMIT 10",
+					intval($cur_id)
+				);
+
+				if($x) {
+					foreach($x as $xx) {
+
+						if ($xx['uid'] == 0 || in_array($xx['imgscale'], [4, 5, 6]))
+							$filename = Hashpath::path($xx['resource_id'], 'store/[data]/[xchan]', 2, 1) . '-' . $xx['imgscale'];
+						else {
+							$z = q("SELECT channel_address FROM channel WHERE channel_id = %d",
+								intval($xx['uid'])
+							);
+							$filename = 'store/' . $z[0]['channel_address'] . '/' . $xx['resource_id'] . '-' . $xx['imgscale'];
+						}
+
+						if(! file_put_contents($filename, dbunescbin($xx['content']))) {
+							echo PHP_EOL . 'Failed to save file ' . $filename . PHP_EOL;
 							continue;
 						}
-					
+				
 						$z = q("UPDATE photo SET content = '%s', os_storage = 1 WHERE id = %d",
 							dbescbin($filename),
-							intval($nn['id'])
+							intval($xx['id'])
 						);
 						if(! $z) {
 							@unlink($filename);
-							echo 'Failed to update metadata for saved file ' . $filename . PHP_EOL;
+							echo PHP_EOL . 'Failed to update metadata for saved file ' . $filename . PHP_EOL;
 						}
 
+						$cur_id = $xx['id'];
+
+						echo '.';
+						$i++;
 					}
 				}
+				echo ($i % 100 == 0 ? $i : '');
 			}
+			echo $i . PHP_EOL . 'Total thumbnails processed: ' . $i;
 			break;
 			
 		case 'db':
 			if($storage == 1) {
-				echo 'Please set system.filesystem_storage_thumbnails to 0 before move thumbnails to SQL database storage' . PHP_EOL;
+				echo 'Please set system.photo_storage_type to 0 before move thumbnails to SQL database storage' . PHP_EOL;
 				break;
 			}
 
-			$x = q("SELECT resource_id FROM photo WHERE photo_usage = 0 AND os_storage = 1 AND imgscale = 0");
-			
-			if($x) {
-				foreach($x as $xx) {
+			$cur_id = 0;
+			$i = 0;
 
-					$n = q("SELECT id, content FROM photo WHERE resource_id = '%s' AND os_storage != %d AND imgscale > 0",
-						dbesc($xx['resource_id']),
-						$storage
-					);
-				
-					foreach($n as $nn) {
+			$r = dbq("SELECT COUNT(id) AS max_num FROM photo WHERE os_storage = 1 AND imgscale > 0");
+			$max_num = $r[0]['max_num'];
+
+                        while ($i < $max_num) {
+
+                                $x = q("SELECT id, uid, resource_id, content, imgscale FROM photo WHERE id > %d AND os_storage = 1 AND imgscale > 0 ORDER BY id LIMIT 10",
+                                        intval($cur_id)
+                                );
+			
+				if($x) {
+					foreach($x as $xx) {
 						
-						echo '.';
-						
-						$filename = dbunescbin($nn['content']);
+						$filename = dbunescbin($xx['content']);
+
 						$content = file_get_contents($filename);
 						if($content) {
 						
 							$z = q("UPDATE photo SET content = '%s', os_storage = 0 WHERE id = %d",
 								dbescbin($content),
-								intval($nn['id'])
+								intval($xx['id'])
 							);
 							if(! $z) {
-								echo 'Failed to update stored file metadata ' . $filename . PHP_EOL;
+								echo PHP_EOL . 'Failed to update stored file metadata ' . $filename . PHP_EOL;
 								continue;
 							}
 					
 							@unlink($filename);
 						}
 						else
-							echo 'Can not read file contents ' . $filename . PHP_EOL;
+							echo PHP_EOL . 'Can not read file contents ' . $filename . PHP_EOL;
+
+						$cur_id = $xx['id'];
+
+						echo '.';
+						$i++;
 					}
 				}
+				echo ($i % 100 == 0 ? $i : '');
 			}
+			echo $i . PHP_EOL . 'Total files processed: ' . $i;
 			break;
 			
 		default:
@@ -129,6 +157,5 @@ if($argc == 2) {
 			return;
 
 	}
-	
 	echo PHP_EOL;
 }

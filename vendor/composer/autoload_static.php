@@ -16,10 +16,15 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'ebdb698ed4152ae445614b69b5e4bb6a' => __DIR__ . '/..' . '/sabre/http/lib/functions.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
         '2cffec82183ee1cea088009cef9a6fc3' => __DIR__ . '/..' . '/ezyang/htmlpurifier/library/HTMLPurifier.composer.php',
+        'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         'e39a8b23c42d4e1452234d762b03835a' => __DIR__ . '/..' . '/ramsey/uuid/src/functions.php',
     );
 
     public static $prefixLengthsPsr4 = array (
+        'p' => 
+        array (
+            'phpseclib\\' => 10,
+        ),
         'Z' => 
         array (
             'Zotlabs\\' => 8,
@@ -73,6 +78,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixDirsPsr4 = array (
+        'phpseclib\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
         'Zotlabs\\' => 
         array (
             0 => __DIR__ . '/../..' . '/Zotlabs',
@@ -1263,8 +1272,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Access\\Permissions' => __DIR__ . '/../..' . '/Zotlabs/Access/Permissions.php',
         'Zotlabs\\Daemon\\Addon' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Addon.php',
         'Zotlabs\\Daemon\\Cache_embeds' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cache_embeds.php',
+        'Zotlabs\\Daemon\\Cache_query' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cache_query.php',
         'Zotlabs\\Daemon\\Checksites' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Checksites.php',
         'Zotlabs\\Daemon\\Cli_suggest' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cli_suggest.php',
+        'Zotlabs\\Daemon\\Convo' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Convo.php',
         'Zotlabs\\Daemon\\Cron' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cron.php',
         'Zotlabs\\Daemon\\Cron_daily' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cron_daily.php',
         'Zotlabs\\Daemon\\Cron_weekly' => __DIR__ . '/../..' . '/Zotlabs/Daemon/Cron_weekly.php',
@@ -1294,6 +1305,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Identity\\OAuth2Storage' => __DIR__ . '/../..' . '/Zotlabs/Identity/OAuth2Storage.php',
         'Zotlabs\\Identity\\ProfilePhoto' => __DIR__ . '/../..' . '/Zotlabs/Identity/ProfilePhoto.php',
         'Zotlabs\\Lib\\AConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AConfig.php',
+        'Zotlabs\\Lib\\ASCollection' => __DIR__ . '/../..' . '/Zotlabs/Lib/ASCollection.php',
         'Zotlabs\\Lib\\AbConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/AbConfig.php',
         'Zotlabs\\Lib\\AccessList' => __DIR__ . '/../..' . '/Zotlabs/Lib/AccessList.php',
         'Zotlabs\\Lib\\Activity' => __DIR__ . '/../..' . '/Zotlabs/Lib/Activity.php',
@@ -1304,14 +1316,17 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Lib\\Chatroom' => __DIR__ . '/../..' . '/Zotlabs/Lib/Chatroom.php',
         'Zotlabs\\Lib\\Config' => __DIR__ . '/../..' . '/Zotlabs/Lib/Config.php',
         'Zotlabs\\Lib\\Connect' => __DIR__ . '/../..' . '/Zotlabs/Lib/Connect.php',
+        'Zotlabs\\Lib\\Crypto' => __DIR__ . '/../..' . '/Zotlabs/Lib/Crypto.php',
         'Zotlabs\\Lib\\DB_Upgrade' => __DIR__ . '/../..' . '/Zotlabs/Lib/DB_Upgrade.php',
         'Zotlabs\\Lib\\DReport' => __DIR__ . '/../..' . '/Zotlabs/Lib/DReport.php',
         'Zotlabs\\Lib\\Enotify' => __DIR__ . '/../..' . '/Zotlabs/Lib/Enotify.php',
         'Zotlabs\\Lib\\ExtendedZip' => __DIR__ . '/../..' . '/Zotlabs/Lib/ExtendedZip.php',
         'Zotlabs\\Lib\\Group' => __DIR__ . '/../..' . '/Zotlabs/Lib/Group.php',
+        'Zotlabs\\Lib\\Hashpath' => __DIR__ . '/../..' . '/Zotlabs/Lib/Hashpath.php',
         'Zotlabs\\Lib\\IConfig' => __DIR__ . '/../..' . '/Zotlabs/Lib/IConfig.php',
         'Zotlabs\\Lib\\Img_filesize' => __DIR__ . '/../..' . '/Zotlabs/Lib/Img_filesize.php',
         'Zotlabs\\Lib\\JSalmon' => __DIR__ . '/../..' . '/Zotlabs/Lib/JSalmon.php',
+        'Zotlabs\\Lib\\Keyutils' => __DIR__ . '/../..' . '/Zotlabs/Lib/Keyutils.php',
         'Zotlabs\\Lib\\LDSignatures' => __DIR__ . '/../..' . '/Zotlabs/Lib/LDSignatures.php',
         'Zotlabs\\Lib\\Libsync' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libsync.php',
         'Zotlabs\\Lib\\Libzot' => __DIR__ . '/../..' . '/Zotlabs/Lib/Libzot.php',
@@ -1827,6 +1842,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Update\\_1238' => __DIR__ . '/../..' . '/Zotlabs/Update/_1238.php',
         'Zotlabs\\Update\\_1239' => __DIR__ . '/../..' . '/Zotlabs/Update/_1239.php',
         'Zotlabs\\Update\\_1240' => __DIR__ . '/../..' . '/Zotlabs/Update/_1240.php',
+        'Zotlabs\\Update\\_1241' => __DIR__ . '/../..' . '/Zotlabs/Update/_1241.php',
+        'Zotlabs\\Update\\_1242' => __DIR__ . '/../..' . '/Zotlabs/Update/_1242.php',
+        'Zotlabs\\Update\\_1243' => __DIR__ . '/../..' . '/Zotlabs/Update/_1243.php',
         'Zotlabs\\Web\\Controller' => __DIR__ . '/../..' . '/Zotlabs/Web/Controller.php',
         'Zotlabs\\Web\\HTTPHeaders' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPHeaders.php',
         'Zotlabs\\Web\\HTTPSig' => __DIR__ . '/../..' . '/Zotlabs/Web/HTTPSig.php',
@@ -1909,6 +1927,30 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Zot\\IHandler' => __DIR__ . '/../..' . '/Zotlabs/Zot/IHandler.php',
         'Zotlabs\\Zot\\Receiver' => __DIR__ . '/../..' . '/Zotlabs/Zot/Receiver.php',
         'Zotlabs\\Zot\\ZotHandler' => __DIR__ . '/../..' . '/Zotlabs/Zot/ZotHandler.php',
+        'phpseclib\\Crypt\\AES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/AES.php',
+        'phpseclib\\Crypt\\Base' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Base.php',
+        'phpseclib\\Crypt\\Blowfish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Blowfish.php',
+        'phpseclib\\Crypt\\DES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/DES.php',
+        'phpseclib\\Crypt\\Hash' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Hash.php',
+        'phpseclib\\Crypt\\RC2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RC2.php',
+        'phpseclib\\Crypt\\RC4' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RC4.php',
+        'phpseclib\\Crypt\\RSA' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/RSA.php',
+        'phpseclib\\Crypt\\Random' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Random.php',
+        'phpseclib\\Crypt\\Rijndael' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Rijndael.php',
+        'phpseclib\\Crypt\\TripleDES' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/TripleDES.php',
+        'phpseclib\\Crypt\\Twofish' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Crypt/Twofish.php',
+        'phpseclib\\File\\ANSI' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ANSI.php',
+        'phpseclib\\File\\ASN1' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ASN1.php',
+        'phpseclib\\File\\ASN1\\Element' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/ASN1/Element.php',
+        'phpseclib\\File\\X509' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/File/X509.php',
+        'phpseclib\\Math\\BigInteger' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Math/BigInteger.php',
+        'phpseclib\\Net\\SCP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SCP.php',
+        'phpseclib\\Net\\SFTP' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP.php',
+        'phpseclib\\Net\\SFTP\\Stream' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SFTP/Stream.php',
+        'phpseclib\\Net\\SSH1' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH1.php',
+        'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
+        'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
+        'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

@@ -163,7 +163,7 @@ class NativeWikiPage {
 			return [ 'success' => true, 'page' => $page ];
 		}
 
-		return [ 'success' => false, 'item_id' => $c['item_id'], 'message' => t('Page not found') ];
+		return [ 'success' => false, 'message' => t('Page not found') ];
 	
 	}
 
@@ -339,7 +339,6 @@ class NativeWikiPage {
 	}
 
 	static public function save_page($arr) {
-
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
 		$content       = ((array_key_exists('content',$arr))       ? $arr['content']       : '');
 		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
@@ -385,7 +384,7 @@ class NativeWikiPage {
 		$ret = item_store($item, false, false);
 
 		if($ret['item_id'])
-			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $filename, 'success' => true);
+			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $pageUrlName, 'success' => true);
 		else
 			return array('message' => t('Page update failed.'), 'success' => false);
 	}	
@@ -432,12 +431,12 @@ class NativeWikiPage {
 		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
 
 		if (! $commitHash) {
-			return array('content' => $content, 'message' => 'No commit was provided', 'success' => false);
+			return array('message' => 'No commit was provided', 'success' => false);
 		}
 
 		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 		if (!$w['wiki']) {
-			return array('content' => $content, 'message' => 'Error reading wiki', 'success' => false);
+			return array('message' => 'Error reading wiki', 'success' => false);
 		}
 
 		$x = $arr;
@@ -451,7 +450,7 @@ class NativeWikiPage {
 				$content = $loaded['body'];
 				return [ 'content' => $content, 'success' => true ];
 			}
-			return [ 'content' => $content, 'success' => false ]; 
+			return [ 'success' => false ];
 		}
 	}
 	

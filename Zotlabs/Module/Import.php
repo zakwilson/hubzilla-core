@@ -8,6 +8,7 @@ require_once('include/import.php');
 require_once('include/perm_upgrade.php');
 require_once('library/urlify/URLify.php');
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Libzot;
 
 
@@ -227,7 +228,7 @@ class Import extends \Zotlabs\Web\Controller {
 						'hubloc_network'  => 'zot',
 						'hubloc_primary'  => (($seize) ? 1 : 0),
 						'hubloc_url'      => z_root(),
-						'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+						'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'])),
 						'hubloc_host'     => \App::get_hostname(),
 						'hubloc_callback' => z_root() . '/post',
 						'hubloc_sitekey'  => get_config('system','pubkey'),
@@ -256,7 +257,7 @@ class Import extends \Zotlabs\Web\Controller {
 					'hubloc_network'  => 'zot6',
 					'hubloc_primary'  => (($seize) ? 1 : 0),
 					'hubloc_url'      => z_root(),
-					'hubloc_url_sig'  => 'sha256.' . base64url_encode(rsa_sign(z_root(),$channel['channel_prvkey'])),
+					'hubloc_url_sig'  => 'sha256.' . base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'])),
 					'hubloc_host'     => \App::get_hostname(),
 					'hubloc_callback' => z_root() . '/zot',
 					'hubloc_sitekey'  => get_config('system','pubkey'),

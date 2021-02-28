@@ -112,7 +112,7 @@ class WebServer {
 		// now that we've been through the module content, see if the page reported
 		// a permission problem and if so, a 403 response would seem to be in order.
 
-		if(is_array($_SESSION['sysmsg']) && stristr(implode("", $_SESSION['sysmsg']), t('Permission denied'))) {
+		if(isset($_SESSION['sysmsg']) && is_array($_SESSION['sysmsg']) && stristr(implode("", $_SESSION['sysmsg']), t('Permission denied'))) {
 			header($_SERVER['SERVER_PROTOCOL'] . ' 403 ' . t('Permission denied.'));
 		}
 
@@ -137,9 +137,9 @@ class WebServer {
 
 	private function create_channel_links() {
 
-		/* Initialise the Link: response header if this is a channel page. 
+		/* Initialise the Link: response header if this is a channel page.
 		 * This cannot be done inside the channel module because some protocol
-		 * addons over-ride the module functions and these links are common 
+		 * addons over-ride the module functions and these links are common
 		 * to all protocol drivers; thus doing it here avoids duplication.
 		 */
 
@@ -156,7 +156,7 @@ class WebServer {
 					'url'  => z_root() . '/.well-known/webfinger?f=&resource=acct%3A' . argv(1) . '%40' . \App::get_hostname()
 				],
 			];
-			$x = [ 'channel_address' => argv(1), 'channel_links' => \App::$channel_links ]; 
+			$x = [ 'channel_address' => argv(1), 'channel_links' => \App::$channel_links ];
 			call_hooks('channel_links', $x );
 			\App::$channel_links = $x['channel_links'];
 			header('Link: ' . \App::get_channel_links());

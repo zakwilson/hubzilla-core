@@ -4,6 +4,8 @@
  * @brief Somme account related functions.
  */
 
+use Zotlabs\Lib\Crypto;
+
 require_once('include/config.php');
 require_once('include/network.php');
 require_once('include/plugin.php');
@@ -26,8 +28,8 @@ function check_account_email($email) {
 	$email = punify($email);
 	$result = array('error' => false, 'message' => '');
 
-	// Caution: empty email isn't counted as an error in this function. 
-	// Check for empty value separately. 
+	// Caution: empty email isn't counted as an error in this function.
+	// Check for empty value separately.
 
 	if(! strlen($email))
 		return $result;
@@ -36,7 +38,7 @@ function check_account_email($email) {
 		$result['message'] .= t('Not a valid email address') . EOL;
 	elseif(! allowed_email($email))
 		$result['message'] = t('Your email domain is not among those allowed on this site');
-	else {	
+	else {
 		$r = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
@@ -69,30 +71,17 @@ function check_account_password($password) {
 function check_account_invite($invite_code) {
 	$result = array('error' => false, 'message' => '');
 
-	// [hilmar ->
-	$using_invites = (get_config('system','invitation_only')
-				   || get_config('system','invitation_also'));
+	$using_invites = get_config('system','invitation_only');
 
 	if($using_invites) {
-
 		if(! $invite_code) {
-
-			$result['message'] 
-			.= 'ZAR0510E,' . t('An invitation is required.') . EOL;
-
-		} else {
-
-			// check if invite code exists
-			$r = q("SELECT * FROM register WHERE reg_hash = '%s' AND reg_vital = 1 LIMIT 1",
-			 	dbesc($invite_code));
-			if(! $r) {
-				$result['message'] 
-				.= 'ZAR0511E,' . t('Invitation could not be verified.') . EOL;
-			}
+			$result['message'] .= t('An invitation is required.') . EOL;
+		}
+		$r = q("select * from register where hash = '%s' limit 1", dbesc($invite_code));
+		if(! $r) {
+			$result['message'] .= t('Invitation could not be verified.') . EOL;
 		}
 	}
-	// <- hilmar]
-
 	if(strlen($result['message']))
 		$result['error'] = true;
 
@@ -118,8 +107,8 @@ function account_total() {
 	return false;
 }
 
-// legacy
-function account_store_lowlevel_IS_OBSOLETE($arr) {
+
+function account_store_lowlevel($arr) {
 
     $store = [
         'account_parent'           => ((array_key_exists('account_parent',$arr))           ? $arr['account_parent']           : '0'),
@@ -141,21 +130,12 @@ function account_store_lowlevel_IS_OBSOLETE($arr) {
         'account_password_changed' => ((array_key_exists('account_password_changed',$arr)) ? $arr['account_password_changed'] : '0001-01-01 00:00:00')
 	];
 
-	// never ever is this a create table but a pdo insert into account
-	// strange function placement in text.php (obscure by design :-)
 	return create_table_from_array('account',$store);
-	// the TODO may be to adjust others using create_table_from_array():
-	// channel.php
-	// connections.php
-	// event.php
-	// hubloc.php
-	// import.php
+
 }
 
 
-
-// legacy
-function create_account_IS_OBSOLETE($arr) {
+function create_account($arr) {
 
 	// Required: { email, password }
 
@@ -197,7 +177,7 @@ function create_account_IS_OBSOLETE($arr) {
 	// Ensure that there is a host keypair.
 
 	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
-		$hostkey = new_keypair(4096);
+		$hostkey = Crypto::new_keypair(4096);
 		set_config('system', 'pubkey', $hostkey['pubkey']);
 		set_config('system', 'prvkey', $hostkey['prvkey']);
 	}
@@ -279,159 +259,9 @@ function create_account_IS_OBSOLETE($arr) {
 	return $result;
 }
 
-/**
- * create_account_from_register
- * @author hilmar runge
- * @since  2020-02-20
- * 
- * Account creation only happens via table register.
- * This function creates the account when all conditions are solved.
- * 
- */
-function create_account_from_register($arr) {
 
-	$result = array('success' => false, 'message' => 'rid:' . $arr['reg_id']);
-	$now = date('Y-m-d H:i:s');
-
-	// reg_flags 0x0020 = REGISTER_AGREED = register request verified by user @ regate
-	$register = q("SELECT * FROM register WHERE reg_id = %d AND (reg_flags & 31) = 0 "
-				. " AND reg_startup < '%s' AND reg_expires > '%s' ",
-				intval($arr['reg_id']),
-				dbesc($now),
-				dbesc($now)
-	);
-
-	if ( ! $register ) return $result;
-
-	// account
-	$expires = NULL_DATE;
-
-	$default_service_class = get_config('system','default_service_class');
-	if($default_service_class === false)
-		$default_service_class = '';
-
-	$roles = 0;
-	// prevent form hackery
-	if($roles & ACCOUNT_ROLE_ADMIN) {
-		$admin_result = check_account_admin($arr);
-		if(! $admin_result) {
-			$roles = 0;
-		}
-	}
-
-	// any accounts available ?
-	$isa = q("SELECT COUNT(*) AS isa FROM account");
-	if ($isa && $isa[0]['isa'] == 0) {
-		$roles = ACCOUNT_ROLE_ADMIN;
-	}
-
-	$salt = random_string(32);
-	$password_encoded = hash('whirlpool', $salt . (hex2bin($register[0]['reg_pass'])));
-
-	$ri = q(
-		"INSERT INTO account ("
-		. " account_parent, account_salt, account_password, account_email, "
-		. " account_language, account_created, account_flags, account_roles, account_level, "
-		. " account_expires, account_service_class) VALUES( "
-		. " %d, '%s', '%s', '%s', '%s', '%s', %d, %d, %d, '%s', '%s' ) ",
-			intval($parent),
-			dbesc($salt),
-			dbesc($password_encoded),
-			dbesc($register[0]['reg_did2']),
-			dbesc($register[0]['reg_lang']),
-			dbesc($now),
-			intval($register[0]['reg_flags'] & 31),			// off REGISTER_AGREE at ACCOUNT
-			intval($roles),
-			intval(5),
-			dbesc($expires),
-			dbesc($default_service_class)
-	);
-
-	if(! $ri) {
-		logger('create_account: DB INSERT failed.');
-		$result['message'] = 'ZAR ' . t('Failed to store account information.');
-		return($result);
-	}
-
-	$r = q("SELECT * FROM account WHERE account_email = '%s' AND account_password = '%s' LIMIT 1",
-		dbesc($register[0]['reg_did2']),
-		dbesc($password_encoded)
-	);
-	if($r && count($r)) {
-		$result['account'] = $r[0];
-	}
-	else {
-		logger('create_account: could not retrieve newly created account');
-	}
-
-	// Set the parent record to the current record_id if no parent was provided
-
-	if(! $parent) {
-		$r = q("UPDATE account SET account_parent = %d WHERE account_id = %d",
-			intval($result['account']['account_id']),
-			intval($result['account']['account_id'])
-		);
-		if(! $r) {
-			logger('create_account: failed to set parent');
-		}
-		$result['account']['parent'] = $result['account']['account_id'];
-	}
-
-	$result['success']  = true;
-
-	//call_hooks('register_account',$result);
-
-	return $result;
-}
-
-/**
- *	@brief as far to see, email validation for register account verification
- *	@param array (account)
- *	@param array ('resend' => true, 'email' = > email)
- *
- */
 
 function verify_email_address($arr) {
-
-		// $hash = random_string(24);
-
-		// [hilmar ->
-		$reg = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_email = 's%' ",
-				dbesc($arr['email'])
-			);
-		if ( ! $reg)
-			return false;
-
-	push_lang(($reg[0]['email']) ? $reg[0]['email'] : 'en');
-
-	$email_msg = replace_macros(get_intltext_template('register_verify_member.tpl'),
-		[
-			'$sitename' => get_config('system','sitename'),
-			'$siteurl'  => z_root(),
-			'$email'    => $arr['email'],
-			'$uid'      => 1,
-			'$hash'     => $hash,
-			'$details'  => ''
-	 	]
-	);
-
-	$res = z_mail(
-		[ 
-		'toEmail' => $arr['email'], 
-		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
-		'textVersion' => $email_msg,
-		]
-	);
-
-	pop_lang();
-
-	if(! $res)
-		logger('send_reg_approval_email: failed to account_id: ' . $arr['account']['account_id']);
-
-	return $res;
-}
-
-function verify_email_addressNOP($arr) {
 
 	if(array_key_exists('resend',$arr)) {
 		$a = q("select * from account where account_email = '%s' limit 1",
@@ -441,14 +271,11 @@ function verify_email_addressNOP($arr) {
 			return false;
 		}
 		$account = $a[0];
-		// [hilmar ->
-		$v = q("SELECT * FROM register WHERE reg_uid = %d AND reg_vital = 1 "
-									. " AND reg_pass = 'verify' LIMIT 1",
+		$v = q("select * from register where uid = %d and password = 'verify' limit 1",
 			intval($account['account_id'])
 		);
-		// <- hilmar]
 		if($v) {
-			$hash = $v[0]['reg_hash'];
+			$hash = $v[0]['hash'];
 		}
 		else {
 			return false;
@@ -457,16 +284,13 @@ function verify_email_addressNOP($arr) {
 	else {
 		$hash = random_string(24);
 
-		// [hilmar ->
-		q("INSERT INTO register ( reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff ) "
-			." VALUES ( '%s', '%s', %d, '%s', '%s', '' ) ",
+		q("INSERT INTO register ( hash, created, uid, password, lang ) VALUES ( '%s', '%s', %d, '%s', '%s' ) ",
 			dbesc($hash),
 			dbesc(datetime_convert()),
 			intval($arr['account']['account_id']),
 			dbesc('verify'),
 			dbesc($arr['account']['account_language'])
 		);
-		// <- hilmar]
 		$account = $arr['account'];
 	}
 
@@ -484,8 +308,8 @@ function verify_email_addressNOP($arr) {
 	);
 
 	$res = z_mail(
-		[ 
-		'toEmail' => $arr['email'], 
+		[
+		'toEmail' => $arr['email'],
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
 		'textVersion' => $email_msg,
 		]
@@ -523,17 +347,11 @@ function send_reg_approval_email($arr) {
 
 	$hash = random_string();
 
-	// [hilmar ->
-	// code before fetches the $admins as recipients for the approval request mail
-	// $arr has a user (self registered) account
-	// ... $arr['email'] ???
-	// ... reg expiration ?
-	$r = q("INSERT INTO register ( reg_hash, reg_email, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff )"
-		. " VALUES ( '%s', '%s', '%s', %d, '', '%s', '' ) ",
+	$r = q("INSERT INTO register ( hash, created, uid, password, lang ) VALUES ( '%s', '%s', %d, '%s', '%s' ) ",
 		dbesc($hash),
-		dbesc($arr['account']['account_email']),
 		dbesc(datetime_convert()),
 		intval($arr['account']['account_id']),
+		dbesc(''),
 		dbesc($arr['account']['account_language'])
 	);
 
@@ -559,8 +377,8 @@ function send_reg_approval_email($arr) {
 		 ));
 
 		$res = z_mail(
-			[ 
-			'toEmail' => $admin['email'], 
+			[
+			'toEmail' => $admin['email'],
 			'messageSubject' => sprintf( t('Registration request at %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
 			]
@@ -587,7 +405,7 @@ function send_register_success_email($email,$password) {
 	));
 
 	$res = z_mail(
-		[ 
+		[
 			'toEmail' => $email,
 			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
@@ -607,7 +425,7 @@ function account_allow($hash) {
 
 	$ret = array('success' => false);
 
-	$register = q("SELECT * FROM register WHERE reg_hash = '%s' LIMIT 1",
+	$register = q("SELECT * FROM register WHERE hash = '%s' LIMIT 1",
 		dbesc($hash)
 	);
 
@@ -615,89 +433,57 @@ function account_allow($hash) {
 		return $ret;
 
 	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
 
-	// a register entry without account assigned to
 	if(! $account)
 		return $ret;
 
-	// [hilmar ->
-
-	q("START TRANSACTION");
-	//q("DELETE FROM register WHERE reg_hash = '%s'",
-	//	dbesc($register[0]['reg_hash'])
-	//);
-	$r1 = q("UPDATE register SET reg_vital = 0 WHERE reg_hash = '%s'",
-		dbesc($register[0]['reg_hash'])
+	q("DELETE FROM register WHERE hash = '%s'",
+		dbesc($register[0]['hash'])
 	);
 
-	/* instead of ...
-
-	// unblock
-	q("UPDATE account SET    account_flags = (account_flags & ~%d) "
-		.			" WHERE (account_flags & %d)>0 AND account_id = %d",
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_BLOCKED),
 		intval(ACCOUNT_BLOCKED),
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
-	
-	// unpend
-	q("UPDATE account SET    account_flags = (account_flags & ~%d) "
-		. 			" WHERE (account_flags & %d)>0 AND account_id = %d",
+
+	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
 
-	*/
-	// together unblock and unpend
-	$r2 = q("UPDATE account SET account_flags = %d WHERE account_id = %d",
-		intval($account['account_flags'] 
-			&= $account['account_flags'] ^ (ACCOUNT_BLOCKED | ACCOUNT_PENDING)),
-		intval($register[0]['reg_uid'])
+	push_lang($register[0]['lang']);
+
+	$email_tpl = get_intltext_template("register_open_eml.tpl");
+	$email_msg = replace_macros($email_tpl, array(
+			'$sitename' => get_config('system','sitename'),
+			'$siteurl' =>  z_root(),
+			'$username' => $account[0]['account_email'],
+			'$email' => $account[0]['account_email'],
+			'$password' => '',
+			'$uid' => $account[0]['account_id']
+	));
+
+	$res = z_mail(
+		[
+		'toEmail' => $account[0]['account_email'],
+		'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
+		'textVersion' => $email_msg,
+		]
 	);
-	
-	if($r1 && $r2) {
-		q("COMMIT");
 
-		// <- hilmar]
+	pop_lang();
 
-		push_lang($register[0]['reg_lang']);
+	if(get_config('system','auto_channel_create'))
+		auto_channel_create($register[0]['uid']);
 
-		$email_tpl = get_intltext_template("register_open_eml.tpl");
-		$email_msg = replace_macros($email_tpl, array(
-				'$sitename' => get_config('system','sitename'),
-				'$siteurl' =>  z_root(),
-				'$username' => $account[0]['account_email'],
-				'$email' => $account[0]['account_email'],
-				'$password' => '',
-				'$uid' => $account[0]['account_id']
-		));
-
-		$res = z_mail(
-			[ 
-			'toEmail' => $account[0]['account_email'],
-			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
-			'textVersion' => $email_msg,
-			]
-		);
-
-		pop_lang();
-
-		if(get_config('system','auto_channel_create'))
-			auto_channel_create($register[0]['uid']);
-
-		if ($res) {
-			info( t('Account approved.') . EOL );
-			return true;
-		}
-
-	// [hilmar ->	
-	} else {
-		q("ROLLBACK");
+	if ($res) {
+		info( t('Account approved.') . EOL );
+		return true;
 	}
-	// <- hilmar]
 }
 
 
@@ -714,65 +500,42 @@ function account_allow($hash) {
 
 function account_deny($hash) {
 
-	// [hilmar->
-	$register = q("SELECT * FROM register WHERE reg_hash = '%s' AND reg_vital = 1 LIMIT 1",
+	$register = q("SELECT * FROM register WHERE hash = '%s' LIMIT 1",
 		dbesc($hash)
 	);
-	//  <-hilmar]
 
 	if(! count($register))
 		return false;
 
 	$account = q("SELECT account_id, account_email FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
 
 	if(! $account)
 		return false;
 
-	// [hilmar ->
-	q("START TRANSACTION");
-
-	$r1 = q("DELETE FROM account WHERE account_id = %d",
-		intval($register[0]['reg_uid'])
-	);
-	// q("DELETE FROM register WHERE reg_id = %d",
-	//	dbesc($register[0]['reg_id'])
-	//);
-	$r2 = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d AND reg_vital = 1",
-		dbesc($register[0]['reg_id'])
+	q("DELETE FROM account WHERE account_id = %d",
+		intval($register[0]['uid'])
 	);
 
-	if($r1 && $r2) {
-		q("COMMIT");
-		notice( 'ZAR0512I,' . sprintf( t('Registration revoked for %s'), 
-							$account[0]['account_email']) . EOL);
-		return true;
+	q("DELETE FROM register WHERE id = %d",
+		dbesc($register[0]['id'])
+	);
+	notice( sprintf(t('Registration revoked for %s'), $account[0]['account_email']) . EOL);
 
-	} else {
+	return true;
 
-		q("ROLLBACK");		
-		notice( 'ZAR0513F,' . sprintf( t('Could not revoke registration for %s'), 
-							$account[0]['account_email']) . EOL);
-		return false;
-	}
-	// <- hilmar]
 }
 
-/**
- * called from Regver to allow/revoke an account
- * Use case is under REGISTER_OPEN with APPROVAL
- * Ref Regver, Email_validation, Email_resend
- * ZAR052+
- */
+// called from regver to activate an account from the email verification link
+
 function account_approve($hash) {
 
 	$ret = false;
 
 	// Note: when the password in the register table is 'verify', the uid actually contains the account_id
-	// hmm
 
-	$register = q("SELECT * FROM register WHERE reg_hash = '%s' and reg_pass = 'verify' LIMIT 1",
+	$register = q("SELECT * FROM register WHERE hash = '%s' and password = 'verify' LIMIT 1",
 		dbesc($hash)
 	);
 
@@ -780,190 +543,65 @@ function account_approve($hash) {
 		return $ret;
 
 	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
 
 	if(! $account)
 		return $ret;
 
-	// tr ?
-
-	q("DELETE FROM register WHERE reg_hash = '%s' and reg_pass = 'verify'",
-		dbesc($register[0]['reg_hash'])
+	q("DELETE FROM register WHERE hash = '%s' and password = 'verify'",
+		dbesc($register[0]['hash'])
 	);
 
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_BLOCKED),
 		intval(ACCOUNT_BLOCKED),
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_UNVERIFIED),
 		intval(ACCOUNT_UNVERIFIED),
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
-
-	/*
-	// together unblock unpend and verified
-	q("UPDATE account SET account_flags = %d WHERE account_id = %d",
-		intval($account['account_flags'] 
-			&= $account['account_flags'] 
-			^ (ACCOUNT_BLOCKED | ACCOUNT_PENDING | ACCOUNT_UNVERIFIED)),
-		intval($register[0]['reg_uid'])
-	);
-	*/
-
 
 	// get a fresh copy after we've modified it.
 
 	$account = q("SELECT * FROM account WHERE account_id = %d LIMIT 1",
-		intval($register[0]['reg_uid'])
+		intval($register[0]['uid'])
 	);
 
 	if(! $account)
 		return $ret;
 
 	if(get_config('system','auto_channel_create'))
-		auto_channel_create($register[0]['reg_uid']);
+		auto_channel_create($register[0]['uid']);
 	else {
 		$_SESSION['login_return_url'] = 'new_channel';
 		authenticate_success($account[0],null,true,true,false,true);
-	}	
+	}
 
 	return true;
-}
-
-
-function verify_register_scheme() {
-
-	$dbc = db_columns('register');
-	if ($dbc) {
-
-		if ($dbc[0]=='id') {
-			// v1 format
-			q("START TRANSACTION");
-
-			if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-				$r1 = q("ALTER TABLE register RENAME TO register100;");
-
-				$r2 = q("CREATE TABLE register ("
-					. "reg_id      serial  NOT NULL," 
-					. "reg_vital   int     DEFAULT 1 NOT NULL,"
-					. "reg_flags   bigint  DEFAULT 0 NOT NULL,"
-					. "reg_didx    char(1) DEFAULT '' NOT NULL,"
-					. "reg_did2    text    DEFAULT '' NOT NULL,"
-					. "reg_hash    text    DEFAULT '' NOT NULL,"
-					. "reg_email   text    DEFAULT '' NOT NULL,"
-					. "reg_created timestamp  NOT NULL,"
-					. "reg_startup timestamp  NOT NULL,"
-					. "reg_expires timestamp  NOT NULL,"
-					. "reg_byc     bigint  DEFAULT 0 NOT NULL,"
-					. "reg_uid     bigint  DEFAULT 0 NOT NULL,"
-					. "reg_atip    text    DEFAULT '' NOT NULL,"
-					. "reg_pass    text    DEFAULT '' NOT NULL,"
-					. "reg_lang    varchar(16) DEFAULT '' NOT NULL,"
-					. "reg_stuff   text    NOT NULL,"
-					. "PRIMARY KEY (reg_id) );"
-				);
-				$r0 = q("CREATE INDEX ix_reg_vital ON register (reg_vital);");
-				$r0 = q("CREATE INDEX ix_reg_flags ON register (reg_flags);");
-				$r0 = q("CREATE INDEX ix_reg_didx ON register (reg_didx);");
-				$r0 = q("CREATE INDEX ix_reg_did2 ON register (reg_did2);");
-				$r0 = q("CREATE INDEX ix_reg_hash ON register (reg_hash);");
-				$r0 = q("CREATE INDEX ix_reg_email ON register (reg_email);");
-				$r0 = q("CREATE INDEX ix_reg_created ON register (reg_created);");
-				$r0 = q("CREATE INDEX ix_reg_startup ON register (reg_startup);");
-				$r0 = q("CREATE INDEX ix_reg_expires ON register (reg_expires);");
-				$r0 = q("CREATE INDEX ix_reg_byc ON register (reg_byc);");
-				$r0 = q("CREATE INDEX ix_reg_uid ON register (reg_uid);");
-				$r0 = q("CREATE INDEX ix_reg_atip ON register (reg_atip);");
-
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
-					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
-
-				$r4 = q("DROP TABLE register100");
-
-			} 
-			else {
-				$r1 = q("RENAME TABLE register TO register100;");
-
-				$r2 = q("CREATE TABLE IF NOT EXISTS register ("
-	 				. "reg_id 		int(10) UNSIGNED 	NOT NULL AUTO_INCREMENT,"
-  					. "reg_vital	int(10) UNSIGNED 	NOT NULL DEFAULT 1,"
-  					. "reg_flags	int(10) UNSIGNED 	NOT NULL DEFAULT 0,"
-	  				. "reg_didx 	char(1) 			NOT NULL DEFAULT '',"
-  					. "reg_did2 	char(191) 			NOT NULL DEFAULT '',"
- 					. "reg_hash 	char(191) 			NOT NULL DEFAULT '',"
-	  				. "reg_email 	char(191) 			NOT NULL DEFAULT '',"
-  					. "reg_created 	datetime 			NOT NULL DEFAULT '0001-01-01 00:00:00',"
-  					. "reg_startup 	datetime 			NOT NULL DEFAULT '0001-01-01 00:00:00',"
- 	 				. "reg_expires 	datetime 			NOT NULL DEFAULT '0001-01-01 00:00:00',"
-  					. "reg_byc 		int(10) UNSIGNED 	NOT NULL DEFAULT 0 ,"
-  					. "reg_uid 		int(10) UNSIGNED 	NOT NULL DEFAULT 0 ,"
-	   				. "reg_atip     char(191) 			NOT NULL DEFAULT '',"
-					. "reg_pass 	char(191) 			NOT NULL DEFAULT '',"
-  					. "reg_lang		char(16) 			NOT NULL DEFAULT '',"
-	  				. "reg_stuff 	text				NOT NULL,"
-  					. "PRIMARY KEY (reg_id),"
-  					. "KEY ix_reg_hash	(reg_hash),"
-	  				. "KEY ix_reg_vital	(reg_vital),"
-  					. "KEY ix_reg_flags	(reg_flags),"
-  					. "KEY ix_reg_didx	(reg_didx),"
-	  				. "KEY ix_reg_did2	(reg_did2),"
-  					. "KEY ix_reg_email (reg_email),"
-  					. "KEY ix_reg_created (reg_created),"
-	  				. "KEY ix_reg_startup (reg_startup),"
-  					. "KEY ix_reg_expires (reg_expires),"
-  					. "KEY ix_reg_byc 	(reg_byc),"
-	  				. "KEY ix_reg_uid 	(reg_uid),"
- 					. "KEY ix_reg_atip 	(reg_atip)"
-					. ") ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;"
-				);
-
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
-					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
-
-				$r4 = q("DROP TABLE register100");
-			}
-
-			// $r = ($r1 && $r2 && $r3 && $r4);
-			// the only important
-			$r = $r2;
-
-			if($r) {
-				q("COMMIT");
-				return UPDATE_SUCCESS;
-			}
-
-			q("ROLLBACK");
-			return UPDATE_FAILED;
-		} 
-		elseif ( count($dbc) != 16 ) {
-			// ffu
-			// fields in v2.0.0 = 16
-		}
-	}
 }
 
 
 /**
  * @brief Checks for accounts that have past their expiration date.
  *
- * If the account has a service class which is not the site default, 
+ * If the account has a service class which is not the site default,
  * the service class is reset to the site default and expiration reset to never.
  * If the account has no service class it is expired and subsequently disabled.
  * called from include/poller.php as a scheduled task.
  *
  * Reclaiming resources which are no longer within the service class limits is
- * not the job of this function, but this can be implemented by plugin if desired. 
- * Default behaviour is to stop allowing additional resources to be consumed. 
+ * not the job of this function, but this can be implemented by plugin if desired.
+ * Default behaviour is to stop allowing additional resources to be consumed.
  */
 function downgrade_accounts() {
 
@@ -1188,66 +826,3 @@ function get_account_techlevel($account_id = 0) {
 	return (5);
 
 }
-
-function zar_log($msg='') {
-	file_put_contents('./zar.log',
-		 date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
-	return;
-}
-
-function zar_reg_mail($reonar=false) {
-	if ($reonar) {
-		$zem = z_mail(
-			[ 
-			'toEmail'        => $reonar['to'],
-			'fromName'       => ' ',
-			'fromEmail'      => $reonar['from'],
-			'messageSubject' => $reonar['subject'],
-			'textVersion'    => $reonar['txttemplate'],
-			]
-		);
-		return $zem;
-	}
-}
-
-/**
- * ckeck current day and time against register duties
- *
- * @author Hilmar Runge
- * @since  2020-02-25
- * @param  the current date and time is taken as default
- * @return  ['isduty'] true/false
- *			['nowfmt'] the textmsg about the current state
- *			['atform'] the disabled html attribute for form input fields
- *
- */
-function zar_register_dutystate( $now=NULL, $day=NULL ) {
-	
-	is_null($now) ? $now = date('Hi') : '';
-	is_null($day) ? $day = date('N') : '';
-
-	$isduty = zarIsDuty($day, $now, 'isOpen');
-
-	if ( $isduty === false ) {
-		return array( 'isduty' => $isduty, 'nowfmt' => '', 'atform' => '' );
-	}
-
-	$dutyis = $isduty ? t('open') : t('closed');
-	$atform = $isduty ? '' : 'disabled';
-
-	$nowfmt	= t('Registration is currently') 
-			.	' ('.substr($now,0,2) . ':' . substr($now,-2) . ') '
-			. 	' ' . $dutyis;
-
-	if (!$isduty) {
-		$pernext = zarIsDuty($day, $now, 'nextOpen');
-			
-		if (is_array($pernext)) 
-			$nowfmt .= '. ' . t('Next opens') . ' '  
-			. ucfirst( array('','mo','tu','we','th','fr','sa','so')[$pernext[0]]) . ' ' 
-			. substr($pernext[1],0,2) . ':' . substr($pernext[1],-2);
-	}
-	return array( 'isduty' => $isduty, 'nowfmt' => $nowfmt, 'atform' => $atform);
-
-}
-

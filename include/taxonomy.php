@@ -345,7 +345,7 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
         }
 
         if($recent)
-                $sql_extra .= " and item.created > '" . datetime_convert('UTC','UTC', 'now - ' . intval($recent) . ' days ') . "' ";
+                $sql_extra .= " and item.created > NOW() - INTERVAL " . db_quoteinterval(intval($recent) . ' DAY') . " ";
 
 
         if($safemode) {
@@ -354,30 +354,32 @@ function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
                         $sql_extra .= " and not term.term in ( " . stringify_array($unsafetags,true) . ") ";
                 }
         }
-
-
-        $key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
-        $content = Cache::get($key, '1 MINUTE');
-
-        if(! $content) {
-                // Fetch tags
-                $r = q("SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
-                        where term.ttype = %d
-                        and otype = %d and item_type = %d
-                        $sql_extra $uids $item_normal
-                        group by term order by total desc %s",
-                        intval($type),
-                        intval(TERM_OBJ_POST),
-                        intval(ITEM_TYPE_POST),
-                        ((intval($count)) ? "limit $count" : '')
-                );
-        } else
-                $r = unserialize($content);
-
-        if(! $r)
-                return array();
-        else
-                Cache::set($key, serialize($r));
+		
+		$key = __FUNCTION__ . "-" . md5($site . $recent . $safemode . $limit . $type);
+		
+		$content = Cache::get($key, '5 MINUTE');
+		if(! $content) {
+			
+			$content = Cache::get($key, '1 MONTH');
+			$arr = [
+				"SELECT term, count(term) AS total FROM term LEFT JOIN item ON term.oid = item.id
+				WHERE term.ttype = %d
+				AND otype = %d
+				AND item_type = %d
+				$sql_extra $uids $item_normal
+				GROUP BY term ORDER BY total DESC %s",
+				intval($type),
+				intval(TERM_OBJ_POST),
+				intval(ITEM_TYPE_POST),
+				(intval($count) ? "LIMIT $count" : '')
+			];
+			
+			\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
+		}
+		
+		$r = unserialize($content);
+		if(! $r)
+			return [];
 
         return Zotlabs\Text\Tagadelic::calc($r);
 }

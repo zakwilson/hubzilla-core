@@ -137,7 +137,7 @@
 	}
 </script>
 
-<div id="notifications_wrapper">
+<div id="notifications_wrapper" class="mb-4">
 	<div id="no_notifications" class="d-xl-none">
 		{{$no_notifications}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 	</div>
@@ -154,7 +154,7 @@
 			<span class="float-right badge badge-secondary">{10}</span>
 			<img class="menu-img-1" data-src="{1}" loading="lazy">
 			<span class="">{2}</span>
-			<i class="fa fa-{11} text-muted"></i> 
+			<i class="fa fa-{11} text-muted"></i>
 		</a>
 	</div>
 	<div id="notifications" class="border border-bottom-0 rounded navbar-nav collapse">

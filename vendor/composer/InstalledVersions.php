@@ -1,5 +1,15 @@
 <?php
 
+
+
+
+
+
+
+
+
+
+
 namespace Composer;
 
 use Composer\Semver\VersionParser;
@@ -19,7 +29,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
+    'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -35,12 +45,12 @@ private static $installed = array (
     ),
     'brick/math' => 
     array (
-      'pretty_version' => '0.9.1',
-      'version' => '0.9.1.0',
+      'pretty_version' => '0.9.2',
+      'version' => '0.9.2.0',
       'aliases' => 
       array (
       ),
-      'reference' => '283a40c901101e66de7061bd359252c013dcc43c',
+      'reference' => 'dff976c2f3487d42c1db75a3b180e2b9f0e72ce0',
     ),
     'bshaffer/oauth2-server-php' => 
     array (
@@ -114,6 +124,15 @@ private static $installed = array (
       ),
       'reference' => '9e253f26cef9a9066f53f200cc3e0684018cb5b5',
     ),
+    'phpseclib/phpseclib' => 
+    array (
+      'pretty_version' => '2.0.30',
+      'version' => '2.0.30.0',
+      'aliases' => 
+      array (
+      ),
+      'reference' => '136b9ca7eebef78be14abf90d65c5e57b6bc5d36',
+    ),
     'psr/log' => 
     array (
       'pretty_version' => '1.1.3',
@@ -125,12 +144,12 @@ private static $installed = array (
     ),
     'ramsey/collection' => 
     array (
-      'pretty_version' => '1.1.1',
-      'version' => '1.1.1.0',
+      'pretty_version' => '1.1.3',
+      'version' => '1.1.3.0',
       'aliases' => 
       array (
       ),
-      'reference' => '24d93aefb2cd786b7edd9f45b554aea20b28b9b1',
+      'reference' => '28a5c4ab2f5111db6a60b2b4ec84057e0f43b9c1',
     ),
     'ramsey/uuid' => 
     array (
@@ -150,12 +169,12 @@ private static $installed = array (
     ),
     'sabre/dav' => 
     array (
-      'pretty_version' => '4.1.3',
-      'version' => '4.1.3.0',
+      'pretty_version' => '4.1.5',
+      'version' => '4.1.5.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'b903eeedfbdcd6cab7935661ec6dc2d90cdf8a1e',
+      'reference' => 'c1afdc77a95efea6ee40c03c45f57c3c0c80ec22',
     ),
     'sabre/event' => 
     array (
@@ -186,12 +205,12 @@ private static $installed = array (
     ),
     'sabre/vobject' => 
     array (
-      'pretty_version' => '4.3.3',
-      'version' => '4.3.3.0',
+      'pretty_version' => '4.3.5',
+      'version' => '4.3.5.0',
       'aliases' => 
       array (
       ),
-      'reference' => '58f9f9b46a1080c0130bd86f4df9a568aacb9c79',
+      'reference' => 'd8a0a9ae215a8acfb51afc29101c7344670b9c83',
     ),
     'sabre/xml' => 
     array (
@@ -213,36 +232,36 @@ private static $installed = array (
     ),
     'smarty/smarty' => 
     array (
-      'pretty_version' => 'v3.1.36',
-      'version' => '3.1.36.0',
+      'pretty_version' => 'v3.1.38',
+      'version' => '3.1.38.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'fd148f7ade295014fff77f89ee3d5b20d9d55451',
+      'reference' => '63b3c0aed0f614880cda21a5c08c606e97b489bb',
     ),
     'symfony/polyfill-ctype' => 
     array (
-      'pretty_version' => 'v1.20.0',
-      'version' => '1.20.0.0',
+      'pretty_version' => 'v1.22.0',
+      'version' => '1.22.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'f4ba089a5b6366e453971d3aad5fe8e897b37f41',
+      'reference' => 'c6c942b1ac76c82448322025e084cadc56048b4e',
     ),
     'twbs/bootstrap' => 
     array (
-      'pretty_version' => 'v4.5.3',
-      'version' => '4.5.3.0',
+      'pretty_version' => 'v4.6.0',
+      'version' => '4.6.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'a716fb03f965dc0846df479e14388b1b4b93d7ce',
+      'reference' => '6ffb0b48e455430f8a5359ed689ad64c1143fac2',
     ),
     'twitter/bootstrap' => 
     array (
       'replaced' => 
       array (
-        0 => 'v4.5.3',
+        0 => 'v4.6.0',
       ),
     ),
     'zotlabs/hubzilla' => 
@@ -252,7 +271,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'f9d24d07dd67148a652610b002126e1e80b11839',
+      'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
     ),
   ),
 );

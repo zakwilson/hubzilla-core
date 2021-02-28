@@ -16,7 +16,8 @@
 	{{foreach $entries as $entry}}
 		{{include file="direntry.tpl"}}
 	{{/foreach}}
-	<div id="page-end"></div>
+	{{** make sure this element is at the bottom - we rely on that in endless scroll **}}
+	<div id="page-end" class="float-left w-100"></div>
 </div>
 <script>$(document).ready(function() { loadingPage = false;});</script>
 <div id="page-spinner" class="spinner-wrapper">

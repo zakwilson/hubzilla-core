@@ -37,8 +37,6 @@ class Cal extends Controller {
 			$observer = App::get_observer();
 			App::$data['observer'] = $observer;
 	
-			$observer_xchan = (($observer) ? $observer['xchan_hash'] : '');
-	
 			head_set_icon(App::$data['channel']['xchan_photo_s']);
 	
 			App::$page['htmlhead'] .= "<script> var profile_uid = " . ((App::$data['channel']) ? App::$data['channel']['channel_id'] : 0) . "; </script>" ;
@@ -159,10 +157,10 @@ class Cal extends Controller {
 					'timezone' => $tz,
 					'start'=> $start,
 					'end' => $end,
-					'drop' => $drop,
+					'drop' => false,
 					'allDay' => (($rr['adjust']) ? 0 : 1),
 					'title' => html_entity_decode($rr['summary'], ENT_COMPAT, 'UTF-8'),
-					'editable' => $edit ? true : false,
+					'editable' => false,
 					'item' => $rr,
 					'plink' => [$rr['plink'], t('Link to source')],
 					'description' => html_entity_decode($rr['description'], ENT_COMPAT, 'UTF-8'),
@@ -205,9 +203,9 @@ class Cal extends Controller {
 			'$prev'	=> t('Previous'),
 			'$next'	=> t('Next'),
 			'$today' => t('Today'),
-			'$title' => $title,
-			'$dtstart' => $dtstart,
-			'$dtend' => $dtend,
+			'$title' => '',
+			'$dtstart' => '',
+			'$dtend' => '',
 			'$nick' => $nick
 		]);
 

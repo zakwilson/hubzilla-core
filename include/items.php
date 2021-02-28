@@ -4,6 +4,7 @@
  * @brief Items related functions.
  */
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\Enotify;
 use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
@@ -11,6 +12,7 @@ use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\AccessList;
@@ -790,8 +792,8 @@ function get_item_elements($x,$allow_code = false) {
 			dbesc($arr['author_xchan'])
 		);
 		if($r) {
-			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot') {
-				if(rsa_verify($x['body'],base64url_decode($arr['sig']),$r[0]['xchan_pubkey'])) {
+			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
+				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -1087,7 +1089,7 @@ function empty_acl($item) {
 	return (($item['allow_cid'] === EMPTY_STR && $item['allow_gid'] === EMPTY_STR && $item['deny_cid'] === EMPTY_STR && $item['deny_gid'] === EMPTY_STR) ? true : false);
 }
 
-function encode_item($item,$mirror = false) {
+function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x = [];
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
@@ -1165,9 +1167,9 @@ function encode_item($item,$mirror = false) {
 	$x['summary']         = $item['summary'];
 	$x['body']            = $item['body'];
 	$x['app']             = $item['app'];
-	$x['verb']            = $item['verb'];
-	$x['object_type']     = $item['obj_type'];
-	$x['target_type']     = $item['tgt_type'];
+	$x['verb']            = (($zap_compat) ? Activity::activity_mapper($item['verb']) : $item['verb']);
+	$x['object_type']     = (($zap_compat && $item['obj_type']) ? Activity::activity_obj_mapper($item['obj_type']) : $item['obj_type']);
+	$x['target_type']     = (($zap_compat && $item['tgt_type']) ? Activity::activity_obj_mapper($item['tgt_type']) : $item['tgt_type']);
 	$x['permalink']       = $item['plink'];
 	$x['location']        = $item['location'];
 	$x['longlat']         = $item['coord'];
@@ -1176,10 +1178,19 @@ function encode_item($item,$mirror = false) {
 	$x['owner']           = encode_item_xchan($item['owner']);
 	$x['author']          = encode_item_xchan($item['author']);
 
-	if($item['obj'])
-		$x['object']      = json_decode($item['obj'],true);
+	if ($zap_compat) {
+		$x['object'] = Activity::encode_item_object($item,'obj');
+	}
+	else {
+		if ($item['obj']) {
+			$x['object'] = json_decode($item['obj'],true);
+		}
+	}
+
 	if($item['target'])
-		$x['target']      = json_decode($item['target'],true);
+		$x['target']      = (($zap_compat)
+			? Activity::encode_item_object($item,'target')
+			: json_decode($item['target'],true)) ;
 	if($item['attach'])
 		$x['attach']      = json_decode($item['attach'],true);
 	if($y = encode_item_flags($item))
@@ -1198,9 +1209,16 @@ function encode_item($item,$mirror = false) {
 	if($item['term'])
 		$x['tags']        = encode_item_terms($item['term'],$mirror);
 
-	if($item['iconfig'])
+	if($item['iconfig']) {
+		if ($zap_compat) {
+			for ($y = 0; $y < count($item['iconfig']); $y ++) {
+				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
+					$item['iconfig'][$y]['v'] = serialise(unserialize($item['iconfig'][$y]['v']));
+				}
+			}
+		}
 		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
-
+	}
 
 	logger('encode_item: ' . print_r($x,true), LOGGER_DATA);
 
@@ -1398,6 +1416,30 @@ function decode_tags($t) {
 	return '';
 }
 
+
+function purify_imported_object($obj) {
+	$ret = null;
+	if (is_array($obj)) {
+		foreach ( $obj as $k => $v ) {
+			if (is_array($v)) {
+				$ret[$k] = purify_imported_object($v);
+			}
+			elseif (is_string($v)) {
+				$ret[$k] = purify_html($v);
+			}
+		}
+	}
+	elseif (is_string($obj)) {
+		$ret = purify_html($obj);
+	}
+	
+	return $ret;
+}
+
+
+
+
+
 /**
  * @brief Santise a potentially complex array.
  *
@@ -1409,6 +1451,10 @@ function activity_sanitise($arr) {
 		if(is_array($arr)) {
 			$ret = array();
 			foreach($arr as $k => $x) {
+				if (in_array($k, [ 'content', 'summary', 'contentMap', 'summaryMap' ])) {
+					$ret[$k] = purify_imported_object($arr[$k]);
+					continue;
+				}
 				if(is_array($x))
 					$ret[$k] = activity_sanitise($x);
 				else
@@ -1651,7 +1697,7 @@ function item_sign(&$item) {
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(rsa_sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
 	$item['item_verified'] = 1;
 }
 
@@ -2390,9 +2436,14 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 
 	logger('item_store_update: ' . print_r($arr,true), LOGGER_DATA);
 
-	$str = '';
-	foreach($arr as $k => $v) {
-		if($str)
+	$columns = db_columns('item');
+	$str     = '';
+	foreach ($arr as $k => $v) {
+		if (!in_array($k, $columns)) {
+			continue;
+		}
+
+		if ($str)
 			$str .= ",";
 		$str .= " " . TQUOT . $k . TQUOT . " = '" . $v . "' ";
 	}
@@ -2694,10 +2745,13 @@ function tag_deliver($uid, $item_id) {
 			return;
 		}
 
+		/* this should not be required anymore due to the check above
 		if (strpos($item['body'],'[/share]')) {
 			logger('W2W post already shared');
 			return;
 		}
+		*/
+
 		// group delivery via W2W
 		logger('rewriting W2W post for ' . $u[0]['channel_address']);
 		start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
@@ -2970,7 +3024,7 @@ function item_community_tag($channel,$item) {
 		$pitem = $items[0];
 		$auth = get_iconfig($item,'system','communitytagauth');
 		if($auth) {
-			if(rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || rsa_verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
+			if(Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['owner']['xchan_pubkey']) || Crypto::verify('tagauth.' . $item['mid'],base64url_decode($auth),$pitem['author']['xchan_pubkey'])) {
 				logger('tag_deliver: tagging the post: ' . $channel['channel_name']);
 				$tag_the_post = true;
 			}
@@ -2979,7 +3033,7 @@ function item_community_tag($channel,$item) {
 			if(($pitem['owner_xchan'] === $channel['channel_hash']) && (! intval(get_pconfig($channel['channel_id'],'system','blocktags')))) {
 				logger('tag_deliver: community tag recipient: ' . $channel['channel_name']);
 				$tag_the_post = true;
-				$sig = rsa_sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
+				$sig = Crypto::sign('tagauth.' . $item['mid'],$channel['channel_prvkey']);
 				logger('tag_deliver: setting iconfig for ' . $item['id']);
 				set_iconfig($item['id'],'system','communitytagauth',base64url_encode($sig),1);
 			}
@@ -3267,24 +3321,19 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$arr['item_wall'] = 1;
 		$arr['item_thread_top'] = 1;
 
-		if (strpos($item['body'], "[/share]") !== false) {
-			$pos = strpos($item['body'], "[share");
-			$bb = substr($item['body'], $pos);
-		} else {
-			$bb = "[share author='" . urlencode($item['author']['xchan_name']).
-				"' profile='"       . $item['author']['xchan_url'] .
-				"' portable_id='"   . $item['author']['xchan_hash'] .
-				"' avatar='"        . $item['author']['xchan_photo_s'] .
-				"' link='"          . $item['plink'] .
-				"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
-				"' posted='"        . $item['created'] .
-				"' message_id='"    . $item['mid'] .
-			"']";
-			if($item['title'])
-				$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
-			$bb .= $item['body'];
-			$bb .= "[/share]";
-		}
+		$bb = "[share author='" . urlencode($item['author']['xchan_name']).
+			"' profile='"       . $item['author']['xchan_url'] .
+			"' portable_id='"   . $item['author']['xchan_hash'] .
+			"' avatar='"        . $item['author']['xchan_photo_s'] .
+			"' link='"          . $item['plink'] .
+			"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
+			"' posted='"        . $item['created'] .
+			"' message_id='"    . $item['mid'] .
+		"']";
+		if($item['title'])
+			$bb .= '[h3][b]'.$item['title'].'[/b][/h3]'."\r\n";
+		$bb .= $item['body'];
+		$bb .= "[/share]";
 
 		$arr['body'] = $bb;
 		$arr['term'] = $item['term'];
@@ -3969,10 +4018,10 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
 		);
 		if($items) {
 			foreach($items as $i)
-				delete_item_lowlevel($i,$stage,$force);
+				delete_item_lowlevel($i, $stage);
 		}
 		else
-			delete_item_lowlevel($item,$stage,$force);
+			delete_item_lowlevel($item, $stage);
 
 		if(! $interactive)
 			return 1;
@@ -4006,7 +4055,6 @@ function drop_item($id,$interactive = true,$stage = DROPITEM_NORMAL) {
  *
  * @param array $item
  * @param int $stage
- * @param boolean $force
  * @return boolean
  */
 function delete_item_lowlevel($item, $stage = DROPITEM_NORMAL) {
@@ -4318,54 +4366,54 @@ function fetch_post_tags($items, $link = false) {
  */
 function zot_feed($uid, $observer_hash, $arr) {
 
-	$result = array();
-	$mindate = null;
+	$result     = [];
+	$mindate    = null;
 	$message_id = null;
-	$wall = true;
+	$wall       = true;
 
 	require_once('include/security.php');
 
-	if(array_key_exists('mindate',$arr)) {
-		$mindate = datetime_convert('UTC','UTC',$arr['mindate']);
+	if (array_key_exists('mindate', $arr)) {
+		$mindate = datetime_convert('UTC', 'UTC', $arr['mindate']);
 	}
 
-	if(array_key_exists('message_id',$arr)) {
+	if (array_key_exists('message_id', $arr)) {
 		$message_id = $arr['message_id'];
 	}
 
-	if(array_key_exists('wall',$arr)) {
+	if (array_key_exists('wall', $arr)) {
 		$wall = intval($arr['wall']);
 	}
 
-	if(! $mindate)
+	if (!$mindate)
 		$mindate = NULL_DATE;
 
 	$mindate = dbesc($mindate);
 
 	logger('zot_feed: requested for uid ' . $uid . ' from observer ' . $observer_hash, LOGGER_DEBUG);
-	if($message_id)
-		logger('message_id: ' . $message_id,LOGGER_DEBUG);
+	if ($message_id)
+		logger('message_id: ' . $message_id, LOGGER_DEBUG);
 
-	if(! perm_is_allowed($uid,$observer_hash,'view_stream')) {
+	if (!perm_is_allowed($uid, $observer_hash, 'view_stream')) {
 		logger('zot_feed: permission denied.');
 		return $result;
 	}
 
-	if(! is_sys_channel($uid))
-		$sql_extra = item_permissions_sql($uid,$observer_hash);
+	if (!is_sys_channel($uid))
+		$sql_extra = item_permissions_sql($uid, $observer_hash);
 
 	$limit = " LIMIT 5000 ";
 
-	if($mindate > NULL_DATE) {
+	if ($mindate > NULL_DATE) {
 		$sql_extra .= " and ( created > '$mindate' or changed > '$mindate' ) ";
 	}
 
-	if($message_id) {
+	if ($message_id) {
 		$sql_extra .= " and mid = '" . dbesc($message_id) . "' ";
-		$limit = '';
+		$limit     = '';
 	}
 
-	if($wall) {
+	if ($wall) {
 		$sql_extra .= " and item_wall = 1 ";
 	}
 
@@ -4374,17 +4422,17 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	$item_normal = item_normal();
 
-	if(is_sys_channel($uid)) {
+	if (is_sys_channel($uid)) {
 
-		$nonsys_uids = q("SELECT channel_id FROM channel WHERE channel_system = 0");
-		$nonsys_uids_str = ids_to_querystr($nonsys_uids,'channel_id');
+		$nonsys_uids     = q("SELECT channel_id FROM channel WHERE channel_system = 0");
+		$nonsys_uids_str = ids_to_querystr($nonsys_uids, 'channel_id');
 
 		$r = q("SELECT parent, postopts FROM item
 			WHERE uid IN ( %s )
 			AND item_private = 0
 			$item_normal
 			$sql_extra ORDER BY created ASC $limit",
-			intval($nonsys_uids_str)
+			dbesc($nonsys_uids_str)
 		);
 	}
 	else {
@@ -4398,19 +4446,19 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 	$parents = [];
 
-	if($r) {
-		foreach($r as $rv) {
-			if(array_key_exists($rv['parent'],$parents))
+	if ($r) {
+		foreach ($r as $rv) {
+			if (array_key_exists($rv['parent'], $parents))
 				continue;
-			if(strpos($rv['postopts'],'nodeliver') !== false)
+			if (strpos($rv['postopts'], 'nodeliver') !== false)
 				continue;
 			$parents[$rv['parent']] = $rv;
-			if(count($parents) > 200)
+			if (count($parents) > 200)
 				break;
 		}
 
-		$parents_str = ids_to_querystr($parents,'parent');
-		$sys_query = ((is_sys_channel($uid)) ? $sql_extra : '');
+		$parents_str = ids_to_querystr($parents, 'parent');
+		$sys_query   = ((is_sys_channel($uid)) ? $sql_extra : '');
 		$item_normal = item_normal();
 
 		$items = q("SELECT item.*, item.id AS item_id FROM item
@@ -4419,24 +4467,22 @@ function zot_feed($uid, $observer_hash, $arr) {
 		);
 	}
 
-	if($items) {
+	if ($items) {
 		xchan_query($items);
 		$items = fetch_post_tags($items);
 		require_once('include/conversation.php');
-		$items = conv_sort($items,'ascending');
+		$items = conv_sort($items, 'ascending');
 	}
 	else
-		$items = array();
+		$items = [];
 
-	logger('zot_feed: number items: ' . count($items),LOGGER_DEBUG);
+	logger('zot_feed: number items: ' . count($items), LOGGER_DEBUG);
 
-	foreach($items as $item)
+	foreach ($items as $item)
 		$result[] = encode_item($item);
 
 	return $result;
 }
-
-
 
 function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = CLIENT_MODE_NORMAL,$module = 'network') {
 
@@ -4477,7 +4523,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	$sql_extra = " AND item.parent IN ( SELECT parent FROM item WHERE $item_uids and item_thread_top = 1 $sql_options $item_normal ) ";
 
 	if($arr['since_id'])
-		$sql_extra .= " and item.id > " . $since_id . " ";
+		$sql_extra .= " and item.id > " . intval($arr['since_id']) . " ";
 
 	if($arr['cat'])
 		$sql_extra .= protect_sprintf(term_query('item', $arr['cat'], TERM_CATEGORY));
@@ -4562,9 +4608,11 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		// only setup pagination on initial page view
 		$pager_sql = '';
 	} else {
-		$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
-		App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
-		$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		if(! $arr['total']) {
+			$itemspage = (($channel) ? get_pconfig($uid,'system','itemspage') : 10);
+			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
+			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
+		}
 	}
 
 	if (isset($arr['start']) && isset($arr['records']))
@@ -4600,7 +4648,6 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	require_once('include/security.php');
 	$sql_extra .= item_permissions_sql($channel['channel_id'],$observer_hash);
 
-
 	if($arr['pages'])
 		$item_restrict = " AND item_type = " . ITEM_TYPE_WEBPAGE . " ";
 	else
@@ -4613,11 +4660,23 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 		// "New Item View" - show all items unthreaded in reverse created date order
 
-		$items = q("SELECT item.*, item.id AS item_id FROM item
+		if ($arr['total']) {
+			$items = dbq("SELECT count(item.id) AS total FROM item
 				WHERE $item_uids $item_restrict
 				$simple_update
-				$sql_extra $sql_nets $sql_extra3
-				ORDER BY item.received DESC $pager_sql"
+				$sql_extra $sql_nets $sql_extra3"
+			);
+			if ($items) {
+				return intval($items[0]['total']);
+			}
+			return 0;
+		}
+
+		$items = dbq("SELECT item.*, item.id AS item_id FROM item
+			WHERE $item_uids $item_restrict
+			$simple_update
+			$sql_extra $sql_nets $sql_extra3
+			ORDER BY item.received DESC $pager_sql"
 		);
 
 		require_once('include/items.php');
@@ -4638,7 +4697,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 			// Fetch a page full of parent items for this page
 
-			$r = q("SELECT distinct item.id AS item_id, item.$ordering FROM item
+			$r = dbq("SELECT distinct item.id AS item_id, item.$ordering FROM item
 				left join abook on item.author_xchan = abook.abook_xchan
 				WHERE $item_uids $item_restrict
 				AND item.parent = item.id
@@ -4649,7 +4708,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		}
 		else {
 			// update
-			$r = q("SELECT item.parent AS item_id FROM item
+			$r = dbq("SELECT item.parent AS item_id FROM item
 				left join abook on item.author_xchan = abook.abook_xchan
 				WHERE $item_uids $item_restrict $simple_update
 				and (abook.abook_blocked = 0 or abook.abook_flags is null)
@@ -4724,7 +4783,7 @@ function webpage_to_namespace($webpage) {
 
 function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remote_id,$mid) {
 
-	if(! $post_id)
+	if(! intval($post_id))
 		return;
 
 	$page_type = webpage_to_namespace($webpage);
@@ -4746,7 +4805,7 @@ function update_remote_id($channel,$post_id,$webpage,$pagetitle,$namespace,$remo
 		// as the entire mid. If it were the post_id the link would be less portable.
 
 		IConfig::Set(
-			intval($post_id),
+			$post_id,
 			'system',
 			$page_type,
 			($pagetitle) ? $pagetitle : substr($mid,0,16),

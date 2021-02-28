@@ -18,8 +18,8 @@ class Zotfinger {
 
 		if($channel && $m) {
 
-			$headers = [ 
-				'Accept'           => 'application/x-zot+json', 
+			$headers = [
+				'Accept'           => 'application/x-zot+json',
 				'Content-Type'     => 'application/x-zot+json',
 				'X-Zot-Token'      => random_string(),
 				'Digest'           => HTTPSig::generate_digest_header($data),
@@ -29,11 +29,10 @@ class Zotfinger {
 			$h = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),false);
 		}
 		else {
-			$h = [ 'Accept: application/x-zot+json' ]; 
+			$h = [ 'Accept: application/x-zot+json' ];
 		}
-				
-		$result = [];
 
+		$result = [];
 
 		$redirects = 0;
 		$x = z_post_url($resource,$data,$redirects, [ 'headers' => $h  ] );
@@ -44,11 +43,11 @@ class Zotfinger {
 			if ($verify) {
 				$result['signature'] = HTTPSig::verify($x, EMPTY_STR, 'zot6');
 			}
-    
+
 			$result['data'] = json_decode($x['body'],true);
 
 			if($result['data'] && is_array($result['data']) && array_key_exists('encrypted',$result['data']) && $result['data']['encrypted']) {
-				$result['data'] = json_decode(crypto_unencapsulate($result['data'],get_config('system','prvkey')),true);
+				$result['data'] = json_decode(Crypto::unencapsulate($result['data'],get_config('system','prvkey')),true);
 			}
 
 			logger('decrypted: ' . print_r($result,true));

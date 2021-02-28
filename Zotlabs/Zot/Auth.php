@@ -2,6 +2,8 @@
 
 namespace Zotlabs\Zot;
 
+use Zotlabs\Lib\Crypto;
+
 class Auth {
 
 	protected $test;
@@ -68,7 +70,7 @@ class Auth {
 		if(strstr($this->desturl,z_root() . '/rmagic'))
 			goaway(z_root());
 
-		$this->Finalise();	
+		$this->Finalise();
 
 	}
 
@@ -76,7 +78,7 @@ class Auth {
 
 		// Try and find a hubloc for the person attempting to auth.
 		// Since we're matching by address, we have to return all entries
-		// some of which may be from re-installed hubs; and we'll need to 
+		// some of which may be from re-installed hubs; and we'll need to
 		// try each sequentially to see if one can pass the test
 
 		$x = q("select * from hubloc left join xchan on xchan_hash = hubloc_hash 
@@ -130,9 +132,9 @@ class Auth {
 
 		// Also check that they are coming from the same site as they authenticated with originally.
 
-		$already_authed = (((remote_channel()) && ($hubloc['hubloc_hash'] == remote_channel()) 
+		$already_authed = (((remote_channel()) && ($hubloc['hubloc_hash'] == remote_channel())
 			&& ($hubloc['hubloc_url'] === $_SESSION['remote_hub'])) ? true : false);
-	
+
 		if($this->delegate && $this->delegate !== $_SESSION['delegate_channel'])
 			$already_authed = false;
 
@@ -158,17 +160,17 @@ class Auth {
 			return false;
 		}
 
-		// Auth packets MUST use ultra top-secret hush-hush mode - e.g. the entire packet is encrypted using the 
+		// Auth packets MUST use ultra top-secret hush-hush mode - e.g. the entire packet is encrypted using the
 		// site private key
-		// The actual channel sending the packet ($c[0]) is not important, but this provides a 
+		// The actual channel sending the packet ($c[0]) is not important, but this provides a
 		// generic zot packet with a sender which can be verified
 
 		$x = q("select site_crypto from site where site_url = '%s' limit 1",
 			dbesc($hubloc['hubloc_url'])
 		);
 
-		$p = zot_build_packet($channel,$type = 'auth_check', 
-			array(array('guid' => $hubloc['hubloc_guid'],'guid_sig' => $hubloc['hubloc_guid_sig'])), 
+		$p = zot_build_packet($channel,$type = 'auth_check',
+			array(array('guid' => $hubloc['hubloc_guid'],'guid_sig' => $hubloc['hubloc_guid_sig'])),
 			$hubloc['hubloc_sitekey'], (($x) ? $x[0]['site_crypto'] : ''), $this->sec);
 
 		$this->Debug('auth check packet created using sitekey ' . $hubloc['hubloc_sitekey']);
@@ -192,12 +194,12 @@ class Auth {
 
 		$this->Debug('auth check request returned ' . print_r($j, true));
 
-		if(! $j['success']) 
+		if(! $j['success'])
 			return false;
 
 		// legit response, but we do need to check that this wasn't answered by a man-in-middle
 
-		if (! rsa_verify($this->sec . $hubloc['xchan_hash'],base64url_decode($j['confirm']),$hubloc['xchan_pubkey'])) {
+		if (! Crypto::verify($this->sec . $hubloc['xchan_hash'],base64url_decode($j['confirm']),$hubloc['xchan_pubkey'])) {
 			logger('final confirmation failed.');
 			if($this->test)
 				$this->Debug('final confirmation failed. ' . $sec . print_r($j,true) . print_r($hubloc,true));
@@ -290,7 +292,7 @@ class Auth {
  * Magic Auth
  * ==========
  *
- * So-called "magic auth" takes place by a special exchange. On the site where the "channel to be authenticated" lives (e.g. $mysite), 
+ * So-called "magic auth" takes place by a special exchange. On the site where the "channel to be authenticated" lives (e.g. $mysite),
  * a redirection is made via $mysite/magic to the zot endpoint of the remote site ($remotesite) with special GET parameters.
  *
  * The endpoint is typically  https://$remotesite/post - or whatever was specified as the callback url in prior communications
@@ -299,7 +301,7 @@ class Auth {
  * Five GET parameters are supplied:
  * * auth => the urlencoded webbie (channel@host.domain) of the channel requesting access
  * * dest => the desired destination URL (urlencoded)
- * * sec  => a random string which is also stored on $mysite for use during the verification phase. 
+ * * sec  => a random string which is also stored on $mysite for use during the verification phase.
  * * version => the zot revision
  * * delegate => optional urlencoded webbie of a local channel to invoke delegation rights for
  *
@@ -336,8 +338,8 @@ class Auth {
  * }
  * \endcode
  *
- * auth_check messages MUST use encapsulated encryption. This message is sent to the origination site, which checks the 'secret' to see 
- * if it is the same as the 'sec' which it passed originally. It also checks the secret_sig which is the secret signed by the 
+ * auth_check messages MUST use encapsulated encryption. This message is sent to the origination site, which checks the 'secret' to see
+ * if it is the same as the 'sec' which it passed originally. It also checks the secret_sig which is the secret signed by the
  * destination channel's private key and base64url encoded. If everything checks out, a json packet is returned:
  *
  * \code{.json}
@@ -351,10 +353,10 @@ class Auth {
  * \endcode
  *
  * 'confirm' in this case is the base64url encoded RSA signature of the concatenation of 'secret' with the
- * base64url encoded whirlpool hash of the requestor's guid and guid_sig; signed with the source channel private key. 
- * This prevents a man-in-the-middle from inserting a rogue success packet. Upon receipt and successful 
- * verification of this packet, the destination site will redirect to the original destination URL and indicate a successful remote login. 
- * Service_class can be used by cooperating sites to provide different access rights based on account rights and subscription plans. It is 
+ * base64url encoded whirlpool hash of the requestor's guid and guid_sig; signed with the source channel private key.
+ * This prevents a man-in-the-middle from inserting a rogue success packet. Upon receipt and successful
+ * verification of this packet, the destination site will redirect to the original destination URL and indicate a successful remote login.
+ * Service_class can be used by cooperating sites to provide different access rights based on account rights and subscription plans. It is
  * a string whose contents are not defined by protocol. Example: "basic" or "gold".
  *
  * @param[in,out] \App &$a

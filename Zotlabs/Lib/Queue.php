@@ -2,9 +2,6 @@
 
 namespace Zotlabs\Lib;
 
-use Zotlabs\Lib\Libzot;
-
-
 class Queue {
 
 	static function update($id, $add_priority = 0) {
@@ -39,7 +36,7 @@ class Queue {
 		// queue item is less than 12 hours old, we'll schedule for fifteen
 		// minutes. 
 
-		$r = q("UPDATE outq SET outq_scheduled = '%s' WHERE outq_posturl = '%s'",
+		q("UPDATE outq SET outq_scheduled = '%s' WHERE outq_posturl = '%s'",
 			dbesc(datetime_convert('UTC','UTC','now + 5 days')),
 			dbesc($x[0]['outq_posturl'])
 		);
@@ -88,7 +85,7 @@ class Queue {
 
 	static function set_delivered($id,$channel = 0) {
 		logger('queue: set delivered ' . $id,LOGGER_DEBUG);
-		$sql_extra = (($channel_id) ? " and outq_channel = " . intval($channel_id) . " " : '');
+		$sql_extra = (($channel['channel_id']) ? " and outq_channel = " . intval($channel['channel_id']) . " " : '');
 
 		// Set the next scheduled run date so far in the future that it will be expired
 		// long before it ever makes it back into the delivery chain. 
@@ -230,11 +227,10 @@ class Queue {
 
 		logger('deliver: dest: ' . $outq['outq_posturl'], LOGGER_DEBUG);
 
-
 		if($outq['outq_posturl'] === z_root() . '/zot') {
 			// local delivery
 			$zot = new \Zotlabs\Zot6\Receiver(new \Zotlabs\Zot6\Zot6Handler(),$outq['outq_notify']);
-			$result = $zot->run(true);
+			$result = $zot->run();
 			logger('returned_json: ' . json_encode($result,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES), LOGGER_DATA);
 			logger('deliver: local zot delivery succeeded to ' . $outq['outq_posturl']);
 			Libzot::process_response($outq['outq_posturl'],[ 'success' => true, 'body' => json_encode($result) ], $outq);

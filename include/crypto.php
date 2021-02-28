@@ -25,7 +25,7 @@ function rsa_verify($data,$sig,$key,$alg = 'sha256') {
 	if($verify === (-1)) {
 		while($msg = openssl_error_string())
 			logger('openssl_verify: ' . $msg,LOGGER_NORMAL,LOG_ERR);
-		btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR); 
+		btlogger('openssl_verify: key: ' . $key, LOGGER_DEBUG, LOG_ERR);
 	}
 
 	return (($verify > 0) ? true : false);
@@ -110,7 +110,7 @@ function CAST5CFB_decrypt($data,$key,$iv) {
 
 function crypto_encapsulate($data,$pubkey,$alg='aes256cbc') {
 	$fn = strtoupper($alg) . '_encrypt';
-	
+
 	if($alg === 'aes256cbc')
 		return aes_encapsulate($data,$pubkey);
 
@@ -150,7 +150,7 @@ function other_encapsulate($data,$pubkey,$alg) {
 		// assurance of security since it is meaningless if the source algorithms
 		// have been compromised. Also none of this matters if RSA has been
 		// compromised by state actors and evidence is mounting that this has
-		// already happened.   
+		// already happened.
 
 		$result = [ 'encrypted' => true ];
 		$key = openssl_random_pseudo_bytes(256);
@@ -163,7 +163,7 @@ function other_encapsulate($data,$pubkey,$alg) {
 		}
 
 		$result['alg'] = $alg;
-	 	$result['key'] = base64url_encode($k,true);
+		$result['key'] = base64url_encode($k,true);
 		openssl_public_encrypt($iv,$i,$pubkey,$padding);
 		$result['iv'] = base64url_encode($i,true);
 		return $result;
@@ -177,11 +177,11 @@ function other_encapsulate($data,$pubkey,$alg) {
 
 function crypto_methods() {
 
-	// aes256cbc is provided for compatibility with earlier zot implementations which assume 32-byte key and 16-byte iv. 
+	// aes256cbc is provided for compatibility with earlier zot implementations which assume 32-byte key and 16-byte iv.
 	// other_encapsulate() now produces these longer keys/ivs by default so that it is difficult to guess a
-	// particular implementation or choice of underlying implementations based on the key/iv length. 
+	// particular implementation or choice of underlying implementations based on the key/iv length.
 	// The actual methods are responsible for deriving the actual key/iv from the provided parameters;
-	// possibly by truncation or segmentation - though many other methods could be used.  
+	// possibly by truncation or segmentation - though many other methods could be used.
 
 	$r = [ 'aes256ctr.oaep', 'camellia256cfb.oaep', 'cast5cfb.oaep', 'aes256ctr', 'camellia256cfb', 'cast5cfb', 'aes256cbc', 'aes128cbc', 'cast5cbc' ];
 	call_hooks('crypto_methods',$r);
@@ -191,7 +191,6 @@ function crypto_methods() {
 
 
 function signing_methods() {
-
 
 	$r = [ 'sha256' ];
 	call_hooks('signing_methods',$r);
@@ -215,7 +214,7 @@ function aes_encapsulate($data,$pubkey) {
 		logger('aes_encapsulate: RSA failed. ' . print_r($x[0],true));
 	}
 	$result['alg'] = 'aes256cbc';
- 	$result['key'] = base64url_encode($k,true);
+	$result['key'] = base64url_encode($k,true);
 	openssl_public_encrypt($iv,$i,$pubkey);
 	$result['iv'] = base64url_encode($i,true);
 	return $result;
@@ -226,9 +225,9 @@ function crypto_unencapsulate($data,$prvkey) {
 		return;
 
 	$alg = ((is_array($data) && (array_key_exists('encrypted',$data) || array_key_exists('iv',$data))) ? $data['alg'] : '');
-    if(! $alg) {
+	if(! $alg) {
 		return $data;
-    }
+	}
 
 	if($alg === 'aes256cbc') {
 		return aes_unencapsulate($data,$prvkey);
@@ -280,13 +279,13 @@ function new_keypair($bits) {
 	$openssl_options = array(
 		'digest_alg'       => 'sha1',
 		'private_key_bits' => $bits,
-		'encrypt_key'      => false 
+		'encrypt_key'      => false
 	);
 
 	$conf = get_config('system','openssl_conf_file');
 	if($conf)
 		$openssl_options['config'] = $conf;
-	
+
 	$result = openssl_pkey_new($openssl_options);
 
 	if(empty($result)) {
@@ -310,36 +309,36 @@ function new_keypair($bits) {
 
 function DerToPem($Der, $Private=false)
 {
-    //Encode:
-    $Der = base64_encode($Der);
-    //Split lines:
-    $lines = str_split($Der, 65);
-    $body = implode("\n", $lines);
-    //Get title:
-    $title = $Private? 'RSA PRIVATE KEY' : 'PUBLIC KEY';
-    //Add wrapping:
-    $result = "-----BEGIN {$title}-----\n";
-    $result .= $body . "\n";
-    $result .= "-----END {$title}-----\n";
- 
-    return $result;
+	//Encode:
+	$Der = base64_encode($Der);
+	//Split lines:
+	$lines = str_split($Der, 65);
+	$body = implode("\n", $lines);
+	//Get title:
+	$title = $Private? 'RSA PRIVATE KEY' : 'PUBLIC KEY';
+	//Add wrapping:
+	$result = "-----BEGIN {$title}-----\n";
+	$result .= $body . "\n";
+	$result .= "-----END {$title}-----\n";
+
+	return $result;
 }
 
 function DerToRsa($Der)
 {
-    //Encode:
-    $Der = base64_encode($Der);
-    //Split lines:
-    $lines = str_split($Der, 64);
-    $body = implode("\n", $lines);
-    //Get title:
-    $title = 'RSA PUBLIC KEY';
-    //Add wrapping:
-    $result = "-----BEGIN {$title}-----\n";
-    $result .= $body . "\n";
-    $result .= "-----END {$title}-----\n";
- 
-    return $result;
+	//Encode:
+	$Der = base64_encode($Der);
+	//Split lines:
+	$lines = str_split($Der, 64);
+	$body = implode("\n", $lines);
+	//Get title:
+	$title = 'RSA PUBLIC KEY';
+	//Add wrapping:
+	$result = "-----BEGIN {$title}-----\n";
+	$result .= $body . "\n";
+	$result .= "-----END {$title}-----\n";
+
+	return $result;
 }
 
 
@@ -387,7 +386,7 @@ function metopem($m,$e) {
 	$der = pkcs8_encode($m,$e);
 	$key = DerToPem($der,false);
 	return $key;
-}	
+}
 
 
 function pubrsatome($key,&$m,&$e) {
@@ -431,7 +430,7 @@ function metorsa($m,$e) {
 	$der = pkcs1_encode($m,$e);
 	$key = DerToRsa($der);
 	return $key;
-}	
+}
 
 
 

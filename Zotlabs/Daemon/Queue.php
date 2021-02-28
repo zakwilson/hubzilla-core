@@ -7,12 +7,12 @@ require_once('include/zot.php');
 
 class Queue {
 
-	static public function run($argc,$argv) {
+	static public function run($argc, $argv) {
 
 		require_once('include/items.php');
 		require_once('include/bbcode.php');
 
-		if($argc > 1)
+		if ($argc > 1)
 			$queue_id = $argv[1];
 		else
 			$queue_id = EMPTY_STR;
@@ -25,10 +25,9 @@ class Queue {
 		$r = q("select outq_posturl from outq where outq_created < %s - INTERVAL %s",
 			db_utcnow(), db_quoteinterval('3 DAY')
 		);
-		if($r) {
-			foreach($r as $rr) {
-				$site_url = '';
-				$h = parse_url($rr['outq_posturl']);
+		if ($r) {
+			foreach ($r as $rr) {
+				$h       = parse_url($rr['outq_posturl']);
 				$desturl = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
 				q("update site set site_dead = 1 where site_dead = 0 and site_url = '%s' and site_update < %s - INTERVAL %s",
 					dbesc($desturl),
@@ -37,11 +36,11 @@ class Queue {
 			}
 		}
 
-		$r = q("DELETE FROM outq WHERE outq_created < %s - INTERVAL %s",
+		q("DELETE FROM outq WHERE outq_created < %s - INTERVAL %s",
 			db_utcnow(), db_quoteinterval('3 DAY')
 		);
 
-		if($queue_id) {
+		if ($queue_id) {
 			$r = q("SELECT * FROM outq WHERE outq_hash = '%s' LIMIT 1",
 				dbesc($queue_id)
 			);
@@ -54,7 +53,7 @@ class Queue {
 			// so that we don't start off a thousand deliveries for a couple of dead hubs.
 			// The zot driver will deliver everything destined for a single hub once contact is made (*if* contact is made).
 			// Other drivers will have to do something different here and may need their own query.
-	
+
 			// Note: this requires some tweaking as new posts to long dead hubs once a day will keep them in the 
 			// "every 15 minutes" category. We probably need to prioritise them when inserted into the queue
 			// or just prior to this query based on recent and long-term delivery history. If we have good reason to believe
@@ -67,7 +66,7 @@ class Queue {
 				db_utcnow()
 			);
 			while ($r) {
-				foreach($r as $rv) {
+				foreach ($r as $rv) {
 					queue_deliver($rv);
 				}
 				$r = q("SELECT *,$sqlrandfunc as rn FROM outq WHERE outq_delivered = 0 and outq_scheduled < %s order by rn limit 1",
@@ -75,10 +74,10 @@ class Queue {
 				);
 			}
 		}
-		if(! $r)
+		if (!$r)
 			return;
 
-		foreach($r as $rv) {
+		foreach ($r as $rv) {
 			queue_deliver($rv);
 		}
 	}

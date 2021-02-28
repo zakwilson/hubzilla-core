@@ -109,6 +109,7 @@ class Connections extends \Zotlabs\Web\Controller {
 	
 				case 'all':
 					$head = t('All');
+					break;
 				default:
 					$search_flags = " and abook_blocked = 0 and abook_ignored = 0 and abook_hidden = 0 and abook_archived = 0 and abook_not_here = 0 ";
 					$active = true;
@@ -238,7 +239,7 @@ class Connections extends \Zotlabs\Web\Controller {
 		}
 	 	
 		$r = q("SELECT COUNT(abook.abook_id) AS total FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash 
-			where abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ",
+			where abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra ",
 			intval(local_channel())
 		);
 		if($r) {
@@ -247,7 +248,7 @@ class Connections extends \Zotlabs\Web\Controller {
 		}
 	
 		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash
-			WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra $sql_extra2 ORDER BY $sql_order LIMIT %d OFFSET %d ",
+			WHERE abook_channel = %d and abook_self = 0 and xchan_deleted = 0 and xchan_orphan = 0 $sql_extra ORDER BY $sql_order LIMIT %d OFFSET %d ",
 			intval(local_channel()),
 			intval(App::$pager['itemspage']),
 			intval(App::$pager['start'])

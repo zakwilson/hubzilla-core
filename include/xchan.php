@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 
@@ -85,7 +86,7 @@ function xchan_store($arr) {
 		}
 
 		if($arr['network'] === 'zot') {
-			if((! $arr['key']) || (! rsa_verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key']))) {	
+			if((! $arr['key']) || (! Crypto::verify($arr['guid'],base64url_decode($arr['guid_sig']),$arr['key']))) {
 				logger('Unable to verify signature for ' . $arr['hash']);
 				return false;
 			}
@@ -102,7 +103,7 @@ function xchan_store($arr) {
 			if($k === 'photo') {
 				continue;
 			}
-		
+
 			if(in_array($columns,'xchan_' . $k))
 				$x['xchan_' . $k] = escape_tags($v);
 		}
@@ -112,7 +113,7 @@ function xchan_store($arr) {
 		$x['xchan_system']     = false;
 
 		$result = xchan_store_lowlevel($x);
-	
+
 		if(! $result)
 			return $result;
 	}
@@ -207,9 +208,9 @@ function xchan_keychange_acl($table,$column,$oldxchan,$newxchan) {
 	if($r) {
 		foreach($r as $rv) {
 			$z = q("update $table set $allow = '%s', $deny = '%s' where $column = %d",
-				dbesc(str_replace('<' . $oldxchan['xchan_hash'] . '>', '<' . $newxchan['xchan_hash'] . '>', 
+				dbesc(str_replace('<' . $oldxchan['xchan_hash'] . '>', '<' . $newxchan['xchan_hash'] . '>',
 					$rv[$allow])),
-				dbesc(str_replace('<' . $oldxchan['xchan_hash'] . '>', '<' . $newxchan['xchan_hash'] . '>', 
+				dbesc(str_replace('<' . $oldxchan['xchan_hash'] . '>', '<' . $newxchan['xchan_hash'] . '>',
 					$rv[$deny])),
 				intval($rv[$column])
 			);
@@ -243,7 +244,7 @@ function xchan_change_key($oldx,$newx,$data) {
 		'xprof'        => 'xprof_hash',
 		'xtag'         => 'xtag_hash'
 	];
-	
+
 
 	$acls = [
 		'channel'   => 'channel_id',

@@ -18,27 +18,28 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 	$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
 	$lastlog_updated = false;
+	$uid_to_load = null;
 
-	if(x($user_record, 'account_id')) {
+	if (x($user_record, 'account_id')) {
 		App::$account = $user_record;
 		$_SESSION['account_id'] = $user_record['account_id'];
 		$_SESSION['authenticated'] = 1;
 
-		if($channel)
+		if ($channel)
 			$uid_to_load = $channel['channel_id'];
 
-		if(! $uid_to_load) {
-			$uid_to_load = (((x($_SESSION,'uid')) && (intval($_SESSION['uid'])))
+		if (!$uid_to_load) {
+			$uid_to_load = (((x($_SESSION, 'uid')) && (intval($_SESSION['uid'])))
 				? intval($_SESSION['uid'])
 				: intval(App::$account['account_default_channel'])
 			);
 		}
 
-		if($uid_to_load) {
+		if ($uid_to_load) {
 			change_channel($uid_to_load);
 		}
 
-		if($login_initial || $update_lastlog) {
+		if ($login_initial || $update_lastlog) {
 			q("update account set account_lastlog = '%s' where account_id = %d",
 				dbesc(datetime_convert()),
 				intval($_SESSION['account_id'])
@@ -50,24 +51,24 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 
 	}
 
-	if(($login_initial) && (! $lastlog_updated)) {
+	if (($login_initial) && (!$lastlog_updated)) {
 
 		call_hooks('logged_in', $user_record);
 
 		// might want to log success here
 	}
 
-	if($return || x($_SESSION, 'workflow')) {
+	if ($return || x($_SESSION, 'workflow')) {
 		unset($_SESSION['workflow']);
 		return;
 	}
 
-	if((App::$module !== 'home') && x($_SESSION,'login_return_url') && strlen($_SESSION['login_return_url'])) {
+	if ((App::$module !== 'home') && x($_SESSION, 'login_return_url') && strlen($_SESSION['login_return_url'])) {
 		$return_url = $_SESSION['login_return_url'];
 
 		// don't let members get redirected to a raw ajax page update - this can happen
 		// if DHCP changes the IP address at an unfortunate time and paranoia is turned on
-		if(strstr($return_url,'update_'))
+		if (strstr($return_url, 'update_'))
 			$return_url = '';
 
 		unset($_SESSION['login_return_url']);
@@ -76,11 +77,11 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 
 	/* This account has never created a channel. Send them to new_channel by default */
 
-	if(App::$module === 'login') {
+	if (App::$module === 'login') {
 		$r = q("select count(channel_id) as total from channel where channel_account_id = %d and channel_removed = 0 ",
 			intval(App::$account['account_id'])
 		);
-		if(($r) && (! $r[0]['total']))
+		if (($r) && (!$r[0]['total']))
 			goaway(z_root() . '/new_channel');
 	}
 
@@ -88,14 +89,14 @@ function authenticate_success($user_record, $channel = null, $login_initial = fa
 }
 
 function atoken_login($atoken) {
-	if(! $atoken)
+	if (!$atoken)
 		return false;
 
 	$_SESSION['authenticated'] = 1;
 	$_SESSION['visitor_id'] = $atoken['xchan_hash'];
 	$_SESSION['atoken'] = $atoken['atoken_id'];
 
-	\App::set_observer($atoken);
+	App::set_observer($atoken);
 
 	return true;
 }
@@ -109,14 +110,14 @@ function atoken_login($atoken) {
 function atoken_xchan($atoken) {
 
 	$c = channelx_by_n($atoken['atoken_uid']);
-	if($c) {
+	if ($c) {
 		return [
 			'atoken_id' => $atoken['atoken_id'],
-			'xchan_hash' =>  substr($c['channel_hash'],0,16) . '.' . $atoken['atoken_name'],
+			'xchan_hash' => substr($c['channel_hash'], 0, 16) . '.' . $atoken['atoken_name'],
 			'xchan_name' => $atoken['atoken_name'],
-			'xchan_addr' => 'guest:' . $atoken['atoken_name'] . '@' . \App::get_hostname(),
+			'xchan_addr' => 'guest:' . $atoken['atoken_name'] . '@' . App::get_hostname(),
 			'xchan_network' => 'unknown',
-			'xchan_url' => z_root() . '/guest/' . substr($c['channel_hash'],0,16) . '.' . $atoken['atoken_name'],
+			'xchan_url' => z_root() . '/guest/' . substr($c['channel_hash'], 0, 16) . '.' . $atoken['atoken_name'],
 			'xchan_hidden' => 1,
 			'xchan_photo_mimetype' => 'image/png',
 			'xchan_photo_l' => z_root() . '/' . get_default_profile_photo(300),
@@ -133,16 +134,16 @@ function atoken_delete($atoken_id) {
 	$r = q("select * from atoken where atoken_id = %d",
 		intval($atoken_id)
 	);
-	if(! $r)
+	if (!$r)
 		return;
 
 	$c = q("select channel_id, channel_hash from channel where channel_id = %d",
 		intval($r[0]['atoken_uid'])
 	);
-	if(! $c)
+	if (!$c)
 		return;
 
-	$atoken_xchan = substr($c[0]['channel_hash'],0,16) . '.' . $r[0]['atoken_name'];
+	$atoken_xchan = substr($c[0]['channel_hash'], 0, 16) . '.' . $r[0]['atoken_name'];
 
 	q("delete from atoken where atoken_id = %d",
 		intval($atoken_id)
@@ -168,41 +169,41 @@ function atoken_create_xchan($xchan) {
 	$r = q("select xchan_hash from xchan where xchan_hash = '%s'",
 		dbesc($xchan['xchan_hash'])
 	);
-	if($r)
+	if ($r)
 		return;
 
 	$xchan['xchan_guid'] = $xchan['xchan_hash'];
 
 	$store = [];
-	foreach($xchan as $k => $v) {
-		if(strpos($k,'xchan_') === 0) {
+	foreach ($xchan as $k => $v) {
+		if (strpos($k, 'xchan_') === 0) {
 			$store[$k] = $v;
 		}
 	}
-	
-	$r = xchan_store_lowlevel($store);
+
+	xchan_store_lowlevel($store);
 
 	return true;
 }
 
-function atoken_abook($uid,$xchan_hash) {
+function atoken_abook($uid, $xchan_hash) {
 
-	if(substr($xchan_hash,16,1) != '.')
+	if (substr($xchan_hash, 16, 1) != '.')
 		return false;
 
 	$r = q("select channel_hash from channel where channel_id = %d limit 1",
 		intval($uid)
 	);
 
-	if(! $r)
+	if (!$r)
 		return false;
 
 	$x = q("select * from atoken where atoken_uid = %d and atoken_name = '%s'",
 		intval($uid),
-		dbesc(substr($xchan_hash,17))
+		dbesc(substr($xchan_hash, 17))
 	);
 
-	if($x) {
+	if ($x) {
 		$xchan = atoken_xchan($x[0]);
 		$xchan['abook_blocked'] = 0;
 		$xchan['abook_ignored'] = 0;
@@ -215,12 +216,12 @@ function atoken_abook($uid,$xchan_hash) {
 
 
 function pseudo_abook($xchan) {
-	if(! $xchan)
+	if (!$xchan)
 		return false;
 
 	// set abook_pseudo to flag that we aren't really connected.
 
-	$xchan['abook_pseudo']  = 1;
+	$xchan['abook_pseudo'] = 1;
 	$xchan['abook_blocked'] = 0;
 	$xchan['abook_ignored'] = 0;
 	$xchan['abook_pending'] = 0;
@@ -240,7 +241,7 @@ function change_channel($change_channel) {
 
 	$ret = false;
 
-	if($change_channel) {
+	if ($change_channel) {
 
 		$r = q("select channel.*, xchan.* from channel left join xchan on channel.channel_hash = xchan.xchan_hash where channel_id = %d and channel_account_id = %d and channel_removed = 0 limit 1",
 			intval($change_channel),
@@ -249,7 +250,7 @@ function change_channel($change_channel) {
 
 		// It's not there.  Is this an administrator, and is this the sys channel?
 		if (is_developer()) {
-			if (! $r) {
+			if (!$r) {
 				if (is_site_admin()) {
 					$r = q("select channel.*, xchan.* from channel left join xchan on channel.channel_hash = xchan.xchan_hash where channel_id = %d and channel_system = 1 and channel_removed = 0 limit 1",
 						intval($change_channel)
@@ -258,19 +259,19 @@ function change_channel($change_channel) {
 			}
 		}
 
-		if($r) {
+		if ($r) {
 			$hash = $r[0]['channel_hash'];
 			$_SESSION['uid'] = intval($r[0]['channel_id']);
 			App::set_channel($r[0]);
 			$_SESSION['theme'] = $r[0]['channel_theme'];
-			$_SESSION['mobile_theme'] = get_pconfig(local_channel(),'system', 'mobile_theme');
-			$_SESSION['cloud_tiles'] = get_pconfig(local_channel(),'system', 'cloud_tiles');
+			$_SESSION['mobile_theme'] = get_pconfig(local_channel(), 'system', 'mobile_theme');
+			$_SESSION['cloud_tiles'] = get_pconfig(local_channel(), 'system', 'cloud_tiles');
 			date_default_timezone_set($r[0]['channel_timezone']);
 
 			// Update the active timestamp at most once a day
 
-			if(substr($r[0]['channel_active'],0,10) !== substr(datetime_convert(),0,10)) {
-				$z = q("UPDATE channel SET channel_active = '%s' WHERE channel_id = %d",
+			if (substr($r[0]['channel_active'], 0, 10) !== substr(datetime_convert(), 0, 10)) {
+				q("UPDATE channel SET channel_active = '%s' WHERE channel_id = %d",
 					dbesc(datetime_convert()),
 					intval($r[0]['channel_id'])
 				);
@@ -280,17 +281,17 @@ function change_channel($change_channel) {
 		$x = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($hash)
 		);
-		if($x) {
+		if ($x) {
 			$_SESSION['my_url'] = $x[0]['xchan_url'];
 			$_SESSION['my_address'] = channel_reddress($r[0]);
 
 			App::set_observer($x[0]);
 			App::set_perms(get_all_perms(local_channel(), $hash));
 		}
-		if(! is_dir('store/' . $r[0]['channel_address']))
-			@os_mkdir('store/' . $r[0]['channel_address'], STORAGE_DEFAULT_PERMISSIONS,true);
+		if (!is_dir('store/' . $r[0]['channel_address']))
+			@os_mkdir('store/' . $r[0]['channel_address'], STORAGE_DEFAULT_PERMISSIONS, true);
 
-		$arr = [ 'channel_id' => $change_channel, 'chanx' => $ret ];
+		$arr = ['channel_id' => $change_channel, 'chanx' => $ret];
 		call_hooks('change_channel', $arr);
 	}
 
@@ -333,18 +334,17 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 	if (($local_channel) && ($local_channel == $owner_id)) {
 		return EMPTY_STR;
 	}
-
 	/**
-	 * Authenticated visitor. 
+	 * Authenticated visitor.
 	 */
 
 	else {
 
-		$observer = ((! is_null($remote_observer)) ? $remote_observer : get_observer_hash());
+		$observer = ((!is_null($remote_observer)) ? $remote_observer : get_observer_hash());
 
 		if ($observer) {
 
-			$sec = get_security_ids($owner_id,$observer);
+			$sec = get_security_ids($owner_id, $observer);
 
 			// always allow the channel owner, even if authenticated as a visitor
 
@@ -354,14 +354,14 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 						return EMPTY_STR;
 					}
 				}
-			}						
+			}
 
 			if (is_array($sec['allow_cid']) && count($sec['allow_cid'])) {
 				$ca = [];
 				foreach ($sec['allow_cid'] as $c) {
 					$ca[] = '<' . $c . '>';
 				}
-				$cs = implode('|',$ca);
+				$cs = implode('|', $ca);
 			}
 			else {
 				$cs = '<<>>'; // should be impossible to match
@@ -372,7 +372,7 @@ function permissions_sql($owner_id, $remote_observer = null, $table = '') {
 				foreach ($sec['allow_gid'] as $g) {
 					$ga[] = '<' . $g . '>';
 				}
-				$gs = implode('|',$ga);
+				$gs = implode('|', $ga);
 			}
 			else {
 				$gs = '<<>>'; // should be impossible to match
@@ -420,39 +420,38 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 	 * Profile owner - everything is visible
 	 */
 
-	if(($local_channel) && ($local_channel == $owner_id)) {
+	if (($local_channel) && ($local_channel == $owner_id)) {
 		$sql = '';
 	}
-
 	/**
-	 * Authenticated visitor. 
+	 * Authenticated visitor.
 	 */
 
 	else {
 
-        $observer = (($remote_observer) ? $remote_observer : get_observer_hash());
+		$observer = (($remote_observer) ? $remote_observer : get_observer_hash());
 
-        if($observer) {
+		if ($observer) {
 
-			$scope = scopes_sql($owner_id,$observer);
-			$sec = get_security_ids($owner_id,$observer);
+			$scope = scopes_sql($owner_id, $observer);
+			$sec = get_security_ids($owner_id, $observer);
 
 			// always allow the channel owner, even if authenticated as a visitor
 
-			if($sec['channel_id']) {
-				foreach($sec['channel_id'] as $ch) {
-					if($observer === $ch) {
+			if ($sec['channel_id']) {
+				foreach ($sec['channel_id'] as $ch) {
+					if ($observer === $ch) {
 						return EMPTY_STR;
 					}
 				}
-			}						
+			}
 
 			if (is_array($sec['allow_cid']) && count($sec['allow_cid'])) {
 				$ca = [];
 				foreach ($sec['allow_cid'] as $c) {
 					$ca[] = '<' . $c . '>';
 				}
-				$cs = implode('|',$ca);
+				$cs = implode('|', $ca);
 			}
 			else {
 				$cs = '<<>>'; // should be impossible to match
@@ -463,7 +462,7 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
 				foreach ($sec['allow_gid'] as $g) {
 					$ga[] = '<' . $g . '>';
 				}
-				$gs = implode('|',$ga);
+				$gs = implode('|', $ga);
 			}
 			else {
 				$gs = '<<>>'; // should be impossible to match
@@ -493,21 +492,20 @@ function item_permissions_sql($owner_id, $remote_observer = null) {
  */
 
 
-
-function scopes_sql($uid,$observer) {
+function scopes_sql($uid, $observer) {
 	$str = " and ( public_policy = 'authenticated' ";
-	if(! is_foreigner($observer))
+	if (!is_foreigner($observer))
 		$str .= " or public_policy = 'network: red' ";
-	if(local_channel())
+	if (local_channel())
 		$str .= " or public_policy = 'site: " . App::get_hostname() . "' ";
 
 	$ab = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
 		dbesc($observer),
 		intval($uid)
 	);
-	if(! $ab)
+	if (!$ab)
 		return $str . " ) ";
-	if($ab[0]['abook_pending'])
+	if ($ab[0]['abook_pending'])
 		$str .= " or public_policy = 'any connections' ";
 	$str .= " or public_policy = 'contacts' ) ";
 	return $str;
@@ -526,14 +524,14 @@ function public_permissions_sql($observer_hash) {
 
 	if ($observer_hash) {
 
-		$sec = get_security_ids($owner_id,$observer_hash);
+		$sec = get_security_ids($owner_id, $observer_hash);
 
 		if (is_array($sec['allow_cid']) && count($sec['allow_cid'])) {
 			$ca = [];
 			foreach ($sec['allow_cid'] as $c) {
 				$ca[] = '<' . $c . '>';
 			}
-			$cs = implode('|',$ca);
+			$cs = implode('|', $ca);
 		}
 		else {
 			$cs = '<<>>'; // should be impossible to match
@@ -544,7 +542,7 @@ function public_permissions_sql($observer_hash) {
 			foreach ($sec['allow_gid'] as $g) {
 				$ga[] = '<' . $g . '>';
 			}
-			$gs = implode('|',$ga);
+			$gs = implode('|', $ga);
 		}
 		else {
 			$gs = '<<>>'; // should be impossible to match
@@ -598,7 +596,7 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 
 	$x = explode('.', $hash);
 	if (time() > (IntVal($x[0]) + $max_livetime) || time() < (IntVal($x[0]) + $min_livetime))
-	    return false;
+		return false;
 
 	$sec_hash = hash('whirlpool', App::$observer['xchan_guid'] . ((local_channel()) ? App::$channel['channel_prvkey'] : '') . session_id() . $x[0] . $typename);
 
@@ -606,16 +604,19 @@ function check_form_security_token($typename = '', $formname = 'form_security_to
 }
 
 function check_form_security_std_err_msg() {
+	/** @noinspection PhpToStringImplementationInspection */
 	return t('The form security token was not correct. This probably happened because the form has been opened for too long (>3 hours) before submitting it.') . EOL;
 }
+
 function check_form_security_token_redirectOnErr($err_redirect, $typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
 		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
 		logger('check_form_security_token failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
-		notice( check_form_security_std_err_msg() );
-		goaway(z_root() . $err_redirect );
+		notice(check_form_security_std_err_msg());
+		goaway(z_root() . $err_redirect);
 	}
 }
+
 function check_form_security_token_ForbiddenOnErr($typename = '', $formname = 'form_security_token') {
 	if (!check_form_security_token($typename, $formname)) {
 		logger('check_form_security_token failed: user ' . App::$observer['xchan_name'] . ' - form element ' . $typename);
@@ -636,7 +637,7 @@ function init_groups_visitor($contact_id) {
 		dbesc($contact_id)
 	);
 
-	if (! $x) {
+	if (!$x) {
 		return $groups;
 	}
 
@@ -648,8 +649,8 @@ function init_groups_visitor($contact_id) {
 		dbesc($x[0]['xchan_pubkey'])
 	);
 
-	if($xchans) {
-		$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+	if ($xchans) {
+		$hashes = ids_to_querystr($xchans, 'xchan_hash', true);
 	}
 
 	// private profiles are treated as a virtual group
@@ -672,21 +673,19 @@ function init_groups_visitor($contact_id) {
 }
 
 
-
-
 function get_security_ids($channel_id, $ob_hash) {
 
-	$ret = [ 
-		'channel_id' => [], 
-		'allow_cid'  => [], 
-		'allow_gid'  => [] 
+	$ret = [
+		'channel_id' => [],
+		'allow_cid' => [],
+		'allow_gid' => []
 	];
 
-	if($channel_id) {
+	if ($channel_id) {
 		$ch = q("select channel_hash, channel_portable_id from channel where channel_id = %d",
-				intval($channel_id)
+			intval($channel_id)
 		);
-		if($ch) {
+		if ($ch) {
 			$ret['channel_id'][] = $ch[0]['channel_hash'];
 			$ret['channel_id'][] = $ch[0]['channel_portable_id'];
 		}
@@ -709,13 +708,13 @@ function get_security_ids($channel_id, $ob_hash) {
 		);
 
 		if ($xchans) {
-			$ret['allow_cid'] = ids_to_array($xchans,'xchan_hash');
-			$hashes = ids_to_querystr($xchans,'xchan_hash',true);
+			$ret['allow_cid'] = ids_to_array($xchans, 'xchan_hash');
+			$hashes = ids_to_querystr($xchans, 'xchan_hash', true);
 
 			// private profiles are treated as a virtual group
 
 			$r = q("SELECT abook_profile from abook where abook_xchan in ( " . protect_sprintf($hashes) . " ) and abook_profile != '' ");
-			if($r) {
+			if ($r) {
 				foreach ($r as $rv) {
 					$groups[] = 'vp.' . $rv['abook_profile'];
 				}
@@ -724,7 +723,7 @@ function get_security_ids($channel_id, $ob_hash) {
 			// physical groups this identity is a member of
 
 			$r = q("SELECT hash FROM pgrp left join pgrp_member on pgrp.id = pgrp_member.gid WHERE xchan in ( " . protect_sprintf($hashes) . " ) ");
-			if($r) {
+			if ($r) {
 				foreach ($r as $rv) {
 					$groups[] = $rv['hash'];
 				}
@@ -746,39 +745,39 @@ function get_security_ids($channel_id, $ob_hash) {
 // will likely be too expensive.
 // Returns a string list of comma separated channel_ids suitable for direct inclusion in a SQL query
 
-function stream_perms_api_uids($perms = NULL, $limit = 0, $rand = 0 ) {
-	$perms = is_null($perms) ? (PERMS_SITE|PERMS_NETWORK|PERMS_PUBLIC) : $perms;
+function stream_perms_api_uids($perms = NULL, $limit = 0, $rand = 0) {
+	$perms = is_null($perms) ? (PERMS_SITE | PERMS_NETWORK | PERMS_PUBLIC) : $perms;
 
 	$ret = array();
 	$limit_sql = (($limit) ? " LIMIT " . intval($limit) . " " : '');
 	$random_sql = (($rand) ? " ORDER BY " . db_getfunc('RAND') . " " : '');
-	if(local_channel())
+	if (local_channel())
 		$ret[] = local_channel();
 	$x = q("select uid, v from pconfig where cat = 'perm_limits' and k = 'view_stream' ");
-	if($x) {
+	if ($x) {
 		$y = [];
-		foreach($x as $xv) {
-			if(intval($xv['v']) & $perms) {
+		foreach ($x as $xv) {
+			if (intval($xv['v']) & $perms) {
 				$y[] = $xv;
 			}
 		}
-		if($y) {		
-			$ids = ids_to_querystr($y,'uid');
+		if ($y) {
+			$ids = ids_to_querystr($y, 'uid');
 			$r = q("select channel_id from channel where channel_id in ( $ids ) and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 $random_sql $limit_sql ",
-				intval(PAGE_ADULT|PAGE_CENSORED)
+				intval(PAGE_ADULT | PAGE_CENSORED)
 			);
-			if($r) {
-				foreach($r as $rr)
-					if(! in_array($rr['channel_id'], $ret))
+			if ($r) {
+				foreach ($r as $rr)
+					if (!in_array($rr['channel_id'], $ret))
 						$ret[] = $rr['channel_id'];
 			}
 		}
 	}
 
 	$str = '';
-	if($ret) {
-		foreach($ret as $rr) {
-			if($str)
+	if ($ret) {
+		foreach ($ret as $rr) {
+			if ($str)
 				$str .= ',';
 			$str .= intval($rr);
 		}
@@ -791,39 +790,39 @@ function stream_perms_api_uids($perms = NULL, $limit = 0, $rand = 0 ) {
 	return $str;
 }
 
-function stream_perms_xchans($perms = NULL ) {
-	$perms = is_null($perms) ? (PERMS_SITE|PERMS_NETWORK|PERMS_PUBLIC) : $perms;
+function stream_perms_xchans($perms = NULL) {
+	$perms = is_null($perms) ? (PERMS_SITE | PERMS_NETWORK | PERMS_PUBLIC) : $perms;
 
 	$ret = array();
-	if(local_channel())
+	if (local_channel())
 		$ret[] = get_observer_hash();
 
 	$x = q("select uid, v from pconfig where cat = 'perm_limits' and k = 'view_stream' ");
-	if($x) {
+	if ($x) {
 		$y = [];
-		foreach($x as $xv) {
-			if(intval($xv['v']) & $perms) {
+		foreach ($x as $xv) {
+			if (intval($xv['v']) & $perms) {
 				$y[] = $xv;
 			}
 		}
-		if($y) {		
-			$ids = ids_to_querystr($y,'uid');
+		if ($y) {
+			$ids = ids_to_querystr($y, 'uid');
 
 			$r = q("select channel_hash from channel where channel_id in ( $ids ) and ( channel_pageflags & %d ) = 0 and channel_system = 0 and channel_removed = 0 ",
-				intval(PAGE_ADULT|PAGE_CENSORED)
+				intval(PAGE_ADULT | PAGE_CENSORED)
 			);
 
-			if($r) {
-				foreach($r as $rr)
-					if(! in_array($rr['channel_hash'], $ret))
+			if ($r) {
+				foreach ($r as $rr)
+					if (!in_array($rr['channel_hash'], $ret))
 						$ret[] = $rr['channel_hash'];
 			}
 		}
 	}
 	$str = '';
-	if($ret) {
-		foreach($ret as $rr) {
-			if($str)
+	if ($ret) {
+		foreach ($ret as $rr) {
+			if ($str)
 				$str .= ',';
 			$str .= "'" . dbesc($rr) . "'";
 		}

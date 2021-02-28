@@ -1,6 +1,7 @@
 <?php
 namespace Zotlabs\Module;
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Web\HTTPSig;
 use Zotlabs\Lib\Libzot;
 
@@ -106,7 +107,7 @@ class Getfile extends \Zotlabs\Web\Controller {
 				killme();
 			}
 
-			if(! rsa_verify($hash . '.' . $time,base64url_decode($sig),$channel['channel_pubkey'])) {
+			if(! Crypto::verify($hash . '.' . $time,base64url_decode($sig),$channel['channel_pubkey'])) {
 				logger('verify failed.');
 				killme();
 			}

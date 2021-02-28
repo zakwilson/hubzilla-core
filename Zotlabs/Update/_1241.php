@@ -2,14 +2,23 @@
 
 namespace Zotlabs\Update;
 
-require_once('include/account.php');
-
 class _1241 {
 
 	function run() {
-
-        return verify_register_scheme();
-
-    }
 	
+		q("START TRANSACTION");
+
+		// remove duplicated profile photos
+		$r = dbq("DELETE FROM photo WHERE imgscale IN (4, 5, 6) AND photo_usage = 0");
+
+		if($r) {
+			q("COMMIT");
+			return UPDATE_SUCCESS;
+		}
+
+		q("ROLLBACK");
+		return UPDATE_FAILED;
+
+	}
+
 }

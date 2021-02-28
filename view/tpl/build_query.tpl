@@ -1,9 +1,13 @@
-<script> 
+<script>
 
 	var bParam_cmd = "{{$baseurl}}/update/{{$pgtype}}";
 
 	{{if $conv_mode}}
 	var conv_mode = '{{$conv_mode}}';
+	{{/if}}
+
+	{{if $page_mode}}
+	var page_mode = '{{$page_mode}}';
 	{{/if}}
 
 	var bParam_uid = {{$uid}};

@@ -307,7 +307,7 @@ class Apps {
 				}
 			}
 		}
-		if($ret) {
+		if(isset($ret)) {
 			if($translate)
 				self::translate_system_apps($ret);
 
@@ -524,7 +524,7 @@ class Apps {
 		}
 		elseif(remote_channel()) {
 			$observer = \App::get_observer();
-			if($observer && $observer['xchan_network'] === 'zot') {
+			if($observer && in_array($observer['xchan_network'], ['zot6', 'zot'])) {
 				// some folks might have xchan_url redirected offsite, use the connurl
 				$x = parse_url($observer['xchan_connurl']);
 				if($x) {

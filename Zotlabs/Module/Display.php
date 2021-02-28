@@ -19,21 +19,21 @@ class Display extends \Zotlabs\Web\Controller {
 		if(argc() > 1) {
 			$module_format = substr(argv(1),strrpos(argv(1),'.') + 1);
 			if(! in_array($module_format,['atom','zot','json']))
-				$module_format = 'html';			
+				$module_format = 'html';
 		}
 
 		if(observer_prohibited()) {
 			notice( t('Public access denied.') . EOL);
 			return;
 		}
-	
+
 		if(argc() > 1) {
 			$item_hash = argv(1);
 			if($module_format !== 'html') {
 				$item_hash = substr($item_hash,0,strrpos($item_hash,'.'));
 			}
 		}
-	
+
 		if($_REQUEST['mid'])
 			$item_hash = $_REQUEST['mid'];
 
@@ -42,19 +42,19 @@ class Display extends \Zotlabs\Web\Controller {
 			notice( t('Item not found.') . EOL);
 			return;
 		}
-	
+
 		$observer_is_owner = false;
 
 		if(local_channel() && (! $update)) {
-	
+
 			$channel = \App::get_channel();
 
 			$channel_acl = array(
-				'allow_cid' => $channel['channel_allow_cid'], 
-				'allow_gid' => $channel['channel_allow_gid'], 
-				'deny_cid'  => $channel['channel_deny_cid'], 
+				'allow_cid' => $channel['channel_allow_cid'],
+				'allow_gid' => $channel['channel_allow_gid'],
+				'deny_cid'  => $channel['channel_deny_cid'],
 				'deny_gid'  => $channel['channel_deny_gid']
-			); 
+			);
 
 			$x = array(
 				'is_owner'            => true,
@@ -62,7 +62,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'default_location'    => $channel['channel_location'],
 				'nickname'            => $channel['channel_address'],
 				'lockstate'           => (($group || $cid || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
-				'acl'                 => populate_acl($channel_acl,true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),	
+				'acl'                 => populate_acl($channel_acl,true, \Zotlabs\Lib\PermissionDescription::fromGlobalPermission('view_stream'), get_post_aclDialogDescription(), 'acl_dialog_post'),
 				'permissions'         => $channel_acl,
 				'bang'                => '',
 				'visitor'             => true,
@@ -75,21 +75,21 @@ class Display extends \Zotlabs\Web\Controller {
 				'jotnets'             => true,
 				'reset'               => t('Reset form')
 			);
-	
+
 			$o = '<div id="jot-popup">';
 			$o .= status_editor($a,$x,false,'Display');
 			$o .= '</div>';
 		}
-	
+
 		// This page can be viewed by anybody so the query could be complicated
 		// First we'll see if there is a copy of the item which is owned by us - if we're logged in locally.
-		// If that fails (or we aren't logged in locally), 
+		// If that fails (or we aren't logged in locally),
 		// query an item in which the observer (if logged in remotely) has cid or gid rights
-		// and if that fails, look for a copy of the post that has no privacy restrictions.  
+		// and if that fails, look for a copy of the post that has no privacy restrictions.
 		// If we find the post, but we don't find a copy that we're allowed to look at, this fact needs to be reported.
-	
+
 		// find a copy of the item somewhere
-	
+
 		$target_item = null;
 
 		if(strpos($item_hash,'b64.') === 0)
@@ -100,7 +100,7 @@ class Display extends \Zotlabs\Web\Controller {
 		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
 			dbesc($item_hash . '%')
 		);
-	
+
 		if($r) {
 			$target_item = $r[0];
 		}
@@ -117,14 +117,14 @@ class Display extends \Zotlabs\Web\Controller {
 		if($target_item['item_blocked'] == ITEM_MODERATED) {
 			goaway(z_root() . '/moderate/' . $target_item['id']);
 		}
-	
+
 		$r = null;
-	
+
 		if($target_item['item_type']  == ITEM_TYPE_WEBPAGE) {
 			$x = q("select * from channel where channel_id = %d limit 1",
 				intval($target_item['uid'])
 			);
-			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
+			$y = q("select * from iconfig left join item on iconfig.iid = item.id
 				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'WEBPAGE' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['parent'])
@@ -141,7 +141,7 @@ class Display extends \Zotlabs\Web\Controller {
 			$x = q("select * from channel where channel_id = %d limit 1",
 				intval($target_item['uid'])
 			);
-			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
+			$y = q("select * from iconfig left join item on iconfig.iid = item.id
 				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'ARTICLE' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['parent'])
@@ -160,7 +160,7 @@ class Display extends \Zotlabs\Web\Controller {
 				intval($target_item['uid'])
 			);
 
-			$y = q("select * from iconfig left join item on iconfig.iid = item.id 
+			$y = q("select * from iconfig left join item on iconfig.iid = item.id
 				where item.uid = %d and iconfig.cat = 'system' and iconfig.k = 'CARD' and item.id = %d limit 1",
 				intval($target_item['uid']),
 				intval($target_item['parent'])
@@ -179,7 +179,7 @@ class Display extends \Zotlabs\Web\Controller {
 			notice( t('Page not found.') . EOL);
 			return '';
 		}
-		
+
 		$simple_update = '';
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
@@ -191,14 +191,14 @@ class Display extends \Zotlabs\Web\Controller {
 			//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
 			$mid = $target_item['mid'];
 
-			// if we got a decoded hash we must encode it again before handing to javascript 
+			// if we got a decoded hash we must encode it again before handing to javascript
 			if($decoded)
 				$mid = 'b64.' . base64url_encode($mid);
 
 			$o .= '<div id="live-display"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . ((intval(local_channel())) ? local_channel() : (-1))
 				. "; var netargs = '?f='; var profile_page = " . \App::$pager['page'] . "; </script>\r\n";
-	
+
 			\App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 				'$baseurl' => z_root(),
 				'$pgtype'  => 'display',
@@ -230,7 +230,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$mid'     => (($mid) ? urlencode($mid) : '')
 			));
 
-			head_add_link([ 
+			head_add_link([
 				'rel'   => 'alternate',
 				'type'  => 'application/json+oembed',
 				'href'  => z_root() . '/oep?f=&url=' . urlencode(z_root() . '/' . \App::$query_string),
@@ -269,20 +269,23 @@ class Display extends \Zotlabs\Web\Controller {
 					$sysid = 0;
 
 				$r = q("SELECT item.id as item_id from item
-					WHERE mid = '%s'
-					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
-					AND item.deny_gid  = '' AND item_private = 0 ) 
+					WHERE ( (mid = '%s'
+					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = ''
+					AND item.deny_gid  = '' AND item_private = 0 )
 					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
-					OR uid = %d )
-					$sql_extra )
+					OR uid = %d ) ) ) OR
+					(mid = '%s' $sql_extra ) )
 					$item_normal
 					limit 1",
 					dbesc($target_item['parent_mid']),
-					intval($sysid)
+					intval($sysid),
+					dbesc($target_item['parent_mid'])
 				);
+
+
 			}
 		}
-	
+
 		elseif($update && !$load) {
 			$r = null;
 
@@ -307,8 +310,8 @@ class Display extends \Zotlabs\Web\Controller {
 					$sysid = 0;
 				$r = q("SELECT item.parent AS item_id from item
 					WHERE parent_mid = '%s'
-					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' 
-					AND item.deny_gid  = '' AND item_private = 0 ) 
+					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = ''
+					AND item.deny_gid  = '' AND item_private = 0 )
 					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d )
 					$sql_extra )
@@ -320,7 +323,7 @@ class Display extends \Zotlabs\Web\Controller {
 				);
 			}
 		}
-	
+
 		else {
 			$r = array();
 		}
@@ -328,7 +331,7 @@ class Display extends \Zotlabs\Web\Controller {
 		if($r) {
 			$parents_str = ids_to_querystr($r,'item_id');
 			if($parents_str) {
-				$items = q("SELECT item.*, item.id AS item_id 
+				$items = q("SELECT item.*, item.id AS item_id
 					FROM item
 					WHERE parent in ( %s ) $item_normal ",
 					dbesc($parents_str)
@@ -341,10 +344,10 @@ class Display extends \Zotlabs\Web\Controller {
 		else {
 			$items = array();
 		}
-	
+
 
 		switch($module_format) {
-			
+
 		case 'html':
 
 			if ($update) {
@@ -363,7 +366,7 @@ class Display extends \Zotlabs\Web\Controller {
 				\App::$page['title'] = (($items[0]['title']) ? $items[0]['title'] . " - " . \App::$page['title'] : \App::$page['title']);
 
 				$o .= conversation($items, 'display', $update, 'client');
-			} 
+			}
 
 			break;
 
@@ -380,7 +383,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$owner'         => '',
 				'$profile_page'  => xmlify(z_root() . '/display/' . $target_item['mid']),
 			));
-				
+
 			$x = [ 'xml' => $atom, 'channel' => $channel, 'observer_hash' => $observer_hash, 'params' => $params ];
 			call_hooks('atom_feed_top',$x);
 
@@ -406,13 +409,13 @@ class Display extends \Zotlabs\Web\Controller {
 			header('Content-type: application/atom+xml');
 			echo $atom;
 			killme();
-			
+
 		}
 
 		$o .= '<div id="content-complete"></div>';
 
 		if((($update && $load) || $noscript_content) && (! $items)) {
-			
+
 			$r = q("SELECT id, item_deleted FROM item WHERE mid = '%s' LIMIT 1",
 				dbesc($item_hash)
 			);
@@ -421,14 +424,14 @@ class Display extends \Zotlabs\Web\Controller {
 				if(intval($r[0]['item_deleted'])) {
 					notice( t('Item has been removed.') . EOL );
 				}
-				else {	
-					notice( t('Permission denied.') . EOL ); 
+				else {
+					notice( t('Permission denied.') . EOL );
 				}
 			}
 			else {
 				notice( t('Item not found.') . EOL );
 			}
-	
+
 		}
 
 		$_SESSION['loadtime'] = datetime_convert();

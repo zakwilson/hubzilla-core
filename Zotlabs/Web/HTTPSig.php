@@ -3,8 +3,9 @@
 namespace Zotlabs\Web;
 
 use Zotlabs\Lib\ActivityStreams;
+use Zotlabs\Lib\Crypto;
+use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Webfinger;
-use Zotlabs\Web\HTTPHeaders;
 use Zotlabs\Lib\Libzot;
 
 /**
@@ -157,9 +158,11 @@ class HTTPSig {
 			return $result;
 		}
 
-		$x = rsa_verify($signed_data,$sig_block['signature'],$cached_key['public_key'],$algorithm);
+		$x = Crypto::verify($signed_data,$sig_block['signature'],$cached_key['public_key'],$algorithm);
 
 		logger('verified: ' . $x, LOGGER_DEBUG);
+
+		$fetched_key = '';
 
 		if(! $x) {
 
@@ -169,7 +172,7 @@ class HTTPSig {
 			$fetched_key = self::get_key($key,$keytype,$result['signer'],true);
 
 			if ($fetched_key && $fetched_key['public_key']) {
-				$y = rsa_verify($signed_data,$sig_block['signature'],$fetched_key['public_key'],$algorithm);
+				$y = Crypto::verify($signed_data,$sig_block['signature'],$fetched_key['public_key'],$algorithm);
 				logger('verified: (cache reload) ' . $x, LOGGER_DEBUG);
 			}
 
@@ -225,7 +228,7 @@ class HTTPSig {
 		}
 
 		if($keytype === 'zot6') {
-			$key = self::get_zotfinger_key($id,$force);
+			$key = self::get_zotfinger_key($id);
 			if($key) {
 				return $key;
 			}
@@ -244,13 +247,13 @@ class HTTPSig {
 	}
 
 
-	function convertKey($key) {
+	static function convertKey($key) {
 
 		if(strstr($key,'RSA ')) {
 			return rsatopem($key);
 		}
 		elseif(substr($key,0,5) === 'data:') {
-			return convert_salmon_key($key);
+			return Keyutils::convertSalmonKey($key);
 		}
 		else {
 			return $key;
@@ -267,7 +270,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return the pub key
 	 */
 
-	function get_activitystreams_key($id) {
+	static function get_activitystreams_key($id) {
 
 		// remove fragment
 
@@ -298,7 +301,7 @@ class HTTPSig {
 	}
 
 
-	function get_webfinger_key($id) {
+	static function get_webfinger_key($id) {
 
 		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s'",
 			dbesc(str_replace('acct:','',$id)),
@@ -333,7 +336,7 @@ class HTTPSig {
 		return (($key['public_key']) ? $key : false);
 	}
 
-	function get_zotfinger_key($id) {
+	static function get_zotfinger_key($id) {
 
 		$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_addr = '%s' or hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 			dbesc(str_replace('acct:','',$id)),
@@ -415,7 +418,7 @@ class HTTPSig {
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm . '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
 		if($encryption) {
-			$x = crypto_encapsulate($headerval,$encryption['key'],$encryption['algorithm']);
+			$x = Crypto::encapsulate($headerval,$encryption['key'],$encryption['algorithm']);
 			if(is_array($x)) {
 				$headerval = 'iv="' . $x['iv'] . '",key="' . $x['key'] . '",alg="' . $x['alg'] . '",data="' . $x['data'] . '"';
 			}
@@ -489,7 +492,7 @@ class HTTPSig {
 			$headers = rtrim($headers,"\n");
 		}
 
-		$sig = base64_encode(rsa_sign($headers,$prvkey,$alg));
+		$sig = base64_encode(Crypto::sign($headers,$prvkey,$alg));
 
 		$ret['headers']   = $fields;
 		$ret['signature'] = $sig;
@@ -565,7 +568,7 @@ class HTTPSig {
 			$data = $matches[1];
 
 		if($iv && $key && $alg && $data) {
-			return crypto_unencapsulate([ 'encrypted' => true, 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
+			return Crypto::unencapsulate([ 'encrypted' => true, 'iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data ] , $prvkey);
 		}
 
 		return '';

@@ -71,7 +71,7 @@ class HttpSigTest extends UnitTestCase {
 	}
 
 	/**
-	 * @uses ::crypto_unencapsulate
+	 * @uses ::Crypto::unencapsulate
 	 */
 	function testDecrypt_sigheader() {
 		$header = 'Header: iv="value_iv" key="value_key" alg="value_alg" data="value_data"';
@@ -86,7 +86,7 @@ class HttpSigTest extends UnitTestCase {
 		$this->assertSame($result, HTTPSig::decrypt_sigheader($header, 'site private key'));
 	}
 	/**
-	 * @uses ::crypto_unencapsulate
+	 * @uses ::Crypto::unencapsulate
 	 */
 	function testDecrypt_sigheaderUseSitePrivateKey() {
 		// Create a stub for global function get_config() with expectation
@@ -95,7 +95,7 @@ class HttpSigTest extends UnitTestCase {
 
 		$header = 'Header: iv="value_iv" key="value_key" alg="value_alg" data="value_data"';
 		$result = [
-				'encrypted' => true, 
+				'encrypted' => true,
 				'iv' => 'value_iv',
 				'key' => 'value_key',
 				'alg' => 'value_alg',

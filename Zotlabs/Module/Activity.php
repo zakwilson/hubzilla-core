@@ -143,8 +143,8 @@ class Activity extends Controller {
 				http_status_exit(403, 'Forbidden');
 
 			$i = ZlibActivity::encode_item_collection($nitems,'conversation/' . $item_id,'OrderedCollection');
-			if($portable_id) {
-				ThreadListener::store(z_root() . '/activity/' . $item_id,$portable_id);
+			if($portable_id && (! intval($items[0]['item_private']))) {
+				ThreadListener::store(z_root() . '/activity/' . $item_id, $portable_id);
 			}
 
 			if(! $i)
@@ -238,6 +238,16 @@ class Activity extends Controller {
 
 			xchan_query($r,true);
 			$items = fetch_post_tags($r,false);
+
+			if ($portable_id && (! intval($items[0]['item_private']))) {
+				$c = q("select abook_id from abook where abook_channel = %d and abook_xchan = '%s'",
+					intval($items[0]['uid']),
+					dbesc($portable_id)
+				);
+				if (! $c) {
+					ThreadListener::store(z_root() . '/activity/' . $item_id, $portable_id);
+				}
+			}
 
 			$channel = channelx_by_n($items[0]['uid']);
 

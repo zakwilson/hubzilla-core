@@ -4,7 +4,7 @@ namespace Zotlabs\Update;
 
 require_once('include/account.php');
 
-class _1241 {
+class _1244 {
 
 	function run() {
 

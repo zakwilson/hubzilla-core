@@ -95,7 +95,7 @@ class Register extends Controller {
 				goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
 			}
 
-			if ( preg_match('/^d{1,1}[0-9]{6,10}$/', $email ) ) {
+			if ( preg_match('/^d{1,1}[0-9]{5,10}$/', $email ) ) {
 				// dId2 A artifical & anonymous
 				goaway(z_root() . '/regate/' . bin2hex($email) . 'a' );
 			}
@@ -516,7 +516,7 @@ class Register extends Controller {
 
 			'$tao'			=> 	"typeof(window.tao) == 'undefined' ? window.tao = {} : '';\n"
 							.	"tao.zar = { vsn: '2.0.0', form: {}, msg: {} };\n"
-							.	"tao.zar.patano = /^d[0-9]{6}$/;\n"
+							.	"tao.zar.patano = /^d[0-9]{5,10}$/;\n"
 							.	"tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;\n"
 							.	"tao.zar.msg.ZAR0239E = '" . t('email mistake') . "';\n",
 

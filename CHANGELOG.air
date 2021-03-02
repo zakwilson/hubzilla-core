@@ -1,0 +1,48 @@
+"air" is a branch name for revision of Account-Invite-Register at the Hubzilla project
+
+Invite:
+* Rewritten and now language template driven
+* Selectable templates for the invite mails
+* Invitor may add personal notes in the mailtext
++ Invite codes are bound to the recipients email address
+* Invite mod never more creates accounts
+* new db scheme for table register
+* existing register table will be migrated to the new schema even when detected at runtime
+* Bugfix: creating invite codes when admin only calls Invite w/o any further action
+* account library revision also together with invite mod
+* Depending on config: Users may send invitations also
+* Invitations expires, controlled by the invitor
+* Changed and new configs:
+* * invitation_only       As usual before
+* * invitation_also       Beside other registration policies, invitations may be used also
+* * invitation_max_per_day	defaults 50, may be changed in adminUI admin>site
+* * invitation_max_per_user defaults 4
+* Requirements:
+* * Addon language has to be installed
+
+Register:
+* Register panel (form) and js interaction changed
+* Unused registrations expire
+* Depending on config, anonymous registrations (w/o email) are supported
+* :... dont't panic, that may let grow security
+* Even anonymous users have to confirm their registration
+* Registrations may be enabled / disabled time driven for each day in the week (dudy)
+* Unsoliced registration floods may be blocked
+* Limited registrations from one single source ip
+* Using one additional log file, to easy interfare with f2b
+
+Account:
+* An user account always becomes created only if all depending conditions are satisfied
+* AdminUI for site configuration, accounts and registrations enhancements
+* Still untouched, but accountUI needs enhanced async control in case for mass delete
+  with deep level of recursion cascade of the dependencies (channels etc). An open TODO
+  since years for instances with many much users and channels.
+
+History:
+2020.03 Hubzilla Prod version 4.6 (master branch) of hubzilla/core was the base for AIR 
+        that was assigned Version 4.6.2 at sn/core
+2021.02 Hubzilla Prod version 5.2.1 (master branch) of hubzilla/core was new base for AIR
+        that was assigned version 5.2.2 at sn/core (air.5)
+        plus adjustment of hubzilla 5.2.2 (master) to sn/core (air.5) version 5.2.9
+
+

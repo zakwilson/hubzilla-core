@@ -2419,10 +2419,11 @@ function construct_page() {
 		header("Strict-Transport-Security: max-age=31536000");
 
 	if(App::$config['system']['content_security_policy']) {
-		$cspsettings = Array (
-			'script-src' => Array ("'self'","'unsafe-inline'","'unsafe-eval'"),
-			'style-src' => Array ("'self'","'unsafe-inline'")
-		);
+		$cspsettings = [
+			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
+			'style-src'  => [ "'self'", "'unsafe-inline'" ],
+			'frame-src'  => [ "'self'" ]
+		];
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)

@@ -503,23 +503,22 @@ function create_identity($arr) {
 		// right away as a default group for new contacts.
 
 		require_once('include/group.php');
-		group_add($newuid, t('Friends'));
-		group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
+		$group_hash = group_add($newuid, t('Friends'));
 
-		// if our role_permissions indicate that we're using a default collection ACL, add it.
+		if($group_hash) {
+			group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
 
-		if(is_array($role_permissions) && $role_permissions['default_collection']) {
-			$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
-				intval($newuid),
-				dbesc( t('Friends') )
-			);
-			if($r) {
-				q("update channel set channel_default_group = '%s', channel_allow_gid = '%s' where channel_id = %d",
-					dbesc($r[0]['hash']),
-					dbesc('<' . $r[0]['hash'] . '>'),
-					intval($newuid)
-				);
+			$default_collection = '';
+			// if our role_permissions indicate that we're using a default collection ACL, add it.
+			if(is_array($role_permissions) && $role_permissions['default_collection']) {
+				$default_collection_str = '<' . $group_hash . '>';
 			}
+
+			q("update channel set channel_default_group = '%s', channel_allow_gid = '%s' where channel_id = %d",
+				dbesc($group_hash),
+				dbesc($default_collection_str),
+				intval($newuid)
+			);
 		}
 
 		if(! $system) {

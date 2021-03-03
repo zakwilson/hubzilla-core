@@ -63,15 +63,15 @@ class Setup extends \Zotlabs\Web\Controller {
 				return;
 				// implied break;
 			case 3:
-				$dbhost = trim($_POST['dbhost']);
-				$dbport = intval(trim($_POST['dbport']));
-				$dbuser = trim($_POST['dbuser']);
-				$dbpass = trim($_POST['dbpass']);
-				$dbdata = trim($_POST['dbdata']);
-				$dbtype = intval(trim($_POST['dbtype']));
-				$phpath = trim($_POST['phpath']);
-				$adminmail = trim($_POST['adminmail']);
-				$siteurl = trim($_POST['siteurl']);
+				$dbhost = ((isset($_POST['dbhost'])) ? trim($_POST['dbhost']) : '');
+				$dbuser = ((isset($_POST['dbuser'])) ? trim($_POST['dbuser']) : '');
+				$dbport = ((isset($_POST['dbport'])) ? intval(trim($_POST['dbport'])) : 0);
+				$dbpass = ((isset($_POST['dbpass'])) ? trim($_POST['dbpass']) : '');
+				$dbdata = ((isset($_POST['dbdata'])) ? trim($_POST['dbdata']) : '');
+				$dbtype = ((isset($_POST['dbtype'])) ? intval(trim($_POST['dbtype'])) : 0);
+				$phpath = ((isset($_POST['phpath'])) ? trim($_POST['phpath']) : '');
+				$adminmail = ((isset($_POST['adminmail'])) ? trim($_POST['adminmail']) : '');
+				$siteurl = ((isset($_POST['siteurl'])) ? trim($_POST['siteurl']) : '');
 
 				// $siteurl should not have a trailing slash
 
@@ -88,16 +88,16 @@ class Setup extends \Zotlabs\Web\Controller {
 				return;
 				// implied break;
 			case 4:
-				$dbhost = trim($_POST['dbhost']);
-				$dbport = intval(trim($_POST['dbport']));
-				$dbuser = trim($_POST['dbuser']);
-				$dbpass = trim($_POST['dbpass']);
-				$dbdata = trim($_POST['dbdata']);
-				$dbtype = intval(trim($_POST['dbtype']));
-				$phpath = trim($_POST['phpath']);
-				$timezone = trim($_POST['timezone']);
-				$adminmail = trim($_POST['adminmail']);
-				$siteurl = trim($_POST['siteurl']);
+				$dbhost = ((isset($_POST['dbhost'])) ? trim($_POST['dbhost']) : '');
+				$dbuser = ((isset($_POST['dbuser'])) ? trim($_POST['dbuser']) : '');
+				$dbport = ((isset($_POST['dbport'])) ? intval(trim($_POST['dbport'])) : 0);
+				$dbpass = ((isset($_POST['dbpass'])) ? trim($_POST['dbpass']) : '');
+				$dbdata = ((isset($_POST['dbdata'])) ? trim($_POST['dbdata']) : '');
+				$dbtype = ((isset($_POST['dbtype'])) ? intval(trim($_POST['dbtype'])) : 0);
+				$phpath = ((isset($_POST['phpath'])) ? trim($_POST['phpath']) : '');
+				$timezone = ((isset($_POST['timezone'])) ? trim($_POST['timezone']) : '');
+				$adminmail = ((isset($_POST['adminmail'])) ? trim($_POST['adminmail']) : '');
+				$siteurl = ((isset($_POST['siteurl'])) ? trim($_POST['siteurl']) : '');
 
 				if($siteurl != z_root()) {
 					$test = z_fetch_url($siteurl."/setup/testrewrite");
@@ -108,12 +108,14 @@ class Setup extends \Zotlabs\Web\Controller {
 					}
 				}
 
-				if(! \DBA::$dba->connected) {
+				$db = null;
+
+				if(! isset(\DBA::$dba->connected)) {
 					// connect to db
 					$db = \DBA::dba_factory($dbhost, $dbport, $dbuser, $dbpass, $dbdata, $dbtype, true);
 				}
 
-				if(! \DBA::$dba->connected) {
+				if(! isset(\DBA::$dba->connected)) {
 					echo 'CRITICAL: DB not connected.';
 					killme();
 				}
@@ -126,7 +128,7 @@ class Setup extends \Zotlabs\Web\Controller {
 					'$dbpass'      => $dbpass,
 					'$dbdata'      => $dbdata,
 					'$dbtype'      => $dbtype,
-					'$server_role' => 'pro',
+					'$server_role' => '',
 					'$timezone'    => $timezone,
 					'$siteurl'     => $siteurl,
 					'$site_id'     => random_string(),
@@ -267,14 +269,14 @@ class Setup extends \Zotlabs\Web\Controller {
 
 			case 2: { // Database config
 
-				$dbhost = ((x($_POST,'dbhost')) ? trim($_POST['dbhost']) : '127.0.0.1');
-				$dbuser = trim($_POST['dbuser']);
-				$dbport = intval(trim($_POST['dbport']));
-				$dbpass = trim($_POST['dbpass']);
-				$dbdata = trim($_POST['dbdata']);
-				$dbtype = intval(trim($_POST['dbtype']));
-				$phpath = trim($_POST['phpath']);
-				$adminmail = trim($_POST['adminmail']);
+				$dbhost = ((isset($_POST['dbhost'])) ? trim($_POST['dbhost']) : '127.0.0.1');
+				$dbuser = ((isset($_POST['dbuser'])) ? trim($_POST['dbuser']) : '');
+				$dbport = ((isset($_POST['dbport'])) ? intval(trim($_POST['dbport'])) : 0);
+				$dbpass = ((isset($_POST['dbpass'])) ? trim($_POST['dbpass']) : '');
+				$dbdata = ((isset($_POST['dbdata'])) ? trim($_POST['dbdata']) : '');
+				$dbtype = ((isset($_POST['dbtype'])) ? intval(trim($_POST['dbtype'])) : 0);
+				$phpath = ((isset($_POST['phpath'])) ? trim($_POST['phpath']) : '');
+				$adminmail = ((isset($_POST['adminmail'])) ? trim($_POST['adminmail']) : '');
 
 				$tpl = get_markup_template('install_db.tpl');
 				$o .= replace_macros($tpl, array(
@@ -307,17 +309,17 @@ class Setup extends \Zotlabs\Web\Controller {
 			}; break;
 			case 3: { // Site settings
 				require_once('include/datetime.php');
-				$dbhost = ((x($_POST,'dbhost')) ? trim($_POST['dbhost']) : '127.0.0.1');
-				$dbport = intval(trim($_POST['dbuser']));
-				$dbuser = trim($_POST['dbuser']);
-				$dbpass = trim($_POST['dbpass']);
-				$dbdata = trim($_POST['dbdata']);
-				$dbtype = intval(trim($_POST['dbtype']));
-				$phpath = trim($_POST['phpath']);
 
-				$adminmail = trim($_POST['adminmail']);
-				$timezone = ((x($_POST,'timezone')) ? ($_POST['timezone']) : 'America/Los_Angeles');
-
+				$dbhost = ((isset($_POST['dbhost'])) ? trim($_POST['dbhost']) : '127.0.0.1');
+				$dbuser = ((isset($_POST['dbuser'])) ? trim($_POST['dbuser']) : '');
+				$dbport = ((isset($_POST['dbport'])) ? intval(trim($_POST['dbport'])) : 0);
+				$dbpass = ((isset($_POST['dbpass'])) ? trim($_POST['dbpass']) : '');
+				$dbdata = ((isset($_POST['dbdata'])) ? trim($_POST['dbdata']) : '');
+				$dbtype = ((isset($_POST['dbtype'])) ? intval(trim($_POST['dbtype'])) : 0);
+				$phpath = ((isset($_POST['phpath'])) ? trim($_POST['phpath']) : '');
+				$timezone = ((isset($_POST['timezone'])) ? trim($_POST['timezone']) : 'America/Los_Angeles');
+				$adminmail = ((isset($_POST['adminmail'])) ? trim($_POST['adminmail']) : '');
+				$siteurl = ((isset($_POST['siteurl'])) ? trim($_POST['siteurl']) : '');
 
 				$tpl = get_markup_template('install_settings.tpl');
 				$o .= replace_macros($tpl, array(

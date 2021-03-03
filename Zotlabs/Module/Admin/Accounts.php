@@ -187,11 +187,12 @@ class Accounts {
 		*/
 		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
 
+		// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
 		$pending = q("SELECT @i:=@i+1 AS reg_n, @i MOD 2 AS reg_z, "
 					." reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, "
 					." CASE (reg_flags & %d) WHEN 0 THEN '✔ verified' WHEN 1 THEN '× not yet' END AS reg_vfd "
 					." FROM register, (SELECT @i:=0) AS i  "
-					." WHERE reg_vital = 1 AND (reg_flags & %d) > 0 ",
+					." WHERE reg_vital = 1 AND (reg_flags & %d) >= 0 ",
 			intval(ACCOUNT_UNVERIFIED),
 			intval(ACCOUNT_PENDING)
 		);

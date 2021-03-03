@@ -605,8 +605,8 @@ function account_approve($hash) {
  */
 function downgrade_accounts() {
 
-	$r = q("select * from account where not ( account_flags & %d ) > 0 
-		and account_expires > '%s' 
+	$r = q("select * from account where not ( account_flags & %d ) > 0
+		and account_expires > '%s'
 		and account_expires < %s ",
 		intval(ACCOUNT_EXPIRED),
 		dbesc(NULL_DATE),
@@ -746,8 +746,8 @@ function service_class_fetch($uid, $property) {
 		$service_class = App::$account['account_service_class'];
 	}
 	else {
-		$r = q("select account_service_class as service_class 
-				from channel c, account a 
+		$r = q("select account_service_class as service_class
+				from channel c, account a
 				where c.channel_account_id=a.account_id and c.channel_id= %d limit 1",
 				intval($uid)
 		);
@@ -780,6 +780,8 @@ function service_class_fetch($uid, $property) {
  */
 function account_service_class_fetch($aid, $property) {
 
+	$service_class = null;
+
 	$r = q("select account_service_class as service_class from account where account_id = %d limit 1",
 		intval($aid)
 	);
@@ -787,7 +789,7 @@ function account_service_class_fetch($aid, $property) {
 		$service_class = $r[0]['service_class'];
 	}
 
-	if(! x($service_class))
+	if(! isset($service_class))
 		return false; // everything is allowed
 
 	$arr = get_config('service_class', $service_class);

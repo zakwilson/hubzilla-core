@@ -2,7 +2,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Add new connections to privacy group independend from the default privacy group settings
 	- group_add() return group hash to save a lookup
 	- Do not poll feeds if feed contacts setting is disabled
-	- Deprecate sticky_kit library in favour of CSS position sticky solution
+	- Deprecate sticky_kit library in favor of CSS position sticky solution
 	- Implement experimental zap export compatibility
 	- Deprecate the [summary] tag in favor of a separate input field for the summary
 	- Adjust error reporting for PHP8
@@ -44,7 +44,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Diaspora: fix mentions if multiple xchan networks exists
 	- Diaspora: fix comments on comments
 	- Pubcrawl: do not re-use broken signed messages
-	- Pubcrawl: fix parsing of images with description
+	- Pubcrawl: fix parsing of images with description (core issue #1519)
 	- Pubcrawl: use the signed message from the attachment (iconfig) when relaying
 	- Diaspora: implement browser to browser encrypted messages as base64 encoded string
 	- Pubcrawl: implement browser to browser encrypted messages as base64 encoded string
@@ -54,6 +54,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Reflect core crypto changes
 	- Photocache: improve mimetype detection
 	- Diaspora: implement mnanual fetch provider
+	- Diaspora: implement send participation
 	- Pubcrawl: deprecate pubcrawl_is_as_request() in favor of the core version in Lib/ActivityStreams
 	- Diaspora: prefer zot identity for inbound comments if available
 	- Pubcrawl: return zotfeed results in mod outbox

@@ -2422,7 +2422,7 @@ function construct_page() {
 	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(App::$config['system']['content_security_policy']) {
+	if(isset(App::$config['system']['content_security_policy'])) {
 		$cspsettings = [
 			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],

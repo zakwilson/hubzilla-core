@@ -2422,11 +2422,12 @@ function construct_page() {
 	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(isset(App::$config['system']['content_security_policy'])) {
-		$cspsettings = Array (
-			'script-src' => Array ("'self'","'unsafe-inline'","'unsafe-eval'"),
-			'style-src' => Array ("'self'","'unsafe-inline'")
-		);
+	if(App::$config['system']['content_security_policy']) {
+		$cspsettings = [
+			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
+			'style-src'  => [ "'self'", "'unsafe-inline'" ],
+			'frame-src'  => [ "'self'" ]
+		];
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)

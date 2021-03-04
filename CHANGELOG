@@ -51,6 +51,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Diaspora: support post summary
 	- Pubcrawl: fix summary aka content warning
 	- PHP8 compatibility (experimental)
+	- Tripleaes: removed
 	- Reflect core crypto changes
 	- Photocache: improve mimetype detection
 	- Diaspora: implement mnanual fetch provider

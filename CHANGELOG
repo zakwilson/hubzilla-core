@@ -3,6 +3,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- group_add() return group hash to save a lookup
 	- Do not poll feeds if feed contacts setting is disabled
 	- Deprecate sticky_kit library in favor of CSS position sticky solution
+	- Trigger endless scroll loading at the end of content instead of end of window height
 	- Implement experimental zap export compatibility
 	- Deprecate the [summary] tag in favor of a separate input field for the summary
 	- Adjust error reporting for PHP8
@@ -14,7 +15,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Introduce fetch_provider hook
 	- Implement ActivityStreams discovery in mod profile
 	- Implement ActivityStreams discovery in mod channel
-	- Update OS folder and file permissions
+	- Streamline OS folder and file permissions
 	- Implement ThreadListener in mod activity_match
 	- Improve ThreadListener handling
 	- Use mail envelope instead of lock icon for direct messages

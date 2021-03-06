@@ -508,7 +508,7 @@ function create_identity($arr) {
 		if($group_hash) {
 			group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
 
-			$default_collection = '';
+			$default_collection_str = '';
 			// if our role_permissions indicate that we're using a default collection ACL, add it.
 			if(is_array($role_permissions) && $role_permissions['default_collection']) {
 				$default_collection_str = '<' . $group_hash . '>';

@@ -16,6 +16,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Implement ActivityStreams discovery in mod profile
 	- Implement ActivityStreams discovery in mod channel
 	- Streamline OS folder and file permissions
+	- Add polish translations
 	- Implement ThreadListener in mod activity_match
 	- Improve ThreadListener handling
 	- Use mail envelope instead of lock icon for direct messages
@@ -30,6 +31,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Port util/connect to Lib/Connect
 
 	Bugfixes
+	- Fix visible/empty notifications for blocked contacts items
 	- Fix issue where URL fragment was turned into hashtag if the hashtag existed elsewhere in the post (issue #1518)
 	- Fix audio and video embeds for media sources without media format extension
 	- Fix issue where zot package was saved in iconf instead of the decoded activity

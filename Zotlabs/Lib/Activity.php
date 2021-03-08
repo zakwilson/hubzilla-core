@@ -573,7 +573,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['tag'] && is_array($item['tag'])) {
+		if (array_key_exists('tag', $item) && is_array($item['tag'])) {
 			$ptr = $item['tag'];
 			if (!array_key_exists(0, $ptr)) {
 				$ptr = [$ptr];

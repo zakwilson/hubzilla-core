@@ -331,11 +331,12 @@ function pubtagblock($net,$site,$limit,$recent = 0,$safemode = 1, $type = TERM_H
 }
 
 
-function pub_tagadelic($net,$site,$limit,$recent,$safemode,$type) {
+function pub_tagadelic($net, $site, $limit, $recent, $safemode, $type) {
 
         $item_normal = item_normal();
         $count = intval($limit);
 
+		$sql_extra = "";
         if($site)
                 $uids = " and item.uid in ( " . stream_perms_api_uids(PERMS_PUBLIC) . " ) and item_private = 0  and item_wall = 1 ";
         else {

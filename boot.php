@@ -2428,7 +2428,6 @@ function construct_page() {
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],
 			'frame-src'  => [ "'self'" ]
 		];
-
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)

@@ -328,6 +328,7 @@ class Channel extends Controller {
 		}
 		else {
 
+			$sql_extra2 = '';
 			if (x($category)) {
 				$sql_extra2 .= protect_sprintf(term_item_parent_query(App::$profile['profile_uid'], 'item', $category, TERM_CATEGORY));
 			}

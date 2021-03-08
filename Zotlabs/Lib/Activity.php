@@ -582,23 +582,25 @@ class Activity {
 				if (!array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				switch ($t['type']) {
-					case 'Hashtag':
-						$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
-						break;
+				if (array_key_exists('href', $t) && array_key_exists('name', $t)) {
+					switch ($t['type']) {
+						case 'Hashtag':
+							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
+							break;
 
-					case 'Mention':
-						$mention_type = substr($t['name'], 0, 1);
-						if ($mention_type === '!') {
-							$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
-						}
-						else {
-							$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
-						}
-						break;
+						case 'Mention':
+							$mention_type = substr($t['name'], 0, 1);
+							if ($mention_type === '!') {
+								$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
+							}
+							else {
+								$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
+							}
+							break;
 
-					default:
-						break;
+						default:
+							break;
+					}
 				}
 			}
 		}

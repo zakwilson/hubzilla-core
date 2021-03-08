@@ -3372,22 +3372,25 @@ class Activity {
 		require_once('include/event.php');
 		$ret = false;
 
-		if (is_array($content[$field])) {
-			foreach ($content[$field] as $k => $v) {
-				$ret .= html2bbcode($v);
-				// save this for auto-translate or dynamic filtering
-				// $ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
-			}
-		}
-		else {
-			if ($field === 'bbcode' && array_key_exists('bbcode', $content)) {
-				$ret = $content[$field];
+		if (array_key_exists($field, $content)) {
+			if (is_array($content[$field])) {
+				foreach ($content[$field] as $k => $v) {
+					$ret .= html2bbcode($v);
+					// save this for auto-translate or dynamic filtering
+					// $ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
+				}
 			}
 			else {
-				$ret = html2bbcode($content[$field]);
+				if ($field === 'bbcode' && array_key_exists('bbcode', $content)) {
+					$ret = $content[$field];
+				}
+				else {
+					$ret = html2bbcode($content[$field]);
+				}
 			}
 		}
-		if ($field === 'content' && $content['event'] && (!strpos($ret, '[event'))) {
+
+		if ($field === 'content' && array_key_exists('event', $content) && (!strpos($ret, '[event'))) {
 			$ret .= format_event_bbcode($content['event']);
 		}
 

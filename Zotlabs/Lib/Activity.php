@@ -980,19 +980,17 @@ class Activity {
 	// Returns an array of URLS for any mention tags found in the item array $i.
 	static function map_mentions($i) {
 
-		if (!$i['term']) {
-			return [];
-		}
-
 		$list = [];
 
-		foreach ($i['term'] as $t) {
-			if (!$t['url']) {
-				continue;
-			}
-			if ($t['ttype'] == TERM_MENTION) {
-				$url    = self::lookup_term_url($t['url']);
-				$list[] = (($url) ? $url : $t['url']);
+		if (array_key_exists('term', $i) && is_array($i['term'])) {
+			foreach ($i['term'] as $t) {
+				if (!$t['url']) {
+					continue;
+				}
+				if ($t['ttype'] == TERM_MENTION) {
+					$url    = self::lookup_term_url($t['url']);
+					$list[] = (($url) ? $url : $t['url']);
+				}
 			}
 		}
 

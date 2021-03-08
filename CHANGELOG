@@ -1,4 +1,4 @@
-Hubzilla 5.4 (2021-03-xx)
+Hubzilla 5.4 (2021-03-08)
 	- Add new connections to privacy group independend from the default privacy group settings
 	- group_add() return group hash to save a lookup
 	- Do not poll feeds if feed contacts setting is disabled

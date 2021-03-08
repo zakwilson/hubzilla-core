@@ -2293,17 +2293,20 @@ class Activity {
 			$s['iconfig'] = $a;
 		}
 
-		if ($act->obj['type'] === 'Note' && $s['attach']) {
-			$s['body'] .= self::bb_attach($s['attach'], $s['body']);
-		}
-
-		if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
-			if ($act->obj['endTime']) {
-				$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+		if (array_key_exists('type', $act->obj)) {
+			
+			if ($act->obj['type'] === 'Note' && $s['attach']) {
+				$s['body'] .= self::bb_attach($s['attach'], $s['body']);
+			}
+			
+			if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
+				if (array_key_exists('endTime', $act->obj)) {
+					$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+				}
 			}
 		}
 
-		if ($act->obj['closed']) {
+		if (array_key_exists('closed', $act->obj)) {
 			$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['closed']);
 		}
 

@@ -701,13 +701,13 @@ class Activity {
 		if (array_key_exists('attachment', $item) && is_array($item['attachment'])) {
 			foreach ($item['attachment'] as $att) {
 				$entry = [];
-				if ($att['href'])
+				if (array_key_exists('href', $att))
 					$entry['href'] = $att['href'];
-				elseif ($att['url'])
+				elseif (array_key_exists('url', $att))
 					$entry['href'] = $att['url'];
-				if ($att['mediaType'])
+				if (array_key_exists('mediaType', $att))
 					$entry['type'] = $att['mediaType'];
-				elseif ($att['type'] === 'Image')
+				elseif (array_key_exists('type', $att) && $att['type'] === 'Image')
 					$entry['type'] = 'image/jpeg';
 				if ($entry)
 					$ret[] = $entry;

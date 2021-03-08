@@ -51,7 +51,7 @@ var activeCommentID = 0;
 var activeCommentText = '';
 
 	$(document).ready(function() {
-	
+
 		$("#profile-jot-text").focus(enableOnUser);
 		$("#profile-jot-text").click(enableOnUser);
 
@@ -125,8 +125,8 @@ var activeCommentText = '';
 
 	});
 
-	function jotSetMime() { 
-		var mtype = $('#id_mimetype').val(); 
+	function jotSetMime() {
+		var mtype = $('#id_mimetype').val();
 		if(mtype == 'text/bbcode')
 			$('#profile-jot-submit-left').show();
 		else
@@ -155,7 +155,7 @@ var activeCommentText = '';
             textarea = document.getElementById('profile-jot-text');
             if (textarea.selectionStart || textarea.selectionStart == "0") {
                     var start = textarea.selectionStart;
-                    var end = textarea.selectionEnd;	
+                    var end = textarea.selectionEnd;
                     if (end > start) {
                         reply = prompt("{{$linkurl}}");
                         if(reply && reply.length) {
@@ -352,7 +352,7 @@ var activeCommentText = '';
 				return false;
 			});
 		});
-		
+
 	}
 
 	function itemFilerRm(id, term) {
@@ -596,7 +596,7 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 				localStorage.removeItem("post_body" + postid);
 				localStorage.removeItem("post_category" + postid);
 			}
-		} 
+		}
 
 	}
 

@@ -1152,7 +1152,10 @@ function dolike(ident, verb) {
 	if(typeof conv_mode == typeof undefined)
 		conv_mode = '';
 
-	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode, function (data) {
+	if(typeof page_mode == typeof undefined)
+		page_mode = '';
+
+	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode, function (data) {
 		if(data.success) {
 			// this is a bit tricky since the top level thread wrapper wraps the whole thread
 			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
@@ -1560,7 +1563,7 @@ function zFormError(elm,x) {
 $(window).scroll(function () {
 	if(typeof buildCmd == 'function') {
 		// This is a content page with items and/or conversations
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+		if($(window).scrollTop() + $(window).height() > $('#conversation-end').position().top) {
 			if((pageHasMoreContent) && (! loadingPage)) {
 				next_page++;
 				scroll_next = true;
@@ -1571,7 +1574,7 @@ $(window).scroll(function () {
 	}
 	else {
 		// This is some other kind of page - perhaps a directory
-		if($(window).scrollTop() + $(window).height() > $(document).height() - 500) {
+		if($(window).scrollTop() + $(window).height() > $('#page-end').position().top) {
 			if((pageHasMoreContent) && (! loadingPage) && (! justifiedGalleryActive)) {
 				next_page++;
 				scroll_next = true;

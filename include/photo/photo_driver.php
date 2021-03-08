@@ -64,14 +64,22 @@ function photo_factory($data, $type = null) {
  *
  * @param string $filename
  *   Image filename
- * @param string $headers (optional)
- *   Headers to check for Content-Type (from curl request)
+ * @param string $data (optional)
+ *   Data array fetched from cURL with z_fetch_url
  * @return null|string Guessed mimetype
  */
-function guess_image_type($filename, $headers = '') {
-//	logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
+function guess_image_type($filename, $data = '') {
+
+	if($data)
+		$headers = (is_array($data) ? $data['header'] : $data);
+
+	// logger('Photo: guess_image_type: '.$filename . ($headers?' from curl headers':''), LOGGER_DEBUG);
+
 	$type = null;
 	$m = null;
+
+	$ph = photo_factory('');
+	$types = $ph->supportedTypes();
 
 	if($headers) {
 		$hdrs = [];
@@ -81,19 +89,14 @@ function guess_image_type($filename, $headers = '') {
 			$hdrs[strtolower($k)] = $v;
 		}
 		logger('Curl headers: ' .var_export($hdrs, true), LOGGER_DEBUG);
-		if(array_key_exists('content-type', $hdrs)) {
-			$ph = photo_factory('');
-			$types = $ph->supportedTypes();
-
-			if(array_key_exists($hdrs['content-type'], $types))
-				$type = $hdrs['content-type'];
-		}
+		if(array_key_exists('content-type', $hdrs) && array_key_exists($hdrs['content-type'], $types))
+			$type = $hdrs['content-type'];
 	}
 
 	if(is_null($type)){
 		$ignore_imagick = get_config('system', 'ignore_imagick');
 		// Guessing from extension? Isn't that... dangerous?
-		if(class_exists('Imagick') && file_exists($filename) && is_readable($filename) && !$ignore_imagick) {
+		if(class_exists('Imagick') && ! $ignore_imagick) {
 			$v = Imagick::getVersion();
 			preg_match('/ImageMagick ([0-9]+\.[0-9]+\.[0-9]+)/', $v['versionString'], $m);
 			if(version_compare($m[1], '6.6.7') >= 0) {
@@ -102,8 +105,18 @@ function guess_image_type($filename, $headers = '') {
 				 * but at least it comes from the data inside the image,
 				 * we won't be tricked by a manipulated extension
 			 	*/
-				$image = new Imagick($filename);
-				$type = $image->getImageMimeType();
+				$body = false;
+				if (strpos($filename, 'http') === false && file_exists($filename) && is_readable($filename))
+					$body == file_get_contents($filename);
+				elseif (is_array($data) && array_key_exists('body', $data))
+					$body = $data['body'];
+				if ($body) {
+					$image = new Imagick();
+					$image->readImageBlob($body);
+					$r = $image->identifyImage();
+					if ($r && is_array($r) && array_key_exists($r['mimetype'], $types))
+						$type = $r['mimetype'];
+				}
 			}
 			else {
 				// earlier imagick versions have issues with scaling png's
@@ -115,8 +128,6 @@ function guess_image_type($filename, $headers = '') {
 
 		if(is_null($type)) {
 			$ext = pathinfo($filename, PATHINFO_EXTENSION);
-			$ph = photo_factory('');
-			$types = $ph->supportedTypes();
 			foreach($types as $m => $e) {
 				if($ext === $e) {
 					$type = $m;
@@ -124,12 +135,12 @@ function guess_image_type($filename, $headers = '') {
 			}
 		}
 
-		if(is_null($type) && (strpos($filename, 'http') === false)) {
+		if(is_null($type) && strpos($filename, 'http') === 0) {
 			$size = getimagesize($filename);
-			$ph = photo_factory('');
-			$types = $ph->supportedTypes();
-			$type = ((array_key_exists($size['mime'], $types)) ? $size['mime'] : 'image/jpeg');
+			if (array_key_exists($size['mime'], $types))
+				$type = $size['mime'];
 		}
+
 		if(is_null($type)) {
 			if(strpos(strtolower($filename),'jpg') !== false)
 				$type = 'image/jpeg';
@@ -139,8 +150,8 @@ function guess_image_type($filename, $headers = '') {
 				$type = 'image/gif';
 			elseif(strpos(strtolower($filename),'png') !== false)
 				$type = 'image/png';
-                        elseif(strpos(strtolower($filename),'webp') !== false)
-                                $type = 'image/webp';
+			elseif(strpos(strtolower($filename),'webp') !== false)
+				$type = 'image/webp';
 		}
 
 	}
@@ -205,7 +216,11 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 	if($thing)
 		$hash = photo_new_resource();
 	else {
-		$r = q("SELECT resource_id, edited, mimetype, expires, description FROM photo WHERE xchan = '%s' AND photo_usage = %d AND imgscale = 4 LIMIT 1", dbesc($xchan), intval(PHOTO_XCHAN));
+		$r = q("SELECT resource_id, edited, mimetype, expires, description FROM photo WHERE xchan = '%s' AND photo_usage = %d AND imgscale = %d LIMIT 1",
+			dbesc($xchan),
+			intval(PHOTO_XCHAN),
+			intval(PHOTO_RES_PROFILE_300)
+		);
 		if($r) {
 			$hash = $r[0]['resource_id'];
 			$modified = $r[0]['edited'];
@@ -220,7 +235,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 	$photo_failure = false;
 	$img_str = '';
 
-	if($photo) {
+	if($photo && strpos($photo, z_root() . '/' . get_default_profile_photo()) === false) {
 
 		if($force || empty($modified))
 			$result = z_fetch_url($photo, true);
@@ -260,7 +275,7 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 
 			if($result['success']) {
 				$img_str = $result['body'];
-				$type = guess_image_type($photo, $result['header']);
+				$type = guess_image_type($photo, $result);
 				if(is_null($type))
 					$photo_failure = true;
 			}
@@ -316,26 +331,20 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 				'filename' => basename($photo),
 				'album' => $album,
 				'photo_usage' => $flags,
-				'imgscale' => 4,
 				'edited' => $modified,
 				'description' => (array_key_exists('etag', $hdrs) ? $hdrs['etag'] : ''),
 				'expires' => gmdate('Y-m-d H:i:s', (isset($expires) ? $expires : time() + 86400))
 			];
 
-			$r = $img->save($p);
-			if($r === false)
-				$photo_failure = true;
+			$r1 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 
 			$img->scaleImage(80);
-			$p['imgscale'] = 5;
-			$r = $img->save($p);
-			if($r === false)
-				$photo_failure = true;
+			$r2 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 
 			$img->scaleImage(48);
-			$p['imgscale'] = 6;
-			$r = $img->save($p);
-			if($r === false)
+			$r3 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_48);
+
+			if($r1 === false || $r2 === false || $r3 === false)
 				$photo_failure = true;
 
 			$photo = z_root() . '/photo/' . $hash . '-4';
@@ -379,8 +388,7 @@ function import_channel_photo_from_url($photo, $aid, $uid) {
 
 		if($result['success']) {
 			$img_str = $result['body'];
-			$type = guess_image_type($photo, $result['header']);
-
+			$type = guess_image_type($photo, $result);
 			import_channel_photo($img_str, $type, $aid, $uid);
 		}
 	}
@@ -401,8 +409,17 @@ function import_channel_photo($photo, $type, $aid, $uid) {
 
 	logger('Importing channel photo for ' . $uid, LOGGER_DEBUG);
 
+	$r = q("SELECT resource_id FROM photo WHERE uid = %d AND photo_usage = %d AND imgscale = %d",
+		intval($uid),
+		intval(PHOTO_PROFILE),
+		intval(PHOTO_RES_PROFILE_300)
+	);
+	if ($r)
+		$hash = $r[0]['resource_id'];
+	else
+		$hash = photo_new_resource();
+
 	$photo_failure = false;
-	$hash = photo_new_resource();
 	$filename = $hash;
 
 	$img = photo_factory($photo, $type);
@@ -415,31 +432,26 @@ function import_channel_photo($photo, $type, $aid, $uid) {
 				'resource_id' => $hash,
 				'filename' => $filename,
 				'album' => t('Profile Photos'),
-				'photo_usage' => PHOTO_PROFILE,
-				'imgscale' => 4,
+				'photo_usage' => PHOTO_PROFILE
 		];
 
 		// photo size
 		$img->scaleImageSquare(300);
-		$r = $img->save($p);
-		if($r === false)
-			$photo_failure = true;
+		$r1 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 
 		// thumb size
 		$img->scaleImage(80);
-		$p['imgscale'] = 5;
-		$r = $img->save($p);
-		if($r === false)
-			$photo_failure = true;
+		$r2 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_80);
 
 		// micro size
 		$img->scaleImage(48);
-		$p['imgscale'] = 6;
-		$r = $img->save($p);
-		if($r === false)
+		$r3 = $img->storeThumbnail($p, PHOTO_RES_PROFILE_48);
+
+		if($r1 === false || $r2 === false || $r3 === false)
 			$photo_failure = true;
 
-	} else {
+	}
+	else {
 		logger('Invalid image.');
 		$photo_failure = true;
 	}

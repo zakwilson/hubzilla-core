@@ -71,35 +71,39 @@ function categories_widget($baseurl,$selected = '') {
 
 	$item_normal = item_normal();
 
-    $key = __FUNCTION__ . "-" . App::$profile['profile_uid'];
-    $content = Cache::get($key, '5 MINUTE');
+	$key = __FUNCTION__ . "-" . App::$profile['profile_uid'];
 
+	$content = Cache::get($key, '5 MINUTE');
 	if (! $content) {
-		$r = q("select distinct(term.term) from term join item on term.oid = item.id
-			where item.uid = %d
-			and term.uid = item.uid
-			and term.ttype = %d
-			and term.otype = %d
-			and item.owner_xchan = '%s'
-			and item.item_wall = 1
-			and item.verb != '%s'
+
+		$content = Cache::get($key, '1 MONTH');
+
+		$arr = [
+			"SELECT distinct(term.term) FROM term JOIN item ON term.oid = item.id
+			WHERE item.uid = %d
+			AND term.uid = item.uid
+			AND term.ttype = %d
+			AND term.otype = %d
+			AND item.owner_xchan = '%s'
+			AND item.item_wall = 1
+			AND item.verb != '%s'
 			$item_normal
 			$sql_extra
-			order by term.term asc",
+			ORDER BY term.term ASC",
 			intval(App::$profile['profile_uid']),
 			intval(TERM_CATEGORY),
 			intval(TERM_OBJ_POST),
 			dbesc(App::$profile['channel_hash']),
 			dbesc(ACTIVITY_UPDATE)
-		);
+		];
+
+		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
-	else
-		$r = unserialize($content);
 
-	$terms = array();
+	$r = unserialize($content);
+
+	$terms = [];
 	if($r && count($r)) {
-
-		Cache::set($key, serialize($r));
 
 		foreach($r as $rr)
 			$terms[] = array('name' => $rr['term'], 'selected' => (($selected == $rr['term']) ? 'selected' : ''));

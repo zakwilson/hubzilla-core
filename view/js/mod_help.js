@@ -14,7 +14,7 @@ toc = {};
 $(document).ready(function () {
 	// Generate the table of contents in the side nav menu (see view/tpl/help.tpl)
 	$('#doco-top-toc').toc({content: "#doco-content", headings: "h3,h4,h5,h6"});
-	
+
 	$(".doco-section").find('a').each(function () {
 		var url = document.createElement('a');
 		url.href = window.location;
@@ -30,8 +30,6 @@ $(document).ready(function () {
 
 		}
 	});
-
-	$(document.body).trigger("sticky_kit:recalc");
 
 	toc.contentTop = [];
 	toc.edgeMargin = 20;   // margin above the top or margin from the end of the page
@@ -72,7 +70,7 @@ $(document).ready(function () {
 		location.replace(newref)
 	}
 
-	
+
 	// Determine language translations available from the language selector menu itself
 	var langChoices = [];
 	$('.lang-selector').find('.lang-choice').each(function (idx, a) {
@@ -89,7 +87,7 @@ $(document).ready(function () {
 				pathParts.push(help_language);
 				pick_me = false;
 				if($.inArray(path[i], langChoices) < 0) {
-					i--;	
+					i--;
 				}
 			}
 		} else {
@@ -97,20 +95,20 @@ $(document).ready(function () {
 				pathParts.push(path[i]);
 			}
 		}
-		
+
 	}
 	// Update the address bar to reflect the loaded language
 	window.history.replaceState({}, '', '/' + pathParts.join('/'));
-	
+
 	// Highlight the language in the language selector that is currently viewed
 	$('.lang-selector').find('.lang-choice:contains("' + help_language + '")').addClass('active');
-	
+
 	// Construct the links to the available translations based and populate the selector menu
 	$('.lang-selector').find('.lang-choice').each(function (idx, a) {
 		var langLink = [];
 
 		for (var i = 0; i < pathParts.length; i++) {
-			
+
 			if(i === 1) {
 				langLink.push($(a).html());
 			} else {
@@ -120,5 +118,5 @@ $(document).ready(function () {
 		}
 		$(a).attr('href', '/' + langLink.join('/'));
 	});
-	
+
 });

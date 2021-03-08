@@ -2339,7 +2339,7 @@ function filepath_macro($s) {
 
 }
 
-function attach_export_data($channel, $resource_id, $deleted = false) {
+function attach_export_data($channel, $resource_id, $deleted = false, $zap_compat = false) {
 
 	$ret = array();
 
@@ -2429,7 +2429,7 @@ function attach_export_data($channel, $resource_id, $deleted = false) {
 				xchan_query($items);
 				$items = fetch_post_tags($items,true);
 				foreach($items as $rr)
-					$ret['item'][] = encode_item($rr,true);
+					$ret['item'][] = encode_item($rr,true,$zap_compat);
 			}
 		}
 	}

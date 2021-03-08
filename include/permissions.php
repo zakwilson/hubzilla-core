@@ -6,7 +6,7 @@ require_once('include/security.php');
  * @file include/permissions.php
  *
  * This file conntains functions to check and work with permissions.
- * 
+ *
  */
 
 
@@ -27,7 +27,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 
 	$api = App::get_oauth_key();
 	if($api)
-		return get_all_api_perms($uid,$api);	
+		return get_all_api_perms($uid,$api);
 
 	$global_perms = \Zotlabs\Access\Permissions::Perms();
 
@@ -210,7 +210,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 				$ret[$perm_name] = false;
 				continue;
 			}
-				
+
 			$ret[$perm_name] = true;
 			continue;
 		}
@@ -279,7 +279,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 	// First find out what the channel owner declared permissions to be.
 
-	$channel_perm = \Zotlabs\Access\PermissionLimits::Get($uid,$permission);
+	$channel_perm = intval(\Zotlabs\Access\PermissionLimits::Get($uid,$permission));
 
 	$r = q("select channel_pageflags, channel_moved, channel_hash from channel where channel_id = %d limit 1",
 		intval($uid)
@@ -294,14 +294,14 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		if($channel_perm & PERMS_AUTHED)
 			return true;
 
-		$x = q("select abook_my_perms, abook_blocked, abook_ignored, abook_pending, xchan_network from abook left join xchan on abook_xchan = xchan_hash 
+		$x = q("select abook_my_perms, abook_blocked, abook_ignored, abook_pending, xchan_network from abook left join xchan on abook_xchan = xchan_hash
 			where abook_channel = %d and abook_xchan = '%s' and abook_self = 0 limit 1",
 			intval($uid),
 			dbesc($observer_xchan)
 		);
 
 		// If they're blocked - they can't read or write
- 
+
 		if(($x) && intval($x[0]['abook_blocked']))
 			return false;
 
@@ -324,9 +324,9 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 
 					// This requires an explanation and the effects are subtle.
 					// The following line creates a fake connection, and this allows
-					// access tokens to have specific permissions even though they are 
+					// access tokens to have specific permissions even though they are
 					// not actual connections.
-					// The existence of this fake entry must be checked when dealing 
+					// The existence of this fake entry must be checked when dealing
 					// with connection related permissions.
 
 					$x = array(pseudo_abook($y[0]));
@@ -343,7 +343,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return false;
 
 	// Check if this $uid is actually the $observer_xchan
-	// you will have full access unless the channel was moved - 
+	// you will have full access unless the channel was moved -
 	// in which case you will have read_only access
 
 	if($r[0]['channel_hash'] === $observer_xchan) {
@@ -366,7 +366,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 	// If we're still here, we have an observer, check the network.
 
 	if($channel_perm & PERMS_NETWORK) {
-		if ($x && in_array($x[0]['xchan_network'], ['zot','zot6'])) 
+		if ($x && in_array($x[0]['xchan_network'], ['zot','zot6']))
 			return true;
 	}
 
@@ -382,7 +382,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		return false;
 	}
 
-	// From here on we require that the observer be a connection or pseudo connection 
+	// From here on we require that the observer be a connection or pseudo connection
 
 	if(! $x) {
 		return false;
@@ -425,7 +425,7 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 	return false;
 }
 
-function get_all_api_perms($uid,$api) {	
+function get_all_api_perms($uid,$api) {
 
 	$global_perms = \Zotlabs\Access\Permissions::Perms();
 
@@ -541,7 +541,8 @@ function site_default_perms() {
 		'write_pages'   => PERMS_SPECIFIC,
 		'write_wiki'    => PERMS_SPECIFIC,
 		'delegate'      => PERMS_SPECIFIC,
-		'post_like'     => PERMS_NETWORK
+		'republish'     => PERMS_SPECIFIC,
+		'post_like'     => PERMS_NETWORK,
 	);
 
 	$global_perms = \Zotlabs\Access\Permissions::Perms();

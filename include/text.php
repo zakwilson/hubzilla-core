@@ -7,8 +7,9 @@ use Zotlabs\Lib as Zlib;
 
 use Michelf\MarkdownExtra;
 use Ramsey\Uuid\Uuid;
-use Ramsey\Uuid\Exception\UnsatisfiedDependencyException;
+use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 
 require_once("include/bbcode.php");
@@ -2836,7 +2837,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// replace tag by the link. Make sure to not replace something in the middle of a word
 
-			$body = preg_replace('/(?<![a-zA-Z0-9=])'.preg_quote($tag,'/').'/', $newtag, $body);
+			$body = preg_replace('/(?<![a-zA-Z0-9=\/])'.preg_quote($tag,'/').'/', $newtag, $body);
 			$replaced = true;
 		}
 
@@ -3248,7 +3249,7 @@ function item_url_replace($channel,&$item,$old,$new,$oldnick = '') {
 	$item['body'] = preg_replace("/(\[zrl=".preg_quote($old,'/')."\/(photo|photos|gallery)\/".$channel['channel_address'].".+\]\[zmg=\d+x\d+\])".preg_quote($old,'/')."\/(.+\[\/zmg\])/", '${1}'.$new.'/${3}', $item['body']);
 	$item['body'] = preg_replace("/".preg_quote($old,'/')."\/(search|\w+\/".$channel['channel_address'].")/", $new.'/${1}', $item['body']);
 
-	$item['sig'] = base64url_encode(rsa_sign($item['body'],$channel['channel_prvkey']));
+	$item['sig'] = base64url_encode(Crypto::sign($item['body'],$channel['channel_prvkey']));
 	$item['item_verified']  = 1;
 
 	$item['plink'] = str_replace($old,$new,$item['plink']);
@@ -3824,7 +3825,7 @@ function new_uuid() {
 
 	try {
 		$hash = Uuid::uuid4()->toString();
-	} catch (UnsatisfiedDependencyException $e) {
+	} catch (UnableToBuildUuidException $e) {
 		$hash = random_string(48);
 	}
 
@@ -3842,7 +3843,7 @@ function uuid_from_url($url) {
 
 	try {
 		$hash = Uuid::uuid5(Uuid::NAMESPACE_URL, $url)->toString();
-	} catch (UnsatisfiedDependencyException $e) {
+	} catch (UnableToBuildUuidException $e) {
 		$hash = md5($url);
 	}
 	return $hash;
@@ -3879,6 +3880,14 @@ function unserialise($x) {
 	}
 	$y = ((substr($x,0,5) === 'json:') ? json_decode(substr($x,5),true) : '');
 	return ((is_array($y)) ? $y : $x);
+}
+
+function obscurify($s) {
+	return str_rot47(base64url_encode($s));
+}
+
+function unobscurify($s) {
+	return base64url_decode(str_rot47($s));
 }
 
 /**

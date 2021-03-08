@@ -18,7 +18,7 @@ function bookmark_add($channel,$sender,$taxonomy,$private,$opts = null) {
 	$channel_id = $channel['channel_id'];
 
 	if($private)
-		$iarr['contact_allow'] = array($channel['channel_hash']); 
+		$iarr['contact_allow'] = array($channel['channel_hash']);
 	$iarr['mitem_link'] = $taxonomy['url'];
 	$iarr['mitem_desc'] = $taxonomy['term'];
 	$iarr['mitem_flags'] = (($ischat) ? MENU_ITEM_CHATROOM : 0);
@@ -41,34 +41,34 @@ function bookmark_add($channel,$sender,$taxonomy,$private,$opts = null) {
 
 	if(! $menu_id) {
 		$x = menu_list($arr['menu_channel_id'],$arr['menu_name'],$arr['menu_flags']);
-		if($x) 
+		if($x)
 			$menu_id = $x[0]['menu_id'];
-		else 
+		else
 			$menu_id = menu_create($arr);
 	}
 
 	if(! $menu_id) {
 		logger('bookmark_add: unable to create menu ' . $arr['menu_name']);
-		return; 
+		return;
 	}
 	logger('add_bookmark: menu_id ' . $menu_id);
 	$r = q("select * from menu_item where mitem_link = '%s' and mitem_menu_id = %d and mitem_channel_id = %d limit 1",
 		dbesc($iarr['mitem_link']),
 		intval($menu_id),
-		intval($channel_id) 
+		intval($channel_id)
 	);
 	if($r)
 		logger('add_bookmark: duplicate menu entry', LOGGER_DEBUG);
 	if(! $r) {
 		$r = menu_add_item($menu_id,$channel_id,$iarr);
-		menu_sync_packet($channel_id,get_observer_hash(),$menu_id); 
+		menu_sync_packet($channel_id,get_observer_hash(),$menu_id);
 	}
 	return $r;
 }
 
 function get_bookmark_link($observer) {
 
-	if((! $observer) || ($observer['xchan_network'] !== 'zot'))
+	if((! $observer) || !in_array($observer['xchan_network'], ['zot6', 'zot']))
 		return '';
 
 	$h = @parse_url($observer['xchan_url']);

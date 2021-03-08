@@ -181,7 +181,10 @@ class Sse_bs extends Controller {
 				$result['network']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['network']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['network']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -250,7 +253,10 @@ class Sse_bs extends Controller {
 				$result['dm']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['dm']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['dm']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -319,7 +325,10 @@ class Sse_bs extends Controller {
 				$result['home']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['home']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['home']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -400,7 +409,10 @@ class Sse_bs extends Controller {
 				$result['pubs']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['pubs']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['pubs']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -592,7 +604,10 @@ class Sse_bs extends Controller {
 		if($r) {
 			xchan_query($r);
 			foreach($r as $rr) {
-				$result['files']['notifications'][] = Enotify::format($rr);
+					$parsed = Enotify::format($rr);
+					if($parsed) {
+						$result['files']['notifications'][] = $parsed;
+					}
 			}
 			$result['files']['count'] = count($r);
 		}

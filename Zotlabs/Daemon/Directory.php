@@ -8,40 +8,40 @@ use Zotlabs\Lib\Queue;
 
 class Directory {
 
-	static public function run($argc,$argv){
+	static public function run($argc, $argv) {
 
-		if($argc < 2)
+		if ($argc < 2)
 			return;
 
-		$force = false;
+		$force   = false;
 		$pushall = true;
 
-		if($argc > 2) {
-			if($argv[2] === 'force')
+		if ($argc > 2) {
+			if ($argv[2] === 'force')
 				$force = true;
-			if($argv[2] === 'nopush')
+			if ($argv[2] === 'nopush')
 				$pushall = false;
-		}	
+		}
 
 		logger('directory update', LOGGER_DEBUG);
 
-		$dirmode = get_config('system','directory_mode');
-		if($dirmode === false)
+		$dirmode = get_config('system', 'directory_mode');
+		if ($dirmode === false)
 			$dirmode = DIRECTORY_MODE_NORMAL;
 
 		$x = q("select * from channel where channel_id = %d limit 1",
 			intval($argv[1])
 		);
-		if(! $x)
+		if (!$x)
 			return;
 
 		$channel = $x[0];
 
-		if($dirmode != DIRECTORY_MODE_NORMAL) {
+		if ($dirmode != DIRECTORY_MODE_NORMAL) {
 
 			// this is an in-memory update and we don't need to send a network packet.
 
-			Libzotdir::local_dir_update($argv[1],$force);
+			Libzotdir::local_dir_update($argv[1], $force);
 
 			q("update channel set channel_dirdate = '%s' where channel_id = %d",
 				dbesc(datetime_convert()),
@@ -49,8 +49,8 @@ class Directory {
 			);
 
 			// Now update all the connections
-			if($pushall) 
-				Master::Summon(array('Notifier','refresh_all',$channel['channel_id']));
+			if ($pushall)
+				Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
 
 			return;
 		}
@@ -63,14 +63,12 @@ class Directory {
 
 		// ensure the upstream directory is updated
 
-
-		$packet = Libzot::build_packet($channel,(($force) ? 'force_refresh' : 'refresh'));
-		$z = Libzot::zot($url,$packet,$channel);
-
+		$packet = Libzot::build_packet($channel, (($force) ? 'force_refresh' : 'refresh'));
+		$z      = Libzot::zot($url, $packet, $channel);
 
 		// re-queue if unsuccessful
 
-		if(! $z['success']) {
+		if (!$z['success']) {
 
 			/** @FIXME we aren't updating channel_dirdate if we have to queue
 			 * the directory packet. That means we'll try again on the next poll run.
@@ -95,8 +93,8 @@ class Directory {
 		}
 
 		// Now update all the connections
-		if($pushall)
-			Master::Summon(array('Notifier','refresh_all',$channel['channel_id']));
+		if ($pushall)
+			Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
 
 	}
 }

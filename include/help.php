@@ -285,6 +285,7 @@ function load_context_help() {
 	$path = App::$cmd;
 	$args = App::$argv;
 	$lang = App::$language;
+	$context_help = '';
 
 	if(! isset($lang) || !is_dir('doc/context/' . $lang . '/')) {
 		$lang = 'en';

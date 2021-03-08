@@ -213,6 +213,11 @@ function bb_to_markdown_share($match) {
 }
 
 
+function bb_to_markdown_transform_tags($match) {
+	return '#'. str_replace(' ', '_', $match[3]);
+}
+
+
 /**
  * @brief Convert bbcode to Markdown.
  *
@@ -226,8 +231,7 @@ function bb_to_markdown($Text, $options = []) {
 	 * Transform #tags, strip off the [url] and replace spaces with underscore
 	 */
 
-	$Text = preg_replace_callback('/#\[([zu])rl\=(.*?)\](.*?)\[\/[(zu)]rl\]/i',
-		create_function('$match', 'return \'#\'. str_replace(\' \', \'_\', $match[3]);'), $Text);
+	$Text = preg_replace_callback('/#\[([zu])rl\=(.*?)\](.*?)\[\/[(zu)]rl\]/i', 'bb_to_markdown_transform_tags', $Text);
 
 	$Text = preg_replace('/#\^\[([zu])rl\=(.*?)\](.*?)\[\/([zu])rl\]/i', '[$1rl=$2]$3[/$4rl]', $Text);
 
@@ -281,7 +285,6 @@ function bb_to_markdown($Text, $options = []) {
 
 	return $Text;
 }
-
 
 /**
  * @brief Convert a HTML text into Markdown.

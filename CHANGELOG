@@ -1,11 +1,82 @@
+Hubzilla 5.4 (2021-03-08)
+	- Add new connections to privacy group independend from the default privacy group settings
+	- group_add() return group hash to save a lookup
+	- Do not poll feeds if feed contacts setting is disabled
+	- Deprecate sticky_kit library in favor of CSS position sticky solution
+	- Trigger endless scroll loading at the end of content instead of end of window height
+	- Implement experimental zap export compatibility
+	- Deprecate the [summary] tag in favor of a separate input field for the summary
+	- Adjust error reporting for PHP8
+	- Rely on php.ini default value for pcre.backtrack_limit
+	- PHP8 compatibility (experimental)
+	- Introduce Lib/Crypto (ported from zap)
+	- Introduce Lib/Keyutils which now implements phpseclib v2
+	- Improve profile photo fetching
+	- Introduce fetch_provider hook
+	- Implement ActivityStreams discovery in mod profile
+	- Implement ActivityStreams discovery in mod channel
+	- Streamline OS folder and file permissions
+	- Add polish translations
+	- Implement ThreadListener in mod activity_match
+	- Improve ThreadListener handling
+	- Use mail envelope instead of lock icon for direct messages
+	- Implement ASCollection in Libzot::fetch_conversation()
+	- Invoke channel discovery by hash instead of address in mod channel
+	- Implement manual public item import for zot6, activitypub and diaspora via search
+	- Default photo storage to filesystem instead of DB for new installations
+	- Support filesystem storage for xchan profile photos
+	- Deprecate Daemon/Externals
+	- Implement SQL query background caching
+	- Process channel categories list in background
+	- Port util/connect to Lib/Connect
+
+	Bugfixes
+	- Fix visible/empty notifications for blocked contacts items
+	- Fix issue where URL fragment was turned into hashtag if the hashtag existed elsewhere in the post (issue #1518)
+	- Fix audio and video embeds for media sources without media format extension
+	- Fix issue where zot package was saved in iconf instead of the decoded activity
+	- Fix duplicate id in post preview
+	- Fix display issue of restricted content in mod display
+	- Fix issue where comments were not delivered to the public stream
+	- Fix issue where profile photos were stored multiple times and remove duplicates
+	- Fix pinned items sync between clones
+	- Fix r_preview for list mode in mod channel and mod network
+
+	Addons
+	- Pubcrawl: deal with mastodons remote replies
+	- Diaspora: reduce xchan network confusion in several places
+	- Diaspora: fix mentions if multiple xchan networks exists
+	- Diaspora: fix comments on comments
+	- Pubcrawl: do not re-use broken signed messages
+	- Pubcrawl: fix parsing of images with description (core issue #1519)
+	- Pubcrawl: use the signed message from the attachment (iconfig) when relaying
+	- Diaspora: implement browser to browser encrypted messages as base64 encoded string
+	- Pubcrawl: implement browser to browser encrypted messages as base64 encoded string
+	- Diaspora: support post summary
+	- Pubcrawl: fix summary aka content warning
+	- PHP8 compatibility (experimental)
+	- Tripleaes: removed
+	- Reflect core crypto changes
+	- Photocache: improve mimetype detection
+	- Diaspora: implement mnanual fetch provider
+	- Diaspora: implement send participation
+	- Pubcrawl: deprecate pubcrawl_is_as_request() in favor of the core version in Lib/ActivityStreams
+	- Diaspora: prefer zot identity for inbound comments if available
+	- Pubcrawl: return zotfeed results in mod outbox
+	- Queueworker: improved deduplication by adding a uuid
+	- Superblock: fix syncing with clones regression
+	- Queueworker: improve SQL query in GetWorkerCount()
+	- Queueworker: fix issue in workersleep handling
+
+
 Hubzilla 5.2.2 (2021-02-13)
-    - Fix issue with ping_site()
+	- Fix issue with ping_site()
 
 
 Hubzilla 5.2.1 (2021-01-16)
 	- Fix attach_upgrade() to catch all broken entries in attach
 	- Fix collect_recipients() public policy filter for zot6
-	- Fix leaking of duplicate tasks in queueworker addon_common
+	- Fix leaking of duplicate tasks in queueworker
 
 
 Hubzilla 5.2 (2021-01-13)

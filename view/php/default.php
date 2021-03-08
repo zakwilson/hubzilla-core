@@ -12,12 +12,12 @@
 	<main>
 		<div class="content">
 			<div class="columns">
-				<aside id="region_1"><div class="aside_spacer"><div id="left_aside_wrapper"><?php if(x($page,'aside')) echo $page['aside']; ?></div></div></aside>
+				<aside id="region_1"><div class="aside_spacer_top_left"></div><div class="aside_spacer_left"><div id="left_aside_wrapper" class="aside_wrapper"><?php if(x($page,'aside')) echo $page['aside']; ?></div></div></aside>
 				<section id="region_2"><?php if(x($page,'content')) echo $page['content']; ?>
 					<div id="page-footer"></div>
 					<div id="pause"></div>
 				</section>
-				<aside id="region_3" class="d-none d-xl-block"><div class="aside_spacer"><div id="right_aside_wrapper"><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></div></div></aside>
+				<aside id="region_3" class="d-none d-xl-block"><div class="aside_spacer_top_right"></div><div class="aside_spacer_right"><div id="right_aside_wrapper" class="aside_wrapper"><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></div></div></aside>
 			</div>
 		</div>
 	</main>

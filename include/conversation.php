@@ -90,18 +90,18 @@ function item_redir_and_replace_images($body, $images, $cid) {
 function localize_item(&$item){
 
 	if (activity_match($item['verb'],ACTIVITY_LIKE) || activity_match($item['verb'],ACTIVITY_DISLIKE)){
-	
+
 		if(! $item['obj'])
 			return;
 
 		if(intval($item['item_thread_top']))
-			return;	
+			return;
 
 		$obj = json_decode($item['obj'],true);
 		if((! $obj) && ($item['obj'])) {
 			logger('localize_item: failed to decode object: ' . print_r($item['obj'],true));
 		}
-		
+
 		if(is_array($obj['author']) && $obj['author']['link'])
 			$author_link = get_rel_link($obj['author']['link'],'alternate');
 		elseif(is_array($obj['actor']) && $obj['actor']['url'])
@@ -167,7 +167,7 @@ function localize_item(&$item){
 		if($author_link && $author_name && $item_url) {
 			$author	 = '[zrl=' . chanlink_url($item['author']['xchan_url']) . ']' . $item['author']['xchan_name'] . '[/zrl]';
 			$objauthor =  '[zrl=' . chanlink_url($author_link) . ']' . $author_name . '[/zrl]';
-		
+
 			$plink = '[zrl=' . zid($item_url) . ']' . $post_type . '[/zrl]';
 
 			if(activity_match($item['verb'],ACTIVITY_LIKE)) {
@@ -189,7 +189,7 @@ function localize_item(&$item){
 			$item['shortlocalize'] = sprintf($shortbodyverb, '[bdi]' . $author_name . '[/bdi]', $post_type);
 
 			$item['body'] = $item['localize'] = sprintf($bodyverb, '[bdi]' . $author . '[/bdi]', '[bdi]' . $objauthor . '[/bdi]', $plink);
-			if($Bphoto != "") 
+			if($Bphoto != "")
 				$item['body'] .= "\n\n\n" . '[zrl=' . chanlink_url($author_link) . '][zmg=80x80]' . $Bphoto . '[/zmg][/zrl]';
 
 		}
@@ -201,7 +201,7 @@ function localize_item(&$item){
 
 	if (activity_match($item['verb'],ACTIVITY_FRIEND)) {
 
-		if ($item['obj_type'] == "" || $item['obj_type'] !== ACTIVITY_OBJ_PERSON) 
+		if ($item['obj_type'] == "" || $item['obj_type'] !== ACTIVITY_OBJ_PERSON)
 			return;
 
 		$Aname = $item['author']['xchan_name'];
@@ -209,7 +209,7 @@ function localize_item(&$item){
 
 
 		$obj= json_decode($item['obj'],true);
-		
+
 		$Blink = $Bphoto = '';
 
 		if($obj['link']) {
@@ -282,7 +282,7 @@ function localize_item(&$item){
 		$Alink = $item['author']['xchan_url'];
 
 		$A = '[zrl=' . chanlink_url($Alink) . '][bdi]' . $Aname . '[/bdi][/zrl]';
-		
+
 		$txt = t('%1$s is %2$s','mood');
 
 		$item['body'] = sprintf($txt, $A, t($verb));
@@ -295,15 +295,15 @@ function localize_item(&$item){
 // (and update to json storage)
 
  	if (activity_match($item['verb'],ACTIVITY_TAG)) {
-		$r = q("SELECT * from item,contact WHERE 
+		$r = q("SELECT * from item,contact WHERE
 		item.contact-id=contact.id AND item.mid='%s';",
 		 dbesc($item['parent_mid']));
 		if(count($r)==0) return;
 		$obj=$r[0];
-		
+
 		$author	 = '[zrl=' . zid($item['author-link']) . ']' . $item['author-name'] . '[/zrl]';
 		$objauthor =  '[zrl=' . zid($obj['author-link']) . ']' . $obj['author-name'] . '[/zrl]';
-		
+
 		switch($obj['verb']){
 			case ACTIVITY_POST:
 				switch ($obj['obj_type']){
@@ -416,7 +416,7 @@ function count_descendants($item) {
  * likes (etc.) can apply to other things besides posts. Check if they are post
  * children, in which case we handle them specially. Activities which are unrecognised
  * as having special meaning and hidden will be treated as posts or comments and visible
- * in the stream.  
+ * in the stream.
  *
  * @param array $item
  * @return boolean
@@ -438,14 +438,14 @@ function visible_activity($item) {
 	}
 
 	// We only need edit activities for other federated protocols
-	// which do not support edits natively. While this does federate 
+	// which do not support edits natively. While this does federate
 	// edits, it presents a number of issues locally - such as #757 and #758.
 	// The SQL check for an edit activity would not perform that well so to fix these issues
-	// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the 
+	// requires an additional item flag (perhaps 'item_edit_activity') that we can add to the
 	// query for searches and notifications.
 
-	// For now we'll just forget about trying to make edits work on network protocols that 
-	// don't support them.  
+	// For now we'll just forget about trying to make edits work on network protocols that
+	// don't support them.
 
 	// if(is_edit_activity($item))
 	//	return false;
@@ -455,7 +455,7 @@ function visible_activity($item) {
 
 /**
  * @brief Check if a given activity is an edit activity
- * 
+ *
  *
  * @param array $item
  * @return boolean
@@ -463,11 +463,11 @@ function visible_activity($item) {
 
 function is_edit_activity($item) {
 
-	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)]; 
+	$post_types = [ ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT, basename(ACTIVITY_OBJ_NOTE), basename(ACTIVITY_OBJ_COMMENT)];
 
-	// In order to share edits with networks which have no concept of editing, we'll create 
+	// In order to share edits with networks which have no concept of editing, we'll create
 	// separate activities to indicate the edit. Our network will not require them, since our
-	// edits are automatically applied and the activity indicated.  
+	// edits are automatically applied and the activity indicated.
 
 	if(($item['verb'] === ACTIVITY_UPDATE) && (in_array($item['obj_type'],$post_types)))
 		return true;
@@ -678,12 +678,12 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 			foreach($items as $item) {
 
-				$x = [ 
-					'mode' => $mode, 
-					'item' => $item 
+				$x = [
+					'mode' => $mode,
+					'item' => $item
 				];
 				call_hooks('stream_item',$x);
-				
+
 				if($x['item']['blocked'])
 					continue;
 
@@ -699,7 +699,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$is_new      = false;
 
 				if($mode === 'search' || $mode === 'community') {
-					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE))) 
+					if(((activity_match($item['verb'],ACTIVITY_LIKE)) || (activity_match($item['verb'],ACTIVITY_DISLIKE)))
 						&& ($item['id'] != $item['parent']))
 						continue;
 				}
@@ -726,7 +726,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$drop = array(
 					'pagedropping' => $page_dropping,
 					'dropping' => $dropping,
-					'select' => t('Select'), 
+					'select' => t('Select'),
 					'delete' => t('Delete'),
 				);
 
@@ -739,6 +739,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					? t('Private Message')
 					: false
 				);
+				$locktype = $item['item_private'];
+
 
 				$likebuttons = false;
 				$shareable = false;
@@ -769,7 +771,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$tmp_item = array(
 					'template' => $tpl,
 					'toplevel' => 'toplevel_item',
-					'item_type' => intval($item['item_type']),			
+					'item_type' => intval($item['item_type']),
 					'mode' => $mode,
 					'approve' => t('Approve'),
 					'delete' => t('Delete'),
@@ -783,6 +785,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
+					'locktype' => $locktype,
 					'thumb' => $profile_avatar,
 					'title' => $item['title'],
 					'body' => $body['html'],
@@ -844,7 +847,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 			$conv = new Zotlabs\Lib\ThreadStream($mode, $preview, $uploading, $prepared_item);
 
-			// In the display mode we don't have a profile owner. 
+			// In the display mode we don't have a profile owner.
 
 			if($mode === 'display' && $items)
 				$conv->set_profile_owner($items[0]['uid']);
@@ -861,7 +864,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$x = [ 'mode' => $mode, 'item' => $item ];
 				call_hooks('stream_item',$x);
-				
+
 				if($x['item']['blocked'])
 					continue;
 
@@ -920,7 +923,6 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 //	logger('nouveau: ' . print_r($threads,true));
 
-
 	$o .= replace_macros($page_template, array(
 		'$baseurl' => z_root(),
 		'$photo_item' => $content_html,
@@ -932,6 +934,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$wait' => t('Loading...'),
 		'$conversation_tools' => t('Conversation Tools'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
+		'$preview' => $preview
 	));
 
 	return $o;
@@ -970,9 +973,9 @@ function best_link_url($item) {
 function thread_action_menu($item,$mode = '') {
 
 	$menu = [];
-	
+
 	if((local_channel()) && local_channel() == $item['uid']) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'view_source',
 			'title' => t('View Source'),
 			'icon' => 'code',
@@ -982,7 +985,7 @@ function thread_action_menu($item,$mode = '') {
 
 		if(! in_array($mode, [ 'network-new', 'search', 'community'])) {
 			if($item['parent'] == $item['id'] && (get_observer_hash() != $item['author_xchan'])) {
-				$menu[] = [ 
+				$menu[] = [
 					'menu' => 'follow_thread',
 					'title' => t('Follow Thread'),
 					'icon' => 'plus',
@@ -991,7 +994,7 @@ function thread_action_menu($item,$mode = '') {
 				];
 			}
 
-			$menu[] = [ 
+			$menu[] = [
 				'menu' => 'unfollow_thread',
 				'title' => t('Unfollow Thread'),
 				'icon' => 'minus',
@@ -1018,7 +1021,7 @@ function author_is_pmable($xchan, $abook) {
 	call_hooks('author_is_pmable',$x);
 	if($x['result'] !== 'unset')
 		return $x['result'];
-	
+
 	if($xchan['xchan_network'] === 'zot' && get_observer_hash())
 		return true;
 	return false;
@@ -1063,7 +1066,7 @@ function thread_author_menu($item, $mode = '') {
 
 	if($contact) {
 		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
-		if (! intval($contact['abook_self']))  
+		if (! intval($contact['abook_self']))
 			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
 
@@ -1075,7 +1078,7 @@ function thread_author_menu($item, $mode = '') {
 	$ratings_url = (($rating_enabled) ? z_root() . '/ratings/' . urlencode($item['author_xchan']) : '');
 
 	if($profile_link) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'view_profile',
 			'title' => t('View Profile'),
 			'icon' => 'fw',
@@ -1085,7 +1088,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($posts_link) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'view_posts',
 			'title' => t('Recent Activity'),
 			'icon' => 'fw',
@@ -1095,7 +1098,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($follow_url) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'follow',
 			'title' => t('Connect'),
 			'icon' => 'fw',
@@ -1105,7 +1108,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($contact_url) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'connedit',
 			'title' => t('Edit Connection'),
 			'icon' => 'fw',
@@ -1115,7 +1118,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($pm_url) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'prv_message',
 			'title' => t('Message'),
 			'icon' => 'fw',
@@ -1125,7 +1128,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($ratings_url) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'ratings',
 			'title' => t('Ratings'),
 			'icon' => 'fw',
@@ -1135,7 +1138,7 @@ function thread_author_menu($item, $mode = '') {
 	}
 
 	if($poke_link) {
-		$menu[] = [ 
+		$menu[] = [
 			'menu' => 'poke',
 			'title' => t('Poke'),
 			'icon' => 'fw',
@@ -1209,8 +1212,8 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 		if((activity_match($item['verb'], $verb)) && ($item['id'] != $item['parent'])) {
 			$name = (($item['author']['xchan_name']) ? $item['author']['xchan_name'] : t('Unknown'));
-			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s']) 
-				? '<a class="dropdown-item" href="' . chanlink_hash($item['author_xchan']) . '">' . '<img class="menu-img-1" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" /> ' . $name . '</a>' 
+			$url = (($item['author_xchan'] && $item['author']['xchan_photo_s'])
+				? '<a class="dropdown-item" href="' . chanlink_hash($item['author_xchan']) . '">' . '<img class="menu-img-1" src="' . zid($item['author']['xchan_photo_s'])  . '" alt="' . urlencode($name) . '" /> ' . $name . '</a>'
 				: '<a class="dropdown-item" href="#" class="disabled">' . $name . '</a>'
 			);
 
@@ -1222,7 +1225,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 			if($item['obj_type'] === 'Answer')
 				continue;
 
-			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l'])) 
+			if(! ((isset($conv_responses[$mode][$item['thr_parent'] . '-l']))
 				&& (is_array($conv_responses[$mode][$item['thr_parent'] . '-l']))))
 				$conv_responses[$mode][$item['thr_parent'] . '-l'] = array();
 
@@ -1297,9 +1300,9 @@ function status_editor($a, $x, $popup = false, $module='') {
 }
 
 /**
- * This is our general purpose content editor. 
+ * This is our general purpose content editor.
  * It was once nicknamed "jot" and you may see references to "jot" littered throughout the code.
- * They are referring to the content editor or components thereof. 
+ * They are referring to the content editor or components thereof.
  */
 
 function hz_status_editor($a, $x, $popup = false) {
@@ -1341,7 +1344,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	$weblink = (($mimetype === 'text/bbcode') ? t('Insert web link') : false);
 	if(x($x, 'hide_weblink'))
 		$weblink = false;
-	
+
 	$embedPhotos = t('Embed (existing) photo from your photo albums');
 
 	$writefiles = (($mimetype === 'text/bbcode') ? perm_is_allowed($x['profile_uid'], get_observer_hash(), 'write_storage') : false);
@@ -1366,9 +1369,9 @@ function hz_status_editor($a, $x, $popup = false) {
 	$webpage = ((x($x,'webpage')) ? $x['webpage'] : '');
 
 	$reset = ((x($x,'reset')) ? $x['reset'] : '');
-	
+
 	$feature_auto_save_draft = ((feature_enabled($x['profile_uid'], 'auto_save_draft')) ? "true" : "false");
-	
+
 	$tpl = get_markup_template('jot-header.tpl');
 
 	$tplmacros = [
@@ -1394,7 +1397,7 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$reset' => $reset
 	];
 
-	call_hooks('jot_header_tpl_filter',$tplmacros);	
+	call_hooks('jot_header_tpl_filter',$tplmacros);
 	App::$page['htmlhead'] .= replace_macros($tpl, $tplmacros);
 
 	$tpl = get_markup_template('jot.tpl');
@@ -1421,7 +1424,7 @@ function hz_status_editor($a, $x, $popup = false) {
 		$catsenabled = ((feature_enabled($x['profile_uid'], 'categories') && (! $webpage)) ? 'categories' : '');
 
 	// avoid illegal offset errors
-	if(! array_key_exists('permissions',$x)) 
+	if(! array_key_exists('permissions',$x))
 		$x['permissions'] = [ 'allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '' ];
 
 	$jotplugins = '';
@@ -1471,7 +1474,9 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$nocomment' => ((array_key_exists('item',$x)) ? $x['item']['item_nocomment'] : 0),
 		'$clearloc' => $clearloc,
 		'$title' => ((x($x, 'title')) ? htmlspecialchars($x['title'], ENT_COMPAT,'UTF-8') : ''),
+		'$summary' => ((x($x, 'summary')) ? htmlspecialchars($x['summary'], ENT_COMPAT,'UTF-8') : ''),
 		'$placeholdertitle' => ((x($x, 'placeholdertitle')) ? $x['placeholdertitle'] : t('Title (optional)')),
+		'$placeholdersummary' => ((x($x, 'placeholdersummary')) ? $x['placeholdersummary'] : t('Summary (optional)')),
 		'$catsenabled' => $catsenabled,
 		'$category' => ((x($x, 'category')) ? $x['category'] : ''),
 		'$placeholdercategory' => t('Categories (optional, comma-separated list)'),
@@ -1514,6 +1519,7 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$parent' => ((array_key_exists('parent',$x) && $x['parent']) ? $x['parent'] : 0),
 		'$reset' => $reset,
 		'$is_owner' => ((local_channel() && (local_channel() == $x['profile_uid'])) ? true : false),
+		'$customjotheaders' => '',
 		'$custommoretoolsdropdown' => '',
 		'$custommoretoolsbuttons' => '',
 		'$customsubmitright' => []
@@ -1539,7 +1545,7 @@ function get_item_children($arr, $parent) {
 				$thr_parent = $item['thr_parent'];
 				if($thr_parent == '')
 					$thr_parent = $item['parent_mid'];
-				
+
 				if($thr_parent == $parent['mid']) {
 					$item['children'] = get_item_children($arr, $item);
 					$children[] = $item;
@@ -1698,9 +1704,9 @@ function prepare_page($item) {
 		return replace_macros(get_markup_template($tpl), array(
 			'$body' => $body['html']
 		));
-		
+
 	}
-	
+
 	$tpl = get_pconfig($item['uid'], 'system', 'pagetemplate');
 	if (! $tpl)
 		$tpl = 'page_display.tpl';
@@ -1721,13 +1727,11 @@ function get_responses($conv_responses,$response_verbs,$ob,$item) {
 	$ret = array();
 	foreach($response_verbs as $v) {
 		$ret[$v] = array();
-		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : '');
+		$ret[$v]['count'] = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid']] : 0);
 		$ret[$v]['list']  = ((x($conv_responses[$v],$item['mid'])) ? $conv_responses[$v][$item['mid'] . '-l'] : '');
 		$ret[$v]['button'] = get_response_button_text($v,$ret[$v]['count']);
 		$ret[$v]['title'] = $conv_responses[$v]['title'];
-		if($ret[$v]['count'] > MAX_LIKERS) {
-			$ret[$v]['modal'] = true;
-		}
+		$ret[$v]['modal'] = (($ret[$v]['count'] > MAX_LIKERS) ? true : false);
 	}
 
 	$count = 0;

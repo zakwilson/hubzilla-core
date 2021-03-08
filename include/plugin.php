@@ -912,7 +912,7 @@ function script_path() {
 
 	// Some proxy setups may require using http_host
 
-	if(intval(App::$config['system']['script_path_use_http_host']))
+	if(isset(App::$config['system']['script_path_use_http_host']) && intval(App::$config['system']['script_path_use_http_host']))
 		$server_var = 'HTTP_HOST';
 	else
 		$server_var = 'SERVER_NAME';
@@ -929,8 +929,9 @@ function script_path() {
 }
 
 function head_add_js($src, $priority = 0) {
-	if(! is_array(App::$js_sources[$priority]))
-		App::$js_sources[$priority] = array();
+	if(isset(App::$js_sources[$priority]) && !is_array(App::$js_sources[$priority]))
+		App::$js_sources[$priority] = [];
+
 	App::$js_sources[$priority][] = $src;
 }
 

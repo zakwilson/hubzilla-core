@@ -28,6 +28,8 @@
  */
 
 // composer autoloader for all namespaced Classes
+use Zotlabs\Lib\Crypto;
+
 require_once('vendor/autoload.php');
 
 require_once('include/config.php');
@@ -50,10 +52,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.2.2' );
+define ( 'STD_VERSION',             '5.4' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1240 );
+define ( 'DB_UPDATE_VERSION',       1243 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -601,6 +603,7 @@ define ( 'DBTYPE_POSTGRES', 1 );
 
 function sys_boot() {
 
+
 	// our central App object
 
 	App::init();
@@ -681,14 +684,18 @@ function sys_boot() {
 
 
 function startup() {
-	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	error_reporting(E_ALL & ~E_NOTICE);
+
+	if (version_compare(PHP_VERSION, '8.0.0') >= 0) {
+		error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
+	}
 
 	// Some hosting providers block/disable this
 	@set_time_limit(0);
 
 	if(function_exists ('ini_set')) {
 		// This has to be quite large to deal with embedded private photos
-		@ini_set('pcre.backtrack_limit', 500000);
+		//@ini_set('pcre.backtrack_limit', 500000);
 
 		// Use cookies to store the session ID on the client side
 		@ini_set('session.use_only_cookies', 1);
@@ -1176,14 +1183,18 @@ class App {
 		if($interval < 10000)
 			$interval = 80000;
 
-		if(! x(self::$page,'title'))
+		if(! isset(self::$page['title']) && isset(self::$config['system']['sitename']))
 			self::$page['title'] = self::$config['system']['sitename'];
 
-		$pagemeta = [ 'og:title' => self::$page['title'] ];
+		if(isset(self::$page['title']))
+			$pagemeta = [ 'og:title' => self::$page['title'] ];
 
 		call_hooks('page_meta',$pagemeta);
-		foreach ($pagemeta as $metaproperty => $metavalue) {
-			self::$meta->set($metaproperty,$metavalue);
+
+		if($pagemeta) {
+			foreach ($pagemeta as $metaproperty => $metavalue) {
+				self::$meta->set($metaproperty,$metavalue);
+			}
 		}
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
@@ -1219,10 +1230,10 @@ class App {
 				'$linkrel'         => head_get_links(),
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
-				'$channel_id'      => self::$profile['uid'],
-				'$auto_save_draft' => ((feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
+				'$channel_id'      => self::$profile['uid'] ?? 0,
+				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
 			]
-		) . self::$page['htmlhead'];
+		) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 
 		// always put main.js at the end
 		self::$page['htmlhead'] .= head_get_main_js();
@@ -1570,7 +1581,7 @@ function fix_system_urls($oldurl, $newurl) {
 				dbesc($channel_address . '@' . $rhs),
 				dbesc($newurl),
 				dbesc(str_replace($oldurl,$newurl,$rv['hubloc_id_url'])),
-				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(rsa_sign($newurl,$c[0]['channel_prvkey']))),
+				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(Crypto::sign($newurl,$c[0]['channel_prvkey']))),
 				dbesc($newhost),
 				dbesc(($rv['hubloc_network'] === 'zot6') ? $newurl . '/zot' : $newurl . '/post'),
 				dbesc($rv['xchan_hash']),
@@ -1756,7 +1767,7 @@ function shutdown() {
  */
 function get_account_id() {
 
-	if(intval($_SESSION['account_id']))
+	if(isset($_SESSION['account_id']))
 		return intval($_SESSION['account_id']);
 
 	if(App::$account)
@@ -2063,12 +2074,10 @@ function is_site_admin() {
 	if(! session_id())
 		return false;
 
-	if($_SESSION['delegate'])
+	if(isset($_SESSION['delegate']))
 		return false;
 
-	if((intval($_SESSION['authenticated']))
-		&& (is_array(App::$account))
-		&& (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
+	if(isset($_SESSION['authenticated']) && is_array(App::$account) && (App::$account['account_roles'] & ACCOUNT_ROLE_ADMIN))
 		return true;
 
 	return false;
@@ -2250,6 +2259,8 @@ function load_pdl() {
 
 		$n = 'mod_' . App::$module . '.pdl' ;
 		$u = App::$comanche->get_channel_id();
+		$s = '';
+
 		if($u)
 			$s = get_pconfig($u, 'system', $n);
 		if(! $s)
@@ -2344,7 +2355,7 @@ function construct_page() {
 
 	App::build_pagehead();
 
-	if(App::$page['pdl_content']) {
+	if(isset(App::$page['pdl_content'])) {
 		App::$page['content'] = App::$comanche->region(App::$page['content']);
 	}
 
@@ -2411,11 +2422,13 @@ function construct_page() {
 	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(App::$config['system']['content_security_policy']) {
-		$cspsettings = Array (
-			'script-src' => Array ("'self'","'unsafe-inline'","'unsafe-eval'"),
-			'style-src' => Array ("'self'","'unsafe-inline'")
-		);
+	if(isset(App::$config['system']['content_security_policy'])) {
+		$cspsettings = [
+			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
+			'style-src'  => [ "'self'", "'unsafe-inline'" ],
+			'frame-src'  => [ "'self'" ]
+		];
+
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)
@@ -2441,13 +2454,13 @@ function construct_page() {
 		header($cspheader);
 	}
 
-	if(App::$config['system']['x_security_headers']) {
+	if(isset(App::$config['system']['x_security_headers'])) {
 		header("X-Frame-Options: SAMEORIGIN");
 		header("X-Xss-Protection: 1; mode=block;");
 		header("X-Content-Type-Options: nosniff");
 	}
 
-	if(App::$config['system']['public_key_pins']) {
+	if(isset(App::$config['system']['public_key_pins'])) {
 		header("Public-Key-Pins: " . App::$config['system']['public_key_pins']);
 	}
 

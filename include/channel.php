@@ -9,6 +9,7 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\System;
 use Zotlabs\Render\Comanche;
 use Zotlabs\Lib\Libzot;
@@ -107,7 +108,7 @@ function create_sys_channel() {
 
 	if ((! get_config('system', 'pubkey')) && (! get_config('system', 'prvkey'))) {
 		require_once('include/crypto.php');
-		$hostkey = new_keypair(4096);
+		$hostkey = Crypto::new_keypair(4096);
 		set_config('system', 'pubkey', $hostkey['pubkey']);
 		set_config('system', 'prvkey', $hostkey['prvkey']);
 	}
@@ -232,10 +233,10 @@ function create_identity($arr) {
 	}
 
 	$guid = Libzot::new_uid($nick);
-	$key = new_keypair(4096);
+	$key = Crypto::new_keypair(4096);
 
 	// legacy zot
-	$zsig = base64url_encode(rsa_sign($guid,$key['prvkey']));
+	$zsig = base64url_encode(Crypto::sign($guid,$key['prvkey']));
 	$zhash = make_xchan_hash($guid,$zsig);
 
 	// zot6
@@ -302,8 +303,8 @@ function create_identity($arr) {
 	$photo_type = null;
 
 	$z = [
-			'account' => $a[0],
-			'channel' => $r[0],
+			'account' => $a[0] ?? [],
+			'channel' => $r[0] ?? [],
 			'photo_url' => ''
 	];
 	/**
@@ -345,7 +346,7 @@ function create_identity($arr) {
 			'hubloc_addr'     => channel_reddress($ret['channel']),
 			'hubloc_primary'  => intval($primary),
 			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => base64url_encode(rsa_sign(z_root(),$ret['channel']['channel_prvkey'])),
+			'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$ret['channel']['channel_prvkey'])),
 			'hubloc_host'     => App::get_hostname(),
 			'hubloc_callback' => z_root() . '/post',
 			'hubloc_sitekey'  => get_config('system','pubkey'),
@@ -502,23 +503,22 @@ function create_identity($arr) {
 		// right away as a default group for new contacts.
 
 		require_once('include/group.php');
-		group_add($newuid, t('Friends'));
-		group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
+		$group_hash = group_add($newuid, t('Friends'));
 
-		// if our role_permissions indicate that we're using a default collection ACL, add it.
+		if($group_hash) {
+			group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
 
-		if(is_array($role_permissions) && $role_permissions['default_collection']) {
-			$r = q("select hash from pgrp where uid = %d and gname = '%s' limit 1",
-				intval($newuid),
-				dbesc( t('Friends') )
-			);
-			if($r) {
-				q("update channel set channel_default_group = '%s', channel_allow_gid = '%s' where channel_id = %d",
-					dbesc($r[0]['hash']),
-					dbesc('<' . $r[0]['hash'] . '>'),
-					intval($newuid)
-				);
+			$default_collection_str = '';
+			// if our role_permissions indicate that we're using a default collection ACL, add it.
+			if(is_array($role_permissions) && $role_permissions['default_collection']) {
+				$default_collection_str = '<' . $group_hash . '>';
 			}
+
+			q("update channel set channel_default_group = '%s', channel_allow_gid = '%s' where channel_id = %d",
+				dbesc($group_hash),
+				dbesc($default_collection_str),
+				intval($newuid)
+			);
 		}
 
 		if(! $system) {
@@ -603,9 +603,9 @@ function change_channel_keys($channel) {
 
 	$stored = [];
 
-	$key = new_keypair(4096);
+	$key = Crypto::new_keypair(4096);
 
-	$sig = base64url_encode(rsa_sign($channel['channel_guid'],$key['prvkey']));
+	$sig = base64url_encode(Crypto::sign($channel['channel_guid'],$key['prvkey']));
 	$hash = make_xchan_hash($channel['channel_guid'],$sig);
 
 	$stored['old_guid']     = $channel['channel_guid'];
@@ -614,7 +614,7 @@ function change_channel_keys($channel) {
 	$stored['old_hash']     = $channel['channel_hash'];
 
 	$stored['new_key']      = $key['pubkey'];
-	$stored['new_sig']      = base64url_encode(rsa_sign($key['pubkey'],$channel['channel_prvkey']));
+	$stored['new_sig']      = base64url_encode(Crypto::sign($key['pubkey'],$channel['channel_prvkey']));
 
 	// Save this info for the notifier to collect
 
@@ -651,7 +651,7 @@ function change_channel_keys($channel) {
 		foreach($h as $hv) {
 			$hv['hubloc_guid_sig'] = $sig;
 			$hv['hubloc_hash']     = $hash;
-			$hv['hubloc_url_sig']  = base64url_encode(rsa_sign(z_root(),$modified['channel_prvkey']));
+			$hv['hubloc_url_sig']  = base64url_encode(Crypto::sign(z_root(),$modified['channel_prvkey']));
 			hubloc_store_lowlevel($hv);
 		}
 	}
@@ -890,20 +890,27 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			unset($ret['channel']['channel_salt']);
 		}
 		if ($zap_compat) {
-			$channel['channel_guid_sig'] = 'sha256.' . $channel['channel_guid_sig'];
-			$channel['channel_hash'] = $channel['channel_portable_id'];
-			unset($channel['channel_portable_id']);
+			unset($ret['channel']['channel_portable_id']);
 		}
-
-
 	}
 
 	if(in_array('channel',$sections) || in_array('profile',$sections)) {
 		$r = q("select * from profile where uid = %d",
 			intval($channel_id)
 		);
-		if($r)
+		if($r) {
 			$ret['profile'] = $r;
+			if ($zap_compat) {
+				// zap only supports one profile
+				foreach ($r as $rv) {
+					if ($rv['is_default']) {
+						$ret['profile'] = [ $rv ];
+						break;
+					}
+				}
+			}
+		}
+
 
 		$r = q("select mimetype, content, os_storage from photo
 			where imgscale = 4 and photo_usage = %d and uid = %d limit 1",
@@ -936,50 +943,47 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 				$newconfig = [];
 				$abconfig = load_abconfig($channel_id,$ret['abook'][$x]['abook_xchan']);
 
-				// Partly revert of commit 85cf25a2a8bfbbfe10de485d4affd54626fbbfa4
 				if($abconfig) {
-					$ret['abook'][$x]['abconfig'] = $abconfig;
-				}
-
-				/* This was added in commit 85cf25a2a8bfbbfe10de485d4affd54626fbbfa4
-				 * Seems unfinished work on zap compatibility for cloning.
-				 * It breaks cloning of abconfig for hubzilla - reverted to the above code.
-
-				if($abconfig) {
-					foreach ($abconfig as $abc) {
-
-						if ($abc['cat'] === 'my_perms' && intval($abc['v'])) {
-							$my_perms[] = $abc['k'];
-							continue;
-						}
-						if ($abc['cat'] === 'their_perms' && intval($abc['v'])) {
-							$their_perms[] = $abc['k'];
-							continue;
-						}
-						if ($zap_compat && preg_match('|^a:[0-9]+:{.*}$|s', $abc['v'])) {
-							$abc['v'] = serialise(unserialize($abc['v']));
-						}
-						$newconfig[] = $abc;
-					}
-
-					$ret['abook'][$x]['abconfig'] = $newconfig;
-
 					if ($zap_compat) {
-						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'my_perms', 'v' => implode(',',$my_perms) ];
-						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_chan'], 'cat' => 'system', 'k' => 'their_perms', 'v' => implode(',',$their_perms) ];
+						foreach ($abconfig as $abc) {
+
+							if ($abc['cat'] === 'my_perms') {
+								if (intval($abc['v'])) {
+									$my_perms[] = $abc['k'];
+								}
+								continue;
+							}
+							if ($abc['cat'] === 'their_perms') {
+								if (intval($abc['v'])) {
+									$their_perms[] = $abc['k'];
+								}
+								continue;
+							}
+							if (preg_match('|^a:[0-9]+:{.*}$|s', $abc['v'])) {
+								$abc['v'] = serialise(unserialize($abc['v']));
+							}
+							$newconfig[] = $abc;
+						}
+
+						$ret['abook'][$x]['abconfig'] = $newconfig;
+
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_xchan'], 'cat' => 'system', 'k' => 'my_perms', 'v' => implode(',',$my_perms) ];
+						$ret['abook'][$x]['abconfig'][] = [ 'chan' => $channel_id, 'xchan' => $ret['abook'][$x]['abook_xchan'], 'cat' => 'system', 'k' => 'their_perms', 'v' => implode(',',$their_perms) ];
+
+					}
+					else {
+						$ret['abook'][$x]['abconfig'] = $abconfig;
 					}
 				}
-				*/
+
 
 				translate_abook_perms_outbound($ret['abook'][$x]);
 
 			}
 
-
-
 			// pick up the zot xchan and hublocs also
 
-			if($ret['channel']['channel_portable_id']) {
+			if($ret['channel']['channel_portable_id'] && ! $zot_compat) {
 				$xchans[] = $ret['channel']['channel_portable_id'];
 			}
 
@@ -1090,13 +1094,24 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 	}
 
 	if(in_array('events',$sections)) {
-		$r = q("select * from event where uid = %d",
+
+		// @fixme - Not totally certain how to handle $zot_compat for the event timezone which exists
+		// in Hubzilla but is stored with the item and not the event. In Zap, stored information is
+		// always UTC and localised on access as per standard conventions for working with global time data.
+
+		// Older Zot (pre-Zot6) records aren't translated correctly w/r/t AS2 so only include events for the last year or so if
+		// migrating to Zap.
+
+		$sqle = (($zap_compat) ? " and created > '2020-01-01 00:00:00' " : '');
+
+		$r = q("select * from event where uid = %d $sqle",
 			intval($channel_id)
 		);
-		if($r)
+		if ($r) {
 			$ret['event'] = $r;
+		}
 
-		$r = q("select * from item where resource_type = 'event' and uid = %d",
+		$r = q("select * from item where resource_type = 'event' and uid = %d $sqle",
 			intval($channel_id)
 		);
 		if($r) {
@@ -1104,7 +1119,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['event_item'][] = encode_item($rr,true);
+				$ret['event_item'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1127,7 +1142,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['webpages'][] = encode_item($rr,true);
+				$ret['webpages'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1164,7 +1179,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rv) {
-				$ret['wiki'][] = encode_item($rv,true);
+				$ret['wiki'][] = encode_item($rv,true, $zap_compat);
 			}
 		}
 	}
@@ -1189,7 +1204,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
-				$ret['item'][] = encode_item($rr,true);
+				$ret['item'][] = encode_item($rr,true, $zap_compat);
 		}
 	}
 
@@ -1222,7 +1237,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
  *   * \e array \b relocate - (optional)
  *   * \e array \b item - array with items encoded_item()
  */
-function identity_export_year($channel_id, $year, $month = 0) {
+function identity_export_year($channel_id, $year, $month = 0, $zap_compat = false) {
 
 	if(! $year)
 		return array();
@@ -1240,7 +1255,7 @@ function identity_export_year($channel_id, $year, $month = 0) {
 	else
 		$maxdate = datetime_convert('UTC', 'UTC', $year+1 . '-01-01 00:00:00');
 
-	return channel_export_items_date($channel_id,$mindate,$maxdate);
+	return channel_export_items_date($channel_id,$mindate,$maxdate, $zap_compat);
 
 }
 
@@ -1255,7 +1270,7 @@ function identity_export_year($channel_id, $year, $month = 0) {
  * @return array
  */
 
-function channel_export_items_date($channel_id, $start, $finish) {
+function channel_export_items_date($channel_id, $start, $finish, $zap_compat = false) {
 
 	if(! $start)
 		return array();
@@ -1273,6 +1288,11 @@ function channel_export_items_date($channel_id, $start, $finish) {
 		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
 	}
 
+	if ($zap_compat) {
+		$ret['compatibility']['codebase'] = 'zap';
+	}
+
+
 	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type != 'photo' order by created",
 		intval(ITEM_TYPE_POST),
 		intval($channel_id),
@@ -1285,7 +1305,7 @@ function channel_export_items_date($channel_id, $start, $finish) {
 		xchan_query($r);
 		$r = fetch_post_tags($r, true);
 		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true);
+			$ret['item'][] = encode_item($rr, true, $zap_compat);
 	}
 
 	return $ret;
@@ -1303,7 +1323,7 @@ function channel_export_items_date($channel_id, $start, $finish) {
  * @return array
  */
 
-function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 50) {
+function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 50, $zap_compat = false) {
 
 	if(intval($page) < 1) {
 		$page = 0;
@@ -1335,6 +1355,11 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$ret['relocate'] = [ 'channel_address' => $ch['channel_address'], 'url' => z_root()];
 	}
 
+	if ($zap_compat) {
+		$ret['compatibility']['codebase'] = 'zap';
+	}
+
+
 	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
 		intval(ITEM_TYPE_POST),
 		intval($channel_id),
@@ -1349,7 +1374,7 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		xchan_query($r);
 		$r = fetch_post_tags($r, true);
 		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true);
+			$ret['item'][] = encode_item($rr, true, $zap_compat);
 	}
 
 	return $ret;

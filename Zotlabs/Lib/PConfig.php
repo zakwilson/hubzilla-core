@@ -132,6 +132,7 @@ class PConfig {
 		// manage array value
 		$dbvalue = ((is_array($value))  ? serialize($value) : $value);
 		$dbvalue = ((is_bool($dbvalue)) ? intval($dbvalue)  : $dbvalue);
+		$new = false;
 
 		$now = datetime_convert();
 		if (! $updated) {

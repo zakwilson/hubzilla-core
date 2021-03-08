@@ -52,7 +52,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.5.1' );
+define ( 'STD_VERSION',             '5.4RC2' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1243 );
@@ -2428,6 +2428,7 @@ function construct_page() {
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],
 			'frame-src'  => [ "'self'" ]
 		];
+
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)

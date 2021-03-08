@@ -43,6 +43,7 @@ Hubzilla 5.4 (2021-03-xx)
 	- Fix r_preview for list mode in mod channel and mod network
 
 	Addons
+	- Pubcrawl: deal with mastodons remote replies
 	- Diaspora: reduce xchan network confusion in several places
 	- Diaspora: fix mentions if multiple xchan networks exists
 	- Diaspora: fix comments on comments
@@ -69,7 +70,7 @@ Hubzilla 5.4 (2021-03-xx)
 
 
 Hubzilla 5.2.2 (2021-02-13)
-    - Fix issue with ping_site()
+	- Fix issue with ping_site()
 
 
 Hubzilla 5.2.1 (2021-01-16)

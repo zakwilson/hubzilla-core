@@ -1574,7 +1574,7 @@ $(window).scroll(function () {
 	}
 	else {
 		// This is some other kind of page - perhaps a directory
-		if($(window).scrollTop() + $(window).height() > $('#page-end').position().top) {
+		if($('#page-end').length && ($(window).scrollTop() + $(window).height() > $('#page-end').position().top)) {
 			if((pageHasMoreContent) && (! loadingPage) && (! justifiedGalleryActive)) {
 				next_page++;
 				scroll_next = true;

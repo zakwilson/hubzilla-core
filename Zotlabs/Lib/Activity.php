@@ -2114,22 +2114,22 @@ class Activity {
 		$s['uuid']       = $act->obj['diaspora:guid'];
 		$s['parent_mid'] = $act->parent_id;
 
-		if ($act->data['published']) {
+		if (array_key_exists('published', $act->data)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->data['published']);
 		}
-		elseif ($act->obj['published']) {
+		elseif (array_key_exists('published', $act->obj)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->obj['published']);
 		}
-		if ($act->data['updated']) {
+		if (array_key_exists('updated', $act->data)) {
 			$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
 		}
-		elseif ($act->obj['updated']) {
+		elseif (array_key_exists('updated', $act->obj)) {
 			$s['edited'] = datetime_convert('UTC', 'UTC', $act->obj['updated']);
 		}
-		if ($act->data['expires']) {
+		if (array_key_exists('expires', $act->data)) {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->data['expires']);
 		}
-		elseif ($act->obj['expires']) {
+		elseif (array_key_exists('expires', $act->obj)) {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
 		}
 

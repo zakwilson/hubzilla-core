@@ -104,7 +104,10 @@ class Activity {
 		if ($x['success']) {
 			$m = parse_url($url);
 			if ($m) {
-				$site_url = unparse_url(['scheme' => $m['scheme'], 'host' => $m['host'], 'port' => $m['port'] ]);
+				$y = [ 'scheme' => $m['scheme'], 'host' => $m['host'] ];
+				if (array_key_exists('port', $m))
+					$y['port'] = $m['port'];
+				$site_url = unparse_url($y);
 				q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
 					dbesc(datetime_convert()),
 					dbesc($site_url),

@@ -2717,7 +2717,7 @@ class Activity {
 			}
 		}
 
-		if ($act->obj['conversation']) {
+		if (array_key_exists('conversation', $act->obj)) {
 			set_iconfig($item, 'ostatus', 'conversation', $act->obj['conversation'], 1);
 		}
 

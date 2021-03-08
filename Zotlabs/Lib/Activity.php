@@ -1602,13 +1602,13 @@ class Activity {
 
 		if ($inbox) {
 			$collections['inbox'] = $inbox;
-			if ($person_obj['outbox'])
+			if (array_key_exists('outbox', $person_obj))
 				$collections['outbox'] = $person_obj['outbox'];
-			if ($person_obj['followers'])
+			if (array_key_exists('followers', $person_obj))
 				$collections['followers'] = $person_obj['followers'];
-			if ($person_obj['following'])
+			if (array_key_exists('following', $person_obj))
 				$collections['following'] = $person_obj['following'];
-			if ($person_obj['endpoints'] && $person_obj['endpoints']['sharedInbox'])
+			if (array_key_exists('endpoints', $person_obj) && array_key_exists('sharedInbox', $person_obj['endpoints']))
 				$collections['sharedInbox'] = $person_obj['endpoints']['sharedInbox'];
 		}
 

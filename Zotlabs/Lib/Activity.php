@@ -698,7 +698,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['attachment']) {
+		if (array_key_exists('attachment', $item) && is_array($item['attachment'])) {
 			foreach ($item['attachment'] as $att) {
 				$entry = [];
 				if ($att['href'])

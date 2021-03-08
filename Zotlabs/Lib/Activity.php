@@ -641,7 +641,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['attach']) {
+		if (array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
@@ -654,7 +654,7 @@ class Activity {
 				}
 			}
 		}
-		if ($item['iconfig']) {
+		if (array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
 					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);

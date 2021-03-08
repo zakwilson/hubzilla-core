@@ -313,6 +313,7 @@ var activeCommentText = '';
 
 	function itemCancel() {
 		$("#jot-title").val('');
+		$("#jot-summary").val('');
 		$("#profile-jot-text").val('');
 		$(".jot-poll-option input").val('');
 		$("#jot-category").tagsinput('removeAll');

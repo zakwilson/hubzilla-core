@@ -610,7 +610,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['term']) {
+		if (array_key_exists('term', $item) && is_array($item['term'])) {
 			foreach ($item['term'] as $t) {
 				switch ($t['ttype']) {
 					case TERM_HASHTAG:

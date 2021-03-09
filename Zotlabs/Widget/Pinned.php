@@ -43,7 +43,7 @@ class Pinned {
 			
 			$midb64 = 'b64.' . base64url_encode($item['mid']);
 			
-			if(isset($observer['xchan_hash']) && in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
+			if(in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
 				continue;
 			
 			$author = channelx_by_hash($item['author_xchan']);

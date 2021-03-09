@@ -29,26 +29,28 @@ class Profile extends Controller {
 			return;
 		}
 
-		$profile = '';
-		$channel = App::get_channel();
-
-		if (!$channel)
-			http_status_exit(404, 'Not found');
-
 		if (ActivityStreams::is_as_request()) {
+			$channel = channelx_by_nick($which);
+			if (!$channel) {
+				http_status_exit(404, 'Not found');
+			}
+
 			$p = Activity::encode_person($channel, true);
 			as_return_and_die(['type' => 'Profile', 'describes' => $p], $channel);
 		}
 
-		nav_set_selected('Profile');
+		$profile = '';
 
 		if ((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
+			$channel = App::get_channel();
 			$which   = $channel['channel_address'];
 			$profile = argv(1);
-			$r       = q("select profile_guid from profile where id = %d and uid = %d limit 1",
+
+			$r = q("select profile_guid from profile where id = %d and uid = %d limit 1",
 				intval($profile),
 				intval(local_channel())
 			);
+
 			if (!$r)
 				$profile = '';
 			$profile = $r[0]['profile_guid'];
@@ -80,7 +82,6 @@ class Profile extends Controller {
 
 		profile_load($which, $profile);
 
-
 	}
 
 	function get() {
@@ -89,11 +90,10 @@ class Profile extends Controller {
 			return login();
 		}
 
+		nav_set_selected('Profile');
+
 		$groups = [];
-
-
-		$tab = 'profile';
-		$o   = '';
+		$o      = '';
 
 		if (!(perm_is_allowed(App::$profile['profile_uid'], get_observer_hash(), 'view_profile'))) {
 			notice(t('Permission denied.') . EOL);

@@ -832,7 +832,7 @@ class Item extends Controller {
 			if($results) {
 
 				// Set permissions based on tag replacements
-				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
+				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $private, $parent_item);
 
 				foreach($results as $result) {
 					$success = $result['success'];

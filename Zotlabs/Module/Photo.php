@@ -180,7 +180,7 @@ class Photo extends \Zotlabs\Web\Controller {
 				$channel = channelx_by_n($r[0]['uid']);
 
 				// Now we'll see if we can access the photo
-				$e = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale = %d $sql_extra LIMIT 1",
+				$e = q("SELECT * FROM photo WHERE resource_id = '%s' AND imgscale = %d LIMIT 1",
 					dbesc($photo),
 					intval($resolution)
 				);

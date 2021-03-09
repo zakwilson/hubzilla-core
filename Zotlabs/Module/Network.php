@@ -21,12 +21,12 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']) || strpos($_GET['search'], 'https://') === 0)
-			goaway('search' . '?f=&search=' . $_GET['search']);
+			goaway(z_root() . '/search?f=&search=' . $_GET['search']);
 
 		if(count($_GET) < 2) {
 			$network_options = get_pconfig(local_channel(),'system','network_page_default');
 			if($network_options)
-				goaway('network' . '?f=&' . $network_options);
+				goaway(z_root() . '/network?f=&' . $network_options);
 		}
 
 		$channel = App::get_channel();

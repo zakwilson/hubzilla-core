@@ -1,3 +1,15 @@
+Hubzilla 5.4.1 (2021-03-09)
+	- Fix profile not found if not logged in
+	- Fix summary not reset on cancel
+	- Fix summary not saved with aoutosave draft
+	- Fix unexpected trigger of buttons when pressing enter in input fields
+	- Fix spanish plural expression
+	- Fix undefined page-end on non dynamic pages
+
+	Addons
+	- Pubcrawl: fix regression in pubcrawl_follow_mod_init()
+
+
 Hubzilla 5.4 (2021-03-08)
 	- Add new connections to privacy group independend from the default privacy group settings
 	- group_add() return group hash to save a lookup

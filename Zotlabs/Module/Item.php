@@ -821,12 +821,10 @@ class Item extends Controller {
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
 
-			$summary = cleanup_bbcode($summary);
 			$body = cleanup_bbcode($body);
 
 			// Look for tags and linkify them
 
-			$results = linkify_tags($summary, ($uid) ? $uid : $profile_uid);
 			$results = linkify_tags($body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {

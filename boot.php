@@ -2316,13 +2316,14 @@ function construct_page() {
 		$navbar = get_pconfig($uid,'system','navbar',$navbar);
 	}
 
-	if($comanche && App::$layout['navbar']) {
+	if($comanche && isset(App::$layout['navbar'])) {
 		$navbar = App::$layout['navbar'];
 	}
 
 	if (App::$module == 'setup') {
 		$installing = true;
-	} else {
+	}
+	else {
 		nav($navbar);
 	}
 

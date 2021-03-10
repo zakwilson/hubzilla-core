@@ -43,7 +43,7 @@ class Pinned {
 			
 			$midb64 = 'b64.' . base64url_encode($item['mid']);
 			
-			if(in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
+			if(isset($observer['xchan_hash']) && in_array($observer['xchan_hash'], get_pconfig($item['uid'], 'pinned_hide', $midb64, [])))
 				continue;
 			
 			$author = channelx_by_hash($item['author_xchan']);
@@ -67,7 +67,7 @@ class Pinned {
 				$conv_responses['attendno'] = [ 'title' => t('Not attending','title') ];
 				$conv_responses['attendmaybe'] = [ 'title' => t('Might attend','title') ];
 				if($commentable && $observer) {
-					$attend = array( t('I will attend'), t('I will not attend'), t('I might attend'));
+					$attend = [ t('I will attend'), t('I will not attend'), t('I might attend') ];
 					$isevent = true;
 				}
 			}
@@ -78,7 +78,7 @@ class Pinned {
 				$conv_responses['disagree'] = [ 'title' => t('Disagree','title') ];
 				$conv_responses['abstain'] = [ 'title' => t('Abstain','title') ];
 				if($commentable && $observer) {
-					$conlabels = array( t('I agree'), t('I disagree'), t('I abstain'));
+					$conlabels = [ t('I agree'), t('I disagree'), t('I abstain') ];
 					$canvote = true;
 				}
 			}
@@ -93,14 +93,13 @@ class Pinned {
 				// This actually turns out not to be possible in some protocol stacks without opening up hundreds of new issues.
 				// Will allow it only for uri resolvable sources.
 				if(strpos($item['mid'],'http') === 0) {
-					$share = []; //Not yet ready for primetime
-					//$share = array( t('Repeat This'), t('repeat'));
+					$share = []; // Isn't yet ready for primetime
+					//$share = [ t('Repeat This'), t('repeat') ];
 				}
-				$embed = array( t('Share This'), t('share'));
+				$embed = [ t('Share This'), t('share') ];
 			}
-			
-			if(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0)
-				$is_new = true;
+
+			$is_new = boolval(strcmp(datetime_convert('UTC','UTC',$item['created']),datetime_convert('UTC','UTC','now - 12 hours')) > 0);
 
 			$body = prepare_body($item,true);
 			
@@ -118,7 +117,7 @@ class Pinned {
 				'isevent'	 => $isevent,
 				'attend'	 => $attend, 
 				'consensus'	 => $consensus,
-				'conlabels'	 => $conlabels,
+				'conlabels'	 => ($canvote ? $conlabels : []),
 				'canvote'	 => $canvote,
 				'linktitle' 	 => sprintf( t('View %s\'s profile - %s'), $profile_name, ($author['xchan_addr'] ? $author['xchan_addr'] : $author['xchan_url']) ),
 				'olinktitle' 	 => sprintf( t('View %s\'s profile - %s'), $owner['xchan_name'], ($owner['xchan_addr'] ? $owner['xchan_addr'] : $owner['xchan_url']) ),
@@ -135,7 +134,6 @@ class Pinned {
 				'localtime'	 => datetime_convert('UTC', date_default_timezone_get(), $item['created'], 'r'),
 				'editedtime'	 => (($item['edited'] != $item['created']) ? sprintf( t('last edited: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['edited'], 'r') ) : ''),
 				'expiretime'	 => ($item['expires'] > NULL_DATE ? sprintf( t('Expires: %s'), datetime_convert('UTC', date_default_timezone_get(), $item['expires'], 'r') ) : ''),
-				'lock' 		 => $lock,
 				'verified'	 => $verified,
 				'forged'	 => $forged,
 				'location'	 => $location,
@@ -150,12 +148,12 @@ class Pinned {
 				'event'		 => $body['event'],
 				'has_tags'	 => (($body['tags'] || $body['categories'] || $body['mentions'] || $body['attachments'] || $body['folders']) ? true : false),
 				// Item toolbar buttons
-				'share'		 => $share,
-				'embed'		 => $embed,
+				'share'		 => (isset($share) && count($share) ? $share : false),
+				'embed'		 => (isset($embed) && count($embed) ? $embed : false),
 				'plink'		 => get_plink($item),
 				'pinned'	 => t('Pinned post'),
-				'pinme'      => (($observer['xchan_hash'] == $owner['xchan_hash']) ? t('Unpin from the top') : ''),
-				'hide'		 => (! $is_new && $observer && ($observer['xchan_hash'] != $owner['xchan_hash']) ? t("Don't show") : ''),
+				'pinme'		 => (isset($observer['xchan_hash']) && $observer['xchan_hash'] == $owner['xchan_hash'] ? t('Unpin from the top') : ''),
+				'hide'		 => (! $is_new && isset($observer['xchan_hash']) && $observer['xchan_hash'] != $owner['xchan_hash'] ? t("Don't show") : ''),
 				// end toolbar buttons
 				'modal_dismiss' => t('Close'),
 				'responses'	 => $conv_responses

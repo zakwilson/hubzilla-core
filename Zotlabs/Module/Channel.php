@@ -27,8 +27,8 @@ class Channel extends Controller {
 
 	function init() {
 
-		if (in_array(substr($_GET['search'], 0, 1), ['@', '!', '?']) || strpos($_GET['search'], 'https://') === 0)
-			goaway('search' . '?f=&search=' . $_GET['search']);
+		if (array_key_exists('search', $_GET) && (in_array(substr($_GET['search'], 0, 1), ['@', '!', '?']) || strpos($_GET['search'], 'https://') === 0))
+			goaway(z_root() . '/search?f=&search=' . $_GET['search']);
 
 		$which = null;
 		if (argc() > 1)
@@ -155,7 +155,7 @@ class Channel extends Controller {
 				intval($channel['channel_id'])
 			);
 
-		opengraph_add_meta($r ? $r[0] : [], $channel);
+		opengraph_add_meta((isset($r) && count($r) ? $r[0] : []), $channel);
 	}
 
 	function get($update = 0, $load = false) {
@@ -168,7 +168,7 @@ class Channel extends Controller {
 
 		if (strpos($mid, 'b64.') === 0)
 			$decoded = @base64url_decode(substr($mid, 4));
-		if ($decoded)
+		if (isset($decoded))
 			$mid = $decoded;
 
 		$datequery  = ((x($_GET, 'dend') && is_a_date_arg($_GET['dend'])) ? notags($_GET['dend']) : '');
@@ -420,7 +420,7 @@ class Channel extends Controller {
 
 		if ((!$update) && (!$load)) {
 
-			if ($decoded)
+			if (isset($decoded))
 				$mid = 'b64.' . base64url_encode($mid);
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
@@ -486,7 +486,7 @@ class Channel extends Controller {
 
 			$o .= conversation($items, $mode, $update, $page_mode);
 
-			if ($mid && $items[0]['title'])
+			if ($mid && count($items) > 0 && isset($items[0]['title']))
 				App::$page['title'] = $items[0]['title'] . " - " . App::$page['title'];
 
 		}

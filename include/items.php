@@ -1432,7 +1432,7 @@ function purify_imported_object($obj) {
 	elseif (is_string($obj)) {
 		$ret = purify_html($obj);
 	}
-	
+
 	return $ret;
 }
 
@@ -4334,8 +4334,8 @@ function fetch_post_tags($items, $link = false) {
 			foreach($imeta as $i) {
 				if(array_key_exists('item_id',$items[$x])) {
 					if($i['iid'] == $items[$x]['item_id']) {
-						if(! is_array($items[$x]['iconfig']))
-							$items[$x]['iconfig'] = array();
+						if(! isset($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = [];
 						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
 						$items[$x]['iconfig'][] = $i;
 					}

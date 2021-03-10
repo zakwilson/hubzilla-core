@@ -551,7 +551,7 @@ class Apps {
 			'$app' => $papp,
 			'$icon' => $icon,
 			'$hosturl' => $hosturl,
-			'$purchase' => (($papp['page'] && (! $installed)) ? t('Purchase') : ''),
+			'$purchase' => ((isset($papp['page']) && (! $installed)) ? t('Purchase') : ''),
 			'$installed' => $installed,
 			'$action_label' => (($hosturl && in_array($mode, ['view','install'])) ? $install_action : ''),
 			'$edit' => ((local_channel() && $installed && $mode == 'edit') ? t('Edit') : ''),
@@ -559,8 +559,8 @@ class Apps {
 			'$undelete' => ((local_channel() && $mode == 'edit') ? t('Undelete') : ''),
 			'$settings_url' => ((local_channel() && $installed && $mode == 'list') ? $papp['settings_url'] : ''),
 			'$deleted' => $papp['deleted'],
-			'$feature' => (($papp['embed'] || $mode == 'edit') ? false : true),
-			'$pin' => (($papp['embed'] || $mode == 'edit') ? false : true),
+			'$feature' => ((isset($papp['embed']) || $mode == 'edit') ? false : true),
+			'$pin' => ((isset($papp['embed']) || $mode == 'edit') ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
 			'$navapps' => (($mode == 'nav') ? true : false),
@@ -1276,58 +1276,58 @@ class Apps {
 
 		$ret['type'] = 'personal';
 
-		if($app['app_id'])
+		if(isset($app['app_id']))
 			$ret['guid'] = $app['app_id'];
 
-		if($app['app_sig'])
+		if(isset($app['app_sig']))
 			$ret['sig'] = $app['app_sig'];
 
-		if($app['app_author'])
+		if(isset($app['app_author']))
 			$ret['author'] = $app['app_author'];
 
-		if($app['app_name'])
+		if(isset($app['app_name']))
 			$ret['name'] = $app['app_name'];
 
-		if($app['app_desc'])
+		if(isset($app['app_desc']))
 			$ret['desc'] = $app['app_desc'];
 
-		if($app['app_url'])
+		if(isset($app['app_url']))
 			$ret['url'] = $app['app_url'];
 
-		if($app['app_photo'])
+		if(isset($app['app_photo']))
 			$ret['photo'] = $app['app_photo'];
 
-		if($app['app_icon'])
+		if(isset($app['app_icon']))
 			$ret['icon'] = $app['app_icon'];
 
-		if($app['app_version'])
+		if(isset($app['app_version']))
 			$ret['version'] = $app['app_version'];
 
-		if($app['app_addr'])
+		if(isset($app['app_addr']))
 			$ret['addr'] = $app['app_addr'];
 
-		if($app['app_price'])
+		if(isset($app['app_price']))
 			$ret['price'] = $app['app_price'];
 
-		if($app['app_page'])
+		if(isset($app['app_page']))
 			$ret['page'] = $app['app_page'];
 
-		if($app['app_requires'])
+		if(isset($app['app_requires']))
 			$ret['requires'] = $app['app_requires'];
 
-		if($app['app_system'])
+		if(isset($app['app_system']))
 			$ret['system'] = $app['app_system'];
 
-		if($app['app_options'])
+		if(isset($app['app_options']))
 			$ret['options'] = $app['app_options'];
 
-		if($app['app_plugin'])
+		if(isset($app['app_plugin']))
 			$ret['plugin'] = trim($app['app_plugin']);
 
-		if($app['app_deleted'])
+		if(isset($app['app_deleted']))
 			$ret['deleted'] = $app['app_deleted'];
 
-		if($app['term']) {
+		if(isset($app['term'])) {
 			$s = '';
 			foreach($app['term'] as $t) {
 				if($s)

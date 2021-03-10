@@ -64,6 +64,8 @@ class Activity_filter {
 			);
 
 			if($groups) {
+				$group_active = '';
+
 				foreach($groups as $g) {
 					if(x($_GET,'gid')) {
 						$group_active = (($_GET['gid'] == $g['id']) ? 'active' : '');
@@ -95,6 +97,8 @@ class Activity_filter {
 			$channel = App::get_channel();
 
 			if($forums) {
+				$forum_active = '';
+
 				foreach($forums as $f) {
 					if(x($_GET,'pf') && x($_GET,'cid')) {
 						$forum_active = ((x($_GET,'pf') && $_GET['cid'] == $f['abook_id']) ? 'active' : '');
@@ -103,10 +107,10 @@ class Activity_filter {
 					$fsub[] = [
 						'label' => $f['xchan_name'],
 						'img' => $f['xchan_photo_s'],
-						'url' => (($f['private_forum']) ? $f['xchan_url'] . '/?f=&zid=' . $channel['xchan_addr'] : z_root() . '/' . $cmd . '/?f=&pf=1&cid=' . $f['abook_id']),
+						'url' => ((isset($f['private_forum'])) ? $f['xchan_url'] . '/?f=&zid=' . $channel['xchan_addr'] : z_root() . '/' . $cmd . '/?f=&pf=1&cid=' . $f['abook_id']),
 						'sel' => $forum_active,
 						'title' => t('Show posts to this forum'),
-						'lock' => (($f['private_forum']) ? 'lock' : '')
+						'lock' => ((isset($f['private_forum'])) ? 'lock' : '')
 					];
 				}
 
@@ -160,6 +164,8 @@ class Activity_filter {
 			);
 
 			if($terms) {
+				$file_active = '';
+
 				foreach($terms as $t) {
 					if(x($_GET,'file')) {
 						$file_active = (($_GET['file'] == $t['term']) ? 'active' : '');

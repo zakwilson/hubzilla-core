@@ -20,8 +20,10 @@ class Network extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		if(in_array(substr($_GET['search'],0,1),[ '@', '!', '?']) || strpos($_GET['search'], 'https://') === 0)
-			goaway(z_root() . '/search?f=&search=' . $_GET['search']);
+		$search = $_GET['search'] ?? '';
+
+		if(in_array(substr($search, 0, 1),[ '@', '!', '?']) || strpos($search, 'https://') === 0)
+			goaway(z_root() . '/search?f=&search=' . $search);
 
 		if(count($_GET) < 2) {
 			$network_options = get_pconfig(local_channel(),'system','network_page_default');
@@ -80,7 +82,7 @@ class Network extends \Zotlabs\Web\Controller {
 				break;
 		}
 
-		$search = (($_GET['search']) ? $_GET['search'] : '');
+		$search = $_GET['search'] ?? '';
 		if($search) {
 			if(strpos($search,'#') === 0) {
 				$hashtags = substr($search,1);

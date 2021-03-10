@@ -1134,11 +1134,15 @@ function discover_by_webbie($webbie, $protocol = '') {
 		foreach($x['links'] as $link) {
 			if(array_key_exists('rel',$link)) {
 				if($link['rel'] === PROTOCOL_ZOT6 && ((! $protocol) || (strtolower($protocol) === 'zot6'))) {
+
 					logger('zot6 found for ' . $webbie, LOGGER_DEBUG);
 					$record = Zotfinger::exec($link['href']);
+					if (! $record) {
+						logger('Record not found for ' . $link['href']);
+						continue;
+					}
 
 					// Check the HTTP signature
-
 					$hsig = $record['signature'];
 					if($hsig && $hsig['signer'] === $link['href'] && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
 						$hsig_valid = true;
@@ -1226,7 +1230,7 @@ function webfinger_rfc7033($webbie, $zot = false) {
 			if($m['scheme'] !== 'https')
 				return false;
 
-			$rhs = $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$rhs = $m['host'] . (array_key_exists('port', $m) ? ':' . $m['port'] : '');
 			$resource = urlencode($webbie);
 		}
 	}
@@ -1957,10 +1961,10 @@ function service_plink($contact, $guid) {
 
 	$m = parse_url($contact['xchan_url']);
 	if($m) {
-		$url = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+		$url = $m['scheme'] . '://' . $m['host'] . (array_key_exists('port', $m) ? ':' . $m['port'] : '');
 	}
 	else {
-		$url = 'https://' . substr($contact['xchan_addr'],strpos($contact['xchan_addr'],'@')+1);
+		$url = 'https://' . substr($contact['xchan_addr'], strpos($contact['xchan_addr'], '@') + 1);
 	}
 
 	$handle = substr($contact['xchan_addr'], 0, strpos($contact['xchan_addr'],'@'));

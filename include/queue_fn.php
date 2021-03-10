@@ -132,7 +132,7 @@ function queue_deliver($outq, $immediate = false) {
 	$base = null;
 	$h = parse_url($outq['outq_posturl']);
 	if($h !== false) 
-		$base = $h['scheme'] . '://' . $h['host'] . (array_key_exists('port', $h) ? ':' . $h['port'] : '');
+		$base = $h['scheme'] . '://' . $h['host'] . (isset($h['port']) ? ':' . $h['port'] : '');
 
 	if(($base) && ($base !== z_root()) && ($immediate)) {
 		$y = q("select site_update, site_dead from site where site_url = '%s' ",

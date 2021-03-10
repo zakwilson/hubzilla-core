@@ -76,27 +76,46 @@ function quotelevel($message, $wraplength = 75)
 	return(implode("\n", $newlines));
 }
 
+
 function collecturls($message) {
+	
 	$pattern = '/<a.*?href="(.*?)".*?>(.*?)<\/a>/is';
 	preg_match_all($pattern, $message, $result, PREG_SET_ORDER);
-
-	$urls = array();
-	foreach ($result as $treffer) {
-		// A list of some links that should be ignored
-		$list = array("/user/", "/tag/", "/group/", "/profile/", "/channel/", "/search?search=", "/search?tag=", "mailto:", "/u/", "/node/",
-				"//facebook.com/profile.php?id=", "//plus.google.com/");
-		foreach ($list as $listitem)
-			if (strpos($treffer[1], $listitem) !== false)
-				$ignore = true;
-
-		if ((strpos($treffer[1], "//plus.google.com/") !== false) and (strpos($treffer[1], "/posts") !== false))
+	
+	$urls = [];
+	if ($result) {
+		$ignore = false;
+		foreach ($result as $treffer) {
+			// A list of some links that should be ignored
+			$list = [
+				"/user/",
+				"/tag/",
+				"/group/",
+				"/profile/",
+				"/channel/",
+				"/search?search=",
+				"/search?tag=",
+				"mailto:",
+				"/u/",
+				"/node/",
+				"//facebook.com/profile.php?id=",
+				"//plus.google.com/"
+			];
+			foreach ($list as $listitem)
+				if (strpos($treffer[1], $listitem) !== false)
+					$ignore = true;
+						
+			if ((strpos($treffer[1], "//plus.google.com/") !== false) and (strpos($treffer[1], "/posts") !== false))
 				$ignore = false;
-
-		if (!$ignore)
-			$urls[$treffer[1]] = $treffer[1];
+					
+			if (! $ignore)
+				$urls[$treffer[1]] = $treffer[1];
+		}
 	}
+	
 	return($urls);
 }
+
 
 function html2plain($html, $wraplength = 75, $compact = false)
 {

@@ -3253,6 +3253,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['mid'] = z_root() . '/item/' . $item['uuid'];
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
+				$item['llink'] = z_root() . '/display/' . gen_link_id($item['mid']);
 			}
 
 			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s' WHERE id = %d",

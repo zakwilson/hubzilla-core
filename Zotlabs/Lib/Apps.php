@@ -1276,58 +1276,58 @@ class Apps {
 
 		$ret['type'] = 'personal';
 
-		if(isset($app['app_id']))
+		if(!empty($app['app_id']))
 			$ret['guid'] = $app['app_id'];
 
-		if(isset($app['app_sig']))
+		if(!empty($app['app_sig']))
 			$ret['sig'] = $app['app_sig'];
 
-		if(isset($app['app_author']))
+		if(!empty($app['app_author']))
 			$ret['author'] = $app['app_author'];
 
-		if(isset($app['app_name']))
+		if(!empty($app['app_name']))
 			$ret['name'] = $app['app_name'];
 
-		if(isset($app['app_desc']))
+		if(!empty($app['app_desc']))
 			$ret['desc'] = $app['app_desc'];
 
-		if(isset($app['app_url']))
+		if(!empty($app['app_url']))
 			$ret['url'] = $app['app_url'];
 
-		if(isset($app['app_photo']))
+		if(!empty($app['app_photo']))
 			$ret['photo'] = $app['app_photo'];
 
-		if(isset($app['app_icon']))
+		if(!empty($app['app_icon']))
 			$ret['icon'] = $app['app_icon'];
 
-		if(isset($app['app_version']))
+		if(!empty($app['app_version']))
 			$ret['version'] = $app['app_version'];
 
-		if(isset($app['app_addr']))
+		if(!empty($app['app_addr']))
 			$ret['addr'] = $app['app_addr'];
 
-		if(isset($app['app_price']))
+		if(!empty($app['app_price']))
 			$ret['price'] = $app['app_price'];
 
-		if(isset($app['app_page']))
+		if(!empty($app['app_page']))
 			$ret['page'] = $app['app_page'];
 
-		if(isset($app['app_requires']))
+		if(!empty($app['app_requires']))
 			$ret['requires'] = $app['app_requires'];
 
-		if(isset($app['app_system']))
+		if(!empty($app['app_system']))
 			$ret['system'] = $app['app_system'];
 
-		if(isset($app['app_options']))
+		if(!empty($app['app_options']))
 			$ret['options'] = $app['app_options'];
 
-		if(isset($app['app_plugin']))
+		if(!empty($app['app_plugin']))
 			$ret['plugin'] = trim($app['app_plugin']);
 
-		if(isset($app['app_deleted']))
+		if(!empty($app['app_deleted']))
 			$ret['deleted'] = $app['app_deleted'];
 
-		if(isset($app['term'])) {
+		if(!empty($app['term']) && is_array($app['term'])) {
 			$s = '';
 			foreach($app['term'] as $t) {
 				if($s)

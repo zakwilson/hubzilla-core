@@ -3256,11 +3256,12 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['llink'] = z_root() . '/display/' . gen_link_id($item['mid']);
 			}
 
-			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s' WHERE id = %d",
+			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
 				dbesc($item['mid']),
 				dbesc($item['parent_mid']),
 				dbesc($item['thr_parent']),
+				dbesc($item['llink']),
 				intval($item_id)
 			);
 		}

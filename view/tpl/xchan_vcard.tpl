@@ -14,7 +14,7 @@
 			</div>
 			{{if $connect}}
 			<div class="row mt-2">
-				<a href="follow?f=&url={{$follow}}" class="btn btn-success btn-sm" rel="nofollow">
+				<a href="follow?f=&url={{$follow}}&interactive=1" class="btn btn-success btn-sm" rel="nofollow">
 					<i class="fa fa-plus"></i> {{$connect}}
 				</a>
 			</div>

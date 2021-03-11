@@ -3691,7 +3691,7 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	if(App::$data['forum_channels'])
+	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
 	$xf = '';

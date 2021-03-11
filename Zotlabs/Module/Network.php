@@ -130,16 +130,18 @@ class Network extends \Zotlabs\Web\Controller {
 		$pf       = ((x($_GET,'pf'))    ? $_GET['pf']            : '');
 		$unseen   = ((x($_GET,'unseen'))    ? $_GET['unseen']            : '');
 
-                if (Apps::system_app_installed(local_channel(),'Affinity Tool')) {
+		if (Apps::system_app_installed(local_channel(),'Affinity Tool')) {
 			$affinity_locked = intval(get_pconfig(local_channel(),'affinity','lock',1));
 			if ($affinity_locked) {
-                        	set_pconfig(local_channel(),'affinity','cmin',$cmin);
-                        	set_pconfig(local_channel(),'affinity','cmax',$cmax);
+				set_pconfig(local_channel(),'affinity','cmin',$cmin);
+				set_pconfig(local_channel(),'affinity','cmax',$cmax);
 			}
-                }
+		}
 
 		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
 			$nouveau = true;
+
+		$cid_r = [];
 
 		if($cid) {
 			$cid_r = q("SELECT abook.abook_xchan, xchan.xchan_addr, xchan.xchan_name, xchan.xchan_url, xchan.xchan_photo_s, xchan.xchan_pubforum from abook left join xchan on abook_xchan = xchan_hash where abook_id = %d and abook_channel = %d and abook_blocked = 0 limit 1",

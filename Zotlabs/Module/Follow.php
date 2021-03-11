@@ -14,7 +14,7 @@ use Zotlabs\Daemon\Master;
 class Follow extends Controller {
 
 	function init() {
-	
+
 		if (ActivityStreams::is_as_request() && argc() == 2) {
 
 			$abook_id = intval(argv(1));
@@ -73,12 +73,20 @@ class Follow extends Controller {
 		$url = notags(trim(punify($_REQUEST['url'])));
 		$return_url = $_SESSION['return_url'];
 		$confirm = intval($_REQUEST['confirm']);
-		$interactive = (($_REQUEST['interactive']) ? intval($_REQUEST['interactive']) : 1);	
+		$interactive = (($_REQUEST['interactive']) ? intval($_REQUEST['interactive']) : 1);
 		$channel = App::get_channel();
 
 		$result = Connect::connect($channel,$url);
-		
+
 		if ($result['success'] == false) {
+
+			// this hook is currently used for mastodons remote reply functionality
+			$hookdata = [
+				'channel' => $channel,
+				'data' => $url
+			];
+			call_hooks('follow_failover', $hookdata);
+
 			if ($result['message']) {
 				notice($result['message']);
 			}
@@ -89,9 +97,9 @@ class Follow extends Controller {
 				json_return_and_die($result);
 			}
 		}
-	
+
 		info( t('Connection added.') . EOL);
-	
+
 		$clone = array();
 		foreach ($result['abook'] as $k => $v) {
 			if (strpos($k,'abook_') === 0) {
@@ -101,30 +109,30 @@ class Follow extends Controller {
 		unset($clone['abook_id']);
 		unset($clone['abook_account']);
 		unset($clone['abook_channel']);
-	
+
 		$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
 		if ($abconfig) {
 			$clone['abconfig'] = $abconfig;
 		}
 		Libsync::build_sync_packet(0, [ 'abook' => [ $clone ] ], true);
-	
+
 		$can_view_stream = their_perms_contains($channel['channel_id'],$clone['abook_xchan'],'view_stream');
-	
+
 		// If we can view their stream, pull in some posts
-	
+
 		if (($can_view_stream) || ($result['abook']['xchan_network'] === 'rss')) {
 			Master::Summon([ 'Onepoll', $result['abook']['abook_id'] ]);
 		}
-	
+
 		if ($interactive) {
 			goaway(z_root() . '/connedit/' . $result['abook']['abook_id'] . '?follow=1');
 		}
 		else {
 			json_return_and_die([ 'success' => true ]);
 		}
-	
+
 	}
-	
+
 	function get() {
 		if (! local_channel()) {
 			return login();

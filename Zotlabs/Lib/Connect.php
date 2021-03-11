@@ -207,13 +207,13 @@ class Connect {
 		}
 
 		$my_perms = $p['perms'];
-		
+
 		$profile_assign = get_pconfig($uid,'system','profile_assign','');
 
 
 		// See if we are already connected by virtue of having an abook record
 
-		$r = q("select abook_id, abook_xchan, abook_pending, abook_instance from abook 
+		$r = q("select abook_id, abook_xchan, abook_pending, abook_instance from abook
 			where abook_xchan = '%s' and abook_channel = %d limit 1",
 			dbesc($xchan_hash),
 			intval($uid)
@@ -282,7 +282,7 @@ class Connect {
 
 		// fetch the entire record
 
-		$r = q("select abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash 
+		$r = q("select abook.*, xchan.* from abook left join xchan on abook_xchan = xchan_hash
 			where abook_xchan = '%s' and abook_channel = %d limit 1",
 			dbesc($xchan_hash),
 			intval($uid)

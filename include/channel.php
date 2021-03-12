@@ -2046,7 +2046,7 @@ function get_theme_uid() {
 function get_default_profile_photo($size = 300) {
 	$scheme = get_config('system','default_profile_photo');
 	if(! $scheme)
-		$scheme = 'human_confusion';
+		$scheme = 'rainbow_man';
 
 	if(! is_dir('images/default_profile_photos/' . $scheme)) {
 		$x = [ 'scheme' => $scheme, 'size' => $size, 'url' => '' ];
@@ -2055,7 +2055,7 @@ function get_default_profile_photo($size = 300) {
 			return $x['url'];
 		}
 		else {
-			$scheme = 'human_confusion';
+			$scheme = 'rainbow_man';
 		}
 	}
 

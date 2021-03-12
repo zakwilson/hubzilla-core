@@ -52,7 +52,7 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.4RC2' );
+define ( 'STD_VERSION',             '5.5.3' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1244 );
@@ -1183,14 +1183,18 @@ class App {
 		if($interval < 10000)
 			$interval = 80000;
 
-		if(! x(self::$page,'title'))
+		if(! isset(self::$page['title']) && isset(self::$config['system']['sitename']))
 			self::$page['title'] = self::$config['system']['sitename'];
 
-		$pagemeta = [ 'og:title' => self::$page['title'] ];
+		if(isset(self::$page['title']))
+			$pagemeta = [ 'og:title' => self::$page['title'] ];
 
 		call_hooks('page_meta',$pagemeta);
-		foreach ($pagemeta as $metaproperty => $metavalue) {
-			self::$meta->set($metaproperty,$metavalue);
+
+		if($pagemeta) {
+			foreach ($pagemeta as $metaproperty => $metavalue) {
+				self::$meta->set($metaproperty,$metavalue);
+			}
 		}
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
@@ -1226,10 +1230,10 @@ class App {
 				'$linkrel'         => head_get_links(),
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
-				'$channel_id'      => self::$profile['uid'],
-				'$auto_save_draft' => ((feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
+				'$channel_id'      => self::$profile['uid'] ?? 0,
+				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
 			]
-		) . self::$page['htmlhead'];
+		) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 
 		// always put main.js at the end
 		self::$page['htmlhead'] .= head_get_main_js();
@@ -2312,13 +2316,14 @@ function construct_page() {
 		$navbar = get_pconfig($uid,'system','navbar',$navbar);
 	}
 
-	if($comanche && App::$layout['navbar']) {
+	if($comanche && isset(App::$layout['navbar'])) {
 		$navbar = App::$layout['navbar'];
 	}
 
 	if (App::$module == 'setup') {
 		$installing = true;
-	} else {
+	}
+	else {
 		nav($navbar);
 	}
 
@@ -2351,7 +2356,7 @@ function construct_page() {
 
 	App::build_pagehead();
 
-	if(App::$page['pdl_content']) {
+	if(isset(App::$page['pdl_content'])) {
 		App::$page['content'] = App::$comanche->region(App::$page['content']);
 	}
 
@@ -2418,11 +2423,12 @@ function construct_page() {
 	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(App::$config['system']['content_security_policy']) {
-		$cspsettings = Array (
-			'script-src' => Array ("'self'","'unsafe-inline'","'unsafe-eval'"),
-			'style-src' => Array ("'self'","'unsafe-inline'")
-		);
+	if(isset(App::$config['system']['content_security_policy'])) {
+		$cspsettings = [
+			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
+			'style-src'  => [ "'self'", "'unsafe-inline'" ],
+			'frame-src'  => [ "'self'" ]
+		];
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)
@@ -2448,13 +2454,13 @@ function construct_page() {
 		header($cspheader);
 	}
 
-	if(App::$config['system']['x_security_headers']) {
+	if(isset(App::$config['system']['x_security_headers'])) {
 		header("X-Frame-Options: SAMEORIGIN");
 		header("X-Xss-Protection: 1; mode=block;");
 		header("X-Content-Type-Options: nosniff");
 	}
 
-	if(App::$config['system']['public_key_pins']) {
+	if(isset(App::$config['system']['public_key_pins'])) {
 		header("Public-Key-Pins: " . App::$config['system']['public_key_pins']);
 	}
 

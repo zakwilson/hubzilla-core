@@ -821,18 +821,16 @@ class Item extends Controller {
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
 
-			$summary = cleanup_bbcode($summary);
 			$body = cleanup_bbcode($body);
 
 			// Look for tags and linkify them
 
-			$results = linkify_tags($summary, ($uid) ? $uid : $profile_uid);
 			$results = linkify_tags($body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {
 
 				// Set permissions based on tag replacements
-				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
+				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $private, $parent_item);
 
 				foreach($results as $result) {
 					$success = $result['success'];

@@ -43,7 +43,7 @@ class ThreadItem {
 		$observer = \App::get_observer();
 
 		// Prepare the children
-		if($data['children']) {
+		if(isset($data['children'])) {
 			foreach($data['children'] as $item) {
 
 				/*

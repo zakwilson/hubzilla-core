@@ -865,7 +865,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$x = [ 'mode' => $mode, 'item' => $item ];
 				call_hooks('stream_item',$x);
 
-				if($x['item']['blocked'])
+				if(isset($x['item']['blocked']))
 					continue;
 
 				$item = $x['item'];
@@ -1563,7 +1563,7 @@ function sort_item_children($items) {
 	$result = $items;
 	usort($result,'sort_thr_created_rev');
 	foreach($result as $k => $i) {
-		if($result[$k]['children']) {
+		if(isset($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
 		}
 	}
@@ -1573,7 +1573,7 @@ function sort_item_children($items) {
 function add_children_to_list($children, &$arr) {
 	foreach($children as $y) {
 		$arr[] = $y;
-		if($y['children'])
+		if(isset($y['children']))
 			add_children_to_list($y['children'], $arr);
 	}
 }

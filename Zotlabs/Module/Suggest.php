@@ -15,17 +15,17 @@ class Suggest extends \Zotlabs\Web\Controller {
 
 		if(! Apps::system_app_installed(local_channel(), 'Suggest Channels'))
 			return;
-	
+
 		if(x($_GET,'ignore')) {
 			q("insert into xign ( uid, xchan ) values ( %d, '%s' ) ",
 				intval(local_channel()),
 				dbesc($_GET['ignore'])
 			);
 		}
-	
+
 	}
-			
-	
+
+
 	function get() {
 
 		if(! local_channel()) {
@@ -45,22 +45,22 @@ class Suggest extends \Zotlabs\Web\Controller {
 		$o = '';
 
 		nav_set_selected('Suggest Channels');
-	
+
 		$_SESSION['return_url'] = z_root() . '/' . \App::$cmd;
-	
+
 		$r = suggestion_query(local_channel(),get_observer_hash());
-	
+
 		if(! $r) {
 			info( t('No suggestions available. If this is a new site, please try again in 24 hours.'));
 			return;
 		}
-	
+
 		$arr = array();
-	
+
 		foreach($r as $rr) {
-	
-			$connlnk = z_root() . '/follow/?url=' . $rr['xchan_addr'];
-	
+
+			$connlnk = z_root() . '/follow?f=&url=' . $rr['xchan_addr'];
+
 			$arr[] = array(
 				'url' => chanlink_url($rr['xchan_url']),
 				'common' => $rr['total'],
@@ -73,15 +73,15 @@ class Suggest extends \Zotlabs\Web\Controller {
 				'ignore' => t('Ignore/Hide')
 			);
 		}
-	
-	
+
+
 		$o = replace_macros(get_markup_template('suggest_page.tpl'),array(
 			'$title' => t('Channel Suggestions'),
 			'$entries' => $arr
 		));
-	
+
 		return $o;
-	
+
 	}
-	
+
 }

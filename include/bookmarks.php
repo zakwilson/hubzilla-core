@@ -73,6 +73,6 @@ function get_bookmark_link($observer) {
 
 	$h = @parse_url($observer['xchan_url']);
 	if($h)
-		return $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '') . '/rbmark?f=';
+		return $h['scheme'] . '://' . $h['host'] . (isset($h['port']) ? ':' . $h['port'] : '') . '/rbmark?f=';
 	return '';
 }

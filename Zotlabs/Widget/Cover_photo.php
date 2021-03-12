@@ -9,7 +9,7 @@ class Cover_photo {
 		require_once('include/channel.php');
 		$o = '';
 
-		if(\App::$module == 'channel' && $_REQUEST['mid'])
+		if(\App::$module == 'channel' && isset($_REQUEST['mid']))
 			return '';
 
 		$channel_id = 0;

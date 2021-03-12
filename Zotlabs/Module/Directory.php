@@ -245,7 +245,7 @@ class Directory extends Controller {
 							$profile_link = chanlink_url($rr['url']);
 
 							$pdesc = (($rr['description']) ? $rr['description'] . '<br />' : '');
-							$connect_link = ((local_channel()) ? z_root() . '/follow?f=&url=' . urlencode($rr['address']) : '');
+							$connect_link = ((local_channel()) ? z_root() . '/follow?f=&interactive=1&url=' . urlencode($rr['address']) : '');
 
 							// Checking status is disabled ATM until someone checks the performance impact more carefully
 							//$online = remote_online_status($rr['address']);

@@ -1206,10 +1206,10 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	else
 		$x['comment_scope'] = $c_scope;
 
-	if($item['term'])
-		$x['tags']        = encode_item_terms($item['term'],$mirror);
+	if(! empty($item['term']))
+		$x['tags'] = encode_item_terms($item['term'],$mirror);
 
-	if($item['iconfig']) {
+	if(! empty($item['iconfig'])) {
 		if ($zap_compat) {
 			for ($y = 0; $y < count($item['iconfig']); $y ++) {
 				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
@@ -1217,7 +1217,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 				}
 			}
 		}
-		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
+		$x['meta'] = encode_item_meta($item['iconfig'],$mirror);
 	}
 
 	logger('encode_item: ' . print_r($x,true), LOGGER_DATA);
@@ -1432,7 +1432,7 @@ function purify_imported_object($obj) {
 	elseif (is_string($obj)) {
 		$ret = purify_html($obj);
 	}
-	
+
 	return $ret;
 }
 
@@ -2832,11 +2832,11 @@ function tag_deliver($uid, $item_id) {
 	 * Now we've got those out of the way. Let's see if this is a post that's tagged for re-delivery
 	 */
 
-	$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
-
-	if($terms)
+	$terms = [];
+	if (array_key_exists('term', $item)) {
+		$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
 		logger('Post mentions: ' . print_r($terms,true), LOGGER_DATA);
-
+	}
 
 	$max_forums = get_config('system','max_tagged_forums',2);
 	$matched_forums = 0;
@@ -2845,7 +2845,7 @@ function tag_deliver($uid, $item_id) {
 	$link = normalise_link($u[0]['xchan_url']);
 
 
-	if($terms) {
+	if(count($terms) > 0) {
 		foreach($terms as $term) {
 			if(! link_compare($term['url'],$link)) {
 				continue;
@@ -3253,13 +3253,15 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 				$item['mid'] = z_root() . '/item/' . $item['uuid'];
 				$item['parent_mid'] = $item['mid'];
 				$item['thr_parent'] = $item['mid'];
+				$item['llink'] = z_root() . '/display/' . gen_link_id($item['mid']);
 			}
 
-			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s' WHERE id = %d",
+			$r = q("UPDATE item SET author_xchan = '%s', mid = '%s', parent_mid = '%s', thr_parent = '%s', llink = '%s' WHERE id = %d",
 				dbesc($item['author_xchan']),
 				dbesc($item['mid']),
 				dbesc($item['parent_mid']),
 				dbesc($item['thr_parent']),
+				dbesc($item['llink']),
 				intval($item_id)
 			);
 		}
@@ -4233,9 +4235,9 @@ function list_post_dates($uid, $wall, $mindate) {
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');
 		$end_month = datetime_convert('','',$dend,'Y-m-d');
 		$str = day_translate(datetime_convert('','',$dnow,'F'));
-		if(! $ret[$dyear])
-			$ret[$dyear] = array();
- 		$ret[$dyear][] = array($str,$end_month,$start_month);
+		if(! isset($ret[$dyear]))
+			$ret[$dyear] = [];
+ 		$ret[$dyear][] = [ $str, $end_month, $start_month ];
 		$dnow = datetime_convert('','',$dnow . ' -1 month', 'Y-m-d');
 	}
 
@@ -4314,17 +4316,17 @@ function fetch_post_tags($items, $link = false) {
 			foreach($tags as $t) {
 				if(($link) && ($t['ttype'] == TERM_MENTION))
 					$t['url'] = chanlink_url($t['url']);
-				if(array_key_exists('item_id',$items[$x])) {
+				if(array_key_exists('item_id', $items[$x])) {
 					if($t['oid'] == $items[$x]['item_id']) {
-						if(! is_array($items[$x]['term']))
-							$items[$x]['term'] = array();
+						if(array_key_exists('term', $items[$x]) && ! is_array($items[$x]['term']))
+							$items[$x]['term'] = [];
 						$items[$x]['term'][] = $t;
 					}
 				}
 				else {
 					if($t['oid'] == $items[$x]['id']) {
-						if(! is_array($items[$x]['term']))
-							$items[$x]['term'] = array();
+						if(array_key_exists('term', $items[$x]) && ! is_array($items[$x]['term']))
+							$items[$x]['term'] = [];
 						$items[$x]['term'][] = $t;
 					}
 				}
@@ -4334,16 +4336,16 @@ function fetch_post_tags($items, $link = false) {
 			foreach($imeta as $i) {
 				if(array_key_exists('item_id',$items[$x])) {
 					if($i['iid'] == $items[$x]['item_id']) {
-						if(! is_array($items[$x]['iconfig']))
-							$items[$x]['iconfig'] = array();
+						if(! isset($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = [];
 						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
 						$items[$x]['iconfig'][] = $i;
 					}
 				}
 				else {
 					if($i['iid'] == $items[$x]['id']) {
-						if(! is_array($items[$x]['iconfig']))
-							$items[$x]['iconfig'] = array();
+						if(array_key_exists('iconfig', $items[$x]) && ! is_array($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = [];
 						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
 						$items[$x]['iconfig'][] = $i;
 					}
@@ -4853,7 +4855,7 @@ function item_remove_cid($xchan_hash,$mid,$uid) {
 }
 
 // Set item permissions based on results obtained from linkify_tags()
-function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow, $profile_uid, $parent_item = false, &$private) {
+function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow, $profile_uid, &$private, $parent_item = false) {
 	$first_access_tag = true;
 
 	foreach($linkified as $x) {

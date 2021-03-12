@@ -1542,39 +1542,46 @@ function unobscure_mail(&$item) {
 
 function theme_attachments(&$item) {
 
+	$s = '';
 	$arr = json_decode($item['attach'],true);
-
 	if(is_array($arr) && count($arr)) {
-		$attaches = array();
+
+		$attaches = [];
 		foreach($arr as $r) {
 
-			$icon = getIconFromType($r['type']);
+			if(isset($r['type']))
+				$icon = getIconFromType($r['type']);
 
-			if($r['title'])
+			if(isset($r['title']))
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 
-			if(! $label && $r['href'])
+			if(! $label && isset($r['href']))
 				$label = basename($r['href']);
 
 			//some feeds provide an attachment where title an empty space
 			if(! $label || $label  == ' ')
 				$label = t('Unknown Attachment');
 
-			$title = t('Size') . ' ' . (($r['length']) ? userReadableSize($r['length']) : t('unknown'));
+			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
 
 			require_once('include/channel.php');
-			if(is_foreigner($item['author_xchan']))
-				$url = $r['href'];
-			else
-				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+
+			if (isset($r['href'])) {
+				if(is_foreigner($item['author_xchan']))
+					$url = $r['href'];
+				else
+					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+			}
 
 			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
+			if (isset($label) && isset($url) && isset($icon) && isset($title))
+				$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
 		}
 
-		$s = replace_macros(get_markup_template('item_attach.tpl'), array(
-			'$attaches' => $attaches
-		));
+		if (count($attaches) > 0)
+			$s = replace_macros(get_markup_template('item_attach.tpl'), [
+				'$attaches' => $attaches
+			]);
 	}
 
 	return $s;
@@ -1612,8 +1619,8 @@ function format_categories(&$item,$writeable) {
  */
 
 function format_hashtags(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'], array(TERM_HASHTAG,TERM_COMMUNITYTAG));
 	if($terms) {
 		foreach($terms as $t) {
@@ -1635,13 +1642,14 @@ function format_hashtags(&$item) {
 }
 
 
-
 function format_mentions(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'],TERM_MENTION);
 	if($terms) {
 		foreach($terms as $t) {
+			if(! isset($t['term']))
+				continue;
 			$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
 			if(! trim($term))
 				continue;
@@ -3695,7 +3703,7 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	if(App::$data['forum_channels'])
+	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
 	$xf = '';

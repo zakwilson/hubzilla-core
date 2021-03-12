@@ -77,7 +77,7 @@ function get_best_language() {
 	if(! isset($preferred)) {
 
 		/*
-		 * We could find no perfect match for any of the preferred languages. 
+		 * We could find no perfect match for any of the preferred languages.
 		 * For cases where the preference is fr-fr and we have fr but *not* fr-fr
 		 * run the test again and only look for the language base
 		 * which should provide an interface they can sort of understand
@@ -262,11 +262,15 @@ function tt($singular, $plural, $count, $ctx = ''){
  * @return string
  */
 function ta($k){
+		$t = null;
 
-        $t = App::$strings[$k];
-        if (is_array($t))
-                $t = implode("/", $t);
-        return ($t == "" ? $k : $t);
+		if(isset(App::$strings[$k]))
+			$t = App::$strings[$k];
+
+		if (is_array($t))
+			$t = implode("/", $t);
+
+		return ($t == "" ? $k : $t);
 }
 
 /**

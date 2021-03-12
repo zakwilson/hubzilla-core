@@ -14,7 +14,6 @@ class Search extends Controller {
 			App::$data['search'] = escape_tags($_REQUEST['search']);
 	}
 
-
 	function get($update = 0, $load = false) {
 
 		if ((get_config('system', 'block_public')) || (get_config('system', 'block_public_search'))) {
@@ -194,7 +193,7 @@ class Search extends Controller {
 
 				if (local_channel()) {
 					$r = q("SELECT mid, MAX(id) as item_id from item
-						WHERE ((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' AND item.deny_gid  = '' AND item_private = 0 ) 
+						WHERE ((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = '' AND item.deny_gid  = '' AND item_private = 0 )
 						OR ( item.uid = %d )) OR item.owner_xchan = '%s' )
 						$item_normal
 						$sql_extra
@@ -210,7 +209,7 @@ class Search extends Controller {
 						and owner_xchan in ( " . stream_perms_xchans(($observer) ? (PERMS_NETWORK | PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 							$pub_sql ) OR owner_xchan = '%s')
 						$item_normal
-						$sql_extra 
+						$sql_extra
 						group by mid, created order by created desc $pager_sql",
 						dbesc($sys['xchan_hash'])
 					);

@@ -51,7 +51,7 @@ var activeCommentID = 0;
 var activeCommentText = '';
 
 	$(document).ready(function() {
-	
+
 		$("#profile-jot-text").focus(enableOnUser);
 		$("#profile-jot-text").click(enableOnUser);
 
@@ -125,8 +125,8 @@ var activeCommentText = '';
 
 	});
 
-	function jotSetMime() { 
-		var mtype = $('#id_mimetype').val(); 
+	function jotSetMime() {
+		var mtype = $('#id_mimetype').val();
 		if(mtype == 'text/bbcode')
 			$('#profile-jot-submit-left').show();
 		else
@@ -155,7 +155,7 @@ var activeCommentText = '';
             textarea = document.getElementById('profile-jot-text');
             if (textarea.selectionStart || textarea.selectionStart == "0") {
                     var start = textarea.selectionStart;
-                    var end = textarea.selectionEnd;	
+                    var end = textarea.selectionEnd;
                     if (end > start) {
                         reply = prompt("{{$linkurl}}");
                         if(reply && reply.length) {
@@ -313,6 +313,7 @@ var activeCommentText = '';
 
 	function itemCancel() {
 		$("#jot-title").val('');
+		$("#jot-summary").val('');
 		$("#profile-jot-text").val('');
 		$(".jot-poll-option input").val('');
 		$("#jot-category").tagsinput('removeAll');
@@ -351,7 +352,7 @@ var activeCommentText = '';
 				return false;
 			});
 		});
-		
+
 	}
 
 	function itemFilerRm(id, term) {
@@ -570,6 +571,7 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 
 			if(action != 'clean') {
 				localStorage.setItem("post_title" + postid, $("#jot-title").val());
+				localStorage.setItem("post_summary" + postid, $("#jot-summary").val());
 				localStorage.setItem("post_body" + postid, $("#profile-jot-text").val());
 				if($("#jot-category").length)
 					localStorage.setItem("post_category" + postid, $("#jot-category").val());
@@ -590,10 +592,11 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 				clearTimeout(postSaveTimer);
 				postSaveTimer = null;
 				localStorage.removeItem("post_title" + postid);
+				localStorage.removeItem("post_summary" + postid);
 				localStorage.removeItem("post_body" + postid);
 				localStorage.removeItem("post_category" + postid);
 			}
-		} 
+		}
 
 	}
 
@@ -605,12 +608,17 @@ $( document ).on( "click", ".wall-item-delete-link,.page-delete-link,.layout-del
 			var doctype = $('#jot-webpage').val();
 			var postid = '-' + doctype + '-' + $('#jot-postid').val();
 			var postTitle = localStorage.getItem("post_title" + postid);
+			var postSummary = localStorage.getItem("post_summary" + postid);
 			var postBody = localStorage.getItem("post_body" + postid);
 			var postCategory = (($("#jot-category").length) ? localStorage.getItem("post_category" + postid) : '');
 			var openEditor = false;
 
 			if(postTitle) {
 				$('#jot-title').val(postTitle);
+				openEditor = true;
+			}
+			if(postSummary) {
+				$('#jot-summary').val(postSummary);
 				openEditor = true;
 			}
 			if(postBody) {

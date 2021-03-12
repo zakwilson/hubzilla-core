@@ -5,12 +5,12 @@
 				<img class="u-photo" src="{{$photo}}" alt="{{$name}}" width="80px" height="80px">
 			</a>
 		</div>
-		<div class="col m-1">
+		<div class="col-7 m-1">
 			<div class="row">
-				<strong class="fn p-name">{{$name}}</strong>
+				<strong class="fn p-name text-truncate">{{$name}}</strong>
 			</div>
 			<div class="row">
-				<small class="text-muted p-adr">{{$addr}}</small>
+				<small class="text-muted p-adr text-truncate">{{$addr}}</small>
 			</div>
 			{{if $connect}}
 			<div class="row mt-2">

@@ -79,14 +79,6 @@ class Follow extends Controller {
 		$result = Connect::connect($channel,$url);
 
 		if ($result['success'] == false) {
-
-			// this hook is currently used for mastodons remote reply functionality
-			$hookdata = [
-				'channel' => $channel,
-				'data' => $url
-			];
-			call_hooks('follow_failover', $hookdata);
-
 			if ($result['message']) {
 				notice($result['message']);
 			}

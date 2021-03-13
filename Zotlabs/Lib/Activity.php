@@ -1122,7 +1122,7 @@ class Activity {
 
 	static function encode_item_object($item, $elm = 'obj') {
 		$ret = [];
-		
+
 		if ($item[$elm]) {
 			if (! is_array($item[$elm])) {
 				$item[$elm] = json_decode($item[$elm],true);
@@ -1164,6 +1164,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'      => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'   => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow' => 'Unfollow',
+			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'      => 'Accept',
 			'http://purl.org/zot/activity/attendno'       => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'    => 'TentativeAccept',
@@ -1211,6 +1212,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'      => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'   => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow' => 'Unfollow',
+			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'      => 'Accept',
 			'http://purl.org/zot/activity/attendno'       => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'    => 'TentativeAccept',
@@ -2290,13 +2292,16 @@ class Activity {
 			$s['iconfig'] = $a;
 		}
 
-		if ($act->obj['type'] === 'Note' && $s['attach']) {
-			$s['body'] .= self::bb_attach($s['attach'], $s['body']);
-		}
+		if (array_key_exists('type', $act->obj)) {
 
-		if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
-			if ($act->obj['endTime']) {
-				$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+			if ($act->obj['type'] === 'Note' && $s['attach']) {
+				$s['body'] .= self::bb_attach($s['attach'], $s['body']);
+			}
+
+			if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
+				if (array_key_exists('endTime', $act->obj)) {
+					$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+				}
 			}
 		}
 

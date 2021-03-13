@@ -19,7 +19,7 @@ class Zotfeed extends Controller {
 				killme();
 			}
 
-			$channel = ((argv(1)) ? channelx_by_nick(argv(1)) : get_sys_channel());
+			$channel = channelx_by_nick(argv(1));
 			if (!$channel) {
 				killme();
 			}

@@ -331,6 +331,12 @@ class Notifier {
 				return;
 			}
 
+			// follow/unfollow is for internal use only
+			if (in_array($target_item['verb'], [ACTIVITY_FOLLOW, ACTIVITY_UNFOLLOW])) {
+				logger('not fowarding follow/unfollow note activity');
+				return;
+			}
+
 			if (strpos($target_item['postopts'], 'nodeliver') !== false) {
 				logger('notifier: target item is undeliverable', LOGGER_DEBUG);
 				return;

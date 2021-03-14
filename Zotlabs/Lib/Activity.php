@@ -376,6 +376,8 @@ class Activity {
 
 		$ret = [];
 
+
+
 		if ($i['verb'] === ACTIVITY_FRIEND) {
 			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
 			$objtype = 'Note';
@@ -718,7 +720,6 @@ class Activity {
 
 		$ret   = [];
 		$reply = false;
-
 
 		if ($i['verb'] === ACTIVITY_FRIEND) {
 			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
@@ -2094,6 +2095,15 @@ class Activity {
 	}
 
 	static function decode_note($act) {
+
+		// Within our family of projects, Follow/Unfollow of a thread is an internal activity which should not be transmitted,
+		// hence if we receive it - ignore or reject it.
+		// Unfollow is not defined by ActivityStreams, which prefers Undo->Follow.
+		// This may have to be revisited if AP projects start using Follow for objects other than actors.
+
+		if (in_array($act->type, [ 'Follow', 'Unfollow' ])) {
+			return false;
+		}
 
 		$response_activity = false;
 

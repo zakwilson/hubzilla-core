@@ -457,6 +457,8 @@ class Network extends \Zotlabs\Web\Controller {
 		if($update && $_SESSION['loadtime'])
 			$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
 
+		$items = [];
+
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
 			$items = q("SELECT item.*, item.id AS item_id, created FROM item

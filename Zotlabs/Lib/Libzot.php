@@ -299,7 +299,6 @@ class Libzot {
 		}
 
 		$record = Zotfinger::exec($url, $channel);
-
 		// Check the HTTP signature
 
 		$hsig = $record['signature'];

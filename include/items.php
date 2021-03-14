@@ -4488,17 +4488,22 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = CLIENT_MODE_NORMAL,$module = 'network') {
 
-	$result = array('success' => false);
-
-	$sql_extra = '';
-	$sql_nets = '';
+	$result      = ['success' => false];
+	$sql_extra   = '';
+	$sql_nets    = '';
 	$sql_options = '';
-	$sql_extra2 = '';
-	$sql_extra3 = '';
-	$def_acl = '';
-
-	$item_uids = ' true ';
+	$sql_extra2  = '';
+	$sql_extra3  = '';
+	$def_acl     = '';
+	$item_uids   = ' true ';
 	$item_normal = item_normal();
+
+	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
+		$item_normal .= sprintf(" and not verb in ('%s', '%s') ",
+			dbesc(ACTIVITY_FOLLOW),
+			dbesc(ACTIVITY_UNFOLLOW)
+		);
+	}
 
 	if($arr['uid']) {
 		$uid = $arr['uid'];
@@ -4508,13 +4513,6 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$uid = $channel['channel_id'];
 		$uidhash = $channel['channel_hash'];
 		$item_uids = " item.uid = " . intval($uid) . " ";
-	}
-
-	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
-		$sql_options .= sprintf(" and not verb in ('%s', '%s') ",
-			dbesc(ACTIVITY_FOLLOW),
-			dbesc(ACTIVITY_UNFOLLOW)
-		);
 	}
 
 	if($arr['star'])
@@ -4584,7 +4582,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	}
 
 	if($channel && intval($arr['compat']) === 1) {
-		$sql_extra = " AND author_xchan = '" . $channel['channel_hash'] . "' and item_private = 0 $sql_options $item_normal ";
+		$sql_extra = " AND author_xchan = '" . $channel['channel_hash'] . "' and item_private = 0 $item_normal ";
 	}
 
 	if ($arr['datequery']) {

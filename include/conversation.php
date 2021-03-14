@@ -1313,6 +1313,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	if($c && $c['channel_moved'])
 		return $o;
 
+	$webpage   = ((x($x,'webpage')) ? $x['webpage'] : '');
 	$plaintext = true;
 
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
@@ -1365,8 +1366,6 @@ function hz_status_editor($a, $x, $popup = false) {
 	}
 	else
 		$id_select = '';
-
-	$webpage = ((x($x,'webpage')) ? $x['webpage'] : '');
 
 	$reset = ((x($x,'reset')) ? $x['reset'] : '');
 

@@ -12,10 +12,14 @@ class Activity_filter {
 		if(! local_channel())
 			return '';
 
-		$cmd = \App::$cmd;
-		$filter_active = false;
-
-		$tabs = [];
+		$filter_active  = '';
+		$dm_active      = '';
+		$events_active  = '';
+		$polls_active   = '';
+		$starred_active = '';
+		$conv_active    = '';
+		$tabs           = [];
+		$cmd            = \App::$cmd;
 
 		if(x($_GET,'dm')) {
 			$dm_active = (($_GET['dm'] == 1) ? 'active' : '');

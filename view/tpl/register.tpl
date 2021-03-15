@@ -19,7 +19,7 @@
 			</div>
 			{{/if}}
 
-			<div style="text-align: center;">
+			<div>
 			{{if $invitations}}
 				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
 				<div id="zar015" style="display: none;">

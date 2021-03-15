@@ -978,12 +978,12 @@ class Enotify {
 
 		$x = [
 			'notify_link' => z_root() . '/admin/accounts',
-			'name' => $rr['account_email'],
-			//'addr' => $rr['account_email'],
+			'name' => (($rr['reg_email']) ? $rr['reg_email'] : $rr['reg_did2']),
+			//'addr' => '',
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
-			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['account_created']),
+			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['reg_created']),
 			'hclass' => ('notify-unseen'),
-			'message' => t('requires approval')
+			'message' => (($rr['reg_vfd'] === '× not yet') ? t('not yet verified') : t('verified')) . ', ' . t('requires approval')
 		];
 
 		return $x;

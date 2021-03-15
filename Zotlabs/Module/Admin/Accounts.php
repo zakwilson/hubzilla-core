@@ -5,7 +5,7 @@ namespace Zotlabs\Module\Admin;
 
 
 class Accounts {
-	
+
 	/**
 	 * @brief Handle POST actions on accounts admin page.
 	 *
@@ -23,9 +23,9 @@ class Accounts {
 		$pending = ( x($_POST, 'pending') ? $_POST['pending'] : array() );
 		$users   = ( x($_POST, 'user')    ? $_POST['user']    : array() );
 		$blocked = ( x($_POST, 'blocked') ? $_POST['blocked'] : array() );
-	
+
 		check_form_security_token_redirectOnErr('/admin/accounts', 'admin_accounts');
-	
+
 		$isajax = is_ajax();
 		$rc = 0;
 
@@ -40,7 +40,7 @@ class Accounts {
 		if ($isajax) {
 			//$debug = print_r($_SESSION[self::MYP],true);
 			$zarop = (x($_POST['zardo']) && preg_match('/^[ad]{1,1}$/', $_POST['zardo']) )
-					 ? $_POST['zardo'] : '';			
+					 ? $_POST['zardo'] : '';
 			// zarat arrives with leading underscore _n
 			$zarat = (x($_POST['zarat']) && preg_match('/^_{1,1}[0-9]{1,6}$/', $_POST['zarat']) )
 					 ? substr($_POST['zarat'],1) : '';
@@ -65,7 +65,7 @@ class Accounts {
 						intval($_SESSION[self::MYP]['i'][$zarat]),
 						dbesc($_SESSION[self::MYP]['h'][$zarat])
 					);
-					$rc = 0;	
+					$rc = 0;
 					$rs = q("SELECT * from register WHERE reg_id = %d ",
 							intval($_SESSION[self::MYP]['i'][$zarat])
 					);
@@ -120,7 +120,7 @@ class Accounts {
 				account_deny($hash);
 			}
 		}
-	
+
 		goaway(z_root() . '/admin/accounts' );
 	}
 
@@ -140,21 +140,21 @@ class Accounts {
 			$account = q("SELECT * FROM account WHERE account_id = %d",
 				intval($uid)
 			);
-	
+
 			if (! $account) {
 				notice( t('Account not found') . EOL);
 				goaway(z_root() . '/admin/accounts' );
 			}
-	
+
 			check_form_security_token_redirectOnErr('/admin/accounts', 'admin_accounts', 't');
 
 			$debug = '';
-	
+
 			switch (argv(2)){
 				case 'delete':
 					// delete user
 					account_remove($uid,true,false);
-	
+
 					notice( sprintf(t("Account '%s' deleted"), $account[0]['account_email']) . EOL);
 					break;
 				case 'block':
@@ -162,7 +162,7 @@ class Accounts {
 						intval(ACCOUNT_BLOCKED),
 						intval($uid)
 					);
-	
+
 					notice( sprintf( t("Account '%s' blocked") , $account[0]['account_email']) . EOL);
 					break;
 				case 'unblock':
@@ -170,14 +170,14 @@ class Accounts {
 							intval(ACCOUNT_BLOCKED),
 							intval($uid)
 					);
-	
+
 					notice( sprintf( t("Account '%s' unblocked"), $account[0]['account_email']) . EOL);
 					break;
 			}
-	
+
 			goaway(z_root() . '/admin/accounts' );
 		}
-	
+
 		/* get pending */
 		// [hilmar ->
 		/*
@@ -188,14 +188,7 @@ class Accounts {
 		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
 
 		// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
-		$pending = q("SELECT @i:=@i+1 AS reg_n, @i MOD 2 AS reg_z, "
-					." reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, "
-					." CASE (reg_flags & %d) WHEN 0 THEN '✔ verified' WHEN 1 THEN '× not yet' END AS reg_vfd "
-					." FROM register, (SELECT @i:=0) AS i  "
-					." WHERE reg_vital = 1 AND (reg_flags & %d) >= 0 ",
-			intval(ACCOUNT_UNVERIFIED),
-			intval(ACCOUNT_PENDING)
-		);
+		$pending = get_pending_accounts();
 
 		unset($_SESSION[self::MYP]);
 		if ($pending) {
@@ -218,15 +211,15 @@ class Accounts {
 			$tao = rtrim($tao,',') . '};' . "\n";
 		}
 		// <- hilmar]
-	
+
 		/* get accounts */
-	
+
 		$total = q("SELECT count(*) as total FROM account");
 		if (count($total)) {
 			\App::set_pager_total($total[0]['total']);
 			\App::set_pager_itemspage(100);
 		}
-	
+
 		$serviceclass = (($_REQUEST['class']) ? " and account_service_class = '" . dbesc($_REQUEST['class']) . "' " : '');
 
 		$key = (($_REQUEST['key']) ? dbesc($_REQUEST['key']) : 'account_id');
@@ -237,8 +230,8 @@ class Accounts {
 		$base = z_root() . '/admin/accounts?f=';
 		$odir = (($dir === 'asc') ? '0' : '1');
 
-		$users = q("SELECT account_id , account_email, account_lastlog, account_created, account_expires, account_service_class, ( account_flags & %d ) > 0 as blocked, 
-			(SELECT %s FROM channel as ch WHERE ch.channel_account_id = ac.account_id and ch.channel_removed = 0 ) as channels FROM account as ac 
+		$users = q("SELECT account_id , account_email, account_lastlog, account_created, account_expires, account_service_class, ( account_flags & %d ) > 0 as blocked,
+			(SELECT %s FROM channel as ch WHERE ch.channel_account_id = ac.account_id and ch.channel_removed = 0 ) as channels FROM account as ac
 			where true $serviceclass and account_flags != %d order by $key $dir limit %d offset %d ",
 			intval(ACCOUNT_BLOCKED),
 			db_concat('ch.channel_address', ' '),
@@ -249,12 +242,12 @@ class Accounts {
 
 	//	function _setup_users($e){
 	//		$accounts = Array(
-	//			t('Normal Account'), 
+	//			t('Normal Account'),
 	//			t('Soapbox Account'),
 	//			t('Community/Celebrity Account'),
 	//			t('Automatic Friend Account')
 	//		);
-	
+
 	//		$e['page_flags'] = $accounts[$e['page-flags']];
 	//		$e['register_date'] = relative_date($e['register_date']);
 	//		$e['login_date'] = relative_date($e['login_date']);
@@ -262,7 +255,7 @@ class Accounts {
 	//		return $e;
 	//	}
 	//	$users = array_map("_setup_users", $users);
-	
+
 		$t = get_markup_template('admin_accounts.tpl');
 		$o = replace_macros($t, array(
 			// strings //
@@ -285,7 +278,7 @@ class Accounts {
 			'$odir' => $odir,
 			'$base' => $base,
 			'$h_users' => t('Accounts'),
-			'$th_users' => array( 
+			'$th_users' => array(
 				[ t('ID'), 'account_id' ],
 				[ t('Email'), 'account_email' ],
 				[ t('All Channels'), 'channels' ],
@@ -293,12 +286,12 @@ class Accounts {
 				[ t('Last login'), 'account_lastlog' ],
 				[ t('Expires'), 'account_expires' ],
 				[ t('Service Class'), 'account_service_class'] ),
-	
+
 			'$confirm_delete_multi' => p2j(t('Selected accounts will be deleted!\n\nEverything these accounts had posted on this site will be permanently deleted!\n\nAre you sure?')),
 			'$confirm_delete' => p2j(t('The account {0} will be deleted!\n\nEverything this account has posted on this site will be permanently deleted!\n\nAre you sure?')),
-	
+
 			'$form_security_token' => get_form_security_token("admin_accounts"),
-	
+
 			// values //
 			'$now'		=> date('Y-m-d H:i:s'),
 			'$baseurl' 	=> z_root(),
@@ -307,9 +300,9 @@ class Accounts {
 			'$users' 	=> $users,
 		));
 		$o .= paginate($a);
-	
+
 		return $o;
 	}
-	
+
 }
 

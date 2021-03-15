@@ -689,9 +689,8 @@ class Sse_bs extends Controller {
 		if(! (self::$vnotify & VNOTIFY_REGISTER))
 			return $result;
 
-		$r = q("SELECT account_email, account_created from account where (account_flags & %d) > 0",
-			intval(ACCOUNT_PENDING)
-		);
+		$r = get_pending_accounts();
+
 		if($r) {
 			foreach($r as $rr) {
 				$result['register']['notifications'][] = Enotify::format_register($rr);

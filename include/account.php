@@ -79,7 +79,7 @@ function check_account_invite($invite_code) {
 
 		if(! $invite_code) {
 
-			$result['message'] 
+			$result['message']
 			.= 'ZAR0510E,' . t('An invitation is required.') . EOL;
 
 		} else {
@@ -88,7 +88,7 @@ function check_account_invite($invite_code) {
 			$r = q("SELECT * FROM register WHERE reg_hash = '%s' AND reg_vital = 1 LIMIT 1",
 			 	dbesc($invite_code));
 			if(! $r) {
-				$result['message'] 
+				$result['message']
 				.= 'ZAR0511E,' . t('Invitation could not be verified.') . EOL;
 			}
 		}
@@ -285,10 +285,10 @@ function create_account_IS_OBSOLETE($arr) {
  * create_account_from_register
  * @author hilmar runge
  * @since  2020-02-20
- * 
+ *
  * Account creation only happens via table register.
  * This function creates the account when all conditions are solved.
- * 
+ *
  */
 function create_account_from_register($arr) {
 
@@ -418,8 +418,8 @@ function verify_email_address($arr) {
 	);
 
 	$res = z_mail(
-		[ 
-		'toEmail' => $arr['email'], 
+		[
+		'toEmail' => $arr['email'],
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
 		'textVersion' => $email_msg,
 		]
@@ -486,8 +486,8 @@ function verify_email_addressNOP($arr) {
 	);
 
 	$res = z_mail(
-		[ 
-		'toEmail' => $arr['email'], 
+		[
+		'toEmail' => $arr['email'],
 		'messageSubject' => sprintf( t('Registration confirmation for %s'), get_config('system','sitename')),
 		'textVersion' => $email_msg,
 		]
@@ -561,8 +561,8 @@ function send_reg_approval_email($arr) {
 		 ));
 
 		$res = z_mail(
-			[ 
-			'toEmail' => $admin['email'], 
+			[
+			'toEmail' => $admin['email'],
 			'messageSubject' => sprintf( t('Registration request at %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
 			]
@@ -589,7 +589,7 @@ function send_register_success_email($email,$password) {
 	));
 
 	$res = z_mail(
-		[ 
+		[
 			'toEmail' => $email,
 			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
@@ -643,7 +643,7 @@ function account_allow($hash) {
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['reg_uid'])
 	);
-	
+
 	// unpend
 	q("UPDATE account SET    account_flags = (account_flags & ~%d) "
 		. 			" WHERE (account_flags & %d)>0 AND account_id = %d",
@@ -655,11 +655,11 @@ function account_allow($hash) {
 	*/
 	// together unblock and unpend
 	$r2 = q("UPDATE account SET account_flags = %d WHERE account_id = %d",
-		intval($account['account_flags'] 
+		intval($account['account_flags']
 			&= $account['account_flags'] ^ (ACCOUNT_BLOCKED | ACCOUNT_PENDING)),
 		intval($register[0]['reg_uid'])
 	);
-	
+
 	if($r1 && $r2) {
 		q("COMMIT");
 
@@ -678,7 +678,7 @@ function account_allow($hash) {
 		));
 
 		$res = z_mail(
-			[ 
+			[
 			'toEmail' => $account[0]['account_email'],
 			'messageSubject' => sprintf( t('Registration details for %s'), get_config('system','sitename')),
 			'textVersion' => $email_msg,
@@ -695,7 +695,7 @@ function account_allow($hash) {
 			return true;
 		}
 
-	// [hilmar ->	
+	// [hilmar ->
 	} else {
 		q("ROLLBACK");
 	}
@@ -747,14 +747,14 @@ function account_deny($hash) {
 
 	if($r1 && $r2) {
 		q("COMMIT");
-		notice( 'ZAR0512I,' . sprintf( t('Registration revoked for %s'), 
+		notice( 'ZAR0512I,' . sprintf( t('Registration revoked for %s'),
 							$account[0]['account_email']) . EOL);
 		return true;
 
 	} else {
 
-		q("ROLLBACK");		
-		notice( 'ZAR0513F,' . sprintf( t('Could not revoke registration for %s'), 
+		q("ROLLBACK");
+		notice( 'ZAR0513F,' . sprintf( t('Could not revoke registration for %s'),
 							$account[0]['account_email']) . EOL);
 		return false;
 	}
@@ -799,13 +799,13 @@ function account_approve($hash) {
 		intval(ACCOUNT_BLOCKED),
 		intval($register[0]['reg_uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_PENDING),
 		intval(ACCOUNT_PENDING),
 		intval($register[0]['reg_uid'])
 	);
-	
+
 	q("update account set account_flags = (account_flags & ~%d) where (account_flags & %d)>0 and account_id = %d",
 		intval(ACCOUNT_UNVERIFIED),
 		intval(ACCOUNT_UNVERIFIED),
@@ -815,8 +815,8 @@ function account_approve($hash) {
 	/*
 	// together unblock unpend and verified
 	q("UPDATE account SET account_flags = %d WHERE account_id = %d",
-		intval($account['account_flags'] 
-			&= $account['account_flags'] 
+		intval($account['account_flags']
+			&= $account['account_flags']
 			^ (ACCOUNT_BLOCKED | ACCOUNT_PENDING | ACCOUNT_UNVERIFIED)),
 		intval($register[0]['reg_uid'])
 	);
@@ -837,7 +837,7 @@ function account_approve($hash) {
 	else {
 		$_SESSION['login_return_url'] = 'new_channel';
 		authenticate_success($account[0],null,true,true,false,true);
-	}	
+	}
 
 	return true;
 }
@@ -856,7 +856,7 @@ function verify_register_scheme() {
 				$r1 = q("ALTER TABLE register RENAME TO register100;");
 
 				$r2 = q("CREATE TABLE register ("
-					. "reg_id      serial  NOT NULL," 
+					. "reg_id      serial  NOT NULL,"
 					. "reg_vital   int     DEFAULT 1 NOT NULL,"
 					. "reg_flags   bigint  DEFAULT 0 NOT NULL,"
 					. "reg_didx    char(1) DEFAULT '' NOT NULL,"
@@ -892,7 +892,7 @@ function verify_register_scheme() {
 
 				$r4 = q("DROP TABLE register100");
 
-			} 
+			}
 			else {
 				$r1 = q("RENAME TABLE register TO register100;");
 
@@ -946,7 +946,7 @@ function verify_register_scheme() {
 
 			q("ROLLBACK");
 			return UPDATE_FAILED;
-		} 
+		}
 		elseif ( count($dbc) != 16 ) {
 			// ffu
 			// fields in v2.0.0 = 16
@@ -958,14 +958,14 @@ function verify_register_scheme() {
 /**
  * @brief Checks for accounts that have past their expiration date.
  *
- * If the account has a service class which is not the site default, 
+ * If the account has a service class which is not the site default,
  * the service class is reset to the site default and expiration reset to never.
  * If the account has no service class it is expired and subsequently disabled.
  * called from include/poller.php as a scheduled task.
  *
  * Reclaiming resources which are no longer within the service class limits is
- * not the job of this function, but this can be implemented by plugin if desired. 
- * Default behaviour is to stop allowing additional resources to be consumed. 
+ * not the job of this function, but this can be implemented by plugin if desired.
+ * Default behaviour is to stop allowing additional resources to be consumed.
  */
 function downgrade_accounts() {
 
@@ -1202,7 +1202,7 @@ function zar_log($msg='') {
 function zar_reg_mail($reonar=false) {
 	if ($reonar) {
 		$zem = z_mail(
-			[ 
+			[
 			'toEmail'        => $reonar['to'],
 			'fromName'       => ' ',
 			'fromEmail'      => $reonar['from'],
@@ -1226,7 +1226,7 @@ function zar_reg_mail($reonar=false) {
  *
  */
 function zar_register_dutystate( $now=NULL, $day=NULL ) {
-	
+
 	is_null($now) ? $now = date('Hi') : '';
 	is_null($day) ? $day = date('N') : '';
 
@@ -1239,19 +1239,31 @@ function zar_register_dutystate( $now=NULL, $day=NULL ) {
 	$dutyis = $isduty ? t('open') : t('closed');
 	$atform = $isduty ? '' : 'disabled';
 
-	$nowfmt	= t('Registration is currently') 
+	$nowfmt	= t('Registration is currently')
 			.	' ('.substr($now,0,2) . ':' . substr($now,-2) . ') '
 			. 	' ' . $dutyis;
 
 	if (!$isduty) {
 		$pernext = zarIsDuty($day, $now, 'nextOpen');
-			
-		if (is_array($pernext)) 
-			$nowfmt .= '. ' . t('Next opens') . ' '  
-			. ucfirst( array('','mo','tu','we','th','fr','sa','so')[$pernext[0]]) . ' ' 
+
+		if (is_array($pernext))
+			$nowfmt .= '. ' . t('Next opens') . ' '
+			. ucfirst( array('','mo','tu','we','th','fr','sa','so')[$pernext[0]]) . ' '
 			. substr($pernext[1],0,2) . ':' . substr($pernext[1],-2);
 	}
 	return array( 'isduty' => $isduty, 'nowfmt' => $nowfmt, 'atform' => $atform);
 
 }
 
+function get_pending_accounts() {
+	$r = q("SELECT @i:=@i+1 AS reg_n, @i MOD 2 AS reg_z, "
+		." reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, "
+		." CASE (reg_flags & %d) WHEN 0 THEN '✔ verified' WHEN 1 THEN '× not yet' END AS reg_vfd "
+		." FROM register, (SELECT @i:=0) AS i  "
+		." WHERE reg_vital = 1 AND (reg_flags & %d) >= 0 ",
+		intval(ACCOUNT_UNVERIFIED),
+		intval(ACCOUNT_PENDING)
+	);
+
+	return $r;
+}

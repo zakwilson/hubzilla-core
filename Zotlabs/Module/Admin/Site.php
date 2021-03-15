@@ -125,8 +125,8 @@ class Site {
 
 			} else {
 
-				//logger( print_r( $this->msgbg, true) );	
-				//logger( print_r( $this->joo, true) );	
+				//logger( print_r( $this->msgbg, true) );
+				//logger( print_r( $this->joo, true) );
 				if ($this->error === 0) {
 					set_config('system', 'register_duty',     $this->register_duty);
 					set_config('system', 'register_duty_jso', $this->joo);
@@ -357,23 +357,23 @@ class Site {
  					'd' => t('Day(s)')   ,
  					'w' => t('Week(s)')  ,
  					'm' => t('Month(s)') ,
- 					'y' => t('Year(s)') 
+ 					'y' => t('Year(s)')
 		);
 		$regdelay = get_config('system','register_delay');
 		if ($regdelay)
 			list($regdelay_n, $regdelay_u) = array(substr($regdelay,0,-1),substr($regdelay,-1));
 		$reg_delay = replace_macros(get_markup_template('field_duration.qmc.tpl'),
-			 array(	
+			 array(
 			 	'label'  	=> t('Account registration delay'),
-			 	'qmc'	 	=> 'zar', 
+			 	'qmc'	 	=> 'zar',
 				'qmcid'		=> 'ZAR0860C',
 			 	'help'		=> t('How long a registration request has to wait before validation can perform.'
 			 					. ' No delay if zero or no value.'),
 			 	'field' => 	array(
-			 		'name'  => 'delay', 
+			 		'name'  => 'delay',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($regdelay_n ? $regdelay_n : 90), 
-			 		'min'   => '0', 
+			 		'value' => ($regdelay_n === false ? 90 : $regdelay_n),
+			 		'min'   => '0',
 			 		'max'   => '99',
 			 		'size'  => '2',
 					'default' => ($regdelay_u ? $regdelay_u : 'i')
@@ -385,22 +385,22 @@ class Site {
 		if ($regexpire)
 			list($regexpire_n, $regexpire_u) = array(substr($regexpire,0,-1),substr($regexpire,-1));
 		$reg_expire = replace_macros(get_markup_template('field_duration.qmc.tpl'),
-			 array(	
+			 array(
 			 	'label'  	=> t('Account registration expiration'),
-			 	'qmc'	 	=> 'zar', 
+			 	'qmc'	 	=> 'zar',
 				'qmcid'		=> 'ZAR0862C',
 			 	'help'		=> t('How long a registration to confirm remains valid.'
 			 					. ' Not expire if zero or no value.'),
 			 	'field' => 	array(
-			 		'name'  => 'expire', 
+			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($regexpire_n ? $regexpire_n : 2), 
-			 		'min'  => '0', 
+			 		'value' => ($regexpire_n === false ? 2 : $regexpire_n),
+			 		'min'  => '0',
 			 		'max'  => '99',
 			 		'size' => '2',
 					'default' => ($regexpire_u ? $regexpire_u : 'i')
 			 	),
-			 	'rabot'	=> 	$reg_rabots 
+			 	'rabot'	=> 	$reg_rabots
 			 )
 		);
 		$invitation_only = get_config('system',self::ivo);
@@ -437,27 +437,27 @@ class Site {
 
 			// Register
 			// [hilmar->
-			'$register_text'	=> array('register_text', 
-				t("Register text"), 
+			'$register_text'	=> array('register_text',
+				t("Register text"),
 				htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'),
 				t("Will be displayed prominently on the registration page.") . ' '
 				. t('If you operate with register duties (see ZAR0830C), best practise is to tell cleartext about here'),
 				'ZAR0810C'),
-			'$register_policy'	=> array('register_policy', 
-				t("Does this site allow new member registration?"), 
-				get_config('system','register_policy'), 
-				"", 
+			'$register_policy'	=> array('register_policy',
+				t("Does this site allow new member registration?"),
+				get_config('system','register_policy'),
+				"",
 				$register_choices,
 				'ZAR0820C'),
 			'$register_duty' => array('register_duty',
 				t('Registration office on duty'),
 				$this->register_duty = get_config('system', 'register_duty'),
-				t('The weekdays and hours the register office is open for registrations') . '. ' 
+				t('The weekdays and hours the register office is open for registrations') . '. '
 				.	t('Split weekdays and hours per `:`') . '. '
 				.	t('Separate weekday(s):hour(s) pairs with blank(s)') . '. '
 				.	t('Several values or ranges are to split by comma') . '. '
 				.	t('From-To ranges are joined with `-`') . '. '
-				.	t('ie') . ' `1-5:0900-1200,1300-1700 6:900-1230` ' . t('or') .' `1-2,4-5:800-1800` ' 
+				.	t('ie') . ' `1-5:0900-1200,1300-1700 6:900-1230` ' . t('or') .' `1-2,4-5:800-1800` '
 				. 	' <a id="zar083a" href="javascript:;">' . t('Parse and test your input') . '</a>'. EOL
 				.	t('If left empty, defaults to 24h closed everyday the week.') . ' '
 				.	t('To keep open 24h everyday the week, short is `-:-`.') . ' '
@@ -466,45 +466,45 @@ class Site {
 				.	t('results to: opens 9h and closes 12h. If meant open 9h to 12h exactly, say `0900-1201`'),
 				'ZAR0830C'),
 			'$register_perday' => array('register_perday',
-				t('Account registrations max per day'), 
-				(x(get_config('system', 'max_daily_registrations'))) 
-					? get_config('system', 'max_daily_registrations') : 50, 
+				t('Account registrations max per day'),
+				(x(get_config('system', 'max_daily_registrations')))
+					? get_config('system', 'max_daily_registrations') : 50,
 				t('How many registration requests the site accepts during one day. Unlimited if zero or no value. Default 50'),
 				'ZAR0840C'),
 			'$register_sameip' => array('register_sameip',
-				t('Account registrations from same ip'), 
-				(x(get_config('system', 'register_sameip'))) 
-					? get_config('system', 'register_sameip') : 3, 
+				t('Account registrations from same ip'),
+				(x(get_config('system', 'register_sameip')))
+					? get_config('system', 'register_sameip') : 3,
 				t('How many pending registration requests the site accepts from a same ip address.'),
 				'ZAR0850C'),
 			'$reg_delay'=>$reg_delay,
 			'$reg_expire'=>$reg_expire,
 			'$reg_autochannel'		=> array('auto_channel_create',
-				t("Auto channel create"), 
-				get_config('system','auto_channel_create'), 
+				t("Auto channel create"),
+				get_config('system','auto_channel_create'),
 				t("Auto create a channel when register a new account. When On, the register form will show additional fields for the channel-name and the nickname."),
 				"",	"",	'ZAR0870C'),
 
 			'$invitation_only'		=> array(self::ivo,
-				($invitation_only === false ? '✗' : '✓') . ' ' . t("Invitation only"), 
-				$invitation_only, 
+				($invitation_only === false ? '✗' : '✓') . ' ' . t("Invitation only"),
+				$invitation_only,
 				t("Only allow new member registrations with an invitation code. Above register policy must be set to Yes."),
 				"",	"",	'ZAR0880C'),
 
 			'$invitation_also'		=> array(self::iva,
-				($invitation_also === false ? '✗' : '✓') . ' ' . t("Invitation also"), 
+				($invitation_also === false ? '✗' : '✓') . ' ' . t("Invitation also"),
 				$invitation_also,
 				t("Also allow new member registrations with an invitation code. Above register policy must be set to Yes."),
 				"",	"",	'ZAR0881C'),
 
 			'$verify_email'		=> array('verify_email',
-				t("Verify Email Addresses"), 
-				get_config('system','verify_email'), 
+				t("Verify Email Addresses"),
+				get_config('system','verify_email'),
 				t("Check to verify email addresses used in account registration (recommended)."),
 				"", "", 'ZAR0890C'),
 			'$abandon_days'     => array('abandon_days',
-				t('Accounts abandoned after x days'), 
-				get_config('system','account_abandon_days'), 
+				t('Accounts abandoned after x days'),
+				get_config('system','account_abandon_days'),
 				t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.'),
 				'appears not to be implemented (2010.01)'),
 			// <-hilmar]
@@ -566,7 +566,7 @@ class Site {
 	 *      ie 0900-1200,1300-1800 for hours
 	 *      ie 1-2,4,5 for weekdays
 	 *		ie 1-2:900-1800		monday and tuesday open from 9 to 18h
-	 * 
+	 *
 	 * @var $register_duty is the input field from the admin -> site page
 	 * @return the results are in the class vars $error, $msgbg and $jsoo
 	 *		$jsoo is
@@ -600,7 +600,7 @@ class Site {
 			}
 		}
 
-		if (! $this->register_duty) 
+		if (! $this->register_duty)
 			$this->register_duty = '1-7';
 		$ranges = preg_split('/\s+/', $this->register_duty);
 		$this->msgbg .= '..ranges: ' . print_r(count($ranges),true) . $this->eol;

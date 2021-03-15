@@ -1,3 +1,15 @@
+Hubzilla 5.4.2 (2021-03-15)
+	- Fix translation plural variable
+	- Fix issue with following/unfollowing a thread
+	- Fix rendering of long text in xchan vcard
+	- Fix local link for rss content if rewrite author is sets
+	- Fix regression in mod display
+
+	Addons
+	- Pubcrawl: fix issue with following/unfollowing a thread
+	- Pubcrawl: more robust implementation of mastodon remote reply
+
+
 Hubzilla 5.4.1 (2021-03-09)
 	- Fix profile not found if not logged in
 	- Fix summary not reset on cancel

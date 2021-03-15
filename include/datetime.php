@@ -554,12 +554,16 @@ function update_birthdays() {
 		if ( preg_match( '/^[0-9]{1,2}[ihdwmy]{1}$/', $duri ) && ($sign == '+' || $sign == '-')  ) {
 			$duru = substr( $duri, -1);
 			$durn = substr( $duri, 0, -1);
+
+			if(!$durn)
+				return false;
+
 			$due  = date( 'Y-m-d H:i:s', strtotime(
-					'+' . $durn . ' ' 
-				  . str_replace( array(':i',':h',':d',':w',':m',':y'), 
+					'+' . $durn . ' '
+				  . str_replace( array(':i',':h',':d',':w',':m',':y'),
 			 				 	 array('minutes', 'hours', 'days', 'weeks', 'months', 'years'),
-			 					 ( ':'. $duru ) 
-			 					) 
+			 					 ( ':'. $duru )
+			 					)
 					)
 			);
 			return array( 'durn' => $durn, 'duru' => $duru, 'due' => $due);

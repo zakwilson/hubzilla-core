@@ -14,18 +14,18 @@ class Register extends Controller {
 	function init() {
 
 		// ZAR0
-		
+
 		$result = null;
 		$cmd = ((argc() > 1) ? argv(1) : '');
-	
+
 		// Provide a stored request for somebody desiring a connection
 		// when they first need to register someplace. Once they've
-		// created a channel, we'll try to revive the connection request 
+		// created a channel, we'll try to revive the connection request
 		// and process it.
 
 		if($_REQUEST['connect'])
 			$_SESSION['connect'] = $_REQUEST['connect'];
-	
+
 		switch($cmd) {
 			case 'invite_check.json':
 				$result = check_account_invite($_REQUEST['invite_code']);
@@ -36,15 +36,15 @@ class Register extends Controller {
 			case 'password_check.json':
 				$result = check_account_password($_REQUEST['password1']);
 				break;
-			default: 
+			default:
 				break;
 		}
 		if($result) {
 			json_return_and_die($result);
 		}
 	}
-	
-	
+
+
 	function post() {
 
 		check_form_security_token_redirectOnErr('/register', 'register');
@@ -56,20 +56,20 @@ class Register extends Controller {
 		 * required if all is on the right road (most posts are not accepted during off duty).
 		 *
 		 */
-		
+
 
         $act        = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
 		$duty 		= zar_register_dutystate();
 		$is247		= false;
 		$ip 		= $_SERVER['REMOTE_ADDR'];
 		$sameip  	= intval(get_config('system','register_sameip'));
-		
+
 		$arr 		 = $_POST;
 		$invite_code = ( (x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
 		$email 		 = ( (x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
 		$password 	 = ( (x($arr,'password'))      ? trim($arr['password'])              : '');
 		$reonar		 = array();
-	
+
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
@@ -106,12 +106,12 @@ class Register extends Controller {
 		if ($act > 0 && !$is247 && !$duty['isduty']) {
 			// normally (except very 1st timr after install), that should never arrive here (ie js hack or sth like)
 			// log suitable for f2b also
-			$logmsg = 'ZAR0230S Unexpected registration request off duty'; 
+			$logmsg = 'ZAR0230S Unexpected registration request off duty';
 			zar_log($logmsg);
 			goaway(z_root() . '/~');
 		}
 
-		if ($sameip && !$is247) { 
+		if ($sameip && !$is247) {
 			$f = q("SELECT COUNT(reg_atip) AS atip FROM register WHERE reg_vital = 1 AND reg_atip = '%s' ",
 				dbesc($ip)
 			);
@@ -122,22 +122,22 @@ class Register extends Controller {
 			}
 		}
 
-		// s2 max daily 
+		// s2 max daily
 		// msg?
 		if ( !$is247 && self::check_reg_limits()['is'] ) return;
 
 		// accept tos
 		if(! x($_POST,'tos')) {
 			// msg!
-			notice( 'ZAR0230E ' 
+			notice( 'ZAR0230E '
 			. t('Please indicate acceptance of the Terms of Service. Registration failed.') . EOL);
 			return;
 		}
-	
+
 		// pw1 == pw2
 		if((! $_POST['password']) || ($_POST['password'] !== $_POST['password2'])) {
 			// msg!
-			notice( 'ZAR0230E ' 
+			notice( 'ZAR0230E '
 			. t('Passwords do not match.') . EOL);
 			return;
 		}
@@ -148,29 +148,29 @@ class Register extends Controller {
 		if ($email) {
 			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
 				// msg!
-				notice('ZAR0239E ' 
+				notice('ZAR0239E '
 				.  t('Email address mistake') . EOL);
 				return;
 			}
 		}
-	
+
 		$policy  = intval(get_config('system','register_policy'));
 		$invonly = intval(get_config('system','invitation_only'));
 		$invalso = intval(get_config('system','invitation_also'));
 		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 		$auto_create = true;
-	
-	
+
+
 		switch($policy) {
-	
+
 			case REGISTER_OPEN:
 				$flags = ACCOUNT_OK;
 				break;
-	
+
 			case REGISTER_APPROVE:
 				$flags = ACCOUNT_PENDING;
 				break;
-	
+
 			default:
 			case REGISTER_CLOSED:
 				if(! is_site_admin()) {
@@ -180,10 +180,10 @@ class Register extends Controller {
 				$flags = ACCOUNT_BLOCKED;
 				break;
 		}
-	
+
 		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE) )
 			$flags = ($flags | ACCOUNT_UNVERIFIED);
-			
+
 		// $arr has $_POST;
 		$arr['account_flags'] = $flags;
 		$now = datetime_convert();
@@ -207,7 +207,7 @@ class Register extends Controller {
 							$isa = get_account_by_id($reg['reg_uid']);
 							$isa = ( $isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN) );
 
-							// approve contra invite by admin 
+							// approve contra invite by admin
 							if ($isa && $policy == REGISTER_APPROVE)
 								$flags &= $flags ^ ACCOUNT_PENDING;
 
@@ -218,7 +218,7 @@ class Register extends Controller {
 							// update reg vital 0 off
 							$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
 								intval($reg['reg_id'])
-							);	
+							);
 
 							$msg = 'ZAR0237I ' . t('Invitation code succesfully applied');
 							zar_log($msg) . ', ' . $email;
@@ -226,12 +226,12 @@ class Register extends Controller {
 							info($msg . EOL);
 
 							$well = true;
-							
+
 
 						} else {
 							// msg!
 							notice('ZAR0236E ' . t('Invitation not in time or too late') . EOL);
-							goaway(z_root() . '/~'); 
+							goaway(z_root() . '/~');
 						}
 
 					} else {
@@ -239,7 +239,7 @@ class Register extends Controller {
 						$msg = 'ZAR0235S ' . t('Invitation email failed');
 						zar_log($msg);
 						notice($msg . EOL);
-						goaway(z_root() . '/~'); 
+						goaway(z_root() . '/~');
 					}
 
 				} else {
@@ -247,12 +247,12 @@ class Register extends Controller {
 					$msg = 'ZAR0234S ' . t('Invitation code failed') ;
 					zar_log($msg);
 					notice( $msg . EOL);
-					goaway(z_root() . '/~'); 
+					goaway(z_root() . '/~');
 				}
 
 			} else {
 				notice('ZAR0232E ' . t('Invitations are not available') . EOL);
-				goaway(z_root() . '/~'); 
+				goaway(z_root() . '/~');
 			}
 
 
@@ -265,7 +265,7 @@ class Register extends Controller {
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
 					 dbesc('e' . $email));
 
-				if ( ! $reg) 
+				if ( ! $reg)
 					$act = q("SELECT * from account WHERE account_email = '%s'", dbesc($email));
 
 				// in case an invitation was made but the invitecode was not entered, better ignore.
@@ -284,14 +284,14 @@ class Register extends Controller {
 					// use another msg instead ? TODO ?
 					// on the other hand can play the fail2ban game
 					zar_log($msg . ' (' . $email . ')');
-					goaway(z_root()); 		
-				}		
+					goaway(z_root());
+				}
 
 			} else {
 				$msg = 'ZAR0233E ' . t('Registration on this hub is by invitation only') . EOL;
 				notice($msg);
 				zar_log($msg);
-				goaway(z_root()); 
+				goaway(z_root());
 			}
 
 		}
@@ -300,13 +300,13 @@ class Register extends Controller {
 
 			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
 
-				$cfgdelay = get_config( 'system', 'register_delay' ); 
+				$cfgdelay = get_config( 'system', 'register_delay' );
 				$regdelay = calculate_adue( $cfgdelay );
-				$regdelay = $regdelay ? $regdelay['due'] : $now; 
+				$regdelay = $regdelay ? $regdelay['due'] : $now;
 
-				$cfgexpire = get_config('system','register_expire' ); 
+				$cfgexpire = get_config('system','register_expire' );
 				$regexpire = calculate_adue( $cfgexpire );
-				$regexpire = $regexpire ? $regexpire['due'] : '2099-12-31 23:59:59'; 
+				$regexpire = $regexpire ? $regexpire['due'] : datetime_convert('UTC', 'UTC', 'now + 99 years');
 
 				// handle an email request that will be verified or an ivitation associated with an email address
 				if ( $email > '' && ($email_verify || $icdone) ) {
@@ -369,23 +369,23 @@ class Register extends Controller {
 						dbesc(substr(get_best_language(),0,2)),
 						dbesc($ip),
 						dbesc(json_encode( $reonar ))
-					);	
+					);
 
 				if ($didx == 'a') {
-					
+
 					$lid = q("SELECT reg_id FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' AND reg_pass = '%s' ",
 						 	dbesc($did2), dbesc(bin2hex($password)) );
 
 					if ($lid && count($lid) == 1 ) {
 
-						$didnew = ( $lid[0]['reg_id'] . $did2 ) 
+						$didnew = ( $lid[0]['reg_id'] . $did2 )
 						 		. ( substr( base_convert( md5( $lid[0]['reg_id'] . $did2 ), 16, 10 ),-2 ) );
 
 						$reg = q("UPDATE register SET reg_did2 = CONCAT('d','%s') WHERE reg_id = %d ",
 							dbesc($didnew), intval($lid[0]['reg_id'])
 						);
 
-						zar_log( 'ZAR0239A ' . t('New register request') . ' d' . $didnew . ', ' 
+						zar_log( 'ZAR0239A ' . t('New register request') . ' d' . $didnew . ', '
 							.  $regdelay . ' - ' . $regexpire);
 						// notice( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
 						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
@@ -406,24 +406,24 @@ class Register extends Controller {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	function get() {
-		
+
 		$registration_is = '';
 		$other_sites = '';
-	
+
 		if(intval(get_config('system','register_policy')) === REGISTER_CLOSED) {
 			if(intval(get_config('system','directory_mode')) === DIRECTORY_MODE_STANDALONE) {
 				notice( 'ZAR0130E ' . t('Registration on this hub is disabled.')  . EOL);
 				return;
 			}
 
-			$mod = new Pubsites();	
+			$mod = new Pubsites();
 			return $mod->get();
 		}
-	
+
 		if(intval(get_config('system','register_policy')) == REGISTER_APPROVE) {
 			$registration_is = t('Registration on this hub is by approval only.') . '<sup>ZAR0131I</sup>';
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
@@ -446,7 +446,7 @@ class Register extends Controller {
 		}
 
 		$opal = self::check_reg_limits();
-		if ( $opal['is']) 
+		if ( $opal['is'])
 			 $duty['atform'] = 'disabled';
 
 		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
@@ -457,12 +457,12 @@ class Register extends Controller {
 		$tosurl = get_config('system','tos_url');
 		if(! $tosurl)
 			$tosurl = z_root() . '/help/TermsOfService';
-	
+
 		$toslink = '<a href="' . $tosurl . '" target="_blank">' . t('Terms of Service') . '</a>';
-	
+
 		// Configurable whether to restrict age or not - default is based on international legal requirements
 		// This can be relaxed if you are on a restricted server that does not share with public servers
-	
+
 		if(get_config('system','no_age_restriction')) {
 			$label_tos = sprintf( t('I accept the %s for this website'), $toslink);
 		}
@@ -475,32 +475,32 @@ class Register extends Controller {
 		}
 
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
-	
+
 		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
 		$email = array('email',
 				 	t('Your email address (or leave blank to register without email)') . ' <sup>ZAR0136I</sup>',
-				 	$emailval, 
+				 	$emailval,
 				 	t('If the registation was already submitted with your data once ago, enter your identity (like email) here and submit') . '<sup>ZAR0133I</sup>'
 					);
 
-		$password     = array('password', t('Choose a password'), ''); 
-		$password2    = array('password2', t('Please re-enter your password'), ''); 
-		
+		$password     = array('password', t('Choose a password'), '');
+		$password2    = array('password2', t('Please re-enter your password'), '');
+
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
 		//
 		$name = array('name', t('Your Name'),
 			((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
-		$nickname = array('nickname', t('Choose a short nickname'), 
-			((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), 
+		$nickname = array('nickname', t('Choose a short nickname'),
+			((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''),
 			sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'),
 			$nickhub));
-		$role = array('permissions_role' , t('Channel role and privacy'), 
-			($privacy_role) ? $privacy_role : 'social', 
-			t('Select a channel permission role for your usage needs and privacy requirements.') 
-			. ' <a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">' 
-			. t('Read more about channel permission roles') 
+		$role = array('permissions_role' , t('Channel role and privacy'),
+			($privacy_role) ? $privacy_role : 'social',
+			t('Select a channel permission role for your usage needs and privacy requirements.')
+			. ' <a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">'
+			. t('Read more about channel permission roles')
 			. '</a>',$perm_roles);
 		//
 
@@ -509,9 +509,9 @@ class Register extends Controller {
 		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 		$default_role = get_config('system','default_permissions_role');
 		$email_verify = get_config('system','verify_email');
-	
+
 		require_once('include/bbcode.php');
-	
+
 		$o = replace_macros(get_markup_template('register.tpl'), array(
 
 			'$tao'			=> 	"typeof(window.tao) == 'undefined' ? window.tao = {} : '';\n"
@@ -547,7 +547,7 @@ class Register extends Controller {
 			'$submit'       => t('Register'),
 			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') . '<sup>ZAR0135I</sup>' : ''),
 		));
-	
+
 		return $o;
 	}
 

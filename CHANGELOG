@@ -8,6 +8,7 @@ Hubzilla 5.4.2 (2021-03-15)
 	Addons
 	- Pubcrawl: fix issue with following/unfollowing a thread
 	- Pubcrawl: more robust implementation of mastodon remote reply
+	- Photocache: remove suffix from the cached photo URL
 
 
 Hubzilla 5.4.1 (2021-03-09)

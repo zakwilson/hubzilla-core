@@ -178,16 +178,8 @@ class Accounts {
 			goaway(z_root() . '/admin/accounts' );
 		}
 
-		/* get pending */
-		// [hilmar ->
-		/*
-		$pending = q("SELECT account.*, reg_hash FROM account LEFT JOIN register ON account_id = reg_uid WHERE reg_vital = 1 AND (account_flags & %d) > 0",
-			intval(ACCOUNT_PENDING)
-		);
-		*/
 		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
 
-		// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
 		$pending = get_pending_accounts();
 
 		unset($_SESSION[self::MYP]);

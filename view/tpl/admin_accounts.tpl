@@ -21,7 +21,7 @@
 					<td class="created">{{$u.reg_created}}<br>{{$u.reg_n}}
 						{{if $u.reg_expires < $now}} ★EXPIRED★{{/if}}</td>
 					<td class="created">{{$u.reg_startup}}<br>{{$u.reg_expires}}</td>
-					<td class="email">{{$u.reg_did2}}<br>{{$u.reg_vfd}}</td>
+					<td class="email">{{$u.reg_did2}}<br>{{if $u.reg_vfd}}verified{{else}}not yet verified{{/if}}</td>
 					<td class="email">{{$u.reg_email}}<br>{{$u.reg_atip}}</td>
 					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 					<td class="tools">

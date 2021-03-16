@@ -983,7 +983,7 @@ class Enotify {
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
 			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['reg_created']),
 			'hclass' => ('notify-unseen'),
-			'message' => (($rr['reg_vfd'] === '× not yet') ? t('not yet verified') : t('verified')) . ', ' . t('requires approval')
+			'message' => (($rr['reg_vfd']) ? t('verified') : t('not yet verified')) . ', ' . t('requires approval')
 		];
 
 		return $x;

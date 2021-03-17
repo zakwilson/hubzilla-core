@@ -440,8 +440,7 @@ function get_atom_elements($feed, $item) {
 		$summary = '';
 
 	if(($summary) && ((strpos($summary,'<') !== false) || (strpos($summary,'>') !== false))) {
-		$summary = purify_html($summary);
-		$summary = html2bbcode($summary);
+		$summary = html2plain($summary);
 	}
 
 
@@ -732,7 +731,7 @@ function get_atom_elements($feed, $item) {
 			if((strpos($type,'audio') === 0) && (strpos($res['body'], ']' . $link . '[/audio]') === false) && (strpos($link,'http') === 0)) {
 				$res['body'] .= "\n\n" . '[audio]' . $link . '[/audio]';
 			}
-			
+
 			$res['attach'][] = array('href' => $link, 'length' => $len, 'type' => $type, 'title' => $title );
 		}
 	}

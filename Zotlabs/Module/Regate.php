@@ -232,8 +232,8 @@ class Regate extends \Zotlabs\Web\Controller {
 		$ip 	= $_SERVER['REMOTE_ADDR'];
 
 		$isduty = zar_register_dutystate();
-			$nowfmt = $isduty['nowfmt'];
-			$atform = $isduty['atform'];
+		$nowfmt = $isduty['nowfmt'];
+		$atform = $isduty['atform'];
 
 		$title = t('Register Verification');
 

@@ -320,7 +320,7 @@ class Register extends Controller {
 					$reonar['from'] = get_config('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
-					$reonar['txtpersonal']= t('Valid from') . ' ' . $regdelay . ' ' . t('and expire') . ' ' . $regexpire;
+					$reonar['txtpersonal']= t('Valid from') . ' <span class="register_date">' . $regdelay . '</span> ' . t('and expire') . ' <span class="register_date">' . $regexpire . '</span>';
 					$reonar['txttemplate']= replace_macros(get_intltext_template('register_verify_member.tpl'),
 						[
 						'$sitename' => get_config('system','sitename'),
@@ -387,11 +387,11 @@ class Register extends Controller {
 
 						zar_log( 'ZAR0239A ' . t('New register request') . ' d' . $didnew . ', '
 							.  $regdelay . ' - ' . $regexpire);
-						// notice( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
-						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your didital id is' ) . EOL . 'd' . $didnew . EOL
+						// notice( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
+						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
 						. t('and your pin for is') . ' ' . $pass2 . EOL
 						. t('Keep these infos and your entered password safe') . EOL
-						. t('Valid from') . ' ' . $regdelay . ' ' . t('and expire') . ' ' . $regexpire . EOL );
+						. t('Valid from') . ' <span class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span> ' . t('and expire') . ' <span class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span>' . EOL );
 
 						// acpin verify
 						// goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );

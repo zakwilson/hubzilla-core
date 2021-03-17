@@ -19,9 +19,12 @@
 			{{foreach $pending as $n => $u}}
 				<tr class="zebra zebra{{$u.reg_z}}">
 					<td class="created">{{$u.reg_created}}<br>{{$u.reg_n}}
-						{{if $u.reg_expires < $now}} ★EXPIRED★{{/if}}</td>
+						</td>
+
+					<td class="status">{{$u.status}}</td>
+
 					<td class="created">{{$u.reg_startup}}<br>{{$u.reg_expires}}</td>
-					<td class="email">{{$u.reg_did2}}<br>{{if $u.reg_vfd}}verified{{else}}not yet verified{{/if}}</td>
+					<td class="email">{{$u.reg_did2}}</td>
 					<td class="email">{{$u.reg_email}}<br>{{$u.reg_atip}}</td>
 					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 					<td class="tools">
@@ -39,15 +42,10 @@
 				*
 			*}}
 			<div class="selectall">
-				<a id="zar2aas" class="zar2xas btn btn-primary" href="javascript:;">{{$sel_aprv}}</a> ◄► 
-				<a id="zar2das" class="zar2xas btn btn-primary" href="javascript:;">{{$sel_deny}}</a> ◄► 
-				<a id="zar2sat" class="btn btn-primary" href="javascript:;">{{$sel_tall}}</a>
-				<br><br>
+				<a id="zar2sat" class="btn btn-sm btn-primary" href="javascript:;">{{$sel_tall}}</a>
+				<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a> 
+				<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a> 
 			</div>
-			<div class="submit">
-                <input type="submit" name="page_accounts_deny" class="btn btn-primary" value="{{$deny}}" /> 
-                <input type="submit" name="page_accounts_approve" class="btn btn-primary" value="{{$approve}}" />
-            </div>
 		{{else}}
 			<p>{{$no_pending}}</p>
 		{{/if}}

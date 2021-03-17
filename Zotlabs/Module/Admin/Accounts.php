@@ -55,7 +55,7 @@ class Accounts {
 						intval($_SESSION[self::MYP]['i'][$zarat]),
 						dbesc($_SESSION[self::MYP]['h'][$zarat])
 					);
-					$rc = '× ' . count($rd);
+					$rc = '×';
 				}
 				elseif ($zarop == 'a') {
 					// approval, REGISTER_DENIED by user 0x0040, REGISTER_AGREED by user 0x0020 @Regate
@@ -195,6 +195,14 @@ class Accounts {
 
 					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
 				}
+
+				$pending[$n]['status'] = t('Not yet verified');
+				if($pending[$n]['reg_vfd'])
+					$pending[$n]['status'] = t('Verified');
+
+				if($pending[$n]['reg_expires'] < datetime_convert())
+					$pending[$n]['status'] = t('Expired');
+
 				// better secure
 				$tao .= $n . ": '" . substr(bin2hex($v['reg_hash']),0,8) . "',";
 				$_SESSION[self::MYP]['h'][] = substr($v['reg_hash'],0,4);
@@ -256,28 +264,30 @@ class Accounts {
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
 			'$select_all' => t('select all'),
-			'$sel_tall' => t('SelectToggle'),
-			'$sel_deny' => t('× DenySelected'),
-			'$sel_aprv' => t('✔ ApproveSelected'),
+			'$sel_tall' => t('Select toggle'),
+			'$sel_deny' => t('Deny selected'),
+			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => t('Registrations waiting for confirm'),
-			'$th_pending' => array( t('Request date'), t('Startup,Expires'), 'dId2', t('specified,atip') ),
+			'$th_pending' => array( t('Request date'), t('Status'), t('Startup,Expires'), 'dId2', t('specified,atip') ),
 			'$no_pending' =>  t('No registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
 			'$delete' => t('Delete'),
 			'$block' => t('Block'),
 			'$unblock' => t('Unblock'),
+			'$verified' => t('Verified'),
+			'$not_verified' => t('Not yet verified'),
 			'$odir' => $odir,
 			'$base' => $base,
 			'$h_users' => t('Accounts'),
 			'$th_users' => array(
 				[ t('ID'), 'account_id' ],
 				[ t('Email'), 'account_email' ],
-				[ t('All Channels'), 'channels' ],
+				[ t('All channels'), 'channels' ],
 				[ t('Register date'), 'account_created' ],
 				[ t('Last login'), 'account_lastlog' ],
 				[ t('Expires'), 'account_expires' ],
-				[ t('Service Class'), 'account_service_class'] ),
+				[ t('Service class'), 'account_service_class'] ),
 
 			'$confirm_delete_multi' => p2j(t('Selected accounts will be deleted!\n\nEverything these accounts had posted on this site will be permanently deleted!\n\nAre you sure?')),
 			'$confirm_delete' => p2j(t('The account {0} will be deleted!\n\nEverything this account has posted on this site will be permanently deleted!\n\nAre you sure?')),
@@ -285,7 +295,6 @@ class Accounts {
 			'$form_security_token' => get_form_security_token("admin_accounts"),
 
 			// values //
-			'$now'		=> date('Y-m-d H:i:s'),
 			'$baseurl' 	=> z_root(),
 			'$tao'		=> $tao,
 			'$pending' 	=> $pending,

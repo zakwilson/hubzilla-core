@@ -5,7 +5,7 @@ namespace Zotlabs\Module;
 require_once('include/security.php');
 
 /**
- * 
+ *
  * @version 2.0.0
  * @author  hilmar runge
  * @since 	2020-03-03
@@ -43,7 +43,7 @@ class Regate extends \Zotlabs\Web\Controller {
 		$nextpage = '';
 
 		if ($did2) {
-		
+
 			$nowhhmm 	= date('Hi');
 			$day 	= date('N');
 			$now 	= date('Y-m-d H:i:s');
@@ -53,7 +53,7 @@ class Regate extends \Zotlabs\Web\Controller {
 			if ($isduty['isduty'] !== false && $isduty['isduty'] != 1) {
 					// normally, that should never happen here
 					// log suitable for fail2ban also
-					$logmsg = 'ZAR1230S Unexpected registration verification request for ' 
+					$logmsg = 'ZAR1230S Unexpected registration verification request for '
 							. get_config('system','sitename') . ' arrived from § ' . $ip . ' §';
 					zar_log($logmsg);
 					goaway(z_root() . '/');
@@ -148,7 +148,7 @@ class Regate extends \Zotlabs\Web\Controller {
 												set_aconfig($cra['account']['account_id'],
 													'register','channel_address',$reonar['chan.did1']);
 										}
-										
+
 										authenticate_success($cra['account'],null,true,false,true);
 
 										if($auto_create) {
@@ -160,20 +160,20 @@ class Regate extends \Zotlabs\Web\Controller {
 												change_channel($channel_id);
 												$nextpage = 'profiles/' . $channel_id;
 												$msg = 'ZAR1239I ' . t('Channel successfull created') . ' ' . $did2;
-											} 
+											}
 											else {
 												$msg = 'ZAR1239E ' . t('Channel still not created') . ' ' . $did2;
 											}
 											zar_log($msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
 										}
 										unset($_SESSION['login_return_url']);
-									} 
+									}
 									else {
 										q("ROLLBACK");
 										$msg = 'ZAR1238E ' . t('Account creation error');
 										zar_log($msg . ':' . print_r($cra, true));
 									}
-								} 
+								}
 								else {
 									// new flags implemented and not recognized or sth like
 									zar_log('ZAR1237D unexpected,' . $flags);
@@ -187,17 +187,17 @@ class Regate extends \Zotlabs\Web\Controller {
 						else {
 							$msg = 'ZAR1235E' . ' ' . t('Token verification failed');
 						}
-					} 
+					}
 					else {
 						$msg = 'ZAR1234W' . ' ' . t('Request not inside time frame');
 						//info($r[0]['reg_startup'] . EOL . $r[0]['reg_expire'] );
 					}
-				} 
+				}
 				else {
 					$msg = 'ZAR1232E' . ' ' . t('Identity unknown');
 					zar_log($msg . ':' . $did2 . $didx);
 				}
-			} 
+			}
 			else {
 				$msg = 'ZAR1231E' . t('dId2 mistaken');
 			}
@@ -241,7 +241,7 @@ class Regate extends \Zotlabs\Web\Controller {
 		if ( ($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2))
 		||   ($didx == 'e') ) {
 
-			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s'", 
+			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s'",
 					dbesc($didx),
 					dbesc($did2)
 			);
@@ -261,7 +261,7 @@ class Regate extends \Zotlabs\Web\Controller {
 									.  t('Only one instance admin has still to agree your account request.') . EOL
 									.  t('Please be patient') . EOL . EOL . 'ZAR1138I',
 					]);
-				} 
+				}
 				else {
 
 					if ($deny) {
@@ -279,7 +279,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 							$reonar = json_decode( $r['reg_stuff'], true);
 							$reonar['deny'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
-							$flags  = ( $r['reg_flags'] &= ( $r['reg_flags'] ^ ACCOUNT_UNVERIFIED) ) 
+							$flags  = ( $r['reg_flags'] &= ( $r['reg_flags'] ^ ACCOUNT_UNVERIFIED) )
 									| ( $r['reg_flags'] |= REGISTER_DENIED);
 							$rd = q("UPDATE register SET reg_stuff='%s', reg_vital=0, reg_flags=%d  WHERE reg_id = %d ",
 								dbesc(json_encode($reonar)),
@@ -291,7 +291,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							zar_log('ZAR1135E not awaited url parameter received');
 							goaway(z_root);
 						}
-					} 
+					}
 					else {
 
 						if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
@@ -334,7 +334,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				]);
 			}
 
-		} 
+		}
 		else {
 			$msg = 'ZAR1131E ' . t('dId2 mistaken');
 			// $log = ' from § ' . $ip . ' §' . ' (' . dbesc($did2) . ')';

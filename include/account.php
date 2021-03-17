@@ -293,7 +293,7 @@ function create_account_IS_OBSOLETE($arr) {
 function create_account_from_register($arr) {
 
 	$result = array('success' => false, 'message' => 'rid:' . $arr['reg_id']);
-	$now = date('Y-m-d H:i:s');
+	$now = datetime_convert();
 
 	// reg_flags 0x0020 = REGISTER_AGREED = register request verified by user @ regate
 	$register = q("SELECT * FROM register WHERE reg_id = %d AND (reg_flags & 31) = 0 "

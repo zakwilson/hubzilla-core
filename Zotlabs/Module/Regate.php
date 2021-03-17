@@ -46,7 +46,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 			$nowhhmm 	= date('Hi');
 			$day 	= date('N');
-			$now 	= date('Y-m-d H:i:s');
+			$now 	= datetime_convert();
 			$ip 	= $_SERVER['REMOTE_ADDR'];
 
 			$isduty = zar_register_dutystate();
@@ -228,7 +228,7 @@ class Regate extends \Zotlabs\Web\Controller {
 			return $o;
 		}
 
-		$now 	= date('Y-m-d H:i:s');
+		$now 	= datetime_convert();
 		$ip 	= $_SERVER['REMOTE_ADDR'];
 
 		$isduty = zar_register_dutystate();

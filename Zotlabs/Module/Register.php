@@ -302,11 +302,11 @@ class Register extends Controller {
 
 				$cfgdelay = get_config( 'system', 'register_delay' );
 				$regdelay = calculate_adue( $cfgdelay );
-				$regdelay = $regdelay ? $regdelay['due'] : $now;
+				$regdelay = $regdelay ? datetime_convert(date_default_timezone_get(), 'UTC', $regdelay['due']) : $now;
 
 				$cfgexpire = get_config('system','register_expire' );
 				$regexpire = calculate_adue( $cfgexpire );
-				$regexpire = $regexpire ? $regexpire['due'] : datetime_convert('UTC', 'UTC', 'now + 99 years');
+				$regexpire = $regexpire ? datetime_convert(date_default_timezone_get(), 'UTC', $regexpire['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years');
 
 				// handle an email request that will be verified or an ivitation associated with an email address
 				if ( $email > '' && ($email_verify || $icdone) ) {
@@ -361,9 +361,9 @@ class Register extends Controller {
 						dbesc($didx),
 						dbesc($did2),
 						dbesc($pass2),
-						dbesc(datetime_convert('','',$now)),
-						dbesc(datetime_convert('','',$regdelay)),
-						dbesc(datetime_convert('','',$regexpire)),
+						dbesc($now),
+						dbesc($regdelay),
+						dbesc($regexpire),
 						dbesc($email),
 						dbesc(bin2hex($password)),
 						dbesc(substr(get_best_language(),0,2)),

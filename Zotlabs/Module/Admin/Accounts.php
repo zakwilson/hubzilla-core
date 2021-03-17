@@ -268,7 +268,7 @@ class Accounts {
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => t('Registrations waiting for confirm'),
-			'$th_pending' => array( t('Request date'), t('Status'), t('Startup,Expires'), 'dId2', t('specified,atip') ),
+			'$th_pending' => array( t('Request date'), t('Status'), t('Timeframe'), 'dId2', t('specified,atip') ),
 			'$no_pending' =>  t('No registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),

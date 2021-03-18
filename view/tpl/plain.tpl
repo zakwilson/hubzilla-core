@@ -3,8 +3,7 @@
 <div style="font-weight: normal; font-family: monospace;">{{$infos}}</div>
 <script>
 	$('.register_date').each( function () {
-		var UTC = $(this).html();
-		var date = new Date(UTC);
+		var date = new Date($(this).data('utc'));
 		$(this).html(date.toLocaleString());
 	});
 </script>

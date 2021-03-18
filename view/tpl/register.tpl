@@ -74,5 +74,12 @@
  	 '  .zuiqmid  { font-weight: normal; font-family: monospace; }'+
  	 '  .zuirise  { font-weight: bold; font-size: 100%; color: red; }'+
 	  '</style>');
+
 	{{$tao}}
+
+	var week_days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+	$('.register_date').each( function () {
+		var date = new Date($(this).data('utc'));
+		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));
+	});
 </script>

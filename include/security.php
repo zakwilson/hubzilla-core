@@ -850,7 +850,7 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 
 	$isduty = get_config('system', 'register_duty_jso');
 
-	if (!$isduty) 
+	if (!$isduty)
 		return (bool)false;
 
 	is_null($wd) ? $wd = date('N') : '';
@@ -863,7 +863,7 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 	$wd === 0 ? $wd = 7 : '';
 
 	$duty = json_decode($isduty, true);
-	if (!$duty) 
+	if (!$duty)
 		return (bool)false;
 
 	switch ($op) {
@@ -883,7 +883,7 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 			}
 			return $dutyis;
 			break;
-		
+
 		case 'nextOpen':
 			/**
 			 * Look for next period opens
@@ -923,7 +923,7 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 					if ($dd >= $myd && $dh >= $myh && !$tf)
 						return array($dd, $dh);
 					else
-						continue;			
+						continue;
 				}
 			}
 			return $is1; // false or array
@@ -933,7 +933,7 @@ function zarIsDuty($wd=NULL, $hhmm=NULL, $op='isOpen') {
 			//
 			break;
 	}
-	
+
 }
 
 

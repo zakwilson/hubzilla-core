@@ -196,16 +196,16 @@ class Accounts {
 					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
 				}
 
-				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
-				$pending[$n]['reg_startup'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_startup']);
-				$pending[$n]['reg_expires'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_expires']);
-
 				$pending[$n]['status'] = t('Not yet verified');
 				if($pending[$n]['reg_vfd'])
 					$pending[$n]['status'] = t('Verified');
 
 				if($pending[$n]['reg_expires'] < datetime_convert())
 					$pending[$n]['status'] = t('Expired');
+
+				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
+				$pending[$n]['reg_startup'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_startup']);
+				$pending[$n]['reg_expires'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_expires']);
 
 				// better secure
 				$tao .= $n . ": '" . substr(bin2hex($v['reg_hash']),0,8) . "',";

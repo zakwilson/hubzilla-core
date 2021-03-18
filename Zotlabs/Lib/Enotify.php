@@ -977,8 +977,10 @@ class Enotify {
 	static public function format_register($rr) {
 
 		$policy  = intval(get_config('system','register_policy'));
+
 		$message = (($rr['reg_vfd']) ? t('verified') : t('not verified'));
-		$message .= (($policy == REGISTER_APPROVE) ? ', ' . t('requires approval') : '');
+		if(!$rr['reg_vfd'] && $rr['reg_expires'] < datetime_convert())
+			$message = t('expired');
 
 		$x = [
 			'notify_link' => z_root() . '/admin/accounts',

@@ -203,6 +203,7 @@ class Accounts {
 				if(!$pending[$n]['reg_vfd'] && $pending[$n]['reg_expires'] < datetime_convert())
 					$pending[$n]['status'] = t('Expired');
 
+				// timezone adjust date_time for display
 				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
 				$pending[$n]['reg_startup'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_startup']);
 				$pending[$n]['reg_expires'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_expires']);
@@ -272,7 +273,7 @@ class Accounts {
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => t('Registrations waiting for confirm'),
-			'$th_pending' => array( t('Request date'), t('Status'), t('Timeframe'), 'dId2', t('specified,atip') ),
+			'$th_pending' => array( t('Request date'), t('Verification status'), t('Timeframe'), 'dId2', t('specified,atip') ),
 			'$no_pending' =>  t('No registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),

@@ -196,11 +196,11 @@ class Accounts {
 					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
 				}
 
-				$pending[$n]['status'] = t('Not yet verified');
+				$pending[$n]['status'] = t('Not verified');
 				if($pending[$n]['reg_vfd'])
 					$pending[$n]['status'] = t('Verified');
 
-				if($pending[$n]['reg_expires'] < datetime_convert())
+				if(!$pending[$n]['reg_vfd'] && $pending[$n]['reg_expires'] < datetime_convert())
 					$pending[$n]['status'] = t('Expired');
 
 				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);

@@ -250,7 +250,7 @@ class HTTPSig {
 	static function convertKey($key) {
 
 		if(strstr($key,'RSA ')) {
-			return rsatopem($key);
+			return Keyutils::rsaToPem($key);
 		}
 		elseif(substr($key,0,5) === 'data:') {
 			return Keyutils::convertSalmonKey($key);

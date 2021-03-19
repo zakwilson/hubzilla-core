@@ -301,12 +301,12 @@ class Register extends Controller {
 			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
 
 				$cfgdelay = get_config( 'system', 'register_delay' );
-				$regdelay = calculate_adue( $cfgdelay );
-				$regdelay = $regdelay ? datetime_convert(date_default_timezone_get(), 'UTC', $regdelay['due']) : $now;
+				$reg_delayed = calculate_adue( $cfgdelay );
+				$regdelay = (($reg_delayed) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_delayed['due']) : $now);
 
 				$cfgexpire = get_config('system','register_expire' );
-				$regexpire = calculate_adue( $cfgexpire );
-				$regexpire = $regexpire ? datetime_convert(date_default_timezone_get(), 'UTC', $regexpire['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years');
+				$reg_expires = calculate_adue( $cfgexpire );
+				$regexpire = (($reg_expires) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_expires['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years'));
 
 				// handle an email request that will be verified or an ivitation associated with an email address
 				if ( $email > '' && ($email_verify || $icdone) ) {
@@ -320,7 +320,7 @@ class Register extends Controller {
 					$reonar['from'] = get_config('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
-					$reonar['txtpersonal']= t('Valid from') . ' <span data-utc="' . $regdelay . '" class="register_date">' . $regdelay . '</span> ' . t('and expire') . ' <span data-utc="' . $regexpire . '" class="register_date">' . $regexpire . '</span>';
+					$reonar['txtpersonal']= t('Valid from') . ' ' . $regdelay . ' UTC' . t('and expire') . ' ' . $regexpire . ' UTC';
 					$reonar['txttemplate']= replace_macros(get_intltext_template('register_verify_member.tpl'),
 						[
 						'$sitename' => get_config('system','sitename'),
@@ -387,15 +387,19 @@ class Register extends Controller {
 
 						zar_log( 'ZAR0239A ' . t('New register request') . ' d' . $didnew . ', '
 							.  $regdelay . ' - ' . $regexpire);
-						// notice( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
-						$_SESSION['zar']['msg'] = ( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
-						. t('and your pin for is') . ' ' . $pass2 . EOL
-						. t('Keep these infos and your entered password safe') . EOL
-						. t('Valid from') . ' <span data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span> ' . t('and expire') . ' <span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span>' . EOL );
 
-						// acpin verify
-						// goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
-						goaway(z_root() . '/regate');
+						if($reg_delayed) {
+							// notice( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
+							$_SESSION['zar']['msg'] = ( t('Your validation token is') . ' ' . $pass2 . EOL
+							. t('Please remember your token and reload this page between') . EOL
+							. '<code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code>' . EOL
+							. t('to complete registration.')
+							);
+						}
+						else {
+							$_SESSION['zar']['pin'] = $pass2;
+						}
+						goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
 					}
 					else {
 						$msg = 'ZAR0239D,' . t('Error creating dId A');

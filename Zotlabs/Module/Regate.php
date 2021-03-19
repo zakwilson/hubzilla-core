@@ -122,6 +122,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
 									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
+									$nextpage = 'regapr/' . bin2hex($did2);
 									q("COMMIT");
 								}
 								elseif ( ($flags ^ REGISTER_AGREED) == 0) {
@@ -235,6 +236,10 @@ class Regate extends \Zotlabs\Web\Controller {
 		$nowfmt = $isduty['nowfmt'];
 		$atform = $isduty['atform'];
 
+		$pin = $_SESSION['zar']['pin'] ?? '';
+		unset($_SESSION['zar']['pin']);
+
+
 		$title = t('Register Verification');
 
 		// do we have a valid dId2 ?
@@ -298,7 +303,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							$o = replace_macros(get_markup_template('regate.tpl'), [
 							'$form_security_token' => get_form_security_token("regate"),
 							'$title' 	=> $title,
-							'$desc' 	=> t('You were given a validation token. Please enter that token here to continue the register verification step and allow some delay for proccessing.'),
+							'$desc' 	=> $pin ? t('Please enter your validation token') . '<code class="inline">' .  $pin . '</code>' : t('You were given a validation token. Please enter that token here to verify your registration.'),
 							'$did2' 	=> bin2hex($did2) . $didx,
 							'$now'		=> $nowfmt,
 							'$atform'	=> $atform,

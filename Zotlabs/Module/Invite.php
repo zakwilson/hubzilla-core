@@ -18,7 +18,7 @@ class Invite extends Controller {
 	/**
 	 * While coding this, I want to introduce a system of qualified messages and notifications.
 	 * Each message consists of a 3 letter prefix, a 4 digit number and a one letter suffix (PREnnnnS).
-	 * The spirit about is not from me, but many decades used by IBM inc. in devel with best success. 
+	 * The spirit about is not from me, but many decades used by IBM inc. in devel with best success.
 	 *
 	 * The system prefix, used uppercase as system message id, lowercase as css and js prefix (classes, ids etc).
 	 * Usually not used as self::MYP, but placed in the code dominant enough for easy to find.
@@ -27,11 +27,11 @@ class Invite extends Controller {
 	 * The prefix indicates Z for the Zlabs(core), A for Account stuff, I for Invite.
 	 * The numbers scope will be 00xx within/for templates, 01xx for get, 02xx for post functions.
 	 * Message qualification ends with a uppercase suffix, where
-	 * 	I=Info(only), 
+	 * 	I=Info(only),
 	 *	W=Warning(more then info and less then error),
-	 *	E=Error, 
+	 *	E=Error,
 	 *	F=Fatal(for unexpected errors).
-	 * Btw, in case of using fail2ban, a scan of messages going to log is very much more with ease, 
+	 * Btw, in case of using fail2ban, a scan of messages going to log is very much more with ease,
 	 * esspecially in multi language driven systems where messages vary.
 	 *
 	 * @author Hilmar Runge
@@ -46,7 +46,7 @@ class Invite extends Controller {
 	function post() {
 
 		// zai02
-	
+
 		if (! local_channel()) {
 			notice( 'ZAI0201E,' .t('Permission denied.') . EOL);
 			return;
@@ -56,7 +56,7 @@ class Invite extends Controller {
 			notice( 'ZAI0202E,' . t('Invite App') . ' (' . t('Not Installed') . ')' . EOL);
 			return;
 		}
-	
+
 		check_form_security_token_redirectOnErr('/', 'send_invite');
 
 		$ok = $ko = 0;
@@ -81,20 +81,20 @@ class Invite extends Controller {
 			if ($maxto === 'na') set_config('system','invitation_max_recipients', 12);
 		}
 		$maxto = ($maxto === 'na') ? 12 : $maxto;
-	
+
 		// language code current for the invitation
-		$lcc  = x($_POST['zailcc'])  && preg_match('/[a-z\-]{2,5}/', $_POST['zailcc'])  
-				? $_POST['zailcc'] 
+		$lcc  = x($_POST['zailcc'])  && preg_match('/[a-z\-]{2,5}/', $_POST['zailcc'])
+				? $_POST['zailcc']
 				: '';
 
 		// expiration duration amount quantity, in case of doubts defaults 2
-		$durn = x($_POST['zaiexpiren']) && preg_match('/[0-9]{1,2}/', $_POST['zaiexpiren']) 
-				? trim(intval($_POST['zaiexpiren'])) 
+		$durn = x($_POST['zaiexpiren']) && preg_match('/[0-9]{1,2}/', $_POST['zaiexpiren'])
+				? trim(intval($_POST['zaiexpiren']))
 				: '2';
 		!$durn ? $durn = 2 : '';
 
 		// expiration duration unit 1st letter (day, weeks, months, years), defaults days
-		$durq = x($_POST['zaiexpire']) && preg_match('/[ihd]{1,1}/', $_POST['zaiexpire']) 
+		$durq = x($_POST['zaiexpire']) && preg_match('/[ihd]{1,1}/', $_POST['zaiexpire'])
 				? $_POST['zaiexpire']
 				: 'd';
 
@@ -106,7 +106,7 @@ class Invite extends Controller {
 		}
 
 		// take the received email addresses and discart duplicates
-		$recips  = array_filter( array_unique( preg_replace('/^\s*$/', '', 
+		$recips  = array_filter( array_unique( preg_replace('/^\s*$/', '',
 			((x($_POST,'zaito')) ? explode( "\n",$_POST['zaito']) : array() ) )));
 
 		$havto = count($recips);
@@ -114,7 +114,7 @@ class Invite extends Controller {
 		if ( $havto > $maxto) {
 			$feedbk .= 'ZAI0210E ' . sprintf( t('Too many recipients for one invitation (max %d)'), $maxto) . $eol;
 			$ko++;
-		
+
 		} elseif ( $havto == 0 ) {
 			$feedbk .= 'ZAI0211E ' . t('No recipients for this invitation') . $eol;
 			$ko++;
@@ -159,7 +159,7 @@ class Invite extends Controller {
 					$ko++;
 					continue;
 				}
-		
+
 				if ($isajax) {
 					// seems we have an email address acceptable
 					$feedbk .= 'ZAI0209I ' . ($n+1) . ': ' . sprintf( t('(%s) : Accepted email address'), $recip) . $eol;
@@ -175,7 +175,7 @@ class Invite extends Controller {
 			killme();
 			exit;
 		}
-		
+
 		//	Total ?todo notice( t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
 
 		// any errors up to now in fg?
@@ -207,11 +207,11 @@ class Invite extends Controller {
 
 		// send the mail(s)
 		foreach($recips as $n => $recip) {
-	
+
 			$reonar['due'] = $due;
 			$reonar['to']  = $recip;
 			$reonar['txtpersonal'] = $mailtext;
-	
+
 			// generate an invide code to store and pm
 			$invite_code = autoname(8) . rand(1000,9999);
 
@@ -220,7 +220,7 @@ class Invite extends Controller {
 			// save current operators lc and take the desired to mail
 			push_lang($reonar['lang']);
 			// resolve
-			$tx = replace_macros(get_intltext_template('invite.'.$reonar['tpl'].'.tpl'), 
+			$tx = replace_macros(get_intltext_template('invite.'.$reonar['tpl'].'.tpl'),
 				array(
 					'$projectname'		=> t('$Projectname'),
 					'$invite_code'		=> $invite_code,
@@ -237,7 +237,7 @@ class Invite extends Controller {
 
 			// pm
 			$zem = z_mail(
-				[ 
+				[
 				'toEmail'        => $recip,
 				'fromName'       => ' ',
 				'fromEmail'      => $reonar['from'],
@@ -245,7 +245,7 @@ class Invite extends Controller {
 				'textVersion'    => ($mailtext ? $mailtext . "\n\n" : '') . $tx . "\n" . $due,
 				]
 			);
-	
+
 			if(!$zem) {
 
 				$ko++;
@@ -258,7 +258,7 @@ class Invite extends Controller {
 
 				// if verify_email is the rule, email becomes a dId2 - NO
 				// $did2 = ($flags & ACCOUNT_UNVERIFIED) == ACCOUNT_UNVERIFIED ? $recip : '';
-				
+
 				// always enforce verify email with invitations, thus email becomes a dId2
 				$did2 = $recip;
 				$flags |= ACCOUNT_UNVERIFIED;
@@ -279,25 +279,25 @@ class Invite extends Controller {
 					dbesc($reonar['fromip']),
 					dbesc($reonar['lang']),
 					dbesc(json_encode( array('reon' => $reonar) ))
-				);	
+				);
 			}
 			$msg .= ' (a' . $account['account_id'] . ', c' . $inby . ', from:' . $reonar['from'] . ')';
 			zar_log( $msg);
 		}
 
-		$ok + $ko > 0 
+		$ok + $ko > 0
 		? notice( 'ZAI0212I ' . sprintf( t('%1$d mail(s) sent, %2$d mail error(s)'), $ok, $ko) . EOL)
 		: '';
-		//logger( print_r( $reonar, true) );	
+		//logger( print_r( $reonar, true) );
 
 		return;
 	}
-	
-	
+
+
 	function get() {
 
 		// zai1
-	
+
 		if(! local_channel()) {
 			notice( 'ZAI0101E,' . t('Permission denied.') . EOL);
 			return;
@@ -320,7 +320,7 @@ class Invite extends Controller {
 		// invitation_by_user may still not configured, the default 'na' will tell this
 		// if configured, 0 disables invitations by users, other numbers are how many invites a user may propagate
 		$invuser = get_config('system','invitation_by_user', 'na');
-		
+
 		// if the mortal user drives the invitation
 		If (! is_site_admin()) {
 
@@ -361,13 +361,13 @@ class Invite extends Controller {
 
 		// expirations, duration interval
 		$dur = self::calcdue();
-		$tao .= 'tao.zai.expire = { durn: ' . $dur['durn'] 
-			  					. ', durq: ' . "'" . $dur['durq']  . "'" 
+		$tao .= 'tao.zai.expire = { durn: ' . $dur['durn']
+			  					. ', durq: ' . "'" . $dur['durq']  . "'"
 			  					. ', due: '  . "'" . $dur['due']   . "' };\n";
 
-		// to easy redisplay the empty form 
+		// to easy redisplay the empty form
 		nav_set_selected('Invite');
-	
+
 		// inform about the count of invitations we have at all
 		$r = q("SELECT count(reg_id) as ct FROM register WHERE reg_vital = 1");		// where not admin TODO
 		$wehave = ($r ? $r[0]['ct'] : 0);
@@ -400,20 +400,20 @@ class Invite extends Controller {
  					'd' => t('Day(s)')
 		);
 		$inv_expire = replace_macros(get_markup_template('field_duration.qmc.tpl'),
-			 array(	
+			 array(
 			 	'label'  	=> t('Invitation expires after'),
-			 	'qmc'	 	=> 'zai', 
+			 	'qmc'	 	=> 'zai',
 				'qmcid'		=> 'ZAI0014I',
 			 	'field' => 	array(
-			 		'name'  => 'expire', 
+			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($invexpire_n ? $invexpire_n : 2), 
-			 		'min'  => '1', 
+			 		'value' => ($invexpire_n ? $invexpire_n : 2),
+			 		'min'  => '1',
 			 		'max'  => '99',
 			 		'size' => '2',
 					'default' => ($invexpire_u ? $invexpire_u : 'd')
 			 	),
-			 	'rabot'	=> 	$inv_rabots 
+			 	'rabot'	=> 	$inv_rabots
 			 )
 		);
 
@@ -422,7 +422,7 @@ class Invite extends Controller {
 		// $invite_code = substr(str_shuffle('abcdefghijklmnopqrstuvwxyz'), 0, 8) . rand(1000,9999);
 		// let take one descriptive for template (as said is never used)
 		$invite_code = 'INVITATE2020';
-	
+
 		// what languages we use now
 		$lccmy	= ((isset(App::$config['system']['language'])) ? App::$config['system']['language'] : 'en');
 		// and all the localized templates belonging to invite
@@ -435,15 +435,19 @@ class Invite extends Controller {
 				// indicate a subject tpl exists
 				$t=str_replace(array('invite.', '.subject', '.tpl'), '', $t);
 				$tplxs[$l][$t]=true;
-				continue; 
+				continue;
 			}
 			// collect unique template names cross all languages and
 			// tpla[language][]=template those available in each language
 			$tplx[] = $tpla[$l][] = str_replace( array('invite.', '.tpl'), '', $t);
 		}
-		asort( $langs = array_keys($tpla) );
-		asort( $tplx = array_unique($tplx) );
- 
+
+		$langs = array_keys($tpla);
+		asort($langs);
+
+		$tplx = array_unique($tplx);
+		asort($tplx);
+
 		// prepare current language and the default standard template (causual) for js
 		// With and in js, I use a var 'tao' as a shortcut for top array object
 		// and also qualify the object with the prefix zai = tao.zai as my var used outsite functions
@@ -458,7 +462,7 @@ class Invite extends Controller {
 
 		// I will uncomment for js console debug
 		// $tao.='tao.zai.debug = ' . "'" . json_encode($tplxs) . "';\n";
-		
+
 		// running thru the localized templates (subjects and textmsgs) and bring them to tao
 		// lcc LanguageCountryCode,
 		// lcc2 is a 2 character and lcc5 a 5 character LanguageCountryCode
@@ -470,8 +474,8 @@ class Invite extends Controller {
 			$lcc2 = strlen($l) == 2 ? ' zai_lcc2' : '';
 			$lcc5 = strlen($l) == 5 ? ' zai_lcc5' : '';
 			$lccg = ' zai_lccg' . substr( $l, 0, 2 );
-			$lcclane 
-			.= 	'<span class="fa zai_fa zai_lccsym' . $lcc2 . $lcc5 . $lccg . '"></span>' 
+			$lcclane
+			.= 	'<span class="fa zai_fa zai_lccsym' . $lcc2 . $lcc5 . $lccg . '"></span>'
 			.	'<a href="javascript:;" class="zai_lcc' . $lcc2 . $lcc5 . $lccg . $hi . '">' . $lcc . '</a>';
 			//  textmsg
 			$tao .= 'tao.zai.t.' . $lcc . ' = {};' . "\n";
@@ -485,7 +489,7 @@ class Invite extends Controller {
 				push_lang($l);
 
 				// resolve
-				$tx = replace_macros(get_intltext_template('invite.'.$t1.'.tpl'), 
+				$tx = replace_macros(get_intltext_template('invite.'.$t1.'.tpl'),
 					array(
 						'$projectname'		=> t('$Projectname'),
 						'$invite_code'		=> $invite_code,
@@ -499,7 +503,7 @@ class Invite extends Controller {
 				// a default subject if no associated exists
 				$ts=t('Invitation');
 				if ( $tplxs[$l][$t1] )
-					$ts = replace_macros(get_intltext_template('invite.'.$t1.'.subject.tpl'), 
+					$ts = replace_macros(get_intltext_template('invite.'.$t1.'.subject.tpl'),
 					array(
 						'$projectname'		=> t('$Projectname'),
 						'$invite_loc'		=> get_config('system','sitename')
@@ -510,8 +514,8 @@ class Invite extends Controller {
 				pop_lang();
 
 				// bring to tao as js like it
-				$tao .= 'tao.zai.t.' . $lcc . '.' . $t1 . " = '" . rawurlencode($tx) . "';\n"; 
-				$tao .= 'tao.zai.s.' . $lcc . '.' . $t1 . " = '" . rawurlencode($ts) . "';\n"; 
+				$tao .= 'tao.zai.t.' . $lcc . '.' . $t1 . " = '" . rawurlencode($tx) . "';\n";
+				$tao .= 'tao.zai.s.' . $lcc . '.' . $t1 . " = '" . rawurlencode($ts) . "';\n";
 			}
 		}
 
@@ -521,7 +525,7 @@ class Invite extends Controller {
 			$tplin .= $tplsym.'<a href="javascript:;" id="zai-' . $t1
 					. '" class="invites'.$hi.'">' . $t1 . '</a>';
 		}
-		
+
 		// fill the form for foreground
 		$o = replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("send_invite"),
@@ -545,7 +549,7 @@ class Invite extends Controller {
 			'$due' => t('Note, the invitation code is valid up to') . ' ' . $dur['due'],
 			'$submit' => t('Submit')
 		));
-		
+
 		return $o;
 	}
 
@@ -556,10 +560,10 @@ class Invite extends Controller {
 		if ( preg_match( '/^[0-9]{1,2}[ihdwmy]{1}$/', $duri ) ) {
 			$durq = substr($duri, -1);
 			$durn = substr($duri, 0, -1);
-			$due  = date('Y-m-d H:i:s', strtotime('+' . $durn . ' ' 
-				  . str_replace( array(':i',':h',':d',':w',':m',':y'), 
+			$due  = date('Y-m-d H:i:s', strtotime('+' . $durn . ' '
+				  . str_replace( array(':i',':h',':d',':w',':m',':y'),
 			 				 	 array('minutes', 'hours', 'days', 'weeks', 'months', 'years'),
-			 		 (':'.$durq)) 
+			 		 (':'.$durq))
 				));
 			return array( 'durn' => $durn, 'durq' => $durq, 'due' => $due);
 		}

@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use App;
 use Zotlabs\Web\Controller;
 
 require_once('include/security.php');
@@ -216,7 +217,15 @@ class Register extends Controller {
 							// transit ?
 
 							// update reg vital 0 off
-							$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
+							//$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
+								//intval($reg['reg_id'])
+							//);
+
+							// update DB flags, password
+							// TODO: what else?
+							q("UPDATE register set reg_flags = %d, reg_pass = '%s', reg_stuff = '%s' WHERE reg_id = '%s'",
+								intval($flags),
+								dbesc(bin2hex($password)),
 								intval($reg['reg_id'])
 							);
 
@@ -225,8 +234,15 @@ class Register extends Controller {
 							// msg!
 							info($msg . EOL);
 
-							$well = true;
+							// the invitecode has verified us and we have all the info we need
+							// take the shortcut.
 
+							$mod = new Regate();
+							$_REQUEST['form_security_token'] = get_form_security_token("regate");
+							App::$argc = 2;
+							App::$argv[0] = 'regate';
+							App::$argv[1] = bin2hex($reg['reg_did2']) . 'i';
+							return $mod->post();
 
 						} else {
 							// msg!
@@ -309,7 +325,7 @@ class Register extends Controller {
 				$regexpire = (($reg_expires) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_expires['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years'));
 
 				// handle an email request that will be verified or an ivitation associated with an email address
-				if ( $email > '' && ($email_verify || $icdone) ) {
+				if ($email > '' && $email_verify) {
 					// enforce in case of icdone
 					$flags |= ACCOUNT_UNVERIFIED;
 					$empin = $pass2 = random_string(24);
@@ -354,22 +370,22 @@ class Register extends Controller {
 				}
 
 				$reg = q("INSERT INTO register ("
-				. "reg_flags,reg_didx,reg_did2,reg_hash,reg_created,reg_startup,reg_expires,"
-				. "reg_email,reg_pass,reg_lang,reg_atip,reg_stuff)"
-				. " VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
-						intval($flags),
-						dbesc($didx),
-						dbesc($did2),
-						dbesc($pass2),
-						dbesc($now),
-						dbesc($regdelay),
-						dbesc($regexpire),
-						dbesc($email),
-						dbesc(bin2hex($password)),
-						dbesc(substr(get_best_language(),0,2)),
-						dbesc($ip),
-						dbesc(json_encode( $reonar ))
-					);
+					. "reg_flags,reg_didx,reg_did2,reg_hash,reg_created,reg_startup,reg_expires,"
+					. "reg_email,reg_pass,reg_lang,reg_atip,reg_stuff)"
+					. " VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s') ",
+					intval($flags),
+					dbesc($didx),
+					dbesc($did2),
+					dbesc($pass2),
+					dbesc($now),
+					dbesc($regdelay),
+					dbesc($regexpire),
+					dbesc($email),
+					dbesc(bin2hex($password)),
+					dbesc(substr(get_best_language(),0,2)),
+					dbesc($ip),
+					dbesc(json_encode( $reonar ))
+				);
 
 				if ($didx == 'a') {
 

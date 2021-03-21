@@ -13,7 +13,7 @@ Kliknij ten link, aby zweryfikować swoją tożsamość i potwierdzić żądanie
 
 {{$reset_link}}
 
-Następnie otrzymasz wiadomość uzupełniającą zawierającą nowe hasło.
+Następnie otrzymasz wiadomość uzupełniającą. która zawiera nowe hasło.
 
 Możesz zmienić to hasło na stronie ustawień konta, po zalogowaniu się.
 

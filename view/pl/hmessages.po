@@ -4117,7 +4117,7 @@ msgstr "Administracja"
 
 #: ../../Zotlabs/Module/Admin.php:139
 msgid "Summary"
-msgstr "Posumowanie"
+msgstr "Podsumowanie"
 
 #: ../../Zotlabs/Module/Admin.php:142
 msgid "Registered accounts"

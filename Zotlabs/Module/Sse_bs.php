@@ -6,6 +6,7 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
+use Zotlabs\Lib\XConfig;
 
 class Sse_bs extends Controller {
 
@@ -101,12 +102,13 @@ class Sse_bs extends Controller {
 			self::bs_files(),
 			self::bs_mail(),
 			self::bs_all_events(),
-			self::bs_register()
+			self::bs_register(),
+			self::bs_info_notice()
 		);
 
-		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
-		set_xconfig(self::$ob_hash, 'sse', 'notifications', []); // reset the cache
-		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
+		XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+		XConfig::Set(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+		XConfig::Set(self::$ob_hash, 'sse', 'language', App::$language);
 
 		json_return_and_die($result);
 	}
@@ -702,5 +704,27 @@ class Sse_bs extends Controller {
 		return $result;
 
 	}
+
+	function bs_info_notice() {
+
+		$result['notice']['notifications'] = [];
+		$result['notice']['count'] = 0;
+		$result['notice']['offset'] = -1;
+		$result['info']['notifications'] = [];
+		$result['info']['count'] = 0;
+		$result['info']['offset'] = -1;
+
+		$r = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+
+		if(isset($r['notice']))
+			$result['notice']['notifications'] = $r['notice']['notifications'];
+
+		if(isset($r['info']))
+			$result['info']['notifications'] = $r['info']['notifications'];
+
+		return $result;
+
+	}
+
 
 }

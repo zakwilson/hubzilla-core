@@ -327,8 +327,9 @@ function create_account_from_register($arr) {
 		$roles = ACCOUNT_ROLE_ADMIN;
 	}
 
-	$salt = random_string(32);
-	$password_encoded = hash('whirlpool', $salt . (hex2bin($register[0]['reg_pass'])));
+	$password_parts = explode(',', $register[0]['reg_pass']);
+	$salt = $password_parts[0];
+	$password_encoded = $password_parts[1];
 
 	$ri = q(
 		"INSERT INTO account ("

@@ -61,14 +61,13 @@ class Regate extends \Zotlabs\Web\Controller {
 
 			// do we have a valid dId2 ?
 			if ( ($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2))
-			||   ($didx == 'e') ) {
+			|| ($didx == 'e') || ($didx == 'i')) {
 				// check startup and expiration via [=[register
 				$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' ", dbesc($did2) );
 				if ( $r && count($r) == 1 ) {
 					$r = $r[0];
 					// check timeframe
 					if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now ) {
-
 						if ( isset($_POST['resend']) && $didx == 'e' ) {
 							$re = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = 'e' AND reg_did2 = '%s' ", dbesc($r['reg_did2']) );
 							if ( $re && count($re) == 1 ) {
@@ -91,6 +90,8 @@ class Regate extends \Zotlabs\Web\Controller {
 							$acpin = (preg_match('/^[0-9]{6,6}$/', $_POST['acpin']) ? $_POST['acpin'] : false);
 						elseif ( $didx == 'e' )
 							$acpin = (preg_match('/^[0-9a-f]{24,24}$/', $_POST['acpin']) ? $_POST['acpin'] : false);
+						elseif ( $didx == 'i' )
+							$acpin = $r['reg_hash'];
 						else $acpin = false;
 
 						if ( $acpin && ($r['reg_hash'] == $acpin )) {

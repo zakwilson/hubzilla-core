@@ -43,6 +43,7 @@ class Site {
 		$maximagesize		=	((x($_POST,'maximagesize'))		? intval(trim($_POST['maximagesize']))				:  0);
 
 		$register_policy	=	((x($_POST,'register_policy'))	? intval(trim($_POST['register_policy']))	:  0);
+		$register_wo_email	=	((x($_POST,'register_wo_email'))	? intval(trim($_POST['register_wo_email']))	:  0);
 		$minimum_age           = ((x($_POST,'minimum_age'))          ? intval(trim($_POST['minimum_age']))    : 13);
 		$access_policy	=	((x($_POST,'access_policy'))	? intval(trim($_POST['access_policy']))	:  0);
 		$reg_autochannel	= ((x($_POST,'auto_channel_create'))		? True	: False);
@@ -194,6 +195,7 @@ class Site {
 		set_config('system','maximagesize', $maximagesize);
 
 		set_config('system','register_policy', $register_policy);
+		set_config('system','register_wo_email', $register_wo_email);
 		set_config('system','minimum_age', $minimum_age);
 		set_config('system','auto_channel_create', $reg_autochannel);
 		set_config('system',self::ivo, $invitation_only);
@@ -359,6 +361,7 @@ class Site {
  					'm' => t('Month(s)') ,
  					'y' => t('Year(s)')
 		);
+		$regdelay_n = $regdelay_u = false;
 		$regdelay = get_config('system','register_delay');
 		if ($regdelay)
 			list($regdelay_n, $regdelay_u) = array(substr($regdelay,0,-1),substr($regdelay,-1));
@@ -372,15 +375,16 @@ class Site {
 			 	'field' => 	array(
 			 		'name'  => 'delay',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($regdelay_n === false ? 90 : $regdelay_n),
+			 		'value' => ($regdelay_n === false ? 0 : $regdelay_n),
 			 		'min'   => '0',
 			 		'max'   => '99',
 			 		'size'  => '2',
-					'default' => ($regdelay_u ? $regdelay_u : 'i')
+					'default' => ($regdelay_u === false ? 'i' : $regdelay_u)
 			 	),
 			 	'rabot'	=> 	$reg_rabots
  			)
 		);
+		$regexpire_n = $regexpire_u = false;
 		$regexpire = get_config('system','register_expire');
 		if ($regexpire)
 			list($regexpire_n, $regexpire_u) = array(substr($regexpire,0,-1),substr($regexpire,-1));
@@ -394,11 +398,11 @@ class Site {
 			 	'field' => 	array(
 			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($regexpire_n === false ? 2 : $regexpire_n),
+			 		'value' => ($regexpire_n === false ? 99 : $regexpire_n),
 			 		'min'  => '0',
 			 		'max'  => '99',
 			 		'size' => '2',
-					'default' => ($regexpire_u ? $regexpire_u : 'i')
+					'default' => ($regexpire_u === false ? 'y' : $regexpire_u)
 			 	),
 			 	'rabot'	=> 	$reg_rabots
 			 )
@@ -449,6 +453,12 @@ class Site {
 				"",
 				$register_choices,
 				'ZAR0820C'),
+			'$register_wo_email' => array('register_wo_email',
+				t("Registration is also possible without having to enter an email address."),
+				get_config('system','register_wo_email'),
+				t("Registration is also supported without requiring an email address from the applicant. Instead of the email address an artificial identification is generated, which has to be confirmed in a separate dialog. The default value is (Off) and corresponds to the registration procedure up to version 5.4.x."),
+				"",	"",	'ZAR0824C'),
+
 			'$register_duty' => array('register_duty',
 				t('Registration office on duty'),
 				$this->register_duty = get_config('system', 'register_duty'),
@@ -458,9 +468,9 @@ class Site {
 				.	t('Several values or ranges are to split by comma') . '. '
 				.	t('From-To ranges are joined with `-`') . '. '
 				.	t('ie') . ' `1-5:0900-1200,1300-1700 6:900-1230` ' . t('or') .' `1-2,4-5:800-1800` '
-				. 	' <a id="zar083a" href="javascript:;">' . t('Parse and test your input') . '</a>'. EOL
+				. 	EOL . ' <a id="zar083a" class="zuia btn">' . t('Parse and test your input') . '</a>'. EOL
 				.	t('If left empty, defaults to 24h closed everyday the week.') . ' '
-				.	t('To keep open 24h everyday the week, short is `-:-`.') . ' '
+				.	t('To open 24h everyday the week, short is `-:-`.') . ' '
 				.	t('Note, ranges are specified as open-close pairs and in case of')
 				.	' 0900-1200 '
 				.	t('results to: opens 9h and closes 12h. If meant open 9h to 12h exactly, say `0900-1201`'),

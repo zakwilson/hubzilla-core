@@ -708,11 +708,7 @@ class Sse_bs extends Controller {
 	function bs_info_notice() {
 
 		$result['notice']['notifications'] = [];
-		$result['notice']['count'] = 0;
-		$result['notice']['offset'] = -1;
 		$result['info']['notifications'] = [];
-		$result['info']['count'] = 0;
-		$result['info']['offset'] = -1;
 
 		$r = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 

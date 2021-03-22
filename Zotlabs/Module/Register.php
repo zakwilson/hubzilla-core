@@ -369,6 +369,16 @@ class Register extends Controller {
 					$reonar['chan.did1'] = notags(trim($arr['nickname']));
 				}
 
+				if($password_result['error']) {
+					$msg = $password_result['message'];
+					notice($msg);
+					zar_log($msg . ' ' . $did2);
+					goaway('register');
+				}
+
+				$salt = random_string(32);
+				$password = $salt . ',' . hash('whirlpool', $salt . $password);
+
 				$reg = q("INSERT INTO register ("
 					. "reg_flags,reg_didx,reg_did2,reg_hash,reg_created,reg_startup,reg_expires,"
 					. "reg_email,reg_pass,reg_lang,reg_atip,reg_stuff)"
@@ -381,7 +391,7 @@ class Register extends Controller {
 					dbesc($regdelay),
 					dbesc($regexpire),
 					dbesc($email),
-					dbesc(bin2hex($password)),
+					dbesc($password),
 					dbesc(substr(get_best_language(),0,2)),
 					dbesc($ip),
 					dbesc(json_encode( $reonar ))
@@ -390,7 +400,9 @@ class Register extends Controller {
 				if ($didx == 'a') {
 
 					$lid = q("SELECT reg_id FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' AND reg_pass = '%s' ",
-						 	dbesc($did2), dbesc(bin2hex($password)) );
+						dbesc($did2),
+						dbesc($password)
+					);
 
 					if ($lid && count($lid) == 1 ) {
 

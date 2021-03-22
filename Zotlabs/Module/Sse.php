@@ -47,7 +47,6 @@ class Sse extends Controller {
 
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify');
 
-		$sys = get_sys_channel();
 		$sleep_seconds = 3;
 
 		self::$sse_enabled = get_config('system', 'sse_enabled', 0);

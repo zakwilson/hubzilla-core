@@ -258,14 +258,13 @@ class Display extends \Zotlabs\Web\Controller {
 			$r = null;
 
 			if(local_channel()) {
-				$r = q("SELECT item.id AS item_id FROM item WHERE uid IN (%d, %d) AND mid = '%s' $item_normal LIMIT 1",
+				$r = q("SELECT item.id AS item_id FROM item WHERE uid = %d AND mid = '%s' $item_normal LIMIT 1",
 					intval(local_channel()),
-					intval($sys_id),
 					dbesc($target_item['parent_mid'])
 				);
 			}
 
-			if($r === null) {
+			if(!$r) {
 				$r = q("SELECT item.id AS item_id FROM item
 					WHERE ((mid = '%s'
 					AND (((( item.allow_cid = '' AND item.allow_gid = '' AND item.deny_cid  = ''
@@ -292,18 +291,17 @@ class Display extends \Zotlabs\Web\Controller {
 			$r = null;
 			if(local_channel()) {
 				$r = q("SELECT item.parent AS item_id from item
-					WHERE uid IN (%d, %d)
+					WHERE uid = %d
 					AND parent_mid = '%s'
 					$item_normal_update
 					$simple_update
 					LIMIT 1",
 					intval(local_channel()),
-					intval($sys_id),
 					dbesc($target_item['parent_mid'])
 				);
 			}
 
-			if($r === null) {
+			if(! $r) {
 				$r = q("SELECT item.id as item_id from item
 					WHERE ((parent_mid = '%s'
 					AND (((( item.allow_cid = '' AND item.allow_gid = '' AND item.deny_cid  = ''

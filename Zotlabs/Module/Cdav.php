@@ -135,7 +135,7 @@ class Cdav extends Controller {
 			$auth = new \Zotlabs\Storage\BasicAuth();
 			$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . 'CalDAV/CardDAV');
 
-			if (local_channel()) {
+			if(local_channel()) {
 
 				logger('loggedin');
 
@@ -151,15 +151,15 @@ class Cdav extends Controller {
 				if($channel['channel_timezone'])
 					$auth->setTimezone($channel['channel_timezone']);
 				$auth->observer = $channel['channel_hash'];
+			}
+			else
+				$channel = channelx_by_nick(argv(2));
 
-				$principalUri = 'principals/' . $channel['channel_address'];
-				if(!cdav_principal($principalUri)) {
-					$this->activate($pdo, $channel);
-					if(!cdav_principal($principalUri)) {
-						return;
-					}
-				}
-
+			$principalUri = 'principals/' . $channel['channel_address'];
+			if(! cdav_principal($principalUri)) {
+				$this->activate($pdo, $channel);
+				if(! cdav_principal($principalUri))
+					return;
 			}
 
 			// Track CDAV updates from remote clients
@@ -173,11 +173,11 @@ class Cdav extends Controller {
 				logger("debug: method: " . $httpmethod, LOGGER_DEBUG);
 				logger("debug: uri: " . $httpuri, LOGGER_DEBUG);
 
-				if(strpos($httpuri, 'cdav/addressbooks')) {
+				if(strpos($httpuri, 'cdav/addressbooks') !== false) {
 					$sync = 'addressbook';
 					$cdavtable = 'addressbooks';
 				}
-				elseif(strpos($httpuri, 'cdav/calendars')) {
+				elseif(strpos($httpuri, 'cdav/calendars') !== false) {
 					$sync = 'calendar';
 					$cdavtable = 'calendarinstances';
 				}
@@ -191,7 +191,7 @@ class Cdav extends Controller {
 
 					logger("debug: body: " . $httpbody, LOGGER_DEBUG);
 
-					if($x = get_cdav_id($principalUri, explode("/", $httpuri)[4], $cdavtable)) {
+					if($x = get_cdav_id($principalUri, argv(3), $cdavtable)) {
 
 						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
 

@@ -239,13 +239,14 @@ function import_xchan_photo($photo, $xchan, $thing = false, $force = false) {
 
 		if($force || empty($modified))
 			$result = z_fetch_url($photo, true);
-		elseif($exp - 60 < time()) {
+		else {
 			$h = [];
 			$h[] = "If-Modified-Since: " . gmdate("D, d M Y H:i:s", $exp) . " GMT";
 			if(! empty($etag))
 				$h[] = "If-None-Match: " . $etag;
 			$result = z_fetch_url($photo, true, 0, [ 'headers' => $h ]);
 		}
+
 
 		if(isset($result)) {
 			$hdrs = [];

@@ -48,7 +48,7 @@ W celu uproszczenia zarządzaniem uprawnieniami w kanałach, w Hubzilla wprowadz
 
 [b]- federacyjny[/b]
 
-Kanał tego rodzaju jest bardzo liberalnym profilem społecznościowym, który jest kompatybilny z innymi federacyjnymi sieciami społecznościowymi. Zasady zezwoleń są podobne do Twittera i w większości zgodne z Diasporą i Mastodonem. Prywatność ma niższy priorytet niż łatwość dostępu i łączenia się z innymi. Każdy w sieci Fediverse może komentować Twoje publiczne wpisy i wysyłać Ci prywatną pocztę. Domyślnie posty i inne publikowane elementy są publiczne, ale można do nich ograniczyć dostęp przy ich tworzeniu. Jesteś wymieniony w katalogu. Twoja obecność w Internecie i połączenia są widoczne dla innych. Ten tryb może zwiększyć narażenie na niepożądaną komunikację i spam. Rola ta nie jest ogólnie zalecana, chyba że musisz regularnie kontaktować się z członkami innych sieci.
+Kanał tego rodzaju jest bardzo liberalnym profilem społecznościowym, który jest kompatybilny z innymi federacyjnymi sieciami społecznościowymi. Zasady zezwoleń są podobne do Twittera i w większości zgodne z Diasporą i Mastodonem. Prywatność ma niższy priorytet niż łatwość dostępu i łączenia się z innymi. Każdy w sieci Fediverse może komentować Twoje publiczne wpisy i wysyłać Ci prywatną pocztę. Domyślnie wpisy i inne publikowane elementy są publiczne, ale można do nich ograniczyć dostęp przy ich tworzeniu. Jesteś wymieniony w katalogu. Twoja obecność w Internecie i połączenia są widoczne dla innych. Ten tryb może zwiększyć narażenie na niepożądaną komunikację i spam. Rola ta nie jest ogólnie zalecana, chyba że musisz regularnie kontaktować się z członkami innych sieci.
 
 [b]- przeważnie publiczny[/b]
 
@@ -107,7 +107,7 @@ Prywatność i uprawnienia ustawia się ręcznie, aby dopasować je do swoich po
 
 [h4][b]Tworzenie kanałów[/b][/h4]
 
-Po utworzeniu konta zostanie wyświetlony ekran &quot;Dodaj kanał&quot;. Zwykle pierwszym kanałem będzie ten, który reprezentuje Ciebie, więc użycie własnego imienia i nazwiska (lub pseudonimu) jako nazwy kanału jest dobrym pomysłem. Nazwę kanału należy traktować jako tytuł lub krótki opis kanału. Pole "Wybierz krótki pseudonim" jest podobne do pola "Nazwa użytkownika". Wykorzystamy wszystko, co tu wpiszesz, do utworzenia adresu kanału, którego będą używać inne osoby do łączenia się z Twoim kanałem, a Ty będziesz używać to do logowania się w innych witrynach. Wygląda to jak adres e-mail i ma postać [i]pseudonim@serwis_twojej_rejestracji.xyz[/i].
+Po utworzeniu konta zostanie wyświetlony ekran &quot;Dodaj kanał&quot;. Zwykle pierwszym kanałem będzie ten, który reprezentuje Ciebie, więc użycie własnego imienia i nazwiska (lub pseudonimu) jako nazwy kanału jest dobrym pomysłem. Nazwę kanału należy traktować jako tytuł lub krótki opis kanału. Pole "Wybierz krótki pseudonim" jest podobne do pola "Nazwa użytkownika". Wykorzystamy wszystko, co tu wpiszesz, do utworzenia adresu kanału, którego będą używać inne osoby do łączenia się z Twoim kanałem, a Ty będziesz używać to do logowania się w innych witrynach. Wygląda to jak adres e-mail i ma wpisuć [i]pseudonim@serwis_twojej_rejestracji.xyz[/i].
 
 Możesz tworzyć dodatkowe kanały, korzystając z odnośnika &quot;Menedżer kanałów&quot;.
 
@@ -151,7 +151,7 @@ Przecztaj też:
 
 [h4][b]Siatka, uprawnienia i delegowanie[/b][/h4]
 
-Strona "Siatka" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Posty, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać posty od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
+Strona "Siatka" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Wpisy, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać wpisy od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
 
 Jak wspomniano na początku, możliwych jest wiele innych rodzajów kanałów, jednak procedura tworzenia jest taka sama. Różnica między kanałami polega przede wszystkim na przypisanych uprawnieniach. Na przykład kanał umożliwiający udostępnianie dokumentów współpracownikom w pracy prawdopodobnie wymagałby bardziej liberalnych ustawień "Może zapisywać w moim" publicznym "magazynie plików" niż na koncie osobistym.
 
@@ -159,11 +159,11 @@ Możesz również przekazać kontrolę nad wpisami i połączeniami swoich kana�
 
 [h3]Przyłączanie się do kanałów[/h3]
 
-Połączenie jest w $Projectname określane jako zestaw uprawnień, które nadało się komuś innemu do dostępu do swoich treści. W tradycyjnych aplikacjach sieci społecznościowych wszystkie połączenia mają takie same uprawnienia lub najwyżej dwa poziomy ("znajomi" i "obserwujący"). W Hubzilla można ustawić (dostosować) szereg oddzielnych uprawnień w zależności od sytuacji i relacji, jakie masz z innym kanałem. Możesz zezwolić komuś na wyświetlanie swoich postów, ale nie zdjęć. Możesz również odmówić im pozwolenia na komentowanie swoich postów lub wysyłanie prywatnych wiadomości do Ciebie.
+Połączenie jest w $Projectname określane jako zestaw uprawnień, które nadało się komuś innemu do dostępu do swoich treści. W tradycyjnych aplikacjach sieci społecznościowych wszystkie połączenia mają takie same uprawnienia lub najwyżej dwa poziomy ("znajomi" i "obserwujący"). W Hubzilla można ustawić (dostosować) szereg oddzielnych uprawnień w zależności od sytuacji i relacji, jakie masz z innym kanałem. Możesz zezwolić komuś na wyświetlanie swoich wpisów, ale nie zdjęć. Możesz również odmówić im pozwolenia na komentowanie swoich wpisów lub wysyłanie prywatnych wiadomości do Ciebie.
 
 Jak przyłączyć się do jakiegoś kanału?
 
-Najpierw musisz znaleźć kanał, z którym chcesz się połączyć. Można to zrobić na dwa sposoby. Po pierwsze, ustaw opcję "Może przesyłać mi swój strumień i posty z kanału" na zezwoleniea dla "Wszystkich w tej sieci", co spowoduje dostęp do wpisów od zupełnie obcych osób do Twojej matrycy. Zapewni ci to dużo treści publicznych i miejmy nadzieję, że pomoże Ci znaleźć interesujących, zabawnych ludzi, fora i kanały.
+Najpierw musisz znaleźć kanał, z którym chcesz się połączyć. Można to zrobić na dwa sposoby. Po pierwsze, ustaw opcję "Może przesyłać mi swój strumień i wpisy z kanału" na zezwoleniea dla "Wszystkich w tej sieci", co spowoduje dostęp do wpisów od zupełnie obcych osób do Twojej matrycy. Zapewni ci to dużo treści publicznych i miejmy nadzieję, że pomoże Ci znaleźć interesujących, zabawnych ludzi, fora i kanały.
 
 Następną rzeczą, jaką możesz zrobić, jest przejrzenie katalogu. Katalog jest dostępny w każdej witrynie Hubzilli, co oznacza, że wyszukiwanie z poziomu własnej witryny przyniesie wyniki z całej sieci. Możesz wyszukiwać według nazwy, zainteresowania, lokalizacji i słowa kluczowego.
 
@@ -175,7 +175,7 @@ Odwiedź profil tego kanału, klikając jego zdjęcie w katalogu, matrycy lub ko
 
 Aby połączyć się z kanałami w innych sieciach niż sieć $Projectname:
 
-Proces łączenia się z kanałami w innych sieciach (takich jak GNU-Social, Mastodon czy Diaspora) jest podobny - wpisz odpowiednie "webbie" do pola "Dodaj nowe połączenia" na stronie "Połączenia". Jednak zanim to zrobisz, odwiedź stronę "Ustawienia" ("Ustawienia funkcji i dodatków") i upewnij się, że w Twoim hubie jest dostępny odpowiedni protokół (Diaspora, GNU-Social/OStatus lub ActivityPub) i [b][i]jest aktywowany[/i] dla Twojego kanału[/b]. Te sieci (protokoły) nie obsługują migracji kont i niezależności lokalizacji, więc jeśli przeniesiesz lokalizację lub sklonujesz swój kanał w inne miejsce, komunikacja z tymi połączeniami może się nie udać. Z tego powodu protokoły te nie są domyślnie aktywowane, ale ich aktywacja wymaga Twojej zgodą. Aktywacja tych protokołów wiąże się z podjęciem ważkiego rozstrzygniecia korzyści płynących z kmunikowania się ze znajomymi w tych sieciach a z drugiej strony, zapewnieniem odporności konta na awarie serwera.
+Proces łączenia się z kanałami w innych sieciach (takich jak GNU-Social, Mastodon czy Diaspora) jest podobny - wpisz odpowiednie "webbie" do pola "Dodaj nowe połączenia" na stronie "Połączenia". Jednak zanim to zrobisz, odwiedź stronę "Ustawienia" ("Ustawienia funkcji i dodatków") i upewnij się, że w Twoim węźle jest dostępny odpowiedni protokół (Diaspora, GNU-Social/OStatus lub ActivityPub) i [b][i]jest aktywowany[/i] dla Twojego kanału[/b]. Te sieci (protokoły) nie obsługują migracji kont i niezależności lokalizacji, więc jeśli przeniesiesz lokalizację lub sklonujesz swój kanał w inne miejsce, komunikacja z tymi połączeniami może się nie udać. Z tego powodu protokoły te nie są domyślnie aktywowane, ale ich aktywacja wymaga Twojej zgodą. Aktywacja tych protokołów wiąże się z podjęciem ważkiego rozstrzygniecia korzyści płynących z kmunikowania się ze znajomymi w tych sieciach a z drugiej strony, zapewnieniem odporności konta na awarie serwera.
 
 Niektóre rodzaje komunikacji oferują więcej niż jeden protokół. Jeśli chcesz połączyć się z kimś na Mastodonie (na przykład), możesz użyć do komunikacji protokołu "Ostatus" lub "AactivityPub". Generalnie, protokół "ActivityPub" zapewnia lepszą obsługę niż "Ostatus", ale Hubzilla często wybiera pierwszy protokół, który odkryje i może to nie być to, czego chcesz. Możesz połączyć się z kimś przez określony protokół, poprzedzając nazwę protokołu w nawiasach kwadratowych na tym "webbie". Na przykład:
 
@@ -189,7 +189,7 @@ Niektóre rodzaje komunikacji oferują więcej niż jeden protokół. Jeśli chc
 
 Aby połączyć zię z kanałami RSS:
 
-Administrator huba może zezwolić na łączenie się z kanałami RSS. Proces łączenia się z kanałem RSS jest taki sam, z wyjątkiem wpisania (lub wklejenia) adresu URL kanału w polu "Dodaj nowe połączenie". Kanały są przetwarzane tylko raz lub dwa razy dziennie, a administrator huba może nałożyć ograniczenia na liczbę dodawanych kanałów.
+Administrator węzła może zezwolić na łączenie się z kanałami RSS. Proces łączenia się z kanałem RSS jest taki sam, z wyjątkiem wpisania (lub wklejenia) adresu URL kanału w polu "Dodaj nowe połączenie". Kanały są przetwarzane tylko raz lub dwa razy dziennie, a administrator węzła może nałożyć ograniczenia na liczbę dodawanych kanałów.
 
 [h4][b]Blokowanie, ignorowanie, archiwizowanie i ukrywanie kanałów[/b][/h4]
 
@@ -235,7 +235,7 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
   
   [*= Każdy w Twojej książce adresowej ] Każdy, kto nie znajduje się w Twojej książce adresowej ma odmowę dostępu, ale każdy kogo zaakceptujesz jako kontakt, uzyska zezwolenie. Jest to sposób stosowany na większości starszych platform.
   
-  [*= Każdy na tym hubie ] Każdy, kto ma kanał w tym samym hubie co Ty, będzie miał pozwolenie. Każdemu, kto jest zarejestrowany na innym hubie, odmawia się dostępu.
+  [*= Każdy na tym węźle ] Każdy, kto ma kanał w tym samym węźle co Ty, będzie miał pozwolenie. Każdemu, kto jest zarejestrowany na innym węźle, odmawia się dostępu.
   
   [*= Każdy w tej sieci ] Każdy w sieci $Projectname będzie miał zatwierdzone to pozwolenie. Nawet zupełnie obce osoby. Jednak każdemu, kto nie jest zalogowany (uwierzytelniony), tego dostępu się odmiawia.
   
@@ -247,7 +247,7 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
 [/dl]
 [*= Indywidualne uprawnienia, to:]
 [dl terms="i"]
-  [*= Można wyświetlać mój "publiczny" strumień i posty. ] To uprawnienie określa, kto może oglądać "strumień" Twojego kanału, czyli nieprywatne wpisy, które pojawiają się na karcie "Strona główna", gdy jesteś zalogowany.
+  [*= Można wyświetlać mój "publiczny" strumień i wpisy. ] To uprawnienie określa, kto może oglądać "strumień" Twojego kanału, czyli nieprywatne wpisy, które pojawiają się na karcie "Strona główna", gdy jesteś zalogowany.
 
   [*= Można wyświetlać mój "publiczny" profil kanału. ] To uprawnienie określa, kto może wyświetlać profil Twojego kanału. Dotyczy to zakładki "o mnie".
 
@@ -259,18 +259,18 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
 
   [*= Można wyświetlać moje "publiczne" strony. ] To uprawnienie określa, kto może wyświetlać Twoje publiczne strony internetowe. 
 
-  [*= Można przesyłać mi strumień ich kanału i posty. ] To uprawnienie określa, czyje wpisy będą wyświetlane na Twoim kanale. Jeśli Twój kanał jest kanałem osobistym (tj. Ty jako osoba), prawdopodobnie chciałbyś ustawić to przynajmniej tak, że "każdy z mojej książki adresowej". Osobisty kanał notatek prawdopodobnie chciałbyś ustawić na "nikt oprócz mnie". Ustawienie tego na "każdy w sieci” spowoduje wyświetlenie wpisów od zupełnie obcych osób, co jest dobrą formą rozeznania sieci.
+  [*= Można przesyłać mi strumień ich kanału i wpisy. ] To uprawnienie określa, czyje wpisy będą wyświetlane na Twoim kanale. Jeśli Twój kanał jest kanałem osobistym (tj. Ty jako osoba), prawdopodobnie chciałbyś ustawić to przynajmniej tak, że "każdy z mojej książki adresowej". Osobisty kanał notatek prawdopodobnie chciałbyś ustawić na "nikt oprócz mnie". Ustawienie tego na "każdy w sieci” spowoduje wyświetlenie wpisów od zupełnie obcych osób, co jest dobrą formą rozeznania sieci.
 
   [*= Można publikować na stronie mojego kanału ("ścianie"). ] To uprawnienie określa, kto może umieszczać swoje wpisy na Twojej ścianie po przejściu do Twojego kanału.
 
-  [*= Można komentować moje posty. ] To uprawnienie określa, kto może komentować posty, które tworzysz. Zwykle chce się, aby pasowało to do uprawnienia "można wyświetlać mój publiczny strumień i wpisy”.
+  [*= Można komentować moje wpisy. ] To uprawnienie określa, kto może komentować wpisy, które tworzysz. Zwykle chce się, aby pasowało to do uprawnienia "można wyświetlać mój publiczny strumień i wpisy”.
 
   [*= Można wysyłać mi prywatne wiadomości pocztowe. ] Określa to, kto może wysyłać Ci prywatne wiadomości (zotmail).
 
   [*= Można publikować zdjęcia w moich albumach ze zdjęciami. ] To określa, kto może publikować zdjęcia w Twoich albumach. Jest to bardzo przydatne w przypadku kanałów przypominających forum, na których połączenia mogą nie być ze sobą połączone.
 
   [*= Można przekazywać dalej do wszystkich kontaktów z mojego kanału za pomocą
-tagów post. ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
+tagów wpis. ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
 
   [*= Można ze mną rozmawiać (jeśli jestem dostępny). ] Określa to, kto może dołączyć do publicznych czatów utworzonych na Twoim kanale.
 
@@ -292,7 +292,7 @@ Ekran edycji połączenia oferuje suwak do wyboru stopnia "przyjaźni" z połąc
 Suwak na stronie matrycy ma zarówno wartość minimalną, jak i maksymalną. Wpisy będą wyświetlane tylko od osób mieszczących się w tym zakresie. Koligacja nie ma związku z uprawnieniami i jest przydatna tylko w połączeniu z funkcją narzędzia koligacji.
 
 [h3]Tokeny dostępu gościa[/h3]
-Tokeny dostępu gościa (czasami nazywane "tokenami dostępu Zot") umożliwiają udostępnianie pliku, folderu, zdjęcia, albumu lub kanału określonej osobie lub grupie osób, które nie są członkami hubu Hubzilli. Te tokeny umożliwiają udostępnianie poszczególnych elementów poprzez wysłanie linku zawierającego token w adresie URL; alternatywnie, osoby mogą faktycznie logować się przy użyciu poświadczeń tokena, po czym mogą bezproblemowo przeglądać zawartość udostępnioną temu tokenowi.
+Tokeny dostępu gościa (czasami nazywane "tokenami dostępu Zot") umożliwiają udostępnianie pliku, folderu, zdjęcia, albumu lub kanału określonej osobie lub grupie osób, które nie są członkami węzła Hubzilli. Te tokeny umożliwiają udostępnianie poszczególnych elementów poprzez wysłanie linku zawierającego token w adresie URL; alternatywnie, osoby mogą faktycznie logować się przy użyciu poświadczeń tokena, po czym mogą bezproblemowo przeglądać zawartość udostępnioną temu tokenowi.
 
 W celu utworzenia tokenów dostępu gościa i zarządzać nimi, otwórz stronę ustawień "Tokeny dostępu gościa". Przy każdym załadowaniu strony generowany jest losowy token, który umożliwia utworzenie specjalnego adresu URL zawierającego ten token i opcjonalnie określenie daty wygaśnięcia. Istniejące tokeny są wymienione poniżej okna dialogowego i można je edytować, wybierać lub usuwać.
 
@@ -303,10 +303,10 @@ Tokenowi gościa można przyznać dodatkowe uprawnienia, rozszerzając opcje "In
 [img][baseurl]/doc/member/assets/zat_dialog.png[/img]
 
 [h3]Język znaczników[/h3]
-$Projectname obsługuje kilka języków znaczników do zaawansowanego formatowania treści. Domyślnym językiem znaczników jest [url=[baseurl]/help/pl/member/bbcode]własny wariant BBcode[/url], dostosowany do użytku w Hubzilli. BBcode jest obsługiwany dla postów, stron wiki i elementów stron internetowych. Strony Wiki i elementy stron internetowych można również pisać przy użyciu standardowego języka Markdown.
+$Projectname obsługuje kilka języków znaczników do zaawansowanego formatowania treści. Domyślnym językiem znaczników jest [url=[baseurl]/help/pl/member/bbcode]własny wariant BBcode[/url], dostosowany do użytku w Hubzilli. BBcode jest obsługiwany dla wpisów, stron wiki i elementów stron internetowych. Strony Wiki i elementy stron internetowych można również pisać przy użyciu standardowego języka Markdown.
 [table border=0]
 [tr][th]Typ treści[/th][th]Obsługiwany język[/th][/tr]
-[tr][td]Post[/td][td][url=[baseurl]/help/pl/member/bbcode]BBcode[/url][/td][/tr]
+[tr][td]Wpis[/td][td][url=[baseurl]/help/pl/member/bbcode]BBcode[/url][/td][/tr]
 [tr][td]Wiki[/td][td][url=[baseurl]/help/pl/member/bbcode]BBcode[/url], Markdown[/td][/tr]
 [tr][td]Elementy stron WWW[/td][td][url=[baseurl]/help/pl/member/bbcode]BBcode[/url], Markdown, HTML[/td][/tr]
 [/table]
@@ -319,7 +319,7 @@ Kanały (profile) są oznaczane przez swoją nazwę poprzedzoną znakiem ed, np.
 
 Kiedy zaczniesz wspominać o kimś w swoim poście (wstawiając znak @), mechanizm ten utworzy pole z autouzupełnianiem, aby można było wybrać z Twoich bezpośrednich kontaktów określoną osobę (kanał). Możesz wybrać z listy ten kanał, który chcesz wzmiankować.
 
-Jeśli wspomniana osoba znajduje się na liście odbiorców postu, otrzyma powiadomienie o tym znaczniku.   
+Jeśli wspomniana osoba znajduje się na liście odbiorców wpisu, otrzyma powiadomienie o tym znaczniku.   
 
 [h4][b]Wzmianki dostarczania[/b][/h4]
 
@@ -331,25 +331,25 @@ Znak wykrzyknika ([b]![/b]) oznacza [i]wzmiankę dostarczania[/i] wstawioną na 
 !Gardening - wzmiankowanie forum Gardening i równoczesne opublikowanie wpisu w "sieci" Gardening " (np. rozesłanie wpisu do wszystkich członków tej sieci, jeśli ma się na to pozwolenie).
 [/code]
 
-Uwaga: w poprzednich wersjach, format wzmianki dostarczania miał postać [code]@forum+[.code] (plus na końcu). Ten mechanizm nie jest już obsługiwany.
+Uwaga: w poprzednich wersjach, format wzmianki dostarczania miał wpisuć [code]@forum+[.code] (plus na końcu). Ten mechanizm nie jest już obsługiwany.
 
 [h4][b]Wzmianki prywatności[/b][/h4]
-Jeśli chcesz ograniczyć wpis do jednej osoby lub kilku osób, możesz to zrobić, wybierając kanały lub grupy prywatności w narzędziu do ochrony prywatności. Możesz także po prostu oznaczyć je tagiem prywatności. Znacznik prywatności to nazwa poprzedzona znakami [code]@![/code], co zmienia również uprawnienia prywatności posta, tak aby zawierały tylko te osoby, którym chcesz dostarczyć post. Można wstawić więcej niż jeden tag prywatności, na przykład tagi [code]@!Bob[/code] i [code]@!Linda[/code] sposowdują wysłanie posta tylko do Boba i Lindy. Ten mechanizm zastępuje selektor prywatności.
+Jeśli chcesz ograniczyć wpis do jednej osoby lub kilku osób, możesz to zrobić, wybierając kanały lub grupy prywatności w narzędziu do ochrony prywatności. Możesz także po prostu oznaczyć je tagiem prywatności. Znacznik prywatności to nazwa poprzedzona znakami [code]@![/code], co zmienia również uprawnienia prywatności wpisu, tak aby zawierały tylko te osoby, którym chcesz dostarczyć wpis. Można wstawić więcej niż jeden tag prywatności, na przykład tagi [code]@!Bob[/code] i [code]@!Linda[/code] sposowdują wysłanie wpisu tylko do Boba i Lindy. Ten mechanizm zastępuje selektor prywatności.
 
-Fora mogą być wzmiankowane w ten sam sposób. Wzmianka [code]!!dogs[/code] będzie powodować publikowanie prywatnie na forum "dogs". Forum ponownie dostarczy post do wszystkich członków forum, ale Twoi obserwatorzy nie zobaczą go, chyba że są również członkami forum "dogs".
+Fora mogą być wzmiankowane w ten sam sposób. Wzmianka [code]!!dogs[/code] będzie powodować publikowanie prywatnie na forum "dogs". Forum ponownie dostarczy wpis do wszystkich członków forum, ale Twoi obserwatorzy nie zobaczą go, chyba że są również członkami forum "dogs".
 
-Można także oznaczyć grupy prywatności, które są "publiczne". Gdy tworzysz lub edytujesz grupę prywatności, jest dostępne pole wyboru, które umożliwia innym osobom zobaczenie członków grupy. Jeśli to pole jest zaznaczone dla grupy i oznaczysz post, na przykład tagiem [code]@!Friends[/code] - zostanie on ograniczony do grupy Friends. Zanim to zrobisz, sprawdź, czy grupa jest publiczna, ponieważ nie ma innego sposobu na wycofanie postu niz jego usunięcie. Nazwa grupy pojawi się w poście i powiadomi członków tej grupy, że są jej członkami.    
+Można także oznaczyć grupy prywatności, które są "publiczne". Gdy tworzysz lub edytujesz grupę prywatności, jest dostępne pole wyboru, które umożliwia innym osobom zobaczenie członków grupy. Jeśli to pole jest zaznaczone dla grupy i oznaczysz wpis, na przykład tagiem [code]@!Friends[/code] - zostanie on ograniczony do grupy Friends. Zanim to zrobisz, sprawdź, czy grupa jest publiczna, ponieważ nie ma innego sposobu na wycofanie wpisu niz jego usunięcie. Nazwa grupy pojawi się w poście i powiadomi członków tej grupy, że są jej członkami.    
 
 [h4][b]Wzmianki a komentarze[/b][/h4]
-Powyższe mechanizmy mają zastosowanie tylko do postów "najwyższego poziomu". Wzmianka o kanale z którymkolwiek z powyższych mechanizmów nie ma wpływu na komentarze, poza tym, że wzmiankowany kanał może otrzymać powiadomienie, jeśli był już uwzględniony w rozmowie jako odbiorca. 
+Powyższe mechanizmy mają zastosowanie tylko do wpisów "najwyższego poziomu". Wzmianka o kanale z którymkolwiek z powyższych mechanizmów nie ma wpływu na komentarze, poza tym, że wzmiankowany kanał może otrzymać powiadomienie, jeśli był już uwzględniony w rozmowie jako odbiorca. 
 
 [h4][b]Tagi tematyczne (hasztagi)[/b][/h4]
-[i]Tagi tematyczne[/i], zwane też [i]hasztagami[/i], mają format terminu poprzedzonego znakiem hash ([b]#[/b]). Powoduje to utworzenie w poście łącza do ogólnoserwisowego wyszukiwania podanego terminu. Na przykład, [code]#cars[/code] zapewni link do wyszukiwania dla wszystkich postów zawierających słowo kluczowe [code]cars[/code] w Twoim serwisie. W tagach tematycznych powinno się używać terminów nie krótszych niż trzy znaki. Krótsze terminy wyszukiwania prawdopodobnie nie przyniosą żadnych wyników wyszukiwania, chociaż zależy to od konfiguracji bazy danych. 
+[i]Tagi tematyczne[/i], zwane też [i]hasztagami[/i], mają format terminu poprzedzonego znakiem hash ([b]#[/b]). Powoduje to utworzenie w poście łącza do ogólnoserwisowego wyszukiwania podanego terminu. Na przykład, [code]#cars[/code] zapewni link do wyszukiwania dla wszystkich wpisów zawierających słowo kluczowe [code]cars[/code] w Twoim serwisie. W tagach tematycznych powinno się używać terminów nie krótszych niż trzy znaki. Krótsze terminy wyszukiwania prawdopodobnie nie przyniosą żadnych wyników wyszukiwania, chociaż zależy to od konfiguracji bazy danych. 
 
 Tagi tematyczne zawierające same cyfry nie są zwykle dozwolone, np. [code]#1[/code]. Jeśli chcesz użyć hashtagu numerycznego, dodaj tekst opisowy, np. [code]#2012-wybory[/code] lub umieść cały termin w podwójnych cudzysłowach (na przykład [code]#"2012"[/code]). Podwójne cudzysłowy są również wymagane, jeśli termin zawiera spacje ([code]#"My tag[/code]`) i mogą być wymagane, jeśli tag zawiera znaki interpunkcyjne lub znaki diakrytyczne ([code]#"EndsWithPeriod."[/code], [code]#"Exciting!!!"[/code], [code]#"Ósmy pasażer"[/code] itp.). 
 
 [h4][b]Zakładki[/b][/h4]
-Zakładki wskazują link, który można zapisać w folderze zakładek. Używają sekwencji [code]#^[/code], po której następuje link. Często są one generowane automatycznie. Jeśli zainstalowany jest dodatek "bookmarker", sekwencja ta zostanie przekonwertowana na ikonę zakładki podczas przeglądania inline postu lub komentarza, a kliknięcie ikony spowoduje zapisanie zakładki. Jeśli dodatek bookmarker nie jest zainstalowany, można wykorzystać rozwijane menu posta, które zawiera łącze do zapisania zakładki lub zakładek. 
+Zakładki wskazują link, który można zapisać w folderze zakładek. Używają sekwencji [code]#^[/code], po której następuje link. Często są one generowane automatycznie. Jeśli zainstalowany jest dodatek "bookmarker", sekwencja ta zostanie przekonwertowana na ikonę zakładki podczas przeglądania inline wpisu lub komentarza, a kliknięcie ikony spowoduje zapisanie zakładki. Jeśli dodatek bookmarker nie jest zainstalowany, można wykorzystać rozwijane menu wpisu, które zawiera łącze do zapisania zakładki lub zakładek. 
 
 [h4][b]Ręczne wzmiankowanie[/b][/h4]
 Na przykład, tag [code]@billy[/code] oznaczy połączenie, którego nazwa lub adres sieciowy to "billy" (dopasowanie dokładne). Jeśli masz dwa połączenia z nazwą lub adresem sieciowym billy, na przykład [code]billy@server1.hubzilla.org[/code] i [code]billy@server2.hubzilla2.org[/code], będziesz musiał podać pełny adres, inaczej wyniki będą niejednoznaczne i niewłaściwa osoba może zostać oznaczona. 
@@ -364,7 +364,7 @@ Po włączeniu, na stronie kanału pojawi się nowa karta zatytułowana "Strony 
 
 Pole "Tytuł linku do strony" umożliwia określenie tytułu linku do strony tego adresu URL. Jeśli tytuł linku do strony nie jest ustawiony, ustawimy go automatycznie, używając identyfikatora wiadomości elementu.
 
-Pod polem tworzenia strony pojawi się lista istniejących stron z linkiem "Edytuj". Kliknięcie tego przeniesie Cię do edytora podobnego do edytora postów, w którym możesz wprowadzać zmiany na swoich stronach internetowych.
+Pod polem tworzenia strony pojawi się lista istniejących stron z linkiem "Edytuj". Kliknięcie tego przeniesie Cię do edytora podobnego do edytora wpisów, w którym możesz wprowadzać zmiany na swoich stronach internetowych.
 	
 [h4][b]Używanie bloków[/b][/h4]
 
@@ -441,7 +441,7 @@ wytworzy taki HTML:
 
 [h4][b]Narzędzie importy elementów strony internetowej[/b][/h4]
 
-Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do lokalnego folderu plików w chmurze. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w hubie.
+Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do lokalnego folderu plików w chmurze. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w węźle.
 
 [h5][b] Struktura folderu [/b][/h5]
 Definicje elementów muszą być przechowywane w katalogu głównym repozytorium w folderach o nazwie odpowiadającej typowi elementu: 
@@ -805,7 +805,7 @@ Na wielu serwerach publicznych mogą obowiązywać ograniczenia dotyczące przyd
 
 [h4][b]Załączniki plikowe[/b][/h4]
 
-Najszybszym i najłatwiejszym sposobem udostępniania plików są załączniki. W rzędzie ikon poniżej edytora statusu znajduje się narzędzie do przesyłania załączników. Kliknij narzędzie, wybierz plik i prześlij. Po załadowaniu pliku zobaczysz kod załącznika umieszczony w obszarze tekstowym. Nie edytuj tego kodu, ponieważ może to uniemożliwić Ci udostępnienie tego pliku znajomym. Możesz użyć okna dialogowego uprawnień do publikowania lub hasztagów prywatności, aby ograniczyć widoczność pliku - który zostanie ustawiony zgodnie z uprawnieniami wysyłanego postu.
+Najszybszym i najłatwiejszym sposobem udostępniania plików są załączniki. W rzędzie ikon poniżej edytora statusu znajduje się narzędzie do przesyłania załączników. Kliknij narzędzie, wybierz plik i prześlij. Po załadowaniu pliku zobaczysz kod załącznika umieszczony w obszarze tekstowym. Nie edytuj tego kodu, ponieważ może to uniemożliwić Ci udostępnienie tego pliku znajomym. Możesz użyć okna dialogowego uprawnień do publikowania lub hasztagów prywatności, aby ograniczyć widoczność pliku - który zostanie ustawiony zgodnie z uprawnieniami wysyłanego wpisu.
 
 Aby usunąć załączniki lub zmienić uprawnienia do przechowywanych plików, odwiedź [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username,  zastępując [code]username[/code] pseudonimem, jaki podałeś podczas tworzenia kanału[/observer].
 
@@ -819,7 +819,7 @@ WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego
 
 [h4][b]Dostęp CalDAV i CardDAV na Androidzie[/b][/h4]
 
-Możesz zsynchronizować swój kalendarz i kontakty w systemie Android ze swoim hubem.
+Możesz zsynchronizować swój kalendarz i kontakty w systemie Android ze swoim węzłem.
 
 Poniższe kroki zostały przetestowane pod kątem zasosowania [url=https://f-droid.org/en/packages/at.bitfire.davdroid/] DAVdroid [/url]:
 
@@ -883,7 +883,7 @@ aby uwzględnić katalog w chmurze, dodając:
 [baseurl]/dav/ /mount/point davfs user,noauto,uid=&lt;DesktopUser&gt;,file_mode=600,dir_mode=700 0 1
 [/code]
 
-gdzie [baseurl] jest adresem URL huba, /mount/point to lokalizacja, w której chcesz zamontować chmurę, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
+gdzie [baseurl] jest adresem URL węzła, /mount/point to lokalizacja, w której chcesz zamontować chmurę, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
 
 Na przykład, jeśli chciałbyś zamontować swoją chmurę w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob', zapis w fstab będzie następujący: 
 
@@ -907,7 +907,7 @@ i dodaj tam swoje dane uwierzytelniania w chmurze
 [baseurl]/dav &lt;username&gt; &lt;password&gt;
 [/code]
 
-gdzie &lt;username&gt; i &lt;password&gt; to nazwa użytkownika i hasło [i]na Twoim kanale w hubie[/i].
+gdzie &lt;username&gt; i &lt;password&gt; to nazwa użytkownika i hasło [i]na Twoim kanale w węźle[/i].
 
 Nie pozwól, aby ten plik mógł być zapisywany przez kogoś nieupoważnionego:
 
@@ -938,18 +938,18 @@ Jeśli to nadal nie zadziała, wyłącz pamięć podręczną. Pamiętaj, że ma 
 Jeśli [i]nadal[/i] to nie działa, jest jeszcze jedna rzecz, której możesz spróbować. (Ten jest spowodowany błędem w starszych wersjach samego dav2fs, więc aktualizacja do nowej wersji może również pomóc). Włącz słabe usuwanie etagów, ustawiając [code]drop_weak_etags 1[]/code. Odmontuj i ponownie podłącz swój system plików, aby zastosować zmiany.
 
 [h5][b]Dolphin[/b][/h5]
-Dolphin Browser to przeglądarka internetowa dla Android i iOS. Odwiedź w niej [code]webdavs://example.com/dav[/code], gdzie [code]example.com[/code] to URL do Twojego huba.
+Dolphin Browser to przeglądarka internetowa dla Android i iOS. Odwiedź w niej [code]webdavs://example.com/dav[/code], gdzie [code]example.com[/code] to URL do Twojego węzła.
 
 Gdy zostaniesz poproszony o podanie nazwy użytkownika i hasła, wprowadź nazwę swojego kanału (pierwszą część swojej strony internetowej - bez znaku @ i nazwy domeny) i hasło do swojego normalnego konta.
 
 Pamiętaj, że jeśli jesteś już zalogowany do interfejsu WWW przez Konqueror, nie zostaniesz poproszony o dalsze uwierzytelnianie.
 
 [h5][b]Konqueror[/b][/h5]
-Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumentów dla środowiska KDE. Wystarczy odwiedzić w niej serwis [code]webdavs://example.com/dav[/code] po zalogowaniu się do swojego huba, gdzie [code]example.com[/code] to adres URL huba.
+Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumentów dla środowiska KDE. Wystarczy odwiedzić w niej serwis [code]webdavs://example.com/dav[/code] po zalogowaniu się do swojego węzła, gdzie [code]example.com[/code] to adres URL węzła.
 
-Jeśli jesteś zalogowany do swojego huba w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
+Jeśli jesteś zalogowany do swojego węzła w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
 
-Ponadto, jeśli ktoś uwierzytelnił się w innym hubie podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do chmury dla tych hubów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania, pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
+Ponadto, jeśli ktoś uwierzytelnił się w innym węźle podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do chmury dla tych węzłów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania, pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
 
 Ta funkcja jest zwykle ograniczona do interfejsu sieciowego i nie jest dostępna dla żadnego innego środowiska graficznego niż KDE.
 
@@ -994,9 +994,9 @@ Ponadto podane przez Ciebie frazy wyszukiwania mogą aktywować jednorazowe wysz
 Zapisany widżet wyszukiwania zapewni automatyczne uzupełnianie kanałów (wyniki są poprzedzone znakiem @) i hashtagami (poprzedzonymi znakiem #). Nie trzeba wprowadzać tych tagów; chociaż wprowadzenie żądanego tagu zmniejszy wyniki autouzupełniania, aby zawierały tylko istotne informacje. Zachowanie odwzorowuje się następująco:
 
 [list]
-[*]@name - przeszukuje strumienia sieci w poszukiwaniu postów lub komentarzy napisanych przez 'name'. Spowoduje to również zmianę uprawnień edytora postów, aby zawierały tylko 'name'; jakby to była grupa prywatności.
-[*]#hashtag - przeszukauje strumień sieci w poszukiwaniu postów zawierających #hashtag.
-[*]text - przeszukaj strumień sieci w poszukiwaniu postów zawierających 'text'.
+[*]@name - przeszukuje strumienia sieci w poszukiwaniu wpisów lub komentarzy napisanych przez 'name'. Spowoduje to również zmianę uprawnień edytora wpisów, aby zawierały tylko 'name'; jakby to była grupa prywatności.
+[*]#hashtag - przeszukauje strumień sieci w poszukiwaniu wpisów zawierających #hashtag.
+[*]text - przeszukaj strumień sieci w poszukiwaniu wpisów zawierających 'text'.
 [/list]
 
 
@@ -1010,7 +1010,7 @@ Będziesz musiał potwierdzić swoje hasło i kanał, na którym jesteś obecnie
 
 [hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-Jeśli masz klony tożsamości na innych hubach, nie zostaną one usuniete. Operacja ta spowoduje tylko usunięcie tej instancji kanału, która istnieje w hubie, na którym dokonujesz usunięcia kanału.
+Jeśli masz klony tożsamości na innych węzłach, nie zostaną one usuniete. Operacja ta spowoduje tylko usunięcie tej instancji kanału, która istnieje w węźle, na którym dokonujesz usunięcia kanału.
 
 [h4][b]Usuniecie konta[/b][/h4]
 
@@ -1020,5 +1020,5 @@ Będziesz musiał potwierdzić swoje hasło i konto, na którym jesteś obecnie 
 
 [hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-Wszystkie Twoje kanały zostaną usunięte. Jeśli masz klony tożsamości na innych hubach - nie zostaną one usuniete. Operacja ta powoduje tylko usunięcie instancji kanałów, które istnieją hubie, na którym dokonujesz tą operację.
+Wszystkie Twoje kanały zostaną usunięte. Jeśli masz klony tożsamości na innych węzłach - nie zostaną one usuniete. Operacja ta powoduje tylko usunięcie instancji kanałów, które istnieją w węźle, na którym dokonujesz tą operację.
 

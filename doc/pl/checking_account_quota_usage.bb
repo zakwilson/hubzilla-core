@@ -1,6 +1,6 @@
 [b]Sprawdzanie wykorzystania limitu konta (wykorzystanie limitów usług)[/b]
 
-Na Twoim hubie mogą zostać zaimplementowane limity klas usług, przypisujące ograniczenia do całkowitego rozmiaru miejsca na plików i zdjęci, ilosci kanałów i postów najwyższego poziomu, jakie może utworzyć właściciel konta dla określonego poziomu usług i inne ograniczenia.
+Na Twoim węźle mogą zostać zaimplementowane limity klas usług, przypisujące ograniczenia do całkowitego rozmiaru miejsca na plików i zdjęci, ilosci kanałów i wpisów najwyższego poziomu, jakie może utworzyć właściciel konta dla określonego poziomu usług i inne ograniczenia.
 
 Oto, jak możesz szybko sprawdzić, ile z przydzielonego limitu aktualnie używasz:
  

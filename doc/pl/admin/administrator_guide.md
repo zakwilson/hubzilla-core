@@ -20,7 +20,7 @@ POWINNO się używać SSL. Jeśli używasz SSL, MUSISZ użyć certyfikatu uznawa
 
 Przetestuj swój certyfikat przed instalacją. Narzędzie internetowe do testowania certyfikatu jest dostępne pod adresem http://www.digicert.com/help/. Odwiedzając witrynę po raz pierwszy, użyj adresu URL SSL (https://), jeśli protokół SSL jest dostępny. Pozwoli to uniknąć późniejszych problemów. Procedura instalacji nie pozwoli na użycie certyfikatu, który nie jest zaufany dla przeglądarki.
 
-To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim hubie. Inni członkowie przeglądający swój strumień w innych centrach otrzymają ostrzeżenia, jeśli Twój certyfikat nie jest zaufany w ich przeglądarce internetowej. To zmyli wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim hubie podczas przeglądania własnego huba i mogą pomyśleć, że ich własny hub ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować, z wyjątkiem przestrzegania zaleceń przeglądarki. Jest to destrukcyjne dla społeczności. To powiedziawszy, zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania.
+To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim węźle. Inni członkowie przeglądający swój strumień w innych centrach otrzymają ostrzeżenia, jeśli Twój certyfikat nie jest zaufany w ich przeglądarce internetowej. To zmyli wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim węźle podczas przeglądania własnego węzła i mogą pomyśleć, że ich własny węzeł ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować, z wyjątkiem przestrzegania zaleceń przeglądarki. Jest to destrukcyjne dla społeczności. To powiedziawszy, zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania.
 
 Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL i LetsEncrypt.
 
@@ -30,7 +30,7 @@ Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod 
 
 ### Wdrożenie
 
-Nowy hub można wdrożyć na kilka sposobów:
+Nowy węzeł można wdrożyć na kilka sposobów:
 
 * ręczna inastalaja na istniejącym serwerze;
 * automatyczna instalacja na istniejącym serwerze przy użyciu skryptu instalacyjnego;
@@ -273,7 +273,7 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 
 * _photo_upload_limit_ - maksymalna łączna powierzchnia dysku na przesłane pliki (w bajtach)
 * _attach_upload_limit_ - maksymalna powierzchnia dysku na przesyłane załączniki plikow (w bajtach)
-* _total_items_ - maksymalna liczba postów na najwyższym poziomie
+* _total_items_ - maksymalna liczba wpisów na najwyższym poziomie
 * _total_pages_ - maksymalna liczba stron Comanche
 * _total_identities_ - maksymalna liczba kanałów posiadanych na koncie
 * _total_channels_ - maksymalna liczba kanałów
@@ -313,7 +313,7 @@ Na stronie katalogu kanałów może pojawiać się  chmura słów kluczowych. Je
 
     util/config system disable_directory_keywords 1
 
-Jeśli twój hub pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
+Jeśli twój węzeł pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
 
     util/config system directory_server ""
 
@@ -327,7 +327,7 @@ Istnieje kilka sposobów, w jakie może to się nie powieść i pozostawić syst
 
 Ze względów bezpieczeństwa w systemie nie ma strony internetowej ani interfejsu, który daje dostęp administratora. Jeśli potrzebujesz poprawić sytuację, w której system nie ma konta administratora, musisz to zrobić edytując tabelę kont w bazie danych. Nie ma innego wyjścia. Aby to zrobić, będziesz musiał zlokalizować wpis w tabeli kont, który należy do żądanego administratora i ustawić _account_roles_ dla tego wpisu na _4096_. Będziesz wtedy mógł uzyskać dostęp do strony administratora z menu profilu twojego systemu lub bezpośrednio na ścieżce _/admin_.
 
-Hub może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
+Węzeł może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
 
 ### Rozwiązywanie problemów
 

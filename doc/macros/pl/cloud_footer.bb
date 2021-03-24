@@ -1,2 +1,2 @@
-Return to the [zrl=[baseurl]/help/cloud]Dokumentacja chmury[/zrl]
-Return to the [zrl=[baseurl]/help/main]Główna strona dokumentacji[/zrl]
+Powróć do [zrl=[baseurl]/help/cloud]dokumentacji chmury[/zrl]
+Powróć do [zrl=[baseurl]/help/main]głównej strony dokumentacji[/zrl]

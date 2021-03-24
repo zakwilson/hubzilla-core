@@ -19,7 +19,7 @@ Zezwolenie na tworzenie wydarzeń w strefach czasowych innych niż strefa ustawi
 Kilka dodatkowych możliwości związanych ze stroną główną kanału.
 
 <h4>Wyszukaj po dacie</h4>
-Możliwość wyboru postów według zakresów dat
+Możliwość wyboru wpisów według zakresów dat
 
 <h4>Chmura tagów</h4>
 Udostępnienie osobistej chmury tagów na stronie swojego kanału
@@ -66,22 +66,22 @@ Zapisywanie wyszukiwanych haseł do ponownego wykorzystania
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
 
 <h4>Zapisywane foldery</h4>
-Możliwość umieszczania postów w folderach
+Możliwość umieszczania wpisów w folderach
 <!-- TODO: full description for Saved Folders -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
 
 <h4>Alternatywna kolejność strumienia</h4>
-Możliwość uporządkowania strumienia według daty ostatniego postu, daty ostatniego komentarza lub nieprzeczytanych aktywności
+Możliwość uporządkowania strumienia według daty ostatniego wpisu, daty ostatniego komentarza lub nieprzeczytanych aktywności
 
 <h4>Filtr kontaktów</h4>
-Możliwość wyświetlania postów autorstwa tylko wybranego kontaktu
+Możliwość wyświetlania wpisów autorstwa tylko wybranego kontaktu
 
 <h4>Filtr forów</h4>
-Możliwość wyświetlania postów tylko z określonego forum
+Możliwość wyświetlania wpisów tylko z określonego forum
 
-<h4>Filtr postów osobistych</h4>
-Możliwość wyświetlania tylko tych postów, z którymi miało się interakcję
+<h4>Filtr wpisów osobistych</h4>
+Możliwość wyświetlania tylko tych wpisów, z którymi miało się interakcję
 
 <h4>Użyj trybu bloga/listy</h4>
 Komentarze będą wyświetlane osobno       

@@ -3739,6 +3739,9 @@ function get_forum_channels($uid) {
 		intval($uid)
 	);
 
+	if(!$r)
+		$r = [];
+
 	for($x = 0; $x < count($r); $x ++) {
 		if($x3) {
 			foreach($x3 as $xx) {

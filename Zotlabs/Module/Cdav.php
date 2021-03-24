@@ -151,15 +151,15 @@ class Cdav extends Controller {
 				if($channel['channel_timezone'])
 					$auth->setTimezone($channel['channel_timezone']);
 				$auth->observer = $channel['channel_hash'];
-			}
-			else
-				$channel = channelx_by_nick(argv(2));
 
-			$principalUri = 'principals/' . $channel['channel_address'];
-			if(! cdav_principal($principalUri)) {
-				$this->activate($pdo, $channel);
-				if(! cdav_principal($principalUri))
-					return;
+				$principalUri = 'principals/' . $channel['channel_address'];
+				if(! cdav_principal($principalUri)) {
+					$this->activate($pdo, $channel);
+					if(! cdav_principal($principalUri)) {
+						return;
+					}
+				}
+
 			}
 
 			// Track CDAV updates from remote clients
@@ -168,6 +168,8 @@ class Cdav extends Controller {
 
 			if($httpmethod === 'PUT' || $httpmethod === 'DELETE') {
 
+				$channel = channelx_by_nick(argv(2));
+				$principalUri = 'principals/' . $channel['channel_address'];
 				$httpuri = $_SERVER['REQUEST_URI'];
 
 				logger("debug: method: " . $httpmethod, LOGGER_DEBUG);
@@ -181,8 +183,9 @@ class Cdav extends Controller {
 					$sync = 'calendar';
 					$cdavtable = 'calendarinstances';
 				}
-				else
+				else {
 					$sync = false;
+				}
 
 				if($sync) {
 
@@ -194,11 +197,10 @@ class Cdav extends Controller {
 					if($x = get_cdav_id($principalUri, argv(3), $cdavtable)) {
 
 						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
-
 						$etag = (isset($_SERVER['HTTP_IF_MATCH']) ? $_SERVER['HTTP_IF_MATCH'] : false);
 
 						// delete
-						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
+						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag) {
 							Libsync::build_sync_packet($channel['channel_id'], [
 								$sync => [
 									'action' => 'delete_card',
@@ -206,18 +208,18 @@ class Cdav extends Controller {
 									'carduri' => $uri
 								]
 							]);
+						}
 						else {
-							if($etag) {
+							if($etag && $cdavdata['etag'] !== $etag) {
 								// update
-								if($cdavdata['etag'] !== $etag)
-								    Libsync::build_sync_packet($channel['channel_id'], [
-									    $sync => [
-										    'action' => 'update_card',
-										    'uri' => $cdavdata['uri'],
-										    'carduri' => $uri,
-										    'card' => $httpbody
-									    ]
-								    ]);
+								Libsync::build_sync_packet($channel['channel_id'], [
+									$sync => [
+										'action' => 'update_card',
+										'uri' => $cdavdata['uri'],
+										'carduri' => $uri,
+										'card' => $httpbody
+									]
+								]);
 							}
 							else {
 								// new
@@ -234,7 +236,6 @@ class Cdav extends Controller {
 					}
 				}
 			}
-
 
 			$principalBackend = new \Sabre\DAVACL\PrincipalBackend\PDO($pdo);
 			$carddavBackend   = new \Sabre\CardDAV\Backend\PDO($pdo);

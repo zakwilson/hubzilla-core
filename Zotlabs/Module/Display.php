@@ -245,8 +245,6 @@ class Display extends \Zotlabs\Web\Controller {
 
 		$sql_extra = ((local_channel()) ? EMPTY_STR : item_permissions_sql(0, $observer_hash));
 
-
-
 		if($noscript_content || $load) {
 
 			require_once('include/channel.php');

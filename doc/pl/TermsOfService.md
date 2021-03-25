@@ -1,9 +1,9 @@
 Regulamin serwisu
 =================
 
-#include doc/pl/SiteTOS.md;
+#include /doc/pl/SiteTOS.md;
 
 Polityka prywatności
 ====================
 
-#include doc/pl/gdpr1.md;
+#include /doc/pl/gdpr1.md;

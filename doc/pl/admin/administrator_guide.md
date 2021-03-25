@@ -214,7 +214,7 @@ i włączać te protokoły automatycznie dla wszystkich nowo tworzonych kanałó
 
 ### Klasy usług
 
-Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Na przykład utwórz klasę standard i premium, używając następujących wierszy:
+Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Dla przykładu utwórzmy klasę standard i premium, używając następujący kod:
 
     // Service classes
 
@@ -263,21 +263,22 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 
 	util/service_class --account=5 firstclass
 
-* ustawienie konta, które jest właścicielem kanału `bdziennikchan` na klasę _firstclass_ (z potwierdzeniem)
+* ustawienie konta, które jest właścicielem kanału `blogchan` na klasę _firstclass_ (z potwierdzeniem)
 	
-	util/service_class --channel=bdziennikchan firstclass
+	util/service_class --channel=blogchan firstclass
 
 **Opcje limitu klas usług**
 
 ##### Opcje limitów klas usług:
 
-* _photo_upload_limit_ - maksymalna łączna liczba bajtów na zdjęcia
-* _total_items_ - maksymalna liczba wpisów na najwyższym poziomie
-* _total_pages_ - maksymalna liczba stron comanche
+* _photo_upload_limit_ - maksymalna łączna powierzchnia dysku na przesłane pliki (w bajtach)
+* _attach_upload_limit_ - maksymalna powierzchnia dysku na przesyłane załączniki plikow (w bajtach)
+* _total_items_ - maksymalna liczba postów na najwyższym poziomie
+* _total_pages_ - maksymalna liczba stron Comanche
 * _total_identities_ - maksymalna liczba kanałów posiadanych na koncie
 * _total_channels_ - maksymalna liczba kanałów
 * _total_feeds_ - maksymalna liczba kanałów RSS
-* _attach_upload_limit_ - maksymalna pojemność przesyłania plików (w bajtach)
+
 * _minimum_feedcheck_minutes_ - najniższe ustawienie dozwolone dla odpytywania kanałów RSS
 * _chatrooms_ - maksymalna liczba czatów
 * _chatters_inroom_ - maksymalna liczba rozmówców w czacie 
@@ -340,17 +341,16 @@ W przypadku błędów "500: problemy mogą być często rejestrowane w dziennika
 
 Istnieją trzy różne obiekty dziennika.
 
-**Pierwsza to dziennik błędów bazy danych**. Jest on używane tylko wtedy, gdy tworzy się plik o specyficznej nazwie *dbfail.out* w folderze głównym swojej witryny i pozwala na zapisywanie w nim przez serwer WWW. Jeśli masz jakiekolwiek zapytania do bazy danych, które nie powiodły się, wszystkie są zgłaszane tutaj. Zwykle wskazują na literówki w naszych zapytaniach, ale występują również w przypadku rozłączenia serwera bazy danych lub uszkodzenia tabel. W rzadkich przypadkach zobaczymy tutaj warunki wyścigu, w których dwa procesy próbowały utworzyć wpis *xchan* lub *cache* z tym samym identyfikatorem. Należy zbadać wszelkie inne błędy (zwłaszcza błędy uporczywe).
+**Pierwsza to dziennik błędów bazy danych**. Jest on używane tylko wtedy, gdy utworzy się plik o nazwie **_dbfail.out_** w folderze głównym swojej witryny i pozwala na zapisywanie w nim przez serwer WWW. Jeśli masz jakiekolwiek zapytania do bazy danych, które nie powiodły się, wszystkie są zgłaszane tutaj. Zwykle wskazują na literówki w naszych zapytaniach, ale występują również w przypadku rozłączenia serwera bazy danych lub uszkodzenia tabel. W rzadkich przypadkach zobaczymy tutaj warunki wyścigu, w których dwa procesy próbowały utworzyć wpis *xchan* lub *cache* z tym samym identyfikatorem. Należy zbadać wszelkie inne błędy (zwłaszcza błędy uporczywe).
 
-**Drugi to dziennik błędów PHP**. Jest tworzony przez procesor języka i zgłasza tylko problemy powstałe w środowisku językowym. Znowu mogą to być błędy składniowe lub błędy programistyczne, ale generalnie są one fatalne i skutkują "białym ekranem";
+**Drugi to dziennik błędów PHP**. Plik **_php.out_** jest tworzony przez procesor języka i zgłasza tylko problemy powstałe w środowisku językowym. Znowu mogą to być błędy składniowe lub błędy programistyczne, ale generalnie są one fatalne i skutkują "białym ekranem";
 na przykład PHP kończy działanie. Prawdopodobnie powinieneś zajrzeć do tego pliku też, jeśli coś pójdzie nie tak, co nie powoduje białego ekranu. Często zdarza się, że plik ten jest pusty przez wiele dni.
 
 Na dole dostarczonego pliku *.htconfig.php* znajduje się kilka linii, które, jeśli nie są zakomentowane, włączają dziennik PHP (niezwykle przydatny do znajdowania źródła błędów białego ekranu). Nie jest to robione domyślnie ze względu na potencjalne problemy z własnością pliku dziennika i uprawnieniami do zapisu oraz fakt, że domyślnie nie ma rotacji pliku dziennika.
 
-**Trzeci to "dziennik aplikacji"**. Jest to używane przez Hubzillę do zgłaszania tego, co dzieje się w programie i zwykle zapisywane są tu wszelkie trudności lub nieoczekiwane dane, które otrzymaliśmy. Czasami zgłasza się tu również komunikaty
-o stanie "pulsu", aby wskazać, że osiągnęliśmy określony punkt w skrypcie. Jest to dla nas najważniejszy plik dziennika, ponieważ tworzymy go samodzielnie wyłącznie w celu zgłaszania stanu zadań w tle i wszystkiego, co wydaje się dziwne lub nie na miejscu. To może nie być śmiertelne, ale może po prostu nieoczekiwane. Jeśli wykonujesz zadanie i występuje problem, daj nam znać, co znajduje się w tym pliku, gdy wystąpił problem. Proszę nie wysyłaj mi 100 milionów zrzutów, tylko mnie wkurzysz! Tylko kilka odpowiednich wierszy, abym mógł wykluczyć kilkaset tysięcy wierszy kodu i skoncentrować się na tym, gdzie zaczyna się pojawiać problem.
+**Trzeci to "dziennik aplikacji"**. Jest to używane przez Hubzillę do zgłaszania tego, co dzieje się w programie i zwykle zapisywane są tu wszelkie trudności lub nieoczekiwane dane, które otrzymaliśmy. Jego nazwę (ścieżkę) trzeba podać na stronie "Administracja - Logi" (/admin/logs), np. *hubzilla.log* wskazuje na plik o tej nazwie zlokalizowany w katalogu głównym Hubzilla. Czasem zgłaszane są tu również komunikaty o stanie "pulsu", aby wskazać, że osiągnęliśmy określony punkt w skrypcie. Jest to dla nas najważniejszy plik dziennika, ponieważ tworzymy go samodzielnie wyłącznie w celu zgłaszania stanu zadań w tle i wszystkiego, co wydaje się dziwne lub nie na miejscu. Te błędy mogą być "śmiertelne", ale też niegroźne i po prostu nieoczekiwane. Jeśli wykonujesz zadanie i występuje problem, daj nam znać, co znajduje się w tym pliku, gdy wystąpił problem. Proszę nie wysyłaj nam 100 milionów zrzutów, bo tylko nas wkurzysz! Tylko kilka odpowiednich wierszy, ab można było wykluczyć kilkaset tysięcy wierszy kodu i skoncentrować się na tym, gdzie zaczyna się pojawiać problem.
 
-To są dzienniki Twojej witryny, a nie moje. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecam poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
+To są dzienniki Twojego serwisu. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecam poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
 
 Zalecam skonfigurowanie *logrotate* zarówno dla dziennika php, jak i dziennika aplikacji. Zazwyczaj co tydzień lub dwa zaglądam do *dbfail.out*, naprawiam zgłoszone problemy i zaczynam od nowego pliku. Podobnie jest z plikiem dziennika PHP. Odwołuję się do tego od czasu do czasu, aby sprawdzić, czy jest coś, co wymaga naprawy.
 

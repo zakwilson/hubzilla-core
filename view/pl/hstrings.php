@@ -4,8 +4,8 @@ if(! function_exists("string_plural_select_pl")) {
 function string_plural_select_pl($n){
 	return ($n==1 ? 0 : ($n%10>=2 && $n%10<=4 && ($n%100<12 || $n%100>14) ? 1 : 2));
 }}
-App::$rtl = 0;
-App::$strings["plural_function_code"] = "(n==1 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))"App::$strings["Can view my channel stream and posts"] = "Może wyświetlać strumień i wpisy z mojego kanału";
+App::$strings["plural_function_code"] = "(n==1 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))";
+App::$strings["Can view my channel stream and posts"] = "Może wyświetlać strumień i wpisy z mojego kanału";
 App::$strings["Can send me their channel stream and posts"] = "Może przesyłać mi strumień swojego kanału i wpisy";
 App::$strings["Can view my default channel profile"] = "Może wyświetlać mój domyślny profil kanału";
 App::$strings["Can view my connections"] = "Może wyświetlać moje połączenia";

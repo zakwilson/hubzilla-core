@@ -60,11 +60,12 @@ class Regate extends \Zotlabs\Web\Controller {
 			}
 
 			// do we have a valid dId2 ?
-			if ( ($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2))
-			|| ($didx == 'e') || ($didx == 'i')) {
+			if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e') || ($didx == 'i')) {
 				// check startup and expiration via [=[register
-				$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' ", dbesc($did2) );
-				if ( $r && count($r) == 1 ) {
+				$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_did2 = '%s' ORDER BY reg_created DESC ",
+					dbesc($did2)
+				);
+				if ($r && count($r)) {
 					$r = $r[0];
 					// check timeframe
 					if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now ) {
@@ -244,15 +245,14 @@ class Regate extends \Zotlabs\Web\Controller {
 		$title = t('Register Verification');
 
 		// do we have a valid dId2 ?
-		if ( ($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2))
-		||   ($didx == 'e') ) {
+		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e')) {
 
-			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s'",
-					dbesc($didx),
-					dbesc($did2)
+			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s' ORDER BY reg_created DESC",
+				dbesc($didx),
+				dbesc($did2)
 			);
 
-			if ( $r && count($r) == 1 && $r[0]['reg_flags'] &= (ACCOUNT_UNVERIFIED | ACCOUNT_PENDING)) {
+			if ($r && count($r) && $r[0]['reg_flags'] &= (ACCOUNT_UNVERIFIED | ACCOUNT_PENDING)) {
 				$r = $r[0];
 
 				// provide a button in case

@@ -15,11 +15,11 @@ msgstr ""
 
 #: ../../Zotlabs/Access/Permissions.php:56
 msgid "Can view my channel stream and posts"
-msgstr "Może wyświetlać strumień i posty z mojego kanału"
+msgstr "Może wyświetlać strumień i wpisy z mojego kanału"
 
 #: ../../Zotlabs/Access/Permissions.php:57
 msgid "Can send me their channel stream and posts"
-msgstr "Może przesyłać mi strumień swojego kanału i posty"
+msgstr "Może przesyłać mi strumień swojego kanału i wpisy"
 
 #: ../../Zotlabs/Access/Permissions.php:58
 msgid "Can view my default channel profile"
@@ -59,7 +59,7 @@ msgstr "Może publikować na stronie mojego kanału (tablicy)"
 
 #: ../../Zotlabs/Access/Permissions.php:67
 msgid "Can comment on or like my posts"
-msgstr "Może komentować lub polubić moje posty"
+msgstr "Może komentować lub polubić moje wpisy"
 
 #: ../../Zotlabs/Access/Permissions.php:68
 msgid "Can send me private mail messages"
@@ -73,7 +73,7 @@ msgstr "Może polubiać/dezaprobować profile i rzeczy w profilach"
 msgid "Can forward to all my channel connections via ! mentions in posts"
 msgstr ""
 "Może przekazywać informacje do wszystkich moich połączeń kanałowych za "
-"pośrednictwem !wzmianki w postach"
+"pośrednictwem !wzmianki w wpisach"
 
 #: ../../Zotlabs/Access/Permissions.php:71
 msgid "Can chat with me"
@@ -81,7 +81,7 @@ msgstr "Może ze mną rozmawiać"
 
 #: ../../Zotlabs/Access/Permissions.php:72
 msgid "Can source my public posts in derived channels"
-msgstr "Może pozyskiwać moje publiczne posty w kanałach pochodnych"
+msgstr "Może pozyskiwać moje publiczne wpisy w kanałach pochodnych"
 
 #: ../../Zotlabs/Access/Permissions.php:73
 msgid "Can administer my channel"
@@ -896,8 +896,8 @@ msgid ""
 "Do you want to authorize this application to access your posts and contacts, and/or "
 "create new posts for you?"
 msgstr ""
-"Czy chcesz zezwolić tej aplikacji na dostęp do Twoich postów i kontaktów albo "
-"tworzenie dla Ciebie nowych postów ?"
+"Czy chcesz zezwolić tej aplikacji na dostęp do Twoich wpisów i kontaktów albo "
+"tworzenie dla Ciebie nowych wpisów ?"
 
 #: ../../Zotlabs/Module/Api.php:98 ../../Zotlabs/Module/Events.php:478
 #: ../../Zotlabs/Module/Events.php:479 ../../Zotlabs/Module/Profiles.php:683
@@ -1265,7 +1265,7 @@ msgstr "Aplikacja Bookmarks"
 
 #: ../../Zotlabs/Module/Bookmarks.php:79
 msgid "Bookmark links from posts and manage them"
-msgstr "Dodaj do zakładek linki z postów i zarządzaj nimi"
+msgstr "Dodaj do zakładek linki z wpisów i zarządzaj nimi"
 
 #: ../../Zotlabs/Module/Bookmarks.php:92
 msgid "My Bookmarks"
@@ -1709,8 +1709,8 @@ msgid ""
 "retrieve the channel identity from the old server/hub via the network or provide an "
 "export file."
 msgstr ""
-"Użyj tego formularza, aby zaimportować istniejący kanał z innego serwera/huba. "
-"Możesz pobrać tożsamość kanału ze starego serwera/huba przez sieć lub dostarczyć "
+"Użyj tego formularza, aby zaimportować istniejący kanał z innego serwera/węzła. "
+"Możesz pobrać tożsamość kanału ze starego serwera/węzła przez sieć lub dostarczyć "
 "plik eksportu."
 
 #: ../../Zotlabs/Module/Import.php:628 ../../Zotlabs/Module/Import_items.php:127
@@ -1719,7 +1719,7 @@ msgstr "Plik do przesłania"
 
 #: ../../Zotlabs/Module/Import.php:629
 msgid "Or provide the old server/hub details"
-msgstr "Lub podaj szczegóły starego serwera/huba"
+msgstr "Lub podaj szczegóły starego serwera/węzła"
 
 #: ../../Zotlabs/Module/Import.php:631
 msgid "Your old identity address (xyz@example.com)"
@@ -1736,7 +1736,7 @@ msgstr "Twoje stare hasło logowania"
 #: ../../Zotlabs/Module/Import.php:634
 msgid "Import a few months of posts if possible (limited by available memory"
 msgstr ""
-"Zaimportuj posty z kilku miesięcy, jeśli to możliwe (ograniczone dostępną pamięcią"
+"Zaimportuj wpisy z kilku miesięcy, jeśli to możliwe (ograniczone dostępną pamięcią"
 
 #: ../../Zotlabs/Module/Import.php:636
 msgid ""
@@ -1745,14 +1745,14 @@ msgid ""
 "from either location, but only one can be marked as the primary location for files, "
 "photos, and media."
 msgstr ""
-"W obu przypadkach wybierz, czy chcesz ustawić ten hub jako nowy adres podstawowy, "
+"W obu przypadkach wybierz, czy chcesz ustawić ten węzeł jako nowy adres podstawowy, "
 "czy też rolę tą powinna pełnić Twoja stara lokalizacja. Będziesz mógł/mogła "
 "publikować z dowolnej lokalizacji, ale tylko jedna z nich może być oznaczona jako "
 "główna lokalizacja plików, zdjęć i multimediów."
 
 #: ../../Zotlabs/Module/Import.php:638
 msgid "Make this hub my primary location"
-msgstr "Ustaw ten hub ako moją główną lokalizację"
+msgstr "Ustaw ten węzeł jako moją główną lokalizację"
 
 #: ../../Zotlabs/Module/Import.php:639
 msgid "Move this channel (disable all previous locations)"
@@ -2006,7 +2006,7 @@ msgstr "Aplikacja Public Stream"
 
 #: ../../Zotlabs/Module/Pubstream.php:21
 msgid "The unmoderated public stream of this hub"
-msgstr "Niemoderowany strumień publiczny tego huba"
+msgstr "Niemoderowany strumień publiczny tego węzła"
 
 #: ../../Zotlabs/Module/Pubstream.php:95 ../../Zotlabs/Module/Display.php:76
 #: ../../Zotlabs/Module/Channel.php:224 ../../Zotlabs/Module/Hq.php:125
@@ -2354,11 +2354,11 @@ msgstr "Komentarz usuniety"
 
 #: ../../Zotlabs/Module/Rpost.php:150 ../../Zotlabs/Module/Editpost.php:109
 msgid "Edit post"
-msgstr "Edytuj post"
+msgstr "Edytuj wpis"
 
 #: ../../Zotlabs/Module/Oexchange.php:27
 msgid "Unable to find your hub."
-msgstr "Nie można znaleźć Twojego huba."
+msgstr "Nie można znaleźć Twojego węzła."
 
 #: ../../Zotlabs/Module/Oexchange.php:41
 msgid "Post successful."
@@ -2378,13 +2378,13 @@ msgstr "przełącz tryb pełnego ekranu"
 
 #: ../../Zotlabs/Module/Tagger.php:50
 msgid "Post not found."
-msgstr "Nie znaleziono postu."
+msgstr "Nie znaleziono wpisu."
 
 #: ../../Zotlabs/Module/Tagger.php:79 ../../Zotlabs/Lib/Activity.php:2971
 #: ../../include/conversation.php:158 ../../include/text.php:2258
 #: ../../include/markdown.php:204 ../../include/bbcode.php:523
 msgid "post"
-msgstr "post"
+msgstr "wpis"
 
 #: ../../Zotlabs/Module/Tagger.php:81 ../../include/conversation.php:160
 #: ../../include/text.php:2260
@@ -2412,7 +2412,7 @@ msgstr "Importuj elementy"
 #: ../../Zotlabs/Module/Import_items.php:126
 msgid "Use this form to import existing posts and content from an export file."
 msgstr ""
-"Użyj tego formularza, aby zaimportować istniejące posty i treść z pliku eksportu."
+"Użyj tego formularza, aby zaimportować istniejące wpisy i treść z pliku eksportu."
 
 #: ../../Zotlabs/Module/Connect.php:65 ../../Zotlabs/Module/Connect.php:118
 msgid "Continue"
@@ -2617,7 +2617,7 @@ msgstr "Wróć do listy plików"
 
 #: ../../Zotlabs/Module/Filestorage.php:206 ../../Zotlabs/Storage/Browser.php:386
 msgid "Copy/paste this code to attach file to a post"
-msgstr "Skopiuj/wklej ten kod, aby dołączyć plik do postu"
+msgstr "Skopiuj/wklej ten kod, aby dołączyć plik do wpisu"
 
 #: ../../Zotlabs/Module/Filestorage.php:207 ../../Zotlabs/Storage/Browser.php:387
 msgid "Copy/paste this URL to link file from a web page"
@@ -2685,7 +2685,7 @@ msgstr "Elementy strumienia"
 #: ../../Zotlabs/Module/Viewconnections.php:93 ../../Zotlabs/Module/Connections.php:301
 #: ../../include/text.php:1057
 msgid "Wall posts"
-msgstr "Ściana postów"
+msgstr "Ściana wpisów"
 
 #: ../../Zotlabs/Module/Viewconnections.php:97 ../../Zotlabs/Module/Connections.php:305
 #: ../../include/text.php:1061
@@ -2822,7 +2822,7 @@ msgstr "Zablokuj rodzaj treści"
 
 #: ../../Zotlabs/Module/Wiki.php:228
 msgid "Create a status post for this wiki"
-msgstr "Utwórz post statusu dla tego wiki"
+msgstr "Utwórz wpis statusu dla tego wiki"
 
 #: ../../Zotlabs/Module/Wiki.php:229
 msgid "Edit Wiki Name"
@@ -3045,11 +3045,11 @@ msgid ""
 "When possible, drop a location by logging into that website/hub and removing your "
 "channel."
 msgstr ""
-"Jeśli to możliwe, upuść lokalizację, logując się do tego huba i usuwając swój kanał."
+"Jeśli to możliwe, upuść lokalizację, logując się do tego węzła i usuwając swój kanał."
 
 #: ../../Zotlabs/Module/Locs.php:136
 msgid "Use this form to drop the location if the hub is no longer operating."
-msgstr "Użyj tego formularza, aby usunąć lokalizację, jeśli hub już nie działa."
+msgstr "Użyj tego formularza, aby usunąć lokalizację, jeśli węzeł już nie działa."
 
 #: ../../Zotlabs/Module/Chatsvc.php:131
 msgid "Away"
@@ -3136,7 +3136,7 @@ msgstr "Ostatnia aktywność"
 
 #: ../../Zotlabs/Module/Connedit.php:624
 msgid "View recent posts and comments"
-msgstr "Wyświetl najnowsze posty i komentarze"
+msgstr "Wyświetl najnowsze wpisy i komentarze"
 
 #: ../../Zotlabs/Module/Connedit.php:628 ../../Zotlabs/Module/Admin/Accounts.php:177
 msgid "Unblock"
@@ -3347,7 +3347,7 @@ msgstr "Własny filtr"
 
 #: ../../Zotlabs/Module/Connedit.php:884
 msgid "Only import posts with this text"
-msgstr "Importuj tylko posty z tym tekstem"
+msgstr "Importuj tylko wpisy z tym tekstem"
 
 #: ../../Zotlabs/Module/Connedit.php:884 ../../Zotlabs/Module/Connedit.php:885
 #: ../../Zotlabs/Module/Admin/Site.php:327 ../../Zotlabs/Module/Admin/Site.php:328
@@ -3355,11 +3355,11 @@ msgid ""
 "words one per line or #tags or /patterns/ or lang=xx, leave blank to import all posts"
 msgstr ""
 "słowa po jednym w wierszu lub #tags lub /patterns/ lub lang=xx, pozostaw puste, aby "
-"zaimportować wszystkie posty"
+"zaimportować wszystkie wpisy"
 
 #: ../../Zotlabs/Module/Connedit.php:885
 msgid "Do not import posts with this text"
-msgstr "Nie importuj postów z tym tekstem"
+msgstr "Nie importuj wpisów z tym tekstem"
 
 #: ../../Zotlabs/Module/Connedit.php:887
 msgid "This information is public!"
@@ -3601,19 +3601,19 @@ msgstr "Dodano połączenie."
 
 #: ../../Zotlabs/Module/Item.php:450 ../../Zotlabs/Module/Pin.php:35
 msgid "Unable to locate original post."
-msgstr "Nie można znaleźć oryginalnego postu."
+msgstr "Nie można znaleźć oryginalnego wpisu."
 
 #: ../../Zotlabs/Module/Item.php:736
 msgid "Empty post discarded."
-msgstr "Pusty post został odrzucony."
+msgstr "Pusty wpis został odrzucony."
 
 #: ../../Zotlabs/Module/Item.php:1187
 msgid "Duplicate post suppressed."
-msgstr "Powielony post został wyłączony."
+msgstr "Powielony wpis został wyłączony."
 
 #: ../../Zotlabs/Module/Item.php:1332
 msgid "System error. Post not saved."
-msgstr "Błąd systemu. Post nie został zapisany."
+msgstr "Błąd systemu. Wpis nie został zapisany."
 
 #: ../../Zotlabs/Module/Item.php:1366
 msgid "Your comment is awaiting approval."
@@ -3626,7 +3626,7 @@ msgstr "Nie można uzyskać z bazy danych informacji o tym poście."
 #: ../../Zotlabs/Module/Item.php:1503
 #, php-format
 msgid "You have reached your limit of %1$.0f top level posts."
-msgstr "Osiągnięty został limit %1$.0f postów najwyższego poziomu."
+msgstr "Osiągnięty został limit %1$.0f wpisów najwyższego poziomu."
 
 #: ../../Zotlabs/Module/Item.php:1510
 #, php-format
@@ -3741,7 +3741,7 @@ msgstr "Instalacja elementu %s nie powiodła się"
 
 #: ../../Zotlabs/Module/Pubsites.php:25 ../../Zotlabs/Widget/Pubsites.php:12
 msgid "Public Hubs"
-msgstr "Huby publiczne"
+msgstr "Węzłyy publiczne"
 
 #: ../../Zotlabs/Module/Pubsites.php:28
 msgid ""
@@ -3750,14 +3750,14 @@ msgid ""
 "network as a whole. Some hubs may require subscription or provide tiered service "
 "plans. The hub itself <strong>may</strong> provide additional details."
 msgstr ""
-"Wymienione huby umożliwiają publiczną rejestrację w sieci $Projectname. Wszystkie "
-"huby w sieci są ze sobą połączone, więc członkostwo w którymkolwiek z nich oznacza "
-"członkostwo w całej sieci. Niektóre huby mogą wymagać subskrypcji lub oferować "
-"warstwowe plany usług. Sam hub <strong> może </strong> podać dodatkowe szczegóły."
+"Wymienione węzły umożliwiają publiczną rejestrację w sieci $Projectname. Wszystkie "
+"węzły w sieci są ze sobą połączone, więc członkostwo w którymkolwiek z nich oznacza "
+"członkostwo w całej sieci. Niektóre węzły mogą wymagać subskrypcji lub oferować "
+"warstwowe plany usług. Sam węzeł <strong> może </strong> podać dodatkowe szczegóły."
 
 #: ../../Zotlabs/Module/Pubsites.php:34
 msgid "Hub URL"
-msgstr "Adres URL huba"
+msgstr "Adres URL węzła"
 
 #: ../../Zotlabs/Module/Pubsites.php:34
 msgid "Access Type"
@@ -3884,7 +3884,7 @@ msgid ""
 msgstr ""
 "Wyeksportuj do pliku podstawowe informacje o kanale. Działa to jako kopia zapasowa "
 "połączeń, uprawnień, profilu i podstawowych danych, których można użyć do "
-"zaimportowania danych do nowego huba, ale nie zawiera treści."
+"zaimportowania danych do nowego węzła, ale nie zawiera treści."
 
 #: ../../Zotlabs/Module/Uexport.php:75
 msgid "Export Content"
@@ -3898,14 +3898,14 @@ msgid ""
 "Please be patient - it may take several minutes for this download to begin."
 msgstr ""
 "Wyeksportuj informacje o kanale i najnowsze treści do kopii zapasowej JSON, którą "
-"można przywrócić lub zaimportować do innego huba. Tworzy to kopie zapasowe "
-"wszystkich połączeń, uprawnień, danych profilu i kilku miesięcy postów. Ten plik "
+"można przywrócić lub zaimportować do innego węzła. Tworzy to kopie zapasowe "
+"wszystkich połączeń, uprawnień, danych profilu i wpisów z kilku miesięcy. Ten plik "
 "może być BARDZO duży. Prosimy o cierpliwość - rozpoczęcie pobierania może zająć "
 "kilka minut."
 
 #: ../../Zotlabs/Module/Uexport.php:78
 msgid "Export your posts from a given year."
-msgstr "Eksportuj swoje posty z danego roku."
+msgstr "Eksportuj swoje wpisy z danego roku."
 
 #: ../../Zotlabs/Module/Uexport.php:80
 msgid ""
@@ -3914,9 +3914,9 @@ msgid ""
 "fails (possibly due to memory exhaustion on your server hub), please try again "
 "selecting a more limited date range."
 msgstr ""
-"Można także wyeksportować swoje posty i rozmowy z określonego rok lub miesiąca. "
+"Można także wyeksportować swoje wpisy i rozmowy z określonego rok lub miesiąca. "
 "Dostosuj datę na pasku adresu przeglądarki, aby wybrać inne daty. Jeśli eksport się "
-"nie powiedzie (prawdopodobnie z powodu wyczerpania pamięci w serwera huba), spróbuj "
+"nie powiedzie (prawdopodobnie z powodu wyczerpania pamięci w serwera węzła), spróbuj "
 "ponownie, wybierając bardziej ograniczony zakres dat."
 
 #: ../../Zotlabs/Module/Uexport.php:81
@@ -3925,7 +3925,7 @@ msgid ""
 "To select all posts for a given year, such as this year, visit <a href=\"%1$s\">"
 "%2$s</a>"
 msgstr ""
-"Aby wybrać wszystkie posty z danego roku, na przykład tego roku, odwiedź <a href="
+"Aby wybrać wszystkie wpisy z danego roku, na przykład tego roku, odwiedź <a href="
 "\"%1$s\">%2$s</a>"
 
 #: ../../Zotlabs/Module/Uexport.php:82
@@ -3934,7 +3934,7 @@ msgid ""
 "To select all posts for a given month, such as January of this year, visit <a href="
 "\"%1$s\">%2$s</a>"
 msgstr ""
-"Aby wybrać wszystkie posty z danego miesiąca, np. stycznia tego roku, odwiedź <a "
+"Aby wybrać wszystkie wpisy z danego miesiąca, np. stycznia tego roku, odwiedź <a "
 "href=\"%1$s\">%2$s</a>"
 
 #: ../../Zotlabs/Module/Uexport.php:83
@@ -4195,7 +4195,7 @@ msgstr "lub wybierz istniejący album (podwójne kliknięcie)"
 
 #: ../../Zotlabs/Module/Photos.php:673
 msgid "Create a status post for this upload"
-msgstr "Utwórz post o stanie tego przesyłania"
+msgstr "Utwórz wpis o stanie tego przesyłania"
 
 #: ../../Zotlabs/Module/Photos.php:675
 msgid "Description (optional)"
@@ -4424,12 +4424,12 @@ msgstr "Najnowsze zdjęcia"
 #: ../../Zotlabs/Module/Channel.php:99 ../../Zotlabs/Module/Profile.php:45
 #: ../../Zotlabs/Module/Hcard.php:37
 msgid "Posts and comments"
-msgstr "Posty i komentarze"
+msgstr "Wpisy i komentarze"
 
 #: ../../Zotlabs/Module/Channel.php:106 ../../Zotlabs/Module/Profile.php:52
 #: ../../Zotlabs/Module/Hcard.php:44
 msgid "Only posts"
-msgstr "Tylko posty"
+msgstr "Tylko wpisy"
 
 #: ../../Zotlabs/Module/Channel.php:174
 msgid "Insufficient permissions.  Request redirected to profile page."
@@ -4767,7 +4767,7 @@ msgstr "&#x1f501; Powtórzony %2$s %1$s"
 
 #: ../../Zotlabs/Module/Share.php:120
 msgid "Post repeated"
-msgstr "Post powtórzony"
+msgstr "Wpis powtórzony"
 
 #: ../../Zotlabs/Module/Editwebpage.php:139
 msgid "Page link"
@@ -5154,7 +5154,7 @@ msgstr "Statystyki kolejki"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:36
 msgid "Total Entries"
-msgstr "Ogółem postów"
+msgstr "Ogółem wpisów"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:37
 msgid "Priority"
@@ -5166,11 +5166,11 @@ msgstr "Docelowy URL"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:39
 msgid "Mark hub permanently offline"
-msgstr "Oznacz hub na stałe w trybie offline"
+msgstr "Oznacz węzeł na stałe w trybie offline"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:40
 msgid "Empty queue for this hub"
-msgstr "Pusta kolejka dla tego huba"
+msgstr "Pusta kolejka dla tego węzła"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:41
 msgid "Last known contact"
@@ -5671,7 +5671,7 @@ msgstr ""
 msgid "Which best describes the types of account offered by this hub?"
 msgstr ""
 "Które z poniższych stwierdzeń najlepiej opisuje rodzaje kont oferowanych przez ten "
-"hub?"
+"węzeł?"
 
 #: ../../Zotlabs/Module/Admin/Site.php:315
 msgid "This is displayed on the public server site list."
@@ -5791,11 +5791,11 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Admin/Site.php:327
 msgid "Only import Public stream posts with this text"
-msgstr "Importuj tylko posty ze strumienia publicznego z tym tekstem"
+msgstr "Importuj tylko wpisy ze strumienia publicznego z tym tekstem"
 
 #: ../../Zotlabs/Module/Admin/Site.php:328
 msgid "Do not import Public stream posts with this text"
-msgstr "Nie importuj postów ze strumienia publicznego z tym tekstem"
+msgstr "Nie importuj wpisów ze strumienia publicznego z tym tekstem"
 
 #: ../../Zotlabs/Module/Admin/Site.php:331
 msgid "Login on Homepage"
@@ -5951,7 +5951,7 @@ msgstr "0 dla braku wygaśnięcia zaimportowanej treści"
 #: ../../Zotlabs/Module/Admin/Site.php:352
 msgid "Do not expire any posts which have comments less than this many days ago"
 msgstr ""
-"Nie wygaszaj żadnych postów, które mają komentarze z datami mniejszymi niż ta "
+"Nie wygaszaj żadnych wpisów, które mają komentarze z datami mniejszymi niż ta "
 "wartość dni od teraz"
 
 #: ../../Zotlabs/Module/Admin/Site.php:354
@@ -6708,8 +6708,8 @@ msgid ""
 "This restriction is incorporated because public posts from you may for example "
 "contain references to images on your own hub."
 msgstr ""
-"To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne posty mogą na przykład "
-"zawierać odniesienia do obrazów na Twoim hubie."
+"To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą na przykład "
+"zawierać odniesienia do obrazów na Twoim węźle."
 
 #: ../../Zotlabs/Module/Setup.php:662
 msgid ""
@@ -6883,7 +6883,7 @@ msgstr "Od najstarszych do najnowszych"
 
 #: ../../Zotlabs/Module/Directory.php:461
 msgid "No entries (some entries may be hidden)."
-msgstr "Brak postów (niektóre posty mogą być ukryte)."
+msgstr "Brak wpisów (niektóre wpisy mogą być ukryte)."
 
 #: ../../Zotlabs/Module/Mitem.php:31 ../../Zotlabs/Module/Menu.php:209
 msgid "Menu not found."
@@ -7108,19 +7108,19 @@ msgstr "Twoja rejestracja oczekuje na zatwierdzenie przez właściciela witryny.
 
 #: ../../Zotlabs/Module/Register.php:195
 msgid "Registration on this hub is disabled."
-msgstr "Rejestracja na tym hubie jest wyłączona."
+msgstr "Rejestracja na tym węźle jest wyłączona."
 
 #: ../../Zotlabs/Module/Register.php:204
 msgid "Registration on this hub is by approval only."
-msgstr "Rejestracja na tym hubie wymaga zatwierdzenia."
+msgstr "Rejestracja na tym węźle wymaga zatwierdzenia."
 
 #: ../../Zotlabs/Module/Register.php:205 ../../Zotlabs/Module/Register.php:214
 msgid "<a href=\"pubsites\">Register at another affiliated hub.</a>"
-msgstr "<a href=\"pubsites\">Zarejestruj się na innym stowarzyszonym hubie. </a>"
+msgstr "<a href=\"pubsites\">Zarejestruj się na innym stowarzyszonym węźle. </a>"
 
 #: ../../Zotlabs/Module/Register.php:213
 msgid "Registration on this hub is by invitation only."
-msgstr "Rejestracja na tym hubie wumaga uprzedniego zaproszenia."
+msgstr "Rejestracja na tym węźle wumaga uprzedniego zaproszenia."
 
 #: ../../Zotlabs/Module/Register.php:224
 msgid ""
@@ -7382,7 +7382,7 @@ msgstr "Domyślnie: menu kanału znajduje się w menu aplikacji"
 
 #: ../../Zotlabs/Module/Settings/Display.php:201
 msgid "Link post titles to source"
-msgstr "Połącz tytuły postów ze źródłem"
+msgstr "Połącz tytuły wpisów ze źródłem"
 
 #: ../../Zotlabs/Module/Settings/Display.php:203 ../../Zotlabs/Widget/Newmember.php:75
 msgid "New Member Links"
@@ -7471,11 +7471,11 @@ msgstr "Twoja strefa czasowa:"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:504
 msgid "Default Post Location:"
-msgstr "Domyślna lokalizacja postu:"
+msgstr "Domyślna lokalizacja wpisu:"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:504
 msgid "Geographical location to display on your posts"
-msgstr "Lokalizacja geograficzna do wyświetlania w Twoich postach"
+msgstr "Lokalizacja geograficzna do wyświetlania w Twoich wpisach"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:505
 msgid "Use Browser Location:"
@@ -7535,7 +7535,7 @@ msgstr "Zablokowane - <em>domyślnie zablokowane dla/od wszystkich</em>"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:521
 msgid "Allow others to tag your posts"
-msgstr "Pozwól innym oznaczać Twoje posty"
+msgstr "Pozwól innym oznaczać Twoje wpisy"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:521
 msgid "Often used by the community to retro-actively flag inappropriate content"
@@ -7653,7 +7653,7 @@ msgstr "Szturchnięto Ciebie w poście"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:562
 msgid "Someone likes your post/comment"
-msgstr "Ktoś polubił  Twój post/komentarz"
+msgstr "Ktoś polubił  Twój wpis/komentarz"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:565
 msgid "Show visual notifications including:"
@@ -7728,7 +7728,7 @@ msgstr "Niewidoczne polubienia i dezaprobaty"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:581
 msgid "Unseen forum posts"
-msgstr "Niewidoczne posty na forum"
+msgstr "Niewidoczne wpisy na forum"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:582
 msgid "Email notification hub (hostname)"
@@ -7740,13 +7740,13 @@ msgid ""
 "If your channel is mirrored to multiple hubs, set this to your preferred location. "
 "This will prevent duplicate email notifications. Example: %s"
 msgstr ""
-"Jeśli twój kanał jest powielany na wielu hubach, ustaw to na preferowaną "
+"Jeśli twój kanał jest powielany na wielu węzłach, ustaw to na preferowaną "
 "lokalizację. Zapobiegnie to powielaniu powiadomień e-mail. Przykład: % s"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:583
 msgid "Show new wall posts, private messages and connections under Notices"
 msgstr ""
-"Pokaż w powiadomieniach nowe posty na ścianie, prywatne wiadomości i połączenia"
+"Pokaż w powiadomieniach nowe wpisy na ścianie, prywatne wiadomości i połączenia"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:585
 msgid "Notify me of events this many days in advance"
@@ -7906,7 +7906,7 @@ msgstr "Trzeba będzie podać ten kod zaproszenia:"
 #: ../../Zotlabs/Module/Invite.php:161
 msgid "1. Register at any $Projectname location (they are all inter-connected)"
 msgstr ""
-"1. Zarejestruj się na wskazanym hubie $Projectname (choć możesz też na innym, bo "
+"1. Zarejestruj się na wskazanym węźle $Projectname (choć możesz też na innym, bo "
 "wszystkie są ze sobą połączone)"
 
 #: ../../Zotlabs/Module/Invite.php:163
@@ -7998,7 +7998,7 @@ msgstr "Witamy w Hubzilla!"
 
 #: ../../Zotlabs/Module/Hq.php:131
 msgid "You have got no unseen posts..."
-msgstr "Nie masz żadnych nieoglądniętych postów..."
+msgstr "Nie masz żadnych nieoglądniętych wpisów..."
 
 #: ../../Zotlabs/Module/Cover_photo.php:196 ../../Zotlabs/Module/Cover_photo.php:254
 msgid "Cover Photos"
@@ -8105,7 +8105,7 @@ msgstr "Edytuj menu"
 
 #: ../../Zotlabs/Module/Menu.php:218
 msgid "Add or remove entries to this menu"
-msgstr "Dodaj lub usuń posty w tym menu"
+msgstr "Dodaj lub usuń wpisy w tym menu"
 
 #: ../../Zotlabs/Module/Menu.php:220
 msgid "Menu name"
@@ -8187,12 +8187,12 @@ msgstr "Nazwa kanału"
 msgid ""
 "Add the following categories to posts imported from this source (comma separated)"
 msgstr ""
-"Dodaj następujące kategorie do postów zaimportowanych z tego źródła (oddzielone "
+"Dodaj następujące kategorie do wpisów zaimportowanych z tego źródła (oddzielone "
 "przecinkami)"
 
 #: ../../Zotlabs/Module/Sources.php:124 ../../Zotlabs/Module/Sources.php:159
 msgid "Resend posts with this channel as author"
-msgstr "Wyślij ponownie posty z tym kanałem jako autorem"
+msgstr "Wyślij ponownie wpisy z tym kanałem jako autorem"
 
 #: ../../Zotlabs/Module/Sources.php:124 ../../Zotlabs/Module/Sources.php:159
 msgid "Copyrights may apply"
@@ -8253,7 +8253,7 @@ msgstr "Wybierz, co chcesz zrobić odbiorcy"
 
 #: ../../Zotlabs/Module/Poke.php:215 ../../Zotlabs/Module/Poke.php:216
 msgid "Make this post private"
-msgstr "Ustaw ten post jako prywatny"
+msgstr "Ustaw ten wpis jako prywatny"
 
 #: ../../Zotlabs/Module/Network.php:105
 msgid "No such group"
@@ -8367,7 +8367,7 @@ msgstr "Zień nazwę"
 
 #: ../../Zotlabs/Storage/Browser.php:407 ../../Zotlabs/Lib/Apps.php:360
 msgid "Post"
-msgstr "Post"
+msgstr "Wpis"
 
 #: ../../Zotlabs/Storage/Browser.php:408
 msgid "Attachment BBcode"
@@ -8944,17 +8944,17 @@ msgstr "%1$s [zrl=%2$s]szturchnął Cię[/zrl]."
 #: ../../Zotlabs/Lib/Enotify.php:389
 #, php-format
 msgid "[$Projectname:Notify] %s tagged your post"
-msgstr "[$Projectname:Notify] %s oznaczył tagiem Twój post"
+msgstr "[$Projectname:Notify] %s oznaczył tagiem Twój wpis"
 
 #: ../../Zotlabs/Lib/Enotify.php:390
 #, php-format
 msgid "%1$s tagged your post at %2$s"
-msgstr "%1$s oznaczył tagiem Twój post na %2$s"
+msgstr "%1$s oznaczył tagiem Twój wpis na %2$s"
 
 #: ../../Zotlabs/Lib/Enotify.php:391
 #, php-format
 msgid "%1$s tagged [zrl=%2$s]your post[/zrl]"
-msgstr "%1$s tagged [zrl=%2$s]Twój post[/zrl]"
+msgstr "%1$s tagged [zrl=%2$s]Twój wpis[/zrl]"
 
 #: ../../Zotlabs/Lib/Enotify.php:402
 msgid "[$Projectname:Notify] Introduction received"
@@ -9017,7 +9017,7 @@ msgstr "utworzył nową ankietę"
 
 #: ../../Zotlabs/Lib/Enotify.php:820
 msgid "created a new post"
-msgstr "utworzył nowy post"
+msgstr "utworzył nowy wpis"
 
 #: ../../Zotlabs/Lib/Enotify.php:821
 #, php-format
@@ -9027,17 +9027,17 @@ msgstr "głosował w ankiecie %s"
 #: ../../Zotlabs/Lib/Enotify.php:821
 #, php-format
 msgid "commented on %s's post"
-msgstr "skomentował post %s"
+msgstr "skomentował wpis %s"
 
 #: ../../Zotlabs/Lib/Enotify.php:825
 #, php-format
 msgid "repeated %s's post"
-msgstr "powtórzony post %s"
+msgstr "powtórzony wpis %s"
 
 #: ../../Zotlabs/Lib/Enotify.php:837
 #, php-format
 msgid "edited a post dated %s"
-msgstr "edytował post z dnia %s"
+msgstr "edytował wpis z dnia %s"
 
 #: ../../Zotlabs/Lib/Enotify.php:841
 #, php-format
@@ -9237,11 +9237,11 @@ msgstr "poprzez"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:414
 msgid "Wall-to-Wall"
-msgstr "Wall-to-Wall"
+msgstr "Rozwinięcie"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:415
 msgid "via Wall-To-Wall:"
-msgstr "poprzez Wall-To-Wall:"
+msgstr "poprzez rozwinięcie:"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:429 ../../Zotlabs/Widget/Pinned.php:133
 #: ../../include/conversation.php:806
@@ -9283,7 +9283,7 @@ msgstr "Przejdź do poprzedniego komentarza"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:469 ../../Zotlabs/Widget/Pinned.php:156
 msgid "Pinned post"
-msgstr "Posty przypięte"
+msgstr "Wpisy przypięte"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:471 ../../Zotlabs/Widget/Pinned.php:157
 #: ../../include/js_strings.php:39
@@ -9490,7 +9490,7 @@ msgstr "Wszelkie połączenia, w tym te, które nie zostały jeszcze zatwierdzon
 
 #: ../../Zotlabs/Lib/PermissionDescription.php:150
 msgid "This is your default setting for the audience of your normal stream, and posts."
-msgstr "To jest domyślne ustawienie odbiorców Twojego normalnego strumienia i postów."
+msgstr "To jest domyślne ustawienie odbiorców Twojego normalnego strumienia i wpisów."
 
 #: ../../Zotlabs/Lib/PermissionDescription.php:151
 msgid "This is your default setting for who can view your default channel profile"
@@ -9778,7 +9778,7 @@ msgstr "Panel kontrolny HQ"
 
 #: ../../Zotlabs/Widget/Hq_controls.php:17
 msgid "Create a new post"
-msgstr "Utwórz nowy post"
+msgstr "Utwórz nowy wpis"
 
 #: ../../Zotlabs/Widget/Eventstools.php:13
 msgid "Events Tools"
@@ -9806,7 +9806,7 @@ msgstr "Wydarzenia"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:46
 msgid "Show posts that include events"
-msgstr "Pokaż posty zawierające wydarzenia"
+msgstr "Pokaż wpisy zawierające wydarzenia"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:52
 msgid "Polls"
@@ -9814,12 +9814,12 @@ msgstr "Ankiety"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:56
 msgid "Show posts that include polls"
-msgstr "Pokaż posty zawierające ankiety"
+msgstr "Pokaż wpisy zawierające ankiety"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:77
 #, php-format
 msgid "Show posts related to the %s privacy group"
-msgstr "Pokaż posty związane z grupą prywatności %s"
+msgstr "Pokaż wpisy związane z grupą prywatności %s"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:86
 msgid "Show my privacy groups"
@@ -9827,7 +9827,7 @@ msgstr "Pokaż moje grupy prywatności"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:108
 msgid "Show posts to this forum"
-msgstr "Pokaż posty na tym forum"
+msgstr "Pokaż wpisy na tym forum"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:119
 msgid "Show forums"
@@ -9835,28 +9835,28 @@ msgstr "Pokaż fora"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:133
 msgid "Starred Posts"
-msgstr "Wyróżnione posty"
+msgstr "Wyróżnione wpisy"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:137
 msgid "Show posts that I have starred"
-msgstr "Pokaż posty, które oznaczyłem gwiazdką"
+msgstr "Pokaż wpisy, które oznaczyłem gwiazdką"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:148
 msgid "Personal Posts"
-msgstr "Posty osobiste"
+msgstr "Wpisy osobiste"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:152
 msgid "Show posts that mention or involve me"
-msgstr "Pokaż posty, które wspominają o mnie lub mnie dotyczą"
+msgstr "Pokaż wpisy, które wspominają o mnie lub mnie dotyczą"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:173
 #, php-format
 msgid "Show posts that I have filed to %s"
-msgstr "Pokaż posty przesłane przeze mnie do %s"
+msgstr "Pokaż wpisy przesłane przeze mnie do %s"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:183
 msgid "Show filed post categories"
-msgstr "Pokaż wprowadzone kategorie postów"
+msgstr "Pokaż wprowadzone kategorie wpisów"
 
 #: ../../Zotlabs/Widget/Activity_filter.php:197
 msgid "Panel search"
@@ -9898,7 +9898,7 @@ msgstr "Oznacz wszystkie powiadomienia jako przeczytane"
 #: ../../Zotlabs/Widget/Notifications.php:26 ../../Zotlabs/Widget/Notifications.php:46
 #: ../../Zotlabs/Widget/Notifications.php:65 ../../Zotlabs/Widget/Notifications.php:172
 msgid "Show new posts only"
-msgstr "Pokaż tylko nowe posty"
+msgstr "Pokaż tylko nowe wpisy"
 
 #: ../../Zotlabs/Widget/Notifications.php:27 ../../Zotlabs/Widget/Notifications.php:47
 #: ../../Zotlabs/Widget/Notifications.php:66 ../../Zotlabs/Widget/Notifications.php:142
@@ -10648,7 +10648,7 @@ msgstr "Wyszukaj po dacie"
 
 #: ../../include/features.php:109
 msgid "Ability to select posts by date ranges"
-msgstr "Możliwość wyboru postów według zakresów dat"
+msgstr "Możliwość wyboru wpisów według zakresów dat"
 
 #: ../../include/features.php:116
 msgid "Tag Cloud"
@@ -10672,7 +10672,7 @@ msgstr "Filtrowanie połączeń"
 
 #: ../../include/features.php:138
 msgid "Filter incoming posts from connections based on keywords/content"
-msgstr "Filtruj przychodzące posty z połączeń, na podstawie słów kluczowych lub treści"
+msgstr "Filtruj przychodzące wpisy z połączeń, na podstawie słów kluczowych lub treści"
 
 #: ../../include/features.php:146
 msgid "Conversation"
@@ -10684,23 +10684,23 @@ msgstr "Reakcje emoji"
 
 #: ../../include/features.php:159
 msgid "Add emoji reaction ability to posts"
-msgstr "Dodaj możliwość reakcji emoji do postów"
+msgstr "Dodaj możliwość reakcji emoji do wpisów"
 
 #: ../../include/features.php:166
 msgid "Dislike Posts"
-msgstr "Nielubienie postów"
+msgstr "Nielubienie wpisów"
 
 #: ../../include/features.php:167
 msgid "Ability to dislike posts/comments"
-msgstr "Możliwość postów i komentarzy jako nielubiane"
+msgstr "Możliwość wpisów i komentarzy jako nielubiane"
 
 #: ../../include/features.php:174
 msgid "Star Posts"
-msgstr "Wyróżnianie postów"
+msgstr "Wyróżnianie wpisów"
 
 #: ../../include/features.php:175
 msgid "Ability to mark special posts with a star indicator"
-msgstr "Możliwość oznaczania wyróżnionych postów wskaźnikiem gwiazdki"
+msgstr "Możliwość oznaczania wyróżnionych wpisów wskaźnikiem gwiazdki"
 
 #: ../../include/features.php:182
 msgid "Reply on comment"
@@ -10724,11 +10724,11 @@ msgstr "Edytor"
 
 #: ../../include/features.php:210
 msgid "Post Categories"
-msgstr "Kategorie postów"
+msgstr "Kategorie wpisów"
 
 #: ../../include/features.php:211
 msgid "Add categories to your posts"
-msgstr "Dodaj kategorie do swoich postów"
+msgstr "Dodaj kategorie do swoich wpisów"
 
 #: ../../include/features.php:219
 msgid "Large Photos"
@@ -10739,7 +10739,7 @@ msgid ""
 "Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) "
 "photo thumbnails"
 msgstr ""
-"Dołączaj duże miniatury zdjęć (1024px) do postów. Jeśli nie jest to włączone, będzie "
+"Dołączaj duże miniatury zdjęć (1024px) do wpisów. Jeśli nie jest to włączone, będzie "
 "można używać małych miniatur (640 px)"
 
 #: ../../include/features.php:227
@@ -10758,7 +10758,7 @@ msgstr "Wyłącz komentarze"
 
 #: ../../include/features.php:236
 msgid "Provide the option to disable comments for a post"
-msgstr "Zapewnia możliwość wyłączenia komentowania postu"
+msgstr "Zapewnia możliwość wyłączenia komentowania wpisu"
 
 #: ../../include/features.php:243
 msgid "Delayed Posting"
@@ -10766,7 +10766,7 @@ msgstr "Opóźnione publikowanie"
 
 #: ../../include/features.php:244
 msgid "Allow posts to be published at a later date"
-msgstr "Pozwal na publikację postów w późniejszym terminie"
+msgstr "Pozwal na publikację wpisów w późniejszym terminie"
 
 #: ../../include/features.php:251
 msgid "Content Expiration"
@@ -10774,30 +10774,30 @@ msgstr "Wygaśnięcie treści"
 
 #: ../../include/features.php:252
 msgid "Remove posts/comments and/or private messages at a future time"
-msgstr "Usuwanie postów i komentarzy lub prywatnych wiadomości w przyszłości"
+msgstr "Usuwanie wpisów i komentarzy lub prywatnych wiadomości w przyszłości"
 
 #: ../../include/features.php:259
 msgid "Suppress Duplicate Posts/Comments"
-msgstr "Pomiń zduplikowane posty i komentarze"
+msgstr "Pomiń zduplikowane wpisy i komentarze"
 
 #: ../../include/features.php:260
 msgid ""
 "Prevent posts with identical content to be published with less than two minutes in "
 "between submissions."
 msgstr ""
-"Zapobiegaj publikowaniu postów o identycznej treści, mających mniej niż dwie minuty "
+"Zapobiegaj publikowaniu wpisów o identycznej treści, mających mniej niż dwie minuty "
 "między przesłaniami."
 
 #: ../../include/features.php:267
 msgid "Auto-save drafts of posts and comments"
-msgstr "Automatyczne zapisywanie wersji roboczych postów i komentarzy"
+msgstr "Automatyczne zapisywanie wersji roboczych wpisów i komentarzy"
 
 #: ../../include/features.php:268
 msgid ""
 "Automatically saves post and comment drafts in local browser storage to help prevent "
 "accidental loss of compositions"
 msgstr ""
-"Automatycznie zapisuje wersje robocze postów i komentarzy w lokalnej pamięci "
+"Automatycznie zapisuje wersje robocze wpisów i komentarzy w lokalnej pamięci "
 "przeglądarki, aby zapobiec przypadkowej utracie kompozycji"
 
 #: ../../include/features.php:277
@@ -10834,7 +10834,7 @@ msgstr "Zapisywanie wyszukiwanych haseł do ponownego wykorzystania"
 
 #: ../../include/features.php:320
 msgid "Ability to file posts under folders"
-msgstr "Możliwość umieszczania postów w folderach"
+msgstr "Możliwość umieszczania wpisów w folderach"
 
 #: ../../include/features.php:327
 msgid "Alternate Stream Order"
@@ -10845,7 +10845,7 @@ msgid ""
 "Ability to order the stream by last post date, last comment date or unthreaded "
 "activities"
 msgstr ""
-"Możliwość uporządkowania strumienia według daty ostatniego postu, daty ostatniego "
+"Możliwość uporządkowania strumienia według daty ostatniego wpisu, daty ostatniego "
 "komentarza lub nieprzeczytanych aktywności"
 
 #: ../../include/features.php:335
@@ -10854,7 +10854,7 @@ msgstr "Filtr kontaktów"
 
 #: ../../include/features.php:336
 msgid "Ability to display only posts of a selected contact"
-msgstr "Możliwość wyświetlania postów autorstwa tylko wybranego kontaktu"
+msgstr "Możliwość wyświetlania wpisów autorstwa tylko wybranego kontaktu"
 
 #: ../../include/features.php:343
 msgid "Forum Filter"
@@ -10862,15 +10862,15 @@ msgstr "Filtr forów"
 
 #: ../../include/features.php:344
 msgid "Ability to display only posts of a specific forum"
-msgstr "Możliwość wyświetlania postów tylko z określonego forum"
+msgstr "Możliwość wyświetlania wpisów tylko z określonego forum"
 
 #: ../../include/features.php:351
 msgid "Personal Posts Filter"
-msgstr "Filtr postów osobistych"
+msgstr "Filtr wpisów osobistych"
 
 #: ../../include/features.php:352
 msgid "Ability to display only posts that you've interacted on"
-msgstr "Możliwość wyświetlania tylko tych postów, z którymi miało się interakcję"
+msgstr "Możliwość wyświetlania tylko tych wpisów, z którymi miało się interakcję"
 
 #: ../../include/features.php:373
 msgid "Photo Location"
@@ -11322,7 +11322,7 @@ msgstr "[brak tematu]"
 
 #: ../../include/message.php:214
 msgid "Stored post could not be verified."
-msgstr "Nie można zweryfikować zapisanego postu."
+msgstr "Nie można zweryfikować zapisanego wpisu."
 
 #: ../../include/markdown.php:202 ../../include/bbcode.php:527
 #, php-format
@@ -11367,8 +11367,8 @@ msgid ""
 "Post permissions %s cannot be changed %s after a post is shared.</br />These "
 "permissions set who is allowed to view the post."
 msgstr ""
-"Uprawnienia do publikowania %s nie mogą być zmieniane %s po udostępnieniu postu. </"
-"br /> Te uprawnienia określają, kto może oglądać post."
+"Uprawnienia do publikowania %s nie mogą być zmieniane %s po udostępnieniu wpisu. </"
+"br /> Te uprawnienia określają, kto może oglądać wpis."
 
 #: ../../include/opengraph.php:56
 #, php-format
@@ -11432,7 +11432,7 @@ msgstr "Zdalne uwierzytelnianie"
 
 #: ../../include/nav.php:92
 msgid "Click to authenticate to your home hub"
-msgstr "Kliknij, aby uwierzytelnić się na swoim głównym hubie"
+msgstr "Kliknij, aby uwierzytelnić się na swoim głównym węźle"
 
 #: ../../include/nav.php:98
 msgid "Manage your channels"
@@ -11513,7 +11513,7 @@ msgstr "Przełącz aplikacje systemowe"
 
 #: ../../include/nav.php:424
 msgid "Status Messages and Posts"
-msgstr "Komunikaty o stanie i posty"
+msgstr "Komunikaty o stanie i wpisy"
 
 #: ../../include/nav.php:437
 msgid "Profile Details"
@@ -12637,7 +12637,7 @@ msgstr "[Edytowane %s]"
 #: ../../include/items.php:5059
 msgctxt "edit_activity"
 msgid "Post"
-msgstr "Post"
+msgstr "Wpis"
 
 #: ../../include/items.php:5059
 msgctxt "edit_activity"
@@ -12684,7 +12684,7 @@ msgid ""
 "This post contains an installable %s element, however you lack permissions to "
 "install it on this site."
 msgstr ""
-"Ten post zawiera możliwy do zainstalowania element %s, jednak nie masz uprawnień do "
+"Ten wpis zawiera możliwy do zainstalowania element %s, jednak nie masz uprawnień do "
 "zainstalowania go w tym serwisie."
 
 #: ../../include/bbcode.php:519
@@ -12790,7 +12790,7 @@ msgstr "Wysłano %1$d wiadomości z %2$d zadysponowanych."
 
 #: ../../extend/addon/hzaddons/hubwall/hubwall.php:81
 msgid "Send email to all hub members."
-msgstr "Wyślij wiadomość e-mail do wszystkich członków huba."
+msgstr "Wyślij wiadomość e-mail do wszystkich członków węzła."
 
 #: ../../extend/addon/hzaddons/hubwall/hubwall.php:92
 #: ../../extend/addon/hzaddons/mailtest/mailtest.php:96
@@ -12803,7 +12803,7 @@ msgstr "Adres e-mail nadawcy"
 
 #: ../../extend/addon/hzaddons/hubwall/hubwall.php:94
 msgid "Test mode (only send to hub administrator)"
-msgstr "Tryb testowy (wysyłaj tylko do administratora huba)"
+msgstr "Tryb testowy (wysyłaj tylko do administratora węzła)"
 
 #: ../../extend/addon/hzaddons/likebanner/likebanner.php:51
 msgid "Your Webbie:"
@@ -12833,7 +12833,7 @@ msgstr "Zapisz ustawienia"
 
 #: ../../extend/addon/hzaddons/msgfooter/msgfooter.php:47
 msgid "text to include in all outgoing posts from this site"
-msgstr "tekst do umieszczania we wszystkich postach wychodzących z tej witryny"
+msgstr "tekst do umieszczania we wszystkich wpisach wychodzących z tej witryny"
 
 #: ../../extend/addon/hzaddons/moremoods/moremoods.php:19
 msgid "lonely"
@@ -12998,7 +12998,7 @@ msgstr "Reputacja nigdy nie spadnie poniżej tej wartości"
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:119
 msgid "Minimum reputation before posting is allowed"
-msgstr "Dozwolona jest minimalna reputacja przed rozpoczęciem postów"
+msgstr "Dozwolona jest minimalna reputacja przed rozpoczęciem wpisów"
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:120
 msgid "Minimum reputation before commenting is allowed"
@@ -13006,7 +13006,7 @@ msgstr "Dozwolona jest minimalna reputacja przed rozpoczęciem komentowania"
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:121
 msgid "Minimum reputation before a member is able to moderate other posts"
-msgstr "Minimalna reputacja, zanim członek będzie mógł moderować inne posty"
+msgstr "Minimalna reputacja, zanim członek będzie mógł moderować inne wpisy"
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:122
 msgid ""
@@ -13018,7 +13018,7 @@ msgstr ""
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:123
 msgid "Reputation \"cost\" to post"
-msgstr "\"Koszt\" reputacji dla postu"
+msgstr "\"Koszt\" reputacji dla wpisu"
 
 #: ../../extend/addon/hzaddons/channelreputation/channelreputation.php:124
 msgid "Reputation \"cost\" to comment"
@@ -13252,11 +13252,11 @@ msgstr "Aplikacja Hubzilla Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:51
 msgid "Relay public postings to another Hubzilla channel"
-msgstr "Przekaż publiczne posty na inny kanał Hubzilla"
+msgstr "Przekaż publiczne wpisy na inny kanał Hubzilla"
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:63
 msgid "Send public postings to Hubzilla channel by default"
-msgstr "Domyślnie wysyłaj publiczne posty na kanał Hubzilla"
+msgstr "Domyślnie wysyłaj publiczne wpisy na kanał Hubzilla"
 
 #: ../../extend/addon/hzaddons/redred/Mod_Redred.php:67
 msgid "Hubzilla API Path"
@@ -13771,7 +13771,7 @@ msgstr "Import z magazynu plików Hubzilla"
 #: ../../extend/addon/hzaddons/hzfiles/hzfiles.php:82
 msgid "This will import all your cloud files from another server."
 msgstr ""
-"Spowoduje to zaimportowanie wszystkich plików w chmurze z innego huba Hubzilla."
+"Spowoduje to zaimportowanie wszystkich plików w chmurze z innego węzła Hubzilla."
 
 #: ../../extend/addon/hzaddons/hzfiles/hzfiles.php:83
 msgid "Hubzilla Server base URL"
@@ -13805,7 +13805,7 @@ msgstr "Aplikacja Diaspora Protocol"
 
 #: ../../extend/addon/hzaddons/diaspora/Mod_Diaspora.php:75
 msgid "Allow any Diaspora member to comment on your public posts"
-msgstr "Pozwól każdemu członkowi Diaspory komentować Twoje publiczne posty"
+msgstr "Pozwól każdemu członkowi Diaspory komentować Twoje publiczne wpisy"
 
 #: ../../extend/addon/hzaddons/diaspora/Mod_Diaspora.php:79
 msgid "Prevent your hashtags from being redirected to other sites"
@@ -13813,7 +13813,7 @@ msgstr "Zapobiegaj przekierowywaniu hashtagów do innych witryn"
 
 #: ../../extend/addon/hzaddons/diaspora/Mod_Diaspora.php:83
 msgid "Sign and forward posts and comments with no existing Diaspora signature"
-msgstr "Podpisuj i przesyłaj dalej posty i komentarze bez podpisu Diaspory"
+msgstr "Podpisuj i przesyłaj dalej wpisy i komentarze bez podpisu Diaspory"
 
 #: ../../extend/addon/hzaddons/diaspora/Mod_Diaspora.php:88
 msgid "Followed hashtags (comma separated, do not include the #)"
@@ -13854,15 +13854,15 @@ msgstr "Statystyki katalogowe Hubzilla"
 
 #: ../../extend/addon/hzaddons/dirstats/dirstats.php:95
 msgid "Total Hubs"
-msgstr "Razem huby"
+msgstr "Razem węzłów"
 
 #: ../../extend/addon/hzaddons/dirstats/dirstats.php:97
 msgid "Hubzilla Hubs"
-msgstr "Huby Hubzilla"
+msgstr "Węzły Hubzilla"
 
 #: ../../extend/addon/hzaddons/dirstats/dirstats.php:99
 msgid "Friendica Hubs"
-msgstr "Huby Friendica"
+msgstr "Węzły Friendica"
 
 #: ../../extend/addon/hzaddons/dirstats/dirstats.php:101
 msgid "Diaspora Pods"
@@ -14012,7 +14012,7 @@ msgstr "Aplikacja Livejournal Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/ljpost/Mod_Ljpost.php:39
 msgid "Relay public posts to Livejournal"
-msgstr "Przekazuj publiczne posty do Livejournal"
+msgstr "Przekazuj publiczne wpisy do Livejournal"
 
 #: ../../extend/addon/hzaddons/ljpost/Mod_Ljpost.php:55
 msgid "Livejournal username"
@@ -14028,13 +14028,13 @@ msgstr "Domyślnie wysyłaj do Livejournal"
 
 #: ../../extend/addon/hzaddons/ljpost/Mod_Ljpost.php:67
 msgid "Send wall-to-wall posts to Livejournal"
-msgstr "Wysyłaj posty \"wall-to-wall\" do Livejournal"
+msgstr "Wysyłaj wpisy \"rozwinięte\" do Livejournal"
 
 #: ../../extend/addon/hzaddons/ljpost/Mod_Ljpost.php:71
 #: ../../extend/addon/hzaddons/dwpost/Mod_Dwpost.php:65
 #: ../../extend/addon/hzaddons/wppost/Mod_Wppost.php:94
 msgid "Add link to original post"
-msgstr "Dodaj odnośnik do oryginalnego postu"
+msgstr "Dodaj odnośnik do oryginalnego wpisu"
 
 #: ../../extend/addon/hzaddons/ljpost/Mod_Ljpost.php:79
 msgid "Livejournal Crosspost Connector"
@@ -14403,7 +14403,7 @@ msgstr "Ustawienia społecznościowe GNU zostały zaktualizowane."
 #: ../../extend/addon/hzaddons/statusnet/Mod_Statusnet.php:147
 msgid "Relay public postings to a connected GNU social account (formerly StatusNet)"
 msgstr ""
-"Przekazywanie publicznych postów na połączone konto społecznościowe GNU (dawniej "
+"Przekazywanie publicznych wpisów na połączone konto społecznościowe GNU (dawniej "
 "StatusNet)"
 
 #: ../../extend/addon/hzaddons/statusnet/Mod_Statusnet.php:181
@@ -14468,7 +14468,7 @@ msgstr ""
 "W celu połączenia się ze swoim kontem społecznościowym GNU, kliknij poniższy "
 "przycisk, aby uzyskać kod zabezpieczający z serwisu społecznościowego GNU, który "
 "musisz skopiować do pola wprowadzania poniżej i przesłać formularz. Tylko twoje "
-"<strong>publiczne</strong> posty będą publikowane w społecznościach GNU."
+"<strong>publiczne</strong> wpisy będą publikowane w społecznościach GNU."
 
 #: ../../extend/addon/hzaddons/statusnet/Mod_Statusnet.php:241
 msgid "Log in with GNU social"
@@ -14504,7 +14504,7 @@ msgid ""
 msgstr ""
 "<strong>Uwaga</strong>: Ze względu na Twoje ustawienia prywatności, odnośnik "
 "(<em>Ukryj szczegóły swojego profilu przed nieznanymi widzami? </em>), ewentualnie "
-"zawarty w publicznych postach przekazywanych do społeczności GNU, będzie kierował "
+"zawarty w publicznych wpisach przekazywanych do społeczności GNU, będzie kierował "
 "odwiedzającego na pustą stronę z informacją dla odwiedzającego, że dostęp do Twojego "
 "profilu został ograniczony."
 
@@ -14517,7 +14517,7 @@ msgid ""
 "If enabled your public postings will be posted to the associated GNU-social account "
 "by default"
 msgstr ""
-"Jeśli ta opcja jest włączona, twoje publiczne posty będą domyślnie wysyłane na "
+"Jeśli ta opcja jest włączona, twoje publiczne wpisy będą domyślnie wysyłane na "
 "powiązane konto społecznościowe GNU"
 
 #: ../../extend/addon/hzaddons/statusnet/Mod_Statusnet.php:291
@@ -14587,7 +14587,7 @@ msgstr "Aplikacja Insane Journal Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/ijpost/Mod_Ijpost.php:36
 msgid "Relay public postings to Insane Journal"
-msgstr "Przekaż publiczne posty do Insane Journal"
+msgstr "Przekaż publiczne wpisy do Insane Journal"
 
 #: ../../extend/addon/hzaddons/ijpost/Mod_Ijpost.php:53
 msgid "InsaneJournal username"
@@ -14649,7 +14649,7 @@ msgstr "twarz w stylu retro arcade"
 
 #: ../../extend/addon/hzaddons/gravatar/gravatar.php:128
 msgid "Hub default profile photo"
-msgstr "Domyślne zdjęcie profilowe huba"
+msgstr "Domyślne zdjęcie profilowe węzła"
 
 #: ../../extend/addon/hzaddons/gravatar/gravatar.php:143
 msgid "Information"
@@ -14834,7 +14834,7 @@ msgstr "Aplikacja Twitter Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:79
 msgid "Relay public posts to Twitter"
-msgstr "Przekazuj publiczne posty na Twitter"
+msgstr "Przekazuj publiczne wpisy na Twitter"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:103
 msgid "No consumer key pair for Twitter found. Please contact your site administrator."
@@ -14853,7 +14853,7 @@ msgstr ""
 "swojego konta z kontem na Twitterze. Aby to zrobić, kliknij poniższy przycisk, aby "
 "uzyskać kod PIN z Twittera, który należy skopiować do pola wprowadzania poniżej i "
 "przesłać formularz. Na Twitterze będą publikowane tylko Twoje <strong>publiczne</"
-"strong> posty."
+"strong> wpisy."
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:127
 msgid "Log in with Twitter"
@@ -14872,13 +14872,13 @@ msgid ""
 msgstr ""
 "<strong> Uwaga: </strong> Ze względu na Twoje ustawienia prywatności (<em>Ukryj "
 "szczegóły swojego profilu przed nieznanymi widzami?</em>) ten link, potencjalnie "
-"zawarty w publicznych postach przekazywanych do Twittera, będzie prowadził "
+"zawarty w publicznych wpisach przekazywanych do Twittera, będzie prowadził "
 "odwiedzającego do pustej strony informującej gościa, że dostęp do Twojego profilu "
 "został ograniczony."
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:157
 msgid "Twitter post length"
-msgstr "Długość postu na Twitterze"
+msgstr "Długość wpisu na Twitterze"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:157
 msgid "Maximum tweet length"
@@ -14886,14 +14886,14 @@ msgstr "Maksymalna długość tweeta"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:162
 msgid "Send public postings to Twitter by default"
-msgstr "Domyślnie wysyłaj publiczne posty na Twitter"
+msgstr "Domyślnie wysyłaj publiczne wpisy na Twitter"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:162
 msgid ""
 "If enabled your public postings will be posted to the associated Twitter account by "
 "default"
 msgstr ""
-"Jeśli ta opcja jest włączona, Twoje publiczne posty będą domyślnie publikowane na "
+"Jeśli ta opcja jest włączona, Twoje publiczne wpisy będą domyślnie publikowane na "
 "powiązanym koncie Twittera"
 
 #: ../../extend/addon/hzaddons/twitter/Mod_Twitter.php:181
@@ -14960,7 +14960,7 @@ msgstr "Wspomóż"
 #: ../../extend/addon/hzaddons/donate/donate.php:61
 msgid "Choose a project, developer, or public hub to support with a one-time donation"
 msgstr ""
-"Wybierz projekt, dewelopera lub publiczny hub, aby wesprzeć jednorazową darowizną"
+"Wybierz projekt, dewelopera lub publiczny węzeł, aby wesprzeć jednorazową darowizną"
 
 #: ../../extend/addon/hzaddons/donate/donate.php:62
 msgid "Donate Now"
@@ -14997,7 +14997,7 @@ msgstr "Aplikacja Dreamwidth Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/dwpost/Mod_Dwpost.php:40
 msgid "Relay public posts to Dreamwidth"
-msgstr "Przekazuj publiczne posty do Dreamwidth"
+msgstr "Przekazuj publiczne wpisy do Dreamwidth"
 
 #: ../../extend/addon/hzaddons/dwpost/Mod_Dwpost.php:53
 msgid "Dreamwidth username"
@@ -15042,7 +15042,7 @@ msgstr ""
 
 #: ../../extend/addon/hzaddons/nofed/Mod_Nofed.php:42
 msgid "Federate posts by default"
-msgstr "Domyślnie, posty Federate"
+msgstr "Domyślnie, wpisy federacyjne"
 
 #: ../../extend/addon/hzaddons/nofed/Mod_Nofed.php:50
 msgid "No Federation"
@@ -15071,7 +15071,7 @@ msgstr "Nie określono serwera"
 
 #: ../../extend/addon/hzaddons/content_import/Mod_content_import.php:73
 msgid "Posts imported"
-msgstr "Zaimportowano posty"
+msgstr "Zaimportowano wpisy"
 
 #: ../../extend/addon/hzaddons/content_import/Mod_content_import.php:113
 msgid "Files imported"
@@ -15096,11 +15096,11 @@ msgid ""
 msgstr ""
 "Spowoduje to zaimportowanie wszystkich rozmów i plików przechowywanych w chmurze ze "
 "sklonowanego kanału na innym serwerze. Może to chwilę potrwać, jeśli masz dużo "
-"postów lun plików."
+"wpisów lun plików."
 
 #: ../../extend/addon/hzaddons/content_import/Mod_content_import.php:137
 msgid "Include posts"
-msgstr "Dołącz posty"
+msgstr "Dołącz wpisy"
 
 #: ../../extend/addon/hzaddons/content_import/Mod_content_import.php:137
 msgid "Conversations, Articles, Cards, and other posted content"
@@ -15176,7 +15176,7 @@ msgstr "Ostatnio wyświetlający mój kanał lub profil"
 
 #: ../../extend/addon/hzaddons/visage/Mod_Visage.php:36
 msgid "No entries."
-msgstr "Brak postów."
+msgstr "Brak wpisów."
 
 #: ../../extend/addon/hzaddons/mail/Mod_Mail.php:39
 msgid "Messages"
@@ -15431,11 +15431,11 @@ msgstr "Aplikacja Hubzilla Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/rtof/Mod_Rtof.php:37
 msgid "Relay public postings to a connected Friendica account"
-msgstr "Przekazywanie publicznych postów do połączonego konta Friendica"
+msgstr "Przekazywanie publicznych wpisów do połączonego konta Friendica"
 
 #: ../../extend/addon/hzaddons/rtof/Mod_Rtof.php:49
 msgid "Send public postings to Friendica by default"
-msgstr "Domyślnie wysyłaj publiczne posty na kanał Hubzilla"
+msgstr "Domyślnie wysyłaj publiczne wpisy na kanał Hubzilla"
 
 #: ../../extend/addon/hzaddons/rtof/Mod_Rtof.php:53
 msgid "Friendica API Path"
@@ -15471,7 +15471,7 @@ msgstr "Liczba plików dziennika do przechowania"
 
 #: ../../extend/addon/hzaddons/wppost/wppost.php:46
 msgid "Post to WordPress"
-msgstr "Opubikuj w WordPress"
+msgstr "Opublikuj w WordPress"
 
 #: ../../extend/addon/hzaddons/wppost/Mod_Wppost.php:30
 msgid "Wordpress Settings saved."
@@ -15709,7 +15709,7 @@ msgstr "Aplikacja Pump.io Crosspost Connector"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:54
 msgid "Relay public posts to pump.io"
-msgstr "Przekazuj publiczne posty do Pump.io"
+msgstr "Przekazuj publiczne wpisy do Pump.io"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:73
 msgid "Pump.io servername"
@@ -15737,15 +15737,15 @@ msgstr "(Ponownie) Uwierzytelnij swoje połączenie pump.io"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:94
 msgid "Post to pump.io by default"
-msgstr "Piblikuj domyślnie w pump.io"
+msgstr "Publikuj domyślnie w pump.io"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:98
 msgid "Should posts be public"
-msgstr "Posty powinny być publiczne"
+msgstr "Wpisy powinny być publiczne"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:102
 msgid "Mirror all public posts"
-msgstr "Powielaj wszystkie posty publiczne"
+msgstr "Powielaj wszystkie wpisy publiczne"
 
 #: ../../extend/addon/hzaddons/pumpio/Mod_Pumpio.php:112
 msgid "Pump.io Crosspost Connector"
@@ -15811,7 +15811,7 @@ msgstr "Spowoduje to zaimportowanie wszystkich plików chmury Redmatrix do tego 
 
 #: ../../extend/addon/hzaddons/mdpost/mdpost.php:42
 msgid "Use markdown for editing posts"
-msgstr "Użyj markdown do edycji postów"
+msgstr "Użyj markdown do edycji wpisów"
 
 #: ../../extend/addon/hzaddons/fuzzloc/Mod_Fuzzloc.php:22
 msgid "Fuzzloc Settings updated."
@@ -15924,7 +15924,7 @@ msgstr "Przykłady: 1rem, 100%, 16px"
 
 #: ../../view/theme/redbasic/php/config.php:110
 msgid "Set font-color for posts and comments"
-msgstr "Ustaw kolor czcionki dla postów i komentarzy"
+msgstr "Ustaw kolor czcionki dla wpisów i komentarzy"
 
 #: ../../view/theme/redbasic/php/config.php:111
 msgid "Set radius of corners"
@@ -16017,7 +16017,7 @@ msgstr "Zadania Crona (zaplanowane) nie działają."
 #~ "By default only the instance of the channel located on this hub will be removed "
 #~ "from the network"
 #~ msgstr ""
-#~ "Domyślnie tylko instancja kanału znajdującego się na tym hubie zostanie usunięta "
+#~ "Domyślnie tylko instancja kanału znajdującego się na tym węźle zostanie usunięta "
 #~ "z sieci"
 
 #~ msgid ""
@@ -16029,10 +16029,10 @@ msgstr "Zadania Crona (zaplanowane) nie działają."
 #~ "from the network"
 #~ msgstr ""
 #~ "Domyślnie,  zostaną usunięte z sieci tylko instancje kanałów znajdujące się na "
-#~ "tym hubie"
+#~ "tym węźle"
 
 #~ msgid "Hub not found."
-#~ msgstr "Nie znaleziono huba."
+#~ msgstr "Nie znaleziono węzła."
 
 #~ msgid "Manual conversation updates"
 #~ msgstr "Ręczne aktualizacje rozmów"

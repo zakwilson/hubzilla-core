@@ -1,6 +1,6 @@
 Przepraszamy, ale to może być ważne.
 
-Jest to komunika wygenerowany przez serwer WWW na {{$sitename}};
+Jest to komunikat wygenerowany przez serwer WWW na {{$sitename}};
    
 Twórcy projektu opublikowali niedawno aktualizację {{$update}},
 ale podczas próby automatycznej instalacji coś poszło nie tak.

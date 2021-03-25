@@ -1,9 +1,9 @@
-## Funckje tworzenia wpisów
+## Funkcje tworzenia wpisów
 
 
 ### Duże obrazy
 
-Możliwość dołączania do postów dużych (1024px) miniatur zdjęć. Jeśli ta opcja nie jest jest włączona, będą uzywane małe miniatury (640 pikseli)
+Możliwość dołączania do wpisów dużych (1024px) miniatur zdjęć. Jeśli ta opcja nie jest jest włączona, będą uzywane małe miniatury (640 pikseli)
 <!-- TODO: full description for Large Photos -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
@@ -27,7 +27,7 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Włącz narzędzia do głosowania
 
-Podaj klasę postów, na które inni mogą głosować
+Podaj klasę wpisów, na które inni mogą głosować
 <!-- TODO: full description for Enable Voting Tools -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 3
@@ -35,7 +35,7 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Wyłączenie komentowania
 
-Zapewnia opcję wyłączenia komentarzy do posta
+Zapewnia opcję wyłączenia komentarzy do wpisu
 <!-- TODO: full description for Disable Comments -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
@@ -43,7 +43,7 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Opóźnione wysyłanie
 
-Zezwolenie na publikację postów w późniejszym terminie
+Zezwolenie na publikację wpisów w późniejszym terminie
 <!-- TODO: full description for Delayed Posting -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
@@ -51,15 +51,15 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Wygasanie treści
 
-Usuwanie postów i komentarzy albo prywatnych wiadomości w przyszłości.
+Usuwanie wpisów i komentarzy albo prywatnych wiadomości w przyszłości.
 <!-- TODO: full description for Content Expiration -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
 
 
-### Pomijanie powielonych postów i komentarzy
+### Pomijanie powielonych wpisów i komentarzy
 
-Zapobiega publikowaniu postów o identycznej treści zapisanych mniej niż dwie minuty między zgłoszeniami.
+Zapobiega publikowaniu wpisów o identycznej treści zapisanych mniej niż dwie minuty między zgłoszeniami.
 <!-- TODO: full description for Suppress Duplicate Posts/Comments -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1

@@ -65,9 +65,9 @@ App::$config['system']['verify_email'] = 1;
 // Masz do wyboru ACCESS_PRIVATE, ACCESS_PAID, ACCESS_TIERED i ACCESS_FREE.
 // Jeśli opuścisz ustawienie REGISTER_OPEN powyżej, każdy bedzie się mógł
 // zarejestrować na Twoim serwisiewitryna, jednak serwis ten nie będzie nigdzie
-// wyświetlany jako hub z otwartą resjestracją.
+// wyświetlany jako węzeł z otwartą resjestracją.
 // Używamy polityki dostępu do systemu (poniżej) aby określić, czy serwis ma być
-// umieszczony w katalogu jako otwarty hub, w którym każdy może tworzyć konta.
+// umieszczony w katalogu jako otwarty węzeł, w którym każdy może tworzyć konta.
 // Twój wybór, to: paid, tiered lub free.  
 
 App::$config['system']['access_policy'] = ACCESS_PRIVATE;

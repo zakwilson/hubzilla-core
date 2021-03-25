@@ -3,7 +3,7 @@
 
 ### Etykietowanie społecznościowe
 
-Możliwość etykietowania istniejących postów
+Możliwość etykietowania istniejących wpisów
 <!-- TODO: full description for Community Tagging -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
@@ -11,15 +11,15 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Kategorie wpisów
 
-Dodawanie kategorii do swoich postów
-<!-- TODO: full description for Post Categories -->
+Dodawanie kategorii do swoich wpisów
+<!-- TODO: full description for wpis Categories -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
 
 
 ### Reakcje emoji
 
-Dodawanie możliwość reakcji emoji do postów
+Dodawanie możliwość reakcji emoji do wpisów
 <!-- TODO: full description for Emoji Reactions -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
@@ -27,24 +27,24 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Zapisywane foldery
 
-Możliwość umieszczania postów w folderach
+Możliwość umieszczania wpisów w folderach
 <!-- TODO: full description for Saved Folders -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
 
 
-### Dezaprobata postów
+### Dezaprobata wpisów
 
-Możliwoąć dezaprobaty postów i komentarzy.
-<!-- TODO: full description for Dislike Posts -->
+Możliwoąć dezaprobaty wpisów i komentarzy.
+<!-- TODO: full description for Dislike wpiss -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
 
 
-### Wyróżnianie postów
+### Wyróżnianie wpisów
 
-Możliwość oznaczania wyróżionych postów wskaźnikiem gwiazdki
-<!-- TODO: full description for Star Posts -->
+Możliwość oznaczania wyróżionych wpisów wskaźnikiem gwiazdki
+<!-- TODO: full description for Star posts -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
 

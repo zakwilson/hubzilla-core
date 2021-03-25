@@ -35,7 +35,7 @@ Po powrocie na stronę główną kanału zobaczysz, że wpis powiadamiający inn
 
 ### Tworzenie wpisów
 
-Przejdź do strony głównej swojego kanału i otwórz edytor wpisów, naciskając pole tekstowe *Udostępnij* u góry "ściany"  kanału. Wprowadź wiadomość, a następnie przeciągnij i upuść plik obrazu do do obszaru tekstowego edytora postów. Ewentualnie możesz użyć narzędzie *Załącz plik*, widoczne u dołu.
+Przejdź do strony głównej swojego kanału i otwórz edytor wpisów, naciskając pole tekstowe *Udostępnij* u góry "ściany"  kanału. Wprowadź wiadomość, a następnie przeciągnij i upuść plik obrazu do do obszaru tekstowego edytora wpisów. Ewentualnie możesz użyć narzędzie *Załącz plik*, widoczne u dołu.
 
 ![](assets/b0bfdf02aef3710a37bb6092c3240b291eca8afa73133b3ac03b86f3302d.png)
 

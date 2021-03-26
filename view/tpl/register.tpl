@@ -5,14 +5,13 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
+			{{if $reg_is || $other_sites || $now}}
 			<div class="section-content-warning-wrapper">
-				{{if $reg_is}}
+				<h3>{{$now}}</h3>
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
-				{{/if}}
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
-				<h2>{{$now}}</h2>
 			</div>
-
+			{{/if}}
 			{{if $registertext}}
 			<div class="section-content-info-wrapper">
 				<div id="register-text" class="descriptive-paragraph">{{$registertext}}</div>
@@ -27,12 +26,12 @@
 				</div>
 			{{/if}}
 
-			{{include file="field_input.tpl" field=[$email.0,$email.1,"",$email.3,"",""]}}
+			{{include file="field_input.tpl" field=$email}}
 			</div>
 
-			{{include file="field_password.tpl" field=[$pass1.0,$pass1.1,"","","",$atform]}}
+			{{include file="field_password.tpl" field=$pass1}}
 
-			{{include file="field_password.tpl" field=[$pass2.0,$pass2.1,"","","",$atform]}}
+			{{include file="field_password.tpl" field=$pass2}}
 
 			{{if $auto_create}}
 				{{if $default_role}}

@@ -310,7 +310,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							'$atform'	=> $atform,
 							'$resend' 	=> $resend,
 							'$submit' 	=> t('Submit'),
-							'$acpin' 	=> [ 'acpin', t('Validation token'),'','' ],
+							'$acpin' 	=> [ 'acpin', t('Validation token'),'','' ]
 							]);
 						}
 						else {
@@ -324,6 +324,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							$o = replace_macros(get_markup_template('plain.tpl'), [
 								'$title'	=> $title,
 								'$now'		=> $nowf,
+								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$infos'	=> 'ZAR1132W' . ' ' . t('Request not inside time frame') . EOL,
 							]);
 						}

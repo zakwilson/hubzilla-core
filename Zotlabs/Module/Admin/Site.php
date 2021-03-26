@@ -611,7 +611,8 @@ class Site {
 		}
 
 		if (! $this->register_duty)
-			$this->register_duty = '1-7';
+			$this->register_duty = '-:-';
+
 		$ranges = preg_split('/\s+/', $this->register_duty);
 		$this->msgbg .= '..ranges: ' . print_r(count($ranges),true) . $this->eol;
 

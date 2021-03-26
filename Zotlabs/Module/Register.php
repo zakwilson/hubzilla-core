@@ -69,19 +69,21 @@ class Register extends Controller {
 		$invite_code = ( (x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
 		$email 		 = ( (x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
 		$password 	 = ( (x($arr,'password'))      ? trim($arr['password'])              : '');
+		$password2 	 = ( (x($arr,'password2'))      ? trim($arr['password2'])            : '');
+
 		$reonar		 = array();
 
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
-
 			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
 				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
 					$is247 = true;
 				}
 			}
-
 		}
+
+/*
 		// assume someone tries to validate (dId2 C/D/E), because only field email entered
 		if ( $email && ( ! $invite_code ) && ( ! $password ) && ( ! $_POST['password2'] ) ) {
 
@@ -102,14 +104,27 @@ class Register extends Controller {
 			}
 
 		}
+*/
+		$email_verify = get_config('system','verify_email');
+		if ($email_verify && ! $email) {
+			notice(t('Email address required') . EOL);
+			return;
+		}
 
+		if ($email) {
+			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
+				// msg!
+				notice(t('Not a valid email address') . EOL);
+				return;
+			}
+		}
 
 		if ($act > 0 && !$is247 && !$duty['isduty']) {
 			// normally (except very 1st timr after install), that should never arrive here (ie js hack or sth like)
 			// log suitable for f2b also
 			$logmsg = 'ZAR0230S Unexpected registration request off duty';
 			zar_log($logmsg);
-			goaway(z_root() . '/~');
+			return;
 		}
 
 		if ($sameip && !$is247) {
@@ -119,7 +134,7 @@ class Register extends Controller {
 			if ($f && $f[0]['atip'] > $sameip) {
 				$logmsg = 'ZAR0239S Exceeding same ip register request of ' . $sameip;
 				zar_log($logmsg);
-				goaway(z_root() . '/~');
+				return;
 			}
 		}
 
@@ -127,40 +142,40 @@ class Register extends Controller {
 		// msg?
 		if ( !$is247 && self::check_reg_limits()['is'] ) return;
 
-		// accept tos
-		if(! x($_POST,'tos')) {
+		if(!$password) {
 			// msg!
-			notice( 'ZAR0230E '
-			. t('Please indicate acceptance of the Terms of Service. Registration failed.') . EOL);
+			notice(t('No password provided') . EOL);
 			return;
 		}
 
 		// pw1 == pw2
-		if((! $_POST['password']) || ($_POST['password'] !== $_POST['password2'])) {
+		if($password !== $password2) {
 			// msg!
-			notice( 'ZAR0230E '
-			. t('Passwords do not match.') . EOL);
+			notice(t('Passwords do not match') . EOL);
 			return;
 		}
 
-
-		$email_verify = intval(get_config('system','verify_email'));
-
-		if ($email) {
-			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
-				// msg!
-				notice('ZAR0239E '
-				.  t('Email address mistake') . EOL);
-				return;
-			}
+		$password_result = check_account_password($password);
+		if(!empty($password_result['error'])) {
+			$msg = $password_result['message'];
+			notice($msg);
+			zar_log($msg . ' ' . $did2);
+			return;
 		}
+
+		// accept tos
+		if(! x($_POST,'tos')) {
+			// msg!
+			notice(t('Terms of Service not accepted') . EOL);
+			return;
+		}
+
 
 		$policy  = intval(get_config('system','register_policy'));
 		$invonly = intval(get_config('system','invitation_only'));
 		$invalso = intval(get_config('system','invitation_also'));
 		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
 		$auto_create = true;
-
 
 		switch($policy) {
 
@@ -349,6 +364,7 @@ class Register extends Controller {
 				 		]
 					);
 					pop_lang();
+					hz_syslog(print_r($reonar,true));
 					zar_reg_mail($reonar);
 
 				} else {
@@ -367,13 +383,6 @@ class Register extends Controller {
 				if ( $auto_create ) {
 					$reonar['chan.name'] = notags(trim($arr['name']));
 					$reonar['chan.did1'] = notags(trim($arr['nickname']));
-				}
-
-				if($password_result['error']) {
-					$msg = $password_result['message'];
-					notice($msg);
-					zar_log($msg . ' ' . $did2);
-					goaway('register');
 				}
 
 				$salt = random_string(32);
@@ -420,13 +429,15 @@ class Register extends Controller {
 							// notice( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
 							$_SESSION['zar']['msg'] = ( t('Your validation token is') . ' ' . $pass2 . EOL
 							. t('Please remember your token and reload this page between') . EOL
-							. '<code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code>' . EOL
+							. '<code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code>' . EOL
 							. t('to complete registration.')
 							);
 						}
 						else {
 							$_SESSION['zar']['pin'] = $pass2;
 						}
+						$_SESSION['zar']['pin'] = $pass2;
+
 						goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
 					}
 					else {
@@ -435,6 +446,8 @@ class Register extends Controller {
 						zar_log( $msg . ' ' . $did2);
 					}
 				}
+				goaway(z_root() . '/regate/' . bin2hex($email) . $didx );
+
 			}
 		}
 	}
@@ -508,15 +521,21 @@ class Register extends Controller {
 
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 
-		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
-		$email = array('email',
-				 	t('Your email address (or leave blank to register without email)') . ' <sup>ZAR0136I</sup>',
-				 	$emailval,
-				 	t('If the registation was already submitted with your data once ago, enter your identity (like email) here and submit') . '<sup>ZAR0133I</sup>'
-					);
+		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
+		$default_role = get_config('system','default_permissions_role');
+		$email_verify = get_config('system','verify_email');
 
-		$password     = array('password', t('Choose a password'), '');
-		$password2    = array('password2', t('Please re-enter your password'), '');
+		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
+		$email = ['email',
+			t('Your email address'),
+			$emailval,
+			(($email_verify) ? t('Required') : t('Optional')),
+			(($email_verify) ? '*' : ''),
+			$duty['atform']
+		];
+
+		$password     = array('password', t('Choose a password'), '', '', '', $duty['atform']);
+		$password2    = array('password2', t('Please re-enter your password'), '', '', '', $duty['atform']);
 
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
@@ -538,9 +557,6 @@ class Register extends Controller {
 
 		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
 
-		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
-		$default_role = get_config('system','default_permissions_role');
-		$email_verify = get_config('system','verify_email');
 
 		require_once('include/bbcode.php');
 

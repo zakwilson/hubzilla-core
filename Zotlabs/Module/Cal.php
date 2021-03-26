@@ -19,45 +19,45 @@ class Cal extends Controller {
 		if(observer_prohibited()) {
 			return;
 		}
-	
+
 		if(argc() > 1) {
 			$nick = argv(1);
-	
+
 			profile_load($nick);
-	
+
 			$channelx = channelx_by_nick($nick);
-	
+
 			if(! $channelx) {
 				notice( t('Channel not found.') . EOL);
 				return;
 			}
-	
+
 			App::$data['channel'] = $channelx;
-	
+
 			$observer = App::get_observer();
 			App::$data['observer'] = $observer;
-	
+
 			head_set_icon(App::$data['channel']['xchan_photo_s']);
-	
+
 			App::$page['htmlhead'] .= "<script> var profile_uid = " . ((App::$data['channel']) ? App::$data['channel']['channel_id'] : 0) . "; </script>" ;
-	
+
 		}
-	
+
 		return;
 	}
-	
-	
-	
+
+
+
 	function get() {
-	
+
 		if(observer_prohibited()) {
 			return;
 		}
-		
+
 		$channel = App::$data['channel'];
 
 		// since we don't currently have an event permission - use the stream permission
-	
+
 		if(! perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_stream')) {
 			notice( t('Permissions denied.') . EOL);
 			return;
@@ -76,10 +76,10 @@ class Cal extends Controller {
 
 		if(! perm_is_allowed($channel['channel_id'], get_observer_hash(), 'view_contacts') || App::$profile['hide_friends'])
 			$sql_extra .= " and etype != 'birthday' ";
-	
+
 		$first_day = feature_enabled($channel['channel_id'], 'cal_first_day');
 		$first_day = (($first_day) ? $first_day : 0);
-	
+
 		$start = '';
 		$finish = '';
 
@@ -87,7 +87,7 @@ class Cal extends Controller {
 			if (x($_GET,'start'))	$start = $_GET['start'];
 			if (x($_GET,'end'))	$finish = $_GET['end'];
 		}
-	
+
 		$start  = datetime_convert('UTC','UTC',$start);
 		$finish = datetime_convert('UTC','UTC',$finish);
 		$adjust_start = datetime_convert('UTC', date_default_timezone_get(), $start);
@@ -107,10 +107,10 @@ class Cal extends Controller {
 			// Noting this for now - it will need to be fixed here and in Friendica.
 			// Ultimately the finish date shouldn't be involved in the query.
 			$r = q("SELECT event.*, item.plink, item.item_flags, item.author_xchan, item.owner_xchan, item.id as item_id
-				from event left join item on event.event_hash = item.resource_id 
-				where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid 
-				AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ) 
-				OR (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )) 
+				from event left join item on event.event_hash = item.resource_id
+				where item.resource_type = 'event' and event.uid = %d and event.uid = item.uid
+				AND (( event.adjust = 0 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' )
+				OR (  event.adjust = 1 AND ( event.dtend >= '%s' or event.nofinish = 1 ) AND event.dtstart <= '%s' ))
 				$sql_extra",
 				intval($channel['channel_id']),
 				dbesc($start),
@@ -119,7 +119,7 @@ class Cal extends Controller {
 				dbesc($adjust_finish)
 			);
 		}
-	
+
 		if($r) {
 			xchan_query($r);
 			$r = fetch_post_tags($r,true);
@@ -127,20 +127,16 @@ class Cal extends Controller {
 		}
 
 		$events = [];
-	
+
 		if($r) {
 
 			foreach($r as $rr) {
 
-				$tz = get_iconfig($rr, 'event', 'timezone');
-				if(! $tz)
-					$tz = 'UTC';
-
-				$start = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
+				$start = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['dtstart'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtstart'], 'c'));
 				if ($rr['nofinish']){
 					$end = null;
 				} else {
-					$end = (($rr['adjust']) ? datetime_convert($tz, date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
+					$end = (($rr['adjust']) ? datetime_convert('UTC', date_default_timezone_get(), $rr['dtend'], 'c') : datetime_convert('UTC', 'UTC', $rr['dtend'], 'c'));
 				}
 
 				$html = '';
@@ -148,6 +144,10 @@ class Cal extends Controller {
 					$rr['timezone'] = $tz;
 					$html = format_event_html($rr);
 				}
+
+				$tz = get_iconfig($rr, 'event', 'timezone');
+				if(! $tz)
+					$tz = 'UTC';
 
 				$events[] = array(
 					'calendar_id' => 'channel_calendar',
@@ -178,7 +178,7 @@ class Cal extends Controller {
 			echo json_encode($events);
 			killme();
 		}
-			
+
 		if (x($_GET,'id')) {
 			$o = replace_macros(get_markup_template("cal_event.tpl"), [
 				'$events' => $events
@@ -210,7 +210,7 @@ class Cal extends Controller {
 		]);
 
 		return $o;
-	
+
 	}
-	
+
 }

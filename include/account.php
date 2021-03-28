@@ -35,7 +35,7 @@ function check_account_email($email) {
 		return $result;
 
 	if(! validate_email($email))
-		$result['message'] .= t('Not a valid email address') . EOL;
+		$result['message'] .= t('Email address not valid') . EOL;
 	elseif(! allowed_email($email))
 		$result['message'] = t('Your email domain is not among those allowed on this site');
 	else {

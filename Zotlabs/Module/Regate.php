@@ -215,6 +215,27 @@ class Regate extends \Zotlabs\Web\Controller {
 
 	function get() {
 
+		if (argc() == 1) {
+			if(isset($_GET['reg_id'])) {
+				if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_GET['reg_id'] ) ) {
+					// dId2 E email
+					goaway(z_root() . '/regate/' . bin2hex($_GET['reg_id']) . 'e' );
+				}
+				if ( preg_match('/^d{1,1}[0-9]{5,10}$/', $_GET['reg_id'] ) ) {
+					// dId2 A artifical & anonymous
+					goaway(z_root() . '/regate/' . bin2hex($_GET['reg_id']) . 'a' );
+				}
+				notice(t('Identity unknown') . EOL);
+			}
+
+			$o = replace_macros(get_markup_template('plain.tpl'), [
+				'$title'	=> t('Your Registration ID'),
+				'$now'		=> '<form action="regate" method="get"><input type="text" name="reg_id" class="form-control form-group"><button class="btn btn-primary float-right">Submit</button></form>'
+			]);
+
+			return $o;
+		}
+
 		if ( argc() > 1 ) {
 			$did2 = hex2bin( substr( argv(1), 0, -1) );
 			$didx = substr( argv(1), -1 );
@@ -306,7 +327,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							$o = replace_macros(get_markup_template('regate.tpl'), [
 							'$form_security_token' => get_form_security_token("regate"),
 							'$title' 	=> $title,
-							'$desc' 	=> $pin ? t('Please enter your validation token') . '<code class="inline">' .  $pin . '</code>' : t('You were given a validation token. Please enter that token here to verify your registration.'),
+							'$desc' 	=> $pin ? t('Please enter your validation token') . ' <code class="inline-code">' .  $pin . '</code>' : t('Please enter your validation token'),
 							'$did2' 	=> bin2hex($did2) . $didx,
 							'$now'		=> $nowfmt,
 							'$atform'	=> $atform,

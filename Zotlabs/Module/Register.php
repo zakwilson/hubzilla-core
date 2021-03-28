@@ -425,17 +425,19 @@ class Register extends Controller {
 							.  $regdelay . ' - ' . $regexpire);
 
 						if($reg_delayed) {
-							// notice( 'ZAR0239I,' . t( 'Your digital id is' ) . EOL . 'd' . $didnew . EOL
-							$_SESSION['zar']['msg'] = ( t('Your validation token is') . ' ' . $pass2 . EOL
-							. t('Please remember your token and reload this page between') . EOL
-							. '<code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code>' . EOL
-							. t('to complete registration.')
-							);
+							// this could be removed to make registration harder
+							$_SESSION['zar']['pin'] = $pass2;
+
+							$_SESSION['zar']['msg'] = t('Your validation token is') . EOL
+							. '<h3>' . $pass2 . '</h3>' . EOL
+							. t('Hold on, you can continue verification in')
+							. '<div class="d-none"><code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code></div>'
+							//. t('Please come back to this page in the requested timeframe or wait for the countdown to complete.')
+							;
 						}
 						else {
 							$_SESSION['zar']['pin'] = $pass2;
 						}
-						$_SESSION['zar']['pin'] = $pass2;
 
 						goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
 					}
@@ -446,7 +448,6 @@ class Register extends Controller {
 					}
 				}
 				goaway(z_root() . '/regate/' . bin2hex($email) . $didx );
-
 			}
 		}
 	}
@@ -469,7 +470,7 @@ class Register extends Controller {
 		}
 
 		if(intval(get_config('system','register_policy')) == REGISTER_APPROVE) {
-			$registration_is = t('Registration on this hub is by approval only.') . '<sup>ZAR0131I</sup>';
+			$registration_is = t('Registration on this hub is by approval only.');
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
 
@@ -483,7 +484,7 @@ class Register extends Controller {
 		$invitations = false;
 		if(intval(get_config('system','invitation_only'))) {
 			$invitations = true;
-			$registration_is = t('Registration on this hub is by invitation only.') . '<sup>ZAR0132I</sup>';
+			$registration_is = t('Registration on this hub is by invitation only.');
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub') . '</a>';
 		} elseif (intval(get_config('system','invitation_also'))) {
 			$invitations = true;
@@ -565,7 +566,7 @@ class Register extends Controller {
 							.	"tao.zar = { vsn: '2.0.0', form: {}, msg: {} };\n"
 							.	"tao.zar.patano = /^d[0-9]{5,10}$/;\n"
 							.	"tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;\n"
-							.	"tao.zar.msg.ZAR0239E = '" . t('email mistake') . "';\n",
+							.	"tao.zar.msg.ZAR0239E = '" . t('Email address not valid') . "';\n",
 
 			'$form_security_token' => get_form_security_token("register"),
 			'$title'        => t('Registration'),
@@ -575,7 +576,7 @@ class Register extends Controller {
 			'$msg'			=> $opal['rn'] . ',' . $opal['an'],
 			'$invitations'  => $invitations,
 			'$invite_code'  => $invite_code,
-			'$haveivc'		=> t('I have an invite code') . '.<sup>ZAR0134I</sup>',
+			'$haveivc'		=> t('I have an invite code'),
 			'$now'			=> $duty['nowfmt'],
 			'$atform'		=> $duty['atform'],
 			'$auto_create'  => $auto_create,
@@ -592,7 +593,7 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
-			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') . '<sup>ZAR0135I</sup>' : '')
+			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
 		));
 
 		return $o;

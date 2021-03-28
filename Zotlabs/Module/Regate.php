@@ -70,8 +70,8 @@ class Regate extends \Zotlabs\Web\Controller {
 					// check timeframe
 					if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now ) {
 						if ( isset($_POST['resend']) && $didx == 'e' ) {
-							$re = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = 'e' AND reg_did2 = '%s' ", dbesc($r['reg_did2']) );
-							if ( $re && count($re) == 1 ) {
+							$re = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = 'e' AND reg_did2 = '%s' ORDER BY reg_created DESC ", dbesc($r['reg_did2']) );
+							if ( $re ) {
 								$re = $re[0];
 								$reonar = json_decode($re['reg_stuff'],true);
 								$reonar['subject'] = 'Re,Fwd,' . $reonar['subject'];
@@ -93,7 +93,8 @@ class Regate extends \Zotlabs\Web\Controller {
 							$acpin = (preg_match('/^[0-9a-f]{24,24}$/', $_POST['acpin']) ? $_POST['acpin'] : false);
 						elseif ( $didx == 'i' )
 							$acpin = $r['reg_hash'];
-						else $acpin = false;
+						else
+							$acpin = false;
 
 						if ( $acpin && ($r['reg_hash'] == $acpin )) {
 
@@ -124,7 +125,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
 									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
-									$nextpage = 'regapr/' . bin2hex($did2);
+									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");
 								}
 								elseif ( ($flags ^ REGISTER_AGREED) == 0) {
@@ -263,9 +264,10 @@ class Regate extends \Zotlabs\Web\Controller {
 					$o = replace_macros(get_markup_template('plain.tpl'), [
 						'$title'	=> t('Register Verification Status'),
 						'$now'		=> $nowfmt,
-						'$infos'	=> t('Soon all is well.') . EOL
-									.  t('Only one instance admin has still to agree your account request.') . EOL
-									.  t('Please be patient') . EOL . EOL . 'ZAR1138I',
+						'$infos'	=> t('Verification successful!') . EOL
+									.  t('After your account has been approved by our administrator you will be able to login with your ID') . EOL
+									.  $did2 . EOL
+									.  t('and your provided password.')
 					]);
 				}
 				else {

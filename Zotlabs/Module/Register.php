@@ -364,7 +364,6 @@ class Register extends Controller {
 				 		]
 					);
 					pop_lang();
-					hz_syslog(print_r($reonar,true));
 					zar_reg_mail($reonar);
 
 				} else {

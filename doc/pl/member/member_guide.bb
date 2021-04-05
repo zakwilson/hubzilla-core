@@ -285,11 +285,11 @@ Wtyczki (dodatki) mogą zapewniać specjalne ustawienia uprawnień, więc możes
 
 Jeśli ustawisz którekolwiek z tych uprawnień na "tylko te, na które wyraźnie zezwalam", możesz określać indywidualne uprawnienia na ekranie edycji połączenia.
 
-[h4][b]Koligacja[/b][/h4]
+[h4][b]Zaprzyjaźnienie[/b][/h4]
 
-Ekran edycji połączenia oferuje suwak do wyboru stopnia "przyjaźni" z połączeniem (to narzędzie można włączyć na karcie "Dodatkowe funkcje" na stronie "Ustawienia"). Potraktuj to jako miarę tego, jak bardzo ich lubisz lub nie lubisz. Wartość 1 jest dla osób, które lubisz, których wpisy chcesz widzieć cały czas; 99 jest dla osób, na których Ci nie zależy i których wpisy możesz chcieć przeglądać tylko od czasu do czasu. Po przypisaniu tutaj wartości możesz użyć narzędzia koligacji na stronie matrycy do filtrowania treści na podstawie tej liczby.
+Ekran edycji połączenia oferuje suwak do wyboru stopnia "zaprzyjaźnienia" z połączeniem (to narzędzie można włączyć na karcie "Dodatkowe funkcje" na stronie "Ustawienia"). Potraktuj to jako miarę tego, jak bardzo ich lubisz lub nie lubisz. Wartość 1 jest dla osób, które lubisz, których wpisy chcesz widzieć cały czas; 99 jest dla osób, na których Ci nie zależy i których wpisy możesz chcieć przeglądać tylko od czasu do czasu. Po przypisaniu tutaj wartości możesz użyć narzędzia zaprzyjażnienia na stronie matrycy do filtrowania treści na podstawie tej liczby.
 
-Suwak na stronie matrycy ma zarówno wartość minimalną, jak i maksymalną. Wpisy będą wyświetlane tylko od osób mieszczących się w tym zakresie. Koligacja nie ma związku z uprawnieniami i jest przydatna tylko w połączeniu z funkcją narzędzia koligacji.
+Suwak na stronie matrycy ma zarówno wartość minimalną, jak i maksymalną. Wpisy będą wyświetlane tylko od osób mieszczących się w tym zakresie. Zaprzyjaźnienie nie ma związku z uprawnieniami i jest przydatna tylko w połączeniu z funkcją narzędzia zaprzyjaźnienia.
 
 [h3]Tokeny dostępu gościa[/h3]
 Tokeny dostępu gościa (czasami nazywane "tokenami dostępu Zot") umożliwiają udostępnianie pliku, folderu, zdjęcia, albumu lub kanału określonej osobie lub grupie osób, które nie są członkami węzła Hubzilli. Te tokeny umożliwiają udostępnianie poszczególnych elementów poprzez wysłanie linku zawierającego token w adresie URL; alternatywnie, osoby mogą faktycznie logować się przy użyciu poświadczeń tokena, po czym mogą bezproblemowo przeglądać zawartość udostępnioną temu tokenowi.

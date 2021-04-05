@@ -34,7 +34,7 @@ Komentarze będą wyświetlane osobno
 Obecnie jest tu tylko ustawienie opcji umożliwiającej filtrowanie strumienia wg słów kluczowych lub treści (fraz).
 
 <h3 id="conversation_settings">Rozmowa</h3>
-Kilka dodatkowych opcji rozszerzających obsługę rozmów (dyskusji).   
+Kilka dodatkowych opcji rozszerzających obsługę rozmów (i dyskusji).   
 
 <h3 id="directory_settings">Katalog</h3>
 Dostępna tu opcja zaawansowanego przeszukiawania katalogu może być bardzo użyteczna dla osób chcących dotrzeć do konkretnych informacji publikowanych w sieci Hubzilla.   

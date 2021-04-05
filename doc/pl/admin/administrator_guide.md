@@ -1,12 +1,12 @@
 ### Przegląd
 
-$Projectname to więcej niż prosta aplikacja internetowa. Jest to złożony system komunikacyjny, który bardziej przypomina serwer poczty elektronicznej niż serwer WWW. Aby zapewnić niezawodność i wydajność, wiadomości są dostarczane w tle i umieszczane w kolejce do późniejszego dostarczenia, gdy lokacje są wyłączone. Ten rodzaj funkcjonalności wymaga nieco więcej zasobów hosta niż typowy dziennik. Nie każdy dostawca hostingu PHP-MySQL będzie w stanie obsługiwać $Projectname. Tak więc, przed instalacją zapoznaj się z wymaganiami i potwierdź je u dostawcy usług hostingowych.
+$Projectname to więcej niż prosta aplikacja internetowa. Jest to złożony system komunikacyjny, który bardziej przypomina serwer poczty elektronicznej niż serwer WWW. Aby zapewnić niezawodność i wydajność, wiadomości są dostarczane w tle i umieszczane w kolejce do późniejszego dostarczenia, gdy lokacje są wyłączone. Ten rodzaj funkcjonalności wymaga nieco więcej zasobów hosta niż typowy blog. Nie każdy dostawca hostingu PHP-MySQL będzie w stanie obsługiwać $Projectname. Tak więc, przed instalacją zapoznaj się z wymaganiami i potwierdź je u dostawcy usług hostingowych.
 
 Bardzo staraliśmy się, aby Hubzilla działała na zwykłych platformach hostingowych, takich jak te używane do hostowania blogów Wordpress i stron internetowych Drupal. Będzie ona działać na większości systemów VPS Linux. Platformy Windows LAMP, takie jak XAMPP i WAMP, nie są obecnie oficjalnie obsługiwane, jednak mile widziane są poprawki, jeśli uda Ci się je uruchomić.
 
 ### Gdzie można znaleźć więcej pomocy
 
-Jeśli napotkasz problemy lub sam masz jakiś problem, które nie zostały opisane w tej dokumentacji, poinformuj nas o tym za pośrednictwem narzędzia do [śledzenia problemów na Github](https://framagit.org/hubzilla/core/issues). Prosimy o jak najdokładniejsze opisanie swojego środowiska operacyjnego i podanie jak największej ilości informacji o wszelkich komunikatach o błędach, które mogą się pojawić, abyśmy mogli zapobiec ich występowaniu w przyszłości. Ze względu na dużą różnorodność istniejących systemów operacyjnych i platform PHP możemy mieć ograniczone możliwości debugowania instalacji PHP lub pozyskiwania brakujących modułów, ale dołożymy wszelkich starań, aby rozwiązać wszelkie ogólne problemy z kodem.
+Jeśli napotkasz problemy lub sam masz jakiś problem, które nie zostały opisane w tej dokumentacji, poinformuj nas o tym za pośrednictwem narzędzia do [śledzenia problemów na serwisie Framagit](https://framagit.org/hubzilla/core/issues). Prosimy o jak najdokładniejsze opisanie swojego środowiska operacyjnego i podanie jak największej ilości informacji o wszelkich komunikatach o błędach, które mogą się pojawić, abyśmy mogli zapobiec ich występowaniu w przyszłości. Ze względu na dużą różnorodność istniejących systemów operacyjnych i platform PHP możemy mieć ograniczone możliwości debugowania instalacji PHP lub pozyskiwania brakujących modułów, ale dołożymy wszelkich starań, aby rozwiązać wszelkie ogólne problemy z kodem.
 
 ### Zanim zaczniesz
 
@@ -20,13 +20,13 @@ POWINNO się używać SSL. Jeśli używasz SSL, MUSISZ użyć certyfikatu uznawa
 
 Przetestuj swój certyfikat przed instalacją. Narzędzie internetowe do testowania certyfikatu jest dostępne pod adresem http://www.digicert.com/help/. Odwiedzając witrynę po raz pierwszy, użyj adresu URL SSL (https://), jeśli protokół SSL jest dostępny. Pozwoli to uniknąć późniejszych problemów. Procedura instalacji nie pozwoli na użycie certyfikatu, który nie jest zaufany dla przeglądarki.
 
-To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim węźle. Inni członkowie przeglądający swój strumień w innych centrach otrzymają ostrzeżenia, jeśli Twój certyfikat nie jest zaufany w ich przeglądarce internetowej. To zmyli wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim węźle podczas przeglądania własnego węzła i mogą pomyśleć, że ich własny węzeł ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować, z wyjątkiem przestrzegania zaleceń przeglądarki. Jest to destrukcyjne dla społeczności. To powiedziawszy, zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania.
+To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim węźle. Inni członkowie przeglądający swój strumień na innych węzłach otrzymają  w swojej przeglądarce ostrzeżenia, jeśli Twój certyfikat nie jest zaufany. To może zmylić wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim węźle podczas przeglądania własnego węzła i mogą pomyśleć, że ich własny węzeł ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować i podporządkuje się zaleceniom przeglądarki. Jest to destrukcyjne dla społeczności. Zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania - szyfrowanie połączeń HTTP jest konieczne.
 
-Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL i LetsEncrypt.
+Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL czy LetsEncrypt.
 
-Jeśli NIE używasz SSL, może wystąpić opóźnienie do minuty dla startowego skryptu instalacyjnego - podczas sprawdzania portu SSL, aby zobaczyć, czy tam jest wszystko w porządku. Podczas komunikowania się z nowymi witrynami Hubzilla zawsze najpierw próbuje połączyć się z portem SSL, zanim powróci do mniej bezpiecznego połączenia. Jeśli nie używasz SSL, twój serwer WWW NIE MOŻE w ogóle nasłuchiwać na porcie 443.
+Jeśli NIE używasz SSL, może wystąpić opóźnienie do minuty dla startowego skryptu instalacyjnego - podczas sprawdzania portu SSL, aby zobaczyć, czy tam jest wszystko w porządku. Podczas komunikowania się z nowymi witrynami Hubzilla zawsze najpierw próbuje połączyć się z portem SSL, zanim powróci do mniej bezpiecznego połączenia. Jeśli nie używasz SSL, Twój serwer WWW NIE MOŻE w ogóle nasłuchiwać na porcie 443.
 
-Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod _well-known_ lub _acme-challenge_, aby LetsEncrypt mógł zweryfikować własność domeny, usuń lub zmień nazwę katalogu _.well-known_ zaraz po wygenerowaniu certyfikatu. $Projectname zapewni własną procedurę obsługi usług *.well-know* po zainstalowaniu, a istniejący katalog w tej lokalizacji może uniemożliwić poprawne działanie niektórych z tych usług. Nie powinno to stanowić problemu w przypadku Apache, ale może to być problem z Nginx lub innymi platformami serwera internetowego.
+Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod _well-known_ lub _acme-challenge_, aby LetsEncrypt mógł zweryfikować własność domeny, usuń lub zmień nazwę katalogu _.well-known_ zaraz po wygenerowaniu certyfikatu. $Projectname zapewni własną procedurę obsługi usług *.well-know* po zainstalowaniu, a istniejący katalog w tej lokalizacji może uniemożliwić poprawne działanie niektórych z tych usług. Nie powinno to stanowić problemu w przypadku Apache, ale może to być problem z Nginx lub innymi serwerami internetowymi.
 
 ### Wdrożenie
 
@@ -34,11 +34,11 @@ Nowy węzeł można wdrożyć na kilka sposobów:
 
 * ręczna inastalaja na istniejącym serwerze;
 * automatyczna instalacja na istniejącym serwerze przy użyciu skryptu instalacyjnego;
-* automatyczne wdrożenie przy użyciu prywatnego serwera wirtualnego OpenShift (VPS).)
+* automatyczne wdrożenie przy użyciu prywatnego serwera wirtualnego OpenShift (VPS).
 
 ### Wymagania
 
-* Apache z włączonym modułem _mod-rewrite_ i ustawioną dyrektywą "AllowOverride All", tak aby można było stosować plik _.htaccess_. Niektóre osoby z powodzeniem stosowały Nginx czy Lighttpd.Przykładowe skrypty konfiguracyjne są dostępne na  tej platformie w [doc/install](). Apache and Nginx mają najlepsze wsparcie.
+* Apache z włączonym modułem _mod-rewrite_ i ustawioną dyrektywą "AllowOverride All", tak aby można było stosować plik _.htaccess_. Niektóre osoby z powodzeniem stosowały Nginx czy Lighttpd. Przykładowe skrypty konfiguracyjne są dostępne na  tej platformie w [doc/install](). Apache and Nginx mają najlepsze wsparcie.
 
 * PHP 7.1 lub w wersji wyższej.
 	* _Proszę mieć na uwadze, że w niektórych środowiskach hostinu współdzielonego, wersja wiersza poleceń PHP różni się od wersji serwera internetowego_

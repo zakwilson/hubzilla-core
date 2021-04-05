@@ -72,7 +72,7 @@ Włącz tą kartę, aby wyświetlać tylko wpisy matrycowe, z którymi w jakiś 
 
 Włącza tą kartę, aby wyświetlać wszystkich nowych działania matrycy jako węża strażackiego lub osi czasu.
 
-**Narzedzia koligacji**
+**Narzedzie zaprzyjaźnienia**
 
 Filtrowanie aktywności strumienia matrycy według głębokości relacji.
 

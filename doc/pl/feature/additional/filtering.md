@@ -36,7 +36,7 @@ Włącza kartę, aby wyświetlić całą nową aktywność sieciową.
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
 
 
-### Narzędzie koligacji
+### Narzędzie zaprzyjaźnienia
 
 Filtruje aktywność strumienia według głębokości relacji.
 <!-- TODO: full description for Affinity Tool -->

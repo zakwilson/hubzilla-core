@@ -135,7 +135,7 @@ class Cdav extends Controller {
 			$auth = new \Zotlabs\Storage\BasicAuth();
 			$auth->setRealm(ucfirst(\Zotlabs\Lib\System::get_platform_name()) . 'CalDAV/CardDAV');
 
-			if (local_channel()) {
+			if(local_channel()) {
 
 				logger('loggedin');
 
@@ -153,9 +153,9 @@ class Cdav extends Controller {
 				$auth->observer = $channel['channel_hash'];
 
 				$principalUri = 'principals/' . $channel['channel_address'];
-				if(!cdav_principal($principalUri)) {
+				if(! cdav_principal($principalUri)) {
 					$this->activate($pdo, $channel);
-					if(!cdav_principal($principalUri)) {
+					if(! cdav_principal($principalUri)) {
 						return;
 					}
 				}
@@ -168,21 +168,24 @@ class Cdav extends Controller {
 
 			if($httpmethod === 'PUT' || $httpmethod === 'DELETE') {
 
+				$channel = channelx_by_nick(argv(2));
+				$principalUri = 'principals/' . $channel['channel_address'];
 				$httpuri = $_SERVER['REQUEST_URI'];
 
 				logger("debug: method: " . $httpmethod, LOGGER_DEBUG);
 				logger("debug: uri: " . $httpuri, LOGGER_DEBUG);
 
-				if(strpos($httpuri, 'cdav/addressbooks')) {
+				if(strpos($httpuri, 'cdav/addressbooks') !== false) {
 					$sync = 'addressbook';
 					$cdavtable = 'addressbooks';
 				}
-				elseif(strpos($httpuri, 'cdav/calendars')) {
+				elseif(strpos($httpuri, 'cdav/calendars') !== false) {
 					$sync = 'calendar';
 					$cdavtable = 'calendarinstances';
 				}
-				else
+				else {
 					$sync = false;
+				}
 
 				if($sync) {
 
@@ -191,14 +194,13 @@ class Cdav extends Controller {
 
 					logger("debug: body: " . $httpbody, LOGGER_DEBUG);
 
-					if($x = get_cdav_id($principalUri, explode("/", $httpuri)[4], $cdavtable)) {
+					if($x = get_cdav_id($principalUri, argv(3), $cdavtable)) {
 
 						$cdavdata = $this->get_cdav_data($x['id'], $cdavtable);
-
 						$etag = (isset($_SERVER['HTTP_IF_MATCH']) ? $_SERVER['HTTP_IF_MATCH'] : false);
 
 						// delete
-						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag)
+						if($httpmethod === 'DELETE' && $cdavdata['etag'] == $etag) {
 							Libsync::build_sync_packet($channel['channel_id'], [
 								$sync => [
 									'action' => 'delete_card',
@@ -206,18 +208,18 @@ class Cdav extends Controller {
 									'carduri' => $uri
 								]
 							]);
+						}
 						else {
-							if($etag) {
+							if($etag && $cdavdata['etag'] !== $etag) {
 								// update
-								if($cdavdata['etag'] !== $etag)
-								    Libsync::build_sync_packet($channel['channel_id'], [
-									    $sync => [
-										    'action' => 'update_card',
-										    'uri' => $cdavdata['uri'],
-										    'carduri' => $uri,
-										    'card' => $httpbody
-									    ]
-								    ]);
+								Libsync::build_sync_packet($channel['channel_id'], [
+									$sync => [
+										'action' => 'update_card',
+										'uri' => $cdavdata['uri'],
+										'carduri' => $uri,
+										'card' => $httpbody
+									]
+								]);
 							}
 							else {
 								// new
@@ -234,7 +236,6 @@ class Cdav extends Controller {
 					}
 				}
 			}
-
 
 			$principalBackend = new \Sabre\DAVACL\PrincipalBackend\PDO($pdo);
 			$carddavBackend   = new \Sabre\CardDAV\Backend\PDO($pdo);

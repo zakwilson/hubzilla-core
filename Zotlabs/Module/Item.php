@@ -55,7 +55,12 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";
+			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+				dbesc(ACTIVITY_FOLLOW),
+				dbesc(ACTIVITY_UNFOLLOW)
+			);
+
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
 
 			$i = null;
 
@@ -167,7 +172,12 @@ class Item extends Controller {
 
 			$portable_id = EMPTY_STR;
 
-			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 ";
+			$item_normal_extra = sprintf(" and not verb in ('%s', '%s') ",
+				dbesc(ACTIVITY_FOLLOW),
+				dbesc(ACTIVITY_UNFOLLOW)
+			);
+
+			$item_normal = " and item.item_hidden = 0 and item.item_type = 0 and item.item_unpublished = 0 and item.item_delayed = 0 and item.item_blocked = 0 $item_normal_extra ";
 
 			$i = null;
 
@@ -821,18 +831,16 @@ class Item extends Controller {
 			// and will require alternatives for alternative content-types (text/html, text/markdown, text/plain, etc.)
 			// we may need virtual or template classes to implement the possible alternatives
 
-			$summary = cleanup_bbcode($summary);
 			$body = cleanup_bbcode($body);
 
 			// Look for tags and linkify them
 
-			$results = linkify_tags($summary, ($uid) ? $uid : $profile_uid);
 			$results = linkify_tags($body, ($uid) ? $uid : $profile_uid);
 
 			if($results) {
 
 				// Set permissions based on tag replacements
-				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $parent_item, $private);
+				set_linkified_perms($results, $str_contact_allow, $str_group_allow, $profile_uid, $private, $parent_item);
 
 				foreach($results as $result) {
 					$success = $result['success'];

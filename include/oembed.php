@@ -193,9 +193,9 @@ function oembed_fetch_url($embedurl){
 
 						// Youtube will happily hand us an http oembed URL even if we specify an https link; and the returned http link will fail with a 40x if you try and fetch it
 						// This is not our bug, but good luck getting google to fix it.
-						if (strpos($href,'http:') === 0 && strpos($href,'youtu') !== false) {
-							$href = str_replace('http:','https:', $href);
-						}
+						//if (strpos($href,'http:') === 0 && strpos($href,'youtu') !== false) {
+						//	$href = str_replace('http:','https:', $href);
+						//}
 
 						$x = z_fetch_url($href . '&maxwidth=' . App::$videowidth);
 						if($x['success'])

@@ -7,11 +7,11 @@ Kiedy logujesz się po raz pierwszy po rejestracji, musisz utworzyć kanał albo
 
 ![](assets/c9a880cc82ffa1f7c2f460397bb083bf7dc2a2b8f065e64da598b45b4a2b.png)
 
-Wprowadź swoje imię i nazwisko oraz pseudonim dla adresu kanału, a następnie wybierz "rolę". Zazwyczaj, jeśli reprezentuje Cię osobisty kanał, wybierz *Społeczność* z domyślnym poziomem prywatności, który Ci odpowiada. Jeśli nie masz pewności, wybierz opcję *Społecznościowe - głównie publiczne*, co umożliwia łatwą interakcję i zapewnia prywatność, gdy jej potrzebujesz. Alternatywnie, ustawienie *Społecznościowe - ograniczone* jest bardzo popularne wśród obrońców prywatności, chociaż poznanie ludzi może wymagać nieco więcej wysiłku. Niezależnie od tego, które ustawienie wybierzesz, możesz zmienić je później, jeśli zajdzie taka potrzeba.
+Wprowadź swoje imię i nazwisko oraz pseudonim dla adresu kanału, a następnie wybierz "rolę". Zazwyczaj, jeśli reprezentuje Cię osobisty kanał, wybierz *Społecznościowy* z domyślnym poziomem prywatności, który Ci odpowiada. Jeśli nie masz pewności, wybierz opcję *Społecznościowy - głównie publiczne*, co umożliwia łatwą interakcję i zapewnia prywatność, gdy jej potrzebujesz. Alternatywnie, ustawienie *Społecznościowy - ograniczony* jest bardzo popularne wśród obrońców prywatności, chociaż poznanie ludzi może wymagać nieco więcej wysiłku. Niezależnie od tego, które ustawienie wybierzesz, możesz zmienić je później, jeśli zajdzie taka potrzeba.
 
 ### Dodanie zdjęcia profilowego
 
-Po utworzeniu nowego kanału zostaniesz przekierowany na stronę określoną przez administratora witryny. Domyślnie jest to strona * Edytuj profil *.
+Po utworzeniu nowego kanału zostaniesz przekierowany na stronę określoną przez administratora witryny. Domyślnie jest to strona *Edytuj profil*.
 
 Z poziomu rozwijanego menu *Narzędzia profili* wybierz opcję *Zmień zdjęcie profilowe* (lub po prostu kliknij zdjęcie profilowe).
 
@@ -28,14 +28,14 @@ Po naciśnięciu *Edycja zakończona* nastąpi przekierowanie z powrotem do edyt
 
 ![](assets/d080e92d797af5e863fa39b2084c16a8410de1f7a6559633435817444aef.png)
 
-Po powrocie na stronę główną kanału zobaczysz, że wpis powiadamiający innych o Twoim nowym zdjęciu profilowym, który został automatycznie opublikowany.
+Po powrocie na stronę główną kanału zobaczysz, że wpis został automatycznie opublikowany wpis powiadamiający innych o Twoim nowym zdjęciu profilowym.
 
 ![](assets/1ebe02c205962dd25035c441631745d16acdb7a44e50d148256c8ad26a67.png)
 
 
 ### Tworzenie wpisów
 
-Przejdź do strony głównej swojego kanału i otwórz edytor wpisów, naciskając pole tekstowe *Udostępnij* u góry "ściany"  kanału. Wprowadź wiadomość, a następnie przeciągnij i upuść plik obrazu do do obszaru tekstowego edytora postów. Ewentualnie możesz użyć narzędzie *Załącz plik*, widoczne u dołu.
+Przejdź do strony głównej swojego kanału i otwórz edytor wpisów, naciskając pole tekstowe *Udostępnij* u góry "ściany"  kanału. Wprowadź wiadomość, a następnie przeciągnij i upuść plik obrazu do do obszaru tekstowego edytora wpisów. Ewentualnie możesz użyć narzędzie *Załącz plik*, widoczne u dołu.
 
 ![](assets/b0bfdf02aef3710a37bb6092c3240b291eca8afa73133b3ac03b86f3302d.png)
 

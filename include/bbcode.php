@@ -152,6 +152,18 @@ function bb_spacefy($st) {
 }
 
 // The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
+// now turns back returning [noparse][i]italic[/i][/noparse]
+function bb_unspacefy($st) {
+	$whole_match = $st[0];
+	$captured = $st[1];
+	$spacefied = preg_replace("/\[ (.*?) \]/", "[$1]", $captured);
+	$new_str = str_replace($captured, $spacefied, $whole_match);
+
+	return $new_str;
+}
+
+
+// The previously spacefied [noparse][ i ]italic[ /i ][/noparse],
 // now turns back and the [noparse] tags are trimmed
 // returning [i]italic[/i]
 
@@ -1097,6 +1109,9 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[pre]') !== false) {
 		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
 	}
+	if (strpos($Text,'[summary]') !== false) {
+		$Text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_spacefy',$Text);
+	}
 
 	$Text = bb_format_attachdata($Text);
 
@@ -1438,11 +1453,6 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $Text);
 	}
 
-
-	if(strpos($Text,'[/summary]') !== false) {
-		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/is", 'bb_summary', $Text);
-	}
-
 	// Check for [spoiler] text
 	$endlessloop = 0;
 	while ((strpos($Text, "[/spoiler]")!== false) and (strpos($Text, "[spoiler]") !== false) and (++$endlessloop < 20)) {
@@ -1530,18 +1540,18 @@ function bbcode($Text, $options = []) {
 
 	// html5 video and audio
 	if (strpos($Text,'[/video]') !== false) {
-		$Text = preg_replace_callback("/\[video (.*?)\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'videowithopts', $Text);
-		$Text = preg_replace_callback("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/video\]/ism", 'tryzrlvideo', $Text);
+		$Text = preg_replace_callback("/\[video (.*?)\](.*?)\[\/video\]/ism", 'videowithopts', $Text);
+		$Text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/audio]') !== false) {
-		$Text = preg_replace_callback("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/audio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", 'tryzrlaudio', $Text);
 	}
 	if (strpos($Text,'[/zvideo]') !== false) {
-		$Text = preg_replace_callback("/\[zvideo (.*?)\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'videowithopts', $Text);
-		$Text = preg_replace_callback("/\[zvideo\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mpeg|mpg))\[\/zvideo\]/ism", 'tryzrlvideo', $Text);
+		$Text = preg_replace_callback("/\[zvideo (.*?)\](.*?)\[\/zvideo\]/ism", 'videowithopts', $Text);
+		$Text = preg_replace_callback("/\[zvideo\](.*?)\[\/zvideo\]/ism", 'tryzrlvideo', $Text);
 	}
 	if (strpos($Text,'[/zaudio]') !== false) {
-		$Text = preg_replace_callback("/\[zaudio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3|opus|m4a))\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
+		$Text = preg_replace_callback("/\[zaudio\](.*?)\[\/zaudio\]/ism", 'tryzrlaudio', $Text);
 	}
 
 	// SVG stuff
@@ -1609,6 +1619,13 @@ function bbcode($Text, $options = []) {
 
 		$Text = str_replace("\0",'$',$Text);
 
+	}
+
+	if (strpos($Text,'[summary]') !== false) {
+		$Text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_unspacefy',$Text);
+	}
+	if(strpos($Text,'[/summary]') !== false) {
+		$Text = preg_replace_callback("/^(.*?)\[summary\](.*?)\[\/summary\](.*?)$/is", 'bb_summary', $Text);
 	}
 
 	// Unhide all [noparse] contained bbtags unspacefying them

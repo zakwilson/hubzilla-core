@@ -1,12 +1,12 @@
 ### Przegląd
 
-$Projectname to więcej niż prosta aplikacja internetowa. Jest to złożony system komunikacyjny, który bardziej przypomina serwer poczty elektronicznej niż serwer WWW. Aby zapewnić niezawodność i wydajność, wiadomości są dostarczane w tle i umieszczane w kolejce do późniejszego dostarczenia, gdy lokacje są wyłączone. Ten rodzaj funkcjonalności wymaga nieco więcej zasobów hosta niż typowy dziennik. Nie każdy dostawca hostingu PHP-MySQL będzie w stanie obsługiwać $Projectname. Tak więc, przed instalacją zapoznaj się z wymaganiami i potwierdź je u dostawcy usług hostingowych.
+$Projectname to więcej niż prosta aplikacja internetowa. Jest to złożony system komunikacyjny, który bardziej przypomina serwer poczty elektronicznej niż serwer WWW. Aby zapewnić niezawodność i wydajność, wiadomości są dostarczane w tle i umieszczane w kolejce do późniejszego dostarczenia, gdy lokacje są wyłączone. Ten rodzaj funkcjonalności wymaga nieco więcej zasobów hosta niż typowy blog. Nie każdy dostawca hostingu PHP-MySQL będzie w stanie obsługiwać $Projectname. Tak więc, przed instalacją zapoznaj się z wymaganiami i potwierdź je u dostawcy usług hostingowych.
 
 Bardzo staraliśmy się, aby Hubzilla działała na zwykłych platformach hostingowych, takich jak te używane do hostowania blogów Wordpress i stron internetowych Drupal. Będzie ona działać na większości systemów VPS Linux. Platformy Windows LAMP, takie jak XAMPP i WAMP, nie są obecnie oficjalnie obsługiwane, jednak mile widziane są poprawki, jeśli uda Ci się je uruchomić.
 
 ### Gdzie można znaleźć więcej pomocy
 
-Jeśli napotkasz problemy lub sam masz jakiś problem, które nie zostały opisane w tej dokumentacji, poinformuj nas o tym za pośrednictwem narzędzia do [śledzenia problemów na Github](https://framagit.org/hubzilla/core/issues). Prosimy o jak najdokładniejsze opisanie swojego środowiska operacyjnego i podanie jak największej ilości informacji o wszelkich komunikatach o błędach, które mogą się pojawić, abyśmy mogli zapobiec ich występowaniu w przyszłości. Ze względu na dużą różnorodność istniejących systemów operacyjnych i platform PHP możemy mieć ograniczone możliwości debugowania instalacji PHP lub pozyskiwania brakujących modułów, ale dołożymy wszelkich starań, aby rozwiązać wszelkie ogólne problemy z kodem.
+Jeśli napotkasz problemy lub sam masz jakiś problem, które nie zostały opisane w tej dokumentacji, poinformuj nas o tym za pośrednictwem narzędzia do [śledzenia problemów na serwisie Framagit](https://framagit.org/hubzilla/core/issues). Prosimy o jak najdokładniejsze opisanie swojego środowiska operacyjnego i podanie jak największej ilości informacji o wszelkich komunikatach o błędach, które mogą się pojawić, abyśmy mogli zapobiec ich występowaniu w przyszłości. Ze względu na dużą różnorodność istniejących systemów operacyjnych i platform PHP możemy mieć ograniczone możliwości debugowania instalacji PHP lub pozyskiwania brakujących modułów, ale dołożymy wszelkich starań, aby rozwiązać wszelkie ogólne problemy z kodem.
 
 ### Zanim zaczniesz
 
@@ -20,25 +20,25 @@ POWINNO się używać SSL. Jeśli używasz SSL, MUSISZ użyć certyfikatu uznawa
 
 Przetestuj swój certyfikat przed instalacją. Narzędzie internetowe do testowania certyfikatu jest dostępne pod adresem http://www.digicert.com/help/. Odwiedzając witrynę po raz pierwszy, użyj adresu URL SSL (https://), jeśli protokół SSL jest dostępny. Pozwoli to uniknąć późniejszych problemów. Procedura instalacji nie pozwoli na użycie certyfikatu, który nie jest zaufany dla przeglądarki.
 
-To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim hubie. Inni członkowie przeglądający swój strumień w innych centrach otrzymają ostrzeżenia, jeśli Twój certyfikat nie jest zaufany w ich przeglądarce internetowej. To zmyli wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim hubie podczas przeglądania własnego huba i mogą pomyśleć, że ich własny hub ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować, z wyjątkiem przestrzegania zaleceń przeglądarki. Jest to destrukcyjne dla społeczności. To powiedziawszy, zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania.
+To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim węźle. Inni członkowie przeglądający swój strumień na innych węzłach otrzymają  w swojej przeglądarce ostrzeżenia, jeśli Twój certyfikat nie jest zaufany. To może zmylić wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim węźle podczas przeglądania własnego węzła i mogą pomyśleć, że ich własny węzeł ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować i podporządkuje się zaleceniom przeglądarki. Jest to destrukcyjne dla społeczności. Zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania - szyfrowanie połączeń HTTP jest konieczne.
 
-Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL i LetsEncrypt.
+Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL czy LetsEncrypt.
 
-Jeśli NIE używasz SSL, może wystąpić opóźnienie do minuty dla startowego skryptu instalacyjnego - podczas sprawdzania portu SSL, aby zobaczyć, czy tam jest wszystko w porządku. Podczas komunikowania się z nowymi witrynami Hubzilla zawsze najpierw próbuje połączyć się z portem SSL, zanim powróci do mniej bezpiecznego połączenia. Jeśli nie używasz SSL, twój serwer WWW NIE MOŻE w ogóle nasłuchiwać na porcie 443.
+Jeśli NIE używasz SSL, może wystąpić opóźnienie do minuty dla startowego skryptu instalacyjnego - podczas sprawdzania portu SSL, aby zobaczyć, czy tam jest wszystko w porządku. Podczas komunikowania się z nowymi witrynami Hubzilla zawsze najpierw próbuje połączyć się z portem SSL, zanim powróci do mniej bezpiecznego połączenia. Jeśli nie używasz SSL, Twój serwer WWW NIE MOŻE w ogóle nasłuchiwać na porcie 443.
 
-Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod _well-known_ lub _acme-challenge_, aby LetsEncrypt mógł zweryfikować własność domeny, usuń lub zmień nazwę katalogu _.well-known_ zaraz po wygenerowaniu certyfikatu. $Projectname zapewni własną procedurę obsługi usług *.well-know* po zainstalowaniu, a istniejący katalog w tej lokalizacji może uniemożliwić poprawne działanie niektórych z tych usług. Nie powinno to stanowić problemu w przypadku Apache, ale może to być problem z Nginx lub innymi platformami serwera internetowego.
+Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod _well-known_ lub _acme-challenge_, aby LetsEncrypt mógł zweryfikować własność domeny, usuń lub zmień nazwę katalogu _.well-known_ zaraz po wygenerowaniu certyfikatu. $Projectname zapewni własną procedurę obsługi usług *.well-know* po zainstalowaniu, a istniejący katalog w tej lokalizacji może uniemożliwić poprawne działanie niektórych z tych usług. Nie powinno to stanowić problemu w przypadku Apache, ale może to być problem z Nginx lub innymi serwerami internetowymi.
 
 ### Wdrożenie
 
-Nowy hub można wdrożyć na kilka sposobów:
+Nowy węzeł można wdrożyć na kilka sposobów:
 
 * ręczna inastalaja na istniejącym serwerze;
 * automatyczna instalacja na istniejącym serwerze przy użyciu skryptu instalacyjnego;
-* automatyczne wdrożenie przy użyciu prywatnego serwera wirtualnego OpenShift (VPS).)
+* automatyczne wdrożenie przy użyciu prywatnego serwera wirtualnego OpenShift (VPS).
 
 ### Wymagania
 
-* Apache z włączonym modułem _mod-rewrite_ i ustawioną dyrektywą "AllowOverride All", tak aby można było stosować plik _.htaccess_. Niektóre osoby z powodzeniem stosowały Nginx czy Lighttpd.Przykładowe skrypty konfiguracyjne są dostępne na  tej platformie w [doc/install](). Apache and Nginx mają najlepsze wsparcie.
+* Apache z włączonym modułem _mod-rewrite_ i ustawioną dyrektywą "AllowOverride All", tak aby można było stosować plik _.htaccess_. Niektóre osoby z powodzeniem stosowały Nginx czy Lighttpd. Przykładowe skrypty konfiguracyjne są dostępne na  tej platformie w [doc/install](). Apache and Nginx mają najlepsze wsparcie.
 
 * PHP 7.1 lub w wersji wyższej.
 	* _Proszę mieć na uwadze, że w niektórych środowiskach hostinu współdzielonego, wersja wiersza poleceń PHP różni się od wersji serwera internetowego_
@@ -214,7 +214,7 @@ i włączać te protokoły automatycznie dla wszystkich nowo tworzonych kanałó
 
 ### Klasy usług
 
-Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Na przykład utwórz klasę standard i premium, używając następujących wierszy:
+Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ograniczenie tego, co mogą robić poszczególne konta, w tym przechowywania plików i najwyższych limitów wpisów. Zdefiniuj niestandardowe klasy usług zgodnie ze swoimi potrzebami w pliku _.htconfig.php_. Dla przykładu utwórzmy klasę standard i premium, używając następujący kod:
 
     // Service classes
 
@@ -263,21 +263,22 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 
 	util/service_class --account=5 firstclass
 
-* ustawienie konta, które jest właścicielem kanału `bdziennikchan` na klasę _firstclass_ (z potwierdzeniem)
+* ustawienie konta, które jest właścicielem kanału `blogchan` na klasę _firstclass_ (z potwierdzeniem)
 	
-	util/service_class --channel=bdziennikchan firstclass
+	util/service_class --channel=blogchan firstclass
 
 **Opcje limitu klas usług**
 
 ##### Opcje limitów klas usług:
 
-* _photo_upload_limit_ - maksymalna łączna liczba bajtów na zdjęcia
+* _photo_upload_limit_ - maksymalna łączna powierzchnia dysku na przesłane pliki (w bajtach)
+* _attach_upload_limit_ - maksymalna powierzchnia dysku na przesyłane załączniki plikow (w bajtach)
 * _total_items_ - maksymalna liczba wpisów na najwyższym poziomie
-* _total_pages_ - maksymalna liczba stron comanche
+* _total_pages_ - maksymalna liczba stron Comanche
 * _total_identities_ - maksymalna liczba kanałów posiadanych na koncie
 * _total_channels_ - maksymalna liczba kanałów
 * _total_feeds_ - maksymalna liczba kanałów RSS
-* _attach_upload_limit_ - maksymalna pojemność przesyłania plików (w bajtach)
+
 * _minimum_feedcheck_minutes_ - najniższe ustawienie dozwolone dla odpytywania kanałów RSS
 * _chatrooms_ - maksymalna liczba czatów
 * _chatters_inroom_ - maksymalna liczba rozmówców w czacie 
@@ -312,7 +313,7 @@ Na stronie katalogu kanałów może pojawiać się  chmura słów kluczowych. Je
 
     util/config system disable_directory_keywords 1
 
-Jeśli twój hub pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
+Jeśli twój węzeł pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
 
     util/config system directory_server ""
 
@@ -326,7 +327,7 @@ Istnieje kilka sposobów, w jakie może to się nie powieść i pozostawić syst
 
 Ze względów bezpieczeństwa w systemie nie ma strony internetowej ani interfejsu, który daje dostęp administratora. Jeśli potrzebujesz poprawić sytuację, w której system nie ma konta administratora, musisz to zrobić edytując tabelę kont w bazie danych. Nie ma innego wyjścia. Aby to zrobić, będziesz musiał zlokalizować wpis w tabeli kont, który należy do żądanego administratora i ustawić _account_roles_ dla tego wpisu na _4096_. Będziesz wtedy mógł uzyskać dostęp do strony administratora z menu profilu twojego systemu lub bezpośrednio na ścieżce _/admin_.
 
-Hub może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
+Węzeł może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
 
 ### Rozwiązywanie problemów
 
@@ -340,17 +341,16 @@ W przypadku błędów "500: problemy mogą być często rejestrowane w dziennika
 
 Istnieją trzy różne obiekty dziennika.
 
-**Pierwsza to dziennik błędów bazy danych**. Jest on używane tylko wtedy, gdy tworzy się plik o specyficznej nazwie *dbfail.out* w folderze głównym swojej witryny i pozwala na zapisywanie w nim przez serwer WWW. Jeśli masz jakiekolwiek zapytania do bazy danych, które nie powiodły się, wszystkie są zgłaszane tutaj. Zwykle wskazują na literówki w naszych zapytaniach, ale występują również w przypadku rozłączenia serwera bazy danych lub uszkodzenia tabel. W rzadkich przypadkach zobaczymy tutaj warunki wyścigu, w których dwa procesy próbowały utworzyć wpis *xchan* lub *cache* z tym samym identyfikatorem. Należy zbadać wszelkie inne błędy (zwłaszcza błędy uporczywe).
+**Pierwsza to dziennik błędów bazy danych**. Jest on używane tylko wtedy, gdy utworzy się plik o nazwie **_dbfail.out_** w folderze głównym swojej witryny i pozwala na zapisywanie w nim przez serwer WWW. Jeśli masz jakiekolwiek zapytania do bazy danych, które nie powiodły się, wszystkie są zgłaszane tutaj. Zwykle wskazują na literówki w naszych zapytaniach, ale występują również w przypadku rozłączenia serwera bazy danych lub uszkodzenia tabel. W rzadkich przypadkach zobaczymy tutaj warunki wyścigu, w których dwa procesy próbowały utworzyć wpis *xchan* lub *cache* z tym samym identyfikatorem. Należy zbadać wszelkie inne błędy (zwłaszcza błędy uporczywe).
 
-**Drugi to dziennik błędów PHP**. Jest tworzony przez procesor języka i zgłasza tylko problemy powstałe w środowisku językowym. Znowu mogą to być błędy składniowe lub błędy programistyczne, ale generalnie są one fatalne i skutkują "białym ekranem";
+**Drugi to dziennik błędów PHP**. Plik **_php.out_** jest tworzony przez procesor języka i zgłasza tylko problemy powstałe w środowisku językowym. Znowu mogą to być błędy składniowe lub błędy programistyczne, ale generalnie są one fatalne i skutkują "białym ekranem";
 na przykład PHP kończy działanie. Prawdopodobnie powinieneś zajrzeć do tego pliku też, jeśli coś pójdzie nie tak, co nie powoduje białego ekranu. Często zdarza się, że plik ten jest pusty przez wiele dni.
 
 Na dole dostarczonego pliku *.htconfig.php* znajduje się kilka linii, które, jeśli nie są zakomentowane, włączają dziennik PHP (niezwykle przydatny do znajdowania źródła błędów białego ekranu). Nie jest to robione domyślnie ze względu na potencjalne problemy z własnością pliku dziennika i uprawnieniami do zapisu oraz fakt, że domyślnie nie ma rotacji pliku dziennika.
 
-**Trzeci to "dziennik aplikacji"**. Jest to używane przez Hubzillę do zgłaszania tego, co dzieje się w programie i zwykle zapisywane są tu wszelkie trudności lub nieoczekiwane dane, które otrzymaliśmy. Czasami zgłasza się tu również komunikaty
-o stanie "pulsu", aby wskazać, że osiągnęliśmy określony punkt w skrypcie. Jest to dla nas najważniejszy plik dziennika, ponieważ tworzymy go samodzielnie wyłącznie w celu zgłaszania stanu zadań w tle i wszystkiego, co wydaje się dziwne lub nie na miejscu. To może nie być śmiertelne, ale może po prostu nieoczekiwane. Jeśli wykonujesz zadanie i występuje problem, daj nam znać, co znajduje się w tym pliku, gdy wystąpił problem. Proszę nie wysyłaj mi 100 milionów zrzutów, tylko mnie wkurzysz! Tylko kilka odpowiednich wierszy, abym mógł wykluczyć kilkaset tysięcy wierszy kodu i skoncentrować się na tym, gdzie zaczyna się pojawiać problem.
+**Trzeci to "dziennik aplikacji"**. Jest to używane przez Hubzillę do zgłaszania tego, co dzieje się w programie i zwykle zapisywane są tu wszelkie trudności lub nieoczekiwane dane, które otrzymaliśmy. Jego nazwę (ścieżkę) trzeba podać na stronie "Administracja - Logi" (/admin/logs), np. *hubzilla.log* wskazuje na plik o tej nazwie zlokalizowany w katalogu głównym Hubzilla. Czasem zgłaszane są tu również komunikaty o stanie "pulsu", aby wskazać, że osiągnęliśmy określony punkt w skrypcie. Jest to dla nas najważniejszy plik dziennika, ponieważ tworzymy go samodzielnie wyłącznie w celu zgłaszania stanu zadań w tle i wszystkiego, co wydaje się dziwne lub nie na miejscu. Te błędy mogą być "śmiertelne", ale też niegroźne i po prostu nieoczekiwane. Jeśli wykonujesz zadanie i występuje problem, daj nam znać, co znajduje się w tym pliku, gdy wystąpił problem. Proszę nie wysyłaj nam 100 milionów zrzutów, bo tylko nas wkurzysz! Tylko kilka odpowiednich wierszy, ab można było wykluczyć kilkaset tysięcy wierszy kodu i skoncentrować się na tym, gdzie zaczyna się pojawiać problem.
 
-To są dzienniki Twojej witryny, a nie moje. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecam poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
+To są dzienniki Twojego serwisu. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecam poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
 
 Zalecam skonfigurowanie *logrotate* zarówno dla dziennika php, jak i dziennika aplikacji. Zazwyczaj co tydzień lub dwa zaglądam do *dbfail.out*, naprawiam zgłoszone problemy i zaczynam od nowego pliku. Podobnie jest z plikiem dziennika PHP. Odwołuję się do tego od czasu do czasu, aby sprawdzić, czy jest coś, co wymaga naprawy.
 

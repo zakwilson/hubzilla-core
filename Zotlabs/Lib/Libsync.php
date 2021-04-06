@@ -716,6 +716,9 @@ class Libsync {
 				dbesc($sender['hash'])
 			);
 
+			if(!$xisting)
+				$xisting = [];
+
 			// See if a primary is specified
 
 			$has_primary = false;
@@ -781,7 +784,7 @@ class Libsync {
 					$t = datetime_convert('UTC', 'UTC', 'now - 15 minutes');
 
 					if (array_key_exists('site', $arr) && $location['url'] == $arr['site']['url']) {
-						q("update hubloc set hubloc_connected = '%s', hubloc_updated = '%s' where hubloc_id = %d and hubloc_connected < '%s'",
+						q("update hubloc set hubloc_connected = '%s', hubloc_updated = '%s' where hubloc_id = %d and hubloc_updated < '%s'",
 							dbesc(datetime_convert()),
 							dbesc(datetime_convert()),
 							intval($r[0]['hubloc_id']),

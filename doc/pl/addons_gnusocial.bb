@@ -12,7 +12,7 @@ Ikona. Pobierz ikonę $Projectname znajdującą się pod tym linkiem, po zapisan
 
 https://framagit.org/hubzilla/core/blob/master/images/rm-32.png
 
-Nazwa. Nadaj aplikacji odpowiednią nazwę. Wywołaj swoją witrynę hubzilli. Możesz preferować r2g.
+Nazwa. Nadaj aplikacji odpowiednią nazwę. Wywołaj swoją witrynę Hubzilli. Możesz preferować r2g.
 
 Opis. Użyj tego pola, aby opisać przeznaczenie aplikacji. Dodaj coś o efekcie użycia krzyżowego wysyłania z $Projectname do GNUsocial.
 

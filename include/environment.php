@@ -52,17 +52,18 @@ function getPhpiniUploadLimits() {
  */
 function phpiniSizeToBytes($val) {
 	$val = trim($val);
+	$num = (double)$val;
 	$unit = strtolower($val[strlen($val)-1]);
 	switch($unit) {
 		case 'g':
-			$val *= 1024;
+			$num *= 1024;
 		case 'm':
-			$val *= 1024;
+			$num *= 1024;
 		case 'k':
-			$val *= 1024;
+			$num *= 1024;
 		default:
 			break;
 	}
 
-	return (int)$val;
+	return (int)$num;
 }

@@ -6,6 +6,7 @@ use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Web\Controller;
 use Zotlabs\Lib\Enotify;
+use Zotlabs\Lib\XConfig;
 
 class Sse_bs extends Controller {
 
@@ -101,12 +102,13 @@ class Sse_bs extends Controller {
 			self::bs_files(),
 			self::bs_mail(),
 			self::bs_all_events(),
-			self::bs_register()
+			self::bs_register(),
+			self::bs_info_notice()
 		);
 
-		set_xconfig(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
-		set_xconfig(self::$ob_hash, 'sse', 'notifications', []); // reset the cache
-		set_xconfig(self::$ob_hash, 'sse', 'language', App::$language);
+		XConfig::Set(self::$ob_hash, 'sse', 'notifications', []);
+		XConfig::Set(self::$ob_hash, 'sse', 'timestamp', datetime_convert());
+		XConfig::Set(self::$ob_hash, 'sse', 'language', App::$language);
 
 		json_return_and_die($result);
 	}
@@ -181,7 +183,10 @@ class Sse_bs extends Controller {
 				$result['network']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['network']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['network']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -250,7 +255,10 @@ class Sse_bs extends Controller {
 				$result['dm']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['dm']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['dm']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -319,7 +327,10 @@ class Sse_bs extends Controller {
 				$result['home']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['home']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['home']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -400,7 +411,10 @@ class Sse_bs extends Controller {
 				$result['pubs']['offset'] = ((count($items) == $limit) ? intval($offset + $limit) : -1);
 				xchan_query($items);
 				foreach($items as $item) {
-					$result['pubs']['notifications'][] = Enotify::format($item);
+					$parsed = Enotify::format($item);
+					if($parsed) {
+						$result['pubs']['notifications'][] = $parsed;
+					}
 				}
 			}
 			else {
@@ -592,7 +606,10 @@ class Sse_bs extends Controller {
 		if($r) {
 			xchan_query($r);
 			foreach($r as $rr) {
-				$result['files']['notifications'][] = Enotify::format($rr);
+					$parsed = Enotify::format($rr);
+					if($parsed) {
+						$result['files']['notifications'][] = $parsed;
+					}
 			}
 			$result['files']['count'] = count($r);
 		}
@@ -687,5 +704,23 @@ class Sse_bs extends Controller {
 		return $result;
 
 	}
+
+	function bs_info_notice() {
+
+		$result['notice']['notifications'] = [];
+		$result['info']['notifications'] = [];
+
+		$r = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
+
+		if(isset($r['notice']))
+			$result['notice']['notifications'] = $r['notice']['notifications'];
+
+		if(isset($r['info']))
+			$result['info']['notifications'] = $r['info']['notifications'];
+
+		return $result;
+
+	}
+
 
 }

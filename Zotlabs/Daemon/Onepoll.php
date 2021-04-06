@@ -23,9 +23,15 @@ class Onepoll {
 			return;
 		}
 
+		$sql_extra = '';
+		$allow_feeds = get_config('system', 'feed_contacts');
+		if(!$allow_feeds) {
+			$sql_extra = ' and abook_feed = 0 ';
+		}
+
 		$contacts = q("SELECT abook.*, xchan.*, account.*
 			FROM abook LEFT JOIN account on abook_account = account_id left join xchan on xchan_hash = abook_xchan
-			where abook_id = %d
+			where abook_id = %d $sql_extra
 			and abook_pending = 0 and abook_archived = 0 and abook_blocked = 0 and abook_ignored = 0
 			AND (( account_flags = %d ) OR ( account_flags = %d )) limit 1",
 			intval($contact_id),
@@ -153,50 +159,6 @@ class Onepoll {
 				}
 			}
 		}
-
-		/*			if ($fetch_feed) {
-
-						if (strpos($contact['xchan_connurl'], z_root()) === 0) {
-							// local channel - save a network fetch
-							$c = channelx_by_hash($contact['xchan_hash']);
-							if ($c) {
-								$x = [
-									'success' => true,
-									'body'    => json_encode([
-										'success'  => true,
-										'messages' => zot_feed($c['channel_id'], $importer['xchan_hash'], ['mindate' => $last_update])
-									])
-								];
-							}
-						}
-						else {
-							// remote fetch
-
-							$feedurl = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
-							$feedurl .= '?f=&mindate=' . urlencode($last_update) . '&zid=' . $importer['channel_address'] . '@' . App::get_hostname();
-							$recurse = 0;
-							$x       = z_fetch_url($feedurl, false, $recurse, ['session' => true]);
-						}
-
-						logger('feed_update: ' . print_r($x, true), LOGGER_DATA);
-					}
-
-					if (($x) && ($x['success'])) {
-						$total = 0;
-						logger('onepoll: feed update ' . $contact['xchan_name'] . ' ' . $feedurl);
-
-						$j = json_decode($x['body'], true);
-						if ($j['success'] && $j['messages']) {
-							foreach ($j['messages'] as $message) {
-								$results = process_delivery(['hash' => $contact['xchan_hash']], get_item_elements($message),
-									[['hash' => $importer['xchan_hash']]], false);
-								logger('onepoll: feed_update: process_delivery: ' . print_r($results, true), LOGGER_DATA);
-								$total++;
-							}
-							logger("onepoll: $total messages processed");
-						}
-					}
-		*/
 
 		// update the poco details for this connection
 		$r = q("SELECT xlink_id from xlink where xlink_xchan = '%s' and xlink_updated > %s - INTERVAL %s and xlink_static = 0 limit 1",

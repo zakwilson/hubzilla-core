@@ -1542,39 +1542,46 @@ function unobscure_mail(&$item) {
 
 function theme_attachments(&$item) {
 
+	$s = '';
 	$arr = json_decode($item['attach'],true);
-
 	if(is_array($arr) && count($arr)) {
-		$attaches = array();
+
+		$attaches = [];
 		foreach($arr as $r) {
 
-			$icon = getIconFromType($r['type']);
+			if(isset($r['type']))
+				$icon = getIconFromType($r['type']);
 
-			if($r['title'])
+			if(isset($r['title']))
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 
-			if(! $label && $r['href'])
+			if(! $label && isset($r['href']))
 				$label = basename($r['href']);
 
 			//some feeds provide an attachment where title an empty space
 			if(! $label || $label  == ' ')
 				$label = t('Unknown Attachment');
 
-			$title = t('Size') . ' ' . (($r['length']) ? userReadableSize($r['length']) : t('unknown'));
+			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
 
 			require_once('include/channel.php');
-			if(is_foreigner($item['author_xchan']))
-				$url = $r['href'];
-			else
-				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+
+			if (isset($r['href'])) {
+				if(is_foreigner($item['author_xchan']))
+					$url = $r['href'];
+				else
+					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+			}
 
 			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
+			if (isset($label) && isset($url) && isset($icon) && isset($title))
+				$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
 		}
 
-		$s = replace_macros(get_markup_template('item_attach.tpl'), array(
-			'$attaches' => $attaches
-		));
+		if (count($attaches) > 0)
+			$s = replace_macros(get_markup_template('item_attach.tpl'), [
+				'$attaches' => $attaches
+			]);
 	}
 
 	return $s;
@@ -1612,8 +1619,8 @@ function format_categories(&$item,$writeable) {
  */
 
 function format_hashtags(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'], array(TERM_HASHTAG,TERM_COMMUNITYTAG));
 	if($terms) {
 		foreach($terms as $t) {
@@ -1635,13 +1642,14 @@ function format_hashtags(&$item) {
 }
 
 
-
 function format_mentions(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'],TERM_MENTION);
 	if($terms) {
 		foreach($terms as $t) {
+			if(! isset($t['term']))
+				continue;
 			$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
 			if(! trim($term))
 				continue;
@@ -2837,7 +2845,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// replace tag by the link. Make sure to not replace something in the middle of a word
 
-			$body = preg_replace('/(?<![a-zA-Z0-9=])'.preg_quote($tag,'/').'/', $newtag, $body);
+			$body = preg_replace('/(?<![a-zA-Z0-9=\/])'.preg_quote($tag,'/').'/', $newtag, $body);
 			$replaced = true;
 		}
 
@@ -3683,7 +3691,7 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	if(App::$data['forum_channels'])
+	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
 	$xf = '';
@@ -3730,6 +3738,9 @@ function get_forum_channels($uid) {
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)
 	);
+
+	if(!$r)
+		$r = [];
 
 	for($x = 0; $x < count($r); $x ++) {
 		if($x3) {

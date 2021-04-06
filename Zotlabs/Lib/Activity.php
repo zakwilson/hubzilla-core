@@ -104,7 +104,10 @@ class Activity {
 		if ($x['success']) {
 			$m = parse_url($url);
 			if ($m) {
-				$site_url = unparse_url(['scheme' => $m['scheme'], 'host' => $m['host'], 'port' => $m['port'] ]);
+				$y = [ 'scheme' => $m['scheme'], 'host' => $m['host'] ];
+				if (array_key_exists('port', $m))
+					$y['port'] = $m['port'];
+				$site_url = unparse_url($y);
 				q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
 					dbesc(datetime_convert()),
 					dbesc($site_url),
@@ -376,6 +379,8 @@ class Activity {
 
 		$ret = [];
 
+
+
 		if ($i['verb'] === ACTIVITY_FRIEND) {
 			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
 			$objtype = 'Note';
@@ -570,7 +575,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['tag'] && is_array($item['tag'])) {
+		if (array_key_exists('tag', $item) && is_array($item['tag'])) {
 			$ptr = $item['tag'];
 			if (!array_key_exists(0, $ptr)) {
 				$ptr = [$ptr];
@@ -579,23 +584,25 @@ class Activity {
 				if (!array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				switch ($t['type']) {
-					case 'Hashtag':
-						$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
-						break;
+				if (array_key_exists('href', $t) && array_key_exists('name', $t)) {
+					switch ($t['type']) {
+						case 'Hashtag':
+							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
+							break;
 
-					case 'Mention':
-						$mention_type = substr($t['name'], 0, 1);
-						if ($mention_type === '!') {
-							$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
-						}
-						else {
-							$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
-						}
-						break;
+						case 'Mention':
+							$mention_type = substr($t['name'], 0, 1);
+							if ($mention_type === '!') {
+								$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
+							}
+							else {
+								$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
+							}
+							break;
 
-					default:
-						break;
+						default:
+							break;
+					}
 				}
 			}
 		}
@@ -607,7 +614,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['term']) {
+		if (array_key_exists('term', $item) && is_array($item['term'])) {
 			foreach ($item['term'] as $t) {
 				switch ($t['ttype']) {
 					case TERM_HASHTAG:
@@ -638,7 +645,7 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['attach']) {
+		if (array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
@@ -651,7 +658,7 @@ class Activity {
 				}
 			}
 		}
-		if ($item['iconfig']) {
+		if (array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
 					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
@@ -695,16 +702,16 @@ class Activity {
 
 		$ret = [];
 
-		if ($item['attachment']) {
+		if (array_key_exists('attachment', $item) && is_array($item['attachment'])) {
 			foreach ($item['attachment'] as $att) {
 				$entry = [];
-				if ($att['href'])
+				if (array_key_exists('href', $att))
 					$entry['href'] = $att['href'];
-				elseif ($att['url'])
+				elseif (array_key_exists('url', $att))
 					$entry['href'] = $att['url'];
-				if ($att['mediaType'])
+				if (array_key_exists('mediaType', $att))
 					$entry['type'] = $att['mediaType'];
-				elseif ($att['type'] === 'Image')
+				elseif (array_key_exists('type', $att) && $att['type'] === 'Image')
 					$entry['type'] = 'image/jpeg';
 				if ($entry)
 					$ret[] = $entry;
@@ -718,7 +725,6 @@ class Activity {
 
 		$ret   = [];
 		$reply = false;
-
 
 		if ($i['verb'] === ACTIVITY_FRIEND) {
 			// Hubzilla 'make-friend' activity, no direct mapping from AS1 to AS2 - make it a note
@@ -977,19 +983,17 @@ class Activity {
 	// Returns an array of URLS for any mention tags found in the item array $i.
 	static function map_mentions($i) {
 
-		if (!$i['term']) {
-			return [];
-		}
-
 		$list = [];
 
-		foreach ($i['term'] as $t) {
-			if (!$t['url']) {
-				continue;
-			}
-			if ($t['ttype'] == TERM_MENTION) {
-				$url    = self::lookup_term_url($t['url']);
-				$list[] = (($url) ? $url : $t['url']);
+		if (array_key_exists('term', $i) && is_array($i['term'])) {
+			foreach ($i['term'] as $t) {
+				if (!$t['url']) {
+					continue;
+				}
+				if ($t['ttype'] == TERM_MENTION) {
+					$url    = self::lookup_term_url($t['url']);
+					$list[] = (($url) ? $url : $t['url']);
+				}
 			}
 		}
 
@@ -1122,7 +1126,7 @@ class Activity {
 
 	static function encode_item_object($item, $elm = 'obj') {
 		$ret = [];
-		
+
 		if ($item[$elm]) {
 			if (! is_array($item[$elm])) {
 				$item[$elm] = json_decode($item[$elm],true);
@@ -1164,6 +1168,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'      => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'   => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow' => 'Unfollow',
+			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'      => 'Accept',
 			'http://purl.org/zot/activity/attendno'       => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'    => 'TentativeAccept',
@@ -1211,6 +1216,7 @@ class Activity {
 			'http://activitystrea.ms/schema/1.0/tag'      => 'Add',
 			'http://activitystrea.ms/schema/1.0/follow'   => 'Follow',
 			'http://activitystrea.ms/schema/1.0/unfollow' => 'Unfollow',
+			'http://activitystrea.ms/schema/1.0/stop-following' => 'Unfollow',
 			'http://purl.org/zot/activity/attendyes'      => 'Accept',
 			'http://purl.org/zot/activity/attendno'       => 'Reject',
 			'http://purl.org/zot/activity/attendmaybe'    => 'TentativeAccept',
@@ -1601,13 +1607,13 @@ class Activity {
 
 		if ($inbox) {
 			$collections['inbox'] = $inbox;
-			if ($person_obj['outbox'])
+			if (array_key_exists('outbox', $person_obj))
 				$collections['outbox'] = $person_obj['outbox'];
-			if ($person_obj['followers'])
+			if (array_key_exists('followers', $person_obj))
 				$collections['followers'] = $person_obj['followers'];
-			if ($person_obj['following'])
+			if (array_key_exists('following', $person_obj))
 				$collections['following'] = $person_obj['following'];
-			if ($person_obj['endpoints'] && $person_obj['endpoints']['sharedInbox'])
+			if (array_key_exists('endpoints', $person_obj) && array_key_exists('sharedInbox', $person_obj['endpoints']))
 				$collections['sharedInbox'] = $person_obj['endpoints']['sharedInbox'];
 		}
 
@@ -2093,6 +2099,15 @@ class Activity {
 
 	static function decode_note($act) {
 
+		// Within our family of projects, Follow/Unfollow of a thread is an internal activity which should not be transmitted,
+		// hence if we receive it - ignore or reject it.
+		// Unfollow is not defined by ActivityStreams, which prefers Undo->Follow.
+		// This may have to be revisited if AP projects start using Follow for objects other than actors.
+
+		if (in_array($act->type, [ 'Follow', 'Unfollow' ])) {
+			return false;
+		}
+
 		$response_activity = false;
 
 		$s = [];
@@ -2111,22 +2126,22 @@ class Activity {
 		$s['uuid']       = $act->obj['diaspora:guid'];
 		$s['parent_mid'] = $act->parent_id;
 
-		if ($act->data['published']) {
+		if (array_key_exists('published', $act->data)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->data['published']);
 		}
-		elseif ($act->obj['published']) {
+		elseif (array_key_exists('published', $act->obj)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->obj['published']);
 		}
-		if ($act->data['updated']) {
+		if (array_key_exists('updated', $act->data)) {
 			$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);
 		}
-		elseif ($act->obj['updated']) {
+		elseif (array_key_exists('updated', $act->obj)) {
 			$s['edited'] = datetime_convert('UTC', 'UTC', $act->obj['updated']);
 		}
-		if ($act->data['expires']) {
+		if (array_key_exists('expires', $act->data)) {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->data['expires']);
 		}
-		elseif ($act->obj['expires']) {
+		elseif (array_key_exists('expires', $act->obj)) {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
 		}
 
@@ -2186,10 +2201,10 @@ class Activity {
 			}
 		}
 
-		if (!$s['created'])
+		if (! array_key_exists('created', $s))
 			$s['created'] = datetime_convert();
 
-		if (!$s['edited'])
+		if (! array_key_exists('edited', $s))
 			$s['edited'] = $s['created'];
 
 		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
@@ -2290,17 +2305,20 @@ class Activity {
 			$s['iconfig'] = $a;
 		}
 
-		if ($act->obj['type'] === 'Note' && $s['attach']) {
-			$s['body'] .= self::bb_attach($s['attach'], $s['body']);
-		}
+		if (array_key_exists('type', $act->obj)) {
 
-		if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
-			if ($act->obj['endTime']) {
-				$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+			if ($act->obj['type'] === 'Note' && $s['attach']) {
+				$s['body'] .= self::bb_attach($s['attach'], $s['body']);
+			}
+
+			if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
+				if (array_key_exists('endTime', $act->obj)) {
+					$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['endTime']);
+				}
 			}
 		}
 
-		if ($act->obj['closed']) {
+		if (array_key_exists('closed', $act->obj)) {
 			$s['comments_closed'] = datetime_convert('UTC', 'UTC', $act->obj['closed']);
 		}
 
@@ -2716,7 +2734,7 @@ class Activity {
 			}
 		}
 
-		if ($act->obj['conversation']) {
+		if (array_key_exists('conversation', $act->obj)) {
 			set_iconfig($item, 'ostatus', 'conversation', $act->obj['conversation'], 1);
 		}
 
@@ -3369,22 +3387,25 @@ class Activity {
 		require_once('include/event.php');
 		$ret = false;
 
-		if (is_array($content[$field])) {
-			foreach ($content[$field] as $k => $v) {
-				$ret .= html2bbcode($v);
-				// save this for auto-translate or dynamic filtering
-				// $ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
-			}
-		}
-		else {
-			if ($field === 'bbcode' && array_key_exists('bbcode', $content)) {
-				$ret = $content[$field];
+		if (array_key_exists($field, $content)) {
+			if (is_array($content[$field])) {
+				foreach ($content[$field] as $k => $v) {
+					$ret .= html2bbcode($v);
+					// save this for auto-translate or dynamic filtering
+					// $ret .= '[language=' . $k . ']' . html2bbcode($v) . '[/language]';
+				}
 			}
 			else {
-				$ret = html2bbcode($content[$field]);
+				if ($field === 'bbcode' && array_key_exists('bbcode', $content)) {
+					$ret = $content[$field];
+				}
+				else {
+					$ret = html2bbcode($content[$field]);
+				}
 			}
 		}
-		if ($field === 'content' && $content['event'] && (!strpos($ret, '[event'))) {
+
+		if ($field === 'content' && array_key_exists('event', $content) && (!strpos($ret, '[event'))) {
 			$ret .= format_event_bbcode($content['event']);
 		}
 

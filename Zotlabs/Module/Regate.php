@@ -299,7 +299,7 @@ class Regate extends \Zotlabs\Web\Controller {
 
 							zar_log('ZAR1134S email verfication denied ' . $did2);
 
-							$msg = 'ZAR1133A' . ' ' . t('Sorry for any inconvience. Thank you for your response.');
+							$msg = 'ZAR1133A' . ' ' . t('Sorry for any inconvenience. Thank you for your response.');
 							$o = replace_macros(get_markup_template('plain.tpl'), [
 								'$title'	=> t('Registration request denied'),
 								'$now'		=> $nowf,

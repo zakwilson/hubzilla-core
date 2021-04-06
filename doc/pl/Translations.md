@@ -27,7 +27,7 @@ kodu $Projectname:
 - doc/pl
 
 Projekt ten jest obecnie podstawą oficjalnego polskiego tłumaczenia $Projectname.  
-Po każdej istotnej zmianie, osoba kierująca projektem tłumaczenie zgłasza odpowiednie
+Po każdej istotnej zmianie, osoba kierująca projektem tłumaczenia zgłasza odpowiednie
 żądanie PR do drzewa żródłowego $Projectname.
 
 ### Zgłaszanie poprawek
@@ -43,8 +43,8 @@ Możesz też dokonać poprawek w tym projekcie, zgłaszając odpowiednio przygot
 
 Jeśli chcesz pomóc, tworząc tłumaczenia jeszcze nie przetłumaczonych dokumentów
 $Projectname, dołącz do projektu https://github.com/astabski/hubzilla-pl. W tym
-celu umiść na stronie https://github.com/astabski/hubzilla-pl/issues odpowiednią
-wiadomość. Otrzymasz odpowiedź z dokładną instrukcją   
+celu umieść na stronie https://github.com/astabski/hubzilla-pl/issues odpowiednią
+wiadomość. Otrzymasz odpowiedź z dokładną instrukcją.   
 
 Ogólne zasady tłumaczeń obowiązujące w $Projectname 
 ---------------------------------------------------

@@ -7,7 +7,7 @@
 
 > Dostępna na stronie ...
 
-Możliwość wyboru postów według zakresów dat. 
+Możliwość wyboru wpisów według zakresów dat. 
 <!-- TODO: full description for Search by Date -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
@@ -23,7 +23,7 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Karta "Osobista sieć"
 
-Włącza zakładkę, aby wyświetlać tylko posty sieciowe, z którymi uzytkownik miał interakcję.
+Włącza zakładkę, aby wyświetlać tylko wpisy sieciowe, z którymi uzytkownik miał interakcję.
 <!-- TODO: full description for Network Personal Tab -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 1
@@ -36,7 +36,7 @@ Włącza kartę, aby wyświetlić całą nową aktywność sieciową.
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 2
 
 
-### Narzędzie koligacji
+### Narzędzie zaprzyjaźnienia
 
 Filtruje aktywność strumienia według głębokości relacji.
 <!-- TODO: full description for Affinity Tool -->
@@ -53,7 +53,7 @@ Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkc
 
 ### Filtrowanie połączenia
 
-Filtrowanie przychodzących postów na podstawie słów kluczowych lub treści (fraz).
+Filtrowanie przychodzących wpisów na podstawie słów kluczowych lub treści (fraz).
 <!-- TODO: full description for Connection Filtering -->
 
 Wymagany minimalny poziom umiejętności technicznych do korzystania z tej funkcji: 3

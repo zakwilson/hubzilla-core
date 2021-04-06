@@ -1,4 +1,4 @@
-## Kontrola dostęþu i uprawnienia	
+## Kontrola dostępu i uprawnienia	
 
 
 ### Prywatne grupy

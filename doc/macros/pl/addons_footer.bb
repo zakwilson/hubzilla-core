@@ -1,2 +1,2 @@
-Return to the [zrl=[baseurl]/help/addons]Dokumentacja dodatków[/zrl]
-Return to the [zrl=[baseurl]/help/main]Główna dokumentacja[/zrl]
+Powróć do [zrl=[baseurl]/help/addons]dokumentacji dodatków[/zrl]
+Powróć do [zrl=[baseurl]/help/main]głównej strony dokumentacji[/zrl]

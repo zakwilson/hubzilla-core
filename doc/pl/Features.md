@@ -5,7 +5,7 @@ Domyślny interfejs $Projectname został zaprojektowany tak, aby był dobrze upo
 
 **Wygaśnięcie treści** 
 
-Usuwanie postów, komentarzy albo prywatnych wiadomości w określonym terminie. Do edytora postów zostaje dodany dodatkowy przycisk, za pomoca któreg można ustawić termin wygaśnięcia publikacji. Zwykle data jest wyświetlana w formacie „rrrr-mm-dd gg: mm”, ale w języku angielskim ma się nieco większą swobodę i można używać większości rozpoznawalnych odniesień do dat, takich jak "next Thursday" czy "+1 day". W określonym terminie (podanym lub zajmującym około dziesięciu minut, w zależności od częstotliwości sprawdzania zdalnego systemu) element jest usuwany.
+Usuwanie wpisów, komentarzy albo prywatnych wiadomości w określonym terminie. Do edytora wpisów zostaje dodany dodatkowy przycisk, za pomoca któreg można ustawić termin wygaśnięcia publikacji. Zwykle data jest wyświetlana w formacie „rrrr-mm-dd gg: mm”, ale w języku angielskim ma się nieco większą swobodę i można używać większości rozpoznawalnych odniesień do dat, takich jak "next Thursday" czy "+1 day". W określonym terminie (podanym lub zajmującym około dziesięciu minut, w zależności od częstotliwości sprawdzania zdalnego systemu) element jest usuwany.
 
 **Wiele profili**
 
@@ -34,15 +34,15 @@ Pozwala to zobaczyć niektóre zaawansowane opcje konfiguracji, które mogą dez
 
 **Kanał Premium**
 
-Dzięki temu możesz ustawić ograniczenia i warunki dotyczące tych, które łączą się z Twoim kanałem. Może to być używane przez celebrytów lub kogoś, kto chce postawić jakieś warunki osobom, które chcą się połączyć z tym kanałe. Jednym z warunków moze byc dokonanie płatności za połączenie.
+Dzięki temu możesz ustawić ograniczenia i warunki dotyczące tych, które łączą się z Twoim kanałem. Może to być używane przez celebrytów lub kogoś, kto chce wpisuwić jakieś warunki osobom, które chcą się połączyć z tym kanałe. Jednym z warunków moze byc dokonanie płatności za połączenie.
 
 **Edytor tekstu formatowanego**
 
-Edytor postów dostępny z poziomy matrycy jest edytorem zwykłego tekstu, ale matryca pozwala na stosowanie szerokieo zakresu znaczników przy użyciu BBcode. Edytor wizualny jest natomiast edytorem WYSIWIG (what you see is what you get - otrzymujesz to, co widzisz)i zapewnia wszystkie najczęściej używane znaczniki BBcode.
+Edytor wpisów dostępny z poziomy matrycy jest edytorem zwykłego tekstu, ale matryca pozwala na stosowanie szerokieo zakresu znaczników przy użyciu BBcode. Edytor wizualny jest natomiast edytorem WYSIWIG (what you see is what you get - otrzymujesz to, co widzisz)i zapewnia wszystkie najczęściej używane znaczniki BBcode.
 
 **Podgląd wpisu**
 
-Umożliwia podgląd postów i komentarzy dokładnie tak, jak wyglądałyby na stronie przed ich opublikowaniem.
+Umożliwia podgląd wpisów i komentarzy dokładnie tak, jak wyglądałyby na stronie przed ich opublikowaniem.
 
 **Źródła kanałów**
 
@@ -54,11 +54,11 @@ Stadardowo, prywatne wiadomości są szyfrowane podczas transportu i przechowywa
 
 **Wyszukiwanie wg daty**
 
-Daje to możliwość wybierania postów według zakresów dat
+Daje to możliwość wybierania wpisów według zakresów dat
 
 **Filtr grup prywatności**
 
-Włączenie tego widżetu umożliwia wyświetlanie strumienia postów tylko z wybranych grup połączeń. Powoduje to również przełączenie uprawnień wychodzących podczas przeglądania grupy prywatności. Jest to podobne do "kręgów" Google czy też "aspektów" w Disaporze.
+Włączenie tego widżetu umożliwia wyświetlanie strumienia wpisów tylko z wybranych grup połączeń. Powoduje to również przełączenie uprawnień wychodzących podczas przeglądania grupy prywatności. Jest to podobne do "kręgów" Google czy też "aspektów" w Disaporze.
 
 **Zapisane wyszukiwania**
 
@@ -72,33 +72,33 @@ Włącz tą kartę, aby wyświetlać tylko wpisy matrycowe, z którymi w jakiś 
 
 Włącza tą kartę, aby wyświetlać wszystkich nowych działania matrycy jako węża strażackiego lub osi czasu.
 
-**Narzedzia koligacji**
+**Narzedzie zaprzyjaźnienia**
 
 Filtrowanie aktywności strumienia matrycy według głębokości relacji.
 
-**Edytuj wysłane posty**
+**Edytuj wysłane wpisy**
 
-Mozliwość edytowania i poprawiania postów i komentarzy juz po wysłaniu.
+Mozliwość edytowania i poprawiania wpisów i komentarzy juz po wysłaniu.
 
 **Tagowanie**
 
-Możliwość tagowania istniejących postów, w tym napisanych przez innych.
+Możliwość tagowania istniejących wpisów, w tym napisanych przez innych.
 
-**Kategorie postów**
+**Kategorie wpisów**
 
-Możliwość dodawania kategorie do postów na swoim kanale
+Możliwość dodawania kategorie do wpisów na swoim kanale
 
 **Zapisane foldery**
 
-Możliwość umieszczania postów w folderach lub tagach do późniejszego przywołania.
+Możliwość umieszczania wpisów w folderach lub tagach do późniejszego przywołania.
 
-**Dezaprobata postów**
+**Dezaprobata wpisów**
 
 Możliwość dezaprobaty ("niepolubienia") wpisów i komentarzy.
 
-**Gwiazdkowanie postów**
+**Gwiazdkowanie wpisów**
 
-Możliwość oznaczania specjalnych postów znakiem gwiazdki
+Możliwość oznaczania specjalnych wpisów znakiem gwiazdki
 
 **Chmura tagów**
 

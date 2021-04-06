@@ -8,7 +8,7 @@ W katalogu $Projectname prawdopodobnie zobaczysz podkatalog o nazwie "addon". Je
 
 	mkdir addon
 
-Następnie wymyśl nazwę swojego dodatku. Prawdopodobnie masz już jakieś pojęcie o tym, co chcesz, aby robił. Na potrzeby naszego przykładu utworzymy wtyczkę o nazwie "randplace", która zapewni nieco losową lokalizację każdego z Twoich postów. Nazwa wtyczki będzie służyć do znajdowania funkcji, które trzeba użyć i jest częścią nazwy każdej z tychfunkcji, więc dla bezpieczeństwa używaj tylko prostych znaków tekstowych.
+Następnie wymyśl nazwę swojego dodatku. Prawdopodobnie masz już jakieś pojęcie o tym, co chcesz, aby robił. Na potrzeby naszego przykładu utworzymy wtyczkę o nazwie "randplace", która zapewni nieco losową lokalizację każdego z Twoich wpisów. Nazwa wtyczki będzie służyć do znajdowania funkcji, które trzeba użyć i jest częścią nazwy każdej z tychfunkcji, więc dla bezpieczeństwa używaj tylko prostych znaków tekstowych.
 
 Po wybraniu nazwy wtyczki, utwórz katalog wewnątz 'addon', aby przechowywać tu pliki wtyczki.
 
@@ -59,7 +59,7 @@ function randplace_load() {
 }
 ```
 
-Tak więc przechwycimy trzy zdarzenia: `post_local`, które jest wywoływane, gdy w systemie lokalnym pojawia się post, `feature_settings`, aby ustawić pewne preferencje dla naszej wtyczki, oraz `feature_settings_post`, aby przechowywać te ustawienia.
+Tak więc przechwycimy trzy zdarzenia: `post_local`, które jest wywoływane, gdy w systemie lokalnym pojawia się wpis, `feature_settings`, aby ustawić pewne preferencje dla naszej wtyczki, oraz `feature_settings_post`, aby przechowywać te ustawienia.
 
 Następnie utworzymy funkcję unload. Jest to łatwe, ponieważ wystarczy wyrejestrować nasze zaczepy. Wymaga to dokładnie tych samych argumentów. 
 

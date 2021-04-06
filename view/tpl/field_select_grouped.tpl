@@ -8,5 +8,5 @@
 				{{/foreach}}
 				</optgroup>
 		</select>
-		<span class='help-block'>{{$field.3}}</span>
+		<small class='help-block'>{{$field.3}}</small>
 	</div>

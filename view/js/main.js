@@ -959,7 +959,7 @@ function liveUpdate(notify_id) {
 		var orgHeight = $("#region_2").height();
 	}
 
-	if(page_cache.data && bParam_page == page_cache.page && page_cache.time > (Date.now() - 180000)) {
+	if(page_cache.data && bParam_page == page_cache.page) {
 		page_load = false;
 		scroll_next = false;
 		updateConvItems(update_mode,page_cache.data);

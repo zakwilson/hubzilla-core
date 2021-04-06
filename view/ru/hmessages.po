@@ -5958,7 +5958,7 @@ msgstr "(%s) : Адрес электронной почты уже исполь�
 #: ../../Zotlabs/Module/Invite.php:165
 #, php-format
 msgid "(%s) : Accepted email address"
-msgstr (%s) : Подтверждённый адрес электронной почты
+msgstr "(%s) : Подтверждённый адрес электронной почты"
 
 #: ../../Zotlabs/Module/Invite.php:225 ../../Zotlabs/Module/Invite.php:494
 #: ../../Zotlabs/Module/Invite.php:508 ../../Zotlabs/Module/Home.php:87

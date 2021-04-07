@@ -23,7 +23,7 @@
 
 </fieldset>
 
-<span id="{{$qmc}}{{$field.name}}_help" class="form-text text-muted">{{$help}}</span>
+<small id="{{$qmc}}{{$field.name}}_help" class="form-text text-muted">{{$help}}</small>
 
 {{if $wrapper!="no"}}</div>{{/if}}
 

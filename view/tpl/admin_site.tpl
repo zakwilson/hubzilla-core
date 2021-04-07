@@ -127,12 +127,4 @@
 			}
 		});
 	});
-	// [hilmar->
-	$('head').append(
-	  '<style> '+
- 		'  .zuiqmid { font-weight: normal; font-family: monospace; }'+
-  		'  .zui_n  	{ width: 5em; text-align: center; }'+
-  		'  .zuia  	{ cursor: pointer; font-weight: bold; }'+
-	  '</style>');
-	// <-hilmar]
 </script>

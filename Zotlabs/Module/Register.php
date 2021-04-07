@@ -573,7 +573,7 @@ class Register extends Controller {
 			'$reg_is'       => $registration_is,
 			'$registertext' => bbcode(get_config('system','register_text')),
 			'$other_sites'  => $other_sites,
-			'$msg'			=> $opal['rn'] . ',' . $opal['an'],
+			'$msg'          => $opal['msg'],
 			'$invitations'  => $invitations,
 			'$invite_code'  => $invite_code,
 			'$haveivc'		=> t('I have an invite code'),
@@ -593,7 +593,7 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
-			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
+			//'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
 		));
 
 		return $o;

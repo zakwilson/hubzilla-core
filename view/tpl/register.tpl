@@ -5,9 +5,10 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-			{{if $reg_is || $other_sites || $now}}
+			{{if $reg_is || $other_sites || $now || $msg}}
 			<div class="section-content-warning-wrapper">
 				<h3>{{$now}}</h3>
+				<div id="register-desc" class="descriptive-paragraph">{{$msg}}</div>
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
 			</div>
@@ -59,8 +60,6 @@
 			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
-		<br />
-		<div class="descriptive-text">{{$verify_note}} {{$msg}}</div>
 	</div>
 </div>
 {{* 
@@ -76,7 +75,7 @@
 
 	{{$tao}}
 
-	var week_days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+	var week_days = ['Monday', 'Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 	$('.register_date').each( function () {
 		var date = new Date($(this).data('utc'));
 		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));

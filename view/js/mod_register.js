@@ -1,10 +1,14 @@
 $(document).ready(function() {
 
-	// set in Module
-	//typeof(window.tao) == 'undefined' ? window.tao = {} : '';
-	//tao.zar = { vsn: '2.0.0', form: {}, msg: {} };
-	//tao.zar.patano = /^d[0-9]{6}$/;
-	//tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;
+	typeof(window.tao) == 'undefined' ? window.tao = {} : '';
+	tao.zar = { vsn: '2.0.0', form: {}, msg: {} };
+	tao.zar.patano = /^d[0-9]{5,10}$/;
+	tao.zar.patema = /^[a-z0-9.-]{1,64}@[a-z0-9.-]{2,32}\.[a-z]{2,12}$/;
+
+	$('.register_date').each( function () {
+		var date = new Date($(this).data('utc'));
+		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));
+	});
 
 	$('#zar014').click( function () { $('#zar015').toggle(); });
 
@@ -14,7 +18,7 @@ $(document).ready(function() {
 			//ano
 		} else {
 			if (tao.zar.patema.test(tao.zar.form.email) == false ) {
-				$('#help_email').removeClass('text-muted').addClass('text-danger').html(tao.zar.msg.ZAR0239E);
+				$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_not_valid']);
 				zFormError('#help_email',true);
 			} else {
 				$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
@@ -40,6 +44,7 @@ $(document).ready(function() {
 			$('#id_password2').val().length > 0 ? $('#id_password2').trigger('change') : '';
 		}
 	});
+
 	$('#id_password2').change(function() {
 		if($('#id_password').val() != $('#id_password2').val()) {
 			$('#help_password2').removeClass('text-muted').addClass('text-danger').html(aStr.pwnomatch);
@@ -64,7 +69,11 @@ $(document).ready(function() {
 			$('#name-spinner').hide();
 		});
 	});
+
 	$('#id_nickname').blur(function() {
+		if($('#id_name').val() === '')
+			return;
+
 		$('#nick-spinner').show();
 		var zreg_nick = $('#id_nickname').val();
 		$.get('new_channel/checkaddr.json?f=&nick=' + encodeURIComponent(zreg_nick),function(data) {
@@ -77,7 +86,6 @@ $(document).ready(function() {
 		});
 	});
 
-	//$("buttom[name='submit']").submit((function() {
 	$('#register-form').submit(function(e) {
 		if ( $('.zform-error').length > 0 ) {
 			e.preventDefault();

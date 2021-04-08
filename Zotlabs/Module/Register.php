@@ -560,13 +560,6 @@ class Register extends Controller {
 		require_once('include/bbcode.php');
 
 		$o = replace_macros(get_markup_template('register.tpl'), array(
-
-			'$tao'			=> 	"typeof(window.tao) == 'undefined' ? window.tao = {} : '';\n"
-							.	"tao.zar = { vsn: '2.0.0', form: {}, msg: {} };\n"
-							.	"tao.zar.patano = /^d[0-9]{5,10}$/;\n"
-							.	"tao.zar.patema = /^[a-z0-9.-]{1,64}@[a-z0-9.-]{2,32}\.[a-z]{2,12}$/;\n"
-							.	"tao.zar.msg.ZAR0239E = '" . t('Email address not valid') . "';\n",
-
 			'$form_security_token' => get_form_security_token("register"),
 			'$title'        => t('Registration'),
 			'$reg_is'       => $registration_is,

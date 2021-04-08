@@ -68,20 +68,19 @@ class Regate extends \Zotlabs\Web\Controller {
 				if ($r && count($r)) {
 					$r = $r[0];
 					// check timeframe
-					if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now ) {
-						if ( isset($_POST['resend']) && $didx == 'e' ) {
+					if ($r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
+						if (isset($_POST['resend']) && $didx == 'e') {
 							$re = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = 'e' AND reg_did2 = '%s' ORDER BY reg_created DESC ", dbesc($r['reg_did2']) );
-							if ( $re ) {
+							if ($re) {
 								$re = $re[0];
-								$reonar = json_decode($re['reg_stuff'],true);
-								$reonar['subject'] = 'Re,Fwd,' . $reonar['subject'];
+								$reonar = json_decode($re['reg_stuff'], true);
 								if ($reonar) {
+									$reonar['subject'] = 'Re,Fwd,' . $reonar['subject'];
 									$zm = zar_reg_mail($reonar);
-									$msg = ($zm) ?	'ZAR1238I ' . t('Email resent')
-											  	 :	'ZAR1238E ' . t('Resent failed');
-									zar_log($msg . ' ' . $r['reg_did2']);
+									$msg = (($zm) ? t('Email resent') : t('Email resend failed'));
+									zar_log((($zm) ? 'ZAR1238I' : 'ZAR1238E') . ' ' . $msg . ' ' . $r['reg_did2']);
 									info($msg);
-									goaway(z_root() . '/' . $nextpage);
+									return;
 								}
 							}
 						}
@@ -352,15 +351,15 @@ class Regate extends \Zotlabs\Web\Controller {
 								'$title'	=> $title,
 								'$now'		=> $nowf,
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
-								'$infos'	=> 'ZAR1132W' . ' ' . t('Request not inside time frame') . EOL,
+								'$infos'	=> t('Hold on, you can start verification in') . EOL,
 							]);
 						}
 					}
 				}
 			}
 			else {
-				$msg = 'ZAR1132E' . ' ' . t('Identity unknown');
-				zar_log($msg . ':' . $did2 . ',' . $didx);
+				$msg = t('Identity unknown');
+				zar_log('ZAR1132E ' . $msg . ':' . $did2 . ',' . $didx);
 				$o = replace_macros(get_markup_template('plain.tpl'), [
 					'$title'	=> $title,
 					'$now'		=> $nowf,

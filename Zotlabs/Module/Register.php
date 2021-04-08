@@ -127,12 +127,13 @@ class Register extends Controller {
 			return;
 		}
 
-		if ($sameip && !$is247) {
+		if ($sameip) {
 			$f = q("SELECT COUNT(reg_atip) AS atip FROM register WHERE reg_vital = 1 AND reg_atip = '%s' ",
 				dbesc($ip)
 			);
-			if ($f && $f[0]['atip'] > $sameip) {
+			if ($f && $f[0]['atip'] >= $sameip) {
 				$logmsg = 'ZAR0239S Exceeding same ip register request of ' . $sameip;
+				notice('Registrations from same IP exceeded.');
 				zar_log($logmsg);
 				return;
 			}
@@ -350,16 +351,15 @@ class Register extends Controller {
 					$reonar['from'] = get_config('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
-					$reonar['txtpersonal']= t('Valid from') . ' ' . $regdelay . ' UTC' . t('and expire') . ' ' . $regexpire . ' UTC';
 					$reonar['txttemplate']= replace_macros(get_intltext_template('register_verify_member.tpl'),
 						[
-						'$sitename' => get_config('system','sitename'),
-						'$siteurl'  => z_root(),
-						'$email'    => $email,
-						'$due'		=> $reonar['txtpersonal'],
-						'$mail'		=> bin2hex($email) . 'e',
-						'$ko'		=> bin2hex(substr($empin,0,4)),
-						'$hash'     => $empin
+						'$sitename'  => get_config('system','sitename'),
+						'$siteurl'   => z_root(),
+						'$email'     => $email,
+						'$timeframe' => [$regdelay, $regexpire],
+						'$mail'      => bin2hex($email) . 'e',
+						'$ko'        => bin2hex(substr($empin,0,4)),
+						'$hash'      => $empin
 				 		]
 					);
 					pop_lang();
@@ -429,10 +429,8 @@ class Register extends Controller {
 
 							$_SESSION['zar']['msg'] = t('Your validation token is') . EOL
 							. '<h3>' . $pass2 . '</h3>' . EOL
-							. t('Hold on, you can continue verification in')
-							. '<div class="d-none"><code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code></div>'
-							//. t('Please come back to this page in the requested timeframe or wait for the countdown to complete.')
-							;
+							. t('Hold on, you can start verification in')
+							. '<div class="d-none"><code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code></div>';
 						}
 						else {
 							$_SESSION['zar']['pin'] = $pass2;

@@ -222,9 +222,15 @@ class Register extends Controller {
 
 						if ($reg['reg_startup'] <= $now && $reg['reg_expires'] >= $now) {
 
+							// is invitor admin
+							$isa = get_account_by_id($reg['reg_uid']);
+							$isa = ( $isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN) );
+
 							// FIXME: set the correct flags if invitee is admin so we do not need to approve anyway if approve is on
-							//if (is_sys_channel($reg['reg_uid']) && $policy == REGISTER_APPROVE)
-							//	$flags &= $flags ^ ACCOUNT_PENDING;
+							// approve contra invite by admin
+							if ($isa && $policy == REGISTER_APPROVE)
+								$flags &= $flags ^ ACCOUNT_PENDING;
+
 
 							if ($auto_create) {
 								$reonar['chan.name'] = notags(trim($arr['name']));

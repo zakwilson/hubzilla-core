@@ -50,13 +50,14 @@ class Regate extends \Zotlabs\Web\Controller {
 			$ip 	= $_SERVER['REMOTE_ADDR'];
 
 			$isduty = zar_register_dutystate();
-			if ($isduty['isduty'] !== false && $isduty['isduty'] != 1) {
+
+			if (!$_SESSION['zar']['invite_in_progress'] && ($isduty['isduty'] !== false && $isduty['isduty'] != 1)) {
 					// normally, that should never happen here
 					// log suitable for fail2ban also
 					$logmsg = 'ZAR1230S Unexpected registration verification request for '
 							. get_config('system','sitename') . ' arrived from § ' . $ip . ' §';
 					zar_log($logmsg);
-					goaway(z_root() . '/');
+					goaway(z_root());
 			}
 
 			// do we have a valid dId2 ?
@@ -123,6 +124,7 @@ class Regate extends \Zotlabs\Web\Controller {
 								);
 
 								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
+
 									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");
@@ -270,7 +272,7 @@ class Regate extends \Zotlabs\Web\Controller {
 		$title = t('Register Verification');
 
 		// do we have a valid dId2 ?
-		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e')) {
+		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e') || ($didx == 'i')) {
 
 			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s' ORDER BY reg_created DESC",
 				dbesc($didx),

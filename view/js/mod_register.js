@@ -12,6 +12,21 @@ $(document).ready(function() {
 
 	$('#zar014').click( function () { $('#zar015').toggle(); });
 
+	$('#id_invite_code').blur(function() {
+		if($('#id_invite_code').val() === '')
+			return;
+
+		$('#invite-spinner').show();
+		var zreg_invite = $('#id_invite_code').val();
+		$.get('register/invite_check.json?f=&invite_code=' + encodeURIComponent(zreg_invite),function(data) {
+			if(!data.error) {
+				// FIXME: set email field to required -> $('#help_email')
+				$('#register-form input, #register-form button').removeAttr('disabled');
+			}
+			$('#invite-spinner').hide();
+		});
+	});
+
 	$('#id_email').change(function() {
 		tao.zar.form.email = $('#id_email').val();
 

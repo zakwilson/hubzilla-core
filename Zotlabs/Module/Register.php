@@ -164,6 +164,9 @@ class Register extends Controller {
 			return;
 		}
 
+		$salt = random_string(32);
+		$password = $salt . ',' . hash('whirlpool', $salt . $password);
+
 		// accept tos
 		if(! x($_POST,'tos')) {
 			// msg!
@@ -213,34 +216,24 @@ class Register extends Controller {
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_didx = 'i' AND reg_hash = '%s'",
 					 dbesc($invite_code));
 
-				if ( $reg && count($reg) == 1 ) {
+				if ($reg && count($reg) == 1) {
 					$reg = $reg[0];
 					if ($reg['reg_email'] == ($email)) {
 
 						if ($reg['reg_startup'] <= $now && $reg['reg_expires'] >= $now) {
 
-							// is invitor admin
-							$isa = get_account_by_id($reg['reg_uid']);
-							$isa = ( $isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN) );
+							// FIXME: set the correct flags if invitee is admin so we do not need to approve anyway if approve is on
+							//if (is_sys_channel($reg['reg_uid']) && $policy == REGISTER_APPROVE)
+							//	$flags &= $flags ^ ACCOUNT_PENDING;
 
-							// approve contra invite by admin
-							if ($isa && $policy == REGISTER_APPROVE)
-								$flags &= $flags ^ ACCOUNT_PENDING;
+							if ($auto_create) {
+								$reonar['chan.name'] = notags(trim($arr['name']));
+								$reonar['chan.did1'] = notags(trim($arr['nickname']));
+							}
 
-							// if $flags == 0  ??
-
-							// transit ?
-
-							// update reg vital 0 off
-							//$icdone = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
-								//intval($reg['reg_id'])
-							//);
-
-							// update DB flags, password
-							// TODO: what else?
-							q("UPDATE register set reg_flags = %d, reg_pass = '%s', reg_stuff = '%s' WHERE reg_id = '%s'",
-								intval($flags),
-								dbesc(bin2hex($password)),
+							q("UPDATE register set reg_pass = '%s', reg_stuff = '%s' WHERE reg_id = '%s'",
+								dbesc($password),
+								dbesc(json_encode($reonar)),
 								intval($reg['reg_id'])
 							);
 
@@ -249,8 +242,11 @@ class Register extends Controller {
 							// msg!
 							info($msg . EOL);
 
+
 							// the invitecode has verified us and we have all the info we need
 							// take the shortcut.
+
+							$_SESSION['zar']['invite_in_progress'] = true;
 
 							$mod = new Regate();
 							$_REQUEST['form_security_token'] = get_form_security_token("regate");
@@ -382,9 +378,6 @@ class Register extends Controller {
 					$reonar['chan.name'] = notags(trim($arr['name']));
 					$reonar['chan.did1'] = notags(trim($arr['nickname']));
 				}
-
-				$salt = random_string(32);
-				$password = $salt . ',' . hash('whirlpool', $salt . $password);
 
 				$reg = q("INSERT INTO register ("
 					. "reg_flags,reg_didx,reg_did2,reg_hash,reg_created,reg_startup,reg_expires,"

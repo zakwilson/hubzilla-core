@@ -29,6 +29,17 @@
 			{{include file="field_select_grouped.tpl" field=$role}}
 			{{/if}}
 
+			{{if $invitations}}
+				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
+				<div id="zar015" style="display: none;">
+					<div class="position-relative">
+						<div id="invite-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
+						{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
+					</div>
+				</div>
+			{{/if}}
+
+
 			<div class="position-relative">
 				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
 				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
@@ -40,12 +51,6 @@
 			{{/if}}
 
 			<div>
-			{{if $invitations}}
-				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
-				<div id="zar015" style="display: none;">
-				{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
-				</div>
-			{{/if}}
 
 			{{include file="field_input.tpl" field=$email}}
 			</div>

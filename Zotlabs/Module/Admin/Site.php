@@ -491,7 +491,7 @@ class Site {
 			'$reg_expire'=>$reg_expire,
 			'$reg_autochannel'		=> array('auto_channel_create',
 				t("Auto channel create"),
-				get_config('system','auto_channel_create'),
+				get_config('system','auto_channel_create', 1),
 				t("Auto create a channel when register a new account. When On, the register form will show additional fields for the channel-name and the nickname."),
 				"",	"",	'ZAR0870C'),
 
@@ -512,11 +512,11 @@ class Site {
 				get_config('system','verify_email'),
 				t("Check to verify email addresses used in account registration (recommended)."),
 				"", "", 'ZAR0890C'),
-			'$abandon_days'     => array('abandon_days',
+			'$abandon_days' => array('abandon_days',
 				t('Accounts abandoned after x days'),
 				get_config('system','account_abandon_days'),
-				t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.'),
-				'appears not to be implemented (2010.01)'),
+				t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')
+			),
 			// <-hilmar]
 
 			'$role'         => $role,
@@ -553,13 +553,9 @@ class Site {
 			'$maxloadavg'			=> array('maxloadavg', t("Maximum Load Average"), ((intval(get_config('system','maxloadavg')) > 0)?get_config('system','maxloadavg'):50), t("Maximum system load before delivery and poll processes are deferred - default 50.")),
 			'$default_expire_days' => array('default_expire_days', t('Expiration period in days for imported (grid/network) content'), intval(get_config('system','default_expire_days')), t('0 for no expiration of imported content')),
 			'$active_expire_days' => array('active_expire_days', t('Do not expire any posts which have comments less than this many days ago'), intval(get_config('system','active_expire_days',7)), ''),
-
 			'$sellpage' => array('site_sellpage', t('Public servers: Optional landing (marketing) webpage for new registrants'), get_config('system','sellpage',''), sprintf( t('Create this page first. Default is %s/register'),z_root())),
 			'$first_page' => array('first_page', t('Page to display after creating a new channel'), get_config('system','workflow_channel_next','profiles'), t('Default: profiles')),
-
 			'$location' => array('site_location', t('Optional: site location'), get_config('system','site_location',''), t('Region or country')),
-
-
 			'$form_security_token' => get_form_security_token("admin_site"),
 		));
 	}

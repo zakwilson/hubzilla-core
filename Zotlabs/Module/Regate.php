@@ -139,18 +139,22 @@ class Regate extends \Zotlabs\Web\Controller {
 										// zar_log($msg . ':' . print_r($cra, true));
 										zar_log($msg . ' ' . $cra['account']['account_email']
 													 . ' ' . $cra['account']['account_language']);
+
 										$nextpage = 'new_channel';
 
-										$auto_create  = (get_config('system','auto_channel_create') ? true : false);
+										$auto_create  = get_config('system','auto_channel_create',1);
 
 										if($auto_create) {
 											// prepare channel creation
 											if($reonar['chan.name'])
-												set_aconfig($cra['account']['account_id'],
-													'register','channel_name',$reonar['chan.name']);
+												set_aconfig($cra['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
+
 											if($reonar['chan.did1'])
-												set_aconfig($cra['account']['account_id'],
-													'register','channel_address',$reonar['chan.did1']);
+												set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
+
+											$permissions_role  = get_config('system','default_permissions_role');
+											if($permissions_role)
+												set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
 										}
 
 										authenticate_success($cra['account'],null,true,false,true);

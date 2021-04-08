@@ -5,11 +5,11 @@
     <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 	{{include file="field_input.tpl" field=$sitename}}
-
+	{{include file="field_input.tpl" field=$location}}
 	{{include file="field_textarea.tpl" field=$banner}}
 	{{include file="field_textarea.tpl" field=$siteinfo}}
 	{{include file="field_textarea.tpl" field=$admininfo}}
-
+	{{include file="field_select.tpl" field=$access_policy}}
     {{include file="field_input.tpl" field=$reply_address}}
     {{include file="field_input.tpl" field=$from_email}}
     {{include file="field_input.tpl" field=$from_email_name}}
@@ -33,21 +33,19 @@
 	{{include file="field_input.tpl" field=$register_text}}
 	{{include file="field_select_grouped.tpl" field=$role}}
 	{{include file="field_select.tpl" field=$register_policy}}
-	{{include file="field_checkbox.tpl" field=$register_wo_email}}
+	{{** include file="field_checkbox.tpl" field=$register_wo_email **}}
 	{{include file="register_duty.tpl" field=$register_duty}}
 	{{include file="field_input.tpl" field=$register_perday}}
-	{{include file="field_input.tpl" field=$register_sameip}}
+	{{** include file="field_input.tpl" field=$register_sameip **}}
 	{{$reg_delay}}
 	{{$reg_expire}}
 	{{include file="field_checkbox.tpl" field=$reg_autochannel}}
 	{{include file="field_checkbox.tpl" field=$invitation_only}}
 	{{include file="field_checkbox.tpl" field=$invitation_also}}
 	{{include file="field_checkbox.tpl" field=$verify_email}}
-	{{include file="field_input.tpl" field=$abandon_days}}
+
 	{{include file="field_input.tpl" field=$minimum_age}}
-	{{include file="field_select.tpl" field=$access_policy}}
-	{{include file="field_input.tpl" field=$location}}
-	{{include file="field_input.tpl" field=$sellpage}}
+	{{** include file="field_input.tpl" field=$sellpage **}}
 	{{include file="field_input.tpl" field=$first_page}}
 
 	<div class="submit">
@@ -62,6 +60,7 @@
 	{{include file="field_checkbox.tpl" field=$open_pubstream}}
 	{{include file="field_textarea.tpl" field=$incl}}
 	{{include file="field_textarea.tpl" field=$excl}}
+	{{include file="field_input.tpl" field=$abandon_days}}
 	
 	<div class="submit">
         <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" /></div>
@@ -80,6 +79,7 @@
 	{{include file="field_input.tpl" field=$maxloadavg}}
 	{{include file="field_input.tpl" field=$default_expire_days}}
 	{{include file="field_input.tpl" field=$active_expire_days}}
+
 	
 	<div class="submit">
         <input type="submit" name="page_site" class="btn btn-primary" value="{{$submit}}" />
@@ -127,12 +127,4 @@
 			}
 		});
 	});
-	// [hilmar->
-	$('head').append(
-	  '<style> '+
- 		'  .zuiqmid { font-weight: normal; font-family: monospace; }'+
-  		'  .zui_n  	{ width: 5em; text-align: center; }'+
-  		'  .zuia  	{ cursor: pointer; font-weight: bold; }'+
-	  '</style>');
-	// <-hilmar]
 </script>

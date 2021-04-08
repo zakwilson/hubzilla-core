@@ -171,11 +171,10 @@ class Register extends Controller {
 		}
 
 
-		$policy  = intval(get_config('system','register_policy'));
-		$invonly = intval(get_config('system','invitation_only'));
-		$invalso = intval(get_config('system','invitation_also'));
-		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
-		$auto_create = true;
+		$policy  = get_config('system','register_policy');
+		$invonly = get_config('system','invitation_only');
+		$invalso = get_config('system','invitation_also');
+		$auto_create = get_config('system','auto_channel_create', 1);
 
 		switch($policy) {
 
@@ -244,8 +243,8 @@ class Register extends Controller {
 								intval($reg['reg_id'])
 							);
 
-							$msg = 'ZAR0237I ' . t('Invitation code succesfully applied');
-							zar_log($msg) . ', ' . $email;
+							$msg = t('Invitation code succesfully applied');
+							zar_log('ZAR0237I ' . $msg) . ', ' . $email;
 							// msg!
 							info($msg . EOL);
 
@@ -261,29 +260,29 @@ class Register extends Controller {
 
 						} else {
 							// msg!
-							notice('ZAR0236E ' . t('Invitation not in time or too late') . EOL);
-							goaway(z_root() . '/~');
+							notice(t('Invitation not in time or too late') . EOL);
+							return;
 						}
 
 					} else {
 						// no match email adr
-						$msg = 'ZAR0235S ' . t('Invitation email failed');
-						zar_log($msg);
+						$msg = t('Invitation email failed');
+						zar_log('ZAR0235S ' . $msg);
 						notice($msg . EOL);
-						goaway(z_root() . '/~');
+						return;
 					}
 
 				} else {
 					// no match invitecode
-					$msg = 'ZAR0234S ' . t('Invitation code failed') ;
-					zar_log($msg);
+					$msg = t('Invitation code failed') ;
+					zar_log('ZAR0234S ' . $msg);
 					notice( $msg . EOL);
-					goaway(z_root() . '/~');
+					return;
 				}
 
 			} else {
-				notice('ZAR0232E ' . t('Invitations are not available') . EOL);
-				goaway(z_root() . '/~');
+				notice(t('Invitations are not available') . EOL);
+				return;
 			}
 
 
@@ -309,20 +308,20 @@ class Register extends Controller {
 
 
 				} else {
-					$msg = 'ZAR0237E ' . t('Email address already in use') . EOL;
+					$msg = t('Email address already in use') . EOL;
 					notice($msg);
 					// problem, the msg tells to anonymous about existant email addrs
 					// use another msg instead ? TODO ?
 					// on the other hand can play the fail2ban game
-					zar_log($msg . ' (' . $email . ')');
-					goaway(z_root());
+					zar_log('ZAR0237E ' . $msg . ' (' . $email . ')');
+					return;
 				}
 
 			} else {
-				$msg = 'ZAR0233E ' . t('Registration on this hub is by invitation only') . EOL;
+				$msg = t('Registration on this hub is by invitation only') . EOL;
 				notice($msg);
-				zar_log($msg);
-				goaway(z_root());
+				zar_log('ZAR0233E ' . $msg);
+				return;
 			}
 
 		}
@@ -442,9 +441,9 @@ class Register extends Controller {
 						goaway(z_root() . '/regate/' . bin2hex('d' . $didnew) . 'a' );
 					}
 					else {
-						$msg = 'ZAR0239D,' . t('Error creating dId A');
+						$msg = t('Error creating dId A');
 						notice( $msg );
-						zar_log( $msg . ' ' . $did2);
+						zar_log( 'ZAR0239D,' . $msg . ' ' . $did2);
 					}
 				}
 				goaway(z_root() . '/regate/' . bin2hex($email) . $didx );
@@ -461,7 +460,7 @@ class Register extends Controller {
 
 		if(intval(get_config('system','register_policy')) === REGISTER_CLOSED) {
 			if(intval(get_config('system','directory_mode')) === DIRECTORY_MODE_STANDALONE) {
-				notice( 'ZAR0130E ' . t('Registration on this hub is disabled.')  . EOL);
+				notice(t('Registration on this hub is disabled.')  . EOL);
 				return;
 			}
 
@@ -521,7 +520,7 @@ class Register extends Controller {
 
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 
-		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
+		$auto_create  = get_config('system', 'auto_channel_create', 1);
 		$default_role = get_config('system','default_permissions_role');
 		$email_verify = get_config('system','verify_email');
 
@@ -540,7 +539,7 @@ class Register extends Controller {
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
 		//
-		$name = array('name', t('Your Name'),
+		$name = array('name', t('Your name'),
 			((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
 		$nickname = array('nickname', t('Choose a short nickname'),
@@ -565,7 +564,7 @@ class Register extends Controller {
 			'$tao'			=> 	"typeof(window.tao) == 'undefined' ? window.tao = {} : '';\n"
 							.	"tao.zar = { vsn: '2.0.0', form: {}, msg: {} };\n"
 							.	"tao.zar.patano = /^d[0-9]{5,10}$/;\n"
-							.	"tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;\n"
+							.	"tao.zar.patema = /^[a-z0-9.-]{1,64}@[a-z0-9.-]{2,32}\.[a-z]{2,12}$/;\n"
 							.	"tao.zar.msg.ZAR0239E = '" . t('Email address not valid') . "';\n",
 
 			'$form_security_token' => get_form_security_token("register"),
@@ -573,7 +572,7 @@ class Register extends Controller {
 			'$reg_is'       => $registration_is,
 			'$registertext' => bbcode(get_config('system','register_text')),
 			'$other_sites'  => $other_sites,
-			'$msg'			=> $opal['rn'] . ',' . $opal['an'],
+			'$msg'          => $opal['msg'],
 			'$invitations'  => $invitations,
 			'$invite_code'  => $invite_code,
 			'$haveivc'		=> t('I have an invite code'),
@@ -593,7 +592,7 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
-			'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
+			//'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
 		));
 
 		return $o;
@@ -624,8 +623,8 @@ class Register extends Controller {
 			}
 
 			if ( $rear['is']) {
-				$rear['msg'] = 'ZAR0333W ' . t('This site has exceeded the number of allowed daily account registrations');
-				zar_log($msg);
+				$rear['msg'] = t('This site has exceeded the number of allowed daily account registrations.');
+				zar_log('ZAR0333W ' . $rear['msg']);
 				$rear['is'] = true;
 			}
 		}

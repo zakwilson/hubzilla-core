@@ -5,9 +5,10 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-			{{if $reg_is || $other_sites || $now}}
+			{{if $reg_is || $other_sites || $now || $msg}}
 			<div class="section-content-warning-wrapper">
-				<h3>{{$now}}</h3>
+				<div class="h3">{{$now}}</div>
+				<div id="register-desc" class="descriptive-paragraph">{{$msg}}</div>
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
 			</div>
@@ -15,6 +16,26 @@
 			{{if $registertext}}
 			<div class="section-content-info-wrapper">
 				<div id="register-text" class="descriptive-paragraph">{{$registertext}}</div>
+			</div>
+			{{/if}}
+
+			{{if $auto_create}}
+			{{if $default_role}}
+			<input type="hidden" name="permissions_role" value="{{$default_role}}" />
+			{{else}}
+			<div class="section-content-info-wrapper">
+			{{$help_role}}
+			</div>
+			{{include file="field_select_grouped.tpl" field=$role}}
+			{{/if}}
+
+			<div class="position-relative">
+				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
+				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
+			</div>
+			<div class="position-relative">
+				<div id="nick-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
+				{{include file="field_input.tpl" field=[$nickname.0,$nickname.1,"","","",$atform]}}
 			</div>
 			{{/if}}
 
@@ -33,22 +54,6 @@
 
 			{{include file="field_password.tpl" field=$pass2}}
 
-			{{if $auto_create}}
-				{{if $default_role}}
-				<input type="hidden" name="permissions_role" value="{{$default_role}}" />
-				{{else}}
-				<div class="section-content-info-wrapper">
-					{{$help_role}}
-				</div>
-				{{include file="field_select_grouped.tpl" field=$role}}
-				{{/if}}
-
-				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
-				<div id="name-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
-
-				{{include file="field_input.tpl" field=[$nickname.0,$nickname.1,"","","",$atform]}}
-				<div id="nick-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
-			{{/if}}
 
 			{{if $enable_tos}}
 			{{include file="field_checkbox.tpl" field=[$tos.0,$tos.1,"","","",$atform]}}
@@ -59,8 +64,6 @@
 			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
-		<br />
-		<div class="descriptive-text">{{$verify_note}} {{$msg}}</div>
 	</div>
 </div>
 {{* 
@@ -76,7 +79,7 @@
 
 	{{$tao}}
 
-	var week_days = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+	var week_days = ['Monday', 'Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 	$('.register_date').each( function () {
 		var date = new Date($(this).data('utc'));
 		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));

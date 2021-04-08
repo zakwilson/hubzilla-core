@@ -1113,6 +1113,13 @@ function bbcode($Text, $options = []) {
 		$Text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_spacefy',$Text);
 	}
 
+	if (strpos($Text,'[/img]') !== false) {
+		$Text = preg_replace_callback('/\[img(.*?)\[\/(img)\]/ism','\red_escape_codeblock',$Text);
+	}
+	if (strpos($Text,'[/zmg]') !== false) {
+		$Text = preg_replace_callback('/\[zmg(.*?)\[\/(zmg)\]/ism','\red_escape_codeblock',$Text);
+	}
+
 	$Text = bb_format_attachdata($Text);
 
 	// If we find any event code, turn it into an event.
@@ -1236,6 +1243,8 @@ function bbcode($Text, $options = []) {
 		if($tryoembed) {
 			$Text = preg_replace_callback("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", 'tryoembed', $Text);
 		}
+		// Is this still desired?
+		// We already turn naked URLs into links during creation time cleanup_bbcode()
 		$Text = preg_replace("/([^\]\='".'"'."\;\/]|^|\#\^)(https?\:\/\/$urlchars+)/ismu", '$1<a href="$2" ' . $target . ' rel="nofollow noopener">$2</a>', $Text);
 	}
 
@@ -1498,9 +1507,21 @@ function bbcode($Text, $options = []) {
 			"<span class=".'"bb-quote"'.">" . $t_wrote . "</span><blockquote>$2</blockquote>",
 			$Text);
 
+
 	// Images
+
+	if (strpos($Text,'[/img]') !== false) {
+		$Text = preg_replace_callback('/\[\$b64img(.*?)\[\/(img)\]/ism','\red_unescape_codeblock',$Text);
+	}
+
+	if (strpos($Text,'[/zmg]') !== false) {
+		$Text = preg_replace_callback('/\[\$b64zmg(.*?)\[\/(zmg)\]/ism','\red_unescape_codeblock',$Text);
+	}
+
+
 	// [img]pathtoimage[/img]
 	if (strpos($Text,'[/img]') !== false) {
+
 		$Text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img style="max-width: 100%;" src="$1" alt="' . t('Image/photo') . '" loading="eager" />', $Text);
 	}
 	// [img=pathtoimage]image description[/img]

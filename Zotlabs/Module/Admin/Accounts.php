@@ -70,18 +70,44 @@ class Accounts {
 							intval($_SESSION[self::MYP]['i'][$zarat])
 					);
 					if ($rs && ($rs[0]['reg_flags'] & ~ 48) == 0) {
-
 						// create account
-						$rc='ok'.$rs[0]['reg_id'];
+						$rc = 'ok'.$rs[0]['reg_id'];
 						$ac = create_account_from_register($rs[0]);
-						if ( $ac['success'] ) $rc .= '✔';
+						if ( $ac['success'] ) {
+							$rc .= '✔';
 
+							$auto_create  = get_config('system','auto_channel_create',1);
+
+							if($auto_create) {
+								$reonar = json_decode($rs[0]['reg_stuff'], true);
+								// prepare channel creation
+								if($reonar['chan.name'])
+									set_aconfig($ac['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
+
+								if($reonar['chan.did1'])
+									set_aconfig($ac['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
+
+								$permissions_role  = get_config('system','default_permissions_role');
+								if($permissions_role)
+									set_aconfig($ac['account']['account_id'], 'register', 'permissions_role', $permissions_role);
+
+								// create channel
+								$new_channel = auto_channel_create($ac['account']['account_id']);
+
+								if($new_channel['success']) {
+									$rc .= ' c,ok' . $new_channel['channel']['channel_id'] . '✔';
+								}
+								else {
+									$rc .= ' c ×';
+								}
+							}
+
+
+						}
 					} else {
-						$rc='oh×';
+						$rc='oh ×';
 					}
 				}
-
-				//
 				echo json_encode(array('re' => $zarop, 'at' => '_' . $zarat, 'rc' => $rc));
 			}
 			killme();

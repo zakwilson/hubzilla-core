@@ -14,11 +14,11 @@ $(document).ready(function() {
 			//ano
 		} else {
 			if (tao.zar.patema.test(tao.zar.form.email) == false ) {
-				$('#help_email').removeClass('text-muted').addClass('zuirise').html(tao.zar.msg.ZAR0239E);
+				$('#help_email').removeClass('text-muted').addClass('text-danger').html(tao.zar.msg.ZAR0239E);
 				zFormError('#help_email',true);
 			} else {
 				$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
-				$('#help_email').removeClass('text-muted').addClass('zuirise').html(data.message);
+				$('#help_email').removeClass('text-muted').addClass('text-danger').html(data.message);
 				zFormError('#help_email',data.error);
 				});
 			}
@@ -30,7 +30,7 @@ $(document).ready(function() {
 
 	$('#id_password').change(function() {
 		if(($('#id_password').val()).length < 6 ) {
-			$('#help_password').removeClass('text-muted').addClass('zuirise').html(aStr.pwshort);
+			$('#help_password').removeClass('text-muted').addClass('text-danger').html(aStr.pwshort);
 			zFormError('#help_password', true);
 		}
 		else {
@@ -42,7 +42,7 @@ $(document).ready(function() {
 	});
 	$('#id_password2').change(function() {
 		if($('#id_password').val() != $('#id_password2').val()) {
-			$('#help_password2').removeClass('text-muted').addClass('zuirise').html(aStr.pwnomatch);
+			$('#help_password2').removeClass('text-muted').addClass('text-danger').html(aStr.pwnomatch);
 			zFormError('#help_password2', true);
 			$('#id_password').focus();
 		}

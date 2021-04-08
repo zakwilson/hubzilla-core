@@ -14,19 +14,17 @@ $(document).ready(function() {
 
 	$('#id_email').change(function() {
 		tao.zar.form.email = $('#id_email').val();
-		if (tao.zar.patano.test(tao.zar.form.email) == true ) {
-			//ano
+
+		if (tao.zar.patema.test(tao.zar.form.email) == false ) {
+			$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_not_valid']);
+			zFormError('#help_email',true);
 		} else {
-			if (tao.zar.patema.test(tao.zar.form.email) == false ) {
-				$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_not_valid']);
-				zFormError('#help_email',true);
-			} else {
-				$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
+			$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
 				$('#help_email').removeClass('text-muted').addClass('text-danger').html(data.message);
 				zFormError('#help_email',data.error);
-				});
-			}
+			});
 		}
+
 		if ($('#id_email').val().length > 0) {
 			$('#newchannel-submit-button').removeAttr('disabled');
 		}

@@ -171,11 +171,10 @@ class Register extends Controller {
 		}
 
 
-		$policy  = intval(get_config('system','register_policy'));
-		$invonly = intval(get_config('system','invitation_only'));
-		$invalso = intval(get_config('system','invitation_also'));
-		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
-		$auto_create = true;
+		$policy  = get_config('system','register_policy');
+		$invonly = get_config('system','invitation_only');
+		$invalso = get_config('system','invitation_also');
+		$auto_create = get_config('system','auto_channel_create', 1);
 
 		switch($policy) {
 
@@ -521,7 +520,7 @@ class Register extends Controller {
 
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 
-		$auto_create  = (get_config('system','auto_channel_create') ? true : false);
+		$auto_create  = get_config('system', 'auto_channel_create', 1);
 		$default_role = get_config('system','default_permissions_role');
 		$email_verify = get_config('system','verify_email');
 

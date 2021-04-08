@@ -688,7 +688,7 @@ function account_allow($hash) {
 
 		pop_lang();
 
-		if(get_config('system','auto_channel_create'))
+		if(get_config('system', 'auto_channel_create', 1))
 			auto_channel_create($register[0]['uid']);
 
 		if ($res) {

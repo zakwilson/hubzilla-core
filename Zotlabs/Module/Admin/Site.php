@@ -491,7 +491,7 @@ class Site {
 			'$reg_expire'=>$reg_expire,
 			'$reg_autochannel'		=> array('auto_channel_create',
 				t("Auto channel create"),
-				get_config('system','auto_channel_create'),
+				get_config('system','auto_channel_create', 1),
 				t("Auto create a channel when register a new account. When On, the register form will show additional fields for the channel-name and the nickname."),
 				"",	"",	'ZAR0870C'),
 

@@ -135,13 +135,12 @@ class Regate extends \Zotlabs\Web\Controller {
 									intval($r['reg_id'])
 								);
 
-
-								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
+								if (($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING) {
 									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");
 								}
-								elseif ( ($flags ^ REGISTER_AGREED) == 0) {
+								elseif (($flags ^ REGISTER_AGREED) == 0) {
 
 									$cra = create_account_from_register([ 'reg_id' => $r['reg_id'] ]);
 

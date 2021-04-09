@@ -147,9 +147,9 @@ class Regate extends \Zotlabs\Web\Controller {
 									if ($cra['success']) {
 
 										q("COMMIT");
-										$msg = 'ZAR1238I ' . t('Account successfull created');
+										$msg = t('Account successfull created');
 										// zar_log($msg . ':' . print_r($cra, true));
-										zar_log($msg . ' ' . $cra['account']['account_email']
+										zar_log('ZAR1238I ' . $msg . ' ' . $cra['account']['account_email']
 													 . ' ' . $cra['account']['account_language']);
 
 										$nextpage = 'new_channel';

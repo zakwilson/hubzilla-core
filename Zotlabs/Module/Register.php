@@ -6,6 +6,8 @@ use App;
 use Zotlabs\Web\Controller;
 
 require_once('include/security.php');
+require_once('include/channel.php');
+
 
 class Register extends Controller {
 
@@ -59,20 +61,66 @@ class Register extends Controller {
 		 */
 
 
-        $act        = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
-		$duty 		= zar_register_dutystate();
-		$is247		= false;
-		$ip 		= $_SERVER['REMOTE_ADDR'];
-		$sameip  	= intval(get_config('system','register_sameip'));
+		$act         = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
+		$duty        = zar_register_dutystate();
+		$is247       = false;
+		$ip          = $_SERVER['REMOTE_ADDR'];
+		$sameip      = intval(get_config('system','register_sameip'));
+		$arr         = $_POST;
+		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$name        = '';
+		$nick        = '';
+		$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
+		$password    = ((x($arr,'password'))      ? trim($arr['password'])              : '');
+		$password2   = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
+		$reonar      = [];
+		$auto_create = get_config('system','auto_channel_create', 1);
 
-		$arr 		 = $_POST;
-		$invite_code = ( (x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$email 		 = ( (x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
-		$password 	 = ( (x($arr,'password'))      ? trim($arr['password'])              : '');
-		$password2 	 = ( (x($arr,'password2'))      ? trim($arr['password2'])            : '');
+		if($auto_create) {
+			$name = escape_tags(trim($arr['name']));
+			if(!$name) {
+				notice(t('Name is required.'));
+				return;
+			}
 
-		$reonar		 = array();
+			$name_error = validate_channelname($name);
+			if($name_error) {
+				notice($name_error . EOL);
+				return $ret;
+			}
 
+			$nick = mb_strtolower(escape_tags(trim($arr['nickname'])));
+			if(!$nick) {
+				notice(t('Nickname is required.'));
+				return;
+			}
+
+			if($nick === 'sys') {
+				notice(t('Reserved nickname. Please choose another.') . EOL);
+				return;
+			}
+
+			if(check_webbie([$nick]) !== $nick) {
+				notice(t('Nickname has unsupported characters or is already being used on this site.') . EOL);
+				return;
+			}
+		}
+
+		$email_verify = get_config('system', 'verify_email');
+		if ($email_verify && !$email) {
+			notice(t('Email address required') . EOL);
+			return;
+		}
+
+		if ($email) {
+			if (! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email)) {
+				// msg!
+				notice(t('Not a valid email address') . EOL);
+				return;
+			}
+		}
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
@@ -80,42 +128,6 @@ class Register extends Controller {
 				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
 					$is247 = true;
 				}
-			}
-		}
-
-/*
-		// assume someone tries to validate (dId2 C/D/E), because only field email entered
-		if ( $email && ( ! $invite_code ) && ( ! $password ) && ( ! $_POST['password2'] ) ) {
-
-			// dId2 logic
-
-			if ( preg_match('/^\@{1,1}.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
-				// dId2 C channel - ffu
-			}
-
-			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
-				// dId2 E email
-				goaway(z_root() . '/regate/' . bin2hex($email) . 'e' );
-			}
-
-			if ( preg_match('/^d{1,1}[0-9]{5,10}$/', $email ) ) {
-				// dId2 A artifical & anonymous
-				goaway(z_root() . '/regate/' . bin2hex($email) . 'a' );
-			}
-
-		}
-*/
-		$email_verify = get_config('system','verify_email');
-		if ($email_verify && ! $email) {
-			notice(t('Email address required') . EOL);
-			return;
-		}
-
-		if ($email) {
-			if ( ! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $_POST['email'] ) ) {
-				// msg!
-				notice(t('Not a valid email address') . EOL);
-				return;
 			}
 		}
 
@@ -178,7 +190,6 @@ class Register extends Controller {
 		$policy  = get_config('system','register_policy');
 		$invonly = get_config('system','invitation_only');
 		$invalso = get_config('system','invitation_also');
-		$auto_create = get_config('system','auto_channel_create', 1);
 
 		switch($policy) {
 
@@ -224,8 +235,8 @@ class Register extends Controller {
 						if ($reg['reg_startup'] <= $now && $reg['reg_expires'] >= $now) {
 
 							if ($auto_create) {
-								$reonar['chan.name'] = notags(trim($arr['name']));
-								$reonar['chan.did1'] = notags(trim($arr['nickname']));
+								$reonar['chan.name'] = $name;
+								$reonar['chan.did1'] = $nick;
 							}
 
 							q("UPDATE register set reg_pass = '%s', reg_stuff = '%s' WHERE reg_id = '%s'",
@@ -372,8 +383,8 @@ class Register extends Controller {
 				}
 
 				if ( $auto_create ) {
-					$reonar['chan.name'] = notags(trim($arr['name']));
-					$reonar['chan.did1'] = notags(trim($arr['nickname']));
+					$reonar['chan.name'] = $name;
+					$reonar['chan.did1'] = $nick;
 				}
 
 				$reg = q("INSERT INTO register ("

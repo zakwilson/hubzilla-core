@@ -10,7 +10,9 @@ $(document).ready(function() {
 		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));
 	});
 
-	$('#zar014').click( function () { $('#zar015').toggle(); });
+	$('#zar014').click( function () {
+		$('#zar015').toggle();
+	});
 
 	$('#id_invite_code').blur(function() {
 		if($('#id_invite_code').val() === '')
@@ -20,8 +22,9 @@ $(document).ready(function() {
 		var zreg_invite = $('#id_invite_code').val();
 		$.get('register/invite_check.json?f=&invite_code=' + encodeURIComponent(zreg_invite),function(data) {
 			if(!data.error) {
-				// FIXME: set email field to required -> $('#help_email')
 				$('#register-form input, #register-form button').removeAttr('disabled');
+				// email is always mandatory if using invite code
+				$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_required']);
 			}
 			$('#invite-spinner').hide();
 		});

@@ -214,23 +214,14 @@ class Register extends Controller {
 			if ($invonly || $invalso) {
 
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_didx = 'i' AND reg_hash = '%s'",
-					 dbesc($invite_code));
+					dbesc($invite_code)
+				);
 
 				if ($reg && count($reg) == 1) {
 					$reg = $reg[0];
 					if ($reg['reg_email'] == ($email)) {
 
 						if ($reg['reg_startup'] <= $now && $reg['reg_expires'] >= $now) {
-
-							// is invitor admin
-							$isa = get_account_by_id($reg['reg_uid']);
-							$isa = ( $isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN) );
-
-							// FIXME: set the correct flags if invitee is admin so we do not need to approve anyway if approve is on
-							// approve contra invite by admin
-							if ($isa && $policy == REGISTER_APPROVE)
-								$flags &= $flags ^ ACCOUNT_PENDING;
-
 
 							if ($auto_create) {
 								$reonar['chan.name'] = notags(trim($arr['name']));

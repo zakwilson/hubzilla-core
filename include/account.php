@@ -1271,9 +1271,8 @@ function get_pending_accounts() {
 
 	// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
 
-	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id,
-		CASE (reg_flags & %d) WHEN 0 THEN 1 WHEN 1 THEN 0 END AS reg_vfd
-		FROM register WHERE reg_vital = 1 AND (reg_flags & %d) >= 0",
+	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id
+		FROM register WHERE reg_vital = 1 AND (reg_flags & %d) = 0 AND (reg_flags & %d) >= 0",
 		intval(ACCOUNT_UNVERIFIED),
 		intval(ACCOUNT_PENDING)
 	);

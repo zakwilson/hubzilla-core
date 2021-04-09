@@ -99,16 +99,28 @@ class Regate extends \Zotlabs\Web\Controller {
 						if ( $acpin && ($r['reg_hash'] == $acpin )) {
 
 							$flags = $r['reg_flags'];
-							if ( ($flags & ACCOUNT_UNVERIFIED ) == ACCOUNT_UNVERIFIED) {
+							if (($flags & ACCOUNT_UNVERIFIED) == ACCOUNT_UNVERIFIED) {
 
 								// verification success
 								$msg 	= 'ZAR1237I' . ' ' . t('Verify successfull');
 								$reonar = json_decode( $r['reg_stuff'], true);
 								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
+
 								// clear flag
 								$flags &= $flags ^ ACCOUNT_UNVERIFIED;
+
+								// are we invited by the admin?
+								$isa = get_account_by_id($r['reg_uid']);
+								$isa = ($isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN));
+
+								// approve contra invite by admin
+								if ($isa && get_config('system','register_policy') == REGISTER_APPROVE) {
+									$flags &= $flags ^ ACCOUNT_PENDING;
+								}
+
 								// sth todo?
 								$vital = $flags == 0 ? 0 : 1;
+
 								// set flag
 								$flags |= REGISTER_AGREED;
 								zar_log($msg . ' ' . $did2 . ':flags' . $flags . ',rid' . $r['reg_id']);
@@ -123,8 +135,8 @@ class Regate extends \Zotlabs\Web\Controller {
 									intval($r['reg_id'])
 								);
 
-								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
 
+								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
 									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");

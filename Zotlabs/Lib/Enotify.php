@@ -976,12 +976,6 @@ class Enotify {
 
 	static public function format_register($rr) {
 
-		$policy  = intval(get_config('system','register_policy'));
-
-		$message = (($rr['reg_vfd']) ? t('verified') : t('not verified'));
-		if(!$rr['reg_vfd'] && $rr['reg_expires'] < datetime_convert())
-			$message = t('expired');
-
 		$x = [
 			'notify_link' => z_root() . '/admin/accounts',
 			'name' => (($rr['reg_email']) ? $rr['reg_email'] : $rr['reg_did2']),
@@ -989,7 +983,7 @@ class Enotify {
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
 			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['reg_created']),
 			'hclass' => ('notify-unseen'),
-			'message' => $message
+			'message' => t('verified')
 		];
 
 		return $x;

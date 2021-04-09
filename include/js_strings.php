@@ -119,7 +119,8 @@ function js_strings() {
 		'$download_info' => t('Please stand by while your download is being prepared.'),
 
 		// mod register
-		'$email_not_valid'    => t('Email address not valid')
+		'$email_not_valid' => t('Email address not valid'),
+		'$email_required' => t('Required')
 
 	));
 }

@@ -72,7 +72,8 @@
 		'download_info' : "{{$download_info}}",
 
 		// mod register
-		'email_not_valid' : "{{$email_not_valid}}"
+		'email_not_valid' : "{{$email_not_valid}}",
+		'email_required' : "{{$email_required}}"
 
 	};
 

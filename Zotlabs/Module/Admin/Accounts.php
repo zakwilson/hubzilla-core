@@ -217,17 +217,12 @@ class Accounts {
 
 			$tao .= 'tao.zar.zarar = {';
 			foreach ($pending as $n => $v) {
-				if (array_key_exists($v['reg_atip'], $atipn)) {
 
+				$pending[$n]['status'] = t('Verified');
+
+				if (array_key_exists($v['reg_atip'], $atipn)) {
 					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
 				}
-
-				$pending[$n]['status'] = t('Not verified');
-				if($pending[$n]['reg_vfd'])
-					$pending[$n]['status'] = t('Verified');
-
-				if(!$pending[$n]['reg_vfd'] && $pending[$n]['reg_expires'] < datetime_convert())
-					$pending[$n]['status'] = t('Expired');
 
 				// timezone adjust date_time for display
 				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
@@ -300,7 +295,7 @@ class Accounts {
 			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => t('Registrations waiting for confirm'),
 			'$th_pending' => array( t('Request date'), t('Verification status'), t('Timeframe'), 'dId2', t('specified,atip') ),
-			'$no_pending' =>  t('No registrations.'),
+			'$no_pending' =>  t('No verified registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
 			'$delete' => t('Delete'),

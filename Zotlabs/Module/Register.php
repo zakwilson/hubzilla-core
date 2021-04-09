@@ -492,10 +492,6 @@ class Register extends Controller {
 		if ( $opal['is'])
 			 $duty['atform'] = 'disabled';
 
-		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] : "");
-
-		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-
 		// Configurable terms of service link
 		$tosurl = get_config('system','tos_url');
 		if(! $tosurl)
@@ -520,7 +516,6 @@ class Register extends Controller {
 		$enable_tos = 1 - intval(get_config('system','no_termsofservice'));
 
 		$auto_create  = get_config('system', 'auto_channel_create', 1);
-		$default_role = get_config('system','default_permissions_role');
 		$email_verify = get_config('system','verify_email');
 
 		$emailval = ((x($_REQUEST,'email')) ? strip_tags(trim($_REQUEST['email'])) : "");
@@ -537,7 +532,6 @@ class Register extends Controller {
 
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
-		//
 		$name = array('name', t('Your name'),
 			((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
@@ -545,16 +539,8 @@ class Register extends Controller {
 			((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''),
 			sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'),
 			$nickhub));
-		$role = array('permissions_role' , t('Channel role and privacy'),
-			($privacy_role) ? $privacy_role : 'social',
-			t('Select a channel permission role for your usage needs and privacy requirements.')
-			. ' <a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">'
-			. t('Read more about channel permission roles')
-			. '</a>',$perm_roles);
-		//
 
 		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
-
 
 		require_once('include/bbcode.php');
 
@@ -572,8 +558,6 @@ class Register extends Controller {
 			'$atform'		=> $duty['atform'],
 			'$auto_create'  => $auto_create,
 			'$name'         => $name,
-			'$role'         => $role,
-			'$default_role' => $default_role,
 			'$nickname'     => $nickname,
 			'$enable_tos'	=> $enable_tos,
 			'$tos'          => $tos,
@@ -584,7 +568,6 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
-			//'$verify_note'  => (($email_verify) ? t('This site requires verification. After completing this form, please check the notice or your email for further instructions.') : '')
 		));
 
 		return $o;

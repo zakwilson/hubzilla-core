@@ -20,25 +20,16 @@
 			{{/if}}
 
 			{{if $invitations}}
-				<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
-				<div id="zar015" style="display: none;">
-					<div class="position-relative">
-						<div id="invite-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
-						{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
-					</div>
+			<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
+			<div id="zar015" style="display: none;">
+				<div class="position-relative">
+					<div id="invite-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
+					{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
 				</div>
+			</div>
 			{{/if}}
 
 			{{if $auto_create}}
-			{{if $default_role}}
-			<input type="hidden" name="permissions_role" value="{{$default_role}}" />
-			{{else}}
-			<div class="section-content-info-wrapper">
-			{{$help_role}}
-			</div>
-			{{include file="field_select_grouped.tpl" field=$role}}
-			{{/if}}
-
 			<div class="position-relative">
 				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
 				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
@@ -70,10 +61,3 @@
 		</form>
 	</div>
 </div>
-{{* 
-	COMMENTS for this template:
-	hilmar, 2020.02
-*}}
-<script>
-
-</script>

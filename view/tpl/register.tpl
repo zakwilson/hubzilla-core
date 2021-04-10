@@ -5,9 +5,13 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-			{{if $reg_is || $other_sites || $now || $msg}}
-			<div class="section-content-warning-wrapper">
+			{{if $now}}
+			<div class="section-content-danger-wrapper">
 				<div class="h3">{{$now}}</div>
+			</div>
+			{{/if}}
+			{{if $reg_is || $other_sites || $msg}}
+			<div class="section-content-warning-wrapper">
 				<div id="register-desc" class="descriptive-paragraph">{{$msg}}</div>
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>

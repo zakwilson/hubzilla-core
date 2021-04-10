@@ -80,10 +80,6 @@ class Register extends Controller {
 
 		if($auto_create) {
 			$name = escape_tags(trim($arr['name']));
-			if(!$name) {
-				notice(t('Name is required.'));
-				return;
-			}
 
 			$name_error = validate_channelname($name);
 			if($name_error) {

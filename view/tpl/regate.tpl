@@ -1,7 +1,5 @@
 <h2>{{$title}}</h2>
 
-<h3>{{$now}}</h3>
-
 <div class="descriptive-paragraph" style="font-size: 1.2em;"><p>{{$desc}}</p></div>
 
 <form action="regate/{{$did2}}" method="post">

@@ -252,35 +252,46 @@ class Regate extends \Zotlabs\Web\Controller {
 			return $o;
 		}
 
-		if ( argc() > 1 ) {
-			$did2 = hex2bin( substr( argv(1), 0, -1) );
-			$didx = substr( argv(1), -1 );
-			$deny = argc() > 2 ? argv(2) : '';
-			$deny = preg_match('/^[0-9a-f]{8,8}$/', $deny) ? hex2bin($deny) : false;
-		}
-
-		if ($_SESSION['zar']['msg']) {
-			$o = replace_macros(get_markup_template('plain.tpl'), [
-				'$title'	=> t('Your Registration'),
-				'$now'		=> '',
-				'$infos'	=> $_SESSION['zar']['msg'] . EOL,
+		if ($_SESSION['zar']['delayed']) {
+			$o = replace_macros(get_markup_template('regate_pre.tpl'), [
+				'$title'     => t('Register Verification'),
+				'$id'        => $_SESSION['zar']['id'],
+				'$pin'       => $_SESSION['zar']['pin'],
+				'$regdelay'  => $_SESSION['zar']['regdelay'],
+				'$regexpire' => $_SESSION['zar']['regexpire'],
+				'$desc'      => [
+					t('Please remember your validation token and ID'),
+					t('Your ID'),
+					t('Your token')
+				],
+				'$delay_desc' => [
+					t('Hold on, you can start verification in'),
+					t('Token validity')
+				]
 			]);
-			unset($_SESSION['zar']['msg']);
+			unset($_SESSION['zar']['delayed']);
 			return $o;
 		}
 
-		$now 	= datetime_convert();
-		$ip 	= $_SERVER['REMOTE_ADDR'];
+		if (argc() < 2)
+			return;
 
+		$did2   = hex2bin( substr( argv(1), 0, -1) );
+		$didx   = substr( argv(1), -1 );
+		$deny   = argc() > 2 ? argv(2) : '';
+		$deny   = preg_match('/^[0-9a-f]{8,8}$/', $deny) ? hex2bin($deny) : false;
+
+		$now    = datetime_convert();
+		$ip     = $_SERVER['REMOTE_ADDR'];
 		$isduty = zar_register_dutystate();
 		$nowfmt = $isduty['nowfmt'];
 		$atform = $isduty['atform'];
+		$pin    = '';
 
-		$pin = $_SESSION['zar']['pin'] ?? '';
-		unset($_SESSION['zar']['pin']);
-
-
-		$title = t('Register Verification');
+		if(isset($_SESSION['zar']['pin'])) {
+			$pin = $_SESSION['zar']['pin'];
+			unset($_SESSION['zar']['pin']);
+		}
 
 		// do we have a valid dId2 ?
 		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e') || ($didx == 'i')) {
@@ -342,7 +353,7 @@ class Regate extends \Zotlabs\Web\Controller {
 						if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
 							$o = replace_macros(get_markup_template('regate.tpl'), [
 							'$form_security_token' => get_form_security_token("regate"),
-							'$title' 	=> $title,
+							'$title' 	=> t('Register Verification'),
 							'$desc' 	=> $pin ? t('Please enter your validation token') . ' <code class="inline-code">' .  $pin . '</code>' : t('Please enter your validation token'),
 							'$did2' 	=> bin2hex($did2) . $didx,
 							'$now'		=> $nowfmt,
@@ -361,7 +372,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							}
 
 							$o = replace_macros(get_markup_template('plain.tpl'), [
-								'$title'	=> $title,
+								'$title'	=> t('Register Verification'),
 								'$now'		=> $nowf,
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$infos'	=> t('Hold on, you can start verification in') . EOL,

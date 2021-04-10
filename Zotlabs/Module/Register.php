@@ -426,12 +426,11 @@ class Register extends Controller {
 
 						if($reg_delayed) {
 							// this could be removed to make registration harder
+							$_SESSION['zar']['id'] = 'd' . $didnew;
 							$_SESSION['zar']['pin'] = $pass2;
-
-							$_SESSION['zar']['msg'] = t('Your validation token is') . EOL
-							. '<h3>' . $pass2 . '</h3>' . EOL
-							. t('Hold on, you can start verification in')
-							. '<div class="d-none"><code class="inline-code"><span id="register_start" data-utc="' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regdelay, 'c') . '</span></code> ' . t('and') . ' <code class="inline-code"><span data-utc="' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '" class="register_date">' . datetime_convert('UTC', 'UTC', $regexpire, 'c') . '</span></code></div>';
+							$_SESSION['zar']['delayed'] = true;
+							$_SESSION['zar']['regdelay'] = datetime_convert('UTC', 'UTC', $regdelay, 'c');
+							$_SESSION['zar']['regexpire'] = datetime_convert('UTC', 'UTC', $regexpire, 'c');
 						}
 						else {
 							$_SESSION['zar']['pin'] = $pass2;

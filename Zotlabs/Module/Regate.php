@@ -265,7 +265,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				'$regdelay'   => $_SESSION['zar']['regdelay'],
 				'$regexpire'  => $_SESSION['zar']['regexpire'],
 				'$strings' => [
-					t('Hold on, you can start verification in'),
+					t('Hold on, you can start validation in'),
 					t('Please remember your validation token for ID'),
 					t('Token validity')
 				]
@@ -322,14 +322,11 @@ class Regate extends \Zotlabs\Web\Controller {
 					if ($deny) {
 
 						if (substr($r['reg_hash'],0,4) == $deny) {
-
 							zar_log('ZAR1134S email verfication denied ' . $did2);
 
-							$msg = 'ZAR1133A' . ' ' . t('Sorry for any inconvience. Thank you for your response.');
 							$o = replace_macros(get_markup_template('plain.tpl'), [
-								'$title'	=> t('Registration request denied'),
-								'$now'		=> $nowfmt,
-								'$infos'	=> $msg . EOL,
+								'$title' => t('Registration request revoked'),
+								'$infos' => t('Sorry for any inconvience. Thank you for your response.')
 							]);
 
 							$reonar = json_decode( $r['reg_stuff'], true);
@@ -372,6 +369,12 @@ class Regate extends \Zotlabs\Web\Controller {
 								$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
 									intval($r['reg_id'])
 								);
+
+								$o = replace_macros(get_markup_template('plain.tpl'), [
+									'$infos'	=> t('ID expired'),
+								]);
+
+								return $o;
 							}
 
 							$o = replace_macros(get_markup_template('regate_pre.tpl'), [
@@ -380,33 +383,34 @@ class Regate extends \Zotlabs\Web\Controller {
 								'$id'        => $did2,
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$strings'   => [
-									t('Hold on, you can start verification in'),
+									t('Hold on, you can start validation in'),
 									t('You will require the validation token for ID')
-				]				]);
+								]
+							]);
 						}
 					}
 				}
 			}
 			else {
-				$msg = t('Identity unknown');
+				$msg = t('Unknown or expired ID');
 				zar_log('ZAR1132E ' . $msg . ':' . $did2 . ',' . $didx);
 				$o = replace_macros(get_markup_template('plain.tpl'), [
 					'$title'	=> $title,
 					'$now'		=> $nowfmt,
-					'$infos'	=> $msg . EOL,
+					'$infos'	=> $msg
 				]);
 			}
 
 		}
 		else {
-			$msg = 'ZAR1131E ' . t('dId2 mistaken');
+			$msg = 'ZAR1131E ' . t('dId2 malformed');
 			// $log = ' from § ' . $ip . ' §' . ' (' . dbesc($did2) . ')';
 			zar_log($msg);
 			$o = replace_macros(get_markup_template('plain.tpl'), [
 				'$title'	=> $title,
 				'$now'		=> $nowfmt,
-				'$infos'	=> ($msg) . EOL,
-				]);
+				'$infos'	=> $msg
+			]);
 		}
 
 		return $o;

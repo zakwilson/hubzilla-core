@@ -874,11 +874,7 @@ function get_tags($s) {
 	// ignore anything in [color= ], because it may contain color codes which are mistaken for tags
 	$s = preg_replace('/\[color=(.*?)\]/sm','',$s);
 
-	// skip anchors in URL
-	$s = preg_replace('/\[url=(.*?)\]/sm','',$s);
-
 	// match any double quoted tags
-
 	if(preg_match_all('/([@#\!]\&quot\;.*?\&quot\;)/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
@@ -891,7 +887,6 @@ function get_tags($s) {
 	}
 
 	// match bracket mentions
-
 	if(preg_match_all('/([@!]\!?\{.*?\})/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
@@ -900,7 +895,6 @@ function get_tags($s) {
 
 	// Pull out single word tags. These can be @nickname, @first_last
 	// and #hash tags.
-
 	if(preg_match_all('/(?<![a-zA-Z0-9=\pL\/\?\;])([@#\!]\!?[^ \x0D\x0A,;:\?\[\{\&]+)/u',$s,$match)) {
 		foreach($match[1] as $mtch) {
 
@@ -924,7 +918,6 @@ function get_tags($s) {
 	}
 
 	// bookmarks
-
 	if(preg_match_all('/#\^\[(url|zrl)(.*?)\](.*?)\[\/(url|zrl)\]/',$s,$match,PREG_SET_ORDER)) {
 		foreach($match as $mtch) {
 			$ret[] = $mtch[0];

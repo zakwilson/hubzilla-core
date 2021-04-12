@@ -20,6 +20,8 @@ class Wfinger extends \Zotlabs\Web\Controller {
 			$scheme = 'https';
 		elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
 			$scheme = 'https';
+		elseif(x($_SERVER,'HTTP_X_FORWARDED_PROTO') && ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'))
+			$scheme = 'https';			
 
 		$zot = intval($_REQUEST['zot']);
 

@@ -258,15 +258,15 @@ class Regate extends \Zotlabs\Web\Controller {
 
 		if ($_SESSION['zar']['delayed']) {
 			$o = replace_macros(get_markup_template('regate_pre.tpl'), [
-				'$title'      => t('Registration validation'),
+				'$title'      => t('Registration verification'),
 				'$now'        => $nowfmt,
 				'$id'         => $_SESSION['zar']['id'],
 				'$pin'        => $_SESSION['zar']['pin'],
 				'$regdelay'   => $_SESSION['zar']['regdelay'],
 				'$regexpire'  => $_SESSION['zar']['regexpire'],
 				'$strings' => [
-					t('Hold on, you can start validation in'),
-					t('Please remember your validation token for ID'),
+					t('Hold on, you can start verification in'),
+					t('Please remember your verification token for ID'),
 					t('Token validity')
 				]
 			]);
@@ -306,14 +306,14 @@ class Regate extends \Zotlabs\Web\Controller {
 				$resend = ($r['reg_didx'] == 'e') ? t('Resend') : false;
 
 				// is still only instance admins intervention required?
-				if ( $r['reg_flags'] == ACCOUNT_PENDING ) {
+				if ($r['reg_flags'] == ACCOUNT_PENDING) {
 					$o = replace_macros(get_markup_template('regate_post.tpl'), [
 						'$title' => t('Registration status'),
-						'$pin'   => $did2,
-						'$infos' => [
+						'$id'    => $did2,
+						'$strings' => [
 							t('Verification successful!'),
-							t('Your login ID'),
-							t('After your account has been approved by our admin you will be able to login with your ID and your provided password.')
+							t('Your login ID is'),
+							t('After your account has been approved by our administrator you will be able to login with your login ID and your provided password.')
 						]
 					]);
 				}
@@ -349,8 +349,8 @@ class Regate extends \Zotlabs\Web\Controller {
 						if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
 							$o = replace_macros(get_markup_template('regate.tpl'), [
 							'$form_security_token' => get_form_security_token("regate"),
-							'$title'  => t('Registration validation'),
-							'$desc'   => t('Please enter your validation token for ID'),
+							'$title'  => t('Registration verification'),
+							'$desc'   => t('Please enter your verification token for ID'),
 							'$id'     => $did2,
 							// we might consider to not provide $pin if a registration delay is configured
 							// and the pin turns out to be readable by bots
@@ -360,7 +360,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							'$atform' => $atform,
 							'$resend' => $resend,
 							'$submit' => t('Submit'),
-							'$acpin'  => [ 'acpin', t('Validation token'),'','' ]
+							'$acpin'  => [ 'acpin', t('Verification token'),'','' ]
 							]);
 						}
 						else {
@@ -378,13 +378,13 @@ class Regate extends \Zotlabs\Web\Controller {
 							}
 
 							$o = replace_macros(get_markup_template('regate_pre.tpl'), [
-								'$title'     => t('Registration validation'),
+								'$title'     => t('Registration verification'),
 								'$now'       => $nowfmt,
 								'$id'        => $did2,
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$strings'   => [
-									t('Hold on, you can start validation in'),
-									t('You will require the validation token for ID')
+									t('Hold on, you can start verification in'),
+									t('You will require the verification token for ID')
 								]
 							]);
 						}

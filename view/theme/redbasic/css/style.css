@@ -1328,6 +1328,14 @@ img.mail-conv-sender-photo {
 	border-bottom: 3px solid $comment_item_colour;
 }
 
+.section-content-success-wrapper {
+	padding: 21px 10px;
+	color: #155724;
+	background-color: #d4edda;
+	border-bottom: 3px solid $comment_item_colour;
+	text-align: center;
+}
+
 .section-content-info-wrapper {
 	padding: 21px 10px;
 	color: #0c5460;
@@ -1351,7 +1359,8 @@ img.mail-conv-sender-photo {
 	border-bottom: 3px solid $comment_item_colour;
 	text-align: center;
 }
-
+.section-content-tools-wrapper .section-content-success-wrapper,
+.section-content-wrapper .section-content-success-wrapper,
 .section-content-tools-wrapper .section-content-info-wrapper,
 .section-content-wrapper .section-content-info-wrapper,
 .section-content-tools-wrapper .section-content-warning-wrapper,

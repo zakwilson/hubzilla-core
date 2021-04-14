@@ -75,6 +75,8 @@ class Register extends Controller {
 		$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
 		$password    = ((x($arr,'password'))      ? trim($arr['password'])              : '');
 		$password2   = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
+		$register_msg = ((x($arr,'register_msg'))   ? notags(trim($arr['register_msg']))   : '');
+
 		$reonar      = [];
 		$auto_create = get_config('system','auto_channel_create', 1);
 
@@ -181,7 +183,6 @@ class Register extends Controller {
 			notice(t('Terms of Service not accepted') . EOL);
 			return;
 		}
-
 
 		$policy  = get_config('system','register_policy');
 		$invonly = get_config('system','invitation_only');
@@ -378,9 +379,13 @@ class Register extends Controller {
 					}
 				}
 
-				if ( $auto_create ) {
+				if ($auto_create) {
 					$reonar['chan.name'] = $name;
 					$reonar['chan.did1'] = $nick;
+				}
+
+				if ($policy == REGISTER_APPROVE) {
+					$reonar['msg'] = $register_msg;
 				}
 
 				$reg = q("INSERT INTO register ("
@@ -398,7 +403,7 @@ class Register extends Controller {
 					dbesc($password),
 					dbesc(substr(get_best_language(),0,2)),
 					dbesc($ip),
-					dbesc(json_encode( $reonar ))
+					dbesc(json_encode($reonar))
 				);
 
 				if ($didx == 'a') {
@@ -537,12 +542,15 @@ class Register extends Controller {
 
 		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
 
+		$register_msg = ['register_msg', t('Why do you want to join this hub?')];
+
 		require_once('include/bbcode.php');
 
 		$o = replace_macros(get_markup_template('register.tpl'), array(
 			'$form_security_token' => get_form_security_token("register"),
 			'$title'        => t('Registration'),
 			'$reg_is'       => $registration_is,
+			'$register_msg' => $register_msg,
 			'$registertext' => bbcode(get_config('system','register_text')),
 			'$other_sites'  => $other_sites,
 			'$msg'          => $opal['msg'],
@@ -563,6 +571,7 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
+
 		));
 
 		return $o;

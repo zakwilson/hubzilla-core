@@ -43,23 +43,17 @@
 				{{include file="field_input.tpl" field=[$nickname.0,$nickname.1,"","","",$atform]}}
 			</div>
 			{{/if}}
-
-			<div>
-
 			{{include file="field_input.tpl" field=$email}}
-			</div>
-
 			{{include file="field_password.tpl" field=$pass1}}
-
 			{{include file="field_password.tpl" field=$pass2}}
-
-
+			{{if $reg_is}}
+			{{include file="field_textarea.tpl" field=$register_msg}}
+			{{/if}}
 			{{if $enable_tos}}
 			{{include file="field_checkbox.tpl" field=[$tos.0,$tos.1,"","","",$atform]}}
 			{{else}}
 			<input type="hidden" name="tos" value="1" />
 			{{/if}}
-
 			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>

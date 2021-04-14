@@ -136,7 +136,6 @@ class Regate extends \Zotlabs\Web\Controller {
 								);
 
 								if (($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING) {
-									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");
 								}

@@ -218,10 +218,15 @@ class Accounts {
 			$tao .= 'tao.zar.zarar = {';
 			foreach ($pending as $n => $v) {
 
-				$pending[$n]['status'] = t('Verified');
+				$stuff = json_decode($v['reg_stuff'], true);
+
+				if(isset($stuff['msg'])) {
+					$pending[$n]['msg'] = $stuff['msg'];
+				}
 
 				if (array_key_exists($v['reg_atip'], $atipn)) {
-					$pending[$n]['reg_atip'] = $v['reg_atip'] . ' ◄' . $atipn[ $v['reg_atip'] ] . '×';
+					$pending[$n]['reg_atip'] = $v['reg_atip'];
+					$pending[$n]['reg_atip_n'] = $atipn[$v['reg_atip']];
 				}
 
 				// timezone adjust date_time for display
@@ -293,8 +298,8 @@ class Accounts {
 			'$sel_tall' => t('Select toggle'),
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
-			'$h_pending' => t('Registrations waiting for confirm'),
-			'$th_pending' => array( t('Request date'), t('Verification status'), t('Timeframe'), 'dId2', t('specified,atip') ),
+			'$h_pending' => t('Verified registrations waiting for approval'),
+			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('IP Count')),
 			'$no_pending' =>  t('No verified registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),

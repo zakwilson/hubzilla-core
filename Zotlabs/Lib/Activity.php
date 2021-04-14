@@ -1094,18 +1094,7 @@ class Activity {
 			'height'    => 300,
 			'width'     => 300,
 		];
-		$ret['url']     = [
-			[
-				'type'      => 'Link',
-				'mediaType' => 'text/html',
-				'href'      => $p['xchan_url']
-			],
-			[
-				'type'      => 'Link',
-				'mediaType' => 'text/x-zot+json',
-				'href'      => $p['xchan_url']
-			]
-		];
+		$ret['url']     = $p['xchan_url'];
 
 		$ret['publicKey'] = [
 			'id'           => $p['xchan_url'],

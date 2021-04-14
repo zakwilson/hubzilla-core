@@ -3693,7 +3693,7 @@ function get_forum_channels($uid) {
 
 		$xc = ids_to_querystr($x1,'xchan',true);
 
-		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . $xc . ") ",
+		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . protect_sprintf($xc) . ") ",
 			intval($uid)
 		);
 
@@ -3701,7 +3701,7 @@ function get_forum_channels($uid) {
 		$sql_extra = (($xf) ? ' and not xchan in (' . $xf . ')' : '');
 
 		// private forums
-		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") $sql_extra ",
+		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . protect_sprintf($xc) . ") $sql_extra ",
 			intval(local_channel())
 		);
 		if($x3) {
@@ -3709,7 +3709,7 @@ function get_forum_channels($uid) {
 		}
 
 		// public forums with no permission to post
-		$x4 = q("select xchan from abconfig left join xchan on xchan = xchan_hash where chan = %d and cat = 'their_perms' and k in ('post_wall', 'tag_deliver') and v = '0' and xchan in (" . $xc . ") and xchan_pubforum = 1 $sql_extra ",
+		$x4 = q("select xchan from abconfig left join xchan on xchan = xchan_hash where chan = %d and cat = 'their_perms' and k in ('post_wall', 'tag_deliver') and v = '0' and xchan in (" . protect_sprintf($xc) . ") and xchan_pubforum = 1 $sql_extra ",
 			intval(local_channel())
 		);
 		if($x4) {
@@ -3718,7 +3718,7 @@ function get_forum_channels($uid) {
 
 	}
 
-	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
+	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . protect_sprintf($xf) . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)

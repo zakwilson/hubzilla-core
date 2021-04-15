@@ -17,7 +17,7 @@
 				</thead>
 				<tbody>
 			{{foreach $pending as $n => $u}}
-				<tr class="zebra zebra{{$u.reg_z}}">
+				<tr class="">
 					<td class="created">{{$u.reg_created}}</td>
 					<td class="email">{{$u.reg_did2}}</td>
 					<td class="email">{{$u.reg_email}}</td>
@@ -31,7 +31,7 @@
 					</td>
 				</tr>
 				<tr>
-					<td colspan="7">{{$u.msg}}</td>
+					<td colspan="7"><strong>{{$msg}}:</strong> {{$u.msg}}</td>
 				</tr>
 			{{/foreach}}
 				</tbody>

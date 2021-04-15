@@ -299,7 +299,7 @@ class Accounts {
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => t('Verified registrations waiting for approval'),
-			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('IP Count')),
+			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('Requests')),
 			'$no_pending' =>  t('No verified registrations.'),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
@@ -330,6 +330,7 @@ class Accounts {
 			'$tao'		=> $tao,
 			'$pending' 	=> $pending,
 			'$users' 	=> $users,
+			'$msg'      => t('Message')
 		));
 		$o .= paginate($a);
 

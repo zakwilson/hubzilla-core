@@ -978,7 +978,7 @@ class Enotify {
 
 		$x = [
 			'notify_link' => z_root() . '/admin/accounts',
-			'name' => (($rr['reg_email']) ? $rr['reg_email'] : $rr['reg_did2']),
+			'name' => $rr['reg_did2'],
 			//'addr' => '',
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
 			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['reg_created']),

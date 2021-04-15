@@ -780,7 +780,7 @@ div.jGrowl div.info {
 }
 #jGrowl.top-right {
 	top: 4.5rem;
-	right: 15px;
+	right: .25rem;
 }
 
 div.jGrowl div.jGrowl-notification {

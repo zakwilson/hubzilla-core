@@ -35,12 +35,13 @@
 
 			{{if $auto_create}}
 			<div class="position-relative">
-				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
-				{{include file="field_input.tpl" field=[$name.0,$name.1,"","","",$atform]}}
+				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.75rem;"><div class="spinner s"></div></div>
+				{{include file="field_input.tpl" field=$name}}
 			</div>
 			<div class="position-relative">
-				<div id="nick-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
-				{{include file="field_input.tpl" field=[$nickname.0,$nickname.1,"","","",$atform]}}
+				<div id="nick-hub" class="position-absolute" style="top: 2.3rem; right: 0.75rem;"><span class="text-muted">{{$nickhub}}</span></div>
+				<div id="nick-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.75rem;"><div class="spinner s"></div></div>
+				{{include file="field_input.tpl" field=$nickname}}
 			</div>
 			{{/if}}
 			{{include file="field_input.tpl" field=$email}}
@@ -50,7 +51,7 @@
 			{{include file="field_textarea.tpl" field=$register_msg}}
 			{{/if}}
 			{{if $enable_tos}}
-			{{include file="field_checkbox.tpl" field=[$tos.0,$tos.1,"","","",$atform]}}
+			{{include file="field_checkbox.tpl" field=$tos}}
 			{{else}}
 			<input type="hidden" name="tos" value="1" />
 			{{/if}}

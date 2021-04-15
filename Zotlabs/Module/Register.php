@@ -532,17 +532,13 @@ class Register extends Controller {
 
 		$invite_code  = array('invite_code', t('Please enter your invitation code'), ((x($_REQUEST,'invite_code')) ? strip_tags(trim($_REQUEST['invite_code'])) : ""));
 
-		$name = array('name', t('Your name'),
-			((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real names are preferred.'));
+		$name = array('name', t('Your name'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), t('Real name is preferred'), '', '', $duty['atform']);
 		$nickhub = '@' . str_replace(array('http://','https://','/'), '', get_config('system','baseurl'));
-		$nickname = array('nickname', t('Choose a short nickname'),
-			((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''),
-			sprintf( t('Your nickname will be used to create an easy to remember channel address e.g. nickname%s'),
-			$nickhub));
+		$nickname = array('nickname', t('Choose a short nickname'),	((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), t('Your nickname will be used to create an easy to remember channel address'), '', '', $duty['atform']);
 
-		$tos = array('tos', $label_tos, '', '', array(t('no'),t('yes')));
+		$tos = array('tos', $label_tos, ((x($_REQUEST,'tos')) ? $_REQUEST['tos'] : ''), '', [t('no'),t('yes')], $duty['atform']);
 
-		$register_msg = ['register_msg', t('Why do you want to join this hub?')];
+		$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : '')];
 
 		require_once('include/bbcode.php');
 
@@ -571,6 +567,7 @@ class Register extends Controller {
 			'$pass1'        => $password,
 			'$pass2'        => $password2,
 			'$submit'       => t('Register'),
+			'$nickhub'      => $nickhub
 
 		));
 

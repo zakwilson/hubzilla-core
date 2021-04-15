@@ -35,16 +35,10 @@ $(document).ready(function() {
 
 		if (tao.zar.patema.test(tao.zar.form.email) == false ) {
 			$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_not_valid']);
-			zFormError('#help_email',true);
 		} else {
 			$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
 				$('#help_email').removeClass('text-muted').addClass('text-danger').html(data.message);
-				zFormError('#help_email',data.error);
 			});
-		}
-
-		if ($('#id_email').val().length > 0) {
-			$('#newchannel-submit-button').removeAttr('disabled');
 		}
 	});
 
@@ -74,7 +68,7 @@ $(document).ready(function() {
 	});
 
 	$('#id_name').blur(function() {
-		$('#name-spinner').show();
+		$('#name-spinner').fadeIn();
 		var zreg_name = $('#id_name').val();
 		$.get('new_channel/autofill.json?f=&name=' + encodeURIComponent(zreg_name),function(data) {
 			$('#id_nickname').val(data);
@@ -82,15 +76,13 @@ $(document).ready(function() {
 				$('#help_name').html('');
 				zFormError('#help_name',data.error);
 			}
-			$('#name-spinner').hide();
+			$('#name-spinner').fadeOut();
 		});
 	});
 
 	$('#id_nickname').blur(function() {
-		if($('#id_name').val() === '')
-			return;
-
-		$('#nick-spinner').show();
+		$('#nick-spinner').fadeIn();
+		$('#nick-hub').fadeOut();
 		var zreg_nick = $('#id_nickname').val();
 		$.get('new_channel/checkaddr.json?f=&nick=' + encodeURIComponent(zreg_nick),function(data) {
 			$('#id_nickname').val(data);
@@ -98,12 +90,13 @@ $(document).ready(function() {
 				$('#help_nickname').html('');
 				zFormError('#help_nickname',data.error);
 			}
-			$('#nick-spinner').hide();
+			$('#nick-spinner').fadeOut();
+			$('#nick-hub').fadeIn();
 		});
 	});
 
 	$('#register-form').submit(function(e) {
-		if ( $('.zform-error').length > 0 ) {
+		if ($('.zform-error').length > 0) {
 			e.preventDefault();
 			return false;
 		}

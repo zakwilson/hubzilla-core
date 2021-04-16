@@ -1094,18 +1094,7 @@ class Activity {
 			'height'    => 300,
 			'width'     => 300,
 		];
-		$ret['url']     = [
-			[
-				'type'      => 'Link',
-				'mediaType' => 'text/html',
-				'href'      => $p['xchan_url']
-			],
-			[
-				'type'      => 'Link',
-				'mediaType' => 'text/x-zot+json',
-				'href'      => $p['xchan_url']
-			]
-		];
+		$ret['url']     = $p['xchan_url'];
 
 		$ret['publicKey'] = [
 			'id'           => $p['xchan_url'],
@@ -1334,11 +1323,11 @@ class Activity {
 		 *
 		 */
 
-		$person_obj = $act->actor;
-
-		if ($act->type === 'Follow') {
+		if (in_array($act->type, [ 'Follow', 'Invite', 'Join'])) {
 			$their_follow_id = $act->id;
 		}
+
+		$person_obj = (($act->type == 'Invite') ? $act->obj : $act->actor);
 
 		if (is_array($person_obj)) {
 
@@ -1357,9 +1346,8 @@ class Activity {
 			}
 		}
 
-		$x           = PermissionRoles::role_perms('social');
-		$p           = Permissions::FilledPerms($x['perms_connect']);
-		$their_perms = Permissions::serialise($p);
+		$x = \Zotlabs\Access\PermissionRoles::role_perms('social');
+		$their_perms = \Zotlabs\Access\Permissions::FilledPerms($x['perms_connect']);
 
 		if ($contact && $contact['abook_id']) {
 
@@ -1368,6 +1356,8 @@ class Activity {
 			switch ($act->type) {
 
 				case 'Follow':
+				case 'Invite':
+				case 'Join':
 
 					// A second Follow request, but we haven't approved the first one
 
@@ -1433,8 +1423,8 @@ class Activity {
 		}
 		$ret = $r[0];
 
-		$p         = Permissions::connect_perms($channel['channel_id']);
-		$my_perms  = Permissions::serialise($p['perms']);
+		$p = \Zotlabs\Access\Permissions::connect_perms($channel['channel_id']);
+		$my_perms  = $p['perms'];
 		$automatic = $p['automatic'];
 
 		$closeness = get_pconfig($channel['channel_id'], 'system', 'new_abook_closeness', 80);
@@ -1454,12 +1444,13 @@ class Activity {
 			]
 		);
 
-		if ($my_perms)
-			set_abconfig($channel['channel_id'], $ret['xchan_hash'], 'system', 'my_perms', $my_perms);
+		if($my_perms)
+			foreach($my_perms as $k => $v)
+				set_abconfig($channel['channel_id'],$ret['xchan_hash'],'my_perms',$k,$v);
 
-		if ($their_perms)
-			set_abconfig($channel['channel_id'], $ret['xchan_hash'], 'system', 'their_perms', $their_perms);
-
+		if($their_perms)
+			foreach($their_perms as $k => $v)
+				set_abconfig($channel['channel_id'],$ret['xchan_hash'],'their_perms',$k,$v);
 
 		if ($r) {
 			logger("New ActivityPub follower for {$channel['channel_name']}");

@@ -52,10 +52,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.5.3' );
+define ( 'STD_VERSION',             '5.5.4' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1243 );
+define ( 'DB_UPDATE_VERSION',       1244 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -2458,6 +2458,14 @@ function construct_page() {
 		header("X-Frame-Options: SAMEORIGIN");
 		header("X-Xss-Protection: 1; mode=block;");
 		header("X-Content-Type-Options: nosniff");
+	}
+
+	if (isset(App::$config['system']['perm_policy_header']) && App::$config['system']['perm_policy_header']) {
+		header("Permissions-Policy: " . App::$config['system']['perm_policy_header']);
+	}
+	else {
+		// opt-out this site from federated browser surveillance
+		header("Permissions-Policy: interest-cohort=()");
 	}
 
 	if(isset(App::$config['system']['public_key_pins'])) {

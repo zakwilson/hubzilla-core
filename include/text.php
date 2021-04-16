@@ -874,11 +874,7 @@ function get_tags($s) {
 	// ignore anything in [color= ], because it may contain color codes which are mistaken for tags
 	$s = preg_replace('/\[color=(.*?)\]/sm','',$s);
 
-	// skip anchors in URL
-	$s = preg_replace('/\[url=(.*?)\]/sm','',$s);
-
 	// match any double quoted tags
-
 	if(preg_match_all('/([@#\!]\&quot\;.*?\&quot\;)/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
@@ -891,7 +887,6 @@ function get_tags($s) {
 	}
 
 	// match bracket mentions
-
 	if(preg_match_all('/([@!]\!?\{.*?\})/',$s,$match)) {
 		foreach($match[1] as $mtch) {
 			$ret[] = $mtch;
@@ -900,7 +895,6 @@ function get_tags($s) {
 
 	// Pull out single word tags. These can be @nickname, @first_last
 	// and #hash tags.
-
 	if(preg_match_all('/(?<![a-zA-Z0-9=\pL\/\?\;])([@#\!]\!?[^ \x0D\x0A,;:\?\[\{\&]+)/u',$s,$match)) {
 		foreach($match[1] as $mtch) {
 
@@ -924,7 +918,6 @@ function get_tags($s) {
 	}
 
 	// bookmarks
-
 	if(preg_match_all('/#\^\[(url|zrl)(.*?)\](.*?)\[\/(url|zrl)\]/',$s,$match,PREG_SET_ORDER)) {
 		foreach($match as $mtch) {
 			$ret[] = $mtch[0];
@@ -2322,6 +2315,18 @@ function undo_post_tagging($s) {
 	return $s;
 }
 
+/**
+ * @brief php to js string transfer
+ * Hilmar, 20200227
+ * String values built in php for using as content for js variables become sanitized. Often required
+ * in cases, where some content will be translated by t(any text...) and is furthermore transfered via
+ * templates to the outputted html stream. Redecoding in js not required nor useful.
+ * Apply like: p2j(t('any text\nI will place on a "next line"'));
+ */
+function p2j($string) {
+	return preg_replace('/\r?\n/', '\\n', addslashes($string));
+}
+
 function quote_tag($s) {
 	if(strpos($s,' ') !== false)
 		return '&quot;' . $s . '&quot;';
@@ -3574,6 +3579,8 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[svg(.*?)\[\/(svg)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[img(.*?)\[\/(img)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[zmg(.*?)\[\/(zmg)\]/ism','\red_escape_codeblock',$body);
 
 	$body = preg_replace_callback("/([^\]\='".'"'."\;\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\nakedoembed', $body);
@@ -3586,6 +3593,8 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64svg(.*?)\[\/(svg)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64img(.*?)\[\/(img)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64zmg(.*?)\[\/(zmg)\]/ism','\red_unescape_codeblock',$body);
 
 	// fix any img tags that should be zmg
 
@@ -3708,7 +3717,7 @@ function get_forum_channels($uid) {
 
 		$xc = ids_to_querystr($x1,'xchan',true);
 
-		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . $xc . ") ",
+		$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . protect_sprintf($xc) . ") ",
 			intval($uid)
 		);
 
@@ -3716,7 +3725,7 @@ function get_forum_channels($uid) {
 		$sql_extra = (($xf) ? ' and not xchan in (' . $xf . ')' : '');
 
 		// private forums
-		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") $sql_extra ",
+		$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . protect_sprintf($xc) . ") $sql_extra ",
 			intval(local_channel())
 		);
 		if($x3) {
@@ -3724,7 +3733,7 @@ function get_forum_channels($uid) {
 		}
 
 		// public forums with no permission to post
-		$x4 = q("select xchan from abconfig left join xchan on xchan = xchan_hash where chan = %d and cat = 'their_perms' and k in ('post_wall', 'tag_deliver') and v = '0' and xchan in (" . $xc . ") and xchan_pubforum = 1 $sql_extra ",
+		$x4 = q("select xchan from abconfig left join xchan on xchan = xchan_hash where chan = %d and cat = 'their_perms' and k in ('post_wall', 'tag_deliver') and v = '0' and xchan in (" . protect_sprintf($xc) . ") and xchan_pubforum = 1 $sql_extra ",
 			intval(local_channel())
 		);
 		if($x4) {
@@ -3733,7 +3742,7 @@ function get_forum_channels($uid) {
 
 	}
 
-	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
+	$sql_extra_1 = (($xf) ? " and ( xchan_hash in (" . protect_sprintf($xf) . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)

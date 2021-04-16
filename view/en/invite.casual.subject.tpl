@@ -1,0 +1,1 @@
+Please join us on {{$projectname}} {{$invite_loc}}

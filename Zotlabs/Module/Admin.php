@@ -101,11 +101,14 @@ class Admin extends \Zotlabs\Web\Controller {
 
 		// pending registrations
 
-		$pdg = q("SELECT account.*, register.hash from account left join register on account_id = register.uid where (account_flags & %d ) > 0 ",
-			intval(ACCOUNT_PENDING)
+		// $pdg = q("SELECT account.*, register.reg_hash from account left join register on account_id = register.reg_uid // where (account_flags & %d ) > 0 ",
+		//		intval(ACCOUNT_PENDING)
+		// );
+		$pdg = q("SELECT COUNT(*) AS pdg FROM register WHERE reg_vital = 1 AND reg_expires > '%s' ",
+			dbesc(date('Y-m-d H:i:s'))
 		);
 
-		$pending = (($pdg) ? count($pdg) : 0);
+		$pending = ($pdg ? $pdg[0]['pdg'] : 0);
 
 		// available channels, primary and clones
 		$channels = array();

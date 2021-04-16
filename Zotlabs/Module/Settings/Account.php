@@ -15,20 +15,23 @@ class Account {
 
 		$account = \App::get_account();
 		if($email != $account['account_email']) {
-			if(! validate_email($email))
-				$errs[] = t('Not valid email.');
-			$adm = trim(get_config('system','admin_email'));
-			if(($adm) && (strcasecmp($email,$adm) == 0)) {
-				$errs[] = t('Protected email address. Cannot change to that email.');
-				$email = \App::$account['account_email'];
-			}
-			if(! $errs) {
-				$r = q("update account set account_email = '%s' where account_id = %d",
-					dbesc($email),
-					intval($account['account_id'])
-				);
-				if(! $r)
-					$errs[] = t('System failure storing new email. Please try again.');
+			// a DId2 not an email addr does not allow to change to email addr
+			if (strpos($email, '@') > 0) {
+				if(! validate_email($email))
+					$errs[] = t('Not valid email.');
+				$adm = trim(get_config('system','admin_email'));
+				if(($adm) && (strcasecmp($email,$adm) == 0)) {
+					$errs[] = t('Protected email address. Cannot change to that email.');
+					$email = \App::$account['account_email'];
+				}
+				if(! $errs) {
+					$r = q("update account set account_email = '%s' where account_id = %d",
+						dbesc($email),
+						intval($account['account_id'])
+					);
+					if(! $r)
+						$errs[] = t('System failure storing new email. Please try again.');
+				}
 			}
 		}
 	
@@ -92,6 +95,7 @@ class Account {
 		call_hooks('account_settings', $account_settings);
 	
 		$email      = \App::$account['account_email'];
+		$attremail  = (!strpos($email, '@')) ? 'disabled="disabled"' : '';
 
 		$tpl = get_markup_template("settings_account.tpl");
 		$o .= replace_macros($tpl, array(
@@ -101,7 +105,7 @@ class Account {
 			'$password1'=> array('npassword', t('Enter New Password'), '', ''),
 			'$password2'=> array('confirm', t('Confirm New Password'), '', t('Leave password fields blank unless changing')),
 			'$submit' 	=> t('Submit'),
-			'$email' 	=> array('email', t('Email Address:'), $email, ''),
+			'$email' 	=> array('email', t('DId2 or Email Address:'), $email, '', '', $attremail),
 			'$removeme' => t('Remove Account'),
 			'$removeaccount' => t('Remove this account including all its channels'),
 			'$account_settings' => $account_settings

@@ -204,7 +204,7 @@ jest nieco bardziej restrykcyjny w zakresie dozwolonych rodzajów komunikacji. W
 
 * _gnusoc_ - protokół społecznościowy GNU, używany przez GNU-Social, Mastodon i kilka innych społeczności. Ten dodatek wymaga najpierw zainstalowania usługi _pubsubhubbub_ (także dodatku).
 
-Każdy członek Twojej siatki musi indywidualnie zdecydować, czy zezwolić na te protokoły, ponieważ mogą one kolidować z kilkoma pożądanymi podstawowymi funkcjami i możliwościami Hubzilla (takimi jak migracja kanałów i klonowanie). Robi się to
+Każdy członek Twojej sieci musi indywidualnie zdecydować, czy zezwolić na te protokoły, ponieważ mogą one kolidować z kilkoma pożądanymi podstawowymi funkcjami i możliwościami Hubzilla (takimi jak migracja kanałów i klonowanie). Robi się to
 na swojej stronie _Ustawienia_ -> _Ustawienia funkcji i dodatków_. Administrator może również ustawić:
 
 	util/config system.diaspora_allowed 1

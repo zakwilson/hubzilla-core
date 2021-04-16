@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-04-04 00:39+0200\n"
-"PO-Revision-Date: 2021-04-05 16:20+0200\n"
+"PO-Revision-Date: 2021-04-16 16:25+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -5332,11 +5332,11 @@ msgstr "On"
 #: ../../Zotlabs/Module/Admin/Features.php:56
 #, php-format
 msgid "Lock feature %s"
-msgstr "Blokuj funkcję %s"
+msgstr "Blokuj możliwość %s"
 
 #: ../../Zotlabs/Module/Admin/Features.php:64
 msgid "Manage Additional Features"
-msgstr "Zarządzaj dodatkowymi funkcjami"
+msgstr "Zarządzaj dodatkowymi możliwościami"
 
 #: ../../Zotlabs/Module/Admin/Queue.php:35
 msgid "Queue Statistics"
@@ -6163,7 +6163,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Admin/Site.php:351
 msgid "Expiration period in days for imported (grid/network) content"
-msgstr "Okres ważności w dniach dla zaimportowanej treści (siatki/sieci)"
+msgstr "Okres ważności w dniach dla zaimportowanej treści (sieci)"
 
 #: ../../Zotlabs/Module/Admin/Site.php:351
 msgid "0 for no expiration of imported content"
@@ -8884,7 +8884,7 @@ msgstr "Zaproszenie"
 
 #: ../../Zotlabs/Lib/Apps.php:358 ../../Zotlabs/Widget/Admin.php:26
 msgid "Features"
-msgstr "Funkcje"
+msgstr "Możliwości"
 
 #: ../../Zotlabs/Lib/Apps.php:359
 #: ../../extend/addon/hubzilla-addons/openid/MysqlProvider.php:69
@@ -10024,7 +10024,7 @@ msgstr "Admin"
 
 #: ../../Zotlabs/Widget/Admin.php:56
 msgid "Addon Features"
-msgstr "Funkcje dodatkowe"
+msgstr "Dodatkowe możliwości"
 
 #: ../../Zotlabs/Widget/Chatroom_list.php:20
 msgid "Overview"
@@ -11007,7 +11007,7 @@ msgstr "Udostępnij osobistą chmurę tagów na stronie swojego kanału"
 
 #: ../../include/features.php:124 ../../include/features.php:359
 msgid "Use blog/list mode"
-msgstr "Użyj trybu bloga/listy"
+msgstr "Użyj trybu blog/list"
 
 #: ../../include/features.php:125 ../../include/features.php:360
 msgid "Comments will be displayed separately"
@@ -11033,11 +11033,11 @@ msgstr "Reakcje emoji"
 
 #: ../../include/features.php:159
 msgid "Add emoji reaction ability to posts"
-msgstr "Dodaj możliwość reakcji emoji do wpisów"
+msgstr "Dodaje możliwość wstawiania reakcji emoji we wpisach"
 
 #: ../../include/features.php:166
 msgid "Dislike Posts"
-msgstr "Nielubienie wpisów"
+msgstr "Nielubienie wpisu"
 
 #: ../../include/features.php:167
 msgid "Ability to dislike posts/comments"
@@ -11045,7 +11045,7 @@ msgstr "Możliwość oznaczania wpisów i komentarzy jako nielubiane"
 
 #: ../../include/features.php:174
 msgid "Star Posts"
-msgstr "Wyróżnianie wpisów"
+msgstr "Wyróżnienie wpisu"
 
 #: ../../include/features.php:175
 msgid "Ability to mark special posts with a star indicator"
@@ -11088,8 +11088,8 @@ msgid ""
 "Include large (1024px) photo thumbnails in posts. If not enabled, use small "
 "(640px) photo thumbnails"
 msgstr ""
-"Dołączaj duże miniatury zdjęć (1024px) do wpisów. Jeśli nie jest to "
-"włączone, będzie można używać małych miniatur (640 px)"
+"Możliwość zamieszczania dużych miniatur zdjęć (1024px) we wpisach. Jeśli nie "
+"jest to włączone, można używać tylko małych miniatur (640 px)"
 
 #: ../../include/features.php:227
 msgid "Even More Encryption"
@@ -11239,11 +11239,11 @@ msgstr "Profile zaawansowane"
 
 #: ../../include/features.php:388
 msgid "Additional profile sections and selections"
-msgstr "Dodatkowe sekcje profilu i pól wyborów"
+msgstr "Dodatkowe sekcje i pola wyboru profilu"
 
 #: ../../include/features.php:395
 msgid "Profile Import/Export"
-msgstr "Import/Export profilu"
+msgstr "Import/Eksport profilu"
 
 #: ../../include/features.php:396
 msgid "Save and load profile details across sites/channels"
@@ -13801,7 +13801,7 @@ msgstr "Narzędzia koszyka do zamówień i płatności"
 
 #: ../../extend/addon/hubzilla-addons/cart/cart.php:1545
 msgid "You must be logged into the Grid to shop."
-msgstr "Aby robić zakupy, musisz być zalogowany do Siatki."
+msgstr "Aby robić zakupy, musisz być zalogowany do sieci."
 
 #: ../../extend/addon/hubzilla-addons/cart/cart.php:1578
 #: ../../extend/addon/hubzilla-addons/cart/submodules/paypalbuttonV2.php:409
@@ -16290,7 +16290,7 @@ msgid ""
 msgstr ""
 "Przykłady: &quot;aplikacje&quot;, &quot;sieć?f=&gid=37&quot; (kolekcja "
 "prywatności), &quot;kanał&quot; lub &quot;powiadomienie/system&quot; "
-"(pozostaw puste dla domyślnej stony sieci (siatki)."
+"(pozostaw puste dla domyślnej strony sieci."
 
 #: ../../extend/addon/hubzilla-addons/startpage/Mod_Startpage.php:70
 msgid "Startpage"

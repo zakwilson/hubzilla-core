@@ -1,7 +1,11 @@
 [h3]Co to jest $Projectname?[/h3]
 $Projectname to bezpłatny i otwartoźródłowy zestaw aplikacji i usług internetowych działających na specjalnym serwerze internetowym, zwanym "węzłem", który może łączyć się z innymi węzłami w sfederalizowanej sieci internetowej.
-$Projectname zapewnia użytkownikom zaawansowaną komunikację, tożsamości i usług kontroli dostępu, które bezproblemowo współpracują w różnych domenach i niezależnych witrynach internetowych. Pozwala użytkownikom [b]publicznie[/b] lub [b]prywatnie[/b] publikować treści za pośrednictwem "kanałów" (ang. channel), które są podstawowymi, zabezpieczonymi kryptograficznie tożsamościami zapewniającymi uwierzytelnianie niezależnie od węzłów, które je hostują. To rewolucyjne wyzwolenie tożsamości online z poszczególnych serwerów i domen jest nazywane "tożsamością nomadyczną" i jest oparte na protokole Zot, nowej strukturze zdecentralizowanej kontroli dostępu ze szczegółowymi, rozszerzalnymi uprawnieniami.
-Z praktycznego punktu widzenia członków danego węzła, korzystających z oprogramowania $Projectname, oferuje ono szereg znanych, zintegrowanych aplikacji i usług internetowych, w tym:
+$Projectname zapewnia użytkownikom zaawansowaną komunikację, tożsamości i usługę kontroli dostępu, które bezproblemowo współpracują w różnych domenach i niezależnych
+serwisach internetowych. $Projectname pozwala użytkownikom publikować treści, [b]publicznie[/b] lub [b]prywatnie[/b], w swoich "kanałach" (ang. channels), które są zabezpieczonymi kryptograficznie tożsamościami zapewniającymi
+uwierzytelnianie uzytkowników niezależnie od węzłów, które hostują te kanały. To rewolucyjne uwolnienie tożsamości inernetowej z poszczególnych serwerów i domen jest nazywane "tożsamością nomadyczną" i jest oparte na protokole Zot - nowej strukturze
+zdecentralizowanej kontroli dostępu ze szczegółowymi, rozszerzalnymi uprawnieniami.
+Z praktycznego punktu widzenia członków danego węzła, korzystających z oprogramowania $Projectname, oferuje ono szereg znanych,
+zintegrowanych aplikacji i usług internetowych, w tym:
 [ul]
 [li]wątki dyskusyjne w sieciach społecznościowych[/li]
 [li]przechowywanie plików w chmurze[/li]
@@ -13,19 +17,28 @@ Chociaż wszystkie te aplikacje i usługi można znaleźć w innych pakietach op
 Dzięki oferowanym aplikacjom, $Projectname świetnie się nadaje do budowy platformy komunikacyjno-publikacyjnej o charkterze społecznościowym dla realnych grup społecznych, takich jak rodziny, lokalne grupy, organizacje społeczne, środowiska szkolne, wspólnoty mieszkańców czy wspólnoty religijne. 
  
 [h3]Stos programów[/h3]
-Pakiet oprogramowania $Projectname jest stosunkowo standardową aplikacją serwerową napisaną głównie w PHP i MySQL i [url=https://framagit.org/$Projectname/core/blob/master/install/INSTALL.txt]wymagającą niewiele więcej niż serwera WWW, bazy danych zgodnej z MySQL i języka skryptowego PHP[/url]. System został zaprojektowany tak, aby był łatwy do zainstalowania przez osoby z podstawowymi umiejętnościami administrowania witryną, na typowych platformach współdzielonego hostingu, z uwzglednieniem szerokiej gamy sprzętu komputerowego. Można go również łatwo rozszerzyć za pomocą wtyczek i motywów oraz innych narzędzi innych firm.
+Pakiet oprogramowania $Projectname jest stosunkowo standardową aplikacją serwerową napisaną głównie w PHP i MySQL,
+[url=https://framagit.org/$Projectname/core/blob/master/install/INSTALL.txt]wymagającą niewiele więcej niż serwera WWW,
+bazy danych zgodnej z MySQL i środowiska wykonawczego PHP[/url]. System został zaprojektowany tak, aby był łatwy do
+zainstalowania przez osoby z podstawowymi umiejętnościami administrowania witryną, na typowych platformach współdzielonego
+hostingu, z uwzglednieniem szerokiej gamy sprzętu komputerowego. Można go również łatwo rozszerzyć za pomocą wtyczek i motywów
+oraz innych narzędzi zewnętrznych.
 
 [h3]Słownik[/h3]
 [dl terms="b"]
-[*= węzeł ([i]ang. hub[/i])] Instancja tego oprogramowania działająca na standardowym serwerze WWW
+[*= węzeł ([i]ang. hub[/i])] Instancja oprogramowania $Projectname działająca na standardowym serwerze WWW
 
-[*= siatka, grid ([i]w oryginale ang., grid[/i])] Globalna sieć węzłów, które wymieniają między sobą informacje za pomocą protokołu Zot. Nie są to tylko węzłyy oparte na $Projectname, ale wszystkie węzły implementujace protokół Zot.
+[*= sieć Zot, sieć ([i]w oryginale ang., grid[/i])] Globalna sieć węzłów, które wymieniają między sobą informacje za pomocą protokołu Zot. Nie są to tylko węzły oparte na $Projectname, ale wszystkie węzły implementujace protokół Zot.
 
-[*= kanał ([i]ang. channel[/i])] Techniczny odpowiednik tożsamości. Kanał może reprezentować osobę, blog lub forum, żeby wymienić tylko kilka. Kanały mogą łączyć się z innymi kanałami w celu udostępniania informacji z bardzo szczegółowymi uprawnieniami.
+[*= kanał ([i]ang. channel[/i])] Forma organizacji treści i techniczny odpowiednik tożsamości. Kanał może mieć formę osobistej witryny internetowej, bloga, forum i innych znanych form publikowania treści. Kanały mogą łączyć się z innymi kanałami w celu udostępniania informacji z możliwością ustawiania bardzo szczegółowych uprawnień dostępu.
 
-[*= klon ([i]ang. clone[/i])] Kanały mogą mieć klony powiązane z oddzielnymi i niepowiązanymi kontami w niezależnych węzłach. Komunikacja współdzielona z kanałem jest synchronizowana między klonami kanału, co umożliwia kanałowi wysyłanie i odbieranie wiadomości oraz dostęp do współdzielonych treści z wielu węzłów. Zapewnia to odporność na awarie sieci i sprzętu, które mogą stanowić poważny problem w przypadku serwerów WWW z własnym hostingiem lub o ograniczonych zasobach. Klonowanie umożliwia całkowite przeniesienie kanału z jednego węzła do drugiego, zabierając ze sobą dane i połączenia. Zobacz "tożsamość nomadyczna".
+[*= klon ([i]ang. clone[/i])] Kanały mogą mieć klony innych na innych niezależnych węzłach. Komunikacja współdzielona z kanałem jest synchronizowana między klonami kanału, co umożliwia
+kanałowi wysyłanie i odbieranie wiadomości oraz dostęp do współdzielonych treści z wielu węzłów. Zapewnia to odporność na awarie sieci i sprzętu, które mogą stanowić poważny problem w przypadku
+serwerów WWW utrzymywanych na prywatnych serwerach w hostingu współdzielonym lub o ograniczonych zasobach. Klonowanie umożliwia też całkowite przeniesienie kanału z jednego węzła na drugi, z zabraniem wszystkich danych i połączeń. Zobacz "tożsamość nomadyczna".
 
-[*= tożsamość nomadyczna ([i]ang. nomadic identity[/i])] Możliwość uwierzytelniania i łatwej migracji tożsamości w niezależnych węzłach i domenach internetowych. Tożsamość nomadyczna zapewnia prawdziwą własność tożsamości online, ponieważ tożsamości kanałów kontrolowanych przez konto w węźle nie są powiązane z samym węzłem. Węzeł bardziej przypomina "hosta" kanałów. W serwisie $Projectname nie masz "konta" na serwerze, tak jak na typowych serwisach internetowych - posiadasz tożsamość, którą możesz przenosić ze sobą po całej siatce za pomocą klonów. 
+[*= tożsamość nomadyczna ([i]ang. nomadic identity[/i])] Możliwość uwierzytelniania i łatwej migracji tożsamości pomiędzy niezależnymi węzłami i domenami internetowymi. Tożsamość nomadyczna zapewnia prawdziwą własność tożsamości internetową,
+ponieważ tożsamości kontrolowane przez konto w węźle nie są ściśle związane z węzłem. Węzeł bardziej przypomina "hosta" kanałów. W serwisie $Projectname nie masz "konta" na serwerze, tak jak na typowych serwisach internetowych - posiadasz tożsamość, którą
+możesz przenosić w całej sieci za pomocą mechanizmu klonowania.
 
 [*= [url=[baseurl]/help/developer/zot_protocol]Protokół Zot[/url]] Nowy protokół, oparty na JSON, do wdrażania bezpiecznej, zdecentralizowanej komunikacji i usług. Różni się od wielu innych protokołów komunikacyjnych, budując komunikację na podstawie zdecentralizowanej struktury tożsamości i uwierzytelniania. Składnik uwierzytelniania jest koncepcyjnie podobny do OpenID, ale jest odizolowany od tożsamości opartej na DNS. Tam, gdzie to możliwe, zdalne uwierzytelnianie jest ciche i niewidoczne. Zapewnia to mechanizm kontroli dostępu rozproszonego na skalę sieci WWW, który jest dyskretny.
 [/dl]
@@ -157,7 +170,7 @@ Można utworzyć dowolną liczbę profili zawierających różne informacje, kt�
 $Projectname oferuje prosty sposób wykonywania kopii zapasowej konta za jednym kliknięciem, z której możesz pobrać pełną kopię zapasową swoich profili. Kopie zapasowe można następnie wykorzystać do sklonowania lub przywrócenia profilu.
 
 [h4]Usuwanie konta[/h4]
-Konta można natychmiast usunąć, klikając link. Otóż to. Wszystkie powiązane treści są następnie usuwane z siatki (w tym wpisy i wszelkie inne treści utworzone przez usunięty profil). W zależności od liczby posiadanych połączeń proces usuwania zdalnej zawartości może zająć trochę czasu, ale zaplanowany jest tak szybko, jak to możliwe.
+Konta można natychmiast usunąć, klikając link. Otóż to. Wszystkie powiązane treści są następnie usuwane z sieci (w tym wpisy i wszelkie inne treści utworzone przez usunięty profil). W zależności od liczby posiadanych połączeń proces usuwania zdalnej zawartości może zająć trochę czasu, ale zaplanowany jest tak szybko, jak to możliwe.
 
 [h4]Usuwanie treści[/h4]
 Wszelkie treści utworzone w Hubzilli pozostają pod kontrolą członka (lub kanału), który je pierwotnie utworzył. W dowolnym momencie członek może usunąć wiadomość lub zakres wiadomości. Proces usuwania zapewnia, że treść zostanie usunięta, niezależnie od tego, czy została opublikowana w głównym (macierzystym) węźle kanału, czy w innym węźle, gdzie kanał został zdalnie uwierzytelniony za pośrednictwem Zot (protokół komunikacji i uwierzytelniania $Projectname).

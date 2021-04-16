@@ -5,8 +5,8 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_pending}}</h3>
-		{{if $debug}}<div>{{$debug}}</div>{{/if}}
-		{{if $pending}}
+			{{if $debug}}<div>{{$debug}}</div>{{/if}}
+			{{if $pending}}
 			<table id="pending">
 				<thead>
 				<tr>
@@ -16,12 +16,12 @@
 				</tr>
 				</thead>
 				<tbody>
-			{{foreach $pending as $n => $u}}
+				{{foreach $pending as $n => $u}}
 				<tr class="">
-					<td class="created">{{$u.reg_created}}</td>
-					<td class="email">{{$u.reg_did2}}</td>
-					<td class="email">{{$u.reg_email}}</td>
-					<td class="email">{{$u.reg_atip}}</td>
+					<td class="text-nowrap">{{$u.reg_created}}</td>
+					<td class="text-break">{{$u.reg_did2}}</td>
+					<td class="text-break">{{$u.reg_email}}</td>
+					<td class="">{{$u.reg_atip}}</td>
 					<td class="">{{$u.reg_atip_n}}</td>
 					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 					<td class="tools">
@@ -33,7 +33,7 @@
 				<tr>
 					<td colspan="7"><strong>{{$msg}}:</strong> {{$u.msg}}</td>
 				</tr>
-			{{/foreach}}
+				{{/foreach}}
 				</tbody>
 			</table>
 			{{* before, alternate:
@@ -46,9 +46,9 @@
 				<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a>
 				<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a>
 			</div>
-		{{else}}
+			{{else}}
 			<p>{{$no_pending}}</p>
-		{{/if}}
+			{{/if}}
 
 
 		<h3>{{$h_users}}</h3>

@@ -206,14 +206,20 @@ class Accounts {
 
 		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
 
-		$pending = get_pending_accounts();
+
+		// by default we will only return verified results. if reg_all is set we will return everything''
+		$get_all = isset($_REQUEST['get_all']);
+		$pending = get_pending_accounts($get_all);
 
 		unset($_SESSION[self::MYP]);
+
 		if ($pending) {
 			// collect and group all ip
-			$atips = q("SELECT reg_atip AS atip, COUNT(reg_atip) AS atips FROM register "
-					." WHERE reg_vital = 1 GROUP BY reg_atip ");
-			$atips ? $atipn = array_column($atips, 'atips', 'atip') : $atipn = array('' => 0);
+			$atips = dbq("SELECT reg_atip AS atip, COUNT(reg_atip) AS atips FROM register
+				WHERE reg_vital = 1 GROUP BY reg_atip"
+			);
+
+			(($atips) ? $atipn = array_column($atips, 'atips', 'atip') : $atipn = ['' => 0]);
 
 			$tao .= 'tao.zar.zarar = {';
 			foreach ($pending as $n => $v) {

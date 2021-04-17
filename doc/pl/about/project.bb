@@ -1,9 +1,8 @@
 [h3]Zarządzanie projektem $Projectname[/h3]
-Zarządzanie $Projectname odnosi się do zarządzania tym projektem i zwłaszcza jak do rozwiązywania konfliktów w tym projekcie.
+Zarządzanie $Projectname odnosi się do zarządzania tym projektem a zwłaszcza do tego jak rozwiązywane są konflikty w tym projekcie.
 
 [h4]Zarządzanie społecznością[/h4]
-Projekt jest utrzymywany przez społeczność $Projectname i decyzje podejmowane są w ramach tej społeczności.
-Struktura zarządzania ciągle ewoluuje. Do czasu zakończenia tworzenia struktura, decyzje są podejmowane w następującej kolejności:
+Projekt jest utrzymywany przez społeczność $Projectname i decyzje podejmowane są w ramach tej społeczności. Struktura zarządzania ciągle się rozwija. Do czasu zakończenia tworzenia tej struktury, decyzje są podejmowane w następującej kolejności:
 
 [ol]
 [*] Opóźniony konsensus
@@ -13,7 +12,7 @@ Jeśli propozycja projektu zostanie złożona na jednym z forów zarządzania pr
 
 [*] Weto
 
-Starsi deweloperzy, z długim stażem w projekcie. mogą zawetować każdą decyzję. Decyzja może zostać podjęta dopiero po usunięciu weta lub przedłożeniu alternatywnej propozycji.
+Starsi deweloperzy, z długim stażem w projekcie, mogą zawetować każdą decyzję. Decyzja może zostać podjęta dopiero po usunięciu weta lub przedłożeniu alternatywnej propozycji.
 
 
 [*] Głosowanie społeczności
@@ -27,25 +26,25 @@ Głosowanie społeczności nie zawsze zapewnia Powszechnie akceptowany wynik i m
 
 Q: Kto może widzieć moją treść?
  
-A: Domyślnie KAŻDY w internecie, chyba że ograniczysz do niej dostęp. $Projectname pozwala wybrać żądany poziom prywatności. Treści podlegające ograniczeniom NIE będą widoczne dla "sieci szpiegowskich" i reklamodawców. Będą chroniona przed podsłuchem przez osoby wpisronne - najlepiej jak potrafimy. Administratorzy centrów z wystarczającymi umiejętnościami i cierpliwością MOGĄ być w stanie podsłuchiwać niektóre prywatne wiadomości, ale muszą dołożyć starań, aby to zrobić. W $Projectname istnieją tryby prywatności, które są nawet odporne na podsłuchiwanie przez wykwalifikowanych i zdeterminowanych administratorów hubów. 
+A: Domyślnie KAŻDY w Internecie, chyba że ograniczysz do niej dostęp. $Projectname pozwala wybrać żądany poziom prywatności. Treści podlegające ograniczeniom NIE będą widoczne dla "sieci szpiegowskich" i reklamodawców. Będą chroniona przed podsłuchem przez osoby wpisronne - najlepiej jak potrafimy. Administratorzy centrów z wystarczającymi umiejętnościami i cierpliwością MOGĄ być w stanie podsłuchiwać niektóre prywatne wiadomości, ale muszą dołożyć starań, aby to zrobić. W $Projectname istnieją tryby prywatności, które są nawet odporne na podsłuchiwanie przez wykwalifikowanych i zdeterminowanych administratorów węzłów. 
 
 Q: Czy moje treści mogą zostać ocenzurowane?
 
-A: Z założenie, $Projectname (jako sieć) NIE MOŻE cenzurować twoich treści. Administratorzy serwerów i hubów podlegają lokalnemu prawodawstwu i MOGĄ usunąć budzące zastrzeżenia treści ze swojego serwisu (huba). Każdy może zostać administratorem huba, w tym Ty. Dlatego publikuj treści, które w innym przypadku mogłyby zostać ocenzurowane. Nadal MOŻESZ podlegać lokalnemu prawodawstwu.
+A: Z założenie, $Projectname (jako sieć) NIE MOŻE cenzurować twoich treści. Administratorzy serwerów i węzłów podlegają lokalnemu prawodawstwu i MOGĄ usunąć budzące zastrzeżenia treści ze swojego serwisu (węzła). Każdy może zostać administratorem węzła, w tym Ty. Dlatego publikuj treści, które w innym przypadku mogłyby zostać ocenzurowane. Nadal MOŻESZ podlegać lokalnemu prawodawstwu.
 
 [h5]Definicje[/h5]
 
 **$Projectname** 
 
-Inaczej nazywana "siecią", $Projectname jest zbiorem pojedynczych komputerów (serwerów) (czyli **hubów**. ang. *hubs*), które łączą się razem, tworząc większą sieć kooperacyjną.
+Inaczej nazywana "siecią", $Projectname jest zbiorem pojedynczych komputerów (serwerów) (czyli **węzłów**. ang. *hubs*), które łączą się razem, tworząc większą sieć kooperacyjną.
 
-**hub** (ang. *hub*) 
+**węzeł** (ang. *hub*) 
 
-Pojedynczy komputer lub serwer podłączony do $Projectname. Jest on dostarczany przez **administratora huba** i może być publiczny lub prywatny, płatnu lub bezpłatny.
+Pojedynczy komputer lub serwer podłączony do $Projectname. Jest on dostarczany przez **administratora węzła** i może być publiczny lub prywatny, płatnu lub bezpłatny.
 
-*administrator huba**
+*administrator węzła**
 
-Operator systemu pojedynczego huba. 
+Operator systemu pojedynczego węzła. 
 
 [h5]Polityki[/h5]
 
@@ -55,7 +54,7 @@ Wszelkie informacje lub cokolwiek zamieszczone przez Ciebie w $Projectname MOŻE
 
 Twoje zdjęcie profilowe, nazwa Twojego kanału i lokalizacja (adres URL lub adres sieciowy) Twojego kanału są widoczne dla każdego w internecie, a kontrola prywatności nie wpływa na wyświetlanie tych elementów.
 
-MOŻESZ dodatkowo podać inne informacje profilowe. Wszelkie informacje, które podajesz w swoim „domyślnym” lub **publicznym profilu** MOGĄ zostać przesłane do innych hubów w $Projectname i dodatkowo MOGĄ zostać wyświetlone w katalogu kanałów. Możesz ograniczyć wyświetlanie tych informacji profilowych. Może być ograniczone tylko do członków twojego huba lub tylko połączeń (znajomych) lub innych ograniczonych grup widzów, zgodnie z twoim życzeniem. Jeśli chcesz, aby Twój profil był ograniczony, musisz ustawić odpowiednie ustawienia prywatności lub po prostu NIE podawać dodatkowych informacji.
+MOŻESZ dodatkowo podać inne informacje profilowe. Wszelkie informacje, które podajesz w swoim „domyślnym” lub **publicznym profilu** MOGĄ zostać przesłane do innych węzłów w $Projectname i dodatkowo MOGĄ zostać wyświetlone w katalogu kanałów. Możesz ograniczyć wyświetlanie tych informacji profilowych. Może być ograniczone tylko do członków twojego węzła lub tylko połączeń (znajomych) lub innych ograniczonych grup widzów, zgodnie z twoim życzeniem. Jeśli chcesz, aby Twój profil był ograniczony, musisz ustawić odpowiednie ustawienia prywatności lub po prostu NIE podawać dodatkowych informacji.
 
 **Treść**
 
@@ -69,27 +68,27 @@ Komentarze do wpisów stworzonych przez innych oraz wpisy oznaczone jako wpisy n
 
 **Informacja prywatna**
 
-Programiści $Projectname zapewnią, że każda dostarczona przez Ciebie zawartość oznaczona jako PRYWATNA będzie chroniona przed podsłuchem - najlepiej jak potrafią. Zawartość kanału prywatnego MOŻE być widoczna w bazie danych każdego zaangażowanego administratora centrum, ale prywatne wiadomości są ukrywane w bazie danych. To ostatnie oznacza, że jest to bardzo trudne, ale NIE niemożliwe, aby te treści były widoczne dla administratora centrum. Treść kanału prywatnego i wiadomości prywatne są również usuwane z powiadomień e-mail. Pełne szyfrowanie jest oferowane jako funkcja opcjonalna i NIE MOŻE być widoczne, nawet dla zdeterminowanego administratora.
+Programiści $Projectname zapewnią, że każda dostarczona przez Ciebie zawartość oznaczona jako PRYWATNA będzie chroniona przed podsłuchem - najlepiej jak potrafią. Zawartość kanału prywatnego MOŻE być widoczna w bazie danych każdego zaangażowanego administratora węzła, ale prywatne wiadomości są ukrywane w bazie danych. To ostatnie oznacza, że jest to bardzo trudne, ale NIE niemożliwe, aby te treści były widoczne dla administratora węzła. Treść kanału prywatnego i wiadomości prywatne są również usuwane z powiadomień e-mail. Pełne szyfrowanie jest oferowane jako funkcja opcjonalna i NIE MOŻE być widoczne, nawet dla zdeterminowanego administratora.
 
 [h5]Prywatność tożsamości[/h5]
 
-Prywatność dla Twojej tożsamości to kolejny aspekt. Ponieważ masz zdecentralizowaną tożsamość w $Projectname, Twoja prywatność wykracza poza domowy hub. Jeśli chcesz mieć pełną kontrolę nad swoją prywatnością i bezpieczeństwem, powinieneś uruchomić własny hub na dedykowanym serwerze. Dla wielu osób jest to skomplikowane ale może poszerzyć ich możliwości techniczne. Wymieńmy więc kilka środków ostrożności, które możesz podjąć, aby zapewnić sobie jak największą prywatność.
+Prywatność dla Twojej tożsamości to kolejny aspekt. Ponieważ masz zdecentralizowaną tożsamość w $Projectname, Twoja prywatność wykracza poza domowy węzeł. Jeśli chcesz mieć pełną kontrolę nad swoją prywatnością i bezpieczeństwem, powinieneś uruchomić własny węzeł na dedykowanym serwerze. Dla wielu osób jest to skomplikowane ale może poszerzyć ich możliwości techniczne. Wymieńmy więc kilka środków ostrożności, które możesz podjąć, aby zapewnić sobie jak największą prywatność.
 
-Zdecentralizowana tożsamość ma wiele zalet i daje wiele interesujących funkcji, ale powinieneś być świadomy faktu, że Twoja tożsamość jest znana innym hubom w sieci $Projectname. Jedną z tych zalet jest to, że inne kanały mogą udostępniać dostosowane treści i umożliwiać oglądanie prywatnych rzeczy (takich jak prywatne zdjęcia, które inni chcą Ci udostępnić). Z tego powodu te kanały muszą wiedzieć, kim jesteś. Ale rozumiemy, że czasami te inne kanały wiedzą od Ciebie więcej, niż byś sobie tego życzył. Na przykład wtyczka Visage, która może poinformować właściciela kanału o ostatniej wizycie w jego profilu. Możesz łatwo zrezygnować z tego niskiego poziomu i uważamy, że jest to nieszkodliwe śledzenie.
+Zdecentralizowana tożsamość ma wiele zalet i daje wiele interesujących funkcji, ale powinieneś być świadomy faktu, że Twoja tożsamość jest znana innym węzłom w sieci $Projectname. Jedną z tych zalet jest to, że inne kanały mogą udostępniać dostosowane treści i umożliwiać oglądanie prywatnych rzeczy (takich jak prywatne zdjęcia, które inni chcą Ci udostępnić). Z tego powodu te kanały muszą wiedzieć, kim jesteś. Ale rozumiemy, że czasami te inne kanały wiedzą od Ciebie więcej, niż byś sobie tego życzył. Na przykład wtyczka Visage, która może poinformować właściciela kanału o ostatniej wizycie w jego profilu. Możesz łatwo zrezygnować z tego niskiego poziomu i uważamy, że jest to nieszkodliwe śledzenie.
 
 * Możesz włączyć [url=http://donottrack.us/]Do Not Track (DNT)[/url] w swojej przeglądarce internetowej. Szanujemy tą nową propozycję polityki prywatności. Wszystkie nowoczesne przeglądarki obsługują DNT. Znajdziesz to w ustawieniach prywatności swojej przeglądarki lub możesz zapoznać się z instrukcją przeglądarki internetowej. Nie wpłynie to na funkcjonalność $Projectname. To ustawienie jest prawdopodobnie wystarczające dla większości ludzi.
 
 * Możesz [url=[baseurl]/settings]wyłączyć publikację[/url] swojego kanału w naszym katalogu kanałów. Jeśli chcesz, aby ludzie mogli znaleźć Twój kanał, podaj im adres swojego kanału. Uważamy, że jest to dobra wskazówka, że wolisz dodatkową prywatność i automatycznie włączasz opcję "Nie śledź", jeśli tak jest. 
 
-* Możesz mieć zablokowany hub. Oznacza to, że wszystkie kanały i treści w tym centrum nie są publiczne ani widoczne dla świata zewnętrznego. To jest coś, co może zrobić tylko administrator centrum. Szanujemy to również i automatycznie włączamy opcję "Nie śledź:, jeśli jest ustawiona. 
+* Możesz mieć zablokowany węzeł. Oznacza to, że wszystkie kanały i treści w tym wężle nie są publiczne ani widoczne dla świata zewnętrznego. To jest coś, co może zrobić tylko administrator węzła. Szanujemy to również i automatycznie włączamy opcję "Nie śledź:, jeśli jest ustawiona. 
 
 [h5]Cenzura[/h5]
 
 $Projectname to globalna sieć obejmująca wszystkie religie i kultury. Nie oznacza to, że każdy członek sieci czuje się tak samo jak Ty w spornych kwestiach, a niektórzy ludzie mogą MOCNO sprzeciwić się publikowanym przez Ciebie treściom. Ogólnie rzecz biorąc, jeśli chcesz opublikować coś, o czym wiesz, że nie jest powszechnie akceptowane, najlepszym rozwiązaniem jest ograniczenie odbiorców za pomocą kontroli prywatności do małego kręgu znajomych.
 
-$Projectname jako dostawca sieci nie może cenzurować zawartości. Jednak administratorzy hubów MOGĄ cenzurować wszelkie treści, które pojawiają się w ich hubie, aby zachować zgodność z lokalnym prawem, a nawet osobistym osądem. Ich decyzja jest ostateczna. Jeśli masz problemy z jakimkolwiek administratorem huba, możesz przenieść swoje konto i wpisy do innej witryny, która jest bardziej zgodna z Twoimi oczekiwaniami. Sprawdzaj (okresowo) [Warunki świadczenia usług](help/TermsOfService) swojego huba, aby poznać wszelkie zasady lub wytyczne. Jeśli Twoje treści składają się z materiałów, które są nielegalne lub mogą powodować problemy, MOCNO zachęcamy do hostowania własnych (zostań administratorem własnego huba). Mimo to. możesz stwierdzić, że Twoje treści są zablokowane w niektórych hubach, ale $Projectname jako sieć nie może wogóle zablokować ich publikowania.
+$Projectname jako dostawca sieci nie może cenzurować zawartości. Jednak administratorzy węzłów MOGĄ cenzurować wszelkie treści, które pojawiają się w ich węźle, aby zachować zgodność z lokalnym prawem, a nawet osobistym osądem. Ich decyzja jest ostateczna. Jeśli masz problemy z jakimkolwiek administratorem węzła, możesz przenieść swoje konto i wpisy do innej witryny, która jest bardziej zgodna z Twoimi oczekiwaniami. Sprawdzaj (okresowo) [Warunki świadczenia usług](help/TermsOfService) swojego węzła, aby poznać wszelkie zasady lub wytyczne. Jeśli Twoje treści składają się z materiałów, które są nielegalne lub mogą powodować problemy, MOCNO zachęcamy do hostowania własnych (zostań administratorem własnego węzła). Mimo to. możesz stwierdzić, że Twoje treści są zablokowane w niektórych węzłach, ale $Projectname jako sieć nie może wogóle zablokować ich publikowania.
 
-$Projectname ZALECA, aby administratorzy hubów zapewnili okres karencji wynoszący 1-2 dni między ostrzeżeniem właściciela konta o treści, którą należy usunąć, a fizycznym usunięciem lub wyłączeniem konta. Dzięki temu właściciel treści będzie mógł wyeksportować metadane swojego kanału i zaimportować je do innej witryny. W rzadkich przypadkach treść może mieć taki charakter, że uzasadnia natychmiastowe zamknięcie konta. To jest decyzja właściciela huba, a nie decyzja $Projectname.
+$Projectname ZALECA, aby administratorzy węzłów zapewnili okres karencji wynoszący 1-2 dni między ostrzeżeniem właściciela konta o treści, którą należy usunąć, a fizycznym usunięciem lub wyłączeniem konta. Dzięki temu właściciel treści będzie mógł wyeksportować metadane swojego kanału i zaimportować je do innej witryny. W rzadkich przypadkach treść może mieć taki charakter, że uzasadnia natychmiastowe zamknięcie konta. To jest decyzja właściciela węzła, a nie decyzja $Projectname.
 
 Jeśli zazwyczaj i regularnie publikujesz treści dla dorosłych lub obraźliwe, MOCNO zachęcamy do oznaczenia swojego konta jako „NSFW” (Not Safe For Work). Zapobiegnie to wyświetlaniu Twojego zdjęcia profilowego w katalogu, z wyjątkiem przeglądających, którzy zdecydowali się wyłączyć „tryb bezpieczny”. Jeśli administratorzy katalogu uznają Twoje zdjęcie profilowe za nieobyczajne lub obraźliwe, administrator katalogu MOŻE oznaczyć Twoje zdjęcie profilowe jako NSFW. Obecnie nie ma oficjalnego mechanizmu do zakwestionowania lub cofnięcia tej decyzji, dlatego NALEŻY oznaczyć własne konto jako NSFW, jeśli może być nieodpowiednie dla ogółu odbiorców.
 

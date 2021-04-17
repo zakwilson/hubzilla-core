@@ -1241,27 +1241,27 @@ function zar_register_dutystate( $now=NULL, $day=NULL ) {
 	$atform = $isduty ? '' : 'disabled';
 	$utc_now = datetime_convert(date_default_timezone_get(), 'UTC', $now, 'c');
 
-	$nowfmt	= t('Registration is currently')
-			. ' (<span data-utc="' . $utc_now . '" class="register_date">' . $utc_now . '</span>) '
-			. $dutyis . '.<br>';
-
+	$nowfmt = '';
 
 	if (!$isduty) {
+		$nowfmt	 = t('Registration is currently');
+		$nowfmt .= ' (<span data-utc="' . $utc_now . '" class="register_date">' . $utc_now . '</span>) ';
+		$nowfmt .= $dutyis . ',<br>';
+
 		$pernext = zarIsDuty($day, $now, 'nextOpen');
 		$week_days = ['','monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 		$utc_next_open = datetime_convert(date_default_timezone_get(), 'UTC', $week_days[$pernext[0]] . ' ' . $pernext[1], 'c');
 
 		if (is_array($pernext)) {
-			$nowfmt .= t('Next opens') . ' '
-			. '<span data-utc="' . $utc_next_open . '" class="register_date">' . $utc_next_open . '</span>.';
-
+			$nowfmt .= t('please come back');
+			$nowfmt .= ' <span data-utc="' . $utc_next_open . '" class="register_date">' . $utc_next_open . '</span>.';
 		}
 	}
 	return array( 'isduty' => $isduty, 'nowfmt' => $nowfmt, 'atform' => $atform);
 
 }
 
-function get_pending_accounts() {
+function get_pending_accounts($get_all = false) {
 
 	/* get pending */
 	// [hilmar ->
@@ -1271,10 +1271,13 @@ function get_pending_accounts() {
 
 	// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
 
-	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id,
-		CASE (reg_flags & %d) WHEN 0 THEN 1 WHEN 1 THEN 0 END AS reg_vfd
-		FROM register WHERE reg_vital = 1 AND (reg_flags & %d) >= 0",
-		intval(ACCOUNT_UNVERIFIED),
+	$sql_extra = " AND (reg_flags & " . ACCOUNT_UNVERIFIED . ") = 0 ";
+
+	if($get_all)
+		$sql_extra = '';
+
+	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, reg_stuff
+		FROM register WHERE reg_vital = 1 $sql_extra AND (reg_flags & %d) >= 0",
 		intval(ACCOUNT_PENDING)
 	);
 

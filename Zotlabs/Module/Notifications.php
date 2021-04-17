@@ -6,15 +6,17 @@ require_once('include/bbcode.php');
 class Notifications extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 		nav_set_selected('Notifications');
-	
+
 		$o = '';
+		$notif_content = '';
+		$notifications_available = false;
 
 		$r = q("select count(*) as total from notify where uid = %d and seen = 0",
 			intval(local_channel())
@@ -24,7 +26,8 @@ class Notifications extends \Zotlabs\Web\Controller {
 				and seen = 0 order by created desc limit 50",
 				intval(local_channel())
 			);
-		} else {
+		}
+		else {
 			$r1 = q("select * from notify where uid = %d
 				and seen = 0 order by created desc limit 50",
 				intval(local_channel())
@@ -36,12 +39,12 @@ class Notifications extends \Zotlabs\Web\Controller {
 			);
 			$r = array_merge($r1,$r2);
 		}
-			
+
 		if($r) {
-			$notifications_available = 1;
+			$notifications_available = true;
 			foreach ($r as $rr) {
 				$x = strip_tags(bbcode($rr['msg']));
-				$notif_content = replace_macros(get_markup_template('notify.tpl'),array(
+				$notif_content .= replace_macros(get_markup_template('notify.tpl'),array(
 					'$item_link' => z_root().'/notify/view/'. $rr['id'],
 					'$item_image' => $rr['photo'],
 					'$item_text' => $x,
@@ -54,15 +57,15 @@ class Notifications extends \Zotlabs\Web\Controller {
 		else {
 			$notif_content = t('No more system notifications.');
 		}
-			
+
 		$o .= replace_macros(get_markup_template('notifications.tpl'),array(
 			'$notif_header' => t('System Notifications'),
 			'$notif_link_mark_seen' => t('Mark all seen'),
 			'$notif_content' => $notif_content,
 			'$notifications_available' => $notifications_available,
 		));
-	
+
 		return $o;
 	}
-	
+
 }

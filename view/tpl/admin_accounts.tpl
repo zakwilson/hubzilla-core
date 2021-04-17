@@ -5,8 +5,8 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_pending}}</h3>
-		{{if $debug}}<div>{{$debug}}</div>{{/if}}
-		{{if $pending}}
+			{{if $debug}}<div>{{$debug}}</div>{{/if}}
+			{{if $pending}}
 			<table id="pending">
 				<thead>
 				<tr>
@@ -16,16 +16,13 @@
 				</tr>
 				</thead>
 				<tbody>
-			{{foreach $pending as $n => $u}}
-				<tr class="zebra zebra{{$u.reg_z}}">
-					<td class="created">{{$u.reg_created}}<br>{{$u.reg_n}}
-						</td>
-
-					<td class="status">{{$u.status}}</td>
-
-					<td class="created">{{$u.reg_startup}}<br>{{$u.reg_expires}}</td>
-					<td class="email">{{$u.reg_did2}}</td>
-					<td class="email">{{$u.reg_email}}<br>{{$u.reg_atip}}</td>
+				{{foreach $pending as $n => $u}}
+				<tr class="">
+					<td class="text-nowrap">{{$u.reg_created}}</td>
+					<td class="text-break">{{$u.reg_did2}}</td>
+					<td class="text-break">{{$u.reg_email}}</td>
+					<td class="">{{$u.reg_atip}}</td>
+					<td class="">{{$u.reg_atip_n}}</td>
 					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
 					<td class="tools">
 						<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
@@ -33,7 +30,10 @@
 						<span id="zarreax_{{$n}}" class="zarreax"></span>
 					</td>
 				</tr>
-			{{/foreach}}
+				<tr>
+					<td colspan="7"><strong>{{$msg}}:</strong> {{$u.msg}}</td>
+				</tr>
+				{{/foreach}}
 				</tbody>
 			</table>
 			{{* before, alternate:
@@ -43,12 +43,12 @@
 			*}}
 			<div class="selectall">
 				<a id="zar2sat" class="btn btn-sm btn-primary" href="javascript:;">{{$sel_tall}}</a>
-				<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a> 
-				<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a> 
+				<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a>
+				<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a>
 			</div>
-		{{else}}
+			{{else}}
 			<p>{{$no_pending}}</p>
-		{{/if}}
+			{{/if}}
 
 
 		<h3>{{$h_users}}</h3>
@@ -84,13 +84,13 @@
 				{{/foreach}}
 				</tbody>
 			</table>
-		
+
 			<div class="selectall"><a id="zarckbxtoggle" href="javascript:;">{{$select_all}}</a></div>
-		{{* 
+		{{*
 			<div class="selectall"><a href="#" onclick="return toggle_selectall('users_ckbx');">{{$select_all}}</a></div>
 		*}}
 			<div class="submit">
-                <input type="submit" name="page_accounts_block" class="btn btn-primary" value="{{$block}}/{{$unblock}}" /> 
+                <input type="submit" name="page_accounts_block" class="btn btn-primary" value="{{$block}}/{{$unblock}}" />
                 <input type="submit" name="page_accounts_delete" class="btn btn-primary" onclick="return confirm_delete_multi()" value="{{$delete}}" />
             </div>
 		{{else}}
@@ -98,7 +98,7 @@
 		{{/if}}
 	</form>
 </div>
-{{* 
+{{*
 	COMMENTS for this template:
 	hilmar, 2020.01
 	script placed at the end
@@ -119,17 +119,17 @@
   	tao.zar = { vsn: '2.0.0', c2s: {}, t: {} };
   	{{$tao}}
   	$('#adminpage').on( 'click', '#zar2sat', function() {
-		$('input.pending_ckbx:checkbox').each( function() { this.checked = ! this.checked; });		
+		$('input.pending_ckbx:checkbox').each( function() { this.checked = ! this.checked; });
   	});
   	$('#adminpage').on( 'click', '.zar2xas', function() {
   	 	tao.zar.c2s.x = $(this).attr('id').substr(4,1);
-		$('input.pending_ckbx:checkbox:checked').each( function() { 
-			//if (this.checked) 
+		$('input.pending_ckbx:checkbox:checked').each( function() {
+			//if (this.checked)
 			// take the underscore with to prevent numeric 0 headdage
 			tao.zar.c2s.n = $(this).attr('id').substr(10);
     		$('#zarreax'+tao.zar.c2s.n).html(tao.zar.zarax);
     		zarCSC();
-		});		
+		});
   	});
   	$('.zar2s').click( function() {
     	tao.zar.c2s.ix=$(this).attr('id');
@@ -142,12 +142,12 @@
 
   	function zarCSC() {
   		$.ajax({
-      		type: 'POST', url: 'admin/accounts', 
+      		type: 'POST', url: 'admin/accounts',
       		data: {
         		zarat: tao.zar.c2s.n,
         		zardo: tao.zar.c2s.x,
         		zarse: tao.zar.zarar[(tao.zar.c2s.n).substr(1)],
-        		form_security_token: $("input[name='form_security_token']").val() 
+        		form_security_token: $("input[name='form_security_token']").val()
       		}
     	}).done( function(r) {
       		tao.zar.r = JSON.parse(r);

@@ -1,30 +1,44 @@
 $(document).ready(function() {
 
-	// set in Module
-	//typeof(window.tao) == 'undefined' ? window.tao = {} : '';
-	//tao.zar = { vsn: '2.0.0', form: {}, msg: {} };
-	//tao.zar.patano = /^d[0-9]{6}$/;
-	//tao.zar.patema = /^[a-z0-9.-]{2,64}@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/;
+	typeof(window.tao) == 'undefined' ? window.tao = {} : '';
+	tao.zar = { vsn: '2.0.0', form: {}, msg: {} };
+	tao.zar.patano = /^d[0-9]{5,10}$/;
+	tao.zar.patema = /^[a-z0-9.-]{1,64}@[a-z0-9.-]{2,32}\.[a-z]{2,12}$/;
 
-	$('#zar014').click( function () { $('#zar015').toggle(); });
+	$('.register_date').each( function () {
+		var date = new Date($(this).data('utc'));
+		$(this).html(date.toLocaleString(undefined, {weekday: 'short', hour: 'numeric', minute: 'numeric'}));
+	});
+
+	$('#zar014').click( function () {
+		$('#zar015').toggle();
+	});
+
+	$('#id_invite_code').blur(function() {
+		if($('#id_invite_code').val() === '')
+			return;
+
+		$('#invite-spinner').show();
+		var zreg_invite = $('#id_invite_code').val();
+		$.get('register/invite_check.json?f=&invite_code=' + encodeURIComponent(zreg_invite),function(data) {
+			if(!data.error) {
+				$('#register-form input, #register-form button').removeAttr('disabled');
+				// email is always mandatory if using invite code
+				$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_required']);
+			}
+			$('#invite-spinner').hide();
+		});
+	});
 
 	$('#id_email').change(function() {
 		tao.zar.form.email = $('#id_email').val();
-		if (tao.zar.patano.test(tao.zar.form.email) == true ) {
-			//ano
+
+		if (tao.zar.patema.test(tao.zar.form.email) == false ) {
+			$('#help_email').removeClass('text-muted').addClass('text-danger').html(aStr['email_not_valid']);
 		} else {
-			if (tao.zar.patema.test(tao.zar.form.email) == false ) {
-				$('#help_email').removeClass('text-muted').addClass('text-danger').html(tao.zar.msg.ZAR0239E);
-				zFormError('#help_email',true);
-			} else {
-				$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
+			$.get('register/email_check.json?f=&email=' + encodeURIComponent(tao.zar.form.email), function(data) {
 				$('#help_email').removeClass('text-muted').addClass('text-danger').html(data.message);
-				zFormError('#help_email',data.error);
-				});
-			}
-		}
-		if ($('#id_email').val().length > 0) {
-			$('#newchannel-submit-button').removeAttr('disabled');
+			});
 		}
 	});
 
@@ -40,6 +54,7 @@ $(document).ready(function() {
 			$('#id_password2').val().length > 0 ? $('#id_password2').trigger('change') : '';
 		}
 	});
+
 	$('#id_password2').change(function() {
 		if($('#id_password').val() != $('#id_password2').val()) {
 			$('#help_password2').removeClass('text-muted').addClass('text-danger').html(aStr.pwnomatch);
@@ -53,7 +68,10 @@ $(document).ready(function() {
 	});
 
 	$('#id_name').blur(function() {
-		$('#name-spinner').show();
+		if($('#id_name').val() == '')
+			return;
+
+		$('#name-spinner').fadeIn();
 		var zreg_name = $('#id_name').val();
 		$.get('new_channel/autofill.json?f=&name=' + encodeURIComponent(zreg_name),function(data) {
 			$('#id_nickname').val(data);
@@ -61,11 +79,16 @@ $(document).ready(function() {
 				$('#help_name').html('');
 				zFormError('#help_name',data.error);
 			}
-			$('#name-spinner').hide();
+			$('#name-spinner').fadeOut();
 		});
 	});
+
 	$('#id_nickname').blur(function() {
-		$('#nick-spinner').show();
+		if($('#id_name').val() == '')
+			return;
+
+		$('#nick-spinner').fadeIn();
+		$('#nick-hub').fadeOut();
 		var zreg_nick = $('#id_nickname').val();
 		$.get('new_channel/checkaddr.json?f=&nick=' + encodeURIComponent(zreg_nick),function(data) {
 			$('#id_nickname').val(data);
@@ -73,13 +96,13 @@ $(document).ready(function() {
 				$('#help_nickname').html('');
 				zFormError('#help_nickname',data.error);
 			}
-			$('#nick-spinner').hide();
+			$('#nick-spinner').fadeOut();
+			$('#nick-hub').fadeIn();
 		});
 	});
 
-	//$("buttom[name='submit']").submit((function() {
 	$('#register-form').submit(function(e) {
-		if ( $('.zform-error').length > 0 ) {
+		if ($('.zform-error').length > 0) {
 			e.preventDefault();
 			return false;
 		}

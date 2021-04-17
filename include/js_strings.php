@@ -116,6 +116,11 @@ function js_strings() {
 		'$allday' => t('All day','calendar'),
 
 		// mod cloud
-		'$download_info' => t('Please stand by while your download is being prepared.')
+		'$download_info' => t('Please stand by while your download is being prepared.'),
+
+		// mod register
+		'$email_not_valid' => t('Email address not valid'),
+		'$email_required' => t('Required')
+
 	));
 }

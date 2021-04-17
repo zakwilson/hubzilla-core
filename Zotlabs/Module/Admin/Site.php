@@ -469,8 +469,7 @@ class Site {
 				.	t('From-To ranges are joined with `-`') . '. '
 				.	t('ie') . ' `1-5:0900-1200,1300-1700 6:900-1230` ' . t('or') .' `1-2,4-5:800-1800` '
 				. 	EOL . ' <a id="zar083a" class="zuia btn">' . t('Parse and test your input') . '</a>'. EOL
-				.	t('If left empty, defaults to 24h closed everyday the week.') . ' '
-				.	t('To open 24h everyday the week, short is `-:-`.') . ' '
+				.	t('If left empty, defaults to 24h open everyday the week (-:-).') . ' '
 				.	t('Note, ranges are specified as open-close pairs and in case of')
 				.	' 0900-1200 '
 				.	t('results to: opens 9h and closes 12h. If meant open 9h to 12h exactly, say `0900-1201`'),

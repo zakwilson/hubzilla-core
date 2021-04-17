@@ -50,13 +50,14 @@ class Regate extends \Zotlabs\Web\Controller {
 			$ip 	= $_SERVER['REMOTE_ADDR'];
 
 			$isduty = zar_register_dutystate();
-			if ($isduty['isduty'] !== false && $isduty['isduty'] != 1) {
+
+			if (!$_SESSION['zar']['invite_in_progress'] && ($isduty['isduty'] !== false && $isduty['isduty'] != 1)) {
 					// normally, that should never happen here
 					// log suitable for fail2ban also
 					$logmsg = 'ZAR1230S Unexpected registration verification request for '
 							. get_config('system','sitename') . ' arrived from § ' . $ip . ' §';
 					zar_log($logmsg);
-					goaway(z_root() . '/');
+					goaway(z_root());
 			}
 
 			// do we have a valid dId2 ?
@@ -68,20 +69,19 @@ class Regate extends \Zotlabs\Web\Controller {
 				if ($r && count($r)) {
 					$r = $r[0];
 					// check timeframe
-					if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now ) {
-						if ( isset($_POST['resend']) && $didx == 'e' ) {
+					if ($r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
+						if (isset($_POST['resend']) && $didx == 'e') {
 							$re = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = 'e' AND reg_did2 = '%s' ORDER BY reg_created DESC ", dbesc($r['reg_did2']) );
-							if ( $re ) {
+							if ($re) {
 								$re = $re[0];
-								$reonar = json_decode($re['reg_stuff'],true);
-								$reonar['subject'] = 'Re,Fwd,' . $reonar['subject'];
+								$reonar = json_decode($re['reg_stuff'], true);
 								if ($reonar) {
+									$reonar['subject'] = 'Re,Fwd,' . $reonar['subject'];
 									$zm = zar_reg_mail($reonar);
-									$msg = ($zm) ?	'ZAR1238I ' . t('Email resent')
-											  	 :	'ZAR1238E ' . t('Resent failed');
-									zar_log($msg . ' ' . $r['reg_did2']);
+									$msg = (($zm) ? t('Email resent') : t('Email resend failed'));
+									zar_log((($zm) ? 'ZAR1238I' : 'ZAR1238E') . ' ' . $msg . ' ' . $r['reg_did2']);
 									info($msg);
-									goaway(z_root() . '/' . $nextpage);
+									return;
 								}
 							}
 						}
@@ -99,16 +99,28 @@ class Regate extends \Zotlabs\Web\Controller {
 						if ( $acpin && ($r['reg_hash'] == $acpin )) {
 
 							$flags = $r['reg_flags'];
-							if ( ($flags & ACCOUNT_UNVERIFIED ) == ACCOUNT_UNVERIFIED) {
+							if (($flags & ACCOUNT_UNVERIFIED) == ACCOUNT_UNVERIFIED) {
 
 								// verification success
 								$msg 	= 'ZAR1237I' . ' ' . t('Verify successfull');
 								$reonar = json_decode( $r['reg_stuff'], true);
 								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
+
 								// clear flag
 								$flags &= $flags ^ ACCOUNT_UNVERIFIED;
+
+								// are we invited by the admin?
+								$isa = get_account_by_id($r['reg_uid']);
+								$isa = ($isa && ($isa['account_roles'] && ACCOUNT_ROLE_ADMIN));
+
+								// approve contra invite by admin
+								if ($isa && get_config('system','register_policy') == REGISTER_APPROVE) {
+									$flags &= $flags ^ ACCOUNT_PENDING;
+								}
+
 								// sth todo?
 								$vital = $flags == 0 ? 0 : 1;
+
 								// set flag
 								$flags |= REGISTER_AGREED;
 								zar_log($msg . ' ' . $did2 . ':flags' . $flags . ',rid' . $r['reg_id']);
@@ -123,21 +135,20 @@ class Regate extends \Zotlabs\Web\Controller {
 									intval($r['reg_id'])
 								);
 
-								if ( ($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING ) {
-									$msg .= "\n".t('Last step will be by an instance admin to agree your account request');
+								if (($flags & ACCOUNT_PENDING ) == ACCOUNT_PENDING) {
 									$nextpage = 'regate/' . bin2hex($did2) . $didx;
 									q("COMMIT");
 								}
-								elseif ( ($flags ^ REGISTER_AGREED) == 0) {
+								elseif (($flags ^ REGISTER_AGREED) == 0) {
 
 									$cra = create_account_from_register([ 'reg_id' => $r['reg_id'] ]);
 
 									if ($cra['success']) {
 
 										q("COMMIT");
-										$msg = 'ZAR1238I ' . t('Account successfull created');
+										$msg = t('Account successfull created');
 										// zar_log($msg . ':' . print_r($cra, true));
-										zar_log($msg . ' ' . $cra['account']['account_email']
+										zar_log('ZAR1238I ' . $msg . ' ' . $cra['account']['account_email']
 													 . ' ' . $cra['account']['account_language']);
 
 										$nextpage = 'new_channel';
@@ -240,38 +251,47 @@ class Regate extends \Zotlabs\Web\Controller {
 			return $o;
 		}
 
-		if ( argc() > 1 ) {
-			$did2 = hex2bin( substr( argv(1), 0, -1) );
-			$didx = substr( argv(1), -1 );
-			$deny = argc() > 2 ? argv(2) : '';
-			$deny = preg_match('/^[0-9a-f]{8,8}$/', $deny) ? hex2bin($deny) : false;
-		}
-
-		if ($_SESSION['zar']['msg']) {
-			$o = replace_macros(get_markup_template('plain.tpl'), [
-				'$title'	=> t('Your Registration'),
-				'$now'		=> '',
-				'$infos'	=> $_SESSION['zar']['msg'] . EOL,
-			]);
-			unset($_SESSION['zar']['msg']);
-			return $o;
-		}
-
-		$now 	= datetime_convert();
-		$ip 	= $_SERVER['REMOTE_ADDR'];
-
 		$isduty = zar_register_dutystate();
 		$nowfmt = $isduty['nowfmt'];
 		$atform = $isduty['atform'];
 
-		$pin = $_SESSION['zar']['pin'] ?? '';
-		unset($_SESSION['zar']['pin']);
+		if ($_SESSION['zar']['delayed']) {
+			$o = replace_macros(get_markup_template('regate_pre.tpl'), [
+				'$title'      => t('Registration verification'),
+				'$now'        => $nowfmt,
+				'$id'         => $_SESSION['zar']['id'],
+				'$pin'        => $_SESSION['zar']['pin'],
+				'$regdelay'   => $_SESSION['zar']['regdelay'],
+				'$regexpire'  => $_SESSION['zar']['regexpire'],
+				'$strings' => [
+					t('Hold on, you can start verification in'),
+					t('Please remember your verification token for ID'),
+					t('Token validity')
+				]
+			]);
+			unset($_SESSION['zar']['delayed']);
+			return $o;
+		}
 
+		if (argc() < 2)
+			return;
 
-		$title = t('Register Verification');
+		$did2   = hex2bin( substr( argv(1), 0, -1) );
+		$didx   = substr( argv(1), -1 );
+		$deny   = argc() > 2 ? argv(2) : '';
+		$deny   = preg_match('/^[0-9a-f]{8,8}$/', $deny) ? hex2bin($deny) : false;
+		$now    = datetime_convert();
+		$ip     = $_SERVER['REMOTE_ADDR'];
+
+		$pin    = '';
+
+		if(isset($_SESSION['zar']['pin'])) {
+			$pin = $_SESSION['zar']['pin'];
+			unset($_SESSION['zar']['pin']);
+		}
 
 		// do we have a valid dId2 ?
-		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e')) {
+		if (($didx == 'a' && substr( $did2 , -2) == substr( base_convert( md5( substr( $did2, 1, -2) ),16 ,10), -2)) || ($didx == 'e') || ($didx == 'i')) {
 
 			$r = q("SELECT * FROM register WHERE reg_vital = 1 AND reg_didx = '%s' AND reg_did2 = '%s' ORDER BY reg_created DESC",
 				dbesc($didx),
@@ -285,14 +305,15 @@ class Regate extends \Zotlabs\Web\Controller {
 				$resend = ($r['reg_didx'] == 'e') ? t('Resend') : false;
 
 				// is still only instance admins intervention required?
-				if ( $r['reg_flags'] == ACCOUNT_PENDING ) {
-					$o = replace_macros(get_markup_template('plain.tpl'), [
-						'$title'	=> t('Register Verification Status'),
-						'$now'		=> $nowfmt,
-						'$infos'	=> t('Verification successful!') . EOL
-									.  t('After your account has been approved by our administrator you will be able to login with your ID') . EOL
-									.  $did2 . EOL
-									.  t('and your provided password.')
+				if ($r['reg_flags'] == ACCOUNT_PENDING) {
+					$o = replace_macros(get_markup_template('regate_post.tpl'), [
+						'$title' => t('Registration status'),
+						'$id'    => $did2,
+						'$strings' => [
+							t('Verification successful!'),
+							t('Your login ID is'),
+							t('After your account has been approved by our administrator you will be able to login with your login ID and your provided password.')
+						]
 					]);
 				}
 				else {
@@ -300,14 +321,11 @@ class Regate extends \Zotlabs\Web\Controller {
 					if ($deny) {
 
 						if (substr($r['reg_hash'],0,4) == $deny) {
-
 							zar_log('ZAR1134S email verfication denied ' . $did2);
 
-							$msg = 'ZAR1133A' . ' ' . t('Sorry for any inconvience. Thank you for your response.');
 							$o = replace_macros(get_markup_template('plain.tpl'), [
-								'$title'	=> t('Registration request denied'),
-								'$now'		=> $nowf,
-								'$infos'	=> $msg . EOL,
+								'$title' => t('Registration request revoked'),
+								'$infos' => t('Sorry for any inconvience. Thank you for your response.')
 							]);
 
 							$reonar = json_decode( $r['reg_stuff'], true);
@@ -330,14 +348,18 @@ class Regate extends \Zotlabs\Web\Controller {
 						if ( $r['reg_startup'] <= $now && $r['reg_expires'] >= $now) {
 							$o = replace_macros(get_markup_template('regate.tpl'), [
 							'$form_security_token' => get_form_security_token("regate"),
-							'$title' 	=> $title,
-							'$desc' 	=> $pin ? t('Please enter your validation token') . ' <code class="inline-code">' .  $pin . '</code>' : t('Please enter your validation token'),
-							'$did2' 	=> bin2hex($did2) . $didx,
-							'$now'		=> $nowfmt,
-							'$atform'	=> $atform,
-							'$resend' 	=> $resend,
-							'$submit' 	=> t('Submit'),
-							'$acpin' 	=> [ 'acpin', t('Validation token'),'','' ]
+							'$title'  => t('Registration verification'),
+							'$desc'   => t('Please enter your verification token for ID'),
+							'$id'     => $did2,
+							// we might consider to not provide $pin if a registration delay is configured
+							// and the pin turns out to be readable by bots
+							'$pin'    => $pin,
+							'$did2'   => bin2hex($did2) . $didx,
+							'$now'    => $nowfmt,
+							'$atform' => $atform,
+							'$resend' => $resend,
+							'$submit' => t('Submit'),
+							'$acpin'  => [ 'acpin', t('Verification token'),'','' ]
 							]);
 						}
 						else {
@@ -346,38 +368,48 @@ class Regate extends \Zotlabs\Web\Controller {
 								$rd = q("UPDATE register SET reg_vital = 0 WHERE reg_id = %d ",
 									intval($r['reg_id'])
 								);
+
+								$o = replace_macros(get_markup_template('plain.tpl'), [
+									'$infos'	=> t('ID expired'),
+								]);
+
+								return $o;
 							}
 
-							$o = replace_macros(get_markup_template('plain.tpl'), [
-								'$title'	=> $title,
-								'$now'		=> $nowf,
+							$o = replace_macros(get_markup_template('regate_pre.tpl'), [
+								'$title'     => t('Registration verification'),
+								'$now'       => $nowfmt,
+								'$id'        => $did2,
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
-								'$infos'	=> 'ZAR1132W' . ' ' . t('Request not inside time frame') . EOL,
+								'$strings'   => [
+									t('Hold on, you can start verification in'),
+									t('You will require the verification token for ID')
+								]
 							]);
 						}
 					}
 				}
 			}
 			else {
-				$msg = 'ZAR1132E' . ' ' . t('Identity unknown');
-				zar_log($msg . ':' . $did2 . ',' . $didx);
+				$msg = t('Unknown or expired ID');
+				zar_log('ZAR1132E ' . $msg . ':' . $did2 . ',' . $didx);
 				$o = replace_macros(get_markup_template('plain.tpl'), [
 					'$title'	=> $title,
-					'$now'		=> $nowf,
-					'$infos'	=> $msg . EOL,
+					'$now'		=> $nowfmt,
+					'$infos'	=> $msg
 				]);
 			}
 
 		}
 		else {
-			$msg = 'ZAR1131E ' . t('dId2 mistaken');
+			$msg = 'ZAR1131E ' . t('dId2 malformed');
 			// $log = ' from § ' . $ip . ' §' . ' (' . dbesc($did2) . ')';
 			zar_log($msg);
 			$o = replace_macros(get_markup_template('plain.tpl'), [
 				'$title'	=> $title,
-				'$now'		=> $nowf,
-				'$infos'	=> ($msg) . EOL,
-				]);
+				'$now'		=> $nowfmt,
+				'$infos'	=> $msg
+			]);
 		}
 
 		return $o;

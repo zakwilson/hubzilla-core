@@ -36,7 +36,7 @@
 	{{** include file="field_checkbox.tpl" field=$register_wo_email **}}
 	{{include file="register_duty.tpl" field=$register_duty}}
 	{{include file="field_input.tpl" field=$register_perday}}
-	{{** include file="field_input.tpl" field=$register_sameip **}}
+	{{include file="field_input.tpl" field=$register_sameip}}
 	{{$reg_delay}}
 	{{$reg_expire}}
 	{{include file="field_checkbox.tpl" field=$reg_autochannel}}

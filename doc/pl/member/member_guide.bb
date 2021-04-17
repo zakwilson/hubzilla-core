@@ -149,9 +149,9 @@ Przecztaj też:
 
 [zrl=[baseurl]/help/pl/AdvancedSearch]Zaawansowane przeszukiwanie[/zrl]
 
-[h4][b]Siatka, uprawnienia i delegowanie[/b][/h4]
+[h4][b]Sieć, uprawnienia i delegowanie[/b][/h4]
 
-Strona "Siatka" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Wpisy, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać wpisy od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
+Strona "Sieć" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Wpisy, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać wpisy od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
 
 Jak wspomniano na początku, możliwych jest wiele innych rodzajów kanałów, jednak procedura tworzenia jest taka sama. Różnica między kanałami polega przede wszystkim na przypisanych uprawnieniach. Na przykład kanał umożliwiający udostępnianie dokumentów współpracownikom w pracy prawdopodobnie wymagałby bardziej liberalnych ustawień "Może zapisywać w moim" publicznym "magazynie plików" niż na koncie osobistym.
 

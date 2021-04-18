@@ -111,7 +111,7 @@ function menu_render($menu, $class='', $edit = false, $var = array()) {
 		$menu['items'][$x]['mitem_desc'] = zidify_links(smilies(bbcode($menu['items'][$x]['mitem_desc'])));
 	}
 
-	$wrap = (($var['wrap'] === 'none') ? false : true);
+	$wrap = (! x($var, 'wrap') || $var['wrap'] === 'none' ? false : true);
 
 	$ret = replace_macros(get_markup_template('usermenu.tpl'),array(
 		'$menu' => $menu['menu'],

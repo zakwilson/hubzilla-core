@@ -16,8 +16,8 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 
 		nav_set_selected('Bookmarks');
 
-		$item_id = intval($_REQUEST['item']);
-		$burl = trim($_REQUEST['burl']);
+		$item_id = (isset($_REQUEST['item']) ? $_REQUEST['item'] : false);
+		$burl    = (isset($_REQUEST['burl']) ? trim($_REQUEST['burl']) : '');
 	
 		if(! $item_id)
 			return;
@@ -38,7 +38,7 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 	
 		$item = $i[0];
 	
-		$terms = get_terms_oftype($item['term'],TERM_BOOKMARK);
+		$terms = (x($item, 'term') ? get_terms_oftype($item['term'],TERM_BOOKMARK) : false);
 	
 		if($terms) {
 			require_once('include/bookmarks.php');

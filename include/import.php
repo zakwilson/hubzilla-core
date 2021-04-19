@@ -708,12 +708,12 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 		$allow_code = channel_codeallowed($channel['channel_id']);
 
 		$deliver = false; // Don't deliver any messages or notifications when importing
-
 		foreach($items as $i) {
 			$item_result = false;
 			$item = get_item_elements($i,$allow_code);
-			if(! $item)
+			if(! $item) {
 				continue;
+			}
 
 			// deprecated
 
@@ -724,17 +724,18 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 				item_url_replace($channel,$item,$relocate['url'],z_root(),$relocate['channel_address']);
 			}
 
-			$r = q("select id, edited from item where mid = '%s' and uid = %d limit 1",
+			$r = q("select id, edited from item where mid = '%s' and uid = %d and revision = %d limit 1",
 				dbesc($item['mid']),
-				intval($channel['channel_id'])
+				intval($channel['channel_id']),
+				intval($item['revision'])
 			);
 			if($r) {
 
 				// flags may have changed and we are probably relocating the post,
 				// so force an update even if we have the same timestamp
 
-				if($item['edited'] >= $r[0]['edited']) {
-					$item['id'] = $r[0]['id'];
+				if($item['edited'] > $r[0]['edited']) {
+					$item['id']  = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
 					$item_result = item_store_update($item,$allow_code,$deliver);
 				}

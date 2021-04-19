@@ -1276,7 +1276,7 @@ function get_pending_accounts($get_all = false) {
 	if($get_all)
 		$sql_extra = '';
 
-	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, reg_stuff
+	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, reg_flags, reg_stuff
 		FROM register WHERE reg_vital = 1 $sql_extra AND (reg_flags & %d) >= 0",
 		intval(ACCOUNT_PENDING)
 	);

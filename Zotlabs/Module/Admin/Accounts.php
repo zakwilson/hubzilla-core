@@ -235,6 +235,13 @@ class Accounts {
 					$pending[$n]['reg_atip_n'] = $atipn[$v['reg_atip']];
 				}
 
+				$pending[$n]['status'] = '';
+				if($pending[$n]['reg_flags'] & ACCOUNT_UNVERIFIED > 0)
+					$pending[$n]['status'] = [t('Unverified'), 'bg-warning'];
+
+				if($pending[$n]['status'] && $pending[$n]['reg_expires'] < datetime_convert())
+					$pending[$n]['status'] = [t('Expired'), 'bg-danger text-white'];
+
 				// timezone adjust date_time for display
 				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
 				$pending[$n]['reg_startup'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_startup']);
@@ -300,11 +307,12 @@ class Accounts {
 			'$title' => t('Administration'),
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
-			'$select_all' => t('select all'),
+			'$get_all' => (($get_all) ? t('Show verified registrations') : t('Show all registrations')),
+			'$get_all_link' => (($get_all) ? z_root() .'/admin/accounts' : z_root() .'/admin/accounts?get_all'),
 			'$sel_tall' => t('Select toggle'),
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
-			'$h_pending' => t('Verified registrations waiting for approval'),
+			'$h_pending' => (($get_all) ? t('All registrations') : t('Verified registrations waiting for approval')),
 			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('Requests')),
 			'$no_pending' =>  t('No verified registrations.'),
 			'$approve' => t('Approve'),

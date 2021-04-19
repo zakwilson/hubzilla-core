@@ -314,7 +314,7 @@ class Accounts {
 			'$sel_aprv' => t('Approve selected'),
 			'$h_pending' => (($get_all) ? t('All registrations') : t('Verified registrations waiting for approval')),
 			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('Requests')),
-			'$no_pending' =>  t('No verified registrations.'),
+			'$no_pending' => (($get_all) ? t('No registrations available') : t('No verified registrations available')),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
 			'$delete' => t('Delete'),

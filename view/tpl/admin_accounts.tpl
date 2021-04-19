@@ -5,50 +5,51 @@
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_pending}}</h3>
-			{{if $debug}}<div>{{$debug}}</div>{{/if}}
-			{{if $pending}}
-			<table id="pending">
-				<thead>
-				<tr>
-					{{foreach $th_pending as $th}}<th>{{$th}}</th>{{/foreach}}
-					<th></th>
-					<th></th>
-				</tr>
-				</thead>
-				<tbody>
-				{{foreach $pending as $n => $u}}
-				<tr title="{{$u.status.0}}" class="{{$u.status.1}}">
-					<td class="text-nowrap">{{$u.reg_created}}</td>
-					<td class="text-nowrap">{{$u.reg_did2}}</td>
-					<td class="text-break">{{$u.reg_email}}</td>
-					<td class="">{{$u.reg_atip}}</td>
-					<td class="">{{$u.reg_atip_n}}</td>
-					<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
-					<td class="tools">
-						<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
-						<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
-						<span id="zarreax_{{$n}}" class="zarreax"></span>
-					</td>
-				</tr>
-				<tr title="{{$u.status.0}}" class="{{$u.status.1}}">
-					<td colspan="7"><strong>{{$msg}}:</strong> {{$u.msg}}</td>
-				</tr>
-				{{/foreach}}
-				</tbody>
-			</table>
-			<div class="float-left">
-				<a class="btn btn-link" href="{{$get_all_link}}">{{$get_all}}</a>
-			</div>
-			<div class="float-right">
-				<a id="zar2sat" class="btn btn-sm btn-primary" href="javascript:;">{{$sel_tall}}</a>
-				<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a>
-				<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a>
-			</div>
-			<div class="clearfix"></div>
-			{{else}}
-			<p>{{$no_pending}}</p>
-			{{/if}}
-
+		{{if $debug}}<div>{{$debug}}</div>{{/if}}
+		{{if $pending}}
+		<table id="pending">
+			<thead>
+			<tr>
+				{{foreach $th_pending as $th}}<th>{{$th}}</th>{{/foreach}}
+				<th></th>
+				<th></th>
+			</tr>
+			</thead>
+			<tbody>
+			{{foreach $pending as $n => $u}}
+			<tr title="{{$u.status.0}}" class="{{$u.status.1}}">
+				<td class="text-nowrap">{{$u.reg_created}}</td>
+				<td class="text-nowrap">{{$u.reg_did2}}</td>
+				<td class="text-break">{{$u.reg_email}}</td>
+				<td class="">{{$u.reg_atip}}</td>
+				<td class="">{{$u.reg_atip_n}}</td>
+				<td class="checkbox_bulkedit"><input type="checkbox" class="pending_ckbx" id="id_pending_{{$n}}" name="pending[]" value="{{$n}}"></td>
+				<td class="tools">
+					<a id="zara_{{$n}}" {{* href="{{$baseurl}}/regmod/allow/{{$n}}" *}} class="zar2s zara btn btn-default btn-xs" title="{{$approve}}"><i class="fa fa-thumbs-o-up admin-icons"></i></a>
+					<a id="zard_{{$n}}" {{* href="{{$baseurl}}/regmod/deny/{{$n}}" *}} class="zar2s zard btn btn-default btn-xs" title="{{$deny}}"><i class="fa fa-thumbs-o-down admin-icons"></i></a>
+					<span id="zarreax_{{$n}}" class="zarreax"></span>
+				</td>
+			</tr>
+			<tr title="{{$u.status.0}}" class="{{$u.status.1}}">
+				<td colspan="7"><strong>{{$msg}}:</strong> {{$u.msg}}</td>
+			</tr>
+			{{/foreach}}
+			</tbody>
+		</table>
+		<div class="float-right">
+			<a id="zar2sat" class="btn btn-sm btn-primary" href="javascript:;">{{$sel_tall}}</a>
+			<a id="zar2aas" class="zar2xas btn btn-sm btn-success" href="javascript:;"><i class="fa fa-check"></i> {{$sel_aprv}}</a>
+			<a id="zar2das" class="zar2xas btn btn-sm btn-danger" href="javascript:;"><i class="fa fa-close"></i> {{$sel_deny}}</a>
+		</div>
+		{{else}}
+		<div class="text-muted">
+		{{$no_pending}}
+		</div>
+		{{/if}}
+		<div class="float-left">
+			<a class="btn btn-sm btn-link" href="{{$get_all_link}}">{{$get_all}}</a>
+		</div>
+		<div class="clearfix"></div>
 		<br><br>
 		<h3>{{$h_users}}</h3>
 		{{if $users}}

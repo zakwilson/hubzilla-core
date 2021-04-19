@@ -734,7 +734,7 @@ function import_items($channel, $items, $sync = false, $relocate = null) {
 				// flags may have changed and we are probably relocating the post,
 				// so force an update even if we have the same timestamp
 
-				if($item['edited'] > $r[0]['edited']) {
+				if($item['edited'] >= $r[0]['edited']) {
 					$item['id']  = $r[0]['id'];
 					$item['uid'] = $channel['channel_id'];
 					$item_result = item_store_update($item,$allow_code,$deliver);

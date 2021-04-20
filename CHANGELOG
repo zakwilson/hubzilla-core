@@ -1,3 +1,13 @@
+Hubzilla 5.4.3 (2021-04-20)
+	- Fix regression in mod notifications (only the last was visible)
+	- Set Permissions-Policy: interest-cohort=() header by default
+	- Fix xchans containing a % breaking get_forum_channels()
+	- Fix webfinger if using a reverse proxy
+	- Fix regression finding bookmarks
+	- Fix zot6 hublocs import on channel import
+	- Fix revision not checked in import_items()
+
+
 Hubzilla 5.4.2 (2021-03-15)
 	- Fix translation plural variable
 	- Fix issue with following/unfollowing a thread

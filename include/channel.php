@@ -991,11 +991,11 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		}
 
 		if($xchans) {
-			$r = q("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
+			$r = dbq("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
 			if($r)
 				$ret['xchan'] = $r;
 
-			$r = q("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
+			$r = dbq("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
 			if($r)
 				$ret['hubloc'] = $r;
 		}

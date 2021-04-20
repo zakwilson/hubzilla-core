@@ -209,12 +209,6 @@ class Import extends \Zotlabs\Web\Controller {
 
 		logger('import step 3');
 
-		if(is_array($data['hubloc'])) {
-			import_hublocs($channel,$data['hubloc'],$seize,$moving);
-		}
-
-		logger('import step 4');
-
 		// create new hubloc for the new channel at this site
 
 		if(array_key_exists('channel',$data)) {
@@ -277,7 +271,7 @@ class Import extends \Zotlabs\Web\Controller {
 
 		}
 
-		logger('import step 5');
+		logger('import step 4');
 
 
 		// import xchans and contact photos
@@ -335,7 +329,7 @@ class Import extends \Zotlabs\Web\Controller {
 
 		}
 
-		logger('import step 6');
+		logger('import step 5');
 
 		// import xchans
 		$xchans = $data['xchan'];
@@ -404,7 +398,14 @@ class Import extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			logger('import step 7');
+			logger('import step 6');
+		}
+
+		logger('import step 7');
+
+		// this must happen after xchans got imported!
+		if(is_array($data['hubloc'])) {
+			import_hublocs($channel,$data['hubloc'],$seize,$moving);
 		}
 
 		$friends = 0;

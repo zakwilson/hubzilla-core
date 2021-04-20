@@ -922,7 +922,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			$ret['photo'] = [
 				'type' => $r[0]['mimetype'],
 				'data' => (($r[0]['os_storage'])
-					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode(dbunescbin($r[0]['content'])))
+					? base64url_encode(file_get_contents(dbunescbin($r[0]['content']))) : base64url_encode(dbunescbin($r[0]['content'])))
 			];
 		}
 	}

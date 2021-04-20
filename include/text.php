@@ -1108,7 +1108,7 @@ function magiclink_url($observer,$myaddr,$url) {
 
 function micropro($contact, $redirect = false, $class = '', $mode = false) {
 
-	if($contact['click'])
+	if(x($contact,'click'))
 		$url = '#';
 	else
 		$url = chanlink_hash($contact['xchan_hash']);
@@ -1121,10 +1121,10 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 		$tpl = 'micropro_card.tpl';
 
 	return replace_macros(get_markup_template($tpl), array(
-		'$click' => (($contact['click']) ? $contact['click'] : ''),
-		'$class' => $class . (($contact['archived']) ? ' archived' : ''),
-		'$oneway' => (($contact['oneway']) ? true : false),
-		'$perminfo' => $contact['perminfo'],
+		'$click' => (x($contact,'click') ? $contact['click'] : ''),
+		'$class' => $class . (x($contact,'archived') && $contact['archived'] ? ' archived' : ''),
+		'$oneway' => (x($contact,'oneway') && $contact['oneway'] ? true : false),
+		'$perminfo' => (x($contact,'perminfo') ? $contact['perminfo'] : ''),
 		'$url' => $url,
 		'$photo' => $contact['xchan_photo_s'],
 		'$name' => $contact['xchan_name'],

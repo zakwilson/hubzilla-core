@@ -908,7 +908,6 @@ function get_item_elements($x,$allow_code = false) {
 				$arr['item_type'] = ITEM_TYPE_DOC;
 		}
 	}
-
 	return $arr;
 }
 
@@ -926,17 +925,26 @@ function import_author_xchan($x) {
 	 *   * \e string \b xchan_hash - Thre returned value
 	 */
 	call_hooks('import_author_xchan', $arr);
-	if($arr['xchan_hash'])
+	if($arr['xchan_hash']) {
 		return $arr['xchan_hash'];
+	}
 
 	$y = false;
 
-	if((! array_key_exists('network', $x)) || ($x['network'] === 'zot')) {
+	if((isset($x['id']) && isset($x['key'])) && (!isset($x['network']) || $x['network'] === 'zot6')) {
+		$y = Libzot::import_author_zot($x);
+	}
+
+	if(!isset($x['network']) || $x['network'] === 'zot') {
 		$y = import_author_zot($x);
 	}
 
-	// if we were told that it's a zot connection, don't probe/import anything else
-	if(array_key_exists('network',$x) && $x['network'] === 'zot') {
+	// if we were told that it's a zot6 connection, don't probe/import anything else
+	if(isset($x['network']) && $x['network'] === 'zot6') {
+		return $y;
+	}
+
+	if(isset($x['network']) && $x['network'] === 'zot') {
 		if($x['url']) {
 			// check if we already have the zot6 xchan of this xchan_url. if not import it.
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
@@ -951,10 +959,8 @@ function import_author_xchan($x) {
 	}
 
 	// perform zot6 discovery
-
 	if($x['url']) {
-		$y = discover_by_webbie($x['url'],'zot6');
-
+		$y = discover_by_webbie($x['url'], 'zot6');
  		if($y) {
 			return $y;
 		}
@@ -968,7 +974,7 @@ function import_author_xchan($x) {
 		$y = import_author_unknown($x);
 	}
 
-	return($y);
+	return $y;
 }
 
 /**
@@ -1295,6 +1301,10 @@ function encode_item_xchan($xchan) {
 	$ret['photo']    = [ 'mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m'] ];
 	$ret['guid']     = $xchan['xchan_guid'];
 	$ret['guid_sig'] = $xchan['xchan_guid_sig'];
+
+	$ret['id']       = $xchan['xchan_guid'];
+	$ret['id_sig']   = $xchan['xchan_guid_sig'];
+	$ret['key']      = $xchan['xchan_pubkey'];
 
 	return $ret;
 }

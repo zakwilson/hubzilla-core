@@ -758,22 +758,34 @@ function get_item_elements($x,$allow_code = false) {
 	// and not enough info to be able to look you up from your hash - which is the only thing stored with the post.
 
 	$xchan_hash = import_author_xchan($x['author']);
-	if($xchan_hash)
+	if($xchan_hash) {
 		$arr['author_xchan'] = $xchan_hash;
-	else
-		return array();
+	}
+	else {
+		return [];
+	}
 
 	// save a potentially expensive lookup if author == owner
+	$legacy_sig = false;
+	$owner_hash = '';
+	if(isset($x['owner']['id']) && isset($x['owner']['key']) && isset($x['owner']['network']) && $x['owner']['network'] === 'zot6') {
+		$owner_hash = Libzot::make_xchan_hash($x['owner']['id'], $x['owner']['key']);
+	}
+	else {
+		$owner_hash = make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']);
+		$legacy_sig = true;
+	}
 
-	if($arr['author_xchan'] === make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']))
+	if($arr['author_xchan'] === $owner_hash) {
 		$arr['owner_xchan'] = $arr['author_xchan'];
+	}
 	else {
 		$xchan_hash = import_author_xchan($x['owner']);
 		if($xchan_hash) {
 			$arr['owner_xchan'] = $xchan_hash;
 		}
 		else {
-			return array();
+			return [];
 		}
 	}
 
@@ -793,7 +805,15 @@ function get_item_elements($x,$allow_code = false) {
 		);
 		if($r) {
 			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
-				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
+				$item_verified = false;
+				if($legacy_sig) {
+					$item_verified = Crypto::verify($x['body'], base64url_decode($arr['sig']), $r[0]['xchan_pubkey']);
+				}
+				else {
+					$item_verified = Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey']);
+				}
+
+				if($item_verified) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -908,6 +928,7 @@ function get_item_elements($x,$allow_code = false) {
 				$arr['item_type'] = ITEM_TYPE_DOC;
 		}
 	}
+
 	return $arr;
 }
 
@@ -935,22 +956,31 @@ function import_author_xchan($x) {
 		$y = Libzot::import_author_zot($x);
 	}
 
-	if(!isset($x['network']) || $x['network'] === 'zot') {
-		$y = import_author_zot($x);
+	if(!$y && isset($x['url']) && isset($x['network']) && $x['network'] === 'zot6') {
+		$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
+			dbesc($x['url'])
+		);
+		if($r)
+			$y = $r[0]['xchan_hash'];
+		else
+			$y = discover_by_webbie($x['url'], 'zot6');
 	}
 
 	// if we were told that it's a zot6 connection, don't probe/import anything else
-	if(isset($x['network']) && $x['network'] === 'zot6') {
+
+	if($y)
 		return $y;
+
+	if(!$y && !isset($x['network']) || $x['network'] === 'zot') {
+		$y = import_author_zot($x);
 	}
 
-	if(isset($x['network']) && $x['network'] === 'zot') {
+	if(isset($x['network']) || $x['network'] === 'zot') {
 		if($x['url']) {
 			// check if we already have the zot6 xchan of this xchan_url. if not import it.
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
 				dbesc($x['url'])
 			);
-
 			if(! $r)
 				discover_by_webbie($x['url'], 'zot6');
 		}
@@ -1700,14 +1730,14 @@ function item_sign(&$item) {
 	if(array_key_exists('sig',$item) && $item['sig'])
 		return;
 
-	$r = q("select channel_prvkey from channel where channel_id = %d and channel_hash = '%s' ",
+	$r = q("select * from channel where channel_id = %d and channel_hash = '%s' ",
 			intval($item['uid']),
 			dbesc($item['author_xchan'])
 	);
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = Libzot::sign($item['body'], $r[0]['channel_prvkey']);
 	$item['item_verified'] = 1;
 }
 

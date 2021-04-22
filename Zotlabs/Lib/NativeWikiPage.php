@@ -109,6 +109,7 @@ class NativeWikiPage {
 		return [ 'success' => false, 'message' => t('Wiki page create failed.') ];
 	}
 
+
 	static public function rename_page($arr) {
 
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
@@ -167,7 +168,9 @@ class NativeWikiPage {
 	
 	}
 
+
 	static public function get_page_content($arr) {
+
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']        : '');
 		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']        : '');
 		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash']      : '');
@@ -198,7 +201,9 @@ class NativeWikiPage {
 
 	}
 
+
 	static public function page_history($arr) {
+
 		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
 		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
 		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
@@ -290,6 +295,7 @@ class NativeWikiPage {
 		return null;
 	}
 
+
 	static public function load_page_history($arr) {
 
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']     : '');
@@ -337,6 +343,7 @@ class NativeWikiPage {
 
 		return null;
 	}
+
 
 	static public function save_page($arr) {
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
@@ -389,14 +396,15 @@ class NativeWikiPage {
 			return array('message' => t('Page update failed.'), 'success' => false);
 	}	
 
+
 	static public function delete_page($arr) {
-		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
-		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
+
+		$pageUrlName   = (array_key_exists('pageUrlName',$arr) ? $arr['pageUrlName'] : '');
+		$resource_id   = (array_key_exists('resource_id',$arr) ? $arr['resource_id'] : '');
+		$observer_hash = (array_key_exists('observer_hash',$arr) ? $arr['observer_hash'] : '');
+		$channel_id    = (array_key_exists('channel_id',$arr) ? $arr['channel_id'] : 0);
 
 		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-
 		if(! $w['wiki']) {
 			return [ 'success' => false, 'message' => t('Error reading wiki') ];
 		}
@@ -416,14 +424,16 @@ class NativeWikiPage {
 		}
 
 		if($ids) {
-			drop_items($ids);
+			drop_items($ids, true, DROPITEM_PHASE1);
 			return [ 'success' => true ];
 		}
 
 		return [ 'success' => false, 'message' => t('Nothing deleted') ];	
 	}
 	
+
 	static public function revert_page($arr) {
+
 		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
 		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
 		$commitHash    = ((array_key_exists('commitHash',$arr))    ? $arr['commitHash']    : null);
@@ -454,7 +464,9 @@ class NativeWikiPage {
 		}
 	}
 	
+
 	static public function compare_page($arr) {
+
 		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
 		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
 		$currentCommit = ((array_key_exists('currentCommit',$arr)) ? $arr['currentCommit'] : (-1));
@@ -490,6 +502,7 @@ class NativeWikiPage {
 
 	}
 	
+
 	static public function commit($arr) {
 
 		$commit_msg    = ((array_key_exists('commit_msg', $arr))   ? $arr['commit_msg']    : t('Page updated'));
@@ -570,7 +583,6 @@ class NativeWikiPage {
 	}
 
 
-	
 	/**
 	 * Replace the instances of the string [toc] with a list element that will be populated by
 	 * a table of contents by the JavaScript library
@@ -586,6 +598,7 @@ class NativeWikiPage {
 		return $s;
 	}
 	
+
 	/**
 	 *  Converts a select set of bbcode tags. Much of the code is copied from include/bbcode.php
 	 * @param string $s
@@ -625,7 +638,9 @@ class NativeWikiPage {
 		return $s;
 	}
 	
+
 	static public function get_file_ext($arr) {
+
 		if($arr['mimetype'] === 'text/bbcode')
 			return '.bb';
 		elseif($arr['mimetype'] === 'text/markdown')

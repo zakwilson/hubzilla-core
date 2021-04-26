@@ -1195,8 +1195,15 @@ function get_account_techlevel($account_id = 0) {
 }
 
 function zar_log($msg='') {
-	file_put_contents('./zar.log',
-		 date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+
+	if(get_config('system', 'register_logfile', 0)) {
+		file_put_contents('./zar.log',
+			date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+	}
+	else {
+		logger('zar_log: ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §');
+	}
+
 	return;
 }
 

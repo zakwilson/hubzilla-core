@@ -5,9 +5,6 @@ namespace Zotlabs\Module\Admin;
 
 class Site {
 
-	// system cfgs
-	const ivo = 'invitation_only';
-	const iva = 'invitation_also';
 
 	/**
 	 * @brief POST handler for Admin Site Page.
@@ -198,8 +195,8 @@ class Site {
 		set_config('system','register_wo_email', $register_wo_email);
 		set_config('system','minimum_age', $minimum_age);
 		set_config('system','auto_channel_create', $reg_autochannel);
-		set_config('system',self::ivo, $invitation_only);
-		set_config('system',self::iva, $invitation_also);
+		set_config('system', 'invitation_only', $invitation_only);
+		set_config('system', 'invitation_also', $invitation_also);
 		set_config('system','access_policy', $access_policy);
 		set_config('system','account_abandon_days', $abandon_days);
 		set_config('system','register_text', $register_text);
@@ -367,11 +364,10 @@ class Site {
 			list($regdelay_n, $regdelay_u) = array(substr($regdelay,0,-1),substr($regdelay,-1));
 		$reg_delay = replace_macros(get_markup_template('field_duration.qmc.tpl'),
 			 array(
-			 	'label'  	=> t('Account registration delay'),
+			 	'label'  	=> t('Register verification delay'),
 			 	'qmc'	 	=> 'zar',
-				'qmcid'		=> 'ZAR0860C',
-			 	'help'		=> t('How long a registration request has to wait before validation can perform.'
-			 					. ' No delay if zero or no value.'),
+				'qmcid'		=> '',
+			 	'help'		=> t('Time to wait before a registration request can be validated.'),
 			 	'field' => 	array(
 			 		'name'  => 'delay',
 			 		'title' => t('duration up from now'),
@@ -390,11 +386,10 @@ class Site {
 			list($regexpire_n, $regexpire_u) = array(substr($regexpire,0,-1),substr($regexpire,-1));
 		$reg_expire = replace_macros(get_markup_template('field_duration.qmc.tpl'),
 			 array(
-			 	'label'  	=> t('Account registration expiration'),
+			 	'label'  	=> t('Register verification expiration time'),
 			 	'qmc'	 	=> 'zar',
-				'qmcid'		=> 'ZAR0862C',
-			 	'help'		=> t('How long a registration to confirm remains valid.'
-			 					. ' Not expire if zero or no value.'),
+				'qmcid'		=> '',
+			 	'help'		=> t('Time before an unverified registration will expire'),
 			 	'field' => 	array(
 			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
@@ -407,8 +402,6 @@ class Site {
 			 	'rabot'	=> 	$reg_rabots
 			 )
 		);
-		$invitation_only = get_config('system',self::ivo);
-		$invitation_also = get_config('system',self::iva);
 
 		$tao = '';
 		$t = get_markup_template("admin_site.tpl");
@@ -441,81 +434,69 @@ class Site {
 
 			// Register
 			// [hilmar->
-			'$register_text'	=> array('register_text',
+			'$register_text'	=> [
+				'register_text',
 				t("Register text"),
 				htmlspecialchars(get_config('system','register_text'), ENT_QUOTES, 'UTF-8'),
-				t("Will be displayed prominently on the registration page.") . ' '
-				. t('If you operate with register duties (see ZAR0830C), best practise is to tell cleartext about here'),
-				'ZAR0810C'),
-			'$register_policy'	=> array('register_policy',
+				t("This text will be displayed prominently at the registration page")
+			],
+			'$register_policy'	=> [
+				'register_policy',
 				t("Does this site allow new member registration?"),
 				get_config('system','register_policy'),
 				"",
 				$register_choices,
-				'ZAR0820C'),
-			'$register_wo_email' => array('register_wo_email',
-				t("Registration is also possible without having to enter an email address."),
-				get_config('system','register_wo_email'),
-				t("Registration is also supported without requiring an email address from the applicant. Instead of the email address an artificial identification is generated, which has to be confirmed in a separate dialog. The default value is (Off) and corresponds to the registration procedure up to version 5.4.x."),
-				"",	"",	'ZAR0824C'),
-
-			'$register_duty' => array('register_duty',
-				t('Registration office on duty'),
-				$this->register_duty = get_config('system', 'register_duty'),
-				t('The weekdays and hours the register office is open for registrations') . '. '
-				.	t('Split weekdays and hours per `:`') . '. '
-				.	t('Separate weekday(s):hour(s) pairs with blank(s)') . '. '
-				.	t('Several values or ranges are to split by comma') . '. '
-				.	t('From-To ranges are joined with `-`') . '. '
-				.	t('ie') . ' `1-5:0900-1200,1300-1700 6:900-1230` ' . t('or') .' `1-2,4-5:800-1800` '
-				. 	EOL . ' <a id="zar083a" class="zuia btn">' . t('Parse and test your input') . '</a>'. EOL
-				.	t('If left empty, defaults to 24h open everyday the week (-:-).') . ' '
-				.	t('Note, ranges are specified as open-close pairs and in case of')
-				.	' 0900-1200 '
-				.	t('results to: opens 9h and closes 12h. If meant open 9h to 12h exactly, say `0900-1201`'),
-				'ZAR0830C'),
-			'$register_perday' => array('register_perday',
-				t('Account registrations max per day'),
-				(x(get_config('system', 'max_daily_registrations')))
-					? get_config('system', 'max_daily_registrations') : 50,
-				t('How many registration requests the site accepts during one day. Unlimited if zero or no value. Default 50'),
-				'ZAR0840C'),
-			'$register_sameip' => array('register_sameip',
-				t('Account registrations from same ip'),
-				(x(get_config('system', 'register_sameip')))
-					? get_config('system', 'register_sameip') : 3,
-				t('How many pending registration requests the site accepts from a same ip address.'),
-				'ZAR0850C'),
-			'$reg_delay'=>$reg_delay,
-			'$reg_expire'=>$reg_expire,
-			'$reg_autochannel'		=> array('auto_channel_create',
+			],
+			'$register_duty' => [
+				'register_duty',
+				t('Configure the registration open days/hours'),
+				get_config('system', 'register_duty'),
+				t('Empty or \'-:-\' value will keep registration open 24/7 (default)') . EOL .
+				t('Weekdays and hours must be separated by colon \':\', From-To ranges with a dash `-` example: 1:800-1200') . EOL .
+				t('Weekday:Hour pairs must be separated by space \' \' example: 1:900-1700 2:900-1700') . EOL .
+				t('From-To ranges must be separated by comma \',\' example: 1:800-1200,1300-1700 or 1-2,4-5:900-1700') . EOL .
+				t('Advanced examples:') . ' \'1-5:0900-1200,1300-1700 6:900-1230\' ' . t('or') . ' \'1-2,4-5:800-1800\'<br>' . EOL .
+				'<a id="zar083a" class="btn btn-sm btn-outline-secondary zuia">' . t('Check your configuration') . '</a>'. EOL
+			],
+			'$register_perday' => ['register_perday',
+				t('Max account registrations per day'),
+				get_config('system', 'max_daily_registrations', 50),
+				t('Unlimited if zero or no value - default 50')
+			],
+			'$register_sameip' => ['register_sameip',
+				t('Max account registrations from same ip'),
+				get_config('system', 'register_sameip', 3),
+				t('Unlimited if zero or no value - default 3')
+			],
+			'$reg_delay' => $reg_delay,
+			'$reg_expire' => $reg_expire,
+			'$reg_autochannel'		=> ['auto_channel_create',
 				t("Auto channel create"),
 				get_config('system','auto_channel_create', 1),
-				t("Auto create a channel when register a new account. When On, the register form will show additional fields for the channel-name and the nickname."),
-				"",	"",	'ZAR0870C'),
-
-			'$invitation_only'		=> array(self::ivo,
-				($invitation_only === false ? '✗' : '✓') . ' ' . t("Invitation only"),
-				$invitation_only,
-				t("Only allow new member registrations with an invitation code. Above register policy must be set to Yes."),
-				"",	"",	'ZAR0880C'),
-
-			'$invitation_also'		=> array(self::iva,
-				($invitation_also === false ? '✗' : '✓') . ' ' . t("Invitation also"),
-				$invitation_also,
-				t("Also allow new member registrations with an invitation code. Above register policy must be set to Yes."),
-				"",	"",	'ZAR0881C'),
-
-			'$verify_email'		=> array('verify_email',
-				t("Verify Email Addresses"),
+				t("If disabled the channel will be created in a separate step during the registration process")
+			],
+			'$invitation_only' => [
+				'invitation_only',
+				t("Require invite code"),
+				$invitation_only
+			],
+			'$invitation_also' => [
+				'invitation_also',
+				t("Allow invite code"),
+				$invitation_also
+			],
+			'$verify_email'		=> [
+				'verify_email',
+				t("Require email address"),
 				get_config('system','verify_email'),
-				t("Check to verify email addresses used in account registration (recommended)."),
-				"", "", 'ZAR0890C'),
-			'$abandon_days' => array('abandon_days',
-				t('Accounts abandoned after x days'),
+				t("The provided email address will be verified (recommended)")
+			],
+			'$abandon_days' => [
+				'abandon_days',
+				t('Abandon account after x days'),
 				get_config('system','account_abandon_days'),
 				t('Will not waste system resources polling external sites for abandonded accounts. Enter 0 for no time limit.')
-			),
+			],
 			// <-hilmar]
 
 			'$role'         => $role,
@@ -598,7 +579,7 @@ class Site {
 		if ($this->isajax) {
 			$op = (preg_match('/[a-z]{2,4}/', $_REQUEST['zarop'])) ? $_REQUEST['zarop'] : '';
 			if ($op == 'zar083') {
-				$this->msgbg = 'ZAR0130I Testmode:' . $this->eol . $this->msgbg;
+				$this->msgbg = 'Testmode:' . $this->eol . $this->msgbg;
 			} else {
 				killme();
 				exit;
@@ -696,11 +677,11 @@ class Site {
 				$cdow = $this->wdconst[$adow];
 				// below is the essential algo to verify a date (of format Hi) meets an open or closed condition
 				$t = date('Hi', ( rand(time(), 60*60*24+time()) ) );
-				$how='closed';
+				$how='close';
 				foreach ($aro[$adow] as $o => $v) {
 					// $this->msgbg .= 'debug: ' . $o . ' gt ' . $t . ' / ' . $v . $this->eol; // 4devels
 					if ($o > $t) {
-						$how = ($v ? 'open' : 'closed');
+						$how = ($v ? 'open' : 'close');
 						break;
 					}
 				}

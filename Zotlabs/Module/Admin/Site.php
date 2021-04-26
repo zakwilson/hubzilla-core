@@ -367,7 +367,7 @@ class Site {
 			 	'label'  	=> t('Register verification delay'),
 			 	'qmc'	 	=> 'zar',
 				'qmcid'		=> '',
-			 	'help'		=> t('Time to wait before a registration request can be validated.'),
+				'help'		=> t('Time to wait before a registration can be verified'),
 			 	'field' => 	array(
 			 		'name'  => 'delay',
 			 		'title' => t('duration up from now'),

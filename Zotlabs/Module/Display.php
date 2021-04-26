@@ -325,7 +325,7 @@ class Display extends \Zotlabs\Web\Controller {
 			if($parents_str) {
 				$items = q("SELECT item.*, item.id AS item_id
 					FROM item
-					WHERE parent in ( %s ) $item_normal ",
+					WHERE parent in ( %s ) $sql_extra $item_normal ",
 					dbesc($parents_str)
 				);
 				xchan_query($items);

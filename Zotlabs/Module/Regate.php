@@ -178,19 +178,22 @@ class Regate extends \Zotlabs\Web\Controller {
 												$channel_id = $new_channel['channel']['channel_id'];
 												change_channel($channel_id);
 												$nextpage = 'profiles/' . $channel_id;
-												$msg = 'ZAR1239I ' . t('Channel successfull created') . ' ' . $did2;
+												$msg_code = 'ZAR1239I';
+												$msg = t('Channel successfull created') . ' ' . $did2;
 											}
 											else {
-												$msg = 'ZAR1239E ' . t('Channel still not created') . ' ' . $did2;
+												$msg_code = 'ZAR1239E';
+												$msg = t('Channel still not created') . ' ' . $did2;
 											}
-											zar_log($msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
+											zar_log($msg_code . ' ' . $msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
 										}
 										unset($_SESSION['login_return_url']);
 									}
 									else {
 										q("ROLLBACK");
-										$msg = 'ZAR1238E ' . t('Account creation error');
-										zar_log($msg . ':' . print_r($cra, true));
+										$msg_code = 'ZAR1238E';
+										$msg = t('Account creation error');
+										zar_log($msg_code . ' ' . $msg . ': ' . print_r($cra, true));
 									}
 								}
 								else {
@@ -200,25 +203,32 @@ class Regate extends \Zotlabs\Web\Controller {
 							}
 							else {
 								// nothing to confirm
-								$msg = 'ZAR1236E' . ' ' . t('Verify failed');
+								$msg_code = 'ZAR1236E';
+								$msg = t('Verify failed');
 							}
 						}
 						else {
-							$msg = 'ZAR1235E' . ' ' . t('Token verification failed');
+							$msg_code = 'ZAR1235E';
+							$msg = t('Token verification failed');
 						}
 					}
 					else {
-						$msg = 'ZAR1234W' . ' ' . t('Request not inside time frame');
+						$msg_code = 'ZAR1234W';
+						$msg = t('Request not inside time frame');
 						//info($r[0]['reg_startup'] . EOL . $r[0]['reg_expire'] );
 					}
 				}
 				else {
-					$msg = 'ZAR1232E' . ' ' . t('Identity unknown');
-					zar_log($msg . ':' . $did2 . $didx);
+					$msg_code = 'ZAR1232E';
+					$msg = t('Identity unknown');
+					zar_log($msg_code . ' ' . $msg . ':' . $did2 . $didx);
 				}
 			}
 			else {
-				$msg = 'ZAR1231E' . t('dId2 mistaken');
+				$msg_code = 'ZAR1231E';
+				$msg = t('dId2 mistaken');
+				zar_log($msg_code . ' ' . $msg);
+
 			}
 
 		}

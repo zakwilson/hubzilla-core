@@ -61,24 +61,28 @@ class Register extends Controller {
 		 */
 
 
-		$act         = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
-		$duty        = zar_register_dutystate();
-		$is247       = false;
-		$ip          = $_SERVER['REMOTE_ADDR'];
-		$sameip      = intval(get_config('system','register_sameip'));
-		$arr         = $_POST;
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$name        = '';
-		$nick        = '';
-		$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
-		$password    = ((x($arr,'password'))      ? trim($arr['password'])              : '');
-		$password2   = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
+		$act          = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
+		$is247        = false;
+		$ip           = $_SERVER['REMOTE_ADDR'];
+		$sameip       = intval(get_config('system','register_sameip'));
+		$arr          = $_POST;
+		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$name         = '';
+		$nick         = '';
+		$email        = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
+		$password     = ((x($arr,'password'))      ? trim($arr['password'])              : '');
+		$password2    = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
 		$register_msg = ((x($arr,'register_msg'))   ? notags(trim($arr['register_msg']))   : '');
+		$reonar       = [];
+		$auto_create  = get_config('system','auto_channel_create', 1);
+		$duty         = zar_register_dutystate();
 
-		$reonar      = [];
-		$auto_create = get_config('system','auto_channel_create', 1);
+		if (!get_config('system', 'register_duty_jso')) {
+			// if not yet configured default to true
+			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
+		}
 
 		if($auto_create) {
 			$name = escape_tags(trim($arr['name']));
@@ -132,8 +136,9 @@ class Register extends Controller {
 		if ($act > 0 && !$is247 && !$duty['isduty']) {
 			// normally (except very 1st timr after install), that should never arrive here (ie js hack or sth like)
 			// log suitable for f2b also
-			$logmsg = 'ZAR0230S Unexpected registration request off duty';
-			zar_log($logmsg);
+			$logmsg = 'Unexpected registration request off duty';
+			notice($logmsg);
+			zar_log('ZAR0230S ' . $logmsg);
 			return;
 		}
 
@@ -472,11 +477,11 @@ class Register extends Controller {
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
 
-		if ( !get_config('system', 'register_duty_jso') ) {
-			// duty yet not configured
-			$duty = array( 'isduty' => false, 'atfrm' => '', 'nowfmt' => '');
-		} else {
-			$duty = zar_register_dutystate();
+		$duty = zar_register_dutystate();
+
+		if (!get_config('system', 'register_duty_jso')) {
+			// if not yet configured default to true
+			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
 		}
 
 		$invitations = false;

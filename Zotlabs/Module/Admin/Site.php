@@ -455,7 +455,7 @@ class Site {
 				t('Weekdays and hours must be separated by colon \':\', From-To ranges with a dash `-` example: 1:800-1200') . EOL .
 				t('Weekday:Hour pairs must be separated by space \' \' example: 1:900-1700 2:900-1700') . EOL .
 				t('From-To ranges must be separated by comma \',\' example: 1:800-1200,1300-1700 or 1-2,4-5:900-1700') . EOL .
-				t('Advanced examples:') . ' \'1-5:0900-1200,1300-1700 6:900-1230\' ' . t('or') . ' \'1-2,4-5:800-1800\'<br>' . EOL .
+				t('Advanced examples:') . ' 1-5:0900-1200,1300-1700 6:900-1230 ' . t('or') . ' 1-2,4-5:800-1800<br>' . EOL .
 				'<a id="zar083a" class="btn btn-sm btn-outline-secondary zuia">' . t('Check your configuration') . '</a>'. EOL
 			],
 			'$register_perday' => ['register_perday',

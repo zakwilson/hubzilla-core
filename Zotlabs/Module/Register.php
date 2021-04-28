@@ -119,7 +119,7 @@ class Register extends Controller {
 			$email_result = check_account_email($email);
 			if ($email_result['error']) {
 				// msg!
-				notice(t($email_result['message']) . EOL);
+				notice($email_result['message'] . EOL);
 				return;
 			}
 		}

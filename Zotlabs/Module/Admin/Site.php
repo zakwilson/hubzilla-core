@@ -126,7 +126,7 @@ class Site {
 				//logger( print_r( $this->msgbg, true) );
 				//logger( print_r( $this->joo, true) );
 				if ($this->error === 0) {
-					set_config('system', 'register_duty',     $this->register_duty);
+					set_config('system', 'register_duty', $this->register_duty);
 					set_config('system', 'register_duty_jso', $this->joo);
 				} else {
 					notice('ZAR0130E,'.t('Errors') . ': ' . $this->error) . EOL . $this->msgfg;
@@ -320,9 +320,8 @@ class Site {
 			REGISTER_APPROVE => t("Yes - with approval"),
 			REGISTER_OPEN    => t("Yes")
 		);
-		$this->register_duty ? get_config('system', 'register_duty') : '';
-		$register_perday = get_config('system','max_daily_registrations');
-		$register_perday ? '' : $register_perday = 50;
+		$this->register_duty = get_config('system', 'register_duty', '-:-');
+		$register_perday = get_config('system','max_daily_registrations', 50);
 
 		/* Acess policy */
 		$access_choices = Array(
@@ -393,11 +392,11 @@ class Site {
 			 	'field' => 	array(
 			 		'name'  => 'expire',
 			 		'title' => t('duration up from now'),
-			 		'value' => ($regexpire_n === false ? 99 : $regexpire_n),
+			 		'value' => ($regexpire_n === false ? 3 : $regexpire_n),
 			 		'min'  => '0',
 			 		'max'  => '99',
 			 		'size' => '2',
-					'default' => ($regexpire_u === false ? 'y' : $regexpire_u)
+					'default' => ($regexpire_u === false ? 'd' : $regexpire_u)
 			 	),
 			 	'rabot'	=> 	$reg_rabots
 			 )
@@ -450,7 +449,7 @@ class Site {
 			'$register_duty' => [
 				'register_duty',
 				t('Configure the registration open days/hours'),
-				get_config('system', 'register_duty'),
+				get_config('system', 'register_duty', '-:-'),
 				t('Empty or \'-:-\' value will keep registration open 24/7 (default)') . EOL .
 				t('Weekdays and hours must be separated by colon \':\', From-To ranges with a dash `-` example: 1:800-1200') . EOL .
 				t('Weekday:Hour pairs must be separated by space \' \' example: 1:900-1700 2:900-1700') . EOL .
@@ -458,19 +457,22 @@ class Site {
 				t('Advanced examples:') . ' 1-5:0900-1200,1300-1700 6:900-1230 ' . t('or') . ' 1-2,4-5:800-1800<br>' . EOL .
 				'<a id="zar083a" class="btn btn-sm btn-outline-secondary zuia">' . t('Check your configuration') . '</a>'. EOL
 			],
-			'$register_perday' => ['register_perday',
+			'$register_perday' => [
+				'register_perday',
 				t('Max account registrations per day'),
 				get_config('system', 'max_daily_registrations', 50),
 				t('Unlimited if zero or no value - default 50')
 			],
-			'$register_sameip' => ['register_sameip',
-				t('Max account registrations from same ip'),
+			'$register_sameip' => [
+				'register_sameip',
+				t('Max account registrations from same IP'),
 				get_config('system', 'register_sameip', 3),
 				t('Unlimited if zero or no value - default 3')
 			],
 			'$reg_delay' => $reg_delay,
 			'$reg_expire' => $reg_expire,
-			'$reg_autochannel'		=> ['auto_channel_create',
+			'$reg_autochannel'		=> [
+				'auto_channel_create',
 				t("Auto channel create"),
 				get_config('system','auto_channel_create', 1),
 				t("If disabled the channel will be created in a separate step during the registration process")
@@ -585,9 +587,6 @@ class Site {
 				exit;
 			}
 		}
-
-		if (! $this->register_duty)
-			$this->register_duty = '-:-';
 
 		$ranges = preg_split('/\s+/', $this->register_duty);
 		$this->msgbg .= '..ranges: ' . print_r(count($ranges),true) . $this->eol;

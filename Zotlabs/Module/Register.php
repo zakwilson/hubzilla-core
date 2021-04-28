@@ -47,7 +47,6 @@ class Register extends Controller {
 		}
 	}
 
-
 	function post() {
 
 		check_form_security_token_redirectOnErr('/register', 'register');
@@ -64,7 +63,7 @@ class Register extends Controller {
 		$act          = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
 		$is247        = false;
 		$ip           = $_SERVER['REMOTE_ADDR'];
-		$sameip       = intval(get_config('system','register_sameip'));
+		$sameip       = intval(get_config('system','register_sameip', 3));
 		$arr          = $_POST;
 		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
 		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
@@ -117,19 +116,18 @@ class Register extends Controller {
 		}
 
 		if ($email) {
-			if (! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email)) {
+			$email_result = check_account_email($email);
+			if ($email_result['error']) {
 				// msg!
-				notice(t('Not a valid email address') . EOL);
+				notice(t($email_result['message']) . EOL);
 				return;
 			}
 		}
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
-			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
-				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
-					$is247 = true;
-				}
+			if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
+				$is247 = true;
 			}
 		}
 
@@ -156,16 +154,16 @@ class Register extends Controller {
 
 		// s2 max daily
 		// msg?
-		if ( !$is247 && self::check_reg_limits()['is'] ) return;
+		if (!$is247 && self::check_reg_limits()['is']) return;
 
-		if(!$password) {
+		if (!$password) {
 			// msg!
 			notice(t('No password provided') . EOL);
 			return;
 		}
 
 		// pw1 == pw2
-		if($password !== $password2) {
+		if ($password !== $password2) {
 			// msg!
 			notice(t('Passwords do not match') . EOL);
 			return;
@@ -337,11 +335,11 @@ class Register extends Controller {
 
 			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
 
-				$cfgdelay = get_config( 'system', 'register_delay' );
+				$cfgdelay = get_config('system', 'register_delay', '0i');
 				$reg_delayed = calculate_adue( $cfgdelay );
 				$regdelay = (($reg_delayed) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_delayed['due']) : $now);
 
-				$cfgexpire = get_config('system','register_expire' );
+				$cfgexpire = get_config('system', 'register_expire', '3d');
 				$reg_expires = calculate_adue( $cfgexpire );
 				$regexpire = (($reg_expires) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_expires['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years'));
 
@@ -583,9 +581,9 @@ class Register extends Controller {
 		// check against register, account
 		$rear = array( 'is' => false, 'rn' => 0, 'an' => 0, 'msg' => '' );
 
-		$max_dailies = intval(get_config('system','max_daily_registrations'));
+		$max_dailies = intval(get_config('system', 'max_daily_registrations', 50));
 
-		if ( $max_dailies ) {
+		if ($max_dailies) {
 
 			$r = q("SELECT COUNT(reg_id) AS nr FROM register WHERE reg_vital = 1 AND reg_created > %s - INTERVAL %s",
 				db_utcnow(), db_quoteinterval('1 day')
@@ -594,7 +592,7 @@ class Register extends Controller {
 			$rear['is'] = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
 			$rear['rn'] = $r[0]['nr'];
 
-			if ( !$rear['is']) {
+			if (!$rear['is']) {
 				$r = q("SELECT COUNT(account_id) AS nr FROM account WHERE account_created > %s - INTERVAL %s",
 					db_utcnow(), db_quoteinterval('1 day')
 				);

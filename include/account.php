@@ -35,15 +35,20 @@ function check_account_email($email) {
 		return $result;
 
 	if(! validate_email($email))
-		$result['message'] .= t('Email address not valid') . EOL;
+		$result['message'] = t('The provided email address is not valid') . EOL;
 	elseif(! allowed_email($email))
-		$result['message'] = t('Your email domain is not among those allowed on this site');
+		$result['message'] = t('The provided email domain is not among those allowed on this site');
 	else {
 		$r = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
+		if (!$r) {
+			$r = q("select reg_did2 from register where reg_did2 = '%s' limit 1",
+				dbesc($email)
+			);
+		}
 		if($r) {
-			$result['message'] .= t('Your email address is already registered at this site.');
+			$result['message'] = t('The provided email address is already registered at this site');
 		}
 	}
 	if($result['message'])

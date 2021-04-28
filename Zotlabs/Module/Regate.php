@@ -151,41 +151,54 @@ class Regate extends \Zotlabs\Web\Controller {
 										zar_log('ZAR1238I ' . $msg . ' ' . $cra['account']['account_email']
 													 . ' ' . $cra['account']['account_language']);
 
-										$nextpage = 'new_channel';
-
-										$auto_create  = get_config('system','auto_channel_create',1);
-
-										if($auto_create) {
-											// prepare channel creation
-											if($reonar['chan.name'])
-												set_aconfig($cra['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
-
-											if($reonar['chan.did1'])
-												set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
-
-											$permissions_role  = get_config('system','default_permissions_role');
-											if($permissions_role)
-												set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
-										}
-
 										authenticate_success($cra['account'],null,true,false,true);
 
-										if($auto_create) {
-											// create channel
-											$new_channel = auto_channel_create($cra['account']['account_id']);
+										$nextpage = 'new_channel';
 
-											if($new_channel['success']) {
-												$channel_id = $new_channel['channel']['channel_id'];
-												change_channel($channel_id);
-												$nextpage = 'profiles/' . $channel_id;
-												$msg_code = 'ZAR1239I';
-												$msg = t('Channel successfull created') . ' ' . $did2;
+										$auto_create  = get_config('system', 'auto_channel_create', 1);
+
+										if($auto_create) {
+
+											$new_channel = ['success' => false];
+
+											// We do not reserve a channel_address before the registration is verified
+											// and possibly approved by the admin.
+											// If the provided channel_address has been claimed meanwhile,
+											// we will proceed to /new_channel.
+
+											if(isset($reonar['chan.did1']) && check_webbie([$reonar['chan.did1']])) {
+
+												// prepare channel creation
+												if($reonar['chan.name'])
+													set_aconfig($cra['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
+
+												if($reonar['chan.did1'])
+													set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
+
+												$permissions_role  = get_config('system','default_permissions_role');
+												if($permissions_role)
+													set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
+
+												// create channel
+												$new_channel = auto_channel_create($cra['account']['account_id']);
+
+												if($new_channel['success']) {
+													$channel_id = $new_channel['channel']['channel_id'];
+													change_channel($channel_id);
+													$nextpage = 'profiles/' . $channel_id;
+													$msg_code = 'ZAR1239I';
+													$msg = t('Channel successfull created') . ' ' . $did2;
+												}
 											}
-											else {
+
+											if(!$new_channel['success']) {
 												$msg_code = 'ZAR1239E';
-												$msg = t('Channel still not created') . ' ' . $did2;
+												$msg = t('Automatic channel creation failed. Please create a channel.') . ' ' . $did2;
+												$nextpage = 'new_channel?name=' . $reonar['chan.name'];
 											}
+
 											zar_log($msg_code . ' ' . $msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
+
 										}
 										unset($_SESSION['login_return_url']);
 									}

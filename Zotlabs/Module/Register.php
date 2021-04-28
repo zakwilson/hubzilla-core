@@ -66,8 +66,6 @@ class Register extends Controller {
 		$sameip       = intval(get_config('system','register_sameip', 3));
 		$arr          = $_POST;
 		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
 		$name         = '';
 		$nick         = '';
 		$email        = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
@@ -118,7 +116,6 @@ class Register extends Controller {
 		if ($email) {
 			$email_result = check_account_email($email);
 			if ($email_result['error']) {
-				// msg!
 				notice($email_result['message'] . EOL);
 				return;
 			}
@@ -152,19 +149,12 @@ class Register extends Controller {
 			}
 		}
 
-		// s2 max daily
-		// msg?
-		if (!$is247 && self::check_reg_limits()['is']) return;
-
 		if (!$password) {
-			// msg!
 			notice(t('No password provided') . EOL);
 			return;
 		}
 
-		// pw1 == pw2
 		if ($password !== $password2) {
-			// msg!
 			notice(t('Passwords do not match') . EOL);
 			return;
 		}
@@ -211,7 +201,7 @@ class Register extends Controller {
 				break;
 		}
 
-		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE) )
+		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE))
 			$flags = ($flags | ACCOUNT_UNVERIFIED);
 
 		// $arr has $_POST;
@@ -295,23 +285,24 @@ class Register extends Controller {
 
 			$icdone = false;
 			// no ivc entered
-			if ( ! $invonly) {
+			if (!$invonly) {
 				// possibly the email is just in use ?
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
-					 dbesc('e' . $email));
+					 dbesc('e' . $email)
+				);
 
-				if ( ! $reg)
-					$act = q("SELECT * from account WHERE account_email = '%s'", dbesc($email));
+				if (!$reg) {
+					$act = q("SELECT * from account WHERE account_email = '%s'",
+						dbesc($email)
+					);
+				}
 
 				// in case an invitation was made but the invitecode was not entered, better ignore.
 				// goaway(z_root() . '/regate/' . bin2hex($reg['email']));
 
-				if ( ! $reg && ! $act) {
+				if (! $reg && !$act) {
 					// email useable
-
 					$well = true;
-
-
 				} else {
 					$msg = t('Email address already in use') . EOL;
 					notice($msg);
@@ -329,6 +320,12 @@ class Register extends Controller {
 				return;
 			}
 
+		}
+
+		// check max daily registrations after we have dealt with the invitecode
+		if (self::check_reg_limits()['is']) {
+			notice('Max registrations per day exceeded.');
+			return;
 		}
 
 		if ($well) {
@@ -452,7 +449,6 @@ class Register extends Controller {
 			}
 		}
 	}
-
 
 
 	function get() {

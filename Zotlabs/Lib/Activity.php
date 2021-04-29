@@ -1360,16 +1360,14 @@ class Activity {
 				case 'Join':
 
 					// A second Follow request, but we haven't approved the first one
-
 					if ($contact['abook_pending']) {
 						return;
 					}
 
 					// We've already approved them or followed them first
 					// Send an Accept back to them
-
 					set_abconfig($channel['channel_id'], $person_obj['id'], 'pubcrawl', 'their_follow_id', $their_follow_id);
-					Master::Summon(['Notifier', 'permissions_accept', $contact['abook_id']]);
+					Master::Summon(['Notifier', 'permission_accept', $contact['abook_id']]);
 					return;
 
 				case 'Accept':
@@ -1471,9 +1469,9 @@ class Activity {
 
 				if ($my_perms && $automatic) {
 					// send an Accept for this Follow activity
-					Master::Summon(['Notifier', 'permissions_accept', $new_connection[0]['abook_id']]);
+					Master::Summon(['Notifier', 'permission_accept', $new_connection[0]['abook_id']]);
 					// Send back a Follow notification to them
-					Master::Summon(['Notifier', 'permissions_create', $new_connection[0]['abook_id']]);
+					Master::Summon(['Notifier', 'permission_create', $new_connection[0]['abook_id']]);
 				}
 
 				$clone = [];

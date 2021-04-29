@@ -11,7 +11,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 	function init() {
 
 		$cmd = ((argc() > 1) ? argv(1) : '');
-	
+
 		if($cmd === 'autofill.json') {
 			require_once('library/urlify/URLify.php');
 			$result = array('error' => false, 'message' => '');
@@ -20,14 +20,14 @@ class New_channel extends \Zotlabs\Web\Controller {
 			$x = false;
 
 			if(get_config('system','unicode_usernames')) {
-				$x = punify(mb_strtolower($n)); 
+				$x = punify(mb_strtolower($n));
 			}
 
 			if((! $x) || strlen($x) > 64)
 				$x = strtolower(\URLify::transliterate($n));
-	
+
 			$test = array();
-	
+
 			// first name
 			if(strpos($x,' '))
 				$test[] = legal_webbie(substr($x,0,strpos($x,' ')));
@@ -44,19 +44,19 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 			json_return_and_die(check_webbie($test));
 		}
-	
+
 		if($cmd === 'checkaddr.json') {
 			require_once('library/urlify/URLify.php');
 			$result = array('error' => false, 'message' => '');
 			$n = trim($_REQUEST['nick']);
 			if(! $n) {
-				$n = trim($_REQUEST['name']);	
+				$n = trim($_REQUEST['name']);
 			}
 
 			$x = false;
 
 			if(get_config('system','unicode_usernames')) {
-				$x = punify(mb_strtolower($n)); 
+				$x = punify(mb_strtolower($n));
 			}
 
 			if((! $x) || strlen($x) > 64)
@@ -64,7 +64,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 
 			$test = array();
-	
+
 			// first name
 			if(strpos($x,' '))
 				$test[] = legal_webbie(substr($x,0,strpos($x,' ')));
@@ -80,57 +80,57 @@ class New_channel extends \Zotlabs\Web\Controller {
 				$test[] = $n;
 				$test[] = $n . mt_rand(1000,9999);
 			}
-	
+
 			for($y = 0; $y < 100; $y ++)
 				$test[] = 'id' . mt_rand(1000,9999);
-	
+
 			json_return_and_die(check_webbie($test));
 		}
-	
-	
+
+
 	}
-	
+
 	function post() {
-	
+
 		$arr = $_POST;
-	
+
 		$acc = \App::get_account();
 		$arr['account_id'] = get_account_id();
-	
-		// prevent execution by delegated channels as well as those not logged in. 
+
+		// prevent execution by delegated channels as well as those not logged in.
 		// get_account_id() returns the account_id from the session. But \App::$account
-		// may point to the original authenticated account. 
-	
+		// may point to the original authenticated account.
+
 		if((! $acc) || ($acc['account_id'] != $arr['account_id'])) {
 			notice( t('Permission denied.') . EOL );
 			return;
 		}
-	
+
 		$result = create_identity($arr);
-	
+
 		if(! $result['success']) {
 			notice($result['message']);
 			return;
 		}
-	
+
 		$newuid = $result['channel']['channel_id'];
-	
+
 		change_channel($result['channel']['channel_id']);
-	
-		$next_page = get_config('system', 'workflow_channel_next', 'profiles');		
+
+		$next_page = get_config('system', 'workflow_channel_next', 'profiles');
 		goaway(z_root() . '/' . $next_page);
-	
+
 	}
-	
+
 	function get() {
-	
+
 		$acc = \App::get_account();
-	
+
 		if((! $acc) || $acc['account_id'] != get_account_id()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
-	
+
 		$default_role = '';
 		$aid = get_account_id();
 		if($aid) {
@@ -140,7 +140,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			if($r && (! intval($r[0]['total']))) {
 				$default_role = get_config('system','default_permissions_role','social');
 			}
-	
+
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');
 			$canadd = true;
 			if($r && ($limit !== false)) {
@@ -155,7 +155,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 		}
 
 		$name_help = '<span id="name_help_loading" style="display:none">' . t('Loading') . '</span><span id="name_help_text">';
-		$name_help .= (($default_role) 
+		$name_help .= (($default_role)
 			? t('Your real name is recommended.')
 			: t('Examples: "Bob Jameson", "Lisa and her Horses", "Soccer", "Aviation Group"')
 		);
@@ -176,10 +176,10 @@ class New_channel extends \Zotlabs\Web\Controller {
 		$nickhub = '@' . \App::get_hostname();
 		$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), $nick_help, "*");
 		$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel permission role compatible with your usage needs and privacy requirements.') . '<br>' . '<a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">' . t('Read more about channel permission roles') . '</a>',$perm_roles);
-	
+
 		$o = replace_macros(get_markup_template('new_channel.tpl'), array(
 			'$title'        => t('Create a Channel'),
-			'$desc'         => t('A channel is a unique network identity. It can represent a person (social network profile), a forum (group), a business or celebrity page, a newsfeed, and many other things.') , 
+			'$desc'         => t('A channel is a unique network identity. It can represent a person (social network profile), a forum (group), a business or celebrity page, a newsfeed, and many other things.') ,
 			'$label_import' => t('or <a href="import">import an existing channel</a> from another location.'),
 			'$name'         => $name,
 			'$role'		    => $role,
@@ -190,10 +190,10 @@ class New_channel extends \Zotlabs\Web\Controller {
 			'$channel_usage_message' => $channel_usage_message,
 			'$canadd'	=> $canadd
 		));
-	
+
 		return $o;
-	
+
 	}
-	
-	
+
+
 }

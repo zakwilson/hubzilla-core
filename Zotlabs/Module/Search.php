@@ -58,7 +58,7 @@ class Search extends Controller {
 		$o .= search($search, 'search-box', '/search', ((local_channel()) ? true : false));
 
 		if (local_channel() && strpos($search, 'https://') === 0 && !$update && !$load) {
-			$j = Activity::fetch($search, App::get_channel());
+			$j = Activity::fetch(punify($search), App::get_channel());
 			if ($j) {
 				$AS = new ActivityStreams($j);
 				if ($AS->is_valid()) {

@@ -35,15 +35,20 @@ function check_account_email($email) {
 		return $result;
 
 	if(! validate_email($email))
-		$result['message'] .= t('Email address not valid') . EOL;
+		$result['message'] = t('The provided email address is not valid') . EOL;
 	elseif(! allowed_email($email))
-		$result['message'] = t('Your email domain is not among those allowed on this site');
+		$result['message'] = t('The provided email domain is not among those allowed on this site');
 	else {
 		$r = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
+		if (!$r) {
+			$r = q("select reg_did2 from register where reg_did2 = '%s' limit 1",
+				dbesc($email)
+			);
+		}
 		if($r) {
-			$result['message'] .= t('Your email address is already registered at this site.');
+			$result['message'] = t('The provided email address is already registered at this site');
 		}
 	}
 	if($result['message'])
@@ -1195,8 +1200,15 @@ function get_account_techlevel($account_id = 0) {
 }
 
 function zar_log($msg='') {
-	file_put_contents('./zar.log',
-		 date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+
+	if(get_config('system', 'register_logfile', 0)) {
+		file_put_contents('./zar.log',
+			date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+	}
+	else {
+		logger('zar_log: ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §');
+	}
+
 	return;
 }
 

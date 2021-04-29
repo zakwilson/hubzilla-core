@@ -47,7 +47,6 @@ class Register extends Controller {
 		}
 	}
 
-
 	function post() {
 
 		check_form_security_token_redirectOnErr('/register', 'register');
@@ -61,24 +60,26 @@ class Register extends Controller {
 		 */
 
 
-		$act         = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
-		$duty        = zar_register_dutystate();
-		$is247       = false;
-		$ip          = $_SERVER['REMOTE_ADDR'];
-		$sameip      = intval(get_config('system','register_sameip'));
-		$arr         = $_POST;
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$invite_code = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
-		$name        = '';
-		$nick        = '';
-		$email       = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
-		$password    = ((x($arr,'password'))      ? trim($arr['password'])              : '');
-		$password2   = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
+		$act          = q("SELECT COUNT(*) AS act FROM account")[0]['act'];
+		$is247        = false;
+		$ip           = $_SERVER['REMOTE_ADDR'];
+		$sameip       = intval(get_config('system','register_sameip', 3));
+		$arr          = $_POST;
+		$invite_code  = ((x($arr,'invite_code'))   ? notags(trim($arr['invite_code']))   : '');
+		$name         = '';
+		$nick         = '';
+		$email        = ((x($arr,'email'))         ? notags(punify(trim($arr['email']))) : '');
+		$password     = ((x($arr,'password'))      ? trim($arr['password'])              : '');
+		$password2    = ((x($arr,'password2'))      ? trim($arr['password2'])            : '');
 		$register_msg = ((x($arr,'register_msg'))   ? notags(trim($arr['register_msg']))   : '');
+		$reonar       = [];
+		$auto_create  = get_config('system','auto_channel_create', 1);
+		$duty         = zar_register_dutystate();
 
-		$reonar      = [];
-		$auto_create = get_config('system','auto_channel_create', 1);
+		if (!get_config('system', 'register_duty_jso')) {
+			// if not yet configured default to true
+			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
+		}
 
 		if($auto_create) {
 			$name = escape_tags(trim($arr['name']));
@@ -113,27 +114,26 @@ class Register extends Controller {
 		}
 
 		if ($email) {
-			if (! preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email)) {
-				// msg!
-				notice(t('Not a valid email address') . EOL);
+			$email_result = check_account_email($email);
+			if ($email_result['error']) {
+				notice($email_result['message'] . EOL);
 				return;
 			}
 		}
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
 		if ($email && $invite_code) {
-			if ( preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $email ) ) {
-				if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
-					$is247 = true;
-				}
+			if ( preg_match('/^[a-z0-9]{12,12}$/', $invite_code ) ) {
+				$is247 = true;
 			}
 		}
 
 		if ($act > 0 && !$is247 && !$duty['isduty']) {
 			// normally (except very 1st timr after install), that should never arrive here (ie js hack or sth like)
 			// log suitable for f2b also
-			$logmsg = 'ZAR0230S Unexpected registration request off duty';
-			zar_log($logmsg);
+			$logmsg = 'Unexpected registration request off duty';
+			notice($logmsg);
+			zar_log('ZAR0230S ' . $logmsg);
 			return;
 		}
 
@@ -149,19 +149,12 @@ class Register extends Controller {
 			}
 		}
 
-		// s2 max daily
-		// msg?
-		if ( !$is247 && self::check_reg_limits()['is'] ) return;
-
-		if(!$password) {
-			// msg!
+		if (!$password) {
 			notice(t('No password provided') . EOL);
 			return;
 		}
 
-		// pw1 == pw2
-		if($password !== $password2) {
-			// msg!
+		if ($password !== $password2) {
 			notice(t('Passwords do not match') . EOL);
 			return;
 		}
@@ -208,7 +201,7 @@ class Register extends Controller {
 				break;
 		}
 
-		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE) )
+		if($email_verify && ($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE))
 			$flags = ($flags | ACCOUNT_UNVERIFIED);
 
 		// $arr has $_POST;
@@ -287,28 +280,27 @@ class Register extends Controller {
 				return;
 			}
 
-
 		} else {
 
-			$icdone = false;
 			// no ivc entered
-			if ( ! $invonly) {
+			if (!$invonly) {
 				// possibly the email is just in use ?
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
-					 dbesc('e' . $email));
+					 dbesc($email)
+				);
 
-				if ( ! $reg)
-					$act = q("SELECT * from account WHERE account_email = '%s'", dbesc($email));
+				if (!$reg) {
+					$act = q("SELECT * from account WHERE account_email = '%s'",
+						dbesc($email)
+					);
+				}
 
 				// in case an invitation was made but the invitecode was not entered, better ignore.
 				// goaway(z_root() . '/regate/' . bin2hex($reg['email']));
 
-				if ( ! $reg && ! $act) {
+				if (! $reg && !$act) {
 					// email useable
-
 					$well = true;
-
-
 				} else {
 					$msg = t('Email address already in use') . EOL;
 					notice($msg);
@@ -328,15 +320,21 @@ class Register extends Controller {
 
 		}
 
+		// check max daily registrations after we have dealt with the invitecode
+		if (self::check_reg_limits()['is']) {
+			notice('Max registrations per day exceeded.');
+			return;
+		}
+
 		if ($well) {
 
 			if($policy == REGISTER_OPEN || $policy == REGISTER_APPROVE ) {
 
-				$cfgdelay = get_config( 'system', 'register_delay' );
+				$cfgdelay = get_config('system', 'register_delay', '0i');
 				$reg_delayed = calculate_adue( $cfgdelay );
 				$regdelay = (($reg_delayed) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_delayed['due']) : $now);
 
-				$cfgexpire = get_config('system','register_expire' );
+				$cfgexpire = get_config('system', 'register_expire', '3d');
 				$reg_expires = calculate_adue( $cfgexpire );
 				$regexpire = (($reg_expires) ? datetime_convert(date_default_timezone_get(), 'UTC', $reg_expires['due']) : datetime_convert('UTC', 'UTC', 'now + 99 years'));
 
@@ -451,7 +449,6 @@ class Register extends Controller {
 	}
 
 
-
 	function get() {
 
 		$registration_is = '';
@@ -472,11 +469,11 @@ class Register extends Controller {
 			$other_sites = '<a href="pubsites">' . t('Register at another affiliated hub in case when prefered') . '</a>';
 		}
 
-		if ( !get_config('system', 'register_duty_jso') ) {
-			// duty yet not configured
-			$duty = array( 'isduty' => false, 'atfrm' => '', 'nowfmt' => '');
-		} else {
-			$duty = zar_register_dutystate();
+		$duty = zar_register_dutystate();
+
+		if (!get_config('system', 'register_duty_jso')) {
+			// if not yet configured default to true
+			$duty = array( 'isduty' => true, 'atfrm' => '', 'nowfmt' => '');
 		}
 
 		$invitations = false;
@@ -578,9 +575,9 @@ class Register extends Controller {
 		// check against register, account
 		$rear = array( 'is' => false, 'rn' => 0, 'an' => 0, 'msg' => '' );
 
-		$max_dailies = intval(get_config('system','max_daily_registrations'));
+		$max_dailies = intval(get_config('system', 'max_daily_registrations', 50));
 
-		if ( $max_dailies ) {
+		if ($max_dailies) {
 
 			$r = q("SELECT COUNT(reg_id) AS nr FROM register WHERE reg_vital = 1 AND reg_created > %s - INTERVAL %s",
 				db_utcnow(), db_quoteinterval('1 day')
@@ -589,7 +586,7 @@ class Register extends Controller {
 			$rear['is'] = ( $r && $r[0]['nr'] >= $max_dailies ) ? true : false;
 			$rear['rn'] = $r[0]['nr'];
 
-			if ( !$rear['is']) {
+			if (!$rear['is']) {
 				$r = q("SELECT COUNT(account_id) AS nr FROM account WHERE account_created > %s - INTERVAL %s",
 					db_utcnow(), db_quoteinterval('1 day')
 				);

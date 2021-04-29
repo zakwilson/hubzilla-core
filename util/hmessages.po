@@ -8507,7 +8507,7 @@ msgid "Why do you want to join this hub?"
 msgstr ""
 
 #: ../../Zotlabs/Module/Register.php:538
-msgid "This will help to review your registrtation"
+msgid "This will help to review your registration"
 msgstr ""
 
 #: ../../Zotlabs/Module/Register.php:544

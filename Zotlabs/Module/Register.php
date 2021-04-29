@@ -280,15 +280,13 @@ class Register extends Controller {
 				return;
 			}
 
-
 		} else {
 
-			$icdone = false;
 			// no ivc entered
 			if (!$invonly) {
 				// possibly the email is just in use ?
 				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
-					 dbesc('e' . $email)
+					 dbesc($email)
 				);
 
 				if (!$reg) {

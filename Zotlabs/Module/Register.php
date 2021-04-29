@@ -535,7 +535,7 @@ class Register extends Controller {
 
 		$tos = array('tos', $label_tos, ((x($_REQUEST,'tos')) ? $_REQUEST['tos'] : ''), '', [t('No'),t('Yes')], $duty['atform']);
 
-		$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : ''), t('This will help to review your registrtation')];
+		$register_msg = ['register_msg', t('Why do you want to join this hub?'), ((x($_REQUEST,'register_msg')) ? $_REQUEST['register_msg'] : ''), t('This will help to review your registration')];
 
 		require_once('include/bbcode.php');
 

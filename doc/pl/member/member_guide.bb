@@ -4,11 +4,11 @@ Chociaż wiele funkcji i możliwości Hubzilli jest znanych osobom, które korzy
 
 [h3]Rejestracja[/h3]
 
-Nie wszystkie serwisy oparte na $Projectname umożliwiają otwartą rejestrację. Jeśli rejestracja jest dozwolona, zobaczysz łącze &quot;Rejestracja&quot; bezpośrednio pod formularzem logowania na stronie głównej serwisu. Kliknięcie tego linku przeniesie Ciebie do strony rejestracyjnej. W niektórych serwisach. link ten może przekierować do innej witryny, która umożliwia rejestrację. Ponieważ wszystkie serwisy Hubzilla są połączone, nie ma znaczenia, gdzie znajduje się Twoje konto.
+Nie wszystkie serwisy oparte na $Projectname umożliwiają otwartą rejestrację. Jeśli rejestracja jest dozwolona, zobaczysz łącze &quot;Rejestracja&quot; bezpośrednio pod formularzem logowania. Kliknięcie tego linku przeniesie Ciebie do strony rejestracyjnej. W niektórych serwisach, link ten może przekierować do innej witryny, która umożliwia rejestrację. Ponieważ wszystkie serwisy Hubzilla są połączone, nie ma znaczenia, gdzie znajduje się Twoje konto.
 
 [b]Twój ades e-mail[/b]
 
-Proszę o wprowadzenie poprawnego adresu e-mail. Twój adres e-mail nigdy nie jest publikowany. Ten adres będzie używany do aktywacji konta, do ewentualnego wysyłania powiadomień o przychodzących wiadomościach lub wpisach oraz do odzyskiwania utraconych haseł.
+Trzeba tu wprowadzić poprawny adres e-mail. Twój adres e-mail nigdy nie jest publikowany. Ten adres będzie używany do aktywacji konta, do ewentualnego wysyłania powiadomień o przychodzących wiadomościach lub wpisach oraz do odzyskiwania utraconych haseł.
 
 [b]Hasło[/b]
 
@@ -20,7 +20,7 @@ Kliknij to łącze, aby przeczytać dokument [zrl=[baseurl]/help/TermsOfService]
 
 [b]Rejestracja[/b]
 
-Po podaniu niezbędnych informacji, kliknij przycisk „Zarejestruj się”. Niektóre serwisy mogą wymagać zatwierdzenia rejestracji przez administratora, zanim zostanie ona przetworzona, o czym osoba rejestrująca się zostanie powiadomiona. Trzba więc śledzić swoją pocztę e-mail (w tym folder ze spamem) w celu potwierdzenia rejestracji.
+Po podaniu niezbędnych informacji, kliknij przycisk "Zarejestruj się". Niektóre serwisy mogą wymagać zatwierdzenia rejestracji przez administratora, zanim zostanie ona przetworzona, o czym osoba rejestrująca zostanie powiadomiona. Trzeba więc śledzić swoją pocztę e-mail (w tym folder ze spamem) w celu potwierdzenia rejestracji.
 
 [h3]Kanały[/h3]
 
@@ -269,12 +269,11 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
 
   [*= Można publikować zdjęcia w moich albumach ze zdjęciami. ] To określa, kto może publikować zdjęcia w Twoich albumach. Jest to bardzo przydatne w przypadku kanałów przypominających forum, na których połączenia mogą nie być ze sobą połączone.
 
-  [*= Można przekazywać dalej do wszystkich kontaktów z mojego kanału za pomocą
-tagów wpis. ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
+  [*= Można przekazywać dalej do wszystkich kontaktów z mojego kanału za pomocą tagów "post". ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
 
   [*= Można ze mną rozmawiać (jeśli jestem dostępny). ] Określa to, kto może dołączyć do publicznych czatów utworzonych na Twoim kanale.
 
-  [*= Można zapisywać w moim "publicznym" magazynie plików. ] To określa, kto może przesyłać pliki do Twojego publicznego magazynu plików lub "chmury".
+  [*= Można zapisywać w moim "publicznym" magazynie plików. ] To określa, kto może przesyłać pliki do Twojego publicznego magazynu plików.
 
   [*= Można edytować moje "publiczne" strony. ] Określa to, kto może edytować Twoje strony internetowe. Jest to przydatne w przypadku witryn typu wiki lub witryn z wieloma redaktorami.
 
@@ -317,7 +316,7 @@ Podobnie jak wiele innych platform, $Projectname używa specjalnej notacji wewn�
 [h4][b]Wzmianki[/b][/h4]
 Kanały (profile) są oznaczane przez swoją nazwę poprzedzoną znakiem ed, np. [code]@Jacek[/code]. Jest to wykorzystywane w mechaniźmie wzmianek.
 
-Kiedy zaczniesz wspominać o kimś w swoim poście (wstawiając znak @), mechanizm ten utworzy pole z autouzupełnianiem, aby można było wybrać z Twoich bezpośrednich kontaktów określoną osobę (kanał). Możesz wybrać z listy ten kanał, który chcesz wzmiankować.
+Kiedy zaczniesz zmiankować o kimś w swoim wpisie (wstawiając znak @), mechanizm ten utworzy pole z autouzupełnianiem, aby można było wybrać z Twoich bezpośrednich kontaktów określoną osobę (kanał). Możesz wybrać z listy kanał, który chcesz wzmiankować.
 
 Jeśli wspomniana osoba znajduje się na liście odbiorców wpisu, otrzyma powiadomienie o tym znaczniku.   
 
@@ -441,7 +440,7 @@ wytworzy taki HTML:
 
 [h4][b]Narzędzie importy elementów strony internetowej[/b][/h4]
 
-Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do lokalnego folderu plików w chmurze. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w węźle.
+Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do plików we własnym magazynu plików w serwisie. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w węźle.
 
 [h5][b] Struktura folderu [/b][/h5]
 Definicje elementów muszą być przechowywane w katalogu głównym repozytorium w folderach o nazwie odpowiadającej typowi elementu: 
@@ -795,7 +794,7 @@ Można użyć konstrukcji [code]if[/code] warunkowego wykonania kodu. Jest to ob
 [/code]
 
 
-[h3]Osobisty magazyn w chmurze[/h3]
+[h3]Osobisty magazyn plików[/h3]
 
 $Projectname umożliwia prywatne przechowywanie i udostępnianie znajomym dowolnych plików. Możesz przesłać pliki ze swojego komputera do obszaru przechowywania lub skopiować je bezpośrednio z systemu operacyjnego przy użyciu protokołu WebDAV.
 
@@ -815,7 +814,7 @@ Twoje pliki są widoczne w sieci pod adresem [observer=1][baseurl]/cloud/[observ
 
 [h4][b]Dostęp WebDAV[/b][/h4]
 
-WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego komputera, gdzie Twój "magazyn chmurze" pojawia się jako wirtualny dysk. Dostęp ten powinien być używany do przesyłania dużych plików, takich jak wideo i audio, ponieważ nie jest ograniczony dostępną pamięcią wewnętrzna. Zobacz [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] poniżej.
+WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego komputera, gdzie Twój "magazyn plików" pojawia się jako wirtualny dysk. Dostęp ten powinien być używany do przesyłania dużych plików, takich jak wideo i audio, ponieważ nie jest ograniczony dostępną pamięcią wewnętrzna. Zobacz [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] poniżej.
 
 [h4][b]Dostęp CalDAV i CardDAV na Androidzie[/b][/h4]
 
@@ -837,9 +836,9 @@ Aby udostępnić kalendarz odwiedź [observer.baseurl]/cdav/calendar
 
 [h4][b]Uprawnienia[/b][/h4]
 
-W przypadku korzystania z protokołu WebDAV plik jest tworzony z domyślnymi uprawnieniami do plików kanału, których nie można zmienić z poziomu systemu operacyjnego. Może też nie być to tak restrykcyjne, jak byś chciał. Najlepiej, utwórz foldery (katalogi), następnie odwiedź swoją "chmurę" pod aadresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer], wybierz katalog i zmień uprawnienia. Zrób to zanim umieścisz cokolwiek w katalogu. Uprawnienia do katalogu mają pierwszeństwo, więc możesz następnie umieścić pliki lub inne foldery w tym kontenerze i będą one chronione przed niechcianymi widzami przez ustawienie uprawnienia do katalogu. Często zdarza się, że użytkownicy tworzą folder "osobisty" lub "prywatny", który jest ograniczony do nich samych. Możesz używać tego jako osobistej chmury do przechowywania wszystkiego z dowolnego miejsca w Internecie lub dowolnego komputera i jest to chroniony przed innymi. Możesz także utworzyć foldery dla "rodziny" lub "przyjaciele" za zgodą udzieloną odpowiednim grupom prywatności.
+W przypadku korzystania z protokołu WebDAV plik jest tworzony z domyślnymi uprawnieniami do plików kanału, których nie można zmienić z poziomu systemu operacyjnego. Może też nie być to tak restrykcyjne, jak byś chciał. Najlepiej, utwórz foldery (katalogi), następnie odwiedź swój magazyn plików pod adresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer], wybierz katalog i zmień uprawnienia. Zrób to zanim umieścisz cokolwiek w katalogu. Uprawnienia do katalogu mają pierwszeństwo, więc możesz następnie umieścić pliki lub inne foldery w tym kontenerze i będą one chronione przed niechcianymi widzami przez ustawienie uprawnienia do katalogu. Często zdarza się, że użytkownicy tworzą folder "osobisty" lub "prywatny", który jest ograniczony do nich samych. Możesz używać tego jako osobistej chmury do przechowywania wszystkiego z dowolnego miejsca w Internecie lub dowolnego komputera i jest to chroniony przed innymi. Możesz także utworzyć foldery dla "rodziny" lub "przyjaciele" za zgodą udzieloną odpowiednim grupom prywatności.
 
-[h3]Klienty desktopowe dla chmury[/h3]
+[h3]Klienty desktopowe dla magazynu plikowego[/h3]
 
 [h4][b]Klienty dla Windows[/b][/h4]
 
@@ -855,7 +854,7 @@ W Windows 7 połaczenie WebDAV można nawiązać przy użyciu kreatora z graficz
 
 [h5][b]Montowanie katalogu w systemie plików[/b][/h5]
 
-Aby zainstalować katalog w chmurze jako system plików, musisz najpierw zainstalować davfs2. Dla większości dystrybucji program ten jest dostępny w repozytoriach. Instalacja w Debianie:
+Aby zainstalować katalog zdalny jako system plików, musisz najpierw zainstalować davfs2. Dla większości dystrybucji program ten jest dostępny w repozytoriach. Instalacja w Debianie:
 
 [code]sudo apt-get install davfs2[/code]
 
@@ -877,15 +876,15 @@ Edytuj /etc/fstab:
 
 [code]nano /etc/fstab[/code]
 
-aby uwzględnić katalog w chmurze, dodając:
+aby uwzględnić katalog zdalny, dodając:
 
 [code]
 [baseurl]/dav/ /mount/point davfs user,noauto,uid=&lt;DesktopUser&gt;,file_mode=600,dir_mode=700 0 1
 [/code]
 
-gdzie [baseurl] jest adresem URL węzła, /mount/point to lokalizacja, w której chcesz zamontować chmurę, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
+gdzie [baseurl] jest adresem URL węzła, /mount/point to lokalizacja, w której chcesz zamontować katalog zdalny, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
 
-Na przykład, jeśli chciałbyś zamontować swoją chmurę w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob', zapis w fstab będzie następujący: 
+Przyjmijmy, że chcesz zamontować swój magazyn plików w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob'. Zapis w fstab będzie następujący: 
 
 [code][baseurl]/dav/ /home/bob/cloud davfs user,noauto,uid=bob,file_mode=600,dir_mode=700 0 1[/code]
 
@@ -901,7 +900,7 @@ Utwórz plik o nazwie 'secrets'
 
 [code]nano /home/bob/.davfs2/secrets[/code]
 
-i dodaj tam swoje dane uwierzytelniania w chmurze
+i dodaj tam swoje dane uwierzytelniania w katalogu zdalnym:
 
 [code]
 [baseurl]/dav &lt;username&gt; &lt;password&gt;
@@ -917,7 +916,7 @@ Na koniec, zamontuj dysk:
 
 [code]mount [baseurl]/dav[/code]
 
-Możesz teraz znaleźć swoją chmurę w /home/bob/cloud i używać jej tak, jakby była częścią lokalnego systemu plików - nawet jeśli aplikacje, których używasz, same nie obsługują dav.
+Możesz teraz znaleźć swój katalog zdalny w /home/bob/cloud i używać go tak, jakby była częścią lokalnego systemu plików - nawet jeśli aplikacje, których używasz, same nie obsługują dav.
 
 [b]Rozwiązywanie problemów[/b]
 
@@ -949,7 +948,7 @@ Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumen
 
 Jeśli jesteś zalogowany do swojego węzła w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
 
-Ponadto, jeśli ktoś uwierzytelnił się w innym węźle podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do chmury dla tych węzłów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania, pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
+Ponadto, jeśli ktoś uwierzytelnił się w innym węźle podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do magazynu plików dla tych węzłów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania i pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
 
 Ta funkcja jest zwykle ograniczona do interfejsu sieciowego i nie jest dostępna dla żadnego innego środowiska graficznego niż KDE.
 

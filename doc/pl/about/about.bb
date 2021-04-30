@@ -32,13 +32,11 @@ oraz innych narzędzi zewnętrznych.
 
 [*= kanał ([i]ang. channel[/i])] Forma organizacji treści i techniczny odpowiednik tożsamości. Kanał może mieć formę osobistej witryny internetowej, bloga, forum i innych znanych form publikowania treści. Kanały mogą łączyć się z innymi kanałami w celu udostępniania informacji z możliwością ustawiania bardzo szczegółowych uprawnień dostępu.
 
-[*= klon ([i]ang. clone[/i])] Kanały mogą mieć klony innych na innych niezależnych węzłach. Komunikacja współdzielona z kanałem jest synchronizowana między klonami kanału, co umożliwia
-kanałowi wysyłanie i odbieranie wiadomości oraz dostęp do współdzielonych treści z wielu węzłów. Zapewnia to odporność na awarie sieci i sprzętu, które mogą stanowić poważny problem w przypadku
-serwerów WWW utrzymywanych na prywatnych serwerach w hostingu współdzielonym lub o ograniczonych zasobach. Klonowanie umożliwia też całkowite przeniesienie kanału z jednego węzła na drugi, z zabraniem wszystkich danych i połączeń. Zobacz "tożsamość nomadyczna".
+[*= klon ([i]ang. clone[/i])] Kanały mogą mieć klony innych na innych niezależnych węzłach. Komunikacja współdzielona z kanałem jest synchronizowana między klonami kanału, co umożliwia kanałowi wysyłanie i odbieranie wiadomości oraz dostęp do współdzielonych treści z wielu węzłów. Zapewnia to odporność na awarie sieci i sprzętu, które mogą stanowić poważny problem w przypadku serwerów WWW utrzymywanych na prywatnych serwerach w hostingu współdzielonym lub o ograniczonych zasobach. Klonowanie umożliwia też całkowite przeniesienie kanału z jednego węzła na drugi, z zabraniem wszystkich danych i połączeń. Zobacz "tożsamość nomadyczna". 
 
-[*= tożsamość nomadyczna ([i]ang. nomadic identity[/i])] Możliwość uwierzytelniania i łatwej migracji tożsamości pomiędzy niezależnymi węzłami i domenami internetowymi. Tożsamość nomadyczna zapewnia prawdziwą własność tożsamości internetową,
-ponieważ tożsamości kontrolowane przez konto w węźle nie są ściśle związane z węzłem. Węzeł bardziej przypomina "hosta" kanałów. W serwisie $Projectname nie masz "konta" na serwerze, tak jak na typowych serwisach internetowych - posiadasz tożsamość, którą
-możesz przenosić w całej sieci za pomocą mechanizmu klonowania.
+[*= konto ([i]ang. account[/i])] Umowny rejestr zawierajacy dane rejestracyjne i ewentualnie inne dane użytkownika serwisu internetowego, ściśle związane z umową jaką zwiera użytkownik z operatorem (właścicielem) serwisu o świadczenie usług drogą internetową. Posiadanie konta umożliwia użytkownikowi korzystanie z usług serwisu. Nie jest to pojęcie specyficzne dla platformy Hubzilla ale ma tu znaczenie węższe i należy go odróżniać od profilu lub tożsamości użytkownika. W Hubzilla, użytkownik (w ramach swojego konta) może mieć wiele tożsamości i te tożsamości utrzymywać na wielu odrębnych serwisach w sieci Zotm, w sposób zsynchronizowany. Na tych serwisach użytkownik musi mieć odrębne konta.
+
+[*= tożsamość nomadyczna ([i]ang. nomadic identity[/i])] Możliwość uwierzytelniania i łatwej migracji tożsamości pomiędzy niezależnymi węzłami i domenami internetowymi. Tożsamość nomadyczna zapewnia prawdziwą własność tożsamości internetową, ponieważ tożsamości kontrolowane przez konto w węźle nie są ściśle związane z węzłem. Węzeł bardziej przypomina "hosta" kanałów. W serwisie $Projectname nie masz "konta" na serwerze, tak jak na typowych serwisach internetowych - posiadasz tożsamość, którą możesz przenosić w całej sieci za pomocą mechanizmu klonowania.
 
 [*= [url=[baseurl]/help/developer/zot_protocol]Protokół Zot[/url]] Nowy protokół, oparty na JSON, do wdrażania bezpiecznej, zdecentralizowanej komunikacji i usług. Różni się od wielu innych protokołów komunikacyjnych, budując komunikację na podstawie zdecentralizowanej struktury tożsamości i uwierzytelniania. Składnik uwierzytelniania jest koncepcyjnie podobny do OpenID, ale jest odizolowany od tożsamości opartej na DNS. Tam, gdzie to możliwe, zdalne uwierzytelnianie jest ciche i niewidoczne. Zapewnia to mechanizm kontroli dostępu rozproszonego na skalę sieci WWW, który jest dyskretny.
 [/dl]
@@ -117,7 +115,7 @@ Nasza implementacja grup prywatności jest podobna do "kręgów" w Google i "asp
 
 
 [h4]Usługi katalogowe (Directory Services)[/h4]
-Zapewniamy łatwy dostęp do katalogu członków i udostępniamy zdecentralizowane narzędzia, które mogą dostarczać "sugestie" znajomych. Katalogi to zwykłe serwisy $Projectname, które zdecydowały się zaakceptować rolę serwera katalogowego. Wymaga to więcej zasobów niż większość typowych serwisów, więc nie jest to ustawienie domyślne. Katalogi są synchronizowane i dublowane, dzięki czemu wszystkie zawierają aktualne informacje o całej sieci (z zastrzeżeniem normalnych opóźnień propagacji).  
+Zapewniamy łatwy dostęp do katalogu członków i udostępniamy zdecentralizowane narzędzia, które mogą dostarczać "sugestie" znajomych. Katalogi to zwykłe serwisy $Projectname, które zdecydowały się zaakceptować rolę serwera katalogowego. Wymaga to więcej zasobów niż większość typowych serwisów, więc nie jest to ustawienie domyślne. Katalogi są synchronizowane i dublowane, dzięki czemu wszystkie zawierają aktualne informacje o całej sieci (z zastrzeżeniem normalnych opóźnień propagacji). Więcej na ten temat znajdziesz w artykule [Konfiguracja katalogu](/help/pl/directories).  
 
 [h4]TLS/SSL[/h4]
 W przypadku węzłów $Projectname, które używają TLS/SSL, komunikacja między klientem a serwerem jest szyfrowana za pomocą protokołu TLS/SSL. Biorąc pod uwagę niedawno ujawnione w mediach fakty dotyczące powszechnego, globalnego nadzoru i obchodzenia szyfrowania przez NSA i GCHQ, uzasadnione jest założenie, że komunikacja chroniona przez HTTPS może być zagrożona na różne sposoby. W konsekwencji prywatna komunikacja jest szyfrowana na wyższym poziomie przed wysłaniem na zewnątrz.
@@ -144,8 +142,8 @@ Fora to zazwyczaj kanały, w których może uczestniczyć wielu autorów. Obecni
 
 Fora mogą być tworzone przez każdego i używane w dowolnym celu. Katalog zawiera opcję wyszukiwania forów publicznych. Fora prywatne mogą być publikowane tylko dla członków i często tylko przez nich widoczne.
 
-[h4]Klonowanie kont[/h4]
-Konta platformy $Projectname nazywane są *tożsamościami nomadycznymi*, ponieważ tożsamość członka nie jest powiązana z węzłem, w którym tożsamość została pierwotnie utworzona. Na przykład, kiedy tworzysz konto na Facebooku lub Gmailu, jest ono powiązane z tymi usługami - mie może działać poza Facebook.com czy Gmail.com.  
+[h4]Klonowanie tożsamości[/h4]
+Kanały platformy $Projectname nazywane są [i]tożsamościami nomadycznymi[/i], ponieważ tożsamość członka (jego profil i związany z nim kanał) nie jest powiązana z węzłem, w którym tożsamość została pierwotnie utworzona. Na przykład, kiedy tworzysz konto na Facebooku lub Gmailu, jest ono ściśle powiązane z tymi usługami - mie możesz używać tych usług poza Facebook.com czy Gmail.com. Z drugiej strony załóżmy, że masz konto na serwisie Hubzillahub.com i w ramach tego konta utworzyłeś kanał o nazwie [code]jacek@Hubzillahub.com[/code]. Możesz sklonować go do innego węzła Hubzilla, wybierając tę ​​samą lub inną nazwę, np. [code]blogJacka@SomeHubzillahub.info[/code].  
 
 Z drugiej strony załóżmy, że utworzyłeś tożsamość $Projectname o nazwie [code]tina@$Projectnamehub.com[/code]. Możesz sklonować ją do innego węzła $Projectname, wybierając tę ​​samą lub inną nazwę, np. [code]liveForever@Some$ProjectnameHub.info[/code].
 

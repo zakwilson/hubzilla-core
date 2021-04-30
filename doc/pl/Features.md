@@ -1,5 +1,7 @@
-Dodatkowe możliwości
+Opcje konfiguracyjne
 ====================
+
+Po zainstalowaniu, serwis $Projectname jest wstępnie konfigurowany z domyślnymi wartościami. Z reguły, wymaga to odpowiedniego dostrojemia tak, aby konfiguracja odpowiadała zakładanym funkcjom serwisu. 
 
 Ustawianie dodatkowych możliwości poprzez interfejs graficzny
 -------------------------------------------------------------

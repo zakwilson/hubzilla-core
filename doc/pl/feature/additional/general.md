@@ -1,5 +1,4 @@
-## Ogólne funkcjonalności
-
+## Funkcje ogólne
 
 ### Linki dla nowych członków
 

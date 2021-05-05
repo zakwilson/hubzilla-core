@@ -179,36 +179,29 @@ function remove_obsolete_hublocs() {
  *
  */
 function remove_duplicate_singleton_hublocs() {
-	$hublocs = dbq("SELECT
-		hubloc_id_url,
-		COUNT(hubloc_id_url)
-	FROM
-		hubloc
-	WHERE
-		hubloc_network IN (
+	$hublocs = dbq("SELECT hubloc_hash, COUNT(hubloc_hash) FROM hubloc WHERE
+		hubloc_network IN(
 			'activitypub',
 			'diaspora',
 			'friendica-over-diaspora',
 			'gnusoc'
 		)
-	GROUP BY
-		hubloc_id_url
-	HAVING
-		COUNT(hubloc_id_url) > 1"
+		GROUP BY hubloc_hash
+		HAVING COUNT(hubloc_hash) > 1"
 	);
 
 	foreach($hublocs as $hubloc) {
-		$hubloc_id_url = $hubloc['hubloc_id_url'];
+		$hubloc_hash = $hubloc['hubloc_hash'];
 
-		$max_id = q("select max(hubloc_id) as max_id from hubloc where hubloc_id_url = '%s'",
-			dbesc($hubloc_id_url)
+		$max_id = q("select max(hubloc_id) as max_id from hubloc where hubloc_hash = '%s'",
+			dbesc($hubloc_hash)
 		);
 
 		$id = $max_id[0]['max_id'];
 
-		if($hubloc_id_url && $id) {
-			q("delete from hubloc where hubloc_id_url = '%s' and hubloc_id != %d",
-				dbesc($hubloc_id_url),
+		if($hubloc_hash && $id) {
+			q("delete from hubloc where hubloc_hash = '%s' and hubloc_id != %d",
+				dbesc($hubloc_hash),
 				intval($id)
 			);
 		}

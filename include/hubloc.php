@@ -175,7 +175,10 @@ function remove_obsolete_hublocs() {
 /**
  * @brief Remove duplicate singleton hublocs
  *
+ * This should not actually happen but it appears it does - probably due to race conditions.
  * This function will just leave the hubloc with the highest id (latest)
+ *
+ * TODO: we should probably do something about that at the DB level.
  *
  */
 function remove_duplicate_singleton_hublocs() {

@@ -116,9 +116,12 @@ class Register extends Controller {
 		if ($email) {
 			$email_result = check_account_email($email);
 			if ($email_result['error']) {
-				notice($email_result['message'] . EOL);
+				if ($email_result['email_unverified']) {
+					goaway(z_root() . '/regate/' . bin2hex($email) . 'e');
+				}
 				return;
 			}
+
 		}
 
 		// case when an invited prepares the own account by supply own pw, accept tos, prepage channel (if auto)
@@ -282,7 +285,7 @@ class Register extends Controller {
 
 		}
 		else {
-			if (!$invonly ) {
+			if (!$invonly) {
 				$well = true;
 			}
 			else {

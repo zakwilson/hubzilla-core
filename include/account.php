@@ -34,23 +34,29 @@ function check_account_email($email) {
 	if(! strlen($email))
 		return $result;
 
-	if(! validate_email($email))
-		$result['message'] = t('The provided email address is not valid') . EOL;
-	elseif(! allowed_email($email))
+	if(! validate_email($email)) {
+		$result['message'] = t('The provided email address is not valid');
+	}
+	elseif(! allowed_email($email)) {
 		$result['message'] = t('The provided email domain is not among those allowed on this site');
+	}
 	else {
-		$r = q("select account_email from account where account_email = '%s' limit 1",
+		$account = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
-		if (!$r) {
-			$r = q("select reg_did2 from register where reg_did2 = '%s' limit 1",
-				dbesc($email)
-			);
-		}
-		if($r) {
+		if ($account) {
 			$result['message'] = t('The provided email address is already registered at this site');
 		}
+
+		$register = q("select reg_did2 from register where reg_vital = 1 and reg_did2 = '%s' limit 1",
+			dbesc($email)
+		);
+		if ($register) {
+			$result['message'] = t('There is a pending registration for this address - click "Register" to continue verification');
+			$result['email_unverified'] = true;
+		}
 	}
+
 	if($result['message'])
 		$result['error'] = true;
 

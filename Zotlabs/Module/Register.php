@@ -280,44 +280,17 @@ class Register extends Controller {
 				return;
 			}
 
-		} else {
-
-			// no ivc entered
-			if (!$invonly) {
-				// possibly the email is just in use ?
-				$reg = q("SELECT * from register WHERE reg_vital = 1 AND reg_email = '%s'",
-					 dbesc($email)
-				);
-
-				if (!$reg) {
-					$act = q("SELECT * from account WHERE account_email = '%s'",
-						dbesc($email)
-					);
-				}
-
-				// in case an invitation was made but the invitecode was not entered, better ignore.
-				// goaway(z_root() . '/regate/' . bin2hex($reg['email']));
-
-				if (! $reg && !$act) {
-					// email useable
-					$well = true;
-				} else {
-					$msg = t('Email address already in use') . EOL;
-					notice($msg);
-					// problem, the msg tells to anonymous about existant email addrs
-					// use another msg instead ? TODO ?
-					// on the other hand can play the fail2ban game
-					zar_log('ZAR0237E ' . $msg . ' (' . $email . ')');
-					return;
-				}
-
-			} else {
+		}
+		else {
+			if (!$invonly ) {
+				$well = true;
+			}
+			else {
 				$msg = t('Registration on this hub is by invitation only') . EOL;
 				notice($msg);
 				zar_log('ZAR0233E ' . $msg);
 				return;
 			}
-
 		}
 
 		// check max daily registrations after we have dealt with the invitecode

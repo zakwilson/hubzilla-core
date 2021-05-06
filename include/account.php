@@ -1295,3 +1295,11 @@ function get_pending_accounts($get_all = false) {
 
 	return $r;
 }
+
+function remove_expired_registrations() {
+	q("DELETE FROM register WHERE reg_expire < '%s' OR reg_expire = '%s' AND (reg_flags & %d) > 0",
+		dbesc(datetime_convert()),
+		dbesc(NULL_DATE),
+		dbesc(ACCOUNT_UNVERIFIED)
+	);
+}

@@ -506,6 +506,7 @@ CREATE TABLE "hubloc" (
 create index "hubloc_url" on hubloc ("hubloc_url");
 create index "hubloc_site_id" on hubloc ("hubloc_site_id");
 create index "hubloc_guid" on hubloc ("hubloc_guid");
+create index "hubloc_hash" on hubloc ("hubloc_hash");
 create index "hubloc_id_url" on hubloc ("hubloc_id_url");
 create index "hubloc_flags" on hubloc ("hubloc_flags");
 create index "hubloc_connect" on hubloc ("hubloc_connect");
@@ -1099,9 +1100,9 @@ CREATE TABLE "register" (
   "reg_did2"   text    DEFAULT '' NOT NULL,
   "reg_hash"   text    DEFAULT '' NOT NULL,
   "reg_email"  text    DEFAULT '' NOT NULL,
-  "reg_created" timestamp  NOT NULL,
-  "reg_startup" timestamp  NOT NULL,
-  "reg_expires" timestamp  NOT NULL,
+  "reg_created" timestamp  NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "reg_startup" timestamp  NOT NULL DEFAULT '0001-01-01 00:00:00',
+  "reg_expires" timestamp  NOT NULL DEFAULT '0001-01-01 00:00:00',
   "reg_byc"    bigint  DEFAULT 0 NOT NULL,
   "reg_uid"    bigint  DEFAULT 0 NOT NULL,
   "reg_atip"   text    DEFAULT '' NOT NULL,

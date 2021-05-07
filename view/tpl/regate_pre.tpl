@@ -18,7 +18,7 @@
 			{{if $strings.2}}<b>{{$strings.2}}</b>{{/if}}
 		</div>
 		<div class="d-none">
-			{{$strings.2}}<br>
+			{{$strings.3}}<br>
 			<span id="register_start" data-utc="{{$regdelay}}" class="register_date">
 				{{$regdelay}}
 			</span>

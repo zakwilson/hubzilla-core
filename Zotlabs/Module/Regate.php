@@ -289,6 +289,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				'$strings' => [
 					t('Hold on, you can start verification in'),
 					t('Please remember your verification token for ID'),
+					'',
 					t('Token validity')
 				]
 			]);

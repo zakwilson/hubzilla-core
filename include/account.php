@@ -1295,7 +1295,6 @@ function get_pending_accounts($get_all = false) {
 }
 
 function remove_expired_registrations() {
-	hz_syslog('### expire reg', LOGGER_DEBUG);
 	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
 		dbesc(datetime_convert()),
 		dbesc(NULL_DATE),

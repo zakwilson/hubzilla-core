@@ -322,7 +322,7 @@ class Register extends Controller {
 					$did2  = $email;
 					$didx  = 'e';
 
-					push_lang(($reg['lang']) ? $reg['lang'] : 'en');
+					push_lang(($reg['lang']) ? $reg['lang'] : App::$language);
 					$reonar['from'] = get_config('system', 'from_email');
 					$reonar['to'] = $email;
 					$reonar['subject'] = sprintf( t('Registration confirmation for %s'), get_config('system','sitename'));
@@ -375,7 +375,7 @@ class Register extends Controller {
 					dbesc($regexpire),
 					dbesc($email),
 					dbesc($password),
-					dbesc(substr(get_best_language(),0,2)),
+					dbesc(App::$language),
 					dbesc($ip),
 					dbesc(json_encode($reonar))
 				);

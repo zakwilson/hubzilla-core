@@ -11,6 +11,8 @@
 		<div class="section-content-info-wrapper">
 			{{$desc}} {{$id}}
 			<div class="h3">{{$pin}}</div>
+			{{if $email_extra}}<b>{{$email_extra}}</b>{{/if}}
+
 		</div>
 
 		<form action="regate/{{$did2}}" method="post">

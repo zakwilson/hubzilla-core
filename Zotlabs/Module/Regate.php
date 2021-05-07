@@ -325,7 +325,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				$r = $r[0];
 
 				// provide a button in case
-				$resend = ($r['reg_didx'] == 'e') ? t('Resend') : false;
+				$resend = (($r['reg_didx'] == 'e') ? t('Resend email') : '');
 
 				// is still only instance admins intervention required?
 				if ($r['reg_flags'] == ACCOUNT_PENDING) {
@@ -373,6 +373,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							'$form_security_token' => get_form_security_token("regate"),
 							'$title'  => t('Registration verification'),
 							'$desc'   => t('Please enter your verification token for ID'),
+							'$email_extra' => (($didx === 'e') ? t('Please check your email!') : ''),
 							'$id'     => $did2,
 							// we might consider to not provide $pin if a registration delay is configured
 							// and the pin turns out to be readable by bots
@@ -399,6 +400,8 @@ class Regate extends \Zotlabs\Web\Controller {
 								return $o;
 							}
 
+							$email_extra = (($didx === 'e') ? t('Please check your email!') : '');
+
 							$o = replace_macros(get_markup_template('regate_pre.tpl'), [
 								'$title'     => t('Registration verification'),
 								'$now'       => $nowfmt,
@@ -406,7 +409,8 @@ class Regate extends \Zotlabs\Web\Controller {
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$strings'   => [
 									t('Hold on, you can start verification in'),
-									t('You will require the verification token for ID')
+									t('You will require the verification token for ID'),
+									$email_extra
 								]
 							]);
 						}

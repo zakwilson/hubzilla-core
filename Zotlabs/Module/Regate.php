@@ -102,9 +102,10 @@ class Regate extends \Zotlabs\Web\Controller {
 							if (($flags & ACCOUNT_UNVERIFIED) == ACCOUNT_UNVERIFIED) {
 
 								// verification success
-								$msg 	= 'ZAR1237I' . ' ' . t('Verify successfull');
+								$msg_code = 'ZAR1237I';
+								$msg = t('Verification successful');
 								$reonar = json_decode( $r['reg_stuff'], true);
-								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
+								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg_code . ' ' . $msg;
 
 								// clear flag
 								$flags &= $flags ^ ACCOUNT_UNVERIFIED;

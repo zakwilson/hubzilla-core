@@ -983,7 +983,7 @@ class Enotify {
 			'photo' => z_root() . '/' . get_default_profile_photo(48),
 			'when' => datetime_convert('UTC', date_default_timezone_get(),$rr['reg_created']),
 			'hclass' => ('notify-unseen'),
-			'message' => t('verified')
+			'message' => t('status verified')
 		];
 
 		return $x;

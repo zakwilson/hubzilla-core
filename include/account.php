@@ -862,12 +862,12 @@ function verify_register_scheme() {
 
 		if ($dbc[0]=='id') {
 			// v1 format
-			q("START TRANSACTION");
+			dbq("START TRANSACTION");
 
 			if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-				$r1 = q("ALTER TABLE register RENAME TO register100;");
+				$r1 = dbq("ALTER TABLE register RENAME TO register100;");
 
-				$r2 = q("CREATE TABLE register ("
+				$r2 = dbq("CREATE TABLE register ("
 					. "reg_id      serial  NOT NULL,"
 					. "reg_vital   int     DEFAULT 1 NOT NULL,"
 					. "reg_flags   bigint  DEFAULT 0 NOT NULL,"
@@ -886,29 +886,29 @@ function verify_register_scheme() {
 					. "reg_stuff   text    NOT NULL,"
 					. "PRIMARY KEY (reg_id) );"
 				);
-				$r0 = q("CREATE INDEX ix_reg_vital ON register (reg_vital);");
-				$r0 = q("CREATE INDEX ix_reg_flags ON register (reg_flags);");
-				$r0 = q("CREATE INDEX ix_reg_didx ON register (reg_didx);");
-				$r0 = q("CREATE INDEX ix_reg_did2 ON register (reg_did2);");
-				$r0 = q("CREATE INDEX ix_reg_hash ON register (reg_hash);");
-				$r0 = q("CREATE INDEX ix_reg_email ON register (reg_email);");
-				$r0 = q("CREATE INDEX ix_reg_created ON register (reg_created);");
-				$r0 = q("CREATE INDEX ix_reg_startup ON register (reg_startup);");
-				$r0 = q("CREATE INDEX ix_reg_expires ON register (reg_expires);");
-				$r0 = q("CREATE INDEX ix_reg_byc ON register (reg_byc);");
-				$r0 = q("CREATE INDEX ix_reg_uid ON register (reg_uid);");
-				$r0 = q("CREATE INDEX ix_reg_atip ON register (reg_atip);");
+				$r0 = dbq("CREATE INDEX ix_reg_vital ON register (reg_vital);");
+				$r0 = dbq("CREATE INDEX ix_reg_flags ON register (reg_flags);");
+				$r0 = dbq("CREATE INDEX ix_reg_didx ON register (reg_didx);");
+				$r0 = dbq("CREATE INDEX ix_reg_did2 ON register (reg_did2);");
+				$r0 = dbq("CREATE INDEX ix_reg_hash ON register (reg_hash);");
+				$r0 = dbq("CREATE INDEX ix_reg_email ON register (reg_email);");
+				$r0 = dbq("CREATE INDEX ix_reg_created ON register (reg_created);");
+				$r0 = dbq("CREATE INDEX ix_reg_startup ON register (reg_startup);");
+				$r0 = dbq("CREATE INDEX ix_reg_expires ON register (reg_expires);");
+				$r0 = dbq("CREATE INDEX ix_reg_byc ON register (reg_byc);");
+				$r0 = dbq("CREATE INDEX ix_reg_uid ON register (reg_uid);");
+				$r0 = dbq("CREATE INDEX ix_reg_atip ON register (reg_atip);");
 
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
+				$r3 = dbq("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
 					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
 
-				$r4 = q("DROP TABLE register100");
+				$r4 = dbq("DROP TABLE register100");
 
 			}
 			else {
-				$r1 = q("RENAME TABLE register TO register100;");
+				$r1 = dbq("RENAME TABLE register TO register100;");
 
-				$r2 = q("CREATE TABLE IF NOT EXISTS register ("
+				$r2 = dbq("CREATE TABLE IF NOT EXISTS register ("
 	 				. "reg_id 		int(10) UNSIGNED 	NOT NULL AUTO_INCREMENT,"
   					. "reg_vital	int(10) UNSIGNED 	NOT NULL DEFAULT 1,"
   					. "reg_flags	int(10) UNSIGNED 	NOT NULL DEFAULT 0,"
@@ -941,10 +941,10 @@ function verify_register_scheme() {
 					. ") ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;"
 				);
 
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
+				$r3 = dbq("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
 					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
 
-				$r4 = q("DROP TABLE register100");
+				$r4 = dbq("DROP TABLE register100");
 			}
 
 			// $r = ($r1 && $r2 && $r3 && $r4);
@@ -952,11 +952,11 @@ function verify_register_scheme() {
 			$r = $r2;
 
 			if($r) {
-				q("COMMIT");
+				dbq("COMMIT");
 				return UPDATE_SUCCESS;
 			}
 
-			q("ROLLBACK");
+			dbq("ROLLBACK");
 			return UPDATE_FAILED;
 		}
 		elseif ( count($dbc) != 16 ) {
@@ -1281,14 +1281,6 @@ function zar_register_dutystate( $now=NULL, $day=NULL ) {
 
 function get_pending_accounts($get_all = false) {
 
-	/* get pending */
-	// [hilmar ->
-	//~ $r = q("SELECT account.*, reg_hash FROM account LEFT JOIN register ON account_id = reg_uid WHERE reg_vital = 1 AND (account_flags & %d) > 0",
-		//~ intval(ACCOUNT_PENDING)
-	//~ );
-
-	// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
-
 	$sql_extra = " AND (reg_flags & " . ACCOUNT_UNVERIFIED . ") = 0 ";
 
 	if($get_all)
@@ -1303,7 +1295,8 @@ function get_pending_accounts($get_all = false) {
 }
 
 function remove_expired_registrations() {
-	q("DELETE FROM register WHERE reg_expire < '%s' OR reg_expire = '%s' AND (reg_flags & %d) > 0",
+	hz_syslog('### expire reg', LOGGER_DEBUG);
+	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
 		dbesc(datetime_convert()),
 		dbesc(NULL_DATE),
 		dbesc(ACCOUNT_UNVERIFIED)

@@ -132,8 +132,8 @@ class Activity {
 	}
 
 	static function fetch_profile($x) {
-		$r = q("select * from xchan where xchan_url like '%s' limit 1",
-			dbesc($x['id'] . '/%')
+		$r = q("select * from xchan where xchan_url = '%s' limit 1",
+			dbesc($x['id'])
 		);
 		if (!$r) {
 			$r = q("select * from xchan where xchan_hash = '%s' limit 1",

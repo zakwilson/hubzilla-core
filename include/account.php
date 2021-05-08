@@ -875,9 +875,9 @@ function verify_register_scheme() {
 					. "reg_did2    text    DEFAULT '' NOT NULL,"
 					. "reg_hash    text    DEFAULT '' NOT NULL,"
 					. "reg_email   text    DEFAULT '' NOT NULL,"
-					. "reg_created timestamp  NOT NULL,"
-					. "reg_startup timestamp  NOT NULL,"
-					. "reg_expires timestamp  NOT NULL,"
+					. "reg_created timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
+					. "reg_startup timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
+					. "reg_expires timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
 					. "reg_byc     bigint  DEFAULT 0 NOT NULL,"
 					. "reg_uid     bigint  DEFAULT 0 NOT NULL,"
 					. "reg_atip    text    DEFAULT '' NOT NULL,"
@@ -1295,7 +1295,6 @@ function get_pending_accounts($get_all = false) {
 }
 
 function remove_expired_registrations() {
-	hz_syslog('### expire reg', LOGGER_DEBUG);
 	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
 		dbesc(datetime_convert()),
 		dbesc(NULL_DATE),

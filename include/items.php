@@ -4555,13 +4555,6 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$item_uids = " item.uid = " . intval($uid) . " ";
 	}
 
-	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
-		$sql_options .= sprintf(" and not verb in ('%s', '%s') ",
-			dbesc(ACTIVITY_FOLLOW),
-			dbesc(ACTIVITY_UNFOLLOW)
-		);
-	}
-
 	if($arr['star'])
 		$sql_options .= " and item_starred = 1 ";
 
@@ -4629,7 +4622,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 	}
 
 	if($channel && intval($arr['compat']) === 1) {
-		$sql_extra = " AND author_xchan = '" . $channel['channel_hash'] . "' and item_private = 0 $sql_options $item_normal ";
+		$sql_extra = " AND author_xchan = '" . $channel['channel_hash'] . "' and item_private = 0 $item_normal ";
 	}
 
 	if ($arr['datequery']) {

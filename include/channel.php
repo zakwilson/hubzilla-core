@@ -2593,7 +2593,7 @@ function channelx_by_n($id) {
 	}
 
 	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
-		dbesc($id)
+		intval($id)
 	);
 
 	return(($r) ? $r[0] : false);

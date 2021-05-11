@@ -63,6 +63,7 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	$single_group = false;
 	$just_me = false;
 	$custom = false;
+	$groups = '';
 
 	if($allow_cid || $allow_gid || $deny_gid || $deny_cid) {
 		$has_acl = true;
@@ -112,11 +113,11 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 			$forums_count = 0;
 			$forum_otions = '';
 			foreach($forums as $f) {
-				if($f['no_post_perms'])
+				if(isset($f['no_post_perms']))
 					continue;
 
-				$private = (($f['private_forum']) ? ' (' . t('Private Forum') . ')' : '');
-				$selected = (($single_group && $f['hash'] === $allow_cid[0]) ? ' selected = "selected" ' : '');
+				$private = ((isset($f['private_forum'])) ? ' (' . t('Private Forum') . ')' : '');
+				$selected = (($single_group && isset($f['hash'], $allow_cid[0]) && $f['hash'] === $allow_cid[0]) ? ' selected = "selected" ' : '');
 				$forum_otions .= '<option id="^' . $f['abook_id'] . '" value="^' . $f['xchan_hash'] . '"' . $selected . '>' . $f['xchan_name'] . $private . '</option>' . "\r\n";
 				$forums_count++;
 			}
@@ -133,7 +134,7 @@ function populate_acl($defaults = null,$show_jotnets = true, $emptyACL_descripti
 	$o = replace_macros($tpl, array(
 		'$showall'         => $showall_caption,
 		'$onlyme'          => t('Only me'),
-		'$groups'	   => $groups,
+		'$groups'          => $groups,
 		'$public_selected' => (($has_acl) ? false : true),
 		'$justme_selected' => $just_me,
 		'$custom_selected' => $custom,

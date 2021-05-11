@@ -28,7 +28,7 @@ class Queue {
 		if ($r) {
 			foreach ($r as $rr) {
 				$h       = parse_url($rr['outq_posturl']);
-				$desturl = $h['scheme'] . '://' . $h['host'] . (($h['port']) ? ':' . $h['port'] : '');
+				$desturl = $h['scheme'] . '://' . $h['host'] . (isset($h['port']) ? ':' . $h['port'] : '');
 				q("update site set site_dead = 1 where site_dead = 0 and site_url = '%s' and site_update < %s - INTERVAL %s",
 					dbesc($desturl),
 					db_utcnow(), db_quoteinterval('1 MONTH')

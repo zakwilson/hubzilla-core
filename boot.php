@@ -52,10 +52,10 @@ require_once('include/attach.php');
 require_once('include/bbcode.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.4.3' );
+define ( 'STD_VERSION',             '5.6' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1243 );
+define ( 'DB_UPDATE_VERSION',       1245 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -2316,13 +2316,14 @@ function construct_page() {
 		$navbar = get_pconfig($uid,'system','navbar',$navbar);
 	}
 
-	if($comanche && App::$layout['navbar']) {
+	if($comanche && isset(App::$layout['navbar'])) {
 		$navbar = App::$layout['navbar'];
 	}
 
 	if (App::$module == 'setup') {
 		$installing = true;
-	} else {
+	}
+	else {
 		nav($navbar);
 	}
 
@@ -2428,7 +2429,6 @@ function construct_page() {
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],
 			'frame-src'  => [ "'self'" ]
 		];
-
 		call_hooks('content_security_policy',$cspsettings);
 
 		// Legitimate CSP directives (cxref: https://content-security-policy.com/)

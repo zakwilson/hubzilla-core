@@ -1,6 +1,6 @@
 
 Drogi/Droga {{$username}},
-	Niedawno otrzymaliśmy prośbę o zresetowanie kasła do konta na {{$ sitename}}.
+	Niedawno otrzymaliśmy prośbę o zresetowanie hasła do konta na {{$ sitename}}.
 Aby potwierdzić tę prośbę, wybierz link weryfikacyjny poniżej lub wklej go w pasku
 adresu przeglądarki internetowej. 
 
@@ -13,7 +13,7 @@ Kliknij ten link, aby zweryfikować swoją tożsamość i potwierdzić żądanie
 
 {{$reset_link}}
 
-Następnie otrzymasz wiadomość uzupełniającą zawierającą nowe hasło.
+Następnie otrzymasz wiadomość uzupełniającą. która zawiera nowe hasło.
 
 Możesz zmienić to hasło na stronie ustawień konta, po zalogowaniu się.
 

@@ -1108,7 +1108,7 @@ function magiclink_url($observer,$myaddr,$url) {
 
 function micropro($contact, $redirect = false, $class = '', $mode = false) {
 
-	if($contact['click'])
+	if(x($contact,'click'))
 		$url = '#';
 	else
 		$url = chanlink_hash($contact['xchan_hash']);
@@ -1121,10 +1121,10 @@ function micropro($contact, $redirect = false, $class = '', $mode = false) {
 		$tpl = 'micropro_card.tpl';
 
 	return replace_macros(get_markup_template($tpl), array(
-		'$click' => (($contact['click']) ? $contact['click'] : ''),
-		'$class' => $class . (($contact['archived']) ? ' archived' : ''),
-		'$oneway' => (($contact['oneway']) ? true : false),
-		'$perminfo' => $contact['perminfo'],
+		'$click' => (x($contact,'click') ? $contact['click'] : ''),
+		'$class' => $class . (x($contact,'archived') && $contact['archived'] ? ' archived' : ''),
+		'$oneway' => (x($contact,'oneway') && $contact['oneway'] ? true : false),
+		'$perminfo' => (x($contact,'perminfo') ? $contact['perminfo'] : ''),
 		'$url' => $url,
 		'$photo' => $contact['xchan_photo_s'],
 		'$name' => $contact['xchan_name'],
@@ -1535,39 +1535,46 @@ function unobscure_mail(&$item) {
 
 function theme_attachments(&$item) {
 
+	$s = '';
 	$arr = json_decode($item['attach'],true);
-
 	if(is_array($arr) && count($arr)) {
-		$attaches = array();
+
+		$attaches = [];
 		foreach($arr as $r) {
 
-			$icon = getIconFromType($r['type']);
+			if(isset($r['type']))
+				$icon = getIconFromType($r['type']);
 
-			if($r['title'])
+			if(isset($r['title']))
 				$label = urldecode(htmlspecialchars($r['title'], ENT_COMPAT, 'UTF-8'));
 
-			if(! $label && $r['href'])
+			if(! $label && isset($r['href']))
 				$label = basename($r['href']);
 
 			//some feeds provide an attachment where title an empty space
 			if(! $label || $label  == ' ')
 				$label = t('Unknown Attachment');
 
-			$title = t('Size') . ' ' . (($r['length']) ? userReadableSize($r['length']) : t('unknown'));
+			$title = t('Size') . ' ' . (isset($r['length']) ? userReadableSize($r['length']) : t('unknown'));
 
 			require_once('include/channel.php');
-			if(is_foreigner($item['author_xchan']))
-				$url = $r['href'];
-			else
-				$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+
+			if (isset($r['href'])) {
+				if(is_foreigner($item['author_xchan']))
+					$url = $r['href'];
+				else
+					$url = z_root() . '/magic?f=&owa=1&hash=' . $item['author_xchan'] . '&bdest=' . bin2hex($r['href'] . '/' . $r['revision']);
+			}
 
 			//$s .= '<a href="' . $url . '" title="' . $title . '" class="attachlink"  >' . $icon . '</a>';
-			$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
+			if (isset($label) && isset($url) && isset($icon) && isset($title))
+				$attaches[] = array('label' => $label, 'url' => $url, 'icon' => $icon, 'title' => $title);
 		}
 
-		$s = replace_macros(get_markup_template('item_attach.tpl'), array(
-			'$attaches' => $attaches
-		));
+		if (count($attaches) > 0)
+			$s = replace_macros(get_markup_template('item_attach.tpl'), [
+				'$attaches' => $attaches
+			]);
 	}
 
 	return $s;
@@ -1605,8 +1612,8 @@ function format_categories(&$item,$writeable) {
  */
 
 function format_hashtags(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'], array(TERM_HASHTAG,TERM_COMMUNITYTAG));
 	if($terms) {
 		foreach($terms as $t) {
@@ -1628,13 +1635,14 @@ function format_hashtags(&$item) {
 }
 
 
-
 function format_mentions(&$item) {
-	$s = '';
 
+	$s = '';
 	$terms = get_terms_oftype($item['term'],TERM_MENTION);
 	if($terms) {
 		foreach($terms as $t) {
+			if(! isset($t['term']))
+				continue;
 			$term = htmlspecialchars($t['term'],ENT_COMPAT,'UTF-8',false) ;
 			if(! trim($term))
 				continue;
@@ -2305,6 +2313,18 @@ function undo_post_tagging($s) {
 	}
 
 	return $s;
+}
+
+/**
+ * @brief php to js string transfer
+ * Hilmar, 20200227
+ * String values built in php for using as content for js variables become sanitized. Often required
+ * in cases, where some content will be translated by t(any text...) and is furthermore transfered via
+ * templates to the outputted html stream. Redecoding in js not required nor useful.
+ * Apply like: p2j(t('any text\nI will place on a "next line"'));
+ */
+function p2j($string) {
+	return preg_replace('/\r?\n/', '\\n', addslashes($string));
 }
 
 function quote_tag($s) {
@@ -3559,6 +3579,8 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[svg(.*?)\[\/(svg)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[img(.*?)\[\/(img)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[zmg(.*?)\[\/(zmg)\]/ism','\red_escape_codeblock',$body);
 
 	$body = preg_replace_callback("/([^\]\='".'"'."\;\/\{]|^|\#\^)(https?\:\/\/[a-zA-Z0-9\pL\:\/\-\?\&\;\.\=\@\_\~\#\%\$\!\\
 +\,\(\)]+)/ismu", '\nakedoembed', $body);
@@ -3571,6 +3593,8 @@ function cleanup_bbcode($body) {
 	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64svg(.*?)\[\/(svg)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64img(.*?)\[\/(img)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64zmg(.*?)\[\/(zmg)\]/ism','\red_unescape_codeblock',$body);
 
 	// fix any img tags that should be zmg
 
@@ -3676,7 +3700,7 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
-	if(App::$data['forum_channels'])
+	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
 	$xf = '';
@@ -3723,6 +3747,9 @@ function get_forum_channels($uid) {
 	$r = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_addr, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra_1 order by xchan_name",
 		intval($uid)
 	);
+
+	if(!$r)
+		$r = [];
 
 	for($x = 0; $x < count($r); $x ++) {
 		if($x3) {

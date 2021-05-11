@@ -865,7 +865,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 				$x = [ 'mode' => $mode, 'item' => $item ];
 				call_hooks('stream_item',$x);
 
-				if($x['item']['blocked'])
+				if(isset($x['item']['blocked']))
 					continue;
 
 				$item = $x['item'];
@@ -1313,6 +1313,7 @@ function hz_status_editor($a, $x, $popup = false) {
 	if($c && $c['channel_moved'])
 		return $o;
 
+	$webpage   = ((x($x,'webpage')) ? $x['webpage'] : '');
 	$plaintext = true;
 
 	$feature_nocomment = feature_enabled($x['profile_uid'], 'disable_comments');
@@ -1365,8 +1366,6 @@ function hz_status_editor($a, $x, $popup = false) {
 	}
 	else
 		$id_select = '';
-
-	$webpage = ((x($x,'webpage')) ? $x['webpage'] : '');
 
 	$reset = ((x($x,'reset')) ? $x['reset'] : '');
 
@@ -1563,7 +1562,7 @@ function sort_item_children($items) {
 	$result = $items;
 	usort($result,'sort_thr_created_rev');
 	foreach($result as $k => $i) {
-		if($result[$k]['children']) {
+		if(isset($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
 		}
 	}
@@ -1573,7 +1572,7 @@ function sort_item_children($items) {
 function add_children_to_list($children, &$arr) {
 	foreach($children as $y) {
 		$arr[] = $y;
-		if($y['children'])
+		if(isset($y['children']))
 			add_children_to_list($y['children'], $arr);
 	}
 }

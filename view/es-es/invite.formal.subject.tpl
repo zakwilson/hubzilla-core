@@ -1,0 +1,1 @@
+Invitación para su acceso a la red en {{$invite_loc}}

@@ -146,40 +146,40 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Conversation'),
 			/* disable until we agree on how to implemnt this in zot6/activitypub
 			[
-				'commtag',        
-				t('Community Tagging'),					
+				'commtag',
+				t('Community Tagging'),
 				t('Ability to tag existing posts'),
 				false,
 				get_config('feature_lock','commtag'),
 			],
 			*/
 			[
-				'emojis',     
-				t('Emoji Reactions'),			
+				'emojis',
+				t('Emoji Reactions'),
 				t('Add emoji reaction ability to posts'),
 				true,
 				get_config('feature_lock','emojis'),
 			],
 
 			[
-				'dislike',        
-				t('Dislike Posts'),				
+				'dislike',
+				t('Dislike Posts'),
 				t('Ability to dislike posts/comments'),
 				false,
 				get_config('feature_lock','dislike'),
 			],
 
 			[
-				'star_posts',     
-				t('Star Posts'),				
+				'star_posts',
+				t('Star Posts'),
 				t('Ability to mark special posts with a star indicator'),
 				false,
 				get_config('feature_lock','star_posts'),
 			],
-			
+
 			[
-				'reply_to',     
-				t('Reply on comment'),				
+				'reply_to',
+				t('Reply on comment'),
 				t('Ability to reply on selected comment'),
 				false,
 				get_config('feature_lock','reply_to'),
@@ -211,60 +211,59 @@ function get_features($filtered = true, $level = (-1)) {
 				t('Add categories to your posts'),
 				false,
 				get_config('feature_lock','categories'),
-				feature_level('categories',1),
 			],
 
 			[
-				'large_photos',   
-				t('Large Photos'),              
+				'large_photos',
+				t('Large Photos'),
 				t('Include large (1024px) photo thumbnails in posts. If not enabled, use small (640px) photo thumbnails'),
 				false,
 				get_config('feature_lock','large_photos'),
 			],
 
 			[
-				'content_encrypt', 
-				t('Even More Encryption'),          
+				'content_encrypt',
+				t('Even More Encryption'),
 				t('Allow optional encryption of content end-to-end with a shared secret key'),
 				false,
 				get_config('feature_lock','content_encrypt'),
 			],
 
 			[
-				'disable_comments', 
-				t('Disable Comments'),      
+				'disable_comments',
+				t('Disable Comments'),
 				t('Provide the option to disable comments for a post'),
 				false,
 				get_config('feature_lock','disable_comments'),
 			],
 
 			[
-				'delayed_posting', 
-				t('Delayed Posting'),      
+				'delayed_posting',
+				t('Delayed Posting'),
 				t('Allow posts to be published at a later date'),
 				false,
 				get_config('feature_lock','delayed_posting'),
 			],
 
-			[ 	
+			[
 				'content_expire',
 				t('Content Expiration'),
-				t('Remove posts/comments and/or private messages at a future time'), 
-				false, 
+				t('Remove posts/comments and/or private messages at a future time'),
+				false,
 				get_config('feature_lock','content_expire'),
 			],
 
 			[
-				'suppress_duplicates', 
-				t('Suppress Duplicate Posts/Comments'),  
+				'suppress_duplicates',
+				t('Suppress Duplicate Posts/Comments'),
 				t('Prevent posts with identical content to be published with less than two minutes in between submissions.'),
 				true,
 				get_config('feature_lock','suppress_duplicates'),
 			],
 
 			[
-				'auto_save_draft', 
-				t('Auto-save drafts of posts and comments'),  
+				'auto_save_draft',
+				t('Auto-save drafts of posts and comments'),
 				t('Automatically saves post and comment drafts in local browser storage to help prevent accidental loss of compositions'),
 				true,
 				get_config('feature_lock','auto_save_draft'),
@@ -277,8 +276,8 @@ function get_features($filtered = true, $level = (-1)) {
 			t('Manage'),
 
 			[
-				'nav_channel_select',  
-				t('Navigation Channel Select'), 
+				'nav_channel_select',
+				t('Navigation Channel Select'),
 				t('Change channels directly from within the navigation dropdown menu'),
 				false,
 				get_config('feature_lock','nav_channel_select'),
@@ -307,8 +306,8 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'savedsearch',    
-				t('Saved Searches'),			
+				'savedsearch',
+				t('Saved Searches'),
 				t('Save search terms for re-use'),
 				false,
 				get_config('feature_lock','savedsearch')
@@ -339,8 +338,8 @@ function get_features($filtered = true, $level = (-1)) {
 			],
 
 			[
-				'forums_tab',         
-				t('Forum Filter'),				
+				'forums_tab',
+				t('Forum Filter'),
 				t('Ability to display only posts of a specific forum'),
 				false,
 				get_config('feature_lock','forums_tab')
@@ -401,8 +400,8 @@ function get_features($filtered = true, $level = (-1)) {
 			[
 				'multi_profiles',
 				t('Multiple Profiles'),
-				t('Ability to create multiple profiles'), 
-				false, 
+				t('Ability to create multiple profiles'),
+				false,
 				get_config('feature_lock','multi_profiles')
 			]
 
@@ -426,7 +425,7 @@ function get_features($filtered = true, $level = (-1)) {
 			for($y = 0; $y < count($arr[$k]); $y ++) {
 				$disabled = false;
 				if(is_array($arr[$k][$y])) {
-					if($arr[$k][$y][4] !== false) { 
+					if($arr[$k][$y][4] !== false) {
 						$disabled = true;
 					}
 					if(! $disabled) {
@@ -446,7 +445,7 @@ function get_features($filtered = true, $level = (-1)) {
 
 	return $narr;
 }
- 
+
 function get_module_features($module) {
 	$features = get_features(false);
 	return $features[$module];

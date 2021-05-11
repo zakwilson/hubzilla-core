@@ -127,7 +127,6 @@ class Wiki extends Controller {
 
 			$resource_id = argv(4);
 			$w = NativeWiki::get_wiki($owner['channel_id'],$observer_hash,$resource_id);
-
 //			$w = NativeWiki::get_wiki($owner,$observer_hash,$resource_id);
 			if(! $w['htmlName']) {
 				notice(t('Error retrieving wiki') . EOL);
@@ -218,12 +217,12 @@ class Wiki extends Controller {
 						'$name' => t('Name'),
 						'$type' => t('Type'),
 						'$unlocked' => t('Any&nbsp;type'),
-						'$lockstate' => $x['lockstate'],
-						'$acl' => $x['acl'],
-						'$allow_cid' => $x['allow_cid'],
-						'$allow_gid' => $x['allow_gid'],
-						'$deny_cid' => $x['deny_cid'],
-						'$deny_gid' => $x['deny_gid'],
+						'$lockstate' => (x($x,'lockstate') ? $x['lockstate'] : ''),
+						'$acl' 	     => (x($x,'acl') ? $x['acl'] : ''),
+						'$allow_cid' => (x($x,'allow_cid') ? $x['allow_cid'] : ''),
+						'$allow_gid' => (x($x,'allow_gid') ? $x['allow_gid'] : ''),
+						'$deny_cid'  => (x($x,'deny_cid') ? $x['deny_cid'] : ''),
+						'$deny_gid'  => (x($x,'deny_gid') ? $x['deny_gid'] : ''),
 						'$typelock' => array('typelock', t('Lock content type'), '', '', array(t('No'), t('Yes'))),
 						'$notify' => array('postVisible', t('Create a status post for this wiki'), '', '', array(t('No'), t('Yes'))),
 						'$edit_wiki_name' => t('Edit Wiki Name')
@@ -508,7 +507,7 @@ class Wiki extends Controller {
 					notice( t('Wiki created, but error creating Home page.'));
 					goaway(z_root() . '/wiki/' . $nick . '/' . NativeWiki::name_encode($wiki['urlName']));
 				}
-				NativeWiki::sync_a_wiki_item($owner['channel_id'],$homePage['item_id'],$r['item']['resource_id']);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'], $homePage['item_id'], $r['item']['resource_id']);
 				goaway(z_root() . '/wiki/' . $nick . '/' . NativeWiki::name_encode($wiki['urlName']) . '/' . NativeWiki::name_encode($homePage['page']['urlName']));
 			}
 			else {
@@ -542,7 +541,6 @@ class Wiki extends Controller {
 			}
 
 			$wiki = NativeWiki::exists_by_name($owner['channel_id'], $arr['urlName']);
-
 			if($wiki['resource_id']) {
 
 				$arr['resource_id'] = $wiki['resource_id'];
@@ -552,7 +550,7 @@ class Wiki extends Controller {
 
 				$r = NativeWiki::update_wiki($owner['channel_id'], $observer_hash, $arr, $acl);
 				if($r['success']) {
-					NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'], $r['item_id'], $r['item']['resource_id']);
 					goaway(z_root() . '/wiki/' . $nick);
 				}
 				else {
@@ -576,7 +574,7 @@ class Wiki extends Controller {
 			$resource_id = $_POST['resource_id']; 
 			$deleted = NativeWiki::delete_wiki($owner['channel_id'],$observer_hash,$resource_id);
 			if ($deleted['success']) {
-				NativeWiki::sync_a_wiki_item($owner['channel_id'],$deleted['item_id'],$resource_id);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'], 0, $resource_id);
 				json_return_and_die(array('message' => '', 'success' => true));
 			} 
 			else {
@@ -611,18 +609,17 @@ class Wiki extends Controller {
 			}
 
 			$page = NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id, $mimetype);
-
 			if($page['item_id']) {
-				$commit = NativeWikiPage::commit(array(
+
+				$commit = NativeWikiPage::commit([
 					'commit_msg'    => t('New page created'), 
 					'resource_id'   => $resource_id, 
 					'channel_id'    => $owner['channel_id'],
 					'observer_hash' => $observer_hash,
 					'pageUrlName'   => $name
-				));
-
+				]);
 				if($commit['success']) {
-					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'], $commit['item_id'], $resource_id);
 					//json_return_and_die(array('url' => '/' . argv(0) . '/' . argv(1) . '/' . urlencode($page['wiki']['urlName']) . '/' . urlencode($page['page']['urlName']), 'success' => true));
 					json_return_and_die(array('url' => '/' . argv(0) . '/' . argv(1) . '/' . $page['wiki']['urlName'] . '/' . $page['page']['urlName'], 'success' => true));
 				} 
@@ -680,20 +677,25 @@ class Wiki extends Controller {
 				json_return_and_die(array('success' => false));					
 			}
 
-			$saved = NativeWikiPage::save_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'content' => $content));
-
+			$saved = NativeWikiPage::save_page([
+				'channel_id' => $owner['channel_id'],
+				'observer_hash' => $observer_hash,
+				'resource_id' => $resource_id,
+				'pageUrlName' => $pageUrlName,
+				'content' => $content
+			]);
 			if($saved['success']) {
-				$commit = NativeWikiPage::commit(array(
+
+				$commit = NativeWikiPage::commit([
 					'commit_msg' => $commitMsg, 
 					'pageUrlName' => $pageUrlName,
 					'resource_id' => $resource_id, 
 					'channel_id'    => $owner['channel_id'],
 					'observer_hash' => $observer_hash,
 					'revision' => (-1)
-				));
-		
+				]);
 				if($commit['success']) {
-					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'], $commit['item_id'], $resource_id);
 					json_return_and_die(array('message' => 'Wiki git repo commit made', 'success' => true , 'content' => $content));
 				}
 				else {
@@ -738,9 +740,9 @@ class Wiki extends Controller {
 			if ($pageUrlName === 'Home') {
 				json_return_and_die(array('message' => t('Cannot delete Home'),'success' => false));
 			}
+
 			// Determine if observer has permission to delete pages
 			// currently just allow page owner
-
 			if((! local_channel()) || (local_channel() != $owner['channel_id'])) {
 				logger('Wiki write permission denied. ' . EOL);
 				json_return_and_die(array('success' => false));					
@@ -752,9 +754,14 @@ class Wiki extends Controller {
 				json_return_and_die(array('success' => false));					
 			}
 
-			$deleted = NativeWikiPage::delete_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+			$deleted = NativeWikiPage::delete_page([
+				'channel_id' => $owner['channel_id'],
+				'observer_hash' => $observer_hash,
+				'resource_id' => $resource_id,
+				'pageUrlName' => $pageUrlName
+			]);
 			if($deleted['success']) {
-				NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+				NativeWiki::sync_a_wiki_item($owner['channel_id'], 0, $resource_id);
 				json_return_and_die(array('message' => 'Wiki git repo commit made', 'success' => true));
 			}
 			else {
@@ -768,18 +775,25 @@ class Wiki extends Controller {
 			$resource_id = $_POST['resource_id']; 
 			$pageUrlName = $_POST['name'];
 			$commitHash = $_POST['commitHash'];
-			// Determine if observer has permission to revert pages
 
+			// Determine if observer has permission to revert pages
 			$perms = NativeWiki::get_permissions($resource_id, intval($owner['channel_id']), $observer_hash);
 			if(! $perms['write']) {
 				logger('Wiki write permission denied.' . EOL);
 				json_return_and_die(array('success' => false));					
 			}
 
-			$reverted = NativeWikiPage::revert_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'commitHash' => $commitHash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName));
+			$reverted = NativeWikiPage::revert_page([
+				'channel_id' => $owner['channel_id'],
+				'observer_hash' => $observer_hash,
+				'commitHash' => $commitHash,
+				'resource_id' => $resource_id,
+				'pageUrlName' => $pageUrlName
+			]);
 			if($reverted['success']) {
 				json_return_and_die(array('content' => $reverted['content'], 'message' => '', 'success' => true));					
-			} else {
+			}
+			else {
 				json_return_and_die(array('content' => '', 'message' => 'Error reverting page', 'success' => false));					
 			}
 		}
@@ -826,18 +840,23 @@ class Wiki extends Controller {
 				json_return_and_die(array('success' => false));					
 			}
 
-			$renamed = NativeWikiPage::rename_page(array('channel_id' => $owner['channel_id'], 'observer_hash' => $observer_hash, 'resource_id' => $resource_id, 'pageUrlName' => $pageUrlName, 'pageNewName' => $pageNewName));
-
+			$renamed = NativeWikiPage::rename_page([
+				'channel_id' => $owner['channel_id'],
+				'observer_hash' => $observer_hash,
+				'resource_id' => $resource_id,
+				'pageUrlName' => $pageUrlName,
+				'pageNewName' => $pageNewName
+			]);
 			if($renamed['success']) {
-				$commit = NativeWikiPage::commit(array(
+				$commit = NativeWikiPage::commit([
 					'channel_id' => $owner['channel_id'],
 					'commit_msg' => 'Renamed ' . NativeWiki::name_decode($pageUrlName) . ' to ' . $renamed['page']['htmlName'], 
 					'resource_id' => $resource_id, 
 					'observer_hash' => $observer_hash,
 					'pageUrlName' => $pageNewName
-				));
+				]);
 				if($commit['success']) {
-					NativeWiki::sync_a_wiki_item($owner['channel_id'],$commit['item_id'],$resource_id);
+					NativeWiki::sync_a_wiki_item($owner['channel_id'], $commit['item_id'], $resource_id);
 					json_return_and_die(array('name' => $renamed['page'], 'message' => 'Wiki git repo commit made', 'success' => true));
 				}
 				else {

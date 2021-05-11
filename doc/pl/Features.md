@@ -1,107 +1,173 @@
-Dodatkowe możliwości
+Opcje konfiguracyjne
 ====================
 
-Domyślny interfejs $Projectname został zaprojektowany tak, aby był dobrze uporządkowany. Istnieje ogromna liczba dodatkowych funkcji (niektóre są bardzo przydatne), które można włączyć i jak najlepiej wykorzystać. Można je znaleźć pod klikając link [Dodatkowe funkcje](settings/features) na stronie [Ustawienia](settings).
+Po zainstalowaniu, serwis $Projectname jest wstępnie konfigurowany z domyślnymi wartościami. Z reguły, wymaga to odpowiedniego dostrojemia tak, aby konfiguracja odpowiadała zakładanym funkcjom serwisu. 
 
-**Wygaśnięcie treści** 
+Ustawianie dodatkowych możliwości poprzez interfejs graficzny
+-------------------------------------------------------------
 
-Usuwanie postów, komentarzy albo prywatnych wiadomości w określonym terminie. Do edytora postów zostaje dodany dodatkowy przycisk, za pomoca któreg można ustawić termin wygaśnięcia publikacji. Zwykle data jest wyświetlana w formacie „rrrr-mm-dd gg: mm”, ale w języku angielskim ma się nieco większą swobodę i można używać większości rozpoznawalnych odniesień do dat, takich jak "next Thursday" czy "+1 day". W określonym terminie (podanym lub zajmującym około dziesięciu minut, w zależności od częstotliwości sprawdzania zdalnego systemu) element jest usuwany.
+Domyślny interfejs $Projectname został zaprojektowany tak, aby był dobrze uporządkowany. Istnieje spora liczba dodatkowych funkcjonalności (o różnej przydatności), które można włączyć i później wykorzystywać. Można je znaleźć klikając link [Dodatkowe możliwości](admin/features) na stronie [Administracja](/admin). Są one tam prezentowane w kilku grupach.
+
+#### Kalendarz
+
+**Rozpocznij tydzień kalendarzowy w poniedziałek**
+
+Daje możliwość skonfigurowania kalendarza tak, aby tydzień kalendarzowy zaczynał się w poniedziałek. 
+
+**Wybór strefy czasowej wydarzenia**
+
+Daje możliwość konfigurowania strefy czasowej wydarzenia w kalendarzu.
+
+#### Strona główna kanału
+
+**Wyszukaj po dacie**
+
+Daje możliwość wyboru wpisów według zakresów dat.
+
+**Chmura tagów**
+
+Udostępnienie osobistej chmury tagów na stronie swojego kanału.
+
+**Użyj trybu blog/lista**
+
+Pozwoduje, że komentarze są wyświetlane osobno.
+
+#### Połączenia
+
+**Filtrowanie połączeń**
+
+Umożliwia filtrowanie przychodzących wpisów z połączeń, na podstawie słów kluczowych lub fragnentów treści.
+
+#### Rozmowa
+
+**Reakcje emoji**
+
+Dodaje możliwość wstawiania reakcji emoji we wpisach.
+
+**Nielubienie wpisu**
+
+Możliwość oznaczania wpisów i komentarzy jako nielubiane.
+
+**Wyróżnienie wpisu**
+
+Możliwość oznaczania wyróżnionych wpisów wskaźnikiem gwiazdki.
+
+**Odpowiadanie na komentarze**
+
+Możliwość udzielenia odpowiedzi na wybrany komentarz.
+
+#### Katalog
+
+**Zaawansowane przeszukiwanie katalogu**
+
+Umożliwia tworzenie złożonych zapytań wyszukiwania w katalogu.
+
+#### Edytor
+
+**Kategorie wpisów**
+
+Możliwość dodawania kategorii do swoich wpisów.
+
+**Duże zdjęcia**
+
+Możliwość zamieszczania dużych miniatur zdjęć (1024px) we wpisach. Jeśli nie jest to włączone, można używać tylko małych miniatur (640 px).
+
+**Jeszcze więcej szyfrowania**
+
+Zezwala na opcjonalne pełne (e2ee) szyfrowanie treści za pomocą wspólnego tajnego klucza.
+Stadardowo, prywatne wiadomości są szyfrowane podczas transportu i przechowywania. W dzisiejszych czasach to szyfrowanie może nie wystarczyć, jeśli twoja komunikacja jest wyjątkowo wrażliwa. Ta opcja umożliwia dodatkowo szyfrowanie treści "end-toend" za pomocą wspólnego tajnego klucza. Sposób, w jaki odbiorca pozna tajny klucz, zależy wyłącznie od Ciebie. Możesz podać wskazówkę, na przykład "imię pierwszego psa cioci Kloci".
+
+**Wyłączenie komentarzy**
+
+Zapewnia możliwość wyłączenia komentowania wpisu
+
+**Opóźnione publikowanie**
+
+Pozwala na publikację wpisów w późniejszym terminie
+
+**Wygasanie treści**
+
+Usuwanie wpisów, komentarzy albo prywatnych wiadomości w określonym terminie. Do edytora wpisów zostaje dodany dodatkowy przycisk, za pomoca któreg można ustawić termin wygaśnięcia publikacji. Zwykle data jest wyświetlana w formacie „rrrr-mm-dd gg: mm”, ale w języku angielskim ma się nieco większą swobodę i można używać większości rozpoznawalnych odniesień do dat, takich jak "next Thursday" czy "+1 day". W określonym terminie (podanym lub zajmującym około dziesięciu minut, w zależności od częstotliwości sprawdzania zdalnego systemu) element jest usuwany.
+
+**Pomijaj zduplikowane wpisy i komentarze**
+
+Zapobiegaj publikowaniu wpisów o identycznej treści, mających mniej niż dwie minuty między przesłaniami.
+
+**Automatyczne zapisywanie roboczych wpisów i komentarzy**
+
+Automatycznie zapisuje wersje robocze wpisów i komentarzy w lokalnej pamięci przeglądarki, aby zapobiec przypadkowej utracie kompozycji.
+
+
+#### Zarządzanie
+
+**Wybór kanału poprzez nawigację**
+
+Zmiana kanału bezpośrednio z rozwijanego menu nawigacji.
+
+#### Sieć
+
+**Filtr wydarzeń**
+
+Możliwość wyświetlania tylko wydarzeń.
+
+**Filtr ankiet**
+
+Możliwość wyświetlania tylko ankiet.
+
+**Zapisywane wyszukiwanie**
+
+Możliwość zapisywania wyszukiwanych haseł do ponownego wykorzystania.
+
+**Zapisywane foldery**
+
+Możliwość umieszczania wpisów w folderach
+
+**Alternatywan kolejność strumienia**
+
+Możliwość uporządkowania strumienia według daty ostatniego wpisu, daty ostatniego komentarza lub nieprzeczytanych aktywności.
+
+**Filtr kontaktów**
+
+Możliwość wyświetlania wpisów autorstwa tylko wybranego kontaktu.
+
+**Filtr forów**
+
+Możliwość wyświetlania wpisów tylko z określonego forum.
+
+**Filtr wpisów osobistych**
+
+Filtr wpisów osobistych.
+
+**Użyj trybu blog/lista**
+
+Pozwoduje, że komentarze są wyświetlane osobno.
+
+#### Zdjęcia
+
+**Lokalizowanie zdjęć**
+
+Jeśli dane lokalizacji są dostępne na przesłanych zdjęciach, połącz je z mapą.
+
+##### Profile
+
+**Profile zaawansowane**
+
+Dodatkowe sekcje i pola wyboru profilu. Rozszerza to zakres informacji profilowych zbieranych w serwisie. Włączenie tej funkcjonalności powinno znaleźć odzwierciedlenie w dokumencie "Polityka prywatności", w której należy wymienić wszystkie rodzaje informacji osobistych zbieranych i utrzymywanych w serwisie. W większości przypadków jest to funkcjonalność nieprzydatna i nie powinno się jej włączać.
+
+**Import/Eksport proflilu**
+
+Możliwość zaimportowania lub wyeksportowania swojego profilu na inne serwisy (węzły sieci Zot). Funkcjonalność ta związana jest z nomadycznością tożsamości internetowej w $Projectname. Domyślnie Twoja tożsamość "podróżuje" z Tobą, gdy przeglądasz matrycę zdalnych witryn - tam też wiedzą kim jesteś i mogą wyświetlać Ci treści, które tylko Ty widzisz. Dzięki rozszerzonemu udostępnianiu tożsamości możesz dostarczyć te informacje do dowolnej odwiedzanej witryny z poziomu swojej matrycy.
 
 **Wiele profili**
 
 Możliwość tworzenia wielu profili, które są widoczne tylko dla określonych osób lub grup. Twój profil domyślny może być widoczny dla każdego, ale wszystkie profile dodatkowe mogą zawierać inne lub dodatkowe informacje i mogą być widoczne tylko dla tych, do których jest przypisany.
- 
-**Strony internetowe**
 
-Zapewnia możliwość korzystania z funkcji projektowania stron internetowych i tworzenia niestandardowych stron internetowych na podstawie własnej zawartości, a także projektowania stron z układami stron, niestandardowymi elemntami menu i blokami treści.
+Dodatkowe ustawienia dostępne tylko z wiersza poleceń
+-----------------------------------------------------
 
+Oprócz opcji konfiguracyjnych dostępnych w panelu administracyjnum, $Projectname zawiera wiele opcji, które są dostępne tylko z poziomu powłoki. Są to na ogół opcje uważane za zbyt niszowe, zaawansowane lub mogące być źle interpretowane przez zwykłych użytkowników.
 
-**Prywatne notatki**
+Ich omówienie znajduje się na stronie [Zaawanasowana konfiguracja dla administratorów](/doc/pl/hidden_configs).
 
-Na stronach, na których jest to dostępne (Twoja matryca i osobiste strony internetowe), zapewnia widżet do tworzenia i przechowywania osobistych przypomnień i notatek.
-
-**Ulepszone albumy ze zdjęciami**
-
-Zapewnia przeglądarkę albumów zdjęć, która ma nieco ładniejszy interfejs niż zwykły album.
-
-**Rozszerzone udostępnianie tożsamości**
-
-Domyślnie Twoja tożsamość "podróżuje" z Tobą, gdy przeglądasz matrycę zdalnych witryn - tam też wiedzą kim jesteś i mogą wyświetlać Ci treści, które tylko Ty widzisz. Dzięki rozszerzonemu udostępnianiu tożsamości możesz dostarczyć te informacje do dowolnej odwiedzanej witryny z poziomu swojej matrycy.
-
-**Tryb ekspercki**
-
-Pozwala to zobaczyć niektóre zaawansowane opcje konfiguracji, które mogą dezorientować niektóre osoby lub powodować problemy z obsługą. Funkcjonalność ta może zapewnić pełną kontrolę nad funkcjami i kolorami motywu - dzięki czemu można dostosować dużą liczbę ustawień motywu wyświetlania do własnych upodobań.
-
-**Kanał Premium**
-
-Dzięki temu możesz ustawić ograniczenia i warunki dotyczące tych, które łączą się z Twoim kanałem. Może to być używane przez celebrytów lub kogoś, kto chce postawić jakieś warunki osobom, które chcą się połączyć z tym kanałe. Jednym z warunków moze byc dokonanie płatności za połączenie.
-
-**Edytor tekstu formatowanego**
-
-Edytor postów dostępny z poziomy matrycy jest edytorem zwykłego tekstu, ale matryca pozwala na stosowanie szerokieo zakresu znaczników przy użyciu BBcode. Edytor wizualny jest natomiast edytorem WYSIWIG (what you see is what you get - otrzymujesz to, co widzisz)i zapewnia wszystkie najczęściej używane znaczniki BBcode.
-
-**Podgląd wpisu**
-
-Umożliwia podgląd postów i komentarzy dokładnie tak, jak wyglądałyby na stronie przed ich opublikowaniem.
-
-**Źródła kanałów**
-
-Automatycznie importuje i ponownie publikuje zawartość kanału z innych kanałów lub źródeł. Umożliwia to tworzenie podkanałów i superkanałów z treści publikowanych gdzie indziej. Zasady są takie, że treść musi być publiczna, a właściciel kanału musi udzielić Ci pozwolenia na pozyskiwanie swojego kanału.
-
-**Jeszcze więcej szyfrowania**
-
-Stadardowo, prywatne wiadomości są szyfrowane podczas transportu i przechowywania. W dzisiejszych czasach to szyfrowanie może nie wystarczyć, jeśli twoja komunikacja jest wyjątkowo wrażliwa. Ta opcja umożliwia dodatkowo szyfrowanie treści "end-toend" za pomocą wspólnego tajnego klucza. Sposób, w jaki odbiorca pozna tajny klucz, zależy wyłącznie od Ciebie. Możesz podać wskazówkę, na przykład "imię pierwszego psa cioci Kloci".
-
-**Wyszukiwanie wg daty**
-
-Daje to możliwość wybierania postów według zakresów dat
-
-**Filtr grup prywatności**
-
-Włączenie tego widżetu umożliwia wyświetlanie strumienia postów tylko z wybranych grup połączeń. Powoduje to również przełączenie uprawnień wychodzących podczas przeglądania grupy prywatności. Jest to podobne do "kręgów" Google czy też "aspektów" w Disaporze.
-
-**Zapisane wyszukiwania**
-
-Udostępnia widżet wyszukiwania na stronie matrycy, który może zapisywać wybrane frazy wyszukiwania do ponownego wykorzystania.
-
-**Zakładka Osobiste**
-
-Włącz tą kartę, aby wyświetlać tylko wpisy matrycowe, z którymi w jakiś sposób wchodziłeś w interakcję, jako autor lub współautor konwersacji.
-
-**Zakładka Nowy**
-
-Włącza tą kartę, aby wyświetlać wszystkich nowych działania matrycy jako węża strażackiego lub osi czasu.
-
-**Narzedzia zaprzyjaźnienia**
-
-Filtrowanie aktywności strumienia matrycy według głębokości relacji.
-
-**Edytuj wysłane posty**
-
-Mozliwość edytowania i poprawiania postów i komentarzy juz po wysłaniu.
-
-**Tagowanie**
-
-Możliwość tagowania istniejących postów, w tym napisanych przez innych.
-
-**Kategorie postów**
-
-Możliwość dodawania kategorie do postów na swoim kanale
-
-**Zapisane foldery**
-
-Możliwość umieszczania postów w folderach lub tagach do późniejszego przywołania.
-
-**Dezaprobata postów**
-
-Możliwość dezaprobaty ("niepolubienia") wpisów i komentarzy.
-
-**Gwiazdkowanie postów**
-
-Możliwość oznaczania specjalnych postów znakiem gwiazdki
-
-**Chmura tagów**
-
-Udostępnienie osobistej chmury tagów na stronie swojego kanału
 
 #include doc/macros/pl/main_footer.bb;

@@ -758,22 +758,34 @@ function get_item_elements($x,$allow_code = false) {
 	// and not enough info to be able to look you up from your hash - which is the only thing stored with the post.
 
 	$xchan_hash = import_author_xchan($x['author']);
-	if($xchan_hash)
+	if($xchan_hash) {
 		$arr['author_xchan'] = $xchan_hash;
-	else
-		return array();
+	}
+	else {
+		return [];
+	}
 
 	// save a potentially expensive lookup if author == owner
+	$legacy_sig = false;
+	$owner_hash = '';
+	if(isset($x['owner']['id']) && isset($x['owner']['key']) && isset($x['owner']['network']) && $x['owner']['network'] === 'zot6') {
+		$owner_hash = Libzot::make_xchan_hash($x['owner']['id'], $x['owner']['key']);
+	}
+	else {
+		$owner_hash = make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']);
+		$legacy_sig = true;
+	}
 
-	if($arr['author_xchan'] === make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']))
+	if($arr['author_xchan'] === $owner_hash) {
 		$arr['owner_xchan'] = $arr['author_xchan'];
+	}
 	else {
 		$xchan_hash = import_author_xchan($x['owner']);
 		if($xchan_hash) {
 			$arr['owner_xchan'] = $xchan_hash;
 		}
 		else {
-			return array();
+			return [];
 		}
 	}
 
@@ -793,7 +805,15 @@ function get_item_elements($x,$allow_code = false) {
 		);
 		if($r) {
 			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
-				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
+				$item_verified = false;
+				if($legacy_sig) {
+					$item_verified = Crypto::verify($x['body'], base64url_decode($arr['sig']), $r[0]['xchan_pubkey']);
+				}
+				else {
+					$item_verified = Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey']);
+				}
+
+				if($item_verified) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -926,23 +946,41 @@ function import_author_xchan($x) {
 	 *   * \e string \b xchan_hash - Thre returned value
 	 */
 	call_hooks('import_author_xchan', $arr);
-	if($arr['xchan_hash'])
+	if($arr['xchan_hash']) {
 		return $arr['xchan_hash'];
+	}
 
 	$y = false;
 
-	if((! array_key_exists('network', $x)) || ($x['network'] === 'zot')) {
+	if((isset($x['id']) && isset($x['key'])) && (!isset($x['network']) || $x['network'] === 'zot6')) {
+		$y = Libzot::import_author_zot($x);
+	}
+
+	if(!$y && isset($x['url']) && isset($x['network']) && $x['network'] === 'zot6') {
+		$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
+			dbesc($x['url'])
+		);
+		if($r)
+			$y = $r[0]['xchan_hash'];
+		else
+			$y = discover_by_webbie($x['url'], 'zot6');
+	}
+
+	// if we were told that it's a zot6 connection, don't probe/import anything else
+
+	if($y)
+		return $y;
+
+	if(!$y && !isset($x['network']) || $x['network'] === 'zot') {
 		$y = import_author_zot($x);
 	}
 
-	// if we were told that it's a zot connection, don't probe/import anything else
-	if(array_key_exists('network',$x) && $x['network'] === 'zot') {
+	if(isset($x['network']) || $x['network'] === 'zot') {
 		if($x['url']) {
 			// check if we already have the zot6 xchan of this xchan_url. if not import it.
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
 				dbesc($x['url'])
 			);
-
 			if(! $r)
 				discover_by_webbie($x['url'], 'zot6');
 		}
@@ -951,10 +989,8 @@ function import_author_xchan($x) {
 	}
 
 	// perform zot6 discovery
-
 	if($x['url']) {
-		$y = discover_by_webbie($x['url'],'zot6');
-
+		$y = discover_by_webbie($x['url'], 'zot6');
  		if($y) {
 			return $y;
 		}
@@ -968,7 +1004,7 @@ function import_author_xchan($x) {
 		$y = import_author_unknown($x);
 	}
 
-	return($y);
+	return $y;
 }
 
 /**
@@ -1206,10 +1242,10 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	else
 		$x['comment_scope'] = $c_scope;
 
-	if($item['term'])
-		$x['tags']        = encode_item_terms($item['term'],$mirror);
+	if(! empty($item['term']))
+		$x['tags'] = encode_item_terms($item['term'],$mirror);
 
-	if($item['iconfig']) {
+	if(! empty($item['iconfig'])) {
 		if ($zap_compat) {
 			for ($y = 0; $y < count($item['iconfig']); $y ++) {
 				if (preg_match('|^a:[0-9]+:{.*}$|s', $item['iconfig'][$y]['v'])) {
@@ -1217,7 +1253,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 				}
 			}
 		}
-		$x['meta']        = encode_item_meta($item['iconfig'],$mirror);
+		$x['meta'] = encode_item_meta($item['iconfig'],$mirror);
 	}
 
 	logger('encode_item: ' . print_r($x,true), LOGGER_DATA);
@@ -1295,6 +1331,10 @@ function encode_item_xchan($xchan) {
 	$ret['photo']    = [ 'mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m'] ];
 	$ret['guid']     = $xchan['xchan_guid'];
 	$ret['guid_sig'] = $xchan['xchan_guid_sig'];
+
+	$ret['id']       = $xchan['xchan_guid'];
+	$ret['id_sig']   = $xchan['xchan_guid_sig'];
+	$ret['key']      = $xchan['xchan_pubkey'];
 
 	return $ret;
 }
@@ -1432,7 +1472,7 @@ function purify_imported_object($obj) {
 	elseif (is_string($obj)) {
 		$ret = purify_html($obj);
 	}
-	
+
 	return $ret;
 }
 
@@ -1690,14 +1730,14 @@ function item_sign(&$item) {
 	if(array_key_exists('sig',$item) && $item['sig'])
 		return;
 
-	$r = q("select channel_prvkey from channel where channel_id = %d and channel_hash = '%s' ",
+	$r = q("select * from channel where channel_id = %d and channel_hash = '%s' ",
 			intval($item['uid']),
 			dbesc($item['author_xchan'])
 	);
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = Libzot::sign($item['body'], $r[0]['channel_prvkey']);
 	$item['item_verified'] = 1;
 }
 
@@ -2832,11 +2872,11 @@ function tag_deliver($uid, $item_id) {
 	 * Now we've got those out of the way. Let's see if this is a post that's tagged for re-delivery
 	 */
 
-	$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
-
-	if($terms)
+	$terms = [];
+	if (array_key_exists('term', $item)) {
+		$terms = array_merge(get_terms_oftype($item['term'],TERM_MENTION),get_terms_oftype($item['term'],TERM_FORUM));
 		logger('Post mentions: ' . print_r($terms,true), LOGGER_DATA);
-
+	}
 
 	$max_forums = get_config('system','max_tagged_forums',2);
 	$matched_forums = 0;
@@ -2845,7 +2885,7 @@ function tag_deliver($uid, $item_id) {
 	$link = normalise_link($u[0]['xchan_url']);
 
 
-	if($terms) {
+	if(count($terms) > 0) {
 		foreach($terms as $term) {
 			if(! link_compare($term['url'],$link)) {
 				continue;
@@ -4235,9 +4275,9 @@ function list_post_dates($uid, $wall, $mindate) {
 		$start_month = datetime_convert('','',$dstart,'Y-m-d');
 		$end_month = datetime_convert('','',$dend,'Y-m-d');
 		$str = day_translate(datetime_convert('','',$dnow,'F'));
-		if(! $ret[$dyear])
-			$ret[$dyear] = array();
- 		$ret[$dyear][] = array($str,$end_month,$start_month);
+		if(! isset($ret[$dyear]))
+			$ret[$dyear] = [];
+ 		$ret[$dyear][] = [ $str, $end_month, $start_month ];
 		$dnow = datetime_convert('','',$dnow . ' -1 month', 'Y-m-d');
 	}
 
@@ -4316,17 +4356,17 @@ function fetch_post_tags($items, $link = false) {
 			foreach($tags as $t) {
 				if(($link) && ($t['ttype'] == TERM_MENTION))
 					$t['url'] = chanlink_url($t['url']);
-				if(array_key_exists('item_id',$items[$x])) {
+				if(array_key_exists('item_id', $items[$x])) {
 					if($t['oid'] == $items[$x]['item_id']) {
-						if(! is_array($items[$x]['term']))
-							$items[$x]['term'] = array();
+						if(array_key_exists('term', $items[$x]) && ! is_array($items[$x]['term']))
+							$items[$x]['term'] = [];
 						$items[$x]['term'][] = $t;
 					}
 				}
 				else {
 					if($t['oid'] == $items[$x]['id']) {
-						if(! is_array($items[$x]['term']))
-							$items[$x]['term'] = array();
+						if(array_key_exists('term', $items[$x]) && ! is_array($items[$x]['term']))
+							$items[$x]['term'] = [];
 						$items[$x]['term'][] = $t;
 					}
 				}
@@ -4336,16 +4376,16 @@ function fetch_post_tags($items, $link = false) {
 			foreach($imeta as $i) {
 				if(array_key_exists('item_id',$items[$x])) {
 					if($i['iid'] == $items[$x]['item_id']) {
-						if(! is_array($items[$x]['iconfig']))
-							$items[$x]['iconfig'] = array();
+						if(! isset($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = [];
 						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
 						$items[$x]['iconfig'][] = $i;
 					}
 				}
 				else {
 					if($i['iid'] == $items[$x]['id']) {
-						if(! is_array($items[$x]['iconfig']))
-							$items[$x]['iconfig'] = array();
+						if(array_key_exists('iconfig', $items[$x]) && ! is_array($items[$x]['iconfig']))
+							$items[$x]['iconfig'] = [];
 						$i['v'] = ((preg_match('|^a:[0-9]+:{.*}$|s',$i['v'])) ? unserialize($i['v']) : $i['v']);
 						$items[$x]['iconfig'][] = $i;
 					}
@@ -4488,17 +4528,22 @@ function zot_feed($uid, $observer_hash, $arr) {
 
 function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = CLIENT_MODE_NORMAL,$module = 'network') {
 
-	$result = array('success' => false);
-
-	$sql_extra = '';
-	$sql_nets = '';
+	$result      = ['success' => false];
+	$sql_extra   = '';
+	$sql_nets    = '';
 	$sql_options = '';
-	$sql_extra2 = '';
-	$sql_extra3 = '';
-	$def_acl = '';
-
-	$item_uids = ' true ';
+	$sql_extra2  = '';
+	$sql_extra3  = '';
+	$def_acl     = '';
+	$item_uids   = ' true ';
 	$item_normal = item_normal();
+
+	if (! (isset($arr['include_follow']) && intval($arr['include_follow']))) {
+		$item_normal .= sprintf(" and not verb in ('%s', '%s') ",
+			dbesc(ACTIVITY_FOLLOW),
+			dbesc(ACTIVITY_UNFOLLOW)
+		);
+	}
 
 	if($arr['uid']) {
 		$uid = $arr['uid'];
@@ -4861,7 +4906,7 @@ function item_remove_cid($xchan_hash,$mid,$uid) {
 }
 
 // Set item permissions based on results obtained from linkify_tags()
-function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow, $profile_uid, $parent_item = false, &$private) {
+function set_linkified_perms($linkified, &$str_contact_allow, &$str_group_allow, $profile_uid, &$private, $parent_item = false) {
 	$first_access_tag = true;
 
 	foreach($linkified as $x) {

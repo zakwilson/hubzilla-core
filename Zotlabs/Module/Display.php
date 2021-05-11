@@ -97,8 +97,8 @@ class Display extends \Zotlabs\Web\Controller {
 		if($decoded)
 			$item_hash = $decoded;
 
-		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
-			dbesc($item_hash . '%')
+		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid = '%s' limit 1",
+			dbesc($item_hash)
 		);
 
 		if($r) {
@@ -247,69 +247,62 @@ class Display extends \Zotlabs\Web\Controller {
 
 		if($noscript_content || $load) {
 
-			$r = null;
-
 			require_once('include/channel.php');
 			$sys = get_sys_channel();
-			$sysid = $sys['channel_id'];
+			// in case somebody turned off public access to sys channel content using permissions
+			// make that content unsearchable by ensuring the owner uid can't match
+			$sys_id = perm_is_allowed($sys['channel_id'], $observer_hash, 'view_stream') ? $sys['channel_id'] : 0;
+
+			$r = null;
 
 			if(local_channel()) {
-				$r = q("SELECT item.id as item_id from item WHERE uid = %d and mid = '%s' $item_normal limit 1",
+				$r = q("SELECT item.id AS item_id FROM item WHERE uid = %d AND mid = '%s' $item_normal LIMIT 1",
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
 			}
 
-			if($r === null) {
-				// in case somebody turned off public access to sys channel content using permissions
-				// make that content unsearchable by ensuring the owner uid can't match
-
-				if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))
-					$sysid = 0;
-
-				$r = q("SELECT item.id as item_id from item
+			if(!$r) {
+				$r = q("SELECT item.id AS item_id FROM item
 					WHERE ((mid = '%s'
-					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = ''
+					AND (((( item.allow_cid = '' AND item.allow_gid = '' AND item.deny_cid  = ''
 					AND item.deny_gid  = '' AND item_private = 0 )
-					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
+					AND uid IN ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d ))) OR
 					(mid = '%s' $sql_extra ))
 					$item_normal
 					limit 1",
 					dbesc($target_item['parent_mid']),
-					intval($sysid),
+					intval($sys_id),
 					dbesc($target_item['parent_mid'])
 				);
 			}
 		}
 
 		elseif($update && !$load) {
-			$r = null;
-
 			require_once('include/channel.php');
 			$sys = get_sys_channel();
-			$sysid = $sys['channel_id'];
+			// in case somebody turned off public access to sys channel content using permissions
+			// make that content unsearchable by ensuring the owner uid can't match
+			$sys_id = perm_is_allowed($sys['channel_id'], $observer_hash, 'view_stream') ? $sys['channel_id'] : 0;
+
+			$r = null;
 			if(local_channel()) {
 				$r = q("SELECT item.parent AS item_id from item
 					WHERE uid = %d
-					and parent_mid = '%s'
+					AND parent_mid = '%s'
 					$item_normal_update
 					$simple_update
-					limit 1",
+					LIMIT 1",
 					intval(local_channel()),
 					dbesc($target_item['parent_mid'])
 				);
 			}
-			if($r === null) {
-				// in case somebody turned off public access to sys channel content using permissions
-				// make that content unsearchable by ensuring the owner_xchan can't match
 
-				if(! perm_is_allowed($sysid,$observer_hash,'view_stream'))
-					$sysid = 0;
-
+			if(! $r) {
 				$r = q("SELECT item.id as item_id from item
 					WHERE ((parent_mid = '%s'
-					AND (((( item.allow_cid = ''  AND item.allow_gid = '' AND item.deny_cid  = ''
+					AND (((( item.allow_cid = '' AND item.allow_gid = '' AND item.deny_cid  = ''
 					AND item.deny_gid  = '' AND item_private = 0 )
 					and uid in ( " . stream_perms_api_uids(($observer_hash) ? (PERMS_NETWORK|PERMS_PUBLIC) : PERMS_PUBLIC) . " ))
 					OR uid = %d ))) OR
@@ -317,14 +310,14 @@ class Display extends \Zotlabs\Web\Controller {
 					$item_normal
 					limit 1",
 					dbesc($target_item['parent_mid']),
-					intval($sysid),
+					intval($sys_id),
 					dbesc($target_item['parent_mid'])
 				);
 			}
 		}
 
 		else {
-			$r = array();
+			$r = [];
 		}
 
 		if($r) {
@@ -332,7 +325,7 @@ class Display extends \Zotlabs\Web\Controller {
 			if($parents_str) {
 				$items = q("SELECT item.*, item.id AS item_id
 					FROM item
-					WHERE parent in ( %s ) $item_normal ",
+					WHERE parent in ( %s ) $sql_extra $item_normal ",
 					dbesc($parents_str)
 				);
 				xchan_query($items);

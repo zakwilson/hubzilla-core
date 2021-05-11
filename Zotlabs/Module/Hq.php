@@ -41,7 +41,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		if(argc() > 1 && argv(1) !== 'load') {
 			$item_hash = argv(1);
 		}
-	
+
 		if($_REQUEST['mid'])
 			$item_hash = $_REQUEST['mid'];
 
@@ -49,9 +49,9 @@ class Hq extends \Zotlabs\Web\Controller {
 		$item_normal_update = item_normal_update();
 
 		if(! $item_hash) {
-			$r = q("SELECT mid FROM item 
+			$r = q("SELECT mid FROM item
 				WHERE uid = %d $item_normal
-				AND mid = parent_mid 
+				AND mid = parent_mid
 				ORDER BY created DESC LIMIT 1",
 				intval(local_channel())
 			);
@@ -71,10 +71,10 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			$target_item = null;
 
-			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where mid like '%s' limit 1",
-				dbesc($item_hash . '%')
+			$r = q("select id, uid, mid, parent_mid, thr_parent, verb, item_type, item_deleted, item_blocked from item where mid = '%s' limit 1",
+				dbesc($item_hash)
 			);
-		
+
 			if($r) {
 				$target_item = $r[0];
 			}
@@ -83,7 +83,7 @@ class Hq extends \Zotlabs\Web\Controller {
 			if($target_item['item_blocked'] == ITEM_MODERATED) {
 				goaway(z_root() . '/moderate/' . $target_item['id']);
 			}
-		
+
 			$simple_update = '';
 			if($update && $_SESSION['loadtime'])
 				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
@@ -94,16 +94,16 @@ class Hq extends \Zotlabs\Web\Controller {
 			$sys_item = false;
 
 		}
-	
+
 		if(! $update) {
 			$channel = \App::get_channel();
 
 			$channel_acl = [
-				'allow_cid' => $channel['channel_allow_cid'], 
-				'allow_gid' => $channel['channel_allow_gid'], 
-				'deny_cid'  => $channel['channel_deny_cid'], 
+				'allow_cid' => $channel['channel_allow_cid'],
+				'allow_gid' => $channel['channel_allow_gid'],
+				'deny_cid'  => $channel['channel_deny_cid'],
 				'deny_gid'  => $channel['channel_deny_gid']
-			]; 
+			];
 
 			$x = [
 				'is_owner'            => true,
@@ -143,7 +143,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				// if the target item is not a post (eg a like) we want to address its thread parent
 				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
 				$mid = $target_item['mid'];
-				// if we got a decoded hash we must encode it again before handing to javascript 
+				// if we got a decoded hash we must encode it again before handing to javascript
 				if($decoded)
 					$mid = 'b64.' . base64url_encode($mid);
 			}
@@ -154,7 +154,7 @@ class Hq extends \Zotlabs\Web\Controller {
 			$o .= '<div id="live-hq"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . local_channel()
 				. "; var netargs = '?f='; var profile_page = " . \App::$pager['page'] . ";</script>\r\n";
-	
+
 			\App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),[
 				'$baseurl' => z_root(),
 				'$pgtype'  => 'hq',
@@ -241,14 +241,14 @@ class Hq extends \Zotlabs\Web\Controller {
 		else {
 			$r = [];
 		}
-	
+
 		if($r) {
-			$items = q("SELECT item.*, item.id AS item_id 
+			$items = q("SELECT item.*, item.id AS item_id
 				FROM item
 				WHERE parent = '%s' $item_normal ",
 				dbesc($r[0]['item_id'])
 			);
-	
+
 			xchan_query($items,true,(($sys_item) ? local_channel() : 0));
 			$items = fetch_post_tags($items,true);
 			$items = conv_sort($items,'created');

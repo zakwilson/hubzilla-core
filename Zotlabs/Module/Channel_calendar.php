@@ -116,7 +116,7 @@ class Channel_calendar extends Controller {
 
 		if ($results) {
 			// Set permissions based on tag replacements
-			set_linkified_perms($results, $str_contact_allow, $str_group_allow, $uid, false, $private);
+			set_linkified_perms($results, $str_contact_allow, $str_group_allow, $uid, $private);
 
 			foreach ($results as $result) {
 				$success = $result['success'];

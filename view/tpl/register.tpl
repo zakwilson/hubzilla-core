@@ -5,13 +5,18 @@
 	<div class="section-content-wrapper">
 		<form action="register" method="post" id="register-form">
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
-			{{if $reg_is}}
+			{{if $now}}
+			<div class="section-content-danger-wrapper">
+				<div class="h3">{{$now}}</div>
+			</div>
+			{{/if}}
+			{{if $reg_is || $other_sites || $msg}}
 			<div class="section-content-warning-wrapper">
+				<div id="register-desc" class="descriptive-paragraph">{{$msg}}</div>
 				<div id="register-desc" class="descriptive-paragraph">{{$reg_is}}</div>
 				<div id="register-sites" class="descriptive-paragraph">{{$other_sites}}</div>
 			</div>
 			{{/if}}
-
 			{{if $registertext}}
 			<div class="section-content-info-wrapper">
 				<div id="register-text" class="descriptive-paragraph">{{$registertext}}</div>
@@ -19,43 +24,39 @@
 			{{/if}}
 
 			{{if $invitations}}
-			{{include file="field_input.tpl" field=$invite_code}}
+			<a id="zar014" href="javascript:;" style="display: inline-block;">{{$haveivc}}</a>
+			<div id="zar015" style="display: none;">
+				<div class="position-relative">
+					<div id="invite-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.5rem;"><div class="spinner s"></div></div>
+					{{include file="field_input.tpl" field=[$invite_code.0,$invite_code.1,"","",""]}}
+				</div>
+			</div>
 			{{/if}}
-
-			{{include file="field_input.tpl" field=$email}}
-
-			{{include file="field_password.tpl" field=$pass1}}
-
-			{{include file="field_password.tpl" field=$pass2}}
 
 			{{if $auto_create}}
-				{{if $default_role}}
-				<input type="hidden" name="permissions_role" value="{{$default_role}}" />
-				{{else}}
-				<div class="section-content-info-wrapper">
-					{{$help_role}}
-				</div>
-				{{include file="field_select_grouped.tpl" field=$role}}
-				{{/if}}
-
+			<div class="position-relative">
+				<div id="name-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.75rem;"><div class="spinner s"></div></div>
 				{{include file="field_input.tpl" field=$name}}
-				<div id="name-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
-
+			</div>
+			<div class="position-relative">
+				<div id="nick-hub" class="position-absolute" style="top: 2.3rem; right: 0.75rem;"><span class="text-muted">{{$nickhub}}</span></div>
+				<div id="nick-spinner" class="spinner-wrapper position-absolute" style="top: 2.5rem; right: 0.75rem;"><div class="spinner s"></div></div>
 				{{include file="field_input.tpl" field=$nickname}}
-				<div id="nick-spinner" class="spinner-wrapper"><div class="spinner m"></div></div>
+			</div>
 			{{/if}}
-
+			{{include file="field_input.tpl" field=$email}}
+			{{include file="field_password.tpl" field=$pass1}}
+			{{include file="field_password.tpl" field=$pass2}}
+			{{if $reg_is}}
+			{{include file="field_textarea.tpl" field=$register_msg}}
+			{{/if}}
 			{{if $enable_tos}}
 			{{include file="field_checkbox.tpl" field=$tos}}
 			{{else}}
 			<input type="hidden" name="tos" value="1" />
 			{{/if}}
-
-			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}">{{$submit}}</button>
+			<button class="btn btn-primary" type="submit" name="submit" id="newchannel-submit-button" value="{{$submit}}" {{$atform}}>{{$submit}}</button>
 			<div id="register-submit-end" class="register-field-end"></div>
 		</form>
-			<br />
-			<div class="descriptive-text">{{$verify_note}}</div>
-
 	</div>
 </div>

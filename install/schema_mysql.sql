@@ -1097,16 +1097,35 @@ CREATE TABLE IF NOT EXISTS `profile_check` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `register` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `hash` char(191) NOT NULL DEFAULT '',
-  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `uid` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `password` char(191) NOT NULL DEFAULT '',
-  `lang` char(16) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `hash` (`hash`),
-  KEY `created` (`created`),
-  KEY `uid` (`uid`)
+  `reg_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `reg_vital` int(10) unsigned NOT NULL DEFAULT 1,
+  `reg_flags` int(10) unsigned NOT NULL DEFAULT 0,
+  `reg_didx` char(1) NOT NULL DEFAULT '',
+  `reg_did2` char(191) NOT NULL DEFAULT '',
+  `reg_hash` char(191) NOT NULL DEFAULT '',
+  `reg_email` char(191) NOT NULL DEFAULT '',
+  `reg_created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `reg_startup` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `reg_expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `reg_byc` int(10) unsigned NOT NULL DEFAULT 0 ,
+  `reg_uid` int(10) unsigned NOT NULL DEFAULT 0 ,
+  `reg_atip` char(191) NOT NULL DEFAULT '',
+  `reg_pass` char(191) NOT NULL DEFAULT '',
+  `reg_lang` char(16) NOT NULL DEFAULT '',
+  `reg_stuff` text NOT NULL,
+  PRIMARY KEY (`reg_id`),
+  KEY `ix_reg_vital` (`reg_vital`),
+  KEY `ix_reg_flags` (`reg_flags`),
+  KEY `ix_reg_didx` (`reg_didx`),
+  KEY `ix_reg_did2` (`reg_did2`),
+  KEY `ix_reg_hash` (`reg_hash`),
+  KEY `ix_reg_email` (`reg_email`),
+  KEY `ix_reg_created` (`reg_created`),
+  KEY `ix_reg_startup` (`reg_startup`),
+  KEY `ix_reg_expires` (`reg_expires`),
+  KEY `ix_reg_byc` (`reg_byc`),
+  KEY `ix_reg_uid` (`reg_uid`),
+  KEY `ix_reg_atip` (`reg_atip`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `session` (

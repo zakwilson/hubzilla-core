@@ -1,0 +1,1 @@
+Schließe dich uns auf {{$projectname}} an!

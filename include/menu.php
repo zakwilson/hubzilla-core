@@ -16,7 +16,7 @@ function menu_fetch($name,$uid,$observer_xchan) {
 	);
 	if($r) {
 		$x = q("select * from menu_item where mitem_menu_id = %d and mitem_channel_id = %d
-			$sql_options 
+			$sql_options
 			order by mitem_order asc, mitem_desc asc",
 			intval($r[0]['menu_id']),
 			intval($uid)
@@ -26,7 +26,7 @@ function menu_fetch($name,$uid,$observer_xchan) {
 
 	return null;
 }
-	
+
 function menu_element($channel,$menu) {
 
 	$arr = array();
@@ -67,7 +67,7 @@ function menu_element($channel,$menu) {
 			}
 			$arr['items'][] = $entry;
 		}
-	}	
+	}
 
 	return $arr;
 }
@@ -111,7 +111,7 @@ function menu_render($menu, $class='', $edit = false, $var = array()) {
 		$menu['items'][$x]['mitem_desc'] = zidify_links(smilies(bbcode($menu['items'][$x]['mitem_desc'])));
 	}
 
-	$wrap = (! x($var, 'wrap') || $var['wrap'] === 'none' ? false : true);
+	$wrap = ((isset($var['wrap']) && $var['wrap'] === 'none') ? false : true);
 
 	$ret = replace_macros(get_markup_template('usermenu.tpl'),array(
 		'$menu' => $menu['menu'],
@@ -168,7 +168,7 @@ function menu_create($arr) {
 
 	$t = datetime_convert();
 
-	$r = q("insert into menu ( menu_name, menu_desc, menu_flags, menu_channel_id, menu_created, menu_edited ) 
+	$r = q("insert into menu ( menu_name, menu_desc, menu_flags, menu_channel_id, menu_created, menu_edited )
 		values( '%s', '%s', %d, %d, '%s', '%s' )",
  		dbesc($menu_name),
 		dbesc($menu_desc),
@@ -260,7 +260,7 @@ function menu_edit($arr) {
 	}
 
 	return q("update menu set menu_name = '%s', menu_desc = '%s', menu_flags = %d, menu_edited = '%s'
-		where menu_id = %d and menu_channel_id = %d", 
+		where menu_id = %d and menu_channel_id = %d",
  		dbesc($menu_name),
 		dbesc($menu_desc),
 		intval($menu_flags),
@@ -295,7 +295,7 @@ function menu_delete_id($menu_id, $uid) {
 			intval($menu_id),
 			intval($uid)
 		);
-	}			
+	}
 	return false;
 }
 
@@ -304,11 +304,11 @@ function menu_add_item($menu_id, $uid, $arr) {
 
 	$mitem_link = escape_tags($arr['mitem_link']);
 	$mitem_desc = escape_tags($arr['mitem_desc']);
-	$mitem_order = intval($arr['mitem_order']);	
+	$mitem_order = intval($arr['mitem_order']);
 	$mitem_flags = intval($arr['mitem_flags']);
 
 	if(local_channel() == $uid) {
-		$channel = App::get_channel();	
+		$channel = App::get_channel();
 	}
 
 	$acl = new Zotlabs\Access\AccessList($channel);
@@ -344,12 +344,12 @@ function menu_edit_item($menu_id, $uid, $arr) {
 	$mitem_id = intval($arr['mitem_id']);
 	$mitem_link = escape_tags($arr['mitem_link']);
 	$mitem_desc = escape_tags($arr['mitem_desc']);
-	$mitem_order = intval($arr['mitem_order']);	
+	$mitem_order = intval($arr['mitem_order']);
 	$mitem_flags = intval($arr['mitem_flags']);
 
 
 	if(local_channel() == $uid) {
-		$channel = App::get_channel();	
+		$channel = App::get_channel();
 	}
 
 	$acl = new Zotlabs\Access\AccessList($channel);
@@ -403,7 +403,7 @@ function menu_sync_packet($uid,$observer_hash,$menu_id,$delete = false) {
 	$r = menu_fetch_id($menu_id,$uid);
 	$c = channelx_by_n($uid);
 	if($r) {
-		$m = menu_fetch($r['menu_name'],$uid,$observer_hash);	
+		$m = menu_fetch($r['menu_name'],$uid,$observer_hash);
 		if($m) {
 			if($delete)
 				$m['menu_delete'] = 1;

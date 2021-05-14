@@ -1516,8 +1516,11 @@ function profile_load($nickname, $profile = '') {
 
 	if($p[0]['keywords']) {
 		$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$p[0]['keywords']);
-		if(strlen($keywords) && $can_view_profile)
+		if(strlen($keywords) && $can_view_profile) {
+			if(! isset(App::$page['htmlhead']))
+				App::$page['htmlhead'] = '';
 			App::$page['htmlhead'] .= '<meta name="keywords" content="' . htmlentities($keywords,ENT_COMPAT,'UTF-8') . '" />' . "\r\n" ;
+		}
 	}
 
 	App::$profile = $p[0];

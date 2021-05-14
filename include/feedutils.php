@@ -296,7 +296,7 @@ function get_atom_author($feed, $item) {
 
 	$rawauthor = $item->get_item_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
 
-	if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+	if($rawauthor && isset($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 		$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		foreach($base as $link) {
 			if(!x($author, 'author_photo') || ! $author['author_photo']) {
@@ -336,7 +336,7 @@ function get_atom_author($feed, $item) {
 
 	if(! x($author,'author_link') || ! x($author,'author_photo')) {
 		$rawauthor = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
-		if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+		if($rawauthor && isset($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 			$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 			foreach($base as $link) {
 				if($link['attribs']['']['rel'] === 'alternate' && (! $author['author_link'])) {
@@ -372,16 +372,16 @@ function get_atom_author($feed, $item) {
 	if(! $rawowner)
 		$rawowner = $item->get_item_tags(NAMESPACE_ZOT, 'owner');
 
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data'])
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data']))
 		$author['owner_name'] = unxmlify($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data']);
-	elseif($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data'])
+	elseif(isset($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data']))
 		$author['owner_name'] = unxmlify($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data']);
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data'])
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data']))
 		$author['owner_link'] = unxmlify($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data']);
-	elseif($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data'])
+	elseif(isset($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data']))
 		$author['owner_link'] = unxmlify($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data']);
 
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 		$base = $rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 
 		foreach($base as $link) {

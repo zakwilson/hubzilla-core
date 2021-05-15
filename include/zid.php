@@ -89,20 +89,24 @@ function zid($s, $address = '') {
 }
 
 
-function strip_query_param($s,$param) {
-	return preg_replace('/[\?&]' . $param . '=(.*?)(&|$)/ism','$2',$s);
+function strip_query_param($s, $param) {
+	return drop_query_params($s, [$param]);
+	//return preg_replace('/[\?&]' . $param . '=(.*?)(&|$)/ism','$2',$s);
 }
 
 function strip_zids($s) {
-	return preg_replace('/[\?&]zid=(.*?)(&|$)/ism','$2',$s);
+	return drop_query_params($s, ['zid']);
+	//return preg_replace('/[\?&]zid=(.*?)(&|$)/ism','$2',$s);
 }
 
 function strip_owt($s) {
-	return preg_replace('/[\?&]owt=(.*?)(&|$)/ism','$2',$s);
+	return drop_query_params($s, ['owt']);
+	//return preg_replace('/[\?&]owt=(.*?)(&|$)/ism','$2',$s);
 }
 
 function strip_zats($s) {
-	return preg_replace('/[\?&]zat=(.*?)(&|$)/ism','$2',$s);
+	return drop_query_params($s, ['zat']);
+	//return preg_replace('/[\?&]zat=(.*?)(&|$)/ism','$2',$s);
 }
 
 function strip_escaped_zids($s) {
@@ -112,12 +116,51 @@ function strip_escaped_zids($s) {
 
 
 function clean_query_string($s = '') {
+
+	$x = (($s) ? $s : \App::$query_string);
+	return drop_query_params($x, ['zid', 'owt', 'zat', 'sort', 'f']);
+
+/*
 	$x = strip_zids(($s) ? $s : \App::$query_string);
 	$x = strip_owt($x);
 	$x = strip_zats($x);
 	$x = strip_query_param($x,'sort');
 
 	return strip_query_param($x,'f');
+*/
+}
+
+/**
+ * @brief Remove parameters from query string.
+ *
+ * @param string $s
+ *   The query string
+ * @param array $p
+ *   $p array of parameters to remove
+ * @return string
+ */
+
+function drop_query_params($s, $p) {
+		$parsed = parse_url($s);
+
+		$query = '';
+		$query_args = null;
+		if(isset($parsed['query'])) {
+			parse_str($parsed['query'], $query_args);
+		}
+
+		if(is_array($query_args)) {
+			foreach($query_args as $k => $v) {
+				if(in_array($k, $p))
+					continue;
+				$query .= (($query) ? '&' : '') . urlencode($k) . '=' . urlencode($v);
+			}
+		}
+
+		if($query)
+			$parsed['query'] = $query;
+
+		return unparse_url($parsed);
 }
 
 

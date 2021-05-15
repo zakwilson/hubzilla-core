@@ -876,7 +876,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			$prevlink = '';
 			$nextlink = '';
 
-			if($_GET['order'] === 'posted')
+			if(isset($_GET['order']) && $_GET['order'] === 'posted')
 				$order = 'ASC';
 			else
 				$order = 'DESC';
@@ -901,8 +901,8 @@ class Photos extends \Zotlabs\Web\Controller {
 					}
 				}
 
-				$prevlink = z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/image/' . $prvnxt[$prv]['hash'] . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
-				$nextlink = z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/image/' . $prvnxt[$nxt]['hash'] . (($_GET['order'] === 'posted') ? '?f=&order=posted' : '');
+				$prevlink = z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/image/' . $prvnxt[$prv]['hash'] . (($order == 'ASC') ? '?f=&order=posted' : '');
+				$nextlink = z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/image/' . $prvnxt[$nxt]['hash'] . (($order == 'ASC') ? '?f=&order=posted' : '');
 	 		}
 
 
@@ -987,7 +987,7 @@ class Photos extends \Zotlabs\Web\Controller {
 				}
 
 				$tags = array();
-				if($link_item['term']) {
+				if(x($link_item, 'term')) {
 					$cnt = 0;
 					foreach($link_item['term'] as $t) {
 						$tags[$cnt] = array(0 => format_term_for_display($t));

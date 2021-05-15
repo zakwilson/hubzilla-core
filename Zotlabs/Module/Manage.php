@@ -5,18 +5,18 @@ namespace Zotlabs\Module;
 class Manage extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		if((! get_account_id()) || ($_SESSION['delegate'])) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
 
 		nav_set_selected('Channel Manager', 'settings/manage');
-	
+
 		require_once('include/security.php');
-	
+
 		$change_channel = ((argc() > 1) ? intval(argv(1)) : 0);
-	
+
 		if((argc() > 2) && (argv(2) === 'default')) {
 			$r = q("select channel_id from channel where channel_id = %d and channel_account_id = %d limit 1",
 				intval($change_channel),
@@ -31,7 +31,7 @@ class Manage extends \Zotlabs\Web\Controller {
 			goaway(z_root() . '/manage');
 		}
 
-	
+
 		if($change_channel) {
 
 			$r = change_channel($change_channel);
@@ -45,29 +45,29 @@ class Manage extends \Zotlabs\Web\Controller {
 			}
 			goaway(z_root());
 		}
-	
+
 		$channels = null;
-	
+
 		$r = q("select channel.*, xchan.* from channel left join xchan on channel.channel_hash = xchan.xchan_hash where channel.channel_account_id = %d and channel_removed = 0 order by channel_name ",
 			intval(get_account_id())
 		);
-	
+
 		$account = \App::get_account();
-	
+
 		if($r && count($r)) {
 			$channels = $r;
 			for($x = 0; $x < count($channels); $x ++) {
 				$channels[$x]['link'] = 'manage/' . intval($channels[$x]['channel_id']);
-				$channels[$x]['default'] = (($channels[$x]['channel_id'] == $account['account_default_channel']) ? "1" : ''); 
+				$channels[$x]['default'] = (($channels[$x]['channel_id'] == $account['account_default_channel']) ? "1" : '');
 				$channels[$x]['default_links'] = '1';
-	
-	
+
+
 				$c = q("SELECT id, item_wall FROM item
 					WHERE item_unseen = 1 and uid = %d " . item_normal(),
 					intval($channels[$x]['channel_id'])
 				);
-	
-				if($c) {	
+
+				if($c) {
 					foreach ($c as $it) {
 						if(intval($it['item_wall']))
 							$channels[$x]['home'] ++;
@@ -75,25 +75,25 @@ class Manage extends \Zotlabs\Web\Controller {
 							$channels[$x]['network'] ++;
 					}
 				}
-	
-	
+
+
 				$intr = q("SELECT COUNT(abook.abook_id) AS total FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ",
 					intval($channels[$x]['channel_id'])
 				);
-	
+
 				if($intr)
 					$channels[$x]['intros'] = intval($intr[0]['total']);
-	
-	
+
+
 				$mails = q("SELECT count(id) as total from mail WHERE channel_id = %d AND mail_seen = 0 and from_xchan != '%s' ",
 					intval($channels[$x]['channel_id']),
 					dbesc($channels[$x]['channel_hash'])
 				);
-	
+
 				if($mails)
 					$channels[$x]['mail'] = intval($mails[0]['total']);
-			
-	
+
+
 				$events = q("SELECT etype, dtstart, adjust FROM event
 					WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
 					ORDER BY dtstart ASC ",
@@ -101,7 +101,7 @@ class Manage extends \Zotlabs\Web\Controller {
 					dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now + 7 days')),
 					dbesc(datetime_convert('UTC', date_default_timezone_get(), 'now - 1 days'))
 				);
-	
+
 				if($events) {
 					$channels[$x]['all_events'] = count($events);
 
@@ -128,7 +128,7 @@ class Manage extends \Zotlabs\Web\Controller {
 				}
 			}
 
-		}			
+		}
 
 		$r = q("select count(channel_id) as total from channel where channel_account_id = %d and channel_removed = 0",
 			intval(get_account_id())
@@ -140,23 +140,23 @@ class Manage extends \Zotlabs\Web\Controller {
 		else {
 			$channel_usage_message = '';
 	 	}
-	
-	
+
+
 		$create = array( 'new_channel', t('Create a new channel'), t('Create New'));
-	
+
 		$delegates = null;
 
 		if(local_channel()) {
-			$delegates = q("select * from abook left join xchan on abook_xchan = xchan_hash where 
+			$delegates = q("select * from abook left join xchan on abook_xchan = xchan_hash where
 				abook_channel = %d and abook_xchan in ( select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'delegate' and v = '1' )",
 				intval(local_channel()),
 				intval(local_channel())
 			);
 		}
-	
+
 		if($delegates) {
 			for($x = 0; $x < count($delegates); $x ++) {
-				$delegates[$x]['link'] = 'magic?f=&bdest=' . bin2hex($delegates[$x]['xchan_url']) 
+				$delegates[$x]['link'] = 'magic?f=&bdest=' . bin2hex($delegates[$x]['xchan_url'] . '?zid=' . get_my_address() . '&delegate=' . urlencode($delegates[$x]['xchan_addr']))
 				. '&delegate=' . urlencode($delegates[$x]['xchan_addr']);
 				$delegates[$x]['channel_name'] = $delegates[$x]['xchan_name'];
 				$delegates[$x]['delegate'] = 1;
@@ -165,7 +165,7 @@ class Manage extends \Zotlabs\Web\Controller {
 		else {
 			$delegates = null;
 		}
-	
+
 		$o = replace_macros(get_markup_template('channels.tpl'), array(
 			'$header'           => t('Channel Manager'),
 			'$msg_selected'     => t('Current Channel'),
@@ -181,9 +181,9 @@ class Manage extends \Zotlabs\Web\Controller {
 			'$delegated_desc'   => t('Delegated Channel'),
 			'$delegates'        => $delegates
 		));
-	
+
 		return $o;
-	
+
 	}
-	
+
 }

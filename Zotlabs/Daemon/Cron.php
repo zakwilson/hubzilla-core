@@ -55,6 +55,7 @@ class Cron {
 			db_utcnow()
 		);
 
+		require_once('include/account.php');
 		remove_expired_registrations();
 
 		$interval = get_config('system', 'delivery_interval', 3);

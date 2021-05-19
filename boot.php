@@ -2420,10 +2420,10 @@ function construct_page() {
 
 	// security headers - see https://securityheaders.io
 
-	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
+	if(App::get_scheme() === 'https' && isset(App::$config['system']['transport_security_header']) && intval(App::$config['system']['transport_security_header']) == 1)
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(isset(App::$config['system']['content_security_policy'])) {
+	if(isset(App::$config['system']['content_security_policy']) && intval(App::$config['system']['content_security_policy']) == 1) {
 		$cspsettings = [
 			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],

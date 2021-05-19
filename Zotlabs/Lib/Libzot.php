@@ -2924,7 +2924,19 @@ class Libzot {
 		];
 
 		$ret['channel_role']  = get_pconfig($e['channel_id'], 'system', 'permissions_role', 'custom');
-		$ret['protocols']     = ['zot6', 'zot'];
+
+		$hookinfo = [
+			'channel_id' => $id,
+			'protocols' => ['zot6', 'zot']
+		];
+		/**
+		 * @hooks channel_protocols
+		 *   * \e int \b channel_id
+		 *   * \e array \b protocols
+		 */
+		call_hooks('channel_protocols', $hookinfo);
+
+		$ret['protocols']     = $hookinfo['protocols'];
 		$ret['searchable']    = $searchable;
 		$ret['adult_content'] = $adult_channel;
 		$ret['public_forum']  = $public_forum;

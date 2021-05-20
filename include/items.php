@@ -726,7 +726,8 @@ function get_item_elements($x,$allow_code = false) {
 	$arr['term']         = decode_tags($x['tags']);
 	$arr['iconfig']      = decode_item_meta($x['meta']);
 
-	$arr['item_private'] = ((array_key_exists('flags',$x) && is_array($x['flags']) && in_array('private',$x['flags'])) ? 1 : 0);
+	$private_state = (($x['allow_cid'] && !$x['allow_gid']) ? 2 : 1);
+	$arr['item_private'] = ((array_key_exists('flags',$x) && is_array($x['flags']) && in_array('private',$x['flags'])) ? $private_state : 0);
 
 	$arr['item_flags'] = 0;
 

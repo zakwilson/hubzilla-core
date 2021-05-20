@@ -1118,9 +1118,9 @@ function discover_by_url($url, $arr = null) {
 /**
  * @brief
  *
- * @param string $webbie
+ * @param string $webbie (TODO: explain)
  * @param string $protocol (optional) default empty
- * @return boolean
+ * @return boolean|string (TODO: explain)
  */
 function discover_by_webbie($webbie, $protocol = '') {
 

@@ -972,7 +972,7 @@ function import_author_xchan($x) {
 	if($y)
 		return $y;
 
-	if(!$y && !isset($x['network']) || $x['network'] === 'zot') {
+	if(!isset($x['network']) || $x['network'] === 'zot') {
 		$y = import_author_zot($x);
 	}
 
@@ -982,8 +982,9 @@ function import_author_xchan($x) {
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
 				dbesc($x['url'])
 			);
-			if(! $r)
-				discover_by_webbie($x['url'], 'zot6');
+			// TODO: fix dupplicate with line 960
+			if(!$r)
+				discover_by_webbie($x['url'], 'zot6'); //TODO use the return of discover_by_webbie
 		}
 
 		return $y;

@@ -983,10 +983,12 @@ function import_author_xchan($x) {
 			);
 			// TODO: fix dupplicate with line 960
 			if(!$r)
-				discover_by_webbie($x['url'], 'zot6'); //TODO use the return of discover_by_webbie
+				discover_by_webbie($x['url'], 'zot6');
 		}
 
-		return $y;
+		if($y)
+			return $y;
+
 	}
 
 	// perform zot6 discovery

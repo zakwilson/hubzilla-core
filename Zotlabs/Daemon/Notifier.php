@@ -53,7 +53,6 @@ require_once('include/bbcode.php');
  *	event			(in events.php)
  *	expire			(in items.php)
  *	like			(in like.php, poke.php)
- *	mail			(in message.php)
  *	tag			(in photos.php, poke.php, tagger.php)
  *	tgroup			(in items.php)
  *	wall-new		(in photos.php, item.php)
@@ -71,7 +70,6 @@ require_once('include/bbcode.php');
  *       expire                 channel_id
  *       relay			item_id (item was relayed to owner, we will deliver it as owner)
  *       single_activity        item_id (deliver to a singleton network from the appropriate clone)
- *       single_mail            mail_id (deliver to a singleton network from the appropriate clone)
  *       location               channel_id
  *       request                channel_id            xchan_hash             message_id
  *       rating                 xlink_id
@@ -101,37 +99,12 @@ class Notifier {
 		$deliveries = [];
 
 		$request        = false;
-		$mail           = false;
 		$location       = false;
 		$recipients     = [];
 		$normal_mode    = true;
 		$packet_type    = 'undefined';
 
-		if ($cmd === 'mail' || $cmd === 'single_mail') {
-			$normal_mode = false;
-			$mail        = true;
-			$private     = true;
-			$message     = q("SELECT * FROM mail WHERE id = %d LIMIT 1",
-				intval($item_id)
-			);
-			if (!$message) {
-				return;
-			}
-			xchan_mail_query($message[0]);
-			$uid          = $message[0]['channel_id'];
-			$recipients[] = $message[0]['from_xchan']; // include clones
-			$recipients[] = $message[0]['to_xchan'];
-			$item         = $message[0];
-			$encoded_item = encode_mail($item);
-
-			$s = q("select * from channel where channel_id = %d limit 1",
-				intval($uid)
-			);
-			if ($s)
-				$channel = $s[0];
-
-		}
-		elseif ($cmd === 'request') {
+		if ($cmd === 'request') {
 			$channel_id         = $item_id;
 			$xchan              = $argv[3];
 			$request_message_id = $argv[4];
@@ -521,8 +494,7 @@ class Notifier {
 			'relay_to_owner' => $relay_to_owner,
 			'uplink'         => $uplink,
 			'cmd'            => $cmd,
-			'mail'           => $mail,
-			'single'         => (($cmd === 'single_mail' || $cmd === 'single_activity') ? true : false),
+			'single'         => (($cmd === 'single_activity') ? true : false),
 			'location'       => $location,
 			'request'        => $request,
 			'normal_mode'    => $normal_mode,
@@ -666,8 +638,7 @@ class Notifier {
 					'relay_to_owner' => $relay_to_owner,
 					'uplink'         => $uplink,
 					'cmd'            => $cmd,
-					'mail'           => $mail,
-					'single'         => (($cmd === 'single_mail' || $cmd === 'single_activity') ? true : false),
+					'single'         => (($cmd === 'single_activity') ? true : false),
 					'location'       => $location,
 					'request'        => $request,
 					'normal_mode'    => $normal_mode,
@@ -695,7 +666,7 @@ class Notifier {
 			// will invoke a delivery to those connections which are connected to just that
 			// hub instance.
 
-			if ($cmd === 'single_mail' || $cmd === 'single_activity') {
+			if ($cmd === 'single_activity') {
 				continue;
 			}
 
@@ -782,23 +753,6 @@ class Notifier {
 					else {
 						$packet = zot_build_packet($channel, 'notify', $env, (($private) ? $hub['hubloc_sitekey'] : null), $hub['site_crypto'], $hash);
 
-					}
-				}
-
-
-				// remove this after most hubs have updated to version 5.0
-				if (stripos($hub['site_project'], 'hubzilla') !== false && version_compare($hub['site_version'], '4.7.3', '<=')) {
-					if ($encoded_item['type'] === 'mail') {
-						$encoded_item['from']['network']  = 'zot';
-						$encoded_item['from']['guid_sig'] = str_replace('sha256.', '', $encoded_item['from']['guid_sig']);
-					}
-					else {
-						$encoded_item['owner']['network']  = 'zot';
-						$encoded_item['owner']['guid_sig'] = str_replace('sha256.', '', $encoded_item['owner']['guid_sig']);
-						if (strpos($encoded_item['author']['url'], z_root()) === 0) {
-							$encoded_item['author']['network']  = 'zot';
-							$encoded_item['author']['guid_sig'] = str_replace('sha256.', '', $encoded_item['author']['guid_sig']);
-						}
 					}
 				}
 

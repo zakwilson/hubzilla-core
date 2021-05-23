@@ -758,35 +758,17 @@ function get_item_elements($x,$allow_code = false) {
 	// and not enough info to be able to look you up from your hash - which is the only thing stored with the post.
 
 	$xchan_hash = import_author_xchan($x['author']);
-	if($xchan_hash) {
+	if($xchan_hash)
 		$arr['author_xchan'] = $xchan_hash;
+	else
+		return [];
+
+	$xchan_hash = import_author_xchan($x['owner']);
+	if($xchan_hash) {
+		$arr['owner_xchan'] = $xchan_hash;
 	}
 	else {
 		return [];
-	}
-
-	// save a potentially expensive lookup if author == owner
-	$legacy_sig = false;
-	$owner_hash = '';
-	if(isset($x['owner']['id']) && isset($x['owner']['key']) && isset($x['owner']['network']) && $x['owner']['network'] === 'zot6') {
-		$owner_hash = Libzot::make_xchan_hash($x['owner']['id'], $x['owner']['key']);
-	}
-	else {
-		$owner_hash = make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']);
-		$legacy_sig = true;
-	}
-
-	if($arr['author_xchan'] === $owner_hash) {
-		$arr['owner_xchan'] = $arr['author_xchan'];
-	}
-	else {
-		$xchan_hash = import_author_xchan($x['owner']);
-		if($xchan_hash) {
-			$arr['owner_xchan'] = $xchan_hash;
-		}
-		else {
-			return [];
-		}
 	}
 
 	// Check signature on the body text received.
@@ -800,20 +782,12 @@ function get_item_elements($x,$allow_code = false) {
 		// check the supplied signature against the supplied content.
 		// Note that we will purify the content which could change it.
 
-		$r = q("select xchan_pubkey, xchan_network from xchan where xchan_hash = '%s' limit 1",
+		$r = q("SELECT xchan_pubkey FROM xchan WHERE xchan_hash = '%s' LIMIT 1",
 			dbesc($arr['author_xchan'])
 		);
-		if($r) {
-			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
-				$item_verified = false;
-				if($legacy_sig) {
-					$item_verified = Crypto::verify($x['body'], base64url_decode($arr['sig']), $r[0]['xchan_pubkey']);
-				}
-				else {
-					$item_verified = Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey']);
-				}
-
-				if($item_verified) {
+		if ($r) {
+			if ($r[0]['xchan_pubkey']) {
+				if (Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -1325,16 +1299,13 @@ function translate_scope($scope) {
  * @return array an associative array
  */
 function encode_item_xchan($xchan) {
-	$ret = array();
+	$ret = [];
 
 	$ret['name']     = $xchan['xchan_name'];
 	$ret['address']  = $xchan['xchan_addr'];
 	$ret['url']      = $xchan['xchan_url'];
 	$ret['network']  = $xchan['xchan_network'];
 	$ret['photo']    = [ 'mimetype' => $xchan['xchan_photo_mimetype'], 'src' => $xchan['xchan_photo_m'] ];
-	$ret['guid']     = $xchan['xchan_guid'];
-	$ret['guid_sig'] = $xchan['xchan_guid_sig'];
-
 	$ret['id']       = $xchan['xchan_guid'];
 	$ret['id_sig']   = $xchan['xchan_guid_sig'];
 	$ret['key']      = $xchan['xchan_pubkey'];

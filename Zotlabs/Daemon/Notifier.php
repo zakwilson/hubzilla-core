@@ -15,14 +15,7 @@ require_once('include/bbcode.php');
 
 
 /*
- * This file was at one time responsible for doing all deliveries, but this caused
- * big problems on shared hosting systems, where the process might get killed by the
- * hosting provider and nothing would get delivered.
- * It now only delivers one message under certain cases, and invokes a queued
- * delivery mechanism (include/deliver.php) to deliver individual contacts at
- * controlled intervals.
- * This has a much better chance of surviving random processes getting killed
- * by the hosting provider.
+ * Notifier - message dispatch and preparation for delivery
  *
  * The basic flow is:
  *   Identify the type of message
@@ -104,23 +97,7 @@ class Notifier {
 		$normal_mode    = true;
 		$packet_type    = 'undefined';
 
-		if ($cmd === 'request') {
-			$channel_id         = $item_id;
-			$xchan              = $argv[3];
-			$request_message_id = $argv[4];
-
-			$s = q("select * from channel where channel_id = %d limit 1",
-				intval($channel_id)
-			);
-			if ($s)
-				$channel = $s[0];
-
-			$private      = true;
-			$recipients[] = $xchan;
-			$packet_type  = 'request';
-			$normal_mode  = false;
-		}
-		elseif ($cmd === 'keychange') {
+		if ($cmd === 'keychange') {
 			$channel = channelx_by_n($item_id);
 
 			$r       = q("select abook_xchan from abook where abook_channel = %d",
@@ -496,7 +473,6 @@ class Notifier {
 			'cmd'            => $cmd,
 			'single'         => (($cmd === 'single_activity') ? true : false),
 			'location'       => $location,
-			'request'        => $request,
 			'normal_mode'    => $normal_mode,
 			'packet_type'    => $packet_type,
 			'walltowall'     => $walltowall,
@@ -640,7 +616,6 @@ class Notifier {
 					'cmd'            => $cmd,
 					'single'         => (($cmd === 'single_activity') ? true : false),
 					'location'       => $location,
-					'request'        => $request,
 					'normal_mode'    => $normal_mode,
 					'packet_type'    => $packet_type,
 					'walltowall'     => $walltowall,
@@ -691,15 +666,10 @@ class Notifier {
 					$packet = zot_build_packet($channel, $packet_type, (($packet_recips) ? $packet_recips : null));
 				}
 			}
+
 			if ($packet_type === 'keychange' && $hub['hubloc_network'] === 'zot') {
 				$pmsg   = get_pconfig($channel['channel_id'], 'system', 'keychange');
 				$packet = zot_build_packet($channel, $packet_type, (($packet_recips) ? $packet_recips : null));
-			}
-			elseif ($packet_type === 'request' && $hub['hubloc_network'] === 'zot') {
-				$env    = (($hub_env && $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']]) ? $hub_env[$hub['hubloc_host'] . $hub['hubloc_sitekey']] : '');
-				$packet = zot_build_packet($channel, $packet_type, $env, $hub['hubloc_sitekey'], $hub['site_crypto'],
-					$hash, ['message_id' => $request_message_id]
-				);
 			}
 
 			if ($packet) {

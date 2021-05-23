@@ -1907,7 +1907,7 @@ function process_delivery($sender, $arr, $deliveries, $relay, $public = false, $
 
 				if((! $relay) && (! $request) && (! $local_public)
 					&& perm_is_allowed($channel['channel_id'],$sender['hash'],'send_stream')) {
-					Zotlabs\Daemon\Master::Summon(array('Notifier', 'request', $channel['channel_id'], $sender['hash'], $arr['parent_mid']));
+					//Zotlabs\Daemon\Master::Summon(array('Notifier', 'request', $channel['channel_id'], $sender['hash'], $arr['parent_mid']));
 				}
 				continue;
 			}

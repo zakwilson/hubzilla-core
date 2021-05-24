@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 5.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-23 21:08+0200\n"
-"PO-Revision-Date: 2021-05-23 23:32+0200\n"
+"PO-Revision-Date: 2021-05-24 17:06+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -1476,7 +1476,7 @@ msgstr "Polubienia"
 
 #: ../../Zotlabs/Module/Profiles.php:473 ../../Zotlabs/Module/Profiles.php:775
 msgid "Dislikes"
-msgstr "Dezaprobaty"
+msgstr "Niepolubienia"
 
 #: ../../Zotlabs/Module/Profiles.php:477 ../../Zotlabs/Module/Profiles.php:782
 msgid "Work/Employment"
@@ -4089,7 +4089,7 @@ msgstr "Proszę wprowadzić adres URL linku:"
 #: ../../extend/addon/hubzilla-addons/mail/Mod_Mail.php:173
 #: ../../extend/addon/hubzilla-addons/mail/Mod_Mail.php:316
 msgid "Encrypt text"
-msgstr "Szyfruj tekst"
+msgstr "Zaszyfruj tekst"
 
 #: ../../Zotlabs/Module/Chat.php:238
 msgid "New Chatroom"
@@ -4590,7 +4590,7 @@ msgstr "Polubienia"
 #: ../../Zotlabs/Module/Photos.php:1113 ../../include/conversation.php:653
 msgctxt "title"
 msgid "Dislikes"
-msgstr "Dezaprobaty"
+msgstr "Niepolubienia"
 
 #: ../../Zotlabs/Module/Photos.php:1114 ../../Zotlabs/Widget/Pinned.php:77
 #: ../../include/conversation.php:654
@@ -6752,7 +6752,7 @@ msgstr ""
 #: ../../Zotlabs/Module/Notifications.php:63
 #: ../../Zotlabs/Lib/ThreadItem.php:484
 msgid "Mark all seen"
-msgstr "Oznacz wszystkie jako oglądnięte"
+msgstr "Oznacz wszystko jako oglądnięte"
 
 #: ../../Zotlabs/Module/Home.php:87 ../../Zotlabs/Module/Home.php:95
 #: ../../Zotlabs/Module/Invite.php:225 ../../Zotlabs/Module/Invite.php:494
@@ -8937,7 +8937,7 @@ msgstr "Dodaj pliki"
 
 #: ../../Zotlabs/Storage/Browser.php:369 ../../Zotlabs/Lib/ThreadItem.php:175
 msgid "Admin Delete"
-msgstr "Usuń przez administratora"
+msgstr "Usunięte przez administratora"
 
 #: ../../Zotlabs/Storage/Browser.php:381
 msgid "parent"
@@ -9325,11 +9325,11 @@ msgstr "Brak nazwy pokoju"
 
 #: ../../Zotlabs/Lib/Chatroom.php:34
 msgid "Duplicate room name"
-msgstr "Zduplikowana nazwa pokoju"
+msgstr "Powielona nazwa pokoju"
 
 #: ../../Zotlabs/Lib/Chatroom.php:84 ../../Zotlabs/Lib/Chatroom.php:92
 msgid "Invalid room specifier."
-msgstr "Nieprawidłowy specyfikator sali."
+msgstr "Nieprawidłowy specyfikator pokoju."
 
 #: ../../Zotlabs/Lib/Chatroom.php:124
 msgid "Room not found."
@@ -9441,7 +9441,7 @@ msgstr "polubił"
 
 #: ../../Zotlabs/Lib/Enotify.php:160
 msgid "disliked"
-msgstr "dezaprobował"
+msgstr "nie polubił"
 
 #: ../../Zotlabs/Lib/Enotify.php:165
 msgid "voted on"
@@ -9842,7 +9842,7 @@ msgstr[2] "%d komentarzy"
 #: ../../Zotlabs/Lib/ThreadItem.php:360
 #, php-format
 msgid "%d unseen"
-msgstr "%d niezobaczone"
+msgstr "%d nie zobaczone"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:413
 msgid "to"
@@ -9884,7 +9884,7 @@ msgstr "Uczestnicz"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:445 ../../Zotlabs/Widget/Pinned.php:141
 msgid "Attendance Options"
-msgstr "Opcje obecności"
+msgstr "Opcje uczestnictwa"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:446 ../../include/text.php:1924
 msgid "Vote"
@@ -9900,12 +9900,12 @@ msgstr "Przejdź do poprzedniego komentarza"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:471 ../../Zotlabs/Widget/Pinned.php:154
 msgid "Pinned post"
-msgstr "Wpisy przypięte"
+msgstr "Wpis przypięty"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:473 ../../Zotlabs/Widget/Pinned.php:155
 #: ../../include/js_strings.php:39
 msgid "Unpin from the top"
-msgstr "Odepnij z góry"
+msgstr "Odepnij od góry"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:473 ../../include/js_strings.php:38
 msgid "Pin to the top"
@@ -9932,17 +9932,17 @@ msgstr "%s pokaż wszystko"
 #: ../../Zotlabs/Lib/ThreadItem.php:828 ../../include/conversation.php:1451
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:200
 msgid "Bold"
-msgstr "Gruby"
+msgstr "Grube"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:829 ../../include/conversation.php:1452
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:201
 msgid "Italic"
-msgstr "Pochyły"
+msgstr "Pochyłe"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:830 ../../include/conversation.php:1453
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:202
 msgid "Underline"
-msgstr "Podkreślony"
+msgstr "Podkreślone"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:831 ../../include/conversation.php:1454
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:203
@@ -9961,7 +9961,7 @@ msgstr "Obraz"
 #: ../../Zotlabs/Lib/ThreadItem.php:834 ../../include/conversation.php:1456
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:205
 msgid "Attach/Upload file"
-msgstr "Załącz / prześlij plik"
+msgstr "Załącz/Prześlij plik"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:835
 msgid "Insert Link"
@@ -10131,8 +10131,8 @@ msgstr ""
 msgid ""
 "This is your default setting for who can view your file storage and photos"
 msgstr ""
-"Jest to domyślne ustawienie określające, kto może wyświetlać miejsce na pliki "
-"i zdjęcia"
+"Jest to domyślne ustawienie określające, kto może przeglądać magazyn plików i "
+"zdjęć"
 
 #: ../../Zotlabs/Lib/PermissionDescription.php:154
 msgid "This is your default setting for the audience of your webpages"
@@ -11235,7 +11235,7 @@ msgstr "Polubień:"
 
 #: ../../include/channel.php:1875
 msgid "Dislikes:"
-msgstr "Dezaprobat:"
+msgstr "Niepolubień:"
 
 #: ../../include/channel.php:1877
 msgid "Contact information and Social Networks:"
@@ -11267,15 +11267,15 @@ msgstr "Miłość/Romans:"
 
 #: ../../include/channel.php:1891
 msgid "Work/employment:"
-msgstr "Praca/zatrudnienie:"
+msgstr "Praca/Zatrudnienie:"
 
 #: ../../include/channel.php:1893
 msgid "School/education:"
-msgstr "Szkoła/edukacja:"
+msgstr "Szkoła/Wykształcenie:"
 
 #: ../../include/channel.php:1916
 msgid "Like this thing"
-msgstr "Jak ta rzecz"
+msgstr "Podobne do tej rzeczy"
 
 #: ../../include/features.php:86
 msgid "Start calendar week on Monday"

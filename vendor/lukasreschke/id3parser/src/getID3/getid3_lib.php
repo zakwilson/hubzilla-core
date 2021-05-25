@@ -671,21 +671,21 @@ class getid3_lib
 		while ($offset < $stringlength) {
 			if ((ord($string[$offset]) | 0x07) == 0xF7) {
 				// 11110bbb 10bbbbbb 10bbbbbb 10bbbbbb
-				$charval = ((ord($string{($offset + 0)}) & 0x07) << 18) &
-						   ((ord($string{($offset + 1)}) & 0x3F) << 12) &
-						   ((ord($string{($offset + 2)}) & 0x3F) <<  6) &
-							(ord($string{($offset + 3)}) & 0x3F);
+				$charval = ((ord($string[($offset + 0)]) & 0x07) << 18) &
+						   ((ord($string[($offset + 1)]) & 0x3F) << 12) &
+						   ((ord($string[($offset + 2)]) & 0x3F) <<  6) &
+							(ord($string[($offset + 3)]) & 0x3F);
 				$offset += 4;
 			} elseif ((ord($string[$offset]) | 0x0F) == 0xEF) {
 				// 1110bbbb 10bbbbbb 10bbbbbb
-				$charval = ((ord($string{($offset + 0)}) & 0x0F) << 12) &
-						   ((ord($string{($offset + 1)}) & 0x3F) <<  6) &
-							(ord($string{($offset + 2)}) & 0x3F);
+				$charval = ((ord($string[($offset + 0)]) & 0x0F) << 12) &
+						   ((ord($string[($offset + 1)]) & 0x3F) <<  6) &
+							(ord($string[($offset + 2)]) & 0x3F);
 				$offset += 3;
 			} elseif ((ord($string[$offset]) | 0x1F) == 0xDF) {
 				// 110bbbbb 10bbbbbb
-				$charval = ((ord($string{($offset + 0)}) & 0x1F) <<  6) &
-							(ord($string{($offset + 1)}) & 0x3F);
+				$charval = ((ord($string[($offset + 0)]) & 0x1F) <<  6) &
+							(ord($string[($offset + 1)]) & 0x3F);
 				$offset += 2;
 			} elseif ((ord($string[$offset]) | 0x7F) == 0x7F) {
 				// 0bbbbbbb
@@ -892,16 +892,16 @@ class getid3_lib
 						$charval = $char_ord_val;
 					} elseif ((($char_ord_val & 0xF0) >> 4) == 0x0F  &&  $i+3 < $strlen) {
 						$charval  = (($char_ord_val & 0x07) << 18);
-						$charval += ((ord($string{++$i}) & 0x3F) << 12);
-						$charval += ((ord($string{++$i}) & 0x3F) << 6);
-						$charval +=  (ord($string{++$i}) & 0x3F);
+						$charval += ((ord($string[++$i]) & 0x3F) << 12);
+						$charval += ((ord($string[++$i]) & 0x3F) << 6);
+						$charval +=  (ord($string[++$i]) & 0x3F);
 					} elseif ((($char_ord_val & 0xE0) >> 5) == 0x07  &&  $i+2 < $strlen) {
 						$charval  = (($char_ord_val & 0x0F) << 12);
-						$charval += ((ord($string{++$i}) & 0x3F) << 6);
-						$charval +=  (ord($string{++$i}) & 0x3F);
+						$charval += ((ord($string[++$i]) & 0x3F) << 6);
+						$charval +=  (ord($string[++$i]) & 0x3F);
 					} elseif ((($char_ord_val & 0xC0) >> 6) == 0x03  &&  $i+1 < $strlen) {
 						$charval  = (($char_ord_val & 0x1F) << 6);
-						$charval += (ord($string{++$i}) & 0x3F);
+						$charval += (ord($string[++$i]) & 0x3F);
 					}
 					if (($charval >= 32) && ($charval <= 127)) {
 						$HTMLstring .= htmlentities(chr($charval));

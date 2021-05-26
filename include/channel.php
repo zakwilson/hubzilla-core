@@ -275,7 +275,7 @@ function create_identity($arr) {
 			'channel_guid'        => $guid,
 			'channel_guid_sig'    => $sig,
 			'channel_hash'        => $hash,
-			'channel_portable_id' => $zhash,
+			'channel_portable_id' => '',
 			'channel_prvkey'      => $key['prvkey'],
 			'channel_pubkey'      => $key['pubkey'],
 			'channel_pageflags'   => intval($pageflags),
@@ -340,26 +340,6 @@ function create_identity($arr) {
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => $zsig,
-			'hubloc_hash'     => $zhash,
-			'hubloc_id_url'   => channel_url($ret['channel']),
-			'hubloc_addr'     => channel_reddress($ret['channel']),
-			'hubloc_primary'  => intval($primary),
-			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$ret['channel']['channel_prvkey'])),
-			'hubloc_host'     => App::get_hostname(),
-			'hubloc_callback' => z_root() . '/post',
-			'hubloc_sitekey'  => get_config('system','pubkey'),
-			'hubloc_network'  => 'zot',
-			'hubloc_updated'  => datetime_convert()
-		]
-	);
-	if(! $r)
-		logger('Unable to store hub location (zot)');
-
-	$r = hubloc_store_lowlevel(
-		[
-			'hubloc_guid'     => $guid,
 			'hubloc_guid_sig' => $sig,
 			'hubloc_hash'     => $hash,
 			'hubloc_id_url'   => channel_url($ret['channel']),
@@ -380,30 +360,6 @@ function create_identity($arr) {
 
 
 	$newuid = $ret['channel']['channel_id'];
-
-	$r = xchan_store_lowlevel(
-		[
-			'xchan_hash'        => $zhash,
-			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => $zsig,
-			'xchan_pubkey'      => $key['pubkey'],
-			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
-			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
-			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
-			'xchan_photo_s'     => z_root() . "/photo/profile/s/{$newuid}",
-			'xchan_addr'        => channel_reddress($ret['channel']),
-			'xchan_url'         => z_root() . '/channel/' . $ret['channel']['channel_address'],
-			'xchan_follow'      => z_root() . '/follow?f=&url=%s',
-			'xchan_connurl'     => z_root() . '/poco/' . $ret['channel']['channel_address'],
-			'xchan_name'        => $ret['channel']['channel_name'],
-			'xchan_network'     => 'zot',
-			'xchan_photo_date'  => datetime_convert(),
-			'xchan_name_date'   => datetime_convert(),
-			'xchan_system'      => $system
-		]
-	);
-	if(! $r)
-		logger('Unable to store xchan (zot)');
 
 	$r = xchan_store_lowlevel(
 		[
@@ -979,12 +935,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 
 				translate_abook_perms_outbound($ret['abook'][$x]);
 
-			}
-
-			// pick up the zot xchan and hublocs also
-
-			if($ret['channel']['channel_portable_id'] && ! $zot_compat) {
-				$xchans[] = $ret['channel']['channel_portable_id'];
 			}
 
 			stringify_array_elms($xchans);
@@ -2936,9 +2886,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 	logger('deleting hublocs',LOGGER_DEBUG);
 
-	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE (hubloc_hash = '%s' OR hubloc_hash = '%s') AND hubloc_url = '%s' ",
+	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s' AND hubloc_url = '%s' ",
 		dbesc($channel['channel_hash']),
-		dbesc($channel['channel_portable_id']),
 		dbesc(z_root())
 	);
 
@@ -2953,9 +2902,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$hublocs = count($r);
 
 	if(! $hublocs) {
-		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
-			dbesc($channel['channel_hash']),
-			dbesc($channel['channel_portable_id'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s'",
+			dbesc($channel['channel_hash'])
 		);
 	}
 

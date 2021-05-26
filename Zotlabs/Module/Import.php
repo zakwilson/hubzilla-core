@@ -212,35 +212,8 @@ class Import extends \Zotlabs\Web\Controller {
 		// create new hubloc for the new channel at this site
 
 		if(array_key_exists('channel',$data)) {
-			if($channel['channel_portable_id']) {
-				$r = hubloc_store_lowlevel(
-					[
-						'hubloc_guid'     => $channel['channel_guid'],
-						'hubloc_guid_sig' => $channel['channel_guid_sig'],
-						'hubloc_hash'     => $channel['channel_portable_id'],
-						'hubloc_addr'     => channel_reddress($channel),
-						'hubloc_network'  => 'zot',
-						'hubloc_primary'  => (($seize) ? 1 : 0),
-						'hubloc_url'      => z_root(),
-						'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$channel['channel_prvkey'])),
-						'hubloc_host'     => \App::get_hostname(),
-						'hubloc_callback' => z_root() . '/post',
-						'hubloc_sitekey'  => get_config('system','pubkey'),
-						'hubloc_updated'  => datetime_convert(),
-						'hubloc_id_url'   => channel_url($channel)
-					]
-				);
 
-				// reset the original primary hubloc if it is being seized
-				if($seize) {
-					$r = q("update hubloc set hubloc_primary = 0 where hubloc_primary = 1 and hubloc_hash = '%s' and hubloc_url != '%s' ",
-						dbesc($channel['channel_portable_id']),
-						dbesc(z_root())
-					);
-				}
-			}
-
-			// create a new zot6 hubloc if we have got a channel_portable_id
+			// create a new zot6 hubloc
 
 			$r = hubloc_store_lowlevel(
 				[
@@ -285,28 +258,6 @@ class Import extends \Zotlabs\Web\Controller {
 				dbesc($channel['channel_portable_id'])
 			);
 
-			if($channel['channel_portable_id']) {
-				$r = xchan_store_lowlevel(
-					[
-						'xchan_hash'           => $channel['channel_portable_id'],
-						'xchan_guid'           => $channel['channel_guid'],
-						'xchan_guid_sig'       => $channel['channel_guid_sig'],
-						'xchan_pubkey'         => $channel['channel_pubkey'],
-						'xchan_photo_l'        => z_root() . "/photo/profile/l/" . $channel['channel_id'],
-						'xchan_photo_m'        => z_root() . "/photo/profile/m/" . $channel['channel_id'],
-						'xchan_photo_s'        => z_root() . "/photo/profile/s/" . $channel['channel_id'],
-						'xchan_addr'           => channel_reddress($channel),
-						'xchan_url'            => z_root() . '/channel/' . $channel['channel_address'],
-						'xchan_connurl'        => z_root() . '/poco/' . $channel['channel_address'],
-						'xchan_follow'         => z_root() . '/follow?f=&url=%s',
-						'xchan_name'           => $channel['channel_name'],
-						'xchan_network'        => 'zot',
-						'xchan_photo_date'     => datetime_convert(),
-						'xchan_name_date'      => datetime_convert()
-					]
-				);
-			}
-
 			$r = xchan_store_lowlevel(
 				[
 					'xchan_hash'           => $channel['channel_hash'],
@@ -335,14 +286,6 @@ class Import extends \Zotlabs\Web\Controller {
 		$xchans = $data['xchan'];
 		if($xchans) {
 			foreach($xchans as $xchan) {
-
-				if($xchan['xchan_network'] === 'zot') {
-					$hash = make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_guid_sig']);
-					if($hash !== $xchan['xchan_hash']) {
-						logger('forged xchan: ' . print_r($xchan,true));
-						continue;
-					}
-				}
 
 				if($xchan['xchan_network'] === 'zot6') {
 					$zhash = Libzot::make_xchan_hash($xchan['xchan_guid'],$xchan['xchan_pubkey']);

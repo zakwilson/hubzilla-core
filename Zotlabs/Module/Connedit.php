@@ -478,16 +478,11 @@ class Connedit extends Controller {
 			}
 
 			if($cmd === 'refresh') {
-				if($orig_record[0]['xchan_network'] === 'zot') {
-					if(! zot_refresh($orig_record[0],App::get_channel()))
-						notice( t('Refresh failed - channel is currently unavailable.') );
-				}
-				elseif($orig_record[0]['xchan_network'] === 'zot6') {
+				if($orig_record[0]['xchan_network'] === 'zot6') {
 					if(! Libzot::refresh($orig_record[0],App::get_channel()))
 						notice( t('Refresh failed - channel is currently unavailable.') );
 				}
 				else {
-
 					// if you are on a different network we'll force a refresh of the connection basic info
 					Master::Summon(array('Notifier','permission_update',$contact_id));
 				}
@@ -667,7 +662,7 @@ class Connedit extends Controller {
 			);
 
 
-			if(in_array($contact['xchan_network'], ['zot6', 'zot'])) {
+			if($contact['xchan_network'] === 'zot6') {
 				$tools['fetchvc'] = [
 					'label' => t('Fetch Vcard'),
 					'url'    => z_root() . '/connedit/' . $contact['abook_id'] . '/fetchvc',
@@ -841,7 +836,7 @@ class Connedit extends Controller {
 				$locstr = unpunify($contact['xchan_url']);
 
 			$clone_warn = '';
-			$clonable = (in_array($contact['xchan_network'],['zot', 'zot6', 'rss']) ? true : false);
+			$clonable = (in_array($contact['xchan_network'], ['zot6', 'rss']);
 			if(! $clonable) {
 				$clone_warn = '<strong>';
 				$clone_warn .= ((intval($contact['abook_not_here']))

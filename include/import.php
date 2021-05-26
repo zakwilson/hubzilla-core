@@ -778,7 +778,7 @@ function sync_items($channel, $items, $relocate = null) {
         // to avoid confusing with cloned channels
         $size = count($items);
         for($i = 0; $i < $size; $i++) {
-                if(($items[$i]['owner']['network'] != 'zot') && ($items[$i]['owner']['network'] != 'zot6')) {
+                if($items[$i]['owner']['network'] !== 'zot6') {
                         $r = q("SELECT * FROM abook WHERE abook_channel = %d
                                         AND abook_xchan = ( SELECT xchan_hash FROM xchan WHERE xchan_guid = '%s' LIMIT 1 )
                                         AND abook_not_here = 0 AND abook_ignored = 0 AND abook_blocked = 0",

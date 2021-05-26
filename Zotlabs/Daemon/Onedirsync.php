@@ -72,7 +72,7 @@ class Onedirsync {
 		// we might have to pull this out some day, but for now update_directory_entry()
 		// runs zot_finger() and is kind of zot specific
 
-		if ($h && !in_array($h['hubloc_network'], ['zot6', 'zot']))
+		if ($h && $h['hubloc_network'] !== 'zot6')
 			return;
 
 		Libzotdir::update_directory_entry($r[0]);

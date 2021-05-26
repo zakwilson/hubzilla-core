@@ -75,16 +75,12 @@ class Onepoll {
 			return;
 		}
 
-		if (!in_array($contact['xchan_network'], ['zot', 'zot6']))
+		if ($contact['xchan_network'] !== 'zot6'))
 			return;
 
 		// update permissions
 
-		if ($contact['xchan_network'] === 'zot6')
-			$x = Libzot::refresh($contact, $importer);
-
-		if ($contact['xchan_network'] === 'zot')
-			$x = zot_refresh($contact, $importer);
+		$x = Libzot::refresh($contact, $importer);
 
 		$responded = false;
 		$updated   = datetime_convert();
@@ -125,7 +121,7 @@ class Onepoll {
 		if (!$can_send_stream)
 			$fetch_feed = false;
 
-		if ($fetch_feed && $contact['xchan_network'] !== 'zot') {
+		if ($fetch_feed) {
 
 			$max = intval(get_config('system', 'max_imported_posts', 30));
 

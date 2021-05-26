@@ -345,7 +345,7 @@ class Libzotdir {
 
 		logger('local_dir_update: uid: ' . $uid, LOGGER_DEBUG);
 
-		$p = q("select channel.channel_hash, channel_address, channel_timezone, channel_portable_id, profile.* from profile left join channel on channel_id = uid where uid = %d and is_default = 1",
+		$p = q("select channel.channel_hash, channel_address, channel_timezone, profile.* from profile left join channel on channel_id = uid where uid = %d and is_default = 1",
 			intval($uid)
 		);
 
@@ -354,7 +354,6 @@ class Libzotdir {
 
 		if ($p) {
 			$hash = $p[0]['channel_hash'];
-			$legacy_hash = $p[0]['channel_portable_id'];
 
 			$profile['description'] = $p[0]['pdesc'];
 			$profile['birthday']    = $p[0]['dob'];
@@ -393,10 +392,9 @@ class Libzotdir {
 			);
 
 			if(intval($r[0]['xchan_hidden']) != $hidden) {
-				$r = q("update xchan set xchan_hidden = %d where xchan_hash in ('%s', '%s')",
+				$r = q("update xchan set xchan_hidden = %d where xchan_hash = '%s'",
 					intval($hidden),
-					dbesc($hash),
-					dbesc($legacy_hash)
+					dbesc($hash)
 				);
 			}
 
@@ -410,13 +408,11 @@ class Libzotdir {
 			}
 			else {
 				// they may have made it private
-				q("delete from xprof where xprof_hash in ('%s', '%s')",
-					dbesc($hash),
-					dbesc($legacy_hash)
+				q("delete from xprof where xprof_hash = '%s'",
+					dbesc($hash)
 				);
-				q("delete from xtag where xtag_hash in ('%s', '%s')",
-					dbesc($hash),
-					dbesc($legacy_hash)
+				q("delete from xtag where xtag_hash = '%s'",
+					dbesc($hash)
 				);
 			}
 

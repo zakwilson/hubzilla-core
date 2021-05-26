@@ -681,12 +681,11 @@ function get_security_ids($channel_id, $ob_hash) {
 	];
 
 	if ($channel_id) {
-		$ch = q("select channel_hash, channel_portable_id from channel where channel_id = %d",
+		$ch = q("select channel_hash from channel where channel_id = %d",
 			intval($channel_id)
 		);
 		if ($ch) {
 			$ret['channel_id'][] = $ch[0]['channel_hash'];
-			$ret['channel_id'][] = $ch[0]['channel_portable_id'];
 		}
 	}
 

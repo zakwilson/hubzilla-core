@@ -27,7 +27,7 @@ function api_login(&$a){
 		if ($server->verifyResourceRequest($request)) {
 			$token = $server->getAccessTokenData($request);
 			$uid = $token['user_id'];
-			$r = q("SELECT * FROM channel WHERE channel_id = %d LIMIT 1", 
+			$r = q("SELECT * FROM channel WHERE channel_id = %d LIMIT 1",
 				intval($uid)
 			);
 			if (count($r)) {
@@ -41,7 +41,7 @@ function api_login(&$a){
 			$_SESSION['uid'] = $record['channel_id'];
 			$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
 
-			$x = q("select * from account where account_id = %d LIMIT 1", 
+			$x = q("select * from account where account_id = %d LIMIT 1",
 				intval($record['channel_account_id'])
 			);
 			if ($x) {
@@ -102,9 +102,6 @@ function api_login(&$a){
 					);
 					if($r) {
 						$c = channelx_by_hash($r[0]['hubloc_hash']);
-						if (! $c) {
-							$c = channelx_by_portid($r[0]['hubloc_hash']);
-						}
 						if($c) {
 							$a = q("select * from account where account_id = %d limit 1",
 								intval($c['channel_account_id'])
@@ -116,7 +113,7 @@ function api_login(&$a){
 						}
 					}
 
-					if($record) {					
+					if($record) {
 						$verified = \Zotlabs\Web\HTTPSig::verify('',$record['channel']['channel_pubkey']);
 						if(! ($verified && $verified['header_signed'] && $verified['header_valid'])) {
 							$record = null;

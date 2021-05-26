@@ -253,9 +253,8 @@ class Import extends \Zotlabs\Web\Controller {
 
 			// replace any existing xchan we may have on this site if we're seizing control
 
-			$r = q("delete from xchan where ( xchan_hash = '%s' or xchan_hash = '%s' ) ",
-				dbesc($channel['channel_hash']),
-				dbesc($channel['channel_portable_id'])
+			$r = q("delete from xchan where xchan_hash = '%s'",
+				dbesc($channel['channel_hash'])
 			);
 
 			$r = xchan_store_lowlevel(

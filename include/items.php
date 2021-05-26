@@ -909,71 +909,37 @@ function get_item_elements($x,$allow_code = false) {
 
 function import_author_xchan($x) {
 
-	$arr = [
-			'xchan' => $x,
-			'xchan_hash' => ''
+	if (!$x) {
+		return false;
+	}
+
+	$y = false;
+
+	if (!array_key_exists('network', $x) || $x['network'] === 'zot6') {
+		$y = Libzot::import_author_zot($x);
+	}
+
+	// if we were told that it's a zot connection, don't probe/import anything else
+	if (array_key_exists('network', $x) && $x['network'] === 'zot6')
+		return $y;
+
+	$hookinfo = [
+		'xchan' => $x,
+		'xchan_hash' => ''
 	];
+
 	/**
 	 * @hooks import_author_xchan
 	 *   Called when looking up an author of a post by xchan_hash to ensure they have an xchan record on our site.
 	 *   * \e array \b xchan
 	 *   * \e string \b xchan_hash - Thre returned value
 	 */
-	call_hooks('import_author_xchan', $arr);
-	if($arr['xchan_hash']) {
-		return $arr['xchan_hash'];
+	call_hooks('import_author_xchan', $hookinfo);
+	if($hookinfo['xchan_hash']) {
+		return $hookinfo['xchan_hash'];
 	}
 
-	$y = false;
-
-	if((isset($x['id']) && isset($x['key'])) && (!isset($x['network']) || $x['network'] === 'zot6')) {
-		$y = Libzot::import_author_zot($x);
-	}
-
-	if(!$y && isset($x['url']) && isset($x['network']) && $x['network'] === 'zot6') {
-		$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
-			dbesc($x['url'])
-		);
-		if($r)
-			$y = $r[0]['xchan_hash'];
-		else
-			$y = discover_by_webbie($x['url'], 'zot6');
-	}
-
-	// if we were told that it's a zot6 connection, don't probe/import anything else
-
-	if($y)
-		return $y;
-
-	if(!isset($x['network']) || $x['network'] === 'zot') {
-		$y = import_author_zot($x);
-	}
-
-	if(isset($x['network']) || $x['network'] === 'zot') {
-		if($x['url']) {
-			// check if we already have the zot6 xchan of this xchan_url. if not import it.
-			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
-				dbesc($x['url'])
-			);
-			// TODO: fix dupplicate with line 960
-			if(!$r)
-				discover_by_webbie($x['url'], 'zot6');
-		}
-
-		if($y)
-			return $y;
-
-	}
-
-	// perform zot6 discovery
-	if($x['url']) {
-		$y = discover_by_webbie($x['url'], 'zot6');
- 		if($y) {
-			return $y;
-		}
-	}
-
-	if($x['network'] === 'rss') {
+	if(!$y && array_key_exists('network', $x) && $x['network'] === 'rss') {
 		$y = import_author_rss($x);
 	}
 

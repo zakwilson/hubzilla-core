@@ -2664,9 +2664,9 @@ class Libzot {
 		// we may only end up with one; which results in posts with no author name or photo and are a bit
 		// of a hassle to repair. If either or both are missing, do a full discovery probe.
 
-		//if (!array_key_exists('id', $x)) {
-			//return import_author_activitypub($x);
-		//}
+		if(!isset($x['id']) && !isset($x['key']) && !isset($x['id_sig'])) {
+			return false;
+		}
 
 		$hash = self::make_xchan_hash($x['id'], $x['key']);
 

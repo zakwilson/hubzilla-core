@@ -2927,7 +2927,7 @@ class Libzot {
 
 		$hookinfo = [
 			'channel_id' => $id,
-			'protocols' => ['zot6', 'zot']
+			'protocols' => ['zot6']
 		];
 		/**
 		 * @hooks channel_protocols
@@ -3228,11 +3228,6 @@ class Libzot {
 
 		foreach ($arr as $v) {
 			if ($v[$check] === 'zot6') {
-				return $v;
-			}
-		}
-		foreach ($arr as $v) {
-			if ($v[$check] === 'zot') {
 				return $v;
 			}
 		}

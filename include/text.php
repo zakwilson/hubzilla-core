@@ -2903,7 +2903,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s'",
+			$r = q("SELECT * FROM xchan WHERE xchan_addr = '%s' OR xchan_url = '%s' AND xchan_deleted = 0",
 				dbesc($newname),
 				dbesc($newname)
 			);
@@ -2929,18 +2929,18 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// select someone from this user's contacts by name
 
-			$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE xchan_name = '%s' AND abook_channel = %d ",
-					dbesc($newname),
-					intval($profile_uid)
+			$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+				WHERE xchan_name = '%s' AND abook_channel = %d AND xchan_deleted = 0",
+				dbesc($newname),
+				intval($profile_uid)
 			);
 
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash
-					WHERE hubloc_addr = '%s' ",
-						dbesc($newname)
+				$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON xchan_hash = hubloc_hash
+					WHERE hubloc_addr = '%s' AND xchan_deleted = 0 ",
+					dbesc($newname)
 				);
 			}
 
@@ -2950,10 +2950,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				// strip user-supplied wildcards before running a wildcard search
 				$newname = str_replace('%','',$newname);
 
-				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE xchan_addr like ('%s') AND abook_channel = %d ",
-						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
-						intval($profile_uid)
+				$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+					WHERE xchan_addr LIKE ('%s') AND abook_channel = %d AND xchan_deleted = 0",
+					dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
+					intval($profile_uid)
 				);
 			}
 

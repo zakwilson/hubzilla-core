@@ -3,7 +3,6 @@ namespace Zotlabs\Module;
 
 use Zotlabs\Lib\Libzot;
 
-require_once('include/zot.php');
 require_once('include/crypto.php');
 
 /* fix missing or damaged hublocs */

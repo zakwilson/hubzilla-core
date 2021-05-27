@@ -2,7 +2,6 @@
 
 namespace Zotlabs\Module;
 
-require_once('include/zot.php');
 require_once('include/channel.php');
 require_once('include/import.php');
 require_once('include/perm_upgrade.php');

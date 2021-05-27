@@ -16,7 +16,6 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Connect;
 use Zotlabs\Lib\Libsync;
 
-require_once('include/zot.php');
 require_once('include/crypto.php');
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');

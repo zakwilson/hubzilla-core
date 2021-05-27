@@ -306,7 +306,7 @@ function update_suggestions() {
 		$url = z_root() . '/sitelist';
 	}
 	else {
-		$directory = find_upstream_directory($dirmode);
+		$directory = Libzotdir::find_upstream_directory($dirmode);
 		$url = $directory['url'] . '/sitelist';
 	}
 	if(! $url)

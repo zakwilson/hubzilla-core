@@ -220,9 +220,6 @@ class Connedit extends Controller {
 				if($z)
 					$record = $z[0]['xlink_id'];
 			}
-			if($record) {
-				Master::Summon(array('Ratenotif','rating',$record));
-			}
 		}
 
 		if(($_REQUEST['pending']) && intval($orig_record[0]['abook_pending'])) {

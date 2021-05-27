@@ -8,6 +8,7 @@ use Zotlabs\Lib\ASCollection;
 use Zotlabs\Lib\Libzot;
 
 require_once('include/socgraph.php');
+require_once('include/feedutils.php');
 
 class Onepoll {
 

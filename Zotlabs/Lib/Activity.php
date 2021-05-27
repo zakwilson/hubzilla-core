@@ -11,6 +11,7 @@ use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
+require_once('include/items.php');
 
 class Activity {
 

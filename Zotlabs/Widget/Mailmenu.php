@@ -14,7 +14,7 @@ class Mailmenu {
 			'$combined' => array(
 				'label' => t('Combined View'),
 				'url' => z_root() . '/mail/combined',
-				'sel' => (argv(1) == 'combined'),
+				'sel' => (argv(1) == 'combined' || argc() == 1),
 			),
 			'$inbox' => array(
 				'label' => t('Inbox'),
@@ -26,11 +26,13 @@ class Mailmenu {
 				'url' => z_root() . '/mail/outbox',
 				'sel' => (argv(1) == 'outbox'),
 			),
+/*
 			'$new' => array(
 				'label' => t('New Message'),
 				'url' => z_root() . '/mail/new',
 				'sel'=> (argv(1) == 'new'),
 			)
+*/
 		));
 	}
 }

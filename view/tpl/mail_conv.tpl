@@ -24,9 +24,11 @@
 				<i class="fa fa-cog"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="mail-item-menu-{{$mail.id}}">
-				{{if $mail.can_recall}}
+				{{** if $mail.can_recall}}
 				<a class="dropdown-item" href="mail/{{$mail.mailbox}}/recall/{{$mail.id}}" title="{{$mail.recall}}" id="mail-conv-recall-icon-{{$mail.id}}"><i class="fa fa-fw fa-undo"></i>&nbsp;{{$mail.recall}}</a>
-				{{/if}}
+				{{/if **}}
+				<a class="dropdown-item" href="mail/{{$mail.id}}/download" id="mail-conv-download-icon-{{$mail.id}}"><i class="fa fa-fw fa-download"></i>&nbsp;{{$mail.download}}</a>
+				<div class="dropdown-divider"></div>
 				<a class="dropdown-item" href="#" onclick="dropItem('mail/{{$mail.mailbox}}/drop/{{$mail.id}}', '#mail-{{$mail.id}}'); return false;" title="{{$mail.delete}}" id="mail-conv-delete-icon-{{$mail.id}}"><i class="fa fa-fw fa-trash-o"></i>&nbsp;{{$mail.delete}}</a>
 				{{if $mail.can_recall}}
 				<div class="dropdown-divider"></div>

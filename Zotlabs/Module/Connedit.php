@@ -833,7 +833,7 @@ class Connedit extends Controller {
 				$locstr = unpunify($contact['xchan_url']);
 
 			$clone_warn = '';
-			$clonable = (in_array($contact['xchan_network'], ['zot6', 'rss']);
+			$clonable = in_array($contact['xchan_network'], ['zot6', 'rss']);
 			if(! $clonable) {
 				$clone_warn = '<strong>';
 				$clone_warn .= ((intval($contact['abook_not_here']))

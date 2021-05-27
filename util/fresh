@@ -62,7 +62,7 @@ function process_command($line) {
 		case 'help':
 			fresh_help();
 			break;
-
+/*
 		case 'finger':
 			if(argv(1)) {
 				$x = Zotlabs\Zot\Finger::run(argv(1),$channel);
@@ -70,7 +70,7 @@ function process_command($line) {
 					echo jindent($x);
 			}
 			break;
-
+*/
 		case 'login':
 			if(argv(1)) {
 				echo 'Password: ';
@@ -154,7 +154,7 @@ function fresh_help() {
 	if(argc() == 1) {
 		echo "help - this text\n";
 		echo "login email_address - login with email_address, prompts for password\n";
-		echo "finger channel_address - lookup channel_address remotely\n";
+//		echo "finger channel_address - lookup channel_address remotely\n";
 		echo "channel new_channel - change active channel to new_channel (nickname)\n";
 		echo "conn [id1] [id2...] - without args list connections, or report detail of connection id1 (etc.)\n";
 		echo "quit|exit - terminate fresh\n";

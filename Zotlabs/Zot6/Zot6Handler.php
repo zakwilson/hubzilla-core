@@ -72,7 +72,7 @@ class Zot6Handler implements IHandler {
 					dbesc($recip)
 				);
 				/// @FIXME $msgtype is undefined
-				$x = Libzot::refresh([ 'hubloc_id_url' => $hub['hubloc_id_url']], $r[0], $force));
+				$x = Libzot::refresh([ 'hubloc_id_url' => $hub['hubloc_id_url']], $r[0], $force);
 			}
 		}
 		else {

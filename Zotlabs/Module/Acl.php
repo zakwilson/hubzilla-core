@@ -438,7 +438,6 @@ class Acl extends \Zotlabs\Web\Controller {
 		}
 
 		if(! $url) {
-			require_once("include/dir_fns.php");
 			$directory = Libzotdir::find_upstream_directory($dirmode);
 			$url = $directory['url'] . '/dirsearch';
 		}

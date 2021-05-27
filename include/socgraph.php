@@ -5,8 +5,6 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libzotdir;
 use Zotlabs\Lib\Zotfinger;
 
-require_once('include/dir_fns.php');
-require_once('include/zot.php');
 
 /**
  * poco_load

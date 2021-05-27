@@ -8,7 +8,6 @@ use Zotlabs\Lib\Libzotdir;
 
 
 require_once('include/socgraph.php');
-require_once('include/dir_fns.php');
 require_once('include/bbcode.php');
 require_once('include/html2plain.php');
 

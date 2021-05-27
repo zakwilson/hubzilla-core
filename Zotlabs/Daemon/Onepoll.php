@@ -45,7 +45,7 @@ class Onepoll {
 			return;
 		}
 
-		$contact      = array_shift($contacts);
+		$contact      = $contacts[0];
 		$importer_uid = $contact['abook_channel'];
 
 		$r = q("SELECT * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
@@ -106,21 +106,20 @@ class Onepoll {
 			return;
 
 		$fetch_feed = true;
-		$x          = null;
 
 		// They haven't given us permission to see their stream
-
 		$can_view_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'their_perms', 'view_stream'));
 
-		if (!$can_view_stream)
+		if (!$can_view_stream) {
 			$fetch_feed = false;
+		}
 
 		// we haven't given them permission to send us their stream
-
 		$can_send_stream = intval(get_abconfig($importer_uid, $contact['abook_xchan'], 'my_perms', 'send_stream'));
 
-		if (!$can_send_stream)
+		if (!$can_send_stream) {
 			$fetch_feed = false;
+		}
 
 		if ($fetch_feed) {
 
@@ -129,8 +128,8 @@ class Onepoll {
 			if (intval($max)) {
 				$cl = get_xconfig($contact['abook_xchan'], 'activitypub', 'collections');
 
-				if (is_array($cl) && $cl) {
-					$url = ((array_key_exists('outbox', $cl)) ? $cl['outbox'] : '');
+				if (is_array($cl) && array_key_exists('outbox', $cl)) {
+					$url = $cl['outbox'];
 				}
 				else {
 					$url = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
@@ -160,8 +159,10 @@ class Onepoll {
 		// update the poco details for this connection
 		$r = q("SELECT xlink_id from xlink where xlink_xchan = '%s' and xlink_updated > %s - INTERVAL %s and xlink_static = 0 limit 1",
 			intval($contact['xchan_hash']),
-			db_utcnow(), db_quoteinterval('1 DAY')
+			db_utcnow(),
+			db_quoteinterval('1 DAY')
 		);
+
 		if (!$r) {
 			poco_load($contact['xchan_hash'], $contact['xchan_connurl']);
 		}

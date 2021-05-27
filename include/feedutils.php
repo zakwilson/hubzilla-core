@@ -14,6 +14,8 @@
  * @return string with an atom feed
  */
 
+require_once('include/items.php');
+
 function get_public_feed($channel, $params) {
 
 	if(! $params)

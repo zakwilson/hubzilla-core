@@ -1515,15 +1515,6 @@ function link_compare($a, $b) {
 	return false;
 }
 
-// Given an item array, convert the body element from bbcode to html and add smilie icons.
-// If attach is true, also add icons for item attachments
-
-
-function unobscure(&$item) {
-	return;
-}
-
-
 function theme_attachments(&$item) {
 
 	$s = '';

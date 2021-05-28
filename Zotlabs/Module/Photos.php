@@ -1178,10 +1178,8 @@ class Photos extends \Zotlabs\Web\Controller {
 						if($observer['xchan_hash'] === $item['author_xchan'] || $observer['xchan_hash'] === $item['owner_xchan'])
 							$drop = replace_macros(get_markup_template('photo_drop.tpl'), array('$id' => $item['id'], '$delete' => t('Delete')));
 
-
 						$name_e = $profile_name;
 						$title_e = $item['title'];
-						unobscure($item);
 						$body_e = prepare_text($item['body'],$item['mimetype']);
 
 						$comments .= replace_macros($template,array(

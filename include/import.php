@@ -1846,7 +1846,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['pages'] = array();
 				$pages = array();
 				foreach($r as $rr) {
-					unobscure($rr);
 
 					//$lockstate = (($rr['allow_cid'] || $rr['allow_gid'] || $rr['deny_cid'] || $rr['deny_gid']) ? 'lock' : 'unlock');
 
@@ -1894,8 +1893,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['layouts'] = array();
 
 				foreach($r as $rr) {
-					unobscure($rr);
-
 					$elements['layouts'][] = array(
 						'type'        => 'layout',
 						'description' => $rr['title'],		// description of the layout
@@ -1931,8 +1928,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['blocks'] = array();
 
 				foreach($r as $rr) {
-					unobscure($rr);
-
 					$elements['blocks'][] = array(
 						'type'      => 'block',
 						'title'     => $rr['title'],

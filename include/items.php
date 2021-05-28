@@ -2711,7 +2711,6 @@ function tag_deliver($uid, $item_id) {
 
 			// At this point we've determined that the person receiving this post was mentioned in it or it is a union.
 			// Now let's check if this mention was inside a reshare so we don't spam a forum
-			// If it's private we may have to unobscure it momentarily so that we can parse it.
 
 			$body = preg_replace('/\[share(.*?)\[\/share\]/','',$item['body']);
 

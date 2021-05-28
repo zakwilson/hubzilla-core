@@ -1523,15 +1523,6 @@ function unobscure(&$item) {
 	return;
 }
 
-function unobscure_mail(&$item) {
-	if(array_key_exists('mail_obscured',$item) && intval($item['mail_obscured'])) {
-		if($item['title'])
-			$item['title'] = base64url_decode(str_rot47($item['title']));
-		if($item['body'])
-			$item['body'] = base64url_decode(str_rot47($item['body']));
-	}
-}
-
 
 function theme_attachments(&$item) {
 
@@ -2554,27 +2545,6 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 		}
 	}
 }
-
-function xchan_mail_query(&$item) {
-	$arr = array();
-	$chans = null;
-	if($item) {
-		if($item['from_xchan'] && (! in_array("'" . dbesc($item['from_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['from_xchan']) . "'";
-		if($item['to_xchan'] && (! in_array("'" . dbesc($item['to_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['to_xchan']) . "'";
-	}
-
-	if(count($arr)) {
-		$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
-			where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
-	}
-	if($chans) {
-		$item['from'] = find_xchan_in_array($item['from_xchan'],$chans);
-		$item['to']  = find_xchan_in_array($item['to_xchan'],$chans);
-	}
-}
-
 
 function find_xchan_in_array($xchan,$arr) {
 	if(count($arr)) {

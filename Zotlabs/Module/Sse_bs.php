@@ -100,7 +100,6 @@ class Sse_bs extends Controller {
 			self::bs_forums(),
 			self::bs_pubs($pubs),
 			self::bs_files(),
-			self::bs_mail(),
 			self::bs_all_events(),
 			self::bs_register(),
 			self::bs_info_notice()
@@ -612,36 +611,6 @@ class Sse_bs extends Controller {
 					}
 			}
 			$result['files']['count'] = count($r);
-		}
-
-		return $result;
-
-	}
-
-	function bs_mail() {
-
-		$result['mail']['notifications'] = [];
-		$result['mail']['count'] = 0;
-		$result['mail']['offset'] = -1;
-
-		if(! self::$uid)
-			return $result;
-
-		if(! (self::$vnotify & VNOTIFY_MAIL))
-			return $result;
-
-		$r = q("select mail.*, xchan.* from mail left join xchan on xchan_hash = from_xchan
-			where channel_id = %d and mail_seen = 0 and mail_deleted = 0
-			and from_xchan != '%s' order by created desc",
-			intval(self::$uid),
-			dbesc(self::$ob_hash)
-		);
-
-		if($r) {
-			foreach($r as $rr) {
-				$result['mail']['notifications'][] = Enotify::format_mail($rr);
-			}
-			$result['mail']['count'] = count($r);
 		}
 
 		return $result;

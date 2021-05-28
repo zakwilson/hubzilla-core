@@ -770,7 +770,6 @@ function get_default_export_sections() {
 			'chatrooms',
 			'events',
 			'webpages',
-			'mail',
 			'wikis'
 	];
 
@@ -1088,30 +1087,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
 				$ret['webpages'][] = encode_item($rr,true, $zap_compat);
-		}
-	}
-
-	if(in_array('mail',$sections)) {
-		$r = q("select * from conv where uid = %d",
-			intval($channel_id)
-		);
-		if($r) {
-			for($x = 0; $x < count($r); $x ++) {
-				$r[$x]['subject'] = base64url_decode(str_rot47($r[$x]['subject']));
-			}
-			$ret['conv'] = $r;
-		}
-
-		$r = q("select * from mail where channel_id = %d",
-			intval($channel_id)
-		);
-		if($r) {
-			$m = array();
-			foreach($r as $rr) {
-				xchan_mail_query($rr);
-				$m[] = encode_mail($rr,true);
-			}
-			$ret['mail'] = $m;
 		}
 	}
 

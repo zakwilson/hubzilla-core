@@ -84,16 +84,6 @@ class Manage extends \Zotlabs\Web\Controller {
 				if($intr)
 					$channels[$x]['intros'] = intval($intr[0]['total']);
 
-
-				$mails = q("SELECT count(id) as total from mail WHERE channel_id = %d AND mail_seen = 0 and from_xchan != '%s' ",
-					intval($channels[$x]['channel_id']),
-					dbesc($channels[$x]['channel_hash'])
-				);
-
-				if($mails)
-					$channels[$x]['mail'] = intval($mails[0]['total']);
-
-
 				$events = q("SELECT etype, dtstart, adjust FROM event
 					WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
 					ORDER BY dtstart ASC ",
@@ -175,7 +165,6 @@ class Manage extends \Zotlabs\Web\Controller {
 			'$msg_make_default' => t('Make Default'),
 			'$create'           => $create,
 			'$all_channels'     => $channels,
-			'$mail_format'      => t('%d new messages'),
 			'$intros_format'    => t('%d new introductions'),
 			'$channel_usage_message' => $channel_usage_message,
 			'$delegated_desc'   => t('Delegated Channel'),

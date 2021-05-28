@@ -1057,9 +1057,6 @@ function thread_author_menu($item, $mode = '') {
 				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
 		}
-		if($item['uid'] > 0 && author_is_pmable($item['author'],$contact)) {
-			$pm_url = z_root() . '/mail/new/?f=&hash=' . urlencode($item['author_xchan']);
-		}
 	}
 
 	if($contact) {

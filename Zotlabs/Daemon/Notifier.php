@@ -602,7 +602,7 @@ class Notifier {
 				call_hooks('notifier_hub', $narr);
 				if ($narr['queued']) {
 					foreach ($narr['queued'] as $pq)
-						$deliveries[] = $pq;
+						self::$deliveries[] = $pq;
 				}
 				continue;
 

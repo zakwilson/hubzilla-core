@@ -537,7 +537,7 @@ function closeMenu(theID) {
 }
 
 function markRead(notifType) {
-	$.get('ping?f=&markRead='+notifType);
+	$.get('notifications?f=&markRead='+notifType);
 	$('.' + notifType + '-button').fadeOut(function() {
 		$("." + notifType + "-update").html('0');
 		$('#nav-' + notifType + '-menu').html('');
@@ -548,7 +548,7 @@ function markRead(notifType) {
 }
 
 function markItemRead(itemId) {
-	$.get('ping?f=&markItemRead='+itemId);
+	$.get('notifications?f=&markItemRead='+itemId);
 	$('.unseen-wall-indicator-'+itemId).remove();
 }
 

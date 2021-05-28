@@ -18,7 +18,7 @@ W przypadku konfiguracji witryny, innym rozwiązaniem jest dodanie wiersza w pli
 [h2]Konfiguracja kanału (pconfig)[/h2]
 
 [dl terms="mb"]
-  [*= system.always_my_theme ] Stosowanie własnego motywu podczas oglądania kanałów na tym samym węźle. Jest to realizowane w dość pomysłowy sposób, gdy przegląda się kanały w motywie zależnym od Comanche. 
+  [*= system.always_my_theme ] Stosowanie własnego motywu podczas oglądania kanałów na tym samym portalu. Jest to realizowane w dość pomysłowy sposób, gdy przegląda się kanały w motywie zależnym od Comanche. 
   [*= system.blocked ] Blokowanie tablicy xchans przez ten kanał. Z technicznego punktu widzenia jest to ukryta konfiguracja i nie należy tutaj nic zmieniać, ale niektóre dodatki (w szczególności superblok) udostępniają ją w interfejsie użytkownika.
   [*= system.default_cipher ] Ustawienie domyślnego szyfrowania E2EE dla elementów.
   [*= system.display_friend_count ] Ustawienie liczby połączeń wyświetlanych przez widżecie połączeń profilu.
@@ -45,14 +45,14 @@ W przypadku konfiguracji witryny, innym rozwiązaniem jest dodanie wiersza w pli
   [*= system.admin_email ] Określenie adresu e-mail administratora tej witryny. Jest to wstęþnie ustawiane podczas instalacji.
   [*= system.authlog ] Plik dziennika używany do rejestrowania błędów uwierzytelniania. Służy do podłączania do oprogramowania po stronie serwera, takiego jak fail2ban. Błędy uwierzytelniania są nadal rejestrowane w dziennikach głównych.
   [*= system.auto_channel_create ] Dodanie elementów formularza niezbędnych do utworzenia pierwszego kanał na stronie rejestracji konta i utwórzemoa go (ewentualnie po sprawdzeniu przez e-mail lub po zatwierdzeniu przez administratora). Wyklucza to możliwość importowania kanału z innej witryny jako pierwszego utworzonego kanału w tej witrynie dla nowego konta. Użyj wraz z opcją system.default_permissions_role, aby usprawnić rejestrację. 
-  [*= system.auto_follow ] Przy utworzeniu pierwszego kanału automatycznie obserwuj kanały tutaj wymienione - listę stron internetowych oddzielonych przecinkami (adresów w postaci członek@węzeł).
-  [*= system.blacklisted_sites ] Węzły, dla których ma być całkowicie zablokowany dostęp do tego węzła - tablica adresów URL.
+  [*= system.auto_follow ] Przy utworzeniu pierwszego kanału automatycznie obserwuj kanały tutaj wymienione - listę stron internetowych oddzielonych przecinkami (adresów w postaci członek@portal).
+  [*= system.blacklisted_sites ] Portale, dla których ma być całkowicie zablokowany dostęp do tego portalu - tablica adresów URL.
   [*= system.block_public_search ] Podobne do block_public, z tą różnicą, że blokuje tylko publiczny dostęp do funkcji wyszukiwania. Przydatne w przypadku serwisów, które chcą być publiczne, ale bez możliwości publicznego przeszukiwania treści.
   [*= system.cron_hour ] Określenie godziny, w której ma być uruchamiany cron_daily. Domyślnie, bez konfiguracji Cron będzie uruchamiany o północy czasu UTC.
   [*= system.default_permissions_role ] Jeśli ustawiono prawidłową nazwę roli uprawnień, użyj tą rolę dla pierwszego kanału utworzonego przez nowe konto i nie pytaj o 'Typ kanału' w formularzu tworzenia kanału. Przykłady prawidłowych nazw to: 'social', 'social_restricted', 'social_private', 'forum', 'forum_restricted' i 'forum_private'. Więcej informacji znadziesz [tutaj](/help/roles).
   [*= system.default_profile_photo ] Ustawienie zdjęcia profilowego, dla nowych kanałów. Powinna być to nazwa katalogu znajdującego się w images/default_profile_photos/ lub lub być pustą wartością. Jeśli opcja nie jest ustawione, zakłada się, że stosowany będzie obrazek 'rainbow_man'.
   [*= system.directorytags ] Ustawienie liczby tagów słów kluczowych wyświetlanych na stronie katalogu. Wartość domyślna to 50.
-  [*= system.disable_directory_keywords ] Jeśli '1', nie pokazuj słów kluczowych z katalogu. Jeśli węzeł jest serwerem katalogowym, nie zezwalaj na zwracanie znaczników do żadnych klientów katalogu. Nie ustawiaj tego dla serwerów katalogowych w dziedzinie RED_GLOBAL. 
+  [*= system.disable_directory_keywords ] Jeśli '1', nie pokazuj słów kluczowych z katalogu. Jeśli portal jest serwerem katalogowym, nie zezwalaj na zwracanie znaczników do żadnych klientów katalogu. Nie ustawiaj tego dla serwerów katalogowych w dziedzinie RED_GLOBAL. 
   [*= system.disable_discover_tab ] Pozwala to całkowicie wyłączyć możliwość wykrywania treści publicznych z witryn zewnętrznych.
   [*= system.disable_dreport ] Jeśli '1', nie przechowuj raportów doręczenia ani nie stosuj do nich odnośników.
   [*= system.dlogfile ] Plik dziennika używany do rejestrowania błędów programistycznych. Dokładnie to samo, co rejestrator w innym przypadku. To nie jest magia i wymaga własnych instrukcji logowania. Narzędzie programistyczne.
@@ -62,7 +62,7 @@ W przypadku konfiguracji witryny, innym rozwiązaniem jest dodanie wiersza w pli
   [*= system.photo_storage_type] Jeśli '1', użyj systemu plików, zamiast bazy danych SQL, do przechowywania miniatur. Wartość domyślna to '0'. Wprowadzono w wersji 4.2.
   [*= system.hidden_version_siteinfo ] Jeśli true, nie wyświetlaj wersji oprogramowania na stronach informacji o witrynie (system.hide_version również ukrywa wersję na tych stronach, ale to ustawienie *tylko* ukrywa wersję na stronach informacji o witrynie).
   [*= system.hide_help ] Nie wyświetlaj linku do stron pomocy na pasku nawigacyjnym.
-  [*= system.hide_in_statistics ] Poinformuj serwery statystyk, aby całkowicie ukryły ten węzeł na liście węzłów.
+  [*= system.hide_in_statistics ] Poinformuj serwery statystyk, aby całkowicie ukryły ten portal na liście portali.
   [*= system.hide_version ] Jeśli true, nie zgłaszaj wersji oprogramowania na stronach internetowych ani w narzędziach. (*) Trzeba to ustawić w .htconfig.php.
   [*= system.ignore_imagick ] Zignoruj imagick i używaj GD, nawet jeśli imagick jest zainstalowany na serwerze. Zapobiega to niektórym problemom z plikami PNG w starszych wersjach programu imagick.
   [*= system.max_daily_registrations ] Ustaw maksymalną liczbę nowych rejestracji dozwolonych w jednym dniu. Przydatne, aby zapobiec nadmiernej subskrypcji po nagłym nagłośnieniu projektu.
@@ -83,7 +83,7 @@ W przypadku konfiguracji witryny, innym rozwiązaniem jest dodanie wiersza w pli
   [*= system.poke_basic ] Zmniejsz liczbę wyrażeń szturchnięć ("poke verbs") do dokładnie 1 ("poke"). Wyłącz inne wyrażenia. 
   [*= system.proc_run_use_exec ] Jeśli 1, użycie wywołania systemowego exec w proc_run do uruchomienia zadania w tle. Domyślnie używamy proc_open i proc_close. W niektórych (obecnie rzadkich) systemach nie działa to dobrze.
   [*= system.projecthome ] Wyświetl stronę projektu na swojej stronie głównej dla wylogowanych osób.
-  [*= system.projecthome ] Ustaw stronę główną projektu jako stronę główną swojego węzła. (Przestarzałe)
+  [*= system.projecthome ] Ustaw stronę główną projektu jako stronę główną swojego portalu. (Przestarzałe)
   [*= system.register_link ] Ścieżka do strony z linku "Zarejestruj się" w formularzu logowania. W zamkniętych witrynach będzie to przekierowywać do 'pubsites'. W przypadku otwartych witryn zwykle przekierowuje do strony 'register', ale można to zmienić na niestandardową stronę oferującą subskrypcje lub cokolwiek innego. 
   [*= system.reserved_channels ] Nie zezwalaj członkom na rejestrowanie kanałów o nazwach wyszczególnionych na tej liście nazw rozddzielanych przecinkami (bez spacji).
   [*= system.sellpage ] Adres URL wyświetlany na liście witryn publicznych, prowadzący do strony z cenami usług - parametry kont i ich cena itp.

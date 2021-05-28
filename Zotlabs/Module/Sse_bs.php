@@ -143,11 +143,15 @@ class Sse_bs extends Controller {
 		$result['network']['notifications'] = [];
 		$result['network']['count'] = 0;
 
-		if(! self::$uid)
+		if(! self::$uid) {
+			$result['network']['offset'] = -1;
 			return $result;
+		}
 
-		if(! (self::$vnotify & VNOTIFY_NETWORK))
+		if(! (self::$vnotify & VNOTIFY_NETWORK)) {
+			$result['network']['offset'] = -1;
 			return $result;
+		}
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
@@ -215,11 +219,15 @@ class Sse_bs extends Controller {
 		$result['dm']['notifications'] = [];
 		$result['dm']['count'] = 0;
 
-		if(! self::$uid)
+		if(! self::$uid) {
+			$result['dm']['offset'] = -1;
 			return $result;
+		}
 
-		if(! (self::$vnotify & VNOTIFY_MAIL))
+		if(! (self::$vnotify & VNOTIFY_MAIL)) {
+			$result['dm']['offset'] = -1;
 			return $result;
+		}
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
@@ -286,11 +294,15 @@ class Sse_bs extends Controller {
 		$result['home']['notifications'] = [];
 		$result['home']['count'] = 0;
 
-		if(! self::$uid)
+		if(! self::$uid) {
+			$result['home']['offset'] = -1;
 			return $result;
+		}
 
-		if(! (self::$vnotify & VNOTIFY_CHANNEL))
+		if(! (self::$vnotify & VNOTIFY_CHANNEL)) {
+			$result['home']['offset'] = -1;
 			return $result;
+		}
 
 		$limit = intval(self::$limit);
 		$offset = self::$offset;
@@ -358,15 +370,19 @@ class Sse_bs extends Controller {
 		$result['pubs']['notifications'] = [];
 		$result['pubs']['count'] = 0;
 
-		if(! (self::$vnotify & VNOTIFY_PUBS))
+		if(! (self::$vnotify & VNOTIFY_PUBS)) {
+			$result['pubs']['offset'] = -1;
 			return $result;
+		}
 
 		if((observer_prohibited(true))) {
+			$result['pubs']['offset'] = -1;
 			return $result;
 		}
 
 		if(! intval(get_config('system','open_pubstream',1))) {
 			if(! get_observer_hash()) {
+				$result['pubs']['offset'] = -1;
 				return $result;
 			}
 		}

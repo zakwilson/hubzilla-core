@@ -115,7 +115,7 @@ class Notifier {
 			);
 			if ($r) {
 				foreach ($r as $rr) {
-					$recipients[] = $rr['abook_xchan'];
+					self::$recipients[] = $rr['abook_xchan'];
 				}
 			}
 			self::$private      = false;
@@ -153,8 +153,8 @@ class Notifier {
 
 					if ($perm_update['success']) {
 						if ($perm_update['deliveries']) {
-							$deliveries[] = $perm_update['deliveries'];
-							do_delivery($deliveries);
+							self::$deliveries[] = $perm_update['deliveries'];
+							do_delivery(self::$deliveries);
 						}
 						return;
 					}
@@ -465,7 +465,7 @@ class Notifier {
 		call_hooks('notifier_process', $narr);
 		if ($narr['queued']) {
 			foreach ($narr['queued'] as $pq)
-				$deliveries[] = $pq;
+				self::$deliveries[] = $pq;
 		}
 
 		// notifier_process can alter the recipient list

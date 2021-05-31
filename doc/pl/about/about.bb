@@ -1,9 +1,7 @@
 [h3]Co to jest $Projectname?[/h3]
-$Projectname to bezpłatny i otwartoźródłowy zestaw aplikacji i usług internetowych działających na specjalnym portalu internetowym, zwanym też "hubem", który może łączyć się z innymi portalami w sfederalizowanej sieci internetowej.
-$Projectname zapewnia użytkownikom zaawansowaną komunikację, tożsamości i usługę kontroli dostępu, które bezproblemowo współpracują w różnych domenach i niezależnych
-serwisach internetowych. $Projectname pozwala użytkownikom publikować treści, [b]publicznie[/b] lub [b]prywatnie[/b], w swoich "kanałach" (ang. channels), które są zabezpieczonymi kryptograficznie tożsamościami zapewniającymi
-uwierzytelnianie użytkowników niezależnie od portali, które hostują te kanały. To rewolucyjne uwolnienie tożsamości inernetowej z poszczególnych serwerów i domen jest nazywane "tożsamością nomadyczną" i jest oparte na protokole Zot - nowej strukturze
-zdecentralizowanej kontroli dostępu ze szczegółowymi, rozszerzalnymi uprawnieniami.
+$Projectname Hubzilla to bezpłatny i otwartoźródłowy zestaw aplikacji i usług internetowych, które można wdrożyć na własnym serwerze internetowym jako samodzielny portal społecznościowy, zwanym też "hubem". Portal ten może łączyć się z innymi portalami tego typu, tworząc sfederowaną sieć społecznościową.
+$Projectname zapewnia użytkownikom zaawansowaną komunikację, tożsamości i usługę kontroli dostępu, które bezproblemowo współpracują w różnych domenach i niezależnych serwisach internetowych.
+$Projectname pozwala użytkownikom komunikować się i publikować treści w swoich "kanałach" z możliwością bardzo szczegółowej kontroli dostępu. Kanały są zabezpieczonymi kryptograficznie tożsamościami internetowymi, zapewniającymi uwierzytelnianie użytkowników niezależnie od portali na których są hostowane. To rewolucyjne uwolnienie tożsamości inernetowej z poszczególnych serwerów i domen jest nazywane "tożsamością nomadyczną" i jest oparte na protokole Zot - nowej strukturze zdecentralizowanej kontroli dostępu ze szczegółowymi, rozszerzalnymi uprawnieniami.
 Z praktycznego punktu widzenia członków danego portalu, korzystających z oprogramowania $Projectname, oferuje ono szereg znanych, zintegrowanych aplikacji i usług internetowych, w tym:
 [ul]
 [li]wątki dyskusyjne w sieciach społecznościowych[/li]
@@ -16,12 +14,7 @@ Chociaż wszystkie te aplikacje i usługi można znaleźć w innych pakietach op
 Dzięki oferowanym aplikacjom, $Projectname świetnie się nadaje do budowy platformy komunikacyjno-publikacyjnej o charkterze społecznościowym dla realnych grup społecznych, takich jak rodziny, lokalne grupy, organizacje społeczne, środowiska szkolne, wspólnoty mieszkańców czy wspólnoty religijne. 
  
 [h3]Stos programów[/h3]
-Pakiet oprogramowania $Projectname jest stosunkowo standardową aplikacją serwerową napisaną głównie w PHP i MySQL,
-[url=https://framagit.org/$Projectname/core/blob/master/install/INSTALL.txt]wymagającą niewiele więcej niż serwera WWW,
-bazy danych zgodnej z MySQL i środowiska wykonawczego PHP[/url]. System został zaprojektowany tak, aby był łatwy do
-zainstalowania przez osoby z podstawowymi umiejętnościami administrowania witryną, na typowych platformach współdzielonego
-hostingu, z uwzglednieniem szerokiej gamy sprzętu komputerowego. Można go również łatwo rozszerzyć za pomocą wtyczek i motywów
-oraz innych narzędzi zewnętrznych.
+Pakiet oprogramowania $Projectname jest stosunkowo standardową aplikacją serwerową napisaną głównie w PHP i MySQL, wymagającą niewiele więcej niż [url=https://framagit.org/$Projectname/core/blob/master/install/INSTALL.txt]serwera WWW, bazy danych zgodnej z MySQL i środowiska wykonawczego PHP[/url]. System został zaprojektowany tak, aby był łatwy do zainstalowania przez osoby z podstawowymi umiejętnościami administrowania witryną, na typowych platformach współdzielonego hostingu, z uwzglednieniem szerokiej gamy sprzętu komputerowego. Można go również łatwo rozszerzyć za pomocą wtyczek i motywów oraz innych narzędzi zewnętrznych.
 
 [h3]Słownik[/h3]
 [dl terms="b"]

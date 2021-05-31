@@ -1,3 +1,47 @@
+Hubzilla 5.6 (2021-05-11)
+	- Improve postgres hubloc queries
+	- Implement automatic duplicate singleton hubloc removal
+	- Send author id, id_sig and key fields along with author/owner
+	- Implement custom redis session backend
+	- Improved registration workflow
+	- Complete rewrite of the registration backend with many new features
+	- Complete rewrite of the invite app
+	- Update Spanish, Russian and Polish translations
+	- Improved PHP8 compatibiliy (work in progress)
+
+	Bugfixes
+	- Fix manual fetching of non-ascii domains
+	- Fix revision not compared when importing items
+	- Fix events not transformed to UTC when importing calendar
+	- Fix timezone issue in mod cal
+	- Fix profile photos not revalidated
+	- Fix regression in caldav/carddav discovery
+	- Fix caldav/carddav sync on remote access
+	- Fix info and notice messages not bootstraped when using SSE
+	- Fix URL including an @ treated like a webbie
+	- Fix cover photo image issues on some mobile devices
+
+	Addons
+	- Diaspora: improve performance when delivering public items
+	- Diaspora: make sure to not process same contact more than once
+	- Pubcrawl: make sure to not process same contact more than once
+	- Pubcrawl: do not relay Like and Dislike activity
+	- Pubcrawl: deprecate as_follow() in favour of core Activity::follow()
+	- Pubcrawl: improved compatibility with mobilizon and xwiki
+	- Pubcrawl: do not process follow/unfollw thread in as_create_note()
+	- Diaspora: do not relay comments/likes of strangers if the thread-owner is local and does not allow comments/likes by strangers in the diaspora app settings
+
+
+Hubzilla 5.4.3 (2021-04-20)
+	- Fix regression in mod notifications (only the last was visible)
+	- Set Permissions-Policy: interest-cohort=() header by default
+	- Fix xchans containing a % breaking get_forum_channels()
+	- Fix webfinger if using a reverse proxy
+	- Fix regression finding bookmarks
+	- Fix zot6 hublocs import on channel import
+	- Fix revision not checked in import_items()
+
+
 Hubzilla 5.4.2 (2021-03-15)
 	- Fix translation plural variable
 	- Fix issue with following/unfollowing a thread

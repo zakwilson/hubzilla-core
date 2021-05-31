@@ -10,7 +10,7 @@
       <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
       <pre>{{$ihave}}<br>{{$wehave}}</pre>
- 
+
       <div id="zai-re" style="visibility: hidden;">
         <div class="zai_h0 fa"></div>
         <pre id="zai-remsg"></pre>
@@ -25,13 +25,13 @@
         <a id="zai-ax" href="javascript:;" class="zai_ax zai_b">check</a><br>
 
         <hr>
-        {{$inv_expire}}         
+        {{$inv_expire}}
       </div>
 
       <hr>
 
       <div class="">
-        <div class="zai_h0">{{$subject_label}} 
+        <div class="zai_h0">{{$subject_label}}
           <span id="zai-subject">{{$subject}}</span>
         </div>
 
@@ -48,7 +48,7 @@
       <pre id="zai-due">
       {{$due}}
       </pre>
-      
+
       <div id="invite-submit-wrapper" class="form-group">
         <button class="btn btn-primary btn-sm" type="submit" id="invite-submit" name="submit" value="{{$submit}}">{{$submit}}</button>
       </div>
@@ -110,13 +110,13 @@
     if (tao.zai.c2s.to=='') { return false; };
     // tao.zai.c2s.lcc=$('.zai_lcc.zai_hi').text();
     $.ajax({
-      type: 'POST', url: 'invite', 
+      type: 'POST', url: 'invite',
       data: {
         zaito: tao.zai.c2s.to,
         zailcc: tao.zai.lccmy,
         zaidurn: $('#zaiexpiren').val(),
         zaidurq: $('input[name="zaiexpire"]:checked').val(),
-        form_security_token: $("input[name='form_security_token']").val() 
+        form_security_token: $("input[name='form_security_token']").val()
       }
     }).done( function(r) {
       tao.zai.r = JSON.parse(r);
@@ -133,10 +133,10 @@
     $('#zai-reon').val(JSON.stringify(tao.zai.reon));
   });
   function zaitx() {
-    typeof(tao.zai.s[tao.zai.lccmy][tao.zai.itpl]) !== 'undefined'
+    typeof(tao.zai.s[tao.zai.lccmy]) !== 'undefined' && typeof(tao.zai.s[tao.zai.lccmy][tao.zai.itpl]) !== 'undefined'
     ? $('#zai-subject').text(decodeURIComponent(tao.zai.s[tao.zai.lccmy][tao.zai.itpl]))
     : $('#zai-subject').text('Invitation');
-    typeof(tao.zai.t[tao.zai.lccmy][tao.zai.itpl]) !== 'undefined'
+    typeof(tao.zai.t[tao.zai.lccmy]) !== 'undefined' && typeof(tao.zai.t[tao.zai.lccmy][tao.zai.itpl]) !== 'undefined'
     ? $('#zai-ims').text(decodeURIComponent(tao.zai.t[tao.zai.lccmy][tao.zai.itpl]))
     : $('#zai-ims').text(' ');
   }

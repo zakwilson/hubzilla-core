@@ -1,17 +1,10 @@
-### Narzędzia migawek węzła
+### Narzędzia migawek portalu
 
-Programiści Hubzilli często muszą przełączać się między gałęziami, które mogą
-mieć niekompatybilne schematy lub zawartość bazy danych. Poniższe dwa skrypty
-tworzą i przywracają pełne migawki instancji Hubzilli, w tym zarówno główny
-katalog sieciowy, jak i stan całej bazy danych. Każdy skrypt wymaga pliku
-konfiguracyjnego o nazwie *hub-snapshot.conf* znajdującego się w tym samym
-folderze i zawiera on określone katalogi i szczegóły bazy danych węzłaa.
+Programiści Hubzilli często muszą przełączać się między gałęziami, które mogą mieć niekompatybilne schematy lub zawartość bazy danych. Poniższe dwa skrypty tworzą i przywracają pełne migawki instancji Hubzilli, w tym zarówno główny katalog sieciowy, jak i stan całej bazy danych. Każdy skrypt wymaga pliku konfiguracyjnego o nazwie *hub-snapshot.conf* znajdującego się w tym samym folderze i zawiera on określone katalogi i szczegóły bazy danych portalu.
 
 ### Konfiguracja
 
-Format pliku konfiguracyjnego jest bardzo ścisły. Między nazwą zmiennej a
-wartością nie może być spacji. Zastąp tylko treść w cudzysłowach swoją
-konfiguracją. Zapisz ten plik jako *hub-snapshot.conf* obok skryptów.
+Format pliku konfiguracyjnego jest bardzo ścisły. Między nazwą zmiennej a wartością nie może być spacji. Zastąp tylko treść w cudzysłowach swoją konfiguracją. Zapisz ten plik jako *hub-snapshot.conf* obok skryptów.
 
     # Location of hub root. Typically this is the location of the Hubzilla repo clone.
     HUBROOT="/var/www/"

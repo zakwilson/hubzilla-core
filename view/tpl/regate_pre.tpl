@@ -15,13 +15,14 @@
 		<div class="section-content-info-wrapper">
 			{{$strings.1}} {{$id}}
 			<div class="h3">{{$pin}}</div>
+			{{if $strings.2}}<b>{{$strings.2}}</b>{{/if}}
 		</div>
 		<div class="d-none">
-			{{$strings.2}}<br>
+			{{$strings.3}}<br>
 			<span id="register_start" data-utc="{{$regdelay}}" class="register_date">
 				{{$regdelay}}
 			</span>
-			&nbsp;&dash;&nbsp; 
+			&nbsp;&dash;&nbsp;
 			<span data-utc="{{$regexpire}}" class="register_date">
 				{{$regexpire}}
 			</span>

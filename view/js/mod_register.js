@@ -68,6 +68,9 @@ $(document).ready(function() {
 	});
 
 	$('#id_name').blur(function() {
+		if($('#id_name').val() == '')
+			return;
+
 		$('#name-spinner').fadeIn();
 		var zreg_name = $('#id_name').val();
 		$.get('new_channel/autofill.json?f=&name=' + encodeURIComponent(zreg_name),function(data) {
@@ -81,6 +84,9 @@ $(document).ready(function() {
 	});
 
 	$('#id_nickname').blur(function() {
+		if($('#id_name').val() == '')
+			return;
+
 		$('#nick-spinner').fadeIn();
 		$('#nick-hub').fadeOut();
 		var zreg_nick = $('#id_nickname').val();

@@ -55,11 +55,14 @@ class Cron {
 			db_utcnow()
 		);
 
+		require_once('include/account.php');
+		remove_expired_registrations();
+
 		$interval = get_config('system', 'delivery_interval', 3);
 
 		// expire any expired items
 
-		$r = q("select id,item_wall from item where expires > '2001-01-01 00:00:00' and expires < %s 
+		$r = q("select id,item_wall from item where expires > '2001-01-01 00:00:00' and expires < %s
 			and item_deleted = 0 ",
 			db_utcnow()
 		);
@@ -131,7 +134,7 @@ class Cron {
 
 		// publish any applicable items that were set to be published in the future
 		// (time travel posts). Restrict to items that have come of age in the last
-		// couple of days to limit the query to something reasonable. 
+		// couple of days to limit the query to something reasonable.
 
 		$r = q("select id from item where item_delayed = 1 and created <= %s  and created > '%s' ",
 			db_utcnow(),
@@ -192,7 +195,7 @@ class Cron {
 		// update any photos which didn't get imported properly
 		// This should be rare
 
-		$r = q("select xchan_photo_l, xchan_hash from xchan where xchan_photo_l != '' and xchan_photo_m = '' 
+		$r = q("select xchan_photo_l, xchan_hash from xchan where xchan_photo_l != '' and xchan_photo_m = ''
 			and xchan_photo_date < %s - INTERVAL %s",
 			db_utcnow(),
 			db_quoteinterval('1 DAY')
@@ -238,7 +241,7 @@ class Cron {
 
 		set_config('system', 'lastcron', datetime_convert());
 
-		//All done - clear the lockfile	
+		//All done - clear the lockfile
 		@unlink($lockfile);
 
 		return;

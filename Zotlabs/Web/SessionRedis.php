@@ -20,7 +20,7 @@ class SessionRedis implements \SessionHandlerInterface {
                         else {
 
                                 if (isset($credentials['query']))
-                                        $vars = parse_str($credentials['query']);
+                                        parse_str($credentials['query'], $vars);
                                 else
                                         $vars = [];
 

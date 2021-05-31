@@ -102,9 +102,10 @@ class Regate extends \Zotlabs\Web\Controller {
 							if (($flags & ACCOUNT_UNVERIFIED) == ACCOUNT_UNVERIFIED) {
 
 								// verification success
-								$msg 	= 'ZAR1237I' . ' ' . t('Verify successfull');
+								$msg_code = 'ZAR1237I';
+								$msg = t('Verification successful');
 								$reonar = json_decode( $r['reg_stuff'], true);
-								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg;
+								$reonar['valid'] = $now . ',' . $ip . ' ' . $did2 . ' ' . $msg_code . ' ' . $msg;
 
 								// clear flag
 								$flags &= $flags ^ ACCOUNT_UNVERIFIED;
@@ -151,46 +152,62 @@ class Regate extends \Zotlabs\Web\Controller {
 										zar_log('ZAR1238I ' . $msg . ' ' . $cra['account']['account_email']
 													 . ' ' . $cra['account']['account_language']);
 
-										$nextpage = 'new_channel';
-
-										$auto_create  = get_config('system','auto_channel_create',1);
-
-										if($auto_create) {
-											// prepare channel creation
-											if($reonar['chan.name'])
-												set_aconfig($cra['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
-
-											if($reonar['chan.did1'])
-												set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
-
-											$permissions_role  = get_config('system','default_permissions_role');
-											if($permissions_role)
-												set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
-										}
-
 										authenticate_success($cra['account'],null,true,false,true);
 
-										if($auto_create) {
-											// create channel
-											$new_channel = auto_channel_create($cra['account']['account_id']);
+										$nextpage = 'new_channel';
 
-											if($new_channel['success']) {
-												$channel_id = $new_channel['channel']['channel_id'];
-												change_channel($channel_id);
-												$nextpage = 'profiles/' . $channel_id;
-												$msg = 'ZAR1239I ' . t('Channel successfull created') . ' ' . $did2;
+										$auto_create  = get_config('system', 'auto_channel_create', 1);
+
+										if($auto_create) {
+
+											$new_channel = ['success' => false];
+
+											// We do not reserve a channel_address before the registration is verified
+											// and possibly approved by the admin.
+											// If the provided channel_address has been claimed meanwhile,
+											// we will proceed to /new_channel.
+
+											if(isset($reonar['chan.did1']) && check_webbie([$reonar['chan.did1']])) {
+
+												// prepare channel creation
+												if($reonar['chan.name'])
+													set_aconfig($cra['account']['account_id'], 'register', 'channel_name', $reonar['chan.name']);
+
+												if($reonar['chan.did1'])
+													set_aconfig($cra['account']['account_id'], 'register', 'channel_address', $reonar['chan.did1']);
+
+												$permissions_role  = get_config('system','default_permissions_role');
+												if($permissions_role)
+													set_aconfig($cra['account']['account_id'], 'register', 'permissions_role', $permissions_role);
+
+												// create channel
+												$new_channel = auto_channel_create($cra['account']['account_id']);
+
+												if($new_channel['success']) {
+													$channel_id = $new_channel['channel']['channel_id'];
+													change_channel($channel_id);
+													$nextpage = 'profiles/' . $channel_id;
+													$msg_code = 'ZAR1239I';
+													$msg = t('Channel successfull created') . ' ' . $did2;
+												}
 											}
-											else {
-												$msg = 'ZAR1239E ' . t('Channel still not created') . ' ' . $did2;
+
+											if(!$new_channel['success']) {
+												$msg_code = 'ZAR1239E';
+												$msg = t('Automatic channel creation failed. Please create a channel.') . ' ' . $did2;
+												$nextpage = 'new_channel?name=' . $reonar['chan.name'];
 											}
-											zar_log($msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
+
+											zar_log($msg_code . ' ' . $msg . ' ' . $reonar['chan.did1'] . ' (' . $reonar['chan.name'] . ')');
+
 										}
 										unset($_SESSION['login_return_url']);
 									}
 									else {
 										q("ROLLBACK");
-										$msg = 'ZAR1238E ' . t('Account creation error');
-										zar_log($msg . ':' . print_r($cra, true));
+										$msg_code = 'ZAR1238E';
+										$msg = t('Account creation error');
+										zar_log($msg_code . ' ' . $msg . ': ' . print_r($cra, true));
 									}
 								}
 								else {
@@ -200,25 +217,32 @@ class Regate extends \Zotlabs\Web\Controller {
 							}
 							else {
 								// nothing to confirm
-								$msg = 'ZAR1236E' . ' ' . t('Verify failed');
+								$msg_code = 'ZAR1236E';
+								$msg = t('Verify failed');
 							}
 						}
 						else {
-							$msg = 'ZAR1235E' . ' ' . t('Token verification failed');
+							$msg_code = 'ZAR1235E';
+							$msg = t('Token verification failed');
 						}
 					}
 					else {
-						$msg = 'ZAR1234W' . ' ' . t('Request not inside time frame');
+						$msg_code = 'ZAR1234W';
+						$msg = t('Request not inside time frame');
 						//info($r[0]['reg_startup'] . EOL . $r[0]['reg_expire'] );
 					}
 				}
 				else {
-					$msg = 'ZAR1232E' . ' ' . t('Identity unknown');
-					zar_log($msg . ':' . $did2 . $didx);
+					$msg_code = 'ZAR1232E';
+					$msg = t('Identity unknown');
+					zar_log($msg_code . ' ' . $msg . ':' . $did2 . $didx);
 				}
 			}
 			else {
-				$msg = 'ZAR1231E' . t('dId2 mistaken');
+				$msg_code = 'ZAR1231E';
+				$msg = t('dId2 mistaken');
+				zar_log($msg_code . ' ' . $msg);
+
 			}
 
 		}
@@ -266,6 +290,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				'$strings' => [
 					t('Hold on, you can start verification in'),
 					t('Please remember your verification token for ID'),
+					'',
 					t('Token validity')
 				]
 			]);
@@ -302,7 +327,7 @@ class Regate extends \Zotlabs\Web\Controller {
 				$r = $r[0];
 
 				// provide a button in case
-				$resend = ($r['reg_didx'] == 'e') ? t('Resend') : false;
+				$resend = (($r['reg_didx'] == 'e') ? t('Resend email') : '');
 
 				// is still only instance admins intervention required?
 				if ($r['reg_flags'] == ACCOUNT_PENDING) {
@@ -350,6 +375,7 @@ class Regate extends \Zotlabs\Web\Controller {
 							'$form_security_token' => get_form_security_token("regate"),
 							'$title'  => t('Registration verification'),
 							'$desc'   => t('Please enter your verification token for ID'),
+							'$email_extra' => (($didx === 'e') ? t('Please check your email!') : ''),
 							'$id'     => $did2,
 							// we might consider to not provide $pin if a registration delay is configured
 							// and the pin turns out to be readable by bots
@@ -376,6 +402,8 @@ class Regate extends \Zotlabs\Web\Controller {
 								return $o;
 							}
 
+							$email_extra = (($didx === 'e') ? t('Please check your email!') : '');
+
 							$o = replace_macros(get_markup_template('regate_pre.tpl'), [
 								'$title'     => t('Registration verification'),
 								'$now'       => $nowfmt,
@@ -383,7 +411,8 @@ class Regate extends \Zotlabs\Web\Controller {
 								'$countdown' => datetime_convert('UTC', 'UTC', $r['reg_startup'], 'c'),
 								'$strings'   => [
 									t('Hold on, you can start verification in'),
-									t('You will require the verification token for ID')
+									t('You will require the verification token for ID'),
+									$email_extra
 								]
 							]);
 						}

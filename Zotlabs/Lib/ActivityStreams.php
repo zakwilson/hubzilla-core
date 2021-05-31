@@ -304,7 +304,7 @@ class ActivityStreams {
 			// SECURITY: If we have already stored the actor profile, re-generate it
 			// from cached data - don't refetch it from the network
 
-			$r = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' limit 1",
+			$r = q("select * from xchan join hubloc on xchan_hash = hubloc_hash where hubloc_network in ('zot6', 'activitypub') and hubloc_id_url = '%s'",
 				dbesc($x)
 			);
 			if ($r) {

@@ -702,7 +702,6 @@ function get_item_elements($x,$allow_code = false) {
 	$arr['mid']          = (($x['message_id'])     ? htmlspecialchars($x['message_id'],     ENT_COMPAT,'UTF-8',false) : '');
 	$arr['parent_mid']   = (($x['message_top'])    ? htmlspecialchars($x['message_top'],    ENT_COMPAT,'UTF-8',false) : '');
 	$arr['thr_parent']   = (($x['message_parent']) ? htmlspecialchars($x['message_parent'], ENT_COMPAT,'UTF-8',false) : '');
-
 	$arr['plink']        = (($x['permalink'])      ? htmlspecialchars($x['permalink'],      ENT_COMPAT,'UTF-8',false) : '');
 	$arr['location']     = (($x['location'])       ? htmlspecialchars($x['location'],       ENT_COMPAT,'UTF-8',false) : '');
 	$arr['coord']        = (($x['longlat'])        ? htmlspecialchars($x['longlat'],        ENT_COMPAT,'UTF-8',false) : '');
@@ -718,17 +717,12 @@ function get_item_elements($x,$allow_code = false) {
 	$arr['comment_policy'] = (($x['comment_scope']) ? htmlspecialchars($x['comment_scope'], ENT_COMPAT,'UTF-8',false) : 'contacts');
 
 	$arr['sig']          = (($x['signature']) ? htmlspecialchars($x['signature'],  ENT_COMPAT,'UTF-8',false) : '');
-
 	$arr['obj']          = activity_sanitise($x['object']);
 	$arr['target']       = activity_sanitise($x['target']);
-
 	$arr['attach']       = activity_sanitise($x['attach']);
 	$arr['term']         = decode_tags($x['tags']);
 	$arr['iconfig']      = decode_item_meta($x['meta']);
-
-	$arr['item_private'] = ((array_key_exists('flags',$x) && is_array($x['flags']) && in_array('private',$x['flags'])) ? 1 : 0);
-
-	$arr['item_flags'] = 0;
+	$arr['item_flags']   = 0;
 
 	if(array_key_exists('flags',$x)) {
 
@@ -749,6 +743,12 @@ function get_item_elements($x,$allow_code = false) {
 		if(in_array('hidden',$x['flags']))
 			$arr['item_hidden'] = 1;
 
+		if(in_array('private', $x['flags']))
+			$arr['item_private'] = 1;
+
+		if(in_array('private', $x['flags']) && in_array('direct', $x['flags']))
+			$arr['item_private'] = 2;
+
 	}
 
 	// Here's the deal - the site might be down or whatever but if there's a new person you've never
@@ -758,22 +758,34 @@ function get_item_elements($x,$allow_code = false) {
 	// and not enough info to be able to look you up from your hash - which is the only thing stored with the post.
 
 	$xchan_hash = import_author_xchan($x['author']);
-	if($xchan_hash)
+	if($xchan_hash) {
 		$arr['author_xchan'] = $xchan_hash;
-	else
-		return array();
+	}
+	else {
+		return [];
+	}
 
 	// save a potentially expensive lookup if author == owner
+	$legacy_sig = false;
+	$owner_hash = '';
+	if(isset($x['owner']['id']) && isset($x['owner']['key']) && isset($x['owner']['network']) && $x['owner']['network'] === 'zot6') {
+		$owner_hash = Libzot::make_xchan_hash($x['owner']['id'], $x['owner']['key']);
+	}
+	else {
+		$owner_hash = make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']);
+		$legacy_sig = true;
+	}
 
-	if($arr['author_xchan'] === make_xchan_hash($x['owner']['guid'],$x['owner']['guid_sig']))
+	if($arr['author_xchan'] === $owner_hash) {
 		$arr['owner_xchan'] = $arr['author_xchan'];
+	}
 	else {
 		$xchan_hash = import_author_xchan($x['owner']);
 		if($xchan_hash) {
 			$arr['owner_xchan'] = $xchan_hash;
 		}
 		else {
-			return array();
+			return [];
 		}
 	}
 
@@ -793,7 +805,15 @@ function get_item_elements($x,$allow_code = false) {
 		);
 		if($r) {
 			if($r[0]['xchan_pubkey'] && $r[0]['xchan_network'] === 'zot6') {
-				if(Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey'])) {
+				$item_verified = false;
+				if($legacy_sig) {
+					$item_verified = Crypto::verify($x['body'], base64url_decode($arr['sig']), $r[0]['xchan_pubkey']);
+				}
+				else {
+					$item_verified = Libzot::verify($x['body'], $arr['sig'], $r[0]['xchan_pubkey']);
+				}
+
+				if($item_verified) {
 					$arr['item_verified'] = 1;
 				}
 				else {
@@ -926,35 +946,54 @@ function import_author_xchan($x) {
 	 *   * \e string \b xchan_hash - Thre returned value
 	 */
 	call_hooks('import_author_xchan', $arr);
-	if($arr['xchan_hash'])
+	if($arr['xchan_hash']) {
 		return $arr['xchan_hash'];
+	}
 
 	$y = false;
 
-	if((! array_key_exists('network', $x)) || ($x['network'] === 'zot')) {
+	if((isset($x['id']) && isset($x['key'])) && (!isset($x['network']) || $x['network'] === 'zot6')) {
+		$y = Libzot::import_author_zot($x);
+	}
+
+	if(!$y && isset($x['url']) && isset($x['network']) && $x['network'] === 'zot6') {
+		$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
+			dbesc($x['url'])
+		);
+		if($r)
+			$y = $r[0]['xchan_hash'];
+		else
+			$y = discover_by_webbie($x['url'], 'zot6');
+	}
+
+	// if we were told that it's a zot6 connection, don't probe/import anything else
+
+	if($y)
+		return $y;
+
+	if(!isset($x['network']) || $x['network'] === 'zot') {
 		$y = import_author_zot($x);
 	}
 
-	// if we were told that it's a zot connection, don't probe/import anything else
-	if(array_key_exists('network',$x) && $x['network'] === 'zot') {
+	if(isset($x['network']) || $x['network'] === 'zot') {
 		if($x['url']) {
 			// check if we already have the zot6 xchan of this xchan_url. if not import it.
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
 				dbesc($x['url'])
 			);
-
-			if(! $r)
+			// TODO: fix dupplicate with line 960
+			if(!$r)
 				discover_by_webbie($x['url'], 'zot6');
 		}
 
-		return $y;
+		if($y)
+			return $y;
+
 	}
 
 	// perform zot6 discovery
-
 	if($x['url']) {
-		$y = discover_by_webbie($x['url'],'zot6');
-
+		$y = discover_by_webbie($x['url'], 'zot6');
  		if($y) {
 			return $y;
 		}
@@ -968,7 +1007,7 @@ function import_author_xchan($x) {
 		$y = import_author_unknown($x);
 	}
 
-	return($y);
+	return $y;
 }
 
 /**
@@ -1296,7 +1335,17 @@ function encode_item_xchan($xchan) {
 	$ret['guid']     = $xchan['xchan_guid'];
 	$ret['guid_sig'] = $xchan['xchan_guid_sig'];
 
-	return $ret;
+	$ret['id']       = $xchan['xchan_guid'];
+	$ret['id_sig']   = $xchan['xchan_guid_sig'];
+	$ret['key']      = $xchan['xchan_pubkey'];
+
+	$hookdata = [
+		'encoded_xchan' => $ret
+	];
+
+	call_hooks('encode_item_xchan', $hookdata);
+
+	return $hookdata['encoded_xchan'];
 }
 
 function encode_item_terms($terms,$mirror = false) {
@@ -1511,6 +1560,8 @@ function encode_item_flags($item) {
 		$ret[] = 'obscured';
 	if(intval($item['item_private']))
 		$ret[] = 'private';
+	if(intval($item['item_private']) === 2)
+		$ret[] = 'direct';
 
 	return $ret;
 }
@@ -1690,14 +1741,14 @@ function item_sign(&$item) {
 	if(array_key_exists('sig',$item) && $item['sig'])
 		return;
 
-	$r = q("select channel_prvkey from channel where channel_id = %d and channel_hash = '%s' ",
+	$r = q("select * from channel where channel_id = %d and channel_hash = '%s' ",
 			intval($item['uid']),
 			dbesc($item['author_xchan'])
 	);
 	if(! $r)
 		return;
 
-	$item['sig'] = base64url_encode(Crypto::sign($item['body'], $r[0]['channel_prvkey']));
+	$item['sig'] = Libzot::sign($item['body'], $r[0]['channel_prvkey']);
 	$item['item_verified'] = 1;
 }
 

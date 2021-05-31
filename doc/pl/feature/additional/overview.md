@@ -1,8 +1,8 @@
 [ftset]: /settings/features "Dodatkowe funkcjonalności"
 
-## Dodatkowe funkcjonalności
+## Dodatkowe możliwości
 
-W $Projectname, oprócz podstawowych podstawowych ustawień konta i kanałów, każdy użytkownik może również zarządzać dodatkowymi funkcjonalośiami związanymi ze swoim kontem i kanałami. Może to robić na stronie [Dodatkowe funkcjonalności] [ftset].  
+W $Projectname, oprócz podstawowych ustawień konta i kanałów, każdy użytkownik może również zarządzać dodatkowymi funkcjonalościami związanymi ze swoim kontem i kanałami. Może to robić na stronie [Dodatkowe funkcjonalności] [ftset].  
 
 Oto omówienie dostępnych tam opcji, tak jak są wyświetlane na stronie [Dodatkowe funkcjonalności] [ftset]:
 

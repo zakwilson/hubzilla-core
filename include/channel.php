@@ -922,7 +922,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			$ret['photo'] = [
 				'type' => $r[0]['mimetype'],
 				'data' => (($r[0]['os_storage'])
-					? base64url_encode(file_get_contents($r[0]['content'])) : base64url_encode(dbunescbin($r[0]['content'])))
+					? base64url_encode(file_get_contents(dbunescbin($r[0]['content']))) : base64url_encode(dbunescbin($r[0]['content'])))
 			];
 		}
 	}
@@ -991,11 +991,11 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 		}
 
 		if($xchans) {
-			$r = q("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
+			$r = dbq("select * from xchan where xchan_hash in ( " . implode(',',$xchans) . " ) ");
 			if($r)
 				$ret['xchan'] = $r;
 
-			$r = q("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
+			$r = dbq("select * from hubloc where hubloc_hash in ( " . implode(',',$xchans) . " ) ");
 			if($r)
 				$ret['hubloc'] = $r;
 		}
@@ -1516,8 +1516,11 @@ function profile_load($nickname, $profile = '') {
 
 	if($p[0]['keywords']) {
 		$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$p[0]['keywords']);
-		if(strlen($keywords) && $can_view_profile)
+		if(strlen($keywords) && $can_view_profile) {
+			if(! isset(App::$page['htmlhead']))
+				App::$page['htmlhead'] = '';
 			App::$page['htmlhead'] .= '<meta name="keywords" content="' . htmlentities($keywords,ENT_COMPAT,'UTF-8') . '" />' . "\r\n" ;
+		}
 	}
 
 	App::$profile = $p[0];
@@ -2593,7 +2596,7 @@ function channelx_by_n($id) {
 	}
 
 	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
-		dbesc($id)
+		intval($id)
 	);
 
 	return(($r) ? $r[0] : false);

@@ -125,10 +125,10 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 	 *  Array with the values for the authenticated channel.
 	 * @return bool
 	 */
-	protected function setAuthenticated($r) {
-		$this->channel_name = $r['channel_address'];
-		$this->channel_id = $r['channel_id'];
-		$this->channel_hash = $this->observer = $r['channel_hash'];
+	protected function setAuthenticated($channel) {
+		$this->channel_name = $channel['channel_address'];
+		$this->channel_id = $channel['channel_id'];
+		$this->channel_hash = $this->observer = $channel['channel_hash'];
 
 		if ($this->observer) {
 			$r = q("select * from xchan where xchan_hash = '%s' limit 1",
@@ -139,8 +139,8 @@ class BasicAuth extends DAV\Auth\Backend\AbstractBasic {
 			}
 		}
 
-		$_SESSION['uid'] = $r['channel_id'];
-		$_SESSION['account_id'] = $r['channel_account_id'];
+		$_SESSION['uid'] = $channel['channel_id'];
+		$_SESSION['account_id'] = $channel['channel_account_id'];
 		$_SESSION['authenticated'] = true;
 		return true;
 	}

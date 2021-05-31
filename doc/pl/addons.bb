@@ -10,7 +10,7 @@
 [*] calc - kalkulator naukowy
 [*] chess - interaktywne gry w szachy z uwzględnieniem tożsamości międzydomenowej
 [*] chords - generowanie wykresów palcowania i alternatyw dla każdego znanego akordu gitarowego
-[*] custom_home - ustawianie własnej strony jako strony początkowej węzła
+[*] custom_home - ustawianie własnej strony jako strony początkowej portalu
 [*] diaspora - emulator protokołu Diaspora
 [*] dirstats - wyświetlanie interesujących statystyk generowanych przez serwer katalogowy
 [*] docs - alternatywne strony dokumentacji
@@ -18,7 +18,7 @@
 [*] dreamhost - zapewnia bardziej niezawodną usługę na hostingu współdzielonym Dreamhost
 [*] dwpost - krzyżowe wpisy do Dreamwidth
 [*] emojione - zezwala na uzywanie emojis jako emotikonów
-[*] extcron - stosowanie zewnętrznej usługi cron do uruchamiania zaplanowanych zadań węzła
+[*] extcron - stosowanie zewnętrznej usługi cron do uruchamiania zaplanowanych zadań portalu
 [*] firefox - dostarcza link do zainstalowania API Sharing Firefoxa
 [*] flattrwidget - dostarcza przyciski "Flattr Us"
 [*] flip - tworzenie odwróconego tekstu
@@ -28,7 +28,7 @@
 [*] gnusoc - protokół GNU-Social (OStatus). W tworzeniu. 
 [*] hexit - narzędzie do konwersji szesnastkowej
 [*] hilite - umożliwia podświetlanie bloków kodu, specyficzne dla języka programowania, zawartych we wpisach
-[*] hubwall - wysyłanie wiadomosci e-mail administratora na wszystkie konta w węźle
+[*] hubwall - wysyłanie wiadomosci e-mail administratora na wszystkie konta w portalu
 [*] ijpost - krzyżówe wpisy do Insanejournal
 [*] irc - połączenie z czatami IRC
 [*] jappixmini - czat XMPP
@@ -81,7 +81,7 @@
 [*] statusnet - wpisy krzyżówe do GNU-social i StatusNet [zrl=[baseurl]/help/addons_gnusocial]Posting To Gnu Social[/zrl]
 [*] std_embeds - umożłiwia niefiltrowane osadzanie dla popularnych dostawców strumieni, takich jak youtube, vimeo i soundcloud
 [*] superblock - bardzo zalecane - całkowite blokowanie obraźliwuch kanałów w swoim strumieniu
-[*] testdrive - zmienia węzęł w witrynę testową z kontami, które wygasają po okresie próbnym
+[*] testdrive - zmienia portal w witrynę testową z kontami, które wygasają po okresie próbnym
 [*] tictac - 3D tic-tac-toe
 [*] torch - aplikacja podświetlania (flashlight)
 [*] tour - prezentacja funkcji dla nowych członków

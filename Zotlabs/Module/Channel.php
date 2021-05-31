@@ -308,9 +308,9 @@ class Channel extends Controller {
 		if (($update) && (!$load)) {
 
 			if ($mid) {
-				$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal_update
+				$r = q("SELECT parent AS item_id from item where mid = '%s' and uid = %d $item_normal_update
 					AND item_wall = 1 $simple_update $sql_extra limit 1",
-					dbesc($mid . '%'),
+					dbesc($mid),
 					intval(App::$profile['profile_uid'])
 				);
 			}
@@ -356,9 +356,9 @@ class Channel extends Controller {
 
 			if ($noscript_content || $load) {
 				if ($mid) {
-					$r = q("SELECT parent AS item_id from item where mid like '%s' and uid = %d $item_normal
+					$r = q("SELECT parent AS item_id from item where mid = '%s' and uid = %d $item_normal
 						AND item_wall = 1 $sql_extra limit 1",
-						dbesc($mid . '%'),
+						dbesc($mid),
 						intval(App::$profile['profile_uid'])
 					);
 					if (!$r) {

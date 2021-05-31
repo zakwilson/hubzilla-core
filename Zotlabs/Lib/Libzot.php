@@ -2664,9 +2664,9 @@ class Libzot {
 		// we may only end up with one; which results in posts with no author name or photo and are a bit
 		// of a hassle to repair. If either or both are missing, do a full discovery probe.
 
-		if (!array_key_exists('id', $x)) {
-			return import_author_activitypub($x);
-		}
+		//if (!array_key_exists('id', $x)) {
+			//return import_author_activitypub($x);
+		//}
 
 		$hash = self::make_xchan_hash($x['id'], $x['key']);
 
@@ -2924,7 +2924,19 @@ class Libzot {
 		];
 
 		$ret['channel_role']  = get_pconfig($e['channel_id'], 'system', 'permissions_role', 'custom');
-		$ret['protocols']     = ['zot6', 'zot'];
+
+		$hookinfo = [
+			'channel_id' => $id,
+			'protocols' => ['zot6', 'zot']
+		];
+		/**
+		 * @hooks channel_protocols
+		 *   * \e int \b channel_id
+		 *   * \e array \b protocols
+		 */
+		call_hooks('channel_protocols', $hookinfo);
+
+		$ret['protocols']     = $hookinfo['protocols'];
 		$ret['searchable']    = $searchable;
 		$ret['adult_content'] = $adult_channel;
 		$ret['public_forum']  = $public_forum;

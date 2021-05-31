@@ -20,7 +20,7 @@ POWINNO się używać SSL. Jeśli używasz SSL, MUSISZ użyć certyfikatu uznawa
 
 Przetestuj swój certyfikat przed instalacją. Narzędzie internetowe do testowania certyfikatu jest dostępne pod adresem http://www.digicert.com/help/. Odwiedzając witrynę po raz pierwszy, użyj adresu URL SSL (https://), jeśli protokół SSL jest dostępny. Pozwoli to uniknąć późniejszych problemów. Procedura instalacji nie pozwoli na użycie certyfikatu, który nie jest zaufany dla przeglądarki.
 
-To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim węźle. Inni członkowie przeglądający swój strumień na innych węzłach otrzymają  w swojej przeglądarce ostrzeżenia, jeśli Twój certyfikat nie jest zaufany. To może zmylić wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim węźle podczas przeglądania własnego węzła i mogą pomyśleć, że ich własny węzeł ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować i podporządkuje się zaleceniom przeglądarki. Jest to destrukcyjne dla społeczności. Zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania - szyfrowanie połączeń HTTP jest konieczne.
+To ograniczenie zostało wprowadzone, ponieważ Twoje publiczne wpisy mogą zawierać odniesienia do obrazów na Twoim portalu. Inni członkowie przeglądający swój strumień na innych portalach otrzymają  w swojej przeglądarce ostrzeżenia, jeśli Twój certyfikat nie jest zaufany. To może zmylić wiele osób, ponieważ jest to zdecentralizowana sieć i otrzymają ostrzeżenie o Twoim portalu podczas przeglądania własnego portalu i mogą pomyśleć, że ich własny portal ma problem. Te ostrzeżenia są bardzo techniczne i przerażające dla niektórych osób, z których wielu nie będzie wiedziało, jak postępować i podporządkuje się zaleceniom przeglądarki. Jest to destrukcyjne dla społeczności. Zdajemy sobie sprawę z problemów związanych z obecną infrastrukturą certyfikatów i zgadzamy się, że istnieje wiele problemów, ale to nie zmienia wymagania - szyfrowanie połączeń HTTP jest konieczne.
 
 Bezpłatne certyfikaty zgodne z przeglądarkami są dostępne od dostawców, takich jak StartSSL czy LetsEncrypt.
 
@@ -30,7 +30,7 @@ Jeśli używasz LetsEncrypt do dostarczania certyfikatów i tworzenia pliku pod 
 
 ### Wdrożenie
 
-Nowy węzeł można wdrożyć na kilka sposobów:
+Nowy portal można wdrożyć na kilka sposobów:
 
 * ręczna inastalaja na istniejącym serwerze;
 * automatyczna instalacja na istniejącym serwerze przy użyciu skryptu instalacyjnego;
@@ -204,7 +204,7 @@ jest nieco bardziej restrykcyjny w zakresie dozwolonych rodzajów komunikacji. W
 
 * _gnusoc_ - protokół społecznościowy GNU, używany przez GNU-Social, Mastodon i kilka innych społeczności. Ten dodatek wymaga najpierw zainstalowania usługi _pubsubhubbub_ (także dodatku).
 
-Każdy członek Twojej siatki musi indywidualnie zdecydować, czy zezwolić na te protokoły, ponieważ mogą one kolidować z kilkoma pożądanymi podstawowymi funkcjami i możliwościami Hubzilla (takimi jak migracja kanałów i klonowanie). Robi się to
+Każdy członek Twojej sieci musi indywidualnie zdecydować, czy zezwolić na te protokoły, ponieważ mogą one kolidować z kilkoma pożądanymi podstawowymi funkcjami i możliwościami Hubzilla (takimi jak migracja kanałów i klonowanie). Robi się to
 na swojej stronie _Ustawienia_ -> _Ustawienia funkcji i dodatków_. Administrator może również ustawić:
 
 	util/config system.diaspora_allowed 1
@@ -313,7 +313,7 @@ Na stronie katalogu kanałów może pojawiać się  chmura słów kluczowych. Je
 
     util/config system disable_directory_keywords 1
 
-Jeśli twój węzeł pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
+Jeśli twój portal pracuje w trybie autonomicznym, ponieważ nie chcesz łączyć się z globalną siecią, możesz zamiast tego ustawić opcję systemową _directory_server_ na wartość pustą:
 
     util/config system directory_server ""
 
@@ -327,7 +327,7 @@ Istnieje kilka sposobów, w jakie może to się nie powieść i pozostawić syst
 
 Ze względów bezpieczeństwa w systemie nie ma strony internetowej ani interfejsu, który daje dostęp administratora. Jeśli potrzebujesz poprawić sytuację, w której system nie ma konta administratora, musisz to zrobić edytując tabelę kont w bazie danych. Nie ma innego wyjścia. Aby to zrobić, będziesz musiał zlokalizować wpis w tabeli kont, który należy do żądanego administratora i ustawić _account_roles_ dla tego wpisu na _4096_. Będziesz wtedy mógł uzyskać dostęp do strony administratora z menu profilu twojego systemu lub bezpośrednio na ścieżce _/admin_.
 
-Węzeł może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
+Portal może mieć wielu administratorów i nie ma ograniczeń co do ich liczby. Powtórz powyższą procedurę dla każdego konta, któremu chcesz przyznać uprawnienia administracyjne.
 
 ### Rozwiązywanie problemów
 
@@ -350,17 +350,17 @@ Na dole dostarczonego pliku *.htconfig.php* znajduje się kilka linii, które, j
 
 **Trzeci to "dziennik aplikacji"**. Jest to używane przez Hubzillę do zgłaszania tego, co dzieje się w programie i zwykle zapisywane są tu wszelkie trudności lub nieoczekiwane dane, które otrzymaliśmy. Jego nazwę (ścieżkę) trzeba podać na stronie "Administracja - Logi" (/admin/logs), np. *hubzilla.log* wskazuje na plik o tej nazwie zlokalizowany w katalogu głównym Hubzilla. Czasem zgłaszane są tu również komunikaty o stanie "pulsu", aby wskazać, że osiągnęliśmy określony punkt w skrypcie. Jest to dla nas najważniejszy plik dziennika, ponieważ tworzymy go samodzielnie wyłącznie w celu zgłaszania stanu zadań w tle i wszystkiego, co wydaje się dziwne lub nie na miejscu. Te błędy mogą być "śmiertelne", ale też niegroźne i po prostu nieoczekiwane. Jeśli wykonujesz zadanie i występuje problem, daj nam znać, co znajduje się w tym pliku, gdy wystąpił problem. Proszę nie wysyłaj nam 100 milionów zrzutów, bo tylko nas wkurzysz! Tylko kilka odpowiednich wierszy, ab można było wykluczyć kilkaset tysięcy wierszy kodu i skoncentrować się na tym, gdzie zaczyna się pojawiać problem.
 
-To są dzienniki Twojego serwisu. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecam poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
+To są dzienniki Twojego serwisu. Zgłaszamy poważne problemy na każdym poziomie dziennika. Gorąco polecamy poziom dziennika *DEBUG* dla większości witryn. Dostarcza on trochę dodatkowych informacji i nie tworzy dużych plików dziennika. Kiedy pojawia się problem, który uniemożliwia wszelkie próby śledzenia, możesz wtedy włączyć na krótki czas poziom *DATA*, aby uchwycić wszystkie szczegóły struktur, z którymi mieliśmy do czynienia w tym czasie. Ten poziom dziennika zajmuje dużo miejsca, więc jest zalecany tylko na krótkie okresy lub w przypadku witryn testowych dla programistów.
 
-Zalecam skonfigurowanie *logrotate* zarówno dla dziennika php, jak i dziennika aplikacji. Zazwyczaj co tydzień lub dwa zaglądam do *dbfail.out*, naprawiam zgłoszone problemy i zaczynam od nowego pliku. Podobnie jest z plikiem dziennika PHP. Odwołuję się do tego od czasu do czasu, aby sprawdzić, czy jest coś, co wymaga naprawy.
+Zalecamy skonfigurowanie *logrotate* zarówno dla dziennika php, jak i dziennika aplikacji. Zazwyczaj co tydzień lub dwa zaglądam do *dbfail.out*, naprawiam zgłoszone problemy i zaczynam od nowego pliku. Podobnie jest z plikiem dziennika PHP. Odwołuję się do tego od czasu do czasu, aby sprawdzić, czy jest coś, co wymaga naprawy.
 
-Jeśli coś pójdzie nie tak i nie jest to błąd krytyczny, patrzę na plik dziennika aplikacji. Często robię to:
+Jeśli coś pójdzie nie tak i nie jest to błąd krytyczny, warto zajrzeć do pliku dziennika aplikacji. Można zrobić to tak:
 
 ```
 tail -f logfile.out
 ```
 
-ponieważ powtarza operację, która ma problemy. Często wstawiam w kodzie dodatkowe instrukcje rejestracji, jeśli nie ma żadnej wskazówki, co się dzieje. Nawet coś tak prostego jak "got here" lub drukuję wartości zmiennej, która może być podejrzana. Ty też możesz to zrobić - wręcz zachęcam Cię do tego. Gdy już znajdziesz to, czego potrzebujesz, możesz wykonać:
+ponieważ powtarzaja się wpisy dla operacju, która ma problemy. MOzna wstawić w kodzie dodatkowe instrukcje rejestracji, jeśli nie ma żadnej wskazówki, co się dzieje. Nawet coś tak prostego jak "got here" lub wydrukować wartości zmiennej, która może być podejrzana. Zachecamy aby to robić. Gdy już znajdziesz to, czego potrzebujesz, możesz wykonać:
 
 ```
 git checkout file.php

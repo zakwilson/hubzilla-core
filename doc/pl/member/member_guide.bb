@@ -4,11 +4,11 @@ Chociaż wiele funkcji i możliwości Hubzilli jest znanych osobom, które korzy
 
 [h3]Rejestracja[/h3]
 
-Nie wszystkie serwisy oparte na $Projectname umożliwiają otwartą rejestrację. Jeśli rejestracja jest dozwolona, zobaczysz łącze &quot;Rejestracja&quot; bezpośrednio pod formularzem logowania na stronie głównej serwisu. Kliknięcie tego linku przeniesie Ciebie do strony rejestracyjnej. W niektórych serwisach. link ten może przekierować do innej witryny, która umożliwia rejestrację. Ponieważ wszystkie serwisy Hubzilla są połączone, nie ma znaczenia, gdzie znajduje się Twoje konto.
+Nie wszystkie serwisy oparte na $Projectname umożliwiają otwartą rejestrację. Jeśli rejestracja jest dozwolona, zobaczysz łącze &quot;Rejestracja&quot; bezpośrednio pod formularzem logowania. Kliknięcie tego linku przeniesie Ciebie do strony rejestracyjnej. W niektórych serwisach, link ten może przekierować do innej witryny, która umożliwia rejestrację. Ponieważ wszystkie serwisy Hubzilla są połączone, nie ma znaczenia, gdzie znajduje się Twoje konto.
 
 [b]Twój ades e-mail[/b]
 
-Proszę o wprowadzenie poprawnego adresu e-mail. Twój adres e-mail nigdy nie jest publikowany. Ten adres będzie używany do aktywacji konta, do ewentualnego wysyłania powiadomień o przychodzących wiadomościach lub wpisach oraz do odzyskiwania utraconych haseł.
+Trzeba tu wprowadzić poprawny adres e-mail. Twój adres e-mail nigdy nie jest publikowany. Ten adres będzie używany do aktywacji konta, do ewentualnego wysyłania powiadomień o przychodzących wiadomościach lub wpisach oraz do odzyskiwania utraconych haseł.
 
 [b]Hasło[/b]
 
@@ -20,7 +20,7 @@ Kliknij to łącze, aby przeczytać dokument [zrl=[baseurl]/help/TermsOfService]
 
 [b]Rejestracja[/b]
 
-Po podaniu niezbędnych informacji, kliknij przycisk „Zarejestruj się”. Niektóre serwisy mogą wymagać zatwierdzenia rejestracji przez administratora, zanim zostanie ona przetworzona, o czym osoba rejestrująca się zostanie powiadomiona. Trzba więc śledzić swoją pocztę e-mail (w tym folder ze spamem) w celu potwierdzenia rejestracji.
+Po podaniu niezbędnych informacji, kliknij przycisk "Zarejestruj się". Niektóre serwisy mogą wymagać zatwierdzenia rejestracji przez administratora, zanim zostanie ona przetworzona, o czym osoba rejestrująca zostanie powiadomiona. Trzeba więc śledzić swoją pocztę e-mail (w tym folder ze spamem) w celu potwierdzenia rejestracji.
 
 [h3]Kanały[/h3]
 
@@ -149,9 +149,9 @@ Przecztaj też:
 
 [zrl=[baseurl]/help/pl/AdvancedSearch]Zaawansowane przeszukiwanie[/zrl]
 
-[h4][b]Siatka, uprawnienia i delegowanie[/b][/h4]
+[h4][b]Sieć, uprawnienia i delegowanie[/b][/h4]
 
-Strona "Siatka" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Wpisy, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać wpisy od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
+Strona "Sieć" zawiera wszystkie najnowsze wpisy z całej sieci Hubzilla, wykazane w odwrotnej kolejności chronologicznej. Wpisy, które się tutaj pojawiają, zależą w dużej mierze od ustawionych przez siebie preferencji. Na najbardziej liberalnym poziomie uprawnień będziesz otrzymywać wpisy od zupełnie obcych osób. Na drugim końcu skali możesz zobaczyć wpisy tylko od znajomych - lub, jeśli czujesz się naprawdę niezainteresowany społecznością, tylko własne wpisy.
 
 Jak wspomniano na początku, możliwych jest wiele innych rodzajów kanałów, jednak procedura tworzenia jest taka sama. Różnica między kanałami polega przede wszystkim na przypisanych uprawnieniach. Na przykład kanał umożliwiający udostępnianie dokumentów współpracownikom w pracy prawdopodobnie wymagałby bardziej liberalnych ustawień "Może zapisywać w moim" publicznym "magazynie plików" niż na koncie osobistym.
 
@@ -175,7 +175,7 @@ Odwiedź profil tego kanału, klikając jego zdjęcie w katalogu, matrycy lub ko
 
 Aby połączyć się z kanałami w innych sieciach niż sieć $Projectname:
 
-Proces łączenia się z kanałami w innych sieciach (takich jak GNU-Social, Mastodon czy Diaspora) jest podobny - wpisz odpowiednie "webbie" do pola "Dodaj nowe połączenia" na stronie "Połączenia". Jednak zanim to zrobisz, odwiedź stronę "Ustawienia" ("Ustawienia funkcji i dodatków") i upewnij się, że w Twoim węźle jest dostępny odpowiedni protokół (Diaspora, GNU-Social/OStatus lub ActivityPub) i [b][i]jest aktywowany[/i] dla Twojego kanału[/b]. Te sieci (protokoły) nie obsługują migracji kont i niezależności lokalizacji, więc jeśli przeniesiesz lokalizację lub sklonujesz swój kanał w inne miejsce, komunikacja z tymi połączeniami może się nie udać. Z tego powodu protokoły te nie są domyślnie aktywowane, ale ich aktywacja wymaga Twojej zgodą. Aktywacja tych protokołów wiąże się z podjęciem ważkiego rozstrzygniecia korzyści płynących z kmunikowania się ze znajomymi w tych sieciach a z drugiej strony, zapewnieniem odporności konta na awarie serwera.
+Proces łączenia się z kanałami w innych sieciach (takich jak GNU-Social, Mastodon czy Diaspora) jest podobny - wpisz odpowiednie "webbie" do pola "Dodaj nowe połączenia" na stronie "Połączenia". Jednak zanim to zrobisz, odwiedź stronę "Ustawienia" ("Ustawienia funkcji i dodatków") i upewnij się, że w Twoim portalu jest dostępny odpowiedni protokół (Diaspora, GNU-Social/OStatus lub ActivityPub) i [b][i]jest aktywowany[/i] dla Twojego kanału[/b]. Te sieci (protokoły) nie obsługują migracji kont i niezależności lokalizacji, więc jeśli przeniesiesz lokalizację lub sklonujesz swój kanał w inne miejsce, komunikacja z tymi połączeniami może się nie udać. Z tego powodu protokoły te nie są domyślnie aktywowane, ale ich aktywacja wymaga Twojej zgodą. Aktywacja tych protokołów wiąże się z podjęciem ważkiego rozstrzygniecia korzyści płynących z kmunikowania się ze znajomymi w tych sieciach a z drugiej strony, zapewnieniem odporności konta na awarie serwera.
 
 Niektóre rodzaje komunikacji oferują więcej niż jeden protokół. Jeśli chcesz połączyć się z kimś na Mastodonie (na przykład), możesz użyć do komunikacji protokołu "Ostatus" lub "AactivityPub". Generalnie, protokół "ActivityPub" zapewnia lepszą obsługę niż "Ostatus", ale Hubzilla często wybiera pierwszy protokół, który odkryje i może to nie być to, czego chcesz. Możesz połączyć się z kimś przez określony protokół, poprzedzając nazwę protokołu w nawiasach kwadratowych na tym "webbie". Na przykład:
 
@@ -189,7 +189,7 @@ Niektóre rodzaje komunikacji oferują więcej niż jeden protokół. Jeśli chc
 
 Aby połączyć zię z kanałami RSS:
 
-Administrator węzła może zezwolić na łączenie się z kanałami RSS. Proces łączenia się z kanałem RSS jest taki sam, z wyjątkiem wpisania (lub wklejenia) adresu URL kanału w polu "Dodaj nowe połączenie". Kanały są przetwarzane tylko raz lub dwa razy dziennie, a administrator węzła może nałożyć ograniczenia na liczbę dodawanych kanałów.
+Administrator portalu może zezwolić na łączenie się z kanałami RSS. Proces łączenia się z kanałem RSS jest taki sam, z wyjątkiem wpisania (lub wklejenia) adresu URL kanału w polu "Dodaj nowe połączenie". Kanały są przetwarzane tylko raz lub dwa razy dziennie, a administrator portalu może nałożyć ograniczenia na liczbę dodawanych kanałów.
 
 [h4][b]Blokowanie, ignorowanie, archiwizowanie i ukrywanie kanałów[/b][/h4]
 
@@ -235,7 +235,7 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
   
   [*= Każdy w Twojej książce adresowej ] Każdy, kto nie znajduje się w Twojej książce adresowej ma odmowę dostępu, ale każdy kogo zaakceptujesz jako kontakt, uzyska zezwolenie. Jest to sposób stosowany na większości starszych platform.
   
-  [*= Każdy na tym węźle ] Każdy, kto ma kanał w tym samym węźle co Ty, będzie miał pozwolenie. Każdemu, kto jest zarejestrowany na innym węźle, odmawia się dostępu.
+  [*= Każdy na tym portalu ] Każdy, kto ma kanał w tym samym portalu co Ty, będzie miał pozwolenie. Każdemu, kto jest zarejestrowany na innym portalu, odmawia się dostępu.
   
   [*= Każdy w tej sieci ] Każdy w sieci $Projectname będzie miał zatwierdzone to pozwolenie. Nawet zupełnie obce osoby. Jednak każdemu, kto nie jest zalogowany (uwierzytelniony), tego dostępu się odmiawia.
   
@@ -269,12 +269,11 @@ Zdecydowanie zalecamy skorzystanie z ustawień "typowej sieci społecznościowej
 
   [*= Można publikować zdjęcia w moich albumach ze zdjęciami. ] To określa, kto może publikować zdjęcia w Twoich albumach. Jest to bardzo przydatne w przypadku kanałów przypominających forum, na których połączenia mogą nie być ze sobą połączone.
 
-  [*= Można przekazywać dalej do wszystkich kontaktów z mojego kanału za pomocą
-tagów wpis. ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
+  [*= Można przekazywać dalej do wszystkich kontaktów z mojego kanału za pomocą tagów "post". ] Użycie wzmianek (@-) spowoduje odtworzenie kopii twojego wpisu na określonym profilu, tak jakbyś opublikował go na ścianie kanału. To ustawienie określa, czy jakieś osoby mogą w ten sposób publikować na Twoim kanale.
 
   [*= Można ze mną rozmawiać (jeśli jestem dostępny). ] Określa to, kto może dołączyć do publicznych czatów utworzonych na Twoim kanale.
 
-  [*= Można zapisywać w moim "publicznym" magazynie plików. ] To określa, kto może przesyłać pliki do Twojego publicznego magazynu plików lub "chmury".
+  [*= Można zapisywać w moim "publicznym" magazynie plików. ] To określa, kto może przesyłać pliki do Twojego publicznego magazynu plików.
 
   [*= Można edytować moje "publiczne" strony. ] Określa to, kto może edytować Twoje strony internetowe. Jest to przydatne w przypadku witryn typu wiki lub witryn z wieloma redaktorami.
 
@@ -292,7 +291,7 @@ Ekran edycji połączenia oferuje suwak do wyboru stopnia "zaprzyjaźnienia" z p
 Suwak na stronie matrycy ma zarówno wartość minimalną, jak i maksymalną. Wpisy będą wyświetlane tylko od osób mieszczących się w tym zakresie. Zaprzyjaźnienie nie ma związku z uprawnieniami i jest przydatna tylko w połączeniu z funkcją narzędzia zaprzyjaźnienia.
 
 [h3]Tokeny dostępu gościa[/h3]
-Tokeny dostępu gościa (czasami nazywane "tokenami dostępu Zot") umożliwiają udostępnianie pliku, folderu, zdjęcia, albumu lub kanału określonej osobie lub grupie osób, które nie są członkami węzła Hubzilli. Te tokeny umożliwiają udostępnianie poszczególnych elementów poprzez wysłanie linku zawierającego token w adresie URL; alternatywnie, osoby mogą faktycznie logować się przy użyciu poświadczeń tokena, po czym mogą bezproblemowo przeglądać zawartość udostępnioną temu tokenowi.
+Tokeny dostępu gościa (czasami nazywane "tokenami dostępu Zot") umożliwiają udostępnianie pliku, folderu, zdjęcia, albumu lub kanału określonej osobie lub grupie osób, które nie są członkami portalu Hubzilli. Te tokeny umożliwiają udostępnianie poszczególnych elementów poprzez wysłanie linku zawierającego token w adresie URL; alternatywnie, osoby mogą faktycznie logować się przy użyciu poświadczeń tokena, po czym mogą bezproblemowo przeglądać zawartość udostępnioną temu tokenowi.
 
 W celu utworzenia tokenów dostępu gościa i zarządzać nimi, otwórz stronę ustawień "Tokeny dostępu gościa". Przy każdym załadowaniu strony generowany jest losowy token, który umożliwia utworzenie specjalnego adresu URL zawierającego ten token i opcjonalnie określenie daty wygaśnięcia. Istniejące tokeny są wymienione poniżej okna dialogowego i można je edytować, wybierać lub usuwać.
 
@@ -317,7 +316,7 @@ Podobnie jak wiele innych platform, $Projectname używa specjalnej notacji wewn�
 [h4][b]Wzmianki[/b][/h4]
 Kanały (profile) są oznaczane przez swoją nazwę poprzedzoną znakiem ed, np. [code]@Jacek[/code]. Jest to wykorzystywane w mechaniźmie wzmianek.
 
-Kiedy zaczniesz wspominać o kimś w swoim poście (wstawiając znak @), mechanizm ten utworzy pole z autouzupełnianiem, aby można było wybrać z Twoich bezpośrednich kontaktów określoną osobę (kanał). Możesz wybrać z listy ten kanał, który chcesz wzmiankować.
+Kiedy zaczniesz zmiankować o kimś w swoim wpisie (wstawiając znak @), mechanizm ten utworzy pole z autouzupełnianiem, aby można było wybrać z Twoich bezpośrednich kontaktów określoną osobę (kanał). Możesz wybrać z listy kanał, który chcesz wzmiankować.
 
 Jeśli wspomniana osoba znajduje się na liście odbiorców wpisu, otrzyma powiadomienie o tym znaczniku.   
 
@@ -441,7 +440,7 @@ wytworzy taki HTML:
 
 [h4][b]Narzędzie importy elementów strony internetowej[/b][/h4]
 
-Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do lokalnego folderu plików w chmurze. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie w węźle.
+Istnieją dwie metody importowania elementów strony internetowej: przesyłanie pliku ZIP lub odwoływanie się do plików we własnym magazynu plików w serwisie. Obie metody wymagają określenia elementów strony sieci internetowej przy użyciu określonej struktury folderów. Narzędzie importu umożliwia zaimportowanie wszystkich elementów niezbędnych do zbudowania całej witryny lub zestawu witryn. Celem jest uwzględnienie zewnętrznego tworzenia stron internetowych, a także narzędzi upraszczających i automatyzujących wdrażanie na portalu.
 
 [h5][b] Struktura folderu [/b][/h5]
 Definicje elementów muszą być przechowywane w katalogu głównym repozytorium w folderach o nazwie odpowiadającej typowi elementu: 
@@ -795,7 +794,7 @@ Można użyć konstrukcji [code]if[/code] warunkowego wykonania kodu. Jest to ob
 [/code]
 
 
-[h3]Osobisty magazyn w chmurze[/h3]
+[h3]Osobisty magazyn plików[/h3]
 
 $Projectname umożliwia prywatne przechowywanie i udostępnianie znajomym dowolnych plików. Możesz przesłać pliki ze swojego komputera do obszaru przechowywania lub skopiować je bezpośrednio z systemu operacyjnego przy użyciu protokołu WebDAV.
 
@@ -815,11 +814,11 @@ Twoje pliki są widoczne w sieci pod adresem [observer=1][baseurl]/cloud/[observ
 
 [h4][b]Dostęp WebDAV[/b][/h4]
 
-WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego komputera, gdzie Twój "magazyn chmurze" pojawia się jako wirtualny dysk. Dostęp ten powinien być używany do przesyłania dużych plików, takich jak wideo i audio, ponieważ nie jest ograniczony dostępną pamięcią wewnętrzna. Zobacz [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] poniżej.
+WebDAV umożliwia kopiowanie plików bezpośrednio do lub z systemu operacyjnego komputera, gdzie Twój "magazyn plików" pojawia się jako wirtualny dysk. Dostęp ten powinien być używany do przesyłania dużych plików, takich jak wideo i audio, ponieważ nie jest ograniczony dostępną pamięcią wewnętrzna. Zobacz [zrl=help/member/member_guide#Cloud_Desktop_Clients]Cloud Desktop Clients[/zrl] poniżej.
 
 [h4][b]Dostęp CalDAV i CardDAV na Androidzie[/b][/h4]
 
-Możesz zsynchronizować swój kalendarz i kontakty w systemie Android ze swoim węzłem.
+Możesz zsynchronizować swój kalendarz i kontakty w systemie Android ze swoim portalem.
 
 Poniższe kroki zostały przetestowane pod kątem zasosowania [url=https://f-droid.org/en/packages/at.bitfire.davdroid/] DAVdroid [/url]:
 
@@ -837,9 +836,9 @@ Aby udostępnić kalendarz odwiedź [observer.baseurl]/cdav/calendar
 
 [h4][b]Uprawnienia[/b][/h4]
 
-W przypadku korzystania z protokołu WebDAV plik jest tworzony z domyślnymi uprawnieniami do plików kanału, których nie można zmienić z poziomu systemu operacyjnego. Może też nie być to tak restrykcyjne, jak byś chciał. Najlepiej, utwórz foldery (katalogi), następnie odwiedź swoją "chmurę" pod aadresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer], wybierz katalog i zmień uprawnienia. Zrób to zanim umieścisz cokolwiek w katalogu. Uprawnienia do katalogu mają pierwszeństwo, więc możesz następnie umieścić pliki lub inne foldery w tym kontenerze i będą one chronione przed niechcianymi widzami przez ustawienie uprawnienia do katalogu. Często zdarza się, że użytkownicy tworzą folder "osobisty" lub "prywatny", który jest ograniczony do nich samych. Możesz używać tego jako osobistej chmury do przechowywania wszystkiego z dowolnego miejsca w Internecie lub dowolnego komputera i jest to chroniony przed innymi. Możesz także utworzyć foldery dla "rodziny" lub "przyjaciele" za zgodą udzieloną odpowiednim grupom prywatności.
+W przypadku korzystania z protokołu WebDAV plik jest tworzony z domyślnymi uprawnieniami do plików kanału, których nie można zmienić z poziomu systemu operacyjnego. Może też nie być to tak restrykcyjne, jak byś chciał. Najlepiej, utwórz foldery (katalogi), następnie odwiedź swój magazyn plików pod adresem [observer=1][baseurl]/cloud/[observer.webname][/observer][observer=0][baseurl]/cloud/username[/observer], wybierz katalog i zmień uprawnienia. Zrób to zanim umieścisz cokolwiek w katalogu. Uprawnienia do katalogu mają pierwszeństwo, więc możesz następnie umieścić pliki lub inne foldery w tym kontenerze i będą one chronione przed niechcianymi widzami przez ustawienie uprawnienia do katalogu. Często zdarza się, że użytkownicy tworzą folder "osobisty" lub "prywatny", który jest ograniczony do nich samych. Możesz używać tego jako osobistej chmury do przechowywania wszystkiego z dowolnego miejsca w Internecie lub dowolnego komputera i jest to chroniony przed innymi. Możesz także utworzyć foldery dla "rodziny" lub "przyjaciele" za zgodą udzieloną odpowiednim grupom prywatności.
 
-[h3]Klienty desktopowe dla chmury[/h3]
+[h3]Klienty desktopowe dla magazynu plikowego[/h3]
 
 [h4][b]Klienty dla Windows[/b][/h4]
 
@@ -855,7 +854,7 @@ W Windows 7 połaczenie WebDAV można nawiązać przy użyciu kreatora z graficz
 
 [h5][b]Montowanie katalogu w systemie plików[/b][/h5]
 
-Aby zainstalować katalog w chmurze jako system plików, musisz najpierw zainstalować davfs2. Dla większości dystrybucji program ten jest dostępny w repozytoriach. Instalacja w Debianie:
+Aby zainstalować katalog zdalny jako system plików, musisz najpierw zainstalować davfs2. Dla większości dystrybucji program ten jest dostępny w repozytoriach. Instalacja w Debianie:
 
 [code]sudo apt-get install davfs2[/code]
 
@@ -877,15 +876,15 @@ Edytuj /etc/fstab:
 
 [code]nano /etc/fstab[/code]
 
-aby uwzględnić katalog w chmurze, dodając:
+aby uwzględnić katalog zdalny, dodając:
 
 [code]
 [baseurl]/dav/ /mount/point davfs user,noauto,uid=&lt;DesktopUser&gt;,file_mode=600,dir_mode=700 0 1
 [/code]
 
-gdzie [baseurl] jest adresem URL węzła, /mount/point to lokalizacja, w której chcesz zamontować chmurę, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
+gdzie [baseurl] jest adresem URL portalu, /mount/point to lokalizacja, w której chcesz zamontować katalog zdalny, a &lt;DesktopUser&gt; to użytkownik, którego logujesz się na swoim komputerze. Miej na uwadze, że jeśli montujesz jako zwykły użytkownik (nie root), punkt montowania musi znajdować się w twoim katalogu domowym.
 
-Na przykład, jeśli chciałbyś zamontować swoją chmurę w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob', zapis w fstab będzie następujący: 
+Przyjmijmy, że chcesz zamontować swój magazyn plików w katalogu o nazwie 'cloud' w swoim katalogu domowym, a Twoja nazwa użytkownika to 'bob'. Zapis w fstab będzie następujący: 
 
 [code][baseurl]/dav/ /home/bob/cloud davfs user,noauto,uid=bob,file_mode=600,dir_mode=700 0 1[/code]
 
@@ -901,13 +900,13 @@ Utwórz plik o nazwie 'secrets'
 
 [code]nano /home/bob/.davfs2/secrets[/code]
 
-i dodaj tam swoje dane uwierzytelniania w chmurze
+i dodaj tam swoje dane uwierzytelniania w katalogu zdalnym:
 
 [code]
 [baseurl]/dav &lt;username&gt; &lt;password&gt;
 [/code]
 
-gdzie &lt;username&gt; i &lt;password&gt; to nazwa użytkownika i hasło [i]na Twoim kanale w węźle[/i].
+gdzie &lt;username&gt; i &lt;password&gt; to nazwa użytkownika i hasło [i]na Twoim kanale w portalu[/i].
 
 Nie pozwól, aby ten plik mógł być zapisywany przez kogoś nieupoważnionego:
 
@@ -917,7 +916,7 @@ Na koniec, zamontuj dysk:
 
 [code]mount [baseurl]/dav[/code]
 
-Możesz teraz znaleźć swoją chmurę w /home/bob/cloud i używać jej tak, jakby była częścią lokalnego systemu plików - nawet jeśli aplikacje, których używasz, same nie obsługują dav.
+Możesz teraz znaleźć swój katalog zdalny w /home/bob/cloud i używać go tak, jakby była częścią lokalnego systemu plików - nawet jeśli aplikacje, których używasz, same nie obsługują dav.
 
 [b]Rozwiązywanie problemów[/b]
 
@@ -938,18 +937,18 @@ Jeśli to nadal nie zadziała, wyłącz pamięć podręczną. Pamiętaj, że ma 
 Jeśli [i]nadal[/i] to nie działa, jest jeszcze jedna rzecz, której możesz spróbować. (Ten jest spowodowany błędem w starszych wersjach samego dav2fs, więc aktualizacja do nowej wersji może również pomóc). Włącz słabe usuwanie etagów, ustawiając [code]drop_weak_etags 1[]/code. Odmontuj i ponownie podłącz swój system plików, aby zastosować zmiany.
 
 [h5][b]Dolphin[/b][/h5]
-Dolphin Browser to przeglądarka internetowa dla Android i iOS. Odwiedź w niej [code]webdavs://example.com/dav[/code], gdzie [code]example.com[/code] to URL do Twojego węzła.
+Dolphin Browser to przeglądarka internetowa dla Android i iOS. Odwiedź w niej [code]webdavs://example.com/dav[/code], gdzie [code]example.com[/code] to URL do Twojego portalu.
 
 Gdy zostaniesz poproszony o podanie nazwy użytkownika i hasła, wprowadź nazwę swojego kanału (pierwszą część swojej strony internetowej - bez znaku @ i nazwy domeny) i hasło do swojego normalnego konta.
 
 Pamiętaj, że jeśli jesteś już zalogowany do interfejsu WWW przez Konqueror, nie zostaniesz poproszony o dalsze uwierzytelnianie.
 
 [h5][b]Konqueror[/b][/h5]
-Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumentów dla środowiska KDE. Wystarczy odwiedzić w niej serwis [code]webdavs://example.com/dav[/code] po zalogowaniu się do swojego węzła, gdzie [code]example.com[/code] to adres URL węzła.
+Konqueror to przeglądarka internetowa, meadżer plików i przeglądarka dokumentów dla środowiska KDE. Wystarczy odwiedzić w niej serwis [code]webdavs://example.com/dav[/code] po zalogowaniu się do swojego portalu, gdzie [code]example.com[/code] to adres URL portalu.
 
-Jeśli jesteś zalogowany do swojego węzła w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
+Jeśli jesteś zalogowany do swojego portalu w normalny sposób, nie jest wymagane dalsze uwierzytelnianie.
 
-Ponadto, jeśli ktoś uwierzytelnił się w innym węźle podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do chmury dla tych węzłów - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania, pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
+Ponadto, jeśli ktoś uwierzytelnił się w innym portalu podczas normalnej sesji przeglądarki, Twoja tożsamość zostanie również przekazana do magazynu plików dla tych portali - co oznacza, że możesz uzyskać dostęp do wszelkich prywatnych plików na dowolnym serwerze, o ile masz uprawnienia do ich przeglądania i pod warunkiem, że odwiedziłeś tę witrynę wcześniej podczas sesji.
 
 Ta funkcja jest zwykle ograniczona do interfejsu sieciowego i nie jest dostępna dla żadnego innego środowiska graficznego niż KDE.
 
@@ -1010,7 +1009,7 @@ Będziesz musiał potwierdzić swoje hasło i kanał, na którym jesteś obecnie
 
 [hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-Jeśli masz klony tożsamości na innych węzłach, nie zostaną one usuniete. Operacja ta spowoduje tylko usunięcie tej instancji kanału, która istnieje w węźle, na którym dokonujesz usunięcia kanału.
+Jeśli masz klony tożsamości na innych portalach, nie zostaną one usuniete. Operacja ta spowoduje tylko usunięcie tej instancji kanału, która istnieje w portalu, na którym dokonujesz usunięcia kanału.
 
 [h4][b]Usuniecie konta[/b][/h4]
 
@@ -1020,5 +1019,5 @@ Będziesz musiał potwierdzić swoje hasło i konto, na którym jesteś obecnie 
 
 [hl][i][b]To jest nieodwracalne.[/b][/i][/hl]
 
-Wszystkie Twoje kanały zostaną usunięte. Jeśli masz klony tożsamości na innych węzłach - nie zostaną one usuniete. Operacja ta powoduje tylko usunięcie instancji kanałów, które istnieją w węźle, na którym dokonujesz tą operację.
+Wszystkie Twoje kanały zostaną usunięte. Jeśli masz klony tożsamości na innych portalach - nie zostaną one usuniete. Operacja ta powoduje tylko usunięcie instancji kanałów, które istnieją w portalu, na którym dokonujesz tą operację.
 

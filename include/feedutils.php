@@ -296,7 +296,7 @@ function get_atom_author($feed, $item) {
 
 	$rawauthor = $item->get_item_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
 
-	if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+	if($rawauthor && isset($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 		$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 		foreach($base as $link) {
 			if(!x($author, 'author_photo') || ! $author['author_photo']) {
@@ -324,7 +324,7 @@ function get_atom_author($feed, $item) {
 
 	// check for a yahoo media element (github etc.)
 
-	if(! $author['author_photo']) {
+	if(! x($author,'author_photo') || ! $author['author_photo']) {
 		$rawmedia = $item->get_item_tags(NAMESPACE_YMEDIA,'thumbnail');
 		if($rawmedia && $rawmedia[0]['attribs']['']['url']) {
 			$author['author_photo'] = strip_tags(unxmlify($rawmedia[0]['attribs']['']['url']));
@@ -334,9 +334,9 @@ function get_atom_author($feed, $item) {
 
 	// No photo/profile-link on the item - look at the feed level
 
-	if((! (x($author,'author_link'))) || (! (x($author,'author_photo')))) {
+	if(! x($author,'author_link') || ! x($author,'author_photo')) {
 		$rawauthor = $feed->get_feed_tags(SIMPLEPIE_NAMESPACE_ATOM_10,'author');
-		if($rawauthor && $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+		if($rawauthor && isset($rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 			$base = $rawauthor[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 			foreach($base as $link) {
 				if($link['attribs']['']['rel'] === 'alternate' && (! $author['author_link'])) {
@@ -372,16 +372,16 @@ function get_atom_author($feed, $item) {
 	if(! $rawowner)
 		$rawowner = $item->get_item_tags(NAMESPACE_ZOT, 'owner');
 
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data'])
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data']))
 		$author['owner_name'] = unxmlify($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['name'][0]['data']);
-	elseif($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data'])
+	elseif(isset($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data']))
 		$author['owner_name'] = unxmlify($rawowner[0]['child'][NAMESPACE_DFRN]['name'][0]['data']);
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data'])
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data']))
 		$author['owner_link'] = unxmlify($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['uri'][0]['data']);
-	elseif($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data'])
+	elseif(isset($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data']))
 		$author['owner_link'] = unxmlify($rawowner[0]['child'][NAMESPACE_DFRN]['uri'][0]['data']);
 
-	if($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link']) {
+	if(isset($rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'])) {
 		$base = $rawowner[0]['child'][SIMPLEPIE_NAMESPACE_ATOM_10]['link'];
 
 		foreach($base as $link) {
@@ -478,13 +478,13 @@ function get_atom_elements($feed, $item) {
 	if($rawedited)
 		$res['edited'] = unxmlify($rawedited[0]['data']);
 
-	if((x($res,'edited')) && (! (x($res,'created'))))
+	if(x($res,'edited') && ! x($res,'created'))
 		$res['created'] = $res['edited'];
 
-	if(! $res['created'])
+	if(! x($res,'created'))
 		$res['created'] = $item->get_date('c');
 
-	if(! $res['edited'])
+	if(! x($res,'edited'))
 		$res['edited'] = $item->get_date('c');
 
 	$rawverb = $item->get_item_tags(NAMESPACE_ACTIVITY, 'verb');
@@ -509,7 +509,7 @@ function get_atom_elements($feed, $item) {
 		}
 	}
 
-	$ostatus_protocol = (($ostatus_conversation || $res['verb']) ? true : false);
+	$ostatus_protocol = ($ostatus_conversation || (x($res,'verb') && $res['verb']) ? true : false);
 
 	$mastodon = (($item->get_item_tags('http://mastodon.social/schema/1.0','scope')) ? true : false);
 	if($mastodon) {
@@ -1113,7 +1113,8 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 				$parent_link = $rawthread[0]['attribs']['']['href'];
 			}
 
-			logger('in-reply-to: ' . $parent_mid, LOGGER_DEBUG);
+			if(isset($parent_mid))
+				logger('in-reply-to: ' . $parent_mid, LOGGER_DEBUG);
 
 			if($is_reply) {
 
@@ -1408,7 +1409,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 
 				// if we have everything but a photo, provide the default profile photo
 
-				if($author['author_name'] && $author['author_link'] && (! $author['author_photo']))
+				if($author['author_name'] && $author['author_link'] && (! x($author,'author_photo') || ! $author['author_photo']))
 					$author['author_photo'] = z_root() . '/' . get_default_profile_photo(80);
 
 				if(is_array($contact)) {

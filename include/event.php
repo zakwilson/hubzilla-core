@@ -862,15 +862,15 @@ function event_import_ical($ical, $uid) {
 		// we do not have it here since parse_ical_file() is passing the vevent only.
 		$timezone_obj = \Sabre\VObject\TimeZoneUtil::getTimeZone($ical->DTSTART['TZID']);
 		$timezone = $timezone_obj->getName();
-		$ev['timezone'] = $timezone;
+		$ev['timezone'] = (($timezone) ? $timezone : date_default_timezone_get());
 	}
 
-	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
+	$ev['dtstart'] = datetime_convert((($ev['adjust']) ? 'UTC' : $ev['timezone']), 'UTC',
 		$dtstart->format(\DateTime::W3C));
 
 	if(isset($ical->DTEND)) {
 		$dtend = $ical->DTEND->getDateTime();
-		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : date_default_timezone_get()),$ev['timezone'],
+		$ev['dtend'] = datetime_convert((($ev['adjust']) ? 'UTC' : $ev['timezone']), 'UTC',
 			$dtend->format(\DateTime::W3C));
 	}
 	else {
@@ -1311,9 +1311,9 @@ function event_store_item($arr, $event) {
 		}
 
 		// propagate the event resource_id so that posts containing it are easily searchable in downstream copies
-		// of the item which have not stored the actual event. Required for Diaspora event federation as Diaspora 
+		// of the item which have not stored the actual event. Required for Diaspora event federation as Diaspora
 		// event_participation messages refer to the event resource_id as a parent, while out own event attendance
-		// activities refer to the item message_id as the parent. 
+		// activities refer to the item message_id as the parent.
 
 		set_iconfig($item_arr, 'system','event_id',$event['event_hash'],true);
 

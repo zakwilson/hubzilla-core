@@ -206,14 +206,20 @@ class Accounts {
 
 		$tao = 'tao.zar.zarax = ' . "'" . '<img src="' . z_root() . '/images/zapax16.gif">' . "';\n";
 
-		$pending = get_pending_accounts();
+
+		// by default we will only return verified results. if reg_all is set we will return everything''
+		$get_all = isset($_REQUEST['get_all']);
+		$pending = get_pending_accounts($get_all);
 
 		unset($_SESSION[self::MYP]);
+
 		if ($pending) {
 			// collect and group all ip
-			$atips = q("SELECT reg_atip AS atip, COUNT(reg_atip) AS atips FROM register "
-					." WHERE reg_vital = 1 GROUP BY reg_atip ");
-			$atips ? $atipn = array_column($atips, 'atips', 'atip') : $atipn = array('' => 0);
+			$atips = dbq("SELECT reg_atip AS atip, COUNT(reg_atip) AS atips FROM register
+				WHERE reg_vital = 1 GROUP BY reg_atip"
+			);
+
+			(($atips) ? $atipn = array_column($atips, 'atips', 'atip') : $atipn = ['' => 0]);
 
 			$tao .= 'tao.zar.zarar = {';
 			foreach ($pending as $n => $v) {
@@ -228,6 +234,13 @@ class Accounts {
 					$pending[$n]['reg_atip'] = $v['reg_atip'];
 					$pending[$n]['reg_atip_n'] = $atipn[$v['reg_atip']];
 				}
+
+				$pending[$n]['status'] = '';
+				if($pending[$n]['reg_flags'] & ACCOUNT_UNVERIFIED > 0)
+					$pending[$n]['status'] = [t('Unverified'), 'bg-warning'];
+
+				if($pending[$n]['status'] && $pending[$n]['reg_expires'] < datetime_convert())
+					$pending[$n]['status'] = [t('Expired'), 'bg-danger text-white'];
 
 				// timezone adjust date_time for display
 				$pending[$n]['reg_created'] = datetime_convert('UTC', date_default_timezone_get(), $pending[$n]['reg_created']);
@@ -294,13 +307,14 @@ class Accounts {
 			'$title' => t('Administration'),
 			'$page' => t('Accounts'),
 			'$submit' => t('Submit'),
-			'$select_all' => t('select all'),
+			'$get_all' => (($get_all) ? t('Show verified registrations') : t('Show all registrations')),
+			'$get_all_link' => (($get_all) ? z_root() .'/admin/accounts' : z_root() .'/admin/accounts?get_all'),
 			'$sel_tall' => t('Select toggle'),
 			'$sel_deny' => t('Deny selected'),
 			'$sel_aprv' => t('Approve selected'),
-			'$h_pending' => t('Verified registrations waiting for approval'),
+			'$h_pending' => (($get_all) ? t('All registrations') : t('Verified registrations waiting for approval')),
 			'$th_pending' => array(t('Request date'), 'dId2', t('Email'), 'IP', t('Requests')),
-			'$no_pending' =>  t('No verified registrations.'),
+			'$no_pending' => (($get_all) ? t('No registrations available') : t('No verified registrations available')),
 			'$approve' => t('Approve'),
 			'$deny' => t('Deny'),
 			'$delete' => t('Delete'),

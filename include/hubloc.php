@@ -172,6 +172,46 @@ function remove_obsolete_hublocs() {
 	}
 }
 
+/**
+ * @brief Remove duplicate singleton hublocs
+ *
+ * This should not actually happen but it appears it does - probably due to race conditions.
+ * This function will just leave the hubloc with the highest id (latest)
+ *
+ * TODO: we should probably do something about that at the DB level.
+ *
+ */
+function remove_duplicate_singleton_hublocs() {
+	$hublocs = dbq("SELECT hubloc_hash, COUNT(hubloc_hash) FROM hubloc WHERE
+		hubloc_network IN(
+			'activitypub',
+			'diaspora',
+			'friendica-over-diaspora',
+			'gnusoc'
+		)
+		GROUP BY hubloc_hash
+		HAVING COUNT(hubloc_hash) > 1"
+	);
+
+	foreach($hublocs as $hubloc) {
+		$hubloc_hash = $hubloc['hubloc_hash'];
+
+		$max_id = q("select max(hubloc_id) as max_id from hubloc where hubloc_hash = '%s'",
+			dbesc($hubloc_hash)
+		);
+
+		$id = $max_id[0]['max_id'];
+
+		if($hubloc_hash && $id) {
+			q("delete from hubloc where hubloc_hash = '%s' and hubloc_id != %d",
+				dbesc($hubloc_hash),
+				intval($id)
+			);
+		}
+	}
+
+}
+
 
 /**
  * @brief Change primary hubloc.
@@ -191,7 +231,7 @@ function hubloc_change_primary($hubloc) {
 
 	logger('setting primary: ' . $hubloc['hubloc_url'] . ((intval($hubloc['hubloc_primary'])) ? '  true' : ' false'));
 
-	// See if this is a local hubloc and if so update the primary for the corresponding channel record. 
+	// See if this is a local hubloc and if so update the primary for the corresponding channel record.
 
 	if($hubloc['hubloc_url'] === z_root()) {
 		$r = q("select channel_id from channel where channel_hash = '%s' limit 1",
@@ -205,7 +245,7 @@ function hubloc_change_primary($hubloc) {
 		}
 	}
 
-	// we only need to proceed further if this particular hubloc is now primary 
+	// we only need to proceed further if this particular hubloc is now primary
 
 	if(! (intval($hubloc['hubloc_primary']))) {
 		logger('not primary: ' . $hubloc['hubloc_url']);
@@ -273,7 +313,7 @@ function hubloc_mark_as_down($posturl) {
  *
  * @param string $netid network identity (typically xchan_hash or hubloc_hash)
  * @return string
- */ 
+ */
 
 function locations_by_netid($netid) {
 
@@ -281,7 +321,7 @@ function locations_by_netid($netid) {
 		dbesc($netid)
 	);
 
-	
+
 	return array_elm_to_str($locs,'location',', ','trim_and_unpunify');
 
 }
@@ -331,7 +371,7 @@ function z6_discover() {
 				if ($q2) {
 					continue;
 				}
-				// zot6 hubloc not found. 
+				// zot6 hubloc not found.
 				if(strpos($q['site_project'],'hubzilla') !== false && version_compare($q['site_version'],'4.0') >= 0) {
 					// probe and store results - only for zot6 (over-ride the zot default)
 					discover_by_webbie($q['hubloc_addr'],'zot6');

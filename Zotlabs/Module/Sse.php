@@ -108,7 +108,8 @@ class Sse extends Controller {
 				echo 'data: {}';
 				echo "\n\n";
 
-				ob_end_flush();
+				if(ob_get_length() > 0)
+					ob_end_flush();
 				flush();
 
 				if(connection_status() != CONNECTION_NORMAL || connection_aborted()) {

@@ -330,6 +330,8 @@ class Comanche {
 				$name = str_replace($mtch[0], '', $name);
 			}
 		}
+		else
+			$var = [];
 
 		if($channel_id) {
 			$m = menu_fetch($name, $channel_id, get_observer_hash());
@@ -408,7 +410,8 @@ class Comanche {
 				}
 
 				//emit the block
-				$o .= (($var['wrap'] == 'none') ? '' : '<div class="' . $class . '">');
+				$wrap = (! x($var, 'wrap') || $var['wrap'] == 'none' ? false : true);
+				$o .= ($wrap ? '' : '<div class="' . $class . '">');
 
 				if($r[0]['title'] && trim($r[0]['body']) != '$content') {
 					$o .= '<h3>' . $r[0]['title'] . '</h3>';
@@ -421,7 +424,7 @@ class Comanche {
 					$o .= prepare_text($r[0]['body'], $r[0]['mimetype']);
 				}
 
-				$o .= (($var['wrap'] == 'none') ? '' : '</div>');
+				$o .= ($wrap ? '' : '</div>');
 			}
 		}
 

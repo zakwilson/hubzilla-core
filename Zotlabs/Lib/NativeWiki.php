@@ -101,6 +101,7 @@ class NativeWiki {
 		}
 	}
 
+
 	public static function update_wiki($channel_id, $observer_hash, $arr, $acl) {
 
 		$w = self::get_wiki($channel_id, $observer_hash, $arr['resource_id']);
@@ -156,8 +157,8 @@ class NativeWiki {
 		}
 	}
 
-	public static function sync_a_wiki_item($uid,$id,$resource_id) {
 
+	public static function sync_a_wiki_item($uid,$id,$resource_id) {
 
 		$r = q("SELECT * from item WHERE uid = %d AND ( id = %d OR ( resource_type = '%s' and resource_id = '%s' )) ",
 			intval($uid),
@@ -165,8 +166,8 @@ class NativeWiki {
 			dbesc(NWIKI_ITEM_RESOURCE_TYPE),
 			dbesc($resource_id)
 		);
-
 		if($r) {
+
 			$q = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s'",
 				dbesc($r[0]['resource_id'])
 			);
@@ -185,20 +186,27 @@ class NativeWiki {
 		}
 	}
 
+
 	public static function delete_wiki($channel_id,$observer_hash,$resource_id) {
 
 		$w = self::get_wiki($channel_id,$observer_hash,$resource_id);
-		$item = $w['wiki'];
-		if(! $item) {
-			return array('item' => null, 'success' => false);
-		} 
-		else {
-			$drop = drop_item($item['id'], false, DROPITEM_NORMAL);
+		if(! $w['wiki']) {
+			return [ 'success' => false ];
 		}
+		else {
 
-		info( t('Wiki files deleted successfully'));
+			$r = q("SELECT id FROM item WHERE uid = %s AND resource_id = '%s'",
+				intval($channel_id),
+				dbesc($resource_id)
+			);
 
-		return array('item' => $item, 'item_id' => $item['id'], 'success' => (($drop === 1) ? true : false));
+			$ids = array_column($r, 'id');
+			drop_items($ids, true, DROPITEM_PHASE1);
+
+			info(t('Wiki files deleted successfully'));
+
+			return [ 'success' => true ];
+		}
 	}
 
 
@@ -207,13 +215,13 @@ class NativeWiki {
 		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
 
 		$item = q("SELECT * FROM item WHERE uid = %d AND resource_type = '%s' AND resource_id = '%s' AND item_deleted = 0 
-			$sql_extra limit 1",
+			$sql_extra ORDER BY id LIMIT 1",
 			intval($channel_id), 
 			dbesc(NWIKI_ITEM_RESOURCE_TYPE),
 			dbesc($resource_id)
 		);
 		if(! $item) {
-			return array('wiki' => null);
+			return [ 'wiki' => null ];
 		}
 		else {
 		
@@ -259,6 +267,7 @@ class NativeWiki {
 
 
 	public static function get_permissions($resource_id, $owner_id, $observer_hash) {
+
 		// TODO: For now, only the owner can edit
 		$sql_extra = item_permissions_sql($owner_id, $observer_hash);
 
@@ -283,6 +292,7 @@ class NativeWiki {
 		}
 	}
 
+
 	public static function name_encode ($string) {
 
 		$string = html_entity_decode($string);
@@ -297,6 +307,7 @@ class NativeWiki {
 		mb_internal_encoding($encoding);
 		return $ret;
 	}
+
 
 	public static function name_decode ($string) {
 

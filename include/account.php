@@ -34,18 +34,29 @@ function check_account_email($email) {
 	if(! strlen($email))
 		return $result;
 
-	if(! validate_email($email))
-		$result['message'] .= t('Email address not valid') . EOL;
-	elseif(! allowed_email($email))
-		$result['message'] = t('Your email domain is not among those allowed on this site');
+	if(! validate_email($email)) {
+		$result['message'] = t('The provided email address is not valid');
+	}
+	elseif(! allowed_email($email)) {
+		$result['message'] = t('The provided email domain is not among those allowed on this site');
+	}
 	else {
-		$r = q("select account_email from account where account_email = '%s' limit 1",
+		$account = q("select account_email from account where account_email = '%s' limit 1",
 			dbesc($email)
 		);
-		if($r) {
-			$result['message'] .= t('Your email address is already registered at this site.');
+		if ($account) {
+			$result['message'] = t('The provided email address is already registered at this site');
+		}
+
+		$register = q("select reg_did2 from register where reg_vital = 1 and reg_did2 = '%s' and reg_didx = 'e' limit 1",
+			dbesc($email)
+		);
+		if ($register) {
+			$result['message'] = t('There is a pending registration for this address - click "Register" to continue verification');
+			$result['email_unverified'] = true;
 		}
 	}
+
 	if($result['message'])
 		$result['error'] = true;
 
@@ -851,12 +862,12 @@ function verify_register_scheme() {
 
 		if ($dbc[0]=='id') {
 			// v1 format
-			q("START TRANSACTION");
+			dbq("START TRANSACTION");
 
 			if(ACTIVE_DBTYPE == DBTYPE_POSTGRES) {
-				$r1 = q("ALTER TABLE register RENAME TO register100;");
+				$r1 = dbq("ALTER TABLE register RENAME TO register100;");
 
-				$r2 = q("CREATE TABLE register ("
+				$r2 = dbq("CREATE TABLE register ("
 					. "reg_id      serial  NOT NULL,"
 					. "reg_vital   int     DEFAULT 1 NOT NULL,"
 					. "reg_flags   bigint  DEFAULT 0 NOT NULL,"
@@ -864,9 +875,9 @@ function verify_register_scheme() {
 					. "reg_did2    text    DEFAULT '' NOT NULL,"
 					. "reg_hash    text    DEFAULT '' NOT NULL,"
 					. "reg_email   text    DEFAULT '' NOT NULL,"
-					. "reg_created timestamp  NOT NULL,"
-					. "reg_startup timestamp  NOT NULL,"
-					. "reg_expires timestamp  NOT NULL,"
+					. "reg_created timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
+					. "reg_startup timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
+					. "reg_expires timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',"
 					. "reg_byc     bigint  DEFAULT 0 NOT NULL,"
 					. "reg_uid     bigint  DEFAULT 0 NOT NULL,"
 					. "reg_atip    text    DEFAULT '' NOT NULL,"
@@ -875,29 +886,29 @@ function verify_register_scheme() {
 					. "reg_stuff   text    NOT NULL,"
 					. "PRIMARY KEY (reg_id) );"
 				);
-				$r0 = q("CREATE INDEX ix_reg_vital ON register (reg_vital);");
-				$r0 = q("CREATE INDEX ix_reg_flags ON register (reg_flags);");
-				$r0 = q("CREATE INDEX ix_reg_didx ON register (reg_didx);");
-				$r0 = q("CREATE INDEX ix_reg_did2 ON register (reg_did2);");
-				$r0 = q("CREATE INDEX ix_reg_hash ON register (reg_hash);");
-				$r0 = q("CREATE INDEX ix_reg_email ON register (reg_email);");
-				$r0 = q("CREATE INDEX ix_reg_created ON register (reg_created);");
-				$r0 = q("CREATE INDEX ix_reg_startup ON register (reg_startup);");
-				$r0 = q("CREATE INDEX ix_reg_expires ON register (reg_expires);");
-				$r0 = q("CREATE INDEX ix_reg_byc ON register (reg_byc);");
-				$r0 = q("CREATE INDEX ix_reg_uid ON register (reg_uid);");
-				$r0 = q("CREATE INDEX ix_reg_atip ON register (reg_atip);");
+				$r0 = dbq("CREATE INDEX ix_reg_vital ON register (reg_vital);");
+				$r0 = dbq("CREATE INDEX ix_reg_flags ON register (reg_flags);");
+				$r0 = dbq("CREATE INDEX ix_reg_didx ON register (reg_didx);");
+				$r0 = dbq("CREATE INDEX ix_reg_did2 ON register (reg_did2);");
+				$r0 = dbq("CREATE INDEX ix_reg_hash ON register (reg_hash);");
+				$r0 = dbq("CREATE INDEX ix_reg_email ON register (reg_email);");
+				$r0 = dbq("CREATE INDEX ix_reg_created ON register (reg_created);");
+				$r0 = dbq("CREATE INDEX ix_reg_startup ON register (reg_startup);");
+				$r0 = dbq("CREATE INDEX ix_reg_expires ON register (reg_expires);");
+				$r0 = dbq("CREATE INDEX ix_reg_byc ON register (reg_byc);");
+				$r0 = dbq("CREATE INDEX ix_reg_uid ON register (reg_uid);");
+				$r0 = dbq("CREATE INDEX ix_reg_atip ON register (reg_atip);");
 
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
+				$r3 = dbq("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
 					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
 
-				$r4 = q("DROP TABLE register100");
+				$r4 = dbq("DROP TABLE register100");
 
 			}
 			else {
-				$r1 = q("RENAME TABLE register TO register100;");
+				$r1 = dbq("RENAME TABLE register TO register100;");
 
-				$r2 = q("CREATE TABLE IF NOT EXISTS register ("
+				$r2 = dbq("CREATE TABLE IF NOT EXISTS register ("
 	 				. "reg_id 		int(10) UNSIGNED 	NOT NULL AUTO_INCREMENT,"
   					. "reg_vital	int(10) UNSIGNED 	NOT NULL DEFAULT 1,"
   					. "reg_flags	int(10) UNSIGNED 	NOT NULL DEFAULT 0,"
@@ -930,10 +941,10 @@ function verify_register_scheme() {
 					. ") ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;"
 				);
 
-				$r3 = q("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
+				$r3 = dbq("INSERT INTO register (reg_id, reg_hash, reg_created, reg_uid, reg_pass, reg_lang, reg_stuff) "
 					. "SELECT id, hash, created, uid, password, lang, '' FROM register100;");
 
-				$r4 = q("DROP TABLE register100");
+				$r4 = dbq("DROP TABLE register100");
 			}
 
 			// $r = ($r1 && $r2 && $r3 && $r4);
@@ -941,11 +952,11 @@ function verify_register_scheme() {
 			$r = $r2;
 
 			if($r) {
-				q("COMMIT");
+				dbq("COMMIT");
 				return UPDATE_SUCCESS;
 			}
 
-			q("ROLLBACK");
+			dbq("ROLLBACK");
 			return UPDATE_FAILED;
 		}
 		elseif ( count($dbc) != 16 ) {
@@ -1195,8 +1206,15 @@ function get_account_techlevel($account_id = 0) {
 }
 
 function zar_log($msg='') {
-	file_put_contents('./zar.log',
-		 date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+
+	if(get_config('system', 'register_logfile', 0)) {
+		file_put_contents('./zar.log',
+			date('Y-m-d_H:i:s') . ' ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §' . "\n", FILE_APPEND);
+	}
+	else {
+		logger('zar_log: ' . $msg . ', ip: § ' . $_SERVER['REMOTE_ADDR'] . ' §');
+	}
+
 	return;
 }
 
@@ -1261,21 +1279,25 @@ function zar_register_dutystate( $now=NULL, $day=NULL ) {
 
 }
 
-function get_pending_accounts() {
+function get_pending_accounts($get_all = false) {
 
-	/* get pending */
-	// [hilmar ->
-	//~ $r = q("SELECT account.*, reg_hash FROM account LEFT JOIN register ON account_id = reg_uid WHERE reg_vital = 1 AND (account_flags & %d) > 0",
-		//~ intval(ACCOUNT_PENDING)
-	//~ );
+	$sql_extra = " AND (reg_flags & " . ACCOUNT_UNVERIFIED . ") = 0 ";
 
-	// better useability at the moment to tell all (ACCOUNT_PENDING >= 0) instead of (> 0 for those need approval)
+	if($get_all)
+		$sql_extra = '';
 
-	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, reg_stuff
-		FROM register WHERE reg_vital = 1 AND (reg_flags & %d) = 0 AND (reg_flags & %d) >= 0",
-		intval(ACCOUNT_UNVERIFIED),
+	$r = q("SELECT reg_did2, reg_created, reg_startup, reg_expires, reg_email, reg_atip, reg_hash, reg_id, reg_flags, reg_stuff
+		FROM register WHERE reg_vital = 1 $sql_extra AND (reg_flags & %d) >= 0",
 		intval(ACCOUNT_PENDING)
 	);
 
 	return $r;
+}
+
+function remove_expired_registrations() {
+	q("DELETE FROM register WHERE (reg_expires < '%s' OR reg_expires = '%s') AND (reg_flags & %d) > 0",
+		dbesc(datetime_convert()),
+		dbesc(NULL_DATE),
+		dbesc(ACCOUNT_UNVERIFIED)
+	);
 }

@@ -97,8 +97,8 @@ class Display extends \Zotlabs\Web\Controller {
 		if($decoded)
 			$item_hash = $decoded;
 
-		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid like '%s' limit 1",
-			dbesc($item_hash . '%')
+		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid = '%s' limit 1",
+			dbesc($item_hash)
 		);
 
 		if($r) {
@@ -325,7 +325,7 @@ class Display extends \Zotlabs\Web\Controller {
 			if($parents_str) {
 				$items = q("SELECT item.*, item.id AS item_id
 					FROM item
-					WHERE parent in ( %s ) $item_normal ",
+					WHERE parent in ( %s ) $sql_extra $item_normal ",
 					dbesc($parents_str)
 				);
 				xchan_query($items);

@@ -1,4 +1,4 @@
-## Narzędzia wpisów  i komentarzy
+## Narzędzia wpisów i komentarzy
 
 
 ### Etykietowanie społecznościowe

@@ -480,12 +480,12 @@ class Site {
 			'$invitation_only' => [
 				'invitation_only',
 				t("Require invite code"),
-				$invitation_only
+				get_config('system', 'invitation_only', 0)
 			],
 			'$invitation_also' => [
 				'invitation_also',
 				t("Allow invite code"),
-				$invitation_also
+				get_config('system', 'invitation_also', 0)
 			],
 			'$verify_email'		=> [
 				'verify_email',

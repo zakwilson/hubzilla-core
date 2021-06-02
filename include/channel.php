@@ -1407,7 +1407,7 @@ function profile_load($nickname, $profile = '') {
 
 	if(! $user) {
 		logger('profile error: ' . App::$query_string, LOGGER_DEBUG);
-		notice( t('Requested channel is not available.') . EOL );
+		notice( t('Requested channel is not available') . EOL );
 		App::$error = 404;
 		return;
 	}
@@ -2537,7 +2537,7 @@ function channelx_by_nick($nick) {
 		return App::$channel;
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s'  and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($nick)
 	);
 

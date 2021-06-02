@@ -1270,10 +1270,6 @@ class Libzot {
 
 				if ($AS->data['signed_data']) {
 					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
-					$j = json_decode($AS->data['signed_data'], true);
-					if ($j) {
-						IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
-					}
 				}
 
 				logger('Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);

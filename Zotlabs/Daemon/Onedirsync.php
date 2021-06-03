@@ -25,6 +25,7 @@ class Onedirsync {
 
 		if (!$r)
 			return;
+
 		if (($r[0]['ud_flags'] & UPDATE_FLAGS_UPDATED) || (!$r[0]['ud_addr']))
 			return;
 
@@ -50,18 +51,17 @@ class Onedirsync {
 		// ignore doing an update if this ud_addr refers to a known dead hubloc
 
 		$h = q("select * from hubloc where hubloc_addr = '%s'",
-			dbesc($r[0]['ud_addr'])
+			dbesc($r[0]['ud_addr']),
 		);
 
 		$h = Libzot::zot_record_preferred($h);
 
-		if (($h) && ($h['hubloc_status'] & HUBLOC_OFFLINE)) {
+		if (($h) && (($h['hubloc_status'] & HUBLOC_OFFLINE) || $h['hubloc_deleted'] || $h['hubloc_error'])) {
 			q("update updates set ud_flags = ( ud_flags | %d ) where ud_addr = '%s' and ( ud_flags & %d ) = 0 ",
 				intval(UPDATE_FLAGS_UPDATED),
 				dbesc($r[0]['ud_addr']),
 				intval(UPDATE_FLAGS_UPDATED)
 			);
-
 			return;
 		}
 

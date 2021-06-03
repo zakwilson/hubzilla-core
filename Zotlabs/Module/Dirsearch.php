@@ -256,65 +256,44 @@ class Dirsearch extends Controller {
 		}
 		else {
 
-			$r = q("SELECT xchan.*, xprof.* from xchan left join xprof on xchan_hash = xprof_hash
-				where ( $logic $sql_extra ) $hub_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0
-				$safesql $order $qlimit "
+			$r = q("SELECT
+				xchan.xchan_name as name,
+				xchan.xchan_hash as hash,
+				xchan.xchan_censored as censored,
+				xchan.xchan_selfcensored as selfcensored,
+				xchan.xchan_pubforum as public_forum,
+				xchan.xchan_url as url,
+				xchan.xchan_photo_l as photo_l,
+				xchan.xchan_photo_m as photo,
+				xchan.xchan_addr as address,
+				xprof.xprof_desc as description,
+				xprof.xprof_locale as locale,
+				xprof.xprof_region as region,
+				xprof.xprof_postcode as postcode,
+				xprof.xprof_country as country,
+				xprof.xprof_dob as birthday,
+				xprof.xprof_age as age,
+				xprof.xprof_gender as gender,
+				xprof.xprof_marital as marital,
+				xprof.xprof_sexual as sexual,
+				xprof.xprof_about as about,
+				xprof.xprof_homepage as homepage,
+				xprof.xprof_hometown as hometown,
+				xprof.xprof_keywords as keywords
+				from xchan left join xprof on xchan_hash = xprof_hash left join hubloc on hubloc_hash = xchan_hash
+				where hubloc_primary = 1 and hubloc_updated > %s - INTERVAL %s and ( $logic $sql_extra ) $hub_query and xchan_network = 'zot6' and xchan_system = 0 and xchan_hidden = 0 and xchan_orphan = 0 and xchan_deleted = 0
+				$safesql $order $qlimit",
+				db_utcnow(),
+				db_quoteinterval('30 DAY')
 			);
 
-
-
-			$ret['page'] = $page + 1;
-			$ret['records'] = count($r);
 		}
 
-
-
 		if($r) {
+			$ret['results'] = $r;
+			$ret['page'] = $page + 1;
+			$ret['records'] = count($r);
 
-			$entries = array();
-
-			foreach($r as $rr) {
-
-				$entry = array();
-
-				$pc = q("select count(xlink_rating) as total_ratings from xlink where xlink_link = '%s' and xlink_rating != 0 and xlink_static = 1 group by xlink_rating",
-					dbesc($rr['xchan_hash'])
-				);
-
-				if($pc)
-					$entry['total_ratings'] = intval($pc[0]['total_ratings']);
-				else
-					$entry['total_ratings'] = 0;
-
-				$entry['name']         = $rr['xchan_name'];
-				$entry['hash']         = $rr['xchan_hash'];
-				$entry['censored']     = $rr['xchan_censored'];
-				$entry['selfcensored'] = $rr['xchan_selfcensored'];
-				$entry['public_forum'] = (intval($rr['xchan_pubforum']) ? true : false);
-				$entry['url']          = $rr['xchan_url'];
-				$entry['photo_l']      = $rr['xchan_photo_l'];
-				$entry['photo']        = $rr['xchan_photo_m'];
-				$entry['address']      = $rr['xchan_addr'];
-				$entry['description']  = $rr['xprof_desc'];
-				$entry['locale']       = $rr['xprof_locale'];
-				$entry['region']       = $rr['xprof_region'];
-				$entry['postcode']     = $rr['xprof_postcode'];
-				$entry['country']      = $rr['xprof_country'];
-				$entry['birthday']     = $rr['xprof_dob'];
-				$entry['age']          = $rr['xprof_age'];
-				$entry['gender']       = $rr['xprof_gender'];
-				$entry['marital']      = $rr['xprof_marital'];
-				$entry['sexual']       = $rr['xprof_sexual'];
-				$entry['about']        = $rr['xprof_about'];
-				$entry['homepage']     = $rr['xprof_homepage'];
-				$entry['hometown']     = $rr['xprof_hometown'];
-				$entry['keywords']     = $rr['xprof_keywords'];
-
-				$entries[] = $entry;
-
-			}
-
-			$ret['results'] = $entries;
 			if($kw) {
 				$k = dir_tagadelic($kw, $hub);
 				if($k) {

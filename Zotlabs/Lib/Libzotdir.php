@@ -207,8 +207,6 @@ class Libzotdir {
 			);
 		}
 
-
-
 		// If there are no directory servers, setup the fallback master
 		/** @FIXME What to do if we're in a different realm? */
 
@@ -249,6 +247,7 @@ class Libzotdir {
 
 			$syncdate = (($rr['site_sync'] <= NULL_DATE) ? datetime_convert('UTC','UTC','now - 2 days') : $rr['site_sync']);
 			$x = z_fetch_url($rr['site_directory'] . '?f=&sync=' . urlencode($syncdate) . (($token) ? '&t=' . $token : ''));
+
 			if (! $x['success'])
 				continue;
 
@@ -319,6 +318,14 @@ class Libzotdir {
 			}
 			if(array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $href && intval($zf['signature']['header_valid'])) {
 				$xc = Libzot::import_xchan($zf['data'], 0, $ud);
+				// This is a workaround for a missing xchan_updated column
+				// TODO: implement xchan_updated in the xchan table and update this column instead
+				if($zf['data']['primary_location']['address'] && $zf['data']['primary_location']['url']) {
+					q("UPDATE hubloc SET hubloc_updated = '%s' WHERE hubloc_id_url = '%s' AND hubloc_primary = 1",
+						dbesc(datetime_convert()),
+						dbesc($zf['data']['primary_location']['url'])
+					);
+				}
 			}
 			else {
 				q("update updates set ud_last = '%s' where ud_addr = '%s'",

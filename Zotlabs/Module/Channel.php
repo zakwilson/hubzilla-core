@@ -46,14 +46,22 @@ class Channel extends Controller {
 		}
 
 		$profile = 0;
-		$channel = App::get_channel();
 
 		if ((local_channel()) && (argc() > 2) && (argv(2) === 'view')) {
+			$channel = App::get_channel();
 			$which   = $channel['channel_address'];
 			$profile = argv(1);
 		}
 
-		$channel = channelx_by_nick($which);
+
+		// Do not use channelx_by_nick() here since it will dismiss deleted channels.
+		// We need to provide zotinfo for deleted channels so that directories can pick up the info.
+		$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' LIMIT 1",
+			dbesc($which)
+		);
+
+		$channel = $r[0];
+
 		if (!$channel) {
 			http_status_exit(404, 'Not found');
 		}
@@ -83,10 +91,15 @@ class Channel extends Controller {
 				'Digest'           => HTTPSig::generate_digest_header($data),
 				'(request-target)' => strtolower($_SERVER['REQUEST_METHOD']) . ' ' . $_SERVER['REQUEST_URI']
 			];
-			$h       = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
+
+			$h = HTTPSig::create_sig($headers, $channel['channel_prvkey'], channel_url($channel));
 			HTTPSig::set_headers($h);
 			echo $data;
 			killme();
+		}
+
+		if ($channel['channel_removed']) {
+			http_status_exit(404, 'Not found');
 		}
 
 		if (ActivityStreams::is_as_request($channel)) {

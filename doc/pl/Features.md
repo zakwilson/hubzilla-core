@@ -156,7 +156,7 @@ Dodatkowe sekcje i pola wyboru profilu. Rozszerza to zakres informacji profilowy
 
 **Import/Eksport proflilu**
 
-Możliwość zaimportowania lub wyeksportowania swojego profilu na inne serwisy (węzły sieci Zot). Funkcjonalność ta związana jest z nomadycznością tożsamości internetowej w $Projectname. Domyślnie Twoja tożsamość "podróżuje" z Tobą, gdy przeglądasz matrycę zdalnych witryn - tam też wiedzą kim jesteś i mogą wyświetlać Ci treści, które tylko Ty widzisz. Dzięki rozszerzonemu udostępnianiu tożsamości możesz dostarczyć te informacje do dowolnej odwiedzanej witryny z poziomu swojej matrycy.
+Możliwość zaimportowania lub wyeksportowania swojego profilu na inne serwisy (portale sieci Zot). Funkcjonalność ta związana jest z nomadycznością tożsamości internetowej w $Projectname. Domyślnie Twoja tożsamość "podróżuje" z Tobą, gdy przeglądasz matrycę zdalnych witryn - tam też wiedzą kim jesteś i mogą wyświetlać Ci treści, które tylko Ty widzisz. Dzięki rozszerzonemu udostępnianiu tożsamości możesz dostarczyć te informacje do dowolnej odwiedzanej witryny z poziomu swojej matrycy.
 
 **Wiele profili**
 

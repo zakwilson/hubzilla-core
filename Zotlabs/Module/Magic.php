@@ -40,7 +40,7 @@ class Magic extends Controller {
 			goaway($dest);
 		}
 
-		$basepath = $parsed['scheme'] . '://' . $parsed['host'] . (($parsed['port']) ? ':' . $parsed['port'] : ''); 
+		$basepath = $parsed['scheme'] . '://' . $parsed['host'] . (isset($parsed['port']) ? ':' . $parsed['port'] : '');
 		$owapath = SConfig::get($basepath,'system','openwebauth', $basepath . '/owa');
 
 		// This is ready-made for a plugin that provides a blacklist or "ask me" before blindly authenticating. 
@@ -110,6 +110,7 @@ class Magic extends Controller {
 				$headers['(request-target)'] = 'post ' . '/owa';
 
 				$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
+				$redirects = 0;
 				$x = z_post_url($owapath,$data,$redirects,[ 'headers' => $headers ]);
 				logger('owa fetch returned: ' . print_r($x,true),LOGGER_DATA);
 				if ($x['success']) {

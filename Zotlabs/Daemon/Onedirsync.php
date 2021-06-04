@@ -29,6 +29,7 @@ class Onedirsync {
 
 		if (!$r)
 			return;
+
 		if (($r[0]['ud_flags'] & UPDATE_FLAGS_UPDATED) || (!$r[0]['ud_addr']))
 			return;
 
@@ -59,13 +60,12 @@ class Onedirsync {
 
 		$h = Libzot::zot_record_preferred($h);
 
-		if (($h) && ($h['hubloc_status'] & HUBLOC_OFFLINE)) {
+		if (($h) && (($h['hubloc_status'] & HUBLOC_OFFLINE) || $h['hubloc_deleted'] || $h['hubloc_error']) ) {
 			q("update updates set ud_flags = ( ud_flags | %d ) where ud_addr = '%s' and ( ud_flags & %d ) = 0 ",
 				intval(UPDATE_FLAGS_UPDATED),
 				dbesc($r[0]['ud_addr']),
 				intval(UPDATE_FLAGS_UPDATED)
 			);
-
 			return;
 		}
 

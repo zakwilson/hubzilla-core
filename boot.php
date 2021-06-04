@@ -1709,21 +1709,24 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 			$_SESSION['login_return_url'] = App::$query_string;
 	}
 
-	$o .= replace_macros($tpl,array(
+	$email_required = get_config('system', 'verify_email');
+	$lname_label = (($email_required) ? t('Email or nickname') : t('Nickname'));
+
+	$o .= replace_macros($tpl, [
 		'$dest_url'     => $dest_url,
 		'$login_page'   => $login_page,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
 		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
-		'$lname'        => array('username', t('Login/Email') , '', ''),
-		'$lpassword'    => array('password', t('Password'), '', ''),
-		'$remember_me'  => array((($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '',array(t('No'),t('Yes'))),
+		'$lname'        => ['username', $lname_label],
+		'$lpassword'    => ['password', t('Password')],
+		'$remember_me'  => [(($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '', [t('No'),t('Yes')]],
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),
-		'$lostlink'     => t('Password Reset'),
-	));
+		'$lostlink'     => (($email_required) ? t('Password Reset') : ''),
+	]);
 
 	/**
 	 * @hooks login_hook
@@ -2420,10 +2423,10 @@ function construct_page() {
 
 	// security headers - see https://securityheaders.io
 
-	if(App::get_scheme() === 'https' && App::$config['system']['transport_security_header'])
+	if(App::get_scheme() === 'https' && isset(App::$config['system']['transport_security_header']) && intval(App::$config['system']['transport_security_header']) == 1)
 		header("Strict-Transport-Security: max-age=31536000");
 
-	if(isset(App::$config['system']['content_security_policy'])) {
+	if(isset(App::$config['system']['content_security_policy']) && intval(App::$config['system']['content_security_policy']) == 1) {
 		$cspsettings = [
 			'script-src' => [ "'self'", "'unsafe-inline'", "'unsafe-eval'" ],
 			'style-src'  => [ "'self'", "'unsafe-inline'" ],

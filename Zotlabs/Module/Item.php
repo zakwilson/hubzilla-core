@@ -745,10 +745,10 @@ class Item extends Controller {
 
 			if($parent_item) {
 				$acl->set($parent_item);
-				$private = intval($acl->is_private() || $parent_item['item_private']);
-				$public_policy     = $parent_item['public_policy'];
-				$owner_hash        = $parent_item['owner_xchan'];
-				$webpage           = $parent_item['item_type'];
+				$private       = intval($parent_item['item_private']);
+				$public_policy = $parent_item['public_policy'];
+				$owner_hash    = $parent_item['owner_xchan'];
+				$webpage       = $parent_item['item_type'];
 			}
 
 			if((! $allow_empty) && (! strlen($body))) {

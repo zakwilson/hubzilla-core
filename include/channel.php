@@ -1407,7 +1407,7 @@ function profile_load($nickname, $profile = '') {
 
 	if(! $user) {
 		logger('profile error: ' . App::$query_string, LOGGER_DEBUG);
-		notice( t('Requested channel is not available.') . EOL );
+		notice( t('Requested channel is not available') . EOL );
 		App::$error = 404;
 		return;
 	}
@@ -1516,8 +1516,11 @@ function profile_load($nickname, $profile = '') {
 
 	if($p[0]['keywords']) {
 		$keywords = str_replace(array('#',',',' ',',,'),array('',' ',',',','),$p[0]['keywords']);
-		if(strlen($keywords) && $can_view_profile)
+		if(strlen($keywords) && $can_view_profile) {
+			if(! isset(App::$page['htmlhead']))
+				App::$page['htmlhead'] = '';
 			App::$page['htmlhead'] .= '<meta name="keywords" content="' . htmlentities($keywords,ENT_COMPAT,'UTF-8') . '" />' . "\r\n" ;
+		}
 	}
 
 	App::$profile = $p[0];
@@ -2534,7 +2537,7 @@ function channelx_by_nick($nick) {
 		return App::$channel;
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s'  and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' and channel_removed = 0 LIMIT 1",
 		dbesc($nick)
 	);
 

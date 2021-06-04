@@ -702,7 +702,6 @@ function get_item_elements($x,$allow_code = false) {
 	$arr['mid']          = (($x['message_id'])     ? htmlspecialchars($x['message_id'],     ENT_COMPAT,'UTF-8',false) : '');
 	$arr['parent_mid']   = (($x['message_top'])    ? htmlspecialchars($x['message_top'],    ENT_COMPAT,'UTF-8',false) : '');
 	$arr['thr_parent']   = (($x['message_parent']) ? htmlspecialchars($x['message_parent'], ENT_COMPAT,'UTF-8',false) : '');
-
 	$arr['plink']        = (($x['permalink'])      ? htmlspecialchars($x['permalink'],      ENT_COMPAT,'UTF-8',false) : '');
 	$arr['location']     = (($x['location'])       ? htmlspecialchars($x['location'],       ENT_COMPAT,'UTF-8',false) : '');
 	$arr['coord']        = (($x['longlat'])        ? htmlspecialchars($x['longlat'],        ENT_COMPAT,'UTF-8',false) : '');
@@ -718,17 +717,12 @@ function get_item_elements($x,$allow_code = false) {
 	$arr['comment_policy'] = (($x['comment_scope']) ? htmlspecialchars($x['comment_scope'], ENT_COMPAT,'UTF-8',false) : 'contacts');
 
 	$arr['sig']          = (($x['signature']) ? htmlspecialchars($x['signature'],  ENT_COMPAT,'UTF-8',false) : '');
-
 	$arr['obj']          = activity_sanitise($x['object']);
 	$arr['target']       = activity_sanitise($x['target']);
-
 	$arr['attach']       = activity_sanitise($x['attach']);
 	$arr['term']         = decode_tags($x['tags']);
 	$arr['iconfig']      = decode_item_meta($x['meta']);
-
-	$arr['item_private'] = ((array_key_exists('flags',$x) && is_array($x['flags']) && in_array('private',$x['flags'])) ? 1 : 0);
-
-	$arr['item_flags'] = 0;
+	$arr['item_flags']   = 0;
 
 	if(array_key_exists('flags',$x)) {
 
@@ -748,6 +742,12 @@ function get_item_elements($x,$allow_code = false) {
 
 		if(in_array('hidden',$x['flags']))
 			$arr['item_hidden'] = 1;
+
+		if(in_array('private', $x['flags']))
+			$arr['item_private'] = 1;
+
+		if(in_array('private', $x['flags']) && in_array('direct', $x['flags']))
+			$arr['item_private'] = 2;
 
 	}
 
@@ -971,7 +971,7 @@ function import_author_xchan($x) {
 	if($y)
 		return $y;
 
-	if(!$y && !isset($x['network']) || $x['network'] === 'zot') {
+	if(!isset($x['network']) || $x['network'] === 'zot') {
 		$y = import_author_zot($x);
 	}
 
@@ -981,11 +981,14 @@ function import_author_xchan($x) {
 			$r = q("SELECT xchan_hash FROM xchan WHERE xchan_url = '%s' AND xchan_network = 'zot6'",
 				dbesc($x['url'])
 			);
-			if(! $r)
+			// TODO: fix dupplicate with line 960
+			if(!$r)
 				discover_by_webbie($x['url'], 'zot6');
 		}
 
-		return $y;
+		if($y)
+			return $y;
+
 	}
 
 	// perform zot6 discovery
@@ -1336,7 +1339,13 @@ function encode_item_xchan($xchan) {
 	$ret['id_sig']   = $xchan['xchan_guid_sig'];
 	$ret['key']      = $xchan['xchan_pubkey'];
 
-	return $ret;
+	$hookdata = [
+		'encoded_xchan' => $ret
+	];
+
+	call_hooks('encode_item_xchan', $hookdata);
+
+	return $hookdata['encoded_xchan'];
 }
 
 function encode_item_terms($terms,$mirror = false) {
@@ -1551,6 +1560,8 @@ function encode_item_flags($item) {
 		$ret[] = 'obscured';
 	if(intval($item['item_private']))
 		$ret[] = 'private';
+	if(intval($item['item_private']) === 2)
+		$ret[] = 'direct';
 
 	return $ret;
 }

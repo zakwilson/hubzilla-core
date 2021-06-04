@@ -1710,24 +1710,21 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 			$_SESSION['login_return_url'] = App::$query_string;
 	}
 
-	$email_required = get_config('system', 'verify_email');
-	$lname_label = (($email_required) ? t('Email or nickname') : t('Nickname'));
-
-	$o .= replace_macros($tpl, [
+	$o .= replace_macros($tpl,array(
 		'$dest_url'     => $dest_url,
 		'$login_page'   => $login_page,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
 		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
-		'$lname'        => ['username', $lname_label],
-		'$lpassword'    => ['password', t('Password')],
-		'$remember_me'  => [(($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '', [t('No'),t('Yes')]],
+		'$lname'        => array('username', t('Login/Email') , '', ''),
+		'$lpassword'    => array('password', t('Password'), '', ''),
+		'$remember_me'  => array((($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '',array(t('No'),t('Yes'))),
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),
-		'$lostlink'     => (($email_required) ? t('Password Reset') : ''),
-	]);
+		'$lostlink'     => t('Password Reset'),
+	));
 
 	/**
 	 * @hooks login_hook

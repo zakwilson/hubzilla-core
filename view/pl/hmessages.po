@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 5.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-23 21:08+0200\n"
-"PO-Revision-Date: 2021-05-31 13:29+0200\n"
+"PO-Revision-Date: 2021-06-04 23:00+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -72,7 +72,7 @@ msgstr "Może wysyłać mi prywatne wiadomości e-mail"
 
 #: ../../Zotlabs/Access/Permissions.php:69
 msgid "Can like/dislike profiles and profile things"
-msgstr "Może lubić/nie lubić profile i rzeczy w profilach"
+msgstr "Może pochwalać/ganić profile i rzeczy w profilach"
 
 #: ../../Zotlabs/Access/Permissions.php:70
 msgid "Can forward to all my channel connections via ! mentions in posts"
@@ -1232,7 +1232,7 @@ msgstr "Przeszukaj dokumentację"
 
 #: ../../Zotlabs/Module/Help.php:83 ../../include/nav.php:434
 msgid "About"
-msgstr "O platformie Hubzilla"
+msgstr "O platformie"
 
 #: ../../Zotlabs/Module/Help.php:84 ../../Zotlabs/Module/Group.php:156
 msgid "Members"
@@ -1424,11 +1424,11 @@ msgstr "Partner romantyczny"
 
 #: ../../Zotlabs/Module/Profiles.php:469 ../../Zotlabs/Module/Profiles.php:774
 msgid "Likes"
-msgstr "Oceny pozytywne"
+msgstr "Pochwały"
 
 #: ../../Zotlabs/Module/Profiles.php:473 ../../Zotlabs/Module/Profiles.php:775
 msgid "Dislikes"
-msgstr "Oceny negatywne"
+msgstr "Nagany"
 
 #: ../../Zotlabs/Module/Profiles.php:477 ../../Zotlabs/Module/Profiles.php:782
 msgid "Work/Employment"
@@ -1784,7 +1784,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Like.php:106
 msgid "Like/Dislike"
-msgstr "Oceń pozytywnie/negatywnie"
+msgstr "Pochwal/Zgań"
 
 #: ../../Zotlabs/Module/Like.php:112
 msgid "This action is restricted to members."
@@ -1840,14 +1840,14 @@ msgstr "stan"
 #: ../../extend/addon/hubzilla-addons/pubcrawl/as.php:2138
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
-msgstr "%1$s ocenił pozytywnie %3$s %2$s"
+msgstr "%1$s pochwalił %3$s %2$s"
 
 #: ../../Zotlabs/Module/Like.php:473 ../../Zotlabs/Lib/Activity.php:3299
 #: ../../include/conversation.php:177
 #: ../../extend/addon/hubzilla-addons/pubcrawl/as.php:2140
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
-msgstr "%1$s ocenił negatywnie %3$s  %2$s"
+msgstr "%1$s zganił %3$s  %2$s"
 
 #: ../../Zotlabs/Module/Like.php:475
 #, php-format
@@ -2060,7 +2060,7 @@ msgstr "Zarządzanie grupami prywatności"
 #: ../../Zotlabs/Widget/Activity_filter.php:88 ../../include/group.php:327
 #: ../../include/acl_selectors.php:87 ../../include/nav.php:104
 msgid "Privacy Groups"
-msgstr "Grupy Prywatności"
+msgstr "Grupy prywatności"
 
 #: ../../Zotlabs/Module/Group.php:143
 msgid "Add Group"
@@ -2265,7 +2265,7 @@ msgstr "Wygenerowane automatycznie - w razie potrzeby zmień. Maksymalna długo�
 #: ../../extend/addon/hubzilla-addons/statusnet/statusnet.php:595
 #: ../../extend/addon/hubzilla-addons/twitter/twitter.php:506
 msgid "Consumer Secret"
-msgstr "Hasło konsumenta"
+msgstr "Sekret konsumenta"
 
 #: ../../Zotlabs/Module/Oauth.php:116 ../../Zotlabs/Module/Oauth.php:142
 #: ../../Zotlabs/Module/Oauth2.php:120 ../../Zotlabs/Module/Oauth2.php:148
@@ -2293,7 +2293,7 @@ msgstr "Aplikacji nie znaleziono."
 
 #: ../../Zotlabs/Module/Oauth.php:171
 msgid "Connected OAuth Apps"
-msgstr "Połączone aplikacje OAuth"
+msgstr "Podłączone aplikacje OAuth"
 
 #: ../../Zotlabs/Module/Oauth.php:175 ../../Zotlabs/Module/Oauth2.php:196
 msgid "Client key starts with"
@@ -2718,11 +2718,11 @@ msgstr "Dodaj aplikację OAuth2"
 
 #: ../../Zotlabs/Module/Oauth2.php:121 ../../Zotlabs/Module/Oauth2.php:149
 msgid "Grant Types"
-msgstr "Rodzaje dofinansowań"
+msgstr "Rodzaje zezwoleń"
 
 #: ../../Zotlabs/Module/Oauth2.php:121 ../../Zotlabs/Module/Oauth2.php:122
 msgid "leave blank unless your application sepcifically requires this"
-msgstr "pozostaw puste, chyba że Twoja aplikacja wyraźnie tego wymaga"
+msgstr "pozostaw puste, chyba że Twoja aplikacja jawnie tego wymaga"
 
 #: ../../Zotlabs/Module/Oauth2.php:122 ../../Zotlabs/Module/Oauth2.php:150
 msgid "Authorization scope"
@@ -2738,7 +2738,7 @@ msgstr "pozostaw puste, chyba że Twoja aplikacja wyraźnie tego wymaga"
 
 #: ../../Zotlabs/Module/Oauth2.php:192
 msgid "Connected OAuth2 Apps"
-msgstr "Aplikacje połączeń OAuth2"
+msgstr "Podłączone aplikacje OAuth2"
 
 #: ../../Zotlabs/Module/Wiki.php:35 ../../extend/addon/hubzilla-addons/cart/cart.php:1410
 #: ../../extend/addon/hubzilla-addons/flashcards/Mod_Flashcards.php:51
@@ -2805,7 +2805,7 @@ msgstr "BBcode"
 #: ../../Zotlabs/Module/Wiki.php:216 ../../Zotlabs/Widget/Wiki_pages.php:38
 #: ../../Zotlabs/Widget/Wiki_pages.php:95 ../../include/text.php:2119
 msgid "Text"
-msgstr "Text"
+msgstr "Tekst"
 
 #: ../../Zotlabs/Module/Wiki.php:218 ../../Zotlabs/Storage/Browser.php:378
 msgid "Type"
@@ -4016,7 +4016,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Uexport.php:76
 msgid "Export Content"
-msgstr "Eksport Treści"
+msgstr "Eksport treści"
 
 #: ../../Zotlabs/Module/Uexport.php:77
 msgid ""
@@ -4404,7 +4404,7 @@ msgstr "Przenieś zdjęcie do albumu"
 
 #: ../../Zotlabs/Module/Photos.php:1040
 msgid "Enter a new album name"
-msgstr "Wpisz nową nazwę albumu"
+msgstr "Wprowadź nową nazwę albumu"
 
 #: ../../Zotlabs/Module/Photos.php:1041
 msgid "or select an existing one (doubleclick)"
@@ -4448,12 +4448,12 @@ msgstr "Komentarz"
 #: ../../Zotlabs/Module/Photos.php:1113 ../../include/conversation.php:652
 msgctxt "title"
 msgid "Likes"
-msgstr "Ocen pozytywnych"
+msgstr "Pochwały"
 
 #: ../../Zotlabs/Module/Photos.php:1113 ../../include/conversation.php:653
 msgctxt "title"
 msgid "Dislikes"
-msgstr "Ocen negatywnych"
+msgstr "Nagany"
 
 #: ../../Zotlabs/Module/Photos.php:1114 ../../Zotlabs/Widget/Pinned.php:77
 #: ../../include/conversation.php:654
@@ -4502,18 +4502,18 @@ msgstr "Pokaż wszystkie"
 msgctxt "noun"
 msgid "Like"
 msgid_plural "Likes"
-msgstr[0] "Ocena pozytywna"
-msgstr[1] "Oceny pozytywne"
-msgstr[2] "Oce pozytywanych"
+msgstr[0] "Pochwała"
+msgstr[1] "Pochwały"
+msgstr[2] "Pochwał"
 
 #: ../../Zotlabs/Module/Photos.php:1141 ../../Zotlabs/Lib/ThreadItem.php:248
 #: ../../include/conversation.php:1755
 msgctxt "noun"
 msgid "Dislike"
 msgid_plural "Dislikes"
-msgstr[0] "Ocena negartwna"
-msgstr[1] "Oceny negatywne"
-msgstr[2] "Ocen negatywnych"
+msgstr[0] "Nagana"
+msgstr[1] "Nagany"
+msgstr[2] "Nagan"
 
 #: ../../Zotlabs/Module/Photos.php:1247
 msgid "Photo Tools"
@@ -4530,12 +4530,12 @@ msgstr "Mapa"
 #: ../../Zotlabs/Module/Photos.php:1269 ../../Zotlabs/Lib/ThreadItem.php:491
 msgctxt "noun"
 msgid "Likes"
-msgstr "Oceny pozytywne"
+msgstr "Pochwały"
 
 #: ../../Zotlabs/Module/Photos.php:1270 ../../Zotlabs/Lib/ThreadItem.php:492
 msgctxt "noun"
 msgid "Dislikes"
-msgstr "Oceny negatywne"
+msgstr "Nagany"
 
 #: ../../Zotlabs/Module/Photos.php:1275 ../../Zotlabs/Storage/Browser.php:411
 #: ../../Zotlabs/Lib/ThreadItem.php:497 ../../Zotlabs/Widget/Pinned.php:158
@@ -4819,7 +4819,7 @@ msgstr "Wybierz znacznik do usunięcia: "
 
 #: ../../Zotlabs/Module/Affinity.php:35
 msgid "Affinity Tool settings updated."
-msgstr "Zaktualizowano ustawienia narzędzia koligacji."
+msgstr "Zaktualizowano ustawienia narzędzia więzi."
 
 #: ../../Zotlabs/Module/Affinity.php:47
 msgid ""
@@ -4829,13 +4829,13 @@ msgid ""
 "friends or everybody in your stream."
 msgstr ""
 "Ta aplikacja przedstawia suwak w edytorze połączeń, a także na stronie internetowej. "
-"Suwak przedstawia stopień przyjaźni (koligacji) z każdym połączeniem. Umożliwia "
+"Suwak przedstawia stopień przyjaźni (więzi) z każdym połączeniem. Umożliwia "
 "powiększanie i pomniejszanie oraz wyświetlanie rozmów tylko od najbliższych znajomych "
 "lub wszystkich w strumieniu."
 
 #: ../../Zotlabs/Module/Affinity.php:52
 msgid "Affinity Tool App"
-msgstr "Aplikacja Narzędzie koligacji"
+msgstr "Aplikacja Narzędzie więzi"
 
 #: ../../Zotlabs/Module/Affinity.php:57
 msgid ""
@@ -4914,11 +4914,11 @@ msgstr "Edytuj artykuł"
 
 #: ../../Zotlabs/Module/Rmagic.php:46
 msgid "Authentication failed."
-msgstr "Uwierzytelnianie nie powiodło się."
+msgstr "Uwierzytelnienie nie powiodło się."
 
 #: ../../Zotlabs/Module/Rmagic.php:96 ../../include/channel.php:2625 ../../boot.php:1717
 msgid "Remote Authentication"
-msgstr "Zdalne uwierzytelnianie"
+msgstr "Zdalne uwierzytelnienie"
 
 #: ../../Zotlabs/Module/Rmagic.php:97 ../../include/channel.php:2626
 msgid "Enter your channel address (e.g. channel@example.com)"
@@ -4926,7 +4926,7 @@ msgstr "Wpisz adres swojego kanału (np. kanał@example.com)"
 
 #: ../../Zotlabs/Module/Rmagic.php:98 ../../include/channel.php:2627
 msgid "Authenticate"
-msgstr "Uwierzytelnianie"
+msgstr "Uwierzytelnienie"
 
 #: ../../Zotlabs/Module/Attach.php:68
 msgid "Item not available."
@@ -6413,7 +6413,7 @@ msgstr "Ignoruj/Ukryj"
 #: ../../Zotlabs/Module/Suggest.php:79 ../../Zotlabs/Module/Directory.php:437
 #: ../../include/contact_widgets.php:24
 msgid "Channel Suggestions"
-msgstr "Sugerowane Kanały"
+msgstr "Sugerowane kanały"
 
 #: ../../Zotlabs/Module/Email_validation.php:36
 msgid "Email Verification Required"
@@ -6453,7 +6453,7 @@ msgstr "Ten kanał jest ograniczony do %d tokenów"
 
 #: ../../Zotlabs/Module/Tokens.php:45
 msgid "Name and Password are required."
-msgstr "Wymagane są Imię i hasło."
+msgstr "Wymagane są nazwa i hasło."
 
 #: ../../Zotlabs/Module/Tokens.php:85
 msgid "Token saved."
@@ -6586,13 +6586,13 @@ msgid ""
 "You may need to import the file \"install/schema_xxx.sql\" manually using a database "
 "client."
 msgstr ""
-"Może być konieczne ręczne zaimportowanie pliku „install/schema_xxx.sql” za pomocą "
-"klienta bazy danych."
+"Może być konieczne ręczne zaimportowanie pliku \\\"install/schema_xxx.sql\\\" za "
+"pomocą klienta bazy danych."
 
 #: ../../Zotlabs/Module/Setup.php:197 ../../Zotlabs/Module/Setup.php:261
 #: ../../Zotlabs/Module/Setup.php:768
 msgid "Please see the file \"install/INSTALL.txt\"."
-msgstr "Zobacz plik \"install/INSTALL.txt\"."
+msgstr "Proszę zobaczyć plik \"install/INSTALL.txt\"."
 
 #: ../../Zotlabs/Module/Setup.php:258
 msgid "System check"
@@ -6666,8 +6666,8 @@ msgstr "Adres e-mail administratora portalu"
 #: ../../Zotlabs/Module/Setup.php:298 ../../Zotlabs/Module/Setup.php:338
 msgid "Your account email address must match this in order to use the web admin panel."
 msgstr ""
-"Adres e-mail Twojego konta będzie musi być zgodny z tym adresem, aby móc korzystać z "
-"panelu administratora sieci."
+"Adres e-mail Twojego konta musi być zgodny z tym adresem, aby móc korzystać z panelu "
+"administratora sieci."
 
 #: ../../Zotlabs/Module/Setup.php:299 ../../Zotlabs/Module/Setup.php:340
 msgid "Website URL"
@@ -6719,7 +6719,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Setup.php:408
 msgid "Command line PHP"
-msgstr "PHP CLI"
+msgstr "Wiersz poleceń PHP"
 
 #: ../../Zotlabs/Module/Setup.php:418
 msgid "Unable to check command line PHP, as shell_exec() is disabled. This is required."
@@ -6731,11 +6731,11 @@ msgstr ""
 msgid ""
 "The command line version of PHP on your system does not have \"register_argc_argv\" "
 "enabled."
-msgstr "PHP CLI w Twoim systemie nie ma włączonego \"register_argc_argv\"."
+msgstr "Ta wersja PHP CLI w Twoim systemie nie ma włączonego \"register_argc_argv\"."
 
 #: ../../Zotlabs/Module/Setup.php:423
 msgid "This is required for message delivery to work."
-msgstr "Jest to konieczne,, aby dostarczanie wiadomości działało."
+msgstr "Jest to konieczne, aby dostarczanie wiadomości działało."
 
 #: ../../Zotlabs/Module/Setup.php:426
 msgid "PHP register_argc_argv"
@@ -6804,7 +6804,7 @@ msgstr "Moduł PHP PDO"
 
 #: ../../Zotlabs/Module/Setup.php:504
 msgid "mb_string PHP module"
-msgstr "moduł PHP mb_string PHP"
+msgstr "moduł PHP mb_string"
 
 #: ../../Zotlabs/Module/Setup.php:505
 msgid "xml PHP module"
@@ -6876,7 +6876,7 @@ msgstr "Błąd: wymagany, ale niezainstalowany moduł mb_string PHP."
 
 #: ../../Zotlabs/Module/Setup.php:557
 msgid "Error: xml PHP module required for DAV but not installed."
-msgstr "Błąd: moduł XML PHP wymagany dla DAV, ale nie jest zainstalowany."
+msgstr "Błąd: moduł xml PHP jest wymagany dla DAV, ale nie jest zainstalowany."
 
 #: ../../Zotlabs/Module/Setup.php:561
 msgid "Error: zip PHP module required but not installed."
@@ -6900,7 +6900,7 @@ msgid ""
 "files in your folder - even if you can."
 msgstr ""
 "Najczęściej jest to ustawienie uprawnień, ponieważ serwer WWW może nie być w stanie "
-"zapisywać plików w Twoim folderze - nawet jeśli możesz."
+"zapisywać plików w Twoim folderze - nawet jeśli Ty możesz."
 
 #: ../../Zotlabs/Module/Setup.php:587
 msgid "Please see install/INSTALL.txt for additional information."
@@ -6950,9 +6950,9 @@ msgid ""
 "This software uses the store directory to save uploaded files. The web server needs to "
 "have write access to the store directory under the top level web folder"
 msgstr ""
-"To oprogramowanie używa katalogu <i>store</i> do zapisywania przesyłanych plików. "
-"Serwer WWW musi mieć dostęp do zapisu w katalogu <i>store</i>, znajdującego się w "
-"folderze serwera WWW najwyższego poziomu"
+"To oprogramowanie używa katalogu store do zapisywania przesyłanych plików. Serwer WWW "
+"musi mieć dostęp do zapisu w katalogu store, znajdującego się w folderze serwera WWW "
+"najwyższego poziomu"
 
 #: ../../Zotlabs/Module/Setup.php:629
 msgid "store is writable"
@@ -7143,7 +7143,7 @@ msgstr "Alfabetycznie"
 
 #: ../../Zotlabs/Module/Directory.php:442
 msgid "Reverse Alphabetic"
-msgstr "Odwróć alfabetycznie"
+msgstr "Odwrotnie alfabetycznie"
 
 #: ../../Zotlabs/Module/Directory.php:443
 msgid "Newest to Oldest"
@@ -7282,7 +7282,7 @@ msgstr "Tekst linku"
 #, php-format
 msgctxt "mood"
 msgid "%1$s is %2$s"
-msgstr "%1$s jest %2$s"
+msgstr "%1$s to %2$s"
 
 #: ../../Zotlabs/Module/Mood.php:134
 msgid "Mood App"
@@ -7344,7 +7344,7 @@ msgstr "Opis: "
 
 #: ../../Zotlabs/Module/Register.php:95 ../../include/channel.php:212
 msgid "Nickname is required."
-msgstr "Pseudonim jest wymagany."
+msgstr "Wymagany jest pseudonim."
 
 #: ../../Zotlabs/Module/Register.php:112
 msgid "Email address required"
@@ -7410,9 +7410,7 @@ msgstr "Rejestracja na tym portalu wymaga zatwierdzenia przez administratora."
 
 #: ../../Zotlabs/Module/Register.php:445
 msgid "Register at another affiliated hub in case when prefered"
-msgstr ""
-"Zarejestruj się w innym stowarzyszonym portalu w przypadku, gdy potrzebujesz takiego "
-"rozwiązania"
+msgstr "Możesz ewentualnie zarejestrować się na innym stowarzyszonym portalu"
 
 #: ../../Zotlabs/Module/Register.php:458
 msgid "Registration on this hub is by invitation only."
@@ -7778,7 +7776,7 @@ msgstr "Ustawienia bezpieczeństwa i prywatności"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:511
 msgid "Your permissions are already configured. Click to view/adjust"
-msgstr "Twoje uprawnienia są już skonfigurowane. Kliknij, aby wyświetlić/dostosować"
+msgstr "Twoje uprawnienia są już skonfigurowane. Kliknij, aby je wyświetlić/dostosować"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:513
 msgid "Hide my online presence"
@@ -7786,7 +7784,7 @@ msgstr "Ukryj moją obecność w Internecie"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:513
 msgid "Prevents displaying in your profile that you are online"
-msgstr "Zapobiega wyświetlaniu w Twoim profilu, że jesteś online"
+msgstr "Zapobiega wyświetlaniu w Twoim profilu informacji, że jesteś online"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:515
 msgid "Simple Privacy Settings:"
@@ -7924,7 +7922,7 @@ msgstr "Otrzymasz propozycję znajomości"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:559
 msgid "You are tagged in a post"
-msgstr "Oznaczono Ciebie tagiem w poście"
+msgstr "Oznaczono Ciebie tagiem we wpisie"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:560
 msgid "You are poked/prodded/etc. in a post"
@@ -7932,7 +7930,7 @@ msgstr "Zaczepiono Ciebie we wpisie"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:562
 msgid "Someone likes your post/comment"
-msgstr "Ktoś ocenił pozytywnie Twój wpis/komentarz"
+msgstr "Ktoś pochwalił Twój wpis/komentarz"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:565
 msgid "Show visual notifications including:"
@@ -7948,7 +7946,7 @@ msgstr "Niewidoczną aktywność w kanale"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:569
 msgid "Unseen private messages"
-msgstr "Niewidoczną wiadomości prywatne"
+msgstr "Niewidoczne wiadomości prywatne"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:569
 #: ../../Zotlabs/Module/Settings/Channel.php:574
@@ -8003,7 +8001,7 @@ msgstr "Niewidoczna aktywność na publicznym strumieniu"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:580
 msgid "Unseen likes and dislikes"
-msgstr "Niewidoczne oceny pozytywne i negatywne"
+msgstr "Niewidoczne pochwały i nagany"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:581
 msgid "Unseen forum posts"
@@ -8011,7 +8009,7 @@ msgstr "Niewidoczne wpisy na forum"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:582
 msgid "Email notification hub (hostname)"
-msgstr "Serwer powiadomień e-mail (nazwa hosta)"
+msgstr "Powiadomienia e-mail wysyłane z (nazwa hosta)"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:582
 #, php-format
@@ -8019,7 +8017,7 @@ msgid ""
 "If your channel is mirrored to multiple hubs, set this to your preferred location. "
 "This will prevent duplicate email notifications. Example: %s"
 msgstr ""
-"Jeśli twój kanał jest powielany na wielu ortalach, ustaw to na preferowaną "
+"Jeśli twój kanał jest powielany na wielu portalach, ustaw to na preferowaną "
 "lokalizację. Zapobiegnie to powielaniu powiadomień e-mail. Przykład: % s"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:583
@@ -8257,7 +8255,7 @@ msgstr "O tym portalu"
 
 #: ../../Zotlabs/Module/Siteinfo.php:22
 msgid "Site Name"
-msgstr "Nazwa witryny"
+msgstr "Nazwa portalu"
 
 #: ../../Zotlabs/Module/Siteinfo.php:26
 msgid "Administrator"
@@ -8269,7 +8267,7 @@ msgstr "Informacje o oprogramowaniu i projekcie"
 
 #: ../../Zotlabs/Module/Siteinfo.php:30
 msgid "This site is powered by $Projectname"
-msgstr "Ta witryna jest oparta na $Projectname"
+msgstr "Ten portal jest oparty na $Projectname"
 
 #: ../../Zotlabs/Module/Siteinfo.php:31
 msgid "Federated and decentralised networking and identity services provided by Zot"
@@ -8516,12 +8514,12 @@ msgstr "Nazwa kanału"
 #: ../../Zotlabs/Module/Sources.php:123 ../../Zotlabs/Module/Sources.php:158
 msgid "Add the following categories to posts imported from this source (comma separated)"
 msgstr ""
-"Dodaj następujące kategorie do wpisów zaimportowanych z tego źródła (oddzielone "
+"Dodaj następujące kategorie do wpisów zaimportowanych z tego źródła (rozdzielone "
 "przecinkami)"
 
 #: ../../Zotlabs/Module/Sources.php:124 ../../Zotlabs/Module/Sources.php:159
 msgid "Resend posts with this channel as author"
-msgstr "Wyślij ponownie wpisy z tym kanałem jako autorem"
+msgstr "Wyślij ponownie wpisy z tym kanałem jako autor"
 
 #: ../../Zotlabs/Module/Sources.php:124 ../../Zotlabs/Module/Sources.php:159
 msgid "Copyrights may apply"
@@ -8549,7 +8547,7 @@ msgstr "Nie można usunąć źródła."
 
 #: ../../Zotlabs/Module/Poke.php:165
 msgid "Poke App"
-msgstr "Aplikacja kuksaniec"
+msgstr "Aplikacja Zaczepka"
 
 #: ../../Zotlabs/Module/Poke.php:166
 msgid "Poke somebody in your addressbook"
@@ -8652,7 +8650,7 @@ msgstr "Kategoria plików"
 
 #: ../../Zotlabs/Storage/Browser.php:362
 msgid "Total"
-msgstr "Ogólnie"
+msgstr "Ogółem"
 
 #: ../../Zotlabs/Storage/Browser.php:364
 msgid "Shared"
@@ -8726,11 +8724,11 @@ msgstr "OSTRZEŻENIE:"
 
 #: ../../Zotlabs/Storage/Browser.php:537
 msgid "Create new folder"
-msgstr "Stwórz nowy folder"
+msgstr "Utwórz nowy folder"
 
 #: ../../Zotlabs/Storage/Browser.php:539
 msgid "Upload file"
-msgstr "Przesyłanie pliku"
+msgstr "Prześlij plik"
 
 #: ../../Zotlabs/Storage/Browser.php:551
 msgid "Drop files here to immediately upload"
@@ -8830,7 +8828,7 @@ msgstr "Aplikacje"
 
 #: ../../Zotlabs/Lib/Apps.php:324
 msgid "Affinity Tool"
-msgstr "Narzędzie Zaprzyjaźnienia"
+msgstr "Narzędzie więzi"
 
 #: ../../Zotlabs/Lib/Apps.php:327
 msgid "Site Admin"
@@ -9161,11 +9159,11 @@ msgstr "skomentował"
 
 #: ../../Zotlabs/Lib/Enotify.php:157
 msgid "liked"
-msgstr "ocenił pozytywnie"
+msgstr "pochwalone"
 
 #: ../../Zotlabs/Lib/Enotify.php:160
 msgid "disliked"
-msgstr "ocenił negatywnie"
+msgstr "zganione"
 
 #: ../../Zotlabs/Lib/Enotify.php:165
 msgid "voted on"
@@ -9216,17 +9214,17 @@ msgstr "Odwiedź %s, aby zaakceptować lub odrzucić ten komentarz."
 #: ../../Zotlabs/Lib/Enotify.php:306
 #, php-format
 msgid "%1$s liked [zrl=%2$s]your %3$s[/zrl]"
-msgstr "%1$s ocenił pozytywnie [zrl=%2$s]Twój %3$s[/zrl]"
+msgstr "%1$s pochwalił [zrl=%2$s]Twój %3$s[/zrl]"
 
 #: ../../Zotlabs/Lib/Enotify.php:320
 #, php-format
 msgid "[$Projectname:Notify] Like received to conversation #%1$d by %2$s"
-msgstr "[$Projectname:Notify] Ocena poytywna wysłana dla rozmowy #%1$d przez %2$s"
+msgstr "[$Projectname:Notify] Pochwała wysłana dla rozmowy #%1$d przez %2$s"
 
 #: ../../Zotlabs/Lib/Enotify.php:321
 #, php-format
 msgid "%1$s liked an item/conversation you created."
-msgstr "%1$s ocenił pozytywnie utworzony przez Ciebie element/rozmowę."
+msgstr "%1$s pochwalił utworzony przez Ciebie element/rozmowę."
 
 #: ../../Zotlabs/Lib/Enotify.php:332
 #, php-format
@@ -9517,11 +9515,11 @@ msgstr "Narzędzia do konwersacji"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:318 ../../include/taxonomy.php:584
 msgid "like"
-msgstr "lubi"
+msgstr "pochwaa"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:319 ../../include/taxonomy.php:585
 msgid "dislike"
-msgstr "nie lubi"
+msgstr "gani"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:320
 msgid "Reply on this comment"
@@ -9702,12 +9700,12 @@ msgstr "Adres URL Twojej witryny (opcjonalnie)"
 #: ../../Zotlabs/Lib/Activity.php:2163
 #, php-format
 msgid "Likes %1$s's %2$s"
-msgstr "Lubi %2$s %1$s"
+msgstr "Pochwalił %2$s %1$s"
 
 #: ../../Zotlabs/Lib/Activity.php:2166
 #, php-format
 msgid "Doesn't like %1$s's %2$s"
-msgstr "Nie lubi %2$s %1$s"
+msgstr "Zganił %2$s %1$s"
 
 #: ../../Zotlabs/Lib/Activity.php:2172
 #, php-format
@@ -9971,7 +9969,7 @@ msgstr "Nazwa strony"
 
 #: ../../Zotlabs/Widget/Bookmarkedchats.php:24
 msgid "Bookmarked Chatrooms"
-msgstr "Czaty dodane do zakładek"
+msgstr "Czaty z zakładkami"
 
 #: ../../Zotlabs/Widget/Photo.php:48 ../../Zotlabs/Widget/Photo_rand.php:58
 msgid "photo/image"
@@ -10046,7 +10044,7 @@ msgstr "Przegląd"
 
 #: ../../Zotlabs/Widget/Appstore.php:11
 msgid "App Collections"
-msgstr "Kolekcja aplikacji"
+msgstr "Kolekcje aplikacji"
 
 #: ../../Zotlabs/Widget/Appstore.php:13
 msgid "Installed apps"
@@ -10236,7 +10234,7 @@ msgstr "Pokaż tylko nowe wpisy"
 #: ../../Zotlabs/Widget/Notifications.php:66 ../../Zotlabs/Widget/Notifications.php:142
 #: ../../Zotlabs/Widget/Notifications.php:173
 msgid "Filter by name or address"
-msgstr "Filtruj według nazwy lub adresu"
+msgstr "Filtruj wg nazwy lub adresu"
 
 # Sprawdzić w kontekście!
 #: ../../Zotlabs/Widget/Notifications.php:36
@@ -10426,7 +10424,7 @@ msgstr "Zarządzaj swoimi połączeniami"
 
 #: ../../Zotlabs/Widget/Newmember.php:45
 msgid "Communicate"
-msgstr "Komunikuj się"
+msgstr "Skomunikuj się"
 
 #: ../../Zotlabs/Widget/Newmember.php:47
 msgid "View your channel homepage"
@@ -10434,7 +10432,7 @@ msgstr "Wyświetl stronę główną swojego kanału"
 
 #: ../../Zotlabs/Widget/Newmember.php:48
 msgid "View your network stream"
-msgstr "Wyświetl swój strumień sieciowy"
+msgstr "Wyświetl swój strumień"
 
 #: ../../Zotlabs/Widget/Newmember.php:54
 msgid "Documentation"
@@ -10512,12 +10510,12 @@ msgstr "Wyświetl wszystkie %d popularne połączenia"
 #: ../../include/conversation.php:183
 #, php-format
 msgid "likes %1$s's %2$s"
-msgstr "ocenił pozytywnie %2$s %1$s"
+msgstr "pochwalił %2$s %1$s"
 
 #: ../../include/conversation.php:186
 #, php-format
 msgid "doesn't like %1$s's %2$s"
-msgstr "ocenił negatywnie %1$s %2$s"
+msgstr "zganił %1$s %2$s"
 
 #: ../../include/conversation.php:226 ../../include/conversation.php:228
 #, php-format
@@ -10545,7 +10543,7 @@ msgstr "Kategorie:"
 
 #: ../../include/conversation.php:803
 msgid "Filed under:"
-msgstr "Złożone pod:"
+msgstr "Skategoryzowane pod:"
 
 #: ../../include/conversation.php:828
 msgid "View in context"
@@ -10582,28 +10580,28 @@ msgstr "Edytuj połączenie"
 #: ../../include/conversation.php:1265
 #, php-format
 msgid "%s likes this."
-msgstr "%s lubi to."
+msgstr "%s pochwalił to."
 
 #: ../../include/conversation.php:1265
 #, php-format
 msgid "%s doesn't like this."
-msgstr "%s nie lubi tego."
+msgstr "%s zganił to."
 
 #: ../../include/conversation.php:1269
 #, php-format
 msgid "<span  %1$s>%2$d people</span> like this."
 msgid_plural "<span  %1$s>%2$d people</span> like this."
-msgstr[0] "<span  %1$s>%2$d osoba</span> lubi to."
-msgstr[1] "<span  %1$s>%2$d osoby</span> lubią tego."
-msgstr[2] "<span  %1$s>%2$d osób</span> lubi tego."
+msgstr[0] "<span  %1$s>%2$d osoba</span> pochwaliła to."
+msgstr[1] "<span  %1$s>%2$d osoby</span> pochwaliły to."
+msgstr[2] "<span  %1$s>%2$d osób</span> pochwaliło to."
 
 #: ../../include/conversation.php:1271
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this."
 msgid_plural "<span  %1$s>%2$d people</span> don't like this."
-msgstr[0] "<span  %1$s>%2$d osoba</span> nie lubi to."
-msgstr[1] "<span  %1$s>%2$d osoby</span> nie lubią tego."
-msgstr[2] "<span  %1$s>%2$d osób</span> nie lubią tego."
+msgstr[0] "<span  %1$s>%2$d osoba</span> zganiła to."
+msgstr[1] "<span  %1$s>%2$d osoby</span> zganiły to."
+msgstr[2] "<span  %1$s>%2$d osób</span> zganiło to."
 
 #: ../../include/conversation.php:1277
 msgid "and"
@@ -10620,12 +10618,12 @@ msgstr[2] ", oraz %d innych osób"
 #: ../../include/conversation.php:1281
 #, php-format
 msgid "%s like this."
-msgstr "%s lubi to."
+msgstr "%s pochwala to."
 
 #: ../../include/conversation.php:1281
 #, php-format
 msgid "%s don't like this."
-msgstr "%s nie lubi tego."
+msgstr "%s gani to."
 
 #: ../../include/conversation.php:1332
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:82
@@ -10645,7 +10643,7 @@ msgstr "Osadź (istniejące) zdjęcie z albumów ze zdjęciami"
 #: ../../include/conversation.php:1383
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:135
 msgid "Tag term:"
-msgstr "Termin tagu:"
+msgstr "Nazwa tagu:"
 
 #: ../../include/conversation.php:1384
 #: ../../extend/addon/hubzilla-addons/hsse/hsse.php:136
@@ -10883,7 +10881,7 @@ msgstr "Nie określono"
 
 #: ../../include/channel.php:1798
 msgid "Like this channel"
-msgstr "Oceń pozytywnie ten kanał"
+msgstr "Pochwal ten kanał"
 
 #: ../../include/channel.php:1822
 msgid "j F, Y"
@@ -10924,11 +10922,11 @@ msgstr "Hobby/Zainteresowania:"
 
 #: ../../include/channel.php:1873
 msgid "Likes:"
-msgstr "Ocen pozytywnych:"
+msgstr "Pochwały:"
 
 #: ../../include/channel.php:1875
 msgid "Dislikes:"
-msgstr "Ocen negatywnych:"
+msgstr "Nagany:"
 
 #: ../../include/channel.php:1877
 msgid "Contact information and Social Networks:"
@@ -11032,11 +11030,11 @@ msgstr "Dodaje możliwość wstawiania reakcji emoji we wpisach"
 
 #: ../../include/features.php:166
 msgid "Dislike Posts"
-msgstr "Nielubienie wpisu"
+msgstr "Nagany wpisów"
 
 #: ../../include/features.php:167
 msgid "Ability to dislike posts/comments"
-msgstr "Możliwość oznaczania wpisów i komentarzy jako nielubiane"
+msgstr "Możliwość oznaczania wpisów i komentarzy jako nieaprobowane"
 
 #: ../../include/features.php:174
 msgid "Star Posts"
@@ -11056,7 +11054,7 @@ msgstr "Możliwość udzielenia odpowiedzi na wybrany komentarz"
 
 #: ../../include/features.php:196
 msgid "Advanced Directory Search"
-msgstr "Zaawansowane przeszukiwanie katalogu"
+msgstr "Zaawansowane wyszukiwanie w katalogu"
 
 #: ../../include/features.php:197
 msgid "Allows creation of complex directory search queries"
@@ -11309,11 +11307,11 @@ msgstr "Sieć: %s"
 
 #: ../../include/text.php:1236 ../../include/text.php:1240
 msgid "poke"
-msgstr "zaczepiać"
+msgstr "szturchnij"
 
 #: ../../include/text.php:1241
 msgid "ping"
-msgstr "spingować"
+msgstr "spinguj"
 
 #: ../../include/text.php:1241
 msgid "pinged"
@@ -11321,7 +11319,7 @@ msgstr "spingowany"
 
 #: ../../include/text.php:1242
 msgid "prod"
-msgstr "sprawdzać"
+msgstr "zaczep"
 
 #: ../../include/text.php:1242
 msgid "prodded"
@@ -11329,15 +11327,15 @@ msgstr "zaczepiony"
 
 #: ../../include/text.php:1243
 msgid "slap"
-msgstr "spoliczkować"
+msgstr "uderz"
 
 #: ../../include/text.php:1243
 msgid "slapped"
-msgstr "spoliczkowany"
+msgstr "uderzony"
 
 #: ../../include/text.php:1244
 msgid "finger"
-msgstr "dotknąć"
+msgstr "dotknij"
 
 #: ../../include/text.php:1244
 msgid "fingered"
@@ -11345,7 +11343,7 @@ msgstr "dotknięty"
 
 #: ../../include/text.php:1245
 msgid "rebuff"
-msgstr "odprawiać"
+msgstr "odpraw"
 
 #: ../../include/text.php:1245
 msgid "rebuffed"
@@ -11397,7 +11395,7 @@ msgstr "wesoły"
 
 #: ../../include/text.php:1279
 msgid "alive"
-msgstr "żywy"
+msgstr "ożywiony"
 
 #: ../../include/text.php:1280
 msgid "annoyed"
@@ -11429,7 +11427,7 @@ msgstr "zmotywowany"
 
 #: ../../include/text.php:1287
 msgid "relaxed"
-msgstr "z<relaksowany"
+msgstr "zrelaksowany"
 
 #: ../../include/text.php:1288
 msgid "surprised"
@@ -11457,7 +11455,7 @@ msgstr "Piątek"
 
 #: ../../include/text.php:1476 ../../include/js_strings.php:104
 msgid "Saturday"
-msgstr "Sonota"
+msgstr "Sobota"
 
 #: ../../include/text.php:1476 ../../include/js_strings.php:98
 msgid "Sunday"
@@ -11521,7 +11519,7 @@ msgstr "nieznany"
 
 #: ../../include/text.php:1599
 msgid "remove category"
-msgstr "usuń kataegorię"
+msgstr "usuń kategorię"
 
 #: ../../include/text.php:1676
 msgid "remove from file"
@@ -11582,7 +11580,7 @@ msgstr "tylko a-z, 0-9, - i _"
 
 #: ../../include/text.php:2709
 msgid "Design Tools"
-msgstr "Narzędzia projektowe"
+msgstr "Narzędzia wystroju"
 
 #: ../../include/text.php:2715
 msgid "Pages"
@@ -11606,7 +11604,7 @@ msgstr "Import z pliku archiwum ZIP:"
 
 #: ../../include/text.php:2731
 msgid "Import from cloud files:"
-msgstr "Import plków z chmury:"
+msgstr "Import plików z chmury:"
 
 #: ../../include/text.php:2732
 msgid "/cloud/channel/path/to/folder"
@@ -11745,11 +11743,11 @@ msgstr "chcą"
 
 #: ../../include/taxonomy.php:584
 msgid "likes"
-msgstr "lubią"
+msgstr "pochwala"
 
 #: ../../include/taxonomy.php:585
 msgid "dislikes"
-msgstr "nie  lubią"
+msgstr "gani"
 
 #: ../../include/import.php:29
 msgid "Unable to import a removed channel."
@@ -11817,7 +11815,7 @@ msgstr "Zabierz mnie do domu"
 
 #: ../../include/nav.php:163
 msgid "Log me out of this site"
-msgstr "Wyloguj mnie z tej witryny"
+msgstr "Wyloguj mnie z tego portalu"
 
 #: ../../include/nav.php:168
 msgid "Create an account"
@@ -11829,11 +11827,11 @@ msgstr "Pomoc i dokumentacja"
 
 #: ../../include/nav.php:194
 msgid "Search site @name, !forum, #tag, ?docs, content"
-msgstr "Szukaj w witrynie @name, !forum, #tag, ?docs, content"
+msgstr "Szukaj @name portalu, !forum, #tag, ?docs, treść"
 
 #: ../../include/nav.php:200
 msgid "Site Setup and Configuration"
-msgstr "Instalacja i konfiguracja witryny"
+msgstr "Instalacja i konfiguracja portalu"
 
 #: ../../include/nav.php:330
 msgid "@name, !forum, #tag, ?doc, content"
@@ -11857,7 +11855,7 @@ msgstr "Przełącz aplikacje systemowe"
 
 #: ../../include/nav.php:424
 msgid "Status Messages and Posts"
-msgstr "Komunikaty o stanie i wpisy"
+msgstr "Komunikaty o stanie i wpisach"
 
 #: ../../include/nav.php:437
 msgid "Profile Details"
@@ -11885,7 +11883,7 @@ msgstr "Wyświetl artykuły"
 
 #: ../../include/nav.php:527
 msgid "View Webpages"
-msgstr "Wyświetl witryny internetowe"
+msgstr "Wyświetl strony internetowe"
 
 #: ../../include/language.php:441
 msgid "Select an alternate language"
@@ -11951,7 +11949,7 @@ msgstr "Nazwa: "
 #: ../../include/photos.php:151
 #, php-format
 msgid "Image exceeds website size limit of %lu bytes"
-msgstr "Obraz przekracza limit rozmiaru witryny wynoszący %lu bajtów"
+msgstr "Obraz przekracza limit rozmiaru dla tego portali, wynoszący %lu bajtów"
 
 #: ../../include/photos.php:162
 msgid "Image file is empty."
@@ -12032,7 +12030,7 @@ msgstr "Opisz (opcjonalnie)"
 
 #: ../../include/js_strings.php:23
 msgid "Please enter a link URL"
-msgstr "Proszę wprowadzić  URL linku"
+msgstr "Proszę wprowadzić URL linku"
 
 #: ../../include/js_strings.php:24
 msgid "Unsaved changes. Are you sure you wish to leave this page?"
@@ -12058,7 +12056,7 @@ msgstr "świetne"
 msgid ""
 "Your chosen nickname was either already taken or not valid. Please use our suggestion ("
 msgstr ""
-"Twój wybrany pseudonim jest już zajęty lub nieważny. Skorzystaj z naszej prpozycji ("
+"Twój wybrany pseudonim jest już zajęty lub nieważny. Skorzystaj z naszej propozycji ("
 
 #: ../../include/js_strings.php:31
 msgid ") or enter a new one."
@@ -12130,7 +12128,7 @@ msgstr[2] "%d lat"
 
 #: ../../include/js_strings.php:54
 msgid "timeago.prefixAgo"
-msgstr "timeago.prefixAgo"
+msgstr "temu"
 
 #: ../../include/js_strings.php:55
 msgid "timeago.prefixFromNow"
@@ -12763,11 +12761,11 @@ msgstr "Otwórz wybraną lokalizację w innym oknie lub karcie przeglądarki"
 
 #: ../../include/connections.php:736 ../../include/event.php:1424
 msgid "Home, Voice"
-msgstr "Dom, głosowy"
+msgstr "Domowy, głosowy"
 
 #: ../../include/connections.php:737 ../../include/event.php:1425
 msgid "Home, Fax"
-msgstr "Dom, fax"
+msgstr "Domowy, fax"
 
 #: ../../include/connections.php:739 ../../include/event.php:1427
 msgid "Work, Voice"
@@ -13043,7 +13041,7 @@ msgstr "Zaszyfrowana treść"
 #: ../../include/bbcode.php:334
 #, php-format
 msgid "Install %1$s element %2$s"
-msgstr "Zainstaluj element %1$s %2$s"
+msgstr "Zainstaluj %2$s elementu %1$s"
 
 #: ../../include/bbcode.php:338
 #, php-format
@@ -13186,7 +13184,7 @@ msgstr "Link:"
 
 #: ../../extend/addon/hubzilla-addons/likebanner/likebanner.php:70
 msgid "Like us on Hubzilla"
-msgstr "Oceń nas pozytywnie na Hubzilli"
+msgstr "Pochwal nas na Hubzilli"
 
 #: ../../extend/addon/hubzilla-addons/likebanner/likebanner.php:72
 msgid "Embed:"
@@ -13757,7 +13755,7 @@ msgstr "Konto zostało dla Ciebie utworzone."
 #: ../../extend/addon/hubzilla-addons/ldapauth/ldapauth.php:77
 msgid "Authentication successful but rejected: account creation is disabled."
 msgstr ""
-"Uwierzytelnianie przebiegło pomyślne, ale zostało odrzucone: tworzenie konta jest "
+"Uwierzytelnianie przebiegło pomyślne, ale zostało odrzucone: utworzone konto jest "
 "wyłączone."
 
 #: ../../extend/addon/hubzilla-addons/cart/cart.php:252
@@ -14201,7 +14199,7 @@ msgstr "W pliku importu nie znaleziono nazwy użytkownika."
 #: ../../extend/addon/hubzilla-addons/diaspora/Receiver.php:1599
 #, php-format
 msgid "%1$s dislikes %2$s's %3$s"
-msgstr "%1$s ocen negatywnych %2$s %3$s"
+msgstr "%1$s nagan %2$s %3$s"
 
 #: ../../extend/addon/hubzilla-addons/diaspora/diaspora.php:70
 msgid "Please install the statistics addon to be able to configure a diaspora relay"
@@ -14578,12 +14576,9 @@ msgid ""
 "match any other word/text you specify, and can thereby be used as a general purpose "
 "content filter."
 msgstr ""
-"Ta aplikacja wyszukuje słowa lub tekst, określone poniżej i zwija wszelkie treści "
-"zawierające te słowa kluczowe, aby nie były wyświetlane w nieodpowiednich momentach, "
-"na przykład, insynuacje seksualne, które mogą być niewłaściwe w miejscu pracy. "
-"Grzecznie jest i zaleca się, oznaczanie wszelkich treści zawierających nagość tagiem "
-"#NSFW. Ten filtr może również pasować do dowolnego innego określonego słowa lub "
-"tekstu, dzięki czemu może być używany jako filtr treści ogólnego przeznaczenia."
+"Ta aplikacja wyszukuje we  wpisach słowa/tekst określone poniżej i zwija wszelkie "
+"treści zawierające te słowa, tak aby nie były wyświetlane w nieodpowiednich momentach. "
+"Na przykład, podteksty seksualne, mogą być niewłaściwe w środowisku."
 
 #: ../../extend/addon/hubzilla-addons/nsfw/Mod_Nsfw.php:49
 msgid "Comma separated list of keywords to hide"
@@ -14901,7 +14896,7 @@ msgstr "GNU-Social Crosspost Connector"
 
 #: ../../extend/addon/hubzilla-addons/wholikesme/wholikesme.php:29
 msgid "Who likes me?"
-msgstr "Kto mnie lubi?"
+msgstr "Kto mnie pochwala?"
 
 #: ../../extend/addon/hubzilla-addons/pubcrawl/Mod_Pubcrawl.php:25
 msgid "ActivityPub Protocol Settings updated."
@@ -14993,7 +14988,7 @@ msgstr "Minimum 120, domyślnie 300 sekund"
 
 #: ../../extend/addon/hubzilla-addons/queueworker/Mod_Queueworker.php:103
 msgid "Pause before starting next task"
-msgstr "Zatrzymaj się przed rozpoczęciem następnego zadania"
+msgstr "Zatrzymaj przed rozpoczęciem następnego zadania"
 
 #: ../../extend/addon/hubzilla-addons/queueworker/Mod_Queueworker.php:105
 msgid "Minimum 100, default 100 microseconds"
@@ -15461,7 +15456,7 @@ msgid ""
 "the location of your original channel and an optional date range of files/"
 "conversations to copy."
 msgstr ""
-"Ten dodatek kopiuje istniejące treści i magazyn plików do sklonowanego lub "
+"Ta dodatkowa aplikacja kopiuje istniejące treści i magazyn plików do sklonowanego lub "
 "skopiowanego kanału. Po zainstalowaniu, odwiedź nowo zainstalowaną aplikację. Umożliwi "
 "Ci to ustawienie lokalizacji oryginalnego kanału i opcjonalnego zakresu dat plików lub "
 "konwersacji do skopiowania."
@@ -15473,7 +15468,7 @@ msgid ""
 msgstr ""
 "Spowoduje to zaimportowanie wszystkich rozmów i plików przechowywanych w chmurze ze "
 "sklonowanego kanału na innym serwerze. Może to chwilę potrwać, jeśli masz dużo wpisów "
-"lun plików."
+"lub plików."
 
 #: ../../extend/addon/hubzilla-addons/content_import/Mod_content_import.php:137
 msgid "Include posts"
@@ -15717,7 +15712,7 @@ msgstr "Najczęściej pobierane jako pierwsze"
 
 #: ../../extend/addon/hubzilla-addons/openclipatar/openclipatar.php:70
 msgid "Most liked first"
-msgstr "Najbardziej lubiane jako pierwsze"
+msgstr "Najbardziej chwalone jako pierwsze"
 
 #: ../../extend/addon/hubzilla-addons/openclipatar/openclipatar.php:72
 msgid "Preferred IDs Message"
@@ -16240,7 +16235,7 @@ msgstr "Strona początkowa"
 #: ../../view/theme/redbasic/php/config.php:16
 #: ../../view/theme/redbasic/php/config.php:19
 msgid "Focus (Hubzilla default)"
-msgstr "Fokus (domyślny w Hubzilla)"
+msgstr "Fokus (domyślnie Hubzilla)"
 
 #: ../../view/theme/redbasic/php/config.php:98
 msgid "Theme settings"
@@ -16264,7 +16259,7 @@ msgstr "Kolor ikony aktywnego paska nawigacji "
 
 #: ../../view/theme/redbasic/php/config.php:103
 msgid "Link color"
-msgstr "Kolor odnośnika"
+msgstr "Kolor linku"
 
 #: ../../view/theme/redbasic/php/config.php:104
 msgid "Set font-color for banner"
@@ -16336,7 +16331,7 @@ msgstr "Utwórz konto, aby uzyskać dostęp do usług i aplikacji"
 
 #: ../../boot.php:1719
 msgid "Login/Email"
-msgstr "Login/Email"
+msgstr "Login/Adres e-mail"
 
 #: ../../boot.php:1720
 msgid "Password"
@@ -16353,11 +16348,11 @@ msgstr "Nie pamiętasz hasła?"
 #: ../../boot.php:2603
 #, php-format
 msgid "[$Projectname] Website SSL error for %s"
-msgstr "[$Projectname] Błąd SSL witryny internetowej dla %s"
+msgstr "[$Projectname] Błąd SSL portalu dla %s"
 
 #: ../../boot.php:2608
 msgid "Website SSL certificate is not valid. Please correct."
-msgstr "Certyfikat SSL witryny jest nieprawidłowy. Proszę popraw."
+msgstr "Certyfikat SSL portalu jest nieprawidłowy. Proszę poprawić."
 
 #: ../../boot.php:2724
 #, php-format
@@ -16410,7 +16405,7 @@ msgstr "Zadania Crona (zaplanowane) nie działają."
 #~ "Rejestracja nieudana."
 
 #~ msgid "Passwords do not match."
-#~ msgstr "Hasła niezgodne."
+#~ msgstr "Hasła nie są zgodne."
 
 #~ msgid "Registration successful. Continue to create your first channel..."
 #~ msgstr "Rejestracja pomyślna. Kontynuuj tworzenie swojego pierwszego kanału ..."

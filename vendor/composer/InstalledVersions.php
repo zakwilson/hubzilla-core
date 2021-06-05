@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '4db384da34595adef68be6226e8b331b4d7b7f31',
+    'reference' => 'bee4fa9937e2a4292153d6d02e798ba50b5476a9',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -66,12 +66,12 @@ private static $installed = array (
     ),
     'commerceguys/intl' => 
     array (
-      'pretty_version' => 'v1.0.7',
-      'version' => '1.0.7.0',
+      'pretty_version' => 'v1.0.8',
+      'version' => '1.0.8.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0bf0beb12e37ef1a61e0d09dc66cdaa1a23e62e1',
+      'reference' => 'b8df285687b8d5d6494874d22e2e5cf625dbe180',
     ),
     'desandro/imagesloaded' => 
     array (
@@ -274,7 +274,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '4db384da34595adef68be6226e8b331b4d7b7f31',
+      'reference' => 'bee4fa9937e2a4292153d6d02e798ba50b5476a9',
     ),
   ),
 );

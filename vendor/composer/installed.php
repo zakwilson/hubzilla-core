@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => 'bec3cb48e548bf9d29ac579789cee13a52915be1',
+    'reference' => '3e18efd89fd1bd67f3cef22114f7d74ac7c0021c',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -218,12 +218,12 @@
     ),
     'symfony/polyfill-ctype' => 
     array (
-      'pretty_version' => 'v1.22.0',
-      'version' => '1.22.0.0',
+      'pretty_version' => 'v1.23.0',
+      'version' => '1.23.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'c6c942b1ac76c82448322025e084cadc56048b4e',
+      'reference' => '46cd95797e9df938fdd2b03693b5fca5e64b01ce',
     ),
     'twbs/bootstrap' => 
     array (
@@ -248,7 +248,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => 'bec3cb48e548bf9d29ac579789cee13a52915be1',
+      'reference' => '3e18efd89fd1bd67f3cef22114f7d74ac7c0021c',
     ),
   ),
 );

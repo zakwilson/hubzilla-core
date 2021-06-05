@@ -155,7 +155,7 @@ class LanguageTest extends UnitTestCase {
 						'nb',
 						'Norwegian Bokmål',
 						[
-								'de' => 'Norwegisch Bokmål',
+								'de' => 'Norwegisch (Bokmål)',
 								'nb' => 'norsk bokmål'
 						]
 				]

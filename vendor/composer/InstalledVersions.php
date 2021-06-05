@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'e8d2819c4231ccea1e98df184859fb6ff523e74f',
+    'reference' => 'bec3cb48e548bf9d29ac579789cee13a52915be1',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -138,12 +138,12 @@ private static $installed = array (
     ),
     'psr/log' => 
     array (
-      'pretty_version' => '1.1.3',
-      'version' => '1.1.3.0',
+      'pretty_version' => '1.1.4',
+      'version' => '1.1.4.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0f73288fd15629204f9d42b7055f72dacbe811fc',
+      'reference' => 'd49695b909c3b7628b6289db5479a1c204601f11',
     ),
     'ramsey/collection' => 
     array (
@@ -274,7 +274,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'e8d2819c4231ccea1e98df184859fb6ff523e74f',
+      'reference' => 'bec3cb48e548bf9d29ac579789cee13a52915be1',
     ),
   ),
 );

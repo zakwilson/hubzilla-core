@@ -32,7 +32,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '0784d2ea4e4f492d9f03d025b56d603d15b5ee89',
+    'reference' => '4db384da34595adef68be6226e8b331b4d7b7f31',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -93,12 +93,12 @@ private static $installed = array (
     ),
     'league/html-to-markdown' => 
     array (
-      'pretty_version' => '4.10.0',
-      'version' => '4.10.0.0',
+      'pretty_version' => '5.0.0',
+      'version' => '5.0.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0868ae7a552e809e5cd8f93ba022071640408e88',
+      'reference' => 'c4dbebbebe0fe454b6b38e6c683a977615bd7dc2',
     ),
     'lukasreschke/id3parser' => 
     array (
@@ -274,7 +274,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '0784d2ea4e4f492d9f03d025b56d603d15b5ee89',
+      'reference' => '4db384da34595adef68be6226e8b331b4d7b7f31',
     ),
   ),
 );

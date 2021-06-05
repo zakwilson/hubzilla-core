@@ -1291,7 +1291,6 @@ return array(
     'Zotlabs\\Module\\Photo' => $baseDir . '/Zotlabs/Module/Photo.php',
     'Zotlabs\\Module\\Photos' => $baseDir . '/Zotlabs/Module/Photos.php',
     'Zotlabs\\Module\\Pin' => $baseDir . '/Zotlabs/Module/Pin.php',
-    'Zotlabs\\Module\\Ping' => $baseDir . '/Zotlabs/Module/Ping.php',
     'Zotlabs\\Module\\Poco' => $baseDir . '/Zotlabs/Module/Poco.php',
     'Zotlabs\\Module\\Poke' => $baseDir . '/Zotlabs/Module/Poke.php',
     'Zotlabs\\Module\\Poster' => $baseDir . '/Zotlabs/Module/Poster.php',

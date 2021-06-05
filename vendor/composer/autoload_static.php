@@ -1481,7 +1481,6 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Photo' => __DIR__ . '/../..' . '/Zotlabs/Module/Photo.php',
         'Zotlabs\\Module\\Photos' => __DIR__ . '/../..' . '/Zotlabs/Module/Photos.php',
         'Zotlabs\\Module\\Pin' => __DIR__ . '/../..' . '/Zotlabs/Module/Pin.php',
-        'Zotlabs\\Module\\Ping' => __DIR__ . '/../..' . '/Zotlabs/Module/Ping.php',
         'Zotlabs\\Module\\Poco' => __DIR__ . '/../..' . '/Zotlabs/Module/Poco.php',
         'Zotlabs\\Module\\Poke' => __DIR__ . '/../..' . '/Zotlabs/Module/Poke.php',
         'Zotlabs\\Module\\Poster' => __DIR__ . '/../..' . '/Zotlabs/Module/Poster.php',

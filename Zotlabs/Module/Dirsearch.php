@@ -214,7 +214,7 @@ class Dirsearch extends Controller {
 
 		if($sync) {
 			$spkt = array('transactions' => array());
-			$r = q("select * from updates where ud_date >= '%s' and ud_guid != '' order by ud_date desc",
+			$r = q("select * from updates where ud_date >= '%s' and ud_guid != '' and ud_addr != '' order by ud_date desc",
 				dbesc($sync)
 			);
 			if($r) {
@@ -231,24 +231,6 @@ class Dirsearch extends Controller {
 						'transaction_id' => $rr['ud_guid'],
 						'timestamp' => $rr['ud_date'],
 						'flags' => $flags
-					);
-				}
-			}
-			$r = q("select * from xlink where xlink_static = 1 and xlink_updated >= '%s' ",
-				dbesc($sync)
-			);
-			if($r) {
-				$spkt['ratings'] = array();
-				foreach($r as $rr) {
-					$spkt['ratings'][] = array(
-						'type' => 'rating',
-						'encoding' => 'zot',
-						'channel' => $rr['xlink_xchan'],
-						'target' => $rr['xlink_link'],
-						'rating' => intval($rr['xlink_rating']),
-						'rating_text' => $rr['xlink_rating_text'],
-						'signature' => $rr['xlink_sig'],
-						'edited' => $rr['xlink_updated']
 					);
 				}
 			}

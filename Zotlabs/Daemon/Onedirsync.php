@@ -58,7 +58,7 @@ class Onedirsync {
 
 		if (($h) && (($h['hubloc_status'] & HUBLOC_OFFLINE) || $h['hubloc_deleted'] || $h['hubloc_error'])) {
 			q("update updates set ud_flags = ( ud_flags | %d ) where ud_addr = '%s' and ( ud_flags & %d ) = 0 ",
-				intval(UPDATE_FLAGS_UPDATED),
+				intval(UPDATE_FLAGS_DELETED),
 				dbesc($r[0]['ud_addr']),
 				intval(UPDATE_FLAGS_UPDATED)
 			);

@@ -252,7 +252,7 @@ class Libzotdir {
 				continue;
 
 			$j = json_decode($x['body'],true);
-			if (!($j['transactions']) || ($j['ratings']))
+			if (!$j['transactions'])
 				continue;
 
 			q("update site set site_sync = '%s' where site_url = '%s'",

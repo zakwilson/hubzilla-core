@@ -197,7 +197,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 		if($update) {
 	
-			$ordering = "commented";
+			$ordering = get_config('system', 'pubstream_ordering', 'commented');
 	
 			if($load) {
 				if($mid) {

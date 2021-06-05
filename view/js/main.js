@@ -78,6 +78,65 @@ $(document).ready(function() {
 		}
 	});
 
+	// @hilmar |->
+	if ( typeof(window.tao) == 'undefined' ) {
+		window.tao = {};
+	}
+	if ( typeof(window.tao.zin) == 'undefined' ) {
+		tao.zin = { syslc: '', syslcs: {}, htm: '', me: '', debug: '' };
+		tao.zin.axim = '<div class="zinpax fa fa-sync fa-spin"> </div>';
+		$('.navbar-app[href*="/lang"]').attr({"data-toggle": "dropdown", "aria-expand": "true", "id": "zintog"})
+			.removeAttr('href').addClass('zinlcx zinlcxp dropdown dropdown-toggle');
+		$('.dropdown-item[href*="/lang"]').addClass('zinlcxmi zinlcx').removeAttr('href').css('cursor','pointer');
+	}
+	$('.zinlcx').on('click',  function(e) {
+		if (tao.zin.syslc == '') {
+			$('.zinlcx').append(tao.zin.axim);
+			$.ajax({
+    			type: 'POST', url: 'lang', 
+      			data: { zinlc: '??' }
+   			}).done( function(re) {
+   				tao.zin.re = JSON.parse(re);
+   			 	tao.zin.syslc = tao.zin.re.lc;
+   			 	tao.zin.syslcs = tao.zin.re.lcs;
+				tao.zin.htm = '<ul class="zinlcs fa-ul">';
+				$.each( tao.zin.syslcs, function( k, v ) {
+					tao.zin.htm += '<li><a id="zinlc' + k + '" class="zinlc dropdown-item fakelink">' + k + ' ' + v + '</a></li>';
+				});
+				tao.zin.htm += '</ul>';
+				$('.zinpax').remove();
+				$('.zinlcx').append(tao.zin.htm);
+				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-right').css('left','-16em');
+   			});
+			return false;
+		} else {
+			if (e.target.id == '') {
+				// noop click on lang again
+				return false;
+			}
+			tao.zin.me = e.target.id.substr(5);
+			$('#right_aside_wrapper').append(tao.zin.axim);
+			$.ajax({
+	   			type: 'POST', url: 'lang', 
+      			data: { zinlc: tao.zin.me }
+    		}).done( function(re) {
+     			tao.zin.re = JSON.parse(re);
+     			location.reload(true);
+    		});
+		}
+	});
+	$('#zintog').on('click', function() {
+		$('.zinlcs').toggle();
+	});
+	$('#dropdown-menu').on('shown.bs.dropdown', function() {
+		tao.zin.debug += 'e,';
+		//$('.zinlcs').removeAttr('display');
+	})
+		.on('mouseleave', function() {
+		$(this).trigger('click');
+	});
+	// @hilmar <-|
+
 	var tf = new Function('n', 's', 'var k = s.split("/")['+aStr['plural_func']+']; return (k ? k : s);');
 
 	jQuery.timeago.settings.strings = {

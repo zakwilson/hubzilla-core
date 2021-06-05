@@ -9,6 +9,7 @@ use Michelf\MarkdownExtra;
 use League\HTMLToMarkdown\HtmlConverter;
 use League\HTMLToMarkdown\Environment;
 use League\HTMLToMarkdown\Converter\ConverterInterface;
+use League\HTMLToMarkdown\Converter\TableConverter;
 use League\HTMLToMarkdown\ElementInterface;
 
 require_once("include/oembed.php");

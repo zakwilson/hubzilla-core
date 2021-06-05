@@ -39,7 +39,7 @@
         "simplepie/simplepie": "~1.5",
         "league/html-to-markdown": "^5.0",
         "pear/text_languagedetect": "^1.0",
-        "commerceguys/intl": "~1.0.5",
+        "commerceguys/intl": "~1.1.0",
         "lukasreschke/id3parser": "^0.0.3",
         "smarty/smarty": "~3.1",
         "ramsey/uuid": "^4.1",

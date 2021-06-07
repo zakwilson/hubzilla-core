@@ -90,7 +90,7 @@
 			<i class="fa fa-question-circle"></i>
 		</button>
 		{{/if}}
-		<button id="expand-aside" type="button" class="d-lg-none navbar-toggler border-0" data-bs-toggle="offcanvas" data-bs-target="#region_1">
+		<button id="expand-aside" type="button" class="d-lg-none navbar-toggler border-0">
 			<i class="fa fa-arrow-circle-right" id="expand-aside-icon"></i>
 		</button>
 		{{if $localuser || $nav.pubs}}

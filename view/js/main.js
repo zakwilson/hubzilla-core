@@ -1277,7 +1277,7 @@ function doscroll(parent, hidden) {
 	});
 
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
-	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-right" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-end" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
 }
 
 function doscrollback(pos) {
@@ -1302,7 +1302,7 @@ function dopin(id) {
                         $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
                         $('.wall-item-pinned').remove()
                         if(i.length == 0) {
-                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
+                                $('<span class="float-end wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })

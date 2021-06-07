@@ -221,8 +221,8 @@
 		{{foreach $notifications as $notification}}
 		<div class="accordion-item {{$notification.type}}-button collapse">
 			<div class="accordion-header notification-link" id="notification-link-{{$notification.type}}">
-				<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="nav-{{$notification.type}}-sub">
-					<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
+				<button class="accordion-button collapsed p-3" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="nav-{{$notification.type}}-sub">
+					<i class="fa fa-fw fa-{{$notification.icon}}"></i>&nbsp;{{$notification.label}}
 					<span class="float-end badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
 				</button>
 			</div>

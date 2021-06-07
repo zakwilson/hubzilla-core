@@ -335,10 +335,14 @@ function nav($template = 'default') {
 		'$channel_thumb'      => ((App::$profile) ? App::$profile['thumb'] : ''),
 		'$channel_apps'       => $channel_apps,
 		'$addapps'            => t('Add Apps'),
+		'$apps'               => t('Apps'),
+		'$channelapps'        => t('Channel Apps'),
+		'$sysapps'            => t('System Apps'),
 		'$orderapps'          => t('Arrange Apps'),
-		'$sysapps_toggle'     => t('Toggle System Apps'),
 		'$url'                => (($url) ? $url : z_root() . '/' . App::$cmd),
-		'$settings_url'       => $settings_url
+		'$settings_url'       => $settings_url,
+		'$name'               => App::$profile['channel_name'],
+		'$thumb'              => App::$profile['thumb'],
 	]);
 
 	if (x($_SESSION, 'reload_avatar') && $observer) {
@@ -549,8 +553,6 @@ function channel_apps($is_owner = false, $nickname = null) {
 	return replace_macros(get_markup_template('profile_tabs.tpl'),
 		[
 			'$tabs'  => $arr['tabs'],
-			'$name'  => App::$profile['channel_name'],
-			'$thumb' => App::$profile['thumb'],
 		]
 	);
 }

@@ -1,10 +1,10 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper clearfix">
-		<div class="dropdown pull-right">
+		<div class="dropdown float-end">
 			<button type="button" class="btn btn-primary btn-sm" onclick="openClose('contacts-search-form'); $('#contacts-search').focus();">
 				<i class="fa fa-search"></i>&nbsp;{{$label}}
 			</button>
-			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
+			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
 				<i class="fa fa-filter"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-right">
@@ -17,7 +17,7 @@
 	</div>
 	<div id="contacts-search-form" class="section-content-tools-wrapper">
 		<form action="{{$cmd}}" method="get" id="mimimi" name="contacts-search-form">
-			<div class="input-group form-group">
+			<div class="input-group mb-3">
 				<input type="text" name="search" id="contacts-search" class="form-control" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc}}" />
 				<div class="input-group-append">
 					<button id="contacts-search-submit" class="btn btn-sm btn-outline-secondary" type="submit"><i class="fa fa-fw fa-search"></i></button>

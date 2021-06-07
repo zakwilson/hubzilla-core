@@ -74,7 +74,7 @@
 			<td colspan="3">
 				{{if $is_owner}}
 				<div class="dropdown">
-					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button">
@@ -89,7 +89,7 @@
 				</div>
 				{{else if $is_admin}}
 				<div class="dropdown">
-					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button">
@@ -116,13 +116,13 @@
 						{{if $is_owner}}
 						{{include file="field_checkbox.tpl" field=$recurse}}
 						{{/if}}
-						<div id="attach-multi-submit" class="form-group">
+						<div id="attach-multi-submit" class="mb-3">
 							<button id="cloud-multi-tool-cancel-btn" class="btn btn-outline-secondary btn-sm cloud-multi-tool-cancel-btn" type="button">
 									{{$cancel_label}}
 							</button>
-							<div id="attach-multi-edit-perms" class="btn-group float-right">
+							<div id="attach-multi-edit-perms" class="btn-group float-end">
 								{{if $is_owner}}
-								<button id="multi-dbtn-acl" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" type="button">
+								<button id="multi-dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" title="{{$permset}}" type="button">
 									<i id="multi-jot-perms-icon" class="fa fa-{{$lockstate}} jot-icons jot-perms-icon"></i>
 								</button>
 								{{/if}}
@@ -151,14 +151,14 @@
 			<td>{{$item.terms}}</td>
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}
-				<i class="fa fa-lock lockview" data-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
+				<i class="fa fa-lock lockview" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
 				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
 				{{/if}}
 			</td>
 			<td class="cloud-index-tool">
 				{{if ($is_owner || $item.is_creator) && $item.attach_id}}
 				<div class="dropdown">
-					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
@@ -183,7 +183,7 @@
 				{{else}}
 				{{if $is_admin || $item.attach_id}}
 				<div class="dropdown">
-					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
 					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
@@ -214,22 +214,22 @@
 					</div>
 					<div id="cloud-tool-info-{{$item.attach_id}}" class="cloud-tool">
 						{{if ! $item.collection}}
-						<div class="form-group">
+						<div class="mb-3">
 							<label for="attach-code-input-{{$item.attach_id}}">{{$attach_bbcode_label}}</label>
 							<input type="text" class="form-control" id="attach-code-input-{{$item.attach_id}}" name="attach-code-input-{{$item.attach_id}}" value="{{$item.attach_bbcode}}" onclick="this.select();" />
 						</div>
 						{{if $item.embed_bbcode}}
-						<div class="form-group">
+						<div class="mb-3">
 							<label for="embed-code-input-{{$item.attach_id}}">{{$embed_bbcode_label}}</label>
 							<input type="text" class="form-control" id="embed-code-input-{{$item.attach_id}}" name="embed-code-input-{{$item.attach_id}}" value="{{$item.embed_bbcode}}" onclick="this.select();" />
 						</div>
 						{{/if}}
 						{{/if}}
-						<div class="form-group">
+						<div class="mb-3">
 							<label for="link-code-input-{{$item.attach_id}}">{{$link_bbcode_label}}</label>
 							<input type="text" class="form-control" id="link-code-input-{{$item.attach_id}}" name="link-code-input-{{$item.attach_id}}" value="{{$item.link_bbcode}}" onclick="this.select();" />
 						</div>
-						<div class="form-group">
+						<div class="mb-3">
 							<button id="cloud-tool-close-btn-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm cloud-tool-cancel-btn" type="button" data-id="{{$item.attach_id}}">
 								{{$close_label}}
 							</button>
@@ -247,13 +247,13 @@
 						{{if !$item.collection}}{{include file="field_checkbox.tpl" field=$item.notify}}{{/if}}
 						{{if $item.collection}}{{include file="field_checkbox.tpl" field=$item.recurse}}{{/if}}
 						{{/if}}
-						<div id="attach-submit-{{$item.attach_id}}" class="form-group">
+						<div id="attach-submit-{{$item.attach_id}}" class="mb-3">
 							<button id="cloud-tool-cancel-btn-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm cloud-tool-cancel-btn" type="button" data-id="{{$item.attach_id}}">
 									{{$cancel_label}}
 							</button>
-							<div id="attach-edit-perms-{{$item.attach_id}}" class="btn-group float-right">
+							<div id="attach-edit-perms-{{$item.attach_id}}" class="btn-group float-end">
 								{{if $is_owner}}
-								<button id="dbtn-acl-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" title="{{$permset}}" type="button">
+								<button id="dbtn-acl-{{$item.attach_id}}" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" title="{{$permset}}" type="button">
 									<i id="jot-perms-icon-{{$item.attach_id}}" class="fa fa-{{$item.lockstate}} jot-icons jot-perms-icon"></i>
 								</button>
 								{{/if}}

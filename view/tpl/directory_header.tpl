@@ -1,7 +1,7 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper clearfix">
-		<div class="btn-group pull-right">
-			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
+		<div class="btn-group float-end">
+			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
 				<i class="fa fa-sort"></i>
 			</button>
 			<div class="dropdown-menu dropdown-menu-right">
@@ -17,7 +17,7 @@
 		{{include file="direntry.tpl"}}
 	{{/foreach}}
 	{{** make sure this element is at the bottom - we rely on that in endless scroll **}}
-	<div id="page-end" class="float-left w-100"></div>
+	<div id="page-end" class="float-start w-100"></div>
 </div>
 <script>$(document).ready(function() { loadingPage = false;});</script>
 <div id="page-spinner" class="spinner-wrapper">

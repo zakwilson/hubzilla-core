@@ -1,5 +1,5 @@
 <div class="section-subtitle-wrapper">
-	<div class="pull-right">
+	<div class="float-end">
 		{{if $channel.default_links}}
 		{{if $channel.default}}
 		<div>

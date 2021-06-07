@@ -23,9 +23,9 @@
 			<div class="p-2 clearfix wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}}" >
 				<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 					<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}}" id="wall-item-photo-wrapper-{{$item.id}}">
-						<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" data-toggle="dropdown" loading="lazy" />
+						<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" data-bs-toggle="dropdown" loading="lazy" />
 						{{if $item.thread_author_menu}}
-						<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-toggle="dropdown"></i>
+						<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-bs-toggle="dropdown"></i>
 						<div class="dropdown-menu">
 							{{foreach $item.thread_author_menu as $mitem}}
 							<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} >{{$mitem.title}}</a>
@@ -36,7 +36,7 @@
 				</div>
 				{{if $item.lock}}
 				<div class="wall-item-lock dropdown">
-					<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else}}fa-lock{{/if}} lockview" data-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i><ul id="panel-{{$item.id}}" class="lockview-panel dropdown-menu"></ul>&nbsp;
+					<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else}}fa-lock{{/if}} lockview" data-bs-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i><ul id="panel-{{$item.id}}" class="lockview-panel dropdown-menu"></ul>&nbsp;
 				</div>
 				{{/if}}
 				<div class="wall-item-author">
@@ -65,14 +65,14 @@
 			</div>
 			{{/if}}
 			<div class="p-2 clearfix wall-item-tools">
-				<div class="float-right wall-item-tools-right">
+				<div class="float-end wall-item-tools-right">
 					<div class="btn-group">
 						<div id="like-rotator-{{$item.id}}" class="spinner-wrapper">
 							<div class="spinner s"></div>
 						</div>
 					</div>
 					<div class="btn-group">
-						<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown">
+						<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 							<i class="fa fa-cog"></i>
 						</button>
 						<div class="dropdown-menu dropdown-menu-right">
@@ -97,7 +97,7 @@
 				{{/if}}
 				{{if $item.attachments}}
 				<div class="wall-item-tools-left btn-group">
-					<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
+					<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
 					<div class="dropdown-menu">{{$item.attachments}}</div>
 				</div>
 				{{/if}}

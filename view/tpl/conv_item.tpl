@@ -28,16 +28,16 @@
 				{{/if}}
 				<div class="p-2 clearfix wall-item-head{{if !$item.title && !$item.event && !$item.photo}} rounded-top{{/if}}{{if $item.is_new && !$item.event && !$item.is_comment}} wall-item-head-new{{/if}}" >
 					{{if $item.thr_parent}}
-						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" title="{{$item.top_hint}}" class="float-right"><i class="fa fa-angle-double-up">&nbsp;&nbsp;&nbsp;</i></a>
+						<a href="javascript:doscroll('{{$item.thr_parent}}',{{$item.parent}});" title="{{$item.top_hint}}" class="float-end"><i class="fa fa-angle-double-up">&nbsp;&nbsp;&nbsp;</i></a>
 					{{/if}}
 					{{if $item.pinned}}
-					    <span class="float-right wall-item-pinned" title="{{$item.pinned}}" id="wall-item-pinned-{{$item.id}}"><i class="fa fa-thumb-tack">&nbsp;</i></span>
+					    <span class="float-end wall-item-pinned" title="{{$item.pinned}}" id="wall-item-pinned-{{$item.id}}"><i class="fa fa-thumb-tack">&nbsp;</i></span>
 					{{/if}}
 					<div class="wall-item-info" id="wall-item-info-{{$item.id}}" >
 						<div class="wall-item-photo-wrapper{{if $item.owner_url}} wwfrom{{/if}} h-card p-author" id="wall-item-photo-wrapper-{{$item.id}}">
-							<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" loading="lazy" data-toggle="dropdown" />
+							<img src="{{$item.thumb}}" class="fakelink wall-item-photo{{$item.sparkle}} u-photo p-name" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" loading="lazy" data-bs-toggle="dropdown" />
 							{{if $item.thread_author_menu}}
-							<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-toggle="dropdown"></i>
+							<i class="fa fa-caret-down wall-item-photo-caret cursor-pointer" data-bs-toggle="dropdown"></i>
 							<div class="dropdown-menu">
 								{{foreach $item.thread_author_menu as $mitem}}
 								<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} >{{$mitem.title}}</a>
@@ -48,7 +48,7 @@
 					</div>
 					{{if $item.lock}}
 					<div class="wall-item-lock dropdown">
-						<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else}}fa-lock{{/if}} lockview{{if $item.privacy_warning}} text-danger{{/if}}" data-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i>&nbsp;
+						<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else}}fa-lock{{/if}} lockview{{if $item.privacy_warning}} text-danger{{/if}}" data-bs-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i>&nbsp;
 						<div id="panel-{{$item.id}}" class="dropdown-menu"></div>
 					</div>
 					{{/if}}
@@ -78,7 +78,7 @@
 				</div>
 				{{/if}}
 				<div class="p-2 clearfix wall-item-tools">
-					<div class="float-right wall-item-tools-right">
+					<div class="float-end wall-item-tools-right">
 						<div class="btn-group">
 							<div id="like-rotator-{{$item.id}}" class="spinner-wrapper">
 								<div class="spinner s"></div>
@@ -86,7 +86,7 @@
 						</div>
 						{{if $item.toplevel && $item.emojis && $item.reactions}}
 						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-react-{{$item.id}}">
+							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-react-{{$item.id}}">
 								<i class="fa fa-smile-o"></i>
 							</button>
 							<div class="dropdown-menu dropdown-menu-right">
@@ -114,7 +114,7 @@
 							{{/if}}
 							{{if $item.isevent}}
 							<div class="btn-group">
-								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-attend-menu-{{$item.id}}" title="{{$item.attend_title}}">
+								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-attend-menu-{{$item.id}}" title="{{$item.attend_title}}">
 									<i class="fa fa-calendar-check-o"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right">
@@ -132,7 +132,7 @@
 							{{/if}}
 							{{if $item.canvote}}
 							<div class="btn-group">
-								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-consensus-menu-{{$item.id}}" title="{{$item.vote_title}}">
+								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-consensus-menu-{{$item.id}}" title="{{$item.vote_title}}">
 									<i class="fa fa-check-square-o"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-consensus-menu-{{$item.id}}">
@@ -149,7 +149,7 @@
 							</div>
 							{{/if}}
 							<div class="btn-group">
-								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
+								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
 									<i class="fa fa-cog"></i>
 								</button>
 								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
@@ -201,7 +201,7 @@
 									{{/if}}
 									{{if $item.settings}}
 									<div class="dropdown-divider"></div>
-									<a class="dropdown-item conversation-settings-link" href="" data-toggle="modal" data-target="#conversation_settings">{{$item.settings}}</a>
+									<a class="dropdown-item conversation-settings-link" href="" data-bs-toggle="modal" data-bs-target="#conversation_settings">{{$item.settings}}</a>
 									{{/if}}
 								</div>
 							</div>
@@ -217,27 +217,27 @@
 						{{/if}}
 						{{if $item.attachments}}
 						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
+							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle" data-bs-toggle="dropdown" id="attachment-menu-{{$item.id}}"><i class="fa fa-paperclip"></i></button>
 							<div class="dropdown-menu">{{$item.attachments}}</div>
 						</div>
 						{{/if}}
 						{{foreach $item.responses as $verb=>$response}}
 						{{if $response.count}}
 						<div class="btn-group">
-							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle"{{if $response.modal}} data-toggle="modal" data-target="#{{$verb}}Modal-{{$item.id}}"{{else}} data-toggle="dropdown"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">{{$response.count}} {{$response.button}}</button>
+							<button type="button" class="btn btn-outline-secondary btn-sm wall-item-like dropdown-toggle"{{if $response.modal}} data-bs-toggle="modal" data-bs-target="#{{$verb}}Modal-{{$item.id}}"{{else}} data-bs-toggle="dropdown"{{/if}} id="wall-item-{{$verb}}-{{$item.id}}">{{$response.count}} {{$response.button}}</button>
 							{{if $response.modal}}
 							<div class="modal" id="{{$verb}}Modal-{{$item.id}}">
 								<div class="modal-dialog">
 									<div class="modal-content">
 										<div class="modal-header">
 											<h3 class="modal-title">{{$response.count}} {{$response.button}}</h3>
-											<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
 										</div>
 										<div class="modal-body response-list">
 											<ul class="nav nav-pills flex-column">{{foreach $response.list as $liker}}<li class="nav-item">{{$liker}}</li>{{/foreach}}</ul>
 										</div>
 										<div class="modal-footer clear">
-											<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">{{$item.modal_dismiss}}</button>
+											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{$item.modal_dismiss}}</button>
 										</div>
 									</div><!-- /.modal-content -->
 								</div><!-- /.modal-dialog -->

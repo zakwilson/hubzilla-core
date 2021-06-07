@@ -151,7 +151,7 @@
 	</div>
 	<div id="nav-notifications-forums-template" rel="template">
 		<a class="list-group-item text-decoration-none clearfix notification notification-forum" href="{0}" title="{4} - {3}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-b64mids='{12}'>
-			<span class="float-right badge badge-secondary">{10}</span>
+			<span class="float-end badge badge-secondary">{10}</span>
 			<img class="menu-img-1" data-src="{1}" loading="lazy">
 			<span class="">{2}</span>
 			<i class="fa fa-{11} text-muted"></i>
@@ -160,9 +160,9 @@
 	<div id="notifications" class="border border-bottom-0 rounded navbar-nav collapse">
 		{{foreach $notifications as $notification}}
 		<div class="rounded list-group list-group-flush collapse {{$notification.type}}-button">
-			<a id="notification-link-{{$notification.type}}" class="collapsed list-group-item text-decoration-none notification-link" href="#" title="{{$notification.title}}" data-target="#nav-{{$notification.type}}-sub" data-toggle="collapse" data-sse_type="{{$notification.type}}">
+			<a id="notification-link-{{$notification.type}}" class="collapsed list-group-item text-decoration-none notification-link" href="#" title="{{$notification.title}}" data-bs-target="#nav-{{$notification.type}}-sub" data-bs-toggle="collapse" data-sse_type="{{$notification.type}}">
 				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
-				<span class="float-right badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
+				<span class="float-end badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
 			</a>
 			<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush border border-left-0 border-top-0 border-right-0 collapse notification-content" data-parent="#notifications" data-sse_type="{{$notification.type}}">
 				{{if $notification.viewall}}

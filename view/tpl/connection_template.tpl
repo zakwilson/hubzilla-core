@@ -1,6 +1,6 @@
 <div id="contact-entry-wrapper-{{$contact.id}}">
 	<div class="section-subtitle-wrapper clearfix">
-		<div class="pull-right">
+		<div class="float-end">
 			{{if $contact.approve && $contact.ignore}}
 			<form action="connedit/{{$contact.id}}" method="post" >
 			<button type="submit" class="btn btn-success btn-sm" name="pending" value="1" title="{{$contact.approve_hover}}"><i class="fa fa-check"></i> {{$contact.approve}}</button>

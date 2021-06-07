@@ -201,12 +201,10 @@
 </div-->
 
 <div id="notifications_wrapper" class="mb-4">
-
-<div class="accordion collapse" id="notifications">
 	<div id="nav-notifications-template" rel="template">
 		<a class="list-group-item text-decoration-none text-darkclearfix notification {6}" href="{0}" title="{13}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-when="{5}">
 			<img class="menu-img-3" data-src="{1}" loading="lazy">
-			<div class="contactname"><span class="text-dark font-weight-bold">{2}</span> <span class="text-muted">{3}</span></div>
+			<div class="contactname"><span class="text-dark fw-bold">{2}</span> <span class="text-muted">{3}</span></div>
 			<span class="text-muted">{4}</span><br>
 			<span class="text-muted notifications-autotime" title="{5}">{5}</span>
 		</a>
@@ -219,46 +217,47 @@
 			<i class="fa fa-{11} text-muted"></i>
 		</a>
 	</div>
-	{{foreach $notifications as $notification}}
-	<div class="accordion-item {{$notification.type}}-button collapse">
-		<div class="accordion-header notification-link" id="notification-link-{{$notification.type}}">
-			<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="nav-{{$notification.type}}-sub">
-				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
-				<span class="float-end badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
-			</button>
+	<div class="accordion accordion-flush border collapse" id="notifications">
+		{{foreach $notifications as $notification}}
+		<div class="accordion-item {{$notification.type}}-button collapse">
+			<div class="accordion-header notification-link" id="notification-link-{{$notification.type}}">
+				<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="nav-{{$notification.type}}-sub">
+					<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
+					<span class="float-end badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
+				</button>
+			</div>
+			<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush accordion-collapse collapse notification-content" aria-labelledby="notification-link-{{$notification.type}}" data-bs-parent="#notifications">
+				{{if $notification.viewall}}
+				<a class="list-group-item text-decoration-none text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
+					<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
+				</a>
+				{{/if}}
+				{{if $notification.markall}}
+				<div class="list-group-item cursor-pointer" id="nav-{{$notification.type}}-mark-all" onclick="markRead('{{$notification.type}}'); return false;">
+					<i class="fa fa-fw fa-check"></i> {{$notification.markall.label}}
+				</div>
+				{{/if}}
+				{{if $notification.filter}}
+				{{if $notification.filter.posts_label}}
+				<div class="list-group-item cursor-pointer" id="tt-{{$notification.type}}-only">
+					<i class="fa fa-fw fa-filter"></i> {{$notification.filter.posts_label}}
+				</div>
+				{{/if}}
+				{{if $notification.filter.name_label}}
+				<div class="list-group-item clearfix notifications-textinput" id="cn-{{$notification.type}}-only">
+					<div class="text-muted notifications-textinput-filter"><i class="fa fa-fw fa-filter"></i></div>
+					<input id="cn-{{$notification.type}}-input" type="text" class="notification-filter form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
+					<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="fa fa-times"></i></div>
+				</div>
+				{{/if}}
+				{{/if}}
+				<div id="nav-{{$notification.type}}-menu" class="list-group list-group-flush"></div>
+				<div id="nav-{{$notification.type}}-loading" class="list-group-item" style="display: none;">
+					{{$loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
+				</div>
+			</div>
 		</div>
-		<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush accordion-collapse collapse notification-content" aria-labelledby="notification-link-{{$notification.type}}" data-bs-parent="#notifications">
-			{{if $notification.viewall}}
-			<a class="list-group-item text-decoration-none text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
-				<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
-			</a>
-			{{/if}}
-			{{if $notification.markall}}
-			<div class="list-group-item cursor-pointer" id="nav-{{$notification.type}}-mark-all" onclick="markRead('{{$notification.type}}'); return false;">
-				<i class="fa fa-fw fa-check"></i> {{$notification.markall.label}}
-			</div>
-			{{/if}}
-			{{if $notification.filter}}
-			{{if $notification.filter.posts_label}}
-			<div class="list-group-item cursor-pointer" id="tt-{{$notification.type}}-only">
-				<i class="fa fa-fw fa-filter"></i> {{$notification.filter.posts_label}}
-			</div>
-			{{/if}}
-			{{if $notification.filter.name_label}}
-			<div class="list-group-item clearfix notifications-textinput" id="cn-{{$notification.type}}-only">
-				<div class="text-muted notifications-textinput-filter"><i class="fa fa-fw fa-filter"></i></div>
-				<input id="cn-{{$notification.type}}-input" type="text" class="notification-filter form-control form-control-sm" placeholder="{{$notification.filter.name_label}}">
-				<div id="cn-{{$notification.type}}-input-clear" class="text-muted notifications-textinput-clear d-none"><i class="fa fa-times"></i></div>
-			</div>
-			{{/if}}
-			{{/if}}
-			<div id="nav-{{$notification.type}}-menu" class="list-group list-group-flush"></div>
-			<div id="nav-{{$notification.type}}-loading" class="list-group-item" style="display: none;">
-				{{$loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
-			</div>
-		</div>
+		{{/foreach}}
 	</div>
-	{{/foreach}}
-</div>
 </div>
 {{/if}}

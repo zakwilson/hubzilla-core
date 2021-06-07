@@ -200,8 +200,9 @@
 	</div>
 </div-->
 
+<div id="notifications_wrapper" class="mb-4">
 
-<div class="accordion" id="notifications">
+<div class="accordion collapse" id="notifications">
 	<div id="nav-notifications-template" rel="template">
 		<a class="list-group-item text-decoration-none text-darkclearfix notification {6}" href="{0}" title="{13}" data-b64mid="{7}" data-notify_id="{8}" data-thread_top="{9}" data-contact_name="{2}" data-contact_addr="{3}" data-when="{5}">
 			<img class="menu-img-3" data-src="{1}" loading="lazy">
@@ -220,13 +221,13 @@
 	</div>
 	{{foreach $notifications as $notification}}
 	<div class="accordion-item {{$notification.type}}-button collapse">
-		<h2 class="accordion-header" id="notification-link-{{$notification.type}}">
-			<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="collapseTwo">
+		<div class="accordion-header notification-link" id="notification-link-{{$notification.type}}">
+			<button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#nav-{{$notification.type}}-sub" data-sse_type="{{$notification.type}}" aria-expanded="false" aria-controls="nav-{{$notification.type}}-sub">
 				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
 				<span class="float-end badge badge-{{$notification.severity}} {{$notification.type}}-update"></span>
 			</button>
-		</h2>
-		<div id="nav-{{$notification.type}}-sub" class="accordion-collapse collapse" aria-labelledby="notification-link-{{$notification.type}}" data-bs-parent="#notifications">
+		</div>
+		<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush accordion-collapse collapse notification-content" aria-labelledby="notification-link-{{$notification.type}}" data-bs-parent="#notifications">
 			{{if $notification.viewall}}
 			<a class="list-group-item text-decoration-none text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
 				<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}
@@ -258,5 +259,6 @@
 		</div>
 	</div>
 	{{/foreach}}
+</div>
 </div>
 {{/if}}

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 5.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-23 21:08+0200\n"
-"PO-Revision-Date: 2021-06-04 23:00+0200\n"
+"PO-Revision-Date: 2021-06-05 21:33+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -1044,7 +1044,7 @@ msgstr "Nie"
 
 #: ../../Zotlabs/Module/Dirsearch.php:28 ../../Zotlabs/Module/Regdir.php:52
 msgid "This site is not a directory server"
-msgstr "Ta witryna nie jest serwerem katalogów"
+msgstr "Ten portal nie jest serwerem katalogów"
 
 #: ../../Zotlabs/Module/Dirsearch.php:37
 msgid "This directory server requires an access token"
@@ -1292,7 +1292,7 @@ msgstr "Żądany profil nie jest dostępny."
 
 #: ../../Zotlabs/Module/Webpages.php:48
 msgid "Webpages App"
-msgstr "Aplikacja Witryny Internetowe"
+msgstr "Aplikacja Strony internetowe"
 
 #: ../../Zotlabs/Module/Webpages.php:49
 msgid "Provide managed web pages on your channel"
@@ -1428,7 +1428,7 @@ msgstr "Pochwały"
 
 #: ../../Zotlabs/Module/Profiles.php:473 ../../Zotlabs/Module/Profiles.php:775
 msgid "Dislikes"
-msgstr "Nagany"
+msgstr "Zganienia"
 
 #: ../../Zotlabs/Module/Profiles.php:477 ../../Zotlabs/Module/Profiles.php:782
 msgid "Work/Employment"
@@ -4453,7 +4453,7 @@ msgstr "Pochwały"
 #: ../../Zotlabs/Module/Photos.php:1113 ../../include/conversation.php:653
 msgctxt "title"
 msgid "Dislikes"
-msgstr "Nagany"
+msgstr "Zganienia"
 
 #: ../../Zotlabs/Module/Photos.php:1114 ../../Zotlabs/Widget/Pinned.php:77
 #: ../../include/conversation.php:654
@@ -4511,9 +4511,9 @@ msgstr[2] "Pochwał"
 msgctxt "noun"
 msgid "Dislike"
 msgid_plural "Dislikes"
-msgstr[0] "Nagana"
-msgstr[1] "Nagany"
-msgstr[2] "Nagan"
+msgstr[0] "Zganienie"
+msgstr[1] "Zganienia"
+msgstr[2] "Zganień"
 
 #: ../../Zotlabs/Module/Photos.php:1247
 msgid "Photo Tools"
@@ -4535,7 +4535,7 @@ msgstr "Pochwały"
 #: ../../Zotlabs/Module/Photos.php:1270 ../../Zotlabs/Lib/ThreadItem.php:492
 msgctxt "noun"
 msgid "Dislikes"
-msgstr "Nagany"
+msgstr "Zganienia"
 
 #: ../../Zotlabs/Module/Photos.php:1275 ../../Zotlabs/Storage/Browser.php:411
 #: ../../Zotlabs/Lib/ThreadItem.php:497 ../../Zotlabs/Widget/Pinned.php:158
@@ -5867,7 +5867,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Admin/Site.php:432
 msgid "This is displayed on the public server site list."
-msgstr "Jest to wyświetlane na liście witryn publicznych serwerów."
+msgstr "Jest to wyświetlane na liście portali publicznych serwerów."
 
 #: ../../Zotlabs/Module/Admin/Site.php:438
 msgid "Register text"
@@ -5879,7 +5879,7 @@ msgstr "Ten tekst będzie widoczny w widocznym miejscu na stronie rejestracji"
 
 #: ../../Zotlabs/Module/Admin/Site.php:444
 msgid "Does this site allow new member registration?"
-msgstr "Czy ta witryna umożliwia rejestrację nowych członków?"
+msgstr "Czy ten portal umożliwia rejestrację nowych członków?"
 
 #: ../../Zotlabs/Module/Admin/Site.php:451
 msgid "Configure the registration open days/hours"
@@ -5978,7 +5978,7 @@ msgid ""
 "Will not waste system resources polling external sites for abandonded accounts. Enter "
 "0 for no time limit."
 msgstr ""
-"Nie marnuje zasobów systemowych na odpytywanie zewnętrznych witryn w poszukiwaniu "
+"Nie marnuje zasobów systemowych na odpytywanie zewnętrznych portali w poszukiwaniu "
 "porzuconych kont. Wpisz 0, aby nie mieć limitu czasu."
 
 #: ../../Zotlabs/Module/Admin/Site.php:505
@@ -6015,7 +6015,7 @@ msgid ""
 "Comma separated list of domains which are allowed to establish friendships with this "
 "site. Wildcards are accepted. Empty to allow any domains"
 msgstr ""
-"Rozdzielana przecinkami lista domen, które mogą zawierać przyjaźnie z tą witryną. "
+"Rozdzielana przecinkami lista domen, które mogą zawierać przyjaźnie z tym portalem. "
 "Akceptowane są symbole wieloznaczne. Puste oznacza zezwolenie na dowolne domeny"
 
 #: ../../Zotlabs/Module/Admin/Site.php:508
@@ -6486,7 +6486,7 @@ msgid ""
 "adding the Login Password to any specific site URL as shown. Examples:"
 msgstr ""
 "Możesz także udostępnić znajomym i współpracownikom łącza dostępu w stylu <em>dropbox</"
-"em>, dodając hasło logowania do dowolnego adresu URL witryny, jak pokazano na "
+"em>, dodając hasło logowania do dowolnego adresu URL portalu, jak pokazano na "
 "ilustracji. Przykłady:"
 
 #: ../../Zotlabs/Module/Tokens.php:170
@@ -6964,7 +6964,7 @@ msgid ""
 "site."
 msgstr ""
 "Nie można zweryfikować certyfikatu SSL. Napraw certyfikat lub wyłącz dostęp https do "
-"tej witryny."
+"tego portalu."
 
 #: ../../Zotlabs/Module/Setup.php:662
 msgid ""
@@ -6990,8 +6990,8 @@ msgid ""
 "valid certificates) will get a warning message on their own site complaining about "
 "security issues."
 msgstr ""
-"Jeśli Twój certyfikat nie zostanie rozpoznany, członkowie innych witryn (którzy sami "
-"mogą mieć ważne certyfikaty) otrzymają komunikat ostrzegawczy we własnej witrynie, "
+"Jeśli Twój certyfikat nie zostanie rozpoznany, członkowie innych portali (którzy sami "
+"mogą mieć ważne certyfikaty) otrzymają komunikat ostrzegawczy we własnym portalu, "
 "ostrzegający o problemie z bezpieczeństwem."
 
 #: ../../Zotlabs/Module/Setup.php:665
@@ -8001,7 +8001,7 @@ msgstr "Niewidoczna aktywność na publicznym strumieniu"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:580
 msgid "Unseen likes and dislikes"
-msgstr "Niewidoczne pochwały i nagany"
+msgstr "Niewidoczne pochwały i zganienia"
 
 #: ../../Zotlabs/Module/Settings/Channel.php:581
 msgid "Unseen forum posts"
@@ -8184,7 +8184,7 @@ msgstr "Zaproszenia nie zostały skonfigurowane"
 
 #: ../../Zotlabs/Module/Invite.php:316
 msgid "Contact the site admin"
-msgstr "Skontaktuj się z administratorem witryny"
+msgstr "Skontaktuj się z administratorem portalu"
 
 #: ../../Zotlabs/Module/Invite.php:332
 msgid "Invites by users not enabled"
@@ -9385,7 +9385,7 @@ msgstr "status został  zweryfikowany"
 #: ../../Zotlabs/Lib/Libsync.php:740 ../../include/zot.php:2663
 #, php-format
 msgid "Unable to verify site signature for %s"
-msgstr "Nie można zweryfikować podpisu witryny dla %s"
+msgstr "Nie można zweryfikować podpisu portalu dla %s"
 
 #: ../../Zotlabs/Lib/NativeWikiPage.php:42 ../../Zotlabs/Lib/NativeWikiPage.php:94
 msgid "(No Title)"
@@ -9695,7 +9695,7 @@ msgstr "Twój adres e-mail (wymagane)"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:848
 msgid "Your website URL (optional)"
-msgstr "Adres URL Twojej witryny (opcjonalnie)"
+msgstr "Adres URL Twojego portalu (opcjonalnie)"
 
 #: ../../Zotlabs/Lib/Activity.php:2163
 #, php-format
@@ -10926,7 +10926,7 @@ msgstr "Pochwały:"
 
 #: ../../include/channel.php:1875
 msgid "Dislikes:"
-msgstr "Nagany:"
+msgstr "Zganienia:"
 
 #: ../../include/channel.php:1877
 msgid "Contact information and Social Networks:"
@@ -11030,7 +11030,7 @@ msgstr "Dodaje możliwość wstawiania reakcji emoji we wpisach"
 
 #: ../../include/features.php:166
 msgid "Dislike Posts"
-msgstr "Nagany wpisów"
+msgstr "Zganienia wpisów"
 
 #: ../../include/features.php:167
 msgid "Ability to dislike posts/comments"
@@ -11236,7 +11236,7 @@ msgstr "Import/Eksport profilu"
 
 #: ../../include/features.php:395
 msgid "Save and load profile details across sites/channels"
-msgstr "Zapisz i wczytaj szczegóły profilu z różnych witryn i  kanałów"
+msgstr "Zapisz i wczytaj szczegóły profilu z różnych portali i  kanałów"
 
 #: ../../include/features.php:402
 msgid "Multiple Profiles"
@@ -11580,7 +11580,7 @@ msgstr "tylko a-z, 0-9, - i _"
 
 #: ../../include/text.php:2709
 msgid "Design Tools"
-msgstr "Narzędzia wystroju"
+msgstr "Narzędzia projektanckie"
 
 #: ../../include/text.php:2715
 msgid "Pages"
@@ -11612,7 +11612,7 @@ msgstr "/chmura/kanał/ścieżka/do/folderu"
 
 #: ../../include/text.php:2733
 msgid "Enter path to website files"
-msgstr "Wprowadź ścieżkę do plików witryny internetowej"
+msgstr "Wprowadź ścieżkę do plików poretalu"
 
 #: ../../include/text.php:2734
 msgid "Select folder"
@@ -11843,7 +11843,7 @@ msgstr "Proszę czekać ..."
 
 #: ../../include/nav.php:337
 msgid "Add Apps"
-msgstr "Dodaj aplikacje"
+msgstr "Zainstalowane aplikacje"
 
 #: ../../include/nav.php:338
 msgid "Arrange Apps"
@@ -12583,7 +12583,7 @@ msgstr "Podana domena e-mail nie należy do domen dozwolonych w tym portalu"
 
 #: ../../include/account.php:48
 msgid "The provided email address is already registered at this site"
-msgstr "Podany adres e-mail jest już zarejestrowany w tej witrynie"
+msgstr "Podany adres e-mail jest już zarejestrowany w tym portalu"
 
 #: ../../include/account.php:55
 msgid ""
@@ -13198,7 +13198,7 @@ msgstr "Zapisz ustawienia"
 
 #: ../../extend/addon/hubzilla-addons/msgfooter/msgfooter.php:47
 msgid "text to include in all outgoing posts from this site"
-msgstr "tekst do umieszczania we wszystkich wpisach wychodzących z tej witryny"
+msgstr "tekst do umieszczania we wszystkich wpisach wychodzących z tego portalu"
 
 #: ../../extend/addon/hubzilla-addons/moremoods/moremoods.php:19
 msgid "lonely"
@@ -13293,7 +13293,7 @@ msgid ""
 "This website is tracked using the <a href='http://www.piwik.org'>Piwik</a> analytics "
 "tool."
 msgstr ""
-"Ta witryna jest śledzona za pomocą narzędzia analitycznego <a href='http://www.piwik."
+"Ten portal jest śledzony za pomocą narzędzia analitycznego <a href='http://www.piwik."
 "org'>Piwik</a>."
 
 #: ../../extend/addon/hubzilla-addons/piwik/piwik.php:88
@@ -14178,7 +14178,7 @@ msgstr ""
 
 #: ../../extend/addon/hubzilla-addons/diaspora/Mod_Diaspora.php:81
 msgid "Prevent your hashtags from being redirected to other sites"
-msgstr "Zapobiegaj przekierowywaniu hasztagów do innych witryn"
+msgstr "Zapobiegaj przekierowywaniu hasztagów do innych portali"
 
 #: ../../extend/addon/hubzilla-addons/diaspora/Mod_Diaspora.php:85
 msgid "Sign and forward posts and comments with no existing Diaspora signature"
@@ -14199,7 +14199,7 @@ msgstr "W pliku importu nie znaleziono nazwy użytkownika."
 #: ../../extend/addon/hubzilla-addons/diaspora/Receiver.php:1599
 #, php-format
 msgid "%1$s dislikes %2$s's %3$s"
-msgstr "%1$s nagan %2$s %3$s"
+msgstr "%1$s zganień %2$s %3$s"
 
 #: ../../extend/addon/hubzilla-addons/diaspora/diaspora.php:70
 msgid "Please install the statistics addon to be able to configure a diaspora relay"
@@ -14662,7 +14662,7 @@ msgid ""
 "Photo Cache addon saves a copy of images from external sites locally to increase your "
 "anonymity in the web."
 msgstr ""
-"Dodatek Photo Cache zapisuje lokalnie kopie obrazów z zewnętrznych witryn, aby "
+"Dodatek Photo Cache zapisuje lokalnie kopie obrazów z zewnętrznych portali, aby "
 "zwiększyć Twoją anonimowość w sieci."
 
 #: ../../extend/addon/hubzilla-addons/photocache/Mod_Photocache.php:42
@@ -14754,7 +14754,7 @@ msgstr "Nazwa aplikacji"
 #: ../../extend/addon/hubzilla-addons/statusnet/Mod_Statusnet.php:61
 msgid "Please contact your site administrator.<br />The provided API URL is not valid."
 msgstr ""
-"Skontaktuj się z administratorem witryny. <br/> Podany adres URL interfejsu API jest "
+"Skontaktuj się z administratorem portalu. <br/> Podany adres URL interfejsu API jest "
 "nieprawidłowy."
 
 #: ../../extend/addon/hubzilla-addons/statusnet/Mod_Statusnet.php:98
@@ -15056,7 +15056,7 @@ msgstr "Ocena zdjęć"
 
 #: ../../extend/addon/hubzilla-addons/gravatar/gravatar.php:152
 msgid "Select the appropriate avatar rating for your site. See README"
-msgstr "Wybierz odpowiednią ocenę awatara dla swojej witryny. Zobacz README"
+msgstr "Wybierz odpowiednią ocenę awatara dla swojego portalu. Zobacz README"
 
 #: ../../extend/addon/hubzilla-addons/gravatar/gravatar.php:165
 msgid "Gravatar settings updated."
@@ -15144,7 +15144,7 @@ msgstr "Zapisano ustawienia uwierzytelniania społecznościowego."
 
 #: ../../extend/addon/hubzilla-addons/sendzid/Mod_Sendzid.php:14
 msgid "Send your identity to all websites"
-msgstr "Wyślij swoją tożsamość do wszystkich witryn internetowych"
+msgstr "Wyślij swoją tożsamość do wszystkich portali"
 
 #: ../../extend/addon/hubzilla-addons/sendzid/Mod_Sendzid.php:20
 msgid "Sendzid App"
@@ -15214,7 +15214,7 @@ msgstr "Przekazuj publiczne wpisy na Twitter"
 msgid "No consumer key pair for Twitter found. Please contact your site administrator."
 msgstr ""
 "Nie znaleziono pary kluczy klienta dla Twittera. Skontaktuj się z administratorem "
-"witryny."
+"portalu."
 
 #: ../../extend/addon/hubzilla-addons/twitter/Mod_Twitter.php:125
 msgid ""
@@ -16419,7 +16419,7 @@ msgstr "Zadania Crona (zaplanowane) nie działają."
 #~ msgstr "Twoja rejestracja oczekuje na zatwierdzenie przez właściciela portalu."
 
 #~ msgid "Your registration can not be processed."
-#~ msgstr "Twoja rejestracja oczekuje na zatwierdzenie przez właściciela witryny."
+#~ msgstr "Twoja rejestracja oczekuje na zatwierdzenie przez administratora portalu."
 
 #~ msgid ""
 #~ "Select a channel permission role for your usage needs and privacy requirements."
@@ -16437,7 +16437,7 @@ msgstr "Zadania Crona (zaplanowane) nie działają."
 #~ "This site requires email verification. After completing this form, please check "
 #~ "your email for further instructions."
 #~ msgstr ""
-#~ "Ta witryna wymaga weryfikację adresu e-mail. Po wypełnieniu tego formularza sprawdź "
+#~ "Ten portal wymaga weryfikację adresu e-mail. Po wypełnieniu tego formularza sprawdź "
 #~ "swoją pocztę e-mail, aby uzyskać dalsze instrukcje."
 
 #~ msgid "Please join us on $Projectname"

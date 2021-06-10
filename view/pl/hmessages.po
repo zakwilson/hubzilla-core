@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 5.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-05-23 21:08+0200\n"
-"PO-Revision-Date: 2021-06-05 21:33+0200\n"
+"PO-Revision-Date: 2021-06-10 22:22+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -4424,11 +4424,11 @@ msgstr "Oznacz jako \"dla dorosłych\" w widoku albumu"
 
 #: ../../Zotlabs/Module/Photos.php:1076 ../../Zotlabs/Lib/ThreadItem.php:318
 msgid "I like this (toggle)"
-msgstr "Podoba mis sie to (przełącz)"
+msgstr "Pochwalam to (przełącz)"
 
 #: ../../Zotlabs/Module/Photos.php:1077 ../../Zotlabs/Lib/ThreadItem.php:319
 msgid "I don't like this (toggle)"
-msgstr "Nie podoba mi się to (przełącz)"
+msgstr "Nie pochwalam tego (przełącz)"
 
 #: ../../Zotlabs/Module/Photos.php:1079 ../../Zotlabs/Lib/ThreadItem.php:503
 #: ../../include/conversation.php:830

@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 5.7\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2021-06-12 02:13+0200\n"
-"PO-Revision-Date: 2021-06-12 03:00+0200\n"
+"PO-Revision-Date: 2021-06-13 02:21+0200\n"
 "Last-Translator: Andrzej Budziński <astabski@gmail.com>\n"
 "Language-Team: \n"
 "Language: pl\n"
@@ -5151,7 +5151,7 @@ msgstr "OSTRZEŻENIE: obrazy SVG mogą zawierać złośliwy kod."
 
 #: ../../Zotlabs/Module/Admin/Security.php:116
 msgid "Allow embedded (inline) PDF files"
-msgstr "Zezwalaj na osadzone (w treści) pliki PDF"
+msgstr "Zezwalaj na osadzone pliki PDF (w treści)"
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:128
 #, php-format
@@ -5712,7 +5712,7 @@ msgstr "Mój portal ma tylko płatny dostęp"
 
 #: ../../Zotlabs/Module/Admin/Site.php:330
 msgid "My site has free access only"
-msgstr "Mój porta ma tylko bezpłatny dostęp"
+msgstr "Mój portal ma tylko bezpłatny dostęp"
 
 #: ../../Zotlabs/Module/Admin/Site.php:331
 msgid "My site offers free accounts with optional paid upgrades"

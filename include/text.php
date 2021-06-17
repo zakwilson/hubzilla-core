@@ -3880,3 +3880,30 @@ function sanitize_text_field($str) {
 	return preg_replace('/\s+/S', ' ', $str);
 }
 
+/**
+ * @brief shortens a string to $max_length without cutting off words
+ * @param string $str
+ * @param intval $max_length
+ * @param string $suffix (optional)
+
+ * @return string
+ */
+function substr_words($str, $max_length, $suffix = '...') {
+
+	if (strlen($str) > $max_length) {
+		$words = preg_split('/\s/', $str);
+		$ret = '';
+		$i = 0;
+		while (true) {
+			$length = (strlen($ret) + strlen($words[$i]));
+			if ($length > $max_length) {
+				break;
+			}
+			$ret .= " " . $words[$i];
+			++$i;
+		}
+		$ret .= $suffix;
+	}
+
+	return (($ret) ? $ret : $str);
+}

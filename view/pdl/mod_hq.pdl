@@ -1,5 +1,13 @@
 [region=aside]
+[widget=messages][/widget]
 [widget=hq_controls][/widget]
+[/region]
+[region=content]
+[widget=notes]
+	[var=hidden]1[/var]
+	[var=app]1[/var]
+[/widget]
+$content
 [/region]
 [region=right_aside]
 [widget=notifications][/widget]

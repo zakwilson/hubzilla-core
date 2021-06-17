@@ -1,6 +1,10 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Widget\Messages;
+
+
 require_once("include/bbcode.php");
 require_once('include/security.php');
 require_once('include/conversation.php');
@@ -14,23 +18,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		if(! local_channel())
 			return;
 
-		\App::$profile_uid = local_channel();
-	}
-
-	function post() {
-
-		if(!local_channel())
-			return;
-
-		if($_REQUEST['notify_id']) {
-			q("update notify set seen = 1 where id = %d and uid = %d",
-				intval($_REQUEST['notify_id']),
-				intval(local_channel())
-			);
-		}
-
-		killme();
-
+		App::$profile_uid = local_channel();
 	}
 
 	function get($update = 0, $load = false) {
@@ -42,8 +30,9 @@ class Hq extends \Zotlabs\Web\Controller {
 			$item_hash = argv(1);
 		}
 
-		if($_REQUEST['mid'])
+		if(isset($_REQUEST['mid'])) {
 			$item_hash = $_REQUEST['mid'];
+		}
 
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
@@ -55,7 +44,6 @@ class Hq extends \Zotlabs\Web\Controller {
 				ORDER BY created DESC LIMIT 1",
 				intval(local_channel())
 			);
-
 			if($r[0]['mid']) {
 				$item_hash = 'b64.' . base64url_encode($r[0]['mid']);
 			}
@@ -96,7 +84,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		}
 
 		if(! $update) {
-			$channel = \App::get_channel();
+			$channel = App::get_channel();
 
 			$channel_acl = [
 				'allow_cid' => $channel['channel_allow_cid'],
@@ -116,7 +104,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'bang'                => '',
 				'visitor'             => true,
 				'profile_uid'         => local_channel(),
-				'return_path'         => 'hq',
+				'return_path'         => 'hq', //(($dm_mode) ? 'dm' : 'hq'),
 				'expanded'            => true,
 				'editor_autocomplete' => true,
 				'bbco_autocomplete'   => 'bbcode',
@@ -127,8 +115,6 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			$o = replace_macros(get_markup_template("hq.tpl"),
 				[
-					'$no_messages' => (($target_item) ? false : true),
-					'$no_messages_label' => [ t('Welcome to Hubzilla!'), t('You have got no unseen posts...') ],
 					'$editor' => status_editor($a,$x,false,'Hq')
 				]
 			);
@@ -137,6 +123,7 @@ class Hq extends \Zotlabs\Web\Controller {
 
 		if(! $update && ! $load) {
 
+			//$app = (($dm_mode) ? 'Direct Messages' : 'Start');
 			nav_set_selected('HQ');
 
 			if($target_item) {
@@ -153,11 +140,11 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			$o .= '<div id="live-hq"></div>' . "\r\n";
 			$o .= "<script> var profile_uid = " . local_channel()
-				. "; var netargs = '?f='; var profile_page = " . \App::$pager['page'] . ";</script>\r\n";
+				. "; var netargs = '?f='; var profile_page = " . App::$pager['page'] . ";</script>\r\n";
 
-			\App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),[
+			App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),[
 				'$baseurl' => z_root(),
-				'$pgtype'  => 'hq',
+				'$pgtype'  => 'hq', //(($dm_mode) ? 'dm' : 'hq'),
 				'$uid'     => local_channel(),
 				'$gid'     => '0',
 				'$cid'     => '0',
@@ -265,6 +252,19 @@ class Hq extends \Zotlabs\Web\Controller {
 
 		return $o;
 
+	}
+
+	function post() {
+		if (!local_channel())
+			return;
+
+		$options['offset'] = $_REQUEST['offset'];
+		$options['dm'] = $_REQUEST['dm'];
+		$options['type'] = $_REQUEST['type'];
+
+		$ret = Messages::get_messages_page($options);
+
+		json_return_and_die($ret);
 	}
 
 }

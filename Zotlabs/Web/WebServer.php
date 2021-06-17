@@ -39,6 +39,8 @@ class WebServer {
 			register_shutdown_function('session_write_close');
   		}
 
+		$_SESSION['page_loadtime'] = datetime_convert();
+
 		/**
 		 * Language was set earlier, but we can over-ride it in the session.
 		 * We have to do it here because the session was just now opened.

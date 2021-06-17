@@ -53,7 +53,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.9.1' );
+define ( 'STD_VERSION',             '5.9.4' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1245 );
@@ -1232,7 +1232,8 @@ class App {
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
 				'$channel_id'      => self::$profile['uid'] ?? 0,
-				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
+				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
+				'$module'          => App::$module
 			]
 		) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 

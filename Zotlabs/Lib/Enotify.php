@@ -124,14 +124,14 @@ class Enotify {
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		logger('notification: mail');
-		$subject = 	sprintf( t('[$Projectname:Notify] New mail received at %s'),$sitename);
+		$subject = 	sprintf( t('[$Projectname:Notify] New direct message received at %s'),$sitename);
 
-		$preamble = sprintf( t('%1$s sent you a new private message at %2$s.'), $sender['xchan_name'],$sitename);
-		$epreamble = sprintf( t('%1$s sent you %2$s.'),'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]', '[zrl=$itemlink]' . t('a private message') . '[/zrl]');
-		$sitelink = t('Please visit %s to view and/or reply to your private messages.');
-		$tsitelink = sprintf( $sitelink, $siteurl . '/mail/' . $params['item']['id'] );
-		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '/mail/' . $params['item']['id'] . '">' . $sitename . '</a>');
-		$itemlink = $siteurl . '/mail/' . $params['item']['id'];
+		$preamble = sprintf( t('%1$s sent you a new direct message at %2$s.'), $sender['xchan_name'],$sitename);
+		$epreamble = sprintf( t('%1$s sent you %2$s.'),'[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]', '[zrl=$itemlink]' . t('a direct message') . '[/zrl]');
+		$sitelink = t('Please visit %s to view and/or reply to your direct messages.');
+		$tsitelink = sprintf( $sitelink, $siteurl . '/hq/' . gen_link_id($params['item']['mid']));
+		$hsitelink = sprintf( $sitelink, '<a href="' . $siteurl . '/hq/' . gen_link_id($params['item']['mid']) . '">' . $sitename . '</a>');
+		$itemlink = $siteurl . '/hq/' . gen_link_id($params['item']['mid']);
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT) {
@@ -886,7 +886,7 @@ class Enotify {
 
 		$b64mid = ((strpos($mid, 'b64.') === 0) ? $mid : 'b64.' . base64url_encode($mid));
 		$x = [
-			'notify_link' => z_root() . '/notify/view/' . $tt['id'],
+			'notify_link' => (($tt['ntype'] === NOTIFY_MAIL) ? $tt['link'] : z_root() . '/notify/view/' . $tt['id']),
 			'name' => $tt['xname'],
 			'url' => $tt['url'],
 			'photo' => $tt['photo'],
@@ -945,7 +945,7 @@ class Enotify {
 			'photo' => $rr['xchan_photo_s'],
 			'when' => datetime_convert('UTC', date_default_timezone_get(), $rr['created']),
 			'hclass' => (intval($rr['mail_seen']) ? 'notify-seen' : 'notify-unseen'),
-			'message' => t('sent you a private message'),
+			'message' => t('sent you a direct message'),
 		];
 
 		return $x;

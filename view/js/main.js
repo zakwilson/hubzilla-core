@@ -204,8 +204,12 @@ $(document).ready(function() {
 	});
 
 	window.onpopstate = function(e) {
-		if(e.state !== null && e.state.b64mid !== bParam_mid)
+		if(e.state !== null && e.state.b64mid !== bParam_mid) {
 			prepareLiveUpdate(e.state.b64mid, '');
+			$('.message').removeClass('active');
+			$('[data-b64mid="' + e.state.b64mid + '"].message').addClass('active');
+		}
+
 	};
 
 	//mod_mail only

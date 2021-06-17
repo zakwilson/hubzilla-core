@@ -104,7 +104,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'bang'                => '',
 				'visitor'             => true,
 				'profile_uid'         => local_channel(),
-				'return_path'         => 'hq', //(($dm_mode) ? 'dm' : 'hq'),
+				'return_path'         => 'hq',
 				'expanded'            => true,
 				'editor_autocomplete' => true,
 				'bbco_autocomplete'   => 'bbcode',
@@ -123,7 +123,6 @@ class Hq extends \Zotlabs\Web\Controller {
 
 		if(! $update && ! $load) {
 
-			//$app = (($dm_mode) ? 'Direct Messages' : 'Start');
 			nav_set_selected('HQ');
 
 			if($target_item) {
@@ -144,7 +143,7 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),[
 				'$baseurl' => z_root(),
-				'$pgtype'  => 'hq', //(($dm_mode) ? 'dm' : 'hq'),
+				'$pgtype'  => 'hq',
 				'$uid'     => local_channel(),
 				'$gid'     => '0',
 				'$cid'     => '0',

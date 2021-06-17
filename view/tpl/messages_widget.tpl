@@ -1,4 +1,4 @@
-<ul class="nav nav-tabs nav-fill">
+<ul class="nav nav-tabs nav-fill clearfix">
 	<li class="nav-item">
 		<a class="nav-link active messages-type" href="#" title="{{$strings.messages_title}}" data-messages_type="">
 			<i class="fa fa-fw fa-comment-o"></i>
@@ -17,7 +17,7 @@
 	</li>
 	{{/if}}
 </ul>
-<div id="messages-widget" class="border border-top-0 overflow-auto mb-3" style="height: 70vh;">
+<div id="messages-widget" class="border border-top-0 overflow-auto mb-3 clearfix" style="height: 70vh;">
 	<div id="messages-template" rel="template" class="d-none">
 		<a href="{6}" class="list-group-item list-group-item-action message" data-b64mid="{0}">
 			<div class="d-flex w-100 justify-content-between">
@@ -119,5 +119,4 @@
 
 		});
 	}
-
 </script>

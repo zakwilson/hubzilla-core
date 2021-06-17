@@ -1270,10 +1270,6 @@ class Libzot {
 
 				if ($AS->data['signed_data']) {
 					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
-					$j = json_decode($AS->data['signed_data'], true);
-					if ($j) {
-						IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
-					}
 				}
 
 				logger('Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
@@ -1377,8 +1373,6 @@ class Libzot {
 				$check_mentions = true;
 			}
 		}
-		elseif ($msg['type'] === 'mail')
-			$perm = 'post_mail';
 
 		$r = [];
 
@@ -2210,90 +2204,6 @@ class Libzot {
 		return $post_id;
 	}
 
-	static function process_mail_delivery($sender, $arr, $deliveries) {
-
-		$result = [];
-
-		if ($sender != $arr['from_xchan']) {
-			logger('process_mail_delivery: sender is not mail author');
-			return;
-		}
-
-		foreach ($deliveries as $d) {
-
-			$DR = new DReport(z_root(), $sender, $d, $arr['mid']);
-
-			$r = q("select * from channel where channel_hash = '%s' limit 1",
-				dbesc($d['hash'])
-			);
-
-			if (!$r) {
-				$DR->update('recipient not found');
-				$result[] = $DR->get();
-				continue;
-			}
-
-			$channel = $r[0];
-			$DR->set_name($channel['channel_name'] . ' <' . channel_reddress($channel) . '>');
-
-
-			if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
-
-				/*
-				 * Always allow somebody to reply if you initiated the conversation. It's anti-social
-				 * and a bit rude to send a private message to somebody and block their ability to respond.
-				 * If you are being harrassed and want to put an end to it, delete the conversation.
-				 */
-
-				$return = false;
-				if ($arr['parent_mid']) {
-					$return = q("select * from mail where mid = '%s' and channel_id = %d limit 1",
-						dbesc($arr['parent_mid']),
-						intval($channel['channel_id'])
-					);
-				}
-				if (!$return) {
-					logger("permission denied for mail delivery {$channel['channel_id']}");
-					$DR->update('permission denied');
-					$result[] = $DR->get();
-					continue;
-				}
-			}
-
-
-			$r = q("select id from mail where mid = '%s' and channel_id = %d limit 1",
-				dbesc($arr['mid']),
-				intval($channel['channel_id'])
-			);
-			if ($r) {
-				if (intval($arr['mail_recalled'])) {
-					$x = q("delete from mail where id = %d and channel_id = %d",
-						intval($r[0]['id']),
-						intval($channel['channel_id'])
-					);
-					$DR->update('mail recalled');
-					$result[] = $DR->get();
-					logger('mail_recalled');
-				}
-				else {
-					$DR->update('duplicate mail received');
-					$result[] = $DR->get();
-					logger('duplicate mail received');
-				}
-				continue;
-			}
-			else {
-				$arr['account_id'] = $channel['channel_account_id'];
-				$arr['channel_id'] = $channel['channel_id'];
-				$item_id           = mail_store($arr);
-				$DR->update('mail delivered');
-				$result[] = $DR->get();
-			}
-		}
-
-		return $result;
-	}
-
 
 	/**
 	 * @brief Processes delivery of profile.
@@ -2664,9 +2574,9 @@ class Libzot {
 		// we may only end up with one; which results in posts with no author name or photo and are a bit
 		// of a hassle to repair. If either or both are missing, do a full discovery probe.
 
-		//if (!array_key_exists('id', $x)) {
-			//return import_author_activitypub($x);
-		//}
+		if(!isset($x['id']) && !isset($x['key']) && !isset($x['id_sig'])) {
+			return false;
+		}
 
 		$hash = self::make_xchan_hash($x['id'], $x['key']);
 
@@ -2927,7 +2837,7 @@ class Libzot {
 
 		$hookinfo = [
 			'channel_id' => $id,
-			'protocols' => ['zot6', 'zot']
+			'protocols' => ['zot6']
 		];
 		/**
 		 * @hooks channel_protocols
@@ -3228,11 +3138,6 @@ class Libzot {
 
 		foreach ($arr as $v) {
 			if ($v[$check] === 'zot6') {
-				return $v;
-			}
-		}
-		foreach ($arr as $v) {
-			if ($v[$check] === 'zot') {
 				return $v;
 			}
 		}

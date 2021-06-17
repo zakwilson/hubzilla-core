@@ -778,7 +778,7 @@ function sync_items($channel, $items, $relocate = null) {
         // to avoid confusing with cloned channels
         $size = count($items);
         for($i = 0; $i < $size; $i++) {
-                if(($items[$i]['owner']['network'] != 'zot') && ($items[$i]['owner']['network'] != 'zot6')) {
+                if($items[$i]['owner']['network'] !== 'zot6') {
                         $r = q("SELECT * FROM abook WHERE abook_channel = %d
                                         AND abook_xchan = ( SELECT xchan_hash FROM xchan WHERE xchan_guid = '%s' LIMIT 1 )
                                         AND abook_not_here = 0 AND abook_ignored = 0 AND abook_blocked = 0",
@@ -1087,85 +1087,6 @@ function import_likes($channel, $likes) {
 			create_table_from_array('likes', $like);
 		}
 	}
-}
-
-function import_conv($channel,$convs) {
-	if($channel && $convs) {
-		foreach($convs as $conv) {
-			if($conv['deleted']) {
-				q("delete from conv where guid = '%s' and uid = %d",
-					dbesc($conv['guid']),
-					intval($channel['channel_id'])
-				);
-				continue;
-			}
-
-			unset($conv['id']);
-
-			$conv['uid'] = $channel['channel_id'];
-			$conv['subject'] = str_rot47(base64url_encode($conv['subject']));
-
-			$r = q("select id from conv where guid = '%s' and uid = %d limit 1",
-				dbesc($conv['guid']),
-				intval($channel['channel_id'])
-			);
-			if($r)
-				continue;
-
-			create_table_from_array('conv',$conv);
-		}
-	}
-}
-
-/**
- * @brief Import mails.
- *
- * @param array $channel
- * @param array $mails
- * @param boolean $sync (optional) default false
- */
-function import_mail($channel, $mails, $sync = false) {
-	if($channel && $mails) {
-		foreach($mails as $mail) {
-			if(array_key_exists('flags',$mail) && in_array('deleted',$mail['flags'])) {
-				q("delete from mail where mid = '%s' and uid = %d",
-					dbesc($mail['message_id']),
-					intval($channel['channel_id'])
-				);
-				continue;
-			}
-			if(array_key_exists('flags',$mail) && in_array('recalled',$mail['flags'])) {
-				q("update mail set mail_recalled = 1 where mid = '%s' and uid = %d",
-					dbesc($mail['message_id']),
-					intval($channel['channel_id'])
-				);
-				continue;
-			}
-
-			$m = get_mail_elements($mail);
-			if(! $m)
-				continue;
-
-			$m['account_id'] = $channel['channel_account_id'];
-			$m['channel_id'] = $channel['channel_id'];
-
-			$mail_id = mail_store($m);
-			if($sync && $mail_id) {
-				Zotlabs\Daemon\Master::Summon(array('Notifier','single_mail',$mail_id));
-			}
- 		}
-	}
-}
-
-/**
- * @brief Synchronise mails.
- *
- * @see import_mail()
- * @param array $channel
- * @param array $mails
- */
-function sync_mail($channel, $mails) {
-	import_mail($channel, $mails, true);
 }
 
 /**
@@ -1925,7 +1846,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['pages'] = array();
 				$pages = array();
 				foreach($r as $rr) {
-					unobscure($rr);
 
 					//$lockstate = (($rr['allow_cid'] || $rr['allow_gid'] || $rr['deny_cid'] || $rr['deny_gid']) ? 'lock' : 'unlock');
 
@@ -1973,8 +1893,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['layouts'] = array();
 
 				foreach($r as $rr) {
-					unobscure($rr);
-
 					$elements['layouts'][] = array(
 						'type'        => 'layout',
 						'description' => $rr['title'],		// description of the layout
@@ -2010,8 +1928,6 @@ function get_webpage_elements($channel, $type = 'all') {
 				$elements['blocks'] = array();
 
 				foreach($r as $rr) {
-					unobscure($rr);
-
 					$elements['blocks'][] = array(
 						'type'      => 'block',
 						'title'     => $rr['title'],

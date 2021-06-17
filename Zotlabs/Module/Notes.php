@@ -38,7 +38,6 @@ class Notes extends Controller {
 		// push updates to channel clones
 
 		if((argc() > 1) && (argv(1) === 'sync')) {
-			require_once('include/zot.php');
 			Libsync::build_sync_packet();
 		}
 

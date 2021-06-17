@@ -255,9 +255,6 @@ class Libsync {
 			if (array_key_exists('chatroom', $arr) && $arr['chatroom'])
 				sync_chatrooms($channel, $arr['chatroom']);
 
-			if (array_key_exists('conv', $arr) && $arr['conv'])
-				import_conv($channel, $arr['conv']);
-
 			if (array_key_exists('mail', $arr) && $arr['mail'])
 				sync_mail($channel, $arr['mail']);
 

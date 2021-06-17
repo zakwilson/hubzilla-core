@@ -50,9 +50,10 @@ require_once('include/xchan.php');
 require_once('include/hubloc.php');
 require_once('include/attach.php');
 require_once('include/bbcode.php');
+require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.7' );
+define ( 'STD_VERSION',             '5.9.5' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1245 );
@@ -1231,7 +1232,8 @@ class App {
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
 				'$channel_id'      => self::$profile['uid'] ?? 0,
-				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
+				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
+				'$module'          => App::$module
 			]
 		) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 
@@ -1709,21 +1711,24 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 			$_SESSION['login_return_url'] = App::$query_string;
 	}
 
-	$o .= replace_macros($tpl,array(
+	$email_required = get_config('system', 'verify_email');
+	$lname_label = (($email_required) ? t('Email or nickname') : t('Nickname'));
+
+	$o .= replace_macros($tpl, [
 		'$dest_url'     => $dest_url,
 		'$login_page'   => $login_page,
 		'$logout'       => t('Logout'),
 		'$login'        => t('Login'),
 		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
-		'$lname'        => array('username', t('Login/Email') , '', ''),
-		'$lpassword'    => array('password', t('Password'), '', ''),
-		'$remember_me'  => array((($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '',array(t('No'),t('Yes'))),
+		'$lname'        => ['username', $lname_label],
+		'$lpassword'    => ['password', t('Password')],
+		'$remember_me'  => [(($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '', [t('No'),t('Yes')]],
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),
-		'$lostlink'     => t('Password Reset'),
-	));
+		'$lostlink'     => (($email_required) ? t('Password Reset') : ''),
+	]);
 
 	/**
 	 * @hooks login_hook

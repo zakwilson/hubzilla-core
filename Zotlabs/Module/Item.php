@@ -822,6 +822,8 @@ class Item extends Controller {
 
 		$post_tags = [];
 
+
+
 		if($mimetype === 'text/bbcode') {
 
 			require_once('include/text.php');

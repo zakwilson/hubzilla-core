@@ -1,8 +1,6 @@
 <?php
 namespace Zotlabs\Module;
 
-require_once('include/zot.php');
-
 use Zotlabs\Lib\Keyutils;
 use Zotlabs\Lib\Libzot;
 
@@ -21,7 +19,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 		elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
 			$scheme = 'https';
 		elseif(x($_SERVER,'HTTP_X_FORWARDED_PROTO') && ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'))
-			$scheme = 'https';			
+			$scheme = 'https';
 
 		$zot = intval($_REQUEST['zot']);
 
@@ -69,7 +67,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 				$channel = substr($channel,1);
 				$channel = substr($channel,0,-1);
 				$pchan = true;
-				$r = q("select * from pchan left join xchan on pchan_hash = xchan_hash 
+				$r = q("select * from pchan left join xchan on pchan_hash = xchan_hash
 					where pchan_guid = '%s' limit 1",
 					dbesc($channel)
 				);
@@ -78,7 +76,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 				}
 			}
 			else {
-				$r = q("select * from channel left join xchan on channel_hash = xchan_hash 
+				$r = q("select * from channel left join xchan on channel_hash = xchan_hash
 					where channel_address = '%s' limit 1",
 					dbesc($channel)
 				);

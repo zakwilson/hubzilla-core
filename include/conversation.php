@@ -1022,8 +1022,6 @@ function author_is_pmable($xchan, $abook) {
 	if($x['result'] !== 'unset')
 		return $x['result'];
 
-	if($xchan['xchan_network'] === 'zot' && get_observer_hash())
-		return true;
 	return false;
 
 }
@@ -1058,9 +1056,6 @@ function thread_author_menu($item, $mode = '') {
 			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown' ]))) {
 				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
-		}
-		if($item['uid'] > 0 && author_is_pmable($item['author'],$contact)) {
-			$pm_url = z_root() . '/mail/new/?f=&hash=' . urlencode($item['author_xchan']);
 		}
 	}
 
@@ -1692,9 +1687,6 @@ function prepare_page($item) {
 			$naked = 1;
 		// ... other possible options
 	}
-
-	// prepare_body calls unobscure() as a side effect. Do it here so that
-	// the template will get passed an unobscured title.
 
 	$body = prepare_body($item, [ 'newwin' => false ]);
 	if(App::$page['template'] == 'none') {

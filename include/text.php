@@ -1515,24 +1515,6 @@ function link_compare($a, $b) {
 	return false;
 }
 
-// Given an item array, convert the body element from bbcode to html and add smilie icons.
-// If attach is true, also add icons for item attachments
-
-
-function unobscure(&$item) {
-	return;
-}
-
-function unobscure_mail(&$item) {
-	if(array_key_exists('mail_obscured',$item) && intval($item['mail_obscured'])) {
-		if($item['title'])
-			$item['title'] = base64url_decode(str_rot47($item['title']));
-		if($item['body'])
-			$item['body'] = base64url_decode(str_rot47($item['body']));
-	}
-}
-
-
 function theme_attachments(&$item) {
 
 	$s = '';
@@ -2067,7 +2049,7 @@ function get_plink($item,$conversation_mode = true) {
 
 	$zidify = true;
 
-	if(array_key_exists('author',$item) && in_array($item['author']['xchan_network'], ['zot6', 'zot']) === false)
+	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot6')
 		$zidify = false;
 
 	if(x($item,$key)) {
@@ -2555,27 +2537,6 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 	}
 }
 
-function xchan_mail_query(&$item) {
-	$arr = array();
-	$chans = null;
-	if($item) {
-		if($item['from_xchan'] && (! in_array("'" . dbesc($item['from_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['from_xchan']) . "'";
-		if($item['to_xchan'] && (! in_array("'" . dbesc($item['to_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['to_xchan']) . "'";
-	}
-
-	if(count($arr)) {
-		$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
-			where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
-	}
-	if($chans) {
-		$item['from'] = find_xchan_in_array($item['from_xchan'],$chans);
-		$item['to']  = find_xchan_in_array($item['to_xchan'],$chans);
-	}
-}
-
-
 function find_xchan_in_array($xchan,$arr) {
 	if(count($arr)) {
 		foreach($arr as $x) {
@@ -2903,7 +2864,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s'",
+			$r = q("SELECT * FROM xchan WHERE xchan_addr = '%s' OR xchan_url = '%s' AND xchan_deleted = 0",
 				dbesc($newname),
 				dbesc($newname)
 			);
@@ -2929,18 +2890,18 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// select someone from this user's contacts by name
 
-			$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE xchan_name = '%s' AND abook_channel = %d ",
-					dbesc($newname),
-					intval($profile_uid)
+			$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+				WHERE xchan_name = '%s' AND abook_channel = %d AND xchan_deleted = 0",
+				dbesc($newname),
+				intval($profile_uid)
 			);
 
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash
-					WHERE hubloc_addr = '%s' ",
-						dbesc($newname)
+				$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON xchan_hash = hubloc_hash
+					WHERE hubloc_addr = '%s' AND xchan_deleted = 0 ",
+					dbesc($newname)
 				);
 			}
 
@@ -2950,10 +2911,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				// strip user-supplied wildcards before running a wildcard search
 				$newname = str_replace('%','',$newname);
 
-				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE xchan_addr like ('%s') AND abook_channel = %d ",
-						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
-						intval($profile_uid)
+				$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+					WHERE xchan_addr LIKE ('%s') AND abook_channel = %d AND xchan_deleted = 0",
+					dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
+					intval($profile_uid)
 				);
 			}
 
@@ -3919,3 +3880,30 @@ function sanitize_text_field($str) {
 	return preg_replace('/\s+/S', ' ', $str);
 }
 
+/**
+ * @brief shortens a string to $max_length without cutting off words
+ * @param string $str
+ * @param intval $max_length
+ * @param string $suffix (optional)
+
+ * @return string
+ */
+function substr_words($str, $max_length, $suffix = '...') {
+
+	if (strlen($str) > $max_length) {
+		$words = preg_split('/\s/', $str);
+		$ret = '';
+		$i = 0;
+		while (true) {
+			$length = (strlen($ret) + strlen($words[$i]));
+			if ($length > $max_length) {
+				break;
+			}
+			$ret .= " " . $words[$i];
+			++$i;
+		}
+		$ret .= $suffix;
+	}
+
+	return (($ret) ? $ret : $str);
+}

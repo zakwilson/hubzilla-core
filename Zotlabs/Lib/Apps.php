@@ -76,7 +76,8 @@ class Apps {
 			'Directory',
 			'Search',
 			'Help',
-			'Profile Photo'
+			'Profile Photo',
+			'HQ'
 		]);
 
 		/**
@@ -374,7 +375,7 @@ class Apps {
 			'Permission Categories' => t('Permission Categories'),
 			'Public Stream' => t('Public Stream'),
 			'My Chatrooms' => t('My Chatrooms'),
-			'Channel Export' => t('Channel Export')
+			'Channel Export' => t('Channel Export'),
 		);
 
 		if(array_key_exists('name',$arr)) {
@@ -524,7 +525,7 @@ class Apps {
 		}
 		elseif(remote_channel()) {
 			$observer = \App::get_observer();
-			if($observer && in_array($observer['xchan_network'], ['zot6', 'zot'])) {
+			if($observer && $observer['xchan_network'] === 'zot6') {
 				// some folks might have xchan_url redirected offsite, use the connurl
 				$x = parse_url($observer['xchan_connurl']);
 				if($x) {

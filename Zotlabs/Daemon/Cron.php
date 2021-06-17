@@ -165,11 +165,6 @@ class Cron {
 			}
 		}
 
-
-		// check if any connections transitioned to zot6 and upgrade the connections to zot6 at this hub if so.
-		require_once('include/connections.php');
-		z6trans_connections();
-
 		require_once('include/attach.php');
 		attach_upgrade();
 

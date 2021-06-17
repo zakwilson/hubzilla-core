@@ -1,3 +1,31 @@
+Hubzilla 5.6.1 (2021-06-04)
+	- Update spanish translations
+	- Fix login name label if register email verification is disabled
+	- Fix zotinfo issue with deleted channels
+	- Make pubstream ordering configurable
+	- Fix article summary duplicated when editing
+	- Update polish translations
+	- Fix admin setting for invitations not displayed correctly
+	- Fix registration in invite only mode
+	- Fix notifications not returning offset -1 when returning early
+	- Fix direct messages for items imported via sync
+	- Bring back the channel protocols hooks
+	- Fix security headers switching
+	- Fix magic auth for delegated channels
+	- Introduce drop_query_params() for secure query parameter removal
+	- PHP8 fixes (ongoing)
+	- Fix menu wrapping regression
+
+	Addons
+	- LDAPauth: fix regression creating an account
+	- Twitter: allow feeds crossposting
+	- Twitter: fix posting when post by default is disabled
+	- Pubcrawl: add litepub directMessage attribute
+	- Pubcrawl: allow xchan/hubloc upgrades from e.g. ostatus
+	- Diaspora: fix possible issue with missing hublocs
+	- Diaspora: refine dispatching of public of public items
+
+
 Hubzilla 5.6 (2021-05-11)
 	- Improve postgres hubloc queries
 	- Implement automatic duplicate singleton hubloc removal

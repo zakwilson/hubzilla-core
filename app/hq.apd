@@ -1,0 +1,6 @@
+version: 1
+url: $baseurl/hq
+requires: local_channel
+name: HQ
+photo: icon:user-circle-o
+categories: nav_pinned_app

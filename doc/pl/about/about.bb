@@ -174,7 +174,7 @@ Wpisy i komentarze można przeglądać przed wysłaniem i edytować po wysłaniu
 [h4]Głosowanie i konsensus[/h4]
 Wpisy mogą być przekształcane w elementy "konsensusu", które pozwalają czytelnikom oferować opinie, które są zestawiane w liczniki "zgadzam się", "nie zgadzam się" i "wstrzymuję się". Pozwala to ocenić zainteresowanie pomysłami i tworzyć nieformalne ankiety. 
 
-[h4]Rozszerzaie $Projectname[/h4]
+[h4]Rozszerzanie $Projectname[/h4]
 
 $Projectname może zostać rozszerzona na wiele sposobów, poprzez dostosowanie witryny, personalizację, ustawienia opcji, motywy i dodatki - wtyczki. 
 

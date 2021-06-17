@@ -11,6 +11,7 @@ use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
+require_once('include/items.php');
 
 class Activity {
 
@@ -649,7 +650,7 @@ class Activity {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
-					if (strpos($att['type'], 'image')) {
+					if (isset($att['type']) && strpos($att['type'], 'image')) {
 						$ret[] = ['type' => 'Image', 'url' => $att['href']];
 					}
 					else {
@@ -1742,14 +1743,9 @@ class Activity {
 	static function create_note($channel, $observer_hash, $act) {
 
 		$s = [];
-
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-		$pubstream      = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
-
 		$parent = ((array_key_exists('inReplyTo', $act->obj)) ? urldecode($act->obj['inReplyTo']) : '');
+
 		if ($parent) {
 
 			$r = q("select * from item where uid = %d and ( mid = '%s' or  mid = '%s' ) limit 1",
@@ -1764,7 +1760,7 @@ class Activity {
 			}
 
 			if ($r[0]['owner_xchan'] === $channel['channel_hash']) {
-				if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+				if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 					logger('no comment permission.');
 					return;
 				}
@@ -1776,7 +1772,7 @@ class Activity {
 
 		}
 		else {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 				logger('no permission');
 				return;
 			}
@@ -2545,12 +2541,6 @@ class Activity {
 			return;
 		}*/
 
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-
-		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
-
 		// TODO: this his handled in pubcrawl atm.
 		// very unpleasant and imperfect way of determining a Mastodon DM
 		/*if ($act->raw_recips && array_key_exists('to',$act->raw_recips) && is_array($act->raw_recips['to']) && count($act->raw_recips['to']) === 1 && $act->raw_recips['to'][0] === channel_url($channel) && ! $act->raw_recips['cc']) {
@@ -2611,7 +2601,7 @@ class Activity {
 
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
-				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
+				if ($is_sys_channel && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
 					$allowed = false;
 				}
 			}
@@ -2626,7 +2616,7 @@ class Activity {
 
 			// The $item['item_fetched'] flag is set in fetch_and_store_parents().
 			// In this case we should check against author permissions because sender is not owner.
-			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || ($is_sys_channel && $pubstream)) {
+			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || $is_sys_channel) {
 				$allowed = true;
 			}
 			// TODO: not implemented
@@ -2764,7 +2754,7 @@ class Activity {
 					$fetch = false;
 					// TODO: debug
 					// if (perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && (PConfig::Get($channel['channel_id'],'system','hyperdrive',true) || $act->type === 'Announce')) {
-					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || ($is_sys_channel && $pubstream)) {
+					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || $is_sys_channel) {
 						$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item, $force) : false);
 					}
 					if ($fetch) {
@@ -3073,15 +3063,9 @@ class Activity {
 	static function announce_note($channel, $observer_hash, $act) {
 
 		$s = [];
-
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
-
-		if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+		if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 			logger('no permission');
 			return;
 		}
@@ -3496,7 +3480,7 @@ class Activity {
 	static function find_best_identity($xchan) {
 
 		if (filter_var($xchan, FILTER_VALIDATE_URL)) {
-			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network in ('zot6', 'zot') and hubloc_deleted = 0",
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' and hubloc_deleted = 0",
 				dbesc($xchan)
 			);
 			if ($r) {

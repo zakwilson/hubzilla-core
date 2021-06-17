@@ -330,24 +330,12 @@ function update_directory_entry($ud) {
 
 	if ($ud['ud_addr'] && (! ($ud['ud_flags'] & UPDATE_FLAGS_DELETED))) {
 		$success = false;
-
-		// directory migration phase 1 (Macgirvin - 29-JUNE-2019)
-		// fetch zot6 info (if available) as well as historical zot info (if available)
-		// Once this has been running for > 1 month on the primary directory we can deprecate the historical info and
-		// modify the directory search to only return zot6 entries, and also modify this function
-		// to *only* fetch the zot6 entries.
-		// Otherwise we'll be showing duplicates or have a mostly empty directory for a good chunk of
-		// the transition period. Directory server load will likely increase "moderately" during this transition.
-		// The one month counter begins when the primary directory has upgraded to a release which uses this code.
-		// Hubzilla channels running traditional zot which have not upgraded can or will be dropped from the directory or
-		// "not found" at the end of the transition period as the directory will only serve zot6 entries at that time.
-
 		$uri = Webfinger::zot_url($ud['ud_addr']);
+
 		if($uri) {
 			$record = Zotfinger::exec($uri);
 
 			// Check the HTTP signature
-
 			$hsig = $record['signature'];
 			if($hsig && $hsig['signer'] === $uri && $hsig['header_valid'] === true && $hsig['content_valid'] === true) {
 				$x = Libzot::import_xchan($record['data'], 0, $ud);
@@ -355,17 +343,6 @@ function update_directory_entry($ud) {
 					$success = true;
 				}
 			}
-		}
-		$x = \Zotlabs\Zot\Finger::run($ud['ud_addr'], '');
-		if ($x['success']) {
-			import_xchan($x, 0, $ud);
-			$success = true;
-		}
-		if (! $success) {
-			q("update updates set ud_last = '%s' where ud_addr = '%s'",
-				dbesc(datetime_convert()),
-				dbesc($ud['ud_addr'])
-			);
 		}
 	}
 }

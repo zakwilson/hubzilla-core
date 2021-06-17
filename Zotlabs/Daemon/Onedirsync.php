@@ -5,10 +5,6 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libzotdir;
 
-require_once('include/zot.php');
-require_once('include/dir_fns.php');
-
-
 class Onedirsync {
 
 	static public function run($argc, $argv) {
@@ -55,14 +51,14 @@ class Onedirsync {
 		// ignore doing an update if this ud_addr refers to a known dead hubloc
 
 		$h = q("select * from hubloc where hubloc_addr = '%s'",
-			dbesc($r[0]['ud_addr'])
+			dbesc($r[0]['ud_addr']),
 		);
 
 		$h = Libzot::zot_record_preferred($h);
 
-		if (($h) && (($h['hubloc_status'] & HUBLOC_OFFLINE) || $h['hubloc_deleted'] || $h['hubloc_error']) ) {
+		if (($h) && (($h['hubloc_status'] & HUBLOC_OFFLINE) || $h['hubloc_deleted'] || $h['hubloc_error'])) {
 			q("update updates set ud_flags = ( ud_flags | %d ) where ud_addr = '%s' and ( ud_flags & %d ) = 0 ",
-				intval(UPDATE_FLAGS_UPDATED),
+				intval(UPDATE_FLAGS_DELETED),
 				dbesc($r[0]['ud_addr']),
 				intval(UPDATE_FLAGS_UPDATED)
 			);
@@ -72,7 +68,7 @@ class Onedirsync {
 		// we might have to pull this out some day, but for now update_directory_entry()
 		// runs zot_finger() and is kind of zot specific
 
-		if ($h && !in_array($h['hubloc_network'], ['zot6', 'zot']))
+		if ($h && $h['hubloc_network'] !== 'zot6')
 			return;
 
 		Libzotdir::update_directory_entry($r[0]);

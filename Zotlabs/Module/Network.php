@@ -388,6 +388,10 @@ class Network extends \Zotlabs\Web\Controller {
 		if ($dm) {
 			$sql_extra .= " AND item_private = 2 ";
 		}
+		else {
+			$sql_extra .= " AND item_private IN (0, 1) ";
+		}
+
 
 		if($conv) {
 			$item_thread_top = '';

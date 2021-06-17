@@ -11,7 +11,7 @@
 [/widget]
 $content
 [widget=hq_controls]
-   [var=class]hq_controls_fixed_bottom_center d-lg-none[/var]
+	[var=class]hq_controls_fixed_bottom_center d-lg-none[/var]
 [/widget]
 [/region]
 [region=right_aside]

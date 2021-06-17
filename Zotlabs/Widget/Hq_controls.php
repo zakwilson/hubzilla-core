@@ -7,7 +7,7 @@ use Zotlabs\Lib\Apps;
 
 class Hq_controls {
 
-	function widget($arr) {
+	function widget($options) {
 
 		if (! local_channel())
 			return;
@@ -38,7 +38,8 @@ class Hq_controls {
 
 		return replace_macros(get_markup_template('hq_controls.tpl'),
 			[
-				'$entries' => $entries
+				'$entries' => $entries,
+				'$wrapper_class' => $options['class']
 			]
 		);
 	}

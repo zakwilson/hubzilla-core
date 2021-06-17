@@ -98,7 +98,7 @@ class Messages {
 				$summary = htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_QUOTES, 'UTF-8', false);
 			}
 			if (!$summary) {
-				$summary = t('Sorry, there is no text preview available for this post');
+				$summary = '...';
 			}
 			$summary = substr_words($summary, 68);
 

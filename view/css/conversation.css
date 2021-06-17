@@ -34,6 +34,8 @@
 #jot-pagetitle-wrap input,
 #jot-customjotheaders-wrap {
 	padding: 0.5rem;
+	outline: none;
+
 }
 
 #jot-text-wrap {
@@ -55,6 +57,7 @@
 	padding: 0.5rem;
 	width: 100%;
 	display: inherit;
+	outline: none;
 }
 
 #profile-jot-text.jot-expanded {

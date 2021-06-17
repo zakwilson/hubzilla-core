@@ -161,11 +161,9 @@ class Notifications {
 		}
 
 		$o = replace_macros(get_markup_template('notifications_widget.tpl'), [
-			'$module' => \App::$module,
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
 			'$loading' => t('Loading'),
-			'$startpage' => ($channel ? $channel['channel_startpage'] : '')
 		]);
 
 		return $o;

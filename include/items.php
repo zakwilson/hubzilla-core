@@ -2494,7 +2494,7 @@ function send_status_notifications($post_id,$item) {
 
 
 	Enotify::submit(array(
-		'type'         => NOTIFY_COMMENT,
+		'type'         => ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT),
 		'from_xchan'   => $item['author_xchan'],
 		'to_xchan'     => $r[0]['channel_hash'],
 		'item'         => $item,

@@ -38,15 +38,16 @@ li:hover .widget-nav-pills-icons {
 	margin-top: 10px;
 }
 
-/* notes */ 
+/* notes */
 
 #note-text {
 	border: 1px solid rgba(0,0,0,.125);
 	padding: 5px;
 	width: 100%;
-	resize: none;
+	resize: vertical;
 	min-height: 250px;
-	overflow: hidden;
+	overflow: auto;
+	outline: none;
 }
 
 /* saved searches */

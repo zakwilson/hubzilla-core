@@ -222,6 +222,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					WHERE (abook_channel = %d $extra_channels_sql) AND abook_blocked = 0 and abook_pending = 0 and xchan_deleted = 0 $sql_extra2 order by $order_extra2 xchan_name asc" ,
 					intval(local_channel())
 				);
+
 				if($r2)
 					$r = array_merge($r2,$r);
 
@@ -282,13 +283,12 @@ class Acl extends \Zotlabs\Web\Controller {
 			}
 		}
 		elseif($type == 'm') {
-
 			$r = array();
 			$z = q("SELECT xchan_hash as hash, xchan_name as name, xchan_network as net, xchan_addr as nick, xchan_photo_s as micro, xchan_url as url
 				FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d
 				and xchan_deleted = 0
-				and xchan_network IN ('zot', 'diaspora', 'friendica-over-diaspora')
+				and not xchan_network IN ('rss', 'anon', 'unknown')
 				$sql_extra3
 				ORDER BY xchan_name ASC ",
 				intval(local_channel())

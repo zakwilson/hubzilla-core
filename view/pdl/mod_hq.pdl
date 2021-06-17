@@ -1,7 +1,7 @@
 [region=aside]
 [widget=messages][/widget]
 [widget=hq_controls]
-	[var=class]d-sm-none d-lg-block[/var]
+	[var=class]d-none d-lg-block[/var]
 [/widget]
 [/region]
 [region=content]

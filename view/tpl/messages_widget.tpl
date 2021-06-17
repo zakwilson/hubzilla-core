@@ -97,7 +97,6 @@
 		}).done(function(obj) {
 			get_messages_page_active = false;
 			messages_offset = obj.offset;
-			console.log(obj);
 			let html;
 			let tpl = $('#messages-template[rel=template]').html();
 			obj.entries.forEach(function(e) {

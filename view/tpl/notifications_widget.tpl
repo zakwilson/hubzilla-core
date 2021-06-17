@@ -154,6 +154,10 @@
 		else {
 			$('#nav-{{$notification.type}}-menu .notification[data-thread_top=false]').addClass('tt-filter-active');
 			$(this).addClass('active sticky-top');
+			// load more notifications if visible notifications count is low
+			if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children(':visible').length < 15) {
+				sse_bs_notifications(sse_type, false, true);
+			}
 		}
 
 	});
@@ -330,8 +334,7 @@
 		}
 
 		// load more notifications if visible notifications count becomes low
-		if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children().length < 15) {
-			sse_offset = 0;
+		if(sse_type  && sse_offset != -1 && $('#nav-' + sse_type + '-menu').children(':visible').length < 15) {
 			sse_bs_notifications(sse_type, false, true);
 		}
 

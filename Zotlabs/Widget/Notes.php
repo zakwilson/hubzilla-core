@@ -10,6 +10,9 @@ class Notes {
 		if(! local_channel())
 			return EMPTY_STR;
 
+		if(! Apps::system_app_installed(local_channel(), 'Notes'))
+			return EMPTY_STR;
+
 		$text = get_pconfig(local_channel(),'notes','text');
 
 		$tpl = get_markup_template('notes.tpl');

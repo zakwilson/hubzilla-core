@@ -13,7 +13,7 @@
 $content
 [widget=hq_controls]
 	[var=wrapper_class]hq_controls_fixed_bottom_center d-lg-none[/var]
-	[var=entry_class]btn-primary shadow[/var]
+	[var=entry_class]btn-lg btn-primary shadow[/var]
 [/widget]
 [/region]
 [region=right_aside]

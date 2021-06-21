@@ -1388,7 +1388,8 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$nocomment_enabled' => t('Comments enabled'),
 		'$nocomment_disabled' => t('Comments disabled'),
 		'$auto_save_draft' => $feature_auto_save_draft,
-		'$reset' => $reset
+		'$reset' => $reset,
+		'$popup' => $popup
 	];
 
 	call_hooks('jot_header_tpl_filter',$tplmacros);

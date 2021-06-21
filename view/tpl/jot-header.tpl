@@ -321,12 +321,17 @@ var activeCommentText = '';
 		postSaveChanges('clean');
 
 		{{if $reset}}
+		{{if $popup}}
+		$("#jot-popup").hide();
+		editor = false;
+		{{else}}
 		$(".jothidden").hide();
 		$("#profile-jot-text").removeClass('jot-expanded');
 		$("#profile-jot-tools").addClass('d-none');
 		$("#jot-poll-wrap").addClass('d-none');
 		$("#jot-preview-content").html('').hide();
 		editor = false;
+		{{/if}}
 		{{else}}
 		window.history.back();
 		{{/if}}

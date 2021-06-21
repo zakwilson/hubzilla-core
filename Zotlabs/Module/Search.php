@@ -25,10 +25,11 @@ class Search extends Controller {
 
 		nav_set_selected('Search');
 
-		require_once("include/bbcode.php");
-		require_once('include/security.php');
+		require_once('include/bbcode.php');
 		require_once('include/conversation.php');
 		require_once('include/items.php');
+		require_once('include/security.php');
+				
 
 		$format = (($_REQUEST['format']) ? $_REQUEST['format'] : '');
 		if ($format !== '') {
@@ -37,11 +38,9 @@ class Search extends Controller {
 
 		$observer      = App::get_observer();
 		$observer_hash = (($observer) ? $observer['xchan_hash'] : '');
-
-		$o = '<div id="live-search"></div>' . "\r\n";
-
-		$o .= '<div class="generic-content-wrapper-styled">' . "\r\n";
-
+	
+	    $o = '<div class="generic-content-wrapper-styled">' . "\r\n";
+	
 		$o .= '<h3>' . t('Search') . '</h3>';
 
 		if (x(App::$data, 'search'))
@@ -87,21 +86,21 @@ class Search extends Controller {
 			$tag    = true;
 			$search = substr($search, 1);
 		}
-		if (strpos($search, '@') === 0) {
+		elseif(strpos($search, '@') === 0) {
 			$search = substr($search, 1);
 			goaway(z_root() . '/directory' . '?f=1&navsearch=1&search=' . $search);
 		}
-		if (strpos($search, '!') === 0) {
+		elseif(strpos($search, '!') === 0) {
 			$search = substr($search, 1);
 			goaway(z_root() . '/directory' . '?f=1&navsearch=1&search=' . $search);
 		}
-		if (strpos($search, '?') === 0) {
+		elseif(strpos($search, '?') === 0) {
 			$search = substr($search, 1);
 			goaway(z_root() . '/help' . '?f=1&navsearch=1&search=' . $search);
 		}
 
 		// look for a naked webbie
-		if (strpos($search,'@') !== false && strpos($search,'http') !== 0) {
+		if (strpos($search, '@') !== false && strpos($search, 'http') !== 0) {
 			goaway(z_root() . '/directory' . '?f=1&navsearch=1&search=' . $search);
 		}
 
@@ -234,7 +233,7 @@ class Search extends Controller {
 			$items = [];
 		}
 
-		if ($format == 'json') {
+		if ($format === 'json') {
 			$result = [];
 			require_once('include/conversation.php');
 			foreach ($items as $item) {

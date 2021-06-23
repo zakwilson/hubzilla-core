@@ -29,7 +29,7 @@ class Search extends Controller {
 		require_once('include/conversation.php');
 		require_once('include/items.php');
 		require_once('include/security.php');
-				
+
 
 		$format = (($_REQUEST['format']) ? $_REQUEST['format'] : '');
 		if ($format !== '') {
@@ -38,10 +38,10 @@ class Search extends Controller {
 
 		$observer      = App::get_observer();
 		$observer_hash = (($observer) ? $observer['xchan_hash'] : '');
-	
-	    $o = '<div class="generic-content-wrapper-styled">' . "\r\n";
-	
-		$o .= '<h3>' . t('Search') . '</h3>';
+
+		$o = '<div class="generic-content-wrapper-styled">' . "\r\n";
+
+		$o .= '<h2>' . t('Search') . '</h2>';
 
 		if (x(App::$data, 'search'))
 			$search = trim(App::$data['search']);

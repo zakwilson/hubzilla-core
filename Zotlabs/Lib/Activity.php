@@ -42,9 +42,6 @@ class Activity {
 			if ($x['type'] === ACTIVITY_OBJ_EVENT) {
 				return self::fetch_event($x);
 			}
-			if ($x['type'] === ACTIVITY_OBJ_PHOTO) {
-				return self::fetch_image($x);
-			}
 
 			call_hooks('encode_object', $x);
 		}
@@ -194,6 +191,7 @@ class Activity {
 	}
 
 	static function fetch_image($x) {
+
 		$ret = [
 			'type'      => 'Image',
 			'id'        => $x['id'],
@@ -2264,7 +2262,6 @@ class Activity {
 			$s['app'] = escape_tags($generator['name']);
 		}
 
-
 		if (!$response_activity) {
 			$a = self::decode_taxonomy($act->obj);
 			if ($a) {
@@ -2399,7 +2396,7 @@ class Activity {
 
 			}
 
-			if ($act->obj['type'] === 'Image') {
+			if ($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
 
 				$ptr = null;
 

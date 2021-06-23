@@ -95,7 +95,7 @@ class Messages {
 				$summary = $item['summary'];
 			}
 			if (!$summary) {
-				$summary = htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_QUOTES, 'UTF-8', false);
+				$summary = htmlentities(html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true), ENT_QUOTES, 'UTF-8', false);
 			}
 			if (!$summary) {
 				$summary = '...';

@@ -59,9 +59,14 @@
 	var get_messages_page_active = false;
 	var messages_type;
 
+	$(document).ready(function () {
+		$('.messages-timeago').timeago();
+		$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
+	});
+
 	$('#messages-widget').on('scroll', function() {
 		if(this.scrollTop > this.scrollHeight - this.clientHeight - (this.scrollHeight/7)) {
-			get_messages_page('hq');
+			get_messages_page();
 		}
 	});
 
@@ -75,10 +80,8 @@
 		get_messages_page();
 	});
 
-	$('.messages-timeago').timeago();
-	$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
-
 	function get_messages_page() {
+
 		if (get_messages_page_active)
 			return;
 

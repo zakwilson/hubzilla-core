@@ -264,6 +264,11 @@ class Libzotdir {
 
 			if (is_array($j['transactions']) && count($j['transactions'])) {
 				foreach ($j['transactions'] as $t) {
+
+					if (!($t['hash'] || $t['transaction_id'] || $t['address'])) {
+						continue;
+					}
+
 					$r = q("select * from updates where ud_guid = '%s' limit 1",
 						dbesc($t['transaction_id'])
 					);
@@ -638,8 +643,13 @@ class Libzotdir {
 
 		$dirmode = intval(get_config('system', 'directory_mode'));
 
-		if($dirmode == DIRECTORY_MODE_NORMAL)
+		if($dirmode == DIRECTORY_MODE_NORMAL) {
 			return;
+		}
+
+		if (!($hash || $guid || $addr)) {
+			return;
+		}
 
 		if($flags) {
 			q("insert into updates (ud_hash, ud_guid, ud_date, ud_flags, ud_addr ) values ( '%s', '%s', '%s', %d, '%s' )",
@@ -658,10 +668,5 @@ class Libzotdir {
 			);
 		}
 	}
-
-
-
-
-
 
 }

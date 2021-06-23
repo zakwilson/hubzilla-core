@@ -11,14 +11,10 @@ class Messages {
 		if (!local_channel())
 			return EMPTY_STR;
 
-		$o = '';
 		$page = self::get_messages_page($options);
 
-		if (!$page['entries'])
-			return $o;
-
 		$tpl = get_markup_template('messages_widget.tpl');
-		$o .= replace_macros($tpl, [
+		$o = replace_macros($tpl, [
 			'$entries' => $page['entries'],
 			'$offset' => $page['offset'],
 			'$feature_star' => feature_enabled(local_channel(), 'star_posts'),
@@ -26,7 +22,8 @@ class Messages {
 				'messages_title' => t('Public and restricted messages'),
 				'direct_messages_title' => t('Direct messages'),
 				'starred_messages_title' => t('Starred messages'),
-				'loading' => t('Loading')
+				'loading' => t('Loading'),
+				'empty' => t('No messages')
 			]
 		]);
 

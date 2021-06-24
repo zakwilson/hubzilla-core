@@ -354,6 +354,10 @@
 			if($('#nav-' + notifyType + '-menu .notification[data-b64mid=\'' + this.b64mid + '\']').length)
 				return true;
 
+			if(!replace && !followup && this.thread_top && notifyType == 'network') {
+				sse_dektop_notification($('<p>' + this.message + '</p>').text(), this.name);
+			}
+
 			html = notifications_tpl.format(this.notify_link,this.photo,this.name,this.addr,this.message,this.when,this.hclass,this.b64mid,this.notify_id,this.thread_top,this.unseen,this.private_forum, encodeURIComponent(this.mids), this.body);
 			notify_menu.append(html);
 		});
@@ -467,6 +471,19 @@
 			sse_handleNotifications(obj, false, false);
 		});
 	}
+
+	function sse_dektop_notification(body, title) {
+		let options = {
+			body: body,
+			icon: '/images/hz-64.png',
+			silent: false
+		}
+		let n = new Notification(title, options);
+		n.onclick = function (event) {
+			setTimeout(n.close.bind(n), 300);
+		}
+	}
+
 </script>
 
 <div id="notifications_wrapper" class="mb-4">

@@ -15,9 +15,8 @@ class Hq_controls {
 		$entries = [
 			'toggle_editor' => [
 				'label' => t('Toggle post editor'),
-				'id' => 'jot-toggle',
 				'href' => '#',
-				'class' => 'btn',
+				'class' => 'btn jot-toggle',
 				'type' => 'button',
 				'icon' => 'pencil',
 				'extra' => 'data-toggle="button"'
@@ -27,9 +26,8 @@ class Hq_controls {
 		if(Apps::system_app_installed(local_channel(), 'Notes')) {
 			$entries['toggle_notes'] = [
 				'label' => t('Toggle personal notes'),
-				'id' => 'notes-toggle',
 				'href' => '#',
-				'class' => 'btn',
+				'class' => 'btn notes-toggle',
 				'type' => 'button',
 				'icon' => 'sticky-note-o',
 				'extra' => 'data-toggle="button"'

@@ -1730,3 +1730,29 @@ function makeid(length) {
 	return result;
 }
 
+function push_notification_request(e) {
+    if (!('Notification' in window)) {
+        alert('This browser does not support push notifications');
+    }
+    else if (Notification.permission !== 'granted') {
+        Notification.requestPermission(function(permission) {
+			if(permission === 'granted') {
+				$(e.target).closest('button').hide();
+			}
+		});
+   }
+}
+
+
+function push_notification(body, title) {
+	let options = {
+		body: body,
+		icon: '/images/hz-64.png',
+		silent: false
+	}
+
+	let n = new Notification(title, options);
+	n.onclick = function (event) {
+		setTimeout(n.close.bind(n), 300);
+	}
+}

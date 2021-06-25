@@ -1737,22 +1737,23 @@ function push_notification_request(e) {
     else if (Notification.permission !== 'granted') {
         Notification.requestPermission(function(permission) {
 			if(permission === 'granted') {
-				$(e.target).closest('button').hide();
+				$(e.target).closest('div').hide();
 			}
 		});
    }
 }
 
 
-function push_notification(body, title) {
+function push_notification(title, body, href) {
 	let options = {
 		body: body,
+		data: href,
 		icon: '/images/hz-64.png',
 		silent: false
 	}
 
 	let n = new Notification(title, options);
-	n.onclick = function (event) {
-		setTimeout(n.close.bind(n), 300);
+	n.onclick = function (e) {
+		window.location.href = e.target.data;
 	}
 }

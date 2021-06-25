@@ -13,7 +13,11 @@ $(document).ready(function() {
 	});
 
 	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
-		push_notification($('<p>' + obj.message + '</p>').text(), obj.name);
+		push_notification(
+			obj.name,
+			$('<p>' + obj.message + '</p>').text(),
+			baseurl + '/hq/' + obj.b64mid
+		);
 	});
 
 });

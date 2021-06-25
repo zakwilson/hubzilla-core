@@ -13,6 +13,7 @@ $(document).ready(function() {
 	});
 
 	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
-		push_notification(obj.message, obj.name);
+		push_notification($('<p>' + obj.message + '</p>').text(), obj.name);
 	});
+
 });

@@ -265,7 +265,7 @@ class Libzotdir {
 			if (is_array($j['transactions']) && count($j['transactions'])) {
 				foreach ($j['transactions'] as $t) {
 
-					if (!($t['hash'] || $t['transaction_id'] || $t['address'])) {
+					if (empty($t['hash']) || empty($t['transaction_id']) || empty($t['address'])) {
 						continue;
 					}
 
@@ -647,7 +647,7 @@ class Libzotdir {
 			return;
 		}
 
-		if (!($hash || $guid || $addr)) {
+		if (empty($hash) || empty($guid) || empty($addr)) {
 			return;
 		}
 

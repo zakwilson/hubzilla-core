@@ -259,7 +259,7 @@ function photo_upload($channel, $observer, $args) {
 	if($args['description'])
 		$p['description'] = $args['description'];
 
-	$link   = array();
+	$url = [];
 
 	$r0 = $ph->save($p);
 	$url[0] = array(
@@ -360,14 +360,14 @@ function photo_upload($channel, $observer, $args) {
 
 	if($large_photos) {
 		$scale = 1;
-		$width = $link[1]['width'];
-		$height = $link[1]['height'];
+		$width = $url[1]['width'];
+		$height = $url[1]['height'];
 		$tag = (($r1) ? '[zmg=' . $width . 'x' . $height . ']' : '[zmg]');
 	}
 	else {
 		$scale = 2;
-		$width = $link[2]['width'];
-		$height = $link[2]['height'];
+		$width = $url[2]['width'];
+		$height = $url[2]['height'];
 		$tag = (($r2) ? '[zmg=' . $width . 'x' . $height . ']' : '[zmg]');
 	}
 

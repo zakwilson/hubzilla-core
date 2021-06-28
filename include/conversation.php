@@ -1689,7 +1689,8 @@ function prepare_page($item) {
 		// ... other possible options
 	}
 
-	$body = prepare_body($item, [ 'newwin' => false ]);
+	$body = prepare_body($item, true, [ 'newwin' => false ]);
+
 	if(App::$page['template'] == 'none') {
 		$tpl = 'page_display_empty.tpl';
 

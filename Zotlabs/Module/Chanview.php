@@ -10,12 +10,12 @@ use Zotlabs\Lib\Zotfinger;
 class Chanview extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		$observer = App::get_observer();
 		$xchan = null;
-	
+
 		$r = null;
-	
+
 		if($_REQUEST['hash']) {
 			$r = q("select * from xchan where xchan_hash = '%s'",
 				dbesc($_REQUEST['hash'])
@@ -27,18 +27,18 @@ class Chanview extends \Zotlabs\Web\Controller {
 			);
 		}
 		elseif(local_channel() && intval($_REQUEST['cid'])) {
-			$r = q("SELECT abook.*, xchan.* 
+			$r = q("SELECT abook.*, xchan.*
 				FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d and abook_id = %d",
 				intval(local_channel()),
 				intval($_REQUEST['cid'])
 			);
-		}	
+		}
 		elseif($_REQUEST['url']) {
-	
+
 			// if somebody re-installed they will have more than one xchan, use the most recent name date as this is
-			// the most useful consistently ascending table item we have. 
-	
+			// the most useful consistently ascending table item we have.
+
 			$r = q("select * from xchan where xchan_url = '%s' order by xchan_name_date desc",
 				dbesc($_REQUEST['url'])
 			);
@@ -46,13 +46,13 @@ class Chanview extends \Zotlabs\Web\Controller {
 		if($r) {
 			App::$poi = Libzot::zot_record_preferred($r, 'xchan_network');
 		}
-	
-	
+
+
 		// Here, let's see if we have an xchan. If we don't, how we proceed is determined by what
-		// info we do have. If it's a URL, we can offer to visit it directly. If it's a webbie or 
-		// address, we can and should try to import it. If it's just a hash, we can't continue, but we 
+		// info we do have. If it's a URL, we can offer to visit it directly. If it's a webbie or
+		// address, we can and should try to import it. If it's just a hash, we can't continue, but we
 		// probably wouldn't have a hash if we don't already have an xchan for this channel.
-	
+
 		if(! App::$poi) {
 			logger('mod_chanview: fallback');
 
@@ -90,7 +90,7 @@ class Chanview extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
-	
+
 		if(! App::$poi) {
 			notice( t('Channel not found.') . EOL);
 			return;
@@ -98,9 +98,9 @@ class Chanview extends \Zotlabs\Web\Controller {
 
 		$is_zot = false;
 		$connected = false;
-	
+
 		$url = App::$poi['xchan_url'];
-		if(in_array(App::$poi['xchan_network'], ['zot', 'zot6'])) {
+		if(App::$poi['xchan_network'] === 'zot6') {
 			$is_zot = true;
 		}
 		if(local_channel()) {
@@ -111,29 +111,29 @@ class Chanview extends \Zotlabs\Web\Controller {
 			if($c)
 				$connected = true;
 		}
-		
-		// We will load the chanview template if it's a foreign network, 
+
+		// We will load the chanview template if it's a foreign network,
 		// just so that we can provide a connect button along with a profile
 		// photo. Chances are we can't load the remote profile into an iframe
 		// because of cross-domain security headers. So provide a link to
-		// the remote profile. 
+		// the remote profile.
 		// If we are already connected, just go to the profile.
 		// Zot channels will usually have a connect link.
-	
+
 		if($is_zot || $connected) {
 			if($is_zot && $observer) {
 				$url = zid($url);
 			}
 			goaway($url);
 		}
-		else {	
+		else {
 			$o = replace_macros(get_markup_template('chanview.tpl'),array(
 				'$url' => $url,
 				'$full' => t('toggle full screen mode')
 			));
-	
+
 			return $o;
 		}
 	}
-	
+
 }

@@ -42,7 +42,7 @@ class Messages {
 		$item_normal = item_normal();
 		$entries = [];
 		$limit = 30;
-		$dummy_sql = '';
+		$dummy_order_sql = '';
 
 		$offset = 0;
 		if ($options['offset']) {

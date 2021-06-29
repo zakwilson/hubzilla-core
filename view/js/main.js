@@ -1274,7 +1274,7 @@ function dopin(id) {
                 });
 }
 
-function dropItem(url, object) {
+function dropItem(url, object, b64mid) {
 	var confirm = confirmDelete();
 	if(confirm) {
 		var id = url.split('/')[2];
@@ -1286,11 +1286,18 @@ function dropItem(url, object) {
 			$('body').css('cursor', 'auto');
 		});
 
-		if($('#wall-item-pinned-' + id).length)
+		if($('#wall-item-pinned-' + id).length) {
 			$.post('pin/pin', { 'id' : id });
+		}
+
+		if (typeof b64mid !== typeof undefined) {
+			$('[data-b64mid=\'' + b64mid + '\']').fadeOut(function() {
+				this.remove();
+			});
+		}
 
 		return true;
-        }
+	}
 	else {
 		return false;
 	}

@@ -42,6 +42,7 @@ class Messages {
 		$item_normal = item_normal();
 		$entries = [];
 		$limit = 30;
+		$dummy_sql = '';
 
 		$offset = 0;
 		if ($options['offset']) {
@@ -53,6 +54,9 @@ class Messages {
 		switch($options['type']) {
 			case 'direct':
 				$type_sql = ' AND item_private = 2 ';
+				// $dummy_order_sql has no other meaning but trick
+				// some mysql backends into using the right index.
+				$dummy_order_sql = ', received DESC ';
 				break;
 			case 'starred':
 				$type_sql = ' AND item_starred = 1 ';
@@ -66,7 +70,7 @@ class Messages {
 			$type_sql
 			AND item_thread_top = 1
 			$item_normal
-			ORDER BY created DESC
+			ORDER BY created DESC $dummy_order_sql
 			LIMIT $limit OFFSET $offset",
 			intval(local_channel()),
 			dbescdate($loadtime)

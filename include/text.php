@@ -2878,14 +2878,13 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("SELECT * FROM xchan WHERE xchan_addr = '%s' OR xchan_url = '%s' AND xchan_deleted = 0",
+			$r = q("SELECT * FROM xchan WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0",
 				dbesc($newname),
 				dbesc($newname)
 			);
 		}
 
 		if(! $r) {
-
 			// look for matching names in the address book
 
 			// Double quote the entire mentioned term to include special characters

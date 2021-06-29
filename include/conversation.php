@@ -940,7 +940,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$user' => App::$user,
 		'$threads' => $threads,
 		'$wait' => t('Loading...'),
-		'$conversation_tools' => t('Conversation Tools'),
+		'$conversation_tools' => t('Conversation Features'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
 		'$preview' => $preview
 	));

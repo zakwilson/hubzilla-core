@@ -299,7 +299,7 @@ class ThreadItem {
 			);
 			*/
 
-			$settings = t('Conversation Tools');
+			$settings = t('Conversation Features');
 		}
 
 		$has_bookmarks = false;

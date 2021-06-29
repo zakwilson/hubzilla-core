@@ -1284,16 +1284,16 @@ function dropItem(url, object, b64mid) {
 		$.get(url, function() {
 			$(object + ', #pinned-wrapper-' + id).remove();
 			$('body').css('cursor', 'auto');
+
+			if (typeof b64mid !== typeof undefined) {
+				$('[data-b64mid=\'' + b64mid + '\']').fadeOut(function() {
+					this.remove();
+				});
+			}
 		});
 
 		if($('#wall-item-pinned-' + id).length) {
 			$.post('pin/pin', { 'id' : id });
-		}
-
-		if (typeof b64mid !== typeof undefined) {
-			$('[data-b64mid=\'' + b64mid + '\']').fadeOut(function() {
-				this.remove();
-			});
 		}
 
 		return true;

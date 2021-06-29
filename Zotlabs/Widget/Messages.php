@@ -54,7 +54,7 @@ class Messages {
 		switch($options['type']) {
 			case 'direct':
 				$type_sql = ' AND item_private = 2 ';
-				// $dummy_order_sql has no other meaning but trick
+				// $dummy_order_sql has no other meaning but to trick
 				// some mysql backends into using the right index.
 				$dummy_order_sql = ', received DESC ';
 				break;

@@ -727,7 +727,7 @@ class Libzot {
 				|| $hidden_changed || $adult_changed || $deleted_changed || $pubforum_changed) {
 				$rup = q("update xchan set xchan_name = '%s', xchan_name_date = '%s', xchan_connurl = '%s', xchan_follow = '%s',
 					xchan_connpage = '%s', xchan_hidden = %d, xchan_selfcensored = %d, xchan_deleted = %d, xchan_pubforum = %d,
-					xchan_addr = '%s', xchan_url = '%s' where xchan_hash = '%s'",
+					xchan_addr = '%s', xchan_url = '%s' where xchan_url = '%s'",
 					dbesc(($arr['name']) ? escape_tags($arr['name']) : '-'),
 					dbesc($arr['name_updated']),
 					dbesc($arr['primary_location']['connections_url']),
@@ -739,7 +739,7 @@ class Libzot {
 					intval($arr['public_forum']),
 					dbesc(escape_tags($arr['primary_location']['address'])),
 					dbesc(escape_tags($arr['primary_location']['url'])),
-					dbesc($xchan_hash)
+					dbesc($r[0]['xchan_url'])
 				);
 
 				logger('Update: existing: ' . print_r($r[0], true), LOGGER_DATA, LOG_DEBUG);

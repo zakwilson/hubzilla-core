@@ -1,7 +1,7 @@
 Hubzilla 6.0 (2021-07-xx)
 
 	- DB update 1247 to clean up bogus entries in updates
-	- DB update 1246 to deprecate legacy zot xchans and hublocs
+	- DB update 1246 to mark legacy zot xchans and hublocs deleted
 	- Implement desktop notifications
 	- Emit a warning if the calendar for the created event is disabled
 	- Add an option to drop media for bbcode processing
@@ -16,7 +16,8 @@ Hubzilla 6.0 (2021-07-xx)
 	Bugfixes
 	- Fix deleting and starring in unthreaded view
 	- Fix issue where incomplete datasets were stored into updates
-	- Fix where notifications were not loaded if a filter was applied
+	- Fix photo item tags not stored and propagated
+	- Fix notifications not loading if a filter was applied
 	- Fix in browser email validation for registrations
 	- Fix directory sync issues
 	- Fix issue where the original rawmsg iconfig got overwritten
@@ -32,7 +33,7 @@ Hubzilla 6.0 (2021-07-xx)
 	- Pubcrawl: fix remote reply for peertube
 	- Pubcrawl: fix issue where we could end up with an xchan but without hubloc
 	- Diaspora: implement the direct_message_recipients hook
-	- Queueworker: add a simple priority mechanism to prevent not so important janitor tasks (e.g. onedirsync) stuffing up the queue and delaying deliver of items
+	- Queueworker: add a simple priority mechanism to prevent not so important janitor tasks (e.g. onedirsync) stuffing up the queue and delaying delivery of items
 	- Pubcrawl: implement direct message recognision for activities coming from Mastodon
 	- Pubcrawl: always show complete threads (complete as in all the messages we have received) in public stream
 	- Twitter_api: remove the mail endpoint

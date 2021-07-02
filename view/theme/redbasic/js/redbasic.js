@@ -139,12 +139,12 @@ function makeFullScreen(full) {
 function toggleAside() {
 	$('#expand-aside-icon').toggleClass('fa-arrow-circle-right').toggleClass('fa-arrow-circle-left');
 	if($('main').hasClass('region_1-on')){
-		$('html, body').css('overflow-x', '');
+		$('html, body').css({ 'position': '', 'left': '' });
 		$('main').removeClass('region_1-on')
 		$('#overlay').remove();
 	}
 	else {
-		$('html, body').css('overflow-x', 'hidden');
+		$('html, body').css({ 'position': 'sticky', 'left': 0 });
 		$('main').addClass('region_1-on')
 		$('<div id="overlay"></div>').appendTo('section');
 	}

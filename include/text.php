@@ -11,6 +11,7 @@ use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
+use Zotlabs\Lib\Libzot;
 
 require_once("include/bbcode.php");
 
@@ -2851,7 +2852,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 	// BEGIN mentions
 
-	if ( in_array($termtype, [ TERM_MENTION, TERM_FORUM ] )) {
+	if ($termtype === TERM_MENTION) {
 
 		// The @! tag will alter permissions
 
@@ -2939,7 +2940,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 		// $r is set if we found something
 
 		if($r) {
-			foreach($r as $xc) {
+
+			$xchan[0] = Libzot::zot_record_preferred($r, 'xchan_network');
+
+			foreach($xchan as $xc) {
 				$profile = $xc['xchan_url'];
 				$newname = $xc['xchan_name'];
 				// add the channel's xchan_hash to $access_tag if exclusive
@@ -2954,16 +2958,9 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 					//create profile link
 					$profile = str_replace(',','%2c',$profile);
 					$url = $profile;
-/*
-					if($termtype === TERM_FORUM) {
-						$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-						$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-					}
-*/
-					if ($termtype === TERM_MENTION) {
-						$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-						$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-					}
+
+					$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+					$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 
 					// append tag to str_tags
 					if(! stristr($str_tags,$newtag)) {

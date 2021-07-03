@@ -186,6 +186,7 @@ function toggleAside(swipe) {
 	}
 	if (!$('main').hasClass('region_1-on') && swipe === 'right') {
 		$('#expand-aside-icon').removeClass('fa-arrow-circle-right').addClass('fa-arrow-circle-left');
+		$(window).scrollTop(0);
 		$('html, body').css('overflow-x', 'hidden');
 		$('main').addClass('region_1-on');
 		$('<div id="overlay"></div>').appendTo('section');

@@ -11,7 +11,7 @@ $(document).ready(function() {
 			if($(window).width() < 992) {
 				$('main').css('width', $(window).width() + $('aside').outerWidth() );
 			} else {
-				$('main').css('width', '100%' );
+				$('main').css('width', '100%');
 			}
 		});
 	}
@@ -20,11 +20,18 @@ $(document).ready(function() {
 	stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
 	stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
 
-	$('#expand-aside').on('click', toggleAside);
+	$('#expand-aside').on('click', function() {
+		if($('main').hasClass('region_1-on')){
+			toggleAside('left');
+		}
+		else {
+			toggleAside('right');
+		}
+	});
 
 	$('section').on('click', function() {
 		if($('main').hasClass('region_1-on')){
-			toggleAside();
+			toggleAside('left');
 		}
 	});
 
@@ -69,6 +76,39 @@ $(document).ready(function() {
 		}
 	}
 	setInterval(function () {checkNotify();}, 10 * 1000);
+
+	var touch_start = null;
+	window.addEventListener('touchstart', function(e) {
+		if (e.touches.length === 1){
+			//just one finger touched
+			touch_start = e.touches.item(0).clientX;
+		}
+		else {
+			//a second finger hit the screen, abort the touch
+			touch_start = null;
+		}
+	});
+
+	window.addEventListener('touchend', function(e) {
+		let touch_offset = 50; //at least 100px are a swipe
+		let touch_max = 100;
+		if (touch_start) {
+			//the only finger that hit the screen left it
+			let touch_end = e.changedTouches.item(0).clientX;
+
+			if (touch_end > (touch_start + touch_offset)) {
+				//a left -> right swipe
+				if (touch_start < touch_max) {
+					toggleAside('right');
+				}
+			}
+			if (touch_end < (touch_start - touch_offset)) {
+				//a right -> left swipe
+				//toggleAside('left');
+			}
+		}
+	});
+
 });
 
 function setStyle(element, cssProperty) {
@@ -136,16 +176,18 @@ function makeFullScreen(full) {
 	}
 }
 
-function toggleAside() {
-	$('#expand-aside-icon').toggleClass('fa-arrow-circle-right').toggleClass('fa-arrow-circle-left');
-	if($('main').hasClass('region_1-on')){
-		$('html, body').css({ 'position': '', 'left': '' });
-		$('main').removeClass('region_1-on')
+function toggleAside(swipe) {
+
+	if ($('main').hasClass('region_1-on') && swipe === 'left') {
+		$('#expand-aside-icon').addClass('fa-arrow-circle-right').removeClass('fa-arrow-circle-left');
+		$('html, body').css('overflow-x', '');
+		$('main').removeClass('region_1-on');
 		$('#overlay').remove();
 	}
-	else {
-		$('html, body').css({ 'position': 'sticky', 'left': 0 });
-		$('main').addClass('region_1-on')
+	if (!$('main').hasClass('region_1-on') && swipe === 'right') {
+		$('#expand-aside-icon').removeClass('fa-arrow-circle-right').addClass('fa-arrow-circle-left');
+		$('html, body').css('overflow-x', 'hidden');
+		$('main').addClass('region_1-on');
 		$('<div id="overlay"></div>').appendTo('section');
 	}
 }

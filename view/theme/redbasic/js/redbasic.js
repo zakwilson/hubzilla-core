@@ -17,10 +17,8 @@ $(document).ready(function() {
 	}
 	$('#css3-calc').remove(); // Remove the test element
 
-	if($(window).width() > 992) {
-		stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
-		stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
-	}
+	stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
+	stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
 
 	$('#expand-aside').on('click', function() {
 		if($('main').hasClass('region_1-on')){
@@ -30,13 +28,6 @@ $(document).ready(function() {
 			toggleAside('right');
 		}
 	});
-
-	$('section').on('click', function() {
-		if($('main').hasClass('region_1-on')){
-			toggleAside('left');
-		}
-	});
-
 
 	$('.usermenu').click(function() {
 		if($('#navbar-collapse-1, #navbar-collapse-2').hasClass('show')){
@@ -80,10 +71,15 @@ $(document).ready(function() {
 	setInterval(function () {checkNotify();}, 10 * 1000);
 
 	var touch_start = null;
+	var touch_max = 70;
+
 	window.addEventListener('touchstart', function(e) {
 		if (e.touches.length === 1){
 			//just one finger touched
 			touch_start = e.touches.item(0).clientX;
+			if (touch_start < touch_max) {
+				$('html, body').css('overflow-y', 'hidden');
+			}
 		}
 		else {
 			//a second finger hit the screen, abort the touch
@@ -92,8 +88,9 @@ $(document).ready(function() {
 	});
 
 	window.addEventListener('touchend', function(e) {
-		let touch_offset = 50; //at least 100px are a swipe
-		let touch_max = 100;
+		$('html, body').css('overflow-y', '');
+
+		let touch_offset = 30; //at least 100px are a swipe
 		if (touch_start) {
 			//the only finger that hit the screen left it
 			let touch_end = e.changedTouches.item(0).clientX;
@@ -182,15 +179,14 @@ function toggleAside(swipe) {
 
 	if ($('main').hasClass('region_1-on') && swipe === 'left') {
 		$('#expand-aside-icon').addClass('fa-arrow-circle-right').removeClass('fa-arrow-circle-left');
-		$('html, body').css('overflow-x', '');
+		$('html, body').css({ 'position': '', left: '' });
 		$('main').removeClass('region_1-on');
 		$('#overlay').remove();
 	}
 	if (!$('main').hasClass('region_1-on') && swipe === 'right') {
 		$('#expand-aside-icon').removeClass('fa-arrow-circle-right').addClass('fa-arrow-circle-left');
-		$(window).scrollTop(0);
-		$('html, body').css('overflow-x', 'hidden');
+		$('html, body').css({ 'position': 'sticky',  'left': '0px'});
 		$('main').addClass('region_1-on');
-		$('<div id="overlay"></div>').appendTo('section');
+		$('<div id="overlay"></div>').appendTo('body').one('click', function() { toggleAside('left'); });
 	}
 }

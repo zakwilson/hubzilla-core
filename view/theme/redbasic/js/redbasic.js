@@ -108,6 +108,10 @@ $(document).ready(function() {
 		}
 	});
 
+	$(document).on('hz:hqControlsClickAction', function(e) {
+		toggleAside('left');
+	});
+
 });
 
 function setStyle(element, cssProperty) {

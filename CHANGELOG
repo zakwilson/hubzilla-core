@@ -1,3 +1,51 @@
+Hubzilla 6.0 (2021-07-xx)
+
+	- DB update 1247 to clean up bogus entries in updates
+	- DB update 1246 to mark legacy zot xchans and hublocs deleted
+	- Implement desktop notifications
+	- Emit a warning if the calendar for the created event is disabled
+	- Add an option to drop media for bbcode processing
+	- Make mod HQ the default landing page after login
+	- Implement direct messages view for mod HQ
+	- Implement public/restricted messages vie for mod HQ
+	- Implement starred messages view for mod HQ (only available if the Star Posts feature is enabled)
+	- Update composer libs
+	- Remove deprecated mod ping
+	- Remove legacy zot libs and functions - major cleanup
+
+	Bugfixes
+	- Fix deleting and starring in unthreaded view
+	- Fix issue where incomplete datasets were stored into updates
+	- Fix photo item tags not stored and propagated
+	- Fix notifications not loading if a filter was applied
+	- Fix in browser email validation for registrations
+	- Fix directory sync issues
+	- Fix issue where the original rawmsg iconfig got overwritten
+	- Fix unmaintained id3 pareser for PHP8
+	- Fix item_private state for imported items
+	- Random PHP8 fixes (ongoing)
+
+	Addons
+	- Pubcrawl: fix ld-signature for profile updates
+	- Pubcrawl: deprecate as_actor_store() in favor of Activity::actor_store()
+	- Twitter: prevent duplicated tweets
+	- Remove legacy zot dpendencies and deprecated functions
+	- Pubcrawl: fix remote reply for peertube
+	- Pubcrawl: fix issue where we could end up with an xchan but without hubloc
+	- Diaspora: implement the direct_message_recipients hook
+	- Queueworker: add a simple priority mechanism to prevent not so important janitor tasks (e.g. onedirsync) stuffing up the queue and delaying delivery of items
+	- Pubcrawl: implement direct message recognision for activities coming from Mastodon
+	- Pubcrawl: always show complete threads (complete as in all the messages we have received) in public stream
+	- Twitter_api: remove the mail endpoint
+	- Mail: make interface read only with the possibility to download and delete mails (this addon will be removed in a future version)
+	- Pubsubhubbub: move to addons-unmaintained
+	- GNU-Social: move to addons-unmaintained
+	- Fixes to reflect core notifier changes
+	- Diaspora: refactor conversations a.k.a mail to implement direct messages infrastructure
+	- Pubcrawl: allow hublocs to be upgraded from ostatus
+	- Diaspora: fix issue where we could end up with an xchan but without hubloc
+
+
 Hubzilla 5.6.1 (2021-06-04)
 	- Update spanish translations
 	- Fix login name label if register email verification is disabled

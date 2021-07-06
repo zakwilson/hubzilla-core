@@ -11,14 +11,10 @@ class Messages {
 		if (!local_channel())
 			return EMPTY_STR;
 
-		$o = '';
 		$page = self::get_messages_page($options);
 
-		if (!$page['entries'])
-			return $o;
-
 		$tpl = get_markup_template('messages_widget.tpl');
-		$o .= replace_macros($tpl, [
+		$o = replace_macros($tpl, [
 			'$entries' => $page['entries'],
 			'$offset' => $page['offset'],
 			'$feature_star' => feature_enabled(local_channel(), 'star_posts'),
@@ -26,7 +22,8 @@ class Messages {
 				'messages_title' => t('Public and restricted messages'),
 				'direct_messages_title' => t('Direct messages'),
 				'starred_messages_title' => t('Starred messages'),
-				'loading' => t('Loading')
+				'loading' => t('Loading'),
+				'empty' => t('No messages')
 			]
 		]);
 
@@ -45,6 +42,7 @@ class Messages {
 		$item_normal = item_normal();
 		$entries = [];
 		$limit = 30;
+		$dummy_order_sql = '';
 
 		$offset = 0;
 		if ($options['offset']) {
@@ -56,6 +54,9 @@ class Messages {
 		switch($options['type']) {
 			case 'direct':
 				$type_sql = ' AND item_private = 2 ';
+				// $dummy_order_sql has no other meaning but to trick
+				// some mysql backends into using the right index.
+				$dummy_order_sql = ', received DESC ';
 				break;
 			case 'starred':
 				$type_sql = ' AND item_starred = 1 ';
@@ -69,7 +70,7 @@ class Messages {
 			$type_sql
 			AND item_thread_top = 1
 			$item_normal
-			ORDER BY created DESC
+			ORDER BY created DESC $dummy_order_sql
 			LIMIT $limit OFFSET $offset",
 			intval(local_channel()),
 			dbescdate($loadtime)
@@ -95,7 +96,7 @@ class Messages {
 				$summary = $item['summary'];
 			}
 			if (!$summary) {
-				$summary = htmlentities(html2plain(bbcode($item['body']), 75, true), ENT_QUOTES, 'UTF-8', false);
+				$summary = htmlentities(html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true), ENT_QUOTES, 'UTF-8', false);
 			}
 			if (!$summary) {
 				$summary = '...';

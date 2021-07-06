@@ -320,7 +320,9 @@ var activeCommentText = '';
 
 		postSaveChanges('clean');
 
-		{{if $reset}}
+		{{if $popup}}
+		$("#profile-jot-text").focus();
+		{{else if $reset}}
 		$(".jothidden").hide();
 		$("#profile-jot-text").removeClass('jot-expanded');
 		$("#profile-jot-tools").addClass('d-none');

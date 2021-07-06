@@ -110,7 +110,9 @@ $(document).ready(function() {
 	$('#chatroom_bookmarks, #vcard').hide();
 	$('#chatroom_list, #chatroom_members').show();
 	adjustInlineTopBarHeight();
-    chatNotificationInit();
+	$('#toggle-notifications').one('click', function() {
+		chatNotificationInit();
+	});
 });
 
 $(window).resize(function () {
@@ -141,7 +143,7 @@ function load_chats() {
 			$('#chat-top-spinner').hide();
 		}
 	});
-	
+
 	chat_timer = setTimeout(load_chats,10000);
 
 }
@@ -218,7 +220,7 @@ var chat_notify_audio = {};
 // Request notification access from the user
 // TODO: Check Hubzilla member config setting before requesting permission
 function chatNotificationInit() {
-  
+
     if (!("Notification" in window)) {
         window.console.log("This browser does not support system notifications");
     }
@@ -258,8 +260,8 @@ var chat_issue_notification = function (theBody,theTitle) {
     }
     var n = new Notification(theTitle,options);
     n.onclick = function (event) {
-        setTimeout(n.close.bind(n), 300); 
-    } 
+        setTimeout(n.close.bind(n), 300);
+    }
     if(chat_notify_audio_enabled) {
       chat_notify_audio.play();
     }

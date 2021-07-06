@@ -124,7 +124,7 @@
 									</a>
 									<a class="dropdown-item" href="#" title="{{$item.conlabels.1}}" onclick="dolike({{$item.id}},'disagree'); return false;">
 										 <i class="item-act-list fa fa-times{{if $item.my_responses.disagree}} ivoted{{/if}}" ></i> {{$item.conlabels.1}}
-									</a> 
+									</a>
 									<a class="dropdown-item" href="#" title="{{$item.conlabels.2}}" onclick="dolike({{$item.id}},'abstain'); return false;">
 										<i class="item-act-list fa fa-question{{if $item.my_responses.abstain}} ivoted{{/if}}" ></i> {{$item.conlabels.2}}
 									</a>
@@ -169,11 +169,15 @@
 									{{/foreach}}
 									{{/if}}
 									{{if $item.drop.dropping}}
-									<a class="dropdown-item" href="#" onclick="dropItem('item/drop/{{$item.id}}', '#thread-wrapper-{{$item.id}}'); return false;" title="{{$item.drop.delete}}" ><i class="generic-icons-nav fa fa-fw fa-trash-o"></i>{{$item.drop.delete}}</a>
+									<a class="dropdown-item" href="#" onclick="dropItem('item/drop/{{$item.id}}', '#thread-wrapper-{{$item.id}}', '{{$item.mid}}'); return false;" title="{{$item.drop.delete}}" ><i class="generic-icons-nav fa fa-fw fa-trash-o"></i>{{$item.drop.delete}}</a>
 									{{/if}}
-									<div class="dropdown-divider"></div>
 									{{if $item.edpost && $item.dreport}}
+									<div class="dropdown-divider"></div>
 									<a class="dropdown-item" href="dreport/{{$item.mid}}">{{$item.dreport}}</a>
+									{{/if}}
+									{{if $item.settings}}
+									<div class="dropdown-divider"></div>
+									<a class="dropdown-item conversation-settings-link" href="" data-toggle="modal" data-target="#conversation_settings">{{$item.settings}}</a>
 									{{/if}}
 								</div>
 							</div>

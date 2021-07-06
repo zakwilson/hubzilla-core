@@ -49,6 +49,9 @@
 			<small>{{$e.info}}</small>
 		</a>
 		{{/foreach}}
+		<div id="messages-empty" class="list-group-item border-0"{{if $entries}} style="display: none;"{{/if}}>
+			{{$strings.empty}}...
+		</div>
 		<div id="messages-loading" class="list-group-item" style="display: none;">
 			{{$strings.loading}}<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>
 		</div>
@@ -59,9 +62,14 @@
 	var get_messages_page_active = false;
 	var messages_type;
 
+	$(document).ready(function () {
+		$('.messages-timeago').timeago();
+		$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
+	});
+
 	$('#messages-widget').on('scroll', function() {
 		if(this.scrollTop > this.scrollHeight - this.clientHeight - (this.scrollHeight/7)) {
-			get_messages_page('hq');
+			get_messages_page();
 		}
 	});
 
@@ -75,10 +83,8 @@
 		get_messages_page();
 	});
 
-	$('.messages-timeago').timeago();
-	$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
-
 	function get_messages_page() {
+
 		if (get_messages_page_active)
 			return;
 
@@ -87,6 +93,8 @@
 
 		get_messages_page_active = true;
 		$('#messages-loading').show();
+		$('#messages-empty').hide();
+
 		$.ajax({
 			type: 'post',
 			url: 'hq',
@@ -99,19 +107,24 @@
 			messages_offset = obj.offset;
 			let html;
 			let tpl = $('#messages-template[rel=template]').html();
-			obj.entries.forEach(function(e) {
-				html = tpl.format(
-					e.b64mid,
-					e.created,
-					e.summary,
-					e.info,
-					e.author_name,
-					e.author_addr,
-					e.href,
-					e.icon
-				);
-				$('#messages-loading').before(html);
-			});
+			if (obj.entries.length) {
+				obj.entries.forEach(function(e) {
+					html = tpl.format(
+						e.b64mid,
+						e.created,
+						e.summary,
+						e.info,
+						e.author_name,
+						e.author_addr,
+						e.href,
+						e.icon
+					);
+					$('#messages-loading').before(html);
+				});
+			}
+			else {
+				$('#messages-empty').show();
+			}
 			$('.message[data-b64mid=\'' + bParam_mid + '\']').addClass('active');
 			$('#messages-loading').hide();
 			$('.messages-timeago').timeago();

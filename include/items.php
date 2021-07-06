@@ -3177,7 +3177,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 			"' portable_id='"   . $item['author']['xchan_hash'] .
 			"' avatar='"        . $item['author']['xchan_photo_s'] .
 			"' link='"          . $item['plink'] .
-			"' auth='"          . ((in_array($item['author']['xchan_network'], ['zot6','zot'])) ? 'true' : 'false') .
+			"' auth='"          . (($item['author']['xchan_network'] === 'zot6') ? 'true' : 'false') .
 			"' posted='"        . $item['created'] .
 			"' message_id='"    . $item['mid'] .
 		"']";

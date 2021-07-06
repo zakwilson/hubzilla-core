@@ -113,11 +113,7 @@ class Hq extends \Zotlabs\Web\Controller {
 				'reset'               => t('Reset form')
 			];
 
-			$o = replace_macros(get_markup_template("hq.tpl"),
-				[
-					'$editor' => status_editor($a,$x,false,'Hq')
-				]
-			);
+			$o = status_editor($a, $x, true);
 
 		}
 

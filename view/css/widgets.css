@@ -245,7 +245,7 @@ a.wikilist {
 
 /* hq_controls */
 .hq_controls_fixed_bottom_center {
-	z-index: 1090;
+	z-index: 1028;
 	position: fixed;
 	bottom: 0px;
 	left: 50%;

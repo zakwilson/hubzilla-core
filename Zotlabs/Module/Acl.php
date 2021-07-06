@@ -371,7 +371,7 @@ class Acl extends \Zotlabs\Web\Controller {
 					);
 				}
 				if($type !== 'f') {
-					if (! array_key_exists($x[$lkey], $contacts) || ($contacts[$x[$lkey]]['net'] !== 'zot6' && ($g['net'] == 'zot6' || $g['net'] == 'zot'))) {
+					if (! array_key_exists($x[$lkey], $contacts) || ($contacts[$x[$lkey]]['net'] !== 'zot6' && $g['net'] == 'zot6')) {
 						$contacts[$x[$lkey]] = array(
 							"type"     => "c",
 							"photo"    => $g['micro'],

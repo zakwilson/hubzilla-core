@@ -15,9 +15,8 @@ class Hq_controls {
 		$entries = [
 			'toggle_editor' => [
 				'label' => t('Toggle post editor'),
-				'id' => 'jot-toggle',
 				'href' => '#',
-				'class' => 'btn btn-outline-primary',
+				'class' => 'btn jot-toggle',
 				'type' => 'button',
 				'icon' => 'pencil',
 				'extra' => 'data-toggle="button"'
@@ -27,9 +26,8 @@ class Hq_controls {
 		if(Apps::system_app_installed(local_channel(), 'Notes')) {
 			$entries['toggle_notes'] = [
 				'label' => t('Toggle personal notes'),
-				'id' => 'notes-toggle',
 				'href' => '#',
-				'class' => 'btn btn-outline-primary',
+				'class' => 'btn notes-toggle',
 				'type' => 'button',
 				'icon' => 'sticky-note-o',
 				'extra' => 'data-toggle="button"'
@@ -39,7 +37,8 @@ class Hq_controls {
 		return replace_macros(get_markup_template('hq_controls.tpl'),
 			[
 				'$entries' => $entries,
-				'$wrapper_class' => $options['class']
+				'$wrapper_class' => $options['wrapper_class'],
+				'$entry_class' => $options['entry_class']
 			]
 		);
 	}

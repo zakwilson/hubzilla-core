@@ -1274,7 +1274,7 @@ function dopin(id) {
                 });
 }
 
-function dropItem(url, object) {
+function dropItem(url, object, b64mid) {
 	var confirm = confirmDelete();
 	if(confirm) {
 		var id = url.split('/')[2];
@@ -1284,13 +1284,20 @@ function dropItem(url, object) {
 		$.get(url, function() {
 			$(object + ', #pinned-wrapper-' + id).remove();
 			$('body').css('cursor', 'auto');
+
+			if (typeof b64mid !== typeof undefined) {
+				$('[data-b64mid=\'' + b64mid + '\']').fadeOut(function() {
+					this.remove();
+				});
+			}
 		});
 
-		if($('#wall-item-pinned-' + id).length)
+		if($('#wall-item-pinned-' + id).length) {
 			$.post('pin/pin', { 'id' : id });
+		}
 
 		return true;
-        }
+	}
 	else {
 		return false;
 	}
@@ -1730,3 +1737,30 @@ function makeid(length) {
 	return result;
 }
 
+function push_notification_request(e) {
+    if (!('Notification' in window)) {
+        alert('This browser does not support push notifications');
+    }
+    else if (Notification.permission !== 'granted') {
+        Notification.requestPermission(function(permission) {
+			if(permission === 'granted') {
+				$(e.target).closest('div').hide();
+			}
+		});
+   }
+}
+
+
+function push_notification(title, body, href) {
+	let options = {
+		body: body,
+		data: href,
+		icon: '/images/hz-64.png',
+		silent: false
+	}
+
+	let n = new Notification(title, options);
+	n.onclick = function (e) {
+		window.location.href = e.target.data;
+	}
+}

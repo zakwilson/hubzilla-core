@@ -1099,6 +1099,27 @@ function bbcode($Text, $options = []) {
 
 	call_hooks('bbcode_filter', $Text);
 
+	if(isset($options['drop_media'])) {
+		if (strpos($Text,'[/img]') !== false) {
+			$Text = preg_replace('/\[img(.*?)\[\/(img)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/audio]') !== false) {
+			$Text = preg_replace('/\[audio(.*?)\[\/(audio)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/video]') !== false) {
+			$Text = preg_replace('/\[video(.*?)\[\/(video)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zmg]') !== false) {
+			$Text = preg_replace('/\[zmg(.*?)\[\/(zmg)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zaudio]') !== false) {
+			$Text = preg_replace('/\[zaudio(.*?)\[\/(zaudio)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zvideo]') !== false) {
+			$Text = preg_replace('/\[zvideo(.*?)\[\/(zvideo)\]/ism', '', $Text);
+		}
+	}
+
 	// Hide all [noparse] contained bbtags by spacefying them
 	if (strpos($Text,'[noparse]') !== false) {
 		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_spacefy',$Text);

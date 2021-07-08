@@ -7,7 +7,7 @@ Hubzilla 6.0 (2021-07-xx)
 	- Add an option to drop media for bbcode processing
 	- Make mod HQ the default landing page after login
 	- Implement direct messages view for mod HQ
-	- Implement public/restricted messages vie for mod HQ
+	- Implement public/restricted messages view for mod HQ
 	- Implement starred messages view for mod HQ (only available if the Star Posts feature is enabled)
 	- Update composer libs
 	- Remove deprecated mod ping

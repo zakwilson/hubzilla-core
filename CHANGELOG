@@ -1,4 +1,4 @@
-Hubzilla 6.0 (2021-07-xx)
+Hubzilla 6.0 (2021-07-09)
 	- Implement swipe to right for bringing in left aside
 	- DB update 1247 to clean up bogus entries in updates
 	- DB update 1246 to mark legacy zot xchans and hublocs deleted

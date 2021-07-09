@@ -668,8 +668,8 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 			$def_extension =  '.jpg';
 		if($gis[2] === IMAGETYPE_PNG)
 			$def_extension =  '.png';
-                if($gis[2] === IMAGETYPE_WEBP)
-                        $def_extension =  '.webp';
+		if($gis[2] === IMAGETYPE_WEBP)
+			$def_extension =  '.webp';
 	}
 
 	// If we know it's a photo, over-ride the type in case the source system could not determine what it was

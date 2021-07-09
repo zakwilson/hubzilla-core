@@ -40,12 +40,12 @@ class Connedit extends Controller {
 		if((argc() >= 2) && intval(argv(1))) {
 			$r = q("SELECT abook.*, xchan.*
 				FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and abook_id = %d LIMIT 1",
+				WHERE abook_channel = %d and abook_id = %d and xchan_deleted = 0 LIMIT 1",
 				intval(local_channel()),
 				intval(argv(1))
 			);
 			if($r) {
-				App::$poi = array_shift($r);
+				App::$poi = $r[0];
 			}
 		}
 
@@ -219,9 +219,6 @@ class Connedit extends Controller {
 				);
 				if($z)
 					$record = $z[0]['xlink_id'];
-			}
-			if($record) {
-				Master::Summon(array('Ratenotif','rating',$record));
 			}
 		}
 
@@ -426,7 +423,7 @@ class Connedit extends Controller {
 			$cmd = argv(2);
 
 			$orig_record = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_id = %d AND abook_channel = %d AND abook_self = 0 LIMIT 1",
+				WHERE abook_id = %d AND abook_channel = %d AND abook_self = 0 and xchan_deleted = 0 LIMIT 1",
 				intval($contact_id),
 				intval(local_channel())
 			);
@@ -478,16 +475,11 @@ class Connedit extends Controller {
 			}
 
 			if($cmd === 'refresh') {
-				if($orig_record[0]['xchan_network'] === 'zot') {
-					if(! zot_refresh($orig_record[0],App::get_channel()))
-						notice( t('Refresh failed - channel is currently unavailable.') );
-				}
-				elseif($orig_record[0]['xchan_network'] === 'zot6') {
+				if($orig_record[0]['xchan_network'] === 'zot6') {
 					if(! Libzot::refresh($orig_record[0],App::get_channel()))
 						notice( t('Refresh failed - channel is currently unavailable.') );
 				}
 				else {
-
 					// if you are on a different network we'll force a refresh of the connection basic info
 					Master::Summon(array('Notifier','permission_update',$contact_id));
 				}
@@ -667,7 +659,7 @@ class Connedit extends Controller {
 			);
 
 
-			if(in_array($contact['xchan_network'], ['zot6', 'zot'])) {
+			if($contact['xchan_network'] === 'zot6') {
 				$tools['fetchvc'] = [
 					'label' => t('Fetch Vcard'),
 					'url'    => z_root() . '/connedit/' . $contact['abook_id'] . '/fetchvc',
@@ -841,7 +833,7 @@ class Connedit extends Controller {
 				$locstr = unpunify($contact['xchan_url']);
 
 			$clone_warn = '';
-			$clonable = (in_array($contact['xchan_network'],['zot', 'zot6', 'rss']) ? true : false);
+			$clonable = in_array($contact['xchan_network'], ['zot6', 'rss']);
 			if(! $clonable) {
 				$clone_warn = '<strong>';
 				$clone_warn .= ((intval($contact['abook_not_here']))

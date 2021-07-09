@@ -366,20 +366,6 @@ CREATE TABLE IF NOT EXISTS `config` (
   UNIQUE KEY `access` (`cat`,`k`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `conv` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `guid` char(191) NOT NULL DEFAULT '',
-  `recips` mediumtext NOT NULL,
-  `uid` int(11) NOT NULL DEFAULT 0 ,
-  `creator` char(191) NOT NULL DEFAULT '',
-  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `subject` mediumtext NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `created` (`created`),
-  KEY `updated` (`updated`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE IF NOT EXISTS `dreport` (
   `dreport_id` int(11) NOT NULL AUTO_INCREMENT,
   `dreport_channel` int(11) NOT NULL DEFAULT 0 ,
@@ -729,51 +715,6 @@ CREATE TABLE IF NOT EXISTS listeners (
   KEY portable_id (portable_id),
   KEY ltype (ltype)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE IF NOT EXISTS `mail` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `convid` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `conv_guid` char(191) NOT NULL DEFAULT '',
-  `mail_flags` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `from_xchan` char(191) NOT NULL DEFAULT '',
-  `to_xchan` char(191) NOT NULL DEFAULT '',
-  `account_id` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `channel_id` int(10) unsigned NOT NULL DEFAULT 0 ,
-  `mail_mimetype` char(64) NOT NULL DEFAULT 'text/bbcode',
-  `title` text NOT NULL,
-  `body` mediumtext NOT NULL,
-  `sig` text NOT NULL,
-  `attach` mediumtext NOT NULL,
-  `mid` char(191) NOT NULL DEFAULT '',
-  `parent_mid` char(191) NOT NULL DEFAULT '',
-  `mail_deleted` tinyint(4) NOT NULL DEFAULT 0 ,
-  `mail_replied` tinyint(4) NOT NULL DEFAULT 0 ,
-  `mail_isreply` tinyint(4) NOT NULL DEFAULT 0 ,
-  `mail_seen` tinyint(4) NOT NULL DEFAULT 0 ,
-  `mail_recalled` tinyint(4) NOT NULL DEFAULT 0 ,
-  `mail_obscured` smallint(6) NOT NULL DEFAULT 0 ,
-  `mail_raw` tinyint(4) NOT NULL DEFAULT 0 ,
-  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  PRIMARY KEY (`id`),
-  KEY `created` (`created`),
-  KEY `mail_flags` (`mail_flags`),
-  KEY `account_id` (`account_id`),
-  KEY `channel_id` (`channel_id`),
-  KEY `from_xchan` (`from_xchan`),
-  KEY `to_xchan` (`to_xchan`),
-  KEY `mid` (`mid`),
-  KEY `parent_mid` (`parent_mid`),
-  KEY `expires` (`expires`),
-  KEY `convid` (`convid`),
-  KEY `conv_guid` (`conv_guid`),
-  KEY `mail_deleted` (`mail_deleted`),
-  KEY `mail_replied` (`mail_replied`),
-  KEY `mail_isreply` (`mail_isreply`),
-  KEY `mail_seen` (`mail_seen`),
-  KEY `mail_recalled` (`mail_recalled`),
-  KEY `mail_obscured` (`mail_obscured`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `menu` (
   `menu_id` int(10) unsigned NOT NULL AUTO_INCREMENT,

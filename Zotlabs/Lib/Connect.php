@@ -146,7 +146,7 @@ class Connect {
 
 		}
 
-		$allowed = ((in_array($xchan['xchan_network'],['rss','zot','zot6'])) ? 1 : 0);
+		$allowed = ((in_array($xchan['xchan_network'],['rss', 'zot6'])) ? 1 : 0);
 
 		$hookdata = ['channel_id' => $uid, 'follow_address' => $url, 'xchan' => $xchan, 'allowed' => $allowed, 'singleton' => 0];
 		call_hooks('follow_allow',$hookdata);

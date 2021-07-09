@@ -1,3 +1,5 @@
+{{**
+
 {{if $new}}
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
@@ -105,3 +107,4 @@
 	</div>
 </div>
 {{/if}}
+**}}

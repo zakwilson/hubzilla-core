@@ -37,7 +37,7 @@ class Sse_bs extends Controller {
 
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify', -1);
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
-		self::$limit = 50;
+		self::$limit = 30;
 		self::$offset = 0;
 		self::$xchans = '';
 
@@ -57,8 +57,6 @@ class Sse_bs extends Controller {
 
 		if(intval(argv(2)) > 0)
 			self::$offset = argv(2);
-		else
-			$_SESSION['sse_loadtime'] = datetime_convert();
 
 		$network = false;
 		$dm = false;
@@ -100,7 +98,6 @@ class Sse_bs extends Controller {
 			self::bs_forums(),
 			self::bs_pubs($pubs),
 			self::bs_files(),
-			self::bs_mail(),
 			self::bs_all_events(),
 			self::bs_register(),
 			self::bs_info_notice()
@@ -179,7 +176,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['sse_loadtime']),
+				dbescdate($_SESSION['page_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -255,7 +252,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['sse_loadtime']),
+				dbescdate($_SESSION['page_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -331,7 +328,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['sse_loadtime']),
+				dbescdate($_SESSION['page_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -418,7 +415,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval($sys['channel_id']),
-				dbescdate($_SESSION['sse_loadtime']),
+				dbescdate($_SESSION['page_loadtime']),
 				dbesc(self::$ob_hash),
 				dbescdate($_SESSION['static_loadtime'])
 			);
@@ -628,36 +625,6 @@ class Sse_bs extends Controller {
 					}
 			}
 			$result['files']['count'] = count($r);
-		}
-
-		return $result;
-
-	}
-
-	function bs_mail() {
-
-		$result['mail']['notifications'] = [];
-		$result['mail']['count'] = 0;
-		$result['mail']['offset'] = -1;
-
-		if(! self::$uid)
-			return $result;
-
-		if(! (self::$vnotify & VNOTIFY_MAIL))
-			return $result;
-
-		$r = q("select mail.*, xchan.* from mail left join xchan on xchan_hash = from_xchan
-			where channel_id = %d and mail_seen = 0 and mail_deleted = 0
-			and from_xchan != '%s' order by created desc",
-			intval(self::$uid),
-			dbesc(self::$ob_hash)
-		);
-
-		if($r) {
-			foreach($r as $rr) {
-				$result['mail']['notifications'][] = Enotify::format_mail($rr);
-			}
-			$result['mail']['count'] = count($r);
 		}
 
 		return $result;

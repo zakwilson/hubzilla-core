@@ -8,11 +8,12 @@ $(document).ready(function() {
 		UploadInit();
 	}
 
-	$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'a', false, function(data) {
-		$("#photo-edit-newtag").val('@' + data.name);
-	});
-	
+	//$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'a', false, function(data) {
+		//$("#photo-edit-newtag").val('@' + data.name);
+	//});
+
 	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");
+	$('textarea').editor_autocomplete(baseurl+"/acl");
 	$('textarea').bbco_autocomplete('bbcode');
 	showHideBodyTextarea();
 
@@ -70,12 +71,12 @@ function UploadInit() {
 
            progress: function(e,data) {
 
-                // there will only be one file, the one we are looking for                                                                                                                       
+                // there will only be one file, the one we are looking for
 
                 $(data.files).each( function() {
                     var idx = this.count;
 
-                    // Dynamically update the percentage complete displayed in the file upload list                                                                                              
+                    // Dynamically update the percentage complete displayed in the file upload list
                     $('#upload-progress-' + idx).html(Math.round(data.loaded / data.total * 100) + '%');
                     $('#upload-progress-bar-' + idx).css('background-size', Math.round(data.loaded / data.total * 100) + '%');
 
@@ -283,7 +284,7 @@ function UploadFile(file, idx) {
 		$('#upload-progress-' + idx).html('<span style="color: red;">ERROR</span>');
 	});
 
-	// POST to the entire cloud path 
+	// POST to the entire cloud path
 	xhr.open('post', $('#photos-upload-form').attr( 'action' ), true);
 
 	var formfields = $("#photos-upload-form").serializeArray();

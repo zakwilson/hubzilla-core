@@ -16,7 +16,6 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Connect;
 use Zotlabs\Lib\Libsync;
 
-require_once('include/zot.php');
 require_once('include/crypto.php');
 require_once('include/menu.php');
 require_once('include/perm_upgrade.php');
@@ -235,10 +234,6 @@ function create_identity($arr) {
 	$guid = Libzot::new_uid($nick);
 	$key = Crypto::new_keypair(4096);
 
-	// legacy zot
-	$zsig = base64url_encode(Crypto::sign($guid,$key['prvkey']));
-	$zhash = make_xchan_hash($guid,$zsig);
-
 	// zot6
 	$sig = Libzot::sign($guid,$key['prvkey']);
 	$hash = Libzot::make_xchan_hash($guid,$key['pubkey']);
@@ -275,7 +270,7 @@ function create_identity($arr) {
 			'channel_guid'        => $guid,
 			'channel_guid_sig'    => $sig,
 			'channel_hash'        => $hash,
-			'channel_portable_id' => $zhash,
+			'channel_portable_id' => '',
 			'channel_prvkey'      => $key['prvkey'],
 			'channel_pubkey'      => $key['pubkey'],
 			'channel_pageflags'   => intval($pageflags),
@@ -340,26 +335,6 @@ function create_identity($arr) {
 	$r = hubloc_store_lowlevel(
 		[
 			'hubloc_guid'     => $guid,
-			'hubloc_guid_sig' => $zsig,
-			'hubloc_hash'     => $zhash,
-			'hubloc_id_url'   => channel_url($ret['channel']),
-			'hubloc_addr'     => channel_reddress($ret['channel']),
-			'hubloc_primary'  => intval($primary),
-			'hubloc_url'      => z_root(),
-			'hubloc_url_sig'  => base64url_encode(Crypto::sign(z_root(),$ret['channel']['channel_prvkey'])),
-			'hubloc_host'     => App::get_hostname(),
-			'hubloc_callback' => z_root() . '/post',
-			'hubloc_sitekey'  => get_config('system','pubkey'),
-			'hubloc_network'  => 'zot',
-			'hubloc_updated'  => datetime_convert()
-		]
-	);
-	if(! $r)
-		logger('Unable to store hub location (zot)');
-
-	$r = hubloc_store_lowlevel(
-		[
-			'hubloc_guid'     => $guid,
 			'hubloc_guid_sig' => $sig,
 			'hubloc_hash'     => $hash,
 			'hubloc_id_url'   => channel_url($ret['channel']),
@@ -380,30 +355,6 @@ function create_identity($arr) {
 
 
 	$newuid = $ret['channel']['channel_id'];
-
-	$r = xchan_store_lowlevel(
-		[
-			'xchan_hash'        => $zhash,
-			'xchan_guid'        => $guid,
-			'xchan_guid_sig'    => $zsig,
-			'xchan_pubkey'      => $key['pubkey'],
-			'xchan_photo_mimetype' => (($photo_type) ? $photo_type : 'image/png'),
-			'xchan_photo_l'     => z_root() . "/photo/profile/l/{$newuid}",
-			'xchan_photo_m'     => z_root() . "/photo/profile/m/{$newuid}",
-			'xchan_photo_s'     => z_root() . "/photo/profile/s/{$newuid}",
-			'xchan_addr'        => channel_reddress($ret['channel']),
-			'xchan_url'         => z_root() . '/channel/' . $ret['channel']['channel_address'],
-			'xchan_follow'      => z_root() . '/follow?f=&url=%s',
-			'xchan_connurl'     => z_root() . '/poco/' . $ret['channel']['channel_address'],
-			'xchan_name'        => $ret['channel']['channel_name'],
-			'xchan_network'     => 'zot',
-			'xchan_photo_date'  => datetime_convert(),
-			'xchan_name_date'   => datetime_convert(),
-			'xchan_system'      => $system
-		]
-	);
-	if(! $r)
-		logger('Unable to store xchan (zot)');
 
 	$r = xchan_store_lowlevel(
 		[
@@ -819,7 +770,6 @@ function get_default_export_sections() {
 			'chatrooms',
 			'events',
 			'webpages',
-			'mail',
 			'wikis'
 	];
 
@@ -981,12 +931,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 
 			}
 
-			// pick up the zot xchan and hublocs also
-
-			if($ret['channel']['channel_portable_id'] && ! $zot_compat) {
-				$xchans[] = $ret['channel']['channel_portable_id'];
-			}
-
 			stringify_array_elms($xchans);
 		}
 
@@ -1143,30 +1087,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			$r = fetch_post_tags($r,true);
 			foreach($r as $rr)
 				$ret['webpages'][] = encode_item($rr,true, $zap_compat);
-		}
-	}
-
-	if(in_array('mail',$sections)) {
-		$r = q("select * from conv where uid = %d",
-			intval($channel_id)
-		);
-		if($r) {
-			for($x = 0; $x < count($r); $x ++) {
-				$r[$x]['subject'] = base64url_decode(str_rot47($r[$x]['subject']));
-			}
-			$ret['conv'] = $r;
-		}
-
-		$r = q("select * from mail where channel_id = %d",
-			intval($channel_id)
-		);
-		if($r) {
-			$m = array();
-			foreach($r as $rr) {
-				xchan_mail_query($rr);
-				$m[] = encode_mail($rr,true);
-			}
-			$ret['mail'] = $m;
 		}
 	}
 
@@ -2844,15 +2764,12 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 		logger('deleting hublocs',LOGGER_DEBUG);
 
-		$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s' OR hubloc_hash = '%s'",
-			dbesc($channel['channel_hash']),
-			dbesc($channel['channel_portable_id'])
-
+		$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s'",
+			dbesc($channel['channel_hash'])
 		);
 
-		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
-			dbesc($channel['channel_hash']),
-			dbesc($channel['channel_portable_id'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s'",
+			dbesc($channel['channel_hash'])
 		);
 
 		Master::Summon(array('Notifier','purge_all',$channel_id));
@@ -2936,9 +2853,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 
 	logger('deleting hublocs',LOGGER_DEBUG);
 
-	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE (hubloc_hash = '%s' OR hubloc_hash = '%s') AND hubloc_url = '%s' ",
+	$r = q("UPDATE hubloc SET hubloc_deleted = 1 WHERE hubloc_hash = '%s' AND hubloc_url = '%s' ",
 		dbesc($channel['channel_hash']),
-		dbesc($channel['channel_portable_id']),
 		dbesc(z_root())
 	);
 
@@ -2953,9 +2869,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$hublocs = count($r);
 
 	if(! $hublocs) {
-		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s' OR xchan_hash = '%s'",
-			dbesc($channel['channel_hash']),
-			dbesc($channel['channel_portable_id'])
+		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s'",
+			dbesc($channel['channel_hash'])
 		);
 	}
 

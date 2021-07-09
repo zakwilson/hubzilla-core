@@ -212,7 +212,7 @@ function mark_orphan_hubsxchans() {
 		return;
 
 	$r = q("UPDATE hubloc SET hubloc_error = 1 WHERE hubloc_error = 0
-		AND hubloc_network IN ('zot6', 'zot') AND hubloc_connected < %s - INTERVAL %s",
+		AND hubloc_network = 'zot6' AND hubloc_connected < %s - INTERVAL %s",
 		db_utcnow(), db_quoteinterval('36 day')
 	);
 

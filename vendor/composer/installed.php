@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
+    'reference' => '3e18efd89fd1bd67f3cef22114f7d74ac7c0021c',
     'name' => 'zotlabs/hubzilla',
   ),
   'versions' => 
@@ -40,12 +40,12 @@
     ),
     'commerceguys/intl' => 
     array (
-      'pretty_version' => 'v1.0.7',
-      'version' => '1.0.7.0',
+      'pretty_version' => 'v1.1.0',
+      'version' => '1.1.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0bf0beb12e37ef1a61e0d09dc66cdaa1a23e62e1',
+      'reference' => '90b4f75c4917927a1960c0dcaa002a91ab97f5d5',
     ),
     'desandro/imagesloaded' => 
     array (
@@ -67,12 +67,12 @@
     ),
     'league/html-to-markdown' => 
     array (
-      'pretty_version' => '4.10.0',
-      'version' => '4.10.0.0',
+      'pretty_version' => '5.0.0',
+      'version' => '5.0.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0868ae7a552e809e5cd8f93ba022071640408e88',
+      'reference' => 'c4dbebbebe0fe454b6b38e6c683a977615bd7dc2',
     ),
     'lukasreschke/id3parser' => 
     array (
@@ -112,12 +112,12 @@
     ),
     'psr/log' => 
     array (
-      'pretty_version' => '1.1.3',
-      'version' => '1.1.3.0',
+      'pretty_version' => '1.1.4',
+      'version' => '1.1.4.0',
       'aliases' => 
       array (
       ),
-      'reference' => '0f73288fd15629204f9d42b7055f72dacbe811fc',
+      'reference' => 'd49695b909c3b7628b6289db5479a1c204601f11',
     ),
     'ramsey/collection' => 
     array (
@@ -209,21 +209,21 @@
     ),
     'smarty/smarty' => 
     array (
-      'pretty_version' => 'v3.1.38',
-      'version' => '3.1.38.0',
+      'pretty_version' => 'v3.1.39',
+      'version' => '3.1.39.0',
       'aliases' => 
       array (
       ),
-      'reference' => '63b3c0aed0f614880cda21a5c08c606e97b489bb',
+      'reference' => 'e27da524f7bcd7361e3ea5cdfa99c4378a7b5419',
     ),
     'symfony/polyfill-ctype' => 
     array (
-      'pretty_version' => 'v1.22.0',
-      'version' => '1.22.0.0',
+      'pretty_version' => 'v1.23.0',
+      'version' => '1.23.0.0',
       'aliases' => 
       array (
       ),
-      'reference' => 'c6c942b1ac76c82448322025e084cadc56048b4e',
+      'reference' => '46cd95797e9df938fdd2b03693b5fca5e64b01ce',
     ),
     'twbs/bootstrap' => 
     array (
@@ -248,7 +248,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '6fae291cc8ec69a74d0c1673186b3d8f319378d4',
+      'reference' => '3e18efd89fd1bd67f3cef22114f7d74ac7c0021c',
     ),
   ),
 );

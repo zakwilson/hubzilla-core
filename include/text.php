@@ -11,6 +11,7 @@ use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
+use Zotlabs\Lib\Libzot;
 
 require_once("include/bbcode.php");
 
@@ -1515,24 +1516,6 @@ function link_compare($a, $b) {
 	return false;
 }
 
-// Given an item array, convert the body element from bbcode to html and add smilie icons.
-// If attach is true, also add icons for item attachments
-
-
-function unobscure(&$item) {
-	return;
-}
-
-function unobscure_mail(&$item) {
-	if(array_key_exists('mail_obscured',$item) && intval($item['mail_obscured'])) {
-		if($item['title'])
-			$item['title'] = base64url_decode(str_rot47($item['title']));
-		if($item['body'])
-			$item['body'] = base64url_decode(str_rot47($item['body']));
-	}
-}
-
-
 function theme_attachments(&$item) {
 
 	$s = '';
@@ -1732,19 +1715,33 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	$photo = '';
 	$is_photo = ((($item['verb'] === ACTIVITY_POST) && ($item['obj_type'] === ACTIVITY_OBJ_PHOTO)) ? true : false);
 
-	if($is_photo) {
-
+	if ($is_photo) {
 		$object = json_decode($item['obj'],true);
+		$ptr = null;
+		if (array_key_exists('url',$object) && is_array($object['url'])) {
+			if (array_key_exists(0,$object['url'])) {
+				foreach ($object['url'] as $link) {
+					if(array_key_exists('width',$link) && $link['width'] >= 640 && $link['width'] <= 1024) {
+						$ptr = $link;
+					}
+				}
+				if (! $ptr) {
+					$ptr = $object['url'][0];
+				}
+			}
+			else {
+				$ptr = $object['url'];
+			}
 
-		// if original photo width is <= 640px prepend it to item body
-		if($object['link'][0]['width'] && $object['link'][0]['width'] <= 640) {
-			$s .= '<div class="inline-photo-item-wrapper"><a href="' . zid(rawurldecode($object['id'])) . '" target="_blank" rel="nofollow noopener" ><img class="inline-photo-item" style="max-width:' . $object['link'][0]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][0]['href'])) . '"></a></div>' . $s;
-		}
-
-		// if original photo width is > 640px make it a cover photo
-		if($object['link'][0]['width'] && $object['link'][0]['width'] > 640) {
-			$scale = ((($object['link'][1]['width'] == 1024) || ($object['link'][1]['height'] == 1024)) ? 1 : 0);
-			$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_blank" rel="nofollow noopener"><img style="max-width:' . $object['link'][$scale]['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($object['link'][$scale]['href'])) . '"></a>';
+			// if original photo width is > 640px make it a cover photo
+			if ($ptr) {
+				if (array_key_exists('width',$ptr) && $ptr['width'] > 640) {
+				$photo = '<a href="' . zid(rawurldecode($object['id'])) . '" target="_blank" rel="nofollow noopener"><img style="max-width:' . $ptr['width'] . 'px; width:100%; height:auto;" src="' . zid(rawurldecode($ptr['href'])) . '"></a>';
+				}
+				else {
+					$item['body'] = '[zmg]' . $ptr['href'] . '[/zmg]' . "\n\n" . $item['body'];
+				}
+			}
 		}
 	}
 
@@ -2067,7 +2064,7 @@ function get_plink($item,$conversation_mode = true) {
 
 	$zidify = true;
 
-	if(array_key_exists('author',$item) && in_array($item['author']['xchan_network'], ['zot6', 'zot']) === false)
+	if(array_key_exists('author',$item) && $item['author']['xchan_network'] !== 'zot6')
 		$zidify = false;
 
 	if(x($item,$key)) {
@@ -2555,27 +2552,6 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 	}
 }
 
-function xchan_mail_query(&$item) {
-	$arr = array();
-	$chans = null;
-	if($item) {
-		if($item['from_xchan'] && (! in_array("'" . dbesc($item['from_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['from_xchan']) . "'";
-		if($item['to_xchan'] && (! in_array("'" . dbesc($item['to_xchan']) . "'",$arr)))
-			$arr[] = "'" . dbesc($item['to_xchan']) . "'";
-	}
-
-	if(count($arr)) {
-		$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
-			where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
-	}
-	if($chans) {
-		$item['from'] = find_xchan_in_array($item['from_xchan'],$chans);
-		$item['to']  = find_xchan_in_array($item['to_xchan'],$chans);
-	}
-}
-
-
 function find_xchan_in_array($xchan,$arr) {
 	if(count($arr)) {
 		foreach($arr as $x) {
@@ -2876,7 +2852,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 	// BEGIN mentions
 
-	if ( in_array($termtype, [ TERM_MENTION, TERM_FORUM ] )) {
+	if ($termtype === TERM_MENTION) {
 
 		// The @! tag will alter permissions
 
@@ -2903,14 +2879,13 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			$newname = substr($name,1);
 			$newname = substr($newname,0,-1);
 
-			$r = q("select * from xchan where xchan_addr = '%s' or xchan_url = '%s'",
+			$r = q("SELECT * FROM xchan WHERE ( xchan_addr = '%s' OR xchan_url = '%s' ) AND xchan_deleted = 0",
 				dbesc($newname),
 				dbesc($newname)
 			);
 		}
 
 		if(! $r) {
-
 			// look for matching names in the address book
 
 			// Double quote the entire mentioned term to include special characters
@@ -2929,18 +2904,18 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 
 			// select someone from this user's contacts by name
 
-			$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE xchan_name = '%s' AND abook_channel = %d ",
-					dbesc($newname),
-					intval($profile_uid)
+			$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+				WHERE xchan_name = '%s' AND abook_channel = %d AND xchan_deleted = 0",
+				dbesc($newname),
+				intval($profile_uid)
 			);
 
 			// select anybody by full hubloc_addr
 
 			if((! $r) && strpos($newname,'@')) {
-				$r = q("SELECT * FROM xchan left join hubloc on xchan_hash = hubloc_hash
-					WHERE hubloc_addr = '%s' ",
-						dbesc($newname)
+				$r = q("SELECT * FROM xchan LEFT JOIN hubloc ON xchan_hash = hubloc_hash
+					WHERE hubloc_addr = '%s' AND xchan_deleted = 0 ",
+					dbesc($newname)
 				);
 			}
 
@@ -2950,10 +2925,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 				// strip user-supplied wildcards before running a wildcard search
 				$newname = str_replace('%','',$newname);
 
-				$r = q("SELECT * FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE xchan_addr like ('%s') AND abook_channel = %d ",
-						dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
-						intval($profile_uid)
+				$r = q("SELECT * FROM abook LEFT JOIN xchan ON abook_xchan = xchan_hash
+					WHERE xchan_addr LIKE ('%s') AND abook_channel = %d AND xchan_deleted = 0",
+					dbesc(((strpos($newname,'@')) ? $newname : $newname . '@%')),
+					intval($profile_uid)
 				);
 			}
 
@@ -2965,7 +2940,10 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 		// $r is set if we found something
 
 		if($r) {
-			foreach($r as $xc) {
+
+			$xchan[0] = Libzot::zot_record_preferred($r, 'xchan_network');
+
+			foreach($xchan as $xc) {
 				$profile = $xc['xchan_url'];
 				$newname = $xc['xchan_name'];
 				// add the channel's xchan_hash to $access_tag if exclusive
@@ -2980,16 +2958,9 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 					//create profile link
 					$profile = str_replace(',','%2c',$profile);
 					$url = $profile;
-/*
-					if($termtype === TERM_FORUM) {
-						$newtag = '!' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-						$body = str_replace('!' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-					}
-*/
-					if ($termtype === TERM_MENTION) {
-						$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
-						$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
-					}
+
+					$newtag = '@' . (($exclusive) ? '!' : '') . '[zrl=' . $profile . ']' . $newname	. '[/zrl]';
+					$body = str_replace('@' . (($exclusive) ? '!' : '') . $name, $newtag, $body);
 
 					// append tag to str_tags
 					if(! stristr($str_tags,$newtag)) {
@@ -3919,3 +3890,30 @@ function sanitize_text_field($str) {
 	return preg_replace('/\s+/S', ' ', $str);
 }
 
+/**
+ * @brief shortens a string to $max_length without cutting off words
+ * @param string $str
+ * @param intval $max_length
+ * @param string $suffix (optional)
+
+ * @return string
+ */
+function substr_words($str, $max_length, $suffix = '...') {
+
+	if (strlen($str) > $max_length) {
+		$words = preg_split('/\s/', $str);
+		$ret = '';
+		$i = 0;
+		while (true) {
+			$length = (strlen($ret) + strlen($words[$i]));
+			if ($length > $max_length) {
+				break;
+			}
+			$ret .= " " . $words[$i];
+			++$i;
+		}
+		$ret .= $suffix;
+	}
+
+	return (($ret) ? $ret : $str);
+}

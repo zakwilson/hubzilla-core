@@ -1,12 +1,13 @@
 <?php
 namespace Zotlabs\Module; /** @file */
 
+use Zotlabs\Lib\Libzot;
+
 require_once('include/acl_selectors.php');
 require_once('include/crypto.php');
 require_once('include/items.php');
 require_once('include/taxonomy.php');
 require_once('include/conversation.php');
-require_once('include/zot.php');
 
 /**
  * remote post
@@ -42,7 +43,7 @@ class Rpost extends \Zotlabs\Web\Controller {
 				// by the wretched beast called 'suhosin'. All the browsers now allow long GET requests, but suhosin
 				// blocks them.
 
-				$url = get_rpost_path(\App::get_observer());
+				$url = Libzot::get_rpost_path(\App::get_observer());
 				// make sure we're not looping to our own hub
 				if(($url) && (! stristr($url, \App::get_hostname()))) {
 					foreach($_GET as $key => $arg) {

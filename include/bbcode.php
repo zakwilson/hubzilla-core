@@ -5,10 +5,10 @@
  */
 
 use Zotlabs\Lib\SvgSanitizer;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/oembed.php');
 require_once('include/event.php');
-require_once('include/zot.php');
 require_once('include/html2plain.php');
 
 function get_bb_tag_pos($s, $name, $occurance = 1) {
@@ -616,9 +616,9 @@ function bb_ShareAttributesSimple($match) {
 
 function rpost_callback($match) {
 	if ($match[2]) {
-		return str_replace($match[0], get_rpost_path(App::get_observer()) . '&title=' . urlencode($match[2]) . '&body=' . urlencode($match[3]), $match[0]);
+		return str_replace($match[0], Libzot::get_rpost_path(App::get_observer()) . '&title=' . urlencode($match[2]) . '&body=' . urlencode($match[3]), $match[0]);
 	} else {
-		return str_replace($match[0], get_rpost_path(App::get_observer()) . '&body=' . urlencode($match[3]), $match[0]);
+		return str_replace($match[0], Libzot::get_rpost_path(App::get_observer()) . '&body=' . urlencode($match[3]), $match[0]);
 	}
 }
 
@@ -1098,6 +1098,27 @@ function bbcode($Text, $options = []) {
 	$target = (($newwin) ? ' target="_blank" ' : '');
 
 	call_hooks('bbcode_filter', $Text);
+
+	if(isset($options['drop_media'])) {
+		if (strpos($Text,'[/img]') !== false) {
+			$Text = preg_replace('/\[img(.*?)\[\/(img)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/audio]') !== false) {
+			$Text = preg_replace('/\[audio(.*?)\[\/(audio)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/video]') !== false) {
+			$Text = preg_replace('/\[video(.*?)\[\/(video)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zmg]') !== false) {
+			$Text = preg_replace('/\[zmg(.*?)\[\/(zmg)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zaudio]') !== false) {
+			$Text = preg_replace('/\[zaudio(.*?)\[\/(zaudio)\]/ism', '', $Text);
+		}
+		if (strpos($Text,'[/zvideo]') !== false) {
+			$Text = preg_replace('/\[zvideo(.*?)\[\/(zvideo)\]/ism', '', $Text);
+		}
+	}
 
 	// Hide all [noparse] contained bbtags by spacefying them
 	if (strpos($Text,'[noparse]') !== false) {

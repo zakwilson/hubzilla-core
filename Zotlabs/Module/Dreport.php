@@ -5,16 +5,16 @@ namespace Zotlabs\Module;
 class Dreport extends \Zotlabs\Web\Controller {
 
 	function get() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied') . EOL);
 			return;
 		}
-	
+
 		$table = 'item';
-	
+
 		$channel = \App::get_channel();
-		
+
 		$mid = ((argc() > 1) ? argv(1) : '');
 		$encoded_mid = '';
 
@@ -31,7 +31,7 @@ class Dreport extends \Zotlabs\Web\Controller {
 				$mid = @base64url_decode(substr($mid,4));
 			}
 
-			if($mid) {	
+			if($mid) {
 				$i = q("select id from item where mid = '%s' and uid = %d and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
 					dbesc($mid),
 					intval($channel['channel_id']),
@@ -53,13 +53,13 @@ class Dreport extends \Zotlabs\Web\Controller {
 				$mid = @base64url_decode(substr($mid,4));
 
 		}
-	
-	
+
+
 		if(! $mid) {
 			notice( t('Invalid message') . EOL);
 			return;
 		}
-	
+
 		switch($table) {
 			case 'item':
 				$i = q("select id from item where mid = '%s' and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
@@ -77,30 +77,29 @@ class Dreport extends \Zotlabs\Web\Controller {
 			default:
 				break;
 		}
-	
+
 		if(! $i) {
 			notice( t('Permission denied') . EOL);
 			return;
 		}
-		
-		$r = q("select * from dreport where (dreport_xchan = '%s' or dreport_xchan = '%s') and dreport_mid = '%s'",
+
+		$r = q("select * from dreport where dreport_xchan = '%s' and dreport_mid = '%s'",
 			dbesc($channel['channel_hash']),
-			dbesc($channel['channel_portable_id']),
 			dbesc($mid)
 		);
-	
+
 		if(! $r) {
 			notice( t('no results') . EOL);
 //			return;
 		}
-		
+
 		for($x = 0; $x < count($r); $x++ ) {
-	
+
 			// This has two purposes: 1. make the delivery report strings translateable, and
 			// 2. assign an ordering to item delivery results so we can group them and provide
 			// a readable report with more interesting events listed toward the top and lesser
 			// interesting items towards the bottom
-	
+
 			switch($r[$x]['dreport_result']) {
 				case 'channel sync processed':
 					$r[$x]['gravity'] = 0;
@@ -146,13 +145,13 @@ class Dreport extends \Zotlabs\Web\Controller {
 					break;
 			}
 		}
-	
+
 		usort($r,'self::dreport_gravity_sort');
 
 		$entries = array();
 		foreach($r as $rr) {
-			$entries[] = [ 
-				'name' => escape_tags($rr['dreport_name'] ?: $rr['dreport_recip']),					
+			$entries[] = [
+				'name' => escape_tags($rr['dreport_name'] ?: $rr['dreport_recip']),
 				'result' => escape_tags($rr['dreport_result']),
 				'time' => escape_tags(datetime_convert('UTC',date_default_timezone_get(),$rr['dreport_time']))
 			];
@@ -167,14 +166,14 @@ class Dreport extends \Zotlabs\Web\Controller {
 			'$push' => t('Redeliver'),
 			'$entries' => $entries
 		));
-	
-	
+
+
 		return $o;
-	
-	
-	
+
+
+
 	}
-	
+
 	private static function dreport_gravity_sort($a,$b) {
 		if($a['gravity'] == $b['gravity']) {
 			if($a['dreport_name'] === $b['dreport_name'])
@@ -183,5 +182,5 @@ class Dreport extends \Zotlabs\Web\Controller {
 		}
 		return (($a['gravity'] > $b['gravity']) ? 1 : (-1));
 	}
-	
+
 }

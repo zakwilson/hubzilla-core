@@ -11,6 +11,7 @@ use Zotlabs\Web\HTTPSig;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
+require_once('include/items.php');
 
 class Activity {
 
@@ -40,9 +41,6 @@ class Activity {
 			}
 			if ($x['type'] === ACTIVITY_OBJ_EVENT) {
 				return self::fetch_event($x);
-			}
-			if ($x['type'] === ACTIVITY_OBJ_PHOTO) {
-				return self::fetch_image($x);
 			}
 
 			call_hooks('encode_object', $x);
@@ -193,6 +191,7 @@ class Activity {
 	}
 
 	static function fetch_image($x) {
+
 		$ret = [
 			'type'      => 'Image',
 			'id'        => $x['id'],
@@ -649,7 +648,7 @@ class Activity {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
-					if (strpos($att['type'], 'image')) {
+					if (isset($att['type']) && strpos($att['type'], 'image')) {
 						$ret[] = ['type' => 'Image', 'url' => $att['href']];
 					}
 					else {
@@ -1534,8 +1533,9 @@ class Activity {
 
 	static function actor_store($url, $person_obj) {
 
-		if (!is_array($person_obj))
+		if (!is_array($person_obj)) {
 			return;
+		}
 
 		$inbox = $person_obj['inbox'];
 
@@ -1546,11 +1546,14 @@ class Activity {
 		}
 
 		$name = $person_obj['name'];
-		if (!$name)
+		if (!$name) {
 			$name = $person_obj['preferredUsername'];
-		if (!$name)
+		}
+		if (!$name) {
 			$name = t('Unknown');
+		}
 
+		$icon = z_root() . '/' . get_default_profile_photo(300);
 		if ($person_obj['icon']) {
 			if (is_array($person_obj['icon'])) {
 				if (array_key_exists('url', $person_obj['icon']))
@@ -1615,84 +1618,85 @@ class Activity {
 			}
 		}
 
-		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
+		$m = parse_url($url);
+		if($m) {
+			$hostname = $m['host'];
+			$baseurl = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$site_url = $m['scheme'] . '://' . $m['host'];
+		}
+
+		$r = q("select * from xchan join hubloc on xchan_hash = hubloc_hash where xchan_hash = '%s'",
 			dbesc($url)
 		);
-		if (!$r) {
+
+		if($r) {
+			// Record exists. Cache existing records for one week at most
+			// then refetch to catch updated profile photos, names, etc.
+			$d = datetime_convert('UTC', 'UTC', 'now - 3 days');
+			if($r[0]['hubloc_updated'] > $d) {
+				return;
+			}
+
+			q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s'",
+				dbesc(datetime_convert()),
+				dbesc($site_url)
+			);
+
+			// update existing xchan record
+			q("update xchan set xchan_name = '%s', xchan_guid = '%s', xchan_pubkey = '%s', xchan_network = 'activitypub', xchan_name_date = '%s' where xchan_hash = '%s'",
+				dbesc(escape_tags($name)),
+				dbesc(escape_tags($url)),
+				dbesc(escape_tags($pubkey)),
+				dbescdate(datetime_convert()),
+				dbesc($url)
+			);
+
+			// update existing hubloc record
+			q("update hubloc set hubloc_guid = '%s', hubloc_network = 'activitypub', hubloc_url = '%s', hubloc_host = '%s', hubloc_callback = '%s', hubloc_updated = '%s', hubloc_id_url = '%s' where hubloc_hash = '%s'",
+				dbesc(escape_tags($url)),
+				dbesc(escape_tags($baseurl)),
+				dbesc(escape_tags($hostname)),
+				dbesc(escape_tags($inbox)),
+				dbescdate(datetime_convert()),
+				dbesc(escape_tags($profile)),
+				dbesc($url)
+			);
+		}
+		else {
 			// create a new record
 
 			xchan_store_lowlevel(
 				[
-					'xchan_hash'      => $url,
-					'xchan_guid'      => $url,
-					'xchan_pubkey'    => $pubkey,
-					'xchan_addr'      => '',
-					'xchan_url'       => $profile,
-					'xchan_name'      => $name,
-					'xchan_name_date' => datetime_convert(),
-					'xchan_network'   => 'activitypub'
+					'xchan_hash'         => escape_tags($url),
+					'xchan_guid'         => escape_tags($url),
+					'xchan_pubkey'       => escape_tags($pubkey),
+					'xchan_addr'         => '',
+					'xchan_url'          => escape_tags($profile),
+					'xchan_name'         => escape_tags($name),
+					'xchan_name_date'    => datetime_convert(),
+					'xchan_network'      => 'activitypub'
 				]
 			);
-		}
-		else {
 
-			// Record exists. Cache existing records for one week at most
-			// then refetch to catch updated profile photos, names, etc.
-
-			$d = datetime_convert('UTC', 'UTC', 'now - 1 week');
-			if ($r[0]['xchan_name_date'] > $d)
-				return;
-
-			// update existing record
-			q("update xchan set xchan_name = '%s', xchan_pubkey = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s'",
-				dbesc($name),
-				dbesc($pubkey),
-				dbesc('activitypub'),
-				dbesc(datetime_convert()),
-				dbesc($url)
+			hubloc_store_lowlevel(
+				[
+					'hubloc_guid'     => escape_tags($url),
+					'hubloc_hash'     => escape_tags($url),
+					'hubloc_addr'     => '',
+					'hubloc_network'  => 'activitypub',
+					'hubloc_url'      => escape_tags($baseurl),
+					'hubloc_host'     => escape_tags($hostname),
+					'hubloc_callback' => escape_tags($inbox),
+					'hubloc_updated'  => datetime_convert(),
+					'hubloc_primary'  => 1,
+					'hubloc_id_url'   => escape_tags($profile)
+				]
 			);
 		}
 
 		if ($collections) {
 			set_xconfig($url, 'activitypub', 'collections', $collections);
 		}
-
-		$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
-			dbesc($url)
-		);
-
-		$m = parse_url($url);
-		if ($m) {
-			$hostname = $m['host'];
-			$site_url  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
-		}
-
-		if (!$r) {
-			hubloc_store_lowlevel(
-				[
-					'hubloc_guid'     => $url,
-					'hubloc_hash'     => $url,
-					'hubloc_addr'     => '',
-					'hubloc_network'  => 'activitypub',
-					'hubloc_url'      => $site_url,
-					'hubloc_host'     => $hostname,
-					'hubloc_callback' => $inbox,
-					'hubloc_updated'  => datetime_convert(),
-					'hubloc_primary'  => 1,
-					'hubloc_id_url'   => $profile
-				]
-			);
-		}
-
-		q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
-			dbesc(datetime_convert()),
-			dbesc($site_url),
-			db_utcnow(),
-			db_quoteinterval('1 DAY')
-		);
-
-		if (!$icon)
-			$icon = z_root() . '/' . get_default_profile_photo(300);
 
 		$photos = import_xchan_photo($icon, $url);
 		q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
@@ -1742,14 +1746,9 @@ class Activity {
 	static function create_note($channel, $observer_hash, $act) {
 
 		$s = [];
-
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-		$pubstream      = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
-
 		$parent = ((array_key_exists('inReplyTo', $act->obj)) ? urldecode($act->obj['inReplyTo']) : '');
+
 		if ($parent) {
 
 			$r = q("select * from item where uid = %d and ( mid = '%s' or  mid = '%s' ) limit 1",
@@ -1764,7 +1763,7 @@ class Activity {
 			}
 
 			if ($r[0]['owner_xchan'] === $channel['channel_hash']) {
-				if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+				if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 					logger('no comment permission.');
 					return;
 				}
@@ -1776,7 +1775,7 @@ class Activity {
 
 		}
 		else {
-			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 				logger('no permission');
 				return;
 			}
@@ -2268,7 +2267,6 @@ class Activity {
 			$s['app'] = escape_tags($generator['name']);
 		}
 
-
 		if (!$response_activity) {
 			$a = self::decode_taxonomy($act->obj);
 			if ($a) {
@@ -2403,7 +2401,7 @@ class Activity {
 
 			}
 
-			if ($act->obj['type'] === 'Image') {
+			if ($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
 
 				$ptr = null;
 
@@ -2545,12 +2543,6 @@ class Activity {
 			return;
 		}*/
 
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-
-		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
-
 		// TODO: this his handled in pubcrawl atm.
 		// very unpleasant and imperfect way of determining a Mastodon DM
 		/*if ($act->raw_recips && array_key_exists('to',$act->raw_recips) && is_array($act->raw_recips['to']) && count($act->raw_recips['to']) === 1 && $act->raw_recips['to'][0] === channel_url($channel) && ! $act->raw_recips['cc']) {
@@ -2611,7 +2603,7 @@ class Activity {
 
 				$allowed = true;
 				// reject public stream comments that weren't sent by the conversation owner
-				if ($is_sys_channel && $pubstream && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
+				if ($is_sys_channel && $item['owner_xchan'] !== $observer_hash && !$fetch_parents) {
 					$allowed = false;
 				}
 			}
@@ -2626,7 +2618,7 @@ class Activity {
 
 			// The $item['item_fetched'] flag is set in fetch_and_store_parents().
 			// In this case we should check against author permissions because sender is not owner.
-			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || ($is_sys_channel && $pubstream)) {
+			if (perm_is_allowed($channel['channel_id'], (($item['item_fetched']) ? $item['author_xchan'] : $observer_hash), 'send_stream') || $is_sys_channel) {
 				$allowed = true;
 			}
 			// TODO: not implemented
@@ -2764,7 +2756,7 @@ class Activity {
 					$fetch = false;
 					// TODO: debug
 					// if (perm_is_allowed($channel['channel_id'],$observer_hash,'send_stream') && (PConfig::Get($channel['channel_id'],'system','hyperdrive',true) || $act->type === 'Announce')) {
-					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || ($is_sys_channel && $pubstream)) {
+					if (perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') || $is_sys_channel) {
 						$fetch = (($fetch_parents) ? self::fetch_and_store_parents($channel, $observer_hash, $item, $force) : false);
 					}
 					if ($fetch) {
@@ -3073,15 +3065,9 @@ class Activity {
 	static function announce_note($channel, $observer_hash, $act) {
 
 		$s = [];
-
 		$is_sys_channel = is_sys_channel($channel['channel_id']);
 
-		// Mastodon only allows visibility in public timelines if the public inbox is listed in the 'to' field.
-		// They are hidden in the public timeline if the public inbox is listed in the 'cc' field.
-		// This is not part of the activitypub protocol - we might change this to show all public posts in pubstream at some point.
-		$pubstream = ((is_array($act->obj) && array_key_exists('to', $act->obj) && in_array(ACTIVITY_PUBLIC_INBOX, $act->obj['to'])) ? true : false);
-
-		if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !($is_sys_channel && $pubstream)) {
+		if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
 			logger('no permission');
 			return;
 		}
@@ -3496,7 +3482,7 @@ class Activity {
 	static function find_best_identity($xchan) {
 
 		if (filter_var($xchan, FILTER_VALIDATE_URL)) {
-			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network in ('zot6', 'zot') and hubloc_deleted = 0",
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' and hubloc_deleted = 0",
 				dbesc($xchan)
 			);
 			if ($r) {

@@ -17,19 +17,19 @@ class Chanview extends \Zotlabs\Web\Controller {
 		$r = null;
 
 		if($_REQUEST['hash']) {
-			$r = q("select * from xchan where xchan_hash = '%s'",
+			$r = q("select * from xchan where xchan_hash = '%s' and xchan_deleted = 0",
 				dbesc($_REQUEST['hash'])
 			);
 		}
 		if($_REQUEST['address']) {
-			$r = q("select * from xchan where xchan_addr = '%s'",
+			$r = q("select * from xchan where xchan_addr = '%s' and xchan_deleted = 0",
 				dbesc(punify($_REQUEST['address']))
 			);
 		}
 		elseif(local_channel() && intval($_REQUEST['cid'])) {
 			$r = q("SELECT abook.*, xchan.*
 				FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and abook_id = %d",
+				WHERE abook_channel = %d and abook_id = %d and xchan_deleted = 0",
 				intval(local_channel()),
 				intval($_REQUEST['cid'])
 			);
@@ -39,7 +39,7 @@ class Chanview extends \Zotlabs\Web\Controller {
 			// if somebody re-installed they will have more than one xchan, use the most recent name date as this is
 			// the most useful consistently ascending table item we have.
 
-			$r = q("select * from xchan where xchan_url = '%s' order by xchan_name_date desc",
+			$r = q("select * from xchan where xchan_url = '%s' and xchan_deleted = 0 order by xchan_name_date desc",
 				dbesc($_REQUEST['url'])
 			);
 		}
@@ -71,7 +71,7 @@ class Chanview extends \Zotlabs\Web\Controller {
 
 				if(array_path_exists('signature/signer',$zf) && $zf['signature']['signer'] === $_REQUEST['url'] && intval($zf['signature']['header_valid'])) {
 					Libzot::import_xchan($zf['data']);
-					$r = q("select * from xchan where xchan_url = '%s'",
+					$r = q("select * from xchan where xchan_url = '%s' and xchan_deleted = 0",
 						dbesc($_REQUEST['url'])
 					);
 					if($r) {
@@ -80,7 +80,7 @@ class Chanview extends \Zotlabs\Web\Controller {
 				}
 				if(! $r) {
 					if(discover_by_webbie($_REQUEST['url'])) {
-						$r = q("select * from xchan where xchan_url = '%s'",
+						$r = q("select * from xchan where xchan_url = '%s' and xchan_deleted = 0",
 							dbesc($_REQUEST['url'])
 						);
 						if($r) {

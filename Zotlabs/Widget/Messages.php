@@ -13,6 +13,8 @@ class Messages {
 
 		$page = self::get_messages_page($options);
 
+		$_SESSION['messages_loadtime'] = datetime_convert();
+
 		$tpl = get_markup_template('messages_widget.tpl');
 		$o = replace_macros($tpl, [
 			'$entries' => $page['entries'],
@@ -49,7 +51,7 @@ class Messages {
 			$offset = intval($options['offset']);
 		}
 
-		$loadtime = (($offset) ? $_SESSION['page_loadtime'] : datetime_convert());
+		$loadtime = (($offset) ? $_SESSION['messages_loadtime'] : datetime_convert());
 
 		switch($options['type']) {
 			case 'direct':

@@ -725,12 +725,12 @@ function updateConvItems(mode,data) {
 
 	$(window).scrollTop(scroll_position);
 
-	if(followUpPageLoad)
+	if(followUpPageLoad) {
 		$(document).trigger('hz:sse_bs_counts');
-
-	else
+	}
+	else {
 		$(document).trigger('hz:sse_bs_init');
-
+	}
 
 	if(commentBusy) {
 		commentBusy = false;

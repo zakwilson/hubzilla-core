@@ -280,9 +280,10 @@ class Item extends Controller {
 
 
 		if(argc() > 1 && argv(1) !== 'drop') {
-			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' ",
+			$x = q("select uid, item_wall, llink, mid from item where mid = '%s' or mid = '%s' or uuid = '%s'",
 				dbesc(z_root() . '/item/' . argv(1)),
-				dbesc(z_root() . '/activity/' . argv(1))
+				dbesc(z_root() . '/activity/' . argv(1)),
+				dbesc(argv(1))
 			);
 			if($x) {
 				foreach($x as $xv) {

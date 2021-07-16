@@ -8,23 +8,10 @@ $(document).ready(function() {
 		UploadInit();
 	}
 
-	//$("#photo-edit-newtag").contact_autocomplete(baseurl + '/acl', 'a', false, function(data) {
-		//$("#photo-edit-newtag").val('@' + data.name);
-	//});
-
 	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl?f=&n=1");
 	$('textarea').editor_autocomplete(baseurl+"/acl");
 	$('textarea').bbco_autocomplete('bbcode');
-	showHideBodyTextarea();
-
 });
-
-function showHideBodyTextarea() {
-	if( $('#id_visible').is(':checked'))
-		$('#body-textarea').slideDown();
-	else
-		$('#body-textarea').slideUp();
-}
 
 // initialize
 function UploadInit() {

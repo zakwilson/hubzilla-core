@@ -290,7 +290,7 @@ class Item extends Controller {
 					if (intval($xv['item_wall'])) {
 						$c = channelx_by_n($xv['uid']);
 						if ($c) {
-							goaway($c['xchan_url'] . '?mid=' . gen_link_id($xv['mid']));
+							goaway(z_root() . '/channel/' . $c['channel_address'] . '?mid=' . gen_link_id($xv['mid']));
 						}
 					}
 				}

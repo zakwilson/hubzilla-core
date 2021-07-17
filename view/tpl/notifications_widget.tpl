@@ -137,18 +137,18 @@
 			}
 		});
 
-		$(document).on('hz:sse_setNotificationsStatus', function(e, data) {
-			sse_setNotificationsStatus(data);
-		});
+	});
 
-		$(document).on('hz:sse_bs_init', function() {
-			sse_bs_init();
-		});
+	$(document).on('hz:sse_setNotificationsStatus', function(e, data) {
+		sse_setNotificationsStatus(data);
+	});
 
-		$(document).on('hz:sse_bs_counts', function() {
-			sse_bs_counts();
-		});
+	$(document).on('hz:sse_bs_init', function() {
+		sse_bs_init();
+	});
 
+	$(document).on('hz:sse_bs_counts', function() {
+		sse_bs_counts();
 	});
 
 	{{foreach $notifications as $notification}}

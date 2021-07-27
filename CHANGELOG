@@ -1,6 +1,7 @@
 Hubzilla 6.0.1 (2021-07-27)
 	- Fix regression in notification handling introduced in 6.0
 	- Fix regression in regard to unified session page load times introduced in 6.0
+	- Fix photo description textarea only available if create status post enabled
 	- Fix item not found by message id at clone locations
 	- Dismiss deleted xchans in mod chanview
 

@@ -757,7 +757,9 @@ class Activity {
 				if (array_path_exists('object/id', $obj)) {
 					$obj['object'] = $obj['object']['id'];
 				}
-				unset($obj['cc']);
+				if (isset($obj['cc'])) {
+					unset($obj['cc']);
+				}
 				$obj['to']     = [ACTIVITY_PUBLIC_INBOX];
 				$ret['object'] = $obj;
 			}

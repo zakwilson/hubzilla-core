@@ -548,8 +548,10 @@ function markRead(notifType) {
 		$('#nav-' + notifType + '-menu').html('');
 		$('#nav-' + notifType + '-sub').removeClass('show');
 		sessionStorage.removeItem('notification_open');
-		sse_setNotificationsStatus();
+		$(document).trigger('hz:sse_setNotificationsStatus');
 	});
+
+
 }
 
 function markItemRead(itemId) {
@@ -717,52 +719,18 @@ function updateConvItems(mode,data) {
 			}
 		}
 
-		// take care of the notifications count updates
-		var nmids = $(this).data('b64mids');
-
-		nmids.forEach(function(nmid, index) {
-
-			sse_rmids.push(nmid);
-
-			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
-				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
-					var n = this.parentElement.id.split('-');
-					return sse_updateNotifications(n[1], nmid);
-				});
-			}
-
-			// special handling for forum notifications
-			$('.notification-forum').filter(function() {
-				var fmids = decodeURIComponent($(this).data('b64mids'));
-				var n = this.parentElement.id.split('-');
-				if(fmids.indexOf(nmid) > -1) {
-					var fcount = Number($('.' + n[1] + '-update').html());
-					fcount--;
-					$('.' + n[1] + '-update').html(fcount);
-					if(fcount < 1)
-						$('.' + n[1] + '-button').fadeOut();
-
-					var count = Number($(this).find('.badge-secondary').html());
-					count--;
-					$(this).find('.badge-secondary').html(count);
-					if(count < 1)
-						$(this).remove();
-				}
-			});
-
-
-		});
-
-		sse_setNotificationsStatus();
+		$(document).trigger('hz:sse_setNotificationsStatus', [$(this).data('b64mids')]);
 
 	});
 
 	$(window).scrollTop(scroll_position);
 
-	if(followUpPageLoad)
-		sse_bs_counts();
-	else
-		sse_bs_init();
+	if(followUpPageLoad) {
+		$(document).trigger('hz:sse_bs_counts');
+	}
+	else {
+		$(document).trigger('hz:sse_bs_init');
+	}
 
 	if(commentBusy) {
 		commentBusy = false;
@@ -902,7 +870,7 @@ function updateInit() {
 		liveUpdate();
 	}
 	else {
-		sse_bs_init();
+		$(document).trigger('hz:sse_bs_init');
 	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {

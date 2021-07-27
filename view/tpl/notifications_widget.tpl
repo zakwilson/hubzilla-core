@@ -139,6 +139,18 @@
 
 	});
 
+	$(document).on('hz:sse_setNotificationsStatus', function(e, data) {
+		sse_setNotificationsStatus(data);
+	});
+
+	$(document).on('hz:sse_bs_init', function() {
+		sse_bs_init();
+	});
+
+	$(document).on('hz:sse_bs_counts', function() {
+		sse_bs_counts();
+	});
+
 	{{foreach $notifications as $notification}}
 	{{if $notification.filter}}
 	$(document).on('click', '#tt-{{$notification.type}}-only', function(e) {
@@ -421,7 +433,7 @@
 
 	}
 
-	function sse_setNotificationsStatus() {
+	function sse_setNotificationsStatus(data) {
 		var primary_notifications = ['dm', 'home', 'intros', 'register', 'notify', 'files'];
 		var secondary_notifications = ['network', 'forums', 'all_events', 'pubs'];
 		var all_notifications = primary_notifications.concat(secondary_notifications);
@@ -456,6 +468,39 @@
 			$('#navbar-collapse-1').removeClass('show');
 			$('#no_notifications').show();
 			$('#notifications').hide();
+		}
+
+		if (typeof data !== typeof undefined) {
+			data.forEach(function(nmid, index) {
+
+				sse_rmids.push(nmid);
+
+				if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
+					$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
+						var n = this.parentElement.id.split('-');
+						return sse_updateNotifications(n[1], nmid);
+					});
+				}
+
+				// special handling for forum notifications
+				$('.notification-forum').filter(function() {
+					var fmids = decodeURIComponent($(this).data('b64mids'));
+					var n = this.parentElement.id.split('-');
+					if(fmids.indexOf(nmid) > -1) {
+						var fcount = Number($('.' + n[1] + '-update').html());
+						fcount--;
+						$('.' + n[1] + '-update').html(fcount);
+						if(fcount < 1)
+							$('.' + n[1] + '-button').fadeOut();
+
+						var count = Number($(this).find('.badge-secondary').html());
+						count--;
+						$(this).find('.badge-secondary').html(count);
+						if(count < 1)
+							$(this).remove();
+					}
+				});
+			});
 		}
 
 	}

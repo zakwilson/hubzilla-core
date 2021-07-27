@@ -55,8 +55,13 @@ class Sse_bs extends Controller {
 			self::$xchans = ids_to_querystr($x, 'xchan_hash', true);
 		}
 
-		if(intval(argv(2)) > 0)
+		if(intval(argv(2)) > 0) {
 			self::$offset = argv(2);
+		}
+		else {
+			$_SESSION['sse_loadtime'] = datetime_convert();
+		}
+
 
 		$network = false;
 		$dm = false;
@@ -176,7 +181,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['page_loadtime']),
+				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -252,7 +257,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['page_loadtime']),
+				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -328,7 +333,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval(self::$uid),
-				dbescdate($_SESSION['page_loadtime']),
+				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash)
 			);
 
@@ -415,7 +420,7 @@ class Sse_bs extends Controller {
 				$sql_extra2
 				ORDER BY created DESC LIMIT $limit OFFSET $offset",
 				intval($sys['channel_id']),
-				dbescdate($_SESSION['page_loadtime']),
+				dbescdate($_SESSION['sse_loadtime']),
 				dbesc(self::$ob_hash),
 				dbescdate($_SESSION['static_loadtime'])
 			);

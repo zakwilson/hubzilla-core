@@ -1,3 +1,10 @@
+Hubzilla 6.0.1 (2021-07-27)
+	- Fix regression in notification handling introduced in 6.0
+	- Fix regression in regard to unified session page load times introduced in 6.0
+	- Fix item not found by message id at clone locations
+	- Dismiss deleted xchans in mod chanview
+
+
 Hubzilla 6.0 (2021-07-09)
 	- Implement swipe to right for bringing in left aside
 	- DB update 1247 to clean up bogus entries in updates

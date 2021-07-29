@@ -4,7 +4,7 @@
 		<form action="#" enctype="multipart/form-data" method="post" name="photos-upload-form" id="photos-upload-form" class="acl-form" data-form_id="photos-upload-form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 			<input type="hidden" id="photos-upload-source" name="source" value="photos" />
 
-			<div class="form-group">
+			<div class="mb-3">
 				<label for="photos-upload-album">{{$newalbum_label}}</label>
 				<input type="text" class="form-control" id="photos-upload-album" name="newalbum" placeholder="{{$newalbum_placeholder}}" value="{{$selname}}" list="dl-photo-upload">
 				<datalist id="dl-photo-upload">
@@ -16,7 +16,7 @@
 				</datalist>
 			</div>
 			{{if $default}}
-			<!-- div class="form-group">
+			<!-- div class="mb-3">
 				<input id="photos-upload-choose" type="file" name="userfile" />
 			</div -->
 			{{include file="field_input.tpl" field=$caption}}
@@ -25,7 +25,7 @@
 			<div class="pull-right btn-group">
 				<div class="btn-group">
 					{{if $lockstate}}
-					<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
+					<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
 						<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>
 					</button>
 					{{/if}}
@@ -43,11 +43,11 @@
 
 			<div id="photos-upload-perms" class="btn-group pull-right">
 				{{if $lockstate}}
-				<button class="btn btn-outline-secondary btn-sm" data-toggle="modal" data-target="#aclModal" onclick="return false;">
+				<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
 					<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>
 				</button>
 				{{/if}}
-				<div class="pull-right">
+				<div class="float-end">
 					{{$uploader}}
 				</div>
 			</div>

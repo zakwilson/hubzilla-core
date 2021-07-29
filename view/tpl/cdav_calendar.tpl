@@ -114,7 +114,7 @@ $(document).ready(function() {
 
 			if(event.extendedProps.plink) {
 				if(! $('#l2s').length)
-					$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
+					$('#id_title_wrapper').prepend('<span id="l2s" class="float-end"></span>');
 
 				$('#l2s').html('<a href="' + event.extendedProps.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + event.extendedProps.plink[1] + '</a>');
 			}
@@ -358,7 +358,7 @@ $(document).ready(function() {
 	if(resource !== null) {
 		$('.section-content-tools-wrapper, #event_form_wrapper').show();
 
-		$('#id_title_wrapper').prepend('<span id="l2s" class="float-right"></span>');
+		$('#id_title_wrapper').prepend('<span id="l2s" class="float-end"></span>');
 		$('#l2s').html('<a href="' + resource.plink[0] + '" target="_blank"><i class="fa fa-external-link"></i> ' + resource.plink[1] + '</a>');
 
 		event_id = resource.id;
@@ -581,9 +581,9 @@ function exportDate() {
 
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<div class="float-right">
+		<div class="float-end">
 			<div class="dropdown">
-				<button id="view_selector" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-toggle="dropdown"></button>
+				<button id="view_selector" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown"></button>
 				<div class="dropdown-menu">
 					<a class="dropdown-item" href="#" onclick="changeView('dayGridMonth'); return false;">{{$month}}</a></li>
 					<a class="dropdown-item" href="#" onclick="changeView('timeGridWeek'); return false;">{{$week}}</a></li>
@@ -619,7 +619,7 @@ function exportDate() {
 			<form id="event_form" method="post" action="" class="acl-form" data-form_id="event_form" data-allow_cid='{{$allow_cid}}' data-allow_gid='{{$allow_gid}}' data-deny_cid='{{$deny_cid}}' data-deny_gid='{{$deny_gid}}'>
 				{{include file="field_input.tpl" field=$title}}
 				<label for="calendar_select">{{$calendar_select_label}}</label>
-				<select id="calendar_select" name="target" class="form-control form-group">
+				<select id="calendar_select" name="target" class="form-control mb-3">
 					<optgroup label="{{$calendar_optiopns_label.0}}">
 					{{foreach $channel_calendars as $channel_calendar}}
 					<option value="channel_calendar">{{$channel_calendar.displayname}}</option>
@@ -636,7 +636,7 @@ function exportDate() {
 				{{/if}}
 				<div id="more_block" style="display: none;">
 					{{if $catsenabled}}
-					<div id="id_categories_wrapper" class="form-group">
+					<div id="id_categories_wrapper" class="mb-3">
 						<label id="label_categories" for="id_categories">{{$categories_label}}</label>
 						<input name="categories" id="id_categories" class="form-control" type="text" value="{{$categories}}" data-role="cat-tagsinput" />
 					</div>
@@ -646,10 +646,10 @@ function exportDate() {
 					{{include file="field_textarea.tpl" field=$description}}
 					{{include file="field_textarea.tpl" field=$location}}
 				</div>
-				<div class="form-group">
-					<div class="pull-right">
+				<div class="mb-3">
+					<div class="float-end">
 						<button id="event_more" type="button" class="btn btn-outline-secondary btn-sm"><i class="fa fa-caret-down"></i> {{$more}}</button>
-						<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm d-none" type="button" data-toggle="modal" data-target="#aclModal"><i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i></button>
+						<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm d-none" type="button" data-bs-toggle="modal" data-bs-target="#aclModal"><i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i></button>
 						<button id="event_submit" type="button" value="" class="btn btn-primary btn-sm"></button>
 
 					</div>

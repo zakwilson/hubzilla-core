@@ -1,6 +1,6 @@
 <div class="generic-content-wrapper">
 	<div class="clearfix section-title-wrapper">
-		<button type="button" class="btn btn-sm btn-success float-right" onclick="openClose('group_tools')"><i class="fa fa-plus-circle"></i> {{$add_new_label}}</button>
+		<button type="button" class="btn btn-sm btn-success float-end" onclick="openClose('group_tools')"><i class="fa fa-plus-circle"></i> {{$add_new_label}}</button>
 		<h2>{{$title}}</h2>
 	</div>
 	<div id="group_tools" class="clearfix section-content-tools-wrapper"{{if ! $new}} style="display: none"{{/if}}>
@@ -9,7 +9,7 @@
 			{{include file="field_input.tpl" field=$gname}}
 			{{include file="field_checkbox.tpl" field=$public}}
 			{{$pgrp_extras}}
-			<button type="submit" name="submit" class="btn btn-sm btn-primary float-right">{{$submit}}</button>
+			<button type="submit" name="submit" class="btn btn-sm btn-primary float-end">{{$submit}}</button>
 		</form>
 	</div>
 

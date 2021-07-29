@@ -1272,7 +1272,7 @@ img.mail-conv-sender-photo {
 	border-radius: $radius;
 }
 
-#nav-app-link {
+#nav-app-link-wrapper.has_location .nav-link {
 	padding: 0 !important;
 	line-height: 1.175;
 	white-space: nowrap;
@@ -1468,7 +1468,6 @@ blockquote {
 
 .dropdown-menu {
 	color: $font_colour;
-	font-size: 0.9rem;
 	border-radius: $radius;
 }
 
@@ -1626,17 +1625,17 @@ dl.bb-dl > dd > li {
 
 
 /* Turn checkboxes into switches */
-.form-group.checkbox > div {
+.onoffswitch.checkbox > div {
     position: relative; width: 60px;
     -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
     display:inline-block;
 }
 
-.form-group.checkbox input {
+.onoffswitch.checkbox input {
     display: none;
 }
 
-.form-group.checkbox > div label {
+.onoffswitch.checkbox > div label {
 	display: block; overflow: hidden; cursor: pointer;
 	border: 1px solid #ccc;
 	border-radius: 12px;
@@ -1647,11 +1646,11 @@ dl.bb-dl > dd > li {
 	font-weight: normal;
 }
 
-.form-group.checkbox:hover label {
+.onoffswitch.checkbox:hover label {
 	color: $link_colour;
 }
 
-.form-group.checkbox:hover > div label {
+.onoffswitch.checkbox:hover > div label {
 	border-color: $link_colour;
 }
 
@@ -1690,17 +1689,17 @@ dl.bb-dl > dd > li {
     -o-transition: all 0.3s ease-in 0s; transition: all 0.3s ease-in 0s;
 }
 
-.form-group.checkbox > div > input:checked + label .onoffswitch-inner {
+.onoffswitch.checkbox > div > input:checked + label .onoffswitch-inner {
     margin-left: 0px;
 }
 
-.form-group.checkbox > div > input:checked + label .onoffswitch-switch {
+.onoffswitch.checkbox > div > input:checked + label .onoffswitch-switch {
     right: 0px;
     background-color: #0275d8;
 }
 
 
-.form-group.checkbox > div > input:disabled + label .onoffswitch-switch {
+.onoffswitch.checkbox > div > input:disabled + label .onoffswitch-switch {
 	background-color: red;
 	opacity: 0.3;
 	filter:alpha(opacity=30);

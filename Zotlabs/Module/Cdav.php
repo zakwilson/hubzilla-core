@@ -1059,6 +1059,7 @@ class Cdav extends Controller {
 				'$cancel' => t('Cancel'),
 				'$create' => t('Create'),
 				'$recurrence_warning' => t('Sorry! Editing of recurrent events is not yet implemented.'),
+				'$disabled_warning' => t('Could not fetch calendar resource. The selected calendar might be disabled.'),
 
 				'$channel_hash' => $channel['channel_hash'],
 				'$acl' => $acl,

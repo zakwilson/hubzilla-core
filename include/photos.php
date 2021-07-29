@@ -4,6 +4,9 @@
  * @brief Functions related to photo handling.
  */
 
+use Zotlabs\Lib\Activity;
+
+
 require_once('include/permissions.php');
 require_once('include/items.php');
 require_once('include/photo/photo_driver.php');
@@ -256,10 +259,10 @@ function photo_upload($channel, $observer, $args) {
 	if($args['description'])
 		$p['description'] = $args['description'];
 
-	$link   = array();
+	$url = [];
 
 	$r0 = $ph->save($p);
-	$link[0] = array(
+	$url[0] = array(
 		'rel'  => 'alternate',
 		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-0.' . $ph->getExt(),
@@ -278,7 +281,7 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(1024);
 
 	$r1 = $ph->storeThumbnail($p, PHOTO_RES_1024);
-	$link[1] = array(
+	$url[1] = array(
 		'rel'  => 'alternate',
 		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-1.' . $ph->getExt(),
@@ -292,7 +295,7 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(640);
 
 	$r2 = $ph->storeThumbnail($p, PHOTO_RES_640);
-	$link[2] = array(
+	$url[2] = array(
 		'rel'  => 'alternate',
 		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-2.' . $ph->getExt(),
@@ -306,7 +309,7 @@ function photo_upload($channel, $observer, $args) {
 		$ph->scaleImage(320);
 
 	$r3 = $ph->storeThumbnail($p, PHOTO_RES_320);
-	$link[3] = array(
+	$url[3] = array(
 		'rel'  => 'alternate',
 		'type' => $type,
 		'href' => z_root() . '/photo/' . $photo_hash . '-3.' . $ph->getExt(),
@@ -353,18 +356,18 @@ function photo_upload($channel, $observer, $args) {
 
 	$large_photos = feature_enabled($channel['channel_id'], 'large_photos');
 
-	linkify_tags($args['body'], $channel_id);
+	$found_tags = linkify_tags($args['body'], $channel_id);
 
 	if($large_photos) {
 		$scale = 1;
-		$width = $link[1]['width'];
-		$height = $link[1]['height'];
+		$width = $url[1]['width'];
+		$height = $url[1]['height'];
 		$tag = (($r1) ? '[zmg=' . $width . 'x' . $height . ']' : '[zmg]');
 	}
 	else {
 		$scale = 2;
-		$width = $link[2]['width'];
-		$height = $link[2]['height'];
+		$width = $url[2]['width'];
+		$height = $url[2]['height'];
 		$tag = (($r2) ? '[zmg=' . $width . 'x' . $height . ']' : '[zmg]');
 	}
 
@@ -382,22 +385,61 @@ function photo_upload($channel, $observer, $args) {
 		. $tag . z_root() . "/photo/{$photo_hash}-{$scale}." . $ph->getExt() . '[/zmg]'
 		. '[/zrl]';
 
-	// Create item object
-	$object = array(
-		'type'    => ACTIVITY_OBJ_PHOTO,
-		'title'   => $title,
-		'created' => $p['created'],
-		'edited'  => $p['edited'],
-		'id'      => z_root() . '/item/' . $photo_hash,
-		'link'    => $link,
-		'body'    => $summary
-	);
+	$url[] = [
+		'type'      => 'Link',
+		'mediaType' => 'text/html',
+		'href'      => z_root() . '/photos/' . $channel['channel_address'] . '/image/' . $photo_hash
+	];
 
-	$target = array(
-		'type'    => ACTIVITY_OBJ_ALBUM,
-		'title'   => (($album) ? $album : '/'),
-		'id'      => z_root() . '/photos/' . $channel['channel_address'] . '/album/' . bin2hex($album)
-	);
+	$post_tags = [];
+
+	if($found_tags) {
+		foreach($found_tags as $result) {
+			$success = $result['success'];
+			if($success['replaced']) {
+				$post_tags[] = array(
+					'uid'   => $channel['channel_id'],
+					'ttype' => $success['termtype'],
+					'otype' => TERM_OBJ_POST,
+					'term'  => $success['term'],
+					'url'   => $success['url']
+				);
+			}
+		}
+	}
+
+	//// Create item object
+	$object = [
+		'type'      => 'Image',
+		'name'      => $title,
+		'published' => datetime_convert('UTC','UTC',$p['created'],ATOM_TIME),
+		'updated'   => datetime_convert('UTC','UTC',$p['edited'],ATOM_TIME),
+		// This is a placeholder and will get over-ridden by the item mid, which is critical for sharing as a conversational item over activitypub
+		'id'        => z_root() . '/photo/' . $photo_hash,
+		'url'       => $url,
+		'source'    => [ 'content' => $summary, 'mediaType' => 'text/bbcode' ],
+		'content'   => bbcode($summary)
+	];
+
+	if ($post_tags) {
+		$object['tag'] = Activity::encode_taxonomy(['term' => $post_tags]);
+	}
+
+	$public = (($ac['allow_cid'] || $ac['allow_gid'] || $ac['deny_cid'] || $ac['deny_gid']) ? false : true);
+
+	if ($public) {
+		$object['to'] = [ ACTIVITY_PUBLIC_INBOX ];
+		$object['cc'] = [ z_root() . '/followers/' . $channel['channel_address'] ];
+	}
+	else {
+		$object['to'] = Activity::map_acl(array_merge($ac, ['item_private' => 1 - intval($public) ]));
+	}
+
+	$target = [
+		'type'    => 'orderedCollection',
+		'name'    => ((strlen($album)) ? $album : '/'),
+		'id'      => z_root() . '/album/' . $channel['channel_address'] . ((isset($args['folder'])) ? '/' . $args['folder'] : EMPTY_STR)
+	];
 
 	// Create item container
 	if($args['item']) {
@@ -415,7 +457,9 @@ function photo_upload($channel, $observer, $args) {
 
 				$item['tgt_type'] = ACTIVITY_OBJ_ALBUM;
 				$item['target']	= json_encode($target);
-
+				if ($post_tags) {
+					$arr['term'] = $post_tags;
+				}
 				$force = true;
 			}
 			$r = q("select id, edited from item where mid = '%s' and uid = %d limit 1",
@@ -468,6 +512,10 @@ function photo_upload($channel, $observer, $args) {
 			'item_private'    => intval($acl->is_private()),
 			'body'            => $summary
 		];
+
+		if ($post_tags) {
+			$arr['term'] = $post_tags;
+		}
 
 		$arr['plink'] = $mid;
 

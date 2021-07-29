@@ -53,10 +53,10 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '5.9.1-bs5-1' );
+define ( 'STD_VERSION',             '6.1.1' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1245 );
+define ( 'DB_UPDATE_VERSION',       1247 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -1232,7 +1232,8 @@ class App {
 				'$js_strings'      => js_strings(),
 				'$zid'             => get_my_address(),
 				'$channel_id'      => self::$profile['uid'] ?? 0,
-				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false")
+				'$auto_save_draft' => ((isset(self::$profile['uid']) && feature_enabled(self::$profile['uid'], 'auto_save_draft')) ? "true" : "false"),
+				'$module'          => App::$module
 			]
 		) . ((isset(self::$page['htmlhead'])) ? self::$page['htmlhead'] : '');
 
@@ -2117,7 +2118,7 @@ function load_contact_links($uid) {
 
 //	logger('load_contact_links');
 
-	$r = q("SELECT abook_id, abook_flags, abook_my_perms, abook_their_perms, xchan_hash, xchan_photo_m, xchan_name, xchan_url, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d ",
+	$r = q("SELECT abook_id, abook_flags, abook_my_perms, abook_their_perms, xchan_hash, xchan_photo_m, xchan_name, xchan_url, xchan_network from abook left join xchan on abook_xchan = xchan_hash where abook_channel = %d and xchan_deleted = 0",
 		intval($uid)
 	);
 	if($r) {

@@ -22,11 +22,11 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$search = $_GET['search'] ?? '';
 
-		if(in_array(substr($search, 0, 1),[ '@', '!', '?']) || strpos($search, 'https://') === 0)
+		if(in_array(substr($search, 0, 1), [ '@', '!', '?']) || strpos($search, 'https://') === 0)
 			goaway(z_root() . '/search?f=&search=' . $search);
 
 		if(count($_GET) < 2) {
-			$network_options = get_pconfig(local_channel(),'system','network_page_default');
+			$network_options = get_pconfig(local_channel(), 'system', 'network_page_default');
 			if($network_options)
 				goaway(z_root() . '/network?f=&' . $network_options);
 		}
@@ -84,7 +84,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 		$search = $_GET['search'] ?? '';
 		if($search) {
-			if(strpos($search,'#') === 0) {
+			if(strpos($search, '#') === 0) {
 				$hashtags = substr($search,1);
 				$search = '';
 			}
@@ -114,31 +114,31 @@ class Network extends \Zotlabs\Web\Controller {
 			$def_acl    = array('allow_gid' => '<' . $r[0]['hash'] . '>');
 		}
 
-		$default_cmin = ((Apps::system_app_installed(local_channel(),'Affinity Tool')) ? get_pconfig(local_channel(),'affinity','cmin',0) : (-1));
-		$default_cmax = ((Apps::system_app_installed(local_channel(),'Affinity Tool')) ? get_pconfig(local_channel(),'affinity','cmax',99) : (-1));
+		$default_cmin = ((Apps::system_app_installed(local_channel(), 'Affinity Tool')) ? get_pconfig(local_channel(), 'affinity', 'cmin', 0) : (-1));
+		$default_cmax = ((Apps::system_app_installed(local_channel(), 'Affinity Tool')) ? get_pconfig(local_channel(), 'affinity', 'cmax', 99) : (-1));
 
-		$cid      = ((x($_GET,'cid'))   ? intval($_GET['cid'])   : 0);
-		$star     = ((x($_GET,'star'))  ? intval($_GET['star'])  : 0);
-		$liked    = ((x($_GET,'liked')) ? intval($_GET['liked']) : 0);
-		$conv     = ((x($_GET,'conv'))  ? intval($_GET['conv'])  : 0);
-		$spam     = ((x($_GET,'spam'))  ? intval($_GET['spam'])  : 0);
-		$cmin     = ((array_key_exists('cmin',$_GET))  ? intval($_GET['cmin'])  : $default_cmin);
-		$cmax     = ((array_key_exists('cmax',$_GET))  ? intval($_GET['cmax'])  : $default_cmax);
-		$file     = ((x($_GET,'file'))  ? $_GET['file']          : '');
-		$xchan    = ((x($_GET,'xchan')) ? $_GET['xchan']         : '');
-		$net      = ((x($_GET,'net'))   ? $_GET['net']           : '');
-		$pf       = ((x($_GET,'pf'))    ? $_GET['pf']            : '');
-		$unseen   = ((x($_GET,'unseen'))    ? $_GET['unseen']            : '');
+		$cid      = ((x($_GET, 'cid'))   ? intval($_GET['cid'])   : 0);
+		$star     = ((x($_GET, 'star'))  ? intval($_GET['star'])  : 0);
+		$liked    = ((x($_GET, 'liked')) ? intval($_GET['liked']) : 0);
+		$conv     = ((x($_GET, 'conv'))  ? intval($_GET['conv'])  : 0);
+		$spam     = ((x($_GET, 'spam'))  ? intval($_GET['spam'])  : 0);
+		$cmin     = ((array_key_exists('cmin', $_GET))  ? intval($_GET['cmin'])  : $default_cmin);
+		$cmax     = ((array_key_exists('cmax', $_GET))  ? intval($_GET['cmax'])  : $default_cmax);
+		$file     = ((x($_GET, 'file'))  ? $_GET['file']          : '');
+		$xchan    = ((x($_GET, 'xchan')) ? $_GET['xchan']         : '');
+		$net      = ((x($_GET, 'net'))   ? $_GET['net']           : '');
+		$pf       = ((x($_GET, 'pf'))    ? $_GET['pf']            : '');
+		$unseen   = ((x($_GET, 'unseen'))    ? $_GET['unseen']            : '');
 
-		if (Apps::system_app_installed(local_channel(),'Affinity Tool')) {
-			$affinity_locked = intval(get_pconfig(local_channel(),'affinity','lock',1));
+		if (Apps::system_app_installed(local_channel(), 'Affinity Tool')) {
+			$affinity_locked = intval(get_pconfig(local_channel(), 'affinity', 'lock', 1));
 			if ($affinity_locked) {
-				set_pconfig(local_channel(),'affinity','cmin',$cmin);
-				set_pconfig(local_channel(),'affinity','cmax',$cmax);
+				set_pconfig(local_channel(), 'affinity', 'cmin', $cmin);
+				set_pconfig(local_channel(), 'affinity', 'cmax', $cmax);
 			}
 		}
 
-		if(x($_GET,'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
+		if(x($_GET, 'search') || $file || (!$pf && $cid) || $hashtags || $verb || $category || $conv || $unseen)
 			$nouveau = true;
 
 		$cid_r = [];
@@ -164,8 +164,8 @@ class Network extends \Zotlabs\Web\Controller {
 
 			// search terms header
 			if($search || $hashtags) {
-				$o .= replace_macros(get_markup_template("section_title.tpl"),array(
-					'$title' => t('Search Results For:') . ' ' . (($search) ? htmlspecialchars($search, ENT_COMPAT,'UTF-8') : '#' . htmlspecialchars($hashtags, ENT_COMPAT,'UTF-8'))
+				$o .= replace_macros(get_markup_template('section_title.tpl'), array(
+					'$title' => t('Search Results For:') . ' ' . (($search) ? htmlspecialchars($search, ENT_COMPAT, 'UTF-8') : '#' . htmlspecialchars($hashtags, ENT_COMPAT,'UTF-8'))
 				));
 			}
 
@@ -193,7 +193,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 			$x = array(
 				'is_owner'         => true,
-				'allow_location'   => ((intval(get_pconfig($channel['channel_id'],'system','use_browser_location'))) ? '1' : ''),
+				'allow_location'   => ((intval(get_pconfig($channel['channel_id'], 'system', 'use_browser_location'))) ? '1' : ''),
 				'default_location' => $channel['channel_location'],
 				'nickname'         => $channel['channel_address'],
 				'lockstate'        => (($private_editing || $channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 'lock' : 'unlock'),
@@ -209,7 +209,7 @@ class Network extends \Zotlabs\Web\Controller {
 				'reset' => t('Reset form')
 			);
 
-			$status_editor = status_editor($a,$x,false,'Network');
+			$status_editor = status_editor($a, $x, false, 'Network');
 			$o .= $status_editor;
 
 		}
@@ -221,7 +221,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 
 		$sql_options  = (($star)
-			? " and item_starred = 1 "
+			? ' and item_starred = 1 '
 			: '');
 
 		$sql_nets = '';
@@ -235,7 +235,7 @@ class Network extends \Zotlabs\Web\Controller {
 			$contact_str = '';
 			$contacts = group_get_members($group);
 			if($contacts) {
-				$contact_str = ids_to_querystr($contacts,'xchan',true);
+				$contact_str = ids_to_querystr($contacts, 'xchan', true);
 			}
 			else {
 				$contact_str = " '0' ";
@@ -249,7 +249,7 @@ class Network extends \Zotlabs\Web\Controller {
 			$x = group_rec_byhash(local_channel(), $group_hash);
 
 			if($x) {
-				$title = replace_macros(get_markup_template("section_title.tpl"),array(
+				$title = replace_macros(get_markup_template('section_title.tpl'), array(
 					'$title' => t('Privacy group: ') . $x['gname']
 				));
 			}
@@ -292,7 +292,7 @@ class Network extends \Zotlabs\Web\Controller {
 					$p1 = q("SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal ");
 					$p2 = q("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
 
-					$p_str = ids_to_querystr(array_merge($p1,$p2),'parent');
+					$p_str = ids_to_querystr(array_merge($p1, $p2), 'parent');
 					if(! $p_str)
 						killme();
 
@@ -300,7 +300,7 @@ class Network extends \Zotlabs\Web\Controller {
 				}
 			}
 
-			$title = replace_macros(get_markup_template("section_title.tpl"),array(
+			$title = replace_macros(get_markup_template('section_title.tpl'), array(
 				'$title' => '<a href="' . zid($cid_r[0]['xchan_url']) . '" ><img src="' . zid($cid_r[0]['xchan_photo_s'])  . '" alt="' . urlencode($cid_r[0]['xchan_name']) . '" /></a> <a href="' . zid($cid_r[0]['xchan_url']) . '" >' . $cid_r[0]['xchan_name'] . '</a>'
 			));
 
@@ -314,7 +314,7 @@ class Network extends \Zotlabs\Web\Controller {
 			if($r) {
 				$item_thread_top = '';
 				$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($xchan) . "' or owner_xchan = '" . dbesc($xchan) . "' ) $item_normal ) ";
-				$title = replace_macros(get_markup_template("section_title.tpl"),array(
+				$title = replace_macros(get_markup_template("section_title.tpl"), array(
 					'$title' => '<a href="' . zid($r[0]['xchan_url']) . '" ><img src="' . zid($r[0]['xchan_photo_s'])  . '" alt="' . urlencode($r[0]['xchan_name']) . '" /></a> <a href="' . zid($r[0]['xchan_url']) . '" >' . $r[0]['xchan_name'] . '</a>'
 				));
 
@@ -345,13 +345,13 @@ class Network extends \Zotlabs\Web\Controller {
 			$sql_extra3 .= protect_sprintf(sprintf(" AND item.created >= '%s' ", dbesc(datetime_convert(date_default_timezone_get(),'',$datequery2))));
 		}
 
-		$sql_extra2 = (($nouveau) ? '' : " AND item.parent = item.id ");
+		$sql_extra2 = (($nouveau) ? '' : ' AND item.parent = item.id ');
 		$sql_extra3 = (($nouveau) ? '' : $sql_extra3);
 
-		if(x($_GET,'search')) {
+		if(x($_GET, 'search')) {
 			$search = escape_tags($_GET['search']);
-			if(strpos($search,'#') === 0) {
-				$sql_extra .= term_query('item',substr($search,1),TERM_HASHTAG,TERM_COMMUNITYTAG);
+			if(strpos($search, '#') === 0) {
+				$sql_extra .= term_query('item', substr($search, 1), TERM_HASHTAG, TERM_COMMUNITYTAG);
 			}
 			else {
 				$sql_extra .= sprintf(" AND (item.body like '%s' OR item.title like '%s') ",
@@ -368,8 +368,8 @@ class Network extends \Zotlabs\Web\Controller {
 			// The name 'verb' is a holdover from the earlier XML
 			// ActivityStreams specification.
 
-			if (substr($verb,0,1) === '.') {
-				$verb = substr($verb,1);
+			if (substr($verb, 0, 1) === '.') {
+				$verb = substr($verb, 1);
 				$sql_extra .= sprintf(" AND item.obj_type like '%s' ",
 					dbesc(protect_sprintf('%' . $verb . '%'))
 				);
@@ -382,12 +382,16 @@ class Network extends \Zotlabs\Web\Controller {
 		}
 
 		if(strlen($file)) {
-			$sql_extra .= term_query('item',$file,TERM_FILE);
+			$sql_extra .= term_query('item', $file, TERM_FILE);
 		}
 
 		if ($dm) {
-			$sql_extra .= " AND item_private = 2 ";
+			$sql_extra .= ' AND item_private = 2 ';
 		}
+		else {
+			$sql_extra .= ' AND item_private IN (0, 1) ';
+		}
+
 
 		if($conv) {
 			$item_thread_top = '';
@@ -401,38 +405,38 @@ class Network extends \Zotlabs\Web\Controller {
 
 		}
 		else {
-			$itemspage = get_pconfig(local_channel(),'system','itemspage');
+			$itemspage = get_pconfig(local_channel(), 'system', 'itemspage');
 			App::set_pager_itemspage(((intval($itemspage)) ? $itemspage : 10));
 			$pager_sql = sprintf(" LIMIT %d OFFSET %d ", intval(App::$pager['itemspage']), intval(App::$pager['start']));
 		}
 
 		// cmin and cmax are both -1 when the affinity tool is disabled
 
-		if(($cmin != (-1)) || ($cmax != (-1))) {
+		if(($cmin !== (-1)) || ($cmax !== (-1))) {
 
 			// Not everybody who shows up in the network stream will be in your address book.
 			// By default those that aren't are assumed to have closeness = 99; but this isn't
 			// recorded anywhere. So if cmax is 99, we'll open the search up to anybody in
 			// the stream with a NULL address book entry.
 
-			$sql_nets .= " AND ";
+			$sql_nets .= ' AND ';
 
-			if($cmax == 99)
-				$sql_nets .= " ( ";
+			if($cmax === 99)
+				$sql_nets .= ' ( ';
 
-			$sql_nets .= "( abook.abook_closeness >= " . intval($cmin) . " ";
-			$sql_nets .= " AND abook.abook_closeness <= " . intval($cmax) . " ) ";
+			$sql_nets .= '( abook.abook_closeness >= ' . intval($cmin) . ' ';
+			$sql_nets .= ' AND abook.abook_closeness <= ' . intval($cmax) . ' ) ';
 
-			if($cmax == 99)
-				$sql_nets .= " OR abook.abook_closeness IS NULL ) ";
+			if($cmax === 99)
+				$sql_nets .= ' OR abook.abook_closeness IS NULL ) ';
 
 		}
 
-		$net_query = (($net) ? " left join xchan on xchan_hash = author_xchan " : '');
+		$net_query = (($net) ? ' left join xchan on xchan_hash = author_xchan ' : '');
 		$net_query2 = (($net) ? " and xchan_network = '" . protect_sprintf(dbesc($net)) . "' " : '');
 
-		$abook_uids = " and abook.abook_channel = " . local_channel() . " ";
-		$uids = " and item.uid = " . local_channel() . " ";
+		$abook_uids = ' and abook.abook_channel = ' . local_channel() . ' ';
+		$uids = ' and item.uid = ' . local_channel() . ' ';
 
 		if(feature_enabled(local_channel(), 'network_list_mode'))
 			$page_mode = 'list';
@@ -471,22 +475,22 @@ class Network extends \Zotlabs\Web\Controller {
 				ORDER BY item.created DESC $pager_sql "
 			);
 
-			$parents_str = ids_to_querystr($items,'item_id');
+			$parents_str = ids_to_querystr($items, 'item_id');
 
 			require_once('include/items.php');
 
 			xchan_query($items);
 
-			$items = fetch_post_tags($items,true);
+			$items = fetch_post_tags($items, true);
 		}
 		elseif($update) {
 
 			// Normal conversation view
 
 			if($order === 'post')
-				$ordering = "created";
+				$ordering = 'created';
 			else
-				$ordering = "commented";
+				$ordering = 'commented';
 
 			if($load) {
 				// Fetch a page full of parent items for this page
@@ -517,7 +521,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 			if($r) {
 
-				$parents_str = ids_to_querystr($r,'item_id');
+				$parents_str = ids_to_querystr($r, 'item_id');
 
 				$items = q("SELECT item.*, item.id AS item_id FROM item
 					WHERE true $uids $item_normal
@@ -526,9 +530,9 @@ class Network extends \Zotlabs\Web\Controller {
 					dbesc($parents_str)
 				);
 
-				xchan_query($items,true);
-				$items = fetch_post_tags($items,true);
-				$items = conv_sort($items,$ordering);
+				xchan_query($items, true);
+				$items = fetch_post_tags($items, true);
+				$items = conv_sort($items, $ordering);
 			}
 			else {
 				$items = array();
@@ -546,7 +550,7 @@ class Network extends \Zotlabs\Web\Controller {
 			// We only launch liveUpdate if you aren't filtering in some incompatible
 			// way and also you aren't writing a comment (discovered in javascript).
 
-			$maxheight = get_pconfig(local_channel(),'system','network_divmore_height');
+			$maxheight = get_pconfig(local_channel(), 'system', 'network_divmore_height');
 			if(! $maxheight)
 				$maxheight = 400;
 
@@ -591,7 +595,7 @@ class Network extends \Zotlabs\Web\Controller {
 			));
 		}
 
-		$o .= conversation($items,$mode,$update,$page_mode);
+		$o .= conversation($items, $mode, $update, $page_mode);
 
 		if(($items) && (! $update))
 			$o .= alt_pager(count($items));

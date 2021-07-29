@@ -37,7 +37,7 @@ class Sse_bs extends Controller {
 
 		self::$vnotify = get_pconfig(self::$uid, 'system', 'vnotify', -1);
 		self::$evdays = intval(get_pconfig(self::$uid, 'system', 'evdays'));
-		self::$limit = 50;
+		self::$limit = 30;
 		self::$offset = 0;
 		self::$xchans = '';
 
@@ -55,10 +55,13 @@ class Sse_bs extends Controller {
 			self::$xchans = ids_to_querystr($x, 'xchan_hash', true);
 		}
 
-		if(intval(argv(2)) > 0)
+		if(intval(argv(2)) > 0) {
 			self::$offset = argv(2);
-		else
+		}
+		else {
 			$_SESSION['sse_loadtime'] = datetime_convert();
+		}
+
 
 		$network = false;
 		$dm = false;

@@ -71,6 +71,7 @@
 							<div class="spinner s"></div>
 						</div>
 					</div>
+					{{if $item.star || $item.thread_action_menu || $item.drop.dropping}}
 					<div class="btn-group">
 						<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 							<i class="fa fa-cog"></i>
@@ -81,14 +82,15 @@
 							{{/if}}
 							{{if $item.thread_action_menu}}
 							{{foreach $item.thread_action_menu as $mitem}}
-							<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} ><i class="fa fa-fw fa-{{$mitem.icon}} generic-icons-nav"></i>{{$mitem.title}}</a></li>
+							<a class="dropdown-item" {{if $mitem.href}}href="{{$mitem.href}}"{{/if}} {{if $mitem.action}}onclick="{{$mitem.action}}"{{/if}} {{if $mitem.title}}title="{{$mitem.title}}"{{/if}} ><i class="fa fa-fw fa-{{$mitem.icon}} generic-icons-nav"></i>{{$mitem.title}}</a>
 							{{/foreach}}
 							{{/if}}
 							{{if $item.drop.dropping}}
-							<a class="dropdown-item" href="item/drop/{{$item.id}}" onclick="return confirmDelete();" title="{{$item.drop.delete}}" ><i class="fa fa-fw fa-trash-o generic-icons-nav"></i>{{$item.drop.delete}}</a></li>
+							<a class="dropdown-item" href="#" onclick="dropItem('item/drop/{{$item.id}}', '#thread-wrapper-{{$item.id}}', '{{$item.mid}}'); return false;" title="{{$item.drop.delete}}" ><i class="generic-icons-nav fa fa-fw fa-trash-o"></i>{{$item.drop.delete}}</a>
 							{{/if}}
 						</div>
 					</div>
+					{{/if}}
 				</div>
 				{{if $item.star && $item.star.isstarred}}
 				<div class="btn-group" id="star-button-{{$item.id}}">

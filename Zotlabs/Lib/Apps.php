@@ -76,7 +76,8 @@ class Apps {
 			'Directory',
 			'Search',
 			'Help',
-			'Profile Photo'
+			'Profile Photo',
+			'HQ'
 		]);
 
 		/**
@@ -374,7 +375,7 @@ class Apps {
 			'Permission Categories' => t('Permission Categories'),
 			'Public Stream' => t('Public Stream'),
 			'My Chatrooms' => t('My Chatrooms'),
-			'Channel Export' => t('Channel Export')
+			'Channel Export' => t('Channel Export'),
 		);
 
 		if(array_key_exists('name',$arr)) {

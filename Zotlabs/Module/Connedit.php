@@ -40,12 +40,12 @@ class Connedit extends Controller {
 		if((argc() >= 2) && intval(argv(1))) {
 			$r = q("SELECT abook.*, xchan.*
 				FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_channel = %d and abook_id = %d LIMIT 1",
+				WHERE abook_channel = %d and abook_id = %d and xchan_deleted = 0 LIMIT 1",
 				intval(local_channel()),
 				intval(argv(1))
 			);
 			if($r) {
-				App::$poi = array_shift($r);
+				App::$poi = $r[0];
 			}
 		}
 
@@ -423,7 +423,7 @@ class Connedit extends Controller {
 			$cmd = argv(2);
 
 			$orig_record = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
-				WHERE abook_id = %d AND abook_channel = %d AND abook_self = 0 LIMIT 1",
+				WHERE abook_id = %d AND abook_channel = %d AND abook_self = 0 and xchan_deleted = 0 LIMIT 1",
 				intval($contact_id),
 				intval(local_channel())
 			);

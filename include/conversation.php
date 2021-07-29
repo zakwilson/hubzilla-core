@@ -730,10 +730,13 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'delete' => t('Delete'),
 				);
 
-				$star = array(
-					'toggle' => t("Toggle Star Status"),
-					'isstarred' => ((intval($item['item_starred'])) ? true : false),
-				);
+				$star = [];
+				if ((local_channel() && local_channel() === intval($item['uid'])) && intval($item['item_thread_top']) && feature_enabled(local_channel(), 'star_posts')) {
+					$star = [
+						'toggle' => t("Toggle Star Status"),
+						'isstarred' => ((intval($item['item_starred'])) ? true : false),
+					];
+				}
 
 				$lock = (($item['item_private'] || strlen($item['allow_cid']) || strlen($item['allow_gid']) || strlen($item['deny_cid']) || strlen($item['deny_gid']))
 					? t('Private Message')
@@ -765,8 +768,12 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$conv_link_mid = (($mode == 'moderate') ? $item['parent_mid'] : $item['mid']);
 
-				$conv_link = ((in_array($item['item_type'],[ ITEM_TYPE_CARD, ITEM_TYPE_ARTICLE] )) ? $item['plink'] : z_root() . '/display/' . gen_link_id($conv_link_mid));
+				$conv_link_module = 'display';
+				if(local_channel()) {
+					$conv_link_module = 'hq';
+				}
 
+				$conv_link = ((in_array($item['item_type'],[ ITEM_TYPE_CARD, ITEM_TYPE_ARTICLE] )) ? $item['plink'] : z_root() . '/' . $conv_link_module . '/' . gen_link_id($conv_link_mid));
 
 				$tmp_item = array(
 					'template' => $tpl,
@@ -777,7 +784,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'delete' => t('Delete'),
 					'preview_lbl' => $preview_lbl,
 					'id' => (($preview) ? 'P0' : $item['item_id']),
-					'mids' => json_encode(['b64.' . base64url_encode($item['mid'])]),
+					'mid' => gen_link_id($item['mid']),
+					'mids' => json_encode([gen_link_id($item['mid'])]),
 					'linktitle' => sprintf( t('View %s\'s profile @ %s'), $profile_name, $profile_url),
 					'profile_url' => $profile_link,
 					'thread_action_menu' => thread_action_menu($item,$mode),
@@ -819,7 +827,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'owner_photo' => $owner_photo,
 					'plink' => get_plink($item,false),
 					'edpost' => false,
-					'star' => ((feature_enabled(local_channel(),'star_posts')) ? $star : ''),
+					'star' => $star,
 					'drop' => $drop,
 					'vote' => $likebuttons,
 					'like' => '',
@@ -932,7 +940,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		'$user' => App::$user,
 		'$threads' => $threads,
 		'$wait' => t('Loading...'),
-		'$conversation_tools' => t('Conversation Tools'),
+		'$conversation_tools' => t('Conversation Features'),
 		'$dropping' => ($page_dropping?t('Delete Selected Items'):False),
 		'$preview' => $preview
 	));
@@ -1053,7 +1061,7 @@ function thread_author_menu($item, $mode = '') {
 		}
 		else {
 			$url = (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']);
-			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown' ]))) {
+			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown', 'zot' ]))) {
 				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
 		}
@@ -1388,7 +1396,8 @@ function hz_status_editor($a, $x, $popup = false) {
 		'$nocomment_enabled' => t('Comments enabled'),
 		'$nocomment_disabled' => t('Comments disabled'),
 		'$auto_save_draft' => $feature_auto_save_draft,
-		'$reset' => $reset
+		'$reset' => $reset,
+		'$popup' => $popup
 	];
 
 	call_hooks('jot_header_tpl_filter',$tplmacros);
@@ -1688,7 +1697,8 @@ function prepare_page($item) {
 		// ... other possible options
 	}
 
-	$body = prepare_body($item, [ 'newwin' => false ]);
+	$body = prepare_body($item, true, [ 'newwin' => false ]);
+
 	if(App::$page['template'] == 'none') {
 		$tpl = 'page_display_empty.tpl';
 

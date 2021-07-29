@@ -21,7 +21,8 @@ class Notes {
 			'$banner' => t('Notes'),
 			'$text' => $text,
 			'$save' => t('Save'),
-			'$app' => ((isset($arr['app'])) ? true : false)
+			'$app' => ((isset($arr['app'])) ? true : false),
+			'$hidden' => ((isset($arr['hidden'])) ? true : false)
 		));
 
 		return $o;

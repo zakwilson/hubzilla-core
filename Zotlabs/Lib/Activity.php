@@ -42,9 +42,6 @@ class Activity {
 			if ($x['type'] === ACTIVITY_OBJ_EVENT) {
 				return self::fetch_event($x);
 			}
-			if ($x['type'] === ACTIVITY_OBJ_PHOTO) {
-				return self::fetch_image($x);
-			}
 
 			call_hooks('encode_object', $x);
 		}
@@ -194,6 +191,7 @@ class Activity {
 	}
 
 	static function fetch_image($x) {
+
 		$ret = [
 			'type'      => 'Image',
 			'id'        => $x['id'],
@@ -759,7 +757,9 @@ class Activity {
 				if (array_path_exists('object/id', $obj)) {
 					$obj['object'] = $obj['object']['id'];
 				}
-				unset($obj['cc']);
+				if (isset($obj['cc'])) {
+					unset($obj['cc']);
+				}
 				$obj['to']     = [ACTIVITY_PUBLIC_INBOX];
 				$ret['object'] = $obj;
 			}
@@ -1535,8 +1535,9 @@ class Activity {
 
 	static function actor_store($url, $person_obj) {
 
-		if (!is_array($person_obj))
+		if (!is_array($person_obj)) {
 			return;
+		}
 
 		$inbox = $person_obj['inbox'];
 
@@ -1547,11 +1548,14 @@ class Activity {
 		}
 
 		$name = $person_obj['name'];
-		if (!$name)
+		if (!$name) {
 			$name = $person_obj['preferredUsername'];
-		if (!$name)
+		}
+		if (!$name) {
 			$name = t('Unknown');
+		}
 
+		$icon = z_root() . '/' . get_default_profile_photo(300);
 		if ($person_obj['icon']) {
 			if (is_array($person_obj['icon'])) {
 				if (array_key_exists('url', $person_obj['icon']))
@@ -1616,84 +1620,85 @@ class Activity {
 			}
 		}
 
-		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
+		$m = parse_url($url);
+		if($m) {
+			$hostname = $m['host'];
+			$baseurl = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$site_url = $m['scheme'] . '://' . $m['host'];
+		}
+
+		$r = q("select * from xchan join hubloc on xchan_hash = hubloc_hash where xchan_hash = '%s'",
 			dbesc($url)
 		);
-		if (!$r) {
+
+		if($r) {
+			// Record exists. Cache existing records for one week at most
+			// then refetch to catch updated profile photos, names, etc.
+			$d = datetime_convert('UTC', 'UTC', 'now - 3 days');
+			if($r[0]['hubloc_updated'] > $d) {
+				return;
+			}
+
+			q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s'",
+				dbesc(datetime_convert()),
+				dbesc($site_url)
+			);
+
+			// update existing xchan record
+			q("update xchan set xchan_name = '%s', xchan_guid = '%s', xchan_pubkey = '%s', xchan_network = 'activitypub', xchan_name_date = '%s' where xchan_hash = '%s'",
+				dbesc(escape_tags($name)),
+				dbesc(escape_tags($url)),
+				dbesc(escape_tags($pubkey)),
+				dbescdate(datetime_convert()),
+				dbesc($url)
+			);
+
+			// update existing hubloc record
+			q("update hubloc set hubloc_guid = '%s', hubloc_network = 'activitypub', hubloc_url = '%s', hubloc_host = '%s', hubloc_callback = '%s', hubloc_updated = '%s', hubloc_id_url = '%s' where hubloc_hash = '%s'",
+				dbesc(escape_tags($url)),
+				dbesc(escape_tags($baseurl)),
+				dbesc(escape_tags($hostname)),
+				dbesc(escape_tags($inbox)),
+				dbescdate(datetime_convert()),
+				dbesc(escape_tags($profile)),
+				dbesc($url)
+			);
+		}
+		else {
 			// create a new record
 
 			xchan_store_lowlevel(
 				[
-					'xchan_hash'      => $url,
-					'xchan_guid'      => $url,
-					'xchan_pubkey'    => $pubkey,
-					'xchan_addr'      => '',
-					'xchan_url'       => $profile,
-					'xchan_name'      => $name,
-					'xchan_name_date' => datetime_convert(),
-					'xchan_network'   => 'activitypub'
+					'xchan_hash'         => escape_tags($url),
+					'xchan_guid'         => escape_tags($url),
+					'xchan_pubkey'       => escape_tags($pubkey),
+					'xchan_addr'         => '',
+					'xchan_url'          => escape_tags($profile),
+					'xchan_name'         => escape_tags($name),
+					'xchan_name_date'    => datetime_convert(),
+					'xchan_network'      => 'activitypub'
 				]
 			);
-		}
-		else {
 
-			// Record exists. Cache existing records for one week at most
-			// then refetch to catch updated profile photos, names, etc.
-
-			$d = datetime_convert('UTC', 'UTC', 'now - 1 week');
-			if ($r[0]['xchan_name_date'] > $d)
-				return;
-
-			// update existing record
-			q("update xchan set xchan_name = '%s', xchan_pubkey = '%s', xchan_network = '%s', xchan_name_date = '%s' where xchan_hash = '%s'",
-				dbesc($name),
-				dbesc($pubkey),
-				dbesc('activitypub'),
-				dbesc(datetime_convert()),
-				dbesc($url)
+			hubloc_store_lowlevel(
+				[
+					'hubloc_guid'     => escape_tags($url),
+					'hubloc_hash'     => escape_tags($url),
+					'hubloc_addr'     => '',
+					'hubloc_network'  => 'activitypub',
+					'hubloc_url'      => escape_tags($baseurl),
+					'hubloc_host'     => escape_tags($hostname),
+					'hubloc_callback' => escape_tags($inbox),
+					'hubloc_updated'  => datetime_convert(),
+					'hubloc_primary'  => 1,
+					'hubloc_id_url'   => escape_tags($profile)
+				]
 			);
 		}
 
 		if ($collections) {
 			set_xconfig($url, 'activitypub', 'collections', $collections);
 		}
-
-		$r = q("select * from hubloc where hubloc_hash = '%s' limit 1",
-			dbesc($url)
-		);
-
-		$m = parse_url($url);
-		if ($m) {
-			$hostname = $m['host'];
-			$site_url  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
-		}
-
-		if (!$r) {
-			hubloc_store_lowlevel(
-				[
-					'hubloc_guid'     => $url,
-					'hubloc_hash'     => $url,
-					'hubloc_addr'     => '',
-					'hubloc_network'  => 'activitypub',
-					'hubloc_url'      => $site_url,
-					'hubloc_host'     => $hostname,
-					'hubloc_callback' => $inbox,
-					'hubloc_updated'  => datetime_convert(),
-					'hubloc_primary'  => 1,
-					'hubloc_id_url'   => $profile
-				]
-			);
-		}
-
-		q("UPDATE site SET site_update = '%s', site_dead = 0 WHERE site_url = '%s' AND site_update < %s - INTERVAL %s",
-			dbesc(datetime_convert()),
-			dbesc($site_url),
-			db_utcnow(),
-			db_quoteinterval('1 DAY')
-		);
-
-		if (!$icon)
-			$icon = z_root() . '/' . get_default_profile_photo(300);
 
 		$photos = import_xchan_photo($icon, $url);
 		q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
@@ -2264,7 +2269,6 @@ class Activity {
 			$s['app'] = escape_tags($generator['name']);
 		}
 
-
 		if (!$response_activity) {
 			$a = self::decode_taxonomy($act->obj);
 			if ($a) {
@@ -2399,7 +2403,7 @@ class Activity {
 
 			}
 
-			if ($act->obj['type'] === 'Image') {
+			if ($act->obj['type'] === 'Image' && strpos($s['body'],'zrl=') === false) {
 
 				$ptr = null;
 

@@ -20,11 +20,9 @@
 				<input id="photos-upload-choose" type="file" name="userfile" />
 			</div -->
 			{{include file="field_input.tpl" field=$caption}}
-			{{include file="field_checkbox.tpl" field=$visible}}
-			<div id="body-textarea">
 			{{include file="field_textarea.tpl" field=$body}}
-			</div>
-			<div class="float-end btn-group">
+			{{include file="field_checkbox.tpl" field=$visible}}
+			<div class="pull-right btn-group">
 				<div class="btn-group">
 					{{if $lockstate}}
 					<button id="dbtn-acl" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
@@ -40,11 +38,10 @@
 
 			{{if $uploader}}
 			{{include file="field_input.tpl" field=$caption}}
-			{{include file="field_checkbox.tpl" field=$visible}}
-			<div id="body-textarea">
 			{{include file="field_textarea.tpl" field=$body}}
-			</div>
-			<div id="photos-upload-perms" class="btn-group float-end">
+			{{include file="field_checkbox.tpl" field=$visible}}
+
+			<div id="photos-upload-perms" class="btn-group pull-right">
 				{{if $lockstate}}
 				<button class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#aclModal" onclick="return false;">
 					<i id="jot-perms-icon" class="fa fa-{{$lockstate}}"></i>

@@ -13,11 +13,11 @@ class Notifications {
 				'type' => 'network',
 				'icon' => 'th',
 				'severity' => 'secondary',
-				'label' => t('New Network Activity'),
-				'title' => t('New Network Activity Notifications'),
+				'label' => t('Network'),
+				'title' => t('New network activity notifications'),
 				'viewall' => [
 					'url' => 'network',
-					'label' => t('View your network activity')
+					'label' => t('Network stream')
 				],
 				'markall' => [
 					'label' => t('Mark all notifications read')
@@ -33,11 +33,11 @@ class Notifications {
 				'type' => 'home',
 				'icon' => 'home',
 				'severity' => 'danger',
-				'label' => t('New Home Activity'),
-				'title' => t('New Home Activity Notifications'),
+				'label' => t('Home'),
+				'title' => t('New home activity notifications'),
 				'viewall' => [
 					'url' => 'channel/' . $channel['channel_address'],
-					'label' => t('View your home activity')
+					'label' => t('Home stream')
 				],
 				'markall' => [
 					'label' => t('Mark all notifications seen')
@@ -52,11 +52,11 @@ class Notifications {
 				'type' => 'dm',
 				'icon' => 'envelope',
 				'severity' => 'danger',
-				'label' => t('New Direct Messages'),
-				'title' => t('New Direct Messages Notifications'),
+				'label' => t('Direct Messages'),
+				'title' => t('New direct messages notifications'),
 				'viewall' => [
 					'url' => 'network/?dm=1',
-					'label' => t('View your direct messages')
+					'label' => t('Direct messages stream')
 				],
 				'markall' => [
 					'label' => t('Mark all notifications read')
@@ -71,8 +71,8 @@ class Notifications {
 				'type' => 'all_events',
 				'icon' => 'calendar',
 				'severity' => 'secondary',
-				'label' => t('New Events'),
-				'title' => t('New Events Notifications'),
+				'label' => t('Events'),
+				'title' => t('New events notifications'),
 				'viewall' => [
 					'url' => 'cdav/calendar',
 					'label' => t('View events')
@@ -87,7 +87,7 @@ class Notifications {
 				'icon' => 'users',
 				'severity' => 'danger',
 				'label' => t('New Connections'),
-				'title' => t('New Connections Notifications'),
+				'title' => t('New connections notifications'),
 				'viewall' => [
 					'url' => 'connections',
 					'label' => t('View all connections')
@@ -98,8 +98,8 @@ class Notifications {
 				'type' => 'files',
 				'icon' => 'folder',
 				'severity' => 'danger',
-				'label' => t('New Files'),
-				'title' => t('New Files Notifications'),
+				'label' => t('Files'),
+				'title' => t('New files notifications'),
 			];
 
 			$notifications[] = [
@@ -134,8 +134,8 @@ class Notifications {
 				'type' => 'register',
 				'icon' => 'user-o',
 				'severity' => 'danger',
-				'label' => t('New Registrations'),
-				'title' => t('New Registrations Notifications'),
+				'label' => t('Registrations'),
+				'title' => t('New registrations notifications'),
 			];
 		}
 
@@ -145,10 +145,10 @@ class Notifications {
 				'icon' => 'globe',
 				'severity' => 'secondary',
 				'label' => t('Public Stream'),
-				'title' => t('Public Stream Notifications'),
+				'title' => t('New public stream notifications'),
 				'viewall' => [
 					'url' => 'pubstream',
-					'label' => t('View the public stream')
+					'label' => t('Public stream')
 				],
 				'markall' => [
 					'label' => t('Mark all notifications seen')
@@ -161,11 +161,9 @@ class Notifications {
 		}
 
 		$o = replace_macros(get_markup_template('notifications_widget.tpl'), [
-			'$module' => \App::$module,
 			'$notifications' => $notifications,
 			'$no_notifications' => t('Sorry, you have got no notifications at the moment'),
 			'$loading' => t('Loading'),
-			'$startpage' => ($channel ? $channel['channel_startpage'] : '')
 		]);
 
 		return $o;

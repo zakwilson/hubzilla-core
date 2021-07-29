@@ -162,11 +162,20 @@ function string2bb(element) {
 		if (typeof extra_channels === 'undefined') extra_channels = false;
 
 		// Autocomplete contacts
-		contacts = {
-			match: /(^|\s)(@\!*)([^ \n]{3,})$/,
+		channels = {
+			match: /(^(?=[^\!]{2})|\s)(@)([^ \n]{3,})$/,
 			index: 3,
 			cache: true,
 			search: function(term, callback) { contact_search(term, callback, backend_url, 'c', extra_channels, spinelement=false); },
+			replace: editor_replace,
+			template: contact_format
+		};
+
+		contacts = {
+			match: /(^|\s)(@\!)([^ \n]{3,})$/,
+			index: 3,
+			cache: true,
+			search: function(term, callback) { contact_search(term, callback, backend_url, 'm', extra_channels, spinelement=false); },
 			replace: editor_replace,
 			template: contact_format
 		};
@@ -202,7 +211,7 @@ function string2bb(element) {
 					maxCount: 100
 				}
 			});
-			textcomplete.register([contacts,smilies,tags]);
+			textcomplete.register([channels,contacts,smilies,tags]);
 		});
 	};
 })( jQuery );

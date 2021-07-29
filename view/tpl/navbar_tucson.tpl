@@ -142,7 +142,7 @@
 		{{if $channel_menu && $channel_apps.0}}
 		<li class="nav-item dropdown" id="channel-menu">
 			<a class="nav-link" href="#" data-bs-toggle="dropdown"><img src="{{$channel_thumb}}" style="height:14px; width:14px;position:relative; top:-2px;" /></a>
-			<div id="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+			<div id="dropdown-menu" class="dropdown-menu dropdown-menu-end">
 				{{foreach $channel_apps as $channel_app}}
 				{{$channel_app}}
 				{{/foreach}}
@@ -158,7 +158,7 @@
 		{{/if}}
 		<li class="nav-item dropdown" id="app-menu">
 			<a class="nav-link" href="#" data-bs-toggle="dropdown"><i class="fa fa-fw fa-bars"></i></a>
-			<div id="dropdown-menu" class="dropdown-menu dropdown-menu-right">
+			<div id="dropdown-menu" class="dropdown-menu dropdown-menu-end">
 				{{if $channel_apps.0 && ! $channel_menu}}
 				{{foreach $channel_apps as $channel_app}}
 				{{$channel_app}}

@@ -23,7 +23,7 @@
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="mail-item-menu-{{$mail.id}}">
 				<i class="fa fa-cog"></i>
 			</button>
-			<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="mail-item-menu-{{$mail.id}}">
+			<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="mail-item-menu-{{$mail.id}}">
 				{{** if $mail.can_recall}}
 				<a class="dropdown-item" href="mail/{{$mail.mailbox}}/recall/{{$mail.id}}" title="{{$mail.recall}}" id="mail-conv-recall-icon-{{$mail.id}}"><i class="fa fa-fw fa-undo"></i>&nbsp;{{$mail.recall}}</a>
 				{{/if **}}

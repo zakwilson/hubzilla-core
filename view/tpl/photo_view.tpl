@@ -7,7 +7,7 @@
 				<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 					<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 				</button>
-				<div class="dropdown-menu dropdown-menu-right flex-column">
+				<div class="dropdown-menu dropdown-menu-end flex-column">
 					{{if $tools}}
 					<a class="dropdown-item" href="{{$tools.profile.0}}"><i class="fa fa-user"></i>&nbsp;{{$tools.profile.1}}</a>
 					<a class="dropdown-item" href="{{$tools.cover.0}}"><i class="fa fa-picture-o"></i>&nbsp;{{$tools.cover.1}}</a>
@@ -24,7 +24,7 @@
 			{{if $lock}}
 			<div class="btn-group">
 				<button id="lockview" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" title="{{$lock}}" onclick="lockview('photo',{{$id}});" ><i class="fa fa-lock"></i></button>
-				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
+				<ul id="panel-{{$id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 			</div>
 			{{/if}}
 			{{if $prevlink || $nextlink}}

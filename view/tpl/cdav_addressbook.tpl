@@ -173,7 +173,7 @@ $(document).ready(function() {
 			<input type="hidden" name="target" value="{{$id}}">
 			<div class="dropdown float-end">
 				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="fa fa-plus"></i> {{$add_field}}</button>
-				<div class="dropdown-menu dropdown-menu-right">
+				<div class="dropdown-menu dropdown-menu-end">
 					<a class="dropdown-item add-vcard-org add-field" style="display: none" href="#" data-add="vcard-org" data-id="new">{{$org_label}}</a>
 					<a class="dropdown-item add-vcard-title add-field" style="display: none" href="#" data-add="vcard-title" data-id="new">{{$title_label}}</a>
 					<a class="dropdown-item add-vcard-tel add-field" href="#" data-add="vcard-tel" data-id="new">{{$tel_label}}</a>
@@ -275,7 +275,7 @@ $(document).ready(function() {
 			<div id="vcard-cancel-{{$card.id}}" class="vcard-cancel vcard-cancel-btn" data-id="{{$card.id}}" data-action="cancel"><i class="fa fa-close"></i></div>
 			<div id="vcard-add-field-{{$card.id}}" class="dropdown float-end vcard-add-field">
 				<button data-bs-toggle="dropdown" type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle"><i class="fa fa-plus"></i> {{$add_field}}</button>
-				<div class="dropdown-menu dropdown-menu-right">
+				<div class="dropdown-menu dropdown-menu-end">
 					<a class="dropdown-item add-vcard-org add-field"{{if $card.org}} style="display: none"{{/if}} href="#" data-add="vcard-org" data-id="{{$card.id}}">{{$org_label}}</a>
 					<a class="dropdown-item add-vcard-title add-field"{{if $card.title}} style="display: none"{{/if}} href="#" data-add="vcard-title" data-id="{{$card.id}}">{{$title_label}}</a>
 					<a class="dropdown-item add-vcard-tel add-field" href="#" data-add="vcard-tel" data-id="{{$card.id}}">{{$tel_label}}</a>

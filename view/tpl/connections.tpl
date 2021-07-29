@@ -7,7 +7,7 @@
 			<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="{{$sort}}">
 				<i class="fa fa-filter"></i>
 			</button>
-			<div class="dropdown-menu dropdown-menu-right">
+			<div class="dropdown-menu dropdown-menu-end">
 				{{foreach $tabs as $menu}}
 				<a class="dropdown-item {{$menu.sel}}" href="{{$menu.url}}">{{$menu.label}}</a>
 				{{/foreach}}

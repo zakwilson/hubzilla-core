@@ -92,7 +92,7 @@
 								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-attend-menu-{{$id}}" title="{{$attend_title}}">
 									<i class="fa fa-calendar-check-o"></i>
 								</button>
-								<div class="dropdown-menu dropdown-menu-right">
+								<div class="dropdown-menu dropdown-menu-end">
 									<a class="dropdown-item" href="#" title="{{$attend.0}}" onclick="itemAddToCal({{$id}}); dolike({{$id}},'attendyes'); return false;">
 										<i class="item-act-list fa fa-check{{if $my_responses.attend}} ivoted{{/if}}" ></i> {{$attend.0}}
 									</a>
@@ -110,7 +110,7 @@
 								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-consensus-menu-{{$id}}" title="{{$vote_title}}">
 									<i class="fa fa-check-square-o"></i>
 								</button>
-								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-consensus-menu-{{$id}}">
+								<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-consensus-menu-{{$id}}">
 									<a class="dropdown-item" href="#" title="{{$conlabels.0}}" onclick="dolike({{$id}},'agree'); return false;">
 										<i class="item-act-list fa fa-check{{if $my_responses.agree}} ivoted{{/if}}" ></i> {{$conlabels.0}}
 									</a>
@@ -127,7 +127,7 @@
 							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="pinned-item-menu-{{$id}}">
 								<i class="fa fa-cog"></i>
 							</button>
-							<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$id}}">
+							<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-menu-{{$id}}">
 								{{if $share}}
 									<a class="dropdown-item" href="#" onclick="jotShare({{$id}},{{$item_type}}); return false;"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$share.0}}"></i>{{$share.0}}</a>
 								{{/if}}

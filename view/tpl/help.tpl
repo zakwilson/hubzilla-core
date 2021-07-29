@@ -5,7 +5,7 @@
 				<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 					<i class="fa fa-language" style="font-size: 1.4em;"></i>
 				</button>
-				<div class="dropdown-menu dropdown-menu-right flex-column lang-selector">
+				<div class="dropdown-menu dropdown-menu-end flex-column lang-selector">
 					<a class="dropdown-item lang-choice" href="/help">de</a>
 					<a class="dropdown-item lang-choice" href="/help">en</a>
 					<a class="dropdown-item lang-choice" href="/help">es</a>

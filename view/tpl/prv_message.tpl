@@ -83,7 +83,7 @@
 							<button type="button" id="more-tools" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
 								<i id="more-tools-icon" class="fa fa-cog jot-icons"></i>
 							</button>
-							<div class="dropdown-menu dropdown-menu-right" role="menu">
+							<div class="dropdown-menu dropdown-menu-end" role="menu">
 								<a class="dropdown-item" href="#" id="prvmail-attach-sub"><i class="fa fa-paperclip"></i>&nbsp;{{$attach}}</a>
 								<a class="dropdown-item" href="#" onclick="prvmailJotGetLink(); return false;" ><i class="fa fa-link"></i>&nbsp;{{$insert}}</a>
 								{{if $feature_expire || $feature_encrypt}}

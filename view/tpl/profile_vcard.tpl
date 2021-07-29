@@ -9,7 +9,7 @@
 	{{if $editmenu.multi}}
 	<div class="dropdown float-end">
 		<a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" ><i class="fa fa-pencil" title="{{$editmenu.edit.1}}"></i></a>
-		<div class="dropdown-menu dropdown-menu-right" role="menu">
+		<div class="dropdown-menu dropdown-menu-end" role="menu">
 			{{foreach $editmenu.menu.entries as $e}}
 			<a href="profiles/{{$e.id}}" class="dropdown-item"><img class="menu-img-1" src='{{$e.photo}}'> {{$e.profile_name}}</a>
 			{{/foreach}}

@@ -48,7 +48,7 @@
 				<td class="dropdown">
 					{{if $wiki.lockstate == 'lock'}}
 					<i class="fa fa-lock lockview" data-bs-toggle="dropdown" onclick="lockview('item',{{$wiki.id}});"></i>
-					<ul id="panel-{{$wiki.id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
+					<ul id="panel-{{$wiki.id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 					{{/if}}
 				</td>
 				<td><i class="fa fa-download" onclick="wiki_download_wiki('{{$wiki.resource_id}}'); return false;"></i></td>

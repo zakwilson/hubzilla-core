@@ -77,7 +77,7 @@
 							<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-react-{{$item.id}}">
 								<i class="fa fa-smile-o"></i>
 							</button>
-							<div class="dropdown-menu dropdown-menu-right">
+							<div class="dropdown-menu dropdown-menu-end">
 							{{foreach $item.reactions as $react}}
 								<a class="dropdown-item clearfix" href="#" onclick="jotReact({{$item.id}},'{{$react}}'); return false;"><img class="menu-img-2" src="/images/emoji/{{$react}}.png" alt="{{$react}}" /></a>
 							{{/foreach}}
@@ -135,7 +135,7 @@
 								<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" id="wall-item-menu-{{$item.id}}">
 									<i class="fa fa-cog"></i>
 								</button>
-								<div class="dropdown-menu dropdown-menu-right" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
+								<div class="dropdown-menu dropdown-menu-end" role="menu" aria-labelledby="wall-item-menu-{{$item.id}}">
 									{{if $item.share}}
 									<a class="dropdown-item" href="#" onclick="jotShare({{$item.id}},{{$item.item_type}}); return false"><i class="generic-icons-nav fa fa-fw fa-retweet" title="{{$item.share.0}}"></i>{{$item.share.0}}</a>
 									{{/if}}

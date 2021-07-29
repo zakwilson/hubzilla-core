@@ -99,7 +99,7 @@ $(document).ready(function() {
 				tao.zin.htm += '</ul>';
 				$('.zinpax').remove();
 				$('.zinlcx').append(tao.zin.htm);
-				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-right').css('left','-16em');
+				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-end').css('left','-16em');
    			});
 			return false;
 		} else {

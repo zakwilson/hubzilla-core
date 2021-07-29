@@ -6,7 +6,7 @@
 				<button id="connection-dropdown" class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 				</button>
-				<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+				<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dLabel">
 					<a class="dropdown-item" href="{{$tools.view.url}}" title="{{$tools.view.title}}">{{$tools.view.label}}</a>
 					<a class="dropdown-item" href="{{$tools.recent.url}}" title="{{$tools.recent.title}}">{{$tools.recent.label}}</a>
 					{{if $tools.fetchvc}}
@@ -26,7 +26,7 @@
 				<a href="connedit/{{$abook_prev}}{{if $section}}?f=&section={{$section}}{{/if}}" class="btn btn-outline-secondary btn-sm{{if ! $abook_prev}} disabled{{/if}}" ><i class="fa fa-backward"></i></a>
 				<div class="btn-group" >
 					<button class="btn btn-outline-secondary btn-sm{{if $is_pending}} disabled{{/if}}" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars"></i></button>
-					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
+					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dLabel">
 						{{foreach $sections as $s}}
 						<a class="dropdown-item" href="{{$s.url}}" title="{{$s.title}}">{{$s.label}}</a>
 						{{/foreach}}

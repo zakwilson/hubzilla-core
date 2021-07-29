@@ -76,7 +76,7 @@
 						<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 							<i class="fa fa-cog"></i>
 						</button>
-						<div class="dropdown-menu dropdown-menu-right">
+						<div class="dropdown-menu dropdown-menu-end">
 							{{if $item.star}}
 							<a class="dropdown-item" href="#" onclick="dostar({{$item.id}}); return false;"><i id="starred-{{$item.id}}" class="fa fa-fw{{if $item.star.isstarred}} starred fa-star{{else}} unstarred fa-star-o{{/if}} generic-icons-nav" title="{{$item.star.toggle}}"></i>{{$item.star.toggle}}</a>
 							{{/if}}

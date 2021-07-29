@@ -77,7 +77,7 @@
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
-					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button">
+					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
 						{{if $is_owner}}
 						<a id="cloud-multi-tool-perms-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-lock"></i> {{$adjust_permissions_label}}</a>
 						{{/if}}
@@ -92,7 +92,7 @@
 					<button class="btn btn-warning btn-sm" id="multi-dropdown-button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v d-table-cell"></i><span class="d-none d-md-table-cell">{{$bulk_actions_label}}</span>
 					</button>
-					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button">
+					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button">
 						<a id="cloud-multi-tool-delete-btn" class="dropdown-item" href="#"><i class="fa fa-fw fa-trash-o"></i> {{$admin_delete_label}}</a>
 					</div>
 				</div>
@@ -152,7 +152,7 @@
 			<td class="cloud-index-tool p-2">
 				{{if $item.lockstate == 'lock'}}
 				<i class="fa fa-lock lockview" data-bs-toggle="dropdown" onclick="lockview('attach',{{$item.attach_id}});"></i>
-				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-right"></ul>
+				<ul id="panel-{{$item.attach_id}}" class="lockview-panel dropdown-menu dropdown-menu-end"></ul>
 				{{/if}}
 			</td>
 			<td class="cloud-index-tool">
@@ -161,7 +161,7 @@
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
-					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
+					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						<a id="cloud-tool-info-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-info-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-info"></i> {{$info_label}}</a>
 						{{if $is_owner}}
 						<a id="cloud-tool-perms-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-perms-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-{{$item.lockstate}}"></i> {{$adjust_permissions_label}}</a>
@@ -186,7 +186,7 @@
 					<button class="btn btn-link btn-sm" id="dropdown-button-{{$item.attach_id}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						<i class="fa fa-fw fa-ellipsis-v"></i>
 					</button>
-					<div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-button-{{$item.attach_id}}">
+					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-button-{{$item.attach_id}}">
 						{{if $item.collection}}
 						<a id="cloud-tool-dir-download-btn-{{$item.attach_id}}" class="dropdown-item cloud-tool-dir-download-btn" href="#" data-id="{{$item.attach_id}}"><i class="fa fa-fw fa-cloud-download"></i> {{$download_label}}</a>
 						{{else}}

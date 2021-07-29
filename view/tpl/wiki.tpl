@@ -7,7 +7,7 @@
 				<button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
 					<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 				</button>
-				<div class="dropdown-menu dropdown-menu-right">
+				<div class="dropdown-menu dropdown-menu-end">
 					{{if $renamePage}}
 					<a class="dropdown-item rename-page" href="#"><i class="fa fa-fw fa-edit"></i>&nbsp;{{$renamePage}}</a>
 					{{/if}}

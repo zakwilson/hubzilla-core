@@ -32,7 +32,7 @@
 					<div id="chat-submit" class="dropup float-end">
 						<button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown"><i class="fa fa-cog"></i></button>
 						<button class="btn btn-primary btn-sm" type="submit" id="chat-submit" name="submit" value="{{$submit}}">{{$submit}}</button>
-						<div class="dropdown-menu dropdown-menu-right">
+						<div class="dropdown-menu dropdown-menu-end">
 							<a class="dropdown-item" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=online"><i class="fa fa-circle online"></i>&nbsp;{{$online}}</a>
 							<a class="dropdown-item" href="{{$baseurl}}/chatsvc?f=&room_id={{$room_id}}&status=away"><i class="fa fa-circle away"></i>&nbsp;{{$away}}</a>
 							<a class="dropdown-item" href="{{$baseurl}}/chat/{{$nickname}}/{{$room_id}}/leave"><i class="fa fa-circle leave"></i>&nbsp;{{$leave}}</a>

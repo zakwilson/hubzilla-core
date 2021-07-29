@@ -545,7 +545,7 @@
 				<i class="fa fa-fw fa-{{$notification.icon}}"></i> {{$notification.label}}
 				<span class="float-end badge bg-{{$notification.severity}} {{$notification.type}}-update"></span>
 			</a>
-			<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush border border-left-0 border-top-0 border-right-0 collapse notification-content" data-bs-parent="#notifications" data-sse_type="{{$notification.type}}">
+			<div id="nav-{{$notification.type}}-sub" class="list-group list-group-flush border-bottom collapse notification-content" data-bs-parent="#notifications" data-sse_type="{{$notification.type}}">
 				{{if $notification.viewall}}
 				<a class="list-group-item text-decoration-none text-dark" id="nav-{{$notification.type}}-see-all" href="{{$notification.viewall.url}}">
 					<i class="fa fa-fw fa-external-link"></i> {{$notification.viewall.label}}

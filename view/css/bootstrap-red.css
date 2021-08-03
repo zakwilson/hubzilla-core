@@ -52,6 +52,12 @@ nav .dropdown-menu {
 .navbar-dark .navbar-toggler {
 	color: rgba(255,255,255,1);
 }
+
+.offcanvas,
+.modal-backdrop.fade {
+	transition: none;
+}
+
 /* nav overrides end */
 
 label {

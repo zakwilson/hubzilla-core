@@ -1,6 +1,6 @@
 <?php /** @file */
 
-namespace Zotlabs\Module; 
+namespace Zotlabs\Module;
 
 //require_once('include/apps.php');
 
@@ -9,10 +9,10 @@ use \Zotlabs\Lib as Zlib;
 class Appman extends \Zotlabs\Web\Controller {
 
 	function post() {
-	
+
 		if(! local_channel())
 			return;
-	
+
 		if($_POST['url']) {
 			$arr = array(
 				'uid' => intval($_REQUEST['uid']),
@@ -32,30 +32,30 @@ class Appman extends \Zotlabs\Web\Controller {
 				'sig' => escape_tags($_REQUEST['sig']),
 				'categories' => escape_tags($_REQUEST['categories'])
 			);
-	
+
 			$_REQUEST['appid'] = Zlib\Apps::app_install(local_channel(),$arr);
-	
+
 			if(Zlib\Apps::app_installed(local_channel(),$arr))
 				info( t('App installed.') . EOL);
 
 			goaway(z_root() . '/apps');
 			return; //not reached
 		}
-	
-	
+
+
 		$papp = Zlib\Apps::app_decode($_POST['papp']);
-	
+
 		if(! is_array($papp)) {
 			notice( t('Malformed app.') . EOL);
 			return;
 		}
-	
+
 		if($_POST['install']) {
 			Zlib\Apps::app_install(local_channel(),$papp);
 			if(Zlib\Apps::app_installed(local_channel(),$papp))
 				info( t('App installed.') . EOL);
 		}
-	
+
 		if($_POST['delete']) {
 			Zlib\Apps::app_destroy(local_channel(),$papp);
 		}
@@ -72,17 +72,21 @@ class Appman extends \Zotlabs\Web\Controller {
 			Zlib\Apps::app_feature(local_channel(), $papp, $_POST['pin']);
 		}
 
-		if($_SESSION['return_url']) 
+		if($_POST['aj']) {
+			killme();
+		}
+
+		if($_SESSION['return_url'])
 			goaway(z_root() . '/' . $_SESSION['return_url']);
 
 		goaway(z_root() . '/apps');
-	
-	
+
+
 	}
-	
-	
+
+
 	function get() {
-	
+
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
@@ -130,11 +134,11 @@ class Appman extends \Zotlabs\Web\Controller {
 			}
 
 			$embed = array('embed', t('Embed code'), Zlib\Apps::app_encode($app,true),'', 'onclick="this.select();"');
-	
+
 		}
-				
+
 		return replace_macros(get_markup_template('app_create.tpl'), array(
-	
+
 			'$banner' => (($app) ? t('Edit App') : t('Create App')),
 			'$app' => $app,
 			'$guid' => (($app) ? $app['app_id'] : ''),
@@ -154,7 +158,7 @@ class Appman extends \Zotlabs\Web\Controller {
 			'$embed' => $embed,
 			'$submit' => t('Submit')
 		));
-	
+
 	}
-	
+
 }

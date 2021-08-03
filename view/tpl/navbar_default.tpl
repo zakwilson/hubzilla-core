@@ -168,7 +168,7 @@
 			{{/if**}}
 			{{if $navbar_apps}}
 			{{foreach $navbar_apps as $navbar_app}}
-			<li>
+			<li class="nav-app-sortable">
 			{{$navbar_app}}
 			</li>
 			{{/foreach}}
@@ -262,13 +262,182 @@
 			{{$sysapps}}
 		</div>
 		{{/if}}
+		<div id="nav-app-bin-container" class="d-lg-none">
+		{{foreach $navbar_apps as $navbar_app}}
+			{{$navbar_app|replace:'navbar-app nav-link':'dropdown-item nav-app-sortable'|replace:'fa':'generic-icons-nav fa'}}
+		{{/foreach}}
+		<div class="dropdown-divider"></div>
+		</div>
+		{{if $is_owner}}
+		<div id="app-bin-container" data-token="{{$form_security_token}}">
+		{{/if}}
 		{{foreach $nav_apps as $nav_app}}
 			{{$nav_app}}
 		{{/foreach}}
 		{{if $is_owner}}
+		</div>
+		{{/if}}
+		{{if $is_owner}}
 		<div class="dropdown-divider"></div>
 		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
-		<a class="dropdown-item" href="/apporder"><i class="generic-icons-nav fa fa-fw fa-sort"></i>{{$orderapps}}</a>
 		{{/if}}
 	</div>
 </div>
+{{if $is_owner}}
+<script>
+	var app_bin = document.getElementById('app-bin-container');
+	new Sortable(app_bin, {
+		animation: 150,
+		delay: 200,
+		delayOnTouchOnly: true,
+		onEnd: function (e) {
+			let app_str = '';
+			$('#app-bin-container a').each(function () {
+				if(app_str.length) {
+					app_str = app_str.concat(',', $(this).text());
+				}
+				else {
+					app_str = app_str.concat($(this).text());
+				}
+			});
+			$.post(
+				'pconfig',
+				{
+					'aj' : 1,
+					'cat' : 'system',
+					'k' : 'app_order',
+					'v' : app_str,
+					'form_security_token' : $('#app-bin-container').data('token')
+				}
+			);
+
+		}
+	});
+
+	var nav_app_bin = document.getElementById('nav-right');
+	new Sortable(nav_app_bin, {
+		animation: 150,
+		delay: 200,
+		delayOnTouchOnly: true,
+		draggable: '.nav-app-sortable',
+		onEnd: function (e) {
+			let nav_app_str = '';
+			$('#nav-right .nav-app-sortable').each(function () {
+				if(nav_app_str.length) {
+					nav_app_str = nav_app_str.concat(',', $(this).text());
+				}
+				else {
+					nav_app_str = nav_app_str.concat($(this).text());
+				}
+			});
+			$.post(
+				'pconfig',
+				{
+					'aj' : 1,
+					'cat' : 'system',
+					'k' : 'app_pin_order',
+					'v' : nav_app_str,
+					'form_security_token' : $('#app-bin-container').data('token')
+				}
+			);
+
+		}
+	});
+
+	var nav_app_bin_container = document.getElementById('nav-app-bin-container');
+	new Sortable(nav_app_bin_container, {
+		animation: 150,
+		delay: 200,
+		delayOnTouchOnly: true,
+		onEnd: function (e) {
+			let nav_app_str = '';
+			$('#nav-app-bin-container a').each(function () {
+				if(nav_app_str.length) {
+					nav_app_str = nav_app_str.concat(',', $(this).text());
+				}
+				else {
+					nav_app_str = nav_app_str.concat($(this).text());
+				}
+			});
+			$.post(
+				'pconfig',
+				{
+					'aj' : 1,
+					'cat' : 'system',
+					'k' : 'app_pin_order',
+					'v' : nav_app_str,
+					'form_security_token' : $('#app-bin-container').data('token')
+				}
+			);
+
+		}
+	});
+
+	$('#nav-right').on('dragover', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '0px 0px 3px red inset');
+	});
+	$('#nav-right').on('dragleave', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '');
+
+	});
+	$('#nav-right').on('drop', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '');
+
+		if (papp === null)
+			return;
+
+		$.post(
+			'appman',
+			{
+				'aj' : 1,
+				'feature' : 'nav_pinned_app',
+				'papp' : papp
+			}
+		);
+
+		$('<li><a class="navbar-app nav-link" href="' + app_url + '"><i class="fa fa-fw fa-' + app_icon + '"></i></li>').insertBefore('#app-menu');
+	});
+
+	$('#app-menu').on('dragover', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '0px 0px 1px red inset');
+	});
+	$('#app-menu').on('dragleave', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '');
+
+	});
+	$('#app-menu').on('drop', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$(this).css('box-shadow', '');
+
+		if (papp === null)
+			return;
+
+		$.post(
+			'appman',
+			{
+				'aj' : 1,
+				'feature' : 'nav_featured_app',
+				'papp' : papp
+			}
+		);
+	});
+
+	var papp, app_icon, app_url;
+	$(document).on('dragstart', function (e) {
+		papp = e.target.dataset.papp || null;
+		app_icon = e.target.dataset.icon || null;
+		app_url = e.target.dataset.url || null;
+	});
+</script>
+{{/if}}

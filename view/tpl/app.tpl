@@ -1,7 +1,7 @@
 {{if ! ($navapps || $order)}}
 <div class="app-container">
 	<div class="app-detail{{if $deleted}} app-deleted{{/if}}">
-		<a href="{{$app.url}}"{{if $app.target}} target="{{$app.target}}"{{/if}}{{if $app.desc}} title="{{$app.desc}}{{if $app.price}} ({{$app.price}}){{/if}}"{{else}}title="{{$app.name}}"{{/if}}>{{if $icon}}<i class="app-icon fa fa-fw fa-{{$icon}}"></i>{{else}}<img src="{{$app.photo}}" width="80" height="80" />{{/if}}
+		<a class="app-link" href="{{$app.url}}"{{if $app.target}} target="{{$app.target}}"{{/if}}{{if $app.desc}} title="{{$app.desc}}{{if $app.price}} ({{$app.price}}){{/if}}"{{else}}title="{{$app.name}}"{{/if}}{{if $installed}} data-papp="{{$app.papp}}" data-icon="{{$icon}}" data-url="{{$app.url}}"{{/if}}>{{if $icon}}<i class="app-icon fa fa-fw fa-{{$icon}}"></i>{{else}}<img src="{{$app.photo}}" width="80" height="80" />{{/if}}
 			<div class="app-name" style="text-align:center;">{{$app.name}}</div>
 		</a>
 	</div>

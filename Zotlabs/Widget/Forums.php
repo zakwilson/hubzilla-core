@@ -34,7 +34,7 @@ class Forums {
 				intval(local_channel())
 			);
 
-			if($x2) { 
+			if($x2) {
 				$xf = ids_to_querystr($x2,'xchan',true);
 
 				// private forums
@@ -47,7 +47,7 @@ class Forums {
 			}
 		}
 
-		$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 "); 
+		$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
 
 
 
@@ -64,7 +64,7 @@ class Forums {
 		// There also should be a way to update this via ajax.
 
 		for($x = 0; $x < count($r1); $x ++) {
-			$r = q("select sum(item_unseen) as unseen from item 
+			$r = q("select sum(item_unseen) as unseen from item
 				where uid = %d and owner_xchan = '%s' and item_unseen = 1 $perms_sql ",
 				intval(local_channel()),
 				dbesc($r1[$x]['xchan_hash'])
@@ -109,12 +109,12 @@ class Forums {
 						}
 					}
 				}
-							
+
 				if($unseen && (! intval($rr['unseen'])))
 					continue;
 
 
-				$o .= '<li class="nav-item"><a class="nav-link" href="' . $link . '" ><span class="badge badge-secondary float-right">' . ((intval($rr['unseen'])) ? intval($rr['unseen']) : '') . '</span><img class ="menu-img-1" src="' . $rr['xchan_photo_s'] . '" /> ' . $rr['xchan_name'] . '</a></li>';
+				$o .= '<li class="nav-item"><a class="nav-link" href="' . $link . '" ><span class="badge bg-secondary float-end">' . ((intval($rr['unseen'])) ? intval($rr['unseen']) : '') . '</span><img class ="menu-img-1" src="' . $rr['xchan_photo_s'] . '" /> ' . $rr['xchan_name'] . '</a></li>';
 			}
 			$o .= '</ul></div>';
 		}

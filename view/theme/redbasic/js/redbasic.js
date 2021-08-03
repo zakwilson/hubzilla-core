@@ -50,7 +50,7 @@ $(document).ready(function() {
 	});
 
 	$("input[data-role=cat-tagsinput]").tagsinput({
-		tagClass: 'badge badge-pill badge-warning text-dark'
+		tagClass: 'badge rounded-pill bg-warning text-dark'
 	});
 
 	$('a.disabled').click(function(e) {

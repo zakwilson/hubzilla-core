@@ -334,7 +334,7 @@ function nav($template = 'default') {
 		'$channel_menu'       => get_pconfig(App::$profile_uid, 'system', 'channel_menu', get_config('system', 'channel_menu')),
 		'$channel_thumb'      => ((App::$profile) ? App::$profile['thumb'] : ''),
 		'$channel_apps'       => $channel_apps,
-		'$addapps'            => t('Add Apps'),
+		'$addapps'            => t('Apps'),
 		'$apps'               => t('Apps'),
 		'$channelapps'        => t('Channel Apps'),
 		'$sysapps'            => t('System Apps'),
@@ -343,6 +343,7 @@ function nav($template = 'default') {
 		'$settings_url'       => $settings_url,
 		'$name'               => App::$profile['channel_name'],
 		'$thumb'              => App::$profile['thumb'],
+		'$form_security_token' => get_form_security_token('pconfig')
 	]);
 
 	if (x($_SESSION, 'reload_avatar') && $observer) {

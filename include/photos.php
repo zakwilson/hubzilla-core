@@ -872,6 +872,8 @@ function photos_create_item($channel, $creator_hash, $photo, $visible = false) {
 
 	// Create item container
 
+hz_syslog(print_r($photo,true));
+
 	$item_hidden = (($visible) ? 0 : 1 );
 
 	$uuid = item_message_id();

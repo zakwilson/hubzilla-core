@@ -47,7 +47,7 @@ $(document).ready(function () {
 		let id = $(this).data('id');
 		activate_id(id);
 		$('#id_categories_' + id).tagsinput({
-			tagClass: 'badge badge-pill badge-warning text-dark'
+			tagClass: 'badge rounded-pill bg-warning text-dark'
 		});
 		$('#cloud-tool-categories-' + id).show();
 	});
@@ -278,7 +278,7 @@ $(document).ready(function () {
 		disable_multi_acl();
 
 		$('#id_categories').tagsinput({
-			tagClass: 'badge badge-pill badge-warning text-dark'
+			tagClass: 'badge rounded-pill bg-warning text-dark'
 		});
 
 		$('#cloud-multi-tool-submit, #cloud-multi-tool-categories').show();

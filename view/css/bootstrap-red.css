@@ -58,6 +58,11 @@ nav .dropdown-menu {
 	transition: none;
 }
 
+.offcanvas-end {
+	width: unset;
+	min-width: 250px;
+}
+
 /* nav overrides end */
 
 label {

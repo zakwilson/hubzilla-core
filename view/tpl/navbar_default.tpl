@@ -392,16 +392,19 @@
 		if (papp === null)
 			return;
 
-		$.post(
-			'appman',
-			{
+		$.ajax({
+			type: 'post',
+			url: 'appman',
+			data: {
 				'aj' : 1,
 				'feature' : 'nav_pinned_app',
 				'papp' : papp
 			}
-		);
+		})
+		.done( function() {
+			$('<li><a class="navbar-app nav-link" href="' + app_url + '"><i class="fa fa-fw fa-' + app_icon + '"></i></li>').insertBefore('#app-menu');
+		});
 
-		$('<li><a class="navbar-app nav-link" href="' + app_url + '"><i class="fa fa-fw fa-' + app_icon + '"></i></li>').insertBefore('#app-menu');
 	});
 
 	$('#app-menu').on('dragover', function (e) {
@@ -423,14 +426,19 @@
 		if (papp === null)
 			return;
 
-		$.post(
-			'appman',
-			{
+		$.ajax({
+			type: 'post',
+			url: 'appman',
+			data: {
 				'aj' : 1,
 				'feature' : 'nav_featured_app',
 				'papp' : papp
 			}
-		);
+		})
+		.done( function() {
+			$('<a class="dropdown-item" href="' + app_url + '"><i class="generic-icons-nav fa fa-fw fa-' + app_icon + '"></i>' + app_name + '</a>').appendTo('#app-bin-container');
+		});
+
 	});
 
 	var papp, app_icon, app_url;
@@ -438,6 +446,7 @@
 		papp = e.target.dataset.papp || null;
 		app_icon = e.target.dataset.icon || null;
 		app_url = e.target.dataset.url || null;
+		app_name = e.target.dataset.name || null;
 	});
 </script>
 {{/if}}

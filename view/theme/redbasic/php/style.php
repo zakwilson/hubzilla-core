@@ -79,7 +79,7 @@ if (! $nav_icon_colour)
 if (! $nav_active_icon_colour)
 	$nav_active_icon_colour = 'rgba(255, 255, 255, 0.75)';
 if (! $link_colour)
-	$link_colour = '#007bff';
+	$link_colour = '#0d6efd';
 if (! $banner_colour)
 	$banner_colour = '#fff';
 if (! $bgcolour)

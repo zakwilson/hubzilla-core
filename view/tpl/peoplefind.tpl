@@ -3,9 +3,7 @@
 	<form action="directory" method="post" />
 		<div class="input-group mb-3">
 			<input class="form-control" type="text" name="search" title="{{$hint}}{{if $advanced_search}}{{$advanced_hint}}{{/if}}" placeholder="{{$desc}}" />
-			<div class="input-group-append">
-				<button class="btn btn-sm btn-outline-secondary" type="submit" name="submit"><i class="fa fa-fw fa-search"></i></button>
-			</div>
+			<button class="btn btn-sm btn-outline-secondary" type="submit" name="submit"><i class="fa fa-fw fa-search"></i></button>
 		</div>
 	</form>
 	<ul class="nav nav-pills flex-column">

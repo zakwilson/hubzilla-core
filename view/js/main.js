@@ -159,13 +159,13 @@ $(document).ready(function() {
 		let notify_id = $(this).data('notify_id');
 		let path = $(this)[0].pathname.split('/')[1];
 		let stateObj = { b64mid: b64mid };
-		let singlethread_modules = ['display', 'hq', 'dm'];
+		let singlethread_modules = ['display', 'hq'];
 		let redirect_modules = ['display', 'notify'];
 
 		if(! b64mid && ! notify_id)
 			return;
 
-		if(redirect_modules.indexOf(path) !== -1) {
+		if(localUser && redirect_modules.indexOf(path) !== -1) {
 			path = 'hq';
 		}
 

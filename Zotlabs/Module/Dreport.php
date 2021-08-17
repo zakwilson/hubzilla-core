@@ -46,15 +46,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 			goaway(z_root() . '/dreport/' . (($encoded_mid) ? $encoded_mid : $mid));
 		}
 
-		if($mid === 'mail') {
-			$table = 'mail';
-			$mid = ((argc() > 2) ? argv(2) : '');
-			if(strpos($mid,'b64.') === 0)
-				$mid = @base64url_decode(substr($mid,4));
-
-		}
-
-
 		if(! $mid) {
 			notice( t('Invalid message') . EOL);
 			return;
@@ -65,12 +56,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 				$i = q("select id from item where mid = '%s' and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
 					dbesc($mid),
 					dbesc($channel['channel_hash']),
-					dbesc($channel['channel_hash'])
-				);
-				break;
-			case 'mail':
-				$i = q("select id from mail where mid = '%s' and from_xchan = '%s'",
-					dbesc($mid),
 					dbesc($channel['channel_hash'])
 				);
 				break;
@@ -130,15 +115,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 					break;
 				case 'recipient not found':
 					$r[$x]['dreport_result'] = t('recipient not found');
-					break;
-				case 'mail recalled':
-					$r[$x]['dreport_result'] = t('mail recalled');
-					break;
-				case 'duplicate mail received':
-					$r[$x]['dreport_result'] = t('duplicate mail received');
-					break;
-				case 'mail delivered':
-					$r[$x]['dreport_result'] = t('mail delivered');
 					break;
 				default:
 					$r[$x]['gravity'] = 1;

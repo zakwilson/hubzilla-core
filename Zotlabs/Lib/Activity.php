@@ -594,7 +594,7 @@ class Activity {
 							break;
 
 						case 'Bookmark':
-							$ret[] = ['ttype' => TERM_BOOKMARK, 'url' => $t['href'], 'term' => escape_tags($t['name']];
+							$ret[] = ['ttype' => TERM_BOOKMARK, 'url' => $t['href'], 'term' => escape_tags($t['name'])];
 							break;
 
 						default:

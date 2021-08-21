@@ -590,13 +590,11 @@ class Activity {
 							break;
 
 						case 'Mention':
-							$mention_type = substr($t['name'], 0, 1);
-							if ($mention_type === '!') {
-								$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
-							}
-							else {
-								$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
-							}
+							$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
+							break;
+
+						case 'Bookmark':
+							$ret[] = ['ttype' => TERM_BOOKMARK, 'url' => $t['href'], 'term' => escape_tags($t['name']];
 							break;
 
 						default:
@@ -623,12 +621,12 @@ class Activity {
 						}
 						break;
 
-					case TERM_FORUM:
-						$ret[] = ['type' => 'Mention', 'href' => $t['url'], 'name' => '!' . $t['term']];
-						break;
-
 					case TERM_MENTION:
 						$ret[] = ['type' => 'Mention', 'href' => $t['url'], 'name' => '@' . $t['term']];
+						break;
+
+					case TERM_BOOKMARK:
+						$ret[] = ['type' => 'Bookmark', 'href' => $t['url'], 'name' => $t['term']];
 						break;
 
 					default:

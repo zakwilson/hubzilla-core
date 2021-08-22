@@ -74,8 +74,8 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Bookmarks')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-			$app = Apps::get_papp('Bookmarks');
-			return Apps::app_render($app, 'module');
+			$papp = Apps::get_papp('Bookmarks');
+			return Apps::app_render($papp, 'module');
 		}
 
 		require_once('include/menu.php');

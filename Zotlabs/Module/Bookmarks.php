@@ -74,10 +74,7 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Bookmarks')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('Bookmarks App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Bookmark links from posts and manage them');
-			return $o;
+			return Apps::app_render_install('Bookmarks');
 		}
 
 		require_once('include/menu.php');
@@ -89,7 +86,7 @@ class Bookmarks extends \Zotlabs\Web\Controller {
 
 		$o .= '<div class="generic-content-wrapper-styled">';
 
-		$o .= '<h3>' . t('My Bookmarks') . '</h3>';
+		$o .= '<h3>' . t('Bookmarks') . '</h3>';
 
 		$x = menu_list(local_channel(),'',MENU_BOOKMARK);
 

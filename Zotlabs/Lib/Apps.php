@@ -575,6 +575,30 @@ class Apps {
 		));
 	}
 
+
+	/**
+	 * @brief Render a simple app install button with app name and description.
+	 *
+	 * @param string $app app name
+	 * @return string
+	 */
+	static public function app_render_install($app) {
+
+		$papp = self::get_papp($app);
+
+		if (!$papp) {
+			return EMPTY_STR;
+		}
+
+		$papp_encoded = self::papp_encode($papp);
+
+		return replace_macros(get_markup_template('app_install.tpl'), [
+			'$papp' => $papp,
+			'$papp_encoded' => $papp_encoded,
+			'$install' => t('Install')
+		]);
+	}
+
 	static public function app_install($uid,$app) {
 
 		if(! is_array($app)) {
@@ -1357,4 +1381,17 @@ class Apps {
 		return chunk_split(base64_encode(json_encode($papp)),72,"\n");
 	}
 
+	static public function get_papp($app) {
+
+		$r = q("select * from app where app_id = '%s' and app_channel = 0 limit 1",
+			dbesc(hash('whirlpool', $app))
+		);
+
+		if ($r) {
+			$papp = self::app_encode($r[0]);
+			return $papp;
+		}
+
+		return false;
+	}
 }

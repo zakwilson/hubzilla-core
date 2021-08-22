@@ -577,7 +577,7 @@ class Apps {
 
 
 	/**
-	 * @brief Render a simple app install button with app name and description.
+	 * @brief Render a simple app install button with app name and description without checking requirements.
 	 *
 	 * @param string $app app name
 	 * @return string

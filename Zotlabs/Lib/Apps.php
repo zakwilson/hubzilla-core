@@ -537,6 +537,13 @@ class Apps {
 		$install_action = (($installed) ? t('Update') : t('Install'));
 		$icon = ((strpos($papp['photo'],'icon:') === 0) ? substr($papp['photo'],5) : '');
 
+		if (!$installed && $mode === 'module') {
+			return replace_macros(get_markup_template('app_install.tpl'), [
+				'$papp' => $papp,
+				'$install' => $install_action
+			]);
+		}
+
 		if($mode === 'navbar') {
 			return replace_macros(get_markup_template('app_nav.tpl'),array(
 				'$app' => $papp,
@@ -575,29 +582,6 @@ class Apps {
 		));
 	}
 
-
-	/**
-	 * @brief Render a simple app install button with app name and description without checking requirements.
-	 *
-	 * @param string $app app name
-	 * @return string
-	 */
-	static public function app_render_install($app) {
-
-		$papp = self::get_papp($app);
-
-		if (!$papp) {
-			return EMPTY_STR;
-		}
-
-		$papp_encoded = self::papp_encode($papp);
-
-		return replace_macros(get_markup_template('app_install.tpl'), [
-			'$papp' => $papp,
-			'$papp_encoded' => $papp_encoded,
-			'$install' => t('Install')
-		]);
-	}
 
 	static public function app_install($uid,$app) {
 

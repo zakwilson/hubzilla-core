@@ -5,7 +5,7 @@
 	{{$papp.desc}}
 </div>
 <form action="appman" method="post">
-	<input type="hidden" name="papp" value="{{$papp_encoded}}" />
+	<input type="hidden" name="papp" value="{{$papp.papp}}" />
 	<button type="submit" name="install" value="install" class="btn btn-success">
 		<i class="fa fa-fw fa-arrow-circle-o-down"></i> {{$install}}
 	</button>

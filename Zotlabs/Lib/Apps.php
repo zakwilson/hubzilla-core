@@ -547,9 +547,35 @@ class Apps {
 		}
 
 		if($mode === 'navbar') {
+			return replace_macros(get_markup_template('app_nav_pinned.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+			));
+		}
+
+		if($mode === 'nav') {
 			return replace_macros(get_markup_template('app_nav.tpl'),array(
 				'$app' => $papp,
 				'$icon' => $icon,
+			));
+		}
+
+		if($mode === 'inline') {
+			return replace_macros(get_markup_template('app_inline.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+				'$installed' => $installed,
+				'$purchase' => ((isset($papp['page']) && (! $installed)) ? t('Purchase') : ''),
+				'$action_label' => $install_action
+			));
+		}
+
+		if(in_array($mode, ['nav-order', 'nav-order-pinned'])) {
+			return replace_macros(get_markup_template('app_order.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+				'$hosturl' => $hosturl,
+				'$mode' => $mode
 			));
 		}
 
@@ -573,8 +599,6 @@ class Apps {
 			'$pin' => ((isset($papp['embed']) || $mode == 'edit') ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
-			'$navapps' => (($mode == 'nav') ? true : false),
-			'$order' => (($mode === 'nav-order' || $mode === 'nav-order-pinned') ? true : false),
 			'$mode' => $mode,
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray'),

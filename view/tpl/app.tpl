@@ -1,5 +1,3 @@
-{{if ! ($navapps || $order)}}
-
 <div class="section-subtitle-wrapper clearfix">
 	<div class="float-end">
 		{{if $app.type !== 'system'}}
@@ -24,10 +22,9 @@
 		{{/if}}
 	</div>
 	<h3>{{$app.name}}{{if $app.price}} ({{$app.price}}){{/if}}</h3>
-
 </div>
 <div class="section-content-tools-wrapper container">
-	<div class="{{if $deleted}} app-deleted{{/if}}">
+	<div class="{{if $deleted}} app-deleted{{/if}} mb-3">
 		<a class="app-icon app-link" href="{{$app.url}}"{{if $app.target}} target="{{$app.target}}"{{/if}}{{if $installed}} data-papp="{{$app.papp}}" data-icon="{{$icon}}" data-url="{{$app.url}}" data-name="{{$app.name}}"{{/if}}>
 			{{if $icon}}
 			<i class="app-icon fa fa-fw fa-{{$icon}}"></i>
@@ -40,14 +37,5 @@
 		</div>
 	</div>
 </div>
-{{/if}}
 
-{{if $navapps}}
-<a class="dropdown-item{{if $app.active}} active{{/if}}" href="{{$app.url}}">{{if $icon}}<i class="generic-icons-nav fa fa-fw fa-{{$icon}}"></i>{{else}}<img src="{{$app.photo}}" width="16" height="16" style="margin-right:9px;"/>{{/if}}{{$app.name}}</a>
-{{/if}}
-{{if $order}}
-<a href="{{$hosturl}}appman/{{$app.guid}}/moveup{{if $mode == 'nav-order-pinned'}}/nav_pinned_app{{else}}/nav_featured_app{{/if}}" class="btn btn-outline-secondary btn-sm" style="margin-bottom: 5px;"><i class="generic-icons-nav fa fa-fw fa-arrow-up"></i></a>
-<a href="{{$hosturl}}appman/{{$app.guid}}/movedown{{if $mode == 'nav-order-pinned'}}/nav_pinned_app{{else}}/nav_featured_app{{/if}}" class="btn btn-outline-secondary btn-sm" style="margin-bottom: 5px;"><i class="generic-icons-nav fa fa-fw fa-arrow-down"></i></a>
-{{if $icon}}<i class="generic-icons-nav fa fa-fw fa-{{$icon}}"></i>{{else}}<img src="{{$app.photo}}" width="16" height="16" style="margin-right:9px;"/>{{/if}}{{$app.name}}<br>
-{{/if}}
 

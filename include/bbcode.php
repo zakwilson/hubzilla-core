@@ -308,7 +308,7 @@ function bb_parse_app($match) {
 
 	$app = Zotlabs\Lib\Apps::app_decode($match[1]);
 	if ($app)
-		return Zotlabs\Lib\Apps::app_render($app);
+		return preg_replace('/[[:cntrl:]]/', '', Zotlabs\Lib\Apps::app_render($app, 'inline'));
 }
 
 function bb_svg($match) {

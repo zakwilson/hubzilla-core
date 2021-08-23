@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use App;
 use Zotlabs\Lib\Libsync;
 
 require_once('include/plugin.php');
@@ -538,6 +539,7 @@ class Apps {
 		$icon = ((strpos($papp['photo'],'icon:') === 0) ? substr($papp['photo'],5) : '');
 
 		if (!$installed && $mode === 'module') {
+			$_SESSION['return_url'] = App::$query_string;
 			return replace_macros(get_markup_template('app_install.tpl'), [
 				'$papp' => $papp,
 				'$install' => $install_action

@@ -59,7 +59,6 @@
 						{{include file="field_input.tpl" field=$ajaxint}}
 						{{include file="field_input.tpl" field=$itemspage}}
 						{{include file="field_checkbox.tpl" field=$nosmile}}
-						{{include file="field_checkbox.tpl" field=$channel_menu}}
 						{{include file="field_checkbox.tpl" field=$title_tosource}}
 						{{include file="field_checkbox.tpl" field=$user_scalable}}
 						{{include file="field_checkbox.tpl" field=$preload_images}}

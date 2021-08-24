@@ -28,9 +28,9 @@ class Lang extends Controller {
 			}
 		}
 
-		$lc = x($_POST['zinlc']) && preg_match('/^\?\?|[a-z]{2,2}[x_\-]{0,1}[a-zA-Z]{0,2}$/', $_POST['zinlc']) 
+		$lc = x($_POST['zinlc']) && preg_match('/^\?\?|[a-z]{2,2}[x_\-]{0,1}[a-zA-Z]{0,2}$/', $_POST['zinlc'])
 			? $_POST['zinlc'] : '';
-		$lcs= x($_POST['zinlcs']) && preg_match('/^[a-z,_\-]{0,191}$/', $_POST['zinlcs']) 
+		$lcs= x($_POST['zinlcs']) && preg_match('/^[a-z,_\-]{0,191}$/', $_POST['zinlcs'])
 			? $_POST['zinlcs'] : '';
 
 		if ($isajax) {
@@ -57,12 +57,10 @@ class Lang extends Controller {
 
 		if(local_channel()) {
 			if(! Apps::system_app_installed(local_channel(), 'Language')) {
-				//Do not display any associated widgets at this point
-				App::$pdl = '';
-
-				$o = '<b>' . t('Language App') . ' (' . t('Not Installed') . '):</b><br>';
-				$o .= t('Change UI language');
-				return $o;
+			//Do not display any associated widgets at this point
+			App::$pdl = '';
+			$papp = Apps::get_papp('Language');
+			return Apps::app_render($papp, 'module');
 			}
 		}
 
@@ -70,5 +68,5 @@ class Lang extends Controller {
 		return lang_selector();
 
 	}
-	
+
 }

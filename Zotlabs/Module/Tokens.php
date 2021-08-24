@@ -46,7 +46,7 @@ class Tokens extends Controller {
 			return;
 		}
 		if($atoken_id) {
-			$r = q("update atoken set atoken_name = '%s', atoken_token = '%s', atoken_expires = '%s' 
+			$r = q("update atoken set atoken_name = '%s', atoken_token = '%s', atoken_expires = '%s'
 				where atoken_id = %d and atoken_uid = %d",
 				dbesc($name),
 				dbesc($token),
@@ -80,12 +80,12 @@ class Tokens extends Controller {
 				}
 			}
 		}
-		
+
 
 		info( t('Token saved.') . EOL);
 		return;
 	}
-	
+
 
 	function get() {
 
@@ -95,10 +95,8 @@ class Tokens extends Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Guest Access')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('Guest Access App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Create access tokens so that non-members can access private content');
-			return $o;
+			$papp = Apps::get_papp('Guest Access');
+			return Apps::app_render($papp, 'module');
 		}
 
 		$channel = App::get_channel();
@@ -128,7 +126,7 @@ class Tokens extends Controller {
 
 		$t = q("select * from atoken where atoken_uid = %d",
 			intval(local_channel())
-		);			
+		);
 
 		$desc = t('Use this form to create temporary access identifiers to share things with non-members. These identities may be used in Access Control Lists and visitors may login using these credentials to access private content.');
 
@@ -189,5 +187,5 @@ class Tokens extends Controller {
 		));
 		return $o;
 	}
-	
+
 }

@@ -51,11 +51,9 @@ class Notes extends Controller {
 
 		if(! Apps::system_app_installed(local_channel(), 'Notes')) {
 			//Do not display any associated widgets at this point
-			App::$pdl = EMPTY_STR;
-
-			$o = '<b>' . t('Notes App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('A simple notes app with a widget (note: notes are not encrypted)');
-			return $o;
+			App::$pdl = '';
+			$papp = Apps::get_papp('Notes');
+			return Apps::app_render($papp, 'module');
 		}
 
 		$w = new \Zotlabs\Widget\Notes;

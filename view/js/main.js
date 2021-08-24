@@ -1014,7 +1014,7 @@ function liveUpdate(notify_id) {
 				//console.log('all images loaded, at least one is broken');
 			})
 			.progress( function( instance, image ) {
-				$('#image_counter').html(instance.progressedCount + '/' + instance.images.length);
+				$('#image_counter').html(Math.floor((instance.progressedCount*100)/instance.images.length) + '%');
 				//var result = image.isLoaded ? 'loaded' : 'broken';
 				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});

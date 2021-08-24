@@ -156,16 +156,6 @@
 				<a class="nav-link text-white notifications-btn" href="#"><i id="notifications-btn-icon" class="fa fa-exclamation-circle  notifications-btn-icon"></i></a>
 			</li>
 			{{/if}}
-			{{**if $channel_menu && $channel_apps.0}}
-			<li class="nav-item dropdown" id="channel-menu">
-				<a class="nav-link" href="#" data-bs-toggle="dropdown"><img src="{{$channel_thumb}}" style="height:14px; width:14px;position:relative; top:-2px;" /></a>
-				<div id="dropdown-menu" class="dropdown-menu dropdown-menu-end">
-					{{foreach $channel_apps as $channel_app}}
-					{{$channel_app}}
-					{{/foreach}}
-				</div>
-			</li>
-			{{/if**}}
 			{{if $navbar_apps}}
 			{{foreach $navbar_apps as $navbar_app}}
 			<li class="nav-app-sortable">
@@ -175,59 +165,9 @@
 			{{/if}}
 			<li class="nav-item dropdown" id="app-menu">
 				<a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#app-bin" aria-controls="app-bin"><i class="fa fa-fw fa-bars"></i></a>
-				<!--div id="dropdown-menu" class="dropdown-menu dropdown-menu-end">
-					{{if $channel_apps.0 && ! $channel_menu}}
-					{{foreach $channel_apps as $channel_app}}
-					{{$channel_app}}
-					{{/foreach}}
-					<div class="dropdown-divider"></div>
-					<div class="dropdown-header text-black-50 sys-apps-toggle" onclick="$('#dropdown-menu').click(function(e) { e.stopPropagation(); }); openClose('sys_apps');">
-						{{$sysapps_toggle}}
-					</div>
-					<div id="sys_apps" style="display:none;">
-					{{/if}}
-					{{foreach $nav_apps as $nav_app}}
-					{{$nav_app}}
-					{{/foreach}}
-					{{if $channel_apps.0 && ! $channel_menu}}
-					</div>
-					{{/if}}
-					{{if $is_owner}}
-					<div class="dropdown-divider"></div>
-					<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
-					<a class="dropdown-item" href="/apporder"><i class="generic-icons-nav fa fa-fw fa-sort"></i>{{$orderapps}}</a>
-					{{/if}}
-				</div-->
 			</li>
 		</ul>
 	</div>
-	<!--div class="collapse d-lg-none" id="navbar-collapse-2">
-		<div class="navbar-nav">
-			{{if $channel_apps.0}}
-			{{foreach $channel_apps as $channel_app}}
-			{{$channel_app|replace:'dropdown-item':'nav-link'}}
-			{{/foreach}}
-			<div class="dropdown-header text-white-50 sys-apps-toggle" onclick="openClose('sys-apps-collapsed');">
-				{{$sysapps_toggle}}
-			</div>
-			<div id="sys-apps-collapsed" style="display:none;">
-			{{/if}}
-			{{foreach $navbar_apps as $navbar_app}}
-			{{$navbar_app}}
-			{{/foreach}}
-			{{foreach $nav_apps as $nav_app}}
-			{{$nav_app|replace:'dropdown-item':'nav-link'}}
-			{{/foreach}}
-			{{if $channel_apps.0}}
-			</div>
-			{{/if}}
-			{{if $is_owner}}
-			<div class="dropdown-divider"></div>
-			<a class="nav-link" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
-			<a class="nav-link" href="/apporder"><i class="generic-icons-nav fa fa-fw fa-sort"></i>{{$orderapps}}</a>
-			{{/if}}
-		</div>
-	</div-->
 	{{if $nav.help.6}}
 	<div id="contextual-help-content" class="contextual-help-content">
 		{{$nav.help.5}}
@@ -240,46 +180,51 @@
 </div>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="app-bin" aria-labelledby="app-bin-label">
 	<div class="offcanvas-header">
-		<div class="offcanvas-title" id="app-bin-label">
+		<div class="lh-1" id="app-bin-label">
 			{{if $name}}
-			<div class="h3"><img src="{{$thumb}}" class="menu-img-1"> {{$name}}</div>
-			{{else}}
-			<div class="h3">{{$apps}}</div>
+			<img src="{{$thumb}}" class="menu-img-2">
+			<div class="float-start pe-2">
+				<div class="fw-bold">{{$name}}</div>
+				<div class="text-muted">{{$sitelocation}}</div>
+			</div>
 			{{/if}}
 		</div>
 		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
-	<div class="offcanvas-body">
-		{{if $channel_apps.0 && ! $channel_menu}}
-		<div class="dropdown-header">
+	<div class="offcanvas-body pt-0">
+		{{if $channel_apps.0}}
+		<div class="dropdown-header text-uppercase">
 			{{$channelapps}}
 		</div>
 		{{foreach $channel_apps as $channel_app}}
 		{{$channel_app}}
 		{{/foreach}}
-		<div class="dropdown-divider"></div>
-		<div class="dropdown-header">
-			{{$sysapps}}
-		</div>
 		{{/if}}
 		<div id="nav-app-bin-container" class="d-lg-none">
+		<div class="dropdown-header text-uppercase">
+			{{$pinned_apps}}
+		</div>
 		{{foreach $navbar_apps as $navbar_app}}
 			{{$navbar_app|replace:'navbar-app nav-link':'dropdown-item nav-app-sortable'|replace:'fa':'generic-icons-nav fa'}}
 		{{/foreach}}
-		<div class="dropdown-divider"></div>
 		</div>
 		{{if $is_owner}}
 		<div id="app-bin-container" data-token="{{$form_security_token}}">
+		<div class="dropdown-header text-uppercase">
+			{{$featured_apps}}
+		</div>
+		{{else}}
+		<div class="dropdown-header text-uppercase">
+			{{$sysapps}}
+		</div>
 		{{/if}}
 		{{foreach $nav_apps as $nav_app}}
 			{{$nav_app}}
 		{{/foreach}}
 		{{if $is_owner}}
 		</div>
-		{{/if}}
-		{{if $is_owner}}
 		<div class="dropdown-divider"></div>
-		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus-circle"></i>{{$addapps}}</a>
+		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus"></i>{{$addapps}}</a>
 		{{/if}}
 	</div>
 </div>

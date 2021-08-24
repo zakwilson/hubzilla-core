@@ -95,7 +95,7 @@ function nav($template = 'default') {
 	if (local_channel()) {
 
 		if (empty($_SESSION['delegate'])) {
-			$nav['manage'] = ['manage', t('Channel Manager'), "", t('Manage your channels'), 'manage_nav_btn'];
+			$nav['manage'] = ['manage', t('Channels'), "", t('Manage your channels'), 'manage_nav_btn'];
 		}
 		if (Apps::system_app_installed(local_channel(), 'Privacy Groups'))
 			$nav['group'] = ['group', t('Privacy Groups'), "", t('Manage your privacy groups'), 'group_nav_btn'];

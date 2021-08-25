@@ -1195,6 +1195,12 @@ img.mail-conv-sender-photo {
 	border-radius: $radius;
 }
 
+.widget h3 {
+	font-size: 0.9rem;
+	text-transform: uppercase;
+}
+
+
 #note-text {
 	border-radius: $radius;
 }

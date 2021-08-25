@@ -98,9 +98,6 @@
 			<i id="notifications-btn-icon-1" class="fa fa-exclamation-circle notifications-btn-icon"></i>
 		</button>
 		{{/if}}
-		<!--a class="nav-link" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"><i class="fa fa-fw fa-bars"></i></a-->
-
-
 		<button id="menu-btn" class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#app-bin">
 			<i class="fa fa-bars"></i>
 		</button>
@@ -200,31 +197,34 @@
 		{{$channel_app}}
 		{{/foreach}}
 		{{/if}}
+		{{if $navbar_apps.0}}
 		<div id="nav-app-bin-container" class="d-lg-none">
-		<div class="dropdown-header text-uppercase">
-			{{$pinned_apps}}
+			<div class="dropdown-header text-uppercase">
+				{{$pinned_apps}}
+			</div>
+			{{foreach $navbar_apps as $navbar_app}}
+				{{$navbar_app|replace:'navbar-app nav-link':'dropdown-item nav-app-sortable'|replace:'fa':'generic-icons-nav fa'}}
+			{{/foreach}}
 		</div>
-		{{foreach $navbar_apps as $navbar_app}}
-			{{$navbar_app|replace:'navbar-app nav-link':'dropdown-item nav-app-sortable'|replace:'fa':'generic-icons-nav fa'}}
-		{{/foreach}}
-		</div>
+		{{/if}}
 		{{if $is_owner}}
 		<div id="app-bin-container" data-token="{{$form_security_token}}">
-		<div class="dropdown-header text-uppercase">
-			{{$featured_apps}}
+			<div class="dropdown-header text-uppercase">
+				{{$featured_apps}}
+			</div>
+			{{foreach $nav_apps as $nav_app}}
+				{{$nav_app}}
+			{{/foreach}}
 		</div>
+		<div class="dropdown-divider"></div>
+		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus"></i>{{$addapps}}</a>
 		{{else}}
 		<div class="dropdown-header text-uppercase">
 			{{$sysapps}}
 		</div>
-		{{/if}}
 		{{foreach $nav_apps as $nav_app}}
 			{{$nav_app}}
 		{{/foreach}}
-		{{if $is_owner}}
-		</div>
-		<div class="dropdown-divider"></div>
-		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus"></i>{{$addapps}}</a>
 		{{/if}}
 	</div>
 </div>

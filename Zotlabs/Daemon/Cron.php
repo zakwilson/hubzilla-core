@@ -48,13 +48,6 @@ class Cron {
 			db_quoteinterval('3 MINUTE')
 		);
 
-		// expire any expired mail
-
-		q("delete from mail where expires > '%s' and expires < %s ",
-			dbesc(NULL_DATE),
-			db_utcnow()
-		);
-
 		require_once('include/account.php');
 		remove_expired_registrations();
 

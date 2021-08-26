@@ -873,10 +873,8 @@ class Cdav extends Controller {
 		if((argv(1) === 'addressbook') && (! Apps::system_app_installed(local_channel(), 'CardDAV'))) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('CardDAV App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('CalDAV capable addressbook');
-			return $o;
+			$papp = Apps::get_papp('CardDAV');
+			return Apps::app_render($papp, 'module');
 		}
 
 		App::$profile_uid = local_channel();

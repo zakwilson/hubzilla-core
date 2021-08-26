@@ -1610,7 +1610,7 @@ function format_hashtags(&$item) {
 			if($s)
 				$s .= ' ';
 
-			$s .= '<span class="badge badge-pill badge-info"><i class="fa fa-hashtag"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
+			$s .= '<span class="badge rounded-pill bg-info"><i class="fa fa-hashtag"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 
@@ -1633,7 +1633,7 @@ function format_mentions(&$item) {
 				continue;
 			if($s)
 				$s .= ' ';
-			$s .= '<span class="badge badge-pill badge-success"><i class="fa fa-at"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
+			$s .= '<span class="badge rounded-pill bg-success"><i class="fa fa-at"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 

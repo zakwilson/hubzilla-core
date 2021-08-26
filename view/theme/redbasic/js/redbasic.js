@@ -50,7 +50,7 @@ $(document).ready(function() {
 	});
 
 	$("input[data-role=cat-tagsinput]").tagsinput({
-		tagClass: 'badge badge-pill badge-warning text-dark'
+		tagClass: 'badge rounded-pill bg-warning text-dark'
 	});
 
 	$('a.disabled').click(function(e) {
@@ -71,7 +71,7 @@ $(document).ready(function() {
 	setInterval(function () {checkNotify();}, 10 * 1000);
 
 	var touch_start = null;
-	var touch_max = 70;
+	var touch_max = window.innerWidth / 10;
 
 	window.addEventListener('touchstart', function(e) {
 		if (e.touches.length === 1){
@@ -90,7 +90,7 @@ $(document).ready(function() {
 	window.addEventListener('touchend', function(e) {
 		$('html, body').css('overflow-y', '');
 
-		let touch_offset = 30; //at least 100px are a swipe
+		let touch_offset = 30; //at least 30px are a swipe
 		if (touch_start) {
 			//the only finger that hit the screen left it
 			let touch_end = e.changedTouches.item(0).clientX;

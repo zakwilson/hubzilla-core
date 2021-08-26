@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use App;
 use Zotlabs\Lib\Libsync;
 
 require_once('include/plugin.php');
@@ -537,10 +538,44 @@ class Apps {
 		$install_action = (($installed) ? t('Update') : t('Install'));
 		$icon = ((strpos($papp['photo'],'icon:') === 0) ? substr($papp['photo'],5) : '');
 
+		if (!$installed && $mode === 'module') {
+			$_SESSION['return_url'] = App::$query_string;
+			return replace_macros(get_markup_template('app_install.tpl'), [
+				'$papp' => $papp,
+				'$install' => $install_action
+			]);
+		}
+
 		if($mode === 'navbar') {
+			return replace_macros(get_markup_template('app_nav_pinned.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+			));
+		}
+
+		if($mode === 'nav') {
 			return replace_macros(get_markup_template('app_nav.tpl'),array(
 				'$app' => $papp,
 				'$icon' => $icon,
+			));
+		}
+
+		if($mode === 'inline') {
+			return replace_macros(get_markup_template('app_inline.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+				'$installed' => $installed,
+				'$purchase' => ((isset($papp['page']) && (! $installed)) ? t('Purchase') : ''),
+				'$action_label' => $install_action
+			));
+		}
+
+		if(in_array($mode, ['nav-order', 'nav-order-pinned'])) {
+			return replace_macros(get_markup_template('app_order.tpl'),array(
+				'$app' => $papp,
+				'$icon' => $icon,
+				'$hosturl' => $hosturl,
+				'$mode' => $mode
 			));
 		}
 
@@ -564,8 +599,6 @@ class Apps {
 			'$pin' => ((isset($papp['embed']) || $mode == 'edit') ? false : true),
 			'$featured' => ((strpos($papp['categories'], 'nav_featured_app') === false) ? false : true),
 			'$pinned' => ((strpos($papp['categories'], 'nav_pinned_app') === false) ? false : true),
-			'$navapps' => (($mode == 'nav') ? true : false),
-			'$order' => (($mode === 'nav-order' || $mode === 'nav-order-pinned') ? true : false),
 			'$mode' => $mode,
 			'$add' => t('Add to app-tray'),
 			'$remove' => t('Remove from app-tray'),
@@ -574,6 +607,7 @@ class Apps {
 			'$rpath' => z_root() . '/apps'
 		));
 	}
+
 
 	static public function app_install($uid,$app) {
 
@@ -1357,4 +1391,17 @@ class Apps {
 		return chunk_split(base64_encode(json_encode($papp)),72,"\n");
 	}
 
+	static public function get_papp($app) {
+
+		$r = q("select * from app where app_id = '%s' and app_channel = 0 limit 1",
+			dbesc(hash('whirlpool', $app))
+		);
+
+		if ($r) {
+			$papp = self::app_encode($r[0]);
+			return $papp;
+		}
+
+		return false;
+	}
 }

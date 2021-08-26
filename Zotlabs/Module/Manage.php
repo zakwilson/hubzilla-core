@@ -157,7 +157,7 @@ class Manage extends \Zotlabs\Web\Controller {
 		}
 
 		$o = replace_macros(get_markup_template('channels.tpl'), array(
-			'$header'           => t('Channel Manager'),
+			'$header'           => t('Channels'),
 			'$msg_selected'     => t('Current Channel'),
 			'$selected'         => local_channel(),
 			'$desc'             => ((count($channels) > 1 || $delegates) ? t('Switch to one of your channels by selecting it.') : ''),

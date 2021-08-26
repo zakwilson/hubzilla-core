@@ -1910,16 +1910,18 @@ class Libzot {
 
 			// logger($AS->debug());
 
-			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
 				dbesc($AS->actor['id'])
 			);
+			$r = self::zot_record_preferred($r);
 
 			if (!$r) {
 				$y = import_author_xchan(['url' => $AS->actor['id']]);
 				if ($y) {
-					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+					$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
 						dbesc($AS->actor['id'])
 					);
+					$r = self::zot_record_preferred($r);
 				}
 				if (!$r) {
 					logger('FOF Activity: no actor');
@@ -1935,9 +1937,8 @@ class Libzot {
 				}
 			}
 
-
 			if ($r) {
-				$arr['author_xchan'] = $r[0]['hubloc_hash'];
+				$arr['author_xchan'] = $r['hubloc_hash'];
 			}
 
 			if ($signer) {

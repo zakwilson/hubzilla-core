@@ -99,7 +99,7 @@ $(document).ready(function() {
 				tao.zin.htm += '</ul>';
 				$('.zinpax').remove();
 				$('.zinlcx').append(tao.zin.htm);
-				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-right').css('left','-16em');
+				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-end').css('left','-16em');
    			});
 			return false;
 		} else {
@@ -159,13 +159,13 @@ $(document).ready(function() {
 		let notify_id = $(this).data('notify_id');
 		let path = $(this)[0].pathname.split('/')[1];
 		let stateObj = { b64mid: b64mid };
-		let singlethread_modules = ['display', 'hq', 'dm'];
+		let singlethread_modules = ['display', 'hq'];
 		let redirect_modules = ['display', 'notify'];
 
 		if(! b64mid && ! notify_id)
 			return;
 
-		if(redirect_modules.indexOf(path) !== -1) {
+		if(localUser && redirect_modules.indexOf(path) !== -1) {
 			path = 'hq';
 		}
 
@@ -548,8 +548,10 @@ function markRead(notifType) {
 		$('#nav-' + notifType + '-menu').html('');
 		$('#nav-' + notifType + '-sub').removeClass('show');
 		sessionStorage.removeItem('notification_open');
-		sse_setNotificationsStatus();
+		$(document).trigger('hz:sse_setNotificationsStatus');
 	});
+
+
 }
 
 function markItemRead(itemId) {
@@ -717,52 +719,18 @@ function updateConvItems(mode,data) {
 			}
 		}
 
-		// take care of the notifications count updates
-		var nmids = $(this).data('b64mids');
-
-		nmids.forEach(function(nmid, index) {
-
-			sse_rmids.push(nmid);
-
-			if($('.notification[data-b64mid=\'' + nmid + '\']').length) {
-				$('.notification[data-b64mid=\'' + nmid + '\']').each(function() {
-					var n = this.parentElement.id.split('-');
-					return sse_updateNotifications(n[1], nmid);
-				});
-			}
-
-			// special handling for forum notifications
-			$('.notification-forum').filter(function() {
-				var fmids = decodeURIComponent($(this).data('b64mids'));
-				var n = this.parentElement.id.split('-');
-				if(fmids.indexOf(nmid) > -1) {
-					var fcount = Number($('.' + n[1] + '-update').html());
-					fcount--;
-					$('.' + n[1] + '-update').html(fcount);
-					if(fcount < 1)
-						$('.' + n[1] + '-button').fadeOut();
-
-					var count = Number($(this).find('.badge-secondary').html());
-					count--;
-					$(this).find('.badge-secondary').html(count);
-					if(count < 1)
-						$(this).remove();
-				}
-			});
-
-
-		});
-
-		sse_setNotificationsStatus();
+		$(document).trigger('hz:sse_setNotificationsStatus', [$(this).data('b64mids')]);
 
 	});
 
 	$(window).scrollTop(scroll_position);
 
-	if(followUpPageLoad)
-		sse_bs_counts();
-	else
-		sse_bs_init();
+	if(followUpPageLoad) {
+		$(document).trigger('hz:sse_bs_counts');
+	}
+	else {
+		$(document).trigger('hz:sse_bs_init');
+	}
 
 	if(commentBusy) {
 		commentBusy = false;
@@ -902,7 +870,7 @@ function updateInit() {
 		liveUpdate();
 	}
 	else {
-		sse_bs_init();
+		$(document).trigger('hz:sse_bs_init');
 	}
 
 	if($('#live-photos').length || $('#live-cards').length || $('#live-articles').length ) {
@@ -1046,7 +1014,7 @@ function liveUpdate(notify_id) {
 				//console.log('all images loaded, at least one is broken');
 			})
 			.progress( function( instance, image ) {
-				$('#image_counter').html(instance.progressedCount + '/' + instance.images.length);
+				$('#image_counter').html(Math.floor((instance.progressedCount*100)/instance.images.length) + '%');
 				//var result = image.isLoaded ? 'loaded' : 'broken';
 				//console.log( 'image is ' + result + ' for ' + image.img.src );
 			});
@@ -1237,7 +1205,7 @@ function doscroll(parent, hidden) {
 	});
 
 	$('html, body').animate({scrollTop:(id.offset().top) - 50}, 'slow');
-	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-right" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
+	$('<a href="javascript:doscrollback(' + pos + ');" id="back-to-reply" class="float-end" title="' + aStr['to_reply'] + '"><i class="fa fa-angle-double-down">&nbsp;&nbsp;&nbsp;</i></a>').insertBefore('#wall-item-info-' + id.attr('id').replace(/\D/g,''));
 }
 
 function doscrollback(pos) {
@@ -1262,7 +1230,7 @@ function dopin(id) {
                         $('.dropdown-item-pinnable').html($('.dropdown-item-pinnable').html().replace(aStr['unpin_item'],aStr['pin_item']));
                         $('.wall-item-pinned').remove()
                         if(i.length == 0) {
-                                $('<span class="float-right wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
+                                $('<span class="float-end wall-item-pinned" title="' + aStr['pinned'] + '" id="wall-item-pinned-' + id + '"><i class="fa fa-thumb-tack">&nbsp;</i></span>').insertBefore('#wall-item-info-' + id);
                                 me.html(me.html().replace(aStr['pin_item'],aStr['unpin_item']));
                         };
                 })

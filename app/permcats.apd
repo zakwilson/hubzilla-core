@@ -1,6 +1,7 @@
-version: 2
+version: 3
 url: $baseurl/permcats
 requires: local_channel
 name: Permission Categories
 photo: icon:unlock-alt
 categories: Access Control
+desc: Create and manage custom connection permission limits.

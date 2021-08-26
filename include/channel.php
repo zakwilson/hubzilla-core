@@ -2796,7 +2796,6 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 	q("DELETE FROM pgrp WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM pgrp_member WHERE uid = %d", intval($channel_id));
 	q("DELETE FROM event WHERE uid = %d", intval($channel_id));
-	q("DELETE FROM mail WHERE channel_id = %d", intval($channel_id));
 	q("DELETE FROM menu WHERE menu_channel_id = %d", intval($channel_id));
 	q("DELETE FROM menu_item WHERE mitem_channel_id = %d", intval($channel_id));
 
@@ -2956,7 +2955,7 @@ function anon_identity_init($reqvars) {
 	}
 
 	if(! validate_email($anon_email)) {
-		logger('enonymous email not valid');
+		logger('anonymous email not valid');
 		return false;
 	}
 

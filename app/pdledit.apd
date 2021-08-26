@@ -1,6 +1,7 @@
-version: 2
+version: 3
 url: $baseurl/pdledit
 requires: local_channel
 name: PDL Editor
 photo: icon:object-group
 categories: Appearance
+desc: An editor for system page layouts.

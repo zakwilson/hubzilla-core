@@ -1,4 +1,12 @@
-Hubzilla 6.0 (2021-07-xx)
+Hubzilla 6.0.1 (2021-07-27)
+	- Fix regression in notification handling introduced in 6.0
+	- Fix regression in regard to unified session page load times introduced in 6.0
+	- Fix photo description textarea only available if create status post enabled
+	- Fix item not found by message id at clone locations
+	- Dismiss deleted xchans in mod chanview
+
+
+Hubzilla 6.0 (2021-07-09)
 	- Implement swipe to right for bringing in left aside
 	- DB update 1247 to clean up bogus entries in updates
 	- DB update 1246 to mark legacy zot xchans and hublocs deleted
@@ -7,7 +15,7 @@ Hubzilla 6.0 (2021-07-xx)
 	- Add an option to drop media for bbcode processing
 	- Make mod HQ the default landing page after login
 	- Implement direct messages view for mod HQ
-	- Implement public/restricted messages vie for mod HQ
+	- Implement public/restricted messages view for mod HQ
 	- Implement starred messages view for mod HQ (only available if the Star Posts feature is enabled)
 	- Update composer libs
 	- Remove deprecated mod ping

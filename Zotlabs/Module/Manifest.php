@@ -28,7 +28,7 @@ class Manifest extends Controller {
 			'display' => 'standalone',
 			'orientation' => 'any',
 			'theme_color' => '#343a40',
-			'background_color' => 'white',
+			'background_color' => '#ccccc',
 			'share_target' => [
 				'action' => '/rpost',
 				'method' => 'POST',

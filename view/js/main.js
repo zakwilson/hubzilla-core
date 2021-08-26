@@ -34,6 +34,7 @@ if(localStorage.getItem('uid') !== localUser.toString()) {
 	sessionStorage.clear();
 	localStorage.setItem('uid', localUser.toString());
 }
+
 window.onstorage = function(e) {
 	if(e.key === 'uid' && parseInt(e.newValue) !== localUser) {
 		if(window_needs_alert) {
@@ -43,6 +44,14 @@ window.onstorage = function(e) {
 			return;
 		}
 	}
+}
+
+if ('serviceWorker' in navigator) {
+	navigator.serviceWorker.register('/ServiceWorker.js', { scope: '/' }).then(function(registration) {
+		console.log('Service worker registered. scope is', registration.scope);
+	}).catch(function(error) {
+		console.log('Service worker registration failed because ' + error);
+	});
 }
 
 $.ajaxSetup({cache: false});

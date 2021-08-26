@@ -1198,6 +1198,10 @@ class App {
 			}
 		}
 
+		// webmanifest
+		head_add_link(['rel' => 'manifest', 'href' => '/manifest.json']);
+		self::$meta->set('application-name', Zotlabs\Lib\System::get_platform_name());
+
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
 
 		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);

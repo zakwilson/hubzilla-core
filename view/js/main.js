@@ -34,6 +34,7 @@ if(localStorage.getItem('uid') !== localUser.toString()) {
 	sessionStorage.clear();
 	localStorage.setItem('uid', localUser.toString());
 }
+
 window.onstorage = function(e) {
 	if(e.key === 'uid' && parseInt(e.newValue) !== localUser) {
 		if(window_needs_alert) {
@@ -43,6 +44,14 @@ window.onstorage = function(e) {
 			return;
 		}
 	}
+}
+
+if ('serviceWorker' in navigator) {
+	navigator.serviceWorker.register('/ServiceWorker.js', { scope: '/' }).then(function(registration) {
+		console.log('Service worker registered. scope is', registration.scope);
+	}).catch(function(error) {
+		console.log('Service worker registration failed because ' + error);
+	});
 }
 
 $.ajaxSetup({cache: false});
@@ -228,6 +237,13 @@ $(document).ready(function() {
 			cache_next_page();
 	});
 
+	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
+		push_notification(
+			obj.name,
+			$('<p>' + obj.message + '</p>').text(),
+			obj.b64mid
+		);
+	});
 });
 
 function getConversationSettings() {
@@ -890,7 +906,7 @@ function prepareLiveUpdate(b64mid, notify_id) {
 	if (module == 'hq') {
 		liveUpdate(notify_id);
 	}
-	if (module == 'display'|| module == 'dm') {
+	if (module == 'display') {
 		liveUpdate();
 	}
 }
@@ -1719,16 +1735,23 @@ function push_notification_request(e) {
 }
 
 
-function push_notification(title, body, href) {
+function push_notification(title, body, b64mid) {
 	let options = {
 		body: body,
-		data: href,
-		icon: '/images/hz-64.png',
+		data: b64mid,
+		icon: '/images/app/hz-96.png',
 		silent: false
 	}
 
 	let n = new Notification(title, options);
 	n.onclick = function (e) {
-		window.location.href = e.target.data;
+		if(module === 'hq') {
+			prepareLiveUpdate(e.target.data);
+		}
+		else {
+			window.location.href = baseurl + '/hq/' + e.target.data;
+		}
 	}
 }
+
+

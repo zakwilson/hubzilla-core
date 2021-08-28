@@ -66,6 +66,73 @@ class Rpost extends \Zotlabs\Web\Controller {
 
 		nav_set_selected('Post');
 
+		if (local_channel() && array_key_exists('userfile',$_FILES)) {
+
+			$channel = App::get_channel();
+			$observer = App::get_observer();
+
+			$def_album  = get_pconfig($channel['channel_id'],'system','photo_path');
+			$def_attach = get_pconfig($channel['channel_id'],'system','attach_path');
+
+			$r = attach_store($channel, (($observer) ? $observer['xchan_hash'] : ''), '', [
+				'source'    => 'editor',
+				'visible'   => 0,
+				'album'     => $def_album,
+				'directory' => $def_attach,
+				'flags'     => 1, // indicates temporary permissions are created
+				'allow_cid' => '<' . $channel['channel_hash'] . '>'
+			]);
+
+			if (! $r['success']) {
+				notice( $r['message'] . EOL);
+			}
+
+			$s = EMPTY_STR;
+
+			if (intval($r['data']['is_photo'])) {
+				$s .= "\n\n" . $r['body'] . "\n\n";
+			}
+
+			$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $r['data']['display_path'];
+
+			if (strpos($r['data']['filetype'],'video') === 0) {
+				$s .= "\n\n" . '[zvideo]' . $url . '[/zvideo]' . "\n\n";
+			}
+
+			if (strpos($r['data']['filetype'],'audio') === 0) {
+				$s .= "\n\n" . '[zaudio]' . $url . '[/zaudio]' . "\n\n";
+			}
+
+			if ($r['data']['filetype'] === 'image/svg+xml') {
+				$x = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+				if ($x) {
+					$bb = svg2bb($x);
+					if ($bb) {
+						$s .= "\n\n" . $bb;
+					}
+					else {
+						logger('empty return from svgbb');
+					}
+				}
+				else {
+					logger('unable to read svg data file: ' . 'store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+				}
+			}
+
+			if ($r['data']['filetype'] === 'text/calendar') {
+				$content = @file_get_contents('store/' . $channel['channel_address'] . '/' . $r['data']['os_path']);
+				if ($content) {
+					$ev = ical_to_ev($content);
+					if ($ev) {
+						$s .= "\n\n" . format_event_bbcode($ev[0]) . "\n\n";
+					}
+				}
+			}
+
+			$s .=  "\n\n" . '[attachment]' . $r['data']['hash'] . ',' . $r['data']['revision'] . '[/attachment]' . "\n";
+			$_REQUEST['body'] = ((array_key_exists('body',$_REQUEST)) ? $_REQUEST['body'] . $s : $s);
+		}
+
 		// If we have saved rpost session variables, but nothing in the current $_REQUEST, recover the saved variables
 
 		if((! array_key_exists('body',$_REQUEST)) && (array_key_exists('rpost',$_SESSION))) {

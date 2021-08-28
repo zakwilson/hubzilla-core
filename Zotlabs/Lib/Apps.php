@@ -78,7 +78,8 @@ class Apps {
 			'Search',
 			'Help',
 			'Profile Photo',
-			'HQ'
+			'HQ',
+			'Post'
 		]);
 
 		/**

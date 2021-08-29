@@ -337,7 +337,7 @@ function nav($template = 'default') {
 		'$featured_apps'      => t('Featured Apps'),
 		'$url'                => (($url) ? $url : z_root() . '/' . App::$cmd),
 		'$settings_url'       => $settings_url,
-		'$name'               => ((!$is_owner) ? App::$profile['channel_name'] : ''),
+		'$name'               => ((!$is_owner) ? App::$profile['fullname'] : ''),
 		'$thumb'              => ((!$is_owner) ? App::$profile['thumb'] : ''),
 		'$form_security_token' => get_form_security_token('pconfig')
 	]);

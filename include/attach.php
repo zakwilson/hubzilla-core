@@ -684,7 +684,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 
 	$pathname = '';
 
-	if($is_photo) {
+	if($source === 'photos') {
 		if($newalbum) {
 			$pathname = filepath_macro($newalbum);
 		}
@@ -698,6 +698,7 @@ function attach_store($channel, $observer_hash, $options = '', $arr = null) {
 	elseif(array_key_exists('folder',$arr)) {
 		$pathname = find_path_by_hash($channel['channel_id'], $arr['folder']);
 	}
+
 	if(! $pathname) {
 		$pathname = filepath_macro($upload_path);
 	}

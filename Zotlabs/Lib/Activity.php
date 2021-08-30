@@ -1531,7 +1531,7 @@ class Activity {
 		return;
 	}
 
-	static function actor_store($url, $person_obj) {
+	static function actor_store($url, $person_obj, $force = false) {
 
 		if (!is_array($person_obj)) {
 			return;
@@ -1641,7 +1641,7 @@ class Activity {
 			// Record exists. Cache existing records for one week at most
 			// then refetch to catch updated profile photos, names, etc.
 			$d = datetime_convert('UTC', 'UTC', 'now - 3 days');
-			if($r[0]['hubloc_updated'] > $d) {
+			if($r[0]['hubloc_updated'] > $d && !$force) {
 				return;
 			}
 

@@ -4793,30 +4793,40 @@ msgstr "Открепить"
 msgid "%d minutes"
 msgid_plural "%d minutes"
 msgstr[0] "%d минуту"
+msgstr[1] "%d минуты"
+msgstr[2] "%d минут"
 
 #: ../../include/js_strings.php:46
 #, php-format
 msgid "about %d hours"
 msgid_plural "about %d hours"
 msgstr[0] "около %d часa"
+msgstr[1] "около %d часов"
+msgstr[2] "около %d часов"
 
 #: ../../include/js_strings.php:47
 #, php-format
 msgid "%d days"
 msgid_plural "%d days"
 msgstr[0] "%d день"
+msgstr[1] "%d дня"
+msgstr[2] "%d дней"
 
 #: ../../include/js_strings.php:48
 #, php-format
 msgid "%d months"
 msgid_plural "%d months"
 msgstr[0] "%d месяц"
+msgstr[1] "%d месяца"
+msgstr[2] "%d месяцев"
 
 #: ../../include/js_strings.php:49
 #, php-format
 msgid "%d years"
 msgid_plural "%d years"
 msgstr[0] "%d год"
+msgstr[1] "%d года"
+msgstr[2] "%d лет"
 
 #: ../../include/js_strings.php:54
 msgid "timeago.prefixAgo"
@@ -5112,6 +5122,8 @@ msgstr "%1$s обновлено %2$s, изменено %3$s."
 msgid "%d invitation available"
 msgid_plural "%d invitations available"
 msgstr[0] "доступно %d приглашение"
+msgstr[1] "доступны %d приглашения"
+msgstr[2] "доступны %d приглашений"
 
 #: ../../include/contact_widgets.php:16 ../../include/acl_selectors.php:145
 #: ../../Zotlabs/Module/Admin/Site.php:416
@@ -5472,42 +5484,56 @@ msgctxt "relative_date"
 msgid "year"
 msgid_plural "years"
 msgstr[0] "год"
+msgstr[1] "года"
+msgstr[2] "лет"
 
 #: ../../include/datetime.php:276
 msgctxt "relative_date"
 msgid "month"
 msgid_plural "months"
 msgstr[0] "месяц"
+msgstr[1] "месяца"
+msgstr[2] "месяцев"
 
 #: ../../include/datetime.php:279
 msgctxt "relative_date"
 msgid "week"
 msgid_plural "weeks"
 msgstr[0] "неделю"
+msgstr[1] "недели"
+msgstr[2] "недель"
 
 #: ../../include/datetime.php:282
 msgctxt "relative_date"
 msgid "day"
 msgid_plural "days"
 msgstr[0] "день"
+msgstr[1] "дня"
+msgstr[2] "дней"
 
 #: ../../include/datetime.php:285
 msgctxt "relative_date"
 msgid "hour"
 msgid_plural "hours"
 msgstr[0] "час"
+msgstr[1] "часа"
+msgstr[2] "часов"
 
 #: ../../include/datetime.php:288
 msgctxt "relative_date"
 msgid "minute"
 msgid_plural "minutes"
 msgstr[0] "минуту"
+msgstr[1] "минуты"
+msgstr[2] "минут"
 
 #: ../../include/datetime.php:291
 msgctxt "relative_date"
 msgid "second"
 msgid_plural "seconds"
 msgstr[0] "секунду"
+msgstr[1] "секунды"
+msgstr[2] "секунд"
 
 #: ../../include/datetime.php:520
 #, php-format
@@ -5792,12 +5818,16 @@ msgstr "%s не нравится это."
 msgid "<span  %1$s>%2$d people</span> like this."
 msgid_plural "<span  %1$s>%2$d people</span> like this."
 msgstr[0] "<span  %1$s>%2$d человеку</span> это нравится."
+msgstr[1] "<span  %1$s>%2$d человекам</span> это нравится."
+msgstr[2] "<span  %1$s>%2$d человекам</span> это нравится."
 
 #: ../../include/conversation.php:1274
 #, php-format
 msgid "<span  %1$s>%2$d people</span> don't like this."
 msgid_plural "<span  %1$s>%2$d people</span> don't like this."
 msgstr[0] "<span  %1$s>%2$d человеку</span> это не нравится."
+msgstr[1] "<span  %1$s>%2$d человекам</span> это не нравится."
+msgstr[2] "<span  %1$s>%2$d человекам</span> это не нравится."
 
 #: ../../include/conversation.php:1280
 msgid "and"
@@ -5808,6 +5838,8 @@ msgstr "и"
 msgid ", and %d other people"
 msgid_plural ", and %d other people"
 msgstr[0] ", и ещё %d человеку"
+msgstr[1] ", и ещё %d человекам"
+msgstr[2] ", и ещё %d человекам"
 
 #: ../../include/conversation.php:1284
 #, php-format
@@ -5858,6 +5890,8 @@ msgctxt "noun"
 msgid "Like"
 msgid_plural "Likes"
 msgstr[0] "Нравится"
+msgstr[1] "Нравится"
+msgstr[2] "Нравится"
 
 #: ../../include/conversation.php:1757 ../../Zotlabs/Module/Photos.php:1141
 #: ../../Zotlabs/Lib/ThreadItem.php:248
@@ -5865,42 +5899,56 @@ msgctxt "noun"
 msgid "Dislike"
 msgid_plural "Dislikes"
 msgstr[0] "Не нравится"
+msgstr[1] "Не нравится"
+msgstr[2] "Не нравится"
 
 #: ../../include/conversation.php:1760
 msgctxt "noun"
 msgid "Attending"
 msgid_plural "Attending"
 msgstr[0] "Посетит"
+msgstr[1] "Посетят"
+msgstr[2] "Посетят"
 
 #: ../../include/conversation.php:1763
 msgctxt "noun"
 msgid "Not Attending"
 msgid_plural "Not Attending"
 msgstr[0] "Не посетит"
+msgstr[1] "Не посетят"
+msgstr[2] "Не посетят"
 
 #: ../../include/conversation.php:1766
 msgctxt "noun"
 msgid "Undecided"
 msgid_plural "Undecided"
-msgstr "Не решил"
+msgstr[0] "Не решил"
+msgstr[1] "Не решили"
+msgstr[2] "Не решили"
 
 #: ../../include/conversation.php:1769
 msgctxt "noun"
 msgid "Agree"
 msgid_plural "Agrees"
 msgstr[0] "Согласен"
+msgstr[1] "Согласны"
+msgstr[2] "Согласны"
 
 #: ../../include/conversation.php:1772
 msgctxt "noun"
 msgid "Disagree"
 msgid_plural "Disagrees"
 msgstr[0] "Не согласен"
+msgstr[1] "Не согласны"
+msgstr[2] "Не согласны"
 
 #: ../../include/conversation.php:1775
 msgctxt "noun"
 msgid "Abstain"
 msgid_plural "Abstains"
 msgstr[0] "Воздержался"
+msgstr[1] "Воздержались"
+msgstr[2] "Воздержались"
 
 #: ../../include/selectors.php:18
 msgid "Profile to assign new connections"
@@ -9862,12 +9910,16 @@ msgstr "Разрешить встраивание для файлов PDF"
 msgid "%s account blocked/unblocked"
 msgid_plural "%s account blocked/unblocked"
 msgstr[0] "%s аккаунт блокирован/разблокирован"
+msgstr[1] "%s аккаунтов блокировано/разблокировано"
+msgstr[2] "%s аккаунтов блокировано/разблокировано"
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:135
 #, php-format
 msgid "%s account deleted"
 msgid_plural "%s accounts deleted"
 msgstr[0] "%s аккаунт удалён"
+msgstr[1] "%s аккаунтов удалено"
+msgstr[2] "%s аккаунтов удалено"
 
 #: ../../Zotlabs/Module/Admin/Accounts.php:171
 msgid "Account not found"
@@ -10568,18 +10620,24 @@ msgstr "Уровень журнала"
 msgid "%s channel censored/uncensored"
 msgid_plural "%s channels censored/uncensored"
 msgstr[0] "%s канал цензурируется/нецензурируется"
+msgstr[1] "%s канала цензурируется/нецензурируется"
+msgstr[2] "%s каналов цензурируется/нецензурируется"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:40
 #, php-format
 msgid "%s channel code allowed/disallowed"
 msgid_plural "%s channels code allowed/disallowed"
 msgstr[0] "в %s канале код разрешён/запрещён"
+msgstr[1] "в %s каналах код разрешён/запрещён"
+msgstr[2] "в %s каналах код разрешён/запрещён"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:46
 #, php-format
 msgid "%s channel deleted"
 msgid_plural "%s channels deleted"
 msgstr[0] "%s канал удалён"
+msgstr[0] "%s канала удалёны"
+msgstr[0] "%s каналов удалёно"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:65
 msgid "Channel not found"
@@ -11548,6 +11606,8 @@ msgstr "Предложений по умолчанию не найдено."
 msgid "%d rating"
 msgid_plural "%d ratings"
 msgstr[0] "%d оценка"
+msgstr[1] "%d оценки"
+msgstr[2] "%d оценок"
 
 #: ../../Zotlabs/Module/Directory.php:292
 msgid "Gender: "
@@ -14851,6 +14911,8 @@ msgstr "Отчёт о доставке"
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%d комментарий"
+msgstr[1] "%d комментария"
+msgstr[2] "%d комментариев"
 
 #: ../../Zotlabs/Lib/ThreadItem.php:360
 #, php-format

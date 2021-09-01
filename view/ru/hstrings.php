@@ -1013,18 +1013,28 @@ App::$strings["Pin to the top"] = "Прикрепить сверху";
 App::$strings["Unpin from the top"] = "Открепить";
 App::$strings["%d minutes"] = array(
 	0 => "%d минуту",
+	1 => "%d минуты",
+	2 => "%d минут",
 );
 App::$strings["about %d hours"] = array(
 	0 => "около %d часa",
+	1 => "около %d часов",
+	2 => "около %d часов",
 );
 App::$strings["%d days"] = array(
 	0 => "%d день",
+	1 => "%d дня",
+	2 => "%d дней",
 );
 App::$strings["%d months"] = array(
 	0 => "%d месяц",
+	1 => "%d месяца",
+	2 => "%d месяцев",
 );
 App::$strings["%d years"] = array(
 	0 => "%d год",
+	1 => "%d года",
+	2 => "%d лет",
 );
 App::$strings["timeago.prefixAgo"] = "";
 App::$strings["timeago.prefixFromNow"] = "через";
@@ -1095,6 +1105,8 @@ App::$strings["Visit %1\$s's %2\$s"] = "Посетить %1\$s %2\$s";
 App::$strings["%1\$s has an updated %2\$s, changing %3\$s."] = "%1\$s обновлено %2\$s, изменено %3\$s.";
 App::$strings["%d invitation available"] = array(
 	0 => "доступно %d приглашение",
+	1 => "доступны %d приглашения",
+	2 => "доступны %d приглашений",
 );
 App::$strings["Advanced"] = "Дополнительно";
 App::$strings["Find Channels"] = "Поиск каналов";
@@ -1176,24 +1188,38 @@ App::$strings["less than a second ago"] = "менее чем одну секун
 App::$strings["__ctx:e.g. 22 hours ago, 1 minute ago__ %1\$d %2\$s ago"] = "%1\$d %2\$s назад";
 App::$strings["__ctx:relative_date__ year"] = array(
 	0 => "год",
+	1 => "года",
+	2 => "лет",
 );
 App::$strings["__ctx:relative_date__ month"] = array(
 	0 => "месяц",
+	1 => "месяца",
+	2 => "месяцев",
 );
 App::$strings["__ctx:relative_date__ week"] = array(
 	0 => "неделю",
+	1 => "недели",
+	2 => "недель",
 );
 App::$strings["__ctx:relative_date__ day"] = array(
 	0 => "день",
+	1 => "дня",
+	2 => "дней",
 );
 App::$strings["__ctx:relative_date__ hour"] = array(
 	0 => "час",
+	1 => "часа",
+	2 => "часов",
 );
 App::$strings["__ctx:relative_date__ minute"] = array(
 	0 => "минуту",
+	1 => "минуты",
+	2 => "минут",
 );
 App::$strings["__ctx:relative_date__ second"] = array(
 	0 => "секунду",
+	1 => "секунды",
+	2 => "секунд",
 );
 App::$strings["%1\$s's birthday"] = "День рождения %1\$s";
 App::$strings["Happy Birthday %1\$s"] = "С Днем рождения %1\$s !";
@@ -1251,13 +1277,19 @@ App::$strings["%s likes this."] = "%s нравится это.";
 App::$strings["%s doesn't like this."] = "%s не нравится это.";
 App::$strings["<span  %1\$s>%2\$d people</span> like this."] = array(
 	0 => "<span  %1\$s>%2\$d человеку</span> это нравится.",
+	1 => "<span  %1\$s>%2\$d человекам</span> это нравится.",
+	2 => "<span  %1\$s>%2\$d человекам</span> это нравится.",
 );
 App::$strings["<span  %1\$s>%2\$d people</span> don't like this."] = array(
 	0 => "<span  %1\$s>%2\$d человеку</span> это не нравится.",
+	1 => "<span  %1\$s>%2\$d человекам</span> это не нравится.",
+	2 => "<span  %1\$s>%2\$d человекам</span> это не нравится.",
 );
 App::$strings["and"] = "и";
 App::$strings[", and %d other people"] = array(
 	0 => ", и ещё %d человеку",
+	1 => ", и ещё %d человекам",
+	2 => ", и ещё %d человекам",
 );
 App::$strings["%s like this."] = "%s нравится это.";
 App::$strings["%s don't like this."] = "%s не нравится это.";
@@ -1271,25 +1303,43 @@ App::$strings["Allow multiple answers"] = "Разрешить несколько
 App::$strings["Summary (optional)"] = "Резюме (необязательно)";
 App::$strings["__ctx:noun__ Like"] = array(
 	0 => "Нравится",
+	1 => "Нравится",
+	2 => "Нравится",
 );
 App::$strings["__ctx:noun__ Dislike"] = array(
 	0 => "Не нравится",
+	1 => "Не нравится",
+	2 => "Не нравится",
 );
 App::$strings["__ctx:noun__ Attending"] = array(
 	0 => "Посетит",
+	1 => "Посетят",
+	2 => "Посетят",
 );
 App::$strings["__ctx:noun__ Not Attending"] = array(
 	0 => "Не посетит",
+	1 => "Не посетят",
+	2 => "Не посетят",
 );
-App::$strings["__ctx:noun__ Undecided"] = "Не решил";
+App::$strings["__ctx:noun__ Undecided"] = array(
+	0 => "Не решил",
+	1 => "Не решили",
+	2 => "Не решили",
+);
 App::$strings["__ctx:noun__ Agree"] = array(
 	0 => "Согласен",
+	1 => "Согласны",
+	2 => "Согласны",
 );
 App::$strings["__ctx:noun__ Disagree"] = array(
 	0 => "Не согласен",
+	1 => "Не согласны",
+	2 => "Не согласны",
 );
 App::$strings["__ctx:noun__ Abstain"] = array(
 	0 => "Воздержался",
+	1 => "Воздержались",
+	2 => "Воздержались",
 );
 App::$strings["Profile to assign new connections"] = "Назначить профиль для новых контактов";
 App::$strings["Frequently"] = "Часто";
@@ -2188,9 +2238,13 @@ App::$strings["WARNING: SVG images may contain malicious code."] = "Вниман
 App::$strings["Allow embedded (inline) PDF files"] = "Разрешить встраивание для файлов PDF";
 App::$strings["%s account blocked/unblocked"] = array(
 	0 => "%s аккаунт блокирован/разблокирован",
+	1 => "%s аккаунтов блокировано/разблокировано",
+	2 => "%s аккаунтов блокировано/разблокировано",
 );
 App::$strings["%s account deleted"] = array(
 	0 => "%s аккаунт удалён",
+	1 => "%s аккаунтов удалено",
+	2 => "%s аккаунтов удалено",
 );
 App::$strings["Account not found"] = "Аккаунт не найден";
 App::$strings["Account '%s' blocked"] = "Аккаунт '%s' заблокирован";
@@ -2349,12 +2403,18 @@ App::$strings["Must be writable by web server. Relative to your top-level webser
 App::$strings["Log level"] = "Уровень журнала";
 App::$strings["%s channel censored/uncensored"] = array(
 	0 => "%s канал цензурируется/нецензурируется",
+	1 => "%s канала цензурируется/нецензурируется",
+	2 => "%s каналов цензурируется/нецензурируется",
 );
 App::$strings["%s channel code allowed/disallowed"] = array(
 	0 => "в %s канале код разрешён/запрещён",
+	1 => "в %s каналах код разрешён/запрещён",
+	2 => "в %s каналах код разрешён/запрещён",
 );
 App::$strings["%s channel deleted"] = array(
 	0 => "%s канал удалён",
+	0 => "%s канала удалёны",
+	0 => "%s каналов удалёно",
 );
 App::$strings["Channel not found"] = "Канал не найден";
 App::$strings["Channel '%s' deleted"] = "Канал '%s' удалён";
@@ -2575,6 +2635,8 @@ App::$strings["Add Card"] = "Добавить карточку";
 App::$strings["No default suggestions were found."] = "Предложений по умолчанию не найдено.";
 App::$strings["%d rating"] = array(
 	0 => "%d оценка",
+	1 => "%d оценки",
+	2 => "%d оценок",
 );
 App::$strings["Gender: "] = "Пол:";
 App::$strings["Status: "] = "Статус:";
@@ -3351,6 +3413,8 @@ App::$strings["Reply to"] = "Ответить";
 App::$strings["Delivery Report"] = "Отчёт о доставке";
 App::$strings["%d comment"] = array(
 	0 => "%d комментарий",
+	1 => "%d комментария",
+	2 => "%d комментариев",
 );
 App::$strings["%d unseen"] = "новых %d";
 App::$strings["to"] = "к";

@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: ru\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : (n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2))\n"
 
 #: ../../view/theme/redbasic/php/config.php:15
 #: ../../addon/cart/submodules/orderoptions.php:335
@@ -10636,8 +10636,8 @@ msgstr[2] "в %s каналах код разрешён/запрещён"
 msgid "%s channel deleted"
 msgid_plural "%s channels deleted"
 msgstr[0] "%s канал удалён"
-msgstr[0] "%s канала удалёны"
-msgstr[0] "%s каналов удалёно"
+msgstr[1] "%s канала удалёны"
+msgstr[2] "%s каналов удалёно"
 
 #: ../../Zotlabs/Module/Admin/Channels.php:65
 msgid "Channel not found"

@@ -2413,8 +2413,8 @@ App::$strings["%s channel code allowed/disallowed"] = array(
 );
 App::$strings["%s channel deleted"] = array(
 	0 => "%s канал удалён",
-	0 => "%s канала удалёны",
-	0 => "%s каналов удалёно",
+	1 => "%s канала удалёны",
+	2 => "%s каналов удалёно",
 );
 App::$strings["Channel not found"] = "Канал не найден";
 App::$strings["Channel '%s' deleted"] = "Канал '%s' удалён";

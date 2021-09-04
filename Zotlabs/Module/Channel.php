@@ -434,8 +434,8 @@ class Channel extends Controller {
 
 		if ((!$update) && (!$load)) {
 
-			if (isset($decoded))
-				$mid = 'b64.' . base64url_encode($mid);
+			//if we got a decoded hash we must encode it again before handing to javascript
+			$mid = gen_link_id($mid);
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.

@@ -854,8 +854,8 @@ class Enotify {
 			'photo' => $item[$who]['xchan_photo_s'],
 			'when' => (($edit) ? datetime_convert('UTC', date_default_timezone_get(), $item['edited']) : datetime_convert('UTC', date_default_timezone_get(), $item['created'])),
 			'class' => (intval($item['item_unseen']) ? 'notify-unseen' : 'notify-seen'),
-			'b64mid' => (($item['mid']) ? 'b64.' . base64url_encode($item['mid']) : ''),
-			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? 'b64.' . base64url_encode($item['thr_parent']) : 'b64.' . base64url_encode($item['mid'])),
+			'b64mid' => (($item['mid']) ? gen_link_id($item['mid']) : ''),
+			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? gen_link_id($item['thr_parent']) : gen_link_id($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
 			'body' =>  htmlentities(html2plain(bbcode($item['body'], ['drop_media', true]), 75, true), ENT_QUOTES, 'UTF-8', false),
@@ -882,7 +882,7 @@ class Enotify {
 
 		$mid = basename($tt['link']);
 
-		$b64mid = ((strpos($mid, 'b64.') === 0) ? $mid : 'b64.' . base64url_encode($mid));
+		$b64mid = gen_link_id($mid);
 		$x = [
 			'notify_link' => (($tt['ntype'] === NOTIFY_MAIL) ? $tt['link'] : z_root() . '/notify/view/' . $tt['id']),
 			'name' => $tt['xname'],
@@ -910,7 +910,7 @@ class Enotify {
 			'when' => datetime_convert('UTC', date_default_timezone_get(), $rr['abook_created']),
 			'hclass' => ('notify-unseen'),
 			'message' => t('added your channel')
-		];		
+		];
 
 	}
 

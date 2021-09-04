@@ -503,7 +503,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? 'b64.' . base64url_encode($item['thr_parent']) : '')
+			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : '')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

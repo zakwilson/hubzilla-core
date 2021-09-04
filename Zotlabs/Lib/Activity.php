@@ -8,6 +8,8 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\XConfig;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -1537,6 +1539,48 @@ class Activity {
 			return;
 		}
 
+/* not implemented
+		if (array_key_exists('movedTo',$person_obj) && $person_obj['movedTo'] && ! is_array($person_obj['movedTo'])) {
+			$tgt = self::fetch($person_obj['movedTo']);
+			if (is_array($tgt)) {
+				self::actor_store($person_obj['movedTo'],$tgt);
+				ActivityPub::move($person_obj['id'],$tgt);
+			}
+			return;
+		}
+*/
+		$ap_hubloc = null;
+
+		$hublocs = self::get_actor_hublocs($url);
+		if ($hublocs) {
+			foreach ($hublocs as $hub) {
+				if ($hub['hubloc_network'] === 'activitypub') {
+					$ap_hubloc = $hub;
+				}
+				if ($hub['hubloc_network'] === 'zot6') {
+					Libzot::update_cached_hubloc($hub);
+				}
+			}
+		}
+
+		if ($ap_hubloc) {
+			// we already have a stored record. Determine if it needs updating.
+			if ($ap_hubloc['hubloc_updated'] < datetime_convert('UTC','UTC',' now - 3 days') || $force) {
+				$person_obj = self::fetch($url);
+			}
+			else {
+				return;
+			}
+		}
+
+		if (isset($person_obj['id'])) {
+			$url = $person_obj['id'];
+		}
+
+		if (! $url) {
+			return;
+		}
+
 		$inbox = $person_obj['inbox'];
 
 		// invalid identity
@@ -1544,6 +1588,9 @@ class Activity {
 		if (!$inbox || strpos($inbox, z_root()) !== false) {
 			return;
 		}
+
+		// store the actor record in XConfig
+		XConfig::Set($url, 'system', 'actor_record', $person_obj);
 
 		$name = $person_obj['name'];
 		if (!$name) {
@@ -3504,4 +3551,54 @@ class Activity {
 
 	}
 
+	static function get_cached_actor($id) {
+		return (XConfig::Get($id,'system','actor_record'));
+	}
+
+
+	static function get_actor_hublocs($url, $options = 'all') {
+
+		$hublocs = false;
+
+		switch ($options) {
+			case 'activitypub':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' ",
+					dbesc($url)
+				);
+				break;
+			case 'zot6':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_id_url = '%s' ",
+					dbesc($url)
+				);
+				break;
+			case 'all':
+			default:
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where ( hubloc_id_url = '%s' OR hubloc_hash = '%s' ) ",
+					dbesc($url),
+					dbesc($url)
+				);
+				break;
+		}
+
+		return $hublocs;
+	}
+
+	static function get_actor_collections($url) {
+		$ret = [];
+		$actor_record = XConfig::Get($url,'system','actor_record');
+		if (! $actor_record) {
+			return $ret;
+		}
+
+		foreach ( [ 'inbox','outbox','followers','following' ] as $collection) {
+			if (isset($actor_record[$collection]) && $actor_record[$collection]) {
+				$ret[$collection] = $actor_record[$collection];
+			}
+		}
+		if (array_path_exists('endpoints/sharedInbox',$actor_record) && $actor_record['endpoints']['sharedInbox']) {
+			$ret['sharedInbox'] = $actor_record['endpoints']['sharedInbox'];
+		}
+
+		return $ret;
+	}
 }

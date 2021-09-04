@@ -23,11 +23,12 @@ class Hq extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
 
-		if(!local_channel())
+		if(!local_channel()) {
 			return;
+		}
 
 		if(argc() > 1 && argv(1) !== 'load') {
-			$item_hash = argv(1);
+			$item_hash = unpack_link_id(argv(1));
 		}
 
 		if(isset($_REQUEST['mid'])) {
@@ -46,6 +47,7 @@ class Hq extends \Zotlabs\Web\Controller {
 			$r = q("SELECT mid FROM item
 				WHERE uid = %d $item_normal
 				AND mid = parent_mid
+				AND item_private IN (0, 1)
 				ORDER BY created DESC LIMIT 1",
 				intval(local_channel())
 			);
@@ -126,7 +128,6 @@ class Hq extends \Zotlabs\Web\Controller {
 
 				// if we got a decoded hash we must encode it again before handing to javascript
 				$mid = gen_link_id($target_item['mid']);
-
 			}
 			else {
 				$mid = '';

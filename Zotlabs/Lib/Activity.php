@@ -1652,20 +1652,6 @@ class Activity {
 			$profile = $url;
 		}
 
-		$collections = [];
-
-		if ($inbox) {
-			$collections['inbox'] = $inbox;
-			if (array_key_exists('outbox', $person_obj))
-				$collections['outbox'] = $person_obj['outbox'];
-			if (array_key_exists('followers', $person_obj))
-				$collections['followers'] = $person_obj['followers'];
-			if (array_key_exists('following', $person_obj))
-				$collections['following'] = $person_obj['following'];
-			if (array_key_exists('endpoints', $person_obj) && array_key_exists('sharedInbox', $person_obj['endpoints']))
-				$collections['sharedInbox'] = $person_obj['endpoints']['sharedInbox'];
-		}
-
 		if (array_key_exists('publicKey', $person_obj) && array_key_exists('publicKeyPem', $person_obj['publicKey'])) {
 			if ($person_obj['id'] === $person_obj['publicKey']['owner']) {
 				$pubkey = $person_obj['publicKey']['publicKeyPem'];
@@ -1749,10 +1735,6 @@ class Activity {
 					'hubloc_id_url'   => escape_tags($profile)
 				]
 			);
-		}
-
-		if ($collections) {
-			set_xconfig($url, 'activitypub', 'collections', $collections);
 		}
 
 		$photos = import_xchan_photo($icon, $url);

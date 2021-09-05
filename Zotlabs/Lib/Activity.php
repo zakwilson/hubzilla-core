@@ -1111,6 +1111,7 @@ class Activity {
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
+
 		return $ret;
 	}
 
@@ -1552,6 +1553,7 @@ class Activity {
 		$ap_hubloc = null;
 
 		$hublocs = self::get_actor_hublocs($url);
+
 		if ($hublocs) {
 			foreach ($hublocs as $hub) {
 				if ($hub['hubloc_network'] === 'activitypub') {
@@ -3555,25 +3557,24 @@ class Activity {
 		return (XConfig::Get($id,'system','actor_record'));
 	}
 
-
 	static function get_actor_hublocs($url, $options = 'all') {
 
 		$hublocs = false;
 
 		switch ($options) {
 			case 'activitypub':
-				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' ",
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' and hubloc_deleted = 0 ",
 					dbesc($url)
 				);
 				break;
 			case 'zot6':
-				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_id_url = '%s' ",
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_id_url = '%s' and hubloc_deleted = 0 ",
 					dbesc($url)
 				);
 				break;
 			case 'all':
 			default:
-				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where ( hubloc_id_url = '%s' OR hubloc_hash = '%s' ) ",
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where ( hubloc_id_url = '%s' OR hubloc_hash = '%s' ) and hubloc_deleted = 0 ",
 					dbesc($url),
 					dbesc($url)
 				);

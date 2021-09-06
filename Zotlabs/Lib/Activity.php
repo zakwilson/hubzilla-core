@@ -1821,7 +1821,15 @@ class Activity {
 			$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
 		}
 
-		if (intval($item['item_private']) === 2) {
+		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
+			$s['item_private'] = 1;
+
+
+		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
+			$s['item_private'] = 2;
+		}
+
+		if (intval($s['item_private']) === 2) {
 			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
 				logger('no post_mail permission');
 				return;
@@ -1974,14 +1982,6 @@ class Activity {
 					}
 				}
 			}
-		}
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-
-		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
-			$s['item_private'] = 2;
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);

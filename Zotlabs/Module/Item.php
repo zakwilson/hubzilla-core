@@ -1377,6 +1377,10 @@ class Item extends Controller {
 			return $post;
 
 		if($return_path) {
+			if($return_path === 'hq') {
+				goaway(z_root() . '/hq/' . gen_link_id($datarray['mid']));
+			}
+
 			goaway(z_root() . "/" . $return_path);
 		}
 

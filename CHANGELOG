@@ -36,7 +36,7 @@ Hubzilla 6.2 (2021-09-??)
 	- Pubcrawl: deprecate asencode_person() in favor of Activity::encode_person()
 	- Pubcrawl: implement Activity::get_actor_collections() to reflect core actor store changes
 	- Diaspora: fix use of deprecated function
-	- Twitter: ...
+	- Twitter: prevent re-retweeting of a post from a clone if it has already been sent
 	- Totp: use platform name instead of banner text
 	- Pubcrawl: use force flag when updating an actor
 	- Sse: do not process possible empty hashes

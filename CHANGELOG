@@ -1,3 +1,48 @@
+Hubzilla 6.2 (2021-09-??)
+	- Check post_mail permission when receiving a direct message
+	- Refactor actor store and cache mechanism
+	- Add optional strict flag (false) to base64url_decode() which is passed on to base64_decode()
+	- Update russian translations
+	- Add optional force flag (false) to Activity::actor_store()
+	- Improved icon lookup for actor objects
+	- Improved desktop notifications
+	- Make Hubzilla installable as PWA in supported browsers
+	- Capitalized widget titles (redbasic)
+	- Make images loaded counter showing % loaded instead of actual image count
+	- Deprecate optional channel menu in favor of extended app bin
+	- Implement infrastructure to provide an app install widget for modules
+	- Implement app descriptions
+	- Implement app drag and drop sorting
+	- Implement app drag and drop pinning/starring
+	- Update polish translations
+	- Update to bootstrap 5 and adjust templates
+
+	Bugfixes
+	- Fix anonymous comments for cards and articles
+	- Resolve regex interference between contact and channel autocomplete
+	- Fix files stored in wrong directory when uploaded in the photo module
+	- Fix records with empty public key selected for OWA
+	- Fix import_author_zot failing if primary is both dead and unknown - issue #1599
+	- Fix regression with bookmarks
+	- Fix pubstream notifications link redirecting to mod hq when not local
+	- Cleanup legacy mail leftovers - issue #1595
+	- Fix getimagesize() called with empty path
+	- Fix display issue caused by redundant closing div tag
+
+	Addons
+	- Pubcrawl: fix post to forum - issue #159
+	- Diaspora: implement post_mail permissions for direct messages
+	- Pubcrawl: implement post_mail permissions for direct messages
+	- Pubcrawl: deprecate asencode_person() in favor of Activity::encode_person()
+	- Pubcrawl: implement Activity::get_actor_collections() to reflect core actor store changes
+	- Diaspora: fix use of deprecated function
+	- Twitter: ...
+	- Totp: use platform name instead of banner text
+	- Pubcrawl: use force flag when updating an actor
+	- Sse: do not process possible empty hashes
+	- Implement app descriptions for addons that already support the apps infrastructure
+
+
 Hubzilla 6.0.1 (2021-07-27)
 	- Fix regression in notification handling introduced in 6.0
 	- Fix regression in regard to unified session page load times introduced in 6.0

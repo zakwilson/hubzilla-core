@@ -8,6 +8,8 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\XConfig;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -1109,6 +1111,7 @@ class Activity {
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
+
 		return $ret;
 	}
 
@@ -1537,6 +1540,49 @@ class Activity {
 			return;
 		}
 
+/* not implemented
+		if (array_key_exists('movedTo',$person_obj) && $person_obj['movedTo'] && ! is_array($person_obj['movedTo'])) {
+			$tgt = self::fetch($person_obj['movedTo']);
+			if (is_array($tgt)) {
+				self::actor_store($person_obj['movedTo'],$tgt);
+				ActivityPub::move($person_obj['id'],$tgt);
+			}
+			return;
+		}
+*/
+		$ap_hubloc = null;
+
+		$hublocs = self::get_actor_hublocs($url);
+
+		if ($hublocs) {
+			foreach ($hublocs as $hub) {
+				if ($hub['hubloc_network'] === 'activitypub') {
+					$ap_hubloc = $hub;
+				}
+				if ($hub['hubloc_network'] === 'zot6') {
+					Libzot::update_cached_hubloc($hub);
+				}
+			}
+		}
+
+		if ($ap_hubloc) {
+			// we already have a stored record. Determine if it needs updating.
+			if ($ap_hubloc['hubloc_updated'] < datetime_convert('UTC','UTC',' now - 3 days') || $force) {
+				$person_obj = self::fetch($url);
+			}
+			else {
+				return;
+			}
+		}
+
+		if (isset($person_obj['id'])) {
+			$url = $person_obj['id'];
+		}
+
+		if (! $url) {
+			return;
+		}
+
 		$inbox = $person_obj['inbox'];
 
 		// invalid identity
@@ -1544,6 +1590,9 @@ class Activity {
 		if (!$inbox || strpos($inbox, z_root()) !== false) {
 			return;
 		}
+
+		// store the actor record in XConfig
+		XConfig::Set($url, 'system', 'actor_record', $person_obj);
 
 		$name = $person_obj['name'];
 		if (!$name) {
@@ -1601,20 +1650,6 @@ class Activity {
 
 		if (!$profile) {
 			$profile = $url;
-		}
-
-		$collections = [];
-
-		if ($inbox) {
-			$collections['inbox'] = $inbox;
-			if (array_key_exists('outbox', $person_obj))
-				$collections['outbox'] = $person_obj['outbox'];
-			if (array_key_exists('followers', $person_obj))
-				$collections['followers'] = $person_obj['followers'];
-			if (array_key_exists('following', $person_obj))
-				$collections['following'] = $person_obj['following'];
-			if (array_key_exists('endpoints', $person_obj) && array_key_exists('sharedInbox', $person_obj['endpoints']))
-				$collections['sharedInbox'] = $person_obj['endpoints']['sharedInbox'];
 		}
 
 		if (array_key_exists('publicKey', $person_obj) && array_key_exists('publicKeyPem', $person_obj['publicKey'])) {
@@ -1702,10 +1737,6 @@ class Activity {
 			);
 		}
 
-		if ($collections) {
-			set_xconfig($url, 'activitypub', 'collections', $collections);
-		}
-
 		$photos = import_xchan_photo($icon, $url);
 		q("update xchan set xchan_photo_date = '%s', xchan_photo_l = '%s', xchan_photo_m = '%s', xchan_photo_s = '%s', xchan_photo_mimetype = '%s' where xchan_hash = '%s'",
 			dbescdate(datetime_convert('UTC', 'UTC', $photos[5])),
@@ -1784,10 +1815,25 @@ class Activity {
 		}
 		else {
 			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-				logger('no permission');
+				logger('no send_stream permission');
 				return;
 			}
 			$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
+		}
+
+		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
+			$s['item_private'] = 1;
+
+
+		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
+			$s['item_private'] = 2;
+		}
+
+		if (intval($s['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				logger('no post_mail permission');
+				return;
+			}
 		}
 
 		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
@@ -1936,14 +1982,6 @@ class Activity {
 					}
 				}
 			}
-		}
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-
-		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
-			$s['item_private'] = 2;
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
@@ -2641,6 +2679,11 @@ class Activity {
 			$allowed = true;
 		}
 
+		if (intval($item['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				$allowed = false;
+			}
+		}
 
 		if ($is_sys_channel) {
 
@@ -3504,4 +3547,53 @@ class Activity {
 
 	}
 
+	static function get_cached_actor($id) {
+		return (XConfig::Get($id,'system','actor_record'));
+	}
+
+	static function get_actor_hublocs($url, $options = 'all') {
+
+		$hublocs = false;
+
+		switch ($options) {
+			case 'activitypub':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' and hubloc_deleted = 0 ",
+					dbesc($url)
+				);
+				break;
+			case 'zot6':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_id_url = '%s' and hubloc_deleted = 0 ",
+					dbesc($url)
+				);
+				break;
+			case 'all':
+			default:
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where ( hubloc_id_url = '%s' OR hubloc_hash = '%s' ) and hubloc_deleted = 0 ",
+					dbesc($url),
+					dbesc($url)
+				);
+				break;
+		}
+
+		return $hublocs;
+	}
+
+	static function get_actor_collections($url) {
+		$ret = [];
+		$actor_record = XConfig::Get($url,'system','actor_record');
+		if (! $actor_record) {
+			return $ret;
+		}
+
+		foreach ( [ 'inbox','outbox','followers','following' ] as $collection) {
+			if (isset($actor_record[$collection]) && $actor_record[$collection]) {
+				$ret[$collection] = $actor_record[$collection];
+			}
+		}
+		if (array_path_exists('endpoints/sharedInbox',$actor_record) && $actor_record['endpoints']['sharedInbox']) {
+			$ret['sharedInbox'] = $actor_record['endpoints']['sharedInbox'];
+		}
+
+		return $ret;
+	}
 }

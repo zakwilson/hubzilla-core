@@ -42,19 +42,16 @@ class Pubstream extends \Zotlabs\Web\Controller {
 			$site_firehose = false;
 		}
 
-		$mid = ((x($_REQUEST,'mid')) ? $_REQUEST['mid'] : '');
-		$hashtags   = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
+		$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
+		if ($mid === false) {
+			notice(t('Malformed message id.') . EOL);
+			return;
+		}
 
-
-		if(strpos($mid,'b64.') === 0)
-			$decoded = @base64url_decode(substr($mid,4));
-		if($decoded)
-			$mid = $decoded;
-
+		$hashtags = ((x($_REQUEST,'tag')) ? $_REQUEST['tag'] : '');
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
-
-		$net    = ((array_key_exists('net',$_REQUEST))    ? escape_tags($_REQUEST['net']) : '');
+		$net = ((array_key_exists('net',$_REQUEST))    ? escape_tags($_REQUEST['net']) : '');
 
 		$title = replace_macros(get_markup_template("section_title.tpl"),array(
 			'$title' => (($hashtags) ? '#' . htmlspecialchars($hashtags, ENT_COMPAT,'UTF-8') : '')
@@ -115,8 +112,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				. "; divmore_height = " . intval($maxheight) . "; </script>\r\n";
 
 			//if we got a decoded hash we must encode it again before handing to javascript
-			if($decoded)
-				$mid = 'b64.' . base64url_encode($mid);
+			$mid = gen_link_id($mid);
 
 			\App::$page['htmlhead'] .= replace_macros(get_markup_template("build_query.tpl"),array(
 				'$baseurl' => z_root(),

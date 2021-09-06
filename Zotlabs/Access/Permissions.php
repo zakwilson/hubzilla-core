@@ -65,9 +65,9 @@ class Permissions {
 			'write_wiki'    => t('Can write to my wiki pages'),
 			'post_wall'     => t('Can post on my channel (wall) page'),
 			'post_comments' => t('Can comment on or like my posts'),
-			'post_mail'     => t('Can send me private mail messages'),
+			'post_mail'     => t('Can send me direct messages'),
 			'post_like'     => t('Can like/dislike profiles and profile things'),
-			'tag_deliver'   => t('Can forward to all my channel connections via ! mentions in posts'),
+			'tag_deliver'   => t('Can forward direct messages to all my channel connections (forum)'),
 			'chat'          => t('Can chat with me'),
 			'republish'     => t('Can source my public posts in derived channels'),
 			'delegate'      => t('Can administer my channel')

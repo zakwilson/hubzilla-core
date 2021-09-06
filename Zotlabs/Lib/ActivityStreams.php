@@ -300,17 +300,8 @@ class ActivityStreams {
 	function get_actor($property, $base = '', $namespace = '') {
 		$x = $this->get_property_obj($property, $base, $namespace);
 		if ($this->is_url($x)) {
-
-			// SECURITY: If we have already stored the actor profile, re-generate it
-			// from cached data - don't refetch it from the network
-
-			$r = q("select * from xchan join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s'",
-				dbesc($x)
-			);
-			if ($r) {
-				$r = Libzot::zot_record_preferred($r);
-				$y = Activity::encode_person($r);
-				$y['cached'] = true;
+			$y = Activity::get_cached_actor($x);
+			if ($y) {
 				return $y;
 			}
 		}

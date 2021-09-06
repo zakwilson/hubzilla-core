@@ -560,7 +560,7 @@ class Sse_bs extends Controller {
 					$b64mids = [];
 
 					foreach($mids as $mid)
-						$b64mids[] =  'b64.' . base64url_encode($mid);
+						$b64mids[] =  gen_link_id($mid);
 
 					$forums[$x]['notify_link'] = z_root() . '/network/?f=&pf=1&unseen=1&cid=' . $forums[$x]['abook_id'];
 					$forums[$x]['name'] = $forums[$x]['xchan_name'];

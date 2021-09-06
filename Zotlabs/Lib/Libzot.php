@@ -1601,6 +1601,12 @@ class Libzot {
 					$friendofriend = true;
 				}
 
+				if (intval($arr['item_private']) === 2) {
+					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
+						$allowed = false;
+					}
+				}
+
 				if (!$allowed) {
 					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 					$DR->update('permission denied');
@@ -3154,4 +3160,10 @@ class Libzot {
 
 	}
 
+	static function update_cached_hubloc($hubloc) {
+		if ($hubloc['hubloc_updated'] > datetime_convert('UTC','UTC','now - 1 week') || $hubloc['hubloc_url'] === z_root()) {
+			return;
+		}
+		self::refresh( [ 'hubloc_id_url' => $hubloc['hubloc_id_url'] ] );
+	}
 }

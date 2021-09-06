@@ -77,8 +77,11 @@ class Oep extends \Zotlabs\Web\Controller {
 			$res = $matches[2];
 		}
 
-		if(strpos($res,'b64.') === 0) {
-			$res = base64url_decode(substr($res,4));
+		$res = unpack_link_id($res);
+
+		if ($res === false) {
+			notice(t('Malformed message id.') . EOL);
+			return;
 		}
 
 		$item_normal = item_normal();

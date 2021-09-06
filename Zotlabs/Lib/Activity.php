@@ -1815,10 +1815,17 @@ class Activity {
 		}
 		else {
 			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-				logger('no permission');
+				logger('no send_stream permission');
 				return;
 			}
 			$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
+		}
+
+		if (intval($item['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				logger('no post_mail permission');
+				return;
+			}
 		}
 
 		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
@@ -2672,6 +2679,11 @@ class Activity {
 			$allowed = true;
 		}
 
+		if (intval($item['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				$allowed = false;
+			}
+		}
 
 		if ($is_sys_channel) {
 

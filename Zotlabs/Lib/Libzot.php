@@ -1601,6 +1601,12 @@ class Libzot {
 					$friendofriend = true;
 				}
 
+				if (intval($arr['item_private']) === 2) {
+					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
+						$allowed = false;
+					}
+				}
+
 				if (!$allowed) {
 					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 					$DR->update('permission denied');

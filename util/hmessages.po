@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: 6.2RC\n"
+"Project-Id-Version: 6.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 18:12+0000\n"
+"POT-Creation-Date: 2021-09-06 19:21+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -717,8 +717,8 @@ msgstr ""
 #: ../../Zotlabs/Module/Register.php:200 ../../Zotlabs/Module/Setup.php:208
 #: ../../Zotlabs/Module/Viewconnections.php:28
 #: ../../Zotlabs/Module/Viewconnections.php:33
-#: ../../Zotlabs/Module/Channel.php:222 ../../Zotlabs/Module/Channel.php:378
-#: ../../Zotlabs/Module/Channel.php:417 ../../Zotlabs/Module/Group.php:15
+#: ../../Zotlabs/Module/Channel.php:223 ../../Zotlabs/Module/Channel.php:379
+#: ../../Zotlabs/Module/Channel.php:418 ../../Zotlabs/Module/Group.php:15
 #: ../../Zotlabs/Module/Group.php:31 ../../Zotlabs/Module/Card_edit.php:51
 #: ../../Zotlabs/Module/Editwebpage.php:68
 #: ../../Zotlabs/Module/Editwebpage.php:89
@@ -728,7 +728,7 @@ msgstr ""
 #: ../../Zotlabs/Module/Channel_calendar.php:232
 #: ../../Zotlabs/Module/Like.php:242 ../../Zotlabs/Module/Poke.php:157
 #: ../../Zotlabs/Module/Item.php:507 ../../Zotlabs/Module/Item.php:526
-#: ../../Zotlabs/Module/Item.php:536 ../../Zotlabs/Module/Item.php:1447
+#: ../../Zotlabs/Module/Item.php:536 ../../Zotlabs/Module/Item.php:1451
 #: ../../Zotlabs/Module/Mitem.php:129 ../../Zotlabs/Module/Profile.php:99
 #: ../../Zotlabs/Module/Profile.php:114
 #: ../../Zotlabs/Module/Sharedwithme.php:19
@@ -741,7 +741,7 @@ msgstr ""
 #: ../../Zotlabs/Module/Editpost.php:17
 #: ../../Zotlabs/Module/Achievements.php:34 ../../Zotlabs/Module/Manage.php:10
 #: ../../Zotlabs/Module/Authtest.php:13 ../../Zotlabs/Module/Viewsrc.php:19
-#: ../../Zotlabs/Module/Moderate.php:15 ../../Zotlabs/Module/Display.php:420
+#: ../../Zotlabs/Module/Moderate.php:15 ../../Zotlabs/Module/Display.php:421
 #: ../../Zotlabs/Module/Common.php:38 ../../Zotlabs/Module/New_channel.php:105
 #: ../../Zotlabs/Module/New_channel.php:130
 #: ../../Zotlabs/Module/Service_limits.php:11 ../../Zotlabs/Module/Mood.php:126
@@ -1099,7 +1099,7 @@ msgstr ""
 #: ../../Zotlabs/Module/Profperm.php:28 ../../Zotlabs/Module/Group.php:95
 #: ../../Zotlabs/Module/Like.php:342 ../../Zotlabs/Module/Cloud.php:123
 #: ../../Zotlabs/Module/Share.php:72 ../../Zotlabs/Module/Subthread.php:89
-#: ../../Zotlabs/Module/Dreport.php:10 ../../Zotlabs/Module/Dreport.php:67
+#: ../../Zotlabs/Module/Dreport.php:10 ../../Zotlabs/Module/Dreport.php:55
 #: ../../Zotlabs/Web/WebServer.php:115
 msgid "Permission denied"
 msgstr ""
@@ -1143,11 +1143,11 @@ msgstr ""
 msgid "0 or blank to import all available"
 msgstr ""
 
-#: ../../addon/redphotos/redphotohelper.php:71 ../../addon/pubcrawl/as.php:1926
-#: ../../addon/diaspora/Receiver.php:1621 ../../include/text.php:2251
+#: ../../addon/redphotos/redphotohelper.php:71 ../../addon/pubcrawl/as.php:1937
+#: ../../addon/diaspora/Receiver.php:1626 ../../include/text.php:2251
 #: ../../include/conversation.php:128 ../../Zotlabs/Module/Like.php:439
 #: ../../Zotlabs/Module/Tagger.php:71 ../../Zotlabs/Module/Subthread.php:115
-#: ../../Zotlabs/Lib/Activity.php:3258
+#: ../../Zotlabs/Lib/Activity.php:3301
 msgid "photo"
 msgstr ""
 
@@ -1282,13 +1282,13 @@ msgstr ""
 msgid "API URL"
 msgstr ""
 
-#: ../../addon/statusnet/statusnet.php:595 ../../addon/twitter/twitter.php:499
+#: ../../addon/statusnet/statusnet.php:595 ../../addon/twitter/twitter.php:505
 #: ../../Zotlabs/Module/Oauth.php:113 ../../Zotlabs/Module/Oauth.php:139
 #: ../../Zotlabs/Module/Oauth2.php:117 ../../Zotlabs/Module/Oauth2.php:145
 msgid "Consumer Secret"
 msgstr ""
 
-#: ../../addon/statusnet/statusnet.php:596 ../../addon/twitter/twitter.php:498
+#: ../../addon/statusnet/statusnet.php:596 ../../addon/twitter/twitter.php:504
 #: ../../Zotlabs/Module/Oauth.php:112 ../../Zotlabs/Module/Oauth.php:138
 msgid "Consumer Key"
 msgstr ""
@@ -1698,7 +1698,7 @@ msgid "Include a marker on the map."
 msgstr ""
 
 #: ../../addon/openstreetmap/openstreetmap.php:171
-#: ../../addon/rendezvous/rendezvous.php:82 ../../addon/twitter/twitter.php:487
+#: ../../addon/rendezvous/rendezvous.php:82 ../../addon/twitter/twitter.php:493
 #: ../../addon/msgfooter/msgfooter.php:54 ../../addon/diaspora/diaspora.php:102
 #: ../../addon/piwik/piwik.php:116 ../../addon/logrot/logrot.php:54
 #: ../../addon/xmpp/xmpp.php:54 ../../Zotlabs/Module/Settings/Channel.php:267
@@ -1759,26 +1759,26 @@ msgstr ""
 msgid "Enter some text"
 msgstr ""
 
-#: ../../addon/pubcrawl/as.php:1292 ../../addon/pubcrawl/as.php:1764
-#: ../../addon/pubcrawl/as.php:1972 ../../include/network.php:1742
-#: ../../Zotlabs/Lib/Activity.php:3108 ../../Zotlabs/Lib/Activity.php:3300
+#: ../../addon/pubcrawl/as.php:1340 ../../addon/pubcrawl/as.php:1775
+#: ../../addon/pubcrawl/as.php:1983 ../../include/network.php:1742
+#: ../../Zotlabs/Lib/Activity.php:3151 ../../Zotlabs/Lib/Activity.php:3343
 msgid "ActivityPub"
 msgstr ""
 
-#: ../../addon/pubcrawl/as.php:1926 ../../addon/diaspora/Receiver.php:1621
+#: ../../addon/pubcrawl/as.php:1937 ../../addon/diaspora/Receiver.php:1626
 #: ../../Zotlabs/Module/Like.php:439 ../../Zotlabs/Module/Subthread.php:115
 msgid "status"
 msgstr ""
 
-#: ../../addon/pubcrawl/as.php:1963 ../../addon/diaspora/Receiver.php:1567
+#: ../../addon/pubcrawl/as.php:1974 ../../addon/diaspora/Receiver.php:1572
 #: ../../include/conversation.php:174 ../../Zotlabs/Module/Like.php:471
-#: ../../Zotlabs/Lib/Activity.php:3291
+#: ../../Zotlabs/Lib/Activity.php:3334
 #, php-format
 msgid "%1$s likes %2$s's %3$s"
 msgstr ""
 
-#: ../../addon/pubcrawl/as.php:1965 ../../include/conversation.php:177
-#: ../../Zotlabs/Module/Like.php:473 ../../Zotlabs/Lib/Activity.php:3293
+#: ../../addon/pubcrawl/as.php:1976 ../../include/conversation.php:177
+#: ../../Zotlabs/Module/Like.php:473 ../../Zotlabs/Lib/Activity.php:3336
 #, php-format
 msgid "%1$s doesn't like %2$s's %3$s"
 msgstr ""
@@ -2004,7 +2004,7 @@ msgstr ""
 msgid "Errors encountered deleting database table "
 msgstr ""
 
-#: ../../addon/rendezvous/rendezvous.php:95 ../../addon/twitter/twitter.php:496
+#: ../../addon/rendezvous/rendezvous.php:95 ../../addon/twitter/twitter.php:502
 msgid "Submit Settings"
 msgstr ""
 
@@ -2891,22 +2891,22 @@ msgstr ""
 msgid "Diaspora Protocol"
 msgstr ""
 
-#: ../../addon/diaspora/Receiver.php:1571
+#: ../../addon/diaspora/Receiver.php:1576
 #, php-format
 msgid "%1$s dislikes %2$s's %3$s"
 msgstr ""
 
-#: ../../addon/diaspora/Receiver.php:2200 ../../Zotlabs/Module/Like.php:481
+#: ../../addon/diaspora/Receiver.php:2205 ../../Zotlabs/Module/Like.php:481
 #, php-format
 msgid "%1$s is attending %2$s's %3$s"
 msgstr ""
 
-#: ../../addon/diaspora/Receiver.php:2202 ../../Zotlabs/Module/Like.php:483
+#: ../../addon/diaspora/Receiver.php:2207 ../../Zotlabs/Module/Like.php:483
 #, php-format
 msgid "%1$s is not attending %2$s's %3$s"
 msgstr ""
 
-#: ../../addon/diaspora/Receiver.php:2204 ../../Zotlabs/Module/Like.php:485
+#: ../../addon/diaspora/Receiver.php:2209 ../../Zotlabs/Module/Like.php:485
 #, php-format
 msgid "%1$s may attend %2$s's %3$s"
 msgstr ""
@@ -3228,8 +3228,8 @@ msgstr ""
 #: ../../Zotlabs/Module/Filestorage.php:29
 #: ../../Zotlabs/Module/Admin/Themes.php:72
 #: ../../Zotlabs/Module/Admin/Addons.php:260
-#: ../../Zotlabs/Module/Viewsrc.php:25 ../../Zotlabs/Module/Display.php:42
-#: ../../Zotlabs/Module/Display.php:424 ../../Zotlabs/Module/Admin.php:61
+#: ../../Zotlabs/Module/Viewsrc.php:25 ../../Zotlabs/Module/Display.php:45
+#: ../../Zotlabs/Module/Display.php:425 ../../Zotlabs/Module/Admin.php:61
 #: ../../Zotlabs/Module/Thing.php:96
 msgid "Item not found."
 msgstr ""
@@ -4110,7 +4110,7 @@ msgstr ""
 
 #: ../../include/text.php:2257 ../../include/conversation.php:158
 #: ../../include/bbcode.php:555 ../../include/markdown.php:205
-#: ../../Zotlabs/Module/Tagger.php:79 ../../Zotlabs/Lib/Activity.php:3258
+#: ../../Zotlabs/Module/Tagger.php:79 ../../Zotlabs/Lib/Activity.php:3301
 msgid "post"
 msgstr ""
 
@@ -4999,9 +4999,9 @@ msgstr ""
 msgid "Not Found"
 msgstr ""
 
-#: ../../include/help.php:133 ../../Zotlabs/Module/Display.php:136
-#: ../../Zotlabs/Module/Display.php:153 ../../Zotlabs/Module/Display.php:173
-#: ../../Zotlabs/Module/Display.php:179 ../../Zotlabs/Module/Page.php:136
+#: ../../include/help.php:133 ../../Zotlabs/Module/Display.php:139
+#: ../../Zotlabs/Module/Display.php:156 ../../Zotlabs/Module/Display.php:176
+#: ../../Zotlabs/Module/Display.php:182 ../../Zotlabs/Module/Page.php:136
 #: ../../Zotlabs/Module/Block.php:77 ../../Zotlabs/Lib/NativeWikiPage.php:533
 #: ../../Zotlabs/Web/Router.php:186
 msgid "Page not found."
@@ -5544,7 +5544,7 @@ msgstr ""
 #: ../../Zotlabs/Widget/Album.php:84 ../../Zotlabs/Widget/Pinned.php:268
 #: ../../Zotlabs/Widget/Portfolio.php:95
 #: ../../Zotlabs/Module/Embedphotos.php:177 ../../Zotlabs/Module/Photos.php:793
-#: ../../Zotlabs/Module/Photos.php:1253 ../../Zotlabs/Lib/Activity.php:1553
+#: ../../Zotlabs/Module/Photos.php:1253 ../../Zotlabs/Lib/Activity.php:1602
 #: ../../Zotlabs/Lib/Apps.php:1148 ../../Zotlabs/Lib/Apps.php:1232
 msgid "Unknown"
 msgstr ""
@@ -6986,7 +6986,7 @@ msgid "Add new page"
 msgstr ""
 
 #: ../../Zotlabs/Widget/Wiki_pages.php:41
-#: ../../Zotlabs/Widget/Wiki_pages.php:98 ../../Zotlabs/Module/Dreport.php:141
+#: ../../Zotlabs/Widget/Wiki_pages.php:98 ../../Zotlabs/Module/Dreport.php:129
 msgid "Options"
 msgstr ""
 
@@ -7703,7 +7703,7 @@ msgid "New registrations notifications"
 msgstr ""
 
 #: ../../Zotlabs/Widget/Notifications.php:147
-#: ../../Zotlabs/Module/Pubstream.php:103 ../../Zotlabs/Lib/Apps.php:378
+#: ../../Zotlabs/Module/Pubstream.php:100 ../../Zotlabs/Lib/Apps.php:378
 msgid "Public Stream"
 msgstr ""
 
@@ -7833,13 +7833,13 @@ msgstr ""
 msgid "No such channel"
 msgstr ""
 
-#: ../../Zotlabs/Module/Network.php:168 ../../Zotlabs/Module/Channel.php:234
+#: ../../Zotlabs/Module/Network.php:168 ../../Zotlabs/Module/Channel.php:235
 msgid "Search Results For:"
 msgstr ""
 
-#: ../../Zotlabs/Module/Network.php:209 ../../Zotlabs/Module/Channel.php:269
-#: ../../Zotlabs/Module/Hq.php:113 ../../Zotlabs/Module/Pubstream.php:93
-#: ../../Zotlabs/Module/Display.php:76
+#: ../../Zotlabs/Module/Network.php:209 ../../Zotlabs/Module/Channel.php:270
+#: ../../Zotlabs/Module/Hq.php:114 ../../Zotlabs/Module/Pubstream.php:90
+#: ../../Zotlabs/Module/Display.php:79
 msgid "Reset form"
 msgstr ""
 
@@ -8124,7 +8124,7 @@ msgstr ""
 
 #: ../../Zotlabs/Module/Search.php:21
 #: ../../Zotlabs/Module/Viewconnections.php:23
-#: ../../Zotlabs/Module/Display.php:26 ../../Zotlabs/Module/Directory.php:72
+#: ../../Zotlabs/Module/Display.php:28 ../../Zotlabs/Module/Directory.php:72
 #: ../../Zotlabs/Module/Directory.php:77 ../../Zotlabs/Module/Photos.php:519
 msgid "Public access denied."
 msgstr ""
@@ -8635,21 +8635,27 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: ../../Zotlabs/Module/Channel.php:144 ../../Zotlabs/Module/Hcard.php:37
+#: ../../Zotlabs/Module/Channel.php:142 ../../Zotlabs/Module/Hcard.php:37
 #: ../../Zotlabs/Module/Profile.php:62
 msgid "Posts and comments"
 msgstr ""
 
-#: ../../Zotlabs/Module/Channel.php:151 ../../Zotlabs/Module/Hcard.php:44
+#: ../../Zotlabs/Module/Channel.php:149 ../../Zotlabs/Module/Hcard.php:44
 #: ../../Zotlabs/Module/Profile.php:69
 msgid "Only posts"
 msgstr ""
 
-#: ../../Zotlabs/Module/Channel.php:219
+#: ../../Zotlabs/Module/Channel.php:162 ../../Zotlabs/Module/Channel.php:184
+#: ../../Zotlabs/Module/Hq.php:39 ../../Zotlabs/Module/Pubstream.php:47
+#: ../../Zotlabs/Module/Display.php:99 ../../Zotlabs/Module/Oep.php:83
+msgid "Malformed message id."
+msgstr ""
+
+#: ../../Zotlabs/Module/Channel.php:220
 msgid "Insufficient permissions.  Request redirected to profile page."
 msgstr ""
 
-#: ../../Zotlabs/Module/Channel.php:496 ../../Zotlabs/Module/Display.php:354
+#: ../../Zotlabs/Module/Channel.php:497 ../../Zotlabs/Module/Display.php:355
 msgid ""
 "You must enable javascript for your browser to be able to view this content."
 msgstr ""
@@ -9252,16 +9258,16 @@ msgstr ""
 msgid "Your comment is awaiting approval."
 msgstr ""
 
-#: ../../Zotlabs/Module/Item.php:1501
+#: ../../Zotlabs/Module/Item.php:1505
 msgid "Unable to obtain post information from database."
 msgstr ""
 
-#: ../../Zotlabs/Module/Item.php:1508
+#: ../../Zotlabs/Module/Item.php:1512
 #, php-format
 msgid "You have reached your limit of %1$.0f top level posts."
 msgstr ""
 
-#: ../../Zotlabs/Module/Item.php:1515
+#: ../../Zotlabs/Module/Item.php:1519
 #, php-format
 msgid "You have reached your limit of %1$.0f webpages."
 msgstr ""
@@ -9606,7 +9612,7 @@ msgstr ""
 msgid "Unknown error"
 msgstr ""
 
-#: ../../Zotlabs/Module/Share.php:104 ../../Zotlabs/Lib/Activity.php:2193
+#: ../../Zotlabs/Module/Share.php:104 ../../Zotlabs/Lib/Activity.php:2231
 #, php-format
 msgid "&#x1f501; Repeated %1$s's %2$s"
 msgstr ""
@@ -11309,11 +11315,11 @@ msgid ""
 "or restore these in date order (oldest first)."
 msgstr ""
 
-#: ../../Zotlabs/Module/Display.php:372
+#: ../../Zotlabs/Module/Display.php:373
 msgid "Article"
 msgstr ""
 
-#: ../../Zotlabs/Module/Display.php:417
+#: ../../Zotlabs/Module/Display.php:418
 msgid "Item has been removed."
 msgstr ""
 
@@ -13497,52 +13503,52 @@ msgstr ""
 msgid "Connected OAuth2 Apps"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:50
+#: ../../Zotlabs/Module/Dreport.php:38
 msgid "Invalid message"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:77
+#: ../../Zotlabs/Module/Dreport.php:65
 msgid "no results"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:91
+#: ../../Zotlabs/Module/Dreport.php:79
 msgid "channel sync processed"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:95
+#: ../../Zotlabs/Module/Dreport.php:83
 msgid "queued"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:99
+#: ../../Zotlabs/Module/Dreport.php:87
 msgid "posted"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:103
+#: ../../Zotlabs/Module/Dreport.php:91
 msgid "accepted for delivery"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:107
+#: ../../Zotlabs/Module/Dreport.php:95
 msgid "updated"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:110
+#: ../../Zotlabs/Module/Dreport.php:98
 msgid "update ignored"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:113
+#: ../../Zotlabs/Module/Dreport.php:101
 msgid "permission denied"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:117
+#: ../../Zotlabs/Module/Dreport.php:105
 msgid "recipient not found"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:137
+#: ../../Zotlabs/Module/Dreport.php:125
 #, php-format
 msgid "Delivery report for %1$s"
 msgstr ""
 
-#: ../../Zotlabs/Module/Dreport.php:142
+#: ../../Zotlabs/Module/Dreport.php:130
 msgid "Redeliver"
 msgstr ""
 
@@ -14245,32 +14251,32 @@ msgctxt "permcat"
 msgid "publisher"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2170
+#: ../../Zotlabs/Lib/Activity.php:2208
 #, php-format
 msgid "Likes %1$s's %2$s"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2173
+#: ../../Zotlabs/Lib/Activity.php:2211
 #, php-format
 msgid "Doesn't like %1$s's %2$s"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2179
+#: ../../Zotlabs/Lib/Activity.php:2217
 #, php-format
 msgid "Will attend %s's event"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2182
+#: ../../Zotlabs/Lib/Activity.php:2220
 #, php-format
 msgid "Will not attend %s's event"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2185
+#: ../../Zotlabs/Lib/Activity.php:2223
 #, php-format
 msgid "May attend %s's event"
 msgstr ""
 
-#: ../../Zotlabs/Lib/Activity.php:2188
+#: ../../Zotlabs/Lib/Activity.php:2226
 #, php-format
 msgid "May not attend %s's event"
 msgstr ""
@@ -15120,7 +15126,7 @@ msgid "Can comment on or like my posts"
 msgstr ""
 
 #: ../../Zotlabs/Access/Permissions.php:68
-msgid "Can send me private mail messages"
+msgid "Can send me direct messages"
 msgstr ""
 
 #: ../../Zotlabs/Access/Permissions.php:69
@@ -15128,7 +15134,7 @@ msgid "Can like/dislike profiles and profile things"
 msgstr ""
 
 #: ../../Zotlabs/Access/Permissions.php:70
-msgid "Can forward to all my channel connections via ! mentions in posts"
+msgid "Can forward direct messages to all my channel connections (forum)"
 msgstr ""
 
 #: ../../Zotlabs/Access/Permissions.php:71

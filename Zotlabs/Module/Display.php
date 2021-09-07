@@ -37,7 +37,15 @@ class Display extends \Zotlabs\Web\Controller {
 		}
 
 		if($_REQUEST['mid']) {
-			$item_hash = unpack_link_id($_REQUEST['mid']);
+			$item_hash = $_REQUEST['mid'];
+		}
+
+		$item_hash = unpack_link_id($item_hash);
+
+		if ($item_hash === false) {
+			App::$error = 400;
+			notice(t('Malformed message id.') . EOL);
+			return;
 		}
 
 		if(!$item_hash) {
@@ -94,11 +102,6 @@ class Display extends \Zotlabs\Web\Controller {
 		// find a copy of the item somewhere
 
 		$target_item = null;
-
-		if ($item_hash === false) {
-			notice(t('Malformed message id.') . EOL);
-			return;
-		}
 
 		$r = q("select id, uid, mid, parent, parent_mid, thr_parent, verb, item_type, item_deleted, author_xchan, item_blocked from item where mid = '%s' limit 1",
 			dbesc($item_hash)
@@ -374,7 +377,7 @@ class Display extends \Zotlabs\Web\Controller {
 				'$feed_updated'  => xmlify(datetime_convert('UTC', 'UTC', 'now', ATOM_TIME)),
 				'$author'        => '',
 				'$owner'         => '',
-				'$profile_page'  => xmlify(z_root() . '/display/' . $target_item['mid']),
+				'$profile_page'  => xmlify(z_root() . '/display/' . gen_link_id($target_item['mid'])),
 			));
 
 			$x = [ 'xml' => $atom, 'channel' => $channel, 'observer_hash' => $observer_hash, 'params' => $params ];

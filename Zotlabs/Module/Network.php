@@ -289,8 +289,8 @@ class Network extends \Zotlabs\Web\Controller {
 					// This is for threaded view cid queries (e.g. if a forum is selected from the forum filter)
 					$ttype = (($pf) ? TERM_FORUM : TERM_MENTION);
 
-					$p1 = q("SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal ");
-					$p2 = q("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
+					$p1 = dbq("SELECT DISTINCT parent FROM item WHERE uid = " . intval(local_channel()) . " AND ( author_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' OR owner_xchan = '" . dbesc($cid_r[0]['abook_xchan']) . "' ) $item_normal ");
+					$p2 = dbq("SELECT oid AS parent FROM term WHERE uid = " . intval(local_channel()) . " AND ttype = $ttype AND term = '" . dbesc($cid_r[0]['xchan_name']) . "'");
 
 					$p_str = ids_to_querystr(array_merge($p1, $p2), 'parent');
 					if(! $p_str)
@@ -465,7 +465,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 		if($nouveau && $load) {
 			// "New Item View" - show all items unthreaded in reverse created date order
-			$items = q("SELECT item.*, item.id AS item_id, created FROM item
+			$items = dbq("SELECT item.*, item.id AS item_id, created FROM item
 				left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 				$net_query
 				WHERE true $uids $item_normal
@@ -494,7 +494,7 @@ class Network extends \Zotlabs\Web\Controller {
 
 			if($load) {
 				// Fetch a page full of parent items for this page
-				$r = q("SELECT item.parent AS item_id FROM item
+				$r = dbq("SELECT item.parent AS item_id FROM item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 					$net_query
 					WHERE true $uids $item_thread_top $item_normal
@@ -508,26 +508,23 @@ class Network extends \Zotlabs\Web\Controller {
 			else {
 
 				// this is an update
-				$r = q("SELECT item.parent AS item_id FROM item
+				$r = dbq("SELECT item.parent AS item_id FROM item
 					left join abook on ( item.owner_xchan = abook.abook_xchan $abook_uids )
 					$net_query
 					WHERE true $uids $item_normal_update $simple_update
 					and (abook.abook_blocked = 0 or abook.abook_flags is null)
-					$sql_extra3 $sql_extra $sql_options $sql_nets $net_query2"
+					$sql_extra3 $sql_extra $sql_options $sql_nets $net_query2 "
 				);
 			}
 
 			// Then fetch all the children of the parents that are on this page
 
 			if($r) {
-
 				$parents_str = ids_to_querystr($r, 'item_id');
-
-				$items = q("SELECT item.*, item.id AS item_id FROM item
+				$items = dbq("SELECT item.*, item.id AS item_id FROM item
 					WHERE true $uids $item_normal
-					AND item.parent IN ( %s )
-					$sql_extra ",
-					dbesc($parents_str)
+					AND item.parent IN ( $parents_str )
+					$sql_extra "
 				);
 
 				xchan_query($items, true);

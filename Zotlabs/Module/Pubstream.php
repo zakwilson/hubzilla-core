@@ -206,7 +206,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 				}
 				else {
 					// Fetch a page full of parent items for this page
-					$r = q("SELECT item.id AS item_id FROM item
+					$r = dbq("SELECT item.id AS item_id FROM item
 						left join abook on ( item.author_xchan = abook.abook_xchan $abook_uids )
 						$net_query
 						WHERE true $uids and item.item_thread_top = 1 $item_normal
@@ -228,7 +228,7 @@ class Pubstream extends \Zotlabs\Web\Controller {
 					);
 				}
 				else {
-					$r = q("SELECT parent AS item_id FROM item
+					$r = dbq("SELECT parent AS item_id FROM item
 						left join abook on item.author_xchan = abook.abook_xchan
 						$net_query
 						WHERE true $uids $item_normal_update
@@ -246,11 +246,10 @@ class Pubstream extends \Zotlabs\Web\Controller {
 
 				$parents_str = ids_to_querystr($r,'item_id');
 
-				$items = q("SELECT item.*, item.id AS item_id FROM item
+				$items = dbq("SELECT item.*, item.id AS item_id FROM item
 					WHERE true $uids $item_normal
-					AND item.parent IN ( %s )
-					$sql_extra ",
-					dbesc($parents_str)
+					AND item.parent IN ( $parents_str )
+					$sql_extra"
 				);
 
 				// use effective_uid param of xchan_query to help sort out comment permission

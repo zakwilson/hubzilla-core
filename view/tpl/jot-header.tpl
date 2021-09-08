@@ -185,7 +185,7 @@ var activeCommentText = '';
 
 	function jotGetExpiry() {
 		//reply = prompt("{{$expirewhen}}", $('#jot-expire').val());
-		$('#expiryModal').modal();
+		$('#expiryModal').modal('show');
 		$('#expiry-modal-OKButton').on('click', function() {
 			reply=$('#expiration-date').val();
 			if(reply && reply.length) {
@@ -197,7 +197,7 @@ var activeCommentText = '';
 
 	function jotGetPubDate() {
 		//reply = prompt("{{$expirewhen}}", $('#jot-expire').val());
-		$('#createdModal').modal();
+		$('#createdModal').modal('show');
 		$('#created-modal-OKButton').on('click', function() {
 			reply=$('#created-date').val();
 			if(reply && reply.length) {

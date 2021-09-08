@@ -87,8 +87,8 @@ $(document).ready(function() {
 	if ( typeof(window.tao.zin) == 'undefined' ) {
 		tao.zin = { syslc: '', syslcs: {}, htm: '', me: '', debug: '' };
 		tao.zin.axim = '<div class="zinpax fa fa-sync fa-spin"> </div>';
-		$('.navbar-app[href*="/lang"]').attr({"data-toggle": "dropdown", "aria-expand": "true", "id": "zintog"})
-			.removeAttr('href').addClass('zinlcx zinlcxp dropdown dropdown-toggle');
+		$('.navbar-app[href*="/lang"]').attr({"aria-expand": "true", "id": "zintog"})
+			.removeAttr('href').addClass('zinlcx zinlcxp dropdown dropdown-toggle').css('cursor','pointer');
 		$('.dropdown-item[href*="/lang"]').addClass('zinlcxmi zinlcx').removeAttr('href').css('cursor','pointer');
 	}
 	$('.zinlcx').on('click',  function(e) {
@@ -108,11 +108,11 @@ $(document).ready(function() {
 				tao.zin.htm += '</ul>';
 				$('.zinpax').remove();
 				$('.zinlcx').append(tao.zin.htm);
-				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-end').css('left','-16em');
+				$('.zinlcxp > ul').addClass('dropdown dropdown-menu dropdown-menu-end mt-2 show').css('right', 0);
    			});
 			return false;
 		} else {
-			if (e.target.id == '') {
+			if (e.target.id == '' || e.target.id == 'zintog') {
 				// noop click on lang again
 				return false;
 			}

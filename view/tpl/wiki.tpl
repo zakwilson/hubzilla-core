@@ -323,7 +323,7 @@
 					wiki_revert_page(compareCommit);
 					$('#generic-modal-{{$wikiModalID}}').modal('hide');
 				});
-				$('#generic-modal-{{$wikiModalID}}').modal();
+				$('#generic-modal-{{$wikiModalID}}').modal('show');
 			} else {
 				window.console.log('Error comparing page.');
 			}
@@ -364,7 +364,7 @@
 		});
 		getPhotoAlbumList();
 		$('#embedPhotoModalBodyAlbumDialog').off('click');
-		$('#embedPhotoModal').modal();
+		$('#embedPhotoModal').modal('show');
 	};
 
 	var choosePhotoFromAlbum = function (album) {

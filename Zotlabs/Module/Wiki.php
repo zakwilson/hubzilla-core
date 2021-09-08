@@ -48,10 +48,8 @@ class Wiki extends Controller {
 		if(! Apps::system_app_installed(App::$profile_uid, 'Wiki')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('Wiki App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Provide a wiki for your channel');
-			return $o;
+			$papp = Apps::get_papp('Wiki');
+			return Apps::app_render($papp, 'module');
 		}
 
 

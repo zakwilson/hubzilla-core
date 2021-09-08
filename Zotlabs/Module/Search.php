@@ -215,7 +215,7 @@ class Search extends Controller {
 				}
 				if ($r) {
 					$str = ids_to_querystr($r, 'item_id');
-					$r   = q("select *, id as item_id from item where id in ( " . $str . ") order by created desc ");
+					$r   = dbq("select *, id as item_id from item where id in ( " . $str . ") order by created desc");
 				}
 			}
 			else {

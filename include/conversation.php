@@ -1223,7 +1223,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 			if(! $item['thr_parent'])
 				$item['thr_parent'] = $item['parent_mid'];
 
-			$conv_responses[$mode]['mids'][$item['thr_parent']][] = 'b64.' . base64url_encode($item['mid']);
+			$conv_responses[$mode]['mids'][$item['thr_parent']][] = gen_link_id($item['mid']);
 
 			if($item['obj_type'] === 'Answer')
 				continue;

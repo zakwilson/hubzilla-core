@@ -12,24 +12,12 @@ class Dreport extends \Zotlabs\Web\Controller {
 		}
 
 		$table = 'item';
-
 		$channel = \App::get_channel();
+		$mid = ((argc() > 1) ? unpack_link_id(argv(1)) : '');
 
-		$mid = ((argc() > 1) ? argv(1) : '');
-		$encoded_mid = '';
-
-		if(strpos($mid,'b64.') === 0) {
-			$encoded_mid = $mid;
-			$mid = @base64url_decode(substr($mid,4));
-		}
 		if($mid === 'push') {
 			$table = 'push';
-			$mid = ((argc() > 2) ? argv(2) : '');
-
-			if(strpos($mid,'b64.') === 0) {
-				$encoded_mid = $mid;
-				$mid = @base64url_decode(substr($mid,4));
-			}
+			$mid = ((argc() > 2) ? unpack_link_id(argv(2)) : '');
 
 			if($mid) {
 				$i = q("select id from item where mid = '%s' and uid = %d and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
@@ -43,17 +31,8 @@ class Dreport extends \Zotlabs\Web\Controller {
 				}
 			}
 			sleep(3);
-			goaway(z_root() . '/dreport/' . (($encoded_mid) ? $encoded_mid : $mid));
+			goaway(z_root() . '/dreport/' . gen_link_id($mid));
 		}
-
-		if($mid === 'mail') {
-			$table = 'mail';
-			$mid = ((argc() > 2) ? argv(2) : '');
-			if(strpos($mid,'b64.') === 0)
-				$mid = @base64url_decode(substr($mid,4));
-
-		}
-
 
 		if(! $mid) {
 			notice( t('Invalid message') . EOL);
@@ -65,12 +44,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 				$i = q("select id from item where mid = '%s' and ( author_xchan = '%s' or ( owner_xchan = '%s' and item_wall = 1 )) ",
 					dbesc($mid),
 					dbesc($channel['channel_hash']),
-					dbesc($channel['channel_hash'])
-				);
-				break;
-			case 'mail':
-				$i = q("select id from mail where mid = '%s' and from_xchan = '%s'",
-					dbesc($mid),
 					dbesc($channel['channel_hash'])
 				);
 				break;
@@ -130,15 +103,6 @@ class Dreport extends \Zotlabs\Web\Controller {
 					break;
 				case 'recipient not found':
 					$r[$x]['dreport_result'] = t('recipient not found');
-					break;
-				case 'mail recalled':
-					$r[$x]['dreport_result'] = t('mail recalled');
-					break;
-				case 'duplicate mail received':
-					$r[$x]['dreport_result'] = t('duplicate mail received');
-					break;
-				case 'mail delivered':
-					$r[$x]['dreport_result'] = t('mail delivered');
 					break;
 				default:
 					$r[$x]['gravity'] = 1;

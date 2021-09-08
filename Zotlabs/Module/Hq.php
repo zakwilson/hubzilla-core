@@ -23,15 +23,21 @@ class Hq extends \Zotlabs\Web\Controller {
 
 	function get($update = 0, $load = false) {
 
-		if(!local_channel())
+		if(!local_channel()) {
 			return;
+		}
 
 		if(argc() > 1 && argv(1) !== 'load') {
-			$item_hash = argv(1);
+			$item_hash = unpack_link_id(argv(1));
 		}
 
 		if(isset($_REQUEST['mid'])) {
-			$item_hash = $_REQUEST['mid'];
+			$item_hash = unpack_link_id($_REQUEST['mid']);
+		}
+
+		if($item_hash === false) {
+			notice(t('Malformed message id.') . EOL);
+			return;
 		}
 
 		$item_normal = item_normal();
@@ -41,21 +47,16 @@ class Hq extends \Zotlabs\Web\Controller {
 			$r = q("SELECT mid FROM item
 				WHERE uid = %d $item_normal
 				AND mid = parent_mid
+				AND item_private IN (0, 1)
 				ORDER BY created DESC LIMIT 1",
 				intval(local_channel())
 			);
 			if($r[0]['mid']) {
-				$item_hash = 'b64.' . base64url_encode($r[0]['mid']);
+				$item_hash = $r[0]['mid'];
 			}
 		}
 
 		if($item_hash) {
-
-			if(strpos($item_hash,'b64.') === 0)
-				$decoded = @base64url_decode(substr($item_hash,4));
-
-			if($decoded)
-				$item_hash = $decoded;
 
 			$target_item = null;
 
@@ -124,10 +125,9 @@ class Hq extends \Zotlabs\Web\Controller {
 			if($target_item) {
 				// if the target item is not a post (eg a like) we want to address its thread parent
 				//$mid = ((($target_item['verb'] == ACTIVITY_LIKE) || ($target_item['verb'] == ACTIVITY_DISLIKE)) ? $target_item['thr_parent'] : $target_item['mid']);
-				$mid = $target_item['mid'];
+
 				// if we got a decoded hash we must encode it again before handing to javascript
-				if($decoded)
-					$mid = 'b64.' . base64url_encode($mid);
+				$mid = gen_link_id($target_item['mid']);
 			}
 			else {
 				$mid = '';

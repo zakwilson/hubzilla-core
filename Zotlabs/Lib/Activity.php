@@ -8,6 +8,8 @@ use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\XConfig;
+use Zotlabs\Lib\Libzot;
 
 require_once('include/event.php');
 require_once('include/html2plain.php');
@@ -590,13 +592,11 @@ class Activity {
 							break;
 
 						case 'Mention':
-							$mention_type = substr($t['name'], 0, 1);
-							if ($mention_type === '!') {
-								$ret[] = ['ttype' => TERM_FORUM, 'url' => $t['href'], 'term' => escape_tags(substr($t['name'], 1))];
-							}
-							else {
-								$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
-							}
+							$ret[] = ['ttype' => TERM_MENTION, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '@') ? substr($t['name'], 1) : $t['name'])];
+							break;
+
+						case 'Bookmark':
+							$ret[] = ['ttype' => TERM_BOOKMARK, 'url' => $t['href'], 'term' => escape_tags($t['name'])];
 							break;
 
 						default:
@@ -623,12 +623,12 @@ class Activity {
 						}
 						break;
 
-					case TERM_FORUM:
-						$ret[] = ['type' => 'Mention', 'href' => $t['url'], 'name' => '!' . $t['term']];
-						break;
-
 					case TERM_MENTION:
 						$ret[] = ['type' => 'Mention', 'href' => $t['url'], 'name' => '@' . $t['term']];
+						break;
+
+					case TERM_BOOKMARK:
+						$ret[] = ['type' => 'Bookmark', 'href' => $t['url'], 'name' => $t['term']];
 						break;
 
 					default:
@@ -1111,6 +1111,7 @@ class Activity {
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
+
 		return $ret;
 	}
 
@@ -1533,9 +1534,52 @@ class Activity {
 		return;
 	}
 
-	static function actor_store($url, $person_obj) {
+	static function actor_store($url, $person_obj, $force = false) {
 
 		if (!is_array($person_obj)) {
+			return;
+		}
+
+/* not implemented
+		if (array_key_exists('movedTo',$person_obj) && $person_obj['movedTo'] && ! is_array($person_obj['movedTo'])) {
+			$tgt = self::fetch($person_obj['movedTo']);
+			if (is_array($tgt)) {
+				self::actor_store($person_obj['movedTo'],$tgt);
+				ActivityPub::move($person_obj['id'],$tgt);
+			}
+			return;
+		}
+*/
+		$ap_hubloc = null;
+
+		$hublocs = self::get_actor_hublocs($url);
+
+		if ($hublocs) {
+			foreach ($hublocs as $hub) {
+				if ($hub['hubloc_network'] === 'activitypub') {
+					$ap_hubloc = $hub;
+				}
+				if ($hub['hubloc_network'] === 'zot6') {
+					Libzot::update_cached_hubloc($hub);
+				}
+			}
+		}
+
+		if ($ap_hubloc) {
+			// we already have a stored record. Determine if it needs updating.
+			if ($ap_hubloc['hubloc_updated'] < datetime_convert('UTC','UTC',' now - 3 days') || $force) {
+				$person_obj = self::fetch($url);
+			}
+			else {
+				return;
+			}
+		}
+
+		if (isset($person_obj['id'])) {
+			$url = $person_obj['id'];
+		}
+
+		if (! $url) {
 			return;
 		}
 
@@ -1546,6 +1590,9 @@ class Activity {
 		if (!$inbox || strpos($inbox, z_root()) !== false) {
 			return;
 		}
+
+		// store the actor record in XConfig
+		XConfig::Set($url, 'system', 'actor_record', $person_obj);
 
 		$name = $person_obj['name'];
 		if (!$name) {
@@ -1558,13 +1605,21 @@ class Activity {
 		$icon = z_root() . '/' . get_default_profile_photo(300);
 		if ($person_obj['icon']) {
 			if (is_array($person_obj['icon'])) {
-				if (array_key_exists('url', $person_obj['icon']))
+				if (array_key_exists('url', $person_obj['icon'])) {
 					$icon = $person_obj['icon']['url'];
-				else
-					$icon = $person_obj['icon'][0]['url'];
+				}
+				else {
+					if (is_string($person_obj['icon'][0])) {
+						$icon = $person_obj['icon'][0];
+					}
+					elseif (array_key_exists('url', $person_obj['icon'][0])) {
+						$icon = $person_obj['icon'][0]['url'];
+					}
+				}
 			}
-			else
+			else {
 				$icon = $person_obj['icon'];
+			}
 		}
 
 		$links   = false;
@@ -1597,20 +1652,6 @@ class Activity {
 			$profile = $url;
 		}
 
-		$collections = [];
-
-		if ($inbox) {
-			$collections['inbox'] = $inbox;
-			if (array_key_exists('outbox', $person_obj))
-				$collections['outbox'] = $person_obj['outbox'];
-			if (array_key_exists('followers', $person_obj))
-				$collections['followers'] = $person_obj['followers'];
-			if (array_key_exists('following', $person_obj))
-				$collections['following'] = $person_obj['following'];
-			if (array_key_exists('endpoints', $person_obj) && array_key_exists('sharedInbox', $person_obj['endpoints']))
-				$collections['sharedInbox'] = $person_obj['endpoints']['sharedInbox'];
-		}
-
 		if (array_key_exists('publicKey', $person_obj) && array_key_exists('publicKeyPem', $person_obj['publicKey'])) {
 			if ($person_obj['id'] === $person_obj['publicKey']['owner']) {
 				$pubkey = $person_obj['publicKey']['publicKeyPem'];
@@ -1635,7 +1676,7 @@ class Activity {
 			// Record exists. Cache existing records for one week at most
 			// then refetch to catch updated profile photos, names, etc.
 			$d = datetime_convert('UTC', 'UTC', 'now - 3 days');
-			if($r[0]['hubloc_updated'] > $d) {
+			if($r[0]['hubloc_updated'] > $d && !$force) {
 				return;
 			}
 
@@ -1694,10 +1735,6 @@ class Activity {
 					'hubloc_id_url'   => escape_tags($profile)
 				]
 			);
-		}
-
-		if ($collections) {
-			set_xconfig($url, 'activitypub', 'collections', $collections);
 		}
 
 		$photos = import_xchan_photo($icon, $url);
@@ -1778,10 +1815,25 @@ class Activity {
 		}
 		else {
 			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'send_stream') && !$is_sys_channel) {
-				logger('no permission');
+				logger('no send_stream permission');
 				return;
 			}
 			$s['owner_xchan'] = $s['author_xchan'] = $observer_hash;
+		}
+
+		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
+			$s['item_private'] = 1;
+
+
+		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
+			$s['item_private'] = 2;
+		}
+
+		if (intval($s['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				logger('no post_mail permission');
+				return;
+			}
 		}
 
 		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
@@ -1930,14 +1982,6 @@ class Activity {
 					}
 				}
 			}
-		}
-
-		if ($act->recips && (!in_array(ACTIVITY_PUBLIC_INBOX, $act->recips)))
-			$s['item_private'] = 1;
-
-
-		if (array_key_exists('directMessage', $act->obj) && intval($act->obj['directMessage'])) {
-			$s['item_private'] = 2;
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
@@ -2635,6 +2679,11 @@ class Activity {
 			$allowed = true;
 		}
 
+		if (intval($item['item_private']) === 2) {
+			if (!perm_is_allowed($channel['channel_id'], $observer_hash, 'post_mail')) {
+				$allowed = false;
+			}
+		}
 
 		if ($is_sys_channel) {
 
@@ -3498,4 +3547,53 @@ class Activity {
 
 	}
 
+	static function get_cached_actor($id) {
+		return (XConfig::Get($id,'system','actor_record'));
+	}
+
+	static function get_actor_hublocs($url, $options = 'all') {
+
+		$hublocs = false;
+
+		switch ($options) {
+			case 'activitypub':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_hash = '%s' and hubloc_deleted = 0 ",
+					dbesc($url)
+				);
+				break;
+			case 'zot6':
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where hubloc_id_url = '%s' and hubloc_deleted = 0 ",
+					dbesc($url)
+				);
+				break;
+			case 'all':
+			default:
+				$hublocs = q("select * from hubloc left join xchan on hubloc_hash = xchan_hash where ( hubloc_id_url = '%s' OR hubloc_hash = '%s' ) and hubloc_deleted = 0 ",
+					dbesc($url),
+					dbesc($url)
+				);
+				break;
+		}
+
+		return $hublocs;
+	}
+
+	static function get_actor_collections($url) {
+		$ret = [];
+		$actor_record = XConfig::Get($url,'system','actor_record');
+		if (! $actor_record) {
+			return $ret;
+		}
+
+		foreach ( [ 'inbox','outbox','followers','following' ] as $collection) {
+			if (isset($actor_record[$collection]) && $actor_record[$collection]) {
+				$ret[$collection] = $actor_record[$collection];
+			}
+		}
+		if (array_path_exists('endpoints/sharedInbox',$actor_record) && $actor_record['endpoints']['sharedInbox']) {
+			$ret['sharedInbox'] = $actor_record['endpoints']['sharedInbox'];
+		}
+
+		return $ret;
+	}
 }

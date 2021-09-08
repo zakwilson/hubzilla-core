@@ -294,21 +294,15 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 				drop_item($rr,false);
 			}
 		}
+
 		$r = q("delete from event where event_xchan = '%s'",
 			dbesc($xchan)
 		);
+
 		$r = q("delete from pgrp_member where xchan = '%s'",
 			dbesc($xchan)
 		);
 
-		// Cannot delete just one side of the conversation since we do not allow
-		// you to block private mail replies. This would leave open a gateway for abuse.
-		// Both participants are owners of the conversation and both can remove it.
-
-		$r = q("delete from mail where ( from_xchan = '%s' or to_xchan = '%s' )",
-			dbesc($xchan),
-			dbesc($xchan)
-		);
 		$r = q("delete from xlink where ( xlink_xchan = '%s' or xlink_link = '%s' )",
 			dbesc($xchan),
 			dbesc($xchan)
@@ -317,7 +311,6 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 		$r = q("delete from abook where abook_xchan = '%s'",
 			dbesc($xchan)
 		);
-
 
 		if($dirmode === false || $dirmode == DIRECTORY_MODE_NORMAL) {
 
@@ -436,12 +429,6 @@ function contact_remove($channel_id, $abook_id) {
 	);
 
 	$r = q("delete from pgrp_member where xchan = '%s' and uid = %d",
-		dbesc($abook['abook_xchan']),
-		intval($channel_id)
-	);
-
-	$r = q("delete from mail where ( from_xchan = '%s' or to_xchan = '%s' ) and channel_id = %d ",
-		dbesc($abook['abook_xchan']),
 		dbesc($abook['abook_xchan']),
 		intval($channel_id)
 	);

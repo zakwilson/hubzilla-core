@@ -1610,7 +1610,7 @@ function format_hashtags(&$item) {
 			if($s)
 				$s .= ' ';
 
-			$s .= '<span class="badge badge-pill badge-info"><i class="fa fa-hashtag"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
+			$s .= '<span class="badge rounded-pill bg-info"><i class="fa fa-hashtag"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 
@@ -1633,7 +1633,7 @@ function format_mentions(&$item) {
 				continue;
 			if($s)
 				$s .= ' ';
-			$s .= '<span class="badge badge-pill badge-success"><i class="fa fa-at"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
+			$s .= '<span class="badge rounded-pill bg-success"><i class="fa fa-at"></i>&nbsp;<a class="text-white" href="' . zid($t['url']) . '" >' . $term . '</a></span>';
 		}
 	}
 
@@ -2156,12 +2156,12 @@ function base64url_encode($s, $strip_padding = true) {
 	return $s;
 }
 
-function base64url_decode($s) {
+function base64url_decode($s, $strict = false) {
 	if(is_array($s)) {
 		logger('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
 		return $s;
 	}
-	return base64_decode(strtr($s,'-_','+/'));
+	return base64_decode(strtr($s,'-_','+/'), $strict);
 }
 
 
@@ -2175,12 +2175,12 @@ function base64special_encode($s, $strip_padding = true) {
 	return $s;
 }
 
-function base64special_decode($s) {
+function base64special_decode($s, $strict = false) {
 	if(is_array($s)) {
 		logger('base64url_decode: illegal input: ' . print_r(debug_backtrace(), true));
 		return $s;
 	}
-	return base64_decode(strtr($s,',.','+/'));
+	return base64_decode(strtr($s,',.','+/'), $strict);
 }
 
 /**
@@ -3589,6 +3589,21 @@ function gen_link_id($mid) {
 	return $mid;
 }
 
+/**
+ * @brief check if the provided string starts with 'b64.' and try to decode it if so.
+ * If it could be decoded return the decoded string or false if decoding failed.
+ * If the string does not start with 'b64.', return the string as is.
+ *
+ * @param string $mid
+ * @return string|boolean false
+ */
+function unpack_link_id($mid) {
+	if (is_string($mid) && strpos($mid, 'b64.') === 0) {
+		$mid = @base64url_decode(substr($mid, 4), true);
+		return $mid;
+	}
+	return $mid;
+}
 
 // callback for array_walk
 

@@ -44,10 +44,8 @@ class Webpages extends Controller {
 		if(! Apps::system_app_installed(App::$profile_uid, 'Webpages')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('Webpages App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Provide managed web pages on your channel');
-			return $o;
+			$papp = Apps::get_papp('Webpages');
+			return Apps::app_render($papp, 'module');
 		}
 
 		nav_set_selected('Webpages');

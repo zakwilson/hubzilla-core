@@ -63,12 +63,12 @@ App::$config['system']['verify_email'] = 1;
 
 // Ograniczenia dostępu do portalu. Domyślnie tworzone są  portale prywatne.
 // Masz do wyboru ACCESS_PRIVATE, ACCESS_PAID, ACCESS_TIERED i ACCESS_FREE.
-// Jeśli opuścisz ustawienie REGISTER_OPEN powyżej, każdy bedzie się mógł
+// Jeśli pozostawisz ustawienie REGISTER_OPEN powyżej, każdy bedzie się mógł
 // zarejestrować na Twoim portalu, jednak portal ten nie będzie nigdzie
-// wyświetlany jako portal z otwartą resjestracją.
+// wyświetlany jako witryna z otwartą resjestracją.
 // Używamy polityki dostępu do systemu (poniżej) aby określić, czy portal ma być
 // umieszczony w katalogu jako portal otwarty, w którym każdy może tworzyć konta.
-// Twój wybór, to: paid, tiered lub free.  
+// Twój inny wybór to: paid, tiered lub free.  
 
 App::$config['system']['access_policy'] = ACCESS_PRIVATE;
 
@@ -79,7 +79,7 @@ App::$config['system']['access_policy'] = ACCESS_PRIVATE;
 
 App::$config['system']['sellpage'] = '';
 
-// Maksymalny rozmiar importowanej wiadomości, 0 jest nieograniczony
+// Maksymalny rozmiar importowanej wiadomości, 0 to brak ograniczeń
 
 App::$config['system']['max_import_size'] = 200000;
 
@@ -95,7 +95,7 @@ App::$config['system']['php_path'] = '{{$phpath}}';
 
 App::$config['system']['directory_mode']  = DIRECTORY_MODE_NORMAL;
 
-// domyślny moty systemowy
+// domyślny motyw systemowy
 
 App::$config['system']['theme'] = 'redbasic';
 

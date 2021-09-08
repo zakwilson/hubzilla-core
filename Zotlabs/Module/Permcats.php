@@ -40,16 +40,16 @@ class Permcats extends Controller {
 				}
 			}
 		}
-		
+
 		\Zotlabs\Lib\Permcat::update(local_channel(),$name,$pcarr);
 
 		Libsync::build_sync_packet();
 
 		info( t('Permission category saved.') . EOL);
-		
+
 		return;
 	}
-	
+
 
 	function get() {
 
@@ -59,16 +59,14 @@ class Permcats extends Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Permission Categories')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = '<b>' . t('Permission Categories App') . ' (' . t('Not Installed') . '):</b><br>';
-			$o .= t('Create custom connection permission limits');
-			return $o;
+			$papp = Apps::get_papp('Permission Categories');
+			return Apps::app_render($papp, 'module');
 		}
 
 		$channel = App::get_channel();
 
-		if(argc() > 1) 
-			$name = hex2bin(argv(1));			
+		if(argc() > 1)
+			$name = hex2bin(argv(1));
 
 		if(argc() > 2 && argv(2) === 'drop') {
 			\Zotlabs\Lib\Permcat::delete(local_channel(),$name);
@@ -130,5 +128,5 @@ class Permcats extends Controller {
 		));
 		return $o;
 	}
-	
+
 }

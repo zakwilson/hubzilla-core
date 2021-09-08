@@ -14,12 +14,4 @@ $(document).ready(function() {
 		$('#note-text').focus();
 	});
 
-	$(document).on('hz:handleNetworkNotificationsItems', function(e, obj) {
-		push_notification(
-			obj.name,
-			$('<p>' + obj.message + '</p>').text(),
-			baseurl + '/hq/' + obj.b64mid
-		);
-	});
-
 });

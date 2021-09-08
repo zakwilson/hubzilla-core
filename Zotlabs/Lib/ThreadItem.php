@@ -503,7 +503,7 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? 'b64.' . base64url_encode($item['thr_parent']) : '')
+			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : '')
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);
@@ -842,7 +842,7 @@ class ThreadItem {
 			'$cipher' => $conv->get_cipher(),
 			'$sourceapp' => \App::$sourcename,
 			'$observer' => get_observer_hash(),
-			'$anoncomments' => ((($conv->get_mode() === 'channel' || $conv->get_mode() === 'display') && perm_is_allowed($conv->get_profile_owner(),'','post_comments')) ? true : false),
+			'$anoncomments' => ((in_array($conv->get_mode(), ['channel', 'display', 'cards', 'articles']) && perm_is_allowed($conv->get_profile_owner(),'','post_comments')) ? true : false),
 			'$anonname' => [ 'anonname', t('Your full name (required)') ],
 			'$anonmail' => [ 'anonmail', t('Your email address (required)') ],
 			'$anonurl'  => [ 'anonurl',  t('Your website URL (optional)') ]

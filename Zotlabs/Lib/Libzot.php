@@ -1601,6 +1601,12 @@ class Libzot {
 					$friendofriend = true;
 				}
 
+				if (intval($arr['item_private']) === 2) {
+					if (!perm_is_allowed($channel['channel_id'], $sender, 'post_mail')) {
+						$allowed = false;
+					}
+				}
+
 				if (!$allowed) {
 					logger("permission denied for delivery to channel {$channel['channel_id']} {$channel['channel_address']}");
 					$DR->update('permission denied');
@@ -1910,16 +1916,18 @@ class Libzot {
 
 			// logger($AS->debug());
 
-			$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
 				dbesc($AS->actor['id'])
 			);
+			$r = self::zot_record_preferred($r);
 
 			if (!$r) {
 				$y = import_author_xchan(['url' => $AS->actor['id']]);
 				if ($y) {
-					$r = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' limit 1",
+					$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s'",
 						dbesc($AS->actor['id'])
 					);
+					$r = self::zot_record_preferred($r);
 				}
 				if (!$r) {
 					logger('FOF Activity: no actor');
@@ -1935,9 +1943,8 @@ class Libzot {
 				}
 			}
 
-
 			if ($r) {
-				$arr['author_xchan'] = $r[0]['hubloc_hash'];
+				$arr['author_xchan'] = $r['hubloc_hash'];
 			}
 
 			if ($signer) {
@@ -2583,21 +2590,26 @@ class Libzot {
 
 		$desturl = $x['url'];
 
+		$found_primary = false;
+
 		$r1 = q("select hubloc_url, hubloc_updated, site_dead from hubloc left join site on
 			hubloc_url = site_url where hubloc_guid = '%s' and hubloc_guid_sig = '%s' and hubloc_primary = 1 limit 1",
 			dbesc($x['id']),
 			dbesc($x['id_sig'])
 		);
+		if ($r1) {
+			$found_primary = true;
+		}
 
 		$r2 = q("select xchan_hash from xchan where xchan_guid = '%s' and xchan_guid_sig = '%s' limit 1",
 			dbesc($x['id']),
 			dbesc($x['id_sig'])
 		);
 
-		$site_dead = false;
+		$primary_dead = false;
 
 		if ($r1 && intval($r1[0]['site_dead'])) {
-			$site_dead = true;
+			$primary_dead = true;
 		}
 
 		// We have valid and somewhat fresh information. Always true if it is our own site.
@@ -2615,13 +2627,14 @@ class Libzot {
 		// cached entry and the identity is valid. It's just unreachable until they bring back their
 		// server from the grave or create another clone elsewhere.
 
-		if ($site_dead) {
-			logger('dead site - ignoring', LOGGER_DEBUG, LOG_INFO);
+		if ($primary_dead || ! $found_primary) {
+			logger('dead or unknown primary site - ignoring', LOGGER_DEBUG, LOG_INFO);
 
 			$r = q("select hubloc_id_url from hubloc left join site on hubloc_url = site_url
 				where hubloc_hash = '%s' and site_dead = 0",
 				dbesc($hash)
 			);
+
 			if ($r) {
 				logger('found another site that is not dead: ' . $r[0]['hubloc_url'], LOGGER_DEBUG, LOG_INFO);
 				$desturl = $r[0]['hubloc_url'];
@@ -3147,4 +3160,10 @@ class Libzot {
 
 	}
 
+	static function update_cached_hubloc($hubloc) {
+		if ($hubloc['hubloc_updated'] > datetime_convert('UTC','UTC','now - 1 week') || $hubloc['hubloc_url'] === z_root()) {
+			return;
+		}
+		self::refresh( [ 'hubloc_id_url' => $hubloc['hubloc_id_url'] ] );
+	}
 }

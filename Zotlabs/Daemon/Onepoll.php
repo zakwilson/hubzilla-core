@@ -126,7 +126,10 @@ class Onepoll {
 			$max = intval(get_config('system', 'max_imported_posts', 30));
 
 			if (intval($max)) {
-				$cl = get_xconfig($contact['abook_xchan'], 'activitypub', 'collections');
+				$cl = Activity::get_actor_collections($contact['abook_xchan']);
+				if(empty($cl)) {
+					$cl = get_xconfig($contact['abook_xchan'], 'activitypub', 'collections');
+				}
 
 				if (is_array($cl) && array_key_exists('outbox', $cl)) {
 					$url = $cl['outbox'];

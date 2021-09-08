@@ -12,7 +12,7 @@
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 			{{include file="field_input.tpl" field=$name}}
 
-			<div class="settings-submit-wrapper form-group">
+			<div class="settings-submit-wrapper mb-3">
 				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 			</div>
 	</div>
@@ -20,7 +20,7 @@
 	<div class="panel" id="permission-settings">
 		<div class="section-subtitle-wrapper" role="tab" id="perms-tool">
 			<h3>
-				<a data-toggle="collapse" data-parent="#permission-settings" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
+				<a data-bs-toggle="collapse" data-parent="#permission-settings" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
 				{{$permlbl}}
 				</a>
 			</h3>
@@ -31,7 +31,7 @@
 				{{$permnote}}
 				</div>
 
-				<table id="perms-tool-table" class=form-group>
+				<table id="perms-tool-table" class=mb-3>
 					<tr>
 						<td></td><td colspan="2" class="abook-me">{{$me}}</td>
 					</tr>

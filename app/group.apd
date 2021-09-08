@@ -1,6 +1,7 @@
-version: 2
+version: 3
 url: $baseurl/group
 requires: local_channel
 name: Privacy Groups
 photo: icon:users
 categories: Networking
+desc: A tool to create and manage privacy groups.

@@ -534,7 +534,7 @@ var activeCommentText = '';
 	}
 
 	function jotAddOption() {
-		var option = '<div class="jot-poll-option form-group"><input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="Option"><div class="poll-option-close"><i class="fa fa-close"></i></div></div>';
+		var option = '<div class="jot-poll-option mb-3"><input class="w-100 border-0" name="poll_answers[]" type="text" value="" placeholder="Option"><div class="poll-option-close"><i class="fa fa-close"></i></div></div>';
 		$('#jot-poll-options').append(option);
 	}
 

@@ -69,7 +69,7 @@ if ((!$schema) || ($schema == '---')) {
 	}
 
 }
-		
+
 //Set some defaults - we have to do this after pulling owner settings, and we have to check for each setting
 //individually.  If we don't, we'll have problems if a user has set one, but not all options.
 if (! $nav_bg)
@@ -79,7 +79,7 @@ if (! $nav_icon_colour)
 if (! $nav_active_icon_colour)
 	$nav_active_icon_colour = 'rgba(255, 255, 255, 0.75)';
 if (! $link_colour)
-	$link_colour = '#007bff';
+	$link_colour = '#0d6efd';
 if (! $banner_colour)
 	$banner_colour = '#fff';
 if (! $bgcolour)
@@ -158,7 +158,7 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 
 }
 
-// Set the schema to the default schema in derived themes. See the documentation for creating derived themes how to override this. 
+// Set the schema to the default schema in derived themes. See the documentation for creating derived themes how to override this.
 
 if(local_channel() && App::$channel && App::$channel['channel_theme'] != 'redbasic')
 	set_pconfig(local_channel(), 'redbasic', 'schema', '---');

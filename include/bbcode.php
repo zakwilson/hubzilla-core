@@ -308,7 +308,7 @@ function bb_parse_app($match) {
 
 	$app = Zotlabs\Lib\Apps::app_decode($match[1]);
 	if ($app)
-		return Zotlabs\Lib\Apps::app_render($app);
+		return preg_replace('/[[:cntrl:]]/', '', Zotlabs\Lib\Apps::app_render($app, 'inline'));
 }
 
 function bb_svg($match) {
@@ -1351,10 +1351,16 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[/color]') !== false) {
 		$Text = preg_replace("(\[color=(.*?)\](.*?)\[\/color\])ism", "<span style=\"color: $1;\">$2</span>", $Text);
 	}
-	// Check for colored text
+
+	// @DEPRECATED: Check for colored text (deprecated in favor of mark which is a html5 standard)
 	if (strpos($Text,'[/hl]') !== false) {
-        $Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span class=\"default-highlight\">$1</span>", $Text);
+		$Text = preg_replace("(\[hl\](.*?)\[\/hl\])ism", "<span class=\"default-highlight\">$1</span>", $Text);
 		$Text = preg_replace("(\[hl=(.*?)\](.*?)\[\/hl\])ism", "<span style=\"background-color: $1;\">$2</span>", $Text);
+	}
+
+	if (strpos($Text,'[/mark]') !== false) {
+		$Text = preg_replace("(\[mark\](.*?)\[\/mark\])ism", "<mark class=\"mark\">$1</mark>", $Text);
+		$Text = preg_replace("(\[mark=(.*?)\](.*?)\[\/mark\])ism", "<mark style=\"background-color: $1;\">$2</mark>", $Text);
 	}
 
 	// Check for sized text

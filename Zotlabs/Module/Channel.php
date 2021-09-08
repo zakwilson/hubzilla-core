@@ -74,7 +74,8 @@ class Channel extends Controller {
 
 			if ($sigdata && $sigdata['signer'] && $sigdata['header_valid']) {
 				$data = json_encode(Libzot::zotinfo(['address' => $channel['channel_address'], 'target_url' => $sigdata['signer']]));
-				$s    = q("select site_crypto, hubloc_sitekey from site left join hubloc on hubloc_url = site_url where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+
+				$s = q("select site_crypto, hubloc_sitekey from site left join hubloc on hubloc_url = site_url where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 					dbesc($sigdata['signer'])
 				);
 
@@ -107,13 +108,11 @@ class Channel extends Controller {
 			// Somebody may attempt an ActivityStreams fetch on one of our message permalinks
 			// Make it do the right thing.
 
-			$mid = ((x($_REQUEST, 'mid')) ? $_REQUEST['mid'] : '');
-			if ($mid && strpos($mid, 'b64.') === 0) {
-				$decoded = @base64url_decode(substr($mid, 4));
-				if ($decoded) {
-					$mid = $decoded;
-				}
+			$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
+			if ($mid === false) {
+				http_status_exit(404, 'Not found');
 			}
+
 			if ($mid) {
 				$obj = null;
 				if (strpos($mid, z_root() . '/item/') === 0) {
@@ -158,15 +157,19 @@ class Channel extends Controller {
 		profile_load($which, $profile);
 
 		// Add Opengraph markup
-		$mid = ((x($_REQUEST, 'mid')) ? $_REQUEST['mid'] : '');
-		if (strpos($mid, 'b64.') === 0)
-			$mid = @base64url_decode(substr($mid, 4));
+		$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
 
-		if ($mid)
+		if ($mid === false) {
+			notice(t('Malformed message id.') . EOL);
+			return;
+		}
+
+		if ($mid) {
 			$r = q("SELECT * FROM item WHERE mid = '%s' AND uid = %d AND item_private = 0 LIMIT 1",
 				dbesc($mid),
 				intval($channel['channel_id'])
 			);
+		}
 
 		opengraph_add_meta((isset($r) && count($r) ? $r[0] : []), $channel);
 	}
@@ -177,12 +180,11 @@ class Channel extends Controller {
 
 		$category = $datequery = $datequery2 = '';
 
-		$mid = ((x($_REQUEST, 'mid')) ? $_REQUEST['mid'] : '');
-
-		if (strpos($mid, 'b64.') === 0)
-			$decoded = @base64url_decode(substr($mid, 4));
-		if (isset($decoded))
-			$mid = $decoded;
+		$mid = ((x($_REQUEST, 'mid')) ? unpack_link_id($_REQUEST['mid']) : '');
+		if ($mid === false) {
+			notice(t('Malformed message id.') . EOL);
+			return;
+		}
 
 		$datequery  = ((x($_GET, 'dend') && is_a_date_arg($_GET['dend'])) ? notags($_GET['dend']) : '');
 		$datequery2 = ((x($_GET, 'dbegin') && is_a_date_arg($_GET['dbegin'])) ? notags($_GET['dbegin']) : '');
@@ -226,7 +228,7 @@ class Channel extends Controller {
 
 		if (!$update) {
 
-			nav_set_selected('Channel Home');
+			nav_set_selected('Channel');
 
 			// search terms header
 			if ($search) {
@@ -433,8 +435,8 @@ class Channel extends Controller {
 
 		if ((!$update) && (!$load)) {
 
-			if (isset($decoded))
-				$mid = 'b64.' . base64url_encode($mid);
+			//if we got a decoded hash we must encode it again before handing to javascript
+			$mid = gen_link_id($mid);
 
 			// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 			// because browser prefetching might change it on us. We have to deliver it with the page.

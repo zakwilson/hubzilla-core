@@ -306,9 +306,8 @@ class Invite extends Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Invite')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';
-
-			$o = 'ZAI0102E,' . t('Invite App') . ' (' . t('Not Installed') . ')' . EOL;
-			return $o;
+			$papp = Apps::get_papp('Invite');
+			return Apps::app_render($papp, 'module');
 		}
 
 		if (! (get_config('system','invitation_also') || get_config('system','invitation_only')) ) {

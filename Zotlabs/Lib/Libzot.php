@@ -2745,7 +2745,6 @@ class Libzot {
 		}
 
 		$e = $r[0];
-
 		$id = $e['channel_id'];
 
 		$sys_channel     = (intval($e['channel_system']) ? true : false);

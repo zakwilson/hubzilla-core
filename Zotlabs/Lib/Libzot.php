@@ -1221,7 +1221,7 @@ class Libzot {
 
 				$arr['owner_xchan'] = $env['sender'];
 
-				if(filter_var($env['sender'], FILTER_VALIDATE_URL))
+				if(filter_var($env['sender'], FILTER_VALIDATE_URL)) {
 					// in individual delivery, change owner if needed
 					$s = q("select hubloc_hash, hubloc_url from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
 						dbesc($env['sender'])

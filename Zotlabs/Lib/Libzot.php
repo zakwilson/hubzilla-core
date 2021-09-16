@@ -1200,31 +1200,41 @@ class Libzot {
 
 			if (in_array($env['type'], ['activity', 'response'])) {
 
-				$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' ",
+				if(!isset($AS->actor['id'])) {
+					logger('No actor id!');
+					return;
+				}
+
+				$r = q("select hubloc_hash, hubloc_network, hubloc_url from hubloc where hubloc_id_url = '%s'",
 					dbesc($AS->actor['id'])
 				);
 
 				if ($r) {
-					// selects a zot6 hash if available, otherwise use whatever we have
-					$r                   = self::zot_record_preferred($r);
+					$r = self::zot_record_preferred($r);
 					$arr['author_xchan'] = $r['hubloc_hash'];
 				}
 
-				if (!$arr['author_xchan']) {
+				if (! $arr['author_xchan']) {
 					logger('No author!');
 					return;
 				}
 
-				$s = q("select hubloc_hash from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
-					dbesc($env['sender'])
-				);
+				$arr['owner_xchan'] = $env['sender'];
 
-				// in individual delivery, change owner if needed
-				if ($s) {
-					$arr['owner_xchan'] = $s[0]['hubloc_hash'];
+				if(filter_var($env['sender'], FILTER_VALIDATE_URL)) {
+					// in individual delivery, change owner if needed
+					$s = q("select hubloc_hash, hubloc_url from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' limit 1",
+						dbesc($env['sender'])
+					);
+
+					if ($s) {
+						$arr['owner_xchan'] = $s[0]['hubloc_hash'];
+					}
 				}
-				else {
-					$arr['owner_xchan'] = $env['sender'];
+
+				if (! $arr['owner_xchan']) {
+					logger('No owner!');
+					return;
 				}
 
 				if ($private && (!intval($arr['item_private']))) {
@@ -1714,7 +1724,7 @@ class Libzot {
 				}
 			}
 
-			$ab    = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
+			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
 				intval($channel['channel_id']),
 				dbesc($arr['owner_xchan'])
 			);
@@ -2636,8 +2646,8 @@ class Libzot {
 			);
 
 			if ($r) {
-				logger('found another site that is not dead: ' . $r[0]['hubloc_url'], LOGGER_DEBUG, LOG_INFO);
-				$desturl = $r[0]['hubloc_url'];
+				logger('found another site that is not dead: ' . $r[0]['hubloc_id_url'], LOGGER_DEBUG, LOG_INFO);
+				$desturl = $r[0]['hubloc_id_url'];
 			}
 			else {
 				return $hash;
@@ -2745,7 +2755,6 @@ class Libzot {
 		}
 
 		$e = $r[0];
-
 		$id = $e['channel_id'];
 
 		$sys_channel     = (intval($e['channel_system']) ? true : false);

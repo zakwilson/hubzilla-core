@@ -3548,7 +3548,21 @@ class Activity {
 	}
 
 	static function get_cached_actor($id) {
-		return (XConfig::Get($id,'system','actor_record'));
+		$actor = XConfig::Get($id,'system', 'actor_record');
+
+		if ($actor) {
+			return $actor;
+		}
+
+		// try other get_cached_actor providers (e.g. diaspora)
+		$hookdata = [
+			'id' => $id,
+			'actor' => false
+		];
+
+		call_hooks('get_cached_actor_provider', $hookdata);
+
+		return $hookdata['actor'];
 	}
 
 	static function get_actor_hublocs($url, $options = 'all') {

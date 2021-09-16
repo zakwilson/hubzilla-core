@@ -3547,6 +3547,7 @@ function cleanup_bbcode($body) {
 	 */
 
 	$body = preg_replace_callback('/\[code(.*?)\[\/(code)\]/ism','\red_escape_codeblock',$body);
+	$body = preg_replace_callback('/\[summary(.*?)\[\/(summary)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[url(.*?)\[\/(url)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[zrl(.*?)\[\/(zrl)\]/ism','\red_escape_codeblock',$body);
 	$body = preg_replace_callback('/\[svg(.*?)\[\/(svg)\]/ism','\red_escape_codeblock',$body);
@@ -3560,9 +3561,10 @@ function cleanup_bbcode($body) {
 +\,\(\)]+)/ismu", '\red_zrl_callback', $body);
 
 
-	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
-	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64code(.*?)\[\/(code)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64summary(.*?)\[\/(summary)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64url(.*?)\[\/(url)\]/ism','\red_unescape_codeblock',$body);
+	$body = preg_replace_callback('/\[\$b64zrl(.*?)\[\/(zrl)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64svg(.*?)\[\/(svg)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64img(.*?)\[\/(img)\]/ism','\red_unescape_codeblock',$body);
 	$body = preg_replace_callback('/\[\$b64zmg(.*?)\[\/(zmg)\]/ism','\red_unescape_codeblock',$body);

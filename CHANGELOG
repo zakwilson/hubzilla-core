@@ -1,3 +1,13 @@
+Hubzilla 6.2.1 (2021-09-16)
+	- Fix regression introduced in 6.2 where Diaspora comments on Hubzilla posts were not relayed
+	- Fix wrong variable used for refresh under certain conditions
+	- Fix issue where summary tag was processed in cleanup_bbcode() while it shoud not
+	- Fix issue where profile name change was not applied if done from non primary location
+	- Fix spacing issue for collapsed pinned apps with an image
+	- Fix language selector reloading the page if not clicking exactly the icon
+	- Fix regression displaying bootstrap modals introduced in 6.2
+
+
 Hubzilla 6.2 (2021-09-08)
 	- Deprecate the custom highlight [hl] bbcode in favor of [mark] which is a html5 standard
 	- Check post_mail permission when receiving a direct message

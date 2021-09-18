@@ -1,19 +1,35 @@
 <?php
 namespace Zotlabs\Module;
 
+use \Zotlabs\Lib\PConfig;
+use \Zotlabs\Web\Controller;
 
-
-class Notify extends \Zotlabs\Web\Controller {
+class Notify extends Controller {
 
 	function init() {
 		if(! local_channel())
 			return;
 
 		if($_REQUEST['notify_id']) {
-			q("update notify set seen = 1 where id = %d and uid = %d",
-				intval($_REQUEST['notify_id']),
-				intval(local_channel())
-			);
+			$update_notices_per_parent = PConfig::Get(local_channel(), 'system', 'update_notices_per_parent', 1);
+
+			if($update_notices_per_parent) {
+				$r = q("SELECT parent FROM notify WHERE id = %d AND uid = %d",
+					intval($_REQUEST['notify_id']),
+					intval(local_channel())
+				);
+				q("update notify set seen = 1 where parent = '%s' and uid = %d",
+					dbesc($r[0]['parent']),
+					intval(local_channel())
+				);
+			}
+			else {
+				q("update notify set seen = 1 where id = %d and uid = %d",
+					intval($_REQUEST['notify_id']),
+					intval(local_channel())
+				);
+			}
+
 			killme();
 		}
 

@@ -61,7 +61,7 @@ class Manage extends \Zotlabs\Web\Controller {
 				$channels[$x]['default'] = (($channels[$x]['channel_id'] == $account['account_default_channel']) ? "1" : '');
 				$channels[$x]['default_links'] = '1';
 
-
+				/* this is not currently implemented in the UI and probably should not (performance)
 				$c = q("SELECT id, item_wall FROM item
 					WHERE item_unseen = 1 and uid = %d " . item_normal(),
 					intval($channels[$x]['channel_id'])
@@ -75,7 +75,7 @@ class Manage extends \Zotlabs\Web\Controller {
 							$channels[$x]['network'] ++;
 					}
 				}
-
+				*/
 
 				$intr = q("SELECT COUNT(abook.abook_id) AS total FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash where abook_channel = %d and abook_pending = 1 and abook_self = 0 and abook_ignored = 0 and xchan_deleted = 0 and xchan_orphan = 0 ",
 					intval($channels[$x]['channel_id'])
@@ -84,6 +84,7 @@ class Manage extends \Zotlabs\Web\Controller {
 				if($intr)
 					$channels[$x]['intros'] = intval($intr[0]['total']);
 
+				/* this is not currently implemented in the UI and probably should not (performance)
 				$events = q("SELECT etype, dtstart, adjust FROM event
 					WHERE event.uid = %d AND dtstart < '%s' AND dtstart > '%s' and dismissed = 0
 					ORDER BY dtstart ASC ",
@@ -116,6 +117,7 @@ class Manage extends \Zotlabs\Web\Controller {
 						}
 					}
 				}
+				*/
 			}
 
 		}

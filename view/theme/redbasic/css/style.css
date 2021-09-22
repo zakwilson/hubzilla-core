@@ -1538,9 +1538,8 @@ blockquote {
 		left: 0px;
 	}
 
-	#nav-app-link-wrapper.has_location {
+	#nav-app-link-wrapper {
 		min-width: 0;
-		flex-basis: 25%;
 	}
 
 	#nav-app-link-wrapper {

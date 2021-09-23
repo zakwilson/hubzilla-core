@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap offcanvas.js v5.1.1 (https://getbootstrap.com/)
+  * Bootstrap offcanvas.js v5.0.2 (https://getbootstrap.com/)
   * Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
@@ -16,12 +16,6 @@
   var EventHandler__default = /*#__PURE__*/_interopDefaultLegacy(EventHandler);
   var BaseComponent__default = /*#__PURE__*/_interopDefaultLegacy(BaseComponent);
 
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/index.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
-   * --------------------------------------------------------------------------
-   */
   const MILLISECONDS_MULTIPLIER = 1000;
   const TRANSITION_END = 'transitionend'; // Shoutout AngusCroll (https://goo.gl/pxwQGp)
 
@@ -108,7 +102,7 @@
     }
 
     if (typeof obj === 'string' && obj.length > 0) {
-      return document.querySelector(obj);
+      return SelectorEngine__default['default'].findOne(obj);
     }
 
     return null;
@@ -149,20 +143,8 @@
 
     return element.hasAttribute('disabled') && element.getAttribute('disabled') !== 'false';
   };
-  /**
-   * Trick to restart an element's animation
-   *
-   * @param {HTMLElement} element
-   * @return void
-   *
-   * @see https://www.charistheo.io/blog/2021/02/restart-a-css-animation-with-javascript/#restarting-a-css-animation
-   */
 
-
-  const reflow = element => {
-    // eslint-disable-next-line no-unused-expressions
-    element.offsetHeight;
-  };
+  const reflow = element => element.offsetHeight;
 
   const getjQuery = () => {
     const {
@@ -250,7 +232,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/scrollBar.js
+   * Bootstrap (v5.0.2): util/scrollBar.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -354,12 +336,11 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/backdrop.js
+   * Bootstrap (v5.0.2): util/backdrop.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
    * --------------------------------------------------------------------------
    */
-  const Default$2 = {
-    className: 'modal-backdrop',
+  const Default$1 = {
     isVisible: true,
     // if false, we use the backdrop helper without adding any element to the dom
     isAnimated: false,
@@ -367,17 +348,17 @@
     // give the choice to place backdrop under different elements
     clickCallback: null
   };
-  const DefaultType$2 = {
-    className: 'string',
+  const DefaultType$1 = {
     isVisible: 'boolean',
     isAnimated: 'boolean',
     rootElement: '(element|string)',
     clickCallback: '(function|null)'
   };
-  const NAME$2 = 'backdrop';
+  const NAME$1 = 'backdrop';
+  const CLASS_NAME_BACKDROP = 'modal-backdrop';
   const CLASS_NAME_FADE = 'fade';
   const CLASS_NAME_SHOW$1 = 'show';
-  const EVENT_MOUSEDOWN = `mousedown.bs.${NAME$2}`;
+  const EVENT_MOUSEDOWN = `mousedown.bs.${NAME$1}`;
 
   class Backdrop {
     constructor(config) {
@@ -423,7 +404,7 @@
     _getElement() {
       if (!this._element) {
         const backdrop = document.createElement('div');
-        backdrop.className = this._config.className;
+        backdrop.className = CLASS_NAME_BACKDROP;
 
         if (this._config.isAnimated) {
           backdrop.classList.add(CLASS_NAME_FADE);
@@ -436,12 +417,12 @@
     }
 
     _getConfig(config) {
-      config = { ...Default$2,
+      config = { ...Default$1,
         ...(typeof config === 'object' ? config : {})
       }; // use getElement() with the default "body" to get a fresh Element on each instantiation
 
       config.rootElement = getElement(config.rootElement);
-      typeCheckConfig(NAME$2, config, DefaultType$2);
+      typeCheckConfig(NAME$1, config, DefaultType$1);
       return config;
     }
 
@@ -450,7 +431,7 @@
         return;
       }
 
-      this._config.rootElement.append(this._getElement());
+      this._config.rootElement.appendChild(this._getElement());
 
       EventHandler__default['default'].on(this._getElement(), EVENT_MOUSEDOWN, () => {
         execute(this._config.clickCallback);
@@ -478,136 +459,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/focustrap.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
-   * --------------------------------------------------------------------------
-   */
-  const Default$1 = {
-    trapElement: null,
-    // The element to trap focus inside of
-    autofocus: true
-  };
-  const DefaultType$1 = {
-    trapElement: 'element',
-    autofocus: 'boolean'
-  };
-  const NAME$1 = 'focustrap';
-  const DATA_KEY$1 = 'bs.focustrap';
-  const EVENT_KEY$1 = `.${DATA_KEY$1}`;
-  const EVENT_FOCUSIN = `focusin${EVENT_KEY$1}`;
-  const EVENT_KEYDOWN_TAB = `keydown.tab${EVENT_KEY$1}`;
-  const TAB_KEY = 'Tab';
-  const TAB_NAV_FORWARD = 'forward';
-  const TAB_NAV_BACKWARD = 'backward';
-
-  class FocusTrap {
-    constructor(config) {
-      this._config = this._getConfig(config);
-      this._isActive = false;
-      this._lastTabNavDirection = null;
-    }
-
-    activate() {
-      const {
-        trapElement,
-        autofocus
-      } = this._config;
-
-      if (this._isActive) {
-        return;
-      }
-
-      if (autofocus) {
-        trapElement.focus();
-      }
-
-      EventHandler__default['default'].off(document, EVENT_KEY$1); // guard against infinite focus loop
-
-      EventHandler__default['default'].on(document, EVENT_FOCUSIN, event => this._handleFocusin(event));
-      EventHandler__default['default'].on(document, EVENT_KEYDOWN_TAB, event => this._handleKeydown(event));
-      this._isActive = true;
-    }
-
-    deactivate() {
-      if (!this._isActive) {
-        return;
-      }
-
-      this._isActive = false;
-      EventHandler__default['default'].off(document, EVENT_KEY$1);
-    } // Private
-
-
-    _handleFocusin(event) {
-      const {
-        target
-      } = event;
-      const {
-        trapElement
-      } = this._config;
-
-      if (target === document || target === trapElement || trapElement.contains(target)) {
-        return;
-      }
-
-      const elements = SelectorEngine__default['default'].focusableChildren(trapElement);
-
-      if (elements.length === 0) {
-        trapElement.focus();
-      } else if (this._lastTabNavDirection === TAB_NAV_BACKWARD) {
-        elements[elements.length - 1].focus();
-      } else {
-        elements[0].focus();
-      }
-    }
-
-    _handleKeydown(event) {
-      if (event.key !== TAB_KEY) {
-        return;
-      }
-
-      this._lastTabNavDirection = event.shiftKey ? TAB_NAV_BACKWARD : TAB_NAV_FORWARD;
-    }
-
-    _getConfig(config) {
-      config = { ...Default$1,
-        ...(typeof config === 'object' ? config : {})
-      };
-      typeCheckConfig(NAME$1, config, DefaultType$1);
-      return config;
-    }
-
-  }
-
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/component-functions.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
-   * --------------------------------------------------------------------------
-   */
-
-  const enableDismissTrigger = (component, method = 'hide') => {
-    const clickEvent = `click.dismiss${component.EVENT_KEY}`;
-    const name = component.NAME;
-    EventHandler__default['default'].on(document, clickEvent, `[data-bs-dismiss="${name}"]`, function (event) {
-      if (['A', 'AREA'].includes(this.tagName)) {
-        event.preventDefault();
-      }
-
-      if (isDisabled(this)) {
-        return;
-      }
-
-      const target = getElementFromSelector(this) || this.closest(`.${name}`);
-      const instance = component.getOrCreateInstance(target); // Method argument is left, for Alert and only, as it doesn't implement the 'hide' method
-
-      instance[method]();
-    });
-  };
-
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): offcanvas.js
+   * Bootstrap (v5.0.2): offcanvas.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -634,14 +486,16 @@
     scroll: 'boolean'
   };
   const CLASS_NAME_SHOW = 'show';
-  const CLASS_NAME_BACKDROP = 'offcanvas-backdrop';
   const OPEN_SELECTOR = '.offcanvas.show';
   const EVENT_SHOW = `show${EVENT_KEY}`;
   const EVENT_SHOWN = `shown${EVENT_KEY}`;
   const EVENT_HIDE = `hide${EVENT_KEY}`;
   const EVENT_HIDDEN = `hidden${EVENT_KEY}`;
+  const EVENT_FOCUSIN = `focusin${EVENT_KEY}`;
   const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`;
+  const EVENT_CLICK_DISMISS = `click.dismiss${EVENT_KEY}`;
   const EVENT_KEYDOWN_DISMISS = `keydown.dismiss${EVENT_KEY}`;
+  const SELECTOR_DATA_DISMISS = '[data-bs-dismiss="offcanvas"]';
   const SELECTOR_DATA_TOGGLE = '[data-bs-toggle="offcanvas"]';
   /**
    * ------------------------------------------------------------------------
@@ -655,7 +509,6 @@
       this._config = this._getConfig(config);
       this._isShown = false;
       this._backdrop = this._initializeBackDrop();
-      this._focustrap = this._initializeFocusTrap();
 
       this._addEventListeners();
     } // Getters
@@ -694,6 +547,8 @@
 
       if (!this._config.scroll) {
         new ScrollBarHelper().hide();
+
+        this._enforceFocusOnElement(this._element);
       }
 
       this._element.removeAttribute('aria-hidden');
@@ -705,10 +560,6 @@
       this._element.classList.add(CLASS_NAME_SHOW);
 
       const completeCallBack = () => {
-        if (!this._config.scroll) {
-          this._focustrap.activate();
-        }
-
         EventHandler__default['default'].trigger(this._element, EVENT_SHOWN, {
           relatedTarget
         });
@@ -728,7 +579,7 @@
         return;
       }
 
-      this._focustrap.deactivate();
+      EventHandler__default['default'].off(document, EVENT_FOCUSIN);
 
       this._element.blur();
 
@@ -760,9 +611,8 @@
     dispose() {
       this._backdrop.dispose();
 
-      this._focustrap.deactivate();
-
       super.dispose();
+      EventHandler__default['default'].off(document, EVENT_FOCUSIN);
     } // Private
 
 
@@ -777,7 +627,6 @@
 
     _initializeBackDrop() {
       return new Backdrop({
-        className: CLASS_NAME_BACKDROP,
         isVisible: this._config.backdrop,
         isAnimated: true,
         rootElement: this._element.parentNode,
@@ -785,13 +634,19 @@
       });
     }
 
-    _initializeFocusTrap() {
-      return new FocusTrap({
-        trapElement: this._element
+    _enforceFocusOnElement(element) {
+      EventHandler__default['default'].off(document, EVENT_FOCUSIN); // guard against infinite focus loop
+
+      EventHandler__default['default'].on(document, EVENT_FOCUSIN, event => {
+        if (document !== event.target && element !== event.target && !element.contains(event.target)) {
+          element.focus();
+        }
       });
+      element.focus();
     }
 
     _addEventListeners() {
+      EventHandler__default['default'].on(this._element, EVENT_CLICK_DISMISS, SELECTOR_DATA_DISMISS, () => this.hide());
       EventHandler__default['default'].on(this._element, EVENT_KEYDOWN_DISMISS, event => {
         if (this._config.keyboard && event.key === ESCAPE_KEY) {
           this.hide();
@@ -852,7 +707,6 @@
     data.toggle(this);
   });
   EventHandler__default['default'].on(window, EVENT_LOAD_DATA_API, () => SelectorEngine__default['default'].find(OPEN_SELECTOR).forEach(el => Offcanvas.getOrCreateInstance(el).show()));
-  enableDismissTrigger(Offcanvas);
   /**
    * ------------------------------------------------------------------------
    * jQuery

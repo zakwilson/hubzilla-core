@@ -1,13 +1,13 @@
 /*!
-  * Bootstrap dropdown.js v5.1.1 (https://getbootstrap.com/)
+  * Bootstrap dropdown.js v5.0.2 (https://getbootstrap.com/)
   * Copyright 2011-2021 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@popperjs/core'), require('./dom/event-handler.js'), require('./dom/manipulator.js'), require('./dom/selector-engine.js'), require('./base-component.js')) :
-  typeof define === 'function' && define.amd ? define(['@popperjs/core', './dom/event-handler', './dom/manipulator', './dom/selector-engine', './base-component'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Dropdown = factory(global.Popper, global.EventHandler, global.Manipulator, global.SelectorEngine, global.Base));
-}(this, (function (Popper, EventHandler, Manipulator, SelectorEngine, BaseComponent) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('@popperjs/core'), require('./dom/selector-engine.js'), require('./dom/event-handler.js'), require('./dom/manipulator.js'), require('./base-component.js')) :
+  typeof define === 'function' && define.amd ? define(['@popperjs/core', './dom/selector-engine', './dom/event-handler', './dom/manipulator', './base-component'], factory) :
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Dropdown = factory(global.Popper, global.SelectorEngine, global.EventHandler, global.Manipulator, global.Base));
+}(this, (function (Popper, SelectorEngine, EventHandler, Manipulator, BaseComponent) { 'use strict';
 
   function _interopDefaultLegacy (e) { return e && typeof e === 'object' && 'default' in e ? e : { 'default': e }; }
 
@@ -32,17 +32,10 @@
   }
 
   var Popper__namespace = /*#__PURE__*/_interopNamespace(Popper);
+  var SelectorEngine__default = /*#__PURE__*/_interopDefaultLegacy(SelectorEngine);
   var EventHandler__default = /*#__PURE__*/_interopDefaultLegacy(EventHandler);
   var Manipulator__default = /*#__PURE__*/_interopDefaultLegacy(Manipulator);
-  var SelectorEngine__default = /*#__PURE__*/_interopDefaultLegacy(SelectorEngine);
   var BaseComponent__default = /*#__PURE__*/_interopDefaultLegacy(BaseComponent);
-
-  /**
-   * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): util/index.js
-   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
-   * --------------------------------------------------------------------------
-   */
 
   const toType = obj => {
     if (obj === null || obj === undefined) {
@@ -100,7 +93,7 @@
     }
 
     if (typeof obj === 'string' && obj.length > 0) {
-      return document.querySelector(obj);
+      return SelectorEngine__default['default'].findOne(obj);
     }
 
     return null;
@@ -223,7 +216,7 @@
 
   /**
    * --------------------------------------------------------------------------
-   * Bootstrap (v5.1.1): dropdown.js
+   * Bootstrap (v5.0.2): dropdown.js
    * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
    * --------------------------------------------------------------------------
    */
@@ -249,6 +242,7 @@
   const EVENT_HIDDEN = `hidden${EVENT_KEY}`;
   const EVENT_SHOW = `show${EVENT_KEY}`;
   const EVENT_SHOWN = `shown${EVENT_KEY}`;
+  const EVENT_CLICK = `click${EVENT_KEY}`;
   const EVENT_CLICK_DATA_API = `click${EVENT_KEY}${DATA_API_KEY}`;
   const EVENT_KEYDOWN_DATA_API = `keydown${EVENT_KEY}${DATA_API_KEY}`;
   const EVENT_KEYUP_DATA_API = `keyup${EVENT_KEY}${DATA_API_KEY}`;
@@ -296,6 +290,8 @@
       this._config = this._getConfig(config);
       this._menu = this._getMenuElement();
       this._inNavbar = this._detectNavbar();
+
+      this._addEventListeners();
     } // Getters
 
 
@@ -313,14 +309,26 @@
 
 
     toggle() {
-      return this._isShown() ? this.hide() : this.show();
-    }
-
-    show() {
-      if (isDisabled(this._element) || this._isShown(this._menu)) {
+      if (isDisabled(this._element)) {
         return;
       }
 
+      const isActive = this._element.classList.contains(CLASS_NAME_SHOW);
+
+      if (isActive) {
+        this.hide();
+        return;
+      }
+
+      this.show();
+    }
+
+    show() {
+      if (isDisabled(this._element) || this._menu.classList.contains(CLASS_NAME_SHOW)) {
+        return;
+      }
+
+      const parent = Dropdown.getParentFromElement(this._element);
       const relatedTarget = {
         relatedTarget: this._element
       };
@@ -328,14 +336,34 @@
 
       if (showEvent.defaultPrevented) {
         return;
-      }
+      } // Totally disable Popper for Dropdowns in Navbar
 
-      const parent = Dropdown.getParentFromElement(this._element); // Totally disable Popper for Dropdowns in Navbar
 
       if (this._inNavbar) {
         Manipulator__default['default'].setDataAttribute(this._menu, 'popper', 'none');
       } else {
-        this._createPopper(parent);
+        if (typeof Popper__namespace === 'undefined') {
+          throw new TypeError('Bootstrap\'s dropdowns require Popper (https://popper.js.org)');
+        }
+
+        let referenceElement = this._element;
+
+        if (this._config.reference === 'parent') {
+          referenceElement = parent;
+        } else if (isElement(this._config.reference)) {
+          referenceElement = getElement(this._config.reference);
+        } else if (typeof this._config.reference === 'object') {
+          referenceElement = this._config.reference;
+        }
+
+        const popperConfig = this._getPopperConfig();
+
+        const isDisplayStatic = popperConfig.modifiers.find(modifier => modifier.name === 'applyStyles' && modifier.enabled === false);
+        this._popper = Popper__namespace.createPopper(referenceElement, this._menu, popperConfig);
+
+        if (isDisplayStatic) {
+          Manipulator__default['default'].setDataAttribute(this._menu, 'popper', 'static');
+        }
       } // If this is a touch-enabled device we add extra
       // empty mouseover listeners to the body's immediate children;
       // only needed because of broken event delegation on iOS
@@ -350,15 +378,15 @@
 
       this._element.setAttribute('aria-expanded', true);
 
-      this._menu.classList.add(CLASS_NAME_SHOW);
+      this._menu.classList.toggle(CLASS_NAME_SHOW);
 
-      this._element.classList.add(CLASS_NAME_SHOW);
+      this._element.classList.toggle(CLASS_NAME_SHOW);
 
       EventHandler__default['default'].trigger(this._element, EVENT_SHOWN, relatedTarget);
     }
 
     hide() {
-      if (isDisabled(this._element) || !this._isShown(this._menu)) {
+      if (isDisabled(this._element) || !this._menu.classList.contains(CLASS_NAME_SHOW)) {
         return;
       }
 
@@ -385,6 +413,13 @@
       }
     } // Private
 
+
+    _addEventListeners() {
+      EventHandler__default['default'].on(this._element, EVENT_CLICK, event => {
+        event.preventDefault();
+        this.toggle();
+      });
+    }
 
     _completeHide(relatedTarget) {
       const hideEvent = EventHandler__default['default'].trigger(this._element, EVENT_HIDE, relatedTarget);
@@ -426,35 +461,6 @@
       }
 
       return config;
-    }
-
-    _createPopper(parent) {
-      if (typeof Popper__namespace === 'undefined') {
-        throw new TypeError('Bootstrap\'s dropdowns require Popper (https://popper.js.org)');
-      }
-
-      let referenceElement = this._element;
-
-      if (this._config.reference === 'parent') {
-        referenceElement = parent;
-      } else if (isElement(this._config.reference)) {
-        referenceElement = getElement(this._config.reference);
-      } else if (typeof this._config.reference === 'object') {
-        referenceElement = this._config.reference;
-      }
-
-      const popperConfig = this._getPopperConfig();
-
-      const isDisplayStatic = popperConfig.modifiers.find(modifier => modifier.name === 'applyStyles' && modifier.enabled === false);
-      this._popper = Popper__namespace.createPopper(referenceElement, this._menu, popperConfig);
-
-      if (isDisplayStatic) {
-        Manipulator__default['default'].setDataAttribute(this._menu, 'popper', 'static');
-      }
-    }
-
-    _isShown(element = this._element) {
-      return element.classList.contains(CLASS_NAME_SHOW);
     }
 
     _getMenuElement() {
@@ -546,19 +552,21 @@
     } // Static
 
 
-    static jQueryInterface(config) {
-      return this.each(function () {
-        const data = Dropdown.getOrCreateInstance(this, config);
+    static dropdownInterface(element, config) {
+      const data = Dropdown.getOrCreateInstance(element, config);
 
-        if (typeof config !== 'string') {
-          return;
-        }
-
+      if (typeof config === 'string') {
         if (typeof data[config] === 'undefined') {
           throw new TypeError(`No method named "${config}"`);
         }
 
         data[config]();
+      }
+    }
+
+    static jQueryInterface(config) {
+      return this.each(function () {
+        Dropdown.dropdownInterface(this, config);
       });
     }
 
@@ -576,7 +584,7 @@
           continue;
         }
 
-        if (!context._isShown()) {
+        if (!context._element.classList.contains(CLASS_NAME_SHOW)) {
           continue;
         }
 
@@ -635,20 +643,20 @@
         return;
       }
 
-      const getToggleButton = this.matches(SELECTOR_DATA_TOGGLE) ? this : SelectorEngine__default['default'].prev(this, SELECTOR_DATA_TOGGLE)[0];
-      const instance = Dropdown.getOrCreateInstance(getToggleButton);
+      const getToggleButton = () => this.matches(SELECTOR_DATA_TOGGLE) ? this : SelectorEngine__default['default'].prev(this, SELECTOR_DATA_TOGGLE)[0];
 
       if (event.key === ESCAPE_KEY) {
-        instance.hide();
+        getToggleButton().focus();
+        Dropdown.clearMenus();
         return;
       }
 
       if (event.key === ARROW_UP_KEY || event.key === ARROW_DOWN_KEY) {
         if (!isActive) {
-          instance.show();
+          getToggleButton().click();
         }
 
-        instance._selectMenuItem(event);
+        Dropdown.getInstance(getToggleButton())._selectMenuItem(event);
 
         return;
       }
@@ -672,7 +680,7 @@
   EventHandler__default['default'].on(document, EVENT_KEYUP_DATA_API, Dropdown.clearMenus);
   EventHandler__default['default'].on(document, EVENT_CLICK_DATA_API, SELECTOR_DATA_TOGGLE, function (event) {
     event.preventDefault();
-    Dropdown.getOrCreateInstance(this).toggle();
+    Dropdown.dropdownInterface(this);
   });
   /**
    * ------------------------------------------------------------------------

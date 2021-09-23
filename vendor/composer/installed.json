@@ -1595,23 +1595,23 @@
         },
         {
             "name": "twbs/bootstrap",
-            "version": "v5.1.1",
-            "version_normalized": "5.1.1.0",
+            "version": "v5.0.2",
+            "version_normalized": "5.0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twbs/bootstrap.git",
-                "reference": "0d81d3cbc14dfcdca8a868e3f25189a4f1ab273c"
+                "reference": "688bce4fa695cc360a0d084e34f029b0c192b223"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/0d81d3cbc14dfcdca8a868e3f25189a4f1ab273c",
-                "reference": "0d81d3cbc14dfcdca8a868e3f25189a4f1ab273c",
+                "url": "https://api.github.com/repos/twbs/bootstrap/zipball/688bce4fa695cc360a0d084e34f029b0c192b223",
+                "reference": "688bce4fa695cc360a0d084e34f029b0c192b223",
                 "shasum": ""
             },
             "replace": {
                 "twitter/bootstrap": "self.version"
             },
-            "time": "2021-09-07T15:37:44+00:00",
+            "time": "2021-06-22T18:29:16+00:00",
             "type": "library",
             "installation-source": "dist",
             "notification-url": "https://packagist.org/downloads/",
@@ -1642,7 +1642,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twbs/bootstrap/issues",
-                "source": "https://github.com/twbs/bootstrap/tree/v5.1.1"
+                "source": "https://github.com/twbs/bootstrap/tree/v5.0.2"
             },
             "install-path": "../twbs/bootstrap"
         }

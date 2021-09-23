@@ -211,7 +211,7 @@ class Messages {
 
 			$summary = trim(strip_tags(bbcode($notice['msg'])));
 
-			if(strpos($summary, $notification['xname']) === 0) {
+			if(strpos($summary, $notice['xname']) === 0) {
 				$summary = substr($summary, strlen($notice['xname']) + 1);
 			}
 

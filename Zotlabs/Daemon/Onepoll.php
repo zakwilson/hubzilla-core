@@ -140,14 +140,29 @@ class Onepoll {
 
 				if ($url) {
 					logger('fetching outbox');
-					$url      = $url . '?date_begin=' .  urlencode($last_update);
+					$url = $url . '?date_begin=' .  urlencode($last_update);
+
+					if($contact['xchan_network'] === 'zot6') {
+						$url = $url . '&top=1';
+					}
+
 					$obj      = new ASCollection($url, $importer, 0, $max);
 					$messages = $obj->get();
+
 					if ($messages) {
 						foreach ($messages as $message) {
 							if (is_string($message)) {
 								$message = Activity::fetch($message, $importer);
 							}
+
+							if ($contact['xchan_network'] === 'zot6') {
+								// make sure we only fetch top level items
+								if ($message['type'] === 'Create' && !isset($message['object']['inReplyTo'])) {
+									Libzot::fetch_conversation($importer, $message['object']['id']);
+								}
+								continue;
+							}
+
 							$AS = new ActivityStreams($message);
 							if ($AS->is_valid() && is_array($AS->obj)) {
 								$item = Activity::decode_note($AS);

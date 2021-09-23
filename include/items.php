@@ -4217,6 +4217,9 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		$item_uids = " item.uid = " . intval($uid) . " ";
 	}
 
+	if($arr['top'])
+		$sql_options .= " and item_thread_top = 1 ";
+
 	if($arr['star'])
 		$sql_options .= " and item_starred = 1 ";
 
@@ -4372,7 +4375,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 		if ($arr['total']) {
 			$items = dbq("SELECT count(item.id) AS total FROM item
 				WHERE $item_uids $item_restrict
-				$simple_update
+				$simple_update $sql_options
 				$sql_extra $sql_nets $sql_extra3"
 			);
 			if ($items) {
@@ -4383,7 +4386,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 		$items = dbq("SELECT item.*, item.id AS item_id FROM item
 			WHERE $item_uids $item_restrict
-			$simple_update
+			$simple_update $sql_options
 			$sql_extra $sql_nets $sql_extra3
 			ORDER BY item.received DESC $pager_sql"
 		);

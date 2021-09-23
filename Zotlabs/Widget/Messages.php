@@ -86,6 +86,7 @@ class Messages {
 		xchan_query($items, false);
 
 		$i = 0;
+		$entries = [];
 
 		foreach($items as $item) {
 
@@ -204,6 +205,7 @@ class Messages {
 		);
 
 		$i = 0;
+		$entries = [];
 
 		foreach($notices as $notice) {
 

@@ -2423,8 +2423,13 @@ function send_status_notifications($post_id,$item) {
 	$unfollowed = false;
 
 	$parent = 0;
+	$is_reaction = false;
+
+	$type =  ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT);
 
 	if(array_key_exists('verb',$item) && (activity_match($item['verb'], ACTIVITY_LIKE) || activity_match($item['verb'], ACTIVITY_DISLIKE))) {
+
+		$type = NOTIFY_LIKE;
 
 		$r = q("select id from item where mid = '%s' and uid = %d limit 1",
 			dbesc($item['thr_parent']),
@@ -2494,7 +2499,7 @@ function send_status_notifications($post_id,$item) {
 
 
 	Enotify::submit(array(
-		'type'         => ((intval($item['item_private']) === 2) ? NOTIFY_MAIL : NOTIFY_COMMENT),
+		'type'         => $type,
 		'from_xchan'   => $item['author_xchan'],
 		'to_xchan'     => $r[0]['channel_hash'],
 		'item'         => $item,

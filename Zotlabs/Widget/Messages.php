@@ -11,7 +11,7 @@ class Messages {
 		if (!local_channel())
 			return EMPTY_STR;
 
-		$page = self::get_messages_page($options);
+		$page = self::get_messages_page([]);
 
 		$_SESSION['messages_loadtime'] = datetime_convert();
 
@@ -24,6 +24,7 @@ class Messages {
 				'messages_title' => t('Public and restricted messages'),
 				'direct_messages_title' => t('Direct messages'),
 				'starred_messages_title' => t('Starred messages'),
+				'notice_messages_title' => t('Notices'),
 				'loading' => t('Loading'),
 				'empty' => t('No messages')
 			]
@@ -38,6 +39,10 @@ class Messages {
 
 		if ($options['offset'] == -1) {
 			return;
+		}
+
+		if ($options['type'] == 'notification') {
+			return self::get_notices_page($options);
 		}
 
 		$channel = App::get_channel();
@@ -81,6 +86,7 @@ class Messages {
 		xchan_query($items, false);
 
 		$i = 0;
+		$entries = [];
 
 		foreach($items as $item) {
 
@@ -181,4 +187,51 @@ class Messages {
 		return trim($recipients, ', ');
 	}
 
+	public static function get_notices_page($options) {
+
+		if (!local_channel())
+			return;
+
+		$limit  = 30;
+
+		$offset = 0;
+		if ($options['offset']) {
+			$offset = intval($options['offset']);
+		}
+
+		$notices = q("SELECT * FROM notify WHERE uid = %d
+			ORDER BY created DESC LIMIT $limit OFFSET $offset",
+			intval(local_channel())
+		);
+
+		$i = 0;
+		$entries = [];
+
+		foreach($notices as $notice) {
+
+			$summary = trim(strip_tags(bbcode($notice['msg'])));
+
+			if(strpos($summary, $notice['xname']) === 0) {
+				$summary = substr($summary, strlen($notice['xname']) + 1);
+			}
+
+			$entries[$i]['author_name'] = $notice['xname'];
+			$entries[$i]['author_addr'] = $notice['url'];
+			$entries[$i]['info'] = '';
+			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);
+			$entries[$i]['summary'] = $summary;
+			$entries[$i]['b64mid'] = basename($notice['link']);
+			$entries[$i]['href'] = z_root() . '/hq/' . basename($notice['link']);
+			$entries[$i]['icon'] = '';
+
+			$i++;
+		}
+
+		$result = [
+			'offset' => ((count($entries) < $limit) ? -1 : intval($offset + $limit)),
+			'entries' => $entries
+		];
+
+		return $result;
+	}
 }

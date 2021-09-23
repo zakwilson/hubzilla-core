@@ -62,7 +62,7 @@ nav .dropdown-menu {
 
 /* offcanvas */
 .offcanvas,
-.modal-backdrop.fade {
+.offcanvas-backdrop.fade {
 	transition: none;
 }
 

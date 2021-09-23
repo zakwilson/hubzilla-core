@@ -16,6 +16,11 @@
 		</a>
 	</li>
 	{{/if}}
+	<li class="nav-item">
+		<a class="nav-link messages-type" href="#" title="{{$strings.notice_messages_title}}" data-messages_type="notification">
+			<i class="fa fa-fw fa-exclamation"></i>
+		</a>
+	</li>
 </ul>
 <div id="messages-widget" class="border border-top-0 overflow-auto mb-3 clearfix" style="height: 70vh;">
 	<div id="messages-template" rel="template" class="d-none">

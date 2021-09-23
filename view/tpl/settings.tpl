@@ -16,7 +16,7 @@
 						</a>
 					</h3>
 				</div>
-				<div id="basic-settings-collapse" class="collapse show" role="tabpanel" aria-labelledby="basic-settings" data-parent="#settings">
+				<div id="basic-settings-collapse" class="collapse show" role="tabpanel" aria-labelledby="basic-settings" data-bs-parent="#settings">
 					<div class="section-content-tools-wrapper">
 						{{include file="field_input.tpl" field=$username}}
 						{{include file="field_select_grouped.tpl" field=$timezone}}
@@ -42,7 +42,7 @@
 						</a>
 					</h3>
 				</div>
-				<div id="privacy-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="privacy-settings" data-parent="#settings">
+				<div id="privacy-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="privacy-settings" data-bs-parent="#settings">
 					<div class="section-content-tools-wrapper">
 						{{include file="field_select_grouped.tpl" field=$role}}
 						{{$autoperms}}
@@ -102,7 +102,7 @@
 						</a>
 					</h3>
 				</div>
-				<div id="notification-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="notification-settings" data-parent="#settings">
+				<div id="notification-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="notification-settings" data-bs-parent="#settings">
 					<div class="section-content-tools-wrapper">
 						<div id="settings-notifications">
 

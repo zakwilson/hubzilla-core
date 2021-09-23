@@ -254,7 +254,6 @@ class Hq extends \Zotlabs\Web\Controller {
 			return;
 
 		$options['offset'] = $_REQUEST['offset'];
-		$options['dm'] = $_REQUEST['dm'];
 		$options['type'] = $_REQUEST['type'];
 
 		$ret = Messages::get_messages_page($options);

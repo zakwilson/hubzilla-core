@@ -135,7 +135,7 @@ class Onepoll {
 					$url = $cl['outbox'];
 				}
 				else {
-					$url = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
+					$url = str_replace('/poco/', '/outbox/', $contact['xchan_connurl']);
 				}
 
 				if ($url) {

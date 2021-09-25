@@ -2162,9 +2162,11 @@ class Activity {
 
 		if (array_key_exists('published', $act->data)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->data['published']);
+			$s['commented'] = $s['created'];
 		}
 		elseif (array_key_exists('published', $act->obj)) {
 			$s['created'] = datetime_convert('UTC', 'UTC', $act->obj['published']);
+			$s['commented'] = $s['created'];
 		}
 		if (array_key_exists('updated', $act->data)) {
 			$s['edited'] = datetime_convert('UTC', 'UTC', $act->data['updated']);

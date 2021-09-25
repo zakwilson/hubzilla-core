@@ -127,12 +127,12 @@ class Externals {
 							continue;
 						}
 
-						// make sure we only fetch top level items
-						if (isset($message['object']['inReplyTo'])) {
-							continue;
-						}
-
 						if ($contact['hubloc_network'] === 'zot6') {
+							// make sure we only fetch top level items
+							if (isset($message['object']['inReplyTo'])) {
+								continue;
+							}
+
 							Libzot::fetch_conversation($importer, $message['object']['id']);
 							$total++;
 							continue;

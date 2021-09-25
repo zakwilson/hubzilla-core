@@ -177,8 +177,7 @@ class Messages {
 			stringify_array_elms($recips, true);
 
 			$query_str = implode(',', $recips);
-			$xchans = dbq("SELECT DISTINCT xchan_name FROM xchan WHERE $column IN ($query_str)");
-
+			$xchans = dbq("SELECT DISTINCT xchan_name FROM xchan WHERE $column IN ($query_str) AND xchan_deleted = 0");
 			foreach($xchans as $xchan) {
 				$recipients .= $xchan['xchan_name'] . ', ';
 			}

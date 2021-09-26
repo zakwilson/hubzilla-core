@@ -3538,7 +3538,7 @@ class Activity {
 	static function find_best_identity($xchan) {
 
 		if (filter_var($xchan, FILTER_VALIDATE_URL)) {
-			$r = q("select hubloc_hash, hubloc_network from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6' and hubloc_deleted = 0",
+			$r = q("SELECT hubloc_hash, hubloc_network FROM hubloc WHERE hubloc_id_url = '%s' AND hubloc_network IN ('zot6', 'activitypub') AND hubloc_deleted = 0",
 				dbesc($xchan)
 			);
 			if ($r) {

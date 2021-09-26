@@ -1103,6 +1103,10 @@ class Activity {
 			'publicKeyPem' => $p['xchan_pubkey']
 		];
 
+		if ($c) {
+			$ret['outbox'] = z_root() . '/outbox/' . $c['channel_address'];
+		}
+
 		$arr = [
 			'xchan' => $p,
 			'encoded' => $ret
@@ -1111,7 +1115,6 @@ class Activity {
 		call_hooks('encode_person', $arr);
 
 		$ret = $arr['encoded'];
-
 		return $ret;
 	}
 

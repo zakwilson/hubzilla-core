@@ -157,7 +157,7 @@
 				{{if $navbar_apps}}
 				{{foreach $navbar_apps as $navbar_app}}
 				<li class="nav-app-sortable">
-				{{$navbar_app}}
+					{{$navbar_app}}
 				</li>
 				{{/foreach}}
 				{{/if}}
@@ -188,6 +188,7 @@
 			</div>
 			{{/if}}
 		</div>
+		<i id="app-bin-trash" class="fa fa-2x fa-fw fa-trash-o d-none"></i>
 		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
 	<div class="offcanvas-body pt-0">
@@ -210,10 +211,10 @@
 		</div>
 		{{/if}}
 		{{if $is_owner}}
+		<div class="dropdown-header text-uppercase">
+			{{$featured_apps}}
+		</div>
 		<div id="app-bin-container" data-token="{{$form_security_token}}">
-			<div class="dropdown-header text-uppercase">
-				{{$featured_apps}}
-			</div>
 			{{foreach $nav_apps as $nav_app}}
 				{{$nav_app}}
 			{{/foreach}}
@@ -237,14 +238,19 @@
 		animation: 150,
 		delay: 200,
 		delayOnTouchOnly: true,
+		onStart: function (e) {
+			$('#app-bin-trash').removeClass('d-none');
+		},
 		onEnd: function (e) {
+			$('#app-bin-trash').addClass('d-none');
+
 			let app_str = '';
-			$('#app-bin-container a').each(function () {
+			$('#app-bin-container a:visible').each(function () {
 				if(app_str.length) {
-					app_str = app_str.concat(',', $(this).text());
+					app_str = app_str.concat(',', this.text);
 				}
 				else {
-					app_str = app_str.concat($(this).text());
+					app_str = app_str.concat(this.text);
 				}
 			});
 			$.post(
@@ -384,6 +390,39 @@
 		})
 		.done( function() {
 			$('<a class="dropdown-item" href="' + app_url + '"><i class="generic-icons-nav fa fa-fw fa-' + app_icon + '"></i>' + app_name + '</a>').appendTo('#app-bin-container');
+		});
+
+	});
+
+
+	$('#app-bin-trash').on('dragover', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		$('#app-bin-container a[href=\'' + app_url + '\']').fadeOut();
+	});
+	$('#app-bin-trash').on('dragleave', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		$('#app-bin-container a[href=\'' + app_url + '\']').fadeIn();
+
+	});
+	$('#app-bin-trash').on('drop', function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		if (papp === null)
+			return;
+
+		$.ajax({
+			type: 'post',
+			url: 'appman',
+			data: {
+				'aj' : 1,
+				'feature' : 'nav_featured_app',
+				'papp' : papp
+			}
 		});
 
 	});

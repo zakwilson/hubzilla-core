@@ -257,7 +257,7 @@
 		if(typeof sse_type === 'undefined')
 			return;
 
-		if(followup || !manual || !($('#nav-' + sse_type + '-sub').hasClass('collapse') && $('#nav-' + sse_type + '-sub').hasClass('show'))) {
+		if(followup || !manual || !$('#notification-link-' + sse_type).hasClass('collapsed')) {
 
 			if(sse_offset >= 0) {
 				$("#nav-" + sse_type + "-loading").show();
@@ -287,9 +287,9 @@
 					sse_handleNotifications(obj, replace, followup);
 				});
 			}
-			else
+			else {
 				$("#nav-" + sse_type + "-loading").hide();
-
+			}
 		}
 		else {
 			sessionStorage.removeItem('notification_open');

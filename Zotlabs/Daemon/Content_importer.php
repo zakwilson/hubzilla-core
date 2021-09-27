@@ -24,19 +24,19 @@ class Content_importer {
 		$channel = channelx_by_nick($channel_address);
 		if(! $channel) {
 			logger('itemhelper: channel not found');
-			killme();
+			return;
 		}
 
-		$headers = [ 
+		$headers = [
 			'X-API-Token'      => random_string(),
-			'X-API-Request'    => $hz_server . '/api/z/1.0/item/export_page?f=&zap_compat=1&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
+			'X-API-Request'    => $hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
 			'Host'             => $m['host'],
-			'(request-target)' => 'get /api/z/1.0/item/export_page?f=&zap_compat=1&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
+			'(request-target)' => 'get /api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
 		];
 
 		$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
 
-		$x = z_fetch_url($hz_server . '/api/z/1.0/item/export_page?f=&zap_compat=1&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,false,$redirects,[ 'headers' => $headers ]);
+		$x = z_fetch_url($hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,false,$redirects,[ 'headers' => $headers ]);
 
 		if(! $x['success']) {
 			logger('no API response',LOGGER_DEBUG);
@@ -46,14 +46,14 @@ class Content_importer {
 		$j = json_decode($x['body'],true);
 
 		if (! $j) {
-			killme();
+			return;
 		}
 
-		if(! ($j['item'] || count($j['item'])))
-			killme();
+		if(! is_array($j['item']) || ! count($j['item']))
+			return;
 
 		import_items($channel,$j['item'],false,((array_key_exists('relocate',$j)) ? $j['relocate'] : null));
 
-		killme();
+		return;
 	}
 }

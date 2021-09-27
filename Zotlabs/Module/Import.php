@@ -246,7 +246,6 @@ class Import extends Controller {
 
 		logger('import step 4');
 
-
 		// import xchans and contact photos
 
 		if (array_key_exists('channel', $data) && $seize) {
@@ -552,7 +551,7 @@ class Import extends Controller {
 					break;
 				}
 
-				if (! ($j['item'] || count($j['item']))) {
+				if (! is_array($j['item']) || ! count($j['item'])) {
 					break;
 				}
 

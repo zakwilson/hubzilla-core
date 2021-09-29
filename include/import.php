@@ -1265,6 +1265,7 @@ function sync_files($channel, $files) {
 
 						$store_path = $newfname;
 
+
 						$fp = fopen($newfname,'w');
 						if(! $fp) {
 							logger('failed to open storage file.',LOGGER_NORMAL,LOG_ERR);

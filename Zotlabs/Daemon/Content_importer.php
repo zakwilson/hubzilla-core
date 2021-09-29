@@ -23,7 +23,7 @@ class Content_importer {
 
 		$channel = channelx_by_nick($channel_address);
 		if(! $channel) {
-			logger('itemhelper: channel not found');
+			logger('channel not found');
 			return;
 		}
 
@@ -44,7 +44,6 @@ class Content_importer {
 		}
 
 		$j = json_decode($x['body'],true);
-
 		if (! $j) {
 			return;
 		}
@@ -52,7 +51,18 @@ class Content_importer {
 		if(! is_array($j['item']) || ! count($j['item']))
 			return;
 
+		//$total_pages = floor(intval($j['items_total']) / intval($j['items_page']));
+		//logger('importing items: ' . floor((intval($page) * 100) / $total_pages) . '%');
+
+		$saved_notification_flags = notifications_off($channel['channel_id']);
+
 		import_items($channel,$j['item'],false,((array_key_exists('relocate',$j)) ? $j['relocate'] : null));
+
+		notifications_on($channel['channel_id'], $saved_notification_flags);
+
+		$page++;
+
+		Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
 
 		return;
 	}

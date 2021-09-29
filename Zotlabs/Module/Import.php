@@ -509,8 +509,6 @@ class Import extends Controller {
 		$addon = array('channel' => $channel, 'data' => $data);
 		call_hooks('import_channel', $addon);
 
-		$saved_notification_flags = notifications_off($channel['channel_id']);
-
 		if ($import_posts && array_key_exists('item', $data) && $data['item'])
 			import_items($channel, $data['item'], false, $relocate);
 
@@ -526,98 +524,24 @@ class Import extends Controller {
 			$poll_interval = get_config('system','poll_interval',3);
 			$page = 0;
 
-			while (1) {
-				$headers = [
-					'X-API-Token'      => random_string(),
-					'X-API-Request'    => $hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
-					'Host'             => $m['host'],
-					'(request-target)' => 'get /api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page ,
-				];
-
-				$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
-
-				$x = z_fetch_url($hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,false,$redirects,[ 'headers' => $headers ]);
-
-				// logger('z_fetch: ' . print_r($x,true));
-
-				if (! $x['success']) {
-					logger('no API response');
-					break;
-				}
-
-				$j = json_decode($x['body'],true);
-
-				if (! $j) {
-					break;
-				}
-
-				if (! is_array($j['item']) || ! count($j['item'])) {
-					break;
-				}
-
-				Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
-				sleep($poll_interval);
-
-				$page ++;
-				continue;
-			}
-
-			$headers = [
-				'X-API-Token'      => random_string(),
-				'X-API-Request'    => $hz_server . '/api/z/1.0/files?f=&since=' . urlencode($since) . '&until=' . urlencode($until),
-				'Host'             => $m['host'],
-				'(request-target)' => 'get /api/z/1.0/files?f=&since=' . urlencode($since) . '&until=' . urlencode($until),
-			];
-
-			$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'], channel_url($channel),true,'sha512');
-
-			$x = z_fetch_url($hz_server . '/api/z/1.0/files?f=&since=' . urlencode($since) . '&until=' . urlencode($until),false,$redirects,[ 'headers' => $headers ]);
-
-			if (! $x['success']) {
-				logger('no API response');
-				return;
-			}
-
-			$j = json_decode($x['body'],true);
-
-			if (! $j) {
-				return;
-			}
-
-			if (! $j['success']) {
-				return;
-			}
-
-			$poll_interval = get_config('system','poll_interval',3);
-
-			if(count($j['results'])) {
-				$todo = count($j['results']);
-				logger('total to process: ' . $todo,LOGGER_DEBUG);
-
-				foreach($j['results'] as $jj) {
-					Master::Summon([ 'File_importer',$jj['hash'], $channel['channel_address'], urlencode($hz_server) ]);
-					sleep($poll_interval);
-				}
-			}
-
-			notice(t('Files and Posts imported.') . EOL);
+			Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
+			Master::Summon([ 'File_importer',sprintf('%d',$page), $channel['channel_address'], urlencode($hz_server) ]);
 
 		}
 
-		notifications_on($channel['channel_id'], $saved_notification_flags);
-
-		if (array_key_exists('item_id', $data) && $data['item_id'])
-			import_item_ids($channel, $data['item_id']);
+		// i do not think this is still used
+		//if (array_key_exists('item_id', $data) && $data['item_id'])
+		//	import_item_ids($channel, $data['item_id']);
 
 		// This will indirectly perform a refresh_all *and* update the directory
 
 		Master::Summon(array('Directory', $channel['channel_id']));
 
-
-		notice(t('Import completed.') . EOL);
-
 		change_channel($channel['channel_id']);
 
+		notice(t('Import of items and files in progress') . EOL);
+
+		// TODO: go away to a import progress page
 		goaway(z_root());
 	}
 

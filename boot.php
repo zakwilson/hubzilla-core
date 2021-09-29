@@ -1441,9 +1441,12 @@ function os_mkdir($path, $mode = 0777, $recursive = false) {
  */
 function rrmdir($path) {
 	if(is_dir($path) === true) {
-		$files = array_diff(scandir($path), array('.', '..'));
-		foreach($files as $file) {
-			rrmdir(realpath($path) . '/' . $file);
+		$dir_entries = scandir($path);
+		if (is_array($dir_entries)) {
+			$files = array_diff($dir_entries, array('.', '..'));
+			foreach($files as $file) {
+				rrmdir(realpath($path) . '/' . $file);
+			}
 		}
 		return rmdir($path);
 	}

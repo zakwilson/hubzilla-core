@@ -802,7 +802,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 	/*
 	 * basic channel export
 	 */
-
 	if(! $sections) {
 		$sections = get_default_export_sections();
 	}
@@ -1117,7 +1116,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			and created > %s - INTERVAL %s and resource_type = '' order by created",
 			intval($channel_id),
 			db_utcnow(),
-			db_quoteinterval('3 MONTH')
+			db_quoteinterval('1 MONTH')
 		);
 		if($r) {
 			$ret['item'] = array();
@@ -1239,11 +1238,11 @@ function channel_export_items_date($channel_id, $start, $finish, $zap_compat = f
  *
  * @param int $channel_id The channel ID
  * @param int $page
- * @param int $limit (default 50)
+ * @param int $limit (default 10)
  * @return array
  */
 
-function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 50, $zap_compat = false) {
+function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 10, $zap_compat = false) {
 
 	if(intval($page) < 1) {
 		$page = 0;
@@ -1253,8 +1252,8 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$limit = 1;
 	}
 
-	if(intval($limit) > 5000) {
-		$limit = 5000;
+	if(intval($limit) > 1000) {
+		$limit = 1000;
 	}
 
 	if(! $start)
@@ -1279,6 +1278,17 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$ret['compatibility']['codebase'] = 'zap';
 	}
 
+	$r = q("select count(id) as total from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s'",
+		intval(ITEM_TYPE_POST),
+		intval($channel_id),
+		dbesc($start),
+		dbesc($finish)
+	);
+
+	if ($r) {
+		$ret['items_total']= $r[0]['total'];
+		$ret['items_page']= $limit;
+	}
 
 	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
 		intval(ITEM_TYPE_POST),

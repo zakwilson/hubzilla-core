@@ -22,7 +22,7 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		$c = PConfig::Get(local_channel(), 'import', 'content_progress');
 
 		if (!$c) {
-			$co = 'Status items: waiting to start...';
+			$co = 'Item sync status: waiting to start...';
 		}
 		else {
 			$total_cpages = floor(intval($c['items_total']) / intval($c['items_page']));
@@ -31,14 +31,14 @@ class Import_progress extends \Zotlabs\Web\Controller {
 
 			$cpage = $c['last_page'] + 1; // because page count start at 0
 
-			$co = 'Status items: ' .  floor((intval($cpage) * 100) / $total_cpages) . '%';
+			$co = 'Item sync status: ' .  floor((intval($cpage) * 100) / $total_cpages) . '%';
 		}
 
 		// files
 		$f = PConfig::Get(local_channel(), 'import', 'files_progress');
 
 		if (!$f) {
-			$fo = 'Status files: waiting to start...';
+			$fo = 'File sync status: waiting to start...';
 		}
 		else {
 			$total_fpages = floor(intval($f['files_total']) / intval($f['files_page']));
@@ -47,7 +47,7 @@ class Import_progress extends \Zotlabs\Web\Controller {
 
 			$fpage = $f['last_page'] + 1;
 
-			$fo = 'Status files: ' .  floor((intval($fpage) * 100) / $total_fpages) . '%';
+			$fo = 'File sync status: ' .  floor((intval($fpage) * 100) / $total_fpages) . '%';
 		}
 
 		$o .= '<h3>' . $co . '</h3>';

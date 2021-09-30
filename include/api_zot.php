@@ -305,24 +305,33 @@
 		if(api_user() === false)
 			return false;
 
-		$ret = [];
 		$codebase = ((isset($_REQUEST['zap_compat']) && $_REQUEST['zap_compat']) ? true : false);
 		$channel = channelx_by_n(api_user());
 		$page = ((array_key_exists('page',$_REQUEST)) ? intval($_REQUEST['page']) : 0);
 
+		$ret['success'] = false;
+		$ret['total'] = attach_count_files($channel['channel_id'], get_observer_hash());
+		$ret['results'] = [];
+
+		if (!$ret['total']) {
+			json_return_and_die($ret);
+		}
+
 		$files = attach_list_files($channel['channel_id'], get_observer_hash(), '', '', '', 'created asc' ,$page, 1);
 
 		if (!$files['success']) {
-			return false;
+			json_return_and_die($ret);
 		}
 
 		foreach($files['results'] as $file) {
-			$ret[] = attach_export_data($channel, $file['hash'], false, $codebase);
+			$ret['results'] = attach_export_data($channel, $file['hash'], false, $codebase);
 		}
 
-		if($ret) {
+		if($ret['results']) {
+			$ret['success'] = true;
 			json_return_and_die($ret);
 		}
+
 		killme();
 	}
 

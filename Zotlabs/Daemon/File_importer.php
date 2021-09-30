@@ -48,12 +48,18 @@ class File_importer {
 
 		$j = json_decode($x['body'],true);
 
-		if(! is_array($j[0]['attach']) || ! count($j[0]['attach'])) {
-			PConfig::Set($channel['channel_id'], 'import', 'files', 1);
+		if(! is_array($j['results'][0]['attach']) || ! count($j['results'][0]['attach'])) {
 			return;
 		}
 
-		$r = sync_files($channel,$j);
+		$r = sync_files($channel, $j['results']);
+
+		PConfig::Set($channel['channel_id'], 'import', 'files_progress', [
+			'files_total' => $j['total'],
+			'files_page' => 1, // export page atm returns just one file
+			'last_page' => $page,
+			'next_cmd' => ['File_importer',sprintf('%d',$page + 1), $channel['channel_address'], urlencode($hz_server)]
+		]);
 
 		$page++;
 

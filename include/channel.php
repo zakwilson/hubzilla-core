@@ -2825,13 +2825,6 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		}
 	}
 
-	$r = q("select id from item where uid = %d", intval($channel_id));
-	if($r) {
-		foreach($r as $rv) {
-			drop_item($rv['id'],false);
-		}
-	}
-
 	q("delete from abook where abook_xchan = '%s' and abook_self = 1 ",
 		dbesc($channel['channel_hash'])
 	);
@@ -2840,6 +2833,9 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		dbesc(datetime_convert()),
 		intval($channel_id)
 	);
+
+	// remove items
+	Master::Summon([ 'Channel_purge', $channel_id ]);
 
 	// if this was the default channel, set another one as default
 	if(App::$account['account_default_channel'] == $channel_id) {
@@ -2881,6 +2877,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s'",
 			dbesc($channel['channel_hash'])
 		);
+		// send a cleanup message to other servers
+		Master::Summon([ 'Notifier', 'purge_all', $channel_id ]);
 	}
 
 	//remove from file system

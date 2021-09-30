@@ -12,6 +12,7 @@ use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\Controller;
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\PConfig;
 
 
 /**
@@ -435,6 +436,7 @@ class Import extends Controller {
 			logger('import step 8');
 		}
 
+
 		// import groups
 		$groups = $data['group'];
 		if ($groups) {
@@ -476,6 +478,7 @@ class Import extends Controller {
 
 		logger('import step 9');
 
+
 		if (is_array($data['obj']))
 			import_objs($channel, $data['obj']);
 
@@ -509,8 +512,15 @@ class Import extends Controller {
 		$addon = array('channel' => $channel, 'data' => $data);
 		call_hooks('import_channel', $addon);
 
-		if ($import_posts && array_key_exists('item', $data) && $data['item'])
+		if ($import_posts && array_key_exists('item', $data) && $data['item']) {
 			import_items($channel, $data['item'], false, $relocate);
+		}
+
+		// Immediately notify old server about the new clone
+		Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
+
+		// This will indirectly perform a refresh_all *and* update the directory
+		Master::Summon(array('Directory', $channel['channel_id']));
 
 		if ($api_path && $import_posts) {  // we are importing from a server and not a file
 
@@ -533,16 +543,15 @@ class Import extends Controller {
 		//if (array_key_exists('item_id', $data) && $data['item_id'])
 		//	import_item_ids($channel, $data['item_id']);
 
-		// This will indirectly perform a refresh_all *and* update the directory
-
-		Master::Summon(array('Directory', $channel['channel_id']));
-
 		change_channel($channel['channel_id']);
 
-		notice(t('Import of items and files in progress') . EOL);
+		notice(t('Content import in progress...') . EOL);
 
-		// TODO: go away to a import progress page
+		if ($api_path && $import_posts)
+			goaway(z_root() . '/import_progress');
+
 		goaway(z_root());
+
 	}
 
 	/**

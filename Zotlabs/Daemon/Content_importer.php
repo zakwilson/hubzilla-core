@@ -3,6 +3,8 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\PConfig;
+
 
 require_once('include/cli_startup.php');
 require_once('include/attach.php');
@@ -38,6 +40,8 @@ class Content_importer {
 
 		$x = z_fetch_url($hz_server . '/api/z/1.0/item/export_page?f=&since=' . urlencode($since) . '&until=' . urlencode($until) . '&page=' . $page,false,$redirects,[ 'headers' => $headers ]);
 
+		// logger('item fetch: ' . print_r($x,true));
+
 		if(! $x['success']) {
 			logger('no API response',LOGGER_DEBUG);
 			killme();
@@ -48,17 +52,23 @@ class Content_importer {
 			return;
 		}
 
-		if(! is_array($j['item']) || ! count($j['item']))
+		if(! is_array($j['item']) || ! count($j['item'])) {
 			return;
-
-		//$total_pages = floor(intval($j['items_total']) / intval($j['items_page']));
-		//logger('importing items: ' . floor((intval($page) * 100) / $total_pages) . '%');
+		}
 
 		$saved_notification_flags = notifications_off($channel['channel_id']);
 
 		import_items($channel,$j['item'],false,((array_key_exists('relocate',$j)) ? $j['relocate'] : null));
 
 		notifications_on($channel['channel_id'], $saved_notification_flags);
+
+		PConfig::Set($channel['channel_id'], 'import', 'content_progress', [
+			'items_total' => $j['items_total'],
+			'items_page' => $j['items_page'],
+			'items_current_page' => count($j['item']),
+			'last_page' => $page,
+			'next_cmd' => ['Content_importer', sprintf('%d',$page + 1), $since, $until, $channel['channel_address'], urlencode($hz_server)]
+		]);
 
 		$page++;
 

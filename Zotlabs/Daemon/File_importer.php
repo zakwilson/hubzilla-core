@@ -3,6 +3,8 @@
 namespace Zotlabs\Daemon;
 
 use Zotlabs\Web\HTTPSig;
+use Zotlabs\Lib\PConfig;
+
 
 require_once('include/cli_startup.php');
 require_once('include/attach.php');
@@ -35,7 +37,9 @@ class File_importer {
 
 		$headers = HTTPSig::create_sig($headers,$channel['channel_prvkey'],channel_url($channel),true,'sha512');
 
+		// TODO: implement total count
 		$x = z_fetch_url($hz_server . '/api/z/1.0/file/export_page?f=records=1&page=' . $page, false, $redirects, [ 'headers' => $headers ]);
+		// logger('file fetch: ' . print_r($x,true));
 
 		if(! $x['success']) {
 			logger('no API response',LOGGER_DEBUG);
@@ -44,8 +48,10 @@ class File_importer {
 
 		$j = json_decode($x['body'],true);
 
-		if(! is_array($j[0]['attach']) || ! count($j[0]['attach']))
+		if(! is_array($j[0]['attach']) || ! count($j[0]['attach'])) {
+			PConfig::Set($channel['channel_id'], 'import', 'files', 1);
 			return;
+		}
 
 		$r = sync_files($channel,$j);
 

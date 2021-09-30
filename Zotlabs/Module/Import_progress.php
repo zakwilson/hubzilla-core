@@ -58,7 +58,8 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		if (is_array($f))
 			$o .= '<pre>' . htmlspecialchars(print_array($f)) . '</pre>';
 
-		$o .= '<h3> Refresh page for updates!</h3>';
+		$o .= '<hr>';
+		$o .= '<h3>Refresh page for updates!</h3>';
 
 		return $o;
 	}

@@ -94,6 +94,14 @@ class Sse extends Controller {
 				$result = XConfig::Get(self::$ob_hash, 'sse', 'notifications', []);
 				$lock = XConfig::Get(self::$ob_hash, 'sse', 'lock');
 
+				// We do not have the local_channel in the addon.
+				// Reset pubs here if the app is not installed.
+				if (self::$uid && !Apps::system_app_installed(self::$uid, 'Public Stream')) {
+					$result['pubs']['count'] = 0;
+					$result['pubs']['notifications'] = [];
+					$result['pubs']['offset'] = -1;
+				}
+
 				if($result && !$lock) {
 					echo "event: notifications\n";
 					echo 'data: ' . json_encode($result);

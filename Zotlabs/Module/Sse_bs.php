@@ -373,7 +373,7 @@ class Sse_bs extends Controller {
 		$result['pubs']['notifications'] = [];
 		$result['pubs']['count'] = 0;
 
-		if(! (self::$vnotify & VNOTIFY_PUBS)) {
+		if(! (self::$vnotify & VNOTIFY_PUBS) || !Apps::system_app_installed(self::$uid, 'Public Stream')) {
 			$result['pubs']['offset'] = -1;
 			return $result;
 		}

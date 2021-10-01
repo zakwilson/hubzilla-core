@@ -579,8 +579,10 @@ class Import extends Controller {
 			return '';
 		}
 
+		nav_set_selected('Channel Import');
+
 		$o = replace_macros(get_markup_template('channel_import.tpl'), array(
-			'$title' => t('Import Channel'),
+			'$title' => t('Channel Import'),
 			'$desc' => t('Use this form to import an existing channel from a different server/hub. You may retrieve the channel identity from the old server/hub via the network or provide an export file.'),
 			'$label_filename' => t('File to Upload'),
 			'$choice' => t('Or provide the old server/hub details'),
@@ -588,7 +590,7 @@ class Import extends Controller {
 			'$old_address' => ['old_address', t('Your old identity address (xyz@example.com)'), '', ''],
 			'$email' => ['email', t('Your old login email address'), '', ''],
 			'$password' => ['password', t('Your old login password'), '', ''],
-			'$import_posts' => ['import_posts', t('Import a few months of posts if possible (limited by available memory'), false, '', [t('No'), t('Yes')]],
+			'$import_posts' => ['import_posts', t('Import your items and files (limited by available memory)'), false, '', [t('No'), t('Yes')]],
 
 			'$common' => t('For either option, please choose whether to make this hub your new primary address, or whether your old location should continue this role. You will be able to post from either location, but only one can be marked as the primary location for files, photos, and media.'),
 

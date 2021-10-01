@@ -171,6 +171,7 @@ class Photos extends \Zotlabs\Web\Controller {
 			}
 
 			goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
+
 		}
 
 		if((argc() > 2) && (x($_REQUEST,'delete')) && ($_REQUEST['delete'] === t('Delete Photo'))) {
@@ -500,6 +501,9 @@ class Photos extends \Zotlabs\Web\Controller {
 			notice($r['message'] . EOL);
 			goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
 		}
+
+		if(is_ajax())
+			killme();
 
 		goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address'] . '/album/' . $r['data']['folder']);
 

@@ -1,25 +1,13 @@
 $(document).ready(function() {
-
-	console.log('import_progress');
-
 	setInterval(get_progress, 5000);
 
-
 	function get_progress(){
-		console.log('get');
-
 		$.get('import_progress', function(data) {
 			update_progress(data);
 		});
 	}
 
 	function update_progress(data){
-		console.log('update');
-		console.log(data);
-		console.log(data.cprogress);
-		console.log(data.fprogress);
-
-
 		if (typeof data.cprogress == 'number') {
 			$('#cprogress-label').html(data.cprogress + '%');
 			$('#cprogress-bar').css('width', data.cprogress + '%');

@@ -49,6 +49,7 @@ class File_importer {
 		$j = json_decode($x['body'],true);
 
 		if(! is_array($j['results'][0]['attach']) || ! count($j['results'][0]['attach'])) {
+			PConfig::Set($channel['channel_id'], 'import', 'files_completed', 1);
 			return;
 		}
 

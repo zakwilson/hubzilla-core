@@ -1,7 +1,7 @@
 <div class="{{if $tiles}}section-content-wrapper{{else}}section-content-wrapper-np{{/if}}">
 	{{if $tiles}}
 	<table id="cloud-index">
-		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
+		<tr id="new-upload-progress-bar-0"></tr> {{* this is needed to append the upload files in the right order *}}
 	</table>
 	<div class="row row-cols-2 row-cols-md-4">
 		{{if $parentpath}}
@@ -136,7 +136,7 @@
 			</td>
 		</tr>
 		{{/if}}
-		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
+		<tr id="new-upload-progress-bar-0"></tr> {{* this is needed to append the upload files in the right order *}}
 		{{foreach $entries as $item}}
 		<tr id="cloud-index-{{$item.attach_id}}" class="cloud-index{{if $item.collection}} attach-drop{{/if}}"{{if $item.collection}} data-folder="{{$item.resource}}"{{/if}} data-id="{{$item.attach_id}}" draggable="true">
 			<td>

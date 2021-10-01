@@ -17,10 +17,10 @@
 	<div class="progress mb-2">
 		<div id="cprogress-bar" class="progress-bar progress-bar-striped bg-warning{{if $cprogress < 100}} progress-bar-animated{{/if}}" role="progressbar" style="width: {{$cprogress}}%" aria-valuenow="{{$cprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
 	</div>
-	<div id="cprogress-resume" class="">
+	<div id="cprogress-resume" class="{{if $cprogress == 100}}d-none{{/if}}">
 		<a href="/import_progress/resume_itemsync">[ RESUME ]</a> <span class="text-muted">Only resume if sync stalled!</span>
 	</div>
-	<div id="cprogress-complete" class="d-none">
+	<div id="cprogress-complete" class="{{if $cprogress < 100}}d-none{{/if}}">
 		<span class="text-muted">Item sync completed!</span>
 	</div>
 </div>

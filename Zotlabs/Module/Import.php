@@ -545,8 +545,6 @@ class Import extends Controller {
 
 		change_channel($channel['channel_id']);
 
-		notice(t('Content import in progress...') . EOL);
-
 		if ($api_path && $import_posts)
 			goaway(z_root() . '/import_progress');
 

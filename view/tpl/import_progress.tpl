@@ -15,10 +15,10 @@
 
 <div id="cprogress">
 	<div class="progress mb-2">
-		<div id="cprogress-bar" class="progress-bar progress-bar-striped bg-warning{{if $fprogress < 100}} progress-bar-animated{{/if}}" role="progressbar" style="width: {{$cprogress}}%" aria-valuenow="{{$cprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
+		<div id="cprogress-bar" class="progress-bar progress-bar-striped bg-warning{{if $cprogress < 100}} progress-bar-animated{{/if}}" role="progressbar" style="width: {{$cprogress}}%" aria-valuenow="{{$cprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
 	</div>
 	<div id="cprogress-resume" class="">
-		<a href="/import_progress/restart_itemsync">[ RESUME ]</a> <span class="text-muted">Only resume if sync stalled!</span>
+		<a href="/import_progress/resume_itemsync">[ RESUME ]</a> <span class="text-muted">Only resume if sync stalled!</span>
 	</div>
 	<div id="cprogress-complete" class="d-none">
 		<span class="text-muted">Item sync completed!</span>
@@ -34,7 +34,7 @@
 		<div id="fprogress-bar" class="progress-bar progress-bar-striped bg-info{{if $fprogress < 100}} progress-bar-animated{{/if}}" role="progressbar" style="width: {{$fprogress}}%" aria-valuenow="{{$fprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
 	</div>
 	<div id="fprogress-resume" class="{{if $fprogress == 100}}d-none{{/if}}">
-		<a href="/import_progress/restart_filesync">[ RESUME ]</a> <span class="text-muted">Only resume if sync stalled!</span>
+		<a href="/import_progress/resume_filesync">[ RESUME ]</a> <span class="text-muted">Only resume if sync stalled!</span>
 	</div>
 	<div id="fprogress-complete" class="{{if $fprogress < 100}}d-none{{/if}}">
 		<span class="text-muted">File sync completed!</span>

@@ -29,11 +29,6 @@ class Import_progress extends \Zotlabs\Web\Controller {
 		}
 		else {
 
-			if(argv(1) === 'restart_itemsync') {
-				Master::Summon($c['next_cmd']);
-				goaway('/import_progress');
-			}
-
 			$total_cpages = floor(intval($c['items_total']) / intval($c['items_page']));
 			if(!$total_cpages) {
 				$total_cpages = 1; // because of floor
@@ -43,7 +38,10 @@ class Import_progress extends \Zotlabs\Web\Controller {
 
 			$cprogress = intval(floor((intval($cpage) * 100) / $total_cpages));
 
-
+			if(argv(1) === 'resume_itemsync' && $cprogress < 100) {
+				Master::Summon($c['next_cmd']);
+				goaway('/import_progress');
+			}
 		}
 
 		$cprogress_str = ((intval($cprogress)) ? $cprogress . '%' : $cprogress);
@@ -55,12 +53,6 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			$fprogress = 'waiting to start...';
 		}
 		else {
-
-			if(argv(1) === 'restart_filesync') {
-				Master::Summon($f['next_cmd']);
-				goaway('/import_progress');
-			}
-
 			$total_fpages = floor(intval($f['files_total']) / intval($f['files_page']));
 			if(!$total_fpages) {
 				$total_fpages = 1;
@@ -69,6 +61,11 @@ class Import_progress extends \Zotlabs\Web\Controller {
 			$fpage = $f['last_page'] + 1;
 
 			$fprogress = intval(floor((intval($fpage) * 100) / $total_fpages));
+
+			if(argv(1) === 'resume_filesync' && $fprogress < 100) {
+				Master::Summon($f['next_cmd']);
+				goaway('/import_progress');
+			}
 
 		}
 

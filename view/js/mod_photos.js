@@ -82,7 +82,7 @@ function UploadInit() {
 
 			// Dynamically update the percentage complete displayed in the file upload list
 			$('#upload-progress-' + id).html(Math.round(data.loaded / data.total * 100) + '%');
-			$('#upload-progress-bar-' + id).css('background-size', Math.round(data.loaded / data.total * 100) + '%');
+			$('#upload-progress-bar-' + id).css('width', Math.round(data.loaded / data.total * 100) + '%');
 		},
 
 		stop: function(e,data) {
@@ -97,6 +97,7 @@ function UploadInit() {
 
 }
 
+
 function prepareHtml(f) {
 	var num = f.idx - 1;
 	var i = f.idx;
@@ -109,7 +110,11 @@ function prepareHtml(f) {
 		'<td class="d-none d-md-table-cell">' + formatSizeUnits(f.size) + '</td><td class="d-none d-md-table-cell"></td>' +
 		'</tr>' +
 		'<tr id="new-upload-progress-bar-' + i + '" class="new-upload">' +
-		'<td id="upload-progress-bar-' + i + '" colspan="9" class="upload-progress-bar"></td>' +
+		'<td colspan="8" class="upload-progress-bar">' +
+		'<div class="progress" style="height: 1px;">' +
+		'<div id="upload-progress-bar-' + i + '" class="progress-bar bg-info" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>' +
+		'</div>' +
+		'</td>' +
 		'</tr>'
 	);
 }

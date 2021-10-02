@@ -1,7 +1,7 @@
 # Select image from https://hub.docker.com/_/php/
-image: php:7.3
+#image: php:7.3
 # Use a prepared Hubzilla image to optimise pipeline duration
-#image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
 
 stages:
   - test
@@ -123,7 +123,7 @@ php7.3_postgres11:
 # PHP7.3 with PostgreSQL latest (11)
 php7.3_postgres11:
   <<: *job_definition_postgres
-  image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+  image: php:7.3
   artifacts: *artifacts_template
 
 

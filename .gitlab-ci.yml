@@ -115,16 +115,16 @@ php7.3_mariadb10.3:
 
 
 # PHP7.3 with PostgreSQL latest (11)
-php7.3_postgres11:
-  <<: *job_definition_postgres
-  artifacts: *artifacts_template
+# php7.3_postgres11:
+#   <<: *job_definition_postgres
+#   artifacts: *artifacts_template
 
 
 # PHP7.3 with PostgreSQL latest (11)
-php7.3_postgres11:
-  <<: *job_definition_postgres
-  image: php:7.3
-  artifacts: *artifacts_template
+# php7.3_postgres11:
+#   <<: *job_definition_postgres
+#   image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+#   artifacts: *artifacts_template
 
 
 # Generate Doxygen API Documentation and deploy it as GitLab pages

@@ -40,7 +40,7 @@ class Import extends Controller {
 		$data = null;
 		$seize = ((x($_REQUEST, 'make_primary')) ? intval($_REQUEST['make_primary']) : 0);
 		$import_posts = ((x($_REQUEST, 'import_posts')) ? intval($_REQUEST['import_posts']) : 0);
-		$moving = intval($_REQUEST['moving']);
+		$moving = false; //intval($_REQUEST['moving']);
 		$src = $_FILES['filename']['tmp_name'];
 		$filename = basename($_FILES['filename']['name']);
 		$filesize = intval($_FILES['filename']['size']);
@@ -158,7 +158,7 @@ class Import extends Controller {
 			$max_identities = account_service_class_fetch($account_id, 'total_identities');
 
 			if ($max_identities !== false) {
-				$r = q("select channel_id from channel where channel_account_id = %d",
+				$r = q("select channel_id from channel where channel_account_id = %d and channel_removed = 0",
 					intval($account_id)
 				);
 				if ($r && count($r) > $max_identities) {

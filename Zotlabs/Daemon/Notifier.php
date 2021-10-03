@@ -170,7 +170,7 @@ class Notifier {
 		elseif ($cmd === 'refresh_all') {
 			logger('notifier: refresh_all: ' . $item_id);
 
-			self::$channel = channelx_by_n($item_id);
+			self::$channel = channelx_by_n($item_id, true);
 
 			$r = q("select abook_xchan from abook where abook_channel = %d",
 				intval($item_id)

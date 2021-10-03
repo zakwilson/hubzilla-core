@@ -704,6 +704,15 @@ class Libsync {
 
 		$ret = [];
 
+		// If a sender reports that the channel has been deleted, delete its hubloc
+		if (isset($arr['deleted_locally']) && intval($arr['deleted_locally'])) {
+			q("UPDATE hubloc SET hubloc_deleted = 1, hubloc_updated = '%s' WHERE hubloc_hash = '%s' AND hubloc_url = '%s'",
+				dbesc(datetime_convert()),
+				dbesc($sender['hash']),
+				dbesc($sender['site']['url'])
+			);
+		}
+
 		if ($arr['locations']) {
 
 			if ($absolute)
@@ -861,6 +870,7 @@ class Libsync {
 						$what    .= 'delete_hub ';
 						$changed = true;
 					}
+
 					continue;
 				}
 

@@ -310,7 +310,6 @@ class Libzot {
 			return false;
 		}
 
-
 		logger('zot-info: ' . print_r($record, true), LOGGER_DATA, LOG_DEBUG);
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
@@ -616,7 +615,6 @@ class Libzot {
 	 */
 
 	static function import_xchan($arr, $ud_flags = UPDATE_FLAGS_UPDATED, $ud_arr = null) {
-
 		/**
 		 * @hooks import_xchan
 		 *   Called when processing the result of zot_finger() to store the result
@@ -666,6 +664,7 @@ class Libzot {
 			$arr['connect_url'] = '';
 
 		if ($r) {
+
 			if ($arr['photo'] && array_key_exists('updated', $arr['photo']) && $arr['photo']['updated'] > $r[0]['xchan_photo_date'])
 				$import_photos = true;
 
@@ -2880,8 +2879,9 @@ class Libzot {
 		if ($deleted)
 			$ret['deleted'] = $deleted;
 
-		if (intval($e['channel_removed']))
+		if (intval($e['channel_removed'])) {
 			$ret['deleted_locally'] = true;
+		}
 
 		// premium or other channel desiring some contact with potential followers before connecting.
 		// This is a template - %s will be replaced with the follow_url we discover for the return channel.

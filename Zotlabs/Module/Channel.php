@@ -60,7 +60,7 @@ class Channel extends Controller {
 			dbesc($which)
 		);
 
-		$channel = $r[0];
+		$channel = channelx_by_nick($which, true);
 
 		if (!$channel) {
 			http_status_exit(404, 'Not found');

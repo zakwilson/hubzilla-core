@@ -2455,23 +2455,23 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
  *   - array with channel entry
  *   - false if no channel with $nick was found
  */
-function channelx_by_nick($nick) {
+function channelx_by_nick($nick, $removed = false) {
 
 	// If we are provided a Unicode nickname convert to IDN
 
 	$nick = punify($nick);
 
-	// return a cached copy if there is a cached copy and it's a match
+	$sql_extra = ' AND channel_removed = 0 ';
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_address',App::$channel) && App::$channel['channel_address'] === $nick) {
-		return App::$channel;
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' $sql_extra LIMIT 1",
 		dbesc($nick)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -2480,17 +2480,19 @@ function channelx_by_nick($nick) {
  * @param string $hash
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_hash($hash) {
+function channelx_by_hash($hash, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_hash',App::$channel) && App::$channel['channel_hash'] === $hash) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' $sql_extra LIMIT 1",
 		dbesc($hash)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 
@@ -2500,17 +2502,19 @@ function channelx_by_hash($hash) {
  * @param string $hash
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_portid($hash) {
+function channelx_by_portid($hash, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_portable_id',App::$channel) && intval(App::$channel['channel_portable_id']) === intval($hash)) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' $sql_extra LIMIT 1",
 		dbesc($hash)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -2519,17 +2523,19 @@ function channelx_by_portid($hash) {
  * @param int $id A channel ID
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_n($id) {
+function channelx_by_n($id, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_id',App::$channel) && intval(App::$channel['channel_id']) === intval($id)) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d $sql_extra = 0 LIMIT 1",
 		intval($id)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**

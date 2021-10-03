@@ -272,6 +272,9 @@ function mark_orphan_hubsxchans() {
 
 function remove_all_xchan_resources($xchan, $channel_id = 0) {
 
+	if(!$xchan)
+		return;
+
 	if(intval($channel_id)) {
 
 

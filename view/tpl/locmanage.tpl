@@ -1,13 +1,5 @@
 <div class="generic-content-wrapper">
 	<div class="section-title-wrapper">
-		<script>
-			function primehub(id) {
-				$.post(baseurl + '/locs','primary='+id,function(data) { window.location.href=window.location.href; });
-			}
-			function drophub(id) {
-				$.post(baseurl + '/locs','drop='+id,function(data) { window.location.href=window.location.href; });
-			}
-		</script>
 		<button class="btn btn-success btn-sm float-end" onclick="window.location.href='/locs/f=&sync=1'; return false;"><i class="fa fa-refresh"></i>&nbsp;{{$sync}}</button>
 		<h2>{{$header}}</h2>
 	</div>
@@ -43,3 +35,11 @@
 		</table>
 	</div>
 </div>
+<script>
+	function primehub(id) {
+		$.post(baseurl + '/locs','primary='+id,function(data) { window.location.href=window.location.href; });
+	}
+	function drophub(id) {
+		$.post(baseurl + '/locs','drop='+id,function(data) { window.location.href=window.location.href; });
+	}
+</script>

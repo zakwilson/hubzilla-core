@@ -195,7 +195,7 @@ class Queue {
 			$channel = null;
 
 			if($outq['outq_channel']) {
-				$channel = channelx_by_n($outq['outq_channel']);
+				$channel = channelx_by_n($outq['outq_channel'], true);
 			}
 
 			$host_crypto = null;

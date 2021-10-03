@@ -49,8 +49,9 @@ class Directory {
 			);
 
 			// Now update all the connections
-			if ($pushall)
+			if ($pushall) {
 				Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
+			}
 
 			return;
 		}
@@ -93,8 +94,8 @@ class Directory {
 		}
 
 		// Now update all the connections
-		if ($pushall)
+		if ($pushall) {
 			Master::Summon(array('Notifier', 'refresh_all', $channel['channel_id']));
-
+		}
 	}
 }

@@ -95,7 +95,6 @@ class Notifier {
 			return;
 		}
 
-
 		self::$deliveries   = [];
 		self::$recipients   = [];
 		self::$env_recips   = [];
@@ -180,6 +179,11 @@ class Notifier {
 					self::$recipients[] = $rr['abook_xchan'];
 				}
 			}
+
+			// In case we deleted the channel, our abook entry has already vanished.
+			// In order to be able to update our clones we need to add ourself here.
+			self::$recipients[] = self::$channel['channel_hash'];
+
 			self::$private     = false;
 			self::$packet_type = 'refresh';
 		}
@@ -190,14 +194,14 @@ class Notifier {
 				return;
 			}
 
-			self::$channel     = channelx_by_n($item_id);
+			self::$channel     = channelx_by_n($item_id, true);
 			self::$recipients  = [$xchan];
 			self::$private     = true;
 			self::$packet_type = 'purge';
 		}
 		elseif ($cmd === 'purge_all') {
 			logger('notifier: purge_all: ' . $item_id);
-			self::$channel     = channelx_by_n($item_id);
+			self::$channel     = channelx_by_n($item_id, true);
 			self::$recipients  = [];
 			self::$private     = false;
 			self::$packet_type = 'purge';
@@ -442,7 +446,6 @@ class Notifier {
 				}
 			}
 		}
-
 
 		$narr = [
 			'channel'        => self::$channel,

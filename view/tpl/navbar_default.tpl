@@ -201,10 +201,10 @@
 		{{/foreach}}
 		{{/if}}
 		{{if $navbar_apps.0}}
+		<div class="d-lg-none dropdown-header text-uppercase">
+			{{$pinned_apps}}
+		</div>
 		<div id="nav-app-bin-container" class="d-lg-none">
-			<div class="dropdown-header text-uppercase">
-				{{$pinned_apps}}
-			</div>
 			{{foreach $navbar_apps as $navbar_app}}
 				{{$navbar_app|replace:'navbar-app nav-link':'dropdown-item nav-app-sortable'|replace:'fa':'generic-icons-nav fa'}}
 			{{/foreach}}

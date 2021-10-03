@@ -19,12 +19,12 @@ class Channel_purge {
 		}
 
 		do {
-			$r = q("select id from item where uid = %d and item_deleted = 0 limit 100",
+			$r = q("select id from item where uid = %d and item_deleted = 0 limit 1000",
 				intval($channel_id)
 			);
 			if ($r) {
 				foreach ($r as $rv) {
-					drop_item($rv['id'],false);
+					drop_item($rv['id'], false);
 				}
 			}
 		} while ($r);

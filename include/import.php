@@ -541,7 +541,7 @@ function import_sysapps($channel, $apps) {
 
 	if ($channel && $apps) {
 
-		$sysapps = Apps::get_system_apps(false, true);
+		$sysapps = Apps::get_system_apps(false);
 
 		foreach ($apps as $app) {
 
@@ -549,34 +549,32 @@ function import_sysapps($channel, $apps) {
 				continue;
 			}
 
+			if (array_key_exists('app_deleted',$app) && (intval($app['app_deleted']))) {
+				continue;
+			}
+
 			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
 
 			foreach ($sysapps as $sysapp) {
-				if (array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
-					q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
-						dbesc($app['app_id']),
-						intval($channel['channel_id'])
-					);
-				}
-				else {
+				if ($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
 					// install this app on this server
 					$newapp = $sysapp;
 					$newapp['uid'] = $channel['channel_id'];
-					$newapp['guid'] = hash('whirlpool', $newapp['name']);
+					$newapp['guid'] = hash('whirlpool',$newapp['name']);
 
 					$installed = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 						dbesc($newapp['guid']),
 						intval($channel['channel_id'])
 					);
 					if ($installed) {
-						continue;
+						break;
 					}
 
 					$newapp['system'] = 1;
 					if ($term) {
-						$newapp['categories'] = array_elm_to_str($term, 'term');
+						$newapp['categories'] = array_elm_to_str($term,'term');
 					}
-					Apps::app_install($channel['channel_id'], $newapp);
+					Apps::app_install($channel['channel_id'],$newapp);
 				}
 			}
 		}
@@ -608,6 +606,7 @@ function sync_sysapps($channel, $apps) {
 			}
 
 			foreach ($sysapps as $sysapp) {
+
 				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
 					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
 						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
@@ -620,15 +619,6 @@ function sync_sysapps($channel, $apps) {
 						$newapp = $sysapp;
 						$newapp['uid'] = $channel['channel_id'];
 						$newapp['guid'] = hash('whirlpool', $newapp['name']);
-
-						$installed = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
-							dbesc($newapp['guid']),
-							intval($channel['channel_id'])
-						);
-						if ($installed) {
-							continue;
-						}
-
 						$newapp['system'] = 1;
 						if ($term) {
 							$newapp['categories'] = array_elm_to_str($term, 'term');
@@ -640,6 +630,8 @@ function sync_sysapps($channel, $apps) {
 		}
 	}
 }
+
+
 
 
 /**

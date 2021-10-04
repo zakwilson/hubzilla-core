@@ -646,10 +646,10 @@ class Apps {
 						);
 					}
 					if (intval($r[0]['app_system'])) {
-						Libsync::build_sync_packet($uid, ['sysapp' => $r[0]]);
+						Libsync::build_sync_packet($uid, ['sysapp' => $r]);
 					}
 					else {
-						Libsync::build_sync_packet($uid, ['app' => $r[0]]);
+						Libsync::build_sync_packet($uid, ['app' => $r]);
 					}
 				}
 			}
@@ -714,8 +714,12 @@ class Apps {
 							intval($uid)
 						);
 					}
-					if(! intval($x[0]['app_system'])) {
-						Libsync::build_sync_packet($uid,array('app' => $x));
+
+					if (intval($x[0]['app_system'])) {
+						Libsync::build_sync_packet($uid, ['sysapp' => $x]);
+					}
+					else {
+						Libsync::build_sync_packet($uid, ['app' => $x]);
 					}
 				}
 				else {

@@ -590,7 +590,7 @@ function import_sysapps($channel, $apps) {
  */
 function sync_sysapps($channel, $apps) {
 
-	$sysapps = Apps::get_system_apps(false);
+	$sysapps = Apps::get_system_apps(false, true);
 
 	if ($channel && $apps) {
 
@@ -606,7 +606,8 @@ function sync_sysapps($channel, $apps) {
 			}
 
 			foreach ($sysapps as $sysapp) {
-				if ($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+
+				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
 					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
 						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
 							dbesc($app['app_id']),
@@ -617,13 +618,12 @@ function sync_sysapps($channel, $apps) {
 						// install this app on this server
 						$newapp = $sysapp;
 						$newapp['uid'] = $channel['channel_id'];
-						$newapp['guid'] = hash('whirlpool',$newapp['name']);
-
+						$newapp['guid'] = hash('whirlpool', $newapp['name']);
 						$newapp['system'] = 1;
 						if ($term) {
-							$newapp['categories'] = array_elm_to_str($term,'term');
+							$newapp['categories'] = array_elm_to_str($term, 'term');
 						}
-						Apps::app_install($channel['channel_id'],$newapp);
+						Apps::app_install($channel['channel_id'], $newapp);
 					}
 				}
 			}

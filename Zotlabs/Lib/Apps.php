@@ -22,9 +22,10 @@ class Apps {
 	 * @brief
 	 *
 	 * @param boolean $translate (optional) default true
+	 * @param boolean $sync (optional) default false used if called from sync_sysapps()
 	 * @return array
 	 */
-	static public function get_system_apps($translate = true) {
+	static public function get_system_apps($translate = true, $sync = false) {
 		$ret = [];
 
 		if(is_dir('apps'))
@@ -34,7 +35,7 @@ class Apps {
 
 		if($files) {
 			foreach($files as $f) {
-				$x = self::parse_app_description($f,$translate);
+				$x = self::parse_app_description($f, $translate, $sync);
 				if($x) {
 					$ret[] = $x;
 				}
@@ -46,7 +47,7 @@ class Apps {
 				$path = explode('/',$f);
 				$plugin = trim($path[1]);
 				if(plugin_is_installed($plugin)) {
-					$x = self::parse_app_description($f,$translate);
+					$x = self::parse_app_description($f, $translate, $sync);
 					if($x) {
 						$x['plugin'] = $plugin;
 						$ret[] = $x;
@@ -212,7 +213,7 @@ class Apps {
 	 * @param boolean $translate (optional) default true
 	 * @return boolean|array
 	 */
-	static public function parse_app_description($f, $translate = true) {
+	static public function parse_app_description($f, $translate = true, $sync = false) {
 		$ret = [];
 		$matches = [];
 
@@ -258,7 +259,7 @@ class Apps {
 		if(array_key_exists('categories',$ret))
 			$ret['categories'] = str_replace(array('\'','"'),array('&#39;','&dquot;'),$ret['categories']);
 
-		if(array_key_exists('requires',$ret)) {
+		if(array_key_exists('requires',$ret) && !$sync) {
 			$requires = explode(',',$ret['requires']);
 			foreach($requires as $require) {
 				$require = trim(strtolower($require));
@@ -310,14 +311,16 @@ class Apps {
 				}
 			}
 		}
-		if(isset($ret)) {
-			if($translate)
-				self::translate_system_apps($ret);
 
-			return $ret;
+		if(empty($ret)) {
+			return false;
 		}
 
-		return false;
+		if($translate) {
+			self::translate_system_apps($ret);
+		}
+
+		return $ret;
 	}
 
 

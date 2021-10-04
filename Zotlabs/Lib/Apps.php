@@ -678,6 +678,7 @@ class Apps {
 				}
 			}
 		}
+
 		return true;
 	}
 

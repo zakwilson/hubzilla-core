@@ -742,13 +742,13 @@ class Apps {
 				dbesc($app['guid']),
 				intval($uid)
 			);
-			if($x) {
-				if($x[0]['app_system']) {
-					q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
-						dbesc($app['guid']),
-						intval($uid)
-					);
-				}
+			if($x && intval($x[0]['app_deleted']) && $x[0]['app_system']) {
+				q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
+				$x[0]['app_deleted'] = 0;
+				Libsync::build_sync_packet($uid, ['sysapp' => $x]);
 			}
 		}
 	}

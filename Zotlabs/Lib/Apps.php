@@ -715,6 +715,9 @@ class Apps {
 						);
 					}
 
+					// unset the id before sync
+					unset($x[0]['id']);
+
 					if (intval($x[0]['app_system'])) {
 						Libsync::build_sync_packet($uid, ['sysapp' => $x]);
 					}

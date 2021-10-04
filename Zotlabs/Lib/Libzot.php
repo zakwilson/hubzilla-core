@@ -266,7 +266,7 @@ class Libzot {
 					dbesc($them['xchan_addr'])
 				);
 			}
-			if (!$r && array_key_exists('xchan_hash', $them) && $them['xchan_hash') {
+			if (!$r && array_key_exists('xchan_hash', $them) && $them['xchan_hash']) {
 				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_hash = '%s' order by hubloc_id desc",
 					dbesc($them['xchan_hash'])
 				);

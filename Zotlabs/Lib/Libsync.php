@@ -255,8 +255,8 @@ class Libsync {
 			if (array_key_exists('chatroom', $arr) && $arr['chatroom'])
 				sync_chatrooms($channel, $arr['chatroom']);
 
-			if (array_key_exists('mail', $arr) && $arr['mail'])
-				sync_mail($channel, $arr['mail']);
+			//if (array_key_exists('mail', $arr) && $arr['mail'])
+			//	sync_mail($channel, $arr['mail']);
 
 			if (array_key_exists('event', $arr) && $arr['event'])
 				sync_events($channel, $arr['event']);
@@ -270,8 +270,8 @@ class Libsync {
 			// deprecated, maintaining for a few months for upward compatibility
 			// this should sync webpages, but the logic is a bit subtle
 
-			if (array_key_exists('item_id', $arr) && $arr['item_id'])
-				sync_items($channel, $arr['item_id']);
+			//if (array_key_exists('item_id', $arr) && $arr['item_id'])
+			//	sync_items($channel, $arr['item_id']);
 
 			if (array_key_exists('menu', $arr) && $arr['menu'])
 				sync_menus($channel, $arr['menu']);

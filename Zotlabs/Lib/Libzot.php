@@ -266,7 +266,7 @@ class Libzot {
 					dbesc($them['xchan_addr'])
 				);
 			}
-			if (!$r) {
+			if (!$r && array_key_exists('xchan_hash', $them) && $them['xchan_hash') {
 				$r = q("select hubloc_id_url, hubloc_primary from hubloc where hubloc_hash = '%s' order by hubloc_id desc",
 					dbesc($them['xchan_hash'])
 				);
@@ -275,8 +275,8 @@ class Libzot {
 			if ($r) {
 				foreach ($r as $rr) {
 					if (intval($rr['hubloc_primary'])) {
-						$url    = $rr['hubloc_id_url'];
-						$record = $rr;
+						$url = $rr['hubloc_id_url'];
+						break;
 					}
 				}
 				if (!$url) {
@@ -284,13 +284,17 @@ class Libzot {
 				}
 			}
 		}
+
 		if (!$url) {
 			logger('zot_refresh: no url');
 			return false;
 		}
 
+		$m = parse_url($url);
+		$site_url = unparse_url([ 'scheme' => $m['scheme'], 'host' => $m['host'] ]);
+
 		$s = q("select site_dead from site where site_url = '%s' limit 1",
-			dbesc($url)
+			dbesc($site_url)
 		);
 
 		if ($s && intval($s[0]['site_dead']) && (!$force)) {
@@ -299,11 +303,12 @@ class Libzot {
 		}
 
 		$record = Zotfinger::exec($url, $channel);
-		// Check the HTTP signature
 
+		// Check the HTTP signature
 		$hsig = $record['signature'];
-		if ($hsig && $hsig['signer'] === $url && $hsig['header_valid'] === true && $hsig['content_valid'] === true)
+		if ($hsig && $hsig['signer'] === $url && $hsig['header_valid'] === true && $hsig['content_valid'] === true) {
 			$hsig_valid = true;
+		}
 
 		if (!$hsig_valid) {
 			logger('http signature not valid: ' . print_r($hsig, true));
@@ -314,9 +319,9 @@ class Libzot {
 
 		$x = self::import_xchan($record['data'], (($force) ? UPDATE_FLAGS_FORCED : UPDATE_FLAGS_UPDATED));
 
-
-		if (!$x['success'])
+		if (!$x['success']) {
 			return false;
+		}
 
 		if ($channel && $record['data']['permissions']) {
 			$permissions = explode(',', $record['data']['permissions']);
@@ -356,8 +361,9 @@ class Libzot {
 				// we have as we may have updated the year after sending a notification; and resetting
 				// to the one we just received would cause us to create duplicated events.
 
-				if (substr($r[0]['abook_dob'], 5) == substr($next_birthday, 5))
+				if (substr($r[0]['abook_dob'], 5) == substr($next_birthday, 5)) {
 					$next_birthday = $r[0]['abook_dob'];
+				}
 
 				$y = q("update abook set abook_dob = '%s'
 					where abook_xchan = '%s' and abook_channel = %d
@@ -367,17 +373,19 @@ class Libzot {
 					intval($channel['channel_id'])
 				);
 
-				if (!$y)
+				if (!$y) {
 					logger('abook update failed');
+				}
 				else {
 					// if we were just granted read stream permission and didn't have it before, try to pull in some posts
-					if ((!$old_read_stream_perm) && (intval($permissions['view_stream'])))
+					if (!$old_read_stream_perm && intval($permissions['view_stream'])) {
 						Master::Summon(['Onepoll', $r[0]['abook_id']]);
+					}
 				}
 			}
 			else {
 
-				$p        = Permissions::connect_perms($channel['channel_id']);
+				$p = Permissions::connect_perms($channel['channel_id']);
 				$my_perms = $p['perms'];
 
 				$automatic = $p['automatic'];
@@ -418,8 +426,10 @@ class Libzot {
 					);
 
 					if ($new_connection) {
-						if (!Permissions::PermsCompare($new_perms, $previous_perms))
+						if (!Permissions::PermsCompare($new_perms, $previous_perms)) {
 							Master::Summon(['Notifier', 'permission_create', $new_connection[0]['abook_id']]);
+						}
+
 						Enotify::submit(
 							[
 								'type'       => NOTIFY_INTRO,
@@ -431,39 +441,46 @@ class Libzot {
 
 						if (intval($permissions['view_stream'])) {
 							if (intval(get_pconfig($channel['channel_id'], 'perm_limits', 'send_stream') & PERMS_PENDING)
-								|| (!intval($new_connection[0]['abook_pending'])))
+								|| (!intval($new_connection[0]['abook_pending']))) {
 								Master::Summon(['Onepoll', $new_connection[0]['abook_id']]);
+							}
 						}
 
-
 						// If there is a default group for this channel, add this connection to it
-						// for pending connections this will happens at acceptance time.
+						// for pending connections this will happen at acceptance time.
 
 						if (!intval($new_connection[0]['abook_pending'])) {
 							$default_group = $channel['channel_default_group'];
+
 							if ($default_group) {
 								$g = Group::rec_byhash($channel['channel_id'], $default_group);
-								if ($g)
+
+								if ($g) {
 									Group::member_add($channel['channel_id'], '', $x['hash'], $g['id']);
+								}
 							}
 						}
 
 						unset($new_connection[0]['abook_id']);
 						unset($new_connection[0]['abook_account']);
 						unset($new_connection[0]['abook_channel']);
+
 						$abconfig = load_abconfig($channel['channel_id'], $new_connection['abook_xchan']);
-						if ($abconfig)
+
+						if ($abconfig) {
 							$new_connection['abconfig'] = $abconfig;
+						}
 
 						Libsync::build_sync_packet($channel['channel_id'], ['abook' => $new_connection]);
+
 					}
 				}
-
 			}
 			return true;
 		}
 		return false;
 	}
+
 
 	/**
 	 * @brief Look up if channel is known and previously verified.
@@ -478,6 +495,7 @@ class Libzot {
 	 *  * \e string \b id_sig => id signed with conversant's private key
 	 *  * \e string \b location => URL of the origination hub of this communication
 	 *  * \e string \b location_sig => URL signed with conversant's private key
+	 *  * \e string \b site_id => URL signed with conversant's private key
 	 * @param boolean $multiple (optional) default false
 	 *
 	 * @return array|null
@@ -487,7 +505,7 @@ class Libzot {
 
 	static function gethub($arr, $multiple = false) {
 
-		if ($arr['id'] && $arr['id_sig'] && $arr['location'] && $arr['location_sig']) {
+		if ($arr['id'] && $arr['id_sig'] && $arr['location'] && $arr['location_sig'] && $arr['site_id']) {
 
 			if (!check_siteallowed($arr['location'])) {
 				logger('blacklisted site: ' . $arr['location']);
@@ -511,9 +529,9 @@ class Libzot {
 				logger('Found', LOGGER_DEBUG);
 				return (($multiple) ? $r : $r[0]);
 			}
+			logger('Not found: ' . print_r($arr, true), LOGGER_DEBUG);
 		}
-		logger('Not found: ' . print_r($arr, true), LOGGER_DEBUG);
-
+		logger('Incomplete array: ' . print_r($arr, true), LOGGER_DEBUG);
 		return false;
 	}
 

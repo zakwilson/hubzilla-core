@@ -541,7 +541,7 @@ function import_sysapps($channel, $apps) {
 
 	if ($channel && $apps) {
 
-		$sysapps = Apps::get_system_apps(false);
+		$sysapps = Apps::get_system_apps(false, true);
 
 		foreach ($apps as $app) {
 

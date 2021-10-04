@@ -635,13 +635,18 @@ class Apps {
 				intval($uid)
 			);
 			if($r) {
-				if(($app['uid']) && (! $r[0]['app_system'])) {
+				if($app['uid']) {
 					if($app['categories'] && (! $app['term'])) {
 						$r[0]['term'] = q("select * from term where otype = %d and oid = %d",
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);
-						Libsync::build_sync_packet($uid,array('app' => $r[0]));
+					}
+					if (intval($r[0]['app_system'])) {
+						Libsync::build_sync_packet($uid, ['sysapp' => $r[0]]);
+					}
+					else {
+						Libsync::build_sync_packet($uid, ['app' => $r[0]]);
 					}
 				}
 			}

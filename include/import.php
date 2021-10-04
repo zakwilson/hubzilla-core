@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Libzot;
 
@@ -525,7 +526,6 @@ function sync_apps($channel, $apps) {
 }
 
 
-
 /**
  * @brief Import system apps.
  * System apps from the original server may not exist on this system
@@ -539,19 +539,24 @@ function sync_apps($channel, $apps) {
  */
 function import_sysapps($channel, $apps) {
 
-	if($channel && $apps) {
+	if ($channel && $apps) {
 
-		$sysapps = \Zotlabs\Lib\Apps::get_system_apps(false);
+		$sysapps = Apps::get_system_apps(false);
 
-		foreach($apps as $app) {
+		foreach ($apps as $app) {
 
-			if(array_key_exists('app_system',$app) && (! intval($app['app_system'])))
+			if (array_key_exists('app_system',$app) && (! intval($app['app_system']))) {
 				continue;
+			}
+
+			if (array_key_exists('app_deleted',$app) && (intval($app['app_deleted']))) {
+				continue;
+			}
 
 			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
 
-			foreach($sysapps as $sysapp) {
-				if($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+			foreach ($sysapps as $sysapp) {
+				if ($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
 					// install this app on this server
 					$newapp = $sysapp;
 					$newapp['uid'] = $channel['channel_id'];
@@ -561,27 +566,21 @@ function import_sysapps($channel, $apps) {
 						dbesc($newapp['guid']),
 						intval($channel['channel_id'])
 					);
-					if($installed) {
+					if ($installed) {
 						break;
 					}
 
 					$newapp['system'] = 1;
-					if($term) {
-						$s = EMPTY_STR;
-						foreach($term as $t) {
-							if($s) {
-								$s .= ',';
-							}
-							$s .= $t['term'];
-						}
-						$newapp['categories'] = $s;
+					if ($term) {
+						$newapp['categories'] = array_elm_to_str($term,'term');
 					}
-					\Zotlabs\Lib\Apps::app_install($channel['channel_id'],$newapp);
+					Apps::app_install($channel['channel_id'],$newapp);
 				}
 			}
 		}
 	}
 }
+
 
 /**
  * @brief Sync system apps.
@@ -591,13 +590,46 @@ function import_sysapps($channel, $apps) {
  */
 function sync_sysapps($channel, $apps) {
 
-	if($channel && $apps) {
+	$sysapps = Apps::get_system_apps(false);
 
-		// we do not currently sync system apps
+	if ($channel && $apps) {
 
+		$columns = db_columns('app');
+
+		foreach ($apps as $app) {
+
+			$exists = false;
+			$term = ((array_key_exists('term',$app)) ? $app['term'] : null);
+
+			if (array_key_exists('app_system',$app) && (! intval($app['app_system']))) {
+				continue;
+			}
+
+			foreach ($sysapps as $sysapp) {
+				if ($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
+						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
+							dbesc($app['app_id']),
+							intval($channel['channel_id'])
+						);
+					}
+					else {
+						// install this app on this server
+						$newapp = $sysapp;
+						$newapp['uid'] = $channel['channel_id'];
+						$newapp['guid'] = hash('whirlpool',$newapp['name']);
+
+						$newapp['system'] = 1;
+						if ($term) {
+							$newapp['categories'] = array_elm_to_str($term,'term');
+						}
+						Apps::app_install($channel['channel_id'],$newapp);
+					}
+				}
+			}
+		}
 	}
 }
-
 
 
 

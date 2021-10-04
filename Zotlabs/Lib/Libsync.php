@@ -246,6 +246,10 @@ class Libsync {
 			if (array_key_exists('app', $arr) && $arr['app'])
 				sync_apps($channel, $arr['app']);
 
+			if (array_key_exists('sysapp',$arr) && $arr['sysapp']) {
+				sync_sysapps($channel,$arr['sysapp']);
+			}
+
 			if (array_key_exists('addressbook', $arr) && $arr['addressbook'])
 				sync_addressbook($channel, $arr['addressbook']);
 

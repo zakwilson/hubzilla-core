@@ -556,11 +556,11 @@ function import_sysapps($channel, $apps) {
 			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
 
 			foreach ($sysapps as $sysapp) {
-				if ($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
 					// install this app on this server
 					$newapp = $sysapp;
 					$newapp['uid'] = $channel['channel_id'];
-					$newapp['guid'] = hash('whirlpool',$newapp['name']);
+					$newapp['guid'] = hash('whirlpool', $newapp['name']);
 
 					$installed = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 						dbesc($newapp['guid']),
@@ -572,9 +572,9 @@ function import_sysapps($channel, $apps) {
 
 					$newapp['system'] = 1;
 					if ($term) {
-						$newapp['categories'] = array_elm_to_str($term,'term');
+						$newapp['categories'] = array_elm_to_str($term, 'term');
 					}
-					Apps::app_install($channel['channel_id'],$newapp);
+					Apps::app_install($channel['channel_id'], $newapp);
 				}
 			}
 		}

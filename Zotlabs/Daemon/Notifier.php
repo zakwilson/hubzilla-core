@@ -538,9 +538,7 @@ class Notifier {
 
 		foreach ($hubs as $hub) {
 			if (isset($hub['site_dead']) && intval($hub['site_dead'])) {
-				if(!in_array($hub, $dead)) {
-					$dead[] = $hub;
-				}
+				$dead[] = $hub;
 				continue;
 			}
 
@@ -679,20 +677,25 @@ class Notifier {
 			do_delivery(self::$deliveries);
 		}
 
-		if ($dead) {
+		if ($dead && is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
+			$dead_hosts_processed = [];
 			foreach ($dead as $deceased) {
-				if (is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
-					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
-						values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
-						dbesc($target_item['mid']),
-						dbesc($deceased['hubloc_host']),
-						dbesc($deceased['hubloc_host']),
-						dbesc($deceased['hubloc_host']),
-						dbesc('undeliverable/unresponsive site'),
-						dbesc(datetime_convert()),
-						dbesc(self::$channel['channel_hash']),
-						dbesc(new_uuid())
-					);
+				if(in_array($deceased['hubloc_host'], $dead_hosts_processed)) {
+					continue;
+				}
+				$r = q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
+					values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
+					dbesc($target_item['mid']),
+					dbesc($deceased['hubloc_host']),
+					dbesc($deceased['hubloc_host']),
+					dbesc($deceased['hubloc_host']),
+					dbesc('undeliverable/unresponsive site'),
+					dbesc(datetime_convert()),
+					dbesc(self::$channel['channel_hash']),
+					dbesc(new_uuid())
+				);
+				if($r) {
+					$dead_hosts_processed[] = $deceased['hubloc_host'];
 				}
 			}
 		}

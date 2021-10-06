@@ -58,5 +58,3 @@ Ein öffentliches Forum, das es Mitgliedern erlaubt, Dateien/Fotos/Webseiten zu 
 [h4]Benutzerdefinierter/Expertenmodus[/h4]
 Legen Sie alle Datenschutzeinstellungen und Berechtigungen manuell fest, um sie an Ihre speziellen Bedürfnisse anzupassen. 
 
-
-

@@ -538,7 +538,9 @@ class Notifier {
 
 		foreach ($hubs as $hub) {
 			if (isset($hub['site_dead']) && intval($hub['site_dead'])) {
-				$dead[] = $hub;
+				if(!in_array($hub, $dead)) {
+					$dead[] = $hub;
+				}
 				continue;
 			}
 

@@ -3,7 +3,6 @@
 namespace Zotlabs\Lib;
 
 use App;
-use Zotlabs\Lib\Libsync;
 
 require_once('include/plugin.php');
 require_once('include/channel.php');
@@ -627,10 +626,12 @@ class Apps {
 
 		$app['uid'] = $uid;
 
-		if(self::app_installed($uid,$app,true))
+		if(self::app_installed($uid,$app,true)) {
 			$x = self::app_update($app);
-		else
+		}
+		else {
 			$x = self::app_store($app);
+		}
 
 		if($x['success']) {
 			$r = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
@@ -644,12 +645,6 @@ class Apps {
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);
-					}
-					if (intval($r[0]['app_system'])) {
-						Libsync::build_sync_packet($uid, ['sysapp' => $r]);
-					}
-					else {
-						Libsync::build_sync_packet($uid, ['app' => $r]);
 					}
 				}
 			}
@@ -690,45 +685,35 @@ class Apps {
 				dbesc($app['guid']),
 				intval($uid)
 			);
-			if($x) {
-				if(! intval($x[0]['app_deleted'])) {
-					$x[0]['app_deleted'] = 1;
-					if(self::can_delete($uid,$app)) {
-						q("delete from app where app_id = '%s' and app_channel = %d",
-							dbesc($app['guid']),
-							intval($uid)
-						);
-						q("delete from term where otype = %d and oid = %d",
-							intval(TERM_OBJ_APP),
-							intval($x[0]['id'])
-						);
-						/**
-						 * @hooks app_destroy
-						 *  Called after app entry got removed from database
-						 *  and provide app array from database.
-						 */
-						call_hooks('app_destroy', $x[0]);
-					}
-					else {
-						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
-							dbesc($app['guid']),
-							intval($uid)
-						);
-					}
 
-					// unset the id before sync
-					unset($x[0]['id']);
+			if($x && intval($x[0]['app_deleted'])) {
+				self::app_undestroy($uid, $app);
+				return;
+			}
 
-					if (intval($x[0]['app_system'])) {
-						Libsync::build_sync_packet($uid, ['sysapp' => $x]);
-					}
-					else {
-						Libsync::build_sync_packet($uid, ['app' => $x]);
-					}
-				}
-				else {
-					self::app_undestroy($uid,$app);
-				}
+			if(self::can_delete($uid,$app)) {
+				q("delete from app where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
+
+				q("delete from term where otype = %d and oid = %d",
+					intval(TERM_OBJ_APP),
+					intval($x[0]['id'])
+				);
+
+				/**
+				 * @hooks app_destroy
+				 *  Called after app entry got removed from database
+				 *  and provide app array from database.
+				 */
+				call_hooks('app_destroy', $x[0]);
+			}
+			else {
+				q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
 			}
 		}
 	}
@@ -750,8 +735,6 @@ class Apps {
 					dbesc($app['guid']),
 					intval($uid)
 				);
-				$x[0]['app_deleted'] = 0;
-				Libsync::build_sync_packet($uid, ['sysapp' => $x]);
 			}
 		}
 	}

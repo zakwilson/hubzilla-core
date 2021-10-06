@@ -141,7 +141,6 @@ class Libsync {
 		logger('Packet: ' . print_r($info, true), LOGGER_DATA, LOG_DEBUG);
 
 		$total = count($synchubs);
-
 		foreach ($synchubs as $hub) {
 			$hash = random_string();
 			$n    = Libzot::build_packet($channel, 'sync', $env_recips, json_encode($info), 'hz', $hub['hubloc_sitekey'], $hub['site_crypto']);
@@ -186,7 +185,6 @@ class Libsync {
 		require_once('include/import.php');
 
 		$result = [];
-
 		$keychange = ((array_key_exists('keychange', $arr)) ? true : false);
 
 		foreach ($deliveries as $d) {
@@ -242,14 +240,14 @@ class Libsync {
 
 			if (array_key_exists('likes', $arr) && $arr['likes'])
 				import_likes($channel, $arr['likes']);
-/*
+
 			if (array_key_exists('app', $arr) && $arr['app'])
 				sync_apps($channel, $arr['app']);
 
 			if (array_key_exists('sysapp',$arr) && $arr['sysapp']) {
 				sync_sysapps($channel, $arr['sysapp']);
 			}
-*/
+
 			if (array_key_exists('addressbook', $arr) && $arr['addressbook'])
 				sync_addressbook($channel, $arr['addressbook']);
 

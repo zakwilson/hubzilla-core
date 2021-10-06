@@ -591,7 +591,6 @@ function import_sysapps($channel, $apps) {
 function sync_sysapps($channel, $apps) {
 
 	$sysapps = Apps::get_system_apps(false, true);
-
 	if ($channel && $apps) {
 
 		$columns = db_columns('app');
@@ -608,30 +607,8 @@ function sync_sysapps($channel, $apps) {
 			foreach ($sysapps as $sysapp) {
 
 				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
-					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] && $app['app_id']) {
-						if(Apps::can_delete($channel['channel_id'], ['guid' => $app['app_id']])) {
-							$local_app = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
-								dbesc($app['app_id']),
-								intval($channel['channel_id'])
-							);
-							if ($local_app) {
-								q("delete from term where otype = %d and oid = %d",
-									intval(TERM_OBJ_APP),
-									intval($local_app[0]['id'])
-								);
-
-								q("delete from app where app_id = '%s' and app_channel = %d",
-									dbesc($app['app_id']),
-									intval($channel['channel_id'])
-								);
-							}
-						}
-						else {
-							q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
-								dbesc($app['app_id']),
-								intval($channel['channel_id'])
-							);
-						}
+					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] == 1 && $app['app_id']) {
+						Apps::app_destroy($channel['channel_id'], ['guid' => $app['app_id']]);
 					}
 					else {
 						// install this app on this server

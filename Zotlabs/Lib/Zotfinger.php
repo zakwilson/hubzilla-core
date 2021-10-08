@@ -37,7 +37,7 @@ class Zotfinger {
 		$redirects = 0;
 		$x = z_post_url($resource,$data,$redirects, [ 'headers' => $h  ] );
 
-		logger('fetch: ' . print_r($x,true));
+		hz_syslog('fetch: ' . print_r($x,true));
 
 		if($x['success']) {
 			if ($verify) {

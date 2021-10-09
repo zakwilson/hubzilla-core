@@ -577,11 +577,7 @@ function alt_pager($i, $more = '', $less = '') {
 	if(! $less)
 		$less = t('newer');
 
-	$stripped = preg_replace('/(&page=[0-9]*)/','',App::$query_string);
-	$stripped = str_replace('q=','',$stripped);
-	$stripped = trim($stripped,'/');
-	//$pagenum = App::$pager['page'];
-	$url = z_root() . '/' . $stripped;
+	$url = z_root() . '/' . drop_query_params(App::$query_string, ['page', 'q']);
 
 	return replace_macros(get_markup_template('alt_pager.tpl'), array(
 		'$has_less' => ((App::$pager['page'] > 1) ? true : false),

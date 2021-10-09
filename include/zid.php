@@ -142,9 +142,9 @@ function clean_query_string($s = '') {
 
 function drop_query_params($s, $p) {
 		$parsed = parse_url($s);
-
 		$query = '';
 		$query_args = null;
+
 		if(isset($parsed['query'])) {
 			parse_str($parsed['query'], $query_args);
 		}
@@ -157,8 +157,11 @@ function drop_query_params($s, $p) {
 			}
 		}
 
-		if($query)
+		unset($parsed['query']);
+
+		if($query) {
 			$parsed['query'] = $query;
+		}
 
 		return unparse_url($parsed);
 }

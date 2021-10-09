@@ -89,8 +89,6 @@ class Import extends Controller {
 			}
 
 			$api_path .= 'channel/export/basic?f=&channel=' . $channelname;
-			if ($import_posts)
-				$api_path .= '&posts=1';
 
 			$binary = false;
 			$redirects = 0;
@@ -522,31 +520,38 @@ class Import extends Controller {
 		// This will indirectly perform a refresh_all *and* update the directory
 		Master::Summon(array('Directory', $channel['channel_id']));
 
+		$cf_api_compat = true;
+
 		if ($api_path && $import_posts) {  // we are importing from a server and not a file
+			if (version_compare($data['compatibility']['version'], '6.3.4', '>=')) {
 
-			$m = parse_url($api_path);
+				$m = parse_url($api_path);
 
-			$hz_server = $m['scheme'] . '://' . $m['host'];
+				$hz_server = $m['scheme'] . '://' . $m['host'];
 
-			$since = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'0001-01-01 00:00');
-			$until = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'now + 1 day');
+				$since = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'0001-01-01 00:00');
+				$until = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'now + 1 day');
 
-			$poll_interval = get_config('system','poll_interval',3);
-			$page = 0;
+				$poll_interval = get_config('system','poll_interval',3);
+				$page = 0;
 
-			Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
-			Master::Summon([ 'File_importer',sprintf('%d',$page), $channel['channel_address'], urlencode($hz_server) ]);
-
+				Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
+				Master::Summon([ 'File_importer',sprintf('%d',$page), $channel['channel_address'], urlencode($hz_server) ]);
+			}
+			else {
+				$cf_api_compat = false;
+			}
 		}
-
-		// i do not think this is still used
-		//if (array_key_exists('item_id', $data) && $data['item_id'])
-		//	import_item_ids($channel, $data['item_id']);
 
 		change_channel($channel['channel_id']);
 
-		if ($api_path && $import_posts)
+		if ($api_path && $import_posts && $cf_api_compat) {
 			goaway(z_root() . '/import_progress');
+		}
+
+		if (!$cf_api_compat) {
+			notice(t('Automatic content and files import was not possible due to API version incompatiblity. Please import content and files manually!') .  EOL);
+		}
 
 		goaway(z_root());
 

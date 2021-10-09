@@ -3,6 +3,7 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Web\Controller;
@@ -57,26 +58,15 @@ class Search extends Controller {
 		$o .= search($search, 'search-box', '/search', ((local_channel()) ? true : false));
 
 		if (local_channel() && strpos($search, 'https://') === 0 && !$update && !$load) {
-			$j = Activity::fetch(punify($search), App::get_channel());
-			if ($j) {
-				$AS = new ActivityStreams($j);
-				if ($AS->is_valid()) {
-					// check if is_an_actor, otherwise import activity
-					if (is_array($AS->obj) && !ActivityStreams::is_an_actor($AS->obj)) {
-						$item = Activity::decode_note($AS);
-						if ($item) {
-							logger('parsed_item: ' . print_r($item, true), LOGGER_DATA);
-							Activity::store(App::get_channel(), $observer_hash, $AS, $item, true, true);
-							goaway(z_root() . '/display/' . gen_link_id($item['mid']));
-						}
-					}
-				}
+			$f = Libzot::fetch_conversation(App::get_channel(), punify($search), true);
+
+			if ($f) {
+				goaway(z_root() . '/hq/' . gen_link_id($f['message_id']));
 			}
 			else {
-				// try other fetch providers (e.g. diaspora)
+				// try other fetch providers (e.g. diaspora, pubcrawl)
 				$hookdata = [
-					'channel' => App::get_channel(),
-					'data' => $search
+					'url' => punify($search)
 				];
 				call_hooks('fetch_provider', $hookdata);
 			}

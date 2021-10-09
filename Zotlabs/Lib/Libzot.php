@@ -1486,10 +1486,11 @@ class Libzot {
 	 * @param boolean $relay
 	 * @param boolean $public (optional) default false
 	 * @param boolean $request (optional) default false
+	 * @param boolean $force (optional) default false - should only be set for manual fetch
 	 * @return array
 	 */
 
-	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false) {
+	static function process_delivery($sender, $act, $arr, $deliveries, $relay, $public = false, $request = false, $force = false) {
 
 		$result = [];
 
@@ -1591,7 +1592,7 @@ class Libzot {
 
 			if ((!$tag_delivery) && (!$local_public)) {
 				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
-				if (!$allowed) {
+				if ((!$allowed) && $perm === 'post_comments') {
 					$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
 						dbesc($arr['parent_mid']),
 						intval($channel['channel_id'])
@@ -1617,7 +1618,7 @@ class Libzot {
 					// doesn't exist.
 
 					if ($perm === 'send_stream') {
-						if (get_pconfig($channel['channel_id'], 'system', 'hyperdrive', false) || $arr['verb'] === ACTIVITY_SHARE) {
+						if ($force || get_pconfig($channel['channel_id'], 'system', 'hyperdrive', false) || $arr['verb'] === ACTIVITY_SHARE) {
 							$allowed = true;
 						}
 					}
@@ -1892,7 +1893,7 @@ class Libzot {
 		return $result;
 	}
 
-	static public function fetch_conversation($channel, $mid) {
+	static public function fetch_conversation($channel, $mid, $force = false) {
 
 		// Use Zotfinger to create a signed request
 
@@ -1996,7 +1997,7 @@ class Libzot {
 			logger('FOF Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
 			logger('FOF Activity recipient: ' . $channel['channel_hash'], LOGGER_DATA, LOG_DEBUG);
 
-			$result = self::process_delivery($arr['owner_xchan'], $AS, $arr, [$channel['channel_hash']], false, false, true);
+			$result = self::process_delivery($arr['owner_xchan'], $AS, $arr, [$channel['channel_hash']], false, false, true, $force);
 			if ($result) {
 				$ret = array_merge($ret, $result);
 			}

@@ -238,11 +238,12 @@ class HTTPSig {
 
 		if (strpos($id, '#') === false) {
 			$key = self::get_webfinger_key($id, $force);
+			if ($key) {
+				return $key;
+			}
 		}
 
-		if (!$key) {
-			$key = self::get_activitystreams_key($id, $force);
-		}
+		$key = self::get_activitystreams_key($id, $force);
 
 		return $key;
 

@@ -221,7 +221,7 @@ class Messages {
 			$entries[$i]['summary'] = $summary;
 			$entries[$i]['b64mid'] = basename($notice['link']);
 			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . basename($notice['link']));
-			$entries[$i]['icon'] = '';
+			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="fa fa-user-plus"></i>' : '');
 
 			$i++;
 		}

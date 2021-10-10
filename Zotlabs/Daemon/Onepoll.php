@@ -48,14 +48,10 @@ class Onepoll {
 		$contact      = $contacts[0];
 		$importer_uid = $contact['abook_channel'];
 
-		$r = q("SELECT * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
-			intval($importer_uid)
-		);
+		$importer = channelx_by_n($importer_uid);
 
-		if (!$r)
+		if (!$importer)
 			return;
-
-		$importer = $r[0];
 
 		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 

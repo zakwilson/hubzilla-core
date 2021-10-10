@@ -713,12 +713,14 @@ class Photos extends \Zotlabs\Web\Controller {
 			]);
 
 			if($x = photos_album_exists($owner_uid, get_observer_hash(), $datum)) {
-				\App::set_pager_itemspage(30);
 				$album = $x['display_path'];
 			}
 			else {
-				goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
+				$album = '/';
+				//goaway(z_root() . '/photos/' . \App::$data['channel']['channel_address']);
 			}
+
+			\App::set_pager_itemspage(30);
 
 			if($_GET['order'] === 'posted')
 				$order = 'ASC';

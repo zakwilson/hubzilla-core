@@ -597,7 +597,6 @@ function sync_sysapps($channel, $apps) {
 
 		foreach ($apps as $app) {
 
-			$exists = false;
 			$term = ((array_key_exists('term',$app)) ? $app['term'] : null);
 
 			if (array_key_exists('app_system',$app) && (! intval($app['app_system']))) {

@@ -210,6 +210,7 @@ class Apps {
 	 *
 	 * @param string $f filename
 	 * @param boolean $translate (optional) default true
+	 * @param boolean $sync (optional) default false
 	 * @return boolean|array
 	 */
 	static public function parse_app_description($f, $translate = true, $sync = false) {

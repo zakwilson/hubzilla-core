@@ -315,6 +315,7 @@
 			}
 			else {
 				$('.' + type + '-update').html('0');
+				$('#nav-' + type + '-sub').removeClass('show');
 				$('.' + type + '-button').fadeOut(function() {
 					sse_setNotificationsStatus();
 				});
@@ -490,9 +491,10 @@
 						var fcount = Number($('.' + n[1] + '-update').html());
 						fcount--;
 						$('.' + n[1] + '-update').html(fcount);
-						if(fcount < 1)
+						if(fcount < 1) {
 							$('.' + n[1] + '-button').fadeOut();
-
+							$('#nav-' + n[1] + '-sub').removeClass('show');
+						}
 						var count = Number($(this).find('.bg-secondary').html());
 						count--;
 						$(this).find('.bg-secondary').html(count);

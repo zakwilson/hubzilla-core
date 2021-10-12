@@ -19,12 +19,7 @@ class Notes extends Controller {
 		if(! Apps::system_app_installed(local_channel(), 'Notes'))
 			return EMPTY_STR;
 
-		$ret = [
-			'success' => false,
-			'html' => ''
-		];
-
-
+		$ret = array('success' => true);
 		if(array_key_exists('note_text',$_REQUEST)) {
 			$body = escape_tags($_REQUEST['note_text']);
 
@@ -38,10 +33,6 @@ class Notes extends Controller {
 					set_pconfig(local_channel(),'notes','text.bak',$old_text);
 			}
 			set_pconfig(local_channel(),'notes','text',$body);
-
-			$ret['html'] = bbcode($body);
-			$ret['success'] = true;
-
 		}
 
 		// push updates to channel clones

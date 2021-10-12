@@ -1,7 +1,7 @@
 {{if $app}}
 <div id="personal-notes" class="generic-content-wrapper{{if $hidden}} d-none{{/if}}">
 	<div class="section-title-wrapper clearfix">
-		<div class="float-end rounded border border-secondary p-1 text-muted small note-mode" title="Double click into note for edit mode">Read mode</div>
+		<div class="float-end rounded border border-secondary m-1 ps-1 pe-1  text-muted small note-mode" title="Double click into note for edit mode">Read mode</div>
 		<h2>{{$banner}}</h2>
 	</div>
 	<div class="section-content-wrapper-np">

@@ -41,13 +41,23 @@ li:hover .widget-nav-pills-icons {
 /* notes */
 
 #note-text {
-	border: 1px solid rgba(0,0,0,.125);
-	padding: 5px;
+	padding: 7px 10px;
 	width: 100%;
 	resize: vertical;
 	min-height: 250px;
-	overflow: auto;
-	outline: none;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+#note-text-html {
+	padding: 7px 10px;
+	height: 250px;
+	width: 100%;
+	resize: vertical;
+	min-height: 250px;
+	overflow-y: auto;
+	overflow-x: hidden;
+
 }
 
 /* saved searches */

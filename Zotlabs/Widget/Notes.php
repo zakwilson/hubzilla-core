@@ -20,6 +20,7 @@ class Notes {
 		$o = replace_macros($tpl, array(
 			'$banner' => t('Notes'),
 			'$text' => $text,
+			'$html' => bbcode($text),
 			'$save' => t('Save'),
 			'$app' => ((isset($arr['app'])) ? true : false),
 			'$hidden' => ((isset($arr['hidden'])) ? true : false)

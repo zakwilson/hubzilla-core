@@ -50,7 +50,7 @@ class Apschema extends \Zotlabs\Web\Controller {
 				'guid'         => 'diaspora:guid',
 
 				'Hashtag'      => 'as:Hashtag'
-				
+
 			]
 		];
 

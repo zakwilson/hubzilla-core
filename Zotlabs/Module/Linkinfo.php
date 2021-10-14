@@ -29,6 +29,9 @@ class Linkinfo extends \Zotlabs\Web\Controller {
 		if((substr($url,0,1) != '/') && (substr($url,0,4) != 'http'))
 			$url = 'http://' . $url;
 
+		$x = parse_url($url);
+		if ($x)
+			$url = str_replace($x['host'], punify($x['host']), $url);
 
 		if($_GET['title'])
 			$title = strip_tags(trim($_GET['title']));

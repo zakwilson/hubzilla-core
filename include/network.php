@@ -2014,6 +2014,21 @@ function getBestSupportedMimeType($mimeTypes = null, $acceptedTypes = false) {
  */
 function jsonld_document_loader($url) {
 
+	switch ($url) {
+		case 'https://www.w3.org/ns/activitystreams':
+			$url = z_root() . '/library/w3org/activitystreams.jsonld';
+			break;
+		case 'https://w3id.org/identity/v1':
+			$url = z_root() . '/library/w3org/identity-v1.jsonld';
+			break;
+		case 'https://w3id.org/security/v1':
+			$url = z_root() . '/library/w3org/security-v1.jsonld';
+			break;
+		default:
+			logger('URL: ' . $url, LOGGER_DEBUG);
+			break;
+	}
+
 	require_once('library/jsonld/jsonld.php');
 
 	$recursion = 0;
@@ -2026,11 +2041,11 @@ function jsonld_document_loader($url) {
 			}
 		}
 	}
+
 	if($recursion > 5) {
 		logger('jsonld bomb detected at: ' . $url);
 		killme();
 	}
-
 
 	$cachepath = 'store/[data]/ldcache';
 	if(! is_dir($cachepath))

@@ -1194,9 +1194,9 @@ class Apps {
 			$y = explode(',',$arr['categories']);
 			if($y) {
 				foreach($y as $t) {
-					$t = trim($t);
+					$t = escape_tags(trim($t));
 					if($t) {
-						store_item_tag($darray['app_channel'],$x[0]['id'],TERM_OBJ_APP,TERM_CATEGORY,escape_tags($t),escape_tags(z_root() . '/apps/?f=&cat=' . escape_tags($t)));
+						store_item_tag($darray['app_channel'], $x[0]['id'], TERM_OBJ_APP, TERM_CATEGORY, $t, z_root() . '/apps/?f=&cat=' . $t);
 					}
 				}
 			}

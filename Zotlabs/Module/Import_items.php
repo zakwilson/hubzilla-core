@@ -38,7 +38,7 @@ class Import_items extends \Zotlabs\Web\Controller {
 			}
 			unlink($src);
 		}
-
+/*
 		if(! $src) {
 
 			$old_address = ((x($_REQUEST,'old_address')) ? $_REQUEST['old_address'] : '');
@@ -71,6 +71,7 @@ class Import_items extends \Zotlabs\Web\Controller {
 			else
 				notice( t('Unable to download data from old server') . EOL);
 		}
+*/
 
 		if(! $data) {
 			logger('Empty file.');
@@ -79,7 +80,6 @@ class Import_items extends \Zotlabs\Web\Controller {
 		}
 
 		$data = json_decode($data, true);
-
 		//logger('import: data: ' . print_r($data,true));
 		//print_r($data);
 
@@ -97,15 +97,45 @@ class Import_items extends \Zotlabs\Web\Controller {
 
 		$channel = \App::get_channel();
 
-		if(array_key_exists('item',$data) && $data['item']) {
-			import_items($channel,$data['item'],false,((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
+		if(array_key_exists('item',$data) && is_array($data['item'])) {
+			import_items($channel, $data['item'], false, ((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
+			info( t('Content import completed') . EOL);
 		}
 
-		if(array_key_exists('item_id',$data) && $data['item_id']) {
-			import_item_ids($channel,$data['item_id']);
+		if (array_key_exists('chatroom',$data) && is_array($data['chatroom'])) {
+			import_chatrooms($channel, $data['chatroom']);
+			info( t('Chatroom import completed') . EOL);
+
 		}
 
-		info( t('Import completed') . EOL);
+		if (array_key_exists('event',$data) && is_array($data['event'])) {
+			import_events($channel, $data['event']);
+			info( t('Channel calendar import 1/2 completed') . EOL);
+
+		}
+
+		if (array_key_exists('event_item',$data) && is_array($data['event_item'])) {
+			import_items($channel, $data['event_item'], false, ((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
+			info( t('Channel calendar import 2/2 completed') . EOL);
+
+		}
+
+		if (array_key_exists('menu',$data) && is_array($data['menu'])) {
+			import_menus($channel, $data['menu']);
+			info( t('Menu import completed') . EOL);
+		}
+
+		if (array_key_exists('wiki',$data) && is_array($data['wiki'])) {
+			import_items($channel, $data['wiki'], false, ((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
+			info( t('Wiki import completed') . EOL);
+
+		}
+
+		if (array_key_exists('webpages',$data) && is_array($data['webpages'])) {
+			import_items($channel, $data['webpages'], false, ((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
+			info( t('Webpages import completed') . EOL);
+		}
+
 	}
 
 

@@ -767,10 +767,10 @@ function get_default_export_sections() {
 			'connections',
 			'config',
 			'apps',
-			'chatrooms',
-			'events',
-			'webpages',
-			'wikis'
+//			'chatrooms',
+//			'events',
+//			'webpages',
+//			'wikis'
 	];
 
 	$cb = [ 'sections' => $sections ];
@@ -1179,7 +1179,7 @@ function identity_export_year($channel_id, $year, $month = 0, $zap_compat = fals
 }
 
 /**
- * @brief Export items within an arbitrary date range.
+ * @brief Export conv items within an arbitrary date range.
  *
  * Date/time is in UTC.
  *
@@ -1212,19 +1212,39 @@ function channel_export_items_date($channel_id, $start, $finish, $zap_compat = f
 	}
 
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type != 'photo' order by created",
-		intval(ITEM_TYPE_POST),
+	// Fetch parent items for the timeframe
+	$r = q("SELECT parent AS item_id FROM item
+		WHERE uid = %d AND (item_wall = 1 OR item_private = 2) AND item_thread_top = 1
+		AND resource_type IN ('group_item', '') AND item_deleted = 0
+		AND created >= '%s' AND created <= '%s'
+		ORDER BY created",
 		intval($channel_id),
 		dbesc($start),
 		dbesc($finish)
 	);
 
-	if($r) {
-		$ret['item'] = array();
-		xchan_query($r);
-		$r = fetch_post_tags($r, true);
-		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true, $zap_compat);
+	$parents_str = ids_to_querystr($r, 'item_id');
+
+	$items = q("SELECT * FROM item
+		WHERE uid = %d
+		AND parent IN ( $parents_str )
+		ORDER BY created",
+		intval($channel_id)
+	);
+
+	//$items = q("select * from item where (item_wall = 1 or item_type != %d ) and resource_type = '' and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s' order by created",
+		//intval(ITEM_TYPE_POST),
+		//intval($channel_id),
+		//dbesc($start),
+		//dbesc($finish)
+	//);
+
+	if($items) {
+		$ret['item'] = [];
+		xchan_query($items);
+		$r = fetch_post_tags($items, true);
+		foreach ($items as $item)
+			$ret['item'][] = encode_item($item, true, $zap_compat);
 	}
 
 	return $ret;

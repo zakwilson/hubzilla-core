@@ -1,13 +1,13 @@
 {{if $app}}
 <div id="personal-notes" class="generic-content-wrapper{{if $hidden}} d-none{{/if}}">
 	<div class="section-title-wrapper clearfix">
-		<div class="float-end rounded border border-secondary m-1 ps-1 pe-1  text-muted small note-mode" title="Double click into note for edit mode">Read mode</div>
-		<h2>{{$banner}}</h2>
+		<div class="float-end rounded border border-secondary m-1 ps-1 pe-1  text-muted small note-mode" title="Double click into note for edit mode">{{$strings.read}}</div>
+		<h2>{{$strings.title}}</h2>
 	</div>
 	<div class="section-content-wrapper-np">
 {{else}}
 <div id="personal-notes" class="widget{{if $hidden}} d-none{{/if}}">
-	<div class="float-end rounded border border-secondary mb-1 ps-1 pe-1 text-muted small note-mode" title="Double click note for edit mode">Read mode</div>
+	<div class="float-end rounded border border-secondary mb-1 ps-1 pe-1 text-muted small note-mode" title="Double click note for edit mode">{{$strings.read}}</div>
 	<h3 class="float-start">{{$banner}}</h3>
 {{/if}}
 	<textarea name="note_text" id="note-text" class="form-control{{if $app}} border-0{{else}} p-1{{/if}}" style="display: none;">{{$text}}</textarea>
@@ -86,22 +86,22 @@
 				case 'edit':
 					obj.removeClass('border-secondary border-success text-muted text-success')
 					obj.addClass('border-danger text-danger')
-					obj.html('Edit mode');
+					obj.html('{{$strings.edit}}');
 				break;
 				case 'editing':
 					obj.removeClass('border-secondary border-success text-muted text-success')
 					obj.addClass('border-danger text-danger')
-					obj.html('Editing...');
+					obj.html('{{$strings.editing}}{{$strings.dots}}');
 				break;
 				case 'saving':
 					obj.removeClass('border-secondary border-danger text-muted text-danger')
 					obj.addClass('border-success text-success')
-					obj.html('Saving...');
+					obj.html('{{$strings.saving}}{{$strings.dots}}');
 				break;
 				case 'saved':
 					obj.removeClass('border-secondary border-danger text-muted text-danger')
 					obj.addClass('border-success text-success')
-					obj.html('Saved');
+					obj.html('{{$strings.saved}}');
 					setTimeout(function () {
 						if(noteEditing) {
 							setNoteMode(noteMode, noteEditing === 1 ? 'edit' : 'editing');
@@ -113,7 +113,7 @@
 				break;
 				case 'read':
 				default:
-					obj.removeClass('border-success border-danger text-success text-danger').addClass('border-secondary text-muted').html('Read mode');
+					obj.removeClass('border-success border-danger text-success text-danger').addClass('border-secondary text-muted').html('{{$strings.read}}');
 			}
 		}
 

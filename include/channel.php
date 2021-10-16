@@ -1147,7 +1147,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 
 
 /**
- * @brief Export items for a year, or a month of a year.
+ * @brief Export conv items for a year, or a month of a year.
  *
  * @param int $channel_id The channel ID
  * @param number $year YYYY
@@ -1156,7 +1156,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
  *   * \e array \b relocate - (optional)
  *   * \e array \b item - array with items encoded_item()
  */
-function identity_export_year($channel_id, $year, $month = 0, $zap_compat = false) {
+function conv_item_export_year($channel_id, $year, $month = 0, $zap_compat = false) {
 
 	if(! $year)
 		return array();
@@ -1174,12 +1174,15 @@ function identity_export_year($channel_id, $year, $month = 0, $zap_compat = fals
 	else
 		$maxdate = datetime_convert('UTC', 'UTC', $year+1 . '-01-01 00:00:00');
 
-	return channel_export_items_date($channel_id,$mindate,$maxdate, $zap_compat);
+	return channel_export_conv_items_date($channel_id,$mindate,$maxdate, $zap_compat);
 
 }
 
 /**
  * @brief Export conv items within an arbitrary date range.
+ *
+ * In opposit to channel_export_items_page() which is used for bulk export via network,
+ * this function will only select conversational items (channel, cards, articles, direct messages).
  *
  * Date/time is in UTC.
  *
@@ -1189,7 +1192,7 @@ function identity_export_year($channel_id, $year, $month = 0, $zap_compat = fals
  * @return array
  */
 
-function channel_export_items_date($channel_id, $start, $finish, $zap_compat = false) {
+function channel_export_conv_items_date($channel_id, $start, $finish, $zap_compat = false) {
 
 	if(! $start)
 		return array();

@@ -56,7 +56,7 @@ class Uexport extends Controller {
 					break;
 				case 'custom':
 				default:
-					$custom_sections = ['chatrooms', 'events', 'webpages', 'wikis'];
+					$custom_sections = ['channel', 'connections', 'config', 'apps', 'chatrooms', 'events', 'webpages', 'wikis'];
 					$raw_sections = (($_REQUEST['sections']) ? explode(',', $_REQUEST['sections']) : '');
 					if ($raw_sections) {
 						foreach ($raw_sections as $raw_section) {
@@ -93,7 +93,7 @@ class Uexport extends Controller {
 					$month = 1;
 					while ($month <= 12) {
 						$name = $channel['channel_address'] . '-' . $year . '-' . $month . '.json';
-						$content = identity_export_year(local_channel(), $year, $month, $zap_compat);
+						$content = conv_item_export_year(local_channel(), $year, $month, $zap_compat);
 						if(isset($content['item'])) {
 							$zip_content_available = true;
 							$zip->addFromString($name, json_encode($content));
@@ -125,7 +125,7 @@ class Uexport extends Controller {
 				killme();
 			}
 			elseif ($year && $month) {
-				$export = json_encode(identity_export_year(local_channel(), $year, $month, $zap_compat));
+				$export = json_encode(conv_item_export_year(local_channel(), $year, $month, $zap_compat));
 
 				header('Content-Type: application/json');
 				header('Content-Disposition: attachment; filename="' . $channel['channel_address'] . '-' . $year . '-' . $month . '.json"');

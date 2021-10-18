@@ -1115,7 +1115,33 @@ class Activity {
 			'height'    => 300,
 			'width'     => 300,
 		];
-		$ret['url']     = $p['xchan_url'];
+
+/* This could be used to distinguish contacts by protocol instead of tags,
+ * array urls are not supported by some AP projects (pixelfed) though.
+ *
+		$ret['url'] = [
+			[
+				'type' => 'Link',
+				'rel'  => 'alternate',
+				'mediaType' => 'application/x-zot+json',
+				'href' => $p['xchan_url']
+			],
+			[
+				'type' => 'Link',
+				'rel'  => 'alternate',
+				'mediaType' => 'application/activity+json',
+				'href' => $p['xchan_url']
+			],
+			[
+				'type' => 'Link',
+				'rel'  => 'alternate', // 'me'?
+				'mediaType' => 'text/html',
+				'href' => $p['xchan_url']
+			]
+		];
+*/
+
+		$ret['url'] = $p['xchan_url'];
 
 		$ret['publicKey'] = [
 			'id'           => $p['xchan_url'],
@@ -1124,6 +1150,12 @@ class Activity {
 		];
 
 		if ($c) {
+			$ret['tag'][] = [
+				'type' => 'PropertyValue',
+				'name' => 'Protocol',
+				'value' => 'zot6'
+			];
+
 			$ret['outbox'] = z_root() . '/outbox/' . $c['channel_address'];
 		}
 
@@ -1625,6 +1657,19 @@ class Activity {
 			$name = t('Unknown');
 		}
 
+		$webfinger_addr = '';
+
+		$m = parse_url($url);
+		if ($m) {
+			$hostname = $m['host'];
+			$baseurl  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
+			$site_url = $m['scheme'] . '://' . $m['host'];
+		}
+
+		if (!empty($person_obj['preferredUsername']) && isset($parsed_url['host'])) {
+			$webfinger_addr = escape_tags($person_obj['preferredUsername']) . '@' . $hostname;
+		}
+
 		$icon = z_root() . '/' . get_default_profile_photo(300);
 		if ($person_obj['icon']) {
 			if (is_array($person_obj['icon'])) {
@@ -1684,13 +1729,6 @@ class Activity {
 			}
 		}
 
-		$m = parse_url($url);
-		if ($m) {
-			$hostname = $m['host'];
-			$baseurl  = $m['scheme'] . '://' . $m['host'] . (($m['port']) ? ':' . $m['port'] : '');
-			$site_url = $m['scheme'] . '://' . $m['host'];
-		}
-
 		$r = q("select * from xchan join hubloc on xchan_hash = hubloc_hash where xchan_hash = '%s'",
 			dbesc($url)
 		);
@@ -1709,17 +1747,19 @@ class Activity {
 			);
 
 			// update existing xchan record
-			q("update xchan set xchan_name = '%s', xchan_guid = '%s', xchan_pubkey = '%s', xchan_network = 'activitypub', xchan_name_date = '%s' where xchan_hash = '%s'",
+			q("update xchan set xchan_name = '%s', xchan_guid = '%s', xchan_pubkey = '%s', xchan_addr = '%s', xchan_network = 'activitypub', xchan_name_date = '%s' where xchan_hash = '%s'",
 				dbesc(escape_tags($name)),
 				dbesc(escape_tags($url)),
 				dbesc(escape_tags($pubkey)),
+				dbesc(escape_tags($webfinger_addr)),
 				dbescdate(datetime_convert()),
 				dbesc($url)
 			);
 
 			// update existing hubloc record
-			q("update hubloc set hubloc_guid = '%s', hubloc_network = 'activitypub', hubloc_url = '%s', hubloc_host = '%s', hubloc_callback = '%s', hubloc_updated = '%s', hubloc_id_url = '%s' where hubloc_hash = '%s'",
+			q("update hubloc set hubloc_guid = '%s', hubloc_addr = '%s', hubloc_network = 'activitypub', hubloc_url = '%s', hubloc_host = '%s', hubloc_callback = '%s', hubloc_updated = '%s', hubloc_id_url = '%s' where hubloc_hash = '%s'",
 				dbesc(escape_tags($url)),
+				dbesc(escape_tags($webfinger_addr)),
 				dbesc(escape_tags($baseurl)),
 				dbesc(escape_tags($hostname)),
 				dbesc(escape_tags($inbox)),
@@ -1736,7 +1776,7 @@ class Activity {
 					'xchan_hash'      => escape_tags($url),
 					'xchan_guid'      => escape_tags($url),
 					'xchan_pubkey'    => escape_tags($pubkey),
-					'xchan_addr'      => '',
+					'xchan_addr'      => $webfinger_addr,
 					'xchan_url'       => escape_tags($profile),
 					'xchan_name'      => escape_tags($name),
 					'xchan_name_date' => datetime_convert(),
@@ -1748,7 +1788,7 @@ class Activity {
 				[
 					'hubloc_guid'     => escape_tags($url),
 					'hubloc_hash'     => escape_tags($url),
-					'hubloc_addr'     => '',
+					'hubloc_addr'     => $webfinger_addr,
 					'hubloc_network'  => 'activitypub',
 					'hubloc_url'      => escape_tags($baseurl),
 					'hubloc_host'     => escape_tags($hostname),
@@ -1758,6 +1798,20 @@ class Activity {
 					'hubloc_id_url'   => escape_tags($profile)
 				]
 			);
+		}
+
+		// We store all ActivityPub actors we can resolve. Some of them may be able to communicate over Zot6. Find them.
+		// Only probe if it looks like it looks something like a zot6 URL as there isn't anything in the actor record which we can reliably use for this purpose
+		// and adding zot discovery urls to the actor record will cause federation to fail with the 20-30 projects which don't accept arrays in the url field.
+
+		$actor_protocols = self::get_actor_protocols($person_obj);
+		if (in_array('zot6', $actor_protocols)) {
+			$zx = q("select * from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6'",
+				dbesc($url)
+			);
+			if (!$zx && $webfinger_addr) {
+				Master::Summon(['Gprobe', bin2hex($webfinger_addr)]);
+			}
 		}
 
 		$photos = import_xchan_photo($icon, $url);
@@ -3629,6 +3683,26 @@ class Activity {
 		}
 		if (array_path_exists('endpoints/sharedInbox', $actor_record) && $actor_record['endpoints']['sharedInbox']) {
 			$ret['sharedInbox'] = $actor_record['endpoints']['sharedInbox'];
+		}
+
+		return $ret;
+	}
+
+
+	static function get_actor_protocols($actor) {
+		$ret = [];
+
+		if (!array_key_exists('tag', $actor) || empty($actor['tag']) || !is_array($actor['tag'])) {
+			return $ret;
+		}
+
+		foreach ($tag as $t) {
+			if ((isset($t['type']) && $t['type'] === 'PropertyValue') &&
+				(isset($t['name']) && $t['name'] === 'Protocol') &&
+				(isset($t['value']) && in_array($t['value'], ['zot6', 'activitypub', 'diaspora']))
+			) {
+				$ret[] = $t['value'];
+			}
 		}
 
 		return $ret;

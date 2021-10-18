@@ -422,8 +422,6 @@ class Invite extends Controller {
 		// let take one descriptive for template (as said is never used)
 		$invite_code = 'INVITATE2020';
 
-		// what languages we use now
-		$lccmy	= ((isset(App::$config['system']['language'])) ? App::$config['system']['language'] : 'en');
 		// and all the localized templates belonging to invite
 		$tpls	= glob('view/*/invite.*.tpl');
 
@@ -443,6 +441,9 @@ class Invite extends Controller {
 
 		$langs = array_keys($tpla);
 		asort($langs);
+
+		// Use the current language if we have a template for it. Otherwise fall back to 'en'.
+		$lccmy	= ((in_array(App::$language, $langs)) ? App::$language : 'en');
 
 		$tplx = array_unique($tplx);
 		asort($tplx);

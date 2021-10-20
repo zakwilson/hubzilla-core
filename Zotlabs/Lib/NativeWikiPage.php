@@ -2,14 +2,15 @@
 
 namespace Zotlabs\Lib;
 
-use \Zotlabs\Lib as Zlib;
+use App;
+use Zotlabs\Access\PermissionLimits;
 
 class NativeWikiPage {
 
-	static public function page_list($channel_id,$observer_hash, $resource_id) {
+	static public function page_list($channel_id, $observer_hash, $resource_id) {
 
 		// TODO: Create item table records for pages so that metadata like title can be applied
-		$w = Zlib\NativeWiki::get_wiki($channel_id,$observer_hash,$resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
 		$pages[] = [
 			'resource_id' => '',
@@ -18,41 +19,41 @@ class NativeWikiPage {
 			'link_id'     => 'id_wiki_home_0'
 		];
 
-		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
+		$sql_extra = item_permissions_sql($channel_id, $observer_hash);
 
 		$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and item_deleted = 0
 			$sql_extra order by title asc",
 			dbesc($resource_id),
 			intval($channel_id)
 		);
-		if($r) {
+		if ($r) {
 			$x = [];
 			$y = [];
 
-			foreach($r as $rv) {
-				if(! in_array($rv['mid'],$x)) {
+			foreach ($r as $rv) {
+				if (!in_array($rv['mid'], $x)) {
 					$y[] = $rv;
 					$x[] = $rv['mid'];
 				}
 			}
 
-			$items = fetch_post_tags($y,true);
+			$items = fetch_post_tags($y, true);
 
-			foreach($items as $page_item) {
-				$title = get_iconfig($page_item['id'],'nwikipage','pagetitle',t('(No Title)'));
-				if(urldecode($title) !== 'Home') {
+			foreach ($items as $page_item) {
+				$title = get_iconfig($page_item['id'], 'nwikipage', 'pagetitle', t('(No Title)'));
+				if (urldecode($title) !== 'Home') {
 					$pages[] = [
 						'resource_id' => $resource_id,
 						'title'       => escape_tags($title),
 						//'url'         => str_replace('%2F','/',urlencode(str_replace('%2F','/',urlencode($title)))),
-						'url'		=> Zlib\NativeWiki::name_encode($title),
+						'url'         => NativeWiki::name_encode($title),
 						'link_id'     => 'id_' . substr($resource_id, 0, 10) . '_' . $page_item['id']
 					];
 				}
 			}
 		}
 
-		return array('pages' => $pages, 'wiki' => $w);
+		return ['pages' => $pages, 'wiki' => $w];
 	}
 
 
@@ -60,82 +61,82 @@ class NativeWikiPage {
 
 		logger('mimetype: ' . $mimetype);
 
-		if(! in_array($mimetype,[ 'text/markdown','text/bbcode','text/plain','text/html' ]))
+		if (!in_array($mimetype, ['text/markdown', 'text/bbcode', 'text/plain', 'text/html']))
 			$mimetype = 'text/markdown';
 
-		$w = Zlib\NativeWiki::get_wiki($channel['channel_id'], $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel['channel_id'], $observer_hash, $resource_id);
 
-		if (! $w['wiki']) {
-			return array('content' => null, 'message' => 'Error reading wiki', 'success' => false);
+		if (!$w['wiki']) {
+			return ['content' => null, 'message' => 'Error reading wiki', 'success' => false];
 		}
 
 		// backslashes won't work well in the javascript functions
-		$name = str_replace('\\','',$name);
+		$name = str_replace('\\', '', $name);
 
 		$uuid = new_uuid();
-		$mid = z_root() . '/item/' . $uuid;
+		$mid  = z_root() . '/item/' . $uuid;
 
 		// create an empty activity
-		$arr = [];
-		$arr['aid']           = $channel['channel_account_id'];
-		$arr['uid']           = $channel['channel_id'];
-		$arr['mid']           = $mid;
-		$arr['parent_mid']    = $w['wiki']['mid'];
-		$arr['parent']        = $w['wiki']['parent'];
-		$arr['uuid']          = $uuid;
-		$arr['item_hidden']   = $w['wiki']['item_hidden'];
-		$arr['plink']         = $mid;
-		$arr['llink']         = z_root() . '/display/' . gen_link_id($mid);
-		$arr['author_xchan']  = $observer_hash;
-		$arr['mimetype']      = $mimetype;
-		$arr['title']         = $name;
-		$arr['resource_type'] = 'nwikipage';
-		$arr['resource_id']   = $resource_id;
-		$arr['allow_cid']     = $w['wiki']['allow_cid'];
-		$arr['allow_gid']     = $w['wiki']['allow_gid'];
-		$arr['deny_cid']      = $w['wiki']['deny_cid'];
-		$arr['deny_gid']      = $w['wiki']['deny_gid'];
-		$arr['item_private']  = $w['wiki']['item_private'];
-		$arr['item_wall']     = 1;
-		$arr['item_origin']   = 1;
+		$arr                    = [];
+		$arr['aid']             = $channel['channel_account_id'];
+		$arr['uid']             = $channel['channel_id'];
+		$arr['mid']             = $mid;
+		$arr['parent_mid']      = $w['wiki']['mid'];
+		$arr['parent']          = $w['wiki']['parent'];
+		$arr['uuid']            = $uuid;
+		$arr['item_hidden']     = $w['wiki']['item_hidden'];
+		$arr['plink']           = $mid;
+		$arr['llink']           = z_root() . '/display/' . gen_link_id($mid);
+		$arr['author_xchan']    = $observer_hash;
+		$arr['mimetype']        = $mimetype;
+		$arr['title']           = $name;
+		$arr['resource_type']   = 'nwikipage';
+		$arr['resource_id']     = $resource_id;
+		$arr['allow_cid']       = $w['wiki']['allow_cid'];
+		$arr['allow_gid']       = $w['wiki']['allow_gid'];
+		$arr['deny_cid']        = $w['wiki']['deny_cid'];
+		$arr['deny_gid']        = $w['wiki']['deny_gid'];
+		$arr['item_private']    = $w['wiki']['item_private'];
+		$arr['item_wall']       = 1;
+		$arr['item_origin']     = 1;
 		$arr['item_thread_top'] = 1;
-		$arr['verb']          = ACTIVITY_CREATE;
-		$arr['obj_type']      = 'Document';
+		$arr['verb']            = ACTIVITY_CREATE;
+		$arr['obj_type']        = 'Document';
 		// TODO: add an object?
-		$arr['public_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_wiki'),true);
+		$arr['public_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'], 'view_wiki'), true);
 
 		// We may wish to change this some day.
 		$arr['item_unpublished'] = 1;
 
-		set_iconfig($arr,'nwikipage','pagetitle',(($name) ? $name : t('(No Title)')),true);
+		set_iconfig($arr, 'nwikipage', 'pagetitle', (($name) ? $name : t('(No Title)')), true);
 		$p = item_store($arr, false, false);
 
-		if($p['item_id']) {
+		if ($p['item_id']) {
 			$page = [
 				'rawName'  => $name,
 				'htmlName' => escape_tags($name),
 				//'urlName'  => urlencode($name),
-				'urlName' => Zlib\NativeWiki::name_encode($name)
+				'urlName'  => NativeWiki::name_encode($name)
 
 			];
 
-			return array('page' => $page, 'item_id' => $p['item_id'], 'item' => $p['activity'], 'wiki' => $w, 'message' => '', 'success' => true);
+			return ['page' => $page, 'item_id' => $p['item_id'], 'item' => $p['activity'], 'wiki' => $w, 'message' => '', 'success' => true];
 		}
-		return [ 'success' => false, 'message' => t('Wiki page create failed.') ];
+		return ['success' => false, 'message' => t('Wiki page create failed.')];
 	}
 
 
 	static public function rename_page($arr) {
 
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
-		$pageNewName   = ((array_key_exists('pageNewName',$arr))   ? $arr['pageNewName']   : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
+		$pageUrlName   = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
+		$pageNewName   = ((array_key_exists('pageNewName', $arr)) ? $arr['pageNewName'] : '');
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-		if(! $w['wiki']) {
-			return array('message' => t('Wiki not found.'), 'success' => false);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		if (!$w['wiki']) {
+			return ['message' => t('Wiki not found.'), 'success' => false];
 		}
 
 
@@ -145,8 +146,8 @@ class NativeWikiPage {
 			dbesc($pageNewName)
 		);
 
-		if($ic) {
-			return [ 'success' => false, 'message' => t('Destination name already exists') ];
+		if ($ic) {
+			return ['success' => false, 'message' => t('Destination name already exists')];
 		}
 
 
@@ -158,9 +159,9 @@ class NativeWikiPage {
 			dbesc($pageUrlName)
 		);
 
-		if($ic) {
-			foreach($ic as $c) {
-				set_iconfig($c['item_id'],'nwikipage','pagetitle',$pageNewName);
+		if ($ic) {
+			foreach ($ic as $c) {
+				set_iconfig($c['item_id'], 'nwikipage', 'pagetitle', $pageNewName);
 				$ids[] = $c['item_id'];
 			}
 
@@ -173,34 +174,31 @@ class NativeWikiPage {
 				'rawName'  => $pageNewName,
 				'htmlName' => escape_tags($pageNewName),
 				//'urlName'  => urlencode(escape_tags($pageNewName))
-				'urlName' => Zlib\NativeWiki::name_encode($pageNewName)
+				'urlName'  => NativeWiki::name_encode($pageNewName)
 			];
 
-			return [ 'success' => true, 'page' => $page ];
+			return ['success' => true, 'page' => $page];
 		}
 
-		return [ 'success' => false, 'message' => t('Page not found') ];
+		return ['success' => false, 'message' => t('Page not found')];
 
 	}
 
 
 	static public function get_page_content($arr) {
 
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']        : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']        : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash']      : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? intval($arr['channel_id']) : 0);
-		$revision      = ((array_key_exists('revision',$arr))      ? intval($arr['revision'])   : (-1));
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? intval($arr['channel_id']) : 0);
 
-
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-		if (! $w['wiki']) {
-			return array('content' => null, 'message' => 'Error reading wiki', 'success' => false);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		if (!$w['wiki']) {
+			return ['content' => null, 'message' => 'Error reading wiki', 'success' => false];
 		}
 
 		$item = self::load_page($arr);
 
-		if($item) {
+		if ($item) {
 			$content = $item['body'];
 
 			return [
@@ -212,62 +210,61 @@ class NativeWikiPage {
 			];
 		}
 
-		return array('content' => null, 'message' => t('Error reading page content'), 'success' => false);
+		return ['content' => null, 'message' => t('Error reading page content'), 'success' => false];
 
 	}
 
 
 	static public function page_history($arr) {
 
-		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
-		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 		if (!$w['wiki']) {
-			return array('history' => null, 'message' => 'Error reading wiki', 'success' => false);
+			return ['history' => null, 'message' => 'Error reading wiki', 'success' => false];
 		}
 
 		$items = self::load_page_history($arr);
 
 		$history = [];
 
-		if($items) {
+		if ($items) {
 			$processed = 0;
-			foreach($items as $item) {
-				if($processed > 1000)
+			foreach ($items as $item) {
+				if ($processed > 1000)
 					break;
-				$processed ++;
+				$processed++;
 				$history[] = [
 					'revision' => $item['revision'],
-					'date' => datetime_convert('UTC',date_default_timezone_get(),$item['edited']),
-					'name' => $item['author']['xchan_name'],
-					'title' => get_iconfig($item,'nwikipage','commit_msg')
+					'date'     => datetime_convert('UTC', date_default_timezone_get(), $item['edited']),
+					'name'     => $item['author']['xchan_name'],
+					'title'    => get_iconfig($item, 'nwikipage', 'commit_msg')
 				];
 
 			}
 
-			return [ 'success' => true, 'history' => $history ];
+			return ['success' => true, 'history' => $history];
 		}
 
-		return [ 'success' => false ];
+		return ['success' => false];
 
 	}
 
 
 	static public function load_page($arr) {
 
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']     : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']     : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash']   : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']      : 0);
-		$revision      = ((array_key_exists('revision',$arr))      ? $arr['revision']        : (-1));
+		$pageUrlName   = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
+		$revision      = ((array_key_exists('revision', $arr)) ? $arr['revision'] : (-1));
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
-		if (! $w['wiki']) {
-			return array('content' => null, 'message' => 'Error reading wiki', 'success' => false);
+		if (!$w['wiki']) {
+			return ['content' => null, 'message' => 'Error reading wiki', 'success' => false];
 		}
 
 		$ids = '';
@@ -277,32 +274,32 @@ class NativeWikiPage {
 			dbesc($pageUrlName)
 		);
 
-		if($ic) {
-			foreach($ic as $c) {
-				if($ids)
+		if ($ic) {
+			foreach ($ic as $c) {
+				if ($ids)
 					$ids .= ',';
 				$ids .= intval($c['iid']);
 			}
 		}
 
-		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
+		$sql_extra = item_permissions_sql($channel_id, $observer_hash);
 
-		if($revision == (-1))
+		if ($revision == (-1))
 			$sql_extra .= " order by revision desc ";
-		elseif($revision)
+		elseif ($revision)
 			$sql_extra .= " and revision = " . intval($revision) . " ";
 
 		$r = null;
 
 
-		if($ids) {
+		if ($ids) {
 			$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and id in ( $ids ) $sql_extra limit 1",
 				dbesc($resource_id),
 				intval($channel_id)
 			);
 
-			if($r) {
-				$items = fetch_post_tags($r,true);
+			if ($r) {
+				$items = fetch_post_tags($r, true);
 				return $items[0];
 			}
 		}
@@ -313,15 +310,14 @@ class NativeWikiPage {
 
 	static public function load_page_history($arr) {
 
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']     : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']     : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash']   : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']      : 0);
-		$revision      = ((array_key_exists('revision',$arr))      ? $arr['revision']        : (-1));
+		$pageUrlName   = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-		if (! $w['wiki']) {
-			return array('content' => null, 'message' => 'Error reading wiki', 'success' => false);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		if (!$w['wiki']) {
+			return ['content' => null, 'message' => 'Error reading wiki', 'success' => false];
 		}
 
 		$ids = '';
@@ -331,27 +327,27 @@ class NativeWikiPage {
 			dbesc($pageUrlName)
 		);
 
-		if($ic) {
-			foreach($ic as $c) {
-				if($ids)
+		if ($ic) {
+			foreach ($ic as $c) {
+				if ($ids)
 					$ids .= ',';
 				$ids .= intval($c['iid']);
 			}
 		}
 
-		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
+		$sql_extra = item_permissions_sql($channel_id, $observer_hash);
 
 		$sql_extra .= " order by revision desc ";
 
 		$r = null;
-		if($ids) {
+		if ($ids) {
 			$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and id in ( $ids ) and item_deleted = 0 $sql_extra",
 				dbesc($resource_id),
 				intval($channel_id)
 			);
-			if($r) {
+			if ($r) {
 				xchan_query($r);
-				$items = fetch_post_tags($r,true);
+				$items = fetch_post_tags($r, true);
 				return $items;
 			}
 		}
@@ -361,17 +357,16 @@ class NativeWikiPage {
 
 
 	static public function save_page($arr) {
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
-		$content       = ((array_key_exists('content',$arr))       ? $arr['content']       : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
-		$revision      = ((array_key_exists('revision',$arr))      ? $arr['revision']      : 0);
+		$pageUrlName   = ((array_key_exists('pageUrlName', $arr)) ? $arr['pageUrlName'] : '');
+		$content       = ((array_key_exists('content', $arr)) ? $arr['content'] : '');
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
 		if (!$w['wiki']) {
-			return array('message' => t('Error reading wiki'), 'success' => false);
+			return ['message' => t('Error reading wiki'), 'success' => false];
 		}
 
 
@@ -379,8 +374,8 @@ class NativeWikiPage {
 
 		$item = self::load_page($arr);
 
-		if(! $item) {
-			return array('message' => t('Page not found'), 'success' => false);
+		if (!$item) {
+			return ['message' => t('Page not found'), 'success' => false];
 		}
 
 		$mimetype = $item['mimetype'];
@@ -396,8 +391,8 @@ class NativeWikiPage {
 		$item['edited']       = datetime_convert();
 		$item['mimetype']     = $mimetype;
 
-		if($item['iconfig'] && is_array($item['iconfig']) && count($item['iconfig'])) {
-			for($x = 0; $x < count($item['iconfig']); $x ++) {
+		if ($item['iconfig'] && is_array($item['iconfig']) && count($item['iconfig'])) {
+			for ($x = 0; $x < count($item['iconfig']); $x++) {
 				unset($item['iconfig'][$x]['id']);
 				unset($item['iconfig'][$x]['iid']);
 			}
@@ -405,23 +400,23 @@ class NativeWikiPage {
 
 		$ret = item_store($item, false, false);
 
-		if($ret['item_id'])
-			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $pageUrlName, 'success' => true);
+		if ($ret['item_id'])
+			return ['message' => '', 'item_id' => $ret['item_id'], 'filename' => $pageUrlName, 'success' => true];
 		else
-			return array('message' => t('Page update failed.'), 'success' => false);
+			return ['message' => t('Page update failed.'), 'success' => false];
 	}
 
 
 	static public function delete_page($arr) {
 
-		$pageUrlName   = (array_key_exists('pageUrlName',$arr) ? $arr['pageUrlName'] : '');
-		$resource_id   = (array_key_exists('resource_id',$arr) ? $arr['resource_id'] : '');
-		$observer_hash = (array_key_exists('observer_hash',$arr) ? $arr['observer_hash'] : '');
-		$channel_id    = (array_key_exists('channel_id',$arr) ? $arr['channel_id'] : 0);
+		$pageUrlName   = (array_key_exists('pageUrlName', $arr) ? $arr['pageUrlName'] : '');
+		$resource_id   = (array_key_exists('resource_id', $arr) ? $arr['resource_id'] : '');
+		$observer_hash = (array_key_exists('observer_hash', $arr) ? $arr['observer_hash'] : '');
+		$channel_id    = (array_key_exists('channel_id', $arr) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-		if(! $w['wiki']) {
-			return [ 'success' => false, 'message' => t('Error reading wiki') ];
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		if (!$w['wiki']) {
+			return ['success' => false, 'message' => t('Error reading wiki')];
 		}
 
 		$ids = [];
@@ -432,141 +427,137 @@ class NativeWikiPage {
 			dbesc($pageUrlName)
 		);
 
-		if($ic) {
-			foreach($ic as $c) {
+		if ($ic) {
+			foreach ($ic as $c) {
 				$ids[] = intval($c['iid']);
 			}
 		}
 
-		if($ids) {
+		if ($ids) {
 			drop_items($ids, true, DROPITEM_PHASE1);
-			return [ 'success' => true ];
+			return ['success' => true];
 		}
 
-		return [ 'success' => false, 'message' => t('Nothing deleted') ];
+		return ['success' => false, 'message' => t('Nothing deleted')];
 	}
 
 
 	static public function revert_page($arr) {
 
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : '');
-		$resource_id   = ((array_key_exists('resource_id',$arr))   ? $arr['resource_id']   : '');
-		$commitHash    = ((array_key_exists('commitHash',$arr))    ? $arr['commitHash']    : null);
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$commitHash    = ((array_key_exists('commitHash', $arr)) ? $arr['commitHash'] : null);
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		if (! $commitHash) {
-			return array('message' => 'No commit was provided', 'success' => false);
+		if (!$commitHash) {
+			return ['message' => 'No commit was provided', 'success' => false];
 		}
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 		if (!$w['wiki']) {
-			return array('message' => 'Error reading wiki', 'success' => false);
+			return ['message' => 'Error reading wiki', 'success' => false];
 		}
 
 		$x = $arr;
 
-		if(intval($commitHash) > 0) {
+		if (intval($commitHash) > 0) {
 			unset($x['commitHash']);
 			$x['revision'] = intval($commitHash) - 1;
-			$loaded = self::load_page($x);
+			$loaded        = self::load_page($x);
 
-			if($loaded) {
+			if ($loaded) {
 				$content = $loaded['body'];
-				return [ 'content' => $content, 'success' => true ];
+				return ['content' => $content, 'success' => true];
 			}
-			return [ 'success' => false ];
+			return ['success' => false];
 		}
 	}
 
 
 	static public function compare_page($arr) {
 
-		$pageUrlName = ((array_key_exists('pageUrlName',$arr)) ? $arr['pageUrlName'] : '');
-		$resource_id = ((array_key_exists('resource_id',$arr)) ? $arr['resource_id'] : '');
-		$currentCommit = ((array_key_exists('currentCommit',$arr)) ? $arr['currentCommit'] : (-1));
-		$compareCommit = ((array_key_exists('compareCommit',$arr)) ? $arr['compareCommit'] : 0);
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
+		$resource_id   = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
+		$compareCommit = ((array_key_exists('compareCommit', $arr)) ? $arr['compareCommit'] : 0);
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
 
 		if (!$w['wiki']) {
-			return array('message' => t('Error reading wiki'), 'success' => false);
+			return ['message' => t('Error reading wiki'), 'success' => false];
 		}
 
-		$x = $arr;
+		$x             = $arr;
 		$x['revision'] = (-1);
 
 		$currpage = self::load_page($x);
-		if($currpage)
+		if ($currpage)
 			$currentContent = $currpage['body'];
 
 		$x['revision'] = $compareCommit;
-		$comppage = self::load_page($x);
-		if($comppage)
+		$comppage      = self::load_page($x);
+		if ($comppage)
 			$compareContent = $comppage['body'];
 
-		if($currpage && $comppage) {
+		if ($currpage && $comppage) {
 			require_once('library/class.Diff.php');
 			$diff = \Diff::toTable(\Diff::compare($currentContent, $compareContent));
 
-			return [ 'success' => true, 'diff' => $diff ];
+			return ['success' => true, 'diff' => $diff];
 		}
-		return [ 'success' => false, 'message' =>  t('Compare: object not found.') ];
+		return ['success' => false, 'message' => t('Compare: object not found.')];
 
 	}
 
 
 	static public function commit($arr) {
 
-		$commit_msg    = ((array_key_exists('commit_msg', $arr))   ? $arr['commit_msg']    : t('Page updated'));
-		$observer_hash = ((array_key_exists('observer_hash',$arr)) ? $arr['observer_hash'] : '');
-		$channel_id    = ((array_key_exists('channel_id',$arr))    ? $arr['channel_id']    : 0);
-		$pageUrlName   = ((array_key_exists('pageUrlName',$arr))   ? $arr['pageUrlName']   : t('Untitled'));
+		$commit_msg    = ((array_key_exists('commit_msg', $arr)) ? $arr['commit_msg'] : t('Page updated'));
+		$observer_hash = ((array_key_exists('observer_hash', $arr)) ? $arr['observer_hash'] : '');
+		$channel_id    = ((array_key_exists('channel_id', $arr)) ? $arr['channel_id'] : 0);
 
-		if(array_key_exists('resource_id', $arr)) {
+		if (array_key_exists('resource_id', $arr)) {
 			$resource_id = $arr['resource_id'];
 		}
 		else {
-			return array('message' => t('Wiki resource_id required for git commit'), 'success' => false);
+			return ['message' => t('Wiki resource_id required for git commit'), 'success' => false];
 		}
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
-		if (! $w['wiki']) {
-			return array('message' => t('Error reading wiki'), 'success' => false);
+		$w = NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		if (!$w['wiki']) {
+			return ['message' => t('Error reading wiki'), 'success' => false];
 		}
 
 
 		$page = self::load_page($arr);
 
-		if($page) {
-			set_iconfig($page['id'],'nwikipage','commit_msg',escape_tags($commit_msg),true);
-			return [ 'success' => true, 'item_id' => $page['id'], 'page' => $page ];
+		if ($page) {
+			set_iconfig($page['id'], 'nwikipage', 'commit_msg', escape_tags($commit_msg), true);
+			return ['success' => true, 'item_id' => $page['id'], 'page' => $page];
 		}
 
-		return [ 'success' => false, 'message' => t('Page not found.') ];
+		return ['success' => false, 'message' => t('Page not found.')];
 
 	}
 
 	static public function convert_links($s, $wikiURL) {
 
-		if (strpos($s,'[[') !== false) {
+		if (strpos($s, '[[') !== false) {
 			preg_match_all("/\[\[(.*?)\]\]/", $s, $match);
-			$pages = $pageURLs = array();
+			$pages = $pageURLs = [];
 			foreach ($match[1] as $m) {
 				// TODO: Why do we need to double urlencode for this to work?
 				//$pageURLs[] = urlencode(urlencode(escape_tags($m)));
-				$titleUri = explode('|',$m);
-				$page = $titleUri[0] ?? '';
-				$title = $titleUri[1] ?? $page;
-				$pageURLs[] = Zlib\NativeWiki::name_encode(escape_tags($page));
-				$pages[] = $title;
+				$titleUri   = explode('|', $m);
+				$page       = $titleUri[0] ?? '';
+				$title      = $titleUri[1] ?? $page;
+				$pageURLs[] = NativeWiki::name_encode(escape_tags($page));
+				$pages[]    = $title;
 			}
 			$idx = 0;
-			while(strpos($s,'[[') !== false) {
-			$replace = '<a href="'.$wikiURL.'/'.$pageURLs[$idx].'">'.$pages[$idx].'</a>';
-				$s = preg_replace("/\[\[(.*?)\]\]/", $replace, $s, 1);
+			while (strpos($s, '[[') !== false) {
+				$replace = '<a href="' . $wikiURL . '/' . $pageURLs[$idx] . '">' . $pages[$idx] . '</a>';
+				$s       = preg_replace("/\[\[(.*?)\]\]/", $replace, $s, 1);
 				$idx++;
 			}
 		}
@@ -579,21 +570,21 @@ class NativeWikiPage {
 		$resource_id = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
 
 		$pageHistory = self::page_history([
-			'channel_id'    => \App::$profile_uid,
+			'channel_id'    => App::$profile_uid,
 			'observer_hash' => get_observer_hash(),
 			'resource_id'   => $resource_id,
 			'pageUrlName'   => $pageUrlName
 		]);
 
-		return replace_macros(get_markup_template('nwiki_page_history.tpl'), array(
+		return replace_macros(get_markup_template('nwiki_page_history.tpl'), [
 			'$pageHistory' => $pageHistory['history'],
 			'$permsWrite'  => $arr['permsWrite'],
 			'$name_lbl'    => t('Name'),
-			'$msg_label'   => t('Message','wiki_history'),
+			'$msg_label'   => t('Message', 'wiki_history'),
 			'$date_lbl'    => t('Date'),
 			'$revert_btn'  => t('Revert'),
 			'$compare_btn' => t('Compare')
-		));
+		]);
 
 	}
 
@@ -605,10 +596,10 @@ class NativeWikiPage {
 	 * @return string
 	 */
 	static public function generate_toc($s) {
-		if (strpos($s,'[toc]') !== false) {
+		if (strpos($s, '[toc]') !== false) {
 			//$toc_md = wiki_toc($s);	// Generate Markdown-formatted list prior to HTML render
 			$toc_md = '<ul id="wiki-toc"></ul>'; // use the available jQuery plugin http://ndabas.github.io/toc/
-			$s = preg_replace("/\[toc\]/", $toc_md, $s, -1);
+			$s      = preg_replace("/\[toc\]/", $toc_md, $s, -1);
 		}
 		return $s;
 	}
@@ -621,25 +612,25 @@ class NativeWikiPage {
 	 */
 	static public function bbcode($s) {
 
-		$s = str_replace(array('[baseurl]', '[sitename]'), array(z_root(), get_config('system', 'sitename')), $s);
+		$s = str_replace(['[baseurl]', '[sitename]'], [z_root(), get_config('system', 'sitename')], $s);
 
-		$s = preg_replace_callback("/\[observer\.language\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_callback', $s);
+		$s = preg_replace_callback("/\[observer\.language\=(.*?)\](.*?)\[\/observer\]/ism", 'oblanguage_callback', $s);
 
-		$s = preg_replace_callback("/\[observer\.language\!\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_necallback', $s);
+		$s = preg_replace_callback("/\[observer\.language\!\=(.*?)\](.*?)\[\/observer\]/ism", 'oblanguage_necallback', $s);
 
 
-		$observer = \App::get_observer();
+		$observer = App::get_observer();
 		if ($observer) {
-			$s1 = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
-			$s2 = '</span>';
+			$s1         = '<span class="bb_observer" title="' . t('Different viewers will see this text differently') . '">';
+			$s2         = '</span>';
 			$obsBaseURL = $observer['xchan_connurl'];
 			$obsBaseURL = preg_replace("/\/poco\/.*$/", '', $obsBaseURL);
-			$s = str_replace('[observer.baseurl]', $obsBaseURL, $s);
-			$s = str_replace('[observer.url]', $observer['xchan_url'], $s);
-			$s = str_replace('[observer.name]', $s1 . $observer['xchan_name'] . $s2, $s);
-			$s = str_replace('[observer.address]', $s1 . $observer['xchan_addr'] . $s2, $s);
-			$s = str_replace('[observer.webname]', substr($observer['xchan_addr'], 0, strpos($observer['xchan_addr'], '@')), $s);
-			$s = str_replace('[observer.photo]', '', $s);
+			$s          = str_replace('[observer.baseurl]', $obsBaseURL, $s);
+			$s          = str_replace('[observer.url]', $observer['xchan_url'], $s);
+			$s          = str_replace('[observer.name]', $s1 . $observer['xchan_name'] . $s2, $s);
+			$s          = str_replace('[observer.address]', $s1 . $observer['xchan_addr'] . $s2, $s);
+			$s          = str_replace('[observer.webname]', substr($observer['xchan_addr'], 0, strpos($observer['xchan_addr'], '@')), $s);
+			$s          = str_replace('[observer.photo]', '', $s);
 		}
 		else {
 			$s = str_replace('[observer.baseurl]', '', $s);
@@ -656,11 +647,11 @@ class NativeWikiPage {
 
 	static public function get_file_ext($arr) {
 
-		if($arr['mimetype'] === 'text/bbcode')
+		if ($arr['mimetype'] === 'text/bbcode')
 			return '.bb';
-		elseif($arr['mimetype'] === 'text/markdown')
+		elseif ($arr['mimetype'] === 'text/markdown')
 			return '.md';
-		elseif($arr['mimetype'] === 'text/plain')
+		elseif ($arr['mimetype'] === 'text/plain')
 			return '.txt';
 
 	}
@@ -668,46 +659,47 @@ class NativeWikiPage {
 	// This function is derived from
 	// http://stackoverflow.com/questions/32068537/generate-table-of-contents-from-markdown-in-php
 	static public function toc($content) {
-	  // ensure using only "\n" as line-break
-	  $source = str_replace(["\r\n", "\r"], "\n", $content);
+		// ensure using only "\n" as line-break
+		$source = str_replace(["\r\n", "\r"], "\n", $content);
 
-	  // look for markdown TOC items
-	  preg_match_all(
-		'/^(?:=|-|#).*$/m',
-		$source,
-		$matches,
-		PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
-	  );
+		// look for markdown TOC items
+		preg_match_all(
+			'/^(?:=|-|#).*$/m',
+			$source,
+			$matches,
+			PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
+		);
 
-	  // preprocess: iterate matched lines to create an array of items
-	  // where each item is an array(level, text)
-	  $file_size = strlen($source);
-	  foreach ($matches[0] as $item) {
-		$found_mark = substr($item[0], 0, 1);
-		if ($found_mark == '#') {
-		  // text is the found item
-		  $item_text = $item[0];
-		  $item_level = strrpos($item_text, '#') + 1;
-		  $item_text = substr($item_text, $item_level);
-		} else {
-		  // text is the previous line (empty if <hr>)
-		  $item_offset = $item[1];
-		  $prev_line_offset = strrpos($source, "\n", -($file_size - $item_offset + 2));
-		  $item_text =
-			substr($source, $prev_line_offset, $item_offset - $prev_line_offset - 1);
-		  $item_text = trim($item_text);
-		  $item_level = $found_mark == '=' ? 1 : 2;
+		// preprocess: iterate matched lines to create an array of items
+		// where each item is an array(level, text)
+		$file_size = strlen($source);
+		foreach ($matches[0] as $item) {
+			$found_mark = substr($item[0], 0, 1);
+			if ($found_mark == '#') {
+				// text is the found item
+				$item_text  = $item[0];
+				$item_level = strrpos($item_text, '#') + 1;
+				$item_text  = substr($item_text, $item_level);
+			}
+			else {
+				// text is the previous line (empty if <hr>)
+				$item_offset      = $item[1];
+				$prev_line_offset = strrpos($source, "\n", -($file_size - $item_offset + 2));
+				$item_text        =
+					substr($source, $prev_line_offset, $item_offset - $prev_line_offset - 1);
+				$item_text        = trim($item_text);
+				$item_level       = $found_mark == '=' ? 1 : 2;
+			}
+			if (!trim($item_text) or strpos($item_text, '|') !== FALSE) {
+				// item is an horizontal separator or a table header, don't mind
+				continue;
+			}
+			$raw_toc[] = ['level' => $item_level, 'text' => trim($item_text)];
 		}
-		if (!trim($item_text) OR strpos($item_text, '|') !== FALSE) {
-		  // item is an horizontal separator or a table header, don't mind
-		  continue;
-		}
-		$raw_toc[] = ['level' => $item_level, 'text' => trim($item_text)];
-	  }
 		$o = '';
-		foreach($raw_toc as $t) {
+		foreach ($raw_toc as $t) {
 			$level = intval($t['level']);
-			$text = $t['text'];
+			$text  = $t['text'];
 			switch ($level) {
 				case 1:
 					$li = '* ';
@@ -727,7 +719,7 @@ class NativeWikiPage {
 			}
 			$o .= $li . $text . "\n";
 		}
-	  return $o;
+		return $o;
 	}
 
 }

@@ -6,14 +6,14 @@
 			</a>
 		</div>
 		<div class="col-7 m-1">
-			<div class="row">
+			<div>
 				<strong class="fn p-name text-truncate">{{$name}}</strong>
 			</div>
-			<div class="row">
+			<div>
 				<small class="text-muted p-adr text-truncate">{{$addr}}</small>
 			</div>
 			{{if $connect}}
-			<div class="row mt-2">
+			<div class="mt-1">
 				<a href="follow?f=&url={{$follow}}&interactive=1" class="btn btn-success btn-sm" rel="nofollow">
 					<i class="fa fa-plus"></i> {{$connect}}
 				</a>

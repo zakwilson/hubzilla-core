@@ -20,7 +20,7 @@ class NativeWikiPage {
 
 		$sql_extra = item_permissions_sql($channel_id,$observer_hash);
 
-		$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and item_deleted = 0 
+		$r = q("select * from item where resource_type = 'nwikipage' and resource_id = '%s' and uid = %d and item_deleted = 0
 			$sql_extra order by title asc",
 			dbesc($resource_id),
 			intval($channel_id)
@@ -56,14 +56,14 @@ class NativeWikiPage {
 	}
 
 
-	static public function create_page($channel_id, $observer_hash, $name, $resource_id, $mimetype = 'text/bbcode') {
+	static public function create_page($channel, $observer_hash, $name, $resource_id, $mimetype = 'text/bbcode') {
 
 		logger('mimetype: ' . $mimetype);
 
 		if(! in_array($mimetype,[ 'text/markdown','text/bbcode','text/plain','text/html' ]))
 			$mimetype = 'text/markdown';
 
-		$w = Zlib\NativeWiki::get_wiki($channel_id, $observer_hash, $resource_id);
+		$w = Zlib\NativeWiki::get_wiki($channel['channel_id'], $observer_hash, $resource_id);
 
 		if (! $w['wiki']) {
 			return array('content' => null, 'message' => 'Error reading wiki', 'success' => false);
@@ -72,10 +72,20 @@ class NativeWikiPage {
 		// backslashes won't work well in the javascript functions
 		$name = str_replace('\\','',$name);
 
-		// create an empty activity
+		$uuid = new_uuid();
+		$mid = z_root() . '/item/' . $uuid;
 
+		// create an empty activity
 		$arr = [];
-		$arr['uid']           = $channel_id;
+		$arr['aid']           = $channel['channel_account_id'];
+		$arr['uid']           = $channel['channel_id'];
+		$arr['mid']           = $mid;
+		$arr['parent_mid']    = $w['wiki']['mid'];
+		$arr['parent']        = $w['wiki']['parent'];
+		$arr['uuid']          = $uuid;
+		$arr['item_hidden']   = $w['wiki']['item_hidden'];
+		$arr['plink']         = $mid;
+		$arr['llink']         = z_root() . '/display/' . gen_link_id($mid);
 		$arr['author_xchan']  = $observer_hash;
 		$arr['mimetype']      = $mimetype;
 		$arr['title']         = $name;
@@ -85,21 +95,26 @@ class NativeWikiPage {
 		$arr['allow_gid']     = $w['wiki']['allow_gid'];
 		$arr['deny_cid']      = $w['wiki']['deny_cid'];
 		$arr['deny_gid']      = $w['wiki']['deny_gid'];
-
-		$arr['public_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel_id,'view_wiki'),true);
+		$arr['item_private']  = $w['wiki']['item_private'];
+		$arr['item_wall']     = 1;
+		$arr['item_origin']   = 1;
+		$arr['item_thread_top'] = 1;
+		$arr['verb']          = ACTIVITY_CREATE;
+		$arr['obj_type']      = 'Document';
+		// TODO: add an object?
+		$arr['public_policy'] = map_scope(\Zotlabs\Access\PermissionLimits::Get($channel['channel_id'],'view_wiki'),true);
 
 		// We may wish to change this some day.
 		$arr['item_unpublished'] = 1;
 
 		set_iconfig($arr,'nwikipage','pagetitle',(($name) ? $name : t('(No Title)')),true);
-
-		$p = post_activity_item($arr, false, false);
+		$p = item_store($arr, false, false);
 
 		if($p['item_id']) {
-			$page = [ 
+			$page = [
 				'rawName'  => $name,
 				'htmlName' => escape_tags($name),
-				//'urlName'  => urlencode($name), 
+				//'urlName'  => urlencode($name),
 				'urlName' => Zlib\NativeWiki::name_encode($name)
 
 			];
@@ -124,7 +139,7 @@ class NativeWikiPage {
 		}
 
 
-		$ic = q("select * from iconfig left join item on iconfig.iid = item.id 
+		$ic = q("select * from iconfig left join item on iconfig.iid = item.id
 			where uid = %d and cat = 'nwikipage' and k = 'pagetitle' and v = '%s'",
 			intval($channel_id),
 			dbesc($pageNewName)
@@ -137,7 +152,7 @@ class NativeWikiPage {
 
 		$ids = [];
 
-		$ic = q("select *, item.id as item_id from iconfig left join item on iconfig.iid = item.id 
+		$ic = q("select *, item.id as item_id from iconfig left join item on iconfig.iid = item.id
 			where uid = %d and cat = 'nwikipage' and k = 'pagetitle' and v = '%s'",
 			intval($channel_id),
 			dbesc($pageUrlName)
@@ -154,9 +169,9 @@ class NativeWikiPage {
 				dbesc($pageNewName)
 			);
 
-			$page = [ 
-				'rawName'  => $pageNewName, 
-				'htmlName' => escape_tags($pageNewName), 
+			$page = [
+				'rawName'  => $pageNewName,
+				'htmlName' => escape_tags($pageNewName),
 				//'urlName'  => urlencode(escape_tags($pageNewName))
 				'urlName' => Zlib\NativeWiki::name_encode($pageNewName)
 			];
@@ -165,7 +180,7 @@ class NativeWikiPage {
 		}
 
 		return [ 'success' => false, 'message' => t('Page not found') ];
-	
+
 	}
 
 
@@ -188,15 +203,15 @@ class NativeWikiPage {
 		if($item) {
 			$content = $item['body'];
 
-			return [ 
+			return [
 				'content'      => $content,
 				'mimeType'     => $w['mimeType'],
-				'pageMimeType' => $item['mimetype'], 
-				'message'      => '', 
+				'pageMimeType' => $item['mimetype'],
+				'message'      => '',
 				'success'      => true
 			];
 		}
-	
+
 		return array('content' => null, 'message' => t('Error reading page content'), 'success' => false);
 
 	}
@@ -224,11 +239,11 @@ class NativeWikiPage {
 				if($processed > 1000)
 					break;
 				$processed ++;
-				$history[] = [ 
+				$history[] = [
 					'revision' => $item['revision'],
 					'date' => datetime_convert('UTC',date_default_timezone_get(),$item['edited']),
 					'name' => $item['author']['xchan_name'],
-					'title' => get_iconfig($item,'nwikipage','commit_msg') 
+					'title' => get_iconfig($item,'nwikipage','commit_msg')
 				];
 
 			}
@@ -239,7 +254,7 @@ class NativeWikiPage {
 		return [ 'success' => false ];
 
 	}
-	
+
 
 	static public function load_page($arr) {
 
@@ -315,7 +330,7 @@ class NativeWikiPage {
 			intval($channel_id),
 			dbesc($pageUrlName)
 		);
-	
+
 		if($ic) {
 			foreach($ic as $c) {
 				if($ids)
@@ -359,8 +374,8 @@ class NativeWikiPage {
 			return array('message' => t('Error reading wiki'), 'success' => false);
 		}
 
-	
-		// fetch the most recently saved revision. 
+
+		// fetch the most recently saved revision.
 
 		$item = self::load_page($arr);
 
@@ -370,7 +385,7 @@ class NativeWikiPage {
 
 		$mimetype = $item['mimetype'];
 
-		// change just the fields we need to change to create a revision; 
+		// change just the fields we need to change to create a revision;
 
 		unset($item['id']);
 		unset($item['author']);
@@ -394,7 +409,7 @@ class NativeWikiPage {
 			return array('message' => '', 'item_id' => $ret['item_id'], 'filename' => $pageUrlName, 'success' => true);
 		else
 			return array('message' => t('Page update failed.'), 'success' => false);
-	}	
+	}
 
 
 	static public function delete_page($arr) {
@@ -411,7 +426,7 @@ class NativeWikiPage {
 
 		$ids = [];
 
-		$ic = q("select * from iconfig left join item on iconfig.iid = item.id 
+		$ic = q("select * from iconfig left join item on iconfig.iid = item.id
 			where uid = %d and cat = 'nwikipage' and k = 'pagetitle' and v = '%s'",
 			intval($channel_id),
 			dbesc($pageUrlName)
@@ -428,9 +443,9 @@ class NativeWikiPage {
 			return [ 'success' => true ];
 		}
 
-		return [ 'success' => false, 'message' => t('Nothing deleted') ];	
+		return [ 'success' => false, 'message' => t('Nothing deleted') ];
 	}
-	
+
 
 	static public function revert_page($arr) {
 
@@ -463,7 +478,7 @@ class NativeWikiPage {
 			return [ 'success' => false ];
 		}
 	}
-	
+
 
 	static public function compare_page($arr) {
 
@@ -501,7 +516,7 @@ class NativeWikiPage {
 		return [ 'success' => false, 'message' =>  t('Compare: object not found.') ];
 
 	}
-	
+
 
 	static public function commit($arr) {
 
@@ -533,9 +548,9 @@ class NativeWikiPage {
 		return [ 'success' => false, 'message' => t('Page not found.') ];
 
 	}
-	
+
 	static public function convert_links($s, $wikiURL) {
-		
+
 		if (strpos($s,'[[') !== false) {
 			preg_match_all("/\[\[(.*?)\]\]/", $s, $match);
 			$pages = $pageURLs = array();
@@ -564,7 +579,7 @@ class NativeWikiPage {
 		$resource_id = ((array_key_exists('resource_id', $arr)) ? $arr['resource_id'] : '');
 
 		$pageHistory = self::page_history([
-			'channel_id'    => \App::$profile_uid, 
+			'channel_id'    => \App::$profile_uid,
 			'observer_hash' => get_observer_hash(),
 			'resource_id'   => $resource_id,
 			'pageUrlName'   => $pageUrlName
@@ -597,7 +612,7 @@ class NativeWikiPage {
 		}
 		return $s;
 	}
-	
+
 
 	/**
 	 *  Converts a select set of bbcode tags. Much of the code is copied from include/bbcode.php
@@ -605,9 +620,9 @@ class NativeWikiPage {
 	 * @return string
 	 */
 	static public function bbcode($s) {
-			
+
 		$s = str_replace(array('[baseurl]', '[sitename]'), array(z_root(), get_config('system', 'sitename')), $s);
-			
+
 		$s = preg_replace_callback("/\[observer\.language\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_callback', $s);
 
 		$s = preg_replace_callback("/\[observer\.language\!\=(.*?)\](.*?)\[\/observer\]/ism",'oblanguage_necallback', $s);
@@ -625,7 +640,7 @@ class NativeWikiPage {
 			$s = str_replace('[observer.address]', $s1 . $observer['xchan_addr'] . $s2, $s);
 			$s = str_replace('[observer.webname]', substr($observer['xchan_addr'], 0, strpos($observer['xchan_addr'], '@')), $s);
 			$s = str_replace('[observer.photo]', '', $s);
-		} 
+		}
 		else {
 			$s = str_replace('[observer.baseurl]', '', $s);
 			$s = str_replace('[observer.url]', '', $s);
@@ -637,7 +652,7 @@ class NativeWikiPage {
 
 		return $s;
 	}
-	
+
 
 	static public function get_file_ext($arr) {
 
@@ -649,13 +664,13 @@ class NativeWikiPage {
 			return '.txt';
 
 	}
-	
-	// This function is derived from 
+
+	// This function is derived from
 	// http://stackoverflow.com/questions/32068537/generate-table-of-contents-from-markdown-in-php
 	static public function toc($content) {
 	  // ensure using only "\n" as line-break
 	  $source = str_replace(["\r\n", "\r"], "\n", $content);
-	
+
 	  // look for markdown TOC items
 	  preg_match_all(
 		'/^(?:=|-|#).*$/m',
@@ -663,7 +678,7 @@ class NativeWikiPage {
 		$matches,
 		PREG_PATTERN_ORDER | PREG_OFFSET_CAPTURE
 	  );
-	
+
 	  // preprocess: iterate matched lines to create an array of items
 	  // where each item is an array(level, text)
 	  $file_size = strlen($source);

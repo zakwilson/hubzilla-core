@@ -500,7 +500,7 @@ class Wiki extends Controller {
 			$r = NativeWiki::create_wiki($owner, $observer_hash, $wiki, $acl);
 			if($r['success']) {
 				NativeWiki::sync_a_wiki_item($owner['channel_id'],$r['item_id'],$r['item']['resource_id']);
-				$homePage = NativeWikiPage::create_page($owner['channel_id'],$observer_hash,'Home', $r['item']['resource_id'], $wiki['mimeType']);
+				$homePage = NativeWikiPage::create_page($owner, $observer_hash, 'Home', $r['item']['resource_id'], $wiki['mimeType']);
 				if(! $homePage['success']) {
 					notice( t('Wiki created, but error creating Home page.'));
 					goaway(z_root() . '/wiki/' . $nick . '/' . NativeWiki::name_encode($wiki['urlName']));
@@ -606,7 +606,7 @@ class Wiki extends Controller {
 				json_return_and_die(array('message' => 'Error creating page. Invalid name (' . print_r($_POST,true) . ').', 'success' => false));
 			}
 
-			$page = NativeWikiPage::create_page($owner['channel_id'],$observer_hash, $name, $resource_id, $mimetype);
+			$page = NativeWikiPage::create_page($owner, $observer_hash, $name, $resource_id, $mimetype);
 			if($page['item_id']) {
 
 				$commit = NativeWikiPage::commit([

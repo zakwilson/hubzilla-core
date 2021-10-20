@@ -1116,7 +1116,7 @@ class Activity {
 			'width'     => 300,
 		];
 
-/* This could be used to distinguish contacts by protocol instead of tags,
+/* This could be used to distinguish actors by protocol instead of tags,
  * array urls are not supported by some AP projects (pixelfed) though.
  *
 		$ret['url'] = [
@@ -1801,8 +1801,7 @@ class Activity {
 		}
 
 		// We store all ActivityPub actors we can resolve. Some of them may be able to communicate over Zot6. Find them.
-		// Only probe if it looks like it looks something like a zot6 URL as there isn't anything in the actor record which we can reliably use for this purpose
-		// and adding zot discovery urls to the actor record will cause federation to fail with the 20-30 projects which don't accept arrays in the url field.
+		// Adding zot discovery urls to the actor record will cause federation to fail with the 20-30 projects which don't accept arrays in the url field.
 
 		$actor_protocols = self::get_actor_protocols($person_obj);
 		if (in_array('zot6', $actor_protocols)) {

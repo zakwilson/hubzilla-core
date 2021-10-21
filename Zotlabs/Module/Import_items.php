@@ -1,6 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use ZipArchive;
+
 require_once('include/import.php');
 
 /**
@@ -24,19 +27,43 @@ class Import_items extends \Zotlabs\Web\Controller {
 		$filesize = intval($_FILES['filename']['size']);
 		$filetype = $_FILES['filename']['type'];
 
+		$channel = App::get_channel();
+
 		if($src) {
+
+			if($filetype === 'application/zip'){
+				$zip = new ZipArchive;
+
+				$r = $zip->open($src);
+				if ($r === true) {
+					for ($i = 0; $i < $zip->count(); $i++) {
+						$data = $zip->getFromIndex($i);
+						self::import($channel, $data);
+					}
+					$zip->close();
+					unlink($src);
+					return;
+				}
+
+				notice( t('Not a zip file or zip file corrupted.') . EOL);
+				unlink($src);
+				return;
+			}
+
 			// This is OS specific and could also fail if your tmpdir isn't very large
 			// mostly used for Diaspora which exports gzipped files.
 
-			if(strpos($filename,'.gz')){
-				@rename($src,$src . '.gz');
-				@system('gunzip ' . escapeshellarg($src . '.gz'));
-			}
+			//if(strpos($filename,'.gz')){
+				//@rename($src,$src . '.gz');
+				//@system('gunzip ' . escapeshellarg($src . '.gz'));
+			//}
 
 			if($filesize) {
 				$data = @file_get_contents($src);
+				self::import($channel, $data);
 			}
 			unlink($src);
+			return;
 		}
 /*
 		if(! $src) {
@@ -73,6 +100,35 @@ class Import_items extends \Zotlabs\Web\Controller {
 		}
 */
 
+	}
+
+
+	/**
+	 * @brief Generate item import page.
+	 *
+	 * @return string with parsed HTML.
+	 */
+	function get() {
+
+		if(! local_channel()) {
+			notice( t('Permission denied') . EOL);
+			return login();
+		}
+
+		$o = replace_macros(get_markup_template('item_import.tpl'), array(
+			'$title' => t('Import Items'),
+			'$desc' => t('Use this form to import existing posts and content from an export file.'),
+			'$label_filename' => t('File to Upload'),
+			'$form_security_token' => get_form_security_token('import_items'),
+			'$submit' => t('Submit')
+		));
+
+		return $o;
+	}
+
+
+	public static function import($channel, $data) {
+
 		if(! $data) {
 			logger('Empty file.');
 			notice( t('Imported file is empty.') . EOL);
@@ -94,8 +150,6 @@ class Import_items extends \Zotlabs\Web\Controller {
 				notice($t . EOL);
 			}
 		}
-
-		$channel = \App::get_channel();
 
 		if(array_key_exists('item',$data) && is_array($data['item'])) {
 			import_items($channel, $data['item'], false, ((array_key_exists('relocate',$data)) ? $data['relocate'] : null));
@@ -136,30 +190,7 @@ class Import_items extends \Zotlabs\Web\Controller {
 			info( t('Webpages import completed') . EOL);
 		}
 
-	}
-
-
-	/**
-	 * @brief Generate item import page.
-	 *
-	 * @return string with parsed HTML.
-	 */
-	function get() {
-
-		if(! local_channel()) {
-			notice( t('Permission denied') . EOL);
-			return login();
-		}
-
-		$o = replace_macros(get_markup_template('item_import.tpl'), array(
-			'$title' => t('Import Items'),
-			'$desc' => t('Use this form to import existing posts and content from an export file.'),
-			'$label_filename' => t('File to Upload'),
-			'$form_security_token' => get_form_security_token('import_items'),
-			'$submit' => t('Submit')
-		));
-
-		return $o;
+		return;
 	}
 
 }

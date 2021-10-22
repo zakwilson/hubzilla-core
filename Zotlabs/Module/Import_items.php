@@ -141,8 +141,9 @@ class Import_items extends Controller {
 		//logger('import: data: ' . print_r($data,true));
 		//print_r($data);
 
-		if (!is_array($data))
+		if (!is_array($data)) {
 			return;
+		}
 
 		//if (array_key_exists('compatibility', $data) && array_key_exists('database', $data['compatibility'])) {
 			//$v1 = substr($data['compatibility']['database'], -4);
@@ -173,7 +174,6 @@ class Import_items extends Controller {
 		if (array_key_exists('event_item', $data) && is_array($data['event_item'])) {
 			import_items($channel, $data['event_item'], false, ((array_key_exists('relocate', $data)) ? $data['relocate'] : null));
 			info(t('Channel calendar import 2/2 completed') . EOL);
-
 		}
 
 		if (array_key_exists('menu', $data) && is_array($data['menu'])) {
@@ -184,7 +184,6 @@ class Import_items extends Controller {
 		if (array_key_exists('wiki', $data) && is_array($data['wiki'])) {
 			import_items($channel, $data['wiki'], false, ((array_key_exists('relocate', $data)) ? $data['relocate'] : null));
 			info(t('Wiki import completed') . EOL);
-
 		}
 
 		if (array_key_exists('webpages', $data) && is_array($data['webpages'])) {

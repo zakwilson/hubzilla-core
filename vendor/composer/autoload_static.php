@@ -23,6 +23,10 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixLengthsPsr4 = array (
+        'v' => 
+        array (
+            'voku\\' => 5,
+        ),
         'p' => 
         array (
             'phpseclib\\' => 10,
@@ -82,6 +86,11 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixDirsPsr4 = array (
+        'voku\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
+            1 => __DIR__ . '/..' . '/voku/stop-words/src/voku',
+        ),
         'phpseclib\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
@@ -177,6 +186,13 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
     );
 
     public static $prefixesPsr0 = array (
+        'U' => 
+        array (
+            'URLify' => 
+            array (
+                0 => __DIR__ . '/..' . '/jbroadway/urlify',
+            ),
+        ),
         'T' => 
         array (
             'Text' => 
@@ -1285,6 +1301,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Text_LanguageDetect_Exception' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
         'Text_LanguageDetect_ISO639' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
         'Text_LanguageDetect_Parser' => __DIR__ . '/..' . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
+        'URLify' => __DIR__ . '/..' . '/jbroadway/urlify/URLify.php',
         'UnhandledMatchError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
         'UploadHandler' => __DIR__ . '/..' . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
         'ValueError' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
@@ -1394,6 +1411,7 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'Zotlabs\\Module\\Admin\\Site' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Site.php',
         'Zotlabs\\Module\\Admin\\Themes' => __DIR__ . '/../..' . '/Zotlabs/Module/Admin/Themes.php',
         'Zotlabs\\Module\\Affinity' => __DIR__ . '/../..' . '/Zotlabs/Module/Affinity.php',
+        'Zotlabs\\Module\\Album' => __DIR__ . '/../..' . '/Zotlabs/Module/Album.php',
         'Zotlabs\\Module\\Api' => __DIR__ . '/../..' . '/Zotlabs/Module/Api.php',
         'Zotlabs\\Module\\Appman' => __DIR__ . '/../..' . '/Zotlabs/Module/Appman.php',
         'Zotlabs\\Module\\Apporder' => __DIR__ . '/../..' . '/Zotlabs/Module/Apporder.php',
@@ -1969,6 +1987,9 @@ class ComposerStaticInit7b34d7e50a62201ec5d5e526a5b8b35d
         'phpseclib\\Net\\SSH2' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
         'phpseclib\\System\\SSH\\Agent' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
         'phpseclib\\System\\SSH\\Agent\\Identity' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
+        'voku\\helper\\ASCII' => __DIR__ . '/..' . '/voku/portable-ascii/src/voku/helper/ASCII.php',
+        'voku\\helper\\StopWords' => __DIR__ . '/..' . '/voku/stop-words/src/voku/helper/StopWords.php',
+        'voku\\helper\\StopWordsLanguageNotExists' => __DIR__ . '/..' . '/voku/stop-words/src/voku/helper/StopWordsLanguageNotExists.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

@@ -1083,6 +1083,7 @@ return array(
     'Text_LanguageDetect_Exception' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/Exception.php',
     'Text_LanguageDetect_ISO639' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/ISO639.php',
     'Text_LanguageDetect_Parser' => $vendorDir . '/pear/text_languagedetect/Text/LanguageDetect/Parser.php',
+    'URLify' => $vendorDir . '/jbroadway/urlify/URLify.php',
     'UnhandledMatchError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/UnhandledMatchError.php',
     'UploadHandler' => $vendorDir . '/blueimp/jquery-file-upload/server/php/UploadHandler.php',
     'ValueError' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/ValueError.php',
@@ -1192,6 +1193,7 @@ return array(
     'Zotlabs\\Module\\Admin\\Site' => $baseDir . '/Zotlabs/Module/Admin/Site.php',
     'Zotlabs\\Module\\Admin\\Themes' => $baseDir . '/Zotlabs/Module/Admin/Themes.php',
     'Zotlabs\\Module\\Affinity' => $baseDir . '/Zotlabs/Module/Affinity.php',
+    'Zotlabs\\Module\\Album' => $baseDir . '/Zotlabs/Module/Album.php',
     'Zotlabs\\Module\\Api' => $baseDir . '/Zotlabs/Module/Api.php',
     'Zotlabs\\Module\\Appman' => $baseDir . '/Zotlabs/Module/Appman.php',
     'Zotlabs\\Module\\Apporder' => $baseDir . '/Zotlabs/Module/Apporder.php',
@@ -1767,4 +1769,7 @@ return array(
     'phpseclib\\Net\\SSH2' => $vendorDir . '/phpseclib/phpseclib/phpseclib/Net/SSH2.php',
     'phpseclib\\System\\SSH\\Agent' => $vendorDir . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent.php',
     'phpseclib\\System\\SSH\\Agent\\Identity' => $vendorDir . '/phpseclib/phpseclib/phpseclib/System/SSH/Agent/Identity.php',
+    'voku\\helper\\ASCII' => $vendorDir . '/voku/portable-ascii/src/voku/helper/ASCII.php',
+    'voku\\helper\\StopWords' => $vendorDir . '/voku/stop-words/src/voku/helper/StopWords.php',
+    'voku\\helper\\StopWordsLanguageNotExists' => $vendorDir . '/voku/stop-words/src/voku/helper/StopWordsLanguageNotExists.php',
 );

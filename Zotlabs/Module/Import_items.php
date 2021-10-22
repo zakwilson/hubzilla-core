@@ -144,14 +144,14 @@ class Import_items extends Controller {
 		if (!is_array($data))
 			return;
 
-		if (array_key_exists('compatibility', $data) && array_key_exists('database', $data['compatibility'])) {
-			$v1 = substr($data['compatibility']['database'], -4);
-			$v2 = substr(DB_UPDATE_VERSION, -4);
-			if ($v2 > $v1) {
-				$t = sprintf(t('Warning: Database versions differ by %1$d updates.'), $v2 - $v1);
-				notice($t . EOL);
-			}
-		}
+		//if (array_key_exists('compatibility', $data) && array_key_exists('database', $data['compatibility'])) {
+			//$v1 = substr($data['compatibility']['database'], -4);
+			//$v2 = substr(DB_UPDATE_VERSION, -4);
+			//if ($v2 > $v1) {
+				//$t = sprintf(t('Warning: Database versions differ by %1$d updates.'), $v2 - $v1);
+				//notice($t . EOL);
+			//}
+		//}
 
 		if (array_key_exists('item', $data) && is_array($data['item'])) {
 			import_items($channel, $data['item'], false, ((array_key_exists('relocate', $data)) ? $data['relocate'] : null));

@@ -5,14 +5,12 @@ namespace Zotlabs\Module;
 require_once('include/channel.php');
 require_once('include/import.php');
 require_once('include/perm_upgrade.php');
-require_once('library/urlify/URLify.php');
 
 use App;
+use URLify;
 use Zotlabs\Daemon\Master;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Web\Controller;
-use Zotlabs\Web\HTTPSig;
-use Zotlabs\Lib\PConfig;
 
 
 /**
@@ -175,7 +173,7 @@ class Import extends Controller {
 				}
 
 				if ((!$x) || strlen($x) > 64) {
-					$x = strtolower(\URLify::transliterate($newname));
+					$x = strtolower(URLify::transliterate($newname));
 				}
 				$newname = $x;
 			}

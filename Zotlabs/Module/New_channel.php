@@ -1,6 +1,8 @@
 <?php
 namespace Zotlabs\Module;
 
+use URLify;
+
 require_once('include/channel.php');
 require_once('include/permissions.php');
 
@@ -13,7 +15,6 @@ class New_channel extends \Zotlabs\Web\Controller {
 		$cmd = ((argc() > 1) ? argv(1) : '');
 
 		if($cmd === 'autofill.json') {
-			require_once('library/urlify/URLify.php');
 			$result = array('error' => false, 'message' => '');
 			$n = trim($_REQUEST['name']);
 
@@ -24,7 +25,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			}
 
 			if((! $x) || strlen($x) > 64)
-				$x = strtolower(\URLify::transliterate($n));
+				$x = strtolower(URLify::transliterate($n));
 
 			$test = array();
 
@@ -46,7 +47,6 @@ class New_channel extends \Zotlabs\Web\Controller {
 		}
 
 		if($cmd === 'checkaddr.json') {
-			require_once('library/urlify/URLify.php');
 			$result = array('error' => false, 'message' => '');
 			$n = trim($_REQUEST['nick']);
 			if(! $n) {
@@ -60,7 +60,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 			}
 
 			if((! $x) || strlen($x) > 64)
-				$x = strtolower(\URLify::transliterate($n));
+				$x = strtolower(URLify::transliterate($n));
 
 
 			$test = array();

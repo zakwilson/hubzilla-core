@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Module;
 
+use URLify;
 use Zotlabs\Lib\Config;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Enotify;
@@ -15,7 +16,6 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Access\PermissionRoles;
-use App;
 
 require_once('include/crypto.php');
 require_once('include/items.php');
@@ -415,8 +415,7 @@ class Item extends Controller {
 		}
 
 		if($pagetitle) {
-			require_once('library/urlify/URLify.php');
-			$pagetitle = strtolower(\URLify::transliterate($pagetitle));
+			$pagetitle = strtolower(URLify::transliterate($pagetitle));
 		}
 
 

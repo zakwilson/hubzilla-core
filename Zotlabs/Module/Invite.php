@@ -225,7 +225,7 @@ class Invite extends Controller {
 					'$projectname'		=> t('$Projectname'),
 					'$invite_code'		=> $invite_code,
 					'$invite_where' 	=> z_root() . '/register',
-					'$invite_whereami'	=> str_replace('@', '@+', $reonar['whereami']),
+					'$invite_whereami'	=> $reonar['whereami'],
 					'$invite_whoami'	=> z_root() . '/channel/' . $reonar['whoami'],
 					'$invite_anywhere'	=> z_root() . '/pubsites'
 				)

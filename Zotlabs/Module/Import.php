@@ -35,17 +35,17 @@ class Import extends Controller {
 			return;
 		}
 
-		$max_friends = account_service_class_fetch($account_id, 'total_channels');
-		$max_feeds = account_service_class_fetch($account_id, 'total_feeds');
-		$data = null;
-		$seize = ((x($_REQUEST, 'make_primary')) ? intval($_REQUEST['make_primary']) : 0);
+		$max_friends  = account_service_class_fetch($account_id, 'total_channels');
+		$max_feeds    = account_service_class_fetch($account_id, 'total_feeds');
+		$data         = null;
+		$seize        = ((x($_REQUEST, 'make_primary')) ? intval($_REQUEST['make_primary']) : 0);
 		$import_posts = ((x($_REQUEST, 'import_posts')) ? intval($_REQUEST['import_posts']) : 0);
-		$moving = false; //intval($_REQUEST['moving']);
-		$src = $_FILES['filename']['tmp_name'];
-		$filename = basename($_FILES['filename']['name']);
-		$filesize = intval($_FILES['filename']['size']);
-		$filetype = $_FILES['filename']['type'];
-		$newname = trim(strtolower($_REQUEST['newname']));
+		$moving       = false; //intval($_REQUEST['moving']);
+		$src          = $_FILES['filename']['tmp_name'];
+		$filename     = basename($_FILES['filename']['name']);
+		$filesize     = intval($_FILES['filename']['size']);
+		$filetype     = $_FILES['filename']['type'];
+		$newname      = trim(strtolower($_REQUEST['newname']));
 
 		// import channel from file
 		if ($src) {
@@ -71,16 +71,17 @@ class Import extends Controller {
 				logger('Nothing to import.');
 				notice(t('Nothing to import.') . EOL);
 				return;
-			} else if (strpos($old_address, '＠')) {
+			}
+			else if (strpos($old_address, '＠')) {
 				// if you copy the identity address from your profile page, make it work for convenience - WARNING: this is a utf-8 variant and NOT an ASCII ampersand. Please do not edit.
 				$old_address = str_replace('＠', '@', $old_address);
 			}
 
-			$email = ((x($_REQUEST, 'email')) ? $_REQUEST['email'] : '');
+			$email    = ((x($_REQUEST, 'email')) ? $_REQUEST['email'] : '');
 			$password = ((x($_REQUEST, 'password')) ? $_REQUEST['password'] : '');
 
 			$channelname = substr($old_address, 0, strpos($old_address, '@'));
-			$servername = substr($old_address, strpos($old_address, '@') + 1);
+			$servername  = substr($old_address, strpos($old_address, '@') + 1);
 
 			$api_path = probe_api_path($servername);
 			if (!$api_path) {
@@ -90,13 +91,14 @@ class Import extends Controller {
 
 			$api_path .= 'channel/export/basic?f=&channel=' . $channelname;
 
-			$binary = false;
+			$binary    = false;
 			$redirects = 0;
-			$opts = array('http_auth' => $email . ':' . $password);
-			$ret = z_fetch_url($api_path, $binary, $redirects, $opts);
+			$opts      = ['http_auth' => $email . ':' . $password];
+			$ret       = z_fetch_url($api_path, $binary, $redirects, $opts);
 			if ($ret['success']) {
 				$data = $ret['body'];
-			} else {
+			}
+			else {
 				notice(t('Unable to download data from old server') . EOL);
 				return;
 			}
@@ -179,8 +181,9 @@ class Import extends Controller {
 			}
 
 			$channel = import_channel($data['channel'], $account_id, $seize, $newname);
-		} else {
-			$moving = false;
+		}
+		else {
+			$moving  = false;
 			$channel = App::get_channel();
 		}
 
@@ -216,20 +219,20 @@ class Import extends Controller {
 
 			$r = hubloc_store_lowlevel(
 				[
-					'hubloc_guid' => $channel['channel_guid'],
+					'hubloc_guid'     => $channel['channel_guid'],
 					'hubloc_guid_sig' => $channel['channel_guid_sig'],
-					'hubloc_hash' => $channel['channel_hash'],
-					'hubloc_addr' => channel_reddress($channel),
-					'hubloc_network' => 'zot6',
-					'hubloc_primary' => (($seize) ? 1 : 0),
-					'hubloc_url' => z_root(),
-					'hubloc_url_sig' => Libzot::sign(z_root(),$channel['channel_prvkey']),
-					'hubloc_host' => App::get_hostname(),
+					'hubloc_hash'     => $channel['channel_hash'],
+					'hubloc_addr'     => channel_reddress($channel),
+					'hubloc_network'  => 'zot6',
+					'hubloc_primary'  => (($seize) ? 1 : 0),
+					'hubloc_url'      => z_root(),
+					'hubloc_url_sig'  => Libzot::sign(z_root(), $channel['channel_prvkey']),
+					'hubloc_host'     => App::get_hostname(),
 					'hubloc_callback' => z_root() . '/zot',
-					'hubloc_sitekey' => get_config('system', 'pubkey'),
-					'hubloc_updated' => datetime_convert(),
-					'hubloc_id_url' => channel_url($channel),
-					'hubloc_site_id' => Libzot::make_xchan_hash(z_root(), get_config('system', 'pubkey'))
+					'hubloc_sitekey'  => get_config('system', 'pubkey'),
+					'hubloc_updated'  => datetime_convert(),
+					'hubloc_id_url'   => channel_url($channel),
+					'hubloc_site_id'  => Libzot::make_xchan_hash(z_root(), get_config('system', 'pubkey'))
 				]
 			);
 
@@ -257,21 +260,21 @@ class Import extends Controller {
 
 			$r = xchan_store_lowlevel(
 				[
-					'xchan_hash' => $channel['channel_hash'],
-					'xchan_guid' => $channel['channel_guid'],
-					'xchan_guid_sig' => $channel['channel_guid_sig'],
-					'xchan_pubkey' => $channel['channel_pubkey'],
-					'xchan_photo_l' => z_root() . "/photo/profile/l/" . $channel['channel_id'],
-					'xchan_photo_m' => z_root() . "/photo/profile/m/" . $channel['channel_id'],
-					'xchan_photo_s' => z_root() . "/photo/profile/s/" . $channel['channel_id'],
-					'xchan_addr' => channel_reddress($channel),
-					'xchan_url' => z_root() . '/channel/' . $channel['channel_address'],
-					'xchan_connurl' => z_root() . '/poco/' . $channel['channel_address'],
-					'xchan_follow' => z_root() . '/follow?f=&url=%s',
-					'xchan_name' => $channel['channel_name'],
-					'xchan_network' => 'zot6',
+					'xchan_hash'       => $channel['channel_hash'],
+					'xchan_guid'       => $channel['channel_guid'],
+					'xchan_guid_sig'   => $channel['channel_guid_sig'],
+					'xchan_pubkey'     => $channel['channel_pubkey'],
+					'xchan_photo_l'    => z_root() . "/photo/profile/l/" . $channel['channel_id'],
+					'xchan_photo_m'    => z_root() . "/photo/profile/m/" . $channel['channel_id'],
+					'xchan_photo_s'    => z_root() . "/photo/profile/s/" . $channel['channel_id'],
+					'xchan_addr'       => channel_reddress($channel),
+					'xchan_url'        => z_root() . '/channel/' . $channel['channel_address'],
+					'xchan_connurl'    => z_root() . '/poco/' . $channel['channel_address'],
+					'xchan_follow'     => z_root() . '/follow?f=&url=%s',
+					'xchan_name'       => $channel['channel_name'],
+					'xchan_network'    => 'zot6',
 					'xchan_photo_date' => datetime_convert(),
-					'xchan_name_date' => datetime_convert()
+					'xchan_name_date'  => datetime_convert()
 				]
 			);
 
@@ -293,13 +296,13 @@ class Import extends Controller {
 				}
 
 				if (!array_key_exists('xchan_hidden', $xchan)) {
-					$xchan['xchan_hidden'] = (($xchan['xchan_flags'] & 0x0001) ? 1 : 0);
-					$xchan['xchan_orphan'] = (($xchan['xchan_flags'] & 0x0002) ? 1 : 0);
-					$xchan['xchan_censored'] = (($xchan['xchan_flags'] & 0x0004) ? 1 : 0);
+					$xchan['xchan_hidden']       = (($xchan['xchan_flags'] & 0x0001) ? 1 : 0);
+					$xchan['xchan_orphan']       = (($xchan['xchan_flags'] & 0x0002) ? 1 : 0);
+					$xchan['xchan_censored']     = (($xchan['xchan_flags'] & 0x0004) ? 1 : 0);
 					$xchan['xchan_selfcensored'] = (($xchan['xchan_flags'] & 0x0008) ? 1 : 0);
-					$xchan['xchan_system'] = (($xchan['xchan_flags'] & 0x0010) ? 1 : 0);
-					$xchan['xchan_pubforum'] = (($xchan['xchan_flags'] & 0x0020) ? 1 : 0);
-					$xchan['xchan_deleted'] = (($xchan['xchan_flags'] & 0x1000) ? 1 : 0);
+					$xchan['xchan_system']       = (($xchan['xchan_flags'] & 0x0010) ? 1 : 0);
+					$xchan['xchan_pubforum']     = (($xchan['xchan_flags'] & 0x0020) ? 1 : 0);
+					$xchan['xchan_deleted']      = (($xchan['xchan_flags'] & 0x1000) ? 1 : 0);
 				}
 
 				$r = q("select xchan_hash from xchan where xchan_hash = '%s' limit 1",
@@ -319,7 +322,8 @@ class Import extends Controller {
 						dbesc(z_root() . '/photo/profile/s/' . $channel['channel_id']),
 						dbesc($xchan['xchan_hash'])
 					);
-				} else {
+				}
+				else {
 					$photos = import_xchan_photo($xchan['xchan_photo_l'], $xchan['xchan_hash']);
 					if ($photos[4])
 						$photodate = NULL_DATE;
@@ -348,7 +352,7 @@ class Import extends Controller {
 		}
 
 		$friends = 0;
-		$feeds = 0;
+		$feeds   = 0;
 
 		// import contacts
 		$abooks = $data['abook'];
@@ -372,14 +376,14 @@ class Import extends Controller {
 				$abook['abook_account'] = $account_id;
 				$abook['abook_channel'] = $channel['channel_id'];
 				if (!array_key_exists('abook_blocked', $abook)) {
-					$abook['abook_blocked'] = (($abook['abook_flags'] & 0x0001) ? 1 : 0);
-					$abook['abook_ignored'] = (($abook['abook_flags'] & 0x0002) ? 1 : 0);
-					$abook['abook_hidden'] = (($abook['abook_flags'] & 0x0004) ? 1 : 0);
-					$abook['abook_archived'] = (($abook['abook_flags'] & 0x0008) ? 1 : 0);
-					$abook['abook_pending'] = (($abook['abook_flags'] & 0x0010) ? 1 : 0);
+					$abook['abook_blocked']     = (($abook['abook_flags'] & 0x0001) ? 1 : 0);
+					$abook['abook_ignored']     = (($abook['abook_flags'] & 0x0002) ? 1 : 0);
+					$abook['abook_hidden']      = (($abook['abook_flags'] & 0x0004) ? 1 : 0);
+					$abook['abook_archived']    = (($abook['abook_flags'] & 0x0008) ? 1 : 0);
+					$abook['abook_pending']     = (($abook['abook_flags'] & 0x0010) ? 1 : 0);
 					$abook['abook_unconnected'] = (($abook['abook_flags'] & 0x0020) ? 1 : 0);
-					$abook['abook_self'] = (($abook['abook_flags'] & 0x0080) ? 1 : 0);
-					$abook['abook_feed'] = (($abook['abook_flags'] & 0x0100) ? 1 : 0);
+					$abook['abook_self']        = (($abook['abook_flags'] & 0x0080) ? 1 : 0);
+					$abook['abook_feed']        = (($abook['abook_flags'] & 0x0100) ? 1 : 0);
 				}
 
 				if (array_key_exists('abook_instance', $abook) && $abook['abook_instance'] && strpos($abook['abook_instance'], z_root()) === false) {
@@ -393,7 +397,8 @@ class Import extends Controller {
 							dbesc($abook['abook_xchan'])
 						);
 					}
-				} else {
+				}
+				else {
 					if ($max_friends !== false && $friends > $max_friends)
 						continue;
 					if ($max_feeds !== false && intval($abook['abook_feed']) && ($feeds > $max_feeds))
@@ -413,7 +418,8 @@ class Import extends Controller {
 							intval($channel['channel_id'])
 						);
 					}
-				} else {
+				}
+				else {
 					abook_store_lowlevel($abook);
 
 					$friends++;
@@ -438,9 +444,9 @@ class Import extends Controller {
 		// import groups
 		$groups = $data['group'];
 		if ($groups) {
-			$saved = array();
+			$saved = [];
 			foreach ($groups as $group) {
-				$saved[$group['hash']] = array('old' => $group['id']);
+				$saved[$group['hash']] = ['old' => $group['id']];
 				if (array_key_exists('name', $group)) {
 					$group['gname'] = $group['name'];
 					unset($group['name']);
@@ -507,7 +513,7 @@ class Import extends Controller {
 		if (is_array($data['webpages']))
 			import_items($channel, $data['webpages'], false, $relocate);
 
-		$addon = array('channel' => $channel, 'data' => $data);
+		$addon = ['channel' => $channel, 'data' => $data];
 		call_hooks('import_channel', $addon);
 
 		if ($import_posts && array_key_exists('item', $data) && $data['item']) {
@@ -515,10 +521,10 @@ class Import extends Controller {
 		}
 
 		// Immediately notify old server about the new clone
-		Master::Summon( [ 'Notifier', 'refresh_all', $channel['channel_id'] ] );
+		Master::Summon(['Notifier', 'refresh_all', $channel['channel_id']]);
 
 		// This will indirectly perform a refresh_all *and* update the directory
-		Master::Summon(array('Directory', $channel['channel_id']));
+		Master::Summon(['Directory', $channel['channel_id']]);
 
 		$cf_api_compat = true;
 
@@ -529,14 +535,14 @@ class Import extends Controller {
 
 				$hz_server = $m['scheme'] . '://' . $m['host'];
 
-				$since = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'0001-01-01 00:00');
-				$until = datetime_convert(date_default_timezone_get(),date_default_timezone_get(),'now + 1 day');
+				$since = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), '0001-01-01 00:00');
+				$until = datetime_convert(date_default_timezone_get(), date_default_timezone_get(), 'now + 1 day');
 
-				$poll_interval = get_config('system','poll_interval',3);
-				$page = 0;
+				$poll_interval = get_config('system', 'poll_interval', 3);
+				$page          = 0;
 
-				Master::Summon([ 'Content_importer', sprintf('%d',$page), $since, $until, $channel['channel_address'], urlencode($hz_server) ]);
-				Master::Summon([ 'File_importer',sprintf('%d',$page), $channel['channel_address'], urlencode($hz_server) ]);
+				Master::Summon(['Content_importer', sprintf('%d', $page), $since, $until, $channel['channel_address'], urlencode($hz_server)]);
+				Master::Summon(['File_importer', sprintf('%d', $page), $channel['channel_address'], urlencode($hz_server)]);
 			}
 			else {
 				$cf_api_compat = false;
@@ -550,7 +556,7 @@ class Import extends Controller {
 		}
 
 		if (!$cf_api_compat) {
-			notice(t('Automatic content and files import was not possible due to API version incompatiblity. Please import content and files manually!') .  EOL);
+			notice(t('Automatic content and files import was not possible due to API version incompatiblity. Please import content and files manually!') . EOL);
 		}
 
 		goaway(z_root());
@@ -584,28 +590,28 @@ class Import extends Controller {
 
 		nav_set_selected('Channel Import');
 
-		$o = replace_macros(get_markup_template('channel_import.tpl'), array(
-			'$title' => t('Channel Import'),
-			'$desc' => t('Use this form to import an existing channel from a different server/hub. You may retrieve the channel identity from the old server/hub via the network or provide an export file.'),
+		$o = replace_macros(get_markup_template('channel_import.tpl'), [
+			'$title'          => t('Channel Import'),
+			'$desc'           => t('Use this form to import an existing channel from a different server/hub. You may retrieve the channel identity from the old server/hub via the network or provide an export file.'),
 			'$label_filename' => t('File to Upload'),
-			'$choice' => t('Or provide the old server/hub details'),
+			'$choice'         => t('Or provide the old server/hub details'),
 
-			'$old_address' => ['old_address', t('Your old identity address (xyz@example.com)'), '', ''],
-			'$email' => ['email', t('Your old login email address'), '', ''],
-			'$password' => ['password', t('Your old login password'), '', ''],
+			'$old_address'  => ['old_address', t('Your old identity address (xyz@example.com)'), '', ''],
+			'$email'        => ['email', t('Your old login email address'), '', ''],
+			'$password'     => ['password', t('Your old login password'), '', ''],
 			'$import_posts' => ['import_posts', t('Import your items and files (limited by available memory)'), false, '', [t('No'), t('Yes')]],
 
 			'$common' => t('For either option, please choose whether to make this hub your new primary address, or whether your old location should continue this role. You will be able to post from either location, but only one can be marked as the primary location for files, photos, and media.'),
 
 			'$make_primary' => ['make_primary', t('Make this hub my primary location'), false, '', [t('No'), t('Yes')]],
-			'$moving' => ['moving', t('Move this channel (disable all previous locations)'), false, '', [t('No'), t('Yes')]],
-			'$newname' => ['newname', t('Use this channel nickname instead of the one provided'), '', t('Leave blank to keep your existing channel nickname. You will be randomly assigned a similar nickname if either name is already allocated on this site.')],
+			'$moving'       => ['moving', t('Move this channel (disable all previous locations)'), false, '', [t('No'), t('Yes')]],
+			'$newname'      => ['newname', t('Use this channel nickname instead of the one provided'), '', t('Leave blank to keep your existing channel nickname. You will be randomly assigned a similar nickname if either name is already allocated on this site.')],
 
 			'$pleasewait' => t('This process may take several minutes to complete. Please submit the form only once and leave this page open until finished.'),
 
 			'$form_security_token' => get_form_security_token('channel_import'),
-			'$submit' => t('Submit')
-		));
+			'$submit'              => t('Submit')
+		]);
 
 		return $o;
 	}

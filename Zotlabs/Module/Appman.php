@@ -55,8 +55,6 @@ class Appman extends \Zotlabs\Web\Controller {
 			if(Apps::app_installed(local_channel(),$papp))
 				info( t('App installed.') . EOL);
 
-hz_syslog('install: ' . print_r($papp,true));
-
 			$sync = q("SELECT * FROM app WHERE app_channel = %d AND app_id = '%s' LIMIT 1",
 				intval(local_channel()),
 				dbesc($papp['guid'])

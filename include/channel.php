@@ -470,6 +470,10 @@ function create_identity($arr) {
 				dbesc($default_collection_str),
 				intval($newuid)
 			);
+
+			// also update the current channel array, otherwise the auto-follow contacts will not be added to the default group
+			$ret['channel']['channel_default_group'] = dbesc($group_hash);
+			$ret['channel']['channel_allow_gid'] = dbesc($default_collection_str);
 		}
 
 		if(! $system) {

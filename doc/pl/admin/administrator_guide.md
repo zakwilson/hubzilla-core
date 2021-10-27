@@ -42,10 +42,10 @@ Nowy portal można wdrożyć na kilka sposobów:
 
 * PHP 7.1 lub w wersji wyższej.
 	* _Proszę mieć na uwadze, że w niektórych środowiskach hostinu współdzielonego, wersja wiersza poleceń PHP różni się od wersji serwera internetowego_
-	
+
 * Dostęp do wiersza poleceń PHP z ustawionym w pliku php.ini parametrem _register_argc_argv_ na true i bez ograniczeń dostawcy hostingu w zakresie stosowania funkcji _exec()_ i _proc_open()_.
 
-* Rozszerzenia curl, gd (z obsługą co najmmniej jpeg i png), mysqli, mbstring, mcrypt, zip i openssl. Tozszerzenie imagick nie jest wymagane ale jest zalecane.
+* Rozszerzenia curl, gd (z obsługą co najmmniej jpeg i png), mysqli, mbstring, zip i openssl. Tozszerzenie imagick nie jest wymagane ale jest zalecane.
 
 * Wymagane jest rozszerzenie xml, jeśli chce sie mieć działajacą obsługę webdav.
 
@@ -99,9 +99,9 @@ W razie potrzeby nadal trzeba wypełnić w formularzu konfiguracyjnym wszystkie 
 
 Utwórz pusty plik o nazwie _.htconfig.php_ i uczyń go możliwymm do zapisania przez serwer WWW. Krok ten wykonaj, jeśli wiesz, że serwer WWW nie będzie mógł sam utworzyć tego pliku.
 
-##### Krok 4.  
+##### Krok 4.
 
-Odwiedź swoją witrynę za pomocą przeglądarki internetowej i postępuj zgodnie z instrukcjami. Zanotuj wszelkie komunikaty o błędach i popraw je przed kontynuowaniem. Jeśli używasz protokołu SSL (od znanego urzędu autoryzacyjnego), użyj schematu _https_ w adresie URL swojej witryny. 
+Odwiedź swoją witrynę za pomocą przeglądarki internetowej i postępuj zgodnie z instrukcjami. Zanotuj wszelkie komunikaty o błędach i popraw je przed kontynuowaniem. Jeśli używasz protokołu SSL (od znanego urzędu autoryzacyjnego), użyj schematu _https_ w adresie URL swojej witryny.
 
 ##### Krok 5.
 
@@ -243,12 +243,12 @@ Klasy usług pozwalają na ustawienie limitów zasobów systemowych poprzez ogra
 Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza poleceń z katalogu głównego instalacji Hubzilla:
 
 * uzyskanie listy klas usług:
-	
+
 	util/service_class
 
 
 * ustawienie domyślnej klasy usług na _firstclass_:
-	
+
 	util/config system default_service_class firstclass
 
 * uzyskanie listy usług, które należą do klasy _firstclass_:
@@ -264,7 +264,7 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 	util/service_class --account=5 firstclass
 
 * ustawienie konta, które jest właścicielem kanału `blogchan` na klasę _firstclass_ (z potwierdzeniem)
-	
+
 	util/service_class --channel=blogchan firstclass
 
 **Opcje limitu klas usług**
@@ -281,7 +281,7 @@ Aby zastosować klasę usług do istniejącego konta, użyj narzędzia wiersza p
 
 * _minimum_feedcheck_minutes_ - najniższe ustawienie dozwolone dla odpytywania kanałów RSS
 * _chatrooms_ - maksymalna liczba czatów
-* _chatters_inroom_ - maksymalna liczba rozmówców w czacie 
+* _chatters_inroom_ - maksymalna liczba rozmówców w czacie
 * _access_tokens_ - maksymalna liczba tokenów dostępu gościa na kanał
 
 ### Zarządzanie motywami

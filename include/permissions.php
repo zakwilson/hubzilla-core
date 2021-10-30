@@ -50,7 +50,6 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 		// First find out what the channel owner declared permissions to be.
 
 		$channel_perm = intval(\Zotlabs\Access\PermissionLimits::Get($uid,$perm_name));
-hz_syslog(print_r($channel_perm,true));
 
 		if(! $channel_checked) {
 			$r = q("select * from channel where channel_id = %d limit 1",

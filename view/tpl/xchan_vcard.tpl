@@ -6,11 +6,11 @@
 			</a>
 		</div>
 		<div class="col-7 m-1">
-			<div>
-				<strong class="fn p-name text-truncate">{{$name}}</strong>
+			<div class="text-truncate">
+				<strong class="fn p-name">{{$name}}</strong>
 			</div>
-			<div>
-				<small class="text-muted p-adr text-truncate">{{$addr}}</small>
+			<div class="text-truncate">
+				<small class="text-muted p-adr">{{$addr}}</small>
 			</div>
 			{{if $connect}}
 			<div class="mt-1">

@@ -141,7 +141,6 @@ class Libsync {
 		logger('Packet: ' . print_r($info, true), LOGGER_DATA, LOG_DEBUG);
 
 		$total = count($synchubs);
-
 		foreach ($synchubs as $hub) {
 			$hash = random_string();
 			$n    = Libzot::build_packet($channel, 'sync', $env_recips, json_encode($info), 'hz', $hub['hubloc_sitekey'], $hub['site_crypto']);
@@ -186,7 +185,6 @@ class Libsync {
 		require_once('include/import.php');
 
 		$result = [];
-
 		$keychange = ((array_key_exists('keychange', $arr)) ? true : false);
 
 		foreach ($deliveries as $d) {
@@ -246,6 +244,10 @@ class Libsync {
 			if (array_key_exists('app', $arr) && $arr['app'])
 				sync_apps($channel, $arr['app']);
 
+			if (array_key_exists('sysapp',$arr) && $arr['sysapp']) {
+				sync_sysapps($channel, $arr['sysapp']);
+			}
+
 			if (array_key_exists('addressbook', $arr) && $arr['addressbook'])
 				sync_addressbook($channel, $arr['addressbook']);
 
@@ -255,8 +257,8 @@ class Libsync {
 			if (array_key_exists('chatroom', $arr) && $arr['chatroom'])
 				sync_chatrooms($channel, $arr['chatroom']);
 
-			if (array_key_exists('mail', $arr) && $arr['mail'])
-				sync_mail($channel, $arr['mail']);
+			//if (array_key_exists('mail', $arr) && $arr['mail'])
+			//	sync_mail($channel, $arr['mail']);
 
 			if (array_key_exists('event', $arr) && $arr['event'])
 				sync_events($channel, $arr['event']);
@@ -270,8 +272,8 @@ class Libsync {
 			// deprecated, maintaining for a few months for upward compatibility
 			// this should sync webpages, but the logic is a bit subtle
 
-			if (array_key_exists('item_id', $arr) && $arr['item_id'])
-				sync_items($channel, $arr['item_id']);
+			//if (array_key_exists('item_id', $arr) && $arr['item_id'])
+			//	sync_items($channel, $arr['item_id']);
 
 			if (array_key_exists('menu', $arr) && $arr['menu'])
 				sync_menus($channel, $arr['menu']);
@@ -704,6 +706,15 @@ class Libsync {
 
 		$ret = [];
 
+		// If a sender reports that the channel has been deleted, delete its hubloc
+		if (isset($arr['deleted_locally']) && intval($arr['deleted_locally'])) {
+			q("UPDATE hubloc SET hubloc_deleted = 1, hubloc_updated = '%s' WHERE hubloc_hash = '%s' AND hubloc_url = '%s'",
+				dbesc(datetime_convert()),
+				dbesc($sender['hash']),
+				dbesc($sender['site']['url'])
+			);
+		}
+
 		if ($arr['locations']) {
 
 			if ($absolute)
@@ -861,6 +872,7 @@ class Libsync {
 						$what    .= 'delete_hub ';
 						$changed = true;
 					}
+
 					continue;
 				}
 

@@ -127,7 +127,7 @@ class Enotify {
 		logger('notification: mail');
 		$subject = 	sprintf( t('[$Projectname:Notify] New direct message received at %s'), $sitename);
 
-		$preamble = sprintf( t('%1$s sent you a new direct message at %2$s.'), $sender['xchan_name'], $sitename);
+		$preamble = sprintf( t('%1$s sent you a new direct message at %2$s'), $sender['xchan_name'], $sitename);
 		$epreamble = sprintf( t('%1$s sent you %2$s.'), '[zrl=' . $sender['xchan_url'] . ']' . $sender['xchan_name'] . '[/zrl]', '[zrl=$itemlink]' . t('a direct message') . '[/zrl]');
 		$sitelink = t('Please visit %s to view and/or reply to your direct messages.');
 		$tsitelink = sprintf( $sitelink, $siteurl . '/hq/' . gen_link_id($params['item']['mid']));
@@ -238,7 +238,7 @@ class Enotify {
 			$subject = sprintf( t('[$Projectname:Notify] Moderated Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
 		else
 			$subject = sprintf( t('[$Projectname:Notify] Comment to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
-		$preamble = sprintf( t('%1$s commented on an item/conversation you have been following.'), $sender['xchan_name']);
+		$preamble = sprintf( t('%1$s commented on an item/conversation you have been following'), $sender['xchan_name']);
 		$epreamble = $dest_str;
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');
@@ -318,7 +318,7 @@ class Enotify {
 		// differents subjects for messages on the same thread.
 
 		$subject = sprintf( t('[$Projectname:Notify] Like received to conversation #%1$d by %2$s'), $parent_id, $sender['xchan_name']);
-		$preamble = sprintf( t('%1$s liked an item/conversation you created.'), $sender['xchan_name']);
+		$preamble = sprintf( t('%1$s liked an item/conversation you created'), $sender['xchan_name']);
 		$epreamble = $dest_str;
 
 		$sitelink = t('Please visit %s to view and/or reply to the conversation.');

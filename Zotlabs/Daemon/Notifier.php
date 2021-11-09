@@ -95,7 +95,6 @@ class Notifier {
 			return;
 		}
 
-
 		self::$deliveries   = [];
 		self::$recipients   = [];
 		self::$env_recips   = [];
@@ -170,7 +169,7 @@ class Notifier {
 		elseif ($cmd === 'refresh_all') {
 			logger('notifier: refresh_all: ' . $item_id);
 
-			self::$channel = channelx_by_n($item_id);
+			self::$channel = channelx_by_n($item_id, true);
 
 			$r = q("select abook_xchan from abook where abook_channel = %d",
 				intval($item_id)
@@ -180,6 +179,11 @@ class Notifier {
 					self::$recipients[] = $rr['abook_xchan'];
 				}
 			}
+
+			// In case we deleted the channel, our abook entry has already vanished.
+			// In order to be able to update our clones we need to add ourself here.
+			self::$recipients[] = self::$channel['channel_hash'];
+
 			self::$private     = false;
 			self::$packet_type = 'refresh';
 		}
@@ -190,14 +194,14 @@ class Notifier {
 				return;
 			}
 
-			self::$channel     = channelx_by_n($item_id);
+			self::$channel     = channelx_by_n($item_id, true);
 			self::$recipients  = [$xchan];
 			self::$private     = true;
 			self::$packet_type = 'purge';
 		}
 		elseif ($cmd === 'purge_all') {
 			logger('notifier: purge_all: ' . $item_id);
-			self::$channel     = channelx_by_n($item_id);
+			self::$channel     = channelx_by_n($item_id, true);
 			self::$recipients  = [];
 			self::$private     = false;
 			self::$packet_type = 'purge';
@@ -443,7 +447,6 @@ class Notifier {
 			}
 		}
 
-
 		$narr = [
 			'channel'        => self::$channel,
 			'upstream'       => $upstream,
@@ -526,16 +529,18 @@ class Notifier {
 		 */
 
 
-		$hublist = []; // this provides an easily printable list for the logs
-		$dhubs   = []; // delivery hubs where we store our resulting unique array
-		$keys    = []; // array of keys to check uniquness for zot hubs
-		$urls    = []; // array of urls to check uniqueness of hubs from other networks
-		$hub_env = []; // per-hub envelope so we don't broadcast the entire envelope to all
-		$dead    = []; // known dead hubs - report them as undeliverable
+		$hublist    = []; // this provides an easily printable list for the logs
+		$dhubs      = []; // delivery hubs where we store our resulting unique array
+		$keys       = []; // array of keys to check uniquness for zot hubs
+		$urls       = []; // array of urls to check uniqueness of hubs from other networks
+		$hub_env    = []; // per-hub envelope so we don't broadcast the entire envelope to all
+		$dead_hosts = []; // known dead hubs - report them as undeliverable
 
 		foreach ($hubs as $hub) {
 			if (isset($hub['site_dead']) && intval($hub['site_dead'])) {
-				$dead[] = $hub;
+				if(!in_array($hub['hubloc_host'], $dead_hosts)) {
+					$dead_hosts[] = $hub['hubloc_host'];
+				}
 				continue;
 			}
 
@@ -674,21 +679,19 @@ class Notifier {
 			do_delivery(self::$deliveries);
 		}
 
-		if ($dead) {
-			foreach ($dead as $deceased) {
-				if (is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
-					q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
-						values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
-						dbesc($target_item['mid']),
-						dbesc($deceased['hubloc_host']),
-						dbesc($deceased['hubloc_host']),
-						dbesc($deceased['hubloc_host']),
-						dbesc('undeliverable/unresponsive site'),
-						dbesc(datetime_convert()),
-						dbesc(self::$channel['channel_hash']),
-						dbesc(new_uuid())
-					);
-				}
+		if ($dead_hosts && is_array($target_item) && (!$target_item['item_deleted']) && (!get_config('system', 'disable_dreport'))) {
+			foreach ($dead_hosts as $deceased_host) {
+				$r = q("insert into dreport ( dreport_mid, dreport_site, dreport_recip, dreport_name, dreport_result, dreport_time, dreport_xchan, dreport_queue )
+					values ( '%s', '%s','%s','%s','%s','%s','%s','%s' ) ",
+					dbesc($target_item['mid']),
+					dbesc($deceased_host),
+					dbesc($deceased_host),
+					dbesc($deceased_host),
+					dbesc('undeliverable/unresponsive site'),
+					dbesc(datetime_convert()),
+					dbesc(self::$channel['channel_hash']),
+					dbesc(new_uuid())
+				);
 			}
 		}
 

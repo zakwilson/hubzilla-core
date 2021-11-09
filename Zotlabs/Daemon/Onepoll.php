@@ -48,14 +48,10 @@ class Onepoll {
 		$contact      = $contacts[0];
 		$importer_uid = $contact['abook_channel'];
 
-		$r = q("SELECT * from channel left join xchan on channel_hash = xchan_hash where channel_id = %d limit 1",
-			intval($importer_uid)
-		);
+		$importer = channelx_by_n($importer_uid);
 
-		if (!$r)
+		if (!$importer)
 			return;
-
-		$importer = $r[0];
 
 		logger("onepoll: poll: ({$contact['id']}) IMPORTER: {$importer['xchan_name']}, CONTACT: {$contact['xchan_name']}");
 
@@ -135,19 +131,34 @@ class Onepoll {
 					$url = $cl['outbox'];
 				}
 				else {
-					$url = str_replace('/poco/', '/zotfeed/', $contact['xchan_connurl']);
+					$url = str_replace('/poco/', '/outbox/', $contact['xchan_connurl']);
 				}
 
 				if ($url) {
 					logger('fetching outbox');
-					$url      = $url . '?date_begin=' .  urlencode($last_update);
+					$url = $url . '?date_begin=' .  urlencode($last_update);
+
+					if($contact['xchan_network'] === 'zot6') {
+						$url = $url . '&top=1';
+					}
+
 					$obj      = new ASCollection($url, $importer, 0, $max);
 					$messages = $obj->get();
+
 					if ($messages) {
 						foreach ($messages as $message) {
 							if (is_string($message)) {
 								$message = Activity::fetch($message, $importer);
 							}
+
+							if ($contact['xchan_network'] === 'zot6') {
+								// make sure we only fetch top level items
+								if ($message['type'] === 'Create' && !isset($message['object']['inReplyTo'])) {
+									Libzot::fetch_conversation($importer, $message['object']['id']);
+								}
+								continue;
+							}
+
 							$AS = new ActivityStreams($message);
 							if ($AS->is_valid() && is_array($AS->obj)) {
 								$item = Activity::decode_note($AS);

@@ -242,6 +242,7 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 
 	call_hooks('get_all_perms',$arr);
 
+
 	return $arr['permissions'];
 }
 

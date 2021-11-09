@@ -55,7 +55,7 @@
 		</form>
 	</div>
 	<table id="upload-index">
-		<tr id="new-upload-progress-bar-1"></tr> {{* this is needed to append the upload files in the right order *}}
+		<tr id="new-upload-progress-bar-0"></tr> {{* this is needed to append the upload files in the right order *}}
 	</table>
 	{{$aclselect}}
 	<div id="photos-upload-end" class="clear"></div>

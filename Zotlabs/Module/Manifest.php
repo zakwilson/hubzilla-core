@@ -23,10 +23,10 @@ class Manifest extends Controller {
 				[ 'src' => '/images/app/hz-512.png', 'sizes' => '512x512', 'type' => 'image/png' ],
 				[ 'src' => '/images/app/hz.svg', 'sizes' => '64x64', 'type' => 'image/xml+svg' ]
 			],
+			'theme_color' => '#343a40',
 			'scope' => '/',
 			'start_url' => z_root(),
 			'display' => 'standalone',
-			'orientation' => 'any',
 			'share_target' => [
 				'action' => '/rpost',
 				'method' => 'POST',

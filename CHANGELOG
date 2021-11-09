@@ -1,3 +1,89 @@
+Hubzilla 6.4 (2021-11-09)
+	- Automatically connect the invitee with the inviting channel
+	- Use the composer version of urlify
+	- Implement zip file import of exported items from mod uexport
+	- Start sending supported protocols with the actor object
+	- Split up manual item export to separate sections
+	- Serve w3.org jsonld documents locally - issue #1637
+	- Support IDNA URL embedding
+	- Improve handling of re-installed hubs in lib HTTPSig
+	- BBcode support for notes widget/app
+	- Implement a force flag for HTTPSig::get_key()
+	- Update composer libs
+	- Use Libzot::fetch_conversation for manual content import
+	- Implement optional force argument in Libzot::process_delivery
+	- Improve german doco
+	- Move sync logic for apps to mod appman
+	- Provide sync for system apps
+	- Update certificates
+	- Return status code 410 if a channel is deleted
+	- Add optional argument to channelx_by_* functions to allow inclusion of removed channels
+	- Improve file upload performance
+	- Introduce progress tracking for channel cloning via network (not compatible with cloning from older versions)
+	- Improve channel delete performance by moving some actions to background tasks
+	- Introduce all in one channel cloning via network (not compatible with cloning from older versions)
+	- Rename zotfeed to outbox but keep an alias for compatibility
+	- Implement apps un-starring from the app bin via drag and drop
+	- Re-implement the externals daemon
+	- Add zot6 specific handling to onepoll
+	- Implement the top option in items_fetch() which will only return top level items
+	- Add notices tab to HQ widget
+	- Improve mod manage performance
+	- Add option to mark all notices of a thread read if a notice of the thread is clicked (default true)
+	- Provide a get_cached_actor_provider hook and improve the author/owner handling in Libzot::import()
+
+	Bugfixes
+	- Fix issue where remote channels could not create wiki pages due to wron permission check - issue #1640
+	- Fix dutch registration email template
+	- Fix selection of invite template
+	- Fix too restrictive email check in mod invite
+	- Fix photos and albums ActivityStreams 2 representation
+	- Fix keys always fetched from network in lib HTTPSig for some AP implementations
+	- Fix album display of root directory
+	- Fix onepoll importing to deleted channels
+	- Fix rendering of image tags in codeblocks
+	- Fix webfinger and xrd providing results for removed channels
+	- Fix alt_pager() providing too many arguments
+	- Fix drop_query_params() if no query params are provided
+	- Fix duplicate entries for dead hubs in delivery report
+	- Fix site lookup
+	- Fix mod locs displaying drop icons for local channels
+	- Fix multiple issues with propagating deletes of cloned channels
+	- Fix apps can be draged outsite of drop areas
+	- Fix removed channels counted in max id check
+	- Fix api_auth not fetching the id if it was not cached
+	- Fix public stream unseen notifications displayed allthough the app is not installed
+	- Fix possible storage conversion stuck on file save error
+	- Fix notification panel collapsed state not saved if closed manually
+	- Fix find_best_identity() dismissing AP hublocs
+	- Fix likes and commments on direct messages mixed up in notices
+	- Fix rewrite of links to resources in body fails if nicknames of clones differ - issue #1507
+	- Fix syncing outdated data due to profile sync done before the fields were updated
+	- Fix $desturl set to wrong value (null)
+
+	Addons
+	- Cart: add settings URL to the apd file
+	- Diaspora: remove deprecated included
+	- Cart: remove deprecated include
+	- Openid: remove library/urlify in favor of composer installed versions
+	- Pubcrawl: provide tags indicating the supported protocols
+	- Pubcrawl: if we do not get an uuid, create a v5 uuid from the mid
+	- Cart: fix rendering regressions from bootstrap5 upgrade
+	- Upgrade_info: fix dismiss button
+	- Pubcrawl: move fetch_provider from core to addon
+	- Diaspora: fix regression in fetch_provider
+	- Content_import: fix syntax error
+	- Queueworker: update priorities
+	- Pubcrawl: only lookup announce author if we actually deal with an announce
+	- Pubcrawl: make sure we have the best identity before we make the abook lookup
+	- Pubcrawl: outbox moved to core
+	- Diaspora: implement the get_cached_actor_provider hook
+
+
+Hubzilla 6.2.2 (2021-10-03)
+	- Fix an issue which could lead to loss of photos under certain conditions
+
+
 Hubzilla 6.2.1 (2021-09-16)
 	- Fix regression introduced in 6.2 where Diaspora comments on Hubzilla posts were not relayed
 	- Fix wrong variable used for refresh under certain conditions

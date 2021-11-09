@@ -1,5 +1,6 @@
 <?php
 
+use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Libzot;
 
@@ -238,7 +239,8 @@ function import_hublocs($channel, $hublocs, $seize, $moving = false) {
 				'id'           => $hubloc['hubloc_guid'],
 				'id_sig'       => $hubloc['hubloc_guid_sig'],
 				'location'     => $hubloc['hubloc_url'],
-				'location_sig' => $hubloc['hubloc_url_sig']
+				'location_sig' => $hubloc['hubloc_url_sig'],
+				'site_id'      => $hubloc['hubloc_site_id']
 			];
 
 			if (($hubloc['hubloc_hash'] === $channel['channel_hash']) && intval($hubloc['hubloc_primary']) && ($seize)) {
@@ -524,7 +526,6 @@ function sync_apps($channel, $apps) {
 }
 
 
-
 /**
  * @brief Import system apps.
  * System apps from the original server may not exist on this system
@@ -538,49 +539,48 @@ function sync_apps($channel, $apps) {
  */
 function import_sysapps($channel, $apps) {
 
-	if($channel && $apps) {
+	if ($channel && $apps) {
 
-		$sysapps = \Zotlabs\Lib\Apps::get_system_apps(false);
+		$sysapps = Apps::get_system_apps(false, true);
 
-		foreach($apps as $app) {
+		foreach ($apps as $app) {
 
-			if(array_key_exists('app_system',$app) && (! intval($app['app_system'])))
+			if (array_key_exists('app_system',$app) && (! intval($app['app_system']))) {
 				continue;
+			}
+
+			if (array_key_exists('app_deleted',$app) && (intval($app['app_deleted']))) {
+				continue;
+			}
 
 			$term = ((array_key_exists('term',$app) && is_array($app['term'])) ? $app['term'] : null);
 
-			foreach($sysapps as $sysapp) {
-				if($app['app_id'] === hash('whirlpool',$sysapp['app_name'])) {
+			foreach ($sysapps as $sysapp) {
+				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
 					// install this app on this server
 					$newapp = $sysapp;
 					$newapp['uid'] = $channel['channel_id'];
-					$newapp['guid'] = hash('whirlpool',$newapp['name']);
+					$newapp['guid'] = hash('whirlpool', $newapp['name']);
 
 					$installed = q("select id from app where app_id = '%s' and app_channel = %d limit 1",
 						dbesc($newapp['guid']),
 						intval($channel['channel_id'])
 					);
-					if($installed) {
+					if ($installed) {
 						break;
 					}
 
 					$newapp['system'] = 1;
-					if($term) {
-						$s = EMPTY_STR;
-						foreach($term as $t) {
-							if($s) {
-								$s .= ',';
-							}
-							$s .= $t['term'];
-						}
-						$newapp['categories'] = $s;
+					if ($term) {
+						$newapp['categories'] = array_elm_to_str($term, 'term');
 					}
-					\Zotlabs\Lib\Apps::app_install($channel['channel_id'],$newapp);
+					Apps::app_install($channel['channel_id'], $newapp);
 				}
 			}
 		}
 	}
 }
+
 
 /**
  * @brief Sync system apps.
@@ -590,13 +590,41 @@ function import_sysapps($channel, $apps) {
  */
 function sync_sysapps($channel, $apps) {
 
-	if($channel && $apps) {
+	$sysapps = Apps::get_system_apps(false, true);
+	if ($channel && $apps) {
 
-		// we do not currently sync system apps
+		$columns = db_columns('app');
 
+		foreach ($apps as $app) {
+
+			$term = ((array_key_exists('term',$app)) ? $app['term'] : null);
+
+			if (array_key_exists('app_system',$app) && (! intval($app['app_system']))) {
+				continue;
+			}
+
+			foreach ($sysapps as $sysapp) {
+
+				if ($app['app_id'] === hash('whirlpool', $sysapp['name'])) {
+					if (array_key_exists('app_deleted',$app) && $app['app_deleted'] == 1 && $app['app_id']) {
+						Apps::app_destroy($channel['channel_id'], ['guid' => $app['app_id']]);
+					}
+					else {
+						// install this app on this server
+						$newapp = $sysapp;
+						$newapp['uid'] = $channel['channel_id'];
+						$newapp['guid'] = hash('whirlpool', $newapp['name']);
+						$newapp['system'] = 1;
+						if ($term) {
+							$newapp['categories'] = array_elm_to_str($term, 'term');
+						}
+						Apps::app_install($channel['channel_id'], $newapp);
+					}
+				}
+			}
+		}
 	}
 }
-
 
 
 
@@ -1265,6 +1293,7 @@ function sync_files($channel, $files) {
 
 						$store_path = $newfname;
 
+
 						$fp = fopen($newfname,'w');
 						if(! $fp) {
 							logger('failed to open storage file.',LOGGER_NORMAL,LOG_ERR);
@@ -1690,8 +1719,7 @@ function import_webpage_element($element, $channel, $type) {
 			$namespace = 'WEBPAGE';
 			$name = $element['pagelink'];
 			if($name) {
-				require_once('library/urlify/URLify.php');
-				$name = strtolower(\URLify::transliterate($name));
+				$name = strtolower(URLify::transliterate($name));
 			}
 			$arr['title'] = $element['title'];
 			$arr['term'] = $element['term'];

@@ -1120,26 +1120,7 @@ function bbcode($Text, $options = []) {
 		}
 	}
 
-	// Hide all [noparse] contained bbtags by spacefying them
-	if (strpos($Text,'[noparse]') !== false) {
-		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_spacefy',$Text);
-	}
-	if (strpos($Text,'[nobb]') !== false) {
-		$Text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'bb_spacefy',$Text);
-	}
-	if (strpos($Text,'[pre]') !== false) {
-		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
-	}
-	if (strpos($Text,'[summary]') !== false) {
-		$Text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_spacefy',$Text);
-	}
 
-	if (strpos($Text,'[/img]') !== false) {
-		$Text = preg_replace_callback('/\[img(.*?)\[\/(img)\]/ism','\red_escape_codeblock',$Text);
-	}
-	if (strpos($Text,'[/zmg]') !== false) {
-		$Text = preg_replace_callback('/\[zmg(.*?)\[\/(zmg)\]/ism','\red_escape_codeblock',$Text);
-	}
 
 	$Text = bb_format_attachdata($Text);
 
@@ -1199,13 +1180,13 @@ function bbcode($Text, $options = []) {
 
 	$Text = str_replace(array('[baseurl]','[sitename]'),array(z_root(),get_config('system','sitename')),$Text);
 
-
 	// Replace any html brackets with HTML Entities to prevent executing HTML or script
 	// Don't use strip_tags here because it breaks [url] search by replacing & with amp
 
 	$Text = str_replace("<", "&lt;", $Text);
 	$Text = str_replace(">", "&gt;", $Text);
-
+	$Text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$Text);
+	$Text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $Text);
 
 	// Check for [code] text here, before the linefeeds are messed with.
 	// The highlighter will unescape and re-escape the content.
@@ -1213,10 +1194,6 @@ function bbcode($Text, $options = []) {
 	if (strpos($Text,'[code=') !== false) {
 		$Text = preg_replace_callback("/\[code=(.*?)\](.*?)\[\/code\]/ism", 'bb_highlight', $Text);
 	}
-
-	$Text = preg_replace_callback("/\[table\](.*?)\[\/table\]/ism",'bb_fixtable_lf',$Text);
-
-	$Text = str_replace(array("\t", "  "), array("&nbsp;&nbsp;&nbsp;&nbsp;", "&nbsp;&nbsp;"), $Text);
 
 	// Check for [code] text
 	if (strpos($Text,'[code]') !== false) {
@@ -1226,6 +1203,26 @@ function bbcode($Text, $options = []) {
 	// Check for [code options] text
 	if (strpos($Text,'[code ') !== false) {
 		$Text = preg_replace_callback("/\[code(.*?)\](.*?)\[\/code\]/ism", 'bb_code_options', $Text);
+	}
+
+	// Hide all [noparse] contained bbtags by spacefying them
+	if (strpos($Text,'[noparse]') !== false) {
+		$Text = preg_replace_callback("/\[noparse\](.*?)\[\/noparse\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[nobb]') !== false) {
+		$Text = preg_replace_callback("/\[nobb\](.*?)\[\/nobb\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[pre]') !== false) {
+		$Text = preg_replace_callback("/\[pre\](.*?)\[\/pre\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[summary]') !== false) {
+		$Text = preg_replace_callback("/\[summary\](.*?)\[\/summary\]/ism", 'bb_spacefy',$Text);
+	}
+	if (strpos($Text,'[/img]') !== false) {
+		$Text = preg_replace_callback('/\[img(.*?)\[\/(img)\]/ism','\red_escape_codeblock',$Text);
+	}
+	if (strpos($Text,'[/zmg]') !== false) {
+		$Text = preg_replace_callback('/\[zmg(.*?)\[\/(zmg)\]/ism','\red_escape_codeblock',$Text);
 	}
 
 	// Set up the parameters for a URL search string

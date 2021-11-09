@@ -18,12 +18,23 @@ class Notes {
 		$tpl = get_markup_template('notes.tpl');
 
 		$o = replace_macros($tpl, array(
-			'$banner' => t('Notes'),
 			'$text' => $text,
-			'$save' => t('Save'),
+			'$html' => bbcode($text),
 			'$app' => ((isset($arr['app'])) ? true : false),
-			'$hidden' => ((isset($arr['hidden'])) ? true : false)
+			'$hidden' => ((isset($arr['hidden'])) ? true : false),
+			'$strings' => [
+				'title' => t('Notes'),
+				'read' => t('Read mode'),
+				'edit' => t('Edit mode'),
+				'editing' => t('Editing'),
+				'saving' => t('Saving'),
+				'saved' => t('Saved'),
+				'dots' => '<span class="jumping-dots"><span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></span>'
+			]
 		));
+
+
+
 
 		return $o;
 	}

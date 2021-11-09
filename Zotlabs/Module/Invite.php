@@ -129,11 +129,11 @@ class Invite extends Controller {
 				if(! $recip) continue;
 
 				// see if we have an email address who@domain.tld
-				if (!preg_match('/^.{2,64}\@[a-z0-9.-]{4,32}\.[a-z]{2,12}$/', $recip)) {
-					$feedbk .= 'ZAI0203E ' . ($n+1) . ': ' . sprintf( t('(%s) : Not a valid email address'), $recip) . $eol;
-					$ko++;
-					continue;
-				}
+				//if (!preg_match('/^.{2,64}\@[a-z0-9.-]{2,32}\.[a-z]{2,12}$/', $recip)) {
+					//$feedbk .= 'ZAI0203E ' . ($n+1) . ': ' . sprintf( t('(%s) : Not a valid email address'), $recip) . $eol;
+					//$ko++;
+					//continue;
+				//}
 				if(! validate_email($recip)) {
 					$feedbk .= 'ZAI0204E ' . ($n+1) . ': ' . sprintf( t('(%s) : Not a real email address'), $recip) . $eol;
 					$ko++;
@@ -225,7 +225,7 @@ class Invite extends Controller {
 					'$projectname'		=> t('$Projectname'),
 					'$invite_code'		=> $invite_code,
 					'$invite_where' 	=> z_root() . '/register',
-					'$invite_whereami'	=> str_replace('@', '@+', $reonar['whereami']),
+					'$invite_whereami'	=> $reonar['whereami'],
 					'$invite_whoami'	=> z_root() . '/channel/' . $reonar['whoami'],
 					'$invite_anywhere'	=> z_root() . '/pubsites'
 				)

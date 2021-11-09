@@ -2442,7 +2442,6 @@ function attach_export_data($channel, $resource_id, $deleted = false, $zap_compa
 	return $ret;
 }
 
-
 /**
  * @brief Strip off 'store/nickname/' from the provided path
  *

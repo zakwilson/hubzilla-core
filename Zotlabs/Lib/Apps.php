@@ -3,7 +3,6 @@
 namespace Zotlabs\Lib;
 
 use App;
-use Zotlabs\Lib\Libsync;
 
 require_once('include/plugin.php');
 require_once('include/channel.php');
@@ -22,9 +21,10 @@ class Apps {
 	 * @brief
 	 *
 	 * @param boolean $translate (optional) default true
+	 * @param boolean $sync (optional) default false used if called from sync_sysapps()
 	 * @return array
 	 */
-	static public function get_system_apps($translate = true) {
+	static public function get_system_apps($translate = true, $sync = false) {
 		$ret = [];
 
 		if(is_dir('apps'))
@@ -34,7 +34,7 @@ class Apps {
 
 		if($files) {
 			foreach($files as $f) {
-				$x = self::parse_app_description($f,$translate);
+				$x = self::parse_app_description($f, $translate, $sync);
 				if($x) {
 					$ret[] = $x;
 				}
@@ -46,7 +46,7 @@ class Apps {
 				$path = explode('/',$f);
 				$plugin = trim($path[1]);
 				if(plugin_is_installed($plugin)) {
-					$x = self::parse_app_description($f,$translate);
+					$x = self::parse_app_description($f, $translate, $sync);
 					if($x) {
 						$x['plugin'] = $plugin;
 						$ret[] = $x;
@@ -210,9 +210,10 @@ class Apps {
 	 *
 	 * @param string $f filename
 	 * @param boolean $translate (optional) default true
+	 * @param boolean $sync (optional) default false
 	 * @return boolean|array
 	 */
-	static public function parse_app_description($f, $translate = true) {
+	static public function parse_app_description($f, $translate = true, $sync = false) {
 		$ret = [];
 		$matches = [];
 
@@ -258,7 +259,7 @@ class Apps {
 		if(array_key_exists('categories',$ret))
 			$ret['categories'] = str_replace(array('\'','"'),array('&#39;','&dquot;'),$ret['categories']);
 
-		if(array_key_exists('requires',$ret)) {
+		if(array_key_exists('requires',$ret) && !$sync) {
 			$requires = explode(',',$ret['requires']);
 			foreach($requires as $require) {
 				$require = trim(strtolower($require));
@@ -310,14 +311,16 @@ class Apps {
 				}
 			}
 		}
-		if(isset($ret)) {
-			if($translate)
-				self::translate_system_apps($ret);
 
-			return $ret;
+		if(empty($ret)) {
+			return false;
 		}
 
-		return false;
+		if($translate) {
+			self::translate_system_apps($ret);
+		}
+
+		return $ret;
 	}
 
 
@@ -624,10 +627,12 @@ class Apps {
 
 		$app['uid'] = $uid;
 
-		if(self::app_installed($uid,$app,true))
+		if(self::app_installed($uid,$app,true)) {
 			$x = self::app_update($app);
-		else
+		}
+		else {
 			$x = self::app_store($app);
+		}
 
 		if($x['success']) {
 			$r = q("select * from app where app_id = '%s' and app_channel = %d limit 1",
@@ -635,13 +640,12 @@ class Apps {
 				intval($uid)
 			);
 			if($r) {
-				if(($app['uid']) && (! $r[0]['app_system'])) {
+				if($app['uid']) {
 					if($app['categories'] && (! $app['term'])) {
 						$r[0]['term'] = q("select * from term where otype = %d and oid = %d",
 							intval(TERM_OBJ_APP),
 							intval($r[0]['id'])
 						);
-						Libsync::build_sync_packet($uid,array('app' => $r[0]));
 					}
 				}
 			}
@@ -670,6 +674,7 @@ class Apps {
 				}
 			}
 		}
+
 		return true;
 	}
 
@@ -681,38 +686,35 @@ class Apps {
 				dbesc($app['guid']),
 				intval($uid)
 			);
-			if($x) {
-				if(! intval($x[0]['app_deleted'])) {
-					$x[0]['app_deleted'] = 1;
-					if(self::can_delete($uid,$app)) {
-						q("delete from app where app_id = '%s' and app_channel = %d",
-							dbesc($app['guid']),
-							intval($uid)
-						);
-						q("delete from term where otype = %d and oid = %d",
-							intval(TERM_OBJ_APP),
-							intval($x[0]['id'])
-						);
-						/**
-						 * @hooks app_destroy
-						 *  Called after app entry got removed from database
-						 *  and provide app array from database.
-						 */
-						call_hooks('app_destroy', $x[0]);
-					}
-					else {
-						q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
-							dbesc($app['guid']),
-							intval($uid)
-						);
-					}
-					if(! intval($x[0]['app_system'])) {
-						Libsync::build_sync_packet($uid,array('app' => $x));
-					}
-				}
-				else {
-					self::app_undestroy($uid,$app);
-				}
+
+			if($x && intval($x[0]['app_deleted'])) {
+				self::app_undestroy($uid, $app);
+				return;
+			}
+
+			if(self::can_delete($uid,$app)) {
+				q("delete from app where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
+
+				q("delete from term where otype = %d and oid = %d",
+					intval(TERM_OBJ_APP),
+					intval($x[0]['id'])
+				);
+
+				/**
+				 * @hooks app_destroy
+				 *  Called after app entry got removed from database
+				 *  and provide app array from database.
+				 */
+				call_hooks('app_destroy', $x[0]);
+			}
+			else {
+				q("update app set app_deleted = 1 where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
 			}
 		}
 	}
@@ -729,13 +731,11 @@ class Apps {
 				dbesc($app['guid']),
 				intval($uid)
 			);
-			if($x) {
-				if($x[0]['app_system']) {
-					q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
-						dbesc($app['guid']),
-						intval($uid)
-					);
-				}
+			if($x && intval($x[0]['app_deleted']) && $x[0]['app_system']) {
+				q("update app set app_deleted = 0 where app_id = '%s' and app_channel = %d",
+					dbesc($app['guid']),
+					intval($uid)
+				);
 			}
 		}
 	}
@@ -1194,9 +1194,9 @@ class Apps {
 			$y = explode(',',$arr['categories']);
 			if($y) {
 				foreach($y as $t) {
-					$t = trim($t);
+					$t = escape_tags(trim($t));
 					if($t) {
-						store_item_tag($darray['app_channel'],$x[0]['id'],TERM_OBJ_APP,TERM_CATEGORY,escape_tags($t),escape_tags(z_root() . '/apps/?f=&cat=' . escape_tags($t)));
+						store_item_tag($darray['app_channel'], $x[0]['id'], TERM_OBJ_APP, TERM_CATEGORY, $t, z_root() . '/apps/?f=&cat=' . $t);
 					}
 				}
 			}

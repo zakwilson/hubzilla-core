@@ -8,7 +8,7 @@
 <body <?php if($page['direction']) echo 'dir="rtl"' ?> >
 	<?php if(x($page,'banner')) echo $page['banner']; ?>
 	<header><?php if(x($page,'header')) echo $page['header']; ?></header>
-	<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark"><?php if(x($page,'nav')) echo $page['nav']; ?></nav>
+	<?php if(x($page,'nav')) echo $page['nav']; ?></nav>
 	<main>
 		<div class="content">
 			<div class="columns">

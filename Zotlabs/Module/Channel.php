@@ -53,14 +53,7 @@ class Channel extends Controller {
 			$profile = argv(1);
 		}
 
-
-		// Do not use channelx_by_nick() here since it will dismiss deleted channels.
-		// We need to provide zotinfo for deleted channels so that directories can pick up the info.
-		$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' LIMIT 1",
-			dbesc($which)
-		);
-
-		$channel = $r[0];
+		$channel = channelx_by_nick($which, true);
 
 		if (!$channel) {
 			http_status_exit(404, 'Not found');
@@ -100,7 +93,7 @@ class Channel extends Controller {
 		}
 
 		if ($channel['channel_removed']) {
-			http_status_exit(404, 'Not found');
+			http_status_exit(410, 'Gone');
 		}
 
 		if (ActivityStreams::is_as_request($channel)) {

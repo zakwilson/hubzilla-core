@@ -470,6 +470,10 @@ function create_identity($arr) {
 				dbesc($default_collection_str),
 				intval($newuid)
 			);
+
+			// also update the current channel array, otherwise the auto-follow contacts will not be added to the default group
+			$ret['channel']['channel_default_group'] = dbesc($group_hash);
+			$ret['channel']['channel_allow_gid'] = dbesc($default_collection_str);
 		}
 
 		if(! $system) {
@@ -767,10 +771,10 @@ function get_default_export_sections() {
 			'connections',
 			'config',
 			'apps',
-			'chatrooms',
-			'events',
-			'webpages',
-			'wikis'
+//			'chatrooms',
+//			'events',
+//			'webpages',
+//			'wikis'
 	];
 
 	$cb = [ 'sections' => $sections ];
@@ -802,7 +806,6 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 	/*
 	 * basic channel export
 	 */
-
 	if(! $sections) {
 		$sections = get_default_export_sections();
 	}
@@ -1117,7 +1120,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 			and created > %s - INTERVAL %s and resource_type = '' order by created",
 			intval($channel_id),
 			db_utcnow(),
-			db_quoteinterval('3 MONTH')
+			db_quoteinterval('1 MONTH')
 		);
 		if($r) {
 			$ret['item'] = array();
@@ -1148,7 +1151,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
 
 
 /**
- * @brief Export items for a year, or a month of a year.
+ * @brief Export conv items for a year, or a month of a year.
  *
  * @param int $channel_id The channel ID
  * @param number $year YYYY
@@ -1157,7 +1160,7 @@ function identity_basic_export($channel_id, $sections = null, $zap_compat = fals
  *   * \e array \b relocate - (optional)
  *   * \e array \b item - array with items encoded_item()
  */
-function identity_export_year($channel_id, $year, $month = 0, $zap_compat = false) {
+function conv_item_export_year($channel_id, $year, $month = 0, $zap_compat = false) {
 
 	if(! $year)
 		return array();
@@ -1175,12 +1178,15 @@ function identity_export_year($channel_id, $year, $month = 0, $zap_compat = fals
 	else
 		$maxdate = datetime_convert('UTC', 'UTC', $year+1 . '-01-01 00:00:00');
 
-	return channel_export_items_date($channel_id,$mindate,$maxdate, $zap_compat);
+	return channel_export_conv_items_date($channel_id,$mindate,$maxdate, $zap_compat);
 
 }
 
 /**
- * @brief Export items within an arbitrary date range.
+ * @brief Export conv items within an arbitrary date range.
+ *
+ * In opposit to channel_export_items_page() which is used for bulk export via network,
+ * this function will only select conversational items (channel, cards, articles, direct messages).
  *
  * Date/time is in UTC.
  *
@@ -1190,7 +1196,7 @@ function identity_export_year($channel_id, $year, $month = 0, $zap_compat = fals
  * @return array
  */
 
-function channel_export_items_date($channel_id, $start, $finish, $zap_compat = false) {
+function channel_export_conv_items_date($channel_id, $start, $finish, $zap_compat = false) {
 
 	if(! $start)
 		return array();
@@ -1213,19 +1219,39 @@ function channel_export_items_date($channel_id, $start, $finish, $zap_compat = f
 	}
 
 
-	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s'  and resource_type != 'photo' order by created",
-		intval(ITEM_TYPE_POST),
+	// Fetch parent items for the timeframe
+	$r = q("SELECT parent AS item_id FROM item
+		WHERE uid = %d AND (item_wall = 1 OR item_private = 2) AND item_thread_top = 1
+		AND resource_type IN ('group_item', '') AND item_deleted = 0
+		AND created >= '%s' AND created <= '%s'
+		ORDER BY created",
 		intval($channel_id),
 		dbesc($start),
 		dbesc($finish)
 	);
 
-	if($r) {
-		$ret['item'] = array();
-		xchan_query($r);
-		$r = fetch_post_tags($r, true);
-		foreach($r as $rr)
-			$ret['item'][] = encode_item($rr, true, $zap_compat);
+	$parents_str = ids_to_querystr($r, 'item_id');
+
+	$items = q("SELECT * FROM item
+		WHERE uid = %d
+		AND parent IN ( $parents_str )
+		ORDER BY created",
+		intval($channel_id)
+	);
+
+	//$items = q("select * from item where (item_wall = 1 or item_type != %d ) and resource_type = '' and item_deleted = 0 and uid = %d and created >= '%s' and created <= '%s' order by created",
+		//intval(ITEM_TYPE_POST),
+		//intval($channel_id),
+		//dbesc($start),
+		//dbesc($finish)
+	//);
+
+	if($items) {
+		$ret['item'] = [];
+		xchan_query($items);
+		$r = fetch_post_tags($items, true);
+		foreach ($items as $item)
+			$ret['item'][] = encode_item($item, true, $zap_compat);
 	}
 
 	return $ret;
@@ -1239,11 +1265,11 @@ function channel_export_items_date($channel_id, $start, $finish, $zap_compat = f
  *
  * @param int $channel_id The channel ID
  * @param int $page
- * @param int $limit (default 50)
+ * @param int $limit (default 10)
  * @return array
  */
 
-function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 50, $zap_compat = false) {
+function channel_export_items_page($channel_id, $start, $finish, $page = 0, $limit = 10, $zap_compat = false) {
 
 	if(intval($page) < 1) {
 		$page = 0;
@@ -1253,8 +1279,8 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$limit = 1;
 	}
 
-	if(intval($limit) > 5000) {
-		$limit = 5000;
+	if(intval($limit) > 1000) {
+		$limit = 1000;
 	}
 
 	if(! $start)
@@ -1279,6 +1305,17 @@ function channel_export_items_page($channel_id, $start, $finish, $page = 0, $lim
 		$ret['compatibility']['codebase'] = 'zap';
 	}
 
+	$r = q("select count(id) as total from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s'",
+		intval(ITEM_TYPE_POST),
+		intval($channel_id),
+		dbesc($start),
+		dbesc($finish)
+	);
+
+	if ($r) {
+		$ret['items_total']= $r[0]['total'];
+		$ret['items_page']= $limit;
+	}
 
 	$r = q("select * from item where ( item_wall = 1 or item_type != %d ) and item_deleted = 0 and uid = %d and resource_type != 'photo' and created >= '%s' and created <= '%s' order by created limit %d offset %d",
 		intval(ITEM_TYPE_POST),
@@ -2445,23 +2482,23 @@ function get_zcard_embed($channel, $observer_hash = '', $args = array()) {
  *   - array with channel entry
  *   - false if no channel with $nick was found
  */
-function channelx_by_nick($nick) {
+function channelx_by_nick($nick, $removed = false) {
 
 	// If we are provided a Unicode nickname convert to IDN
 
 	$nick = punify($nick);
 
-	// return a cached copy if there is a cached copy and it's a match
+	$sql_extra = ' AND channel_removed = 0 ';
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_address',App::$channel) && App::$channel['channel_address'] === $nick) {
-		return App::$channel;
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_address = '%s' $sql_extra LIMIT 1",
 		dbesc($nick)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -2470,17 +2507,19 @@ function channelx_by_nick($nick) {
  * @param string $hash
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_hash($hash) {
+function channelx_by_hash($hash, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_hash',App::$channel) && App::$channel['channel_hash'] === $hash) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_hash = xchan_hash WHERE channel_hash = '%s' $sql_extra LIMIT 1",
 		dbesc($hash)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 
@@ -2490,17 +2529,19 @@ function channelx_by_hash($hash) {
  * @param string $hash
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_portid($hash) {
+function channelx_by_portid($hash, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_portable_id',App::$channel) && intval(App::$channel['channel_portable_id']) === intval($hash)) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' and channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel left join xchan on channel_portable_id = xchan_hash WHERE channel_portable_id = '%s' $sql_extra LIMIT 1",
 		dbesc($hash)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -2509,17 +2550,19 @@ function channelx_by_portid($hash) {
  * @param int $id A channel ID
  * @return array|boolean false if channel ID not found, otherwise the channel array
  */
-function channelx_by_n($id) {
+function channelx_by_n($id, $removed = false) {
 
-	if (App::$channel && is_array(App::$channel) && array_key_exists('channel_id',App::$channel) && intval(App::$channel['channel_id']) === intval($id)) {
-		return App::$channel;
+	$sql_extra = ' AND channel_removed = 0 ';
+
+	if ($removed) {
+		$sql_extra = '';
 	}
 
-	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d AND channel_removed = 0 LIMIT 1",
+	$r = q("SELECT * FROM channel LEFT JOIN xchan ON channel_hash = xchan_hash WHERE channel_id = %d $sql_extra LIMIT 1",
 		intval($id)
 	);
 
-	return(($r) ? $r[0] : false);
+	return (($r) ? $r[0] : false);
 }
 
 /**
@@ -2815,13 +2858,6 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		}
 	}
 
-	$r = q("select id from item where uid = %d", intval($channel_id));
-	if($r) {
-		foreach($r as $rv) {
-			drop_item($rv['id'],false);
-		}
-	}
-
 	q("delete from abook where abook_xchan = '%s' and abook_self = 1 ",
 		dbesc($channel['channel_hash'])
 	);
@@ -2830,6 +2866,9 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		dbesc(datetime_convert()),
 		intval($channel_id)
 	);
+
+	// remove items
+	Master::Summon([ 'Channel_purge', $channel_id ]);
 
 	// if this was the default channel, set another one as default
 	if(App::$account['account_default_channel'] == $channel_id) {
@@ -2871,6 +2910,8 @@ function channel_remove($channel_id, $local = true, $unset_session = false) {
 		$r = q("UPDATE xchan SET xchan_deleted = 1 WHERE xchan_hash = '%s'",
 			dbesc($channel['channel_hash'])
 		);
+		// send a cleanup message to other servers
+		Master::Summon([ 'Notifier', 'purge_all', $channel_id ]);
 	}
 
 	//remove from file system

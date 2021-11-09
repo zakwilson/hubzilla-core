@@ -71,13 +71,11 @@ class Zot6Handler implements IHandler {
 					where xchan_hash ='%s' limit 1",
 					dbesc($recip)
 				);
-				/// @FIXME $msgtype is undefined
 				$x = Libzot::refresh([ 'hubloc_id_url' => $hub['hubloc_id_url']], $r[0], $force);
 			}
 		}
 		else {
 			// system wide refresh
-			/// @FIXME $msgtype is undefined
 			$x = Libzot::refresh(['hubloc_id_url' => $hub['hubloc_id_url']], null, $force);
 		}
 

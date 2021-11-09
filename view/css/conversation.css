@@ -313,7 +313,7 @@ code {
 }
 
 code.inline-code {
-	padding: 0px 4px;
+	padding: 0.2em;
 	display: inline;
 }
 

@@ -216,7 +216,8 @@ class Channel {
 		if(x($_POST,'vnotify15'))
 			$vnotify += intval($_POST['vnotify15']);
 
-		$always_show_in_notices = x($_POST,'always_show_in_notices') ? 1 : 0;
+		$always_show_in_notices = x($_POST, 'always_show_in_notices') ? 1 : 0;
+		$update_notices_per_parent = x($_POST, 'update_notices_per_parent') ? 1 : 0;
 
 		$err = '';
 
@@ -245,6 +246,7 @@ class Channel {
 		set_pconfig(local_channel(),'system','blocktags',$blocktags);
 		set_pconfig(local_channel(),'system','vnotify',$vnotify);
 		set_pconfig(local_channel(),'system','always_show_in_notices',$always_show_in_notices);
+		set_pconfig(local_channel(),'system','update_notices_per_parent',$update_notices_per_parent);
 		set_pconfig(local_channel(),'system','evdays',$evdays);
 		set_pconfig(local_channel(),'system','photo_path',$photo_path);
 		set_pconfig(local_channel(),'system','attach_path',$attach_path);
@@ -477,8 +479,10 @@ class Channel {
 
 		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
 
-		$vnotify = get_pconfig(local_channel(),'system','vnotify');
 		$always_show_in_notices = get_pconfig(local_channel(),'system','always_show_in_notices');
+		$update_notices_per_parent = get_pconfig(local_channel(), 'system', 'update_notices_per_parent', 1);
+		$vnotify = get_pconfig(local_channel(),'system','vnotify');
+
 		if($vnotify === false)
 			$vnotify = (-1);
 
@@ -581,6 +585,7 @@ class Channel {
 			'$vnotify15'	=> array('vnotify15', t('Unseen forum posts'), ($vnotify & VNOTIFY_FORUMS), VNOTIFY_FORUMS, '', $yes_no),
 			'$mailhost' => [ 'mailhost', t('Email notification hub (hostname)'), get_pconfig(local_channel(),'system','email_notify_host',\App::get_hostname()), sprintf( t('If your channel is mirrored to multiple hubs, set this to your preferred location. This will prevent duplicate email notifications. Example: %s'),\App::get_hostname()) ],
 			'$always_show_in_notices'  => array('always_show_in_notices', t('Show new wall posts, private messages and connections under Notices'), $always_show_in_notices, 1, '', $yes_no),
+			'$update_notices_per_parent'  => array('update_notices_per_parent', t('Mark all notices of the thread read if a notice is clicked'), $update_notices_per_parent, 1, t('If no, only the clicked notice will be marked read'), $yes_no),
 			'$desktop_notifications_info' => t('Desktop notifications are unavailable because the required browser permission has not been granted'),
 			'$desktop_notifications_request' => t('Grant permission'),
 			'$evdays' => array('evdays', t('Notify me of events this many days in advance'), $evdays, t('Must be greater than 0')),

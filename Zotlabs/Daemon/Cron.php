@@ -36,7 +36,6 @@ class Cron {
 		// run queue delivery process in the background
 
 		Master::Summon(array('Queue'));
-
 		Master::Summon(array('Poller'));
 
 		/**
@@ -206,10 +205,9 @@ class Cron {
 
 		// pull in some public posts
 
-/*		$disable_discover_tab = get_config('system', 'disable_discover_tab') || get_config('system', 'disable_discover_tab') === false;
+		$disable_discover_tab = get_config('system', 'disable_discover_tab') || get_config('system', 'disable_discover_tab') === false;
 		if (!$disable_discover_tab)
-			Master::Summon(array('Externals'));
-*/
+			Master::Summon(['Externals']);
 
 		$restart = false;
 

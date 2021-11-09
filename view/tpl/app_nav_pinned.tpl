@@ -1,4 +1,4 @@
-<a class="navbar-app nav-link{{if $app.active}} active{{/if}}" href="{{$app.url}}" title="{{$app.name}}" >
+<a class="navbar-app nav-link{{if $app.active}} active{{/if}}" href="{{$app.url}}" title="{{$app.name}}">
 	{{if $icon}}
 	<i class="fa fa-fw fa-{{$icon}}"></i>
 	<span class="d-lg-none">{{$app.name}}</span>

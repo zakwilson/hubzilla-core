@@ -1,4 +1,4 @@
-Hubzilla 6.4 (2021-??-??)
+Hubzilla 6.4 (2021-11-09)
 	- Automatically connect the invitee with the inviting channel
 	- Use the composer version of urlify
 	- Implement zip file import of exported items from mod uexport

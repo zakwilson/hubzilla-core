@@ -2,8 +2,12 @@
 <div class="card h-card vcard-card">
 	<div class="row">
 		<div class="col-4">
-			<a href="{{$link}}">
+			{{if $editmenu}}
+			<a href="profile_photo" title="{{$change_photo}}">
+			{{/if}}
 				<img class="u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" width="80px" height="80px">
+			{{if $editmenu}}
+			{{/if}}
 			</a>
 		</div>
 		<div class="col-7 m-1 p-0">
@@ -25,7 +29,7 @@
 			{{/if}}
 
 			<div class="text-truncate">
-				<strong class="fn p-name">{{$profile.fullname}}{{if $profile.online}} <i class="fa fa-asterisk online-now" title="{{$profile.online}}"></i>{{/if}}</strong>
+				<strong class="fn p-name">{{$profile.fullname}}{{if $profile.online}}<i class="fa fa-fw fa-asterisk text-danger ps-2" title="{{$profile.online}}"></i>{{/if}}</strong>
 			</div>
 			<div class="text-truncate">
 				<small class="text-muted p-adr">{{$profile.reddress}}</small>

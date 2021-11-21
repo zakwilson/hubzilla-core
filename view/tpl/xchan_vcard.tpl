@@ -2,10 +2,10 @@
 	<div class="row">
 		<div class="col-4">
 			<a href="{{$link}}" >
-				<img class="u-photo" src="{{$photo}}" alt="{{$name}}" width="80px" height="80px">
+				<img class="u-photo rounded-start" src="{{$photo}}" alt="{{$name}}" width="80px" height="80px">
 			</a>
 		</div>
-		<div class="col-7 m-1">
+		<div class="col-7 m-1 p-0">
 			<div class="text-truncate">
 				<strong class="fn p-name">{{$name}}</strong>
 			</div>

@@ -246,7 +246,7 @@ function filecategories_widget($baseurl,$selected = '') {
 }
 
 
-function common_friends_visitor_widget($profile_uid,$cnt = 25) {
+function common_friends_visitor_widget($profile_uid,$cnt = 36) {
 
 	if(local_channel() == $profile_uid)
 		return;

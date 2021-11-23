@@ -101,7 +101,7 @@ if (! $radius)
 if (! $shadow)
 	$shadow = '0';
 if (! $converse_width)
-	$converse_width = '790';
+	$converse_width = '1250'; //unit: rem
 if(! $top_photo)
 	$top_photo = '2.3rem';
 if(! $reply_photo)
@@ -120,8 +120,8 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 		$x .= $schemecss;
 	}
 
-	$left_aside_width = 288;
-	$right_aside_width = 288;
+	$left_aside_width = 21; //unit: rem
+	$right_aside_width = 21; //unit: rem
 
 	$main_width = $left_aside_width + $right_aside_width + intval($converse_width);
 

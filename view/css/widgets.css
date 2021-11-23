@@ -243,9 +243,9 @@ a.wikilist {
 
 /* contact block */
 .contact-block-div .oneway-overlay {
-	font-size: 20px;
-	margin-left: -25px;
-	margin-top: 25px;
+	font-size: .9rem;
+	margin-left: -1.2rem;
+	margin-top: 2rem;
 	opacity: 0.8;
 }
 

@@ -1,11 +1,13 @@
 {{if !$zcard}}
-<div class="card h-card vcard-card">
+
+<div  class="rounded mb-3 vcard-card h-card">
+<div  class="card">
 	<div class="row">
-		<div class="col-4">
+		<div class="col-4" style="width: 7rem;">
 			{{if $editmenu}}
 			<a href="profile_photo" title="{{$change_photo}}">
 			{{/if}}
-				<img class="u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" width="80px" height="80px">
+				<img class="rounded-start u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" style="width: 6rem; height:6rem;">
 			{{if $editmenu}}
 			{{/if}}
 			</a>
@@ -44,9 +46,9 @@
 		</div>
 	</div>
 </div>
-<div class="vcard h-card rounded-bottom">
+<div class="vcard ps-2 pe-2">
 	{{if $profile.pdesc}}
-	<div class="pt-2 pb-3">{{$profile.pdesc}}</div>
+	<div class="pb-3 pt-2">{{$profile.pdesc}}</div>
 	{{/if}}
 	{{if $location}}
 	<dl class="">
@@ -77,7 +79,7 @@
 	</dl>
 	{{/if}}
 	{{if $homepage}}
-	<dl class="">
+	<dl class="pb-2">
 		<dt class="homepage-label">{{$homepage}}</dt>
 		<dd class="homepage-url u-url">{{$profile.homepage}}</dd>
 	</dl>
@@ -85,6 +87,8 @@
 
 	<div class="hcard-addon"></div>
 </div>
+</div>
+
 {{/if}}
 
 {{if $zcard}}

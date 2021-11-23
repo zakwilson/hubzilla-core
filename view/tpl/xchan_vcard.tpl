@@ -1,8 +1,8 @@
 <div class="card mb-3 h-card">
 	<div class="row">
-		<div class="col-4">
+		<div class="col-4" style="width: 7rem;">
 			<a href="{{$link}}" >
-				<img class="u-photo rounded-start" src="{{$photo}}" alt="{{$name}}" width="80px" height="80px">
+				<img class="u-photo rounded-start" src="{{$photo}}" alt="{{$name}}" style="width: 6rem; height:6rem;">
 			</a>
 		</div>
 		<div class="col-7 m-1 p-0">

@@ -24,15 +24,15 @@ body {
 
 aside#region_1 {
 	border-right: 1px solid transparent;
-	width: $left_aside_widthpx;
-	min-width: $left_aside_widthpx;
-	max-width: $left_aside_widthpx;
+	width: $left_aside_widthrem;
+	min-width: $left_aside_widthrem;
+	max-width: $left_aside_widthrem;
 }
 
 aside#region_3 {
-	width: $right_aside_widthpx;
-	min-width: $left_aside_widthpx;
-	max-width: $right_aside_widthpx;
+	width: $right_aside_widthrem;
+	min-width: $left_aside_widthrem;
+	max-width: $right_aside_widthrem;
 }
 
 aside#left_aside_wrapper,
@@ -49,7 +49,7 @@ main {
 #overlay {
 	position: fixed;
 	top: 0;
-	left: $left_aside_widthpx;
+	left: $left_aside_widthrem;
 	width: 100vw;
 	height: 100vh;
 	background: rgba(0, 0, 0, .3);
@@ -401,16 +401,10 @@ footer {
 }
 
 .vcard-card {
-	border-bottom-left-radius: 0;
-	border-bottom-right-radius: 0;
+	background-color: rgba(254,254,254,0.5);
 }
 
 .vcard {
-	margin-bottom: 10px;
-	padding: 0px 10px 10px 10px;
-	background-color: rgba(254,254,254,0.5);
-	border: 1px solid rgba(254,254,254,0.5);
-	border-top: 0px;
 	word-wrap: break-word;
 }
 
@@ -563,8 +557,8 @@ footer {
 }
 
 .contact-block-img {
-	width:47px;
-	height:47px;
+	width: 2.95rem;
+	height: 2.95rem;
 	margin-bottom: 3px;
 }
 
@@ -1183,7 +1177,6 @@ img.mail-conv-sender-photo {
 
 .widget {
 	background-color: rgba(254,254,254,.5);
-	border: 1px solid rgba(254,254,254,.5);
 	border-radius: $radius;
 }
 
@@ -1522,8 +1515,8 @@ blockquote {
 	}
 
 	main {
-		left: -$left_aside_widthpx;
-		width: calc( 100% + $left_aside_widthpx );
+		left: -$left_aside_widthrem;
+		width: calc( 100% + $left_aside_widthrem );
 	}
 
 	main.region_1-on {

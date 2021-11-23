@@ -189,7 +189,6 @@ class Profiles extends \Zotlabs\Web\Controller {
 			}
 
 			$chan = \App::get_channel();
-
 			profile_load($chan['channel_address'],$r[0]['id']);
 		}
 	}
@@ -657,6 +656,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				intval($id),
 				intval(local_channel())
 			);
+
 			if(! $r) {
 				notice( t('Profile not found.') . EOL);
 				return;

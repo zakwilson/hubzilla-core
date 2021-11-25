@@ -11,6 +11,6 @@ class Fullprofile {
 
 		$block = observer_prohibited();
 
-		return profile_sidebar(\App::$profile, $block);
+		return profile_sidebar(\App::$profile, $block, true, true);
 	}
 }

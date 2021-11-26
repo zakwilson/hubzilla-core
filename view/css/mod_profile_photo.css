@@ -10,3 +10,7 @@
 #profile-photo-submit-wrapper {
 	clear: both;
 }
+
+#profile-photo-wrapper {
+	overflow: hidden;
+}

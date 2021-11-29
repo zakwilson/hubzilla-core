@@ -550,7 +550,9 @@ class Notifier {
 						if (!array_key_exists($hub['hubloc_site_id'], $hub_env)) {
 							$hub_env[$hub['hubloc_site_id']] = [];
 						}
-						$hub_env[$hub['hubloc_site_id']][] = $er;
+						if (!in_array($er, $hub_env[$hub['hubloc_site_id']])) {
+							$hub_env[$hub['hubloc_site_id']][] = $er;
+						}
 					}
 				}
 			}

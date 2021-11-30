@@ -29,6 +29,8 @@
 
 // composer autoloader for all namespaced Classes
 use Zotlabs\Lib\Crypto;
+use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\Config;
 
 require_once('vendor/autoload.php');
 
@@ -1527,8 +1529,6 @@ function check_config() {
 
 function fix_system_urls($oldurl, $newurl) {
 
-	require_once('include/crypto.php');
-
 	logger('fix_system_urls: renaming ' . $oldurl . '  to ' . $newurl);
 
 	// Basically a site rename, but this can happen if you change from http to https for instance - even if the site name didn't change
@@ -1538,7 +1538,7 @@ function fix_system_urls($oldurl, $newurl) {
 	// that they can clean up their hubloc tables (this includes directories).
 	// It's a very expensive operation so you don't want to have to do it often or after your site gets to be large.
 
-	$r = q("select xchan.*, hubloc.* from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_url like '%s'",
+	$r = q("select xchan.*, hubloc.* from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_url like '%s' and hubloc_network = 'zot6'",
 		dbesc($oldurl . '%')
 	);
 
@@ -1586,13 +1586,14 @@ function fix_system_urls($oldurl, $newurl) {
 				dbesc($rv['xchan_hash'])
 			);
 
-			$y = q("update hubloc set hubloc_addr = '%s', hubloc_url = '%s', hubloc_id_url = '%s', hubloc_url_sig = '%s', hubloc_host = '%s', hubloc_callback = '%s' where hubloc_hash = '%s' and hubloc_url = '%s'",
+			$y = q("update hubloc set hubloc_addr = '%s', hubloc_url = '%s', hubloc_id_url = '%s', hubloc_url_sig = '%s', hubloc_site_id = '%s', hubloc_host = '%s', hubloc_callback = '%s' where hubloc_hash = '%s' and hubloc_url = '%s'",
 				dbesc($channel_address . '@' . $rhs),
 				dbesc($newurl),
-				dbesc(str_replace($oldurl,$newurl,$rv['hubloc_id_url'])),
-				dbesc(($rv['hubloc_network'] === 'zot6') ? 	\Zotlabs\Lib\Libzot::sign($newurl,$c[0]['channel_prvkey']) : base64url_encode(Crypto::sign($newurl,$c[0]['channel_prvkey']))),
+				dbesc(str_replace($oldurl, $newurl,$rv['hubloc_id_url'])),
+				dbesc(Libzot::sign($newurl, $c[0]['channel_prvkey'])),
+				dbesc(Libzot::make_xchan_hash($newurl, Config::Get('system','pubkey'))),
 				dbesc($newhost),
-				dbesc(($rv['hubloc_network'] === 'zot6') ? $newurl . '/zot' : $newurl . '/post'),
+				dbesc($newurl . '/zot'),
 				dbesc($rv['xchan_hash']),
 				dbesc($oldurl)
 			);

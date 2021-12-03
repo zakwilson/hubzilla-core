@@ -1158,8 +1158,18 @@ function dolike(ident, verb) {
 	if(typeof page_mode == typeof undefined)
 		page_mode = '';
 
-	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode, function (data) {
+	var reload = '';
+	if(module == 'photos')
+		reload = 1;
+
+	$.get('like/' + ident.toString() + '?verb=' + verb + '&conv_mode=' + conv_mode + '&page_mode=' + page_mode + '&reload=' + reload, function (data) {
 		if(data.success) {
+
+			// mod photos
+			if (data.reload) {
+				window.location.href = window.location.href;
+			}
+
 			// this is a bit tricky since the top level thread wrapper wraps the whole thread
 			if($('#thread-wrapper-' + data.orig_id).hasClass('toplevel_item')) {
 				var wrapper = $('<div></div>').html( data.html ).find('#wall-item-outside-wrapper-' + data.id);
@@ -1381,7 +1391,14 @@ function post_comment(id) {
 		"item",
 		form_data  + '&conv_mode=' + conv_mode,
 		function(data) {
-			if(data.success) {
+			if (data.success) {
+
+				//mod photos
+				if (data.reload) {
+					window.location.href = data.reload;
+				}
+
+
 				localStorage.removeItem("comment_body-" + id);
 				$("#comment-edit-preview-" + id).hide();
 				$("#comment-edit-text-" + id).val('').blur().attr('placeholder', aStr.comment);
@@ -1392,7 +1409,7 @@ function post_comment(id) {
 				commentBusy = false;
 
 				var tarea = document.getElementById("comment-edit-text-" + id);
-				if(tarea) {
+				if (tarea) {
 					commentClose(tarea, id);
 					$(document).off( "click.commentOpen");
 				}

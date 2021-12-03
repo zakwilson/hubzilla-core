@@ -1566,7 +1566,7 @@ function profile_edit_menu($uid) {
  * @return string (HTML) suitable for sidebar inclusion
  * Exceptions: Returns empty string if passed $profile is wrong type or not populated
  */
-function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = false) {
+function profile_sidebar($profile, $block = 0, $show_connect = true, $details = false) {
 
 	$observer = App::get_observer();
 
@@ -1622,6 +1622,7 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 	$gender   = ((x($profile,'gender')   == 1) ? t('Gender:')   : False);
 	$marital  = ((x($profile,'marital')  == 1) ? t('Status:')   : False);
 	$homepage = ((x($profile,'homepage') == 1) ? t('Homepage:') : False);
+	$hometown = ((x($profile,'hometown') == 1) ? t('Hometown:') : False);
 	$profile['online']   = (($profile['online_status'] === 'online') ? t('Online Now') : False);
 
 //	logger('online: ' . $profile['online']);
@@ -1662,18 +1663,18 @@ function profile_sidebar($profile, $block = 0, $show_connect = true, $zcard = fa
 		$tpl = get_markup_template('profile_vcard.tpl');
 
 	$o .= replace_macros($tpl, array(
-		'$zcard'         => $zcard,
+		'$details'       => $details,
 		'$profile'       => $profile,
 		'$connect'       => $connect,
 		'$connect_url'   => $connect_url,
 		'$location'      => $location,
+		'$hometown'      => $hometown,
 		'$gender'        => $gender,
 		'$pdesc'         => $pdesc,
 		'$marital'       => $marital,
 		'$homepage'      => $homepage,
 		'$chanmenu'      => $channel_menu,
 		'$reddress'      => $reddress,
-		'$rating'        => '',
 		'$contact_block' => $contact_block,
 		'$change_photo'  => t('Change your profile photo'),
 		'$editmenu'      => profile_edit_menu($profile['uid'])

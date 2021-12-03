@@ -1,3 +1,15 @@
+Hubzilla 6.4.1 (2021-12-03)
+	- Fix hubloc_site_id in fix_system_urls() on detected site rename events
+	- Fix duplicate deliveries if duplicate hublocs available
+	- Redesign profile vcard for improved responsive handling
+	- Fix profile photos not stored in profile photo folder
+	- Maximum width of content region is now calculated in rem for improved responsive handling
+	- Fix likes notices emited allthough they are disabled
+	- Fix page not reloaded after comment/like in mod photos - issue #1651
+	- Port improved Lib/HttpMeta from zap
+	- Improved responsive aside
+
+
 Hubzilla 6.4 (2021-11-09)
 	- Automatically connect the invitee with the inviting channel
 	- Use the composer version of urlify

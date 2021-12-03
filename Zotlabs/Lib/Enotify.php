@@ -256,7 +256,7 @@ class Enotify {
 
 		$itemlink =  $params['link'];
 
-		if (array_key_exists('item',$params) && (! activity_match($params['item']['verb'],ACTIVITY_LIKE))) {
+		if (array_key_exists('item',$params) && activity_match($params['item']['verb'],ACTIVITY_LIKE)) {
 			if(! $always_show_in_notices  || !($vnotify & VNOTIFY_LIKE)) {
 				logger('notification: not a visible activity. Ignoring.');
 				pop_lang();

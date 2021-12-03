@@ -101,7 +101,7 @@ if (! $radius)
 if (! $shadow)
 	$shadow = '0';
 if (! $converse_width)
-	$converse_width = '1270'; //unit: rem
+	$converse_width = '52'; //unit: rem
 if(! $top_photo)
 	$top_photo = '2.3rem';
 if(! $reply_photo)
@@ -126,7 +126,7 @@ if(file_exists('view/theme/redbasic/css/style.css')) {
 	$main_width = $left_aside_width + $right_aside_width + intval($converse_width);
 
 	// prevent main_width smaller than 768px
-	$main_width = (($main_width < 768) ? 768 : $main_width);
+	$main_width = (($main_width < 30) ? 30 : $main_width);
 
 	$options = array (
 		'$nav_bg' => $nav_bg,

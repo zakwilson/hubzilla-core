@@ -127,7 +127,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 	return replace_macros(get_markup_template('xchan_vcard.tpl'),array(
 		'$name'    => $xchan['xchan_name'],
 		'$addr'    => (($xchan['xchan_addr']) ? $xchan['xchan_addr'] : $xchan['xchan_url']),
-		'$photo'   => $xchan['xchan_photo_m'],
+		'$photo'   => $xchan['xchan_photo_l'],
 		'$follow'  => (($xchan['xchan_addr']) ? $xchan['xchan_addr'] : $xchan['xchan_url']),
 		'$link'    => zid($xchan['xchan_url']),
 		'$connect' => $connect,

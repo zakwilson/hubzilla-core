@@ -101,7 +101,7 @@ if (! $radius)
 if (! $shadow)
 	$shadow = '0';
 if (! $converse_width)
-	$converse_width = '1250'; //unit: rem
+	$converse_width = '1270'; //unit: rem
 if(! $top_photo)
 	$top_photo = '2.3rem';
 if(! $reply_photo)

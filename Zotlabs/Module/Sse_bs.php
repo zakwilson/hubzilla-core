@@ -124,7 +124,7 @@ class Sse_bs extends Controller {
 		$str = '';
 
 		foreach($arr as $a) {
-			$mids[] = '\'' . dbesc(@base64url_decode(substr($a,4))) . '\'';
+			$mids[] = '\'' . dbesc(unpack_link_id($a)) . '\'';
 		}
 
 		$str = implode(',', $mids);

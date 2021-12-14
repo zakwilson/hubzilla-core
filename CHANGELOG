@@ -1,3 +1,8 @@
+Hubzilla 6.4.2 (2021-12-14)
+	- Fix issue in mod sse_bs where returning message id's were assumed to be base64 encoded
+	- Fix announce activity type not registered as response activity
+
+
 Hubzilla 6.4.1 (2021-12-03)
 	- Fix hubloc_site_id in fix_system_urls() on detected site rename events
 	- Fix duplicate deliveries if duplicate hublocs available

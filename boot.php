@@ -55,10 +55,10 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '6.5.1' );
+define ( 'STD_VERSION',             '6.5.9' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1248 );
+define ( 'DB_UPDATE_VERSION',       1249 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -484,7 +484,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.9' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.10' );
 /**
  * activity stream defines
  */
@@ -860,7 +860,7 @@ class App {
 
 	private static $baseurl;
 
-	private static $meta;
+	public static $meta;
 
 	/**
 	 * App constructor.

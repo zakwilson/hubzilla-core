@@ -26,7 +26,7 @@ function nav($template = 'default') {
 			intval($channel['channel_id'])
 		);
 
-		if (empty($_SESSION['delegate'])) {
+		if (empty($_SESSION['delegate']) && feature_enabled(local_channel(), 'nav_channel_select')) {
 			$chans = q("select channel_name, channel_id from channel where channel_account_id = %d and channel_removed = 0 order by channel_name ",
 				intval(get_account_id())
 			);
@@ -97,13 +97,11 @@ function nav($template = 'default') {
 		if (empty($_SESSION['delegate'])) {
 			$nav['manage'] = ['manage', t('Channels'), "", t('Manage your channels'), 'manage_nav_btn'];
 		}
-		if (Apps::system_app_installed(local_channel(), 'Privacy Groups'))
-			$nav['group'] = ['group', t('Privacy Groups'), "", t('Manage your privacy groups'), 'group_nav_btn'];
 
 		$nav['settings'] = ['settings', t('Settings'), "", t('Account/Channel Settings'), 'settings_nav_btn'];
 
 
-		if ($chans && count($chans) > 1 && feature_enabled(local_channel(), 'nav_channel_select'))
+		if ($chans && count($chans) > 1)
 			$nav['channels'] = $chans;
 
 		$nav['logout'] = ['logout', t('Logout'), "", t('End this session'), 'logout_nav_btn'];

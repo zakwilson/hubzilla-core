@@ -416,6 +416,7 @@ class Item extends Controller {
 
 
 		$expires = NULL_DATE;
+		$comments_closed = NULL_DATE;
 
 		$route          = '';
 		$parent_item    = null;
@@ -692,6 +693,7 @@ class Item extends Controller {
 			$postopts            = $orig_post['postopts'];
 			$created             = $orig_post['created'];
 			$expires             = $orig_post['expires'];
+			$comments_closed     = $orig_post['comments_closed'];
 			$mid                 = $orig_post['mid'];
 			$parent_mid          = $orig_post['parent_mid'];
 			$plink               = $orig_post['plink'];
@@ -794,13 +796,7 @@ class Item extends Controller {
 
 		// if this is a wall-to-wall post to a group, turn it into a direct message
 
-		$role = get_pconfig($profile_uid, 'system', 'permissions_role');
-
-		$rolesettings = PermissionRoles::role_perms($role);
-
-		$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
-
-		$is_group = (($channel_type === 'group') ? true : false);
+		$is_group = get_pconfig($profile_uid, 'system', 'group_actor');
 
 		if (($is_group) && ($walltowall) && (!$walltowall_comment)) {
 			$groupww           = true;
@@ -994,8 +990,9 @@ class Item extends Controller {
 
 		$notify_type = (($parent) ? 'comment-new' : 'wall-new');
 
+		$uuid = (($message_id) ? $message_id : item_message_id());
+
 		if (!$mid) {
-			$uuid = (($message_id) ? $message_id : item_message_id());
 			$mid  = z_root() . '/item/' . $uuid;
 		}
 
@@ -1015,10 +1012,22 @@ class Item extends Controller {
 		}
 
 		if ($obj) {
-			$obj['url']          = $mid;
-			$obj['attributedTo'] = channel_url($channel);
-			$datarray['obj']     = $obj;
-			$obj_type            = 'Question';
+			$obj['url']           = $mid;
+			$obj['id']            = $mid;
+			$obj['diaspora:guid'] = $uuid;
+			$obj['attributedTo']  = channel_url($channel);
+			$obj['published']     = $created;
+
+			$datarray['obj']      = $obj;
+
+			if ($obj['endTime']) {
+				$d = datetime_convert('UTC','UTC', $obj['endTime']);
+				if ($d > NULL_DATE) {
+					$comments_closed = $d;
+				}
+			}
+
+			$obj_type = 'Question';
 		}
 
 		if (!$parent_mid) {
@@ -1082,6 +1091,7 @@ class Item extends Controller {
 		$datarray['created']             = $created;
 		$datarray['edited']              = (($orig_post) ? datetime_convert() : $created);
 		$datarray['expires']             = $expires;
+		$datarray['comments_closed']     = $comments_closed;
 		$datarray['commented']           = (($orig_post) ? datetime_convert() : $created);
 		$datarray['received']            = (($orig_post) ? datetime_convert() : $created);
 		$datarray['changed']             = (($orig_post) ? datetime_convert() : $created);
@@ -1593,6 +1603,8 @@ class Item extends Controller {
 		}
 
 		$obj['endTime'] = datetime_convert(date_default_timezone_get(), 'UTC', 'now + ' . $expire_value . ' ' . $expire_unit, ATOM_TIME);
+
+		$obj['directMessage'] = (intval($item['item_private']) === 2);
 
 		if ($item['item_private']) {
 			$obj['to'] = Activity::map_acl($item);

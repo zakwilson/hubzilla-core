@@ -13,9 +13,10 @@ use Zotlabs\Lib\IConfig;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Access\PermissionRoles;
-use Zotlabs\Access\AccessList;
+use Zotlabs\Lib\AccessList;
 use Zotlabs\Daemon\Master;
 
 require_once('include/bbcode.php');
@@ -35,8 +36,6 @@ require_once('include/permissions.php');
  */
 function collect_recipients($item, &$private_envelope,$include_groups = true) {
 
-	require_once('include/group.php');
-
 	$private_envelope = ((intval($item['item_private'])) ? true : false);
 	$recipients = array();
 
@@ -47,7 +46,7 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		$allow_people = expand_acl($item['allow_cid']);
 
 		if($include_groups) {
-			$allow_groups = expand_groups(expand_acl($item['allow_gid']));
+			$allow_groups = AccessList::expand(expand_acl($item['allow_gid']));
 		}
 		else {
 			$allow_groups = [];
@@ -72,7 +71,7 @@ function collect_recipients($item, &$private_envelope,$include_groups = true) {
 		}
 
 		$deny_people  = expand_acl($item['deny_cid']);
-		$deny_groups  = expand_groups(expand_acl($item['deny_gid']));
+		$deny_groups  = AccessList::expand(expand_acl($item['deny_gid']));
 
 		$deny = array_unique(array_merge($deny_people,$deny_groups));
 
@@ -344,6 +343,7 @@ function can_comment_on_post($observer_xchan, $item) {
 			return true;
 			break;
 		case 'any connections':
+		case 'specific':
 		case 'contacts':
 		case '':
 			if(local_channel() && get_abconfig(local_channel(),$item['owner_xchan'],'their_perms','post_comments')) {
@@ -1226,6 +1226,9 @@ function map_scope($scope, $strip = false) {
 			return 'site: ' . App::get_hostname();
 		case PERMS_PENDING:
 			return 'any connections';
+// uncomment after Hubzilla version 7.0 is running on the majority of active hubs
+//		case PERMS_SPECIFIC:
+//			return 'specific';
 		case PERMS_CONTACTS:
 		default:
 			return 'contacts';
@@ -2537,12 +2540,7 @@ function get_item_contact($item,$contacts) {
  */
 function tag_deliver($uid, $item_id) {
 
-	$role = get_pconfig($uid,'system','permissions_role');
-	$rolesettings = PermissionRoles::role_perms($role);
-	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
-
-	$is_group = (($channel_type === 'group') ? true : false);
-
+	$is_group = get_pconfig($uid, 'system', 'group_actor');
 	$mention = false;
 
 	/*
@@ -2579,15 +2577,18 @@ function tag_deliver($uid, $item_id) {
 	}
 
 	if ($is_group && intval($item['item_private']) === 2 && intval($item['item_thread_top'])) {
-
 		// do not turn the groups own direkt messages into group items
 		if($item['item_wall'] && $item['author_xchan'] === $u[0]['channel_hash'])
 			return;
 
 		// group delivery via DM
-		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall') || perm_is_allowed($uid,$item['owner_xchan'],'tag_deliver')) {
+		if(perm_is_allowed($uid,$item['owner_xchan'],'post_wall')) {
 			logger('group DM delivery for ' . $u[0]['channel_address']);
 			start_delivery_chain($u[0], $item, $item_id, 0, true, (($item['edited'] != $item['created']) || $item['item_deleted']));
+			q("update item set item_blocked = %d where id = %d",
+				intval(ITEM_HIDDEN),
+				intval($item_id)
+			);
 		}
 		return;
 	}
@@ -2599,13 +2600,6 @@ function tag_deliver($uid, $item_id) {
 			logger('resource_type group_item: already shared');
 			return;
 		}
-
-		/* this should not be required anymore due to the check above
-		if (strpos($item['body'],'[/share]')) {
-			logger('W2W post already shared');
-			return;
-		}
-		*/
 
 		// group delivery via W2W
 		logger('rewriting W2W post for ' . $u[0]['channel_address']);
@@ -2677,9 +2671,37 @@ function tag_deliver($uid, $item_id) {
 			intval($uid)
 		);
 
-		if(($x) && intval($x[0]['item_uplink'])) {
-			start_delivery_chain($u[0],$item,$item_id,$x[0]);
+		if ($x) {
+
+			// group comments don't normally require a second delivery chain
+			// but we create a linked Announce so they will show up in the home timeline
+			// on microblog platforms and this creates a second delivery chain
+
+			if ($is_group && intval($x[0]['item_wall'])) {
+				// don't let the forked delivery chain recurse
+				if ($item['verb'] === 'Announce' && $item['author_xchan'] === $u['channel_hash']) {
+					return;
+				}
+				// don't announce moderated content until it has been approved
+				if (intval($item['item_blocked']) === ITEM_MODERATED) {
+					return;
+				}
+
+				// don't boost likes and other response activities as it is likely that
+				// few platforms will handle this in an elegant way
+
+				if (ActivityStreams::is_response_activity($item['verb'])) {
+					return;
+				}
+				logger('group_comment');
+				start_delivery_chain($u[0], $item, $item_id, $x[0], true, (($item['edited'] != $item['created']) || $item['item_deleted']));
+
+			}
+			elseif (intval($x[0]['item_uplink'])) {
+				start_delivery_chain($u,$item,$item_id,$x[0]);
+			}
 		}
+
 	}
 
 
@@ -2920,13 +2942,7 @@ function item_community_tag($channel,$item) {
  */
 function tgroup_check($uid, $item) {
 
-
-	$role = get_pconfig($uid,'system','permissions_role');
-	$rolesettings = PermissionRoles::role_perms($role);
-	$channel_type = isset($rolesettings['channel_type']) ? $rolesettings['channel_type'] : 'normal';
-
-	$is_group = (($channel_type === 'group') ? true : false);
-
+	$is_group = get_pconfig($uid, 'system', 'group_actor');
 	$mention = false;
 
 	// check that the message originated elsewhere and is a top-level post
@@ -3125,6 +3141,10 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr = [];
 
+		q("update item set item_hidden = 1 where id = %d",
+			intval($item_id)
+		);
+
 		if ($edit) {
 
 			// process edit or delete action
@@ -3155,7 +3175,7 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		}
 		else {
 			$arr['uuid'] = item_message_id();
-			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
+			$arr['mid'] = z_root() . '/item/' . $arr['uuid'];
 			$arr['parent_mid'] = $arr['mid'];
 		}
 
@@ -3172,6 +3192,10 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 
 		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid']
 		|| $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		if ($channel['channel_allow_cid'] && empty($channel['channel_allow_gid'])) {
+			$arr['item_private'] = 2;
+		}
 
 		$arr['item_origin'] = 1;
 		$arr['item_wall'] = 1;
@@ -3192,6 +3216,29 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		$bb .= "[/share]";
 
 		$arr['body'] = $bb;
+		// Conversational objects shouldn't be copied, but other objects should.
+		if (in_array($item['obj_type'], [ 'Image', 'Event', 'Question' ])) {
+			$arr['obj'] = $item['obj'];
+			$t = json_decode($arr['obj'],true);
+
+			if ($t !== NULL) {
+				$arr['obj'] = $t;
+			}
+			$arr['obj']['content'] = bbcode($bb);
+			$arr['obj']['source']['content'] = $bb;
+			$arr['obj']['id'] = $arr['mid'];
+
+			if (! array_path_exists('obj/source/mediaType',$arr)) {
+				$arr['obj']['source']['mediaType'] = 'text/bbcode';
+			}
+
+			$arr['obj']['directMessage'] = (intval($arr['item_private']) === 2);
+
+		}
+
+		$arr['tgt_type'] = $item['tgt_type'];
+		$arr['target'] = $item['target'];
+
 		$arr['term'] = $item['term'];
 
 		$arr['author_xchan'] = $channel['channel_hash'];
@@ -3218,6 +3265,92 @@ function start_delivery_chain($channel, $item, $item_id, $parent, $group = false
 		if($post_id) {
 			Master::Summon([ 'Notifier','tgroup',$post_id ]);
 		}
+		return;
+	}
+
+
+	if ($group && $parent) {
+		logger('comment arrived in group', LOGGER_DEBUG);
+		$arr = [];
+
+		// don't let this recurse. We checked for this before calling, but this ensures
+		// it doesn't sneak through another way because recursion is nasty.
+
+		if ($item['verb'] === 'Announce' && $item['author_xchan'] === $channel['channel_hash']) {
+			return;
+		}
+
+		// Don't send Announce activities for poll responses.
+
+		if ($item['obj_type'] === 'Answer') {
+			return;
+		}
+
+		if ($edit) {
+			if (intval($item['item_deleted'])) {
+				drop_item($item['id'],false,DROPITEM_PHASE1);
+				Master::Summon([ 'Notifier','drop',$item['id'] ]);
+				return;
+			}
+			return;
+		}
+		else {
+			$arr['uuid'] = item_message_id();
+			$arr['mid'] = z_root() . '/activity/' . $arr['uuid'];
+			$arr['parent_mid'] = $item['parent_mid'];
+			//IConfig::Set($arr,'activitypub','context', str_replace('/item/','/conversation/',$item['parent_mid']));
+		}
+		$arr['aid'] = $channel['channel_account_id'];
+		$arr['uid'] = $channel['channel_id'];
+
+		$arr['verb'] = 'Announce';
+
+		if (is_array($item['obj'])) {
+			$arr['obj'] = $item['obj'];
+		}
+		elseif (is_string($item['obj']) && strlen($item['obj'])) {
+			$arr['obj'] = json_decode($item['obj'],true);
+		}
+
+		if (! $arr['obj']) {
+			$arr['obj'] = $item['mid'];
+		}
+
+		if (is_array($arr['obj'])) {
+			$obj_actor = ((isset($arr['obj']['actor'])) ? ((is_array($arr['obj']['actor'])) ? $arr['obj']['actor']['id'] : $arr['obj']['actor']) : $arr['obj']['attributedTo']);
+			$mention = Activity::get_actor_bbmention($obj_actor);
+			$arr['body'] = sprintf( t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $arr['obj']['type']);
+		}
+
+		$arr['author_xchan'] = $channel['channel_hash'];
+
+		$arr['item_wall'] = 1;
+
+		$arr['item_private'] = (($channel['channel_allow_cid'] || $channel['channel_allow_gid'] || $channel['channel_deny_cid'] || $channel['channel_deny_gid']) ? 1 : 0);
+
+		$arr['item_origin'] = 1;
+		$arr['item_notshown'] = 1;
+
+		$arr['item_thread_top'] = 0;
+
+		$arr['allow_cid'] = $channel['channel_allow_cid'];
+		$arr['allow_gid'] = $channel['channel_allow_gid'];
+		$arr['deny_cid']  = $channel['channel_deny_cid'];
+		$arr['deny_gid']  = $channel['channel_deny_gid'];
+		$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
+
+		$post = item_store($arr);
+		$post_id = $post['item_id'];
+
+		if ($post_id) {
+			Master::Summon([ 'Notifier','tgroup',$post_id ]);
+		}
+
+		q("update channel set channel_lastpost = '%s' where channel_id = %d",
+			dbesc(datetime_convert()),
+			intval($channel['channel_id'])
+		);
+
 		return;
 	}
 
@@ -3510,12 +3643,11 @@ function compare_permissions($obj1,$obj2) {
  * @return array
  */
 function enumerate_permissions($obj) {
-	require_once('include/group.php');
 
 	$allow_people = expand_acl($obj['allow_cid']);
-	$allow_groups = expand_groups(expand_acl($obj['allow_gid']));
+	$allow_groups = AccessList::expand(expand_acl($obj['allow_gid']));
 	$deny_people  = expand_acl($obj['deny_cid']);
-	$deny_groups  = expand_groups(expand_acl($obj['deny_gid']));
+	$deny_groups  = AccessList::expand(expand_acl($obj['deny_gid']));
 	$recipients   = array_unique(array_merge($allow_people,$allow_groups));
 	$deny         = array_unique(array_merge($deny_people,$deny_groups));
 	$recipients   = array_diff($recipients,$deny);
@@ -4252,7 +4384,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 		$contact_str = '';
 
-		$contacts = group_get_members($r[0]['id']);
+		$contacts = AccessList::members($uid, $r[0]['id']);
 		if ($contacts) {
 			foreach($contacts as $c) {
 				if($contact_str)
@@ -4268,7 +4400,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 
 		$sql_extra = " AND item.parent IN ( SELECT DISTINCT parent FROM item WHERE true $sql_options AND (( author_xchan IN ( $contact_str ) OR owner_xchan in ( $contact_str)) or allow_gid like '" . protect_sprintf('%<' . dbesc($r[0]['hash']) . '>%') . "' ) and id = parent $item_normal ) ";
 
-		$x = group_rec_byhash($uid,$r[0]['hash']);
+		$x = AccessList::by_hash($uid, $r[0]['hash']);
 		$result['headline'] = sprintf( t('Privacy group: %s'),$x['gname']);
 	}
 	elseif($arr['cid'] && $uid) {

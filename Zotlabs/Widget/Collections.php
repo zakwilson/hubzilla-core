@@ -1,8 +1,8 @@
 <?php
 
 namespace Zotlabs\Widget;
-	
-require_once('include/group.php');
+
+use Zotlabs\Lib\AccessList;
 
 class Collections {
 
@@ -49,6 +49,6 @@ class Collections {
 				break;
 		}
 
-		return group_side($every, $each, $edit, $current, $abook_id, $wmode);
+		return AccessList::widget($every, $each, $edit, $current, $abook_id, $wmode);
 	}
 }

@@ -902,7 +902,7 @@ class Enotify {
 	static public function format_intros($rr) {
 
 		return [
-			'notify_link' => z_root() . '/connections/ifpending',
+			'notify_link' => z_root() . '/connections#' . $rr['abook_id'],
 			'name' => $rr['xchan_name'],
 			'addr' => $rr['xchan_addr'],
 			'url' => $rr['xchan_url'],

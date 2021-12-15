@@ -525,11 +525,14 @@ function showHideComments(id) {
 	}
 }
 
-function openClose(theID) {
-	if(document.getElementById(theID).style.display == "block") {
+function openClose(theID, display) {
+	if (typeof display == typeof undefined)
+		display = 'block';
+
+	if(document.getElementById(theID).style.display == display) {
 		document.getElementById(theID).style.display = "none";
 	} else {
-		document.getElementById(theID).style.display = "block";
+		document.getElementById(theID).style.display = display;
 	}
 }
 
@@ -541,9 +544,11 @@ function openCloseTR(theID) {
 	}
 }
 
-function closeOpen(theID) {
+function closeOpen(theID, display) {
+	if (typeof display == typeof undefined)
+		display = 'block';
 	if(document.getElementById(theID).style.display == "none") {
-		document.getElementById(theID).style.display = "block";
+		document.getElementById(theID).style.display = display;
 	} else {
 		document.getElementById(theID).style.display = "none";
 	}

@@ -1,5 +1,5 @@
-<div  class="rounded mb-3 vcard-card h-card">
-	<div  class="card">
+<div class="rounded mb-3 vcard-card h-card">
+	<div class="card mb-2">
 		<div class="row">
 			<div class="col-4" style="width: 7rem;">
 				{{if $editmenu}}
@@ -49,10 +49,10 @@
 	{{if $details}}
 	<div class="vcard ps-2 pe-2">
 		{{if $profile.pdesc}}
-		<div class="pb-3 pt-2">{{$profile.pdesc}}</div>
+		<div class="mb-2">{{$profile.pdesc}}</div>
 		{{/if}}
 		{{if $location}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="location-label">{{$location}}</dt>
 			<dd class="adr h-adr">
 				{{if $profile.address}}
@@ -72,25 +72,25 @@
 		</dl>
 		{{/if}}
 		{{if $hometown}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="hometown-label">{{$hometown}}</dt>
 			<dd class="p-hometown">{{$profile.hometown}}</dd>
 		</dl>
 		{{/if}}
 		{{if $gender}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="gender-label">{{$gender}}</dt>
 			<dd class="p-gender">{{if $profile.gender_icon}}<i class="fa fa-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
 		</dl>
 		{{/if}}
 		{{if $marital}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="marital-label"><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$marital}}</dt>
 			<dd class="marital-text">{{$profile.marital}}</dd>
 		</dl>
 		{{/if}}
 		{{if $homepage}}
-		<dl class="pb-2">
+		<dl class="mb-0 pb-1">
 			<dt class="homepage-label">{{$homepage}}</dt>
 			<dd class="homepage-url u-url">{{$profile.homepage}}</dd>
 		</dl>

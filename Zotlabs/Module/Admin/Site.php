@@ -339,8 +339,8 @@ class Site {
 		// now invert the logic for the setting.
 		$discover_tab = (1 - $discover_tab);
 
-		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
-		$default_role = get_config('system','default_permissions_role','social');
+		$perm_roles = \Zotlabs\Access\PermissionRoles::channel_roles();
+		$default_role = get_config('system','default_permissions_role','personal');
 
 		$role = array('permissions_role' , t('Default permission role for new accounts'), $default_role, t('This role will be used for the first channel created after registration.'),$perm_roles);
 

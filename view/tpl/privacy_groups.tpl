@@ -8,6 +8,8 @@
 			<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 			{{include file="field_input.tpl" field=$gname}}
 			{{include file="field_checkbox.tpl" field=$public}}
+			{{include file="field_checkbox.tpl" field=$is_default_acl}}
+			{{include file="field_checkbox.tpl" field=$is_default_group}}
 			{{$pgrp_extras}}
 			<button type="submit" name="submit" class="btn btn-sm btn-primary float-end">{{$submit}}</button>
 		</form>

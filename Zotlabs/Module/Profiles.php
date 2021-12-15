@@ -316,8 +316,6 @@ class Profiles extends \Zotlabs\Web\Controller {
 			$work         = fix_mce_lf(escape_tags(trim($_POST['work'])));
 			$education    = fix_mce_lf(escape_tags(trim($_POST['education'])));
 
-			$hide_friends = ((intval($_POST['hide_friends'])) ? 1: 0);
-
 // start fresh and create a new vcard. TODO: preserve the original guid or whatever else needs saving
 //			$orig_vcard = (($orig[0]['profile_vcard']) ? \Sabre\VObject\Reader::read($orig[0]['profile_vcard']) : null);
 
@@ -513,6 +511,16 @@ class Profiles extends \Zotlabs\Web\Controller {
 					$value = $locality . $comma1 . $region . $comma2 . $country_name;
 				}
 
+				$hide_friends = ((intval($_POST['hide_friends'])) ? 1: 0);
+
+				$suggestme = ((x($_POST, 'suggestme')) ? intval($_POST['suggestme']) : 0);
+				set_pconfig(local_channel(), 'system', 'suggestme', $suggestme);
+
+				$show_presence = (((x($_POST, 'show_presence')) && (intval($_POST['show_presence']) == 1)) ? 1 : 0);
+				set_pconfig(local_channel(), 'system', 'show_online_status', $show_presence);
+
+				$publish = ((x($_POST, 'profile_in_directory') && (intval($_POST['profile_in_directory']) == 1)) ? 1 : 0);
+
 				profile_activity($changes,$value);
 
 			}
@@ -551,7 +559,8 @@ class Profiles extends \Zotlabs\Web\Controller {
 				employment = '%s',
 				education = '%s',
 				hide_friends = %d,
-				profile_vcard = '%s'
+				profile_vcard = '%s',
+				publish = %d
 				WHERE id = %d AND uid = %d",
 				dbesc($profile_name),
 				dbesc($name),
@@ -587,6 +596,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				dbesc($education),
 				intval($hide_friends),
 				dbesc($profile_vcard),
+				intval($publish),
 				intval(argv(1)),
 				intval(local_channel())
 			);
@@ -675,13 +685,43 @@ class Profiles extends \Zotlabs\Web\Controller {
 			else
 				$fields = $profile_fields_basic;
 
-			$hide_friends = array(
-				'hide_friends',
-				t('Hide your connections list from viewers of this profile'),
-				$r[0]['hide_friends'],
-				'',
-				array(t('No'),t('Yes'))
-			);
+			$show_presence = [];
+			$profile_in_dir = '';
+			$suggestme = '';
+			$hide_friends = [];
+			$is_default = (($r[0]['is_default']) ? 1 : 0);
+
+			if ($is_default) {
+
+				$hide_friends = array(
+					'hide_friends',
+					t('Hide my connections from viewers of this profile'),
+					$r[0]['hide_friends'],
+					'',
+					[t('No'), t('Yes')]
+				);
+
+
+				$opt_tpl = get_markup_template("field_checkbox.tpl");
+				if (get_config('system', 'publish_all')) {
+					$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
+				}
+				else {
+					$profile_in_dir = replace_macros($opt_tpl, [
+						'$field' => ['profile_in_directory', t('Publish my default profile in the network directory'), $r[0]['publish'], '', [t('No'), t('Yes')]],
+					]);
+				}
+
+				$suggestme     = get_pconfig(local_channel(), 'system', 'suggestme');
+				$suggestme     = (($suggestme === false) ? '0' : $suggestme); // default if not set: 0
+
+				$suggestme = replace_macros($opt_tpl, [
+					'$field' => ['suggestme', t('Suggest me as a potential contact to new members'), $suggestme, '', [t('No'), t('Yes')]],
+				]);
+
+				$show_presence_val = intval(get_pconfig(local_channel(), 'system', 'show_online_status'));
+				$show_presence = ['show_presence', t('Reveal my online status'), $show_presence_val, '', [t('No'), t('Yes')]];
+			}
 
 			$q = q("select * from profdef where true");
 			if($q) {
@@ -710,7 +750,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 			if(! $f)
 				$f = 'ymd';
 
-			$is_default = (($r[0]['is_default']) ? 1 : 0);
+
 
 			$tpl = get_markup_template("profile_edit.tpl");
 			$o .= replace_macros($tpl,array(
@@ -724,7 +764,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$banner'       => t('Edit Profile Details'),
 				'$submit'       => t('Submit'),
 				'$viewprof'     => t('View this profile'),
-				'$editvis' 	=> t('Edit visibility'),
+				'$editvis'      => t('Edit visibility'),
 				'$tools_label'  => t('Profile Tools'),
 				'$coverpic'     => t('Change cover photo'),
 				'$profpic'      => t('Change profile photo'),
@@ -732,7 +772,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$cl_prof'      => t('Clone this profile'),
 				'$del_prof'     => t('Delete this profile'),
 				'$addthing'     => t('Add profile things'),
-				'$personal'     => t('Personal'),
+				'$basic'        => t('Basic'),
 				'$location'     => t('Location'),
 				'$relation'     => t('Relationship'),
 				'$miscellaneous'=> t('Miscellaneous'),
@@ -801,6 +841,11 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$update'         => t('Update'),
 				'$delete'         => t('Delete'),
 				'$cancel'         => t('Cancel'),
+
+				'$show_presence'             => $show_presence,
+				'$suggestme'                 => $suggestme,
+				'$profile_in_dir'            => $profile_in_dir,
+
 			));
 
 			$arr = array('profile' => $r[0], 'entry' => $o);

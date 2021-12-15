@@ -13,6 +13,8 @@
 			<input type='hidden' name='form_security_token' value='{{$form_security_token_edit}}'>
 			{{include file="field_input.tpl" field=$gname}}
 			{{include file="field_checkbox.tpl" field=$public}}
+			{{include file="field_checkbox.tpl" field=$is_default_acl}}
+			{{include file="field_checkbox.tpl" field=$is_default_group}}
 			{{$pgrp_extras}}
 			<a href="group/drop/{{$gid}}?t={{$form_security_token_drop}}" onclick="return confirmDelete();" class="btn btn-sm btn-danger">
 				{{$delete}}

@@ -15,6 +15,7 @@ use Zotlabs\Render\Comanche;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Connect;
 use Zotlabs\Lib\Libsync;
+use Zotlabs\Lib\AccessList;
 
 require_once('include/crypto.php');
 require_once('include/menu.php');
@@ -240,7 +241,7 @@ function create_identity($arr) {
 
 	// Force a few things on the short term until we can provide a theme or app with choice
 
-	$publish = 1;
+	$publish = 0;
 
 	if(array_key_exists('publish', $arr))
 		$publish = intval($arr['publish']);
@@ -325,6 +326,12 @@ function create_identity($arr) {
 	if($role_permissions && array_key_exists('perms_auto',$role_permissions))
 		set_pconfig($r[0]['channel_id'],'system','autoperms',intval($role_permissions['perms_auto']));
 
+	$group_actor = false;
+	if($role_permissions && array_key_exists('channel_type', $role_permissions) && $role_permissions['channel_type'] === 'group') {
+		set_pconfig($r[0]['channel_id'], 'system', 'group_actor', 1);
+		$group_actor = true;
+	}
+
 	$ret['channel'] = $r[0];
 
 	if(intval($arr['account_id']))
@@ -374,7 +381,8 @@ function create_identity($arr) {
 			'xchan_network'     => 'zot6',
 			'xchan_photo_date'  => datetime_convert(),
 			'xchan_name_date'   => datetime_convert(),
-			'xchan_system'      => $system
+			'xchan_system'      => $system,
+			'xchan_pubforum'    => $group_actor
 		]
 	);
 	if(! $r)
@@ -399,14 +407,6 @@ function create_identity($arr) {
 		]
 	);
 
-	if($role_permissions) {
-		$myperms = ((array_key_exists('perms_connect',$role_permissions)) ? $role_permissions['perms_connect'] : array());
-	}
-	else {
-		$x = PermissionRoles::role_perms('social');
-		$myperms = $x['perms_connect'];
-	}
-
 	$r = abook_store_lowlevel(
 		[
 			'abook_account'   => intval($ret['channel']['channel_account_id']),
@@ -419,19 +419,18 @@ function create_identity($arr) {
 		]
 	);
 
-	$x = Permissions::FilledPerms($myperms);
-	foreach($x as $k => $v) {
-		set_abconfig($newuid,$hash,'my_perms',$k,$v);
-	}
-
 	if(intval($ret['channel']['channel_account_id'])) {
 
-		// Save our permissions role so we can perhaps call it up and modify it later.
+
+		// Set the default permcat
+		set_pconfig($newuid,'system','default_permcat','default');
 
 		if($role_permissions) {
+			// Save our permissions role so we can perhaps call it up and modify it later.
 			set_pconfig($newuid,'system','permissions_role',$arr['permissions_role']);
+
 			if(array_key_exists('online',$role_permissions))
-				set_pconfig($newuid,'system','hide_presence',1-intval($role_permissions['online']));
+				set_pconfig($newuid,'system','show_online_status', intval($role_permissions['online']));
 			if(array_key_exists('perms_auto',$role_permissions)) {
 				$autoperms = intval($role_permissions['perms_auto']);
 				set_pconfig($newuid,'system','autoperms',$autoperms);
@@ -453,11 +452,10 @@ function create_identity($arr) {
 		// Create a group with yourself as a member. This allows somebody to use it
 		// right away as a default group for new contacts.
 
-		require_once('include/group.php');
-		$group_hash = group_add($newuid, t('Friends'));
+		$group_hash = AccessList::add($newuid, t('Friends'));
 
 		if($group_hash) {
-			group_add_member($newuid,t('Friends'),$ret['channel']['channel_hash']);
+			AccessList::member_add($newuid,t('Friends'),$ret['channel']['channel_hash']);
 
 			$default_collection_str = '';
 			// if our role_permissions indicate that we're using a default collection ACL, add it.
@@ -496,8 +494,7 @@ function create_identity($arr) {
 				if($acct) {
 					$f = connect_and_sync($ret['channel'], $acct);
 					if($f['success']) {
-						$can_view_stream = their_perms_contains($ret['channel']['channel_id'],$f['abook']['abook_xchan'],'view_stream');
-
+						$can_view_stream = intval(get_abconfig($ret['channel']['channel_id'], $f['abook']['abook_xchan'], 'their_perms', 'view_stream'));
 						// If we can view their stream, pull in some posts
 						if(($can_view_stream) || ($f['abook']['xchan_network'] === 'rss')) {
 							Master::Summon([ 'Onepoll',$f['abook']['abook_id'] ]);
@@ -1488,6 +1485,7 @@ function profile_load($nickname, $profile = '') {
 
 	if($can_view_profile) {
 		$online = get_online_status($nickname);
+
 		App::$profile['online_status'] = $online['result'];
 	}
 
@@ -2060,11 +2058,12 @@ function get_online_status($nick) {
 		return $ret;
 
 	$r = q("select channel_id, channel_hash from channel where channel_address = '%s' limit 1",
-		dbesc(argv(1))
+		dbesc($nick)
 	);
+
 	if($r) {
-		$hide = get_pconfig($r[0]['channel_id'],'system','hide_online_status');
-		if($hide)
+		$show = get_pconfig($r[0]['channel_id'],'system','show_online_status');
+		if(!$show)
 			return $ret;
 
 		$x = q("select cp_status from chatpresence where cp_xchan = '%s' and cp_room = 0 limit 1",

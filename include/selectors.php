@@ -15,7 +15,7 @@ function contact_profile_assign($current) {
 
 	$select = [
 		'profile_assign',
-		t('Profile to assign new connections'),
+		t('Select a profile to assign to this contact'),
 		$current,
 		'',
 		$options
@@ -70,7 +70,7 @@ function gender_selector($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 
 function gender_selector_min($current="",$suffix="") {
 	$o = '';
@@ -87,7 +87,7 @@ function gender_selector_min($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 
 
 
@@ -107,7 +107,7 @@ function sexpref_selector($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 
 
 function sexpref_selector_min($current="",$suffix="") {
@@ -125,7 +125,7 @@ function sexpref_selector_min($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 
 
 
@@ -144,7 +144,7 @@ function marital_selector($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 
 function marital_selector_min($current="",$suffix="") {
 	$o = '';
@@ -161,5 +161,5 @@ function marital_selector_min($current="",$suffix="") {
 	}
 	$o .= '</select>';
 	return $o;
-}	
+}
 

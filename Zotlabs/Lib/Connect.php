@@ -261,7 +261,8 @@ class Connect {
 					'abook_feed'      => intval(($xchan['xchan_network'] === 'rss') ? 1 : 0),
 					'abook_created'   => datetime_convert(),
 					'abook_updated'   => datetime_convert(),
-					'abook_instance'  => (($singleton) ? z_root() : '')
+					'abook_instance'  => (($singleton) ? z_root() : ''),
+					'abook_role'      => get_pconfig($uid, 'system', 'default_permcat', 'default')
 				]
 			);
 		}
@@ -300,7 +301,7 @@ class Connect {
 		/** If there is a default group for this channel, add this connection to it */
 
 		if ($default_group) {
-			$g = AccessList::rec_byhash($uid,$default_group);
+			$g = AccessList::by_hash($uid,$default_group);
 			if ($g) {
 				AccessList::member_add($uid,'',$xchan_hash,$g['id']);
 			}

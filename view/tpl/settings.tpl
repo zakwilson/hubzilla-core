@@ -18,75 +18,16 @@
 				</div>
 				<div id="basic-settings-collapse" class="collapse show" role="tabpanel" aria-labelledby="basic-settings" data-bs-parent="#settings">
 					<div class="section-content-tools-wrapper">
-						{{include file="field_input.tpl" field=$username}}
+						{{include file="field_select.tpl" field=$role}}
 						{{include file="field_select_grouped.tpl" field=$timezone}}
 						{{include file="field_input.tpl" field=$defloc}}
 						{{include file="field_checkbox.tpl" field=$allowloc}}
 						{{include file="field_checkbox.tpl" field=$adult}}
 						{{include file="field_input.tpl" field=$photo_path}}
 						{{include file="field_input.tpl" field=$attach_path}}
+						{{include file="field_input.tpl" field=$expire}}
 						{{if $basic_addon}}
 						{{$basic_addon}}
-						{{/if}}
-						<div class="settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="privacy-settings">
-					<h3>
-						<a data-bs-toggle="collapse" data-bs-target="#privacy-settings-collapse" href="#">
-							{{$h_prv}}
-						</a>
-					</h3>
-				</div>
-				<div id="privacy-settings-collapse" class="collapse" role="tabpanel" aria-labelledby="privacy-settings" data-bs-parent="#settings">
-					<div class="section-content-tools-wrapper">
-						{{include file="field_select_grouped.tpl" field=$role}}
-						{{$autoperms}}
-						<div id="advanced-perm" style="display:{{if $permissions_set}}none{{else}}block{{/if}};">
-							<div class="mb-3">
-								<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#apsModal">{{$lbl_p2macro}}</button>
-							</div>
-							<div class="modal" id="apsModal">
-								<div class="modal-dialog">
-									<div class="modal-content">
-										<div class="modal-header">
-											<h4 class="modal-title">{{$lbl_p2macro}}</h4>
-											<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-										</div>
-										<div class="modal-body">
-										{{foreach $permiss_arr as $permit}}
-											{{include file="field_select.tpl" field=$permit}}
-										{{/foreach}}
-										</div>
-										<div class="modal-footer">
-											<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
-										</div>
-									</div><!-- /.modal-content -->
-								</div><!-- /.modal-dialog -->
-							</div><!-- /.modal -->
-
-							<div id="settings-default-perms" class="mb-3" >
-								<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#aclModal"><i id="jot-perms-icon" class="fa"></i>&nbsp;{{$permissions}}</button>
-							</div>
-							{{$group_select}}
-							{{include file="field_checkbox.tpl" field=$hide_presence}}
-							{{$profile_in_dir}}
-						</div>
-						<div class="settings-common-perms">
-							{{$suggestme}}
-							{{include file="field_checkbox.tpl" field=$blocktags}}
-							{{include file="field_input.tpl" field=$expire}}
-						</div>
-						{{if $permcat_enable}}
-						{{include file="field_select.tpl" field=$defpermcat}}
-						{{/if}}
-
-						{{if $sec_addon}}
-						{{$sec_addon}}
 						{{/if}}
 						<div class="settings-submit-wrapper" >
 							<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>

@@ -36,7 +36,7 @@
 				</div>
 				{{if $item.lock}}
 				<div class="wall-item-lock dropdown">
-					<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else}}fa-lock{{/if}} lockview" data-bs-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i><ul id="panel-{{$item.id}}" class="lockview-panel dropdown-menu"></ul>&nbsp;
+					<i class="fa {{if $item.locktype == 2}}fa-envelope-o{{else if $item.locktype == 1}}fa-lock{{else}}fa-unlock{{/if}} lockview{{if $item.privacy_warning}} text-danger{{/if}}" data-bs-toggle="dropdown" title="{{$item.lock}}" onclick="lockview('item',{{$item.id}});" ></i>&nbsp;
 				</div>
 				{{/if}}
 				<div class="wall-item-author">

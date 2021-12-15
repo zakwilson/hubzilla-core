@@ -1070,7 +1070,7 @@ function thread_author_menu($item, $mode = '') {
 	if($contact) {
 		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
 		if (! intval($contact['abook_self']))
-			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
+			$contact_url = z_root() . '/connections#' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
 
 		$clean_url = normalise_link($item['author-link']);
@@ -1086,7 +1086,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('View Profile'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $profile_link
+			'href' => $profile_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1096,7 +1098,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Recent Activity'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $posts_link
+			'href' => $posts_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1107,6 +1111,8 @@ function thread_author_menu($item, $mode = '') {
 			'icon' => 'fw',
 			'action' => 'doFollowAuthor(\'' . $follow_url . '\'); return false;',
 			'href' => '#',
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1116,7 +1122,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Edit Connection'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $contact_url
+			'href' => $contact_url,
+			'data' => 'data-id="' . $contact['abook_id'] . '"',
+			'class' => 'contact-edit'
 		];
 	}
 
@@ -1126,7 +1134,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Message'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $pm_url
+			'href' => $pm_url,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1136,7 +1146,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Ratings'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $ratings_url
+			'href' => $ratings_url,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1146,7 +1158,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Poke'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $poke_link
+			'href' => $poke_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 

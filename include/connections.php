@@ -27,7 +27,8 @@ function abook_store_lowlevel($arr) {
 		'abook_profile'     => ((array_key_exists('abook_profile',$arr))     ? $arr['abook_profile']     : ''),
 		'abook_incl'        => ((array_key_exists('abook_incl',$arr))        ? $arr['abook_incl']        : ''),
 		'abook_excl'        => ((array_key_exists('abook_excl',$arr))        ? $arr['abook_excl']        : ''),
-		'abook_instance'    => ((array_key_exists('abook_instance',$arr))    ? $arr['abook_instance']    : '')
+		'abook_instance'    => ((array_key_exists('abook_instance',$arr))    ? $arr['abook_instance']    : ''),
+		'abook_role'        => ((array_key_exists('abook_role',$arr))        ? $arr['abook_role']        : '')
 	];
 
 	return create_table_from_array('abook',$store);

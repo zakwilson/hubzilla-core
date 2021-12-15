@@ -12,6 +12,7 @@ use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\AccessList;
 
 require_once("include/bbcode.php");
 
@@ -1753,6 +1754,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 		}
 	}
 
+
 	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
 		$s = $poll;
@@ -1854,11 +1856,16 @@ function format_poll($item,$s,$opts) {
 		return EMPTY_STR;
 	}
 
-	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR),$item);
+	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR), $item);
 
-	//logger('format_poll: ' . print_r($item,true));
-	$activated = ((local_channel() && local_channel() == $item['uid']) ? true : false);
-	$output = $s . EOL. EOL;
+	$activated = ((local_channel() && local_channel() == $item['uid'] && get_observer_hash() !== $item['owner_xchan']) ? true : false);
+	$output = $s;
+
+	if (strpos($item['body'], '[/share]') !== false) {
+		$output = substr($output, 0, -12);
+	}
+
+	$output .= EOL . EOL;
 
 	if ($act['type'] === 'Question') {
 		if ($activated and $commentable) {
@@ -1884,6 +1891,12 @@ function format_poll($item,$s,$opts) {
 			}
 		}
 		if (array_key_exists('oneOf',$act) && is_array($act['oneOf'])) {
+			$totalResponses = 0;
+			foreach ($act['oneOf'] as $poll) {
+				if (array_path_exists('replies/totalItems',$poll)) {
+					$totalResponses += intval($poll['replies']['totalItems']);
+				}
+			}
 			foreach ($act['oneOf'] as $poll) {
 				if (array_key_exists('name',$poll) && $poll['name']) {
 					$text = html2plain(purify_html($poll['name']),256);
@@ -1894,29 +1907,48 @@ function format_poll($item,$s,$opts) {
 						$total = 0;
 					}
 					if ($activated && $commentable) {
-						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0). '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
+
 					else {
-						$output .= '( ) ' . $text . ' (' . $total . ')' . EOL;
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '" disabled="disabled">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0) . '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
 				}
 			}
 		}
+
+		$message = (($totalResponses) ? sprintf(tt('%d Vote in total', '%d Votes in total', $totalResponses, 'noun'), $totalResponses) . EOL : '');
+
 		if ($item['comments_closed'] > NULL_DATE) {
 			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
 			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
 			if ($closed) {
-				$message = t('Poll has ended.');
+				$message .= t('Poll has ended');
 			}
 			else {
-				$message = sprintf(t('Poll ends: %s'),$t);
+				$message .= sprintf(t('Poll ends in %s'), '<span class="autotime" title="' . $t . '"></span>');
 			}
-			$output .= EOL . '<div>' . $message . '</div>';
-		}
-		if ($activated and $commentable) {
-			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
 		}
 
+		$output .= '<div class="mb-3">' . $message . '</div>';
+
+		if ($activated && $commentable && !$closed) {
+			$output .= '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
+		}
+
+		if (strpos($item['body'], '[/share]') !== false) {
+			$output .= '</div></div>';
+		}
 	}
 	return $output;
 }
@@ -2989,7 +3021,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			// weird - as all the other tags are linked to something.
 
 			if(local_channel() && local_channel() == $profile_uid) {
-				$grp = group_byname($profile_uid,$name);
+				$grp = AccessList::byname($profile_uid,$name);
 
 				if($grp) {
 					$g = q("select hash from pgrp where id = %d and visible = 1 limit 1",
@@ -3692,6 +3724,13 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
+	$r = q("select abook_id, xchan_pubforum, xchan_hash, xchan_network, xchan_name, xchan_url, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 and abook_self = 0 and xchan_pubforum = 1 order by xchan_name",
+		intval($uid)
+	);
+
+
+/*
+
 	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
@@ -3763,6 +3802,7 @@ function get_forum_channels($uid) {
 	}
 
 	App::$data['forum_channels'] = $r;
+*/
 
 	return $r;
 

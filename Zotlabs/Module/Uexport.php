@@ -143,6 +143,10 @@ class Uexport extends Controller {
 
 	function get() {
 
+		if(! local_channel()) {
+			return;
+		}
+
 		if(! Apps::system_app_installed(local_channel(), 'Channel Export')) {
 			//Do not display any associated widgets at this point
 			App::$pdl = '';

@@ -8,7 +8,7 @@
 {{else}}
 <div id="personal-notes" class="widget{{if $hidden}} d-none{{/if}}">
 	<div class="float-end rounded border border-secondary mb-1 ps-1 pe-1 text-muted small note-mode" title="Double click note for edit mode">{{$strings.read}}</div>
-	<h3 class="float-start">{{$banner}}</h3>
+	<h3 class="float-start">{{$strings.title}}</h3>
 {{/if}}
 	<textarea name="note_text" id="note-text" class="form-control{{if $app}} border-0{{else}} p-1{{/if}}" style="display: none;">{{$text}}</textarea>
 	<div id="note-text-html" class="{{if !$app}}border rounded p-1{{/if}}">{{$html}}</div>

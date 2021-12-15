@@ -99,6 +99,11 @@ class Channel {
 				date_default_timezone_set($timezone);
 		}
 
+		if (!$role) {
+			notice(t('Please select a channel role') . EOL);
+			return;
+		}
+
 		if ($role !== get_pconfig(local_channel(), 'system', 'permissions_role')) {
 			$role_permissions = PermissionRoles::role_perms($_POST['permissions_role']);
 
@@ -200,12 +205,13 @@ class Channel {
 		if ($vnotify === false)
 			$vnotify = (-1);
 
-		$permissions_role = get_pconfig(local_channel(), 'system', 'permissions_role');
-		if (!$permissions_role) {
-			$permissions_role = 'custom';
-		}
-
 		$perm_roles = PermissionRoles::channel_roles();
+		$permissions_role = get_pconfig(local_channel(), 'system', 'permissions_role');
+
+		if (!in_array($permissions_role, ['public', 'personal', 'group', 'custom'])) {
+			notice(t('Please select a channel role') . EOL);
+			array_unshift($perm_roles , '');
+		}
 
 		$plugin = ['basic' => '', 'notify' => ''];
 		call_hooks('channel_settings', $plugin);

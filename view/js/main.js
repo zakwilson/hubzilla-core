@@ -178,7 +178,7 @@ $(document).ready(function() {
 			path = 'hq';
 		}
 
-		if(notify_id != null) {
+		if(notify_id) {
 			$.ajax({
 				type: 'post',
 				url: 'notify',
@@ -999,7 +999,7 @@ function liveUpdate(notify_id) {
 		// else data was valid - reset the recursion counter
 		liveRecurse = 0;
 
-		if(typeof notify_id !== 'undefined' && notify_id !== 'undefined') {
+		if(notify_id) {
 			$.post(
 				"notify",
 				{

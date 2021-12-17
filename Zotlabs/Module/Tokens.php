@@ -110,8 +110,8 @@ class Tokens extends Controller {
 
 			// If this is a new token, create a new abook record
 
-			$closeness = get_pconfig($uid,'system','new_abook_closeness',80);
-			$profile_assign = get_pconfig($uid,'system','profile_assign','');
+			$closeness = get_pconfig($channel['channel_id'], 'system', 'new_abook_closeness',80);
+			$profile_assign = get_pconfig($channel['channel_id'], 'system', 'profile_assign', '');
 
 			$r = abook_store_lowlevel(
 				[
@@ -132,11 +132,10 @@ class Tokens extends Controller {
 			}
 
 			/** If there is a default group for this channel, add this connection to it */
-
 			if ($channel['channel_default_group']) {
-				$g = AccessList::by_hash($uid,$channel['channel_default_group']);
+				$g = AccessList::by_hash($channel['channel_id'], $channel['channel_default_group']);
 				if ($g) {
-					AccessList::member_add($uid,'',$atoken_xchan,$g['id']);
+					AccessList::member_add($channel['channel_id'], '', $atoken_xchan,$g['id']);
 				}
 			}
 		}
@@ -281,8 +280,8 @@ class Tokens extends Controller {
 		$o .= replace_macros($tpl, array(
 			'$form_security_token' => get_form_security_token("tokens"),
 			'$permcat' => ['permcat', t('Select a role for this token'), $current_permcat, '', $permcats],
-			'$title'	=> t('Guest Access Tokens'),
-			'$desc'     => $desc,
+			'$title' => t('Guest Access Tokens'),
+			'$desc' => $desc,
 			'$desc2' => $desc2,
 			'$tokens' => $t,
 			'$atoken' => $atoken,
@@ -291,15 +290,7 @@ class Tokens extends Controller {
 			'$name' => array('name', t('Login Name') . ' <span class="required">*</span>', (($atoken) ? $atoken['atoken_name'] : ''),''),
 			'$token'=> array('token', t('Login Password') . ' <span class="required">*</span>',(($atoken) ? $atoken['atoken_token'] : autoname(8)), ''),
 			'$expires'=> array('expires', t('Expires (yyyy-mm-dd)'), (($atoken['atoken_expires'] && $atoken['atoken_expires'] > NULL_DATE) ? datetime_convert('UTC',date_default_timezone_get(),$atoken['atoken_expires']) : ''), ''),
-			'$them' => t('Their Settings'),
-			'$me' => t('My Settings'),
-			'$perms' => $perms,
-			'$inherited' => t('inherited'),
-			'$notself' => 1,
-			'$self' => 0,
-			'$permlbl' => t('Individual Permissions'),
-			'$permnote'       => t('Some permissions may be inherited from your channel\'s <a href="settings"><strong>privacy settings</strong></a>, which have higher priority than individual settings. You can <strong>not</strong> change those settings here.'),
-			'$submit' 	=> t('Submit')
+			'$submit' => t('Submit')
 		));
 		return $o;
 	}

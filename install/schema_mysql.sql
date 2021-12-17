@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `abook` (
   `abook_incl` text NOT NULL,
   `abook_excl` text NOT NULL,
   `abook_instance` text NOT NULL,
+  `abook_role` char(191) NOT NULL DEFAULT '',
   PRIMARY KEY (`abook_id`),
   KEY `abook_account` (`abook_account`),
   KEY `abook_channel` (`abook_channel`),
@@ -58,7 +59,8 @@ CREATE TABLE IF NOT EXISTS `abook` (
   KEY `abook_unconnected` (`abook_unconnected`),
   KEY `abook_self` (`abook_self`),
   KEY `abook_not_here` (`abook_not_here`),
-  KEY `abook_feed` (`abook_feed`)
+  KEY `abook_feed` (`abook_feed`),
+  KEY `abook_role` (`abook_role`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `account` (

@@ -37,6 +37,7 @@ CREATE TABLE "abook" (
   "abook_incl" TEXT NOT NULL DEFAULT '',
   "abook_excl" TEXT NOT NULL DEFAULT '',
   "abook_instance" TEXT NOT NULL DEFAULT '',
+  "abook_role" varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY ("abook_id")
 );
   create index  "abook_account" on abook ("abook_account");
@@ -61,6 +62,7 @@ CREATE TABLE "abook" (
   create index  "abook_dob" on abook  ("abook_dob");
   create index  "abook_connected" on abook  ("abook_connected");
   create index  "abook_channel_closeness" on abook ("abook_channel", "abook_closeness");
+  create index  "abook_role" on abook ("abook_role");
 
 CREATE TABLE "account" (
   "account_id" serial  NOT NULL,

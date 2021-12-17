@@ -4,7 +4,7 @@
 		<div class="clear"></div>
 	</div>
 	<div class="section-content-tools-wrapper">
-		<form action="permcats" id="settings-permcats-form" method="post" autocomplete="off" >
+		<form action="permcats/{{$return_path}}" id="settings-permcats-form" method="post" autocomplete="off" >
 			<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 			<input type="hidden" name="return_path" value="{{$return_path}}">
 
@@ -31,20 +31,36 @@
 				{{include file="field_acheckbox.tpl" field=$prm}}
 				{{/foreach}}
 			</table>
-			<div class="settings-submit-wrapper" >
-				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+			<div class="clearfix">
+				{{if !$is_system_role && $return_path}}
+				<button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#delete-modal">{{$delet_role_button}}</button>
+				{{/if}}
+				<button type="submit" name="submit" class="btn btn-primary float-end">{{$submit}}</button>
 			</div>
-			{{**if $permcats}}
-			<table id="permcat-index">
-			{{foreach $permcats as $k => $v}}
-			<tr class="permcat-row-{{$k}}">
-				<td width="99%"><a href="permcats/{{$k}}">{{$v}}</a></td>
-				<td width="1%"><i class="fa fa-trash-o drop-icons" onClick="dropItem('permcats/{{$k}}/drop', '.permcat-row-{{$k}}')"></i></td>
-			</tr>
-			{{/foreach}}
-			</table>
-			{{/if**}}
-
 		</form>
 	</div>
 </div>
+{{if !$is_system_role && $return_path}}
+<div id="delete-modal" class="modal" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<div class="h3">
+					{{$delete_label}}
+				</div>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form action="permcats" id="delete-permcat-form" method="post">
+				<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
+				<input type="hidden" name="deleted_role" value="{{$current_role}}">
+				<div id="edit-modal-body" class="modal-body">
+					{{include file="field_select.tpl" field=$delete_role_select}}
+				</div>
+				<div class="modal-footer">
+					<button id="" type="submit" class="btn btn-danger">{{$delet_role_button}}</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+{{/if}}

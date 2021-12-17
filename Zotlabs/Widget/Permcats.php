@@ -11,26 +11,25 @@ class Permcats {
 		$pcat = new Permcat(local_channel());
 		$pcatlist = $pcat->listing();
 
-		$list = '<b>Roles:</b><br>';
-		$active = '';
-		$active_role = '';
-
-		if($pcatlist) {
-			$i = 0;
-			foreach($pcatlist as $pc) {
-				if(argc() > 1) {
-					if($pc['name'] == hex2bin(argv(1))) {
-						$active = $i;
-						$active_role = $pc['name'];
-					}
-				}
-
-				$list .= '<a href="permcats/' . bin2hex($pc['name']) . '">' . $pc['localname'] . '</a><br>';
-				$i++;
-			}
+		if (!$pcatlist) {
+			return;
 		}
 
-		if(argc() > 1) {
+		$roles = [];
+		$active_role = '';
+
+		foreach($pcatlist as $pc) {
+			if (!$active_role) {
+				$active_role = ((argc() > 1 && $pc['name'] === hex2bin(argv(1))) ? $pc['name'] : '');
+			}
+			$roles[] = [
+				'name' => $pc['localname'],
+				'url' => z_root() . '/permcats/' . bin2hex($pc['name']),
+				'active' => (argc() > 1 && $pc['name'] === hex2bin(argv(1)))
+			];
+		}
+
+		if($active_role) {
 
 /* get role members based on permissions
 			$test = $pcatlist[$active]['perms'];
@@ -64,16 +63,28 @@ class Permcats {
 				dbesc($active_role)
 			);
 
-			$members = '<b>Role members:</b><br>';
-			$members .= '<div class="border rounded" style="height: 20rem; overflow: auto;">';
+			$members = [];
 
 			foreach ($r as $rr) {
-				$addr = (($rr['xchan_addr']) ? $rr['xchan_addr'] : $rr['xchan_url']);
-				$members .= '<a href="connections#' . $rr['abook_id'] . '" class="lh-sm border-bottom p-2 d-block text-truncate"><img src="' . $rr['xchan_photo_s'] . '" class="float-start rounded me-2" style="height: 2.2rem; width: 2.2rem;" loading="lazy">' . $rr['xchan_name'] . '<br><span class="text-muted small">' . $addr . '</span></a>';
+				$members[] = [
+					'name' => $rr['xchan_name'],
+					'addr' => (($rr['xchan_addr']) ? $rr['xchan_addr'] : $rr['xchan_url']),
+					'url' => z_root() . '/connections#' . $rr['abook_id'],
+					'photo' => $rr['xchan_photo_s']
+				];
 			}
-			$members .= '</div>';
 		}
-		return $list . '<br>' . $members. '<br>' . $others;
+
+		$tpl = get_markup_template("permcats_widget.tpl");
+		$o .= replace_macros($tpl, [
+			'$roles_label' => t('Contact roles'),
+			'$members_label' => t('Role members'),
+			'$roles' => $roles,
+			'$members' => $members
+
+		]);
+
+		return $o;
 
 	}
 }

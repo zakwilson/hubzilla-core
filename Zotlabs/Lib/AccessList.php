@@ -346,12 +346,12 @@ class AccessList {
 		}
 
 		return replace_macros(get_markup_template('group_side.tpl'), [
-			'$title'      => t('Lists'),
-			'$edittext'   => t('Edit list'),
-			'$createtext' => t('Create new list'),
-			'$ungrouped'  => (($every === 'contacts') ? t('Channels not in any access list') : ''),
+			'$title'      => t('Privacy Groups'),
+			'$edittext'   => t('Edit group'),
+			'$createtext' => t('Create new group'),
+			'$ungrouped'  => (($every === 'contacts') ? t('Channels not in any privacy group') : ''),
 			'$groups'     => $groups,
-			'$add'        => t('add'),
+			'$add'        => t('Add'),
 		]);
 
 	}

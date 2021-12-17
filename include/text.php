@@ -1715,7 +1715,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	if ($is_photo) {
 		$object = json_decode($item['obj'],true);
 		$ptr = null;
-		if (array_key_exists('url',$object) && is_array($object['url'])) {
+		if (is_array($object) && array_key_exists('url',$object) && is_array($object['url'])) {
 			if (array_key_exists(0,$object['url'])) {
 				foreach ($object['url'] as $link) {
 					if(array_key_exists('width',$link) && $link['width'] >= 640 && $link['width'] <= 1024) {

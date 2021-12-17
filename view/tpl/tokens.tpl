@@ -14,12 +14,14 @@
 			{{include file="field_input.tpl" field=$name}}
 			{{include file="field_input.tpl" field=$token}}
 			{{include file="field_input.tpl" field=$expires}}
+			{{include file="field_select.tpl" field=$permcat}}
+
 			<div class="settings-submit-wrapper mb-3">
 				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 			</div>
 	</div>
 
-	<div class="panel" id="permission-settings">
+	<!--div class="panel" id="permission-settings">
 		<div class="section-subtitle-wrapper" role="tab" id="perms-tool">
 			<h3>
 				<a data-bs-toggle="collapse" data-bs-parent="#permission-settings" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
@@ -47,8 +49,7 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	</form>
+	</div-->
 
 	<div class="descriptive-text">{{$desc2}}</div>
 	<ul>

@@ -376,6 +376,19 @@ function contact_remove($channel_id, $abook_id) {
 	if(intval($abook['abook_self']))
 		return false;
 
+	// if this is an atoken, delete the atoken record
+
+	$xchan = q("select * from xchan where xchan_hash = '%s'",
+		dbesc($abook['abook_xchan'])
+	);
+
+	if (strpos($xchan['xchan_addr'],'guest:') === 0 && strpos($abook['abook_xchan'],'.')){
+		$atoken_guid = substr($abook['abook_xchan'],strrpos($abook['abook_xchan'],'.') + 1);
+		if ($atoken_guid) {
+			atoken_delete_and_sync($channel_id,$atoken_guid);
+		}
+	}
+
 	$r = q("select id, parent from item where (owner_xchan = '%s' or author_xchan = '%s') and uid = %d and item_retained = 0 and item_starred = 0",
 		dbesc($abook['abook_xchan']),
 		dbesc($abook['abook_xchan']),

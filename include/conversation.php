@@ -1061,7 +1061,7 @@ function thread_author_menu($item, $mode = '') {
 		}
 		else {
 			$url = (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']);
-			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown', 'zot' ]))) {
+			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown', 'zot', 'token']))) {
 				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
 		}

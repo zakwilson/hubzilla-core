@@ -114,7 +114,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 
 	// don't provide a connect button for transient or one-way identities
 
-	if(in_array($xchan['xchan_network'],['rss','anon','unknown']) || strpos($xchan['xchan_addr'],'guest:') === 0) {
+	if(in_array($xchan['xchan_network'],['rss', 'anon', 'unknown', 'token'])) {
 		$connect = false;
 	}
 

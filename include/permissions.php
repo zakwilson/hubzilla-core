@@ -80,23 +80,6 @@ function get_all_perms($uid, $observer_xchan, $check_siteblock = true, $default_
 					intval($uid),
 					dbesc($observer_xchan)
 				);
-				if(! $x) {
-					// see if they've got a guest access token; these are treated as connections
-					$y = atoken_abook($uid,$observer_xchan);
-					if($y)
-						$x = array($y);
-
-					if(! $x) {
-						// not in address book and no guest token, see if they've got an xchan
-						// these *may* have individual (PERMS_SPECIFIC) permissions, but are not connections
-						$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
-							dbesc($observer_xchan)
-						);
-						if($y) {
-							$x = array(pseudo_abook($y[0]));
-						}
-					}
-				}
 
 				$abook_checked = true;
 			}
@@ -309,32 +292,6 @@ function perm_is_allowed($uid, $observer_xchan, $permission, $check_siteblock = 
 		if(($x) && in_array($permission,$blocked_anon_perms) && intval($x[0]['abook_ignored']))
 			return false;
 
-		if(! $x) {
-			// see if they've got a guest access token
-			$y = atoken_abook($uid,$observer_xchan);
-			if($y)
-				$x = array($y);
-
-			if(! $x) {
-				// not in address book and no guest token, see if they've got an xchan
-
-				$y = q("select xchan_network from xchan where xchan_hash = '%s' limit 1",
-					dbesc($observer_xchan)
-				);
-				if($y) {
-
-					// This requires an explanation and the effects are subtle.
-					// The following line creates a fake connection, and this allows
-					// access tokens to have specific permissions even though they are
-					// not actual connections.
-					// The existence of this fake entry must be checked when dealing
-					// with connection related permissions.
-
-					$x = array(pseudo_abook($y[0]));
-				}
-			}
-
-		}
 		$abperms = load_abconfig($uid,$observer_xchan,'my_perms');
 	}
 

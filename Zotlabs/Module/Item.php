@@ -1017,6 +1017,7 @@ class Item extends Controller {
 			$obj['diaspora:guid'] = $uuid;
 			$obj['attributedTo']  = channel_url($channel);
 			$obj['published']     = $created;
+			$obj['name']          = $title;
 
 			$datarray['obj']      = $obj;
 

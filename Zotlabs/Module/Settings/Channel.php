@@ -231,7 +231,7 @@ class Channel {
 			'$timezone'                      => ['timezone_select', t('Channel timezone:'), $timezone, '', get_timezones()],
 			'$defloc'                        => ['defloc', t('Default post location:'), $defloc, t('Geographical location to display on your posts')],
 			'$allowloc'                      => ['allow_location', t('Use browser location'), ((get_pconfig(local_channel(), 'system', 'use_browser_location')) ? 1 : ''), '', $yes_no],
-			'$adult'                         => ['adult', t('Adult Content'), $adult_flag, t('This channel frequently or regularly publishes adult content'), $yes_no],
+			'$adult'                         => ['adult', t('Adult content'), $adult_flag, t('This channel frequently or regularly publishes adult content'), $yes_no],
 			'$maxreq'                        => ['maxreq', t('Maximum Friend Requests/Day:'), intval($channel['channel_max_friend_req']), t('May reduce spam activity')],
 			'$h_not'                         => t('Notification Settings'),
 			'$activity_options'              => t('By default post a status message when:'),

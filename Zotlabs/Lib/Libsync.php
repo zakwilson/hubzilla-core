@@ -230,8 +230,35 @@ class Libsync {
 
 			if (array_key_exists('config', $arr) && is_array($arr['config']) && count($arr['config'])) {
 				foreach ($arr['config'] as $cat => $k) {
-					foreach ($arr['config'][$cat] as $k => $v)
-						set_pconfig($channel['channel_id'], $cat, $k, $v);
+					$pconfig_updated = [];
+
+					foreach($arr['config'][$cat] as $k => $v) {
+						if ($cat === 'hz_delpconfig' && strpos($k, 'b64.') === 0) {
+							$delpconfig = explode(':', unpack_link_id($k));
+
+							// delete the provided pconfig
+							del_pconfig($channel['channel_id'], $delpconfig[0], $delpconfig[1], $v);
+
+							// delete the messenger pconfig
+							del_pconfig($channel['channel_id'], 'hz_delpconfig', $k);
+						}
+
+						if (strpos($k,'pcfgud:') === 0) {
+							$realk = substr($k,7);
+							$pconfig_updated[$realk] = $v;
+							unset($arr['config'][$cat][$k]);
+						}
+					}
+
+					foreach($arr['config'][$cat] as $k => $v) {
+						if (!isset($pconfig_updated[$k])) {
+							$pconfig_updated[$k] = NULL;
+						}
+
+						if ($cat !== 'hz_delpconfig') {
+							set_pconfig($channel['channel_id'],$cat,$k,$v,$pconfig_updated[$k]);
+						}
+					}
 				}
 			}
 

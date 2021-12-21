@@ -55,7 +55,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '6.5.11' );
+define ( 'STD_VERSION',             '6.5.12' );
 define ( 'ZOT_REVISION',            '6.0' );
 
 define ( 'DB_UPDATE_VERSION',       1250 );

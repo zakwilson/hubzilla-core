@@ -2115,6 +2115,7 @@ class Activity {
 	}
 
 	static function update_poll($item, $post) {
+
 		$multi   = false;
 		$mid     = $post['mid'];
 		$content = $post['title'];
@@ -2199,7 +2200,8 @@ class Activity {
 				dbesc(datetime_convert()),
 				intval($item['id'])
 			);
-			Master::Summon(['Notifier', 'wall-new', $item['id']]);
+
+			Master::Summon(['Notifier', 'wall-new', $item['id'], $post['mid'] /* trick queueworker de-duplication  */ ]);
 			return true;
 		}
 

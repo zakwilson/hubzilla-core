@@ -397,7 +397,6 @@ footer {
 .fn {
 	font-weight: bold;
 	font-size: 1rem;
-	color: #444444;
 }
 
 .vcard-card {
@@ -1671,7 +1670,7 @@ dl.bb-dl > dd > li {
 
 .onoffswitch.checkbox > div > input:checked + label .onoffswitch-switch {
     right: 0px;
-    background-color: #0275d8;
+    background-color: $link_colour;
 }
 
 

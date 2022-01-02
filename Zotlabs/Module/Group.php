@@ -324,9 +324,6 @@ class Group extends Controller {
 
 		$channel = App::get_channel();
 
-//hz_syslog(print_r($group,true));
-//hz_syslog(print_r($channel,true));
-
 		$context['$is_default_acl'] = ['set_default_acl', t('Post to this group by default'), intval($group['hash'] === trim($channel['channel_allow_gid'], '<>')), '', [t('No'), t('Yes')]];
 		$context['$is_default_group'] = ['set_default_group', t('Add new contacts to this group by default'), intval($group['hash'] === $channel['channel_default_group']), '', [t('No'), t('Yes')]];
 

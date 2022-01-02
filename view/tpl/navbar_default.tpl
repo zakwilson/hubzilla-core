@@ -193,7 +193,7 @@
 	</div>
 	<div class="offcanvas-body pt-0">
 		{{if $channel_apps.0}}
-		<div class="dropdown-header text-uppercase">
+		<div class="dropdown-header text-uppercase text-muted">
 			{{$channelapps}}
 		</div>
 		{{foreach $channel_apps as $channel_app}}
@@ -201,7 +201,7 @@
 		{{/foreach}}
 		{{/if}}
 		{{if $navbar_apps.0}}
-		<div class="d-lg-none dropdown-header text-uppercase">
+		<div class="d-lg-none dropdown-header text-uppercase text-muted">
 			{{$pinned_apps}}
 		</div>
 		<div id="nav-app-bin-container" class="d-lg-none">
@@ -211,7 +211,7 @@
 		</div>
 		{{/if}}
 		{{if $is_owner}}
-		<div class="dropdown-header text-uppercase">
+		<div class="dropdown-header text-uppercase text-muted">
 			{{$featured_apps}}
 		</div>
 		<div id="app-bin-container" data-token="{{$form_security_token}}">
@@ -222,7 +222,7 @@
 		<div class="dropdown-divider"></div>
 		<a class="dropdown-item" href="/apps"><i class="generic-icons-nav fa fa-fw fa-plus"></i>{{$addapps}}</a>
 		{{else}}
-		<div class="dropdown-header text-uppercase">
+		<div class="dropdown-header text-uppercase text-muted">
 			{{$sysapps}}
 		</div>
 		{{foreach $nav_apps as $nav_app}}

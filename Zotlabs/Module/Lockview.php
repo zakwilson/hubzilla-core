@@ -1,6 +1,9 @@
 <?php
 namespace Zotlabs\Module;
 
+use App;
+use Zotlabs\Lib\AccessList;
+
 require_once('include/security.php');
 
 class Lockview extends \Zotlabs\Web\Controller {
@@ -15,7 +18,7 @@ class Lockview extends \Zotlabs\Web\Controller {
 			);
 			if($at) {
 				foreach($at as $t) {
-					$atokens[] = atoken_xchan($t);
+					$atokens[] = array_merge($t, atoken_xchan($t));
 				}
 			}
 		}
@@ -23,7 +26,7 @@ class Lockview extends \Zotlabs\Web\Controller {
 		$type = ((argc() > 1) ? argv(1) : 0);
 		if (is_numeric($type)) {
 			$item_id = intval($type);
-			$type='item';
+			$type = 'item';
 		}
 		else {
 			$item_id = ((argc() > 2) ? intval(argv(2)) : 0);
@@ -57,22 +60,33 @@ class Lockview extends \Zotlabs\Web\Controller {
 			killme();
 
 		$item = $r[0];
+		$uid = null;
+		$url = '';
 
-		//we have different naming in in menu_item table and chatroom table
 		switch($type) {
 			case 'menu_item':
 				$uid = $item['mitem_channel_id'];
 				break;
 			case 'chatroom':
 				$uid = $item['cr_uid'];
+				$channel = channelx_by_n($uid);
+				$url = z_root() . '/chat/' . $channel['channel_address'] . '/' . $item['cr_id'];
+				break;
+			case 'item':
+				$uid = $item['uid'];
+				$url = $item['plink'];
+				break;
+			case 'attach':
+				$uid = $item['uid'];
+				$channel = channelx_by_n($uid);
+				$url = z_root() . '/cloud/' . $channel['channel_address'] . '/' . $item['display_path'];
 				break;
 			default:
-				$uid = $item['uid'];
 				break;
 		}
 
 		if($uid != local_channel()) {
-			echo '<div class="dropdown-item">' . t('Remote privacy information not available.') . '</div>';
+			echo '<div class="dropdown-item-text">' . t('Remote privacy information not available') . '</div>';
 			killme();
 		}
 
@@ -93,7 +107,7 @@ class Lockview extends \Zotlabs\Web\Controller {
 		$deny_users = expand_acl($item['deny_cid']);
 		$deny_groups = expand_acl($item['deny_gid']);
 
-		$o = '<div class="dropdown-item">' . t('Visible to:') . '</div>';
+		$o = '<div class="dropdown-item-text text-uppercase text-muted text-nowrap h6">' . t('Access') . '</div>';
 		$l = array();
 
 		stringify_array_elms($allowed_groups,true);
@@ -101,6 +115,7 @@ class Lockview extends \Zotlabs\Web\Controller {
 		stringify_array_elms($deny_groups,true);
 		stringify_array_elms($deny_users,true);
 
+		$allowed_xchans = [];
 
 		$profile_groups = [];
 		if($allowed_groups) {
@@ -110,33 +125,38 @@ class Lockview extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
+
 		if(count($profile_groups)) {
 			$r = q("SELECT profile_name FROM profile WHERE profile_guid IN ( " . implode(', ', $profile_groups) . " )");
-			if($r)
-				foreach($r as $rr)
-					$l[] = '<div class="dropdown-item"><b>' . t('Profile','acl') . ' ' . $rr['profile_name'] . '</b></div>';
-		}
-
-		if(count($allowed_groups)) {
-			$r = q("SELECT gname FROM pgrp WHERE hash IN ( " . implode(', ', $allowed_groups) . " )");
-			if($r)
-				foreach($r as $rr)
-					$l[] = '<div class="dropdown-item"><b>' . $rr['gname'] . '</b></div>';
-		}
-		if(count($allowed_users)) {
-			$r = q("SELECT xchan_name FROM xchan WHERE xchan_hash IN ( " . implode(', ',$allowed_users) . " )");
-			if($r)
-				foreach($r as $rr)
-					$l[] = '<div class="dropdown-item">' . $rr['xchan_name'] . '</div>';
-			if($atokens) {
-				foreach($atokens as $at) {
-					if(in_array("'" . $at['xchan_hash'] . "'",$allowed_users)) {
-						$l[] = '<div class="dropdown-item">' . $at['xchan_name'] . '</div>';
-					}
+			if($r) {
+				foreach($r as $rr) {
+					$l[] = '<div class="dropdown-item" title="' . t('Profile','acl') . '">' . $rr['profile_name'] . '</div>';
 				}
 			}
 		}
 
+		if(count($allowed_groups)) {
+			$r = q("SELECT gname FROM pgrp WHERE hash IN ( " . implode(', ', $allowed_groups) . " )");
+			if($r) {
+				foreach($r as $rr) {
+					$gid = AccessList::by_name($uid, $rr['gname']);
+					$pgrp_members = AccessList::members_xchan($uid, $gid);
+					$allowed_xchans = array_merge($allowed_xchans, $pgrp_members);
+
+					$l[] = '<div class="dropdown-item" title="' . t('Privacy group') . '">' . $rr['gname'] . '</div>';
+				}
+			}
+		}
+
+		if(count($allowed_users)) {
+			$r = q("SELECT xchan_name, xchan_hash FROM xchan WHERE xchan_hash IN ( " . implode(', ',$allowed_users) . " )");
+			if($r) {
+				foreach($r as $rr) {
+					$allowed_xchans[] = $rr['xchan_hash'];
+					$l[] = '<div class="dropdown-item">' . $rr['xchan_name'] . '</div>';
+				}
+			}
+		}
 
 		$profile_groups = [];
 		if($deny_groups) {
@@ -146,41 +166,41 @@ class Lockview extends \Zotlabs\Web\Controller {
 				}
 			}
 		}
+
 		if(count($profile_groups)) {
 			$r = q("SELECT profile_name FROM profile WHERE profile_guid IN ( " . implode(', ', $profile_groups) . " )");
 			if($r)
 				foreach($r as $rr)
-					$l[] = '<div class="dropdown-item"><b><strike>' . t('Profile','acl') . ' ' . $rr['profile_name'] . '</strike></b></div>';
+					$l[] = '<div class="dropdown-item" title="' . t('Profile','acl') . '"><strike>' . $rr['profile_name'] . '</strike></b></div>';
 		}
-
-
 
 		if(count($deny_groups)) {
 			$r = q("SELECT gname FROM pgrp WHERE hash IN ( " . implode(', ', $deny_groups) . " )");
 			if($r)
 				foreach($r as $rr)
-					$l[] = '<div class="dropdown-item"><b><strike>' . $rr['gname'] . '</strike></b></div>';
+					$l[] = '<div class="dropdown-item" title="' . t('Privacy group') .'"><strike>' . $rr['gname'] . '</strike></b></div>';
 		}
 		if(count($deny_users)) {
 			$r = q("SELECT xchan_name FROM xchan WHERE xchan_hash IN ( " . implode(', ', $deny_users) . " )");
 			if($r)
 				foreach($r as $rr)
 					$l[] = '<div class="dropdown-item"><strike>' . $rr['xchan_name'] . '</strike></div>';
+		}
 
-			if($atokens) {
-				foreach($atokens as $at) {
-					if(in_array("'" . $at['xchan_hash'] . "'",$deny_users)) {
-						$l[] = '<div class="dropdown-item"><strike>' . $at['xchan_name'] . '</strike></div>';
-					}
+		if ($atokens && $allowed_xchans && $url) {
+			$l[] = '<div class="dropdown-divider"></div>';
+			$l[] = '<div class="dropdown-item-text text-uppercase text-muted text-nowrap h6">' . t('Guest access') . '</div>';
+
+			$allowed_xchans = array_unique($allowed_xchans);
+			foreach($atokens as $atoken) {
+				if(in_array($atoken['xchan_hash'], $allowed_xchans)) {
+					$l[] = '<div class="dropdown-item d-flex justify-content-between"><span>' . $atoken['xchan_name'] . '</span><i class="fa fa-copy p-1 cursor-pointer" title="' . sprintf(t('Click to copy link to this ressource for guest %s to clipboard'), $atoken['xchan_name']) . '" data-token="' . $url . '?zat=' . $atoken['atoken_token'] . '" onclick="navigator.clipboard.writeText(this.dataset.token); $.jGrowl(\'Copied\', { sticky: false, theme: \'info\', life: 500 });"></i></div>';
 				}
 			}
-
-
 		}
 
 		echo $o . implode($l);
 		killme();
-
 
 	}
 

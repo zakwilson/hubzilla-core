@@ -2586,7 +2586,7 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 			$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
 				where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
 		}
-		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown', 'anon')");
+		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown', 'anon', 'token')");
 		if(! $chans)
 			$chans = $xchans;
 		else
@@ -3885,6 +3885,26 @@ function array_path_exists($str,$arr) {
 
 	return false;
 
+}
+
+
+/**
+ * @brief provide psuedo random token (string) consisting entirely of US-ASCII letters/numbers
+ * and with possibly variable length
+ *
+ * @return string
+ */
+function new_token($minlen = 36, $maxlen = 48) {
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    $str   = EMPTY_STR;
+
+    $len   = (($minlen === $maxlen) ? $minlen : mt_rand($minlen, $maxlen));
+
+    for ($a = 0; $a < $len; $a++) {
+        $str .= $chars[mt_rand(0, 62)];
+    }
+
+    return $str;
 }
 
 

@@ -250,9 +250,6 @@ class Tokens extends Controller {
 
 		$desc = t('Use this form to create temporary access identifiers to share things with non-members. These identities may be used in Access Control Lists and visitors may login using these credentials to access private content.');
 
-		$desc2 = t('You may also provide <em>dropbox</em> style access links to friends and associates by adding the Login Password to any specific site URL as shown. Examples:');
-
-
 		//TODO: assign role
 		$pcat            = new Permcat(local_channel());
 		$pcatlist        = $pcat->listing();
@@ -266,7 +263,7 @@ class Tokens extends Controller {
 
 
 		if (!$current_permcat) {
-			notice(t('Please select a role for this contact!') . EOL);
+			notice(t('Please select a role for this guest!') . EOL);
 			$permcats[] = '';
 		}
 
@@ -282,13 +279,10 @@ class Tokens extends Controller {
 			'$permcat' => ['permcat', t('Select a role for this token'), $current_permcat, '', $permcats],
 			'$title' => t('Guest Access Tokens'),
 			'$desc' => $desc,
-			'$desc2' => $desc2,
 			'$tokens' => $t,
 			'$atoken' => $atoken,
-			'$url1' => z_root() . '/channel/' . $channel['channel_address'],
-			'$url2' => z_root() . '/photos/' . $channel['channel_address'],
 			'$name' => array('name', t('Login Name') . ' <span class="required">*</span>', (($atoken) ? $atoken['atoken_name'] : ''),''),
-			'$token'=> array('token', t('Login Password') . ' <span class="required">*</span>',(($atoken) ? $atoken['atoken_token'] : autoname(8)), ''),
+			'$token'=> array('token', t('Login Password') . ' <span class="required">*</span>',(($atoken) ? $atoken['atoken_token'] : new_token()), ''),
 			'$expires'=> array('expires', t('Expires (yyyy-mm-dd)'), (($atoken['atoken_expires'] && $atoken['atoken_expires'] > NULL_DATE) ? datetime_convert('UTC',date_default_timezone_get(),$atoken['atoken_expires']) : ''), ''),
 			'$submit' => t('Submit')
 		));

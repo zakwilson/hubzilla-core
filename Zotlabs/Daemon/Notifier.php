@@ -240,7 +240,7 @@ class Notifier {
 
 			$target_item = $r[0];
 
-			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon'])) {
+			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon', 'token'])) {
 				logger('notifier: target item author is not a fetchable actor', LOGGER_DEBUG);
 				return;
 			}

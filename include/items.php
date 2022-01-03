@@ -476,7 +476,7 @@ function post_activity_item($arr, $allow_code = false, $deliver = true) {
 	$arr['comment_policy'] = map_scope(PermissionLimits::Get($channel['channel_id'],'post_comments'));
 
 	if ((! $arr['plink']) && (intval($arr['item_thread_top']))) {
-		$arr['plink'] = substr(z_root() . '/channel/' . $channel['channel_address'] . '/' . (filter_var($arr['mid'], FILTER_VALIDATE_URL) === false ? '?f=&mid=' : '') . urlencode($arr['mid']),0,190);
+		$arr['plink'] = $arr['mid'];
 	}
 
 
@@ -4772,8 +4772,9 @@ function send_profile_photo_activity($channel,$photo,$profile) {
 
 	$arr['body'] = sprintf($t,$channel['channel_name'],$ptext) . "\n\n" . $ltext;
 
-	$acl = new AccessList($channel);
+	$acl = new Zotlabs\Access\AccessList($channel);
 	$x = $acl->get();
+
 	$arr['allow_cid'] = $x['allow_cid'];
 
 	$arr['allow_gid'] = $x['allow_gid'];

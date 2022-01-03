@@ -109,7 +109,7 @@ class Lockview extends Controller {
 			// as unknown specific recipients. The sender will have the visibility list and will fall through to the
 			// next section.
 
-			echo '<div class="dropdown-item">' . translate_scope((!$item['public_policy']) ? 'specific' : $item['public_policy']) . '</div>';
+			echo '<div class="dropdown-item-text">' . translate_scope((!$item['public_policy']) ? 'specific' : $item['public_policy']) . '</div>';
 			killme();
 		}
 
@@ -140,7 +140,7 @@ class Lockview extends Controller {
 				foreach ($r as $rr) {
 					$pgrp_members   = AccessList::profile_members_xchan($uid, $rr['id']);
 					$allowed_xchans = array_merge($allowed_xchans, $pgrp_members);
-					$access_list[] = '<div class="dropdown-item" title="' . t('Profile', 'acl') . '">' . $rr['profile_name'] . '</div>';
+					$access_list[] = '<div class="dropdown-item-text" title="' . t('Profile', 'acl') . '">' . $rr['profile_name'] . '</div>';
 				}
 			}
 		}
@@ -151,7 +151,7 @@ class Lockview extends Controller {
 				foreach ($r as $rr) {
 					$pgrp_members   = AccessList::members_xchan($uid, $rr['id']);
 					$allowed_xchans = array_merge($allowed_xchans, $pgrp_members);
-					$access_list[] = '<div class="dropdown-item" title="' . t('Privacy group') . '">' . $rr['gname'] . '</div>';
+					$access_list[] = '<div class="dropdown-item-text" title="' . t('Privacy group') . '">' . $rr['gname'] . '</div>';
 				}
 			}
 		}
@@ -162,7 +162,7 @@ class Lockview extends Controller {
 				foreach ($r as $rr) {
 					$allowed_xchans[] = $rr['xchan_hash'];
 					if (!in_array($rr['xchan_hash'], $atoken_xchans)) {
-						$access_list[] = '<div class="dropdown-item">' . $rr['xchan_name'] . '</div>';
+						$access_list[] = '<div class="dropdown-item-text">' . $rr['xchan_name'] . '</div>';
 					}
 				}
 			}
@@ -181,7 +181,7 @@ class Lockview extends Controller {
 			$r = q("SELECT profile_name FROM profile WHERE profile_guid IN ( " . implode(', ', $profile_groups) . " )");
 			if ($r) {
 				foreach ($r as $rr) {
-					$access_list[] = '<div class="dropdown-item" title="' . t('Profile', 'acl') . '"><strike>' . $rr['profile_name'] . '</strike></b></div>';
+					$access_list[] = '<div class="dropdown-item-text" title="' . t('Profile', 'acl') . '"><strike>' . $rr['profile_name'] . '</strike></b></div>';
 				}
 			}
 		}
@@ -190,7 +190,7 @@ class Lockview extends Controller {
 			$r = q("SELECT gname FROM pgrp WHERE hash IN ( " . implode(', ', $deny_groups) . " )");
 			if ($r) {
 				foreach ($r as $rr) {
-					$access_list[] = '<div class="dropdown-item" title="' . t('Privacy group') . '"><strike>' . $rr['gname'] . '</strike></b></div>';
+					$access_list[] = '<div class="dropdown-item-text" title="' . t('Privacy group') . '"><strike>' . $rr['gname'] . '</strike></b></div>';
 				}
 			}
 		}
@@ -199,32 +199,39 @@ class Lockview extends Controller {
 			$r = q("SELECT xchan_name FROM xchan WHERE xchan_hash IN ( " . implode(', ', $deny_users) . " )");
 			if ($r) {
 				foreach ($r as $rr) {
-					$access_list[] = '<div class="dropdown-item"><strike>' . $rr['xchan_name'] . '</strike></div>';
+					$access_list[] = '<div class="dropdown-item-text"><strike>' . $rr['xchan_name'] . '</strike></div>';
 				}
 			}
 		}
 
 		if ($atokens && $allowed_xchans && $url) {
-			if ($access_list) {
-				$guest_access_list[] = '<div class="dropdown-divider"></div>';
-			}
 
-			$guest_access_list[] = '<div class="dropdown-item-text text-uppercase text-muted text-nowrap h6">' . t('Guest access') . '</div>';
+			$guest_access_list = [];
 
 			$allowed_xchans = array_unique($allowed_xchans);
 			foreach ($atokens as $atoken) {
 				if (in_array($atoken['xchan_hash'], $allowed_xchans)) {
-					$guest_access_list[] = '<div class="dropdown-item d-flex justify-content-between cursor-pointer" title="' . sprintf(t('Copy link to this ressource for guest %s to clipboard'), $atoken['xchan_name']) . '" data-token="' . $url . '?zat=' . $atoken['atoken_token'] . '" onclick="navigator.clipboard.writeText(this.dataset.token); $.jGrowl(\'' . t('Copied') . '\', { sticky: false, theme: \'info\', life: 1000 });"><span>' . $atoken['xchan_name'] . '</span><i class="fa fa-copy p-1"></i></div>';
+					$guest_access_list[] = '<div class="dropdown-item d-flex justify-content-between cursor-pointer" title="' . sprintf(t('Click to copy link to this ressource for guest %s to clipboard'), $atoken['xchan_name']) . '" data-token="' . $url . '?zat=' . $atoken['atoken_token'] . '" onclick="navigator.clipboard.writeText(this.dataset.token); $.jGrowl(\'' . t('Link copied') . '\', { sticky: false, theme: \'info\', life: 1000 });"><span>' . $atoken['xchan_name'] . '</span><i class="fa fa-copy p-1"></i></div>';
 				}
 			}
 		}
 
-		$o = '';
+		$access_list_header = '';
 		if ($access_list) {
-			$o = '<div class="dropdown-item-text text-uppercase text-muted text-nowrap h6">' . t('Access') . '</div>';
+			$access_list_header = '<div class="dropdown-header text-uppercase h6">' . t('Access') . '</div>';
 		}
 
-		echo $o . implode($access_list) . implode($guest_access_list);
+		$guest_access_list_header = '';
+		if ($guest_access_list) {
+			$guest_access_list_header = '<div class="dropdown-header text-uppercase h6">' . t('Guest access') . '</div>';
+		}
+
+		$divider = '';
+		if ($access_list && $guest_access_list) {
+				$divider = '<div class="dropdown-divider"></div>';
+		}
+
+		echo $access_list_header . implode($access_list) . $divider . $guest_access_list_header . implode($guest_access_list);
 		killme();
 
 	}

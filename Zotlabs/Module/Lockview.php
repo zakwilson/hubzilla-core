@@ -214,7 +214,7 @@ class Lockview extends Controller {
 			$allowed_xchans = array_unique($allowed_xchans);
 			foreach ($atokens as $atoken) {
 				if (in_array($atoken['xchan_hash'], $allowed_xchans)) {
-					$guest_access_list[] = '<div class="dropdown-item d-flex justify-content-between"><span>' . $atoken['xchan_name'] . '</span><i class="fa fa-copy p-1 cursor-pointer" title="' . sprintf(t('Copy link to this ressource for guest %s'), $atoken['xchan_name']) . '" data-token="' . $url . '?zat=' . $atoken['atoken_token'] . '" onclick="navigator.clipboard.writeText(this.dataset.token); $.jGrowl(\'' . t('Link copied to clipboard') . '\', { sticky: false, theme: \'info\', life: 3000 });"></i></div>';
+					$guest_access_list[] = '<div class="dropdown-item d-flex justify-content-between cursor-pointer" title="' . sprintf(t('Copy link to this ressource for guest %s to clipboard'), $atoken['xchan_name']) . '" data-token="' . $url . '?zat=' . $atoken['atoken_token'] . '" onclick="navigator.clipboard.writeText(this.dataset.token); $.jGrowl(\'' . t('Copied') . '\', { sticky: false, theme: \'info\', life: 1000 });"><span>' . $atoken['xchan_name'] . '</span><i class="fa fa-copy p-1"></i></div>';
 				}
 			}
 		}

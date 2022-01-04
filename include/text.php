@@ -995,7 +995,7 @@ function contact_block() {
 	$is_owner = ((local_channel() && local_channel() == App::$profile['uid']) ? true : false);
 	$sql_extra = '';
 
-	$abook_flags = " and abook_pending = 0 and abook_self = 0 ";
+	$abook_flags = " and abook_pending = 0 and abook_self = 0 and abook_blocked = 0 and abook_ignored = 0 ";
 
 	if(! $is_owner) {
 		$abook_flags .= " and abook_hidden = 0 ";

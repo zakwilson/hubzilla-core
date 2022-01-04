@@ -1009,56 +1009,58 @@ function contact_block() {
 		$abook_flags and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra",
 		intval(App::$profile['uid'])
 	);
+
 	if(count($r)) {
 		$total = intval($r[0]['total']);
 	}
+
 	if(! $total) {
-		$contacts = t('No connections');
-		$micropro = null;
-	} else {
+		return $o;
+	}
 
-		$randfunc = db_getfunc('RAND');
+	$randfunc = db_getfunc('RAND');
 
-		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash WHERE abook_channel = %d $abook_flags and abook_archived = 0 and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ORDER BY $randfunc LIMIT %d",
-			intval(App::$profile['uid']),
-			intval($shown)
-		);
+	$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash WHERE abook_channel = %d $abook_flags and abook_archived = 0 and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ORDER BY $randfunc LIMIT %d",
+		intval(App::$profile['uid']),
+		intval($shown)
+	);
 
-		if(count($r)) {
-			$contacts = t('Connections');
-			$micropro = [];
-			foreach($r as $rr) {
+	if(! $r) {
+		return $o;
+	}
 
-				// There is no setting to discover if you are bi-directionally connected
-				// Use the ability to post comments as an indication that this relationship is more
-				// than wishful thinking; even though soapbox channels and feeds will disable it.
-				$rr['perminfo']['connpermcount']=0;
-				$rr['perminfo']['connperms']=t('Accepts').': ';
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] .= t('Comments');
-				}
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
-					$rr['perminfo']['connperms'] .= t('Stream items');
-				}
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
-					$rr['perminfo']['connperms'] .= t('Wall posts');
-				}
+	$contacts = t('Connections');
+	$micropro = [];
+	foreach($r as $rr) {
 
-				if ($rr['perminfo']['connpermcount'] == 0) {
-					$rr['perminfo']['connperms'] .= t('Nothing');
-				}
-
-				if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
-					unset($rr['perminfo']);
-
-				$micropro[] = micropro($rr,true,'mpfriend');
-			}
+		// There is no setting to discover if you are bi-directionally connected
+		// Use the ability to post comments as an indication that this relationship is more
+		// than wishful thinking; even though soapbox channels and feeds will disable it.
+		$rr['perminfo']['connpermcount']=0;
+		$rr['perminfo']['connperms']=t('Accepts').': ';
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] .= t('Comments');
 		}
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+			$rr['perminfo']['connperms'] .= t('Stream items');
+		}
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+			$rr['perminfo']['connperms'] .= t('Wall posts');
+		}
+
+		if ($rr['perminfo']['connpermcount'] == 0) {
+			$rr['perminfo']['connperms'] .= t('Nothing');
+		}
+
+		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+			unset($rr['perminfo']);
+
+		$micropro[] = micropro($rr,true,'mpfriend');
 	}
 
 	$tpl = get_markup_template('contact_block.tpl');

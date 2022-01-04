@@ -275,9 +275,9 @@ class Tokens extends Controller {
 
 		$tpl = get_markup_template("tokens.tpl");
 		$o .= replace_macros($tpl, array(
-			'$form_security_token' => get_form_security_token("tokens"),
-			'$permcat' => ['permcat', t('Select a role for this token'), $current_permcat, '', $permcats],
-			'$title' => t('Guest Access Tokens'),
+			'$form_security_token' => get_form_security_token('tokens'),
+			'$permcat' => ['permcat', t('Select a role for this guest'), $current_permcat, '', $permcats],
+			'$title' => t('Guest Access'),
 			'$desc' => $desc,
 			'$tokens' => $t,
 			'$atoken' => $atoken,

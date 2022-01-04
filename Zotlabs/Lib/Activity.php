@@ -1519,7 +1519,7 @@ class Activity {
 						'type'       => NOTIFY_INTRO,
 						'from_xchan' => $ret['xchan_hash'],
 						'to_xchan'   => $channel['channel_hash'],
-						'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id'],
+						'link'       => z_root() . '/connections#' . $new_connection[0]['abook_id'],
 					]
 				);
 

@@ -170,6 +170,10 @@ function atoken_delete($atoken_id) {
 		intval($c[0]['channel_id']),
 		dbesc($atoken_xchan)
 	);
+
+	q("update xchan set xchan_deleted = 1 where xchan_hash = '%s'",
+		dbesc($atoken_xchan)
+	);
 }
 
 /**

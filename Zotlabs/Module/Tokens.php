@@ -24,6 +24,51 @@ class Tokens extends Controller {
 			return;
 
 		check_form_security_token_redirectOnErr('tokens', 'tokens');
+
+		if(isset($_POST['delete'])) {
+			$r = q("select * from atoken where atoken_id = %d and atoken_uid = %d",
+				intval($_POST['atoken_id']),
+				intval(local_channel())
+			);
+
+			if (!$r) {
+				return;
+			}
+
+			$atoken = $r[0];
+			$atoken_xchan = substr($channel['channel_hash'], 0, 16) . '.' . $atoken['atoken_guid'];
+
+			$atoken['deleted'] = true;
+
+			$r = q("SELECT abook.*, xchan.*
+				FROM abook left join xchan on abook_xchan = xchan_hash
+				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
+				intval($channel['channel_id']),
+				dbesc($atoken_xchan)
+			);
+
+			if (!$r) {
+				return;
+			}
+
+			$clone = $r[0];
+
+			unset($clone['abook_id']);
+			unset($clone['abook_account']);
+			unset($clone['abook_channel']);
+			$clone['deleted'] = true;
+
+			$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
+			if ($abconfig) {
+				$clone['abconfig'] = $abconfig;
+			}
+
+			atoken_delete($atoken['atoken_id']);
+			Libsync::build_sync_packet($channel['channel_id'], [ 'abook' => [ $clone ], 'atoken' => [ $atoken ] ], true);
+
+			return;
+		}
+
 		$token_errs = 0;
 		if(array_key_exists('token',$_POST)) {
 			$atoken_id = (($_POST['atoken_id']) ? intval($_POST['atoken_id']) : 0);
@@ -209,48 +254,10 @@ class Tokens extends Controller {
 
 				$atoken_abook = $atoken_abook[0];
 			}
-
-			if($atoken && argc() > 2 && argv(2) === 'drop') {
-				$atoken['deleted'] = true;
-
-				$r = q("SELECT abook.*, xchan.*
-					FROM abook left join xchan on abook_xchan = xchan_hash
-					WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
-					intval($channel['chnnel_id']),
-					dbesc($atoken_xchan)
-				);
-				if (! $r) {
-					return;
-				}
-
-				$clone = $r[0];
-
-				unset($clone['abook_id']);
-				unset($clone['abook_account']);
-				unset($clone['abook_channel']);
-				$clone['deleted'] = true;
-
-				$abconfig = load_abconfig($channel['channel_id'],$clone['abook_xchan']);
-				if ($abconfig) {
-					$clone['abconfig'] = $abconfig;
-				}
-
-				atoken_delete($id);
-				Libsync::build_sync_packet($channel['channel_id'], [ 'abook' => [ $clone ], 'atoken' => [ $atoken ] ], true);
-
-				$atoken = null;
-				$atoken_xchan = '';
-				$atoken_abook = null;
-			}
 		}
-
-		$t = q("select * from atoken where atoken_uid = %d",
-			intval(local_channel())
-		);
 
 		$desc = t('Use this form to create temporary access identifiers to share things with non-members. These identities may be used in Access Control Lists and visitors may login using these credentials to access private content.');
 
-		//TODO: assign role
 		$pcat            = new Permcat(local_channel());
 		$pcatlist        = $pcat->listing();
 		$default_role    = get_pconfig(local_channel(), 'system', 'default_permcat');
@@ -260,7 +267,6 @@ class Tokens extends Controller {
 		foreach ($pcatlist as $role) {
 			$roles_dict[$role['name']] = $role['localname'];
 		}
-
 
 		if (!$current_permcat) {
 			notice(t('Please select a role for this guest!') . EOL);
@@ -279,12 +285,12 @@ class Tokens extends Controller {
 			'$permcat' => ['permcat', t('Select a role for this guest'), $current_permcat, '', $permcats],
 			'$title' => t('Guest Access'),
 			'$desc' => $desc,
-			'$tokens' => $t,
 			'$atoken' => $atoken,
 			'$name' => array('name', t('Login Name') . ' <span class="required">*</span>', (($atoken) ? $atoken['atoken_name'] : ''),''),
 			'$token'=> array('token', t('Login Password') . ' <span class="required">*</span>',(($atoken) ? $atoken['atoken_token'] : new_token()), ''),
 			'$expires'=> array('expires', t('Expires (yyyy-mm-dd)'), (($atoken['atoken_expires'] && $atoken['atoken_expires'] > NULL_DATE) ? datetime_convert('UTC',date_default_timezone_get(),$atoken['atoken_expires']) : ''), ''),
-			'$submit' => t('Submit')
+			'$submit' => t('Submit'),
+			'$delete' => t('Delete')
 		));
 		return $o;
 	}

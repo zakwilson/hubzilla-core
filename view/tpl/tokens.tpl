@@ -16,22 +16,11 @@
 			{{include file="field_input.tpl" field=$expires}}
 			{{include file="field_select.tpl" field=$permcat}}
 
-			<div class="settings-submit-wrapper mb-3">
-				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
+			<div class="mb-2 clearfix">
+				{{if $atoken}}
+				<button type="submit" name="delete" class="btn btn-outline-danger">{{$delete}}</button>
+				{{/if}}
+				<button type="submit" name="submit" class="btn btn-primary float-end">{{$submit}}</button>
 			</div>
 	</div>
-
-	{{if $tokens}}
-	<div class="section-content-wrapper-np">
-		<table id="atoken-index">
-			{{foreach $tokens as $t}}
-			<tr id="atoken-index-{{$t.atoken_id}}" class="atoken-index-row">
-				<td width="99%"><a href="tokens/{{$t.atoken_id}}">{{$t.atoken_name}}</a></td>
-				<td width="1%" class="atoken-index-tool"><i class="fa fa-trash-o drop-icons" onClick="dropItem('tokens/{{$t.atoken_id}}/drop', '#atoken-index-{{$t.atoken_id}}')"></i></td>
-			</tr>
-			{{/foreach}}
-		</table>
-
-	</div>
-	{{/if}}
 </div>

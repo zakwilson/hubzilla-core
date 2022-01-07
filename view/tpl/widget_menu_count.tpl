@@ -5,7 +5,7 @@
 		<li class="nav-item">
 			<a class="nav-link {{if $menu_item.active}} active{{/if}}" href="{{$menu_item.href}}" title="{{$menu_item.title}}">
 				{{$menu_item.label}}
-				<span class="badge bg-secondary float-end">{{$menu_item.count}}</span>
+				<span class="badge {{if $menu_item.active}} bg-light text-dark{{else}} bg-secondary{{/if}} float-end">{{$menu_item.count}}</span>
 			</a>
 		<li>
 		{{/foreach}}

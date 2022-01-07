@@ -130,20 +130,6 @@ class Group extends Controller {
 
 		if((argc() == 1) || ((argc() == 2) && (argv(1) === 'new'))) {
 
-			$new = (((argc() == 2) && (argv(1) === 'new')) ? true : false);
-
-			$groups = q("SELECT id, gname FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
-				intval(local_channel())
-			);
-
-			$i = 0;
-			foreach($groups as $group) {
-				$entries[$i]['name'] = $group['gname'];
-				$entries[$i]['id'] = $group['id'];
-				$entries[$i]['count'] = count(AccessList::members(local_channel(), $group['id']));
-				$i++;
-			}
-
 			$hookinfo = [ 'pgrp_extras' => '', 'group'=>argv(1) ];
 			call_hooks ('privacygroup_extras',$hookinfo);
 			$pgrp_extras = $hookinfo['pgrp_extras'];
@@ -155,8 +141,6 @@ class Group extends Controller {
 			$tpl = get_markup_template('privacy_groups.tpl');
 			$o = replace_macros($tpl, [
 				'$title' => t('Privacy Groups'),
-				'$add_new_label' => t('Add Group'),
-				'$new' => $new,
 
 				// new group form
 				'$gname' => array('groupname',t('Privacy group name')),
@@ -166,21 +150,11 @@ class Group extends Controller {
 				'$submit' => t('Submit'),
 				'$is_default_acl' => $is_default_acl,
 				'$is_default_group' => $is_default_group,
-
-				// groups list
-				'$title' => t('Privacy Groups'),
-				'$name_label' => t('Name'),
-				'$count_label' => t('Members'),
-				'$entries' => $entries
-
 			]);
 
 			return $o;
 
 		}
-
-
-
 
 		$context = array('$submit' => t('Submit'));
 		$tpl = get_markup_template('group_edit.tpl');
@@ -274,7 +248,7 @@ class Group extends Controller {
 				'$drop' => $drop_txt,
 				'$public' => array('public',t('Members are visible to other channels'), $group['visible'], '', [t('No'), t('Yes')]),
 				'$form_security_token_edit' => get_form_security_token('group_edit'),
-				'$delete' => t('Delete Group'),
+				'$delete' => t('Delete'),
 				'$form_security_token_drop' => get_form_security_token("group_drop"),
 				'$pgrp_extras' => $pgrp_extras,
 			);

@@ -9,7 +9,7 @@ class Collections {
 	function widget($args) {
 
 		if(argc() < 2)
-			return;
+		//	return;
 
 		$mode = ((array_key_exists('mode',$args)) ? $args['mode'] : 'conversation');
 		switch($mode) {

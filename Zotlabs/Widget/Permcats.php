@@ -31,6 +31,12 @@ class Permcats {
 
 		if($active_role) {
 
+			$roles[] = [
+				'name' => '<i class="fa fa-plus"></i>&nbsp;' . t('Add new role'),
+				'url' => z_root() . '/permcats',
+				'active' => ''
+			];
+
 /* get role members based on permissions
 			$test = $pcatlist[$active]['perms'];
 

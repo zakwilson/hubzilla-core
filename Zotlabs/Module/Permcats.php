@@ -132,6 +132,8 @@ class Permcats extends Controller {
 		if(! local_channel())
 			return;
 
+		nav_set_selected('Contact Roles');
+
 		$channel = App::get_channel();
 
 		if(argc() > 1) {
@@ -142,22 +144,6 @@ class Permcats extends Controller {
 
 		$pcat = new \Zotlabs\Lib\Permcat(local_channel());
 		$pcatlist = $pcat->listing();
-
-/* not yet ready
-		$test = $pcatlist[4]['perms'];
-		$role_sql = '';
-
-		foreach ($test as $t)
-			$role_sql .= "( k = '" . dbesc($t['name']) . "' AND v = '" . intval($t['value']) . "' ) OR ";
-
-		$role_sql = rtrim($role_sql, ' OR ');
-
-		// get all xchans belonging to a permission role
-		$q = q("SELECT xchan FROM abconfig WHERE chan = %d AND cat = 'my_perms' AND ( $role_sql ) GROUP BY xchan HAVING count(xchan) = %d",
-			intval(local_channel()),
-			intval(count($test))
-		);
-*/
 
 		$is_system_role = false;
 		$delete_role_select_options = [];

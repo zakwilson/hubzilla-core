@@ -229,6 +229,8 @@ class Tokens extends Controller {
 			return Apps::app_render($papp, 'module');
 		}
 
+		nav_set_selected('Guest Access');
+
 		$channel = App::get_channel();
 
 		$atoken = null;

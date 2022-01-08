@@ -115,6 +115,14 @@
 	position: relative;
 }
 
+.wall-item-photo-group-actor {
+	position: absolute;
+	right: 3px;
+	top: 0px;
+	color: #fff;
+	text-shadow: 1px 1px 3px rgba(0, 0, 0, .5);
+}
+
 .wall-item-photo-caret {
 	position: absolute;
 	left: 3px;

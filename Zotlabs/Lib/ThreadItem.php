@@ -424,6 +424,7 @@ class ThreadItem {
 			'mids' => $json_mids,
 			'parent' => $item['parent'],
 			'author_id' => (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']),
+			'author_is_group_actor' => (($item['author']['xchan_pubforum']) ? t('Forum') : ''),
 			'isevent' => $isevent,
 			'attend' => $attend,
 			'consensus' => $consensus,

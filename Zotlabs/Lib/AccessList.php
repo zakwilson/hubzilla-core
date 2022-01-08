@@ -23,7 +23,7 @@ class AccessList {
 				);
 				if (($z) && $z[0]['deleted']) {
 					q('UPDATE pgrp SET deleted = 0 WHERE id = %d', intval($z[0]['id']));
-					notice(t('A deleted list with this name was revived. Existing item permissions <strong>may</strong> apply to this list and any future members. If this is not what you intended, please create another list with a different name.') . EOL);
+					notice(t('A deleted privacy group with this name was revived. Existing item permissions <strong>may</strong> apply to this privacy group and any future members. If this is not what you intended, please create another privacy group with a different name.') . EOL);
 				}
 				$hash = self::by_id($uid, $r);
 				return $hash;

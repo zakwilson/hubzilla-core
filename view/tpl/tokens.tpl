@@ -16,7 +16,7 @@
 			{{include file="field_input.tpl" field=$expires}}
 			{{include file="field_select.tpl" field=$permcat}}
 
-			<div class="mb-2 clearfix">
+			<div class="clearfix">
 				{{if $atoken}}
 				<button type="submit" name="delete" class="btn btn-outline-danger">{{$delete}}</button>
 				{{/if}}

@@ -1703,7 +1703,7 @@ class Activity {
 
 		if ($links) {
 			foreach ($links as $link) {
-				if (array_key_exists('mediaType', $link) && $link['mediaType'] === 'text/html') {
+				if (is_array($link) && array_key_exists('mediaType', $link) && $link['mediaType'] === 'text/html') {
 					$profile = $link['href'];
 				}
 			}

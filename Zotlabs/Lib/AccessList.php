@@ -308,7 +308,7 @@ class AccessList {
 		return $o;
 	}
 
-
+/* deprecated
 	static function widget($every = "connections", $each = "lists", $edit = false, $group_id = 0, $cid = '', $mode = 1) {
 
 		$groups = [];
@@ -355,6 +355,7 @@ class AccessList {
 		]);
 
 	}
+*/
 
 	static function expand($g) {
 		if (!(is_array($g) && count($g))) {

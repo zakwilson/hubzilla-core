@@ -865,6 +865,7 @@ function get_tags($s) {
 	// ignore anything in a code or svg block
 	$s = preg_replace('/\[code(.*?)\](.*?)\[\/code\]/sm','',$s);
 	$s = preg_replace('/\[svg(.*?)\](.*?)\[\/svg\]/sm','',$s);
+	$s = preg_replace('/\[toc(.*?)\]/sm','',$s);
 
 	// ignore anything in [style= ]
 	$s = preg_replace('/\[style=(.*?)\]/sm','',$s);

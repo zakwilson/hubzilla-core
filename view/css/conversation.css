@@ -236,12 +236,14 @@ a.wall-item-name-link {
 	line-height: 1;
 	height: 2rem;
 	resize: none;
+	overflow: hidden;
 }
 
 .comment-edit-text.expanded {
 	line-height: 1.25;
 	height: 7rem;
 	resize: vertical;
+	overflow: auto;
 }
 
 .comment-tools,

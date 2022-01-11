@@ -1400,7 +1400,7 @@ function bbcode($Text, $options = []) {
 	// Check for table of content without params
 	while(strpos($Text,'[toc]') !== false) {
 		$toc_id = 'toc-' . random_string(10);
-		$Text = preg_replace("/\[toc\]/ism", '<ul id="' . $toc_id . '" class="toc"></ul><script>$(document).ready(function() { let toc_container = $("#' . $toc_id . '").parent().closest("div").attr("id") || ".section-content-wrapper"; $("#' . $toc_id . '").toc({content: "#" + toc_container}); });</script>', $Text, 1);
+		$Text = preg_replace("/\[toc\]/ism", '<ul id="' . $toc_id . '" class="toc"></ul><script>$(document).ready(function() { let toc_container = $("#' . $toc_id . '").parent().closest("div").attr("id") || ".section-content-wrapper"; $("#' . $toc_id . '").toc({content: "#" + toc_container, headings: "h1,h2,h3,h4"}); });</script>', $Text, 1);
 	}
 	// Check for table of content with params
 	while(strpos($Text,'[toc') !== false) {

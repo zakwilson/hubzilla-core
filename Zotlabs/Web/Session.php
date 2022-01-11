@@ -78,7 +78,7 @@ class Session {
 		// have some nasty side effects if you have any other subdomains running hubzilla.
 
 		session_set_cookie_params([
-			'expires' => ((isset($arr['lifetime'])) ? $arr['lifetime'] : 0),
+			'lifetime' => ((isset($arr['lifetime'])) ? $arr['lifetime'] : 0),
 			'path' => ((isset($arr['path'])) ? $arr['path'] : '/'),
 			'domain' => (($arr['domain']) ? $arr['domain'] : false),
 			'secure' => ((isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) == 'on') ? true : false),

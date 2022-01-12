@@ -1,7 +1,7 @@
 <?php /** @file */
 
 
-function contact_profile_assign($current) {
+function contact_profile_assign($current, $label = '') {
 
 	$r = q("SELECT profile_guid, profile_name FROM profile WHERE uid = %d",
 		intval($_SESSION['uid'])
@@ -13,9 +13,13 @@ function contact_profile_assign($current) {
 		}
 	}
 
+	if (!$label) {
+		$label = t('Select a profile to assign to this contact');
+	}
+
 	$select = [
 		'profile_assign',
-		t('Select a profile to assign to this contact'),
+		$label,
 		$current,
 		'',
 		$options

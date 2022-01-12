@@ -332,9 +332,6 @@ class Connections extends \Zotlabs\Web\Controller {
 						'thumb' => $rr['xchan_photo_m'],
 						'name' => $rr['xchan_name'],
 						'classes' => ((intval($rr['abook_archived']) || intval($rr['abook_not_here'])) ? 'archived' : ''),
-						'link' => z_root() . '/connedit/' . $rr['abook_id'],
-						'deletelink' => z_root() . '/connedit/' . intval($rr['abook_id']) . '/drop',
-						'delete' => t('Delete'),
 						'url' => chanlink_hash($rr['xchan_hash']),
 						'webbie_label' => t('Channel address'),
 						'webbie' => $rr['xchan_addr'],
@@ -345,6 +342,7 @@ class Connections extends \Zotlabs\Web\Controller {
 						'phone' => $phone,
 						'status_label' => t('Status'),
 						'status' => $status_str,
+						'states' => $status,
 						'connected_label' => t('Connected'),
 						'connected' => datetime_convert('UTC',date_default_timezone_get(),$rr['abook_created'], 'c'),
 						'approve_hover' => t('Approve connection'),
@@ -358,7 +356,8 @@ class Connections extends \Zotlabs\Web\Controller {
 						'connect' => (intval($rr['abook_not_here']) ? t('Connect') : ''),
 						'follow' => z_root() . '/follow/?f=&url=' . urlencode($rr['xchan_hash']) . '&interactive=0',
 						'connect_hover' => t('Connect at this location'),
-						'role' => $roles_dict[$rr['abook_role']]
+						'role' => $roles_dict[$rr['abook_role']],
+						'pending' => intval($rr['abook_pending'])
 					);
 				}
 			}
@@ -398,6 +397,7 @@ class Connections extends \Zotlabs\Web\Controller {
 				'$finding' => (($searching) ? t('Contact search') . ": '" . $search . "'" : ""),
 				'$submit' => t('Find'),
 				'$edit' => t('Edit'),
+				'$approve' => t('Approve'),
 				'$cmd' => App::$cmd,
 				'$contacts' => $contacts,
 				'$paginate' => paginate($a),

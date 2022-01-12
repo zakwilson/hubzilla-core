@@ -1,6 +1,11 @@
 <div id="contact-entry-wrapper-{{$contact.id}}">
 	<div class="section-subtitle-wrapper clearfix">
 		<div class="float-end">
+			{{if $contact.status}}
+			{{foreach $contact.states as $state}}
+			<span class="badge rounded-pill bg-danger text-white me-1" title="">{{$state}}</span>
+			{{/foreach}}
+			{{/if}}
 			<span id="contact-role-{{$contact.id}}" class="badge rounded-pill bg-warning text-dark me-1" title="{{$role_label}}">{{$contact.role}}</span>
 			<button type="button" class="btn btn-outline-secondary btn-sm contact-edit" title="{{$contact.edit_hover}}" data-id="{{$contact.id}}">
 				<i class="fa fa-pencil"></i> {{$contact.edit}}
@@ -16,11 +21,11 @@
 			{{include "connstatus.tpl" perminfo=$contact.perminfo}}
 		</div>
 		<div class="contact-info">
-			{{if $contact.status}}
+			{{** if $contact.status}}
 			<div class="contact-info-element">
 				<span class="contact-info-label">{{$contact.status_label}}:</span> {{$contact.status}}
 			</div>
-			{{/if}}
+			{{/if **}}
 			{{if $contact.connected}}
 			<div class="contact-info-element">
 				<span class="contact-info-label">{{$contact.connected_label}}:</span> <span class="autotime" title="{{$contact.connected}}"></span>

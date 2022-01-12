@@ -30,7 +30,7 @@
 				{{/if}}
 			</div>
 		</div>
-		<h2>{{$banner}}</h2>
+		<h2>{{$banner}}{{if $multi_profiles}}: {{$profile_name.2}}{{/if}}</h2>
 		<div class="clear"></div>
 	</div>
 	<div class="section-content-tools-wrapper" id="profile-upload-form">

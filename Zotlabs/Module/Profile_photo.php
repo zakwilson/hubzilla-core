@@ -56,7 +56,6 @@ class Profile_photo extends Controller {
 
 		check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
 
-
 		$r = q("select id, profile_guid, is_default, gender from profile where uid = %d",
 			intval(local_channel())
 		);
@@ -99,7 +98,6 @@ class Profile_photo extends Controller {
 						dbesc(z_root() . '/photo/profile/m/' . local_channel()),
 						intval(local_channel())
 					);
-
 				}
 			}
 			else {
@@ -211,13 +209,11 @@ class Profile_photo extends Controller {
 					// If setting for the default profile, unset the profile photo flag from any other photos I own
 
 					if ($is_default_profile) {
-
 						q("update profile set photo = '%s', thumb = '%s' where is_default = 1 and uid = %d",
 							dbesc(z_root() . '/photo/profile/l/' . local_channel()),
 							dbesc(z_root() . '/photo/profile/m/' . local_channel()),
 							intval(local_channel())
 						);
-
 
 						q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d
 							AND resource_id != '%s' AND uid = %d",
@@ -227,9 +223,7 @@ class Profile_photo extends Controller {
 							intval(local_channel())
 						);
 
-
 						send_profile_photo_activity($channel, $base_image, $profile);
-
 					}
 					else {
 						q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
@@ -288,11 +282,9 @@ class Profile_photo extends Controller {
 		// A new photo was uploaded. Store it and save some important details
 		// in App::$data for use in the cropping function
 
-
 		$hash      = photo_new_resource();
 		$importing = false;
 		$smallest  = 0;
-
 
 		if ($_REQUEST['importfile']) {
 			$hash      = $_REQUEST['importfile'];
@@ -358,6 +350,7 @@ class Profile_photo extends Controller {
 				notice(t('Image upload failed.') . EOL);
 				return;
 			}
+
 			$os_storage = false;
 
 			foreach ($i as $ii) {
@@ -501,14 +494,16 @@ class Profile_photo extends Controller {
 				return;
 			}
 
-			if (intval($r[0]['os_storage']))
+			if (intval($r[0]['os_storage'])) {
 				$data = @file_get_contents($r[0]['content']);
-			else
+			}
+			else {
 				$data = dbunescbin($r[0]['content']);
-
+			}
 
 			$ph       = photo_factory($data, $r[0]['mimetype']);
 			$smallest = 0;
+
 			if ($ph->is_valid()) {
 
 				// go ahead as if we have just uploaded a new photo to crop
@@ -573,7 +568,8 @@ class Profile_photo extends Controller {
 
 			$filename = App::$data['imagecrop'] . '-' . App::$data['imagecrop_resolution'];
 			$tpl      = get_markup_template("cropbody.tpl");
-			$o        = replace_macros($tpl, [
+
+			$o = replace_macros($tpl, [
 				'$filename'            => $filename,
 				'$profile'             => $profile_id,
 				'$resource'            => App::$data['imagecrop'] . '-' . App::$data['imagecrop_resolution'],
@@ -583,6 +579,7 @@ class Profile_photo extends Controller {
 				'$form_security_token' => get_form_security_token("profile_photo"),
 				'$done'                => t('Done editing')
 			]);
+
 			return $o;
 		}
 
@@ -601,10 +598,13 @@ class Profile_photo extends Controller {
 	function profile_photo_crop_ui_head($ph, $hash, $smallest) {
 
 		$max_length = get_config('system', 'max_image_length');
-		if (!$max_length)
+
+		if (!$max_length) {
 			$max_length = MAX_IMAGE_LENGTH;
-		if ($max_length > 0)
+		}
+		if ($max_length > 0) {
 			$ph->scaleImage($max_length);
+		}
 
 		App::$data['width']  = $ph->getWidth();
 		App::$data['height'] = $ph->getHeight();
@@ -615,10 +615,10 @@ class Profile_photo extends Controller {
 			App::$data['height'] = $ph->getHeight();
 		}
 
-
 		App::$data['imagecrop']            = $hash;
 		App::$data['imagecrop_resolution'] = $smallest;
 		App::$page['htmlhead']             .= replace_macros(get_markup_template("crophead.tpl"), []);
+
 		return;
 	}
 

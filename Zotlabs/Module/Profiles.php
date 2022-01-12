@@ -163,34 +163,6 @@ class Profiles extends \Zotlabs\Web\Controller {
 			killme();
 		}
 
-
-
-
-		// Run profile_load() here to make sure the theme is set before
-		// we start loading content
-		if(((argc() > 1) && (intval(argv(1)))) || !feature_enabled(local_channel(),'multi_profiles')) {
-			if(feature_enabled(local_channel(),'multi_profiles'))
-				$id = \App::$argv[1];
-			else {
-				$x = q("select id from profile where uid = %d and is_default = 1",
-					intval(local_channel())
-				);
-				if($x)
-					$id = $x[0]['id'];
-			}
-			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
-				intval($id),
-				intval(local_channel())
-			);
-			if(! count($r)) {
-				notice( t('Profile not found.') . EOL);
-				\App::$error = 404;
-				return;
-			}
-
-			$chan = \App::get_channel();
-			profile_load($chan['channel_address'],$r[0]['id']);
-		}
 	}
 
 	function post() {
@@ -628,8 +600,6 @@ class Profiles extends \Zotlabs\Web\Controller {
 			}
 
 			if($is_default) {
-				// reload the info for the sidebar widget
-				profile_load($channel['channel_address']);
 				\Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
 			}
 		}
@@ -640,12 +610,12 @@ class Profiles extends \Zotlabs\Web\Controller {
 
 		$o = '';
 
-		$channel = \App::get_channel();
-
 		if(! local_channel()) {
 			notice( t('Permission denied.') . EOL);
 			return;
 		}
+
+		$channel = \App::get_channel();
 
 		require_once('include/channel.php');
 
@@ -662,6 +632,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				if($x)
 					$id = $x[0]['id'];
 			}
+
 			$r = q("SELECT * FROM profile WHERE id = %d AND uid = %d LIMIT 1",
 				intval($id),
 				intval(local_channel())
@@ -671,6 +642,9 @@ class Profiles extends \Zotlabs\Web\Controller {
 				notice( t('Profile not found.') . EOL);
 				return;
 			}
+
+			// make sure we got uptodate data
+			profile_load($channel['channel_address'], $id);
 
 			$editselect = 'none';
 

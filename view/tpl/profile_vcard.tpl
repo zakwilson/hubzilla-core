@@ -1,16 +1,10 @@
 <div class="rounded mb-3 vcard-card h-card">
 	<div class="card mb-2">
 		<div class="row">
-			<div class="col-4" style="width: 7rem;">
-				{{if $editmenu}}
-				<a href="profile_photo" title="{{$change_photo}}">
-				{{/if}}
-					<div id="profile-photo-wrapper">
-						<img class="rounded-start u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" style="width: 6rem; height:6rem;">
-					</div>
-				{{if $editmenu}}
-				</a>
-				{{/if}}
+			<div class="col-4" style="width: fit-content;">
+				<div id="profile-photo-wrapper">
+					<img class="rounded-start u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" style="width: 6rem; height:6rem;">
+				</div>
 			</div>
 			<div class="col-7 m-1 p-0">
 				{{if $editmenu.multi}}
@@ -20,7 +14,6 @@
 						{{foreach $editmenu.menu.entries as $e}}
 						<a href="profiles/{{$e.id}}" class="dropdown-item"><img class="menu-img-1" src='{{$e.photo}}'> {{$e.profile_name}}</a>
 						{{/foreach}}
-						<a href="profile_photo" class="dropdown-item">{{$editmenu.menu.chg_photo}}</a>
 						{{if $editmenu.menu.cr_new}}
 						<a href="profiles/new" id="profile-listing-new-link" class="dropdown-item">{{$editmenu.menu.cr_new}}</a>
 						{{/if}}

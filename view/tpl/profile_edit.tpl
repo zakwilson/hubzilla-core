@@ -5,7 +5,7 @@
 				<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 			</button>
 			<div class="dropdown-menu dropdown-menu-end">
-				<a class="dropdown-item" href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-fw fa-user"></i>&nbsp;{{$profpic}}</a>
+				<a class="dropdown-item" href="profile_photo/{{$profile_id}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-fw fa-user"></i>&nbsp;{{$profpic}}</a>
 				{{if $is_default}}
 				<a class="dropdown-item" href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="fa fa-fw fa-picture-o"></i>&nbsp;{{$coverpic}}</a>
 				{{/if}}

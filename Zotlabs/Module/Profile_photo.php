@@ -37,7 +37,10 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 		}
 
 		$channel = \App::get_channel();
-		profile_load($channel['channel_address']);
+		$profile = \App::$argv[1];
+
+		profile_load($channel['channel_address'], $profile);
+
 
 	}
 
@@ -58,29 +61,68 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 
 		check_form_security_token_redirectOnErr('/profile_photo', 'profile_photo');
 
-		// Remove cover photo
+
+		$r = q("select id, profile_guid, is_default, gender from profile where uid = %d",
+			intval(local_channel())
+		);
+
+		$profile_id = intval($_POST['profile']);
+		$default_profile_id = null;
+		$profile = [];
+
+		foreach($r as $rr) {
+			if($rr['is_default']) {
+				$default_profile_id = intval($rr['id']);
+			}
+
+			if ($profile_id === intval($rr['id'])) {
+				$profile = $rr;
+			}
+		}
+
+		$is_default_profile = ($profile_id === $default_profile_id);
+
+		// Remove profile photo
 		if(isset($_POST['remove'])) {
 
-			$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
-				intval(PHOTO_PROFILE),
-				intval(local_channel())
-			);
+			if ($is_default_profile) {
 
-			if($r) {
-			    q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
-			    	intval(PHOTO_NORMAL),
-				    intval(PHOTO_PROFILE),
-				    intval(local_channel())
-			    );
+				$r = q("SELECT resource_id FROM photo WHERE photo_usage = %d AND uid = %d LIMIT 1",
+					intval(PHOTO_PROFILE),
+					intval(local_channel())
+				);
 
-				$sync = attach_export_data($channel,$r[0]['resource_id']);
-				if($sync)
-				   Libsync:: build_sync_packet($channel['channel_id'],array('file' => array($sync)));
+				if($r) {
+					q("update photo set photo_usage = %d where photo_usage = %d and uid = %d",
+						intval(PHOTO_NORMAL),
+						intval(PHOTO_PROFILE),
+						intval(local_channel())
+					);
+
+					q("update profile set photo = '%s', thumb = '%s' where is_default = 1 and uid = %d",
+						dbesc(z_root() . '/photo/profile/l/' . local_channel()),
+						dbesc(z_root() . '/photo/profile/m/' . local_channel()),
+						intval(local_channel())
+					);
+
+				}
 			}
+			else {
+				q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
+					dbesc(z_root() . '/' . get_default_profile_photo(300)),
+					dbesc(z_root() . '/' . get_default_profile_photo(80)),
+					intval($profile_id),
+					intval(local_channel())
+				);
+			}
+
+			$sync = attach_export_data($channel,$r[0]['resource_id']);
+			if($sync)
+				Libsync:: build_sync_packet($channel['channel_id'],array('file' => array($sync)));
 
 			$_SESSION['reload_avatar'] = true;
 
-			goaway(z_root() . '/profiles');
+			goaway(z_root() . '/profiles/' . $profile_id);
 		}
 
 		if((array_key_exists('cropfinal',$_POST)) && (intval($_POST['cropfinal']) == 1)) {
@@ -101,23 +143,6 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 				$image_id = substr($image_id,0,-2);
 			}
 
-
-			// unless proven otherwise
-			$is_default_profile = 1;
-
-			if($_REQUEST['profile']) {
-				$r = q("select id, profile_guid, is_default, gender from profile where id = %d and uid = %d limit 1",
-					intval($_REQUEST['profile']),
-					intval(local_channel())
-				);
-				if($r) {
-					$profile = $r[0];
-					if(! intval($profile['is_default']))
-						$is_default_profile = 0;
-				}
-			}
-
-
 			$srcX = intval($_POST['xstart']);
 			$srcY = intval($_POST['ystart']);
 			$srcW = intval($_POST['xfinal']) - $srcX;
@@ -126,7 +151,9 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			$r = q("SELECT * FROM photo WHERE resource_id = '%s' AND uid = %d AND imgscale = %d LIMIT 1",
 				dbesc($image_id),
 				dbesc(local_channel()),
-				intval($scale));
+				intval($scale)
+			);
+
 			if($r) {
 
 				$base_image = $r[0];
@@ -147,11 +174,9 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 						'album'        => t('Profile Photos'),
 						'os_path'      => $base_image['os_path'],
 						'display_path' => $base_image['display_path'],
-						'photo_usage'  => PHOTO_PROFILE,
+						'photo_usage'  => (($is_default_profile) ? PHOTO_PROFILE : PHOTO_NORMAL),
 						'edited'	   => dbescdate($base_image['edited'])
 					];
-
-					$p['photo_usage'] = (($is_default_profile) ? PHOTO_PROFILE : PHOTO_NORMAL);
 
 					$r1 = $im->storeThumbnail($p, PHOTO_RES_PROFILE_300);
 
@@ -215,7 +240,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 						$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
 							dbesc(z_root() . '/photo/' . $base_image['resource_id'] . '-4'),
 							dbesc(z_root() . '/photo/' . $base_image['resource_id'] . '-5'),
-							intval($_REQUEST['profile']),
+							intval($profile_id),
 							intval(local_channel())
 						);
 					}
@@ -241,7 +266,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 						dbesc($channel['xchan_hash'])
 					);
 
-					photo_profile_setperms(local_channel(),$base_image['resource_id'],$_REQUEST['profile']);
+					photo_profile_setperms(local_channel(),$base_image['resource_id'],$profile_id);
 
 					$sync = attach_export_data($channel,$base_image['resource_id']);
 					if($sync)
@@ -261,7 +286,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 					notice( t('Unable to process image') . EOL);
 			}
 
-			goaway(z_root() . '/profiles');
+			goaway(z_root() . '/profiles/' . $profile_id);
 			return; // NOTREACHED
 		}
 
@@ -279,8 +304,53 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			$importing = true;
 		}
 		else {
-			require_once('include/attach.php');
+
+			$matches = [];
+			$partial = false;
+
+			if(array_key_exists('HTTP_CONTENT_RANGE',$_SERVER)) {
+				$pm = preg_match('/bytes (\d*)\-(\d*)\/(\d*)/',$_SERVER['HTTP_CONTENT_RANGE'],$matches);
+				if($pm) {
+					logger('Content-Range: ' . print_r($matches,true));
+					$partial = true;
+				}
+			}
+
+			if($partial) {
+				$x = save_chunk($channel,$matches[1],$matches[2],$matches[3]);
+
+				if($x['partial']) {
+					header('Range: bytes=0-' . (($x['length']) ? $x['length'] - 1 : 0));
+					json_return_and_die($result);
+				}
+				else {
+					header('Range: bytes=0-' . (($x['size']) ? $x['size'] - 1 : 0));
+
+					$_FILES['userfile'] = [
+						'name'     => $x['name'],
+						'type'     => $x['type'],
+						'tmp_name' => $x['tmp_name'],
+						'error'    => $x['error'],
+						'size'     => $x['size']
+					];
+				}
+			}
+			else {
+				if(! array_key_exists('userfile',$_FILES)) {
+					$_FILES['userfile'] = [
+						'name'     => $_FILES['files']['name'],
+						'type'     => $_FILES['files']['type'],
+						'tmp_name' => $_FILES['files']['tmp_name'],
+						'error'    => $_FILES['files']['error'],
+						'size'     => $_FILES['files']['size']
+					];
+				}
+			}
+
 			$res = attach_store(\App::get_channel(), get_observer_hash(), '', array('album' => t('Profile Photos'), 'hash' => $hash, 'nosync' => true, 'source' => 'photos'));
+
+			json_return_and_die([ 'message' => $hash ]);
+
 		}
 
 		if(($res && intval($res['data']['is_photo'])) || $importing) {
@@ -313,7 +383,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		return $this->profile_photo_crop_ui_head($a, $ph, $hash, $smallest);
+		return $this->profile_photo_crop_ui_head($ph, $hash, $smallest);
 
 		// This will "fall through" to the get() method, and since
 		// App::$data['imagecrop'] is set, it will proceed to cropping
@@ -337,11 +407,33 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 		}
 
 		$channel = \App::get_channel();
-		$pf = 0;
+		$profile_id = (($_REQUEST['profile']) ? intval($_REQUEST['profile']) : intval(argv(1)));
+		$default_profile = [];
+		$default_profile_id = null;
+
 		$newuser = false;
 
-		if(argc() == 2 && argv(1) === 'new')
+		if(argc() == 2 && argv(1) === 'new') {
 			$newuser = true;
+		}
+
+		$r = q("select id, profile_name as name, is_default from profile where uid = %d order by id asc",
+			intval(local_channel())
+		);
+
+
+		foreach($r as $rr) {
+			if ($rr['is_default']) {
+				$default_profile_id = intval($rr['id']);
+				$default_profile = $rr;
+			}
+
+			if ($profile_id === intval($rr['id'])) {
+				$profile = $rr;
+			}
+		}
+
+		$is_default_profile = ($profile_id === $default_profile_id);
 
 		if(argv(1) === 'use') {
 			if (argc() < 3) {
@@ -350,23 +442,6 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			};
 
 			$resource_id = argv(2);
-
-
-			$pf = (($_REQUEST['pf']) ? intval($_REQUEST['pf']) : 0);
-
-			$c = q("select id, is_default from profile where uid = %d",
-				intval(local_channel())
-			);
-
-			$multi_profiles = true;
-
-			if(($c) && (count($c) === 1) && (intval($c[0]['is_default']))) {
-				$_REQUEST['profile'] = $c[0]['id'];
-				$multi_profiles = false;
-			}
-			else {
-				$_REQUEST['profile'] = $pf;
-			}
 
 			$r = q("SELECT id, album, imgscale FROM photo WHERE uid = %d AND resource_id = '%s' ORDER BY imgscale ASC",
 				intval(local_channel()),
@@ -385,28 +460,41 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			// set an already loaded and cropped photo as profile photo
 
 			if($havescale) {
-				// unset any existing profile photos
-				$x = q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND uid = %d",
-					intval(PHOTO_NORMAL),
-					intval(PHOTO_PROFILE),
+
+				if ($is_default_profile) {
+
+					// unset any existing profile photos
+					$x = q("UPDATE photo SET photo_usage = %d WHERE photo_usage = %d AND uid = %d",
+						intval(PHOTO_NORMAL),
+						intval(PHOTO_PROFILE),
+						intval(local_channel())
+					);
+
+					$edited = datetime_convert();
+
+					$x = q("UPDATE photo SET photo_usage = %d, edited = '%s' WHERE uid = %d AND resource_id = '%s' AND imgscale > 0",
+						intval(PHOTO_PROFILE),
+						dbescdate($edited),
+						intval(local_channel()),
+						dbesc($resource_id)
+					);
+
+					$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
+						dbescdate($edited),
+						dbesc($channel['xchan_hash'])
+
+					);
+
+				}
+
+				$x = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
+					dbesc(z_root() . '/photo/' . $resource_id . '-4'),
+					dbesc(z_root() . '/photo/' . $resource_id . '-5'),
+					intval($profile_id),
 					intval(local_channel())
 				);
 
-				$edited = datetime_convert();
-
-				$x = q("UPDATE photo SET photo_usage = %d, edited = '%s' WHERE uid = %d AND resource_id = '%s' AND imgscale > 0",
-					intval(PHOTO_PROFILE),
-					dbescdate($edited),
-					intval(local_channel()),
-					dbesc($resource_id)
-				);
-
-				$x = q("UPDATE xchan SET xchan_photo_date = '%s' WHERE xchan_hash = '%s'",
-					dbescdate($edited),
-					dbesc($channel['xchan_hash'])
-				);
-
-				photo_profile_setperms(local_channel(),$resource_id,$_REQUEST['profile']);
+				photo_profile_setperms(local_channel(),$resource_id,$profile_id);
 
 				$sync = attach_export_data($channel,$resource_id);
 				if($sync)
@@ -416,7 +504,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 
 				\Zotlabs\Daemon\Master::Summon(array('Directory',local_channel()));
 
-				goaway(z_root() . '/profiles');
+				goaway(z_root() . '/profiles/' . $profile_id);
 			}
 
 			$r = q("SELECT content, mimetype, resource_id, os_storage FROM photo WHERE id = %d and uid = %d limit 1",
@@ -430,13 +518,15 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			}
 
 			if(intval($r[0]['os_storage']))
-				$data = @file_get_contents(dbunescbin($r[0]['content']));
+				$data = @file_get_contents($r[0]['content']);
 			else
 				$data = dbunescbin($r[0]['content']);
+
 
 			$ph = photo_factory($data, $r[0]['mimetype']);
 			$smallest = 0;
 			if($ph->is_valid()) {
+
 				// go ahead as if we have just uploaded a new photo to crop
 				$i = q("select resource_id, imgscale from photo where resource_id = '%s' and uid = %d order by imgscale",
 					dbesc($r[0]['resource_id']),
@@ -453,33 +543,12 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 	            }
 	        }
 
-			if($multi_profiles) {
-				\App::$data['importfile'] = $resource_id;
-			}
-			else {
-				$this->profile_photo_crop_ui_head($a, $ph, $hash, $smallest);
-			}
+			$this->profile_photo_crop_ui_head($ph, $hash, $smallest);
 
 			// falls through with App::$data['imagecrop'] set so we go straight to the cropping section
 
 		}
 
-
-		// present an upload form
-
-		$profiles = q("select id, profile_name as name, is_default from profile where uid = %d order by id asc",
-			intval(local_channel())
-		);
-
-		if($profiles) {
-			for($x = 0; $x < count($profiles); $x ++) {
-				$profiles[$x]['selected'] = false;
-				if($pf && $profiles[$x]['id'] == $pf)
-					$profiles[$x]['selected'] = true;
-				if((! $pf) && $profiles[$x]['is_default'])
-					$profiles[$x]['selected'] = true;
-			}
-		}
 
 		$importing = ((array_key_exists('importfile',\App::$data)) ? true : false);
 
@@ -489,16 +558,13 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 
 			$o .= replace_macros($tpl,array(
 				'$user' => \App::$channel['channel_address'],
-				'$info' => ((count($profiles) > 1) ? t('Your default profile photo is visible to anybody on the internet. Profile photos for alternate profiles will inherit the permissions of the profile') : t('Your profile photo is visible to anybody on the internet and may be distributed to other websites.')),
+				'$info' => (($is_default_profile) ? t('This profile photo will be visible to anybody on the internet and may be distributed to other websites.') : t('This profile photo will be visible only to channels with permission to view this profile.')),
 				'$importfile' => (($importing) ? \App::$data['importfile'] : ''),
-				'$lbl_upfile' => t('Upload File:'),
-				'$lbl_profiles' => t('Select a profile:'),
 				'$title' => (($importing) ? t('Use Photo for Profile') : t('Change Profile Photo')),
-				'$submit' => (($importing) ? t('Use') : t('Upload')),
-				'$remove' => t('Remove'),
-				'$profiles' => $profiles,
-				'$single' => ((count($profiles) == 1) ? true : false),
-				'$profile0' => $profiles[0],
+				'$submit' => t('Upload'),
+				'$remove' => t('Reset to default'),
+				'$profile_id' => $profile_id,
+				'$profile' => $profile,
 				'$embedPhotos' => t('Use a photo from your albums'),
 				'$embedPhotosModalTitle' => t('Use a photo from your albums'),
 				'$embedPhotosModalCancel' => t('Cancel'),
@@ -510,7 +576,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 				'$modalerrorlink' => t('Error getting photo link'),
 				'$modalerroralbum' => t('Error getting album'),
 				'$form_security_token' => get_form_security_token("profile_photo"),
-				'$select' => t('Select existing photo'),
+				'$select' => t('Select existing'),
 			));
 
 			call_hooks('profile_photo_content_end', $o);
@@ -526,13 +592,13 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 			$tpl = get_markup_template("cropbody.tpl");
 			$o .= replace_macros($tpl,array(
 				'$filename' => $filename,
-				'$profile' => intval($_REQUEST['profile']),
+				'$profile' => $profile_id,
 				'$resource' => \App::$data['imagecrop'] . '-' . \App::$data['imagecrop_resolution'],
 				'$image_url' => z_root() . '/photo/' . $filename,
 				'$title' => t('Crop Image'),
 				'$desc' => t('Please adjust the image cropping for optimum viewing.'),
 				'$form_security_token' => get_form_security_token("profile_photo"),
-				'$done' => t('Done Editing')
+				'$done' => t('Done editing')
 			));
 			return $o;
 		}
@@ -550,7 +616,7 @@ class Profile_photo extends \Zotlabs\Web\Controller {
 
 
 
-	function profile_photo_crop_ui_head(&$a, $ph, $hash, $smallest){
+	function profile_photo_crop_ui_head($ph, $hash, $smallest){
 
 		$max_length = get_config('system','max_image_length');
 		if(! $max_length)

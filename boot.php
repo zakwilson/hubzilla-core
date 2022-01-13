@@ -1187,6 +1187,9 @@ class App {
 			$interval = 80000;
 
 		$theme_color = ((local_channel()) ? get_pconfig(local_channel(), 'redbasic', 'nav_bg') : App::$theme_info['theme_color']);
+		if (!$theme_color) {
+			$theme_color = App::$theme_info['theme_color'];
+		}
 
 		if(! isset(self::$page['title']) && isset(self::$config['system']['sitename']))
 			self::$page['title'] = self::$config['system']['sitename'];

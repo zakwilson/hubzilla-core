@@ -1186,6 +1186,8 @@ class App {
 		if($interval < 10000)
 			$interval = 80000;
 
+		$theme_color = ((local_channel()) ? get_pconfig(local_channel(), 'redbasic', 'nav_bg') : App::$theme_info['theme_color']);
+
 		if(! isset(self::$page['title']) && isset(self::$config['system']['sitename']))
 			self::$page['title'] = self::$config['system']['sitename'];
 
@@ -1200,13 +1202,17 @@ class App {
 			}
 		}
 
+
 		// webmanifest
 		head_add_link(['rel' => 'manifest', 'href' => '/manifest.json']);
 		self::$meta->set('application-name', Zotlabs\Lib\System::get_platform_name());
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
+		self::$meta->set('theme-color', $theme_color);
 
 		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);
+		head_add_link(['rel' => 'apple-touch-icon', 'href' => '/images/app/hz-192.png']);
+
 
 		$x = [ 'header' => '' ];
 		/**
@@ -2342,7 +2348,6 @@ function construct_page() {
 
 
 	$current_theme = Zotlabs\Render\Theme::current();
-
 	// logger('current_theme: ' . print_r($current_theme,true));
 	// Zotlabs\Render\Theme::debug();
 

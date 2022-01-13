@@ -742,7 +742,9 @@ function get_theme_info($theme){
 		'credits' => '',
 		'maintainer' => array(),
 		'experimental' => false,
-		'unsupported' => false
+		'unsupported' => false,
+		'theme_color' => '',
+		'background_color' => ''
 	);
 
 	if(file_exists("view/theme/$theme/experimental"))

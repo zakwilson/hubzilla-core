@@ -8,8 +8,11 @@
 			{{/if}}
 			<span id="contact-role-{{$contact.id}}" class="badge rounded-pill bg-warning text-dark me-1" title="{{$role_label}}">{{$contact.role}}</span>
 			<button type="button" class="btn btn-outline-secondary btn-sm contact-edit" title="{{$contact.edit_hover}}" data-id="{{$contact.id}}">
-				<i class="fa fa-pencil"></i> {{$contact.edit}}
+				<i id="edit-icon-{{$contact.id}}" class="fa fa-fw fa-pencil"></i>
+				<div id="edit-rotator-{{$contact.id}}" class="spinner-wrapper" style="vertical-align: text-bottom; margin-right: 2px"><div class="spinner s"></div></div>
+				{{$contact.edit}}
 			</button>
+
 		</div>
 		<h3>{{if $contact.public_forum}}<i class="fa fa-comments-o" title="{{$group_label}}"></i>&nbsp;{{/if}}<a href="{{$contact.url}}" title="{{$contact.img_hover}}" >{{$contact.name}}</a>{{if $contact.phone}}&nbsp;<a class="btn btn-outline-secondary btn-sm" href="tel:{{$contact.phone}}" title="{{$contact.call}}"><i class="fa fa-phone connphone"></i></a>{{/if}}</h3>
 	</div>
@@ -40,6 +43,9 @@
 			<div class="contact-info-element">
 				<span class="contact-info-label">{{$contact.network_label}}:</span> {{$contact.network}} - <a href="{{$contact.recentlink}}" rel="nofollow noopener">{{$contact.recent_label}}</a>
 			</div>
+			{{/if}}
+			{{if $contact.connect}}
+			<a href="{{$contact.follow}}" class="btn btn-success btn-sm" title="{{$contact.connect_hover}}"><i class="fa fa-plus"></i> {{$contact.connect}}</a>
 			{{/if}}
 		</div>
 

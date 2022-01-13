@@ -104,6 +104,8 @@
 	function init_contact_edit(poi) {
 		if (!poi)
 			return
+		$('#edit-rotator-' + poi).addClass('d-inline-block');
+		$('#edit-icon-' + poi).hide();
 		$.get('contactedit/' + poi, function(data) {
 			if (!data.success) {
 				$.jGrowl(data.message, {sticky: false, theme: 'notice', life: 10000});
@@ -115,10 +117,10 @@
 	}
 
 	function activate(data) {
-		$('#edit-modal-title').css('filter', 'blur(0px)');
-		$('#edit-modal-body').css('filter', 'blur(0px)');
 		$('#contact-save').removeClass('disabled');
 		$('#contact-tools').removeClass('disabled');
+		$('#edit-rotator-' + poi).removeClass('d-inline-block');
+		$('#edit-icon-' + poi).show();
 
 		if (data.title) {
 			$('#edit-modal-title').html(data.title);

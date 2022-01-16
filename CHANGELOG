@@ -1,3 +1,36 @@
+Hubzilla 7.0 (2022-??-??)
+	- Provide theme_color and background_color in App::$theme_info for usage in page meta and manifest
+	- PWA improvements according to lighthouse
+	- Refactor mod profile_photo
+	- Remove core legacy mail code
+	- Set session samesite cookie flag
+	- Improve toc bbcode for more flexible usecases
+	- Deprecate include/group in favor of Lib/AccessList
+	- Deprecate AccessList::widget()
+	- Mark forum channel profile images with a small icon in the timelines
+	- Improve privacy groups UI/UX
+	- Do not show connections widget if there are no connections
+	- Remove suggestions widget from various modules
+	- Provide guest access links for private resources in lockview
+	- Improve pconfig syncing
+	- deprecate include/group in favor of Lib/AccessList
+	- Implement background deleting of items in contact_remove()
+	- Refactor guest access tokens for better usability and provide quick access
+	- Improved workflow for setting permissions (contact roles)
+
+	Bugfixes
+	- Fix plink in post_activity_item()
+	- Fix multiple update_poll() calls dismissed in queueworker
+	- Fix blocked or ignored contacts displayed in connections
+
+	Addons:
+	- Legacy mail: remove
+	- deprecate include/group in favor of Lib/AccessList
+	- Pubcrawl: support pleroma end time for polls
+	- Pubcrawl: slightly adjust the way we check mastodon direct messages
+	- Socialauth: scope support and improvements
+
+
 Hubzilla 6.4.2 (2021-12-14)
 	- Fix issue in mod sse_bs where returning message id's were assumed to be base64 encoded
 	- Fix announce activity type not registered as response activity

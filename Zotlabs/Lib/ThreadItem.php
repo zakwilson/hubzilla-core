@@ -111,6 +111,11 @@ class ThreadItem {
 
 		// 1 = restricted message, 2 = direct message
 		$locktype = intval($item['item_private']);
+
+		if ($locktype === 2) {
+			$lock = t('Direct message');
+		}
+
 		// 0 = limited based on public policy
 		if ($item['uid'] == local_channel() && intval($item['item_private']) && !$acl->is_private() && strlen($item['public_policy'])) {
 			$lock = t('Public Policy');

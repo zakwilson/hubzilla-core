@@ -224,7 +224,7 @@ class Channel extends Controller {
 
 		if (!$update) {
 
-			nav_set_selected('Channel');
+			nav_set_selected(t('Channel'));
 
 			// search terms header
 			if ($search) {

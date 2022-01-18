@@ -437,6 +437,13 @@ class Contactedit extends Controller {
 			'$multiprofs'       => $multiprofs,
 			'$contact_id'       => $contact['abook_id'],
 //			'$name'             => $contact['xchan_name'],
+			'$roles_label'	    => t('Roles'),
+			'$compare_label'    => t('Compare permissions'),
+			'$permission_label' => t('Permission'),
+			'$pgroups_label'    => t('Privacy groups'),
+			'$profiles_label'   => t('Profiles'),
+			'$affinity_label'   => t('Affinity'),
+			'$filter_label'	    => t('Content filter')
 		]);
 
 		$arr = ['contact' => $contact, 'output' => $o];

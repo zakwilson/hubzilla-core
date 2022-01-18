@@ -716,9 +716,9 @@ class Profiles extends \Zotlabs\Web\Controller {
 
 	//logger('extra_fields: ' . print_r($extra_fields,true));
 
-			$vc = $r[0]['profile_vcard'];
-			$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null);
-			$vcard = (($vctmp) ? get_vcard_array($vctmp,$r[0]['id']) : [] );
+			//$vc = $r[0]['profile_vcard'];
+			//$vctmp = (($vc) ? \Sabre\VObject\Reader::read($vc) : null);
+			//$vcard = (($vctmp) ? get_vcard_array($vctmp,$r[0]['id']) : [] );
 
 			$f = get_config('system','birthday_input_format');
 			if(! $f)
@@ -733,7 +733,7 @@ class Profiles extends \Zotlabs\Web\Controller {
 				'$profile_clone_link'  => 'profiles/clone/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_clone"),
 				'$profile_drop_link'   => 'profiles/drop/' . $r[0]['id'] . '?t=' . get_form_security_token("profile_drop"),
 				'$fields'       => $fields,
-				'$vcard'        => $vcard,
+				// '$vcard'     => $vcard,
 				'$guid'         => $r[0]['profile_guid'],
 				'$banner'       => t('Edit Profile Details'),
 				'$submit'       => t('Submit'),

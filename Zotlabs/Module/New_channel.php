@@ -138,7 +138,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 				intval($aid)
 			);
 			if($r && (! intval($r[0]['total']))) {
-				$default_role = get_config('system','default_permissions_role','social');
+				$default_role = get_config('system','default_permissions_role','personal');
 			}
 
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');

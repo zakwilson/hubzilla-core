@@ -1402,7 +1402,7 @@ class Activity {
 			}
 		}
 
-		$x           = PermissionRoles::role_perms('social');
+		$x           = PermissionRoles::role_perms('personal');
 		$their_perms = Permissions::FilledPerms($x['perms_connect']);
 
 		if ($contact && $contact['abook_id']) {

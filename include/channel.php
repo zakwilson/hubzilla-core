@@ -2301,7 +2301,7 @@ function auto_channel_create($account_id) {
 		}
 	}
 	if(! $arr['permissions_role'])
-		$arr['permissions_role'] = 'social';
+		$arr['permissions_role'] = 'personal';
 
 	if(validate_channelname($arr['name']))
 		return false;

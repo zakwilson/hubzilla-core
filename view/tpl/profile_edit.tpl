@@ -104,7 +104,7 @@
 					</div>
 				</div>
 
-				{{if $fields.comms }}
+				{{if $fields.comms && $vcard}}
 
 				<div id="template-form-vcard-tel" class="mb-3 form-vcard-tel">
 					<select name="tel_type[]">

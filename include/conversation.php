@@ -775,6 +775,12 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$conv_link = ((in_array($item['item_type'],[ ITEM_TYPE_CARD, ITEM_TYPE_ARTICLE] )) ? $item['plink'] : z_root() . '/' . $conv_link_module . '/' . gen_link_id($conv_link_mid));
 
+				$contact = [];
+
+				if(App::$contacts && array_key_exists($item['author_xchan'],App::$contacts)) {
+					$contact = App::$contacts[$item['author_xchan']];
+				}
+
 				$tmp_item = array(
 					'template' => $tpl,
 					'toplevel' => 'toplevel_item',
@@ -838,7 +844,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
 					'has_tags' => $has_tags,
-					'is_new' => $is_new
+					'is_new' => $is_new,
+					'contact_id' => (($contact) ? $contact['abook_id'] : '')
 				);
 
 				$arr = array('item' => $item, 'output' => $tmp_item);

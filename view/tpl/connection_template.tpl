@@ -8,8 +8,8 @@
 			{{/if}}
 			<span id="contact-role-{{$contact.id}}" class="badge rounded-pill bg-warning text-dark me-1" title="{{$role_label}}">{{$contact.role}}</span>
 			<button type="button" class="btn btn-outline-secondary btn-sm contact-edit" title="{{$contact.edit_hover}}" data-id="{{$contact.id}}">
-				<i id="contact-edit-icon-{{$contact.id}}" class="fa fa-fw fa-pencil"></i>
-				<div id="contact-edit-rotator-{{$contact.id}}" class="spinner-wrapper" style="vertical-align: text-bottom; margin-right: 2px"><div class="spinner s"></div></div>
+				<i class="fa fa-fw fa-pencil contact-edit-icon-{{$contact.id}}"></i>
+				<div class="spinner-wrapper contact-edit-rotator-{{$contact.id}}" style="vertical-align: text-bottom; margin-right: 2px"><div class="spinner s"></div></div>
 				{{$contact.edit}}
 			</button>
 

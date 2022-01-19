@@ -364,3 +364,10 @@ img.smiley.emoji:hover {
 	left: .65rem;
 	top: .65rem;
 }
+
+.contact-edit-rotator .spinner.s {
+	border-left: .2rem solid rgba(254, 254, 254, .5);
+	border-right: .2rem solid rgba(254, 254, 254, .5);
+	border-bottom: .2rem solid rgba(254, 254, 254, .5);
+	border-top: .2rem solid rgba(254, 254, 254, .9);
+}

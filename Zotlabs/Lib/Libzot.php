@@ -1218,7 +1218,7 @@ class Libzot {
 
 			if (in_array($env['type'], ['activity', 'response'])) {
 
-				if(!isset($AS->actor['id'])) {
+				if(empty($AS->actor['id'])) {
 					logger('No actor id!');
 					return;
 				}

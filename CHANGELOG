@@ -16,12 +16,14 @@ Hubzilla 7.0 (2022-??-??)
 	- deprecate include/group in favor of Lib/AccessList
 	- Implement background deleting of items in contact_remove()
 	- Refactor guest access tokens for better usability and provide quick access
-	- Improved workflow for setting permissions (contact roles)
+	- Refactor permissions handling
+	- Improved poll rendering
 
 	Bugfixes
 	- Fix plink in post_activity_item()
 	- Fix multiple update_poll() calls dismissed in queueworker
 	- Fix blocked or ignored contacts displayed in connections
+	- Fix polls for forum channels
 
 	Addons:
 	- Legacy mail: remove

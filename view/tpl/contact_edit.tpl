@@ -4,7 +4,7 @@
 			<div class="section-subtitle-wrapper" role="tab" id="roles-tool">
 				<h3>
 					<a class="section" data-bs-toggle="collapse" data-bs-target="#roles-tool-collapse" href="#" aria-expanded="true" aria-controls="roles-tool-collapse" data-section="roles">
-						Roles
+						{{$roles_label}}
 					</a>
 				</h3>
 			</div>
@@ -12,7 +12,7 @@
 				<div class="section-content-tools-wrapper">
 					{{include file="field_select.tpl" field=$permcat}}
 					<button class="btn btn-outline-secondary btn-sm float-end sub_section{{if $sub_section == 'perms'}} sub_section_active{{/if}}" type="button" onclick="openClose('perms-table', 'table')" data-section="perms">
-						Compare permissions
+						{{$compare_label}}
 					</button>
 					<a href="permcats/{{$permcat_value}}" class="btn btn-sm btn-outline-primary">
 						<i class="fa fa-external-link"></i>&nbsp;{{$permcat_new}}
@@ -20,7 +20,7 @@
 					<table id="perms-table" class="table table-hover table-sm mt-3" style="display: {{if $sub_section == 'perms'}}table{{else}}none{{/if}};">
 						<thead>
 							<tr class="w-100">
-								<th scope="col">Permission</th>
+								<th scope="col">{{$permission_label}}</th>
 								<th scope="col">{{$them}}</th>
 								<th scope="col">{{$me}}</th>
 							</tr>
@@ -56,7 +56,7 @@
 			<div class="section-subtitle-wrapper" role="tab" id="group-tool">
 				<h3>
 					<a class="section" data-bs-toggle="collapse" data-bs-target="#group-tool-collapse" href="#" aria-expanded="true" aria-controls="group-tool-collapse" data-section="group">
-						Privacy groups
+						{{$pgroups_label}}
 					</a>
 				</h3>
 			</div>
@@ -66,7 +66,7 @@
 					{{include file="field_checkbox.tpl" field=$group}}
 					{{/foreach}}
 					<a href="group/new" class="btn btn-sm btn-outline-primary">
-						<i class="fa fa-external-link"></i>&nbsp;Privacy groups
+						<i class="fa fa-external-link"></i>&nbsp;{{$pgroups_label}}
 					</a>
 				</div>
 			</div>
@@ -77,7 +77,7 @@
 			<div class="section-subtitle-wrapper" role="tab" id="profile-tool">
 				<h3>
 					<a class="section" data-bs-toggle="collapse" data-bs-target="#profile-tool-collapse" href="#" aria-expanded="true" aria-controls="profile-tool-collapse" data-section="profile">
-						Profiles
+						{{$profiles_label}}
 					</a>
 				</h3>
 			</div>
@@ -85,7 +85,7 @@
 				<div class="section-content-tools-wrapper">
 					{{$profile_select}}
 					<a href="profiles" class="btn btn-sm btn-outline-primary">
-						<i class="fa fa-external-link"></i>&nbsp;Profiles
+						<i class="fa fa-external-link"></i>&nbsp;{{$profiles_label}}
 					</a>
 				</div>
 			</div>
@@ -96,7 +96,7 @@
 			<div class="section-subtitle-wrapper" role="tab" id="affinity-tool">
 				<h3>
 					<a class="section" data-bs-toggle="collapse" data-bs-target="#affinity-tool-collapse" href="#" aria-expanded="true" aria-controls="affinity-tool-collapse" data-section="affinity">
-						Affinity
+						{{$affinity_label}}
 					</a>
 				</h3>
 			</div>
@@ -114,7 +114,7 @@
 			<div class="section-subtitle-wrapper" role="tab" id="filter-tool">
 				<h3>
 					<a class="section"  data-bs-toggle="collapse" data-bs-target="#filter-tool-collapse" href="#" aria-expanded="true" aria-controls="filter-tool-collapse" data-section="filter">
-						Content filter
+						{{$filter_label}}
 					</a>
 				</h3>
 			</div>

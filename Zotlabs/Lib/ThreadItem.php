@@ -2,6 +2,7 @@
 
 namespace Zotlabs\Lib;
 
+use App;
 use Zotlabs\Lib\Apps;
 use Zotlabs\Access\AccessList;
 
@@ -412,6 +413,12 @@ class ThreadItem {
 		$pinned_items = ($allowed_type ? get_pconfig($item['uid'], 'pinned', $item['item_type'], []) : []);
 		$pinned = ((!empty($pinned_items) && in_array($midb64, $pinned_items)) ? true : false);
 
+		$contact = [];
+
+		if(App::$contacts && array_key_exists($item['author_xchan'], App::$contacts)) {
+			$contact = App::$contacts[$item['author_xchan']];
+		}
+
 		$tmp_item = array(
 			'template' => $this->get_template(),
 			'mode' => $mode,
@@ -532,7 +539,9 @@ class ThreadItem {
 			'wait' => t('Please wait'),
 			'thread_level' => $thread_level,
 			'settings' => $settings,
-			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : '')
+			'thr_parent' => (($item['parent_mid'] != $item['thr_parent']) ? gen_link_id($item['thr_parent']) : ''),
+			'contact_id' => (($contact) ? $contact['abook_id'] : '')
+
 		);
 
 		$arr = array('item' => $item, 'output' => $tmp_item);

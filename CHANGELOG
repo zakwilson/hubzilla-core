@@ -20,6 +20,7 @@ Hubzilla 7.0 (2022-??-??)
 	- Improved poll rendering
 
 	Bugfixes
+	- Fix items not deleted on remote channel purge
 	- Fix plink in post_activity_item()
 	- Fix multiple update_poll() calls dismissed in queueworker
 	- Fix blocked or ignored contacts displayed in connections

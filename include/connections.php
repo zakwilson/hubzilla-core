@@ -286,17 +286,18 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 
 		$dirmode = intval(get_config('system','directory_mode'));
 
-
 		$r = q("delete from photo where xchan = '%s'",
 			dbesc($xchan)
 		);
+
 		$r = q("select resource_id, resource_type, uid, id from item where ( author_xchan = '%s' or owner_xchan = '%s' ) ",
 			dbesc($xchan),
 			dbesc($xchan)
 		);
+
 		if($r) {
 			foreach($r as $rr) {
-				drop_item($rr,false);
+				drop_item($rr['id'],false);
 			}
 		}
 

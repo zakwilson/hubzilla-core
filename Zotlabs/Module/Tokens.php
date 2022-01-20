@@ -258,7 +258,7 @@ class Tokens extends Controller {
 			}
 		}
 
-		$desc = t('Use this form to create temporary access identifiers to share things with non-members. These identities may be used in Access Control Lists and visitors may login using these credentials to access private content.');
+		$desc = t('Use this form to create temporary access identifiers to share things with non-members. These identities may be used in privacy groups and visitors may login using these credentials to access private content.');
 
 		$pcat            = new Permcat(local_channel());
 		$pcatlist        = $pcat->listing();

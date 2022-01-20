@@ -42,6 +42,9 @@ class Hq extends \Zotlabs\Web\Controller {
 
 		$item_normal = item_normal();
 		$item_normal_update = item_normal_update();
+		$sys = get_sys_channel();
+		$sys_item = false;
+		$sql_extra = '';
 
 		if(! $item_hash) {
 			$r = q("SELECT mid FROM item
@@ -76,11 +79,6 @@ class Hq extends \Zotlabs\Web\Controller {
 			$simple_update = '';
 			if($update && $_SESSION['loadtime'])
 				$simple_update = " AND (( item_unseen = 1 AND item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' )  OR item.changed > '" . datetime_convert('UTC','UTC',$_SESSION['loadtime']) . "' ) ";
-
-			$sys = get_sys_channel();
-			$sql_extra = item_permissions_sql($sys['channel_id']);
-
-			$sys_item = false;
 
 		}
 
@@ -183,6 +181,7 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			if(!$r) {
 				$sys_item = true;
+				$sql_extra = item_permissions_sql($sys['channel_id']);
 
 				$r = q("SELECT item.id AS item_id FROM item
 					LEFT JOIN abook ON item.author_xchan = abook.abook_xchan
@@ -209,6 +208,7 @@ class Hq extends \Zotlabs\Web\Controller {
 
 			if(!$r) {
 				$sys_item = true;
+				$sql_extra = item_permissions_sql($sys['channel_id']);
 
 				$r = q("SELECT item.parent AS item_id FROM item
 					LEFT JOIN abook ON item.author_xchan = abook.abook_xchan
@@ -227,7 +227,7 @@ class Hq extends \Zotlabs\Web\Controller {
 		if($r) {
 			$items = q("SELECT item.*, item.id AS item_id
 				FROM item
-				WHERE parent = '%s' $item_normal ",
+				WHERE parent = '%s' $item_normal $sql_extra",
 				dbesc($r[0]['item_id'])
 			);
 

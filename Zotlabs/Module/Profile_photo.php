@@ -495,7 +495,7 @@ class Profile_photo extends Controller {
 			}
 
 			if (intval($r[0]['os_storage'])) {
-				$data = @file_get_contents($r[0]['content']);
+				$data = @file_get_contents(dbunescbin($r[0]['content']));
 			}
 			else {
 				$data = dbunescbin($r[0]['content']);

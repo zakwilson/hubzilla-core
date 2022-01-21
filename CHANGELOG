@@ -1,4 +1,4 @@
-Hubzilla 7.0 (2022-??-??)
+Hubzilla 7.0 (2022-01-21)
 	- Provide theme_color and background_color in App::$theme_info for usage in page meta and manifest
 	- PWA improvements according to lighthouse
 	- Refactor mod profile_photo
@@ -28,7 +28,7 @@ Hubzilla 7.0 (2022-??-??)
 
 	Addons:
 	- Legacy mail: remove
-	- deprecate include/group in favor of Lib/AccessList
+	- Deprecate include/group in favor of Lib/AccessList
 	- Pubcrawl: support pleroma end time for polls
 	- Pubcrawl: slightly adjust the way we check mastodon direct messages
 	- Socialauth: scope support and improvements

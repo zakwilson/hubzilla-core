@@ -5,7 +5,7 @@
 				<i class="fa fa-cog"></i>&nbsp;{{$tools_label}}
 			</button>
 			<div class="dropdown-menu dropdown-menu-end">
-				<a class="dropdown-item" href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-fw fa-user"></i>&nbsp;{{$profpic}}</a>
+				<a class="dropdown-item" href="profile_photo/{{$profile_id}}" id="profile-photo_upload-link" title="{{$profpic}}"><i class="fa fa-fw fa-user"></i>&nbsp;{{$profpic}}</a>
 				{{if $is_default}}
 				<a class="dropdown-item" href="cover_photo" id="cover-photo_upload-link" title="{{$coverpic}}"><i class="fa fa-fw fa-picture-o"></i>&nbsp;{{$coverpic}}</a>
 				{{/if}}
@@ -30,7 +30,7 @@
 				{{/if}}
 			</div>
 		</div>
-		<h2>{{$banner}}</h2>
+		<h2>{{$banner}}{{if $multi_profiles}}: {{$profile_name.2}}{{/if}}</h2>
 		<div class="clear"></div>
 	</div>
 	<div class="section-content-tools-wrapper" id="profile-upload-form">
@@ -50,7 +50,7 @@
 					<div class="section-subtitle-wrapper" role="tab" id="personal">
 						<h3>
 							<a data-bs-toggle="collapse" data-bs-target="#personal-collapse" href="#" aria-expanded="true" aria-controls="personal-collapse">
-								{{$personal}}
+								{{$basic}}
 							</a>
 						</h3>
 					</div>
@@ -84,7 +84,17 @@
 							{{$dob}}
 							{{/if}}
 
+							{{$profile_in_dir}}
+
+							{{$suggestme}}
+
+							{{if $show_presence}}
+							{{include file="field_checkbox.tpl" field=$show_presence}}
+							{{/if}}
+
+							{{if $hide_friends}}
 							{{include file="field_checkbox.tpl" field=$hide_friends}}
+							{{/if}}
 
 							<div class="mb-3" >
 							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
@@ -94,7 +104,7 @@
 					</div>
 				</div>
 
-				{{if $fields.comms }}
+				{{if $fields.comms && $vcard}}
 
 				<div id="template-form-vcard-tel" class="mb-3 form-vcard-tel">
 					<select name="tel_type[]">

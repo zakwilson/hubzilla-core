@@ -15,10 +15,10 @@ use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Access\PermissionLimits;
 use Zotlabs\Daemon\Master;
+use Zotlabs\Lib\AccessList;
 
 require_once('include/permissions.php');
 require_once('include/security.php');
-require_once('include/group.php');
 
 /**
  * @brief Guess the mimetype from file ending.
@@ -2208,7 +2208,7 @@ function attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $
 
 	//lookup all channels in sharee group and add them to sharee $arr_allow_cid
 	if($arr_allow_gid) {
-		$in_group = expand_groups($arr_allow_gid);
+		$in_group = AccessList::expand($arr_allow_gid);
 		$arr_allow_cid = array_unique(array_merge($arr_allow_cid, $in_group));
 	}
 
@@ -2280,7 +2280,7 @@ function attach_recursive_perms($arr_allow_cid, $arr_allow_gid, $arr_deny_cid, $
 		//check sharee arr_allow_cid against members of allow_gid of all parent folders
 		foreach($parent_arr['allow_gid'] as $folder_arr_allow_gid) {
 			//get the group members
-			$folder_arr_allow_cid = expand_groups($folder_arr_allow_gid);
+			$folder_arr_allow_cid = AccessList::expand($folder_arr_allow_gid);
 			foreach($folder_arr_allow_cid as $ac_hash) {
 				$count_values[$ac_hash]++;
 			}

@@ -2,7 +2,6 @@
 [widget=findpeople][/widget]
 [widget=dirsort][/widget]
 [widget=dirtags][/widget]
-[widget=suggestions][/widget]
 [/region]
 [region=right_aside]
 [widget=notifications][/widget]

@@ -1,5 +1,6 @@
 <?php /** @file */
 
+use Zotlabs\Daemon\Master;
 
 function abook_store_lowlevel($arr) {
 
@@ -27,7 +28,8 @@ function abook_store_lowlevel($arr) {
 		'abook_profile'     => ((array_key_exists('abook_profile',$arr))     ? $arr['abook_profile']     : ''),
 		'abook_incl'        => ((array_key_exists('abook_incl',$arr))        ? $arr['abook_incl']        : ''),
 		'abook_excl'        => ((array_key_exists('abook_excl',$arr))        ? $arr['abook_excl']        : ''),
-		'abook_instance'    => ((array_key_exists('abook_instance',$arr))    ? $arr['abook_instance']    : '')
+		'abook_instance'    => ((array_key_exists('abook_instance',$arr))    ? $arr['abook_instance']    : ''),
+		'abook_role'        => ((array_key_exists('abook_role',$arr))        ? $arr['abook_role']        : '')
 	];
 
 	return create_table_from_array('abook',$store);
@@ -112,7 +114,7 @@ function vcard_from_xchan($xchan, $observer = null, $mode = '') {
 
 	// don't provide a connect button for transient or one-way identities
 
-	if(in_array($xchan['xchan_network'],['rss','anon','unknown']) || strpos($xchan['xchan_addr'],'guest:') === 0) {
+	if(in_array($xchan['xchan_network'],['rss', 'anon', 'unknown', 'token'])) {
 		$connect = false;
 	}
 
@@ -284,17 +286,18 @@ function remove_all_xchan_resources($xchan, $channel_id = 0) {
 
 		$dirmode = intval(get_config('system','directory_mode'));
 
-
 		$r = q("delete from photo where xchan = '%s'",
 			dbesc($xchan)
 		);
+
 		$r = q("select resource_id, resource_type, uid, id from item where ( author_xchan = '%s' or owner_xchan = '%s' ) ",
 			dbesc($xchan),
 			dbesc($xchan)
 		);
+
 		if($r) {
 			foreach($r as $rr) {
-				drop_item($rr,false);
+				drop_item($rr['id'],false);
 			}
 		}
 
@@ -375,51 +378,21 @@ function contact_remove($channel_id, $abook_id) {
 	if(intval($abook['abook_self']))
 		return false;
 
-	$r = q("select id, parent from item where (owner_xchan = '%s' or author_xchan = '%s') and uid = %d and item_retained = 0 and item_starred = 0",
-		dbesc($abook['abook_xchan']),
-		dbesc($abook['abook_xchan']),
-		intval($channel_id)
-	);
-	if($r) {
-		$already_saved = [];
-		foreach($r as $rr) {
-			$w = $x = $y = null;
+	// if this is an atoken, delete the atoken record
 
-			// optimise so we only process newly seen parent items
-			if (in_array($rr['parent'],$already_saved)) {
-				continue;
-			}
-			// if this isn't the parent, fetch the parent's item_retained  and item_starred to see if the conversation
-			// should be retained
-			if($rr['id'] != $rr['parent']) {
-				$w = q("select id, item_retained, item_starred from item where id = %d",
-					intval($rr['parent'])
-				);
-				if($w) {
-					// see if the conversation was filed
-					$x = q("select uid from term where otype = %d and oid = %d and ttype = %d limit 1",
-						intval(TERM_OBJ_POST),
-						intval($w[0]['id']),
-						intval(TERM_FILE)
-					);
-					if (intval($w[0]['item_retained']) || intval($w[0]['item_starred']) || $x) {
-						$already_saved[] = $rr['parent'];
-						continue;
-					}
-				}
-			}
-			// see if this item was filed
-			$y = q("select uid from term where otype = %d and oid = %d and ttype = %d limit 1",
-				intval(TERM_OBJ_POST),
-				intval($rr['id']),
-				intval(TERM_FILE)
-			);
-			if ($y) {
-				continue;
-			}
-			drop_item($rr['id'],false);
+	$xchan = q("select * from xchan where xchan_hash = '%s'",
+		dbesc($abook['abook_xchan'])
+	);
+
+	if (strpos($xchan['xchan_addr'],'guest:') === 0 && strpos($abook['abook_xchan'],'.')){
+		$atoken_guid = substr($abook['abook_xchan'],strrpos($abook['abook_xchan'],'.') + 1);
+		if ($atoken_guid) {
+			atoken_delete_and_sync($channel_id,$atoken_guid);
 		}
 	}
+
+	// remove items in the background as this can take some time
+	Master::Summon(['Delxitems', $channel_id, $abook['abook_xchan']]);
 
 	q("delete from abook where abook_id = %d and abook_channel = %d",
 		intval($abook['abook_id']),
@@ -449,7 +422,62 @@ function contact_remove($channel_id, $abook_id) {
 	return true;
 }
 
+function remove_abook_items($channel_id, $xchan_hash) {
 
+	$r = q("select id from item where (owner_xchan = '%s' or author_xchan = '%s') and uid = %d and item_retained = 0 and item_starred = 0",
+		dbesc($xchan_hash),
+		dbesc($xchan_hash),
+		intval($channel_id)
+	);
+	if (! $r) {
+		return;
+	}
+
+	$already_saved = [];
+	foreach ($r as $rr) {
+		$w = $x = $y = null;
+
+		// optimise so we only process newly seen parent items
+		if (in_array($rr['parent'], $already_saved)) {
+			continue;
+		}
+
+		// if this isn't the parent, fetch the parent's item_retained  and item_starred to see if the conversation
+		// should be retained
+		if ($rr['id'] != $rr['parent']) {
+			$w = q("select id, item_retained, item_starred from item where id = %d",
+				intval($rr['parent'])
+			);
+
+			if ($w) {
+				// see if the conversation was filed
+				$x = q("select uid from term where otype = %d and oid = %d and ttype = %d limit 1",
+					intval(TERM_OBJ_POST),
+					intval($w[0]['id']),
+					intval(TERM_FILE)
+				);
+
+				if (intval($w[0]['item_retained']) || intval($w[0]['item_starred']) || $x) {
+					$already_saved[] = $rr['parent'];
+					continue;
+				}
+			}
+		}
+
+		// see if this item was filed
+		$y = q("select uid from term where otype = %d and oid = %d and ttype = %d limit 1",
+			intval(TERM_OBJ_POST),
+			intval($rr['id']),
+			intval(TERM_FILE)
+		);
+
+		if ($y) {
+			continue;
+		}
+
+		drop_item($rr['id'],false);
+	}
+}
 
 function random_profile() {
 	$randfunc = db_getfunc('rand');

@@ -219,7 +219,7 @@ class Messages {
 			$entries[$i]['info'] = '';
 			$entries[$i]['created'] = datetime_convert('UTC', date_default_timezone_get(), $notice['created']);
 			$entries[$i]['summary'] = $summary;
-			$entries[$i]['b64mid'] = basename($notice['link']);
+			$entries[$i]['b64mid'] = (($notice['ntype'] & NOTIFY_INTRO) ? '' : basename($notice['link']));
 			$entries[$i]['href'] = (($notice['ntype'] & NOTIFY_INTRO) ? $notice['link'] : z_root() . '/hq/' . basename($notice['link']));
 			$entries[$i]['icon'] = (($notice['ntype'] & NOTIFY_INTRO) ? '<i class="fa fa-user-plus"></i>' : '');
 

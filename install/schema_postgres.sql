@@ -37,6 +37,7 @@ CREATE TABLE "abook" (
   "abook_incl" TEXT NOT NULL DEFAULT '',
   "abook_excl" TEXT NOT NULL DEFAULT '',
   "abook_instance" TEXT NOT NULL DEFAULT '',
+  "abook_role" varchar(64) NOT NULL DEFAULT '',
   PRIMARY KEY ("abook_id")
 );
   create index  "abook_account" on abook ("abook_account");
@@ -61,6 +62,7 @@ CREATE TABLE "abook" (
   create index  "abook_dob" on abook  ("abook_dob");
   create index  "abook_connected" on abook  ("abook_connected");
   create index  "abook_channel_closeness" on abook ("abook_channel", "abook_closeness");
+  create index  "abook_role" on abook ("abook_role");
 
 CREATE TABLE "account" (
   "account_id" serial  NOT NULL,
@@ -145,12 +147,14 @@ create index "app_system" on app ("app_system");
 
 CREATE TABLE "atoken" (
   "atoken_id" serial NOT NULL,
+  "atoken_guid" varchar(255) NOT NULL DEFAULT '',
   "atoken_aid" bigint NOT NULL DEFAULT 0,
   "atoken_uid" bigint NOT NULL DEFAULT 0,
   "atoken_name" varchar(255) NOT NULL DEFAULT '',
   "atoken_token" varchar(255) NOT NULL DEFAULT '',
   "atoken_expires" timestamp NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY ("atoken_id"));
+create index atoken_guid on atoken (atoken_guid);
 create index atoken_aid on atoken (atoken_aid);
 create index atoken_uid on atoken (atoken_uid);
 create index atoken_name on atoken (atoken_name);

@@ -244,9 +244,8 @@ a.wikilist {
 /* contact block */
 .contact-block-div .oneway-overlay {
 	font-size: .9rem;
-	margin-left: -1.2rem;
-	margin-top: 2rem;
-	opacity: 0.8;
+	margin-left: -1rem;
+	margin-top: 1.9rem;
 }
 
 #cid-filter-wrapper {

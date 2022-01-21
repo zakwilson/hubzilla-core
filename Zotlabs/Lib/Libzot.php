@@ -386,9 +386,10 @@ class Libzot {
 			else {
 
 				$p = Permissions::connect_perms($channel['channel_id']);
-				$my_perms = $p['perms'];
 
+				$my_perms = $p['perms'];
 				$automatic = $p['automatic'];
+				$role = (($automatic) ? $p['role'] : '');
 
 				// new connection
 
@@ -410,7 +411,8 @@ class Libzot {
 						'abook_created'   => datetime_convert(),
 						'abook_updated'   => datetime_convert(),
 						'abook_dob'       => $next_birthday,
-						'abook_pending'   => intval(($automatic) ? 0 : 1)
+						'abook_pending'   => intval(($automatic) ? 0 : 1),
+						'abook_role'      => $role
 					]
 				);
 
@@ -435,7 +437,7 @@ class Libzot {
 								'type'       => NOTIFY_INTRO,
 								'from_xchan' => $x['hash'],
 								'to_xchan'   => $channel['channel_hash'],
-								'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id']
+								'link'       => z_root() . '/connections#' . $new_connection[0]['abook_id']
 							]
 						);
 
@@ -453,10 +455,10 @@ class Libzot {
 							$default_group = $channel['channel_default_group'];
 
 							if ($default_group) {
-								$g = Group::rec_byhash($channel['channel_id'], $default_group);
+								$g = AccessList::by_hash($channel['channel_id'], $default_group);
 
 								if ($g) {
-									Group::member_add($channel['channel_id'], '', $x['hash'], $g['id']);
+									AccessList::member_add($channel['channel_id'], '', $x['hash'], $g['id']);
 								}
 							}
 						}
@@ -1143,6 +1145,7 @@ class Libzot {
 		if ($env['encoding'] === 'activitystreams') {
 
 			$AS = new ActivityStreams($data);
+
 			if (!$AS->is_valid()) {
 				logger('Activity rejected: ' . print_r($data, true));
 				return;
@@ -1157,8 +1160,6 @@ class Libzot {
 			logger($AS->debug(), LOGGER_DATA);
 
 		}
-
-
 
 		$deliveries = null;
 
@@ -1217,7 +1218,7 @@ class Libzot {
 
 			if (in_array($env['type'], ['activity', 'response'])) {
 
-				if(!isset($AS->actor['id'])) {
+				if(empty($AS->actor['id'])) {
 					logger('No actor id!');
 					return;
 				}
@@ -1592,6 +1593,7 @@ class Libzot {
 
 			if ((!$tag_delivery) && (!$local_public)) {
 				$allowed = (perm_is_allowed($channel['channel_id'], $sender, $perm));
+
 				if ((!$allowed) && $perm === 'post_comments') {
 					$parent = q("select * from item where mid = '%s' and uid = %d limit 1",
 						dbesc($arr['parent_mid']),
@@ -2785,28 +2787,6 @@ class Libzot {
 		if ($deleted || $censored || $sys_channel)
 			$searchable = false;
 
-		$public_forum = false;
-
-		$role = get_pconfig($e['channel_id'], 'system', 'permissions_role');
-		if ($role === 'forum' || $role === 'repository') {
-			$public_forum = true;
-		}
-		else {
-			// check if it has characteristics of a public forum based on custom permissions.
-			$m = Permissions::FilledAutoperms($e['channel_id']);
-			if ($m) {
-				foreach ($m as $k => $v) {
-					if ($k == 'tag_deliver' && intval($v) == 1)
-						$ch++;
-					if ($k == 'send_stream' && intval($v) == 0)
-						$ch++;
-				}
-				if ($ch == 2)
-					$public_forum = true;
-			}
-		}
-
-
 		//  This is for birthdays and keywords, but must check access permissions
 		$p = q("select * from profile where uid = %d and is_default = 1",
 			intval($e['channel_id'])
@@ -2875,6 +2855,7 @@ class Libzot {
 		];
 
 		$ret['channel_role']  = get_pconfig($e['channel_id'], 'system', 'permissions_role', 'custom');
+		$ret['channel_type']  = ((get_pconfig($e['channel_id'], 'system', 'group_actor')) ? 'group' : 'normal');
 
 		$hookinfo = [
 			'channel_id' => $id,
@@ -2890,8 +2871,10 @@ class Libzot {
 		$ret['protocols']     = $hookinfo['protocols'];
 		$ret['searchable']    = $searchable;
 		$ret['adult_content'] = $adult_channel;
-		$ret['public_forum']  = $public_forum;
 
+		// now all forums (public, restricted, and private) set the public_forum flag. So it really means "is a group"
+		// and has nothing to do with accessibility.
+		$ret['public_forum'] = get_pconfig($e['channel_id'], 'system', 'group_actor');
 		$ret['comments'] = map_scope(PermissionLimits::Get($e['channel_id'], 'post_comments'));
 		$ret['mail']     = map_scope(PermissionLimits::Get($e['channel_id'], 'post_mail'));
 

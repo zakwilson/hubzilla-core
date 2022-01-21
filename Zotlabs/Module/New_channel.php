@@ -138,7 +138,7 @@ class New_channel extends \Zotlabs\Web\Controller {
 				intval($aid)
 			);
 			if($r && (! intval($r[0]['total']))) {
-				$default_role = get_config('system','default_permissions_role','social');
+				$default_role = get_config('system','default_permissions_role','personal');
 			}
 
 			$limit = account_service_class_fetch(get_account_id(),'total_identities');
@@ -170,12 +170,12 @@ class New_channel extends \Zotlabs\Web\Controller {
 
 		$privacy_role = ((x($_REQUEST,'permissions_role')) ? $_REQUEST['permissions_role'] :  "" );
 
-		$perm_roles = \Zotlabs\Access\PermissionRoles::roles();
+		$perm_roles = \Zotlabs\Access\PermissionRoles::channel_roles();
 
 		$name = array('name', t('Channel name'), ((x($_REQUEST,'name')) ? $_REQUEST['name'] : ''), $name_help, "*");
 		$nickhub = '@' . \App::get_hostname();
 		$nickname = array('nickname', t('Choose a short nickname'), ((x($_REQUEST,'nickname')) ? $_REQUEST['nickname'] : ''), $nick_help, "*");
-		$role = array('permissions_role' , t('Channel role and privacy'), ($privacy_role) ? $privacy_role : 'social', t('Select a channel permission role compatible with your usage needs and privacy requirements.') . '<br>' . '<a href="help/member/member_guide#Channel_Permission_Roles" target="_blank">' . t('Read more about channel permission roles') . '</a>',$perm_roles);
+		$role = array('permissions_role' , t('Channel role'), ($privacy_role) ? $privacy_role : 'personal', '', $perm_roles);
 
 		$o = replace_macros(get_markup_template('new_channel.tpl'), array(
 			'$title'        => t('Create a Channel'),

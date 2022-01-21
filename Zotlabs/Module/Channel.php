@@ -95,6 +95,10 @@ class Channel extends Controller {
 			http_status_exit(410, 'Gone');
 		}
 
+		if (get_pconfig($channel['channel_id'], 'system', 'index_opt_out')) {
+			App::$meta->set('robots', 'noindex, noarchive');
+		}
+
 		if (ActivityStreams::is_as_request($channel)) {
 
 			// Somebody may attempt an ActivityStreams fetch on one of our message permalinks

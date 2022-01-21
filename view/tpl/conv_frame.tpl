@@ -18,3 +18,4 @@
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+{{include file="contact_edit_modal.tpl"}}

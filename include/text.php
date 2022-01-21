@@ -12,6 +12,7 @@ use Ramsey\Uuid\Exception\UnableToBuildUuidException;
 use Zotlabs\Lib\Crypto;
 use Zotlabs\Lib\SvgSanitizer;
 use Zotlabs\Lib\Libzot;
+use Zotlabs\Lib\AccessList;
 
 require_once("include/bbcode.php");
 
@@ -864,6 +865,7 @@ function get_tags($s) {
 	// ignore anything in a code or svg block
 	$s = preg_replace('/\[code(.*?)\](.*?)\[\/code\]/sm','',$s);
 	$s = preg_replace('/\[svg(.*?)\](.*?)\[\/svg\]/sm','',$s);
+	$s = preg_replace('/\[toc(.*?)\]/sm','',$s);
 
 	// ignore anything in [style= ]
 	$s = preg_replace('/\[style=(.*?)\]/sm','',$s);
@@ -994,7 +996,7 @@ function contact_block() {
 	$is_owner = ((local_channel() && local_channel() == App::$profile['uid']) ? true : false);
 	$sql_extra = '';
 
-	$abook_flags = " and abook_pending = 0 and abook_self = 0 ";
+	$abook_flags = " and abook_pending = 0 and abook_self = 0 and abook_blocked = 0 and abook_ignored = 0 ";
 
 	if(! $is_owner) {
 		$abook_flags .= " and abook_hidden = 0 ";
@@ -1008,56 +1010,58 @@ function contact_block() {
 		$abook_flags and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra",
 		intval(App::$profile['uid'])
 	);
+
 	if(count($r)) {
 		$total = intval($r[0]['total']);
 	}
+
 	if(! $total) {
-		$contacts = t('No connections');
-		$micropro = null;
-	} else {
+		return $o;
+	}
 
-		$randfunc = db_getfunc('RAND');
+	$randfunc = db_getfunc('RAND');
 
-		$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash WHERE abook_channel = %d $abook_flags and abook_archived = 0 and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ORDER BY $randfunc LIMIT %d",
-			intval(App::$profile['uid']),
-			intval($shown)
-		);
+	$r = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook.abook_xchan = xchan.xchan_hash WHERE abook_channel = %d $abook_flags and abook_archived = 0 and xchan_orphan = 0 and xchan_deleted = 0 $sql_extra ORDER BY $randfunc LIMIT %d",
+		intval(App::$profile['uid']),
+		intval($shown)
+	);
 
-		if(count($r)) {
-			$contacts = t('Connections');
-			$micropro = [];
-			foreach($r as $rr) {
+	if(! $r) {
+		return $o;
+	}
 
-				// There is no setting to discover if you are bi-directionally connected
-				// Use the ability to post comments as an indication that this relationship is more
-				// than wishful thinking; even though soapbox channels and feeds will disable it.
-				$rr['perminfo']['connpermcount']=0;
-				$rr['perminfo']['connperms']=t('Accepts').': ';
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] .= t('Comments');
-				}
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
-					$rr['perminfo']['connperms'] .= t('Stream items');
-				}
-				if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
-					$rr['perminfo']['connpermcount']++;
-					$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
-					$rr['perminfo']['connperms'] .= t('Wall posts');
-				}
+	$contacts = t('Connections');
+	$micropro = [];
+	foreach($r as $rr) {
 
-				if ($rr['perminfo']['connpermcount'] == 0) {
-					$rr['perminfo']['connperms'] .= t('Nothing');
-				}
-
-				if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
-					unset($rr['perminfo']);
-
-				$micropro[] = micropro($rr,true,'mpfriend');
-			}
+		// There is no setting to discover if you are bi-directionally connected
+		// Use the ability to post comments as an indication that this relationship is more
+		// than wishful thinking; even though soapbox channels and feeds will disable it.
+		$rr['perminfo']['connpermcount']=0;
+		$rr['perminfo']['connperms']=t('Accepts').': ';
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_comments'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] .= t('Comments');
 		}
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','send_stream'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+			$rr['perminfo']['connperms'] .= t('Stream items');
+		}
+		if(intval(get_abconfig(App::$profile['uid'],$rr['xchan_hash'],'their_perms','post_wall'))) {
+			$rr['perminfo']['connpermcount']++;
+			$rr['perminfo']['connperms'] = ($rr['perminfo']['connperms']) ? $rr['perminfo']['connperms'] . ', ' : $rr['perminfo']['connperms'] ;
+			$rr['perminfo']['connperms'] .= t('Wall posts');
+		}
+
+		if ($rr['perminfo']['connpermcount'] == 0) {
+			$rr['perminfo']['connperms'] .= t('Nothing');
+		}
+
+		if(!$is_owner && $rr['perminfo']['connpermcount'] !== 0)
+			unset($rr['perminfo']);
+
+		$micropro[] = micropro($rr,true,'mpfriend');
 	}
 
 	$tpl = get_markup_template('contact_block.tpl');
@@ -1714,7 +1718,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 	if ($is_photo) {
 		$object = json_decode($item['obj'],true);
 		$ptr = null;
-		if (array_key_exists('url',$object) && is_array($object['url'])) {
+		if (is_array($object) && array_key_exists('url',$object) && is_array($object['url'])) {
 			if (array_key_exists(0,$object['url'])) {
 				foreach ($object['url'] as $link) {
 					if(array_key_exists('width',$link) && $link['width'] >= 640 && $link['width'] <= 1024) {
@@ -1752,6 +1756,7 @@ function prepare_body(&$item,$attach = false,$opts = false) {
 			$s .= prepare_text($item['body'],$item['mimetype'], $opts);
 		}
 	}
+
 
 	$poll = (($item['obj_type'] === 'Question' && in_array($item['verb'],[ ACTIVITY_POST, ACTIVITY_UPDATE, ACTIVITY_SHARE ])) ? format_poll($item, $s, $opts) : false);
 	if ($poll) {
@@ -1854,17 +1859,29 @@ function format_poll($item,$s,$opts) {
 		return EMPTY_STR;
 	}
 
-	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR),$item);
+	$commentable = can_comment_on_post(((local_channel()) ? get_observer_hash() : EMPTY_STR), $item);
 
-	//logger('format_poll: ' . print_r($item,true));
-	$activated = ((local_channel() && local_channel() == $item['uid']) ? true : false);
-	$output = $s . EOL. EOL;
+	$activated = ((local_channel() && local_channel() == $item['uid'] && get_observer_hash() !== $item['owner_xchan']) ? true : false);
+	$output = $s;
+
+	if (strpos($item['body'], '[/share]') !== false) {
+		$output = substr($output, 0, -12);
+	}
+
+	$output .= EOL . EOL;
 
 	if ($act['type'] === 'Question') {
 		if ($activated and $commentable) {
 			$output .= '<form id="question-form-' . $item['id'] . '" >';
 		}
 		if (array_key_exists('anyOf',$act) && is_array($act['anyOf'])) {
+			$totalResponses = 0;
+			foreach ($act['anyOf'] as $poll) {
+				if (array_path_exists('replies/totalItems',$poll)) {
+					$totalResponses += intval($poll['replies']['totalItems']);
+				}
+			}
+
 			foreach ($act['anyOf'] as $poll) {
 				if (array_key_exists('name',$poll) && $poll['name']) {
 					$text = html2plain(purify_html($poll['name']),256);
@@ -1875,15 +1892,34 @@ function format_poll($item,$s,$opts) {
 						$total = 0;
 					}
 					if ($activated && $commentable) {
-						$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+						//$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+
+						$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0). '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
 					else {
-						$output .= '[ ] ' . $text . ' (' . $total . ')' . EOL;
+						//$output .= '[ ] ' . $text . ' (' . $total . ')' . EOL;
+						$output .= '<input type="checkbox" name="answer[]" value="' . htmlspecialchars($text) . '" disabled="disabled">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0) . '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
 				}
 			}
 		}
 		if (array_key_exists('oneOf',$act) && is_array($act['oneOf'])) {
+			$totalResponses = 0;
+			foreach ($act['oneOf'] as $poll) {
+				if (array_path_exists('replies/totalItems',$poll)) {
+					$totalResponses += intval($poll['replies']['totalItems']);
+				}
+			}
 			foreach ($act['oneOf'] as $poll) {
 				if (array_key_exists('name',$poll) && $poll['name']) {
 					$text = html2plain(purify_html($poll['name']),256);
@@ -1894,29 +1930,48 @@ function format_poll($item,$s,$opts) {
 						$total = 0;
 					}
 					if ($activated && $commentable) {
-						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '"> ' . $text . '</input>' . ' (' . $total . ')' . EOL;
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0). '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
+
 					else {
-						$output .= '( ) ' . $text . ' (' . $total . ')' . EOL;
+						$output .= '<input type="radio" name="answer" value="' . htmlspecialchars($text) . '" disabled="disabled">&nbsp;&nbsp;<strong>' . $text . '</strong>' . EOL;
+						$output .= '<div class="progress bg-secondary bg-opacity-25" style="height: 3px;">';
+						$output .= '<div class="progress-bar bg-info" role="progressbar" style="width: ' . (($totalResponses) ?  intval($total / $totalResponses * 100) : 0) . '%;" aria-valuenow="" aria-valuemin="0" aria-valuemax="100"></div>';
+						$output .= '</div>';
+						$output .= '<div class="text-muted"><small>' . sprintf(tt('%d Vote', '%d Votes', $total, 'noun'), $total) . '&nbsp;|&nbsp;' . (($totalResponses) ? intval($total / $totalResponses * 100) . '%' : '0%') . '</small></div>';
+						$output .= EOL;
 					}
 				}
 			}
 		}
+
+		$message = (($totalResponses) ? sprintf(tt('%d Vote in total', '%d Votes in total', $totalResponses, 'noun'), $totalResponses) . EOL : '');
+
 		if ($item['comments_closed'] > NULL_DATE) {
 			$t = datetime_convert('UTC',date_default_timezone_get(), $item['comments_closed'], 'Y-m-d H:i');
 			$closed = ((datetime_convert() > $item['comments_closed']) ? true : false);
 			if ($closed) {
-				$message = t('Poll has ended.');
+				$message .= t('Poll has ended');
 			}
 			else {
-				$message = sprintf(t('Poll ends: %s'),$t);
+				$message .= sprintf(t('Poll ends in %s'), '<span class="autotime" title="' . $t . '"></span>');
 			}
-			$output .= EOL . '<div>' . $message . '</div>';
-		}
-		if ($activated and $commentable) {
-			$output .= EOL . '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
 		}
 
+		$output .= '<div class="mb-3">' . $message . '</div>';
+
+		if ($activated && $commentable && !$closed) {
+			$output .= '<input type="button" class="btn btn-std btn-success" name="vote" value="' . t("Vote") . '" onclick="submitPoll(' . $item['id'] . '); return false;">'. '</form>';
+		}
+
+		if (strpos($item['body'], '[/share]') !== false) {
+			$output .= '</div></div>';
+		}
 	}
 	return $output;
 }
@@ -2534,7 +2589,7 @@ function xchan_query(&$items, $abook = true, $effective_uid = 0) {
 			$chans = q("select xchan.*,hubloc.* from xchan left join hubloc on hubloc_hash = xchan_hash
 				where xchan_hash in (" . protect_sprintf(implode(',', $arr)) . ") and hubloc_primary = 1");
 		}
-		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown', 'anon')");
+		$xchans = q("select * from xchan where xchan_hash in (" . protect_sprintf(implode(',',$arr)) . ") and xchan_network in ('rss','unknown', 'anon', 'token')");
 		if(! $chans)
 			$chans = $xchans;
 		else
@@ -2989,7 +3044,7 @@ function handle_tag(&$body, &$str_tags, $profile_uid, $tag, $in_network = true) 
 			// weird - as all the other tags are linked to something.
 
 			if(local_channel() && local_channel() == $profile_uid) {
-				$grp = group_byname($profile_uid,$name);
+				$grp = AccessList::byname($profile_uid,$name);
 
 				if($grp) {
 					$g = q("select hash from pgrp where id = %d and visible = 1 limit 1",
@@ -3692,6 +3747,13 @@ function get_forum_channels($uid) {
 	if(! $uid)
 		return;
 
+	$r = q("select abook_id, xchan_pubforum, xchan_hash, xchan_network, xchan_name, xchan_url, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 and abook_self = 0 and xchan_pubforum = 1 order by xchan_name",
+		intval($uid)
+	);
+
+
+/*
+
 	if(isset(App::$data['forum_channels']))
 		return App::$data['forum_channels'];
 
@@ -3763,6 +3825,7 @@ function get_forum_channels($uid) {
 	}
 
 	App::$data['forum_channels'] = $r;
+*/
 
 	return $r;
 
@@ -3825,6 +3888,26 @@ function array_path_exists($str,$arr) {
 
 	return false;
 
+}
+
+
+/**
+ * @brief provide psuedo random token (string) consisting entirely of US-ASCII letters/numbers
+ * and with possibly variable length
+ *
+ * @return string
+ */
+function new_token($minlen = 36, $maxlen = 48) {
+    $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890';
+    $str   = EMPTY_STR;
+
+    $len   = (($minlen === $maxlen) ? $minlen : mt_rand($minlen, $maxlen));
+
+    for ($a = 0; $a < $len; $a++) {
+        $str .= $chars[mt_rand(0, 62)];
+    }
+
+    return $str;
 }
 
 

@@ -886,10 +886,6 @@ class Activity {
 		else
 			return [];
 
-		if (strpos($i['body'], '[/share]') !== false) {
-			$i['obj'] = null;
-		}
-
 		if ($i['obj']) {
 			if (!is_array($i['obj'])) {
 				$i['obj'] = json_decode($i['obj'], true);
@@ -899,8 +895,10 @@ class Activity {
 			}
 
 			$obj = self::encode_object($i['obj']);
-			if ($obj)
+
+			if ($obj) {
 				$ret['object'] = $obj;
+			}
 			else
 				return [];
 		}
@@ -1042,7 +1040,7 @@ class Activity {
 			$tmp  = expand_acl($i['allow_cid']);
 			$list = stringify_array($tmp, true);
 			if ($list) {
-				$details = q("select hubloc_id_url from hubloc where hubloc_hash in (" . $list . ") and hubloc_id_url != ''");
+				$details = q("select hubloc_id_url from hubloc where hubloc_hash in (" . $list . ") and hubloc_id_url != '' and hubloc_deleted = 0");
 				if ($details) {
 					foreach ($details as $d) {
 						$ret[] = $d['hubloc_id_url'];
@@ -1089,10 +1087,11 @@ class Activity {
 		$ret['type'] = 'Person';
 
 		if ($c) {
-			$role = get_pconfig($c['channel_id'], 'system', 'permissions_role');
-			if (strpos($role, 'forum') !== false) {
+			if (get_pconfig($c['channel_id'], 'system', 'group_actor')) {
 				$ret['type'] = 'Group';
 			}
+
+			$ret['manuallyApprovesFollowers'] = ((get_pconfig($c['channel_id'], 'system', 'autoperms')) ? false : true);
 		}
 
 		if ($c) {
@@ -1403,7 +1402,7 @@ class Activity {
 			}
 		}
 
-		$x           = PermissionRoles::role_perms('social');
+		$x           = PermissionRoles::role_perms('personal');
 		$their_perms = Permissions::FilledPerms($x['perms_connect']);
 
 		if ($contact && $contact['abook_id']) {
@@ -1520,7 +1519,7 @@ class Activity {
 						'type'       => NOTIFY_INTRO,
 						'from_xchan' => $ret['xchan_hash'],
 						'to_xchan'   => $channel['channel_hash'],
-						'link'       => z_root() . '/connedit/' . $new_connection[0]['abook_id'],
+						'link'       => z_root() . '/connections#' . $new_connection[0]['abook_id'],
 					]
 				);
 
@@ -1554,9 +1553,9 @@ class Activity {
 		/* If there is a default group for this channel and permissions are automatic, add this member to it */
 
 		if ($channel['channel_default_group'] && $automatic) {
-			$g = Group::rec_byhash($channel['channel_id'], $channel['channel_default_group']);
+			$g = AccessList::by_hash($channel['channel_id'], $channel['channel_default_group']);
 			if ($g)
-				Group::member_add($channel['channel_id'], '', $ret['xchan_hash'], $g['id']);
+				AccessList::member_add($channel['channel_id'], '', $ret['xchan_hash'], $g['id']);
 		}
 
 
@@ -1704,7 +1703,7 @@ class Activity {
 
 		if ($links) {
 			foreach ($links as $link) {
-				if (array_key_exists('mediaType', $link) && $link['mediaType'] === 'text/html') {
+				if (is_array($link) && array_key_exists('mediaType', $link) && $link['mediaType'] === 'text/html') {
 					$profile = $link['href'];
 				}
 			}
@@ -2116,6 +2115,7 @@ class Activity {
 	}
 
 	static function update_poll($item, $post) {
+
 		$multi   = false;
 		$mid     = $post['mid'];
 		$content = $post['title'];
@@ -2200,7 +2200,8 @@ class Activity {
 				dbesc(datetime_convert()),
 				intval($item['id'])
 			);
-			Master::Summon(['Notifier', 'wall-new', $item['id']]);
+
+			Master::Summon(['Notifier', 'wall-new', $item['id'], $post['mid'] /* trick queueworker de-duplication  */ ]);
 			return true;
 		}
 
@@ -2691,6 +2692,17 @@ class Activity {
 			if ($p) {
 				// set the owner to the owner of the parent
 				$item['owner_xchan'] = $p[0]['owner_xchan'];
+
+				// quietly reject group comment boosts by group owner
+				// (usually only sent via ActivityPub so groups will work on microblog platforms)
+				// This catches those activities if they slipped in via a conversation fetch
+
+				if ($p[0]['parent_mid'] !== $item['parent_mid']) {
+					if ($item['verb'] === 'Announce' && $item['author_xchan'] === $item['owner_xchan']) {
+						logger('group boost activity by group owner rejected');
+						return;
+					}
+				}
 
 				// check permissions against the author, not the sender
 				$allowed = perm_is_allowed($channel['channel_id'], $item['author_xchan'], 'post_comments');

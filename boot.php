@@ -55,10 +55,10 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define ( 'PLATFORM_NAME',           'hubzilla' );
-define ( 'STD_VERSION',             '6.4.2' );
+define ( 'STD_VERSION',             '7.0' );
 define ( 'ZOT_REVISION',            '6.0' );
 
-define ( 'DB_UPDATE_VERSION',       1248 );
+define ( 'DB_UPDATE_VERSION',       1251 );
 
 define ( 'PROJECT_BASE',   __DIR__ );
 
@@ -484,7 +484,7 @@ define ( 'NAMESPACE_YMEDIA',          'http://search.yahoo.com/mrss/' );
 
 define ( 'ACTIVITYSTREAMS_JSONLD_REV', 'https://www.w3.org/ns/activitystreams' );
 
-define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.9' );
+define ( 'ZOT_APSCHEMA_REV', '/apschema/v1.10' );
 /**
  * activity stream defines
  */
@@ -860,7 +860,7 @@ class App {
 
 	private static $baseurl;
 
-	private static $meta;
+	public static $meta;
 
 	/**
 	 * App constructor.
@@ -1186,6 +1186,11 @@ class App {
 		if($interval < 10000)
 			$interval = 80000;
 
+		$theme_color = ((local_channel()) ? get_pconfig(local_channel(), 'redbasic', 'nav_bg') : App::$theme_info['theme_color']);
+		if (!$theme_color) {
+			$theme_color = App::$theme_info['theme_color'];
+		}
+
 		if(! isset(self::$page['title']) && isset(self::$config['system']['sitename']))
 			self::$page['title'] = self::$config['system']['sitename'];
 
@@ -1200,13 +1205,17 @@ class App {
 			}
 		}
 
+
 		// webmanifest
 		head_add_link(['rel' => 'manifest', 'href' => '/manifest.json']);
 		self::$meta->set('application-name', Zotlabs\Lib\System::get_platform_name());
 
 		self::$meta->set('generator', Zotlabs\Lib\System::get_platform_name());
+		self::$meta->set('theme-color', $theme_color);
 
 		head_add_link(['rel' => 'shortcut icon', 'href' => head_get_icon()]);
+		head_add_link(['rel' => 'apple-touch-icon', 'href' => '/images/app/hz-192.png']);
+
 
 		$x = [ 'header' => '' ];
 		/**
@@ -2342,7 +2351,6 @@ function construct_page() {
 
 
 	$current_theme = Zotlabs\Render\Theme::current();
-
 	// logger('current_theme: ' . print_r($current_theme,true));
 	// Zotlabs\Render\Theme::debug();
 

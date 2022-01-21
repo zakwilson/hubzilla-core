@@ -1,16 +1,10 @@
-<div  class="rounded mb-3 vcard-card h-card">
-	<div  class="card">
+<div class="rounded mb-3 vcard-card h-card">
+	<div class="card mb-2">
 		<div class="row">
-			<div class="col-4" style="width: 7rem;">
-				{{if $editmenu}}
-				<a href="profile_photo" title="{{$change_photo}}">
-				{{/if}}
-					<div id="profile-photo-wrapper">
-						<img class="rounded-start u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" style="width: 6rem; height:6rem;">
-					</div>
-				{{if $editmenu}}
-				</a>
-				{{/if}}
+			<div class="col-4" style="width: fit-content;">
+				<div id="profile-photo-wrapper">
+					<img class="rounded-start u-photo" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.fullname}}" style="width: 6rem; height:6rem;">
+				</div>
 			</div>
 			<div class="col-7 m-1 p-0">
 				{{if $editmenu.multi}}
@@ -20,7 +14,6 @@
 						{{foreach $editmenu.menu.entries as $e}}
 						<a href="profiles/{{$e.id}}" class="dropdown-item"><img class="menu-img-1" src='{{$e.photo}}'> {{$e.profile_name}}</a>
 						{{/foreach}}
-						<a href="profile_photo" class="dropdown-item">{{$editmenu.menu.chg_photo}}</a>
 						{{if $editmenu.menu.cr_new}}
 						<a href="profiles/new" id="profile-listing-new-link" class="dropdown-item">{{$editmenu.menu.cr_new}}</a>
 						{{/if}}
@@ -49,10 +42,10 @@
 	{{if $details}}
 	<div class="vcard ps-2 pe-2">
 		{{if $profile.pdesc}}
-		<div class="pb-3 pt-2">{{$profile.pdesc}}</div>
+		<div class="mb-2">{{$profile.pdesc}}</div>
 		{{/if}}
 		{{if $location}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="location-label">{{$location}}</dt>
 			<dd class="adr h-adr">
 				{{if $profile.address}}
@@ -72,25 +65,25 @@
 		</dl>
 		{{/if}}
 		{{if $hometown}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="hometown-label">{{$hometown}}</dt>
 			<dd class="p-hometown">{{$profile.hometown}}</dd>
 		</dl>
 		{{/if}}
 		{{if $gender}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="gender-label">{{$gender}}</dt>
 			<dd class="p-gender">{{if $profile.gender_icon}}<i class="fa fa-{{$profile.gender_icon}}"></i>&nbsp;{{/if}}{{$profile.gender}}</dd>
 		</dl>
 		{{/if}}
 		{{if $marital}}
-		<dl class="">
+		<dl class="mb-0 pb-1">
 			<dt class="marital-label"><span class="heart"><i class="fa fa-heart"></i>&nbsp;</span>{{$marital}}</dt>
 			<dd class="marital-text">{{$profile.marital}}</dd>
 		</dl>
 		{{/if}}
 		{{if $homepage}}
-		<dl class="pb-2">
+		<dl class="mb-0 pb-1">
 			<dt class="homepage-label">{{$homepage}}</dt>
 			<dd class="homepage-url u-url">{{$profile.homepage}}</dd>
 		</dl>

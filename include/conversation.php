@@ -775,6 +775,12 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 
 				$conv_link = ((in_array($item['item_type'],[ ITEM_TYPE_CARD, ITEM_TYPE_ARTICLE] )) ? $item['plink'] : z_root() . '/' . $conv_link_module . '/' . gen_link_id($conv_link_mid));
 
+				$contact = [];
+
+				if(App::$contacts && array_key_exists($item['author_xchan'],App::$contacts)) {
+					$contact = App::$contacts[$item['author_xchan']];
+				}
+
 				$tmp_item = array(
 					'template' => $tpl,
 					'toplevel' => 'toplevel_item',
@@ -838,7 +844,8 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 					'wait' => t('Please wait'),
 					'thread_level' => 1,
 					'has_tags' => $has_tags,
-					'is_new' => $is_new
+					'is_new' => $is_new,
+					'contact_id' => (($contact) ? $contact['abook_id'] : '')
 				);
 
 				$arr = array('item' => $item, 'output' => $tmp_item);
@@ -1061,7 +1068,7 @@ function thread_author_menu($item, $mode = '') {
 		}
 		else {
 			$url = (($item['author']['xchan_addr']) ? $item['author']['xchan_addr'] : $item['author']['xchan_url']);
-			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown', 'zot' ]))) {
+			if($local_channel && $url && (! in_array($item['author']['xchan_network'],[ 'rss', 'anon','unknown', 'zot', 'token']))) {
 				$follow_url = z_root() . '/follow/?f=&url=' . urlencode($url) . '&interactive=0';
 			}
 		}
@@ -1070,7 +1077,7 @@ function thread_author_menu($item, $mode = '') {
 	if($contact) {
 		$poke_link = ((Apps::system_app_installed($local_channel, 'Poke')) ? z_root() . '/poke/?f=&c=' . $contact['abook_id'] : '');
 		if (! intval($contact['abook_self']))
-			$contact_url = z_root() . '/connedit/' . $contact['abook_id'];
+			$contact_url = z_root() . '/connections#' . $contact['abook_id'];
 		$posts_link = z_root() . '/network/?cid=' . $contact['abook_id'];
 
 		$clean_url = normalise_link($item['author-link']);
@@ -1086,7 +1093,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('View Profile'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $profile_link
+			'href' => $profile_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1096,7 +1105,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Recent Activity'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $posts_link
+			'href' => $posts_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1107,6 +1118,8 @@ function thread_author_menu($item, $mode = '') {
 			'icon' => 'fw',
 			'action' => 'doFollowAuthor(\'' . $follow_url . '\'); return false;',
 			'href' => '#',
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1116,7 +1129,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Edit Connection'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $contact_url
+			'href' => $contact_url,
+			'data' => 'data-id="' . $contact['abook_id'] . '"',
+			'class' => 'contact-edit'
 		];
 	}
 
@@ -1126,7 +1141,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Message'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $pm_url
+			'href' => $pm_url,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1136,7 +1153,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Ratings'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $ratings_url
+			'href' => $ratings_url,
+			'data' => '',
+			'class' => ''
 		];
 	}
 
@@ -1146,7 +1165,9 @@ function thread_author_menu($item, $mode = '') {
 			'title' => t('Poke'),
 			'icon' => 'fw',
 			'action' => '',
-			'href' => $poke_link
+			'href' => $poke_link,
+			'data' => '',
+			'class' => ''
 		];
 	}
 

@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `abook` (
   `abook_incl` text NOT NULL,
   `abook_excl` text NOT NULL,
   `abook_instance` text NOT NULL,
+  `abook_role` char(191) NOT NULL DEFAULT '',
   PRIMARY KEY (`abook_id`),
   KEY `abook_account` (`abook_account`),
   KEY `abook_channel` (`abook_channel`),
@@ -58,7 +59,8 @@ CREATE TABLE IF NOT EXISTS `abook` (
   KEY `abook_unconnected` (`abook_unconnected`),
   KEY `abook_self` (`abook_self`),
   KEY `abook_not_here` (`abook_not_here`),
-  KEY `abook_feed` (`abook_feed`)
+  KEY `abook_feed` (`abook_feed`),
+  KEY `abook_role` (`abook_role`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `account` (
@@ -146,12 +148,14 @@ CREATE TABLE IF NOT EXISTS `app` (
 
 CREATE TABLE IF NOT EXISTS `atoken` (
   `atoken_id` int(11) NOT NULL AUTO_INCREMENT,
+  `atoken_guid` char(191) NOT NULL DEFAULT '',
   `atoken_aid` int(11) NOT NULL DEFAULT 0 ,
   `atoken_uid` int(11) NOT NULL DEFAULT 0 ,
   `atoken_name` char(191) NOT NULL DEFAULT '',
   `atoken_token` char(191) NOT NULL DEFAULT '',
   `atoken_expires` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   PRIMARY KEY (`atoken_id`),
+  KEY `atoken_guid` (`atoken_guid`),
   KEY `atoken_aid` (`atoken_aid`),
   KEY `atoken_uid` (`atoken_uid`),
   KEY `atoken_uid_2` (`atoken_uid`),

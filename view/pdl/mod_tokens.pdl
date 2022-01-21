@@ -1,5 +1,5 @@
 [region=aside]
-[widget=mailmenu][/widget]
+[widget=tokens][/widget]
 [/region]
 [region=right_aside]
 [widget=notifications][/widget]

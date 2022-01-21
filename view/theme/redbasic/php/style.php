@@ -75,7 +75,7 @@ if ((!$schema) || ($schema == '---')) {
 if (! $nav_bg)
 	$nav_bg = '#343a40';
 if (! $nav_icon_colour)
-	$nav_icon_colour = 'rgba(255, 255, 255, 0.5)';
+	$nav_icon_colour = 'rgba(255, 255, 255, 0.55)';
 if (! $nav_active_icon_colour)
 	$nav_active_icon_colour = 'rgba(255, 255, 255, 0.75)';
 if (! $link_colour)

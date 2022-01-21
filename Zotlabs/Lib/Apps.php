@@ -67,17 +67,15 @@ class Apps {
 	static public function get_base_apps() {
 		$x = get_config('system','base_apps',[
 			'Connections',
+			'Contact Roles',
 			'Network',
-			'Settings',
 			'Files',
-			'Channel Home',
-			'View Profile',
+			'Channel',
 			'Photos',
 			'Calendar',
 			'Directory',
 			'Search',
 			'Help',
-			'Profile Photo',
 			'HQ',
 			'Post'
 		]);
@@ -346,7 +344,7 @@ class Apps {
 			'Files' => t('Files'),
 			'Webpages' => t('Webpages'),
 			'Wiki' => t('Wiki'),
-			'Channel Home' => t('Channel Home'),
+			'Channel' => t('Channel'),
 			'View Profile' => t('View Profile'),
 			'Photos' => t('Photos'),
 			'Calendar' => t('Calendar'),
@@ -377,10 +375,10 @@ class Apps {
 			'OAuth Apps Manager' => t('OAuth Apps Manager'),
 			'OAuth2 Apps Manager' => t('OAuth2 Apps Manager'),
 			'PDL Editor' => t('PDL Editor'),
-			'Permission Categories' => t('Permission Categories'),
+			'Contact Roles' => t('Contact Roles'),
 			'Public Stream' => t('Public Stream'),
 			'My Chatrooms' => t('My Chatrooms'),
-			'Channel Export' => t('Channel Export'),
+			'Channel Export' => t('Channel Export')
 		);
 
 		if(array_key_exists('name',$arr)) {

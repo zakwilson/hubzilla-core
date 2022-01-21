@@ -24,6 +24,7 @@
 			{{if $abook_prev || $abook_next}}
 			<div class="btn-group">
 				<a href="connedit/{{$abook_prev}}{{if $section}}?f=&section={{$section}}{{/if}}" class="btn btn-outline-secondary btn-sm{{if ! $abook_prev}} disabled{{/if}}" ><i class="fa fa-backward"></i></a>
+				{{if $sections}}
 				<div class="btn-group" >
 					<button class="btn btn-outline-secondary btn-sm{{if $is_pending}} disabled{{/if}}" type="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fa fa-bars"></i></button>
 					<div class="dropdown-menu dropdown-menu-end" aria-labelledby="dLabel">
@@ -32,6 +33,7 @@
 						{{/foreach}}
 					</div>
 				</div>
+				{{/if}}
 				<a href="connedit/{{$abook_next}}{{if $section}}?f=&section={{$section}}{{/if}}" class="btn btn-outline-secondary btn-sm{{if ! $abook_next}} disabled{{/if}}" ><i class="fa fa-forward"></i></a>
 			</div>
 			{{/if}}
@@ -40,6 +42,65 @@
 		<h2>{{$header}}</h2>
 	</div>
 	<div class="section-content-wrapper-np">
+		<form id="abook-edit-form" action="connedit/{{$contact_id}}" method="post" >
+
+		<input type="hidden" name="contact_id" value="{{$contact_id}}">
+		<input type="hidden" name="section" value="{{$section}}">
+
+		<div class="section-content-wrapper">
+			<a href="permcats/{{$permcat_value}}" class="float-end"><i class="fa fa-external-link"></i>&nbsp;{{$permcat_new}}</a>
+			{{include file="field_select.tpl" field=$permcat}}
+			<button type="button" class="btn btn-outline-secondary float-end" data-bs-toggle="modal" data-bs-target="#perms_modal">Permissions</button>
+			<button type="submit" name="done" value="{{$submit}}" class="btn btn-primary">{{$submit}}</button>
+			<div class="modal" id="perms_modal" tabindex="-1" aria-labelledby="perms_modal_label" aria-hidden="true">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<div class="modal-title h3" id="perms_modal_label">Permissions Overview</div>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+
+							<table class="table table-hover table-sm">
+								<thead>
+									<tr>
+										<th scope="col">Permission</th>
+										<th scope="col">{{$them}}</th>
+										<th scope="col">{{$me}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{{foreach $perms as $perm}}
+									<tr>
+										<td>{{$perm.1}}</td>
+										<td>
+											{{if $perm.2}}
+											<i class="fa fa-check text-success"></i>
+											{{else}}
+											<i class="fa fa-times text-danger"></i>
+											{{/if}}
+										</td>
+										<td>
+											{{if $perm.3}}
+											<i class="fa fa-check text-success"></i>
+											{{else}}
+											<i class="fa fa-times text-danger"></i>
+											{{/if}}
+										</td>
+									</tr>
+									{{/foreach}}
+
+								</tbody>
+							</table>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
 		{{if $notself}}
 		{{foreach $tools as $tool}}
 		{{if $tool.info}}
@@ -73,33 +134,9 @@
 		</div>
 		{{/if}}
 
-		<form id="abook-edit-form" action="connedit/{{$contact_id}}" method="post" >
-
-		<input type="hidden" name="contact_id" value="{{$contact_id}}">
-		<input type="hidden" name="section" value="{{$section}}">
-
 		<div class="panel-group" id="contact-edit-tools" role="tablist" aria-multiselectable="true">
 			{{if $notself}}
 
-			{{if $is_pending}}
-			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="pending-tool">
-					<h3>
-						<a data-bs-toggle="collapse" data-bs-parent="#contact-edit-tools" href="#pending-tool-collapse" aria-expanded="true" aria-controls="pending-tool-collapse">
-							{{$pending_label}}
-						</a>
-					</h3>
-				</div>
-				<div id="pending-tool-collapse" class="panel-collapse collapse show" role="tabpanel" aria-labelledby="pending-tool">
-					<div class="section-content-tools-wrapper">
-						{{include file="field_checkbox.tpl" field=$unapproved}}
-						<div class="settings-submit-wrapper" >
-							<button type="submit" name="done" value="{{$submit}}" class="btn btn-primary">{{$submit}}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{/if}}
 			{{if ! $is_pending}}
 			<div id="template-form-vcard-org" class="mb-3 form-vcard-org">
 				<div class="mb-3 form-vcard-org">
@@ -438,85 +475,6 @@
 			<input type="hidden" name="{{$excl.0}}" value="{{$excl.2}}" />
 			{{/if}}
 
-			{{if $rating}}
-			<div class="panel">
-				<div class="section-subtitle-wrapper" role="tab" id="rating-tool">
-					<h3>
-						<a data-bs-toggle="collapse" data-bs-parent="#contact-edit-tools" href="#rating-tool-collapse" aria-expanded="true" aria-controls="rating-tool-collapse">
-							{{$lbl_rating}}
-						</a>
-					</h3>
-				</div>
-				<div id="rating-tool-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="rating-tool">
-					<div class="section-content-tools-wrapper">
-						<div class="section-content-warning-wrapper">
-							{{$rating_info}}
-						</div>
-						<div class="mb-3"><strong>{{$lbl_rating_label}}</strong></div>
-						{{$rating}}
-						{{include file="field_textarea.tpl" field=$rating_text}}
-						<input id="contact-rating-mirror" type="hidden" name="rating" value="{{$rating_val}}" />
-						<div class="settings-submit-wrapper" >
-							<button type="submit" name="done" value="{{$submit}}" class="btn btn-primary">{{$submit}}</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			{{/if}}
-
-			{{/if}}
-
-			{{if ! $is_pending}}
-			<div class="panel">
-				{{if $notself}}
-				<div class="section-subtitle-wrapper" role="tab" id="perms-tool">
-					<h3>
-						<a data-bs-toggle="collapse" data-bs-parent="#contact-edit-tools" href="#perms-tool-collapse" aria-expanded="true" aria-controls="perms-tool-collapse">
-							{{$permlbl}}
-						</a>
-					</h3>
-				</div>
-				{{/if}}
-				<div id="perms-tool-collapse" class="panel-collapse collapse{{if $self || $section === 'perms'}} show{{/if}}" role="tabpanel" aria-labelledby="perms-tool">
-					<div class="section-content-tools-wrapper">
-						<div class="section-content-warning-wrapper">
-						{{if $notself}}{{$permnote}}{{/if}}
-						{{if $self}}{{$permnote_self}}{{/if}}
-						</div>
-
-						{{if $permcat_enable}}
-						<a href="permcats" class="float-end"><i class="fa fa-plus"></i>&nbsp;{{$permcat_new}}</a>
-						{{include file="field_select.tpl" field=$permcat}}
-						{{/if}}
-
-						<table id="perms-tool-table" class=mb-3>
-							<tr>
-								<td></td>
-								{{if $notself}}
-								<td class="abook-them">{{$them}}</td>
-								{{/if}}
-								<td colspan="2" class="abook-me">{{$me}}</td>
-							</tr>
-							{{foreach $perms as $prm}}
-							{{include file="field_acheckbox.tpl" field=$prm}}
-							{{/foreach}}
-						</table>
-
-						{{if $self}}
-						<div>
-							<div class="section-content-info-wrapper">
-								{{$autolbl}}
-							</div>
-							{{include file="field_checkbox.tpl" field=$autoperms}}
-						</div>
-						{{/if}}
-
-						<div class="settings-submit-wrapper" >
-							<button type="submit" name="done" value="{{$submit}}" class="btn btn-primary">{{$submit}}</button>
-						</div>
-					</div>
-				</div>
-			</div>
 			{{/if}}
 		</div>
 		</form>

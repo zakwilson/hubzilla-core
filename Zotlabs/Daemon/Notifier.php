@@ -78,6 +78,10 @@ class Notifier {
 	static public $encoded_item = null;
 	static public $channel = null;
 	static public $private = false;
+	// $fragment can contain additional info to omit de-duplication in the queueworker.
+	// E.g. if an item is updated many times in a row from different sources (multiple vote updates) the
+	// update source mid or a timestamp or random string can be added.
+	static public $fragment = null;
 
 	static public function run($argc, $argv) {
 
@@ -88,7 +92,6 @@ class Notifier {
 		logger('notifier: invoked: ' . print_r($argv, true), LOGGER_DEBUG);
 
 		$cmd = $argv[1];
-
 		$item_id = $argv[2];
 
 		if (!$item_id) {
@@ -103,6 +106,7 @@ class Notifier {
 		self::$encoded_item = null;
 		self::$channel      = null;
 		self::$private      = false;
+		self::$fragment     = null;
 
 		$sys         = get_sys_channel();
 		$normal_mode = true;
@@ -222,6 +226,8 @@ class Notifier {
 
 			// Fetch the target item
 
+			self::$fragment = $argv[3] ?? '';
+
 			$r = q("SELECT * FROM item WHERE id = %d AND parent != 0",
 				intval($item_id)
 			);
@@ -234,7 +240,7 @@ class Notifier {
 
 			$target_item = $r[0];
 
-			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon'])) {
+			if (in_array($target_item['author']['xchan_network'], ['rss', 'anon', 'token'])) {
 				logger('notifier: target item author is not a fetchable actor', LOGGER_DEBUG);
 				return;
 			}
@@ -630,6 +636,18 @@ class Notifier {
 
 			// default: zot protocol
 
+			// Prevent zot6 delivery of group comment boosts, which are not required for conversational platforms.
+			// ActivityPub conversational platforms may wish to filter these if they don't want or require them.
+			// We will assume here that if $target_item exists and has a verb that it is an actual item structure
+			// so we won't need to check the existence of the other item fields prior to evaluation.
+
+			// This shouldn't produce false positives on comment boosts that were generated on other platforms
+			// because we won't be delivering them.
+
+			if (isset($target_item) && isset($target_item['verb']) && $target_item['verb'] === 'Announce' && $target_item['author_xchan'] === $target_item['owner_xchan'] && ! intval($target_item['item_thread_top'])) {
+				continue;
+			}
+
 			$hash = new_uuid();
 
 			$env = (($hub_env && $hub_env[$hub['hubloc_site_id']]) ? $hub_env[$hub['hubloc_site_id']] : '');
@@ -673,7 +691,7 @@ class Notifier {
 			// This wastes a process if there are no delivery hooks configured, so check this before launching the new process
 			$x = q("select * from hook where hook = 'notifier_normal'");
 			if ($x) {
-				Master::Summon(['Deliver_hooks', $target_item['id']]);
+				Master::Summon(['Deliver_hooks', $target_item['id'], self::$fragment]);
 			}
 		}
 

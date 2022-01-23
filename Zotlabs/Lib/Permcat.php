@@ -186,7 +186,7 @@ class Permcat {
 	/**
 	 * @brief assign a contact role to contacts
 	 *
-	 * @param int $channel_id
+	 * @param array $channel
 	 * @param string $role the name of the role
 	 * @param array $contacts an array of contact hashes
 	 */

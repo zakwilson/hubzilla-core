@@ -129,8 +129,8 @@ class Permcats extends Controller {
 		}
 
 		if (!$contacts && array_diff_assoc($existing_raw_perms, Permissions::FilledPerms($pcarr))) {
-			// If we don't haver yet anyone to assign the role to and an existing role has changed,
-			// we will re-assign the changed role to all its members.
+			// If we don't have anyone to assign the role to and an existing role has changed,
+			// we will re-assign the changed role to all its members if there are any.
 
 			$r = q("SELECT abook_xchan FROM abook WHERE abook_channel = %d AND abook_role = '%s' AND abook_self = 0 AND abook_pending = 0",
 				intval(local_channel()),

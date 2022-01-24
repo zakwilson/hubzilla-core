@@ -114,7 +114,7 @@
 							</button>
 							{{/if}}
 							{{if $item.reply_to}}
-							<button type="button" title="{{$item.reply_to.0}}" class="btn btn-outline-secondary btn-sm" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name}}'); return false;">
+							<button type="button" title="{{$item.reply_to.0}}" class="btn btn-outline-secondary btn-sm" onclick="doreply({{$item.parent}}, {{$item.id}}, '{{$item.author_id}}', '{{$item.reply_to.2}} {{$item.name|escape:javascript}}');">
 								<i class="fa fa-reply" ></i>
 							</button>
 							{{/if}}

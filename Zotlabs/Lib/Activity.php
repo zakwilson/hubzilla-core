@@ -2639,11 +2639,7 @@ class Activity {
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
-
-		$parent = (($s['parent_mid'] && $s['parent_mid'] === $s['mid']) ? true : false);
-		if ($parent) {
-			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
-		}
+		set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
 
 		$hookinfo = [
 			'act' => $act,

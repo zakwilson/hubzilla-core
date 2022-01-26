@@ -2638,8 +2638,23 @@ class Activity {
 			}
 		}
 
+		if (is_array($act->obj) && is_array($act->obj['attachment'])) {
+			foreach($act->obj['attachment'] as $a) {
+				if (isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
+					isset($a['value'])
+				) {
+					$rawmsg = $a['value'];
+					break;
+				}
+			}
+		}
+
+		if ($rawmsg) {
+			set_iconfig($s, 'activitypub', 'rawmsg', $rawmsg, 1);
+		}
+
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
-		set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
 
 		$hookinfo = [
 			'act' => $act,

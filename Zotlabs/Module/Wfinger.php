@@ -126,7 +126,7 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					'http://webfinger.net/ns/name'   => $r['channel_name'],
 					'http://xmlns.com/foaf/0.1/name' => $r['channel_name'],
 					'https://w3id.org/security/v1#publicKeyPem' => $r['xchan_pubkey'],
-					'http://purl.org/zot/federation' => 'zot6,zot'
+					'http://purl.org/zot/federation' => 'zot6'
 			];
 
 			foreach($aliases as $alias)
@@ -184,12 +184,6 @@ class Wfinger extends \Zotlabs\Web\Controller {
 					],
 
 					[
-						'rel'  => 'http://schemas.google.com/g/2010#updates-from',
-						'type' => 'application/atom+xml',
-						'href' => z_root() . '/ofeed/'  . $r['channel_address']
-					],
-
-					[
 						'rel'  => 'http://webfinger.net/rel/blog',
 						'href' => z_root() . '/channel/' . $r['channel_address'],
 					],
@@ -203,11 +197,6 @@ class Wfinger extends \Zotlabs\Web\Controller {
 						'rel'  => 'http://purl.org/zot/protocol/6.0',
 						'type' => 'application/x-zot+json',
 						'href' => channel_url($r)
-					],
-
-					[
-						'rel'  => 'http://purl.org/zot/protocol',
-						'href' => z_root() . '/.well-known/zot-info' . '?address=' . $r['xchan_addr'],
 					],
 
 					[

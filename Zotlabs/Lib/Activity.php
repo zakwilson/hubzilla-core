@@ -2638,6 +2638,8 @@ class Activity {
 			}
 		}
 
+		$rawmsg = '';
+
 		if (is_array($act->obj) && is_array($act->obj['attachment'])) {
 			foreach($act->obj['attachment'] as $a) {
 				if (isset($a['type']) && $a['type'] === 'PropertyValue' &&

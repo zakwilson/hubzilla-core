@@ -1748,7 +1748,7 @@ class Activity {
 			// update existing xchan record
 			q("update xchan set xchan_name = '%s', xchan_guid = '%s', xchan_pubkey = '%s', xchan_addr = '%s', xchan_network = 'activitypub', xchan_name_date = '%s' where xchan_hash = '%s'",
 				dbesc(escape_tags($name)),
-				dbesc(escape_tags($url)),
+				dbesc($url),
 				dbesc(escape_tags($pubkey)),
 				dbesc(escape_tags($webfinger_addr)),
 				dbescdate(datetime_convert()),
@@ -1757,13 +1757,13 @@ class Activity {
 
 			// update existing hubloc record
 			q("update hubloc set hubloc_guid = '%s', hubloc_addr = '%s', hubloc_network = 'activitypub', hubloc_url = '%s', hubloc_host = '%s', hubloc_callback = '%s', hubloc_updated = '%s', hubloc_id_url = '%s' where hubloc_hash = '%s'",
-				dbesc(escape_tags($url)),
+				dbesc($url),
 				dbesc(escape_tags($webfinger_addr)),
 				dbesc(escape_tags($baseurl)),
 				dbesc(escape_tags($hostname)),
 				dbesc(escape_tags($inbox)),
 				dbescdate(datetime_convert()),
-				dbesc(escape_tags($profile)),
+				dbesc($profile),
 				dbesc($url)
 			);
 		}
@@ -1772,8 +1772,8 @@ class Activity {
 
 			xchan_store_lowlevel(
 				[
-					'xchan_hash'      => escape_tags($url),
-					'xchan_guid'      => escape_tags($url),
+					'xchan_hash'      => $url,
+					'xchan_guid'      => $url,
 					'xchan_pubkey'    => escape_tags($pubkey),
 					'xchan_addr'      => $webfinger_addr,
 					'xchan_url'       => escape_tags($profile),
@@ -1785,8 +1785,8 @@ class Activity {
 
 			hubloc_store_lowlevel(
 				[
-					'hubloc_guid'     => escape_tags($url),
-					'hubloc_hash'     => escape_tags($url),
+					'hubloc_guid'     => $url,
+					'hubloc_hash'     => $url,
 					'hubloc_addr'     => $webfinger_addr,
 					'hubloc_network'  => 'activitypub',
 					'hubloc_url'      => escape_tags($baseurl),
@@ -1794,7 +1794,7 @@ class Activity {
 					'hubloc_callback' => escape_tags($inbox),
 					'hubloc_updated'  => datetime_convert(),
 					'hubloc_primary'  => 1,
-					'hubloc_id_url'   => escape_tags($profile)
+					'hubloc_id_url'   => $profile
 				]
 			);
 		}

@@ -40,7 +40,7 @@ class ActivityStreams {
 
 		if (is_array($string)) {
 			$this->data = $string;
-            $this->raw = json_encode($string, JSON_UNESCAPED_SLASHES);
+			$this->raw = json_encode($string, JSON_UNESCAPED_SLASHES);
 		}
 		else {
 			$this->data = json_decode($string, true);

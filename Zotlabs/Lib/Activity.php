@@ -2644,7 +2644,7 @@ class Activity {
 		$raw_arr = json_decode($act->raw, true);
 
 		// This is a zot6 packet and the raw activitypub message json
-		// is possible available in the attachement.
+		// is possibly available in the attachement.
 		if (array_key_exists('signed', $raw_arr) && is_array($act->obj) && is_array($act->obj['attachment'])) {
 			foreach($act->obj['attachment'] as $a) {
 				if (

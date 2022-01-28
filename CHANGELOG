@@ -1,3 +1,19 @@
+Hubzilla 7.0.1 (2022-01-28)
+	- Fix removing contacts from privacy groups in the contact edit modal
+	- Fix escape_tags() messing with URLs in actor_store()
+	- Fix pagination in the cards module if a category is selected
+	- Remove unused entries in webfinger
+	- Remove deprecated mail app from apps
+	- Set item_hidden for forum comment announces
+	- Fix relaying of signed messages for activitypub
+	- Fix contact role permissions not re-assigned if the role permission has changed
+	- Fix default channel role not set in rare cases
+
+	Addons
+	- Pubcrawl: fix webfinger not returning the fetched URL
+	- Pubcrawl: improved queue handling for rejected deliveries
+
+
 Hubzilla 7.0 (2022-01-21)
 	- Provide theme_color and background_color in App::$theme_info for usage in page meta and manifest
 	- PWA improvements according to lighthouse

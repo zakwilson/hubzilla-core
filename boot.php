@@ -782,7 +782,7 @@ class App {
 	public static $data = [];
 	public static $error = false;
 	public static $emojitab = false;
-	public static $cmd;
+	public static $cmd = '';
 	public static $argv;
 	public static $argc;
 	public static $module;

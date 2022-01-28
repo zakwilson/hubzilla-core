@@ -586,6 +586,7 @@ function alt_pager($i, $more = '', $less = '') {
 		'$less' => $less,
 		'$more' => $more,
 		'$url' => $url,
+		'$url_appendix' => ((strpos($url, '?')) ? '&' : '?'),
 		'$prevpage' => App::$pager['page'] - 1,
 		'$nextpage' => App::$pager['page'] + 1,
 	));

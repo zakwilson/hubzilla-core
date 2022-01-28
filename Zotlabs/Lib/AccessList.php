@@ -160,8 +160,10 @@ class AccessList {
 		return false;
 	}
 
-	static function member_remove($uid, $name, $member) {
-		$gid = self::by_name($uid, $name);
+	static function member_remove($uid, $name, $member, $gid = 0) {
+		if (!$gid) {
+			$gid = self::by_name($uid, $name);
+		}
 
 		if (!($uid && $gid && $member)) {
 			return false;
@@ -192,7 +194,8 @@ class AccessList {
 			dbesc($member)
 		);
 		if ($r) {
-			return true;    // You might question this, but
+			return true;
+			// You might question this, but
 			// we indicate success because the group member was in fact created
 			// -- It was just created at another time
 		}

@@ -3,35 +3,38 @@
 namespace Zotlabs\Module;
 
 use App;
+use Zotlabs\Access\PermissionLimits;
+use Zotlabs\Access\Permissions;
 use Zotlabs\Web\Controller;
-use Zotlabs\Lib\Apps;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\AccessList;
+use Zotlabs\Lib\Permcat;
 
 class Permcats extends Controller {
 
 	function post() {
 
-		if(! local_channel())
+		if (!local_channel())
 			return;
 
 		$channel = App::get_channel();
 
 		check_form_security_token_redirectOnErr('/permcats', 'permcats');
 
-		$name = escape_tags(trim($_REQUEST['name']));
+		$name           = escape_tags(trim($_REQUEST['name']));
 		$is_system_role = isset($_REQUEST['is_system_role']);
-		$return_path = z_root() . '/permcats/' . $_REQUEST['return_path'];
-		$group_hash = $_REQUEST['group_select'] ?? '';
-		$deleted_role = $_REQUEST['deleted_role'] ?? '';
-		$new_role = $_REQUEST['new_role'] ?? '';
-		$contacts = [];
+		$return_path    = z_root() . '/permcats/' . $_REQUEST['return_path'];
+		$group_hash     = $_REQUEST['group_select'] ?? '';
+		$deleted_role   = $_REQUEST['deleted_role'] ?? '';
+		$new_role       = $_REQUEST['new_role'] ?? '';
+		$contacts       = [];
+
 
 		if (argv(1) && hex2bin(argv(1)) !== $name) {
 			$return_path = z_root() . '/permcats/' . bin2hex($name);
 		}
 
-		if($deleted_role && $new_role) {
+		if ($deleted_role && $new_role) {
 			$r = q("SELECT abook_xchan FROM abook WHERE abook_channel = %d AND abook_role = '%s' AND abook_self = 0 AND abook_pending = 0",
 				intval(local_channel()),
 				dbesc($deleted_role)
@@ -42,13 +45,13 @@ class Permcats extends Controller {
 			}
 
 			if ($contacts) {
-				\Zotlabs\Lib\Permcat::assign($channel, $new_role, $contacts);
+				Permcat::assign($channel, $new_role, $contacts);
 			}
 
-			\Zotlabs\Lib\Permcat::delete(local_channel(), $deleted_role);
+			Permcat::delete(local_channel(), $deleted_role);
 
 			$default_role = get_pconfig(local_channel(), 'system', 'default_permcat', 'default');
-			if($deleted_role === $default_role) {
+			if ($deleted_role === $default_role) {
 				set_pconfig(local_channel(), 'system', 'default_permcat', $new_role);
 			}
 
@@ -70,6 +73,7 @@ class Permcats extends Controller {
 			}
 		}
 
+		$group = null;
 		if (!$contacts && $group_hash) {
 			$group = AccessList::by_hash(local_channel(), $group_hash);
 		}
@@ -78,8 +82,8 @@ class Permcats extends Controller {
 			$contacts = AccessList::members_xchan(local_channel(), $group['id']);
 		}
 
-		if(! $name ) {
-			notice( t('Permission category name is required.') . EOL);
+		if (!$name) {
+			notice(t('Permission category name is required.') . EOL);
 			return;
 		}
 
@@ -92,35 +96,62 @@ class Permcats extends Controller {
 		if ($is_system_role) {
 			// if we have a system role just set the default and assign if aplicable and be done with it
 			if ($contacts) {
-				\Zotlabs\Lib\Permcat::assign($channel, $name, $contacts);
+				Permcat::assign($channel, $name, $contacts);
 			}
 
-			info( t('Contact role saved.') . EOL);
+			info(t('Contact role saved.') . EOL);
 			Libsync::build_sync_packet();
 			goaway($return_path);
 			return;
 		}
 
-		$pcarr = [];
-		$all_perms = \Zotlabs\Access\Permissions::Perms();
+		$pcarr     = [];
+		$all_perms = Permissions::Perms();
 
-		if($all_perms) {
-			foreach($all_perms as $perm => $desc) {
-				if(array_key_exists('perms_' . $perm, $_POST)) {
+		if ($all_perms) {
+			foreach ($all_perms as $perm => $desc) {
+				if (array_key_exists('perms_' . $perm, $_POST)) {
 					$pcarr[] = $perm;
 				}
 			}
 		}
 
-		\Zotlabs\Lib\Permcat::update(local_channel(), $name, $pcarr);
+		$pcat               = new Permcat(local_channel());
+		$pcatlist           = $pcat->listing();
+		$existing_raw_perms = [];
+
+		if ($pcatlist) {
+			foreach ($pcatlist as $pc) {
+				if ($pc['name'] && ($pc['name'] === $name)) {
+					$existing_raw_perms = $pc['raw_perms'];
+				}
+			}
+		}
+
+		if (!$contacts && array_diff_assoc($existing_raw_perms, Permissions::FilledPerms($pcarr))) {
+			// If we don't have anyone to assign the role to and an existing role has changed,
+			// we will re-assign the changed role to all its members if there are any.
+
+			$r = q("SELECT abook_xchan FROM abook WHERE abook_channel = %d AND abook_role = '%s' AND abook_self = 0 AND abook_pending = 0",
+				intval(local_channel()),
+				dbesc($name)
+			);
+
+			if ($r) {
+				$contacts = ids_to_array($r, 'abook_xchan');
+			}
+
+		}
+
+		Permcat::update(local_channel(), $name, $pcarr);
 
 		if ($contacts) {
-			\Zotlabs\Lib\Permcat::assign($channel, $name, $contacts);
+			Permcat::assign($channel, $name, $contacts);
 		}
 
 		Libsync::build_sync_packet();
 
-		info( t('Contact role saved.') . EOL);
+		info(t('Contact role saved.') . EOL);
 		goaway($return_path);
 
 		return;
@@ -129,35 +160,34 @@ class Permcats extends Controller {
 
 	function get() {
 
-		if(! local_channel())
-			return;
+		if (!local_channel())
+			return EMPTY_STR;
 
 		nav_set_selected('Contact Roles');
 
-		$channel = App::get_channel();
-
-		if(argc() > 1) {
+		$name = '';
+		if (argc() > 1) {
 			$name = hex2bin(argv(1));
 		}
 
-		$existing = [];
-
-		$pcat = new \Zotlabs\Lib\Permcat(local_channel());
-		$pcatlist = $pcat->listing();
-
-		$is_system_role = false;
+		$perms                      = [];
+		$existing                   = [];
+		$pcat                       = new Permcat(local_channel());
+		$pcatlist                   = $pcat->listing();
+		$is_system_role             = false;
 		$delete_role_select_options = [];
-		$is_default_role = (get_pconfig(local_channel(),'system','default_permcat','default') === $name);
+		$is_default_role            = (get_pconfig(local_channel(), 'system', 'default_permcat', 'default') === $name);
+		$localname                  = '';
 
-		if($pcatlist) {
-			foreach($pcatlist as $pc) {
-				if(($pc['name']) && ($name) && ($pc['name'] == $name)) {
+		if ($pcatlist) {
+			foreach ($pcatlist as $pc) {
+				if ($pc['name'] && $name && ($pc['name'] === $name)) {
 					$existing = $pc['perms'];
 					if (isset($pc['system']) && intval($pc['system']))
 						$is_system_role = $pc['name'];
 				}
 
-				if($pc['name'] == $name) {
+				if ($pc['name'] == $name) {
 					$localname = $pc['localname'];
 				}
 
@@ -177,13 +207,13 @@ class Permcats extends Controller {
 			$delete_role_select_options
 		];
 
-		$global_perms = \Zotlabs\Access\Permissions::Perms();
+		$global_perms = Permissions::Perms();
 
-		foreach($global_perms as $k => $v) {
-			$thisperm = \Zotlabs\Lib\Permcat::find_permcat($existing,$k);
-			$checkinherited = \Zotlabs\Access\PermissionLimits::Get(local_channel(),$k);
+		foreach ($global_perms as $k => $v) {
+			$thisperm       = Permcat::find_permcat($existing, $k);
+			$checkinherited = PermissionLimits::Get(local_channel(), $k);
 
-			if($existing[$k])
+			if ($existing[$k])
 				$thisperm = 1;
 
 			$perms[] = [
@@ -198,14 +228,13 @@ class Permcats extends Controller {
 			];
 		}
 
-
 		$group_select_options = [
 			'selected' => '',
-			'form_id' => 'group_select',
-			'label' => t('Assign this role to'),
-			'after' => [
-				'name' => t('All my contacts'),
-				'id' => 'all_contacts',
+			'form_id'  => 'group_select',
+			'label'    => t('Assign this role to'),
+			'after'    => [
+				'name'     => t('All my contacts'),
+				'id'       => 'all_contacts',
 				'selected' => false
 			]
 		];
@@ -213,25 +242,25 @@ class Permcats extends Controller {
 		$group_select = AccessList::select(local_channel(), $group_select_options);
 
 		$tpl = get_markup_template("permcats.tpl");
-		$o .= replace_macros($tpl, array(
+		$o   = replace_macros($tpl, [
 			'$form_security_token' => get_form_security_token("permcats"),
-			'$default_role' => array('default_role', t('Automatically assign this role to new contacts'), intval($is_default_role), '', [t('No'), t('Yes')]),
-			'$title'	=> t('Contact Roles'),
-			'$name' => ['name', t('Role name') . ' <span class="required">*</span>', (($localname) ? $localname : ''), (($is_system_role) ? t('System role - not editable') : '') , '', (($is_system_role) ? 'disabled' : '')],
-			'$delete_label' => t('Deleting') . ' ' . $localname,
-			'$current_role' => $name,
-			'$perms' => $perms,
-			'$inherited' => t('inherited'),
-			'$is_system_role' => $is_system_role,
-			'$permlbl' => t('Role Permissions'),
-			'$permnote' => t('Some permissions may be inherited from your <a href="settings">channel role</a>, which have higher priority than contact role settings.'),
-			'$submit' 	=> t('Submit'),
-			'$return_path' => argv(1),
-			'$group_select' => $group_select,
-			'$delete_role_select' => $delete_role_select,
-			'$delet_role_button' => t('Delete')
+			'$default_role'        => ['default_role', t('Automatically assign this role to new contacts'), intval($is_default_role), '', [t('No'), t('Yes')]],
+			'$title'               => t('Contact Roles'),
+			'$name'                => ['name', t('Role name') . ' <span class="required">*</span>', (($localname) ? $localname : ''), (($is_system_role) ? t('System role - not editable') : ''), '', (($is_system_role) ? 'disabled' : '')],
+			'$delete_label'        => t('Deleting') . ' ' . $localname,
+			'$current_role'        => $name,
+			'$perms'               => $perms,
+			'$inherited'           => t('inherited'),
+			'$is_system_role'      => $is_system_role,
+			'$permlbl'             => t('Role Permissions'),
+			'$permnote'            => t('Some permissions may be inherited from your <a href="settings">channel role</a>, which have higher priority than contact role settings.'),
+			'$submit'              => t('Submit'),
+			'$return_path'         => argv(1),
+			'$group_select'        => $group_select,
+			'$delete_role_select'  => $delete_role_select,
+			'$delet_role_button'   => t('Delete')
+		]);
 
-		));
 		return $o;
 	}
 

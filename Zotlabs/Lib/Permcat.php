@@ -4,7 +4,6 @@ namespace Zotlabs\Lib;
 
 use Zotlabs\Access\PermissionRoles;
 use Zotlabs\Access\Permissions;
-use Zotlabs\Lib\Libsync;
 use Zotlabs\Daemon\Master;
 
 /**
@@ -40,33 +39,33 @@ class Permcat {
 
 		// first check role perms for a perms_connect setting
 
-		$role = get_pconfig($channel_id,'system','permissions_role');
-		if($role) {
+		$role = get_pconfig($channel_id, 'system', 'permissions_role');
+		if ($role) {
 			$x = PermissionRoles::role_perms($role);
-			if($x['perms_connect']) {
+			if ($x['perms_connect']) {
 				$perms = Permissions::FilledPerms($x['perms_connect']);
 			}
 		}
 
 		// if no role perms it may be a custom role, see if there any autoperms
 
-		if(! $perms) {
+		if (!$perms) {
 			$perms = Permissions::FilledAutoPerms($channel_id);
 		}
 
 		// if no autoperms it may be a custom role with manual perms
 
-		if(! $perms) {
+		if (!$perms) {
 			$r = q("select channel_hash from channel where channel_id = %d",
 				intval($channel_id)
 			);
-			if($r) {
+			if ($r) {
 				$x = q("select * from abconfig where chan = %d and xchan = '%s' and cat = 'my_perms'",
 					intval($channel_id),
 					dbesc($r[0]['channel_hash'])
 				);
-				if($x) {
-					foreach($x as $xv) {
+				if ($x) {
+					foreach ($x as $xv) {
 						$perms[$xv['k']] = intval($xv['v']);
 					}
 				}
@@ -75,13 +74,13 @@ class Permcat {
 
 		// nothing was found - create a filled permission array where all permissions are 0
 
-		if(! $perms) {
+		if (!$perms) {
 			$perms = Permissions::FilledPerms([]);
 		}
 
 		$this->permcats[] = [
 			'name'      => 'default',
-			'localname' => t('Default','permcat'),
+			'localname' => t('Default', 'permcat'),
 			'perms'     => Permissions::Operms($perms),
 			'raw_perms' => $perms,
 			'system'    => 1
@@ -89,8 +88,8 @@ class Permcat {
 
 
 		$p = $this->load_permcats($channel_id);
-		if($p) {
-			for($x = 0; $x < count($p); $x++) {
+		if ($p) {
+			for ($x = 0; $x < count($p); $x++) {
 				$this->permcats[] = [
 					'name'      => $p[$x][0],
 					'localname' => $p[$x][1],
@@ -120,9 +119,9 @@ class Permcat {
 	 *   * \e bool \b error if $name not found in permcats true
 	 */
 	public function fetch($name) {
-		if($name && $this->permcats) {
-			foreach($this->permcats as $permcat) {
-				if(strcasecmp($permcat['name'], $name) === 0) {
+		if ($name && $this->permcats) {
+			foreach ($this->permcats as $permcat) {
+				if (strcasecmp($permcat['name'], $name) === 0) {
 					return $permcat;
 				}
 			}
@@ -132,7 +131,7 @@ class Permcat {
 	}
 
 	public function load_permcats($uid) {
-/*
+		/*
 		$permcats = [
 			[ 'contributor', t('Contributor','permcat'),
 				[ 'view_stream','view_profile','view_contacts','view_storage','view_pages',
@@ -144,16 +143,16 @@ class Permcat {
 				  'post_comments','write_wiki','post_like' ], 1
 			],
 		];
-*/
-		if($uid) {
+		*/
+		if ($uid) {
 			$x = q("select * from pconfig where uid = %d and cat = 'permcat'",
 				intval($uid)
 			);
 
-			if($x) {
-				foreach($x as $xv) {
-					$value = ((preg_match('|^a:[0-9]+:{.*}$|s', $xv['v'])) ? unserialize($xv['v']) : $xv['v']);
-					$permcats[] = [ $xv['k'], $xv['k'], $value, 0 ];
+			if ($x) {
+				foreach ($x as $xv) {
+					$value      = ((preg_match('|^a:[0-9]+:{.*}$|s', $xv['v'])) ? unserialize($xv['v']) : $xv['v']);
+					$permcats[] = [$xv['k'], $xv['k'], $value, 0];
 				}
 			}
 		}
@@ -168,11 +167,11 @@ class Permcat {
 	}
 
 	static public function find_permcat($arr, $name) {
-		if((! $arr) || (! $name))
+		if ((!$arr) || (!$name))
 			return false;
 
-		foreach($arr as $p)
-			if($p['name'] == $name)
+		foreach ($arr as $p)
+			if ($p['name'] == $name)
 				return $p['value'];
 	}
 
@@ -187,23 +186,23 @@ class Permcat {
 	/**
 	 * @brief assign a contact role to contacts
 	 *
-	 * @param int $channel_id
+	 * @param array $channel
 	 * @param string $role the name of the role
 	 * @param array $contacts an array of contact hashes
 	 */
 	public static function assign($channel, $role, $contacts) {
 
-		if(!isset($channel['channel_id'])) {
+		if (!isset($channel['channel_id'])) {
 			return;
 		}
 
-		if(!is_array($contacts) || empty($contacts)) {
+		if (!is_array($contacts) || empty($contacts)) {
 			return;
 		}
 
-		if(!$role) {
+		if (!$role) {
 			// lookup the default
-			$role = get_pconfig($channel_id, 'system', 'default_permcat', 'default');
+			$role = get_pconfig($channel['channel_id'], 'system', 'default_permcat', 'default');
 		}
 
 
@@ -231,10 +230,10 @@ class Permcat {
 			foreach ($contacts as $contact) {
 				foreach ($all_perms as $perm => $desc) {
 					if (array_key_exists($perm, $perms)) {
-						$values_sql .= " (" . intval($channel['channel_id']) . ", " .  protect_sprintf($contact) . ", 'my_perms', '" .  dbesc($perm) . "', " .  intval($perms[$perm]) . "),";
+						$values_sql .= " (" . intval($channel['channel_id']) . ", " . protect_sprintf($contact) . ", 'my_perms', '" . dbesc($perm) . "', " . intval($perms[$perm]) . "),";
 					}
 					else {
-						$values_sql .= " (" . intval($channel['channel_id']) . ", " .  protect_sprintf($contact) . ", 'my_perms', '" .  dbesc($perm) . "', 0), ";
+						$values_sql .= " (" . intval($channel['channel_id']) . ", " . protect_sprintf($contact) . ", 'my_perms', '" . dbesc($perm) . "', 0), ";
 					}
 				}
 			}

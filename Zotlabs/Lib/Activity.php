@@ -2685,7 +2685,7 @@ class Activity {
 		if ($ap_rawmsg) {
 			set_iconfig($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
 		}
-		else {
+		elseif (!array_key_exists('signed', $raw_arr)) {
 			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
 		}
 

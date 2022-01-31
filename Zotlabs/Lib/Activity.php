@@ -529,6 +529,7 @@ class Activity {
 		$top_level = (($i['mid'] === $i['parent_mid']) ? true : false);
 
 		if ($public) {
+
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 			$ret['cc'] = [z_root() . '/followers/' . substr($i['author']['xchan_addr'], 0, strpos($i['author']['xchan_addr'], '@'))];
 		}
@@ -2644,6 +2645,7 @@ class Activity {
 		}
 
 		$ap_rawmsg = '';
+		$diaspora_rawmsg = '';
 		$raw_arr = [];
 
 		$raw_arr = json_decode($act->raw, true);
@@ -2658,7 +2660,13 @@ class Activity {
 					isset($a['value'])
 				) {
 					$ap_rawmsg = $a['value'];
-					break;
+				}
+				if (
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
+					isset($a['value'])
+				) {
+					$diaspora_rawmsg = $a['value'];
 				}
 			}
 		}
@@ -2682,11 +2690,24 @@ class Activity {
 		}
 		// end old style
 
+		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
+			//zap
+			unset($act->data['signer']);
+			unset($act->data['signed_data']);
+			unset($act->data['hubloc']);
+
+			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
+		}
+
 		if ($ap_rawmsg) {
 			set_iconfig($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
 		}
 		elseif (!array_key_exists('signed', $raw_arr)) {
 			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
+		}
+
+		if ($diaspora_rawmsg) {
+			set_iconfig($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);

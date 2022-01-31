@@ -2482,14 +2482,14 @@ class Libzot {
 				$access_policy = ACCESS_PRIVATE;
 		}
 
-		$directory_url = htmlspecialchars($arr['directory_url'], ENT_COMPAT, 'UTF-8', false);
-		$url           = htmlspecialchars(strtolower($arr['url']), ENT_COMPAT, 'UTF-8', false);
-		$sellpage      = htmlspecialchars($arr['sellpage'], ENT_COMPAT, 'UTF-8', false);
-		$site_location = htmlspecialchars($arr['location'], ENT_COMPAT, 'UTF-8', false);
-		$site_realm    = htmlspecialchars($arr['realm'], ENT_COMPAT, 'UTF-8', false);
-		$site_project  = htmlspecialchars($arr['project'], ENT_COMPAT, 'UTF-8', false);
-		$site_crypto   = ((array_key_exists('encryption', $arr) && is_array($arr['encryption'])) ? htmlspecialchars(implode(',', $arr['encryption']), ENT_COMPAT, 'UTF-8', false) : '');
-		$site_version  = ((array_key_exists('version', $arr)) ? htmlspecialchars($arr['version'], ENT_COMPAT, 'UTF-8', false) : '');
+		$directory_url = htmlspecialchars((string)$arr['directory_url'], ENT_COMPAT, 'UTF-8', false);
+		$url           = htmlspecialchars((string)strtolower($arr['url']), ENT_COMPAT, 'UTF-8', false);
+		$sellpage      = htmlspecialchars((string)$arr['sellpage'], ENT_COMPAT, 'UTF-8', false);
+		$site_location = htmlspecialchars((string)$arr['location'], ENT_COMPAT, 'UTF-8', false);
+		$site_realm    = htmlspecialchars((string)$arr['realm'], ENT_COMPAT, 'UTF-8', false);
+		$site_project  = htmlspecialchars((string)$arr['project'], ENT_COMPAT, 'UTF-8', false);
+		$site_crypto   = ((array_key_exists('encryption', $arr) && is_array($arr['encryption'])) ? htmlspecialchars((string)implode(',', $arr['encryption']), ENT_COMPAT, 'UTF-8', false) : '');
+		$site_version  = ((array_key_exists('version', $arr)) ? htmlspecialchars((string)$arr['version'], ENT_COMPAT, 'UTF-8', false) : '');
 
 		// You can have one and only one primary directory per realm.
 		// Downgrade any others claiming to be primary. As they have

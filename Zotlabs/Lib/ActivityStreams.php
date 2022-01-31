@@ -36,6 +36,9 @@ class ActivityStreams {
 	 */
 	function __construct($string) {
 
+		if(!$string)
+			return;
+
 		$this->raw = $string;
 
 		if (is_array($string)) {

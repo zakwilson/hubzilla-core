@@ -1492,6 +1492,10 @@ function day_translate($s) {
  * @return string
  */
 function normalise_link($url) {
+	if (!$url) {
+		return EMPTY_STR;
+	}
+
 	$ret = str_replace(array('https:', '//www.'), array('http:', '//'), $url);
 
 	return(rtrim($ret, '/'));

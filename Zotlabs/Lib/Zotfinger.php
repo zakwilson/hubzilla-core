@@ -56,7 +56,7 @@ class Zotfinger {
                 if ($hubs) {
                     foreach ($hubs as $hub) {
                         if ($hub['hubloc_id_url'] !== $resource && !$hub['hubloc_deleted']) {
-                            return $self::exec($hub['hubloc_id_url'], $channel, $verify);
+                            return self::exec($hub['hubloc_id_url'], $channel, $verify);
                         }
                     }
                 }

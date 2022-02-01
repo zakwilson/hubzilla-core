@@ -55,8 +55,8 @@ class Zotfinger {
                 $hubs = Activity::get_actor_hublocs($h[0]['hubloc_hash']);
                 if ($hubs) {
                     foreach ($hubs as $hub) {
-                        if ($hub['hubloc_id_url'] !== $resource and !$hub['hubloc_deleted']) {
-                            return $self::exec($hub['hubloc_id_url'],$channel,$verify);
+                        if ($hub['hubloc_id_url'] !== $resource && !$hub['hubloc_deleted']) {
+                            return $self::exec($hub['hubloc_id_url'], $channel, $verify);
                         }
                     }
                 }

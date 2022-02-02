@@ -2650,7 +2650,7 @@ class Activity {
 
 		$raw_arr = json_decode($act->raw, true);
 
-		// This is a zot6 packet and the raw activitypub message json
+		// This is a zot6 packet and the raw activitypub or diaspora message json
 		// is possibly available in the attachement.
 		if (array_key_exists('signed', $raw_arr) && is_array($act->data['attachment'])) {
 			foreach($act->data['attachment'] as $a) {
@@ -2692,9 +2692,14 @@ class Activity {
 
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
 			//zap
-			unset($act->data['signer']);
-			unset($act->data['signed_data']);
-			unset($act->data['hubloc']);
+			if (isset($act->data['signer']))
+				unset($act->data['signer']);
+
+			if (isset($act->data['signed_data']))
+				unset($act->data['signed_data']);
+
+			if (isset($act->data['hubloc']))
+				unset($act->data['hubloc']);
 
 			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
 		}

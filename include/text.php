@@ -417,6 +417,9 @@ function xmlify($str) {
 
 	//$buffer = '';
 
+	if (!$str)
+		return EMPTY_STR;
+
 	if(is_array($str)) {
 
 		// allow to fall through so we ge a PHP error, as the log statement will
@@ -481,6 +484,9 @@ function unxmlify($s) {
 
 	return $ret;
 */
+
+	if (!$s)
+		return EMPTY_STR;
 
 	if(is_array($s)) {
 

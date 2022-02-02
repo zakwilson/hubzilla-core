@@ -1927,6 +1927,7 @@ class Libzot {
 			dbesc($a['signature']['signer'])
 		);
 
+
 		foreach ($items as $activity) {
 
 			$AS = new ActivityStreams($activity);

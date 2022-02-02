@@ -1446,7 +1446,7 @@ function activity_sanitise($arr) {
 				if(is_array($x))
 					$ret[$k] = activity_sanitise($x);
 				else
-					$ret[$k] = htmlspecialchars($x, ENT_COMPAT, 'UTF-8', false);
+					$ret[$k] = htmlspecialchars((string)$x, ENT_COMPAT, 'UTF-8', false);
 			}
 			return $ret;
 		}
@@ -4438,7 +4438,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			);
 	}
 
-	if(strlen($arr['file'])) {
+	if($arr['file']) {
 		$sql_extra .= term_query('item',$arr['files'],TERM_FILE);
 	}
 

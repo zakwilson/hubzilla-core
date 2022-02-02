@@ -846,7 +846,7 @@ function activity_match($haystack,$needle) {
 
 	if($needle) {
 		foreach($needle as $n) {
-			if(($haystack === $n) || (strtolower(basename($n)) === strtolower(basename($haystack)))) {
+			if(($haystack === $n) || (strtolower(basename((string)$n)) === strtolower(basename((string)$haystack)))) {
 				return true;
 			}
 		}

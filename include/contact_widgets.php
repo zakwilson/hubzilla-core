@@ -100,6 +100,10 @@ function categories_widget($baseurl,$selected = '') {
 		\Zotlabs\Daemon\Master::Summon([ 'Cache_query', $key, base64_encode(json_encode($arr)) ]);
 	}
 
+	if (!$content) {
+		return EMPTY_STR;
+	}
+
 	$r = unserialize($content);
 
 	$terms = [];

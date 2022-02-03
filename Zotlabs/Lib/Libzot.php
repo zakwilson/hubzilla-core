@@ -1296,9 +1296,8 @@ class Libzot {
 						}
 					}
 				}
-
-				if ($AS->data['signed_data']) {
-					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
+				if ($AS->meta['signed_data']) {
+					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				}
 
 				logger('Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
@@ -1989,9 +1988,9 @@ class Libzot {
 				$arr['item_verified'] = true;
 			}
 
-			if ($AS->data['signed_data']) {
-				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
-				$j = json_decode($AS->data['signed_data'], true);
+			if ($AS->meta['signed_data']) {
+				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
+				$j = json_decode($AS->meta['signed_data'], true);
 				if ($j) {
 					IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
 				}

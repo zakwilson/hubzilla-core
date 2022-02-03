@@ -11,6 +11,7 @@ class ActivityStreams {
 
 	public $raw = null;
 	public $data = null;
+	public $meta = null;
 	public $valid = false;
 	public $deleted = false;
 	public $id = '';
@@ -56,15 +57,14 @@ class ActivityStreams {
 			if (is_array($this->data) && array_key_exists('signed', $this->data)) {
 				$ret = JSalmon::verify($this->data);
 				$tmp = JSalmon::unpack($this->data['data']);
-
 				if ($ret && $ret['success']) {
 					if ($ret['signer']) {
 						$saved                     = json_encode($this->data, JSON_UNESCAPED_SLASHES);
 						$this->data                = $tmp;
-						$this->data['signer']      = $ret['signer'];
-						$this->data['signed_data'] = $saved;
+						$this->meta['signer']      = $ret['signer'];
+						$this->meta['signed_data'] = $saved;
 						if ($ret['hubloc']) {
-							$this->data['hubloc'] = $ret['hubloc'];
+							$this->meta['hubloc'] = $ret['hubloc'];
 						}
 					}
 				}
@@ -348,10 +348,10 @@ class ActivityStreams {
 				if ($ret['signer']) {
 					$saved            = json_encode($x, JSON_UNESCAPED_SLASHES);
 					$x                = $tmp;
-					$x['signer']      = $ret['signer'];
-					$x['signed_data'] = $saved;
+					$x['meta']['signer']      = $ret['signer'];
+					$x['meta']['signed_data'] = $saved;
 					if ($ret['hubloc']) {
-						$x['hubloc'] = $ret['hubloc'];
+						$x['meta']['hubloc'] = $ret['hubloc'];
 					}
 				}
 			}

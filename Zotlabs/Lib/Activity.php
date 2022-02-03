@@ -2672,35 +2672,34 @@ class Activity {
 		}
 
 		// old style: can be removed after most hubs are on 7.0.2
-		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr) && is_array($act->obj) && is_array($act->obj['attachment'])) {
+		elseif (array_key_exists('signed', $raw_arr) && is_array($act->obj) && is_array($act->obj['attachment'])) {
 			foreach($act->obj['attachment'] as $a) {
 				if (
-					isset($a['type']) && $a['type'] === 'propertyvalue' &&
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
 					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
 					isset($a['value'])
 				) {
 					$ap_rawmsg = $a['value'];
-					break;
+				}
+
+				if (
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
+					isset($a['value'])
+				) {
+					$diaspora_rawmsg = $a['value'];
 				}
 			}
 		}
 
+		// catch the likes
 		if (!$ap_rawmsg && $response_activity) {
 			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
 		}
 		// end old style
 
 		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
-			//zap
-			if (isset($act->data['signer']))
-				unset($act->data['signer']);
-
-			if (isset($act->data['signed_data']))
-				unset($act->data['signed_data']);
-
-			if (isset($act->data['hubloc']))
-				unset($act->data['hubloc']);
-
+			// zap
 			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
 		}
 

@@ -58,10 +58,22 @@ class Search extends Controller {
 		$o .= search($search, 'search-box', '/search', ((local_channel()) ? true : false));
 
 		if (local_channel() && strpos($search, 'https://') === 0 && !$update && !$load) {
+			if (strpos($search, 'b64.') !== false) {
+				$search = unpack_link_id(basename($search));
+			}
+
 			$f = Libzot::fetch_conversation(App::get_channel(), punify($search), true);
 
 			if ($f) {
-				goaway(z_root() . '/hq/' . gen_link_id($f['message_id']));
+				$mid = $f[0]['message_id'];
+				foreach ($f as $m) {
+					if (strpos($search, $m['message_id']) === 0) {
+						$mid = $m['message_id'];
+						break;
+					}
+				}
+
+				goaway(z_root() . '/hq/' . gen_link_id($mid));
 			}
 			else {
 				// try other fetch providers (e.g. diaspora, pubcrawl)

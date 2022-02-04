@@ -7,6 +7,7 @@ use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\ActivityStreams;
 use Zotlabs\Web\Controller;
+use Zotlabs\Lib\Zotfinger;
 
 class Search extends Controller {
 
@@ -59,6 +60,10 @@ class Search extends Controller {
 
 		if (local_channel() && strpos($search, 'https://') === 0 && !$update && !$load) {
 			if (strpos($search, 'b64.') !== false) {
+                if (strpos($search, '?') !== false) {
+					$search = strtok($search, '?');
+                }
+
 				$search = unpack_link_id(basename($search));
 			}
 

@@ -116,6 +116,11 @@ class Activity {
 
 			$y = json_decode($x['body'], true);
 			logger('returned: ' . json_encode($y, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOGGER_DEBUG);
+
+			if (ActivityStreams::is_an_actor($y['type'])) {
+				XConfig::Set($y['id'], 'system', 'actor_record', $y);
+			}
+
 			return json_decode($x['body'], true);
 		}
 		else {
@@ -3709,7 +3714,10 @@ class Activity {
 	}
 
 	static function get_cached_actor($id) {
-		$actor = XConfig::Get($id, 'system', 'actor_record');
+
+		// remove any fragments like #main-key since these won't be present in our cached data
+		$cache_url = ((strpos($id, '#')) ? substr($id, 0, strpos($id, '#')) : $id);
+		$actor = XConfig::Get($cache_url, 'system', 'actor_record');
 
 		if ($actor) {
 			return $actor;
@@ -3718,7 +3726,7 @@ class Activity {
 		// try other get_cached_actor providers (e.g. diaspora)
 		$hookdata = [
 			'id'    => $id,
-			'actor' => false
+			'actor' => null
 		];
 
 		call_hooks('get_cached_actor_provider', $hookdata);

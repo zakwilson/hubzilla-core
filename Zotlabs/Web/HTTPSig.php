@@ -244,12 +244,12 @@ class HTTPSig {
 			}
 		}
 
-		$deleted = false;
-		if ($keytype === 'deleted') {
-			$deleted = true;
+		$delete = false;
+		if ($keytype === 'delete') {
+			$delete = true;
 		}
 
-		$key = self::get_activitystreams_key($id, $force, $deleted);
+		$key = self::get_activitystreams_key($id, $force, $delete);
 
 		return $key;
 
@@ -280,7 +280,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return an array with the pub key
 	 */
 
-	static function get_activitystreams_key($id, $force = false, $deleted = false) {
+	static function get_activitystreams_key($id, $force = false, $delete = false) {
 
 		// Check the local cache first, but remove any fragments like #main-key since these won't be present in our cached data
 		$url = ((strpos($id, '#')) ? substr($id, 0, strpos($id, '#')) : $id);
@@ -300,7 +300,7 @@ class HTTPSig {
 			}
 		}
 
-		if ($deleted) {
+		if ($delete) {
 			// If we received a delete and we do not have the record cached,
 			// we probably never saw this actor. Do not try to fetch it now.
 			return false;

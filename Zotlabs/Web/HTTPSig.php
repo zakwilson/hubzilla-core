@@ -156,6 +156,7 @@ class HTTPSig {
 
 		$cached_key = self::get_key($key, $keytype, $result['signer']);
 
+
 		if (!($cached_key && $cached_key['public_key'])) {
 			return $result;
 		}
@@ -229,21 +230,26 @@ class HTTPSig {
 			return ['public_key' => $key];
 		}
 
+		$deleted = false;
+		if ($keytype === 'deleted') {
+			$deleted = true;
+		}
+
 		if ($keytype === 'zot6') {
-			$key = self::get_zotfinger_key($id, $force);
+			$key = self::get_zotfinger_key($id, $force, $deleted);
 			if ($key) {
 				return $key;
 			}
 		}
 
 		if (strpos($id, '#') === false) {
-			$key = self::get_webfinger_key($id, $force);
+			$key = self::get_webfinger_key($id, $force, $deleted);
 			if ($key) {
 				return $key;
 			}
 		}
 
-		$key = self::get_activitystreams_key($id, $force);
+		$key = self::get_activitystreams_key($id, $force, $deleted);
 
 		return $key;
 
@@ -274,7 +280,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return an array with the pub key
 	 */
 
-	static function get_activitystreams_key($id, $force = false) {
+	static function get_activitystreams_key($id, $force = false, $deleted = false) {
 
 		// Check the local cache first, but remove any fragments like #main-key since these won't be present in our cached data
 		$url = ((strpos($id, '#')) ? substr($id, 0, strpos($id, '#')) : $id);
@@ -292,6 +298,12 @@ class HTTPSig {
 			if ($best && $best['xchan_pubkey']) {
 				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
 			}
+		}
+
+		if ($deleted) {
+			// If we received a delete and we do not have the record cached,
+			// we probably never saw this actor. Do not try to fetch it now.
+			return false;
 		}
 
 		// The record wasn't in cache. Fetch it now.
@@ -319,7 +331,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return an array with the pub key
 	 */
 
-	static function get_webfinger_key($id, $force = false) {
+	static function get_webfinger_key($id, $force = false, $deleted = false) {
 
 		if (!$force) {
 			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' and hubloc_network in ('zot6', 'activitypub') order by hubloc_id desc",
@@ -333,6 +345,12 @@ class HTTPSig {
 			if ($best && $best['xchan_pubkey']) {
 				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
 			}
+		}
+
+		if ($deleted) {
+			// If we received a delete and we do not have the record cached,
+			// we probably never saw this actor. Do not try to fetch it now.
+			return false;
 		}
 
 		$wf  = Webfinger::exec($id);
@@ -366,7 +384,7 @@ class HTTPSig {
 	 *   false if no pub key found, otherwise return an array with the public key
 	 */
 
-	static function get_zotfinger_key($id, $force = false) {
+	static function get_zotfinger_key($id, $force = false, $deleted = false) {
 		if (!$force) {
 			$x = q("select * from xchan left join hubloc on xchan_hash = hubloc_hash where hubloc_id_url = '%s' and hubloc_network = 'zot6' order by hubloc_id desc",
 				dbesc($id)
@@ -379,6 +397,12 @@ class HTTPSig {
 			if ($best && $best['xchan_pubkey']) {
 				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
 			}
+		}
+
+		if ($deleted) {
+			// If we received a delete and we do not have the record cached,
+			// we probably never saw this actor. Do not try to fetch it now.
+			return false;
 		}
 
 		$wf  = Webfinger::exec($id);

@@ -92,7 +92,7 @@ class ActivityStreams {
 
 			$this->ldsig = $this->get_compound_property('signature');
 			if ($this->ldsig) {
-				$this->signer = $this->get_compound_property('creator', $this->ldsig);
+				$this->signer = $this->get_actor('creator', $this->ldsig);
 				if ($this->signer && is_array($this->signer) && array_key_exists('publicKey', $this->signer) && is_array($this->signer['publicKey']) && $this->signer['publicKey']['publicKeyPem']) {
 					$this->sigok = LDSignatures::verify($this->data, $this->signer['publicKey']['publicKeyPem']);
 				}

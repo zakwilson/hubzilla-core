@@ -86,7 +86,7 @@ class SessionHandler implements \SessionHandlerInterface {
 	}
 
 
-	function gc($expire) : int {
+	function gc($expire) : bool {
 		q("DELETE FROM session WHERE expire < %d", dbesc(time()));
 		return true;
 	}

@@ -15,7 +15,7 @@ class SessionHandler implements \SessionHandlerInterface {
 	// some which call read explicitly and some that do not. So we call it explicitly
 	// just after sid regeneration to force a record to exist.
 
-	function read ($id) : string|false {
+	function read ($id) : string {
 
 		if($id) {
 			$r = q("SELECT sess_data FROM session WHERE sid= '%s'", dbesc($id));
@@ -86,7 +86,7 @@ class SessionHandler implements \SessionHandlerInterface {
 	}
 
 
-	function gc($expire) : int|false {
+	function gc($expire) : int {
 		q("DELETE FROM session WHERE expire < %d", dbesc(time()));
 		return true;
 	}

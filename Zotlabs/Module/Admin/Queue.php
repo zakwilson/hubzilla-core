@@ -23,7 +23,18 @@ class Queue {
 			LibQueue::remove_by_posturl($_REQUEST['emptyhub']);
 		}
 
-		$r = q("select count(outq_posturl) as total, max(outq_priority) as priority, outq_posturl from outq
+		if($_REQUEST['deliverhub']) {
+
+			$hubq = q("SELECT * FROM outq WHERE outq_posturl = '%s'",
+				dbesc($_REQUEST['deliverhub'])
+			);
+
+			foreach ($hubq as $q) {
+				LibQueue::deliver($q, true);
+			}
+		}
+
+		$r = dbq("select count(outq_posturl) as total, max(outq_priority) as priority, outq_posturl from outq
 			where outq_delivered = 0 group by outq_posturl order by total desc");
 
 		for($x = 0; $x < count($r); $x ++) {
@@ -37,6 +48,7 @@ class Queue {
 			'$priority' => t('Priority'),
 			'$desturl' => t('Destination URL'),
 			'$nukehub' => t('Mark hub permanently offline'),
+			'$deliverhub' => t('Retry delivery to this hub'),
 			'$empty' => t('Empty queue for this hub'),
 			'$lastconn' => t('Last known contact'),
 			'$hasentries' => ((count($r)) ? true : false),

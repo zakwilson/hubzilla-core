@@ -1180,7 +1180,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					else {
 						$name = $author['author_name'];
 					}
-					$x = import_author_unknown(array('name' => $name,'url' => $author['author_link'],'photo' => array('src' => $author['author_photo'])));
+					$x = import_author_rss(array('name' => $name,'url' => $author['author_link'],'photo' => array('src' => $author['author_photo'])));
 					if($x)
 						$datarray['author_xchan'] = $x;
 				}
@@ -1440,7 +1440,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					else {
 						$name = $author['author_name'];
 					}
-					$x = import_author_unknown(array('name' => $name,'url' => $author['author_link'],'photo' => array('src' => $author['author_photo'])));
+					$x = import_author_rss(array('name' => $name,'url' => $author['author_link'],'photo' => array('src' => $author['author_photo'])));
 					if($x)
 						$datarray['author_xchan'] = $x;
 				}

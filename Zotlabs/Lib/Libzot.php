@@ -1296,9 +1296,8 @@ class Libzot {
 						}
 					}
 				}
-
-				if ($AS->data['signed_data']) {
-					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
+				if ($AS->meta['signed_data']) {
+					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				}
 
 				logger('Activity received: ' . print_r($arr, true), LOGGER_DATA, LOG_DEBUG);
@@ -1927,6 +1926,7 @@ class Libzot {
 			dbesc($a['signature']['signer'])
 		);
 
+
 		foreach ($items as $activity) {
 
 			$AS = new ActivityStreams($activity);
@@ -1988,9 +1988,9 @@ class Libzot {
 				$arr['item_verified'] = true;
 			}
 
-			if ($AS->data['signed_data']) {
-				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->data['signed_data'], false);
-				$j = json_decode($AS->data['signed_data'], true);
+			if ($AS->meta['signed_data']) {
+				IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
+				$j = json_decode($AS->meta['signed_data'], true);
 				if ($j) {
 					IConfig::Set($arr, 'activitypub', 'rawmsg', json_encode(JSalmon::unpack($j['data'])), true);
 				}
@@ -2482,14 +2482,14 @@ class Libzot {
 				$access_policy = ACCESS_PRIVATE;
 		}
 
-		$directory_url = htmlspecialchars($arr['directory_url'], ENT_COMPAT, 'UTF-8', false);
-		$url           = htmlspecialchars(strtolower($arr['url']), ENT_COMPAT, 'UTF-8', false);
-		$sellpage      = htmlspecialchars($arr['sellpage'], ENT_COMPAT, 'UTF-8', false);
-		$site_location = htmlspecialchars($arr['location'], ENT_COMPAT, 'UTF-8', false);
-		$site_realm    = htmlspecialchars($arr['realm'], ENT_COMPAT, 'UTF-8', false);
-		$site_project  = htmlspecialchars($arr['project'], ENT_COMPAT, 'UTF-8', false);
-		$site_crypto   = ((array_key_exists('encryption', $arr) && is_array($arr['encryption'])) ? htmlspecialchars(implode(',', $arr['encryption']), ENT_COMPAT, 'UTF-8', false) : '');
-		$site_version  = ((array_key_exists('version', $arr)) ? htmlspecialchars($arr['version'], ENT_COMPAT, 'UTF-8', false) : '');
+		$directory_url = htmlspecialchars((string)$arr['directory_url'], ENT_COMPAT, 'UTF-8', false);
+		$url           = htmlspecialchars((string)strtolower($arr['url']), ENT_COMPAT, 'UTF-8', false);
+		$sellpage      = htmlspecialchars((string)$arr['sellpage'], ENT_COMPAT, 'UTF-8', false);
+		$site_location = htmlspecialchars((string)$arr['location'], ENT_COMPAT, 'UTF-8', false);
+		$site_realm    = htmlspecialchars((string)$arr['realm'], ENT_COMPAT, 'UTF-8', false);
+		$site_project  = htmlspecialchars((string)$arr['project'], ENT_COMPAT, 'UTF-8', false);
+		$site_crypto   = ((array_key_exists('encryption', $arr) && is_array($arr['encryption'])) ? htmlspecialchars((string)implode(',', $arr['encryption']), ENT_COMPAT, 'UTF-8', false) : '');
+		$site_version  = ((array_key_exists('version', $arr)) ? htmlspecialchars((string)$arr['version'], ENT_COMPAT, 'UTF-8', false) : '');
 
 		// You can have one and only one primary directory per realm.
 		// Downgrade any others claiming to be primary. As they have
@@ -3172,7 +3172,7 @@ class Libzot {
 	}
 
 	static function update_cached_hubloc($hubloc) {
-		if ($hubloc['hubloc_updated'] > datetime_convert('UTC','UTC','now - 1 week') || $hubloc['hubloc_url'] === z_root()) {
+		if ($hubloc['hubloc_updated'] > datetime_convert('UTC','UTC','now - 3 days') || $hubloc['hubloc_url'] === z_root()) {
 			return;
 		}
 		self::refresh( [ 'hubloc_id_url' => $hubloc['hubloc_id_url'] ] );

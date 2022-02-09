@@ -1446,7 +1446,7 @@ function activity_sanitise($arr) {
 				if(is_array($x))
 					$ret[$k] = activity_sanitise($x);
 				else
-					$ret[$k] = htmlspecialchars($x, ENT_COMPAT, 'UTF-8', false);
+					$ret[$k] = htmlspecialchars((string)$x, ENT_COMPAT, 'UTF-8', false);
 			}
 			return $ret;
 		}
@@ -1625,9 +1625,9 @@ function item_store($arr, $allow_exec = false, $deliver = true) {
 		return $ret;
 	}
 
-	$arr['title'] = ((array_key_exists('title',$arr) && strlen($arr['title']))  ? trim($arr['title']) : '');
-	$arr['summary'] = ((array_key_exists('summary',$arr) && strlen($arr['summary']))  ? trim($arr['summary']) : '');
-	$arr['body']  = ((array_key_exists('body',$arr) && strlen($arr['body']))    ? trim($arr['body'])  : '');
+	$arr['title'] = ((array_key_exists('title',$arr) && $arr['title'])  ? trim($arr['title']) : '');
+	$arr['summary'] = ((array_key_exists('summary',$arr) && $arr['summary'])  ? trim($arr['summary']) : '');
+	$arr['body']  = ((array_key_exists('body',$arr) && $arr['body'])    ? trim($arr['body'])  : '');
 
 	$arr['allow_cid']     = ((x($arr,'allow_cid'))     ? trim($arr['allow_cid'])             : '');
 	$arr['allow_gid']     = ((x($arr,'allow_gid'))     ? trim($arr['allow_gid'])             : '');
@@ -4438,7 +4438,7 @@ function items_fetch($arr,$channel = null,$observer_hash = null,$client_mode = C
 			);
 	}
 
-	if(strlen($arr['file'])) {
+	if($arr['file']) {
 		$sql_extra .= term_query('item',$arr['files'],TERM_FILE);
 	}
 

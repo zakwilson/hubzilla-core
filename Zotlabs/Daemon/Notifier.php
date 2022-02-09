@@ -5,6 +5,7 @@ namespace Zotlabs\Daemon;
 use Zotlabs\Lib\Libzot;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Queue;
+use Zotlabs\Lib\LDSignatures;
 
 require_once('include/html2plain.php');
 require_once('include/conversation.php');
@@ -336,12 +337,14 @@ class Notifier {
 				self::$encoded_item = json_decode($m, true);
 			}
 			else {
+
 				self::$encoded_item = array_merge(['@context' => [
 					ACTIVITYSTREAMS_JSONLD_REV,
 					'https://w3id.org/security/v1',
 					z_root() . ZOT_APSCHEMA_REV
 				]], Activity::encode_activity($target_item)
 				);
+				self::$encoded_item['signature'] = LDSignatures::sign(self::$encoded_item, self::$channel);
 			}
 
 			logger('target_item: ' . print_r($target_item, true), LOGGER_DEBUG);

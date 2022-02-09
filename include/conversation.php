@@ -558,7 +558,7 @@ function conversation($items, $mode, $update, $page_mode = 'traditional', $prepa
 		$page_writeable = ($profile_owner == local_channel());
 
 		if (!$update) {
-			$tab = notags(trim($_GET['tab']));
+			$tab = notags(trim((string)$_GET['tab']));
 			if ($tab === 'posts') {
 				// This is ugly, but we can't pass the profile_uid through the session to the ajax updater,
 				// because browser prefetching might change it on us. We have to deliver it with the page.
@@ -974,7 +974,7 @@ function best_link_url($item) {
 		}
 	}
 	if(! $best_url) {
-		if(strlen($item['author-link']))
+		if($item['author-link'])
 			$best_url = $item['author-link'];
 		else
 			$best_url = $item['url'];

@@ -358,7 +358,7 @@ class Item extends Controller {
 		$consensus = intval($_REQUEST['consensus']);
 		$nocomment = intval($_REQUEST['nocomment']);
 
-		$is_poll = ((trim($_REQUEST['poll_answers'][0]) != '' && trim($_REQUEST['poll_answers'][1]) != '') ? true : false);
+		$is_poll = ((trim((string)$_REQUEST['poll_answers'][0]) != '' && trim((string)$_REQUEST['poll_answers'][1]) != '') ? true : false);
 
 		// 'origin' (if non-zero) indicates that this network is where the message originated,
 		// for the purpose of relaying comments to other conversation members.
@@ -719,13 +719,13 @@ class Item extends Controller {
 			}
 
 
-			$location = notags(trim($_REQUEST['location']));
-			$coord    = notags(trim($_REQUEST['coord']));
-			$verb     = notags(trim($_REQUEST['verb']));
-			$title    = escape_tags(trim($_REQUEST['title']));
-			$summary  = trim($_REQUEST['summary']);
-			$body     = trim($_REQUEST['body']);
-			$body     .= trim($_REQUEST['attachment']);
+			$location = notags(trim((string)$_REQUEST['location']));
+			$coord    = notags(trim((string)$_REQUEST['coord']));
+			$verb     = notags(trim((string)$_REQUEST['verb']));
+			$title    = escape_tags(trim((string)$_REQUEST['title']));
+			$summary  = trim((string)$_REQUEST['summary']);
+			$body     = trim((string)$_REQUEST['body']);
+			$body     .= trim((string)$_REQUEST['attachment']);
 			$postopts = '';
 
 			$allow_empty = ((array_key_exists('allow_empty', $_REQUEST)) ? intval($_REQUEST['allow_empty']) : 0);
@@ -764,7 +764,7 @@ class Item extends Controller {
 		}
 
 
-		$mimetype = notags(trim($_REQUEST['mimetype']));
+		$mimetype = notags(trim((string)$_REQUEST['mimetype']));
 		if (!$mimetype)
 			$mimetype = 'text/bbcode';
 

@@ -56,9 +56,10 @@ class Dreport extends \Zotlabs\Web\Controller {
 			return;
 		}
 
-		$r = q("select * from dreport where dreport_xchan = '%s' and dreport_mid = '%s'",
+		$r = q("select * from dreport where dreport_xchan = '%s' and (dreport_mid = '%s' or dreport_mid = '%s')",
 			dbesc($channel['channel_hash']),
-			dbesc($mid)
+			dbesc($mid),
+			dbesc(str_replace('/item/', '/activity/', $mid))
 		);
 
 		if(! $r) {

@@ -116,6 +116,11 @@ class Activity {
 
 			$y = json_decode($x['body'], true);
 			logger('returned: ' . json_encode($y, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOGGER_DEBUG);
+
+			if (ActivityStreams::is_an_actor($y['type'])) {
+				XConfig::Set($y['id'], 'system', 'actor_record', $y);
+			}
+
 			return json_decode($x['body'], true);
 		}
 		else {
@@ -529,6 +534,7 @@ class Activity {
 		$top_level = (($i['mid'] === $i['parent_mid']) ? true : false);
 
 		if ($public) {
+
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
 			$ret['cc'] = [z_root() . '/followers/' . substr($i['author']['xchan_addr'], 0, strpos($i['author']['xchan_addr'], '@'))];
 		}
@@ -660,11 +666,11 @@ class Activity {
 		return $ret;
 	}
 
-	static function encode_attachment($item) {
+	static function encode_attachment($item, $iconfig = false) {
 
 		$ret = [];
 
-		if (array_key_exists('attach', $item)) {
+		if (!$iconfig && array_key_exists('attach', $item)) {
 			$atts = ((is_array($item['attach'])) ? $item['attach'] : json_decode($item['attach'], true));
 			if ($atts) {
 				foreach ($atts as $att) {
@@ -677,7 +683,7 @@ class Activity {
 				}
 			}
 		}
-		if (array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
+		if ($iconfig && array_key_exists('iconfig', $item) && is_array($item['iconfig'])) {
 			foreach ($item['iconfig'] as $att) {
 				if ($att['sharing']) {
 					$value = ((is_string($att['v']) && preg_match('|^a:[0-9]+:{.*}$|s', $att['v'])) ? unserialize($att['v']) : $att['v']);
@@ -928,6 +934,11 @@ class Activity {
 		$t = self::encode_taxonomy($i);
 		if ($t) {
 			$ret['tag'] = $t;
+		}
+
+		$a = self::encode_attachment($i, true);
+		if ($a) {
+			$ret['attachment'] = $a;
 		}
 
 		// addressing madness
@@ -2638,31 +2649,74 @@ class Activity {
 			}
 		}
 
-		$zot_rawmsg = '';
+		$ap_rawmsg = '';
+		$diaspora_rawmsg = '';
 		$raw_arr = [];
 
 		$raw_arr = json_decode($act->raw, true);
 
-		// This is a zot6 packet and the raw activitypub message json
+		// This is a zot6 packet and the raw activitypub or diaspora message json
 		// is possibly available in the attachement.
-		if (array_key_exists('signed', $raw_arr) && is_array($act->obj) && is_array($act->obj['attachment'])) {
+		if (array_key_exists('signed', $raw_arr) && is_array($act->data['attachment'])) {
+			foreach($act->data['attachment'] as $a) {
+				if (
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
+					isset($a['value'])
+				) {
+					$ap_rawmsg = $a['value'];
+				}
+				if (
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
+					isset($a['value'])
+				) {
+					$diaspora_rawmsg = $a['value'];
+				}
+			}
+		}
+
+		// old style: can be removed after most hubs are on 7.0.2
+		elseif (array_key_exists('signed', $raw_arr) && is_array($act->obj) && is_array($act->obj['attachment'])) {
 			foreach($act->obj['attachment'] as $a) {
 				if (
 					isset($a['type']) && $a['type'] === 'PropertyValue' &&
 					isset($a['name']) && $a['name'] === 'zot.activitypub.rawmsg' &&
 					isset($a['value'])
 				) {
-					$zot_rawmsg = $a['value'];
-					break;
+					$ap_rawmsg = $a['value'];
+				}
+
+				if (
+					isset($a['type']) && $a['type'] === 'PropertyValue' &&
+					isset($a['name']) && $a['name'] === 'zot.diaspora.fields' &&
+					isset($a['value'])
+				) {
+					$diaspora_rawmsg = $a['value'];
 				}
 			}
 		}
 
-		if ($zot_rawmsg) {
-			set_iconfig($s, 'activitypub', 'rawmsg', $zot_rawmsg, 1);
+		// catch the likes
+		if (!$ap_rawmsg && $response_activity) {
+			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
 		}
-		else {
+		// end old style
+
+		if (!$ap_rawmsg && array_key_exists('signed', $raw_arr)) {
+			// zap
+			$ap_rawmsg = json_encode($act->data, JSON_UNESCAPED_SLASHES);
+		}
+
+		if ($ap_rawmsg) {
+			set_iconfig($s, 'activitypub', 'rawmsg', $ap_rawmsg, 1);
+		}
+		elseif (!array_key_exists('signed', $raw_arr)) {
 			set_iconfig($s, 'activitypub', 'rawmsg', $act->raw, 1);
+		}
+
+		if ($diaspora_rawmsg) {
+			set_iconfig($s, 'diaspora', 'fields', $diaspora_rawmsg, 1);
 		}
 
 		set_iconfig($s, 'activitypub', 'recips', $act->raw_recips);
@@ -3660,7 +3714,10 @@ class Activity {
 	}
 
 	static function get_cached_actor($id) {
-		$actor = XConfig::Get($id, 'system', 'actor_record');
+
+		// remove any fragments like #main-key since these won't be present in our cached data
+		$cache_url = ((strpos($id, '#')) ? substr($id, 0, strpos($id, '#')) : $id);
+		$actor = XConfig::Get($cache_url, 'system', 'actor_record');
 
 		if ($actor) {
 			return $actor;
@@ -3669,7 +3726,7 @@ class Activity {
 		// try other get_cached_actor providers (e.g. diaspora)
 		$hookdata = [
 			'id'    => $id,
-			'actor' => false
+			'actor' => null
 		];
 
 		call_hooks('get_cached_actor_provider', $hookdata);

@@ -426,7 +426,7 @@ class Apps {
 
 		self::translate_system_apps($papp);
 
-		if(trim($papp['plugin']) && (! plugin_is_installed(trim($papp['plugin']))))
+		if(isset($papp['plugin']) && trim($papp['plugin']) && (! plugin_is_installed(trim($papp['plugin']))))
 			return '';
 
 		$papp['papp'] = self::papp_encode($papp);

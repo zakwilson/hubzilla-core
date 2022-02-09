@@ -417,6 +417,9 @@ function xmlify($str) {
 
 	//$buffer = '';
 
+	if (!$str)
+		return EMPTY_STR;
+
 	if(is_array($str)) {
 
 		// allow to fall through so we ge a PHP error, as the log statement will
@@ -481,6 +484,9 @@ function unxmlify($s) {
 
 	return $ret;
 */
+
+	if (!$s)
+		return EMPTY_STR;
 
 	if(is_array($s)) {
 
@@ -840,7 +846,7 @@ function activity_match($haystack,$needle) {
 
 	if($needle) {
 		foreach($needle as $n) {
-			if(($haystack === $n) || (strtolower(basename($n)) === strtolower(basename($haystack)))) {
+			if(($haystack === $n) || (strtolower(basename((string)$n)) === strtolower(basename((string)$haystack)))) {
 				return true;
 			}
 		}
@@ -1492,6 +1498,10 @@ function day_translate($s) {
  * @return string
  */
 function normalise_link($url) {
+	if (!$url) {
+		return EMPTY_STR;
+	}
+
 	$ret = str_replace(array('https:', '//www.'), array('http:', '//'), $url);
 
 	return(rtrim($ret, '/'));
@@ -3586,6 +3596,45 @@ function create_table_from_array($table, $arr, $binary_fields = []) {
 	);
 
 	return $r;
+}
+
+
+function update_table_from_array($table, $arr, $where, $binary_fields = []) {
+
+	if (! ($arr && $table)) {
+		return false;
+	}
+
+	$columns = db_columns($table);
+
+	$clean = [];
+	foreach ($arr as $k => $v) {
+		if (! in_array($k, $columns)) {
+			continue;
+		}
+
+		$matches = false;
+		if (preg_match('/([^a-zA-Z0-9\-\_\.])/', $k, $matches)) {
+			return false;
+		}
+		if (in_array($k, $binary_fields)) {
+			$clean[$k] = dbescbin($v);
+		} else {
+			$clean[$k] = dbesc($v);
+		}
+	}
+
+	$sql = "UPDATE " . TQUOT . $table . TQUOT . " SET ";
+
+	foreach ($clean as $k => $v) {
+		$sql .= TQUOT . $k . TQUOT . ' = "' . $v . '",';
+	}
+
+	$sql = rtrim($sql,',');
+
+	$r = dbq($sql . " WHERE " . $where);
+
+    return $r;
 }
 
 function share_shield($m) {

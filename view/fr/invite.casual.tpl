@@ -1,4 +1,4 @@
-{{* tpl FR, pour inviter les personnes qui me connaissant}}
+{{* tpl FR, pour inviter les personnes qui me connaissant *}}
 
 Rejoingnez moi sur {{$projectname}}.
 {{$linktxt}} {{$invite_where}}

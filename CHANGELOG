@@ -1,3 +1,25 @@
+Hubzilla 7.0.2 (2022-02-09)
+	- Update french templates
+	- Add charset to the PDO connection strings
+	- Introduce delete keytype for get_activitystreams_key()
+	- Fix PHP error in Daemon/Externals
+	- Improved actor cache handling
+	- Implement manual fetch of packed local links
+	- Add JSalmon data to the meta field instead of data in Lib/ActivityStreams
+	- Fix some PHP8.1 deprecation warnings
+	- Fix delivery report for likes not found in some cases
+	- Allow zotfinger to recurse through all known hublocs if the one we got does not exist (404) or got removed (410)
+	- Diaspora: improve relaying of comments
+	- Fix regression in mod hcard
+	- Add the LD signature in Daemon/Notifier in case where there is no signed data available
+	- Prevent zot6 packet being saved as AP raw message
+	- Attach iconfig to the activity instead of the activity object
+
+	Addons
+	- Pubcrawl: make sure the sys channel falls through the app installed check
+	- Pubcrawl: improve local delivery of shared inbox items
+
+
 Hubzilla 7.0.1 (2022-01-28)
 	- Fix removing contacts from privacy groups in the contact edit modal
 	- Fix escape_tags() messing with URLs in actor_store()

@@ -664,12 +664,17 @@ function sys_boot() {
 	require_once('include/dba/dba_driver.php');
 
 	if (!App::$install) {
-		DBA::dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, App::$install);
+
+		if (empty($db_charset)) {
+			$db_charset = ((intval($db_type) === 0) ? 'utf8mb4' : 'UTF8');
+		}
+
+		DBA::dba_factory($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, $db_charset, App::$install);
 		if (!DBA::$dba->connected) {
 			system_unavailable();
 		}
 
-		unset($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type);
+		unset($db_host, $db_port, $db_user, $db_pass, $db_data, $db_type, $db_charset);
 
 		/*
 		 * Load configs from db. Overwrite configs from .htconfig.php

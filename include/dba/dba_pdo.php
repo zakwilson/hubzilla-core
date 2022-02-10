@@ -14,7 +14,7 @@ class dba_pdo extends dba_driver {
 	 * {@inheritDoc}
 	 * @see dba_driver::connect()
 	 */
-	function connect($server, $scheme, $port, $user, $pass, $db) {
+	function connect($server, $scheme, $port, $user, $pass, $db, $db_charset) {
 
 		$this->driver_dbtype = $scheme;
 
@@ -28,10 +28,10 @@ class dba_pdo extends dba_driver {
 		$dsn .= ';dbname=' . $db;
 
 		if ($this->driver_dbtype === 'mysql') {
-			$dsn .= ';charset=utf8mb4';
+			$dsn .= ';charset=' . $db_charset;
 		}
 		else {
-			$dsn .= ";options='--client_encoding=UTF8'";
+			$dsn .= ";options='--client_encoding=" . $db_charset . "'";
 		}
 
 		try {

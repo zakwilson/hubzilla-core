@@ -84,33 +84,34 @@ before_script:
       - tests/results/
 
 
-# PHP7.3 with MySQL 5.7
-php7.3_mysql5.7:
+# PHP8.0 with MySQL 5.7
+php8.0_mysql5.7:
   <<: *job_definition_mysql
   services:
   - mysql:5.7
 
 
-# PHP7.3 with MySQL 8 (latest)
-php7.3_mysql8:
+# PHP8.0 with MySQL 8 (latest)
+php8.0_mysql8:
   <<: *job_definition_mysql
   services:
   - name: mysql:8
     command: ["--default-authentication-plugin=mysql_native_password"]
 
 
-# PHP7.3 with MariaDB 10.2
-php7.3_mariadb10.2:
+# PHP8.0 with MariaDB 10.2
+php8.0_mariadb10.2:
   <<: *job_definition_mysql
   services:
   - name: mariadb:10.2
     alias: mysql
 
 
-# PHP7.3 with MariaDB 10.3 (latest)
-php7.3_mariadb10.3:
+# PHP8.0 with MariaDB 10.3 (latest)
+php8.0_mariadb10.3:
   <<: *job_definition_mysql
-  image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+  image: php:8.0
+  #image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
   services:
   - name: mariadb:10.3
     alias: mysql

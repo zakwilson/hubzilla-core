@@ -103,13 +103,20 @@ class Messages {
 			if (!$summary) {
 				$summary = $item['summary'];
 			}
+
 			if (!$summary) {
-				$summary = htmlentities(html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true), ENT_QUOTES, 'UTF-8', false);
+				$summary = html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true);
+				if ($summary) {
+					$summary = htmlentities($summary, ENT_QUOTES, 'UTF-8', false);
+				}
 			}
-			if (!$summary) {
+
+			if (!$summary)
 				$summary = '...';
 			}
-			$summary = substr_words($summary, 68);
+			else {
+				$summary = substr_words($summary, 68);
+			}
 
 			switch(intval($item['item_private'])) {
 				case 1:

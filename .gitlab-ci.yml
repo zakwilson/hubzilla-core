@@ -37,9 +37,9 @@ before_script:
 - if [ -f /usr/local/etc/php/conf.d/z_prod.ini ]; then mv /usr/local/etc/php/conf.d/z_prod.ini /usr/local/etc/php/conf.d/z_prod.ini.off; fi
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
-- pecl install libzip
-- pecl install zip
 - docker-php-ext-enable xdebug
+- apt-get update
+- apt-get install zip unzip
 - docker-php-ext-enable zip
 - docker-php-ext-enable gd
 # Install composer

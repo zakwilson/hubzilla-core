@@ -608,10 +608,10 @@ class Activity {
 				$ptr = [$ptr];
 			}
 			foreach ($ptr as $t) {
-				if (!array_key_exists('type', $t))
+				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (array_key_exists('href', $t) && array_key_exists('name', $t)) {
+				if (is_array($t) && array_key_exists('href', $t) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];

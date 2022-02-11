@@ -1986,6 +1986,10 @@ function getBestSupportedMimeType($mimeTypes = null, $acceptedTypes = false) {
 	if($acceptedTypes === false)
 		$acceptedTypes = $_SERVER['HTTP_ACCEPT'];
 
+	if (!$acceptedTypes) {
+		return null;
+	}
+
 	// Accept header is case insensitive, and whitespace isn’t important
 	$accept = strtolower(str_replace(' ', '', $acceptedTypes));
 	// divide it into parts in the place of a ","

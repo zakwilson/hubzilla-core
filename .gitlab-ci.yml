@@ -38,9 +38,9 @@ before_script:
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
 - apt-get update
-- apt-get install zip unzip php8-gd
+- apt-get install zip unzip
 - docker-php-ext-enable xdebug
-- docker-php-ext-enable gd
+- docker-php-ext-install gd
 
 
 # Install composer

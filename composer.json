@@ -23,7 +23,7 @@
         "source": "https://framagit.org/hubzilla/core/"
     },
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.0.2",
         "ext-curl": "*",
         "ext-gd": "*",
         "ext-mbstring": "*",

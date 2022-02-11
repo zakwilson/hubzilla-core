@@ -38,6 +38,7 @@ before_script:
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
 - pecl install zip
+- pecl install libzip
 - docker-php-ext-enable xdebug
 - docker-php-ext-enable zip
 - docker-php-ext-enable gd

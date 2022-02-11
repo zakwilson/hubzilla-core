@@ -38,7 +38,7 @@ before_script:
 # Install & enable Xdebug for code coverage reports
 - pecl install xdebug
 - apt-get update
-- apt-get install zip unzip libjpeg-dev libpng-dev
+- apt-get install zip unzip libjpeg-dev libpng-dev -yqq
 - docker-php-ext-enable xdebug
 - docker-php-ext-install gd
 

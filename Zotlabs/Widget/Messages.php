@@ -111,7 +111,7 @@ class Messages {
 				}
 			}
 
-			if (!$summary)
+			if (!$summary) {
 				$summary = '...';
 			}
 			else {

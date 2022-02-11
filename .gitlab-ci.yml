@@ -134,7 +134,7 @@ php8.0_mariadb10.3:
 pages:
   stage: deploy
   cache: {}
-  image: php:7-cli-alpine
+  image: php:8-cli-alpine
   before_script:
     - apk update
     - apk add doxygen ttf-freefont graphviz

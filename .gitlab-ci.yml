@@ -49,13 +49,13 @@ before_script:
 - echo 'xdebug.mode=coverage' >> /usr/local/etc/php/php.ini
 
 # hidden job definition with template for MySQL/MariaDB
-#.job_template_mysql: &job_definition_mysql
-#  stage: test
-#  script:
+.job_template_mysql: &job_definition_mysql
+  stage: test
+  script:
 #  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
 #  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
 #  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-#  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
+  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
 
 # hidden job definition with template for PostgreSQL
 #.job_template_postgres: &job_definition_postgres

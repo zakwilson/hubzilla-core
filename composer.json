@@ -25,10 +25,12 @@
     "require": {
         "php": ">=8.0.2",
         "ext-curl": "*",
+        "ext-gd": "*",
         "ext-mbstring": "*",
         "ext-xml": "*",
         "ext-openssl": "*",
         "ext-json": "*",
+        "ext-zip": "*",
         "ext-posix": "*",
         "sabre/dav": "^4.0",
         "michelf/php-markdown": "^1.7",

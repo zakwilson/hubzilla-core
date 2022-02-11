@@ -49,30 +49,30 @@ before_script:
 - echo 'xdebug.mode=coverage' >> /usr/local/etc/php/php.ini
 
 # hidden job definition with template for MySQL/MariaDB
-.job_template_mysql: &job_definition_mysql
-  stage: test
-  script:
-  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
-  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
+#.job_template_mysql: &job_definition_mysql
+#  stage: test
+#  script:
+#  - echo "USE $MYSQL_DATABASE; $(cat ./install/schema_mysql.sql)" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+#  - echo "SHOW DATABASES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+#  - echo "USE $MYSQL_DATABASE; SHOW TABLES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+#  - vendor/bin/phpunit --configuration tests/phpunit.xml --coverage-text
 
 # hidden job definition with template for PostgreSQL
-.job_template_postgres: &job_definition_postgres
-  stage: test
-  services:
-  - postgres:latest
-  script:
-  - export PGPASSWORD=$POSTGRES_PASSWORD
-  - psql --version
-  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT VERSION();"
+#.job_template_postgres: &job_definition_postgres
+#  stage: test
+#  services:
+#  - postgres:latest
+#  script:
+#  - export PGPASSWORD=$POSTGRES_PASSWORD
+#  - psql --version
+#  - psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT VERSION();"
   # Import hubzilla's DB schema
-  - psql -h "postgres" -U "$POSTGRES_USER" -v ON_ERROR_STOP=1 --quiet "$POSTGRES_DB" < ./install/schema_postgres.sql
+#  - psql -h "postgres" -U "$POSTGRES_USER" -v ON_ERROR_STOP=1 --quiet "$POSTGRES_DB" < ./install/schema_postgres.sql
   # Show databases and relations/tables of hubzilla's database
   #- psql -h "postgres" -U "$POSTGRES_USER" -l
   #- psql -h "postgres" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "\dt;"
   # Run the actual tests
-  - vendor/bin/phpunit --configuration tests/phpunit-pgsql.xml --testdox
+#  - vendor/bin/phpunit --configuration tests/phpunit-pgsql.xml --testdox
 
 # hidden job definition with artifacts config template
 .artifacts_template:
@@ -88,36 +88,36 @@ before_script:
 
 
 # PHP8.0 with MySQL 5.7
-php8.0_mysql5.7:
-  <<: *job_definition_mysql
-  services:
-  - mysql:5.7
+#php8.0_mysql5.7:
+#  <<: *job_definition_mysql
+#  services:
+#  - mysql:5.7
 
 
 # PHP8.0 with MySQL 8 (latest)
-php8.0_mysql8:
-  <<: *job_definition_mysql
-  services:
-  - name: mysql:8
-    command: ["--default-authentication-plugin=mysql_native_password"]
+#php8.0_mysql8:
+#  <<: *job_definition_mysql
+#  services:
+#  - name: mysql:8
+#    command: ["--default-authentication-plugin=mysql_native_password"]
 
 
 # PHP8.0 with MariaDB 10.2
-php8.0_mariadb10.2:
-  <<: *job_definition_mysql
-  services:
-  - name: mariadb:10.2
-    alias: mysql
+#php8.0_mariadb10.2:
+#  <<: *job_definition_mysql
+#  services:
+#  - name: mariadb:10.2
+#    alias: mysql
 
 
 # PHP8.0 with MariaDB 10.3 (latest)
-php8.0_mariadb10.3:
-  <<: *job_definition_mysql
-  image: php:8.0
+#php8.0_mariadb10.3:
+#  <<: *job_definition_mysql
+#  image: php:8.0
   #image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
-  services:
-  - name: mariadb:10.3
-    alias: mysql
+#  services:
+#  - name: mariadb:10.3
+#    alias: mysql
 
 
 # PHP7.3 with PostgreSQL latest (11)

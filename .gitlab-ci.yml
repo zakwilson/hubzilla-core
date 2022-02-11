@@ -1,7 +1,9 @@
 # Select image from https://hub.docker.com/_/php/
 #image: php:7.3
 # Use a prepared Hubzilla image to optimise pipeline duration
-image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+# image: registry.gitlab.com/dawnbreak/hubzilla/core:php7.3
+
+image php:8.0
 
 stages:
   - test

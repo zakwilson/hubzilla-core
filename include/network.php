@@ -365,9 +365,14 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307 || $http_code == 308) {
 		$matches = array();
 		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-		$newurl = trim(array_pop($matches));
-		if(strpos($newurl,'/') === 0)
+
+		$newurl = '';
+		if (array_pop($matches))
+			$newurl = trim(array_pop($matches));
+
+		if($newurl && strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
+
 		$url_parsed = @parse_url($newurl);
 		if (isset($url_parsed)) {
 			curl_close($ch);

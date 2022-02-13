@@ -194,14 +194,14 @@ function construct_activity_object($item) {
 		$r = json_decode($item['obj'],false);
 
 		if(! $r)
-			return '';
-		if($r->type)
+			return EMPTY_STR;
+		if(isset($r->type))
 			$o .= '<as:obj_type>' . xmlify($r->type) . '</as:obj_type>' . "\r\n";
-		if($r->id)
+		if(isset($r->id))
 			$o .= '<id>' . xmlify($r->id) . '</id>' . "\r\n";
-		if($r->title)
+		if(isset($r->title))
 			$o .= '<title>' . xmlify($r->title) . '</title>' . "\r\n";
-		if($r->links) {
+		if(isset($r->links)) {
 			/** @FIXME!! */
 			if(substr($r->link,0,1) === '<') {
 				$r->link = preg_replace('/\<link(.*?)\"\>/','<link$1"/>',$r->link);
@@ -210,7 +210,7 @@ function construct_activity_object($item) {
 			else
 				$o .= '<link rel="alternate" type="text/html" href="' . xmlify($r->link) . '" />' . "\r\n";
 		}
-		if($r->content) {
+		if(isset($r->content)) {
 			$o .= '<content type="html" >' . xmlify(bbcode($r->content)) . '</content>' . "\r\n";
 		}
 		$o .= '</as:object>' . "\r\n";
@@ -218,7 +218,7 @@ function construct_activity_object($item) {
 		return $o;
 	}
 
-	return '';
+	return EMPTY_STR;
 }
 
 function construct_activity_target($item) {

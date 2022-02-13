@@ -4057,9 +4057,10 @@ function sanitize_text_field($str) {
  */
 function substr_words($str, $max_length, $suffix = '...') {
 
+	$ret = '';
+
 	if (strlen($str) > $max_length) {
 		$words = preg_split('/\s/', $str);
-		$ret = '';
 		$i = 0;
 		while (true) {
 			$length = (strlen($ret) + strlen($words[$i]));

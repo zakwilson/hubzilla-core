@@ -17,8 +17,8 @@ class Messages {
 
 		$tpl = get_markup_template('messages_widget.tpl');
 		$o = replace_macros($tpl, [
-			'$entries' => $page['entries'],
-			'$offset' => $page['offset'],
+			'$entries' => $page['entries'] ?? [],
+			'$offset' => $page['offset'] ?? 0,
 			'$feature_star' => feature_enabled(local_channel(), 'star_posts'),
 			'$strings' => [
 				'messages_title' => t('Public and restricted messages'),
@@ -37,11 +37,11 @@ class Messages {
 		if (!local_channel())
 			return;
 
-		if ($options['offset'] == -1) {
+		if (isset($options['offset']) && $options['offset'] == -1) {
 			return;
 		}
 
-		if ($options['type'] == 'notification') {
+		if (isset($options['type']) && $options['type'] == 'notification') {
 			return self::get_notices_page($options);
 		}
 

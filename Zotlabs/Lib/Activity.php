@@ -2335,6 +2335,16 @@ class Activity {
 		$s['summary'] = self::bb_content($content, 'summary');
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
 
+		if (isset($act->obj['quoteUrl'])) {
+			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
+
+			if ($s['body']) {
+				$s['body'] .= "\r\n\r\n";
+			}
+
+			$s['body'] .= $quote_bbcode;
+		}
+
 		$s['verb'] = self::activity_decode_mapper($act->type);
 
 		// Mastodon does not provide update timestamps when updating poll tallies which means race conditions may occur here.
@@ -3797,4 +3807,32 @@ class Activity {
 
 		return $ret;
 	}
+
+	static function get_quote_bbcode($url) {
+
+		$ret = '';
+
+		$a = self::fetch($url);
+		if ($a) {
+			$act = new ActivityStreams($a);
+
+			if ($act->is_valid()) {
+				$content = self::get_content($act->obj);
+
+				$ret .= "[share author='" . urlencode($act->actor['name']) .
+					"' profile='" . $act->actor['id'] .
+					"' avatar='" . $act->actor['icon']['url'] .
+					"' link='" . $act->obj['id'] .
+					"' auth='" . ((is_matrix_url($act->actor['id'])) ? 'true' : 'false') .
+					"' posted='" . $act->obj['published'] .
+					"' message_id='" . $act->obj['id'] .
+					"']";
+				$ret  .= self::bb_content($content, 'content');
+				$ret  .= '[/share]';
+			}
+		}
+
+		return $ret;
+	}
+
 }

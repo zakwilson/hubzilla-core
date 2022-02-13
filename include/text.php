@@ -108,7 +108,10 @@ function notags($string) {
  * @return string
  */
 function escape_tags($string) {
-	return(htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
+	if (!$string) {
+		return EMPTY_STR;
+	}
+	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }
 
 
@@ -3531,7 +3534,7 @@ function text_highlight($s, $lang) {
 // echo (($xml->asXML('data.xml')) ? 'Your XML file has been generated successfully!' : 'Error generating XML file!');
 
 function arrtoxml($root_elem,$arr) {
-	$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $root_elem . '></' . $root_elem . '>', null, false);
+	$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $root_elem . '></' . $root_elem . '>', 0, false);
 	array2XML($xml,$arr);
 
 	return $xml->asXML();

@@ -528,11 +528,14 @@ class HTTPSig {
 
 		if ($head) {
 			foreach ($head as $k => $v) {
-				$headers .= strtolower($k) . ': ' . trim($v) . "\n";
+				$k = strtolower($k);
+				$v = (($v) ? trim($v) : '');
+
+				$headers .= $k . ': ' . $v . "\n";
 				if ($fields)
 					$fields .= ' ';
 
-				$fields .= strtolower($k);
+				$fields .= $k;
 			}
 			// strip the trailing linefeed
 			$headers = rtrim($headers, "\n");

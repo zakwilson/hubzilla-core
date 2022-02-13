@@ -1003,7 +1003,7 @@ class Libzot {
 
 		$x = Crypto::unencapsulate($x, get_config('system', 'prvkey'));
 
-		if (!is_array($x)) {
+		if ($x && !is_array($x)) {
 			$x = json_decode($x, true);
 		}
 

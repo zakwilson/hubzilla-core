@@ -695,6 +695,7 @@ class Item extends Controller {
 			$expires             = $orig_post['expires'];
 			$comments_closed     = $orig_post['comments_closed'];
 			$mid                 = $orig_post['mid'];
+			$thr_parent          = $orig_post['thr_parent'];
 			$parent_mid          = $orig_post['parent_mid'];
 			$plink               = $orig_post['plink'];
 		}

@@ -17,8 +17,13 @@ $(document).ready(function() {
 	}
 	$('#css3-calc').remove(); // Remove the test element
 
-	stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
-	stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
+	if (document.querySelector('#region_1')) {
+		stickyScroll('.aside_spacer_left', '.aside_spacer_top_left', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_1')).getPropertyValue('padding-top')), 0);
+	}
+
+	if (document.querySelector('#region_3')) {
+		stickyScroll('.aside_spacer_right', '.aside_spacer_top_right', '.content', parseFloat(window.getComputedStyle(document.querySelector('#region_3')).getPropertyValue('padding-top')), 20);
+	}
 
 	$('#expand-aside').on('click', function() {
 		if($('main').hasClass('region_1-on')){
@@ -121,8 +126,14 @@ function setStyle(element, cssProperty) {
 }
 
 function stickyScroll(sticky, stickyTop, container, topOffset, bottomOffset) {
+
 	var lastScrollTop = 0;
 	var sticky = document.querySelector(sticky);
+
+	if (!sticky) {
+		return;
+	}
+
 	var stickyHeight = sticky.getBoundingClientRect().height;
 	var stickyTop = document.querySelector(stickyTop);
 	var content = document.querySelector(container);

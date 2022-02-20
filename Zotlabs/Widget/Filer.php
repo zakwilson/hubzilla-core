@@ -10,7 +10,6 @@ class Filer {
 		if(! local_channel())
 			return '';
 
-
 		$selected = ((x($_REQUEST,'file')) ? $_REQUEST['file'] : '');
 
 		$terms = array();

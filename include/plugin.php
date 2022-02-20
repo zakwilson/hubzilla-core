@@ -794,6 +794,79 @@ function get_theme_info($theme){
 }
 
 /**
+ * @brief Parse template comment in search of template info.
+ *
+ * like
+ * \code
+ *   * Name: MyWidget
+ *   * Description: A widget
+ *   * Version: 1.2.3
+ *   * Author: John <profile url>
+ *   * Author: Jane <email>
+ *   * ContentRegionID: some_id
+ *   * ContentRegionID: some_other_id
+ *   *
+ *\endcode
+ * @param string $widget the name of the widget
+ * @return array with the information
+ */
+function get_template_info($template){
+	$m = array();
+	$info = array(
+		'name' => $template,
+		'description' => '',
+		'author' => array(),
+		'maintainer' => array(),
+		'version' => '',
+		'content_regions' => []
+	);
+
+	$checkpaths = [
+		"view/php/$template.php",
+	];
+
+	$template_found = false;
+
+	foreach ($checkpaths as $path) {
+		if (is_file($path)) {
+			$template_found = true;
+			$f = file_get_contents($path);
+			break;
+		}
+	}
+
+	if(! ($template_found && $f))
+		return $info;
+
+	$f = escape_tags($f);
+	$r = preg_match("|/\*.*\*/|msU", $f, $m);
+
+	if ($r) {
+		$ll = explode("\n", $m[0]);
+		foreach( $ll as $l ) {
+			$l = trim($l, "\t\n\r */");
+			if ($l != ""){
+				list($k, $v) = array_map("trim", explode(":", $l, 2));
+				$k = strtolower($k);
+				if ($k == 'author' || $k == 'maintainer'){
+					$r = preg_match("|([^<]+)<([^>]+)>|", $v, $m);
+					if ($r) {
+						$info[$k][] = array('name' => $m[1], 'link' => $m[2]);
+					} else {
+						$info[$k][] = array('name' => $v);
+					}
+				}
+				else {
+					$info[$k] = $v;
+				}
+			}
+		}
+	}
+
+	return $info;
+}
+
+/**
  * @brief Returns the theme's screenshot.
  *
  * The screenshot is expected as view/theme/$theme/img/screenshot.[png|jpg].

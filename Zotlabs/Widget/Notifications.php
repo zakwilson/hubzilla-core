@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: Notifications
+ *   * Description: Shows all kind of notifications
+ *   * Author: Mario Vavti
+ */
+
 namespace Zotlabs\Widget;
 
 class Notifications {

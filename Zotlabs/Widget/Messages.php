@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *   * Name: HQ Messages
+ *   * Description: Quick access to messages, direct messages, starred messages (if enabled) and notifications
+ *   * Author: Mario Vavti
+ *   * Requires: hq
+ */
+
+
 namespace Zotlabs\Widget;
 
 use App;

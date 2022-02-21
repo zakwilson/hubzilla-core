@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: Saved folders
+ *   * Description: A menu containing saved folders
+ *   * Requires: network
+ */
+
 namespace Zotlabs\Widget;
 
 require_once('include/contact_widgets.php');

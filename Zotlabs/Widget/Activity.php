@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *   * Name: Activity
+ *   * Description: Shows the unseen activity count per contact
+ */
+
 namespace Zotlabs\Widget;
 
 class Activity {

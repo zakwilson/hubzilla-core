@@ -311,55 +311,6 @@ class AccessList {
 		return $o;
 	}
 
-/* deprecated
-	static function widget($every = "connections", $each = "lists", $edit = false, $group_id = 0, $cid = '', $mode = 1) {
-
-		$groups = [];
-
-		$r         = q("SELECT * FROM pgrp WHERE deleted = 0 AND uid = %d ORDER BY gname ASC",
-			intval($_SESSION['uid'])
-		);
-		$member_of = [];
-		if ($cid) {
-			$member_of = self::containing(local_channel(), $cid);
-		}
-
-		if ($r) {
-			foreach ($r as $rr) {
-				$selected = (($group_id == $rr['id']) ? ' group-selected' : '');
-
-				if ($edit) {
-					$groupedit = ['href' => "lists/" . $rr['id'], 'title' => t('edit')];
-				}
-				else {
-					$groupedit = null;
-				}
-
-				$groups[] = [
-					'id'       => $rr['id'],
-					'enc_cid'  => base64url_encode($cid),
-					'cid'      => $cid,
-					'text'     => $rr['gname'],
-					'selected' => $selected,
-					'href'     => (($mode == 0) ? $each . '?f=&gid=' . $rr['id'] : $each . "/" . $rr['id']) . ((x($_GET, 'new')) ? '&new=' . $_GET['new'] : '') . ((x($_GET, 'order')) ? '&order=' . $_GET['order'] : ''),
-					'edit'     => $groupedit,
-					'ismember' => in_array($rr['id'], $member_of),
-				];
-			}
-		}
-
-		return replace_macros(get_markup_template('group_side.tpl'), [
-			'$title'      => t('Privacy Groups'),
-			'$edittext'   => t('Edit group'),
-			'$createtext' => t('Create new group'),
-			'$ungrouped'  => (($every === 'contacts') ? t('Channels not in any privacy group') : ''),
-			'$groups'     => $groups,
-			'$add'        => t('Add'),
-		]);
-
-	}
-*/
-
 	static function expand($g) {
 		if (!(is_array($g) && count($g))) {
 			return [];

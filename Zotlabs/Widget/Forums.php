@@ -3,7 +3,6 @@
 /**
  *   * Name: Forums
  *   * Description: A list of forum channels with unseen item counts
- * 	 * Requires: network
  */
 
 namespace Zotlabs\Widget;

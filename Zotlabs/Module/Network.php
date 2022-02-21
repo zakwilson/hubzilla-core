@@ -272,15 +272,17 @@ class Network extends \Zotlabs\Web\Controller {
 						$likes_sql = " AND verb NOT IN ('" . dbesc(ACTIVITY_LIKE) . "', '" . dbesc(ACTIVITY_DISLIKE) . "') ";
 
 					// This is for nouveau view public forum cid queries (if a forum notification is clicked)
-					$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
-						intval(local_channel()),
-						intval(TERM_FORUM),
-						dbesc($cid_r[0]['xchan_name'])
-					);
+					//$p = q("SELECT oid AS parent FROM term WHERE uid = %d AND ttype = %d AND term = '%s'",
+						//intval(local_channel()),
+						//intval(TERM_FORUM),
+						//dbesc($cid_r[0]['xchan_name'])
+					//);
 
-					$p_str = ids_to_querystr($p, 'parent');
-					if($p_str)
-						$p_sql = " OR item.parent IN ( $p_str ) ";
+					//$p_str = ids_to_querystr($p, 'parent');
+
+					$p_sql = '';
+					//if($p_str)
+						//$p_sql = " OR item.parent IN ( $p_str ) ";
 
 					$sql_extra = " AND ( owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' OR owner_xchan = '" . protect_sprintf(dbesc($cid_r[0]['abook_xchan'])) . "' $p_sql ) AND item_unseen = 1 $likes_sql ";
 				}

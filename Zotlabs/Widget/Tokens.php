@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: Tokens
+ *   * Description: Display a menu with links to existing guest access tokens
+ *   * Requires: tokens
+ */
+
 namespace Zotlabs\Widget;
 
 class Tokens {

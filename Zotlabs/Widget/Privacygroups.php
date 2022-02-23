@@ -1,5 +1,12 @@
 <?php
 
+/**
+ *   * Name: Privacy Groups
+ *   * Description: Display a menu with links to existing privacy groups
+ *   * Requires: group
+ */
+
+
 namespace Zotlabs\Widget;
 
 use Zotlabs\Lib\AccessList;

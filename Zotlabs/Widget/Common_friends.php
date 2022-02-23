@@ -2,7 +2,7 @@
 
 /**
  *   * Name: Common friends
- *   * Description: Display common friends to viitors
+ *   * Description: Display common friends to visitors
  *   * Requires: channel, articles, cards, wiki
  */
 

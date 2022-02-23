@@ -1,7 +1,7 @@
 <?php
 
 /**
- *   * Name: Chantroom list
+ *   * Name: Chatroom list
  *   * Description: A menu with links to your chatrooms
  *   * Requires: chat, channel, articles, cards, wiki
  */

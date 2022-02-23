@@ -136,17 +136,6 @@ li:hover .group-edit-icon {
 }
 
 
-/* tasklist */
-
-.tasklist-tasks {
-	max-height: 300px;
-	overflow-y: auto;
-}
-
-#tasklist-new-summary {
-	width: 250px;
-}
-
 /* cover photo */
 
 #cover-photo {

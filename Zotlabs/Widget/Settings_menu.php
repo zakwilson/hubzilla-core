@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *   * Name: Settings menu
+ *   * Description: Display the channel settings menu
+ */
+
 namespace Zotlabs\Widget;
 
 class Settings_menu {

@@ -1618,6 +1618,7 @@ class Activity {
 		$ap_hubloc = null;
 
 		$hublocs = self::get_actor_hublocs($url);
+		$has_zot_hubloc = false;
 
 		if ($hublocs) {
 			foreach ($hublocs as $hub) {
@@ -1625,6 +1626,7 @@ class Activity {
 					$ap_hubloc = $hub;
 				}
 				if ($hub['hubloc_network'] === 'zot6') {
+					$has_zot_hubloc = true;
 					Libzot::update_cached_hubloc($hub);
 				}
 			}
@@ -1648,16 +1650,18 @@ class Activity {
 			return;
 		}
 
-		$inbox = $person_obj['inbox'];
+		$inbox = $person_obj['inbox'] ?? null;
 
-		// invalid identity
+		// invalid AP identity
 
 		if (!$inbox || strpos($inbox, z_root()) !== false) {
 			return;
 		}
 
 		// store the actor record in XConfig
-		XConfig::Set($url, 'system', 'actor_record', $person_obj);
+
+		// we already store this in Activity::fetch()
+		// XConfig::Set($url, 'system', 'actor_record', $person_obj);
 
 		$name = $person_obj['name'];
 		if (!$name) {
@@ -1814,12 +1818,12 @@ class Activity {
 		// Adding zot discovery urls to the actor record will cause federation to fail with the 20-30 projects which don't accept arrays in the url field.
 
 		$actor_protocols = self::get_actor_protocols($person_obj);
-		if (in_array('zot6', $actor_protocols)) {
+		if (!$has_zot_hubloc && in_array('zot6', $actor_protocols)) {
 			$zx = q("select * from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 				dbesc($url)
 			);
-			if (!$zx && $webfinger_addr) {
-				Master::Summon(['Gprobe', bin2hex($webfinger_addr)]);
+			if (!$zx) {
+				Master::Summon(['Gprobe', bin2hex($url)]);
 			}
 		}
 
@@ -3796,7 +3800,7 @@ class Activity {
 			return $ret;
 		}
 
-		foreach ($tag as $t) {
+		foreach ($actor['tag'] as $t) {
 			if ((isset($t['type']) && $t['type'] === 'PropertyValue') &&
 				(isset($t['name']) && $t['name'] === 'Protocol') &&
 				(isset($t['value']) && in_array($t['value'], ['zot6', 'activitypub', 'diaspora']))

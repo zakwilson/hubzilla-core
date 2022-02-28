@@ -1227,6 +1227,16 @@ class Libzot {
 					dbesc($AS->actor['id'])
 				);
 
+				if (! $r) {
+					// Author is unknown to this site. Perform channel discovery and try again.
+					$z = discover_by_webbie($AS->actor['id']);
+					if ($z) {
+						$r = q("select hubloc_hash, hubloc_network, hubloc_url from hubloc where hubloc_id_url = '%s'",
+							dbesc($AS->actor['id'])
+						);
+					}
+				}
+
 				if ($r) {
 					$r = self::zot_record_preferred($r);
 					$arr['author_xchan'] = $r['hubloc_hash'];

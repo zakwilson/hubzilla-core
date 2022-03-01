@@ -1355,7 +1355,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 						}
 					}
 
-					if(! post_is_importable($importer['channel_id'], $datarray, $contact))
+					if(! post_is_importable($importer['channel_id'], $datarray, [$contact]))
 						continue;
 
 					$datarray['parent_mid'] = $datarray['mid'];
@@ -1511,7 +1511,7 @@ function consume_feed($xml, $importer, &$contact, $pass = 0) {
 					}
 				}
 
-				if(! post_is_importable($importer['channel_id'], $datarray, $contact))
+				if(! post_is_importable($importer['channel_id'], $datarray, [$contact]))
 					continue;
 
 				logger('author: ' . print_r($author, true), LOGGER_DEBUG);
@@ -1766,8 +1766,8 @@ function handle_feed($uid, $abook_id, $url) {
 	//logger('data:' . print_r($z, true), LOGGER_DATA);
 
 	if($z['success']) {
-		consume_feed($z['body'], $channel, $x, 1);
-		consume_feed($z['body'], $channel, $x, 2);
+		consume_feed($z['body'], $channel, $x[0], 1);
+		consume_feed($z['body'], $channel, $x[0], 2);
 		return true;
 	}
 

@@ -35,6 +35,8 @@ class Channel {
 		$pageflags          = $channel['channel_pageflags'];
 		$existing_adult     = (($pageflags & PAGE_ADULT) ? 1 : 0);
 		$expire             = ((x($_POST, 'expire')) ? intval($_POST['expire']) : 0);
+		$incl               = ((x($_POST['message_filter_incl'])) ? htmlspecialchars_decode(trim($_POST['message_filter_incl']), ENT_QUOTES) : '');
+		$excl               = ((x($_POST['message_filter_excl'])) ? htmlspecialchars_decode(trim($_POST['message_filter_excl']), ENT_QUOTES) : '');
 
 		if ($adult != $existing_adult) {
 			$pageflags = ($pageflags ^ PAGE_ADULT);
@@ -131,6 +133,8 @@ class Channel {
 		set_pconfig(local_channel(), 'system', 'photo_path', $photo_path);
 		set_pconfig(local_channel(), 'system', 'attach_path', $attach_path);
 		set_pconfig(local_channel(), 'system', 'email_notify_host', $mailhost);
+		set_pconfig(local_channel(), 'system', 'message_filter_incl', $incl);
+		set_pconfig(local_channel(), 'system', 'message_filter_excl', $excl);
 
 		$r = q("update channel set channel_pageflags = %d, channel_timezone = '%s',
 				channel_location = '%s', channel_notifyflags = %d, channel_expire_days = %d
@@ -277,6 +281,8 @@ class Channel {
 			'$removeme'                      => t('Remove Channel'),
 			'$removechannel'                 => t('Remove this channel.'),
 			'$expire'                        => ['expire', t('Expire other channel content after this many days'), $expire, t('0 or blank to use the website limit.') . ' ' . ((intval($sys_expire)) ? sprintf(t('This website expires after %d days.'), intval($sys_expire)) : t('This website does not expire imported content.')) . ' ' . t('The website limit takes precedence if lower than your limit.')],
+			'$message_filter_excl'           => ['message_filter_excl', t('Do not import posts with this text'), get_pconfig(local_channel(), 'system', 'message_filter_excl', ''), t('Words one per line or #tags, $categories, /patterns/, lang=xx, lang!=xx - leave blank to import all posts')],
+			'$message_filter_incl'           => ['message_filter_incl', t('Only import posts with this text'), get_pconfig(local_channel(), 'system', 'message_filter_incl', ''), t('Words one per line or #tags, $categories, /patterns/, lang=xx, lang!=xx - leave blank to import all posts')]
 		]);
 
 		call_hooks('settings_form', $o);

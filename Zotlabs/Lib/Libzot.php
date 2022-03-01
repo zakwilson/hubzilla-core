@@ -1753,11 +1753,13 @@ class Libzot {
 				}
 			}
 
-			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
+			// This is used to fetch allow/deny rules if either the sender
+			// or  owner is  a connection. post_is_importable() evaluates all of them
+			$abook = q("select * from abook where abook_channel = %d and ( abook_xchan = '%s' OR abook_xchan = '%s' )",
 				intval($channel['channel_id']),
-				dbesc($arr['owner_xchan'])
+				dbesc($arr['owner_xchan']),
+				dbesc($arr['author_xchan'])
 			);
-			$abook = (($ab) ? $ab[0] : null);
 
 			if (intval($arr['item_deleted'])) {
 
@@ -1808,17 +1810,18 @@ class Libzot {
 				elseif ($arr['edited'] > $r[0]['edited']) {
 					$arr['id']  = $r[0]['id'];
 					$arr['uid'] = $channel['channel_id'];
-					if (($arr['mid'] == $arr['parent_mid']) && (!post_is_importable($arr, $abook))) {
-						$DR->update('update ignored');
-						$result[] = $DR->get();
-					}
-					else {
-						$item_result = self::update_imported_item($sender, $arr, $r[0], $channel['channel_id'], $tag_delivery);
-						$DR->update('updated');
-						$result[] = $DR->get();
-						if (!$relay)
-							add_source_route($item_id, $sender);
-					}
+
+                    if (post_is_importable($channel['channel_id'], $arr, $abook)) {
+                        $item_result = self::update_imported_item($sender, $arr, $r[0], $channel['channel_id'], $tag_delivery);
+                        $DR->update('updated');
+                        $result[] = $DR->get();
+                        if (!$relay) {
+                            add_source_route($item_id, $sender);
+                        }
+                    } else {
+                        $DR->update('update ignored');
+                        $result[] = $DR->get();
+                    }
 				}
 				else {
 					$DR->update('update ignored');
@@ -1848,20 +1851,29 @@ class Libzot {
 
 				$item_id = 0;
 
-				if (($arr['mid'] == $arr['parent_mid']) && (!post_is_importable($arr, $abook))) {
-					$DR->update('post ignored');
-					$result[] = $DR->get();
+				$maxlen = get_max_import_size();
+
+				if ($maxlen && mb_strlen($arr['body']) > $maxlen) {
+					$arr['body'] = mb_substr($arr['body'], 0, $maxlen, 'UTF-8');
+					logger('message length exceeds max_import_size: truncated');
 				}
-				else {
+
+				if ($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+					$arr['summary'] = mb_substr($arr['summary'], 0, $maxlen, 'UTF-8');
+					logger('message summary length exceeds max_import_size: truncated');
+				}
+
+				if (post_is_importable($arr['uid'], $arr, $abook)) {
 					$item_result = item_store($arr);
 					if ($item_result['success']) {
 						$item_id = $item_result['item_id'];
-						$parr    = [
+						$parr = [
 							'item_id' => $item_id,
-							'item'    => $arr,
-							'sender'  => $sender,
+							'item' => $arr,
+							'sender' => $sender,
 							'channel' => $channel
 						];
+
 						/**
 						 * @hooks activity_received
 						 *   Called when an activity (post, comment, like, etc.) has been received from a zot source.
@@ -1871,13 +1883,19 @@ class Libzot {
 						 *   * \e array \b channel
 						 */
 						call_hooks('activity_received', $parr);
+
 						// don't add a source route if it's a relay or later recipients will get a route mismatch
-						if (!$relay)
+						if (!$relay) {
 							add_source_route($item_id, $sender);
+						}
 					}
 					$DR->update(($item_id) ? 'posted' : 'storage failed: ' . $item_result['message']);
 					$result[] = $DR->get();
+				} else {
+					$DR->update('post ignored');
+					$result[] = $DR->get();
 				}
+
 			}
 
 			// preserve conversations with which you are involved from expiration

@@ -119,7 +119,7 @@ class Privacy {
 			],
 			'$autoperms' => ['autoperms', t('Automatically approve new contacts'), $autoperms, '', [t('No'), t('Yes')]],
 			'$index_opt_out' => ['index_opt_out', t('Opt-out of search engine indexing'), $index_opt_out, '', [t('No'), t('Yes')]],
-			'$group_actor' => ['group_actor', t('Group actor'), $group_actor, t('Allow this channel to act as a forum'), [t('No'), t('Yes')]],
+			'$group_actor' => ['group_actor', t('Group actor'), $group_actor, t('Allow this channel to act as a forum'), [t('No'), t('Yes')]]
 		]);
 
 		return $o;

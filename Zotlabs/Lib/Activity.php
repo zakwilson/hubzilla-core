@@ -1926,11 +1926,6 @@ class Activity {
 			}
 		}
 
-		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($observer_hash),
-			intval($channel['channel_id'])
-		);
-
 		$content = self::get_content($act->obj);
 
 		if (!$content) {
@@ -2014,9 +2009,14 @@ class Activity {
 			}
 		}
 
+		$abook = q("select * from abook where (abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
+			dbesc($s['author_xchan']),
+			dbesc($s['owner_xchan']),
+			intval($channel['channel_id'])
+		);
 
 		if ($abook) {
-			if (!post_is_importable($s, $abook[0])) {
+			if (!post_is_importable($channel['channel_id'], $s, $abook)) {
 				logger('post is filtered');
 				return;
 			}
@@ -2934,13 +2934,14 @@ class Activity {
 			}
 		}
 
-		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($observer_hash),
+		$abook = q("select * from abook where ( abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
+			dbesc($item['author_xchan']),
+			dbesc($item['owner_xchan']),
 			intval($channel['channel_id'])
 		);
 
 		if ($abook) {
-			if (!post_is_importable($item, $abook[0])) {
+			if (!post_is_importable($channel['channel_id'], $item, $abook)) {
 				logger('post is filtered');
 				return;
 			}
@@ -3293,6 +3294,7 @@ class Activity {
 
 	}
 
+/* this is deprecated and not used anymore
 	static function announce_note($channel, $observer_hash, $act) {
 
 		$s              = [];
@@ -3423,6 +3425,7 @@ class Activity {
 		}
 
 	}
+*/
 
 	static function like_note($channel, $observer_hash, $act) {
 

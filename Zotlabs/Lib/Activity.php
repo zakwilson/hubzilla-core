@@ -2473,31 +2473,57 @@ class Activity {
 					'video/webm'
 				];
 
-				$mps = [];
+				$mps    = [];
+				$poster = null;
+				$ptr    = null;
+
+				// try to find a poster to display on the video element
+
+				if (array_key_exists('icon',$act->obj)) {
+					if (is_array($act->obj['icon'])) {
+						if (array_key_exists(0,$act->obj['icon'])) {
+							$ptr = $act->obj['icon'];
+						}
+						else {
+							$ptr = [ $act->obj['icon'] ];
+						}
+					}
+					if ($ptr) {
+						foreach ($ptr as $foo) {
+							if (is_array($foo) && array_key_exists('type',$foo) && $foo['type'] === 'Image' && is_string($foo['url'])) {
+								$poster = $foo['url'];
+							}
+						}
+					}
+				}
+
+				$tag = (($poster) ? '[video poster=&quot;' . $poster . '&quot;]' : '[video]' );
 				$ptr = null;
 
-				if (array_key_exists('url', $act->obj)) {
+				if (array_key_exists('url',$act->obj)) {
 					if (is_array($act->obj['url'])) {
-						if (array_key_exists(0, $act->obj['url'])) {
+						if (array_key_exists(0,$act->obj['url'])) {
 							$ptr = $act->obj['url'];
 						}
 						else {
-							$ptr = [$act->obj['url']];
+							$ptr = [ $act->obj['url'] ];
 						}
-						foreach ($ptr as $vurl) {
-							// peertube uses the non-standard element name 'mimeType' here
-							if (array_key_exists('mimeType', $vurl)) {
-								if (in_array($vurl['mimeType'], $vtypes)) {
-									if (!array_key_exists('width', $vurl)) {
-										$vurl['width'] = 0;
-									}
-									$mps[] = $vurl;
+						// handle peertube's weird url link tree if we find it here
+						// 0 => html link, 1 => application/x-mpegURL with 'tag' set to an array of actual media links
+						foreach ($ptr as $idex) {
+							if (is_array($idex) && array_key_exists('mediaType',$idex)) {
+								if ($idex['mediaType'] === 'application/x-mpegURL' && isset($idex['tag']) && is_array($idex['tag'])) {
+									$ptr = $idex['tag'];
+									break;
 								}
 							}
-							elseif (array_key_exists('mediaType', $vurl)) {
+						}
+
+						foreach ($ptr as $vurl) {
+							if (array_key_exists('mediaType',$vurl)) {
 								if (in_array($vurl['mediaType'], $vtypes)) {
-									if (!array_key_exists('width', $vurl)) {
-										$vurl['width'] = 0;
+									if (! array_key_exists('height',$vurl)) {
+										$vurl['height'] = 0;
 									}
 									$mps[] = $vurl;
 								}
@@ -2505,17 +2531,18 @@ class Activity {
 						}
 					}
 					if ($mps) {
-						usort($mps, [__CLASS__, 'vid_sort']);
+						usort($mps,[ '\Zotlabs\Lib\Activity', 'vid_sort' ]);
 						foreach ($mps as $m) {
-							if (intval($m['width']) < 500 && self::media_not_in_body($m['href'], $s['body'])) {
-								$s['body'] .= "\n\n" . '[video]' . $m['href'] . '[/video]';
+							if (intval($m['height']) < 500 && Activity::media_not_in_body($m['href'],$s['body'])) {
+								$s['body'] .= "\n\n" . $tag . $m['href'] . '[/video]';
 								break;
 							}
 						}
 					}
-					elseif (is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'], $s['body'])) {
-						$s['body'] .= "\n\n" . '[video]' . $act->obj['url'] . '[/video]';
+					elseif (is_string($act->obj['url']) && Activity::media_not_in_body($act->obj['url'],$s['body'])) {
+						$s['body'] .= "\n\n" . $tag . $act->obj['url'] . '[/video]';
 					}
+
 				}
 			}
 

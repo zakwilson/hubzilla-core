@@ -4,6 +4,16 @@ Updates should follow the [Keep a CHANGELOG](http://keepachangelog.com/) princip
 
 ## [Unreleased][unreleased]
 
+## [5.1.0] - 2022-03-02
+
+### Changed
+
+ - Changed horizontal rule style (#218, #219)
+
+### Fixed
+
+ - Fixed `Element::getValue()` not handling possible nulls
+
 ## [5.0.2] - 2021-11-06
 
 ### Fixed
@@ -305,7 +315,8 @@ not ideally set, so this releases fixes that. Moving forwards this should reduce
 ### Added
  - Initial release
 
-[unreleased]: https://github.com/thephpleague/html-to-markdown/compare/5.0.2...master
+[unreleased]: https://github.com/thephpleague/html-to-markdown/compare/5.1.0...master
+[5.1.0]: https://github.com/thephpleague/html-to-markdown/compare/5.0.2...5.1.0
 [5.0.2]: https://github.com/thephpleague/html-to-markdown/compare/5.0.1...5.0.2
 [5.0.1]: https://github.com/thephpleague/html-to-markdown/compare/5.0.0...5.0.1
 [5.0.0]: https://github.com/thephpleague/html-to-markdown/compare/4.10.0...5.0.0

@@ -75,7 +75,7 @@ class Setup extends \Zotlabs\Web\Controller {
 				$siteurl = ((isset($_POST['siteurl'])) ? trim($_POST['siteurl']) : '');
 
 				if (empty($db_charset)) {
-					$db_charset = ((intval($db_type) === 0) ? 'utf8mb4' : 'UTF8');
+					$db_charset = ((intval($dbtype) === 0) ? 'utf8mb4' : 'UTF8');
 				}
 
 				// $siteurl should not have a trailing slash
@@ -106,7 +106,7 @@ class Setup extends \Zotlabs\Web\Controller {
 				$siteurl = ((isset($_POST['siteurl'])) ? trim($_POST['siteurl']) : '');
 
 				if (empty($db_charset)) {
-					$db_charset = ((intval($db_type) === 0) ? 'utf8mb4' : 'UTF8');
+					$db_charset = ((intval($dbtype) === 0) ? 'utf8mb4' : 'UTF8');
 				}
 
 				if($siteurl != z_root()) {

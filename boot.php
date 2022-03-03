@@ -1687,7 +1687,7 @@ function fix_system_urls($oldurl, $newurl) {
  * @param boolean $login_page (optional) default true
  * @return string Parsed HTML code.
  */
-function login($register = false, $form_id = 'main-login', $hiddens = false, $login_page = true) {
+function login($register = false, $form_id = 'main_login', $hiddens = false, $login_page = true) {
 
 	$o   = '';
 	$reg = null;
@@ -1747,9 +1747,9 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 		'$login'        => t('Login'),
 		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
-		'$lname'        => ['username', $lname_label],
-		'$lpassword'    => ['password', t('Password')],
-		'$remember_me'  => [(($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '', [t('No'), t('Yes')]],
+		'$lname'        => [$form_id . '_username', $lname_label],
+		'$lpassword'    => [$form_id . '_password', t('Password')],
+		'$remember_me'  => [$form_id . '_remember', t('Remember me'), '', '', [t('No'), t('Yes')]],
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),

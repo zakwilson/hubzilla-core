@@ -1,23 +1,5 @@
 <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
 	<div class="container-fluid flex-nowrap">
-		{{if $nav.login && !$userinfo}}
-		<div class="d-lg-none pt-1 pb-1">
-			{{if $nav.loginmenu.1.4}}
-			<a class="btn btn-primary btn-sm text-white" href="#" title="{{$nav.loginmenu.1.3}}" id="{{$nav.loginmenu.1.4}}_collapse" data-bs-toggle="modal" data-bs-target="#nav-login">
-				{{$nav.loginmenu.1.1}}
-			</a>
-			{{else}}
-			<a class="btn btn-primary btn-sm text-white" href="login" title="{{$nav.loginmenu.1.3}}">
-				{{$nav.loginmenu.1.1}}
-			</a>
-			{{/if}}
-			{{if $nav.register}}
-			<a class="btn btn-warning btn-sm text-dark" href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}" >
-				{{$nav.register.1}}
-			</a>
-			{{/if}}
-		</div>
-		{{/if}}
 		{{if $userinfo}}
 		<div class="d-flex" style="max-width: 50%">
 			<div class="dropdown">
@@ -83,8 +65,9 @@
 			{{/if}}
 			{{/if}}
 		</div>
+		{{else}}
+		<div id="banner" class="navbar-text d-lg-none">{{$banner}}</div>
 		{{/if}}
-
 		<div class="navbar-toggler-right">
 			{{if $nav.help.6}}
 			<button id="context-help-btn" class="navbar-toggler border-0" type="button" onclick="contextualHelp(); return false;">
@@ -179,6 +162,25 @@
 </nav>
 <div class="offcanvas offcanvas-end" tabindex="-1" id="app-bin" aria-labelledby="app-bin-label">
 	<div class="offcanvas-header">
+		{{if $nav.login && !$userinfo}}
+		<div class="d-lg-none pt-1 pb-1">
+			{{if $nav.loginmenu.1.4}}
+			<a class="btn btn-primary btn-sm text-white" href="#" title="{{$nav.loginmenu.1.3}}" id="{{$nav.loginmenu.1.4}}_collapse" data-bs-toggle="modal" data-bs-target="#nav-login">
+				{{$nav.loginmenu.1.1}}
+			</a>
+			{{else}}
+			<a class="btn btn-primary btn-sm text-white" href="login" title="{{$nav.loginmenu.1.3}}">
+				{{$nav.loginmenu.1.1}}
+			</a>
+			{{/if}}
+			{{if $nav.register}}
+			<a class="btn btn-warning btn-sm text-dark" href="{{$nav.register.0}}" title="{{$nav.register.3}}" id="{{$nav.register.4}}" >
+				{{$nav.register.1}}
+			</a>
+			{{/if}}
+		</div>
+		<div class="d-lg-flex"></div>
+		{{else}}
 		<div class="lh-1" id="app-bin-label">
 			{{if $name}}
 			<img src="{{$thumb}}" class="menu-img-2">
@@ -189,7 +191,10 @@
 			{{/if}}
 		</div>
 		<i id="app-bin-trash" class="fa fa-2x fa-fw fa-trash-o d-none"></i>
+		{{/if}}
+
 		<button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+
 	</div>
 	<div class="offcanvas-body pt-0">
 		{{if $channel_apps.0}}

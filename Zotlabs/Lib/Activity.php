@@ -2003,7 +2003,10 @@ class Activity {
 		}
 
 		if ($channel['channel_system']) {
-			if (!MessageFilter::evaluate($s, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+			$incl = get_config('system','pubstream_incl');
+			$excl = get_config('system','pubstream_excl');
+
+			if(($incl || $excl) && !MessageFilter::evaluate($s, $incl, $excl)) {
 				logger('post is filtered');
 				return;
 			}
@@ -2326,6 +2329,32 @@ class Activity {
 			}
 			if ($act->type === 'emojiReaction') {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
+			}
+		}
+
+		$s['item_thread_top'] = 0;
+		$s['comment_policy'] = 'authenticated';
+
+		if ($s['mid'] === $s['parent_mid']) {
+			$s['item_thread_top'] = 1;
+
+			// it is a parent node - decode the comment policy info if present
+			if (isset($act->obj['commentPolicy'])) {
+				$until = strpos($act->obj['commentPolicy'], 'until=');
+				if ($until !== false) {
+					$s['comments_closed'] = datetime_convert('UTC', 'UTC', substr($act->obj['commentPolicy'], $until + 6));
+					if ($s['comments_closed'] < datetime_convert()) {
+						$s['nocomment'] = true;
+					}
+				}
+
+				$remainder = substr($act->obj['commentPolicy'], 0, (($until) ? $until : strlen($act->obj['commentPolicy'])));
+				if ($remainder) {
+					$s['comment_policy'] = $remainder;
+				}
+				if (!(isset($item['comment_policy']) && strlen($item['comment_policy']))) {
+					$s['comment_policy'] = 'contacts';
+				}
 			}
 		}
 
@@ -2955,7 +2984,10 @@ class Activity {
 			return;
 
 		if ($channel['channel_system']) {
-			if (!MessageFilter::evaluate($item, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+			$incl = get_config('system','pubstream_incl');
+			$excl = get_config('system','pubstream_excl');
+
+			if(($incl || $excl) && !MessageFilter::evaluate($item, $incl, $excl)) {
 				logger('post is filtered');
 				return;
 			}

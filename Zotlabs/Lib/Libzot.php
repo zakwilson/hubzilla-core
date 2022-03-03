@@ -1578,7 +1578,11 @@ class Libzot {
 					$local_public = false;
 					continue;
 				}
-				if (!MessageFilter::evaluate($arr, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+
+				$incl = get_config('system','pubstream_incl');
+				$excl = get_config('system','pubstream_excl');
+
+				if(($incl || $excl) && !MessageFilter::evaluate($arr, $incl, $excl)) {
 					$local_public = false;
 					continue;
 				}

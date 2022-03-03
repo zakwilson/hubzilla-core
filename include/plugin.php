@@ -941,9 +941,7 @@ function head_get_links() {
 
 function format_css_if_exists($source) {
 
-	// script_path() returns https://yoursite.tld
-
-	$path_prefix = script_path();
+	$path_prefix = z_root();
 
 	$script = $source[0];
 
@@ -1054,7 +1052,7 @@ function head_get_main_js() {
 }
 
 function format_js_if_exists($source) {
-	$path_prefix = script_path();
+	$path_prefix = z_root();
 
 	if(strpos($source,'/') !== false) {
 		// The source is a known path on the system

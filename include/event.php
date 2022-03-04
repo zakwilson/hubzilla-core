@@ -73,7 +73,7 @@ function format_event_obj($jobject) {
 
 	$event = [];
 	$object = json_decode($jobject, true);
-hz_syslog(print_r($object,true));
+
 /*******
 	This is our encoded format
 

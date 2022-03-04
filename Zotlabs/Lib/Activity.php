@@ -501,7 +501,7 @@ class Activity {
 
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
-		if ($i['id'] != $i['parent']) {
+		if ($i['mid'] !== $i['parent_mid']) {
 			$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 		}
 
@@ -875,7 +875,7 @@ class Activity {
 			}
 		}
 
-		if ($i['id'] != $i['parent']) {
+		if ($i['mid'] !== $i['parent_mid']) {
 			$reply = true;
 
 			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),

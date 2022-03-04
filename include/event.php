@@ -73,7 +73,7 @@ function format_event_obj($jobject) {
 
 	$event = [];
 	$object = json_decode($jobject, true);
-
+hz_syslog(print_r($object,true));
 /*******
 	This is our encoded format
 
@@ -103,7 +103,11 @@ function format_event_obj($jobject) {
 		// mobilizon sets a timezone in the object
 		// we will assume that events with an timezone should be adjusted
 		$tz = $object['timezone'] ?? '';
-		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz);
+
+		// friendica has its own flag for adjust
+		$dfrn_adjust = $object['dfrn:adjust'] ?? '';
+
+		$adjust = ((strpos($object['startTime'], 'Z') !== false) || $tz || $dfrn_adjust);
 
 		$allday = (($adjust) ? false : true);
 
@@ -140,7 +144,7 @@ function format_event_obj($jobject) {
 		$event['content'] = replace_macros(get_markup_template('event_item_content.tpl'), array(
 			'$description'    => $object['content'],
 			'$location_label' => t('Location:'),
-			'$location'   => ((array_path_exists('location/content', $object)) ? zidify_links(smilies(bbcode($object['location']['content']))) : EMPTY_STR)
+			'$location'   => ((array_path_exists('location/name', $object)) ? zidify_links(smilies(bbcode($object['location']['name']))) : EMPTY_STR)
 		));
 	}
 
@@ -1210,7 +1214,7 @@ function event_store_item($arr, $event) {
 			// RFC3339 Section 4.3
 			'startTime' => (($arr['adjust']) ? datetime_convert('UTC', 'UTC', $arr['dtstart'], ATOM_TIME) : datetime_convert('UTC', 'UTC', $arr['dtstart'], 'Y-m-d\\TH:i:s-00:00')),
 			'content'   => bbcode($arr['description']),
-			'location'  => [ 'type' => 'Place', 'content' => $arr['location'] ],
+			'location'  => [ 'type' => 'Place', 'name' => $arr['location'] ],
 			'source'    => [ 'content' => format_event_bbcode($arr), 'mediaType' => 'text/x-multicode' ],
 			'url'       => [ [ 'mediaType' => 'text/calendar', 'href' => z_root() . '/events/ical/' . $event['event_hash'] ] ],
 			'actor'     => Activity::encode_person($r[0], false),
@@ -1370,7 +1374,7 @@ function event_store_item($arr, $event) {
 				// RFC3339 Section 4.3
 				'startTime'  => (($arr['adjust']) ? datetime_convert('UTC', 'UTC', $arr['dtstart'], ATOM_TIME) : datetime_convert('UTC', 'UTC', $arr['dtstart'], 'Y-m-d\\TH:i:s-00:00')),
 				'content'    => bbcode($arr['description']),
-				'location'   => [ 'type' => 'Place', 'content' => bbcode($arr['location']) ],
+				'location'   => [ 'type' => 'Place', 'name' => bbcode($arr['location']) ],
 				'source'     => [ 'content' => format_event_bbcode($arr), 'mediaType' => 'text/x-multicode' ],
 				'url'        => [ [ 'mediaType' => 'text/calendar', 'href' => z_root() . '/events/ical/' . $event['event_hash'] ] ],
 				'actor'      => Activity::encode_person($z, false),

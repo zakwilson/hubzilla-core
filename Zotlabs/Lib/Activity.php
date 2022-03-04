@@ -2247,6 +2247,21 @@ class Activity {
 
 	static function decode_note($act) {
 
+		$response_activity = false;
+
+		$s = [];
+
+		// These activities should have been handled separately in the Inbox module and should not be turned into posts
+
+		if (
+			in_array($act->type, ['Follow', 'Accept', 'Reject', 'Create', 'Update']) &&
+			is_array($act->obj) &&
+			array_key_exists('type', $act->obj) &&
+			($act->obj['type'] === 'Follow' || ActivityStreams::is_an_actor($act->obj['type']))
+		) {
+			return false;
+		}
+
 		// Within our family of projects, Follow/Unfollow of a thread is an internal activity which should not be transmitted,
 		// hence if we receive it - ignore or reject it.
 		// Unfollow is not defined by ActivityStreams, which prefers Undo->Follow.
@@ -2256,19 +2271,20 @@ class Activity {
 			return false;
 		}
 
-		$response_activity = false;
-
-		$s = [];
-
-		if (is_array($act->obj)) {
-			$content = self::get_content($act->obj);
+		if (!isset($act->actor['id'])) {
+			logger('No actor!');
+			return false;
 		}
+
+		// ensure we store the original actor
+		self::actor_store($act->actor['id'], $act->actor);
 
 		$s['owner_xchan']  = $act->actor['id'];
 		$s['author_xchan'] = $act->actor['id'];
 
-		// ensure we store the original actor
-		self::actor_store($act->actor['id'], $act->actor);
+		if (is_array($act->obj)) {
+			$content = self::get_content($act->obj);
+		}
 
 		$s['mid'] = ((is_array($act->obj) && isset($act->obj['id'])) ? $act->obj['id'] : $act->obj);
 
@@ -2301,6 +2317,10 @@ class Activity {
 		}
 		elseif (array_key_exists('expires', $act->obj)) {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
+		}
+
+		if ($act->type === 'Invite' && is_array($act->obj) && array_key_exists('type', $act->obj) && $act->obj['type'] === 'Event') {
+			$s['mid'] = $s['parent_mid'] = $act->id;
 		}
 
 		if (ActivityStreams::is_response_activity($act->type)) {
@@ -2423,6 +2443,12 @@ class Activity {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
+		$s['obj'] = $act->obj;
+		if (is_array($s['obj']) && array_path_exists('actor/id', $s['obj'])) {
+			$s['obj']['actor'] = $s['obj']['actor']['id'];
+		}
+
+/*
 		$eventptr = null;
 
 		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
@@ -2443,19 +2469,19 @@ class Activity {
 			$s['obj']['asld']  = $eventptr;
 			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
 			$s['obj']['id']    = $eventptr['id'];
-			$s['obj']['title'] = $eventptr['name'];
+			$s['obj']['title'] = html2plain($eventptr['name']);
 
 			if (strpos($act->obj['startTime'], 'Z'))
 				$s['obj']['adjust'] = true;
 			else
-				$s['obj']['adjust'] = false;
+				$s['obj']['adjust'] = true;
 
 			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
 			if ($act->obj['endTime'])
 				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
 			else
 				$s['obj']['nofinish'] = true;
-			$s['obj']['description'] = $eventptr['content'];
+			$s['obj']['description'] = html2bbcode($eventptr['content']);
 
 			if (array_path_exists('location/content', $eventptr))
 				$s['obj']['location'] = $eventptr['location']['content'];
@@ -2464,6 +2490,7 @@ class Activity {
 		else {
 			$s['obj'] = $act->obj;
 		}
+*/
 
 		$generator = $act->get_property_obj('generator');
 		if ((!$generator) && (!$response_activity)) {
@@ -3740,7 +3767,49 @@ class Activity {
 				$event['nofinish'] = true;
 			}
 		}
+/*
+		$eventptr = null;
 
+		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
+			$eventptr = $act->obj['object'];
+			$s['mid'] = $s['parent_mid'] = $act->obj['id'];
+		}
+
+		if ($act->obj['type'] === 'Event') {
+			if ($act->type === 'Invite') {
+				$s['mid'] = $s['parent_mid'] = $act->id;
+			}
+			$eventptr = $act->obj;
+		}
+
+		if ($eventptr) {
+
+			$s['obj']          = [];
+			$s['obj']['asld']  = $eventptr;
+			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
+			$s['obj']['id']    = $eventptr['id'];
+			$s['obj']['title'] = html2plain($eventptr['name']);
+
+			if (strpos($act->obj['startTime'], 'Z'))
+				$s['obj']['adjust'] = true;
+			else
+				$s['obj']['adjust'] = true;
+
+			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
+			if ($act->obj['endTime'])
+				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
+			else
+				$s['obj']['nofinish'] = true;
+			$s['obj']['description'] = html2bbcode($eventptr['content']);
+
+			if (array_path_exists('location/content', $eventptr))
+				$s['obj']['location'] = $eventptr['location']['content'];
+
+		}
+		else {
+			$s['obj'] = $act->obj;
+		}
+*/
 		foreach (['name', 'summary', 'content'] as $a) {
 			if (($x = self::get_textfield($act, $a)) !== false) {
 				$content[$a] = $x;

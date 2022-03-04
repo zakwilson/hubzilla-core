@@ -1599,6 +1599,25 @@ class Activity {
 		return;
 	}
 
+	public static function drop($channel, $observer, $act) {
+		$r = q(
+			"select * from item where mid = '%s' and uid = %d limit 1",
+			dbesc((is_array($act->obj)) ? $act->obj['id'] : $act->obj),
+			intval($channel['channel_id'])
+		);
+
+		if (!$r) {
+			return;
+		}
+
+		if (in_array($observer, [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
+			drop_item($r[0]['id'], false);
+		} elseif (in_array($act->actor['id'], [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
+			drop_item($r[0]['id'], false);
+		}
+	}
+
+
 	static function actor_store($url, $person_obj, $force = false) {
 
 		if (!is_array($person_obj)) {
@@ -2251,8 +2270,16 @@ class Activity {
 		// ensure we store the original actor
 		self::actor_store($act->actor['id'], $act->actor);
 
-		$s['mid']        = $act->obj['id'];
-		$s['uuid']       = $act->obj['diaspora:guid'];
+		$s['mid'] = ((is_array($act->obj) && isset($act->obj['id'])) ? $act->obj['id'] : $act->obj);
+
+		if (!$s['mid']) {
+			return false;
+		}
+
+		// Friendica sends the diaspora guid in a nonstandard field via AP
+		// If no uuid is provided we will create an uuid v5 from the mid
+		$s['uuid'] = ((is_array($act->obj) && isset($act->obj['diaspora:guid'])) ? $act->obj['diaspora:guid'] : uuid_from_url($s['mid']));
+
 		$s['parent_mid'] = $act->parent_id;
 
 		if (array_key_exists('published', $act->data)) {
@@ -2281,8 +2308,9 @@ class Activity {
 			$response_activity = true;
 
 			$s['mid'] = $act->id;
-			// $s['parent_mid'] = $act->obj['id'];
-			$s['uuid'] = $act->data['diaspora:guid'];
+			$s['uuid'] = ((is_array($act->data) && isset($act->data['diaspora:guid'])) ? $act->data['diaspora:guid'] : uuid_from_url($s['mid']));
+
+			$s['parent_mid'] = ((is_array($act->obj) && isset($act->obj['id'])) ? $act->obj['id'] : $act->obj);
 
 			// over-ride the object timestamp with the activity
 
@@ -2295,8 +2323,8 @@ class Activity {
 			}
 
 			$obj_actor = ((isset($act->obj['actor'])) ? $act->obj['actor'] : $act->get_actor('attributedTo', $act->obj));
-			// ensure we store the original actor
 
+			// ensure we store the original actor
 			self::actor_store($obj_actor['id'], $obj_actor);
 
 			$mention = self::get_actor_bbmention($obj_actor['id']);
@@ -2325,7 +2353,8 @@ class Activity {
 			}
 
 			if ($act->type === 'Announce') {
-				$content['content'] = sprintf(t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
+				$s['author_xchan'] = $obj_actor['id'];
+				$s['mid'] = $act->obj['id'];
 			}
 			if ($act->type === 'emojiReaction') {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
@@ -2676,7 +2705,6 @@ class Activity {
 			}
 		}
 
-
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Page'])) {
 			$ptr = null;
 
@@ -2812,12 +2840,6 @@ class Activity {
 		// Pleroma scrobbles can be really noisy and contain lots of duplicate activities. Disable them by default.
 		/*if (($act->type === 'Listen') && ($is_sys_channel || get_pconfig($channel['channel_id'], 'system', 'allow_scrobbles', false))) {
 			return;
-		}*/
-
-		// TODO: this his handled in pubcrawl atm.
-		// very unpleasant and imperfect way of determining a Mastodon DM
-		/*if ($act->raw_recips && array_key_exists('to',$act->raw_recips) && is_array($act->raw_recips['to']) && count($act->raw_recips['to']) === 1 && $act->raw_recips['to'][0] === channel_url($channel) && ! $act->raw_recips['cc']) {
-			$item['item_private'] = 2;
 		}*/
 
 		if ($item['parent_mid'] && $item['parent_mid'] !== $item['mid']) {
@@ -3070,6 +3092,19 @@ class Activity {
 				$item['thr_parent'] = $parent[0]['parent_mid'];
 			}
 			$item['parent_mid'] = $parent[0]['parent_mid'];
+			//$item['item_private'] = $parent[0]['item_private'];
+
+		}
+
+		// An ugly and imperfect way to recognise a mastodon direct message
+		if (
+			$item['item_private'] === 1 &&
+			!isset($act->raw_recips['cc']) &&
+			is_array($act->raw_recips['to']) &&
+			in_array(channel_url($channel), $act->raw_recips['to']) &&
+			!in_array($act->actor['followers'], $act->raw_recips['to'])
+		) {
+			$item['item_private'] = 2;
 		}
 
 		// TODO: not implemented
@@ -3096,12 +3131,12 @@ class Activity {
 			logger('topfetch', LOGGER_DEBUG);
 			// if the thread owner is a connnection, we will already receive any additional comments to their posts
 			// but if they are not we can try to fetch others in the background
-			$x = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
+			$connected = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
 				intval($channel['channel_id']),
 				dbesc($parent[0]['owner_xchan'])
 			);
-			if (!$x) {
+			if (!$connected) {
 				// determine if the top-level post provides a replies collection
 				if ($parent[0]['obj']) {
 					$parent[0]['obj'] = json_decode($parent[0]['obj'], true);

@@ -2530,7 +2530,7 @@ class Activity {
 		if (array_key_exists('type', $act->obj)) {
 
 			if ($act->obj['type'] === 'Note' && $s['attach']) {
-				$s['body'] .= self::bb_attach($s['attach'], $s['body']);
+				$s['body'] = self::bb_attach($s['attach'], $s['body']) . $s['body'];
 			}
 
 			if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
@@ -2619,13 +2619,13 @@ class Activity {
 						usort($mps,[ '\Zotlabs\Lib\Activity', 'vid_sort' ]);
 						foreach ($mps as $m) {
 							if (intval($m['height']) < 500 && Activity::media_not_in_body($m['href'],$s['body'])) {
-								$s['body'] .= "\n\n" . $tag . $m['href'] . '[/video]';
+								$s['body'] = $tag . $m['href'] . '[/video]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
 					elseif (is_string($act->obj['url']) && Activity::media_not_in_body($act->obj['url'],$s['body'])) {
-						$s['body'] .= "\n\n" . $tag . $act->obj['url'] . '[/video]';
+						$s['body'] = $tag . $act->obj['url'] . '[/video]' . "\n\n" . $s['body'];
 					}
 
 				}
@@ -2651,13 +2651,13 @@ class Activity {
 						}
 						foreach ($ptr as $vurl) {
 							if (in_array($vurl['mediaType'], $atypes) && self::media_not_in_body($vurl['href'], $s['body'])) {
-								$s['body'] .= "\n\n" . '[audio]' . $vurl['href'] . '[/audio]';
+								$s['body'] = '[audio]' . $vurl['href'] . '[/audio]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
 					elseif (is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'], $s['body'])) {
-						$s['body'] .= "\n\n" . '[audio]' . $act->obj['url'] . '[/audio]';
+						$s['body'] = '[audio]' . $act->obj['url'] . '[/audio]' . "\n\n" . $s['body'];
 					}
 				}
 

@@ -127,6 +127,7 @@ class HTTPSig {
 			if (array_key_exists($h, $headers)) {
 				$signed_data .= $h . ': ' . $headers[$h] . "\n";
 			}
+
 			if ($h === 'date') {
 				$d = new DateTime($headers[$h]);
 				$d->setTimeZone(new DateTimeZone('UTC'));
@@ -142,20 +143,34 @@ class HTTPSig {
 		$signed_data = rtrim($signed_data, "\n");
 
 		$algorithm = null;
+
 		if ($sig_block['algorithm'] === 'rsa-sha256') {
 			$algorithm = 'sha256';
 		}
+
 		if ($sig_block['algorithm'] === 'rsa-sha512') {
 			$algorithm = 'sha512';
 		}
 
-		if (!array_key_exists('keyId', $sig_block))
+		if (!array_key_exists('keyId', $sig_block)) {
 			return $result;
+		}
 
 		$result['signer'] = $sig_block['keyId'];
 
 		$cached_key = self::get_key($key, $keytype, $result['signer']);
 
+		if ($sig_block['algorithm'] === 'hs2019') {
+			if (isset($cached_key['algorithm'])) {
+				if (strpos($cached_key['algorithm'], 'rsa-sha256') !== false) {
+					$algorithm = 'sha256';
+				}
+
+				if (strpos($cached_key['algorithm'], 'rsa-sha512') !== false) {
+					$algorithm = 'sha512';
+				}
+			}
+		}
 
 		if (!($cached_key && $cached_key['public_key'])) {
 			return $result;
@@ -296,7 +311,7 @@ class HTTPSig {
 				$best = Libzot::zot_record_preferred($x);
 			}
 			if ($best && $best['xchan_pubkey']) {
-				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
+				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'algorithm' => get_xconfig($best['xchan_hash'], 'system', 'signing_algorithm'), 'hubloc' => $best];
 			}
 		}
 
@@ -308,15 +323,41 @@ class HTTPSig {
 
 		// The record wasn't in cache. Fetch it now.
 		$r = ActivityStreams::fetch($id);
+        $signatureAlgorithm = EMPTY_STR;
 
-		if ($r) {
-			if (array_key_exists('publicKey', $r) && array_key_exists('publicKeyPem', $r['publicKey']) && array_key_exists('id', $r['publicKey'])) {
-				if ($r['publicKey']['id'] === $id || $r['id'] === $id) {
-					$portable_id = ((array_key_exists('owner', $r['publicKey'])) ? $r['publicKey']['owner'] : EMPTY_STR);
-					return ['public_key' => self::convertKey($r['publicKey']['publicKeyPem']), 'portable_id' => $portable_id, 'hubloc' => []];
-				}
-			}
-		}
+        if ($r) {
+            if (array_key_exists('publicKey', $r) && array_key_exists('publicKeyPem', $r['publicKey']) && array_key_exists('id', $r['publicKey'])) {
+                if ($r['publicKey']['id'] === $id || $r['id'] === $id) {
+                    $portable_id = ((array_key_exists('owner', $r['publicKey'])) ? $r['publicKey']['owner'] : EMPTY_STR);
+
+                    // the w3c sec context has conflicting names and no defined values for this property except
+                    // "http://www.w3.org/2000/09/xmldsig#rsa-sha1"
+
+                    // Since the names conflict, it could mess up LD-signatures but we will accept both, and at this
+                    // time we will only look for the substrings 'rsa-sha256' and 'rsa-sha512' within those properties.
+                    // We will also accept a toplevel 'sigAlgorithm' regardless of namespace with the same constraints.
+                    // Default to rsa-sha256 if we can't figure out. If they're sending 'hs2019' we have to
+                    // look for something.
+
+                    if (isset($r['publicKey']['signingAlgorithm'])) {
+                        $signatureAlgorithm = $r['publicKey']['signingAlgorithm'];
+                        set_xconfig($portable_id, 'system', 'signing_algorithm', $signatureAlgorithm);
+                    }
+
+                    if (isset($r['publicKey']['signatureAlgorithm'])) {
+                        $signatureAlgorithm = $r['publicKey']['signatureAlgorithm'];
+                        set_xconfig($portable_id, 'system', 'signing_algorithm', $signatureAlgorithm);
+                    }
+
+                    if (isset($r['sigAlgorithm'])) {
+                        $signatureAlgorithm = $r['sigAlgorithm'];
+                        set_xconfig($portable_id, 'system', 'signing_algorithm', $signatureAlgorithm);
+                    }
+
+                    return ['public_key' => self::convertKey($r['publicKey']['publicKeyPem']), 'portable_id' => $portable_id, 'algorithm' => (($signatureAlgorithm) ? $signatureAlgorithm : 'rsa-sha256'), 'hubloc' => []];
+                }
+            }
+        }
 
 		// No key was found
 		return false;
@@ -343,7 +384,7 @@ class HTTPSig {
 			}
 
 			if ($best && $best['xchan_pubkey']) {
-				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
+				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'algorithm' => get_xconfig($best['xchan_hash'], 'system', 'signing_algorithm'), 'hubloc' => $best];
 			}
 		}
 
@@ -389,7 +430,7 @@ class HTTPSig {
 			}
 
 			if ($best && $best['xchan_pubkey']) {
-				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'hubloc' => $best];
+				return ['portable_id' => $best['xchan_hash'], 'public_key' => $best['xchan_pubkey'], 'algorithm' => get_xconfig($best['xchan_hash'], 'system', 'signing_algorithm'), 'hubloc' => $best];
 			}
 		}
 
@@ -460,6 +501,9 @@ class HTTPSig {
 		}
 
 		$x = self::sign($head, $prvkey, $alg);
+
+		// TODO: should we default to hs2019?
+		// $headerval = 'keyId="' . $keyid . '",algorithm="' . (($algorithm === 'rsa-sha256') ? 'hs2019' : $algorithm) . '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 
 		$headerval = 'keyId="' . $keyid . '",algorithm="' . $algorithm . '",headers="' . $x['headers'] . '",signature="' . $x['signature'] . '"';
 

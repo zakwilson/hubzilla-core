@@ -1154,9 +1154,10 @@ class Activity {
 		$ret['url'] = $p['xchan_url'];
 
 		$ret['publicKey'] = [
-			'id'           => $p['xchan_url'],
-			'owner'        => $p['xchan_url'],
-			'publicKeyPem' => $p['xchan_pubkey']
+			'id'                 => $p['xchan_url'],
+			'owner'              => $p['xchan_url'],
+			'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+			'publicKeyPem'       => $p['xchan_pubkey']
 		];
 
 		if ($c) {

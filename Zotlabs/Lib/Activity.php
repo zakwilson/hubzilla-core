@@ -2376,6 +2376,7 @@ class Activity {
 			if ($act->type === 'Announce') {
 				$s['author_xchan'] = $obj_actor['id'];
 				$s['mid'] = $act->obj['id'];
+				$s['parent_mid'] = $act->obj['id'];
 			}
 			if ($act->type === 'emojiReaction') {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
@@ -3143,6 +3144,12 @@ class Activity {
 			intval($item['uid'])
 		);
 		if ($r) {
+
+			// If we already have the item, dismiss its announce
+			if ($act->type === 'Announce') {
+				return;
+			}
+
 			if ($item['edited'] > $r[0]['edited']) {
 				$item['id'] = $r[0]['id'];
 				$x          = item_store_update($item);

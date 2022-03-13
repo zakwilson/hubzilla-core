@@ -157,6 +157,10 @@ option {
 	color:#fff !important;
 }
 
+.dropdown-item {
+  color: $font_colour;
+}
+
 a.btn, aside a {
 	font-weight: 400 !important;
 }

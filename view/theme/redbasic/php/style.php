@@ -36,9 +36,8 @@ if(! App::$install) {
 // not --- like the mobile theme does instead.
 
 // Allow layouts to over-ride the schema
-
-if($_REQUEST['schema']) {
-	$schema = $_REQUEST['schema'];
+if (isset($_REQUEST['schema']) && preg_match('/^[\w_-]+$/i', $_REQUEST['schema'])) {
+  $schema = $_REQUEST['schema'];
 }
 
 if (($schema) && ($schema != '---')) {

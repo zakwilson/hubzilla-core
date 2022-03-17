@@ -941,9 +941,7 @@ function head_get_links() {
 
 function format_css_if_exists($source) {
 
-	// script_path() returns https://yoursite.tld
-
-	$path_prefix = script_path();
+	$path_prefix = z_root();
 
 	$script = $source[0];
 
@@ -963,44 +961,6 @@ function format_css_if_exists($source) {
 		$qstring = ((parse_url($path, PHP_URL_QUERY)) ? '&' : '?') . 'v=' . STD_VERSION;
 		return '<link rel="stylesheet" href="' . $path_prefix . $path . $qstring . '" type="text/css" media="' . $source[1] . '">' . "\r\n";
 	}
-}
-
-/**
- * This basically calculates the baseurl. We have other functions to do that, but
- * there was an issue with script paths and mixed-content whose details are arcane
- * and perhaps lost in the message archives. The short answer is that we're ignoring
- * the URL which we are "supposed" to use, and generating script paths relative to
- * the URL which we are currently using; in order to ensure they are found and aren't
- * blocked due to mixed content issues.
- *
- * @return string
- */
-function script_path() {
-	if(x($_SERVER,'HTTPS') && $_SERVER['HTTPS'])
-		$scheme = 'https';
-	elseif(x($_SERVER,'SERVER_PORT') && (intval($_SERVER['SERVER_PORT']) == 443))
-		$scheme = 'https';
-	elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on')
-		$scheme = 'https';
-	else
-		$scheme = 'http';
-
-	// Some proxy setups may require using http_host
-
-	if(isset(App::$config['system']['script_path_use_http_host']) && intval(App::$config['system']['script_path_use_http_host']))
-		$server_var = 'HTTP_HOST';
-	else
-		$server_var = 'SERVER_NAME';
-
-
-	if(x($_SERVER,$server_var)) {
-		$hostname = $_SERVER[$server_var];
-	}
-	else {
-		return z_root();
-	}
-
-	return $scheme . '://' . $hostname;
 }
 
 function head_add_js($src, $priority = 0) {
@@ -1054,7 +1014,7 @@ function head_get_main_js() {
 }
 
 function format_js_if_exists($source) {
-	$path_prefix = script_path();
+	$path_prefix = z_root();
 
 	if(strpos($source,'/') !== false) {
 		// The source is a known path on the system

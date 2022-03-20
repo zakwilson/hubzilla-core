@@ -21,10 +21,10 @@ class Network {
 			$network_divmore_height = 50;
 
 		set_pconfig(local_channel(),'system','network_divmore_height', $network_divmore_height);
-		
+
 		Libsync::build_sync_packet();
 
-		if($_POST['rpath'])
+		if(isset($_POST['rpath']) && is_local_url($_POST['rpath']))
 			goaway($_POST['rpath']);
 
 		return;
@@ -61,7 +61,7 @@ class Network {
 			'$extra_settings_html' => $extra_settings_html,
 			'$submit' => t('Submit')
 		));
-	
+
 		return $o;
 	}
 

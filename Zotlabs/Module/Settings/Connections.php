@@ -11,14 +11,14 @@ class Connections {
 		$module = substr(strrchr(strtolower(static::class), '\\'), 1);
 
 		check_form_security_token_redirectOnErr('/settings/' . $module, 'settings_' . $module);
-	
+
 		$features = get_module_features($module);
 
 		process_module_features_post(local_channel(), $features, $_POST);
-		
+
 		Libsync::build_sync_packet();
 
-		if($_POST['rpath'])
+		if(isset($_POST['rpath']) && is_local_url($_POST['rpath']))
 			goaway($_POST['rpath']);
 
 		return;

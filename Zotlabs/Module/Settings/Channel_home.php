@@ -28,7 +28,7 @@ class Channel_home {
 
 		Libsync::build_sync_packet();
 
-		if($_POST['rpath'])
+		if(isset($_POST['rpath']) && is_local_url($_POST['rpath']))
 			goaway($_POST['rpath']);
 
 		return;

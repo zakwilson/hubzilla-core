@@ -676,6 +676,10 @@ class Libzot {
 
 		logger('import_xchan: ' . $xchan_hash, LOGGER_DEBUG);
 
+		if (isset($arr['signing_algorithm']) && $arr['signing_algorithm']) {
+			set_xconfig($xchan_hash, 'system', 'signing_algorithm', $arr['signing_algorithm']);
+		}
+
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($xchan_hash)
 		);
@@ -2877,6 +2881,7 @@ class Libzot {
 		];
 
 		$ret['public_key']   = $e['xchan_pubkey'];
+		$ret['signing_algorithm'] = 'rsa-sha256';
 		$ret['username']     = $e['channel_address'];
 		$ret['name']         = $e['xchan_name'];
 		$ret['name_updated'] = $e['xchan_name_date'];

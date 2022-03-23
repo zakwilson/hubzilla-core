@@ -1093,7 +1093,7 @@ class Item extends Controller {
 		$datarray['created']             = $created;
 		$datarray['edited']              = (($orig_post) ? datetime_convert() : $created);
 		$datarray['expires']             = $expires;
-		$datarray['comments_closed']     = $comments_closed;
+		$datarray['comments_closed']     = (($nocomment) ? $created : $comments_closed);
 		$datarray['commented']           = (($orig_post) ? datetime_convert() : $created);
 		$datarray['received']            = (($orig_post) ? datetime_convert() : $created);
 		$datarray['changed']             = (($orig_post) ? datetime_convert() : $created);

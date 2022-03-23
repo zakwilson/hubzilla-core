@@ -1073,21 +1073,6 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
 
-	$r = q("select channel_id from channel where channel_id = %d limit 1",
-		intval($item['uid'])
-	);
-
-	if($r)
-		$comment_scope = PermissionLimits::Get($item['uid'],'post_comments');
-	else
-		$comment_scope = 0;
-
-	$scope = $item['public_policy'];
-	if(! $scope)
-		$scope = 'public';
-
-	$c_scope = map_scope($comment_scope);
-
 	$key = get_config('system','prvkey');
 
 	// If we're trying to backup an item so that it's recoverable or for export/imprt,
@@ -1180,10 +1165,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 
 	$x['public_scope']    = $scope;
 
-	if($item['item_nocomment'])
-		$x['comment_scope'] = 'none';
-	else
-		$x['comment_scope'] = $c_scope;
+	$x['comment_scope'] = $item['comment_policy'];
 
 	if(! empty($item['term']))
 		$x['tags'] = encode_item_terms($item['term'],$mirror);

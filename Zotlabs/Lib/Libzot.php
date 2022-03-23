@@ -1294,22 +1294,12 @@ class Libzot {
 
 				if ($AS->data['hubloc']) {
 					$arr['item_verified'] = true;
-
-					if (!array_key_exists('comment_policy', $arr)) {
-						// set comment policy depending on source hub. Unknown or osada is ActivityPub.
-						// Anything else we'll say is zot - which could have a range of project names
-						$s = q("select site_project from site where site_url = '%s' limit 1",
-							dbesc($r[0]['hubloc_url'])
-						);
-
-						if ((!$s) || (in_array($s[0]['site_project'], ['', 'osada']))) {
-							$arr['comment_policy'] = 'authenticated';
-						}
-						else {
-							$arr['comment_policy'] = 'contacts';
-						}
-					}
 				}
+
+				if (!array_key_exists('comment_policy', $arr)) {
+					$arr['comment_policy'] = 'authenticated';
+				}
+
 				if ($AS->meta['signed_data']) {
 					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				}

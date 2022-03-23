@@ -114,6 +114,18 @@ function escape_tags($string) {
 	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }
 
+/**
+ * Escape URL's so they're safe for use in HTML and in HTML element attributes.
+ */
+function escape_url($input) {
+  if (empty($input)) {
+    return EMPTY_STR;
+  }
+
+  // This is a bit crude but seems to do the trick for now. It makes no
+  // guarantees that the URL is valid for use after escaping.
+  return htmlspecialchars($input, ENT_HTML5 | ENT_QUOTES);
+}
 
 function z_input_filter($s,$type = 'text/bbcode',$allow_code = false) {
 

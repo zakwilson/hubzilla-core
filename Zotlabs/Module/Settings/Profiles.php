@@ -23,7 +23,7 @@ class Profiles {
 
 		Libsync::build_sync_packet();
 
-		if($_POST['rpath'])
+		if(isset($_POST['rpath']) && is_local_url($_POST['rpath']))
 			goaway($_POST['rpath']);
 
 		return;
@@ -43,7 +43,7 @@ class Profiles {
 		$tpl = get_markup_template("settings_module.tpl");
 
 		$o .= replace_macros($tpl, array(
-			'$rpath' => $rpath,
+			'$rpath' => escape_url($rpath),
 			'$action_url' => 'settings/' . $module,
 			'$form_security_token' => get_form_security_token('settings_' . $module),
 			'$title' => t('Profiles Settings'),

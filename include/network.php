@@ -559,6 +559,14 @@ function z_dns_check($h,$check_mx = 0) {
 	return((@dns_get_record($h,$opts) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
 }
 
+function is_local_url($url) {
+  if (str_starts_with($url, z_root()) || str_starts_with($url, '/')) {
+    return true;
+  }
+
+  return false;
+}
+
 /**
  * @brief Validates a given URL.
  *

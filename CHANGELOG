@@ -28,8 +28,9 @@ Hubzilla 7.2 (2022-??-??)
 
 	Bugfixes
 	- Fix comments_closed date on posts where comments are disabled
-	- Fix open redirect via rpath query param
-	- Fix local file inclusion in redbasic theme
+	- Fix open redirect via rpath query param (CVE-2022-27256)
+	- Fix cross-site scripting via rpath query param (CVE-2022-27258)
+	- Fix local file inclusion in redbasic theme (CVE-2022-27257)
 	- Fix baseurl for css and js
 	- Fix duplicate IDs in login form
 	- Fix unknown author not fetched if w2w comment arrives

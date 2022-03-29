@@ -1,5 +1,12 @@
 <?php
 
+/**
+ *   * Name: Profile
+ *   * Description: Your profile card
+ *   * Requires: channel, articles, cards, wiki, cloud, photos
+ */
+
+
 namespace Zotlabs\Widget;
 
 use App;

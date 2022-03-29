@@ -60,7 +60,7 @@ require_once('include/bbcode.php');
 require_once('include/items.php');
 
 define('PLATFORM_NAME', 'hubzilla');
-define('STD_VERSION', '7.0.3');
+define('STD_VERSION', '7.2');
 define('ZOT_REVISION', '6.0');
 
 define('DB_UPDATE_VERSION', 1252);
@@ -915,9 +915,14 @@ class App {
 
 		if ((x($_SERVER, 'QUERY_STRING')) && substr($_SERVER['QUERY_STRING'], 0, 2) === "q=") {
 			self::$query_string = str_replace(['<', '>'], ['&lt;', '&gt;'], substr($_SERVER['QUERY_STRING'], 2));
+
 			// removing trailing / - maybe a nginx problem
 			if (substr(self::$query_string, 0, 1) == "/")
 				self::$query_string = substr(self::$query_string, 1);
+
+      // trim trailing '&' if no extra args are present
+      self::$query_string = rtrim(self::$query_string, '&');
+
 			// change the first & to ?
 			self::$query_string = preg_replace('/&/', '?', self::$query_string, 1);
 		}
@@ -1687,7 +1692,7 @@ function fix_system_urls($oldurl, $newurl) {
  * @param boolean $login_page (optional) default true
  * @return string Parsed HTML code.
  */
-function login($register = false, $form_id = 'main-login', $hiddens = false, $login_page = true) {
+function login($register = false, $form_id = 'main_login', $hiddens = false, $login_page = true) {
 
 	$o   = '';
 	$reg = null;
@@ -1747,9 +1752,9 @@ function login($register = false, $form_id = 'main-login', $hiddens = false, $lo
 		'$login'        => t('Login'),
 		'$remote_login' => t('Remote Authentication'),
 		'$form_id'      => $form_id,
-		'$lname'        => ['username', $lname_label],
-		'$lpassword'    => ['password', t('Password')],
-		'$remember_me'  => [(($login_page) ? 'remember' : 'remember_me'), t('Remember me'), '', '', [t('No'), t('Yes')]],
+		'$lname'        => [$form_id . '_username', $lname_label],
+		'$lpassword'    => [$form_id . '_password', t('Password')],
+		'$remember_me'  => [$form_id . '_remember', t('Remember me'), '', '', [t('No'), t('Yes')]],
 		'$hiddens'      => $hiddens,
 		'$register'     => $reg,
 		'$lostpass'     => t('Forgot your password?'),

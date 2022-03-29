@@ -365,9 +365,14 @@ function z_post_url($url, $params, $redirects = 0, $opts = array()) {
 	if($http_code == 301 || $http_code == 302 || $http_code == 303 || $http_code == 307 || $http_code == 308) {
 		$matches = array();
 		preg_match('/(Location:|URI:)(.*?)\n/', $header, $matches);
-		$newurl = trim(array_pop($matches));
-		if(strpos($newurl,'/') === 0)
+
+		$newurl = '';
+		if (array_pop($matches))
+			$newurl = trim(array_pop($matches));
+
+		if($newurl && strpos($newurl,'/') === 0)
 			$newurl = $url . $newurl;
+
 		$url_parsed = @parse_url($newurl);
 		if (isset($url_parsed)) {
 			curl_close($ch);
@@ -552,6 +557,14 @@ function z_dns_check($h,$check_mx = 0) {
 		$opts += DNS_MX;
 
 	return((@dns_get_record($h,$opts) || filter_var($h, FILTER_VALIDATE_IP)) ? true : false);
+}
+
+function is_local_url($url) {
+  if (str_starts_with($url, z_root()) || str_starts_with($url, '/')) {
+    return true;
+  }
+
+  return false;
 }
 
 /**
@@ -1985,6 +1998,10 @@ function getBestSupportedMimeType($mimeTypes = null, $acceptedTypes = false) {
 
 	if($acceptedTypes === false)
 		$acceptedTypes = $_SERVER['HTTP_ACCEPT'];
+
+	if (!$acceptedTypes) {
+		return null;
+	}
 
 	// Accept header is case insensitive, and whitespace isn’t important
 	$accept = strtolower(str_replace(' ', '', $acceptedTypes));

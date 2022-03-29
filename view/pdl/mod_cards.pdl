@@ -4,6 +4,9 @@
 [widget=tasklist][/widget]
 [widget=notes][/widget]
 [/region]
+[region=content]
+$content
+[/region]
 [region=right_aside]
 [widget=notifications][/widget]
 [widget=newmember][/widget]

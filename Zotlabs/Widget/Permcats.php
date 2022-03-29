@@ -1,5 +1,12 @@
 <?php
 
+/**
+ *   * Name: Contact roles
+ *   * Description: Display a menu with all defined contact roles and contacts which are assigned to the selected role
+ *   * Author: Mario Vavti
+ *   * Requires: permcats
+ */
+
 namespace Zotlabs\Widget;
 
 use Zotlabs\Lib\Permcat;

@@ -695,6 +695,7 @@ class Item extends Controller {
 			$expires             = $orig_post['expires'];
 			$comments_closed     = $orig_post['comments_closed'];
 			$mid                 = $orig_post['mid'];
+			$thr_parent          = $orig_post['thr_parent'];
 			$parent_mid          = $orig_post['parent_mid'];
 			$plink               = $orig_post['plink'];
 		}
@@ -1092,7 +1093,7 @@ class Item extends Controller {
 		$datarray['created']             = $created;
 		$datarray['edited']              = (($orig_post) ? datetime_convert() : $created);
 		$datarray['expires']             = $expires;
-		$datarray['comments_closed']     = $comments_closed;
+		$datarray['comments_closed']     = (($nocomment) ? $created : $comments_closed);
 		$datarray['commented']           = (($orig_post) ? datetime_convert() : $created);
 		$datarray['received']            = (($orig_post) ? datetime_convert() : $created);
 		$datarray['changed']             = (($orig_post) ? datetime_convert() : $created);

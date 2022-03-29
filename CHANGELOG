@@ -1,3 +1,42 @@
+Hubzilla 7.2 (2022-03-29)
+	- Streamline comment policy with downstream project
+	- Add new function is_local_url()
+	- Add helper function to escape URLs
+	- Add signing algorithm to zotinfo()
+	- Store signing algorithm in import_xchan()
+	- Use bootstrap-nightfall for redbasic:dark schema
+	- Add support for hs2019
+	- Remove unused function script_path()
+	- Move login and register button into the hamburger menu for small screens
+	- Collect accept headers in an array instead of a concatenated string
+	- Update composer libs
+	- Enhanced content filters
+	- Improve mod gprobe to also deal with URLs
+	- Adapt unseen forum posts query in mod network to new forum post style
+	- Remove deprecated widgets
+	- Add inbound support for quoteUrl to Lib/Activity
+	- Add widget descriptions
+	- Add a GUI for the PDL editor
+
+	Addons
+	- Pubcrawl: deprecate as.php in favor of core libs
+	- Pubcrawl: rewrite/modernize mod inbox
+	- Pubcrawl: reflect core enhanced content filter changes
+	- Diaspora: reflect core enhanced content filter changes
+	- Fediwordle: new addon - a distributed word game inspired by wordle
+	- Pubcrawl: streamline post_local hook with diaspora
+
+	Bugfixes
+	- Fix comments_closed date on posts where comments are disabled
+	- Fix open redirect via rpath query param (CVE-2022-27256)
+	- Fix cross-site scripting via rpath query param (CVE-2022-27258)
+	- Fix local file inclusion in redbasic theme (CVE-2022-27257)
+	- Fix baseurl for css and js
+	- Fix duplicate IDs in login form
+	- Fix unknown author not fetched if w2w comment arrives
+	- Fix thr_parent lost across edits
+
+
 Hubzilla 7.0.3 (2022-02-10)
 	- Allow to override the charset for the PDO connection string via $db_charset in .htconfig.php
 

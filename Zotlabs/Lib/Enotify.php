@@ -845,6 +845,10 @@ class Enotify {
 		// convert this logic into a json array just like the system notifications
 
 		$who = (($item['verb'] === ACTIVITY_SHARE) ? 'owner' : 'author');
+		$body = html2plain(bbcode($item['body'], ['drop_media']), 75, true);
+		if ($body) {
+			$body = htmlentities($body, ENT_QUOTES, 'UTF-8', false);
+		}
 
 		$x = array(
 			'notify_link' => $item['llink'],
@@ -858,7 +862,7 @@ class Enotify {
 			//'b64mid' => ((in_array($item['verb'], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) ? gen_link_id($item['thr_parent']) : gen_link_id($item['mid'])),
 			'thread_top' => (($item['item_thread_top']) ? true : false),
 			'message' => bbcode(escape_tags($itemem_text)),
-			'body' =>  htmlentities(html2plain(bbcode($item['body'], ['drop_media', true]), 75, true), ENT_QUOTES, 'UTF-8', false),
+			'body' => $body,
 			// these are for the superblock addon
 			'hash' => $item[$who]['xchan_hash'],
 			'uid' => $item['uid'],

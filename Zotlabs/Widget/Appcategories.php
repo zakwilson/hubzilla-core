@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: App categories
+ *   * Description: Shows a menu with various app categories
+ *   * Requires: apps
+ */
+
 namespace Zotlabs\Widget;
 
 class Appcategories {

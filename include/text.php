@@ -108,9 +108,24 @@ function notags($string) {
  * @return string
  */
 function escape_tags($string) {
-	return(htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
+	if (!$string) {
+		return EMPTY_STR;
+	}
+	return (htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false));
 }
 
+/**
+ * Escape URL's so they're safe for use in HTML and in HTML element attributes.
+ */
+function escape_url($input) {
+  if (empty($input)) {
+    return EMPTY_STR;
+  }
+
+  // This is a bit crude but seems to do the trick for now. It makes no
+  // guarantees that the URL is valid for use after escaping.
+  return htmlspecialchars($input, ENT_HTML5 | ENT_QUOTES);
+}
 
 function z_input_filter($s,$type = 'text/bbcode',$allow_code = false) {
 
@@ -3531,7 +3546,7 @@ function text_highlight($s, $lang) {
 // echo (($xml->asXML('data.xml')) ? 'Your XML file has been generated successfully!' : 'Error generating XML file!');
 
 function arrtoxml($root_elem,$arr) {
-	$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $root_elem . '></' . $root_elem . '>', null, false);
+	$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><' . $root_elem . '></' . $root_elem . '>', 0, false);
 	array2XML($xml,$arr);
 
 	return $xml->asXML();
@@ -4054,9 +4069,10 @@ function sanitize_text_field($str) {
  */
 function substr_words($str, $max_length, $suffix = '...') {
 
+	$ret = '';
+
 	if (strlen($str) > $max_length) {
 		$words = preg_split('/\s/', $str);
-		$ret = '';
 		$i = 0;
 		while (true) {
 			$length = (strlen($ret) + strlen($words[$i]));

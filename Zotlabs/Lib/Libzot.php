@@ -676,6 +676,10 @@ class Libzot {
 
 		logger('import_xchan: ' . $xchan_hash, LOGGER_DEBUG);
 
+		if (isset($arr['signing_algorithm']) && $arr['signing_algorithm']) {
+			set_xconfig($xchan_hash, 'system', 'signing_algorithm', $arr['signing_algorithm']);
+		}
+
 		$r = q("select * from xchan where xchan_hash = '%s' limit 1",
 			dbesc($xchan_hash)
 		);
@@ -1003,7 +1007,7 @@ class Libzot {
 
 		$x = Crypto::unencapsulate($x, get_config('system', 'prvkey'));
 
-		if (!is_array($x)) {
+		if ($x && !is_array($x)) {
 			$x = json_decode($x, true);
 		}
 
@@ -1227,6 +1231,16 @@ class Libzot {
 					dbesc($AS->actor['id'])
 				);
 
+				if (! $r) {
+					// Author is unknown to this site. Perform channel discovery and try again.
+					$z = discover_by_webbie($AS->actor['id']);
+					if ($z) {
+						$r = q("select hubloc_hash, hubloc_network, hubloc_url from hubloc where hubloc_id_url = '%s'",
+							dbesc($AS->actor['id'])
+						);
+					}
+				}
+
 				if ($r) {
 					$r = self::zot_record_preferred($r);
 					$arr['author_xchan'] = $r['hubloc_hash'];
@@ -1280,22 +1294,12 @@ class Libzot {
 
 				if ($AS->data['hubloc']) {
 					$arr['item_verified'] = true;
-
-					if (!array_key_exists('comment_policy', $arr)) {
-						// set comment policy depending on source hub. Unknown or osada is ActivityPub.
-						// Anything else we'll say is zot - which could have a range of project names
-						$s = q("select site_project from site where site_url = '%s' limit 1",
-							dbesc($r[0]['hubloc_url'])
-						);
-
-						if ((!$s) || (in_array($s[0]['site_project'], ['', 'osada']))) {
-							$arr['comment_policy'] = 'authenticated';
-						}
-						else {
-							$arr['comment_policy'] = 'contacts';
-						}
-					}
 				}
+
+				if (!array_key_exists('comment_policy', $arr)) {
+					$arr['comment_policy'] = 'authenticated';
+				}
+
 				if ($AS->meta['signed_data']) {
 					IConfig::Set($arr, 'activitypub', 'signed_data', $AS->meta['signed_data'], false);
 				}
@@ -1568,7 +1572,11 @@ class Libzot {
 					$local_public = false;
 					continue;
 				}
-				if (!MessageFilter::evaluate($arr, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+
+				$incl = get_config('system','pubstream_incl');
+				$excl = get_config('system','pubstream_excl');
+
+				if(($incl || $excl) && !MessageFilter::evaluate($arr, $incl, $excl)) {
 					$local_public = false;
 					continue;
 				}
@@ -1743,11 +1751,13 @@ class Libzot {
 				}
 			}
 
-			$ab = q("select * from abook where abook_channel = %d and abook_xchan = '%s'",
+			// This is used to fetch allow/deny rules if either the sender
+			// or  owner is  a connection. post_is_importable() evaluates all of them
+			$abook = q("select * from abook where abook_channel = %d and ( abook_xchan = '%s' OR abook_xchan = '%s' )",
 				intval($channel['channel_id']),
-				dbesc($arr['owner_xchan'])
+				dbesc($arr['owner_xchan']),
+				dbesc($arr['author_xchan'])
 			);
-			$abook = (($ab) ? $ab[0] : null);
 
 			if (intval($arr['item_deleted'])) {
 
@@ -1798,17 +1808,18 @@ class Libzot {
 				elseif ($arr['edited'] > $r[0]['edited']) {
 					$arr['id']  = $r[0]['id'];
 					$arr['uid'] = $channel['channel_id'];
-					if (($arr['mid'] == $arr['parent_mid']) && (!post_is_importable($arr, $abook))) {
-						$DR->update('update ignored');
-						$result[] = $DR->get();
-					}
-					else {
-						$item_result = self::update_imported_item($sender, $arr, $r[0], $channel['channel_id'], $tag_delivery);
-						$DR->update('updated');
-						$result[] = $DR->get();
-						if (!$relay)
-							add_source_route($item_id, $sender);
-					}
+
+                    if (post_is_importable($channel['channel_id'], $arr, $abook)) {
+                        $item_result = self::update_imported_item($sender, $arr, $r[0], $channel['channel_id'], $tag_delivery);
+                        $DR->update('updated');
+                        $result[] = $DR->get();
+                        if (!$relay) {
+                            add_source_route($item_id, $sender);
+                        }
+                    } else {
+                        $DR->update('update ignored');
+                        $result[] = $DR->get();
+                    }
 				}
 				else {
 					$DR->update('update ignored');
@@ -1838,20 +1849,29 @@ class Libzot {
 
 				$item_id = 0;
 
-				if (($arr['mid'] == $arr['parent_mid']) && (!post_is_importable($arr, $abook))) {
-					$DR->update('post ignored');
-					$result[] = $DR->get();
+				$maxlen = get_max_import_size();
+
+				if ($maxlen && mb_strlen($arr['body']) > $maxlen) {
+					$arr['body'] = mb_substr($arr['body'], 0, $maxlen, 'UTF-8');
+					logger('message length exceeds max_import_size: truncated');
 				}
-				else {
+
+				if ($maxlen && mb_strlen($arr['summary']) > $maxlen) {
+					$arr['summary'] = mb_substr($arr['summary'], 0, $maxlen, 'UTF-8');
+					logger('message summary length exceeds max_import_size: truncated');
+				}
+
+				if (post_is_importable($arr['uid'], $arr, $abook)) {
 					$item_result = item_store($arr);
 					if ($item_result['success']) {
 						$item_id = $item_result['item_id'];
-						$parr    = [
+						$parr = [
 							'item_id' => $item_id,
-							'item'    => $arr,
-							'sender'  => $sender,
+							'item' => $arr,
+							'sender' => $sender,
 							'channel' => $channel
 						];
+
 						/**
 						 * @hooks activity_received
 						 *   Called when an activity (post, comment, like, etc.) has been received from a zot source.
@@ -1861,13 +1881,19 @@ class Libzot {
 						 *   * \e array \b channel
 						 */
 						call_hooks('activity_received', $parr);
+
 						// don't add a source route if it's a relay or later recipients will get a route mismatch
-						if (!$relay)
+						if (!$relay) {
 							add_source_route($item_id, $sender);
+						}
 					}
 					$DR->update(($item_id) ? 'posted' : 'storage failed: ' . $item_result['message']);
 					$result[] = $DR->get();
+				} else {
+					$DR->update('post ignored');
+					$result[] = $DR->get();
 				}
+
 			}
 
 			// preserve conversations with which you are involved from expiration
@@ -2845,6 +2871,7 @@ class Libzot {
 		];
 
 		$ret['public_key']   = $e['xchan_pubkey'];
+		$ret['signing_algorithm'] = 'rsa-sha256';
 		$ret['username']     = $e['channel_address'];
 		$ret['name']         = $e['xchan_name'];
 		$ret['name_updated'] = $e['xchan_name_date'];

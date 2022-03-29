@@ -36,9 +36,8 @@ if(! App::$install) {
 // not --- like the mobile theme does instead.
 
 // Allow layouts to over-ride the schema
-
-if($_REQUEST['schema']) {
-	$schema = $_REQUEST['schema'];
+if (isset($_REQUEST['schema']) && preg_match('/^[\w_-]+$/i', $_REQUEST['schema'])) {
+  $schema = $_REQUEST['schema'];
 }
 
 if (($schema) && ($schema != '---')) {
@@ -111,6 +110,10 @@ if(! $reply_photo)
 if(file_exists('view/theme/redbasic/css/style.css')) {
 
 	$x = file_get_contents('view/theme/redbasic/css/style.css');
+
+  if($schema === 'dark' && file_exists('view/theme/redbasic/schema/bootstrap-nightfall.css')) {
+    $x .= file_get_contents('view/theme/redbasic/schema/bootstrap-nightfall.css');
+  }
 
 	if($narrow_navbar && file_exists('view/theme/redbasic/css/narrow_navbar.css')) {
 		$x .= file_get_contents('view/theme/redbasic/css/narrow_navbar.css');

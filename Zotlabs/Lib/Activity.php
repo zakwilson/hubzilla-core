@@ -501,7 +501,7 @@ class Activity {
 
 		$ret['attributedTo'] = $i['author']['xchan_url'];
 
-		if ($i['id'] != $i['parent']) {
+		if ($i['mid'] !== $i['parent_mid']) {
 			$ret['inReplyTo'] = ((strpos($i['thr_parent'], 'http') === 0) ? $i['thr_parent'] : z_root() . '/item/' . urlencode($i['thr_parent']));
 		}
 
@@ -608,10 +608,10 @@ class Activity {
 				$ptr = [$ptr];
 			}
 			foreach ($ptr as $t) {
-				if (!array_key_exists('type', $t))
+				if (is_array($t) && !array_key_exists('type', $t))
 					$t['type'] = 'Hashtag';
 
-				if (array_key_exists('href', $t) && array_key_exists('name', $t)) {
+				if (is_array($t) && array_key_exists('href', $t) && array_key_exists('name', $t)) {
 					switch ($t['type']) {
 						case 'Hashtag':
 							$ret[] = ['ttype' => TERM_HASHTAG, 'url' => $t['href'], 'term' => escape_tags((substr($t['name'], 0, 1) === '#') ? substr($t['name'], 1) : $t['name'])];
@@ -875,7 +875,7 @@ class Activity {
 			}
 		}
 
-		if ($i['id'] != $i['parent']) {
+		if ($i['mid'] !== $i['parent_mid']) {
 			$reply = true;
 
 			// inReplyTo needs to be set in the activity for followup actions (Like, Dislike, Announce, etc.),
@@ -1154,9 +1154,10 @@ class Activity {
 		$ret['url'] = $p['xchan_url'];
 
 		$ret['publicKey'] = [
-			'id'           => $p['xchan_url'],
-			'owner'        => $p['xchan_url'],
-			'publicKeyPem' => $p['xchan_pubkey']
+			'id'                 => $p['xchan_url'],
+			'owner'              => $p['xchan_url'],
+			'signatureAlgorithm' => 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256',
+			'publicKeyPem'       => $p['xchan_pubkey']
 		];
 
 		if ($c) {
@@ -1599,6 +1600,25 @@ class Activity {
 		return;
 	}
 
+	public static function drop($channel, $observer, $act) {
+		$r = q(
+			"select * from item where mid = '%s' and uid = %d limit 1",
+			dbesc((is_array($act->obj)) ? $act->obj['id'] : $act->obj),
+			intval($channel['channel_id'])
+		);
+
+		if (!$r) {
+			return;
+		}
+
+		if (in_array($observer, [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
+			drop_item($r[0]['id'], false);
+		} elseif (in_array($act->actor['id'], [$r[0]['author_xchan'], $r[0]['owner_xchan']])) {
+			drop_item($r[0]['id'], false);
+		}
+	}
+
+
 	static function actor_store($url, $person_obj, $force = false) {
 
 		if (!is_array($person_obj)) {
@@ -1618,6 +1638,7 @@ class Activity {
 		$ap_hubloc = null;
 
 		$hublocs = self::get_actor_hublocs($url);
+		$has_zot_hubloc = false;
 
 		if ($hublocs) {
 			foreach ($hublocs as $hub) {
@@ -1625,6 +1646,7 @@ class Activity {
 					$ap_hubloc = $hub;
 				}
 				if ($hub['hubloc_network'] === 'zot6') {
+					$has_zot_hubloc = true;
 					Libzot::update_cached_hubloc($hub);
 				}
 			}
@@ -1648,16 +1670,18 @@ class Activity {
 			return;
 		}
 
-		$inbox = $person_obj['inbox'];
+		$inbox = $person_obj['inbox'] ?? null;
 
-		// invalid identity
+		// invalid AP identity
 
 		if (!$inbox || strpos($inbox, z_root()) !== false) {
 			return;
 		}
 
 		// store the actor record in XConfig
-		XConfig::Set($url, 'system', 'actor_record', $person_obj);
+
+		// we already store this in Activity::fetch()
+		// XConfig::Set($url, 'system', 'actor_record', $person_obj);
 
 		$name = $person_obj['name'];
 		if (!$name) {
@@ -1814,12 +1838,12 @@ class Activity {
 		// Adding zot discovery urls to the actor record will cause federation to fail with the 20-30 projects which don't accept arrays in the url field.
 
 		$actor_protocols = self::get_actor_protocols($person_obj);
-		if (in_array('zot6', $actor_protocols)) {
+		if (!$has_zot_hubloc && in_array('zot6', $actor_protocols)) {
 			$zx = q("select * from hubloc where hubloc_id_url = '%s' and hubloc_network = 'zot6'",
 				dbesc($url)
 			);
-			if (!$zx && $webfinger_addr) {
-				Master::Summon(['Gprobe', bin2hex($webfinger_addr)]);
+			if (!$zx) {
+				Master::Summon(['Gprobe', bin2hex($url)]);
 			}
 		}
 
@@ -1922,11 +1946,6 @@ class Activity {
 			}
 		}
 
-		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($observer_hash),
-			intval($channel['channel_id'])
-		);
-
 		$content = self::get_content($act->obj);
 
 		if (!$content) {
@@ -2004,15 +2023,23 @@ class Activity {
 		}
 
 		if ($channel['channel_system']) {
-			if (!MessageFilter::evaluate($s, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+			$incl = get_config('system','pubstream_incl');
+			$excl = get_config('system','pubstream_excl');
+
+			if(($incl || $excl) && !MessageFilter::evaluate($s, $incl, $excl)) {
 				logger('post is filtered');
 				return;
 			}
 		}
 
+		$abook = q("select * from abook where (abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
+			dbesc($s['author_xchan']),
+			dbesc($s['owner_xchan']),
+			intval($channel['channel_id'])
+		);
 
 		if ($abook) {
-			if (!post_is_importable($s, $abook[0])) {
+			if (!post_is_importable($channel['channel_id'], $s, $abook)) {
 				logger('post is filtered');
 				return;
 			}
@@ -2221,6 +2248,21 @@ class Activity {
 
 	static function decode_note($act) {
 
+		$response_activity = false;
+
+		$s = [];
+
+		// These activities should have been handled separately in the Inbox module and should not be turned into posts
+
+		if (
+			in_array($act->type, ['Follow', 'Accept', 'Reject', 'Create', 'Update']) &&
+			is_array($act->obj) &&
+			array_key_exists('type', $act->obj) &&
+			($act->obj['type'] === 'Follow' || ActivityStreams::is_an_actor($act->obj['type']))
+		) {
+			return false;
+		}
+
 		// Within our family of projects, Follow/Unfollow of a thread is an internal activity which should not be transmitted,
 		// hence if we receive it - ignore or reject it.
 		// Unfollow is not defined by ActivityStreams, which prefers Undo->Follow.
@@ -2230,22 +2272,31 @@ class Activity {
 			return false;
 		}
 
-		$response_activity = false;
+		if (!isset($act->actor['id'])) {
+			logger('No actor!');
+			return false;
+		}
 
-		$s = [];
+		// ensure we store the original actor
+		self::actor_store($act->actor['id'], $act->actor);
+
+		$s['owner_xchan']  = $act->actor['id'];
+		$s['author_xchan'] = $act->actor['id'];
 
 		if (is_array($act->obj)) {
 			$content = self::get_content($act->obj);
 		}
 
-		$s['owner_xchan']  = $act->actor['id'];
-		$s['author_xchan'] = $act->actor['id'];
+		$s['mid'] = ((is_array($act->obj) && isset($act->obj['id'])) ? $act->obj['id'] : $act->obj);
 
-		// ensure we store the original actor
-		self::actor_store($act->actor['id'], $act->actor);
+		if (!$s['mid']) {
+			return false;
+		}
 
-		$s['mid']        = $act->obj['id'];
-		$s['uuid']       = $act->obj['diaspora:guid'];
+		// Friendica sends the diaspora guid in a nonstandard field via AP
+		// If no uuid is provided we will create an uuid v5 from the mid
+		$s['uuid'] = ((is_array($act->obj) && isset($act->obj['diaspora:guid'])) ? $act->obj['diaspora:guid'] : uuid_from_url($s['mid']));
+
 		$s['parent_mid'] = $act->parent_id;
 
 		if (array_key_exists('published', $act->data)) {
@@ -2269,13 +2320,18 @@ class Activity {
 			$s['expires'] = datetime_convert('UTC', 'UTC', $act->obj['expires']);
 		}
 
+		if ($act->type === 'Invite' && is_array($act->obj) && array_key_exists('type', $act->obj) && $act->obj['type'] === 'Event') {
+			$s['mid'] = $s['parent_mid'] = $act->id;
+		}
+
 		if (ActivityStreams::is_response_activity($act->type)) {
 
 			$response_activity = true;
 
 			$s['mid'] = $act->id;
-			// $s['parent_mid'] = $act->obj['id'];
-			$s['uuid'] = $act->data['diaspora:guid'];
+			$s['uuid'] = ((is_array($act->data) && isset($act->data['diaspora:guid'])) ? $act->data['diaspora:guid'] : uuid_from_url($s['mid']));
+
+			$s['parent_mid'] = ((is_array($act->obj) && isset($act->obj['id'])) ? $act->obj['id'] : $act->obj);
 
 			// over-ride the object timestamp with the activity
 
@@ -2288,8 +2344,8 @@ class Activity {
 			}
 
 			$obj_actor = ((isset($act->obj['actor'])) ? $act->obj['actor'] : $act->get_actor('attributedTo', $act->obj));
-			// ensure we store the original actor
 
+			// ensure we store the original actor
 			self::actor_store($obj_actor['id'], $obj_actor);
 
 			$mention = self::get_actor_bbmention($obj_actor['id']);
@@ -2318,10 +2374,38 @@ class Activity {
 			}
 
 			if ($act->type === 'Announce') {
-				$content['content'] = sprintf(t('&#x1f501; Repeated %1$s\'s %2$s'), $mention, $act->obj['type']);
+				$s['author_xchan'] = $obj_actor['id'];
+				$s['mid'] = $act->obj['id'];
+				$s['parent_mid'] = $act->obj['id'];
 			}
 			if ($act->type === 'emojiReaction') {
 				$content['content'] = (($act->tgt && $act->tgt['type'] === 'Image') ? '[img=32x32]' . $act->tgt['url'] . '[/img]' : '&#x' . $act->tgt['name'] . ';');
+			}
+		}
+
+		$s['item_thread_top'] = 0;
+		$s['comment_policy'] = 'authenticated';
+
+		if ($s['mid'] === $s['parent_mid']) {
+			$s['item_thread_top'] = 1;
+
+			// it is a parent node - decode the comment policy info if present
+			if (isset($act->obj['commentPolicy'])) {
+				$until = strpos($act->obj['commentPolicy'], 'until=');
+				if ($until !== false) {
+					$s['comments_closed'] = datetime_convert('UTC', 'UTC', substr($act->obj['commentPolicy'], $until + 6));
+					if ($s['comments_closed'] < datetime_convert()) {
+						$s['nocomment'] = true;
+					}
+				}
+
+				$remainder = substr($act->obj['commentPolicy'], 0, (($until) ? $until : strlen($act->obj['commentPolicy'])));
+				if ($remainder) {
+					$s['comment_policy'] = $remainder;
+				}
+				if (!(isset($item['comment_policy']) && strlen($item['comment_policy']))) {
+					$s['comment_policy'] = 'contacts';
+				}
 			}
 		}
 
@@ -2334,6 +2418,16 @@ class Activity {
 		$s['title']   = (($response_activity) ? EMPTY_STR : self::bb_content($content, 'name'));
 		$s['summary'] = self::bb_content($content, 'summary');
 		$s['body']    = ((self::bb_content($content, 'bbcode') && (!$response_activity)) ? self::bb_content($content, 'bbcode') : self::bb_content($content, 'content'));
+
+		if (isset($act->obj['quoteUrl'])) {
+			$quote_bbcode = self::get_quote_bbcode($act->obj['quoteUrl']);
+
+			if ($s['body']) {
+				$s['body'] .= "\r\n\r\n";
+			}
+
+			$s['body'] .= $quote_bbcode;
+		}
 
 		$s['verb'] = self::activity_decode_mapper($act->type);
 
@@ -2351,6 +2445,12 @@ class Activity {
 			$s['obj_type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
+		$s['obj'] = $act->obj;
+		if (is_array($s['obj']) && array_path_exists('actor/id', $s['obj'])) {
+			$s['obj']['actor'] = $s['obj']['actor']['id'];
+		}
+
+/*
 		$eventptr = null;
 
 		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
@@ -2371,19 +2471,19 @@ class Activity {
 			$s['obj']['asld']  = $eventptr;
 			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
 			$s['obj']['id']    = $eventptr['id'];
-			$s['obj']['title'] = $eventptr['name'];
+			$s['obj']['title'] = html2plain($eventptr['name']);
 
 			if (strpos($act->obj['startTime'], 'Z'))
 				$s['obj']['adjust'] = true;
 			else
-				$s['obj']['adjust'] = false;
+				$s['obj']['adjust'] = true;
 
 			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
 			if ($act->obj['endTime'])
 				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
 			else
 				$s['obj']['nofinish'] = true;
-			$s['obj']['description'] = $eventptr['content'];
+			$s['obj']['description'] = html2bbcode($eventptr['content']);
 
 			if (array_path_exists('location/content', $eventptr))
 				$s['obj']['location'] = $eventptr['location']['content'];
@@ -2392,6 +2492,7 @@ class Activity {
 		else {
 			$s['obj'] = $act->obj;
 		}
+*/
 
 		$generator = $act->get_property_obj('generator');
 		if ((!$generator) && (!$response_activity)) {
@@ -2431,7 +2532,7 @@ class Activity {
 		if (array_key_exists('type', $act->obj)) {
 
 			if ($act->obj['type'] === 'Note' && $s['attach']) {
-				$s['body'] .= self::bb_attach($s['attach'], $s['body']);
+				$s['body'] = self::bb_attach($s['attach'], $s['body']) . $s['body'];
 			}
 
 			if ($act->obj['type'] === 'Question' && in_array($act->type, ['Create', 'Update'])) {
@@ -2459,31 +2560,57 @@ class Activity {
 					'video/webm'
 				];
 
-				$mps = [];
+				$mps    = [];
+				$poster = null;
+				$ptr    = null;
+
+				// try to find a poster to display on the video element
+
+				if (array_key_exists('icon',$act->obj)) {
+					if (is_array($act->obj['icon'])) {
+						if (array_key_exists(0,$act->obj['icon'])) {
+							$ptr = $act->obj['icon'];
+						}
+						else {
+							$ptr = [ $act->obj['icon'] ];
+						}
+					}
+					if ($ptr) {
+						foreach ($ptr as $foo) {
+							if (is_array($foo) && array_key_exists('type',$foo) && $foo['type'] === 'Image' && is_string($foo['url'])) {
+								$poster = $foo['url'];
+							}
+						}
+					}
+				}
+
+				$tag = (($poster) ? '[video poster=&quot;' . $poster . '&quot;]' : '[video]' );
 				$ptr = null;
 
-				if (array_key_exists('url', $act->obj)) {
+				if (array_key_exists('url',$act->obj)) {
 					if (is_array($act->obj['url'])) {
-						if (array_key_exists(0, $act->obj['url'])) {
+						if (array_key_exists(0,$act->obj['url'])) {
 							$ptr = $act->obj['url'];
 						}
 						else {
-							$ptr = [$act->obj['url']];
+							$ptr = [ $act->obj['url'] ];
 						}
-						foreach ($ptr as $vurl) {
-							// peertube uses the non-standard element name 'mimeType' here
-							if (array_key_exists('mimeType', $vurl)) {
-								if (in_array($vurl['mimeType'], $vtypes)) {
-									if (!array_key_exists('width', $vurl)) {
-										$vurl['width'] = 0;
-									}
-									$mps[] = $vurl;
+						// handle peertube's weird url link tree if we find it here
+						// 0 => html link, 1 => application/x-mpegURL with 'tag' set to an array of actual media links
+						foreach ($ptr as $idex) {
+							if (is_array($idex) && array_key_exists('mediaType',$idex)) {
+								if ($idex['mediaType'] === 'application/x-mpegURL' && isset($idex['tag']) && is_array($idex['tag'])) {
+									$ptr = $idex['tag'];
+									break;
 								}
 							}
-							elseif (array_key_exists('mediaType', $vurl)) {
+						}
+
+						foreach ($ptr as $vurl) {
+							if (array_key_exists('mediaType',$vurl)) {
 								if (in_array($vurl['mediaType'], $vtypes)) {
-									if (!array_key_exists('width', $vurl)) {
-										$vurl['width'] = 0;
+									if (! array_key_exists('height',$vurl)) {
+										$vurl['height'] = 0;
 									}
 									$mps[] = $vurl;
 								}
@@ -2491,17 +2618,18 @@ class Activity {
 						}
 					}
 					if ($mps) {
-						usort($mps, [__CLASS__, 'vid_sort']);
+						usort($mps,[ '\Zotlabs\Lib\Activity', 'vid_sort' ]);
 						foreach ($mps as $m) {
-							if (intval($m['width']) < 500 && self::media_not_in_body($m['href'], $s['body'])) {
-								$s['body'] .= "\n\n" . '[video]' . $m['href'] . '[/video]';
+							if (intval($m['height']) < 500 && Activity::media_not_in_body($m['href'],$s['body'])) {
+								$s['body'] = $tag . $m['href'] . '[/video]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
-					elseif (is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'], $s['body'])) {
-						$s['body'] .= "\n\n" . '[video]' . $act->obj['url'] . '[/video]';
+					elseif (is_string($act->obj['url']) && Activity::media_not_in_body($act->obj['url'],$s['body'])) {
+						$s['body'] = $tag . $act->obj['url'] . '[/video]' . "\n\n" . $s['body'];
 					}
+
 				}
 			}
 
@@ -2525,13 +2653,13 @@ class Activity {
 						}
 						foreach ($ptr as $vurl) {
 							if (in_array($vurl['mediaType'], $atypes) && self::media_not_in_body($vurl['href'], $s['body'])) {
-								$s['body'] .= "\n\n" . '[audio]' . $vurl['href'] . '[/audio]';
+								$s['body'] = '[audio]' . $vurl['href'] . '[/audio]' . "\n\n" . $s['body'];
 								break;
 							}
 						}
 					}
 					elseif (is_string($act->obj['url']) && self::media_not_in_body($act->obj['url'], $s['body'])) {
-						$s['body'] .= "\n\n" . '[audio]' . $act->obj['url'] . '[/audio]';
+						$s['body'] = '[audio]' . $act->obj['url'] . '[/audio]' . "\n\n" . $s['body'];
 					}
 				}
 
@@ -2605,7 +2733,6 @@ class Activity {
 				}
 			}
 		}
-
 
 		if (in_array($act->obj['type'], ['Note', 'Article', 'Page'])) {
 			$ptr = null;
@@ -2742,12 +2869,6 @@ class Activity {
 		// Pleroma scrobbles can be really noisy and contain lots of duplicate activities. Disable them by default.
 		/*if (($act->type === 'Listen') && ($is_sys_channel || get_pconfig($channel['channel_id'], 'system', 'allow_scrobbles', false))) {
 			return;
-		}*/
-
-		// TODO: this his handled in pubcrawl atm.
-		// very unpleasant and imperfect way of determining a Mastodon DM
-		/*if ($act->raw_recips && array_key_exists('to',$act->raw_recips) && is_array($act->raw_recips['to']) && count($act->raw_recips['to']) === 1 && $act->raw_recips['to'][0] === channel_url($channel) && ! $act->raw_recips['cc']) {
-			$item['item_private'] = 2;
 		}*/
 
 		if ($item['parent_mid'] && $item['parent_mid'] !== $item['mid']) {
@@ -2914,19 +3035,23 @@ class Activity {
 			return;
 
 		if ($channel['channel_system']) {
-			if (!MessageFilter::evaluate($item, get_config('system', 'pubstream_incl'), get_config('system', 'pubstream_excl'))) {
+			$incl = get_config('system','pubstream_incl');
+			$excl = get_config('system','pubstream_excl');
+
+			if(($incl || $excl) && !MessageFilter::evaluate($item, $incl, $excl)) {
 				logger('post is filtered');
 				return;
 			}
 		}
 
-		$abook = q("select * from abook where abook_xchan = '%s' and abook_channel = %d limit 1",
-			dbesc($observer_hash),
+		$abook = q("select * from abook where ( abook_xchan = '%s' OR abook_xchan  = '%s') and abook_channel = %d ",
+			dbesc($item['author_xchan']),
+			dbesc($item['owner_xchan']),
 			intval($channel['channel_id'])
 		);
 
 		if ($abook) {
-			if (!post_is_importable($item, $abook[0])) {
+			if (!post_is_importable($channel['channel_id'], $item, $abook)) {
 				logger('post is filtered');
 				return;
 			}
@@ -2996,6 +3121,19 @@ class Activity {
 				$item['thr_parent'] = $parent[0]['parent_mid'];
 			}
 			$item['parent_mid'] = $parent[0]['parent_mid'];
+			//$item['item_private'] = $parent[0]['item_private'];
+
+		}
+
+		// An ugly and imperfect way to recognise a mastodon direct message
+		if (
+			$item['item_private'] === 1 &&
+			!isset($act->raw_recips['cc']) &&
+			is_array($act->raw_recips['to']) &&
+			in_array(channel_url($channel), $act->raw_recips['to']) &&
+			!in_array($act->actor['followers'], $act->raw_recips['to'])
+		) {
+			$item['item_private'] = 2;
 		}
 
 		// TODO: not implemented
@@ -3006,6 +3144,12 @@ class Activity {
 			intval($item['uid'])
 		);
 		if ($r) {
+
+			// If we already have the item, dismiss its announce
+			if ($act->type === 'Announce') {
+				return;
+			}
+
 			if ($item['edited'] > $r[0]['edited']) {
 				$item['id'] = $r[0]['id'];
 				$x          = item_store_update($item);
@@ -3022,12 +3166,12 @@ class Activity {
 			logger('topfetch', LOGGER_DEBUG);
 			// if the thread owner is a connnection, we will already receive any additional comments to their posts
 			// but if they are not we can try to fetch others in the background
-			$x = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
+			$connected = q("SELECT abook.*, xchan.* FROM abook left join xchan on abook_xchan = xchan_hash
 				WHERE abook_channel = %d and abook_xchan = '%s' LIMIT 1",
 				intval($channel['channel_id']),
 				dbesc($parent[0]['owner_xchan'])
 			);
-			if (!$x) {
+			if (!$connected) {
 				// determine if the top-level post provides a replies collection
 				if ($parent[0]['obj']) {
 					$parent[0]['obj'] = json_decode($parent[0]['obj'], true);
@@ -3279,6 +3423,7 @@ class Activity {
 
 	}
 
+/* this is deprecated and not used anymore
 	static function announce_note($channel, $observer_hash, $act) {
 
 		$s              = [];
@@ -3409,6 +3554,7 @@ class Activity {
 		}
 
 	}
+*/
 
 	static function like_note($channel, $observer_hash, $act) {
 
@@ -3629,7 +3775,49 @@ class Activity {
 				$event['nofinish'] = true;
 			}
 		}
+/*
+		$eventptr = null;
 
+		if ($act->obj['type'] === 'Invite' && array_path_exists('object/type', $act->obj) && $act->obj['object']['type'] === 'Event') {
+			$eventptr = $act->obj['object'];
+			$s['mid'] = $s['parent_mid'] = $act->obj['id'];
+		}
+
+		if ($act->obj['type'] === 'Event') {
+			if ($act->type === 'Invite') {
+				$s['mid'] = $s['parent_mid'] = $act->id;
+			}
+			$eventptr = $act->obj;
+		}
+
+		if ($eventptr) {
+
+			$s['obj']          = [];
+			$s['obj']['asld']  = $eventptr;
+			$s['obj']['type']  = ACTIVITY_OBJ_EVENT;
+			$s['obj']['id']    = $eventptr['id'];
+			$s['obj']['title'] = html2plain($eventptr['name']);
+
+			if (strpos($act->obj['startTime'], 'Z'))
+				$s['obj']['adjust'] = true;
+			else
+				$s['obj']['adjust'] = true;
+
+			$s['obj']['dtstart'] = datetime_convert('UTC', 'UTC', $eventptr['startTime']);
+			if ($act->obj['endTime'])
+				$s['obj']['dtend'] = datetime_convert('UTC', 'UTC', $eventptr['endTime']);
+			else
+				$s['obj']['nofinish'] = true;
+			$s['obj']['description'] = html2bbcode($eventptr['content']);
+
+			if (array_path_exists('location/content', $eventptr))
+				$s['obj']['location'] = $eventptr['location']['content'];
+
+		}
+		else {
+			$s['obj'] = $act->obj;
+		}
+*/
 		foreach (['name', 'summary', 'content'] as $a) {
 			if (($x = self::get_textfield($act, $a)) !== false) {
 				$content[$a] = $x;
@@ -3786,7 +3974,7 @@ class Activity {
 			return $ret;
 		}
 
-		foreach ($tag as $t) {
+		foreach ($actor['tag'] as $t) {
 			if ((isset($t['type']) && $t['type'] === 'PropertyValue') &&
 				(isset($t['name']) && $t['name'] === 'Protocol') &&
 				(isset($t['value']) && in_array($t['value'], ['zot6', 'activitypub', 'diaspora']))
@@ -3797,4 +3985,32 @@ class Activity {
 
 		return $ret;
 	}
+
+	static function get_quote_bbcode($url) {
+
+		$ret = '';
+
+		$a = self::fetch($url);
+		if ($a) {
+			$act = new ActivityStreams($a);
+
+			if ($act->is_valid()) {
+				$content = self::get_content($act->obj);
+
+				$ret .= "[share author='" . urlencode($act->actor['name']) .
+					"' profile='" . $act->actor['id'] .
+					"' avatar='" . $act->actor['icon']['url'] .
+					"' link='" . $act->obj['id'] .
+					"' auth='" . ((is_matrix_url($act->actor['id'])) ? 'true' : 'false') .
+					"' posted='" . $act->obj['published'] .
+					"' message_id='" . $act->obj['id'] .
+					"']";
+				$ret  .= self::bb_content($content, 'content');
+				$ret  .= '[/share]';
+			}
+		}
+
+		return $ret;
+	}
+
 }

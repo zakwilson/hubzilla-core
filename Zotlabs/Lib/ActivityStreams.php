@@ -422,15 +422,19 @@ class ActivityStreams {
 
 	static function get_accept_header_string($channel = null) {
 
+		$ret = '';
+
 		$hookdata = [];
 		if ($channel)
 			$hookdata['channel'] = $channel;
 
-		$hookdata['data'] = 'application/x-zot-activity+json';
+		$hookdata['data'] = ['application/x-zot-activity+json'];
 
 		call_hooks('get_accept_header_string', $hookdata);
 
-		return $hookdata['data'];
+		$ret = implode(', ', $hookdata['data']);
+
+		return $ret;
 
 	}
 

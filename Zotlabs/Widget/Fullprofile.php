@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: Full profile
+ *   * Description: Profile card with extended profile info
+ *   * Requires: channel, articles, cards, wiki, cloud, photos
+ */
+
 namespace Zotlabs\Widget;
 
 class Fullprofile {

@@ -1,5 +1,11 @@
 <?php
 
+/**
+ *   * Name: App store menu
+ *   * Description: Shows a menu with links to installed and available apps
+ *   * Requires: apps
+ */
+
 namespace Zotlabs\Widget;
 
 

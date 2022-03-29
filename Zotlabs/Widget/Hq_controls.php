@@ -1,5 +1,12 @@
 <?php
 
+/**
+ *   * Name: HQ Controls
+ *   * Description: Control buttons for the HQ module
+ *   * Author: Mario Vavti
+ *   * Requires: hq
+ */
+
 namespace Zotlabs\Widget;
 
 use Zotlabs\Lib\Apps;

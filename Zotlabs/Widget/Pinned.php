@@ -1,10 +1,13 @@
 <?php
 namespace Zotlabs\Widget;
 
-/*
- * Show pinned content
- *
+/**
+ *   * Name: Pinned items
+ *   * Description: Display pinned items
+ *   * Author: Max Kostikov
+ *   * Requires: disabled_for_pdledit_gui
  */
+
 
 class Pinned {
 

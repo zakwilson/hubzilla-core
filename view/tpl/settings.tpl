@@ -26,6 +26,10 @@
 						{{include file="field_input.tpl" field=$photo_path}}
 						{{include file="field_input.tpl" field=$attach_path}}
 						{{include file="field_input.tpl" field=$expire}}
+
+						{{include file="field_textarea.tpl" field=$message_filter_excl}}
+						{{include file="field_textarea.tpl" field=$message_filter_incl}}
+
 						{{if $basic_addon}}
 						{{$basic_addon}}
 						{{/if}}

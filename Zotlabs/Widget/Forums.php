@@ -1,5 +1,10 @@
 <?php
 
+/**
+ *   * Name: Forums
+ *   * Description: A list of forum channels with unseen item counts
+ */
+
 namespace Zotlabs\Widget;
 
 class Forums {
@@ -21,35 +26,7 @@ class Forums {
 			$unseen = 1;
 
 		$perms_sql = item_permissions_sql(local_channel()) . item_normal();
-
-		$xf = false;
-
-		$x1 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'send_stream' and v = '0'",
-			intval(local_channel())
-		);
-		if($x1) {
-			$xc = ids_to_querystr($x1,'xchan',true);
-
-			$x2 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'tag_deliver' and v = '1' and xchan in (" . $xc . ") ",
-				intval(local_channel())
-			);
-
-			if($x2) {
-				$xf = ids_to_querystr($x2,'xchan',true);
-
-				// private forums
-				$x3 = q("select xchan from abconfig where chan = %d and cat = 'their_perms' and k = 'post_wall' and v = '1' and xchan in (" . $xc . ") and not xchan in (" . $xf . ") ",
-					intval(local_channel())
-				);
-				if($x3) {
-					$xf = ids_to_querystr(array_merge($x2,$x3),'xchan',true);
-				}
-			}
-		}
-
-		$sql_extra = (($xf) ? " and ( xchan_hash in (" . $xf . ") or xchan_pubforum = 1 ) " : " and xchan_pubforum = 1 ");
-
-
+		$sql_extra = " and xchan_pubforum = 1 ";
 
 		$r1 = q("select abook_id, xchan_hash, xchan_name, xchan_url, xchan_photo_s from abook left join xchan on abook_xchan = xchan_hash where xchan_deleted = 0 and abook_channel = %d and abook_pending = 0 and abook_ignored = 0 and abook_blocked = 0 and abook_archived = 0 $sql_extra order by xchan_name $limit ",
 			intval(local_channel())

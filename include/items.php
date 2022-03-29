@@ -10,6 +10,7 @@ use Zotlabs\Lib\MarkdownSoap;
 use Zotlabs\Lib\MessageFilter;
 use Zotlabs\Lib\ThreadListener;
 use Zotlabs\Lib\IConfig;
+use Zotlabs\Lib\PConfig;
 use Zotlabs\Lib\Activity;
 use Zotlabs\Lib\Libsync;
 use Zotlabs\Lib\Libzot;
@@ -1072,21 +1073,6 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 	$x['type'] = 'activity';
 	$x['encoding'] = 'zot';
 
-	$r = q("select channel_id from channel where channel_id = %d limit 1",
-		intval($item['uid'])
-	);
-
-	if($r)
-		$comment_scope = PermissionLimits::Get($item['uid'],'post_comments');
-	else
-		$comment_scope = 0;
-
-	$scope = $item['public_policy'];
-	if(! $scope)
-		$scope = 'public';
-
-	$c_scope = map_scope($comment_scope);
-
 	$key = get_config('system','prvkey');
 
 	// If we're trying to backup an item so that it's recoverable or for export/imprt,
@@ -1179,10 +1165,7 @@ function encode_item($item,$mirror = false,$zap_compat = false) {
 
 	$x['public_scope']    = $scope;
 
-	if($item['item_nocomment'])
-		$x['comment_scope'] = 'none';
-	else
-		$x['comment_scope'] = $c_scope;
+	$x['comment_scope'] = $item['comment_policy'];
 
 	if(! empty($item['term']))
 		$x['tags'] = encode_item_terms($item['term'],$mirror);
@@ -2218,9 +2201,9 @@ function item_store_update($arr, $allow_exec = false, $deliver = true) {
 	$arr['deny_gid']      = ((array_key_exists('deny_gid',$arr))   ? trim($arr['deny_gid'])  : $orig[0]['deny_gid']);
 	$arr['item_private']  = ((array_key_exists('item_private',$arr)) ? intval($arr['item_private']) : $orig[0]['item_private']);
 
-	$arr['title'] = ((array_key_exists('title',$arr) && strlen($arr['title']))  ? trim($arr['title']) : '');
-	$arr['body']  = ((array_key_exists('body',$arr) && strlen($arr['body']))    ? trim($arr['body'])  : '');
-	$arr['html']  = ((array_key_exists('html',$arr) && strlen($arr['html']))    ? trim($arr['html'])  : '');
+	$arr['title'] = ((array_key_exists('title',$arr) && $arr['title'])  ? trim($arr['title']) : '');
+	$arr['body']  = ((array_key_exists('body',$arr) && $arr['body'])    ? trim($arr['body'])  : '');
+	$arr['html']  = ((array_key_exists('html',$arr) && $arr['html'])    ? trim($arr['html'])  : '');
 
 	$arr['attach']        = ((array_key_exists('attach',$arr))        ? notags(trim($arr['attach']))        : $orig[0]['attach']);
 	$arr['app']           = ((array_key_exists('app',$arr))           ? notags(trim($arr['app']))           : $orig[0]['app']);
@@ -3495,23 +3478,56 @@ function check_item_source($uid, $item) {
 	return false;
 }
 
-function post_is_importable($item,$abook) {
 
-	if(! $abook)
-		return true;
+// Checks an incoming item against the per-channel and per-connection content filter.
+// This implements the backend of the 'Content Filter' system app
 
-	if(($abook['abook_channel']) && (! feature_enabled($abook['abook_channel'],'connfilter')))
-		return true;
+function post_is_importable($channel_id, $item, $abook) {
 
-	if(! $item)
+	if (! $item) {
 		return false;
+	}
 
-	if(! ($abook['abook_incl'] || $abook['abook_excl']))
+	$incl = PConfig::get($channel_id, 'system', 'message_filter_incl', EMPTY_STR);
+	$excl = PConfig::get($channel_id, 'system', 'message_filter_excl', EMPTY_STR);
+
+	if ($incl || $excl) {
+		$x = MessageFilter::evaluate($item, $incl, $excl);
+		if (! $x) {
+			logger('MessageFilter: channel blocked content', LOGGER_DEBUG, LOG_INFO);
+			return false;
+		}
+	}
+
+	if(!feature_enabled($channel_id, 'connfilter')) {
 		return true;
+	}
 
-	return MessageFilter::evaluate($item,$abook['abook_incl'],$abook['abook_excl']);
+	if (! $abook) {
+		return true;
+	}
 
+	foreach ($abook as $ab) {
+		// check eligibility
+		if (intval($ab['abook_self'])) {
+			continue;
+		}
+		if (! ($ab['abook_incl'] || $ab['abook_excl'])) {
+			continue;
+		}
+
+		$evaluator = MessageFilter::evaluate($item, $ab['abook_incl'], $ab['abook_excl']);
+		// A negative assessment for any individual connections
+		// is an instant fail
+		if (! $evaluator) {
+			logger('MessageFilter: connection blocked content', LOGGER_DEBUG, LOG_INFO);
+			return false;
+		}
+	}
+
+	return true;
 }
+
 
 function fix_private_photos($s, $uid, $item = null, $cid = 0) {
 

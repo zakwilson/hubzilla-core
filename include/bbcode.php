@@ -488,9 +488,9 @@ function getAttachmentData($body) {
 		$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
 	}
 
-	$data["description"] = trim($match[3]);
+	$data["description"] = ((isset($match[3])) ? trim($match[3]) : '');
 
-	$data["after"] = trim($match[4]);
+	$data["after"] = ((isset($match[4])) ? trim($match[4]) : '');
 
 	return $data;
 }

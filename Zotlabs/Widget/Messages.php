@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *   * Name: HQ Messages
+ *   * Description: Quick access to messages, direct messages, starred messages (if enabled) and notifications
+ *   * Author: Mario Vavti
+ *   * Requires: hq
+ */
+
+
 namespace Zotlabs\Widget;
 
 use App;
@@ -17,8 +25,8 @@ class Messages {
 
 		$tpl = get_markup_template('messages_widget.tpl');
 		$o = replace_macros($tpl, [
-			'$entries' => $page['entries'],
-			'$offset' => $page['offset'],
+			'$entries' => $page['entries'] ?? [],
+			'$offset' => $page['offset'] ?? 0,
 			'$feature_star' => feature_enabled(local_channel(), 'star_posts'),
 			'$strings' => [
 				'messages_title' => t('Public and restricted messages'),
@@ -37,11 +45,11 @@ class Messages {
 		if (!local_channel())
 			return;
 
-		if ($options['offset'] == -1) {
+		if (isset($options['offset']) && $options['offset'] == -1) {
 			return;
 		}
 
-		if ($options['type'] == 'notification') {
+		if (isset($options['type']) && $options['type'] == 'notification') {
 			return self::get_notices_page($options);
 		}
 
@@ -103,13 +111,20 @@ class Messages {
 			if (!$summary) {
 				$summary = $item['summary'];
 			}
+
 			if (!$summary) {
-				$summary = htmlentities(html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true), ENT_QUOTES, 'UTF-8', false);
+				$summary = html2plain(bbcode($item['body'], ['drop_media' => true]), 75, true);
+				if ($summary) {
+					$summary = htmlentities($summary, ENT_QUOTES, 'UTF-8', false);
+				}
 			}
+
 			if (!$summary) {
 				$summary = '...';
 			}
-			$summary = substr_words($summary, 68);
+			else {
+				$summary = substr_words($summary, 68);
+			}
 
 			switch(intval($item['item_private'])) {
 				case 1:

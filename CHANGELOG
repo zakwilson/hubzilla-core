@@ -1,4 +1,4 @@
-Hubzilla 7.2 (2022-??-??)
+Hubzilla 7.2 (2022-03-29)
 	- Streamline comment policy with downstream project
 	- Add new function is_local_url()
 	- Add helper function to escape URLs

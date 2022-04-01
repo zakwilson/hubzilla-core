@@ -567,7 +567,7 @@ class Activity {
 						}
 					}
 				}
-				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d limit 1",
+				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d and hubloc_deleted = 0 order by hubloc_id desc limit 1",
 					intval($i['parent'])
 				);
 				if ($d) {
@@ -980,7 +980,7 @@ class Activity {
 					}
 				}
 
-				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d limit 1",
+				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d and hubloc_deleted = 0 order by hubloc_id desc limit 1",
 					intval($i['parent'])
 				);
 				if ($d) {

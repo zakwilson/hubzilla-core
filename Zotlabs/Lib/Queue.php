@@ -202,7 +202,7 @@ class Queue {
 
 			if($channel && $base) {
 				$h = q("SELECT hubloc_sitekey, site_crypto FROM hubloc LEFT JOIN site ON hubloc_url = site_url
-					WHERE site_url = '%s' AND hubloc_network = 'zot6' ORDER BY hubloc_id DESC LIMIT 1",
+					WHERE site_url = '%s' AND hubloc_network = 'zot6' AND hubloc_deleted = 0 ORDER BY hubloc_primary DESC, hubloc_id DESC LIMIT 1",
 					dbesc($base)
 				);
 				if($h) {

@@ -530,71 +530,18 @@ class Activity {
 			$ret['attachment'] = $a;
 		}
 
-		$public    = (($i['item_private']) ? false : true);
-		$top_level = (($i['mid'] === $i['parent_mid']) ? true : false);
-
-		if ($public) {
-
+		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
-			$ret['cc'] = [z_root() . '/followers/' . substr($i['author']['xchan_addr'], 0, strpos($i['author']['xchan_addr'], '@'))];
-		}
-		else {
-
-			// private activity
-
-			if ($top_level) {
-				$ret['to'] = self::map_acl($i);
-			}
-			else {
-				$ret['to'] = [];
-				if ($ret['tag']) {
-					foreach ($ret['tag'] as $mention) {
-						if (is_array($mention) && array_key_exists('href', $mention) && $mention['href']) {
-							$h = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
-								dbesc($mention['href'])
-							);
-							if ($h) {
-								if ($h[0]['hubloc_network'] === 'activitypub') {
-									$addr = $h[0]['hubloc_hash'];
-								}
-								else {
-									$addr = $h[0]['hubloc_id_url'];
-								}
-								if (!in_array($addr, $ret['to'])) {
-									$ret['to'][] = $addr;
-								}
-							}
-						}
-					}
-				}
-				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d and hubloc_deleted = 0 order by hubloc_id desc limit 1",
-					intval($i['parent'])
-				);
-				if ($d) {
-					if ($d[0]['hubloc_network'] === 'activitypub') {
-						$addr = $d[0]['hubloc_hash'];
-					}
-					else {
-						$addr = $d[0]['hubloc_id_url'];
-					}
-					if (!in_array($addr, $ret['to'])) {
-						$ret['cc'][] = $addr;
-					}
-				}
-			}
 		}
 
-		$mentions = self::map_mentions($i);
-		if (count($mentions) > 0) {
-			if (!$ret['to']) {
-				$ret['to'] = $mentions;
-			}
-			else {
-				$ret['to'] = array_values(array_unique(array_merge($ret['to'], $mentions)));
-			}
-		}
+		$hookinfo = [
+			'item' => $i,
+			'encoded' => $ret
+		];
 
-		return $ret;
+		call_hooks('encode_item', $hookinfo);
+
+		return $hookinfo['encoded'];
 
 	}
 
@@ -941,73 +888,18 @@ class Activity {
 			$ret['attachment'] = $a;
 		}
 
-		// addressing madness
-
-		$public    = (($i['item_private']) ? false : true);
-		$top_level = (($reply) ? false : true);
-
-		if ($public) {
+		if (intval($i['item_private']) === 0) {
 			$ret['to'] = [ACTIVITY_PUBLIC_INBOX];
-			$ret['cc'] = [z_root() . '/followers/' . substr($i['author']['xchan_addr'], 0, strpos($i['author']['xchan_addr'], '@'))];
-		}
-		else {
-
-			// private activity
-
-			if ($top_level) {
-				$ret['to'] = self::map_acl($i);
-			}
-			else {
-				$ret['to'] = [];
-				if ($ret['tag']) {
-					foreach ($ret['tag'] as $mention) {
-						if (is_array($mention) && array_key_exists('href', $mention) && $mention['href']) {
-							$h = q("select * from hubloc where hubloc_id_url = '%s' limit 1",
-								dbesc($mention['href'])
-							);
-							if ($h) {
-								if ($h[0]['hubloc_network'] === 'activitypub') {
-									$addr = $h[0]['hubloc_hash'];
-								}
-								else {
-									$addr = $h[0]['hubloc_id_url'];
-								}
-								if (!in_array($addr, $ret['to'])) {
-									$ret['to'][] = $addr;
-								}
-							}
-						}
-					}
-				}
-
-				$d = q("select hubloc.*  from hubloc left join item on hubloc_hash = owner_xchan where item.id = %d and hubloc_deleted = 0 order by hubloc_id desc limit 1",
-					intval($i['parent'])
-				);
-				if ($d) {
-					if ($d[0]['hubloc_network'] === 'activitypub') {
-						$addr = $d[0]['hubloc_hash'];
-					}
-					else {
-						$addr = $d[0]['hubloc_id_url'];
-					}
-					if (!in_array($addr, $ret['to'])) {
-						$ret['cc'][] = $addr;
-					}
-				}
-			}
 		}
 
-		$mentions = self::map_mentions($i);
-		if (count($mentions) > 0) {
-			if (!$ret['to']) {
-				$ret['to'] = $mentions;
-			}
-			else {
-				$ret['to'] = array_values(array_unique(array_merge($ret['to'], $mentions)));
-			}
-		}
+		$hookinfo = [
+			'item' => $i,
+			'encoded' => $ret
+		];
 
-		return $ret;
+		call_hooks('encode_activity', $hookinfo);
+
+		return $hookinfo['encoded'];
 	}
 
 	// Returns an array of URLS for any mention tags found in the item array $i.

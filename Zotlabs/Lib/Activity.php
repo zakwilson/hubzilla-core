@@ -2834,7 +2834,7 @@ class Activity {
 			}
 
 			if ($p && $p[0]['obj_type'] === 'Question') {
-				if ($item['obj_type'] === 'Note' && $item['title'] && (!$item['content'])) {
+				if ($item['obj_type'] === ACTIVITY_OBJ_COMMENT && $item['title'] && (!$item['body'])) {
 					$item['obj_type'] = 'Answer';
 				}
 			}

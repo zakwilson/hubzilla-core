@@ -275,13 +275,16 @@ function plugins_sync() {
 	if(! array_walk($plugins_arr,'array_trim'))
 		return;
 
-	App::$plugins = $plugins_arr;
-
 	$installed_arr = [];
 
 	if(count($installed)) {
 		foreach($installed as $i) {
-			if(! in_array($i, $plugins_arr)) {
+			if (! file_exists('addon/' . $i . '/' . $i . '.php')) {
+				q("DELETE FROM addon WHERE aname = '%s' ",
+					dbesc($i)
+				);
+			}
+			elseif(! in_array($i, $plugins_arr)) {
 				unload_plugin($i);
 			}
 			else {
@@ -297,6 +300,8 @@ function plugins_sync() {
 			}
 		}
 	}
+
+	App::$plugins = $installed_arr;
 
 }
 

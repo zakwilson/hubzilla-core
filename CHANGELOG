@@ -5,6 +5,7 @@ Hubzilla 7.2.1 (2022-04-25)
 	- Fix regression in attaching images for activitypub introduced in 7.2
 	- Move activitypub addressing from core to the pubcrawl addon
 	- Fix hub re-install issues
+	- Fediwordle: slightly improved algorithm
 
 
 Hubzilla 7.2 (2022-03-29)

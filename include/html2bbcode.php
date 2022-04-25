@@ -87,7 +87,7 @@ function deletenode(&$doc, $node)
 function html2bbcode($message)
 {
 
-	if(!is_string($message) && !$message)
+	if(!is_string($message))
 		return;
 
 	$message = str_replace("\r", "", $message);
@@ -104,10 +104,13 @@ function html2bbcode($message)
 	$message = preg_replace('=<(\w+):(.+?)>=', '<removeme>', $message);
 	$message = preg_replace('=</(\w+):(.+?)>=', '</removeme>', $message);
 
+	$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
+
+	if(!$message)
+		return;
+
 	$doc = new DOMDocument();
 	$doc->preserveWhiteSpace = false;
-
-	$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
 	@$doc->loadHTML($message);
 

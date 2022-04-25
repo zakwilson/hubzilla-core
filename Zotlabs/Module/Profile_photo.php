@@ -403,6 +403,10 @@ class Profile_photo extends Controller {
 		foreach ($r as $rr) {
 			if ($rr['is_default']) {
 				$default_profile_id = intval($rr['id']);
+				if (!$profile_id) {
+					$profile_id = $default_profile_id;
+				}
+
 			}
 
 			if ($profile_id === intval($rr['id'])) {

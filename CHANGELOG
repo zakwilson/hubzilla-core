@@ -1,3 +1,12 @@
+Hubzilla 7.2.1 (2022-04-25)
+	- Fix changing profile image from new member widget - issue #1671
+	- Fix regression with incoming poll answers from activitypub introduced in 7.2
+	- Fix addons not removed from the DB when removed from the filesystem
+	- Fix regression in attaching images for activitypub introduced in 7.2
+	- Move activitypub addressing from core to the pubcrawl addon
+	- Fix hub re-install issues
+
+
 Hubzilla 7.2 (2022-03-29)
 	- Streamline comment policy with downstream project
 	- Add new function is_local_url()

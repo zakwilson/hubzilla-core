@@ -1,3 +1,7 @@
+Hubzilla 7.2.2 (2022-04-26)
+	- Fix item_verified not set due to data structure changes
+
+
 Hubzilla 7.2.1 (2022-04-25)
 	- Fix changing profile image from new member widget - issue #1671
 	- Fix regression with incoming poll answers from activitypub introduced in 7.2

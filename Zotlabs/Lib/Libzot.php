@@ -1292,7 +1292,7 @@ class Libzot {
 					}
 				}
 
-				if ($AS->data['hubloc']) {
+				if ($AS->meta['hubloc']) {
 					$arr['item_verified'] = true;
 				}
 
@@ -2010,7 +2010,7 @@ class Libzot {
 				$arr['owner_xchan'] = $a['signature']['signer'];
 			}
 
-			if ($AS->data['hubloc'] || $arr['author_xchan'] === $arr['owner_xchan']) {
+			if ($AS->meta['hubloc'] || $arr['author_xchan'] === $arr['owner_xchan']) {
 				$arr['item_verified'] = true;
 			}
 
